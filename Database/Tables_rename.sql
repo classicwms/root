@@ -1,0 +1,20 @@
+USE WMS;
+
+ALTER TABLE tbl_adhoc RENAME TO tbladhoc;
+ALTER TABLE tbl_barcode RENAME TO tblbarcode;
+ALTER TABLE tbl_batch_serial RENAME TO tblbatchserial;
+ALTER TABLE tbl_company_master RENAME TO tblcompanymaster;
+ALTER TABLE tbl_doors RENAME TO tbldoors;
+ALTER TABLE tbl_employee RENAME TO tblemployee;
+ALTER TABLE tbl_floor RENAME TO tblfloor;
+ALTER TABLE tbl_item_group RENAME TO tblitemgroup;
+ALTER TABLE tbl_item_type RENAME TO tblitemtype;
+ALTER TABLE tbl_plant RENAME TO tblplant;
+ALTER TABLE tbl_storage_bin_type RENAME TO tblstoragebintype;
+ALTER TABLE tbl_storage_class RENAME TO tblstorageclass;
+ALTER TABLE tbl_storage_section RENAME TO tblstoragesection;
+ALTER TABLE tbl_storage_type RENAME TO tblstoragetype;
+ALTER TABLE tbl_strategies RENAME TO tblstrategies;
+ALTER TABLE tbl_variant RENAME TO tblvariant;
+ALTER TABLE tbl_warehouse RENAME TO tblwarehouse;
+ALTER TABLE tbl_storage_section RENAME TO tblstoragesection;

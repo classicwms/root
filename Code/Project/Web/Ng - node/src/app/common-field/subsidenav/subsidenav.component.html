@@ -1,0 +1,7 @@
+<div class="scroll2">
+<nav class="nav flex-column" *ngFor="let menu of listmenu">
+    <a [routerLink]="menu.url" class="d-flex whs-tabbox-size justify-content-start nav-item border align-items-center"
+        routerLinkActive="d-flex whs-tabbox-size whs-text-grey border-active justify-content-start border align-items-center ">
+     <div class=" hvr-grow">   <img  src="./assets/img/icons/folder.png" class="header_icon mr-2 cog-icon mx-3 ml-5" alt="" srcset=""> {{menu.title}}</div></a>
+</nav>
+</div>

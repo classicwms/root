@@ -1,0 +1,200 @@
+<div class="card bg-white " style="overflow-x: hidden;">
+    <div mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle
+      class="d-flex justify-content-between align-items-center whs-bg-grey text-white p-2">
+      <h5 class="my-auto">Business Partner - New</h5>
+      <mat-icon class="text-white" mat-dialog-close>close</mat-icon>
+    </div>
+    <mat-accordion>
+        <mat-expansion-panel #panel [expanded]="step === 0" (opened)="setStep(0)" hideToggle>
+            <mat-expansion-panel-header class="border-bottom padding-space border-top">
+              <mat-panel-title class="d-flex justify-content-between collapsefont">
+                General
+                <mat-icon class="text-primary">{{panel.expanded? 'remove' : 'add'}}</mat-icon>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="row p-1 mt-2 px-3">
+                <div class="col-lg-6 col-md-6 mt-1">
+                    <div class="d-flex flex-column">
+                      <p class="mb-0 py-0 text-black">Partner Type</p>
+                      <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                        <mat-select class="form-group input_field mb-0"
+                          placeholder="Select">
+                          <mat-option>
+                          </mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </div>
+                  </div>
+                <div class="col-lg-6 col-md-6 mt-1">
+                  <p class="mb-0 py-0">Partner Code</p>
+                  <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                    <input matInput placeholder="Enter">
+                  </mat-form-field>
+        
+                </div>
+                <div class="col-lg-6 col-md-6 mt-1">
+                  <p class="mb-0 py-0">Partner Name</p>
+                  <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                    <input matInput placeholder="Enter">
+                  </mat-form-field>
+                </div>
+              </div>
+          </mat-expansion-panel>
+          <mat-expansion-panel #panel1 hideToggle>
+            <mat-expansion-panel-header class="border-bottom padding-space border-top">
+              <mat-panel-title class="d-flex justify-content-between collapsefont">
+                Communication Details
+                <mat-icon class="text-primary">{{panel1.expanded? 'remove' : 'add'}}</mat-icon>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="row scroll p-1 mt-2 px-3">
+                <div class="col-lg-6 col-md-6 mt-1">
+                  <p class="mb-0 py-0">Address 1</p>
+                  <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                    <input matInput placeholder="Enter">
+                  </mat-form-field>
+                </div>
+                <div class="col-lg-6 col-md-6 mt-1">
+                  <div class="d-flex flex-column">
+                    <p class="mb-0 py-0">Address 2</p>
+                    <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                      <input matInput placeholder="Enter">
+                    </mat-form-field>
+                  </div>
+                </div>
+                <div class="col-lg-6 col-md-6 mt-1">
+                    <div class="d-flex flex-column">
+                      <p class="mb-0 py-0">Zone </p>
+                      <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                        <input matInput placeholder="Enter">
+                      </mat-form-field>
+                    </div>
+                  </div>
+                  <div class="col-lg-6 col-md-6 mt-1">
+                    <div class="d-flex flex-column">
+                      <p class="mb-0 py-0">Country  </p>
+                      <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                        <input matInput placeholder="Enter">
+                      </mat-form-field>
+                    </div>
+                  </div>
+                  <div class="col-lg-6 col-md-6 mt-1">
+                    <div class="d-flex flex-column">
+                      <p class="mb-0 py-0">state </p>
+                      <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                        <input matInput placeholder="Enter">
+                      </mat-form-field>
+                    </div>
+                  </div>
+        
+                  <div class="col-lg-6 col-md-6 mt-1">
+                    <div class="d-flex flex-column">
+                      <p class="mb-0 py-0">Phone Number </p>
+                      <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                        <input matInput numberOnly placeholder="Enter">
+                      </mat-form-field>
+                    </div>
+                  </div>
+                  <div class="col-lg-6 col-md-6 mt-1">
+                    <div class="d-flex flex-column">
+                      <p class="mb-0 py-0">Fax Number</p>
+                      <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                        <input matInput placeholder="Enter">
+                      </mat-form-field>
+                    </div>
+                  </div>
+                  <div class="col-lg-6 col-md-6 mt-1">
+                    <div class="d-flex flex-column">
+                      <p class="mb-0 py-0">Fax</p>
+                      <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                        <input matInput placeholder="Enter">
+                      </mat-form-field>
+                    </div>
+                  </div>
+                  <div class="col-lg-6 col-md-6 mt-1">
+                    <div class="d-flex flex-column">
+                      <p class="mb-0 py-0">Email</p>
+                      <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                        <input matInput placeholder="Enter">
+                      </mat-form-field>
+                    </div>
+                  </div>
+                  <div class="col-lg-6 col-md-6 mt-1">
+                    <div class="d-flex flex-column">
+                      <p class="mb-0 py-0">Reference Text</p>
+                      <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                        <input matInput placeholder="Enter">
+                      </mat-form-field>
+                    </div>
+                  </div>
+              </div>
+          </mat-expansion-panel>
+          <mat-expansion-panel #panel2 hideToggle>
+            <mat-expansion-panel-header class="border-bottom padding-space border-top">
+              <mat-panel-title class="d-flex justify-content-between collapsefont">
+                Delivery Details
+                <mat-icon class="text-primary">{{panel2.expanded? 'remove' : 'add'}}</mat-icon>
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+            <div class="row scroll p-1 mt-2 px-3">
+                  <div class="col-lg-6 col-md-6 mt-1">
+                    <div class="d-flex flex-column">
+                      <p class="mb-0 py-0">Location </p>
+                      <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                        <input matInput placeholder="Enter">
+                      </mat-form-field>
+                    </div>
+                  </div>
+                  <div class="col-lg-6 col-md-6 mt-1">
+                    <div class="d-flex flex-column">
+                      <p class="mb-0 py-0">Latitude</p>
+                      <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                        <input matInput placeholder="Enter">
+                      </mat-form-field>
+                    </div>
+                  </div>
+                  <div class="col-lg-6 col-md-6 mt-1">
+                    <div class="d-flex flex-column">
+                      <p class="mb-0 py-0">Longitude</p>
+                      <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                        <input matInput placeholder="Enter">
+                      </mat-form-field>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <p class="mb-0 py-0">Location</p>
+                    <div class="boxgrey"style="height: 15rem;">
+
+                    </div>
+                  </div>
+                  <div class="col-lg-6 col-md-6 mt-1">
+                    <div class="d-flex flex-column">
+                      <p class="mb-0 py-0">Storage Type ID</p>
+                      <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                        <input matInput placeholder="Enter">
+                      </mat-form-field>
+                    </div>
+                  </div>
+                  <div class="col-lg-6 col-md-6 mt-1">
+                    <div class="d-flex flex-column">
+                      <p class="mb-0 py-0">Storage Bin </p>
+                      <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                        <input matInput placeholder="Enter">
+                      </mat-form-field>
+                    </div>
+                  </div>
+              </div>
+          </mat-expansion-panel>
+    </mat-accordion>
+      <div class="d-flex justify-content-center align-items-center py-2">
+        <button mat-raised-button color="warn" mat-dialog-close class="mx-2"> <i
+            class="bi bi-x me-1 font-size-1_5rem"></i>Cancel</button>
+        <button mat-raised-button class="mx-2 bg-darkblue px-4 text-white"> <i
+            class="bi bi-check2 me-1 font-size-1_5rem"></i>
+          
+          Save</button>
+      </div>
+  
+
+
+  </div>

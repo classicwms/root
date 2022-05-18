@@ -1,0 +1,55 @@
+<div mat-dialog-content class="position_modal border border-dark rounded-0 p-0">
+  <div class="variant-container border p-2">
+    <div class="d-flex flex-row">
+      <div class="d-flex flex-column justify-content-start form-group mb-0 mt-1 mt-2 mr-1">
+        <label class="pb-2 my-auto " for="inputState">Variant Name</label>
+        <input type="text" placeholder="Report Test" class="form-control w-100">
+      </div>
+      <div class="d-flex flex-column justify-content-start form-group mb-0 mt-1 mt-2 ml-1">
+        <label class="pb-2 my-auto" for="inputState">Description</label>
+        <input type="text" placeholder="For training" class="form-control w-100">
+      </div>
+    </div>
+    <div class="d-flex justify-content-end flex-row mt-2">
+      <mat-accordion>
+        <mat-expansion-panel hideToggle>
+          <mat-expansion-panel-header>
+            <button class="btn btn-sm px-2"><img src="assets\img\icons\add.svg" alt="" class="iconsize"></button>
+          </mat-expansion-panel-header>
+          <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+
+            <!--- Note that these columns can be defined in any order.
+                                  The actual rendered columns are set as a property on the row definition" -->
+
+            <!-- Position Column -->
+            <ng-container matColumnDef="position">
+              <th mat-header-cell *matHeaderCellDef> No. </th>
+              <td mat-cell *matCellDef="let element"> {{element.position}} </td>
+            </ng-container>
+
+            <!-- Name Column -->
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef> Name </th>
+              <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+            </ng-container>
+
+            <!-- Weight Column -->
+            <ng-container matColumnDef="weight">
+              <th mat-header-cell *matHeaderCellDef> Weight </th>
+              <td mat-cell *matCellDef="let element"> {{element.weight}} </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+
+
+        </mat-expansion-panel>
+      </mat-accordion>
+      <button class="btn btn-sm px-2" (click)=" onNoClick()"><img src="assets\img/icons/multiply.svg" alt=""
+          class="iconsize"></button>
+
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,9 @@
+USE WMS;
+
+CREATE TABLE `WMS`.`tblnewuserreg` (
+  `REG_ID` varchar(50) NOT NULL,
+  `CLIENT_NAME` varchar(255) NOT NULL,
+  `CLIENT_SECRET_ID` varchar(255) NOT NULL,
+  PRIMARY KEY (`REG_ID`)
+) COMMENT='New User';
+

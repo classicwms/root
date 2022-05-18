@@ -1,0 +1,73 @@
+
+
+  
+
+
+
+
+<div class="card  border-0 bg-white "style="overflow: hidden;">
+    <div mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle class="d-flex justify-content-between align-items-center header_colour text-white p-2">
+      <h5 class="my-auto">Assign User</h5>
+      <mat-icon class="text-white" mat-dialog-close>close</mat-icon>
+    </div>
+  <div class="scroll">
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 col-12 w-100">
+  
+        <!-- Checkbox Column -->
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef>
+            <mat-checkbox (change)="$event ? masterToggle() : null"
+              [checked]="selection.hasValue() && isAllSelected()"
+              [indeterminate]="selection.hasValue() && !isAllSelected()" [aria-label]="checkboxLabel()">
+            </mat-checkbox>
+          </th>
+          <td mat-cell *matCellDef="let row">
+            <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
+              [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)">
+            </mat-checkbox>
+          </td>
+        </ng-container>
+    
+    
+        <!-- Symbol Column -->
+        <ng-container matColumnDef="no">
+          <th mat-header-cell *matHeaderCellDef> S No </th>
+          <td mat-cell *matCellDef="let element"> {{element.no}} </td>
+        </ng-container>
+        <!-- Weight Column -->
+        <ng-container matColumnDef="dimensions">
+          <th mat-header-cell *matHeaderCellDef>User ID</th>
+          <td mat-cell *matCellDef="let element"> {{element.dimensions}} </td>
+        </ng-container>
+      
+        <!-- Symbol Column -->
+        <ng-container matColumnDef="width">
+          <th mat-header-cell *matHeaderCellDef>User Name</th>
+          <td mat-cell *matCellDef="let element"> {{element.width}} </td>
+        </ng-container>
+   
+    
+        <tr mat-header-row *matHeaderRowDef="displayedColumns;sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="selection.toggle(row)">
+        </tr>
+      </table>
+  </div>
+  <div class="buttons border d-flex justify-content-end">
+    <div class="p-0 mx-1 "style="background-color: #ffff;">
+        <mat-paginator class="" showFirstLastButtons [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]"
+        aria-label="Select page of periodic elements">
+      </mat-paginator>
+    </div>
+  </div>
+  <div class="d-flex justify-content-center align-items-center py-2">
+    <button mat-raised-button color="warn" mat-dialog-close class="mx-2"> <i
+        class="bi bi-x me-1 font-size-1_5rem"></i>Cancel</button>
+    <button mat-raised-button  mat-dialog-close class="mx-2 bg-darkblue px-4 text-white"><mat-icon>settings</mat-icon>
+      
+      Assign</button>
+  </div>
+  
+  </div>
+  
+  
+  

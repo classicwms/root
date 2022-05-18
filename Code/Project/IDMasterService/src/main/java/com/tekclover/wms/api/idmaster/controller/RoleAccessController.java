@@ -1,0 +1,100 @@
+package com.tekclover.wms.api.idmaster.controller;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.tekclover.wms.api.idmaster.model.roleaccess.AddRoleAccess;
+import com.tekclover.wms.api.idmaster.model.roleaccess.RoleAccess;
+import com.tekclover.wms.api.idmaster.model.roleaccess.UpdateRoleAccess;
+import com.tekclover.wms.api.idmaster.service.RoleAccessService;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.SwaggerDefinition;
+import io.swagger.annotations.Tag;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Validated
+@Api(tags = {"RoleAccess"}, value = "RoleAccess  Operations related to RoleAccessController") // label for swagger
+@SwaggerDefinition(tags = {@Tag(name = "RoleAccess ",description = "Operations related to RoleAccess ")})
+@RequestMapping("/roleaccess")
+@RestController
+public class RoleAccessController {
+	
+	@Autowired
+	RoleAccessService roleaccessService;
+	
+    @ApiOperation(response = RoleAccess.class, value = "Get all RoleAccess details") // label for swagger
+	@GetMapping("")
+	public ResponseEntity<?> getAll() {
+		List<RoleAccess> roleaccessList = roleaccessService.getRoleAccesss();
+		return new ResponseEntity<>(roleaccessList, HttpStatus.OK); 
+	}
+    
+//    @ApiOperation(response = RoleAccess.class, value = "Get a RoleAccess") // label for swagger 
+//	@GetMapping("/{userRoleId}")
+//	public ResponseEntity<?> getRoleAccess(@PathVariable Long userRoleId, @RequestParam String warehouseId, 
+//			@RequestParam Long menuId, @RequestParam Long subMenuId) {
+//    	RoleAccess roleaccess = roleaccessService.getRoleAccess(warehouseId, userRoleId, menuId, subMenuId);
+//    	log.info("RoleAccess : " + roleaccess);
+//		return new ResponseEntity<>(roleaccess, HttpStatus.OK);
+//	}
+    
+    @ApiOperation(response = RoleAccess.class, value = "Get a RoleAccess") // label for swagger 
+   	@GetMapping("/{userRoleId}")
+   	public ResponseEntity<?> getRoleAccess(@PathVariable Long userRoleId, @RequestParam String warehouseId) {
+       	List<RoleAccess> roleaccess = roleaccessService.getRoleAccess(warehouseId, userRoleId);
+       	log.info("RoleAccess : " + roleaccess);
+   		return new ResponseEntity<>(roleaccess, HttpStatus.OK);
+   	}
+    
+//	@ApiOperation(response = RoleAccess.class, value = "Search RoleAccess") // label for swagger
+//	@PostMapping("/findRoleAccess")
+//	public List<RoleAccess> findRoleAccess(@RequestBody SearchRoleAccess searchRoleAccess)
+//			throws Exception {
+//		return roleaccessService.findRoleAccess(searchRoleAccess);
+//	}
+    
+    @ApiOperation(response = RoleAccess.class, value = "Create RoleAccess") // label for swagger
+	@PostMapping("")
+	public ResponseEntity<?> postRoleAccess(@Valid @RequestBody List<AddRoleAccess> newRoleAccess, 
+			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
+		List<RoleAccess> createdRoleAccess = roleaccessService.createRoleAccess(newRoleAccess, loginUserID);
+		return new ResponseEntity<>(createdRoleAccess , HttpStatus.OK);
+	}
+    
+    @ApiOperation(response = RoleAccess.class, value = "Update RoleAccess") // label for swagger
+    @PatchMapping("/{userRoleId}")
+	public ResponseEntity<?> patchRoleAccess(@PathVariable Long userRoleId, 
+			@RequestParam String warehouseId, @Valid @RequestBody List<UpdateRoleAccess> updateRoleAccess, @RequestParam String loginUserID) 
+			throws IllegalAccessException, InvocationTargetException {
+		List<RoleAccess> updatedRoleAccess = 
+				roleaccessService.updateRoleAccess(warehouseId, userRoleId, loginUserID, updateRoleAccess);
+		return new ResponseEntity<>(updatedRoleAccess , HttpStatus.OK);
+	}
+    
+    @ApiOperation(response = RoleAccess.class, value = "Delete RoleAccess") // label for swagger
+	@DeleteMapping("/{userRoleId}")
+	public ResponseEntity<?> deleteRoleAccess(@PathVariable Long userRoleId, 
+			@RequestParam String warehouseId, @RequestParam Long menuId, @RequestParam Long subMenuId, @RequestParam String loginUserID) {
+    	roleaccessService.deleteRoleAccess(warehouseId, userRoleId, menuId, subMenuId, loginUserID);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+}

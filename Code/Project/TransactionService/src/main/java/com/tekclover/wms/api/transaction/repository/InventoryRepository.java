@@ -1,0 +1,115 @@
+package com.tekclover.wms.api.transaction.repository;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
+
+@Repository
+@Transactional
+public interface InventoryRepository extends JpaRepository<Inventory,Long>, JpaSpecificationExecutor<Inventory> {
+	
+	public List<Inventory> findAll();
+	
+	/**
+	 * 
+	 * @param languageId
+	 * @param companyCodeId
+	 * @param plantId
+	 * @param warehouseId
+	 * @param packBarcodes
+	 * @param itemCode
+	 * @param storageBin
+	 * @param stockTypeId
+	 * @param specialStockIndicatorId
+	 * @param deletionIndicator
+	 * @return
+	 */
+	public Optional<Inventory> 
+		findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPackBarcodesAndItemCodeAndStorageBinAndStockTypeIdAndSpecialStockIndicatorIdAndDeletionIndicator(
+				String languageId, String companyCodeId, String plantId, 
+				String warehouseId, String packBarcodes, String itemCode, String storageBin, 
+				Long stockTypeId, Long specialStockIndicatorId, Long deletionIndicator);
+
+	/*
+	 * Pass WH_ID/ITM_CODE in INVENTORY table and Fetch ST_BIN values where PUTAWAY_BLOCK and 
+	 * PICK_BLOCK are not Null and insert the 1st value. (for WH_ID=111, fetch ST_BIN values of ST_SEC_ID= ZT)
+	 */
+	public List<Inventory> findByWarehouseIdAndItemCodeAndBinClassIdAndDeletionIndicator(String warehouseId, 
+			String itemCode, Long binClassId, Long deletionIndicator);
+
+	// WH_ID/PACK_BARCODE/ITM_CODE/BIN_CL_ID=3 in INVENTORY table
+	public Optional<Inventory> 
+		findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPackBarcodesAndItemCodeAndBinClassIdAndDeletionIndicator(
+			String languageId, String companyCodeId, String plantId, String warehouseId, String packBarcodes, 
+			String itemCode, Long binClassId, Long deletionIndicator);
+
+	/**
+	 * 
+	 * @param languageId
+	 * @param companyCode
+	 * @param plantId
+	 * @param warehouseId
+	 * @param palletCode
+	 * @param caseCode
+	 * @param packBarcodes
+	 * @param itemCode
+	 * @param l
+	 * @return
+	 */
+	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPalletCodeAndCaseCodeAndPackBarcodesAndItemCodeAndDeletionIndicator(
+			String languageId, String companyCode, String plantId, String warehouseId, String palletCode,
+			String caseCode, String packBarcodes, String itemCode, Long deletionIndicator);
+
+	public Optional<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPackBarcodesAndItemCodeAndStorageBinAndDeletionIndicator(
+			String languageId, String companyCode, String plantId, String warehouseId, String packBarcodes,
+			String itemCode, String storageBin, Long deletionIndicator);
+
+	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndDeletionIndicator(
+			String languageId, String companyCode, String plantId, String warehouseId, String itemCode, Long deletionIndicator);
+
+	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndPalletCodeAndPackBarcodesAndStorageBinAndDeletionIndicator(
+			String languageId, String companyCode, String plantId, String warehouseId, String itemCode,
+			String palletCode, String packBarcodes, String storageBin, Long deletionIndicator);
+
+	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndPalletCodeAndPackBarcodesAndDeletionIndicator(
+			String languageId, String companyCode, String plantId, String warehouseId, String itemCode,
+			String palletCode, String packBarcodes, Long deletionIndicator);
+
+	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndPalletCodeAndDeletionIndicator(
+			String languageId, String companyCode, String plantId, String warehouseId, String itemCode,
+			String palletCode, Long deletionIndicator);
+
+	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndBinClassIdAndStorageBinAndStockTypeIdAndDeletionIndicator(
+			String languageId, String companyCode, String plantId, String warehouseId, String itemCode, Long binClassId,
+			String storageBin, Long stockTypeId, Long deletionIndicator);
+
+	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndStorageBinAndAllocatedQuantityAndDeletionIndicator(
+			String languageId, String companyCodeId, String plantId, String warehouseId, String itemCode,
+			String storageBin, Double allocatedQty, Long deletionIndicator);
+
+	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndBinClassIdAndDeletionIndicator(
+			String languageId, String companyCodeId, String plantId, String warehouseId, String itemCode,
+			Long binClassId, Long deletionIndicator);
+
+	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPackBarcodesAndItemCodeAndDeletionIndicator(
+			String languageId, String companyCode, String plantId, String warehouseId, 
+			String packBarcodes, String itemCode, Long deletionIndicator);
+
+	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndBinClassIdAndStorageBinAndStockTypeIdAndDeletionIndicatorAndInventoryQuantityGreaterThan(
+			String languageId, String companyCode, String plantId, String warehouseId, String itemCode, Long binClassId,
+			String storageBin, Long stockTypeId, Long l, Double d);
+
+	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndStorageBinAndStockTypeIdAndBinClassIdAndDeletionIndicator(
+			String languageId, String companyCode, String plantId, String warehouseId, String itemCode,
+			String storageBin, Long stockTypeId, Long binClassId, Long deletionIndicator);
+
+	public Optional<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPackBarcodesAndItemCodeAndBinClassIdNotAndDeletionIndicator(
+			String languageId, String companyCode, String plantId, String warehouseId, String packBarcodes,
+			String itemCode, Long binClassId, Long deletionIndicator);
+}

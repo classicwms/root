@@ -1,0 +1,165 @@
+package com.tekclover.wms.api.transaction.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.ParseException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
+import com.tekclover.wms.api.transaction.model.report.Dashboard;
+import com.tekclover.wms.api.transaction.model.report.InventoryReport;
+import com.tekclover.wms.api.transaction.model.report.MobileDashboard;
+import com.tekclover.wms.api.transaction.model.report.OrderStatusReport;
+import com.tekclover.wms.api.transaction.model.report.ReceiptConfimationReport;
+import com.tekclover.wms.api.transaction.model.report.ShipmentDeliveryReport;
+import com.tekclover.wms.api.transaction.model.report.ShipmentDeliverySummaryReport;
+import com.tekclover.wms.api.transaction.model.report.ShipmentDispatchSummaryReport;
+import com.tekclover.wms.api.transaction.model.report.StockMovementReport;
+import com.tekclover.wms.api.transaction.model.report.StockReport;
+import com.tekclover.wms.api.transaction.service.ReportsService;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.SwaggerDefinition;
+import io.swagger.annotations.Tag;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Validated
+@Api(tags = {"Reports"}, value = "Reports  Operations related to ReportsController") // label for swagger
+@SwaggerDefinition(tags = {@Tag(name = "Reports ",description = "Operations related to Reports ")})
+@RequestMapping("/reports")
+@RestController
+public class ReportsController {
+	
+	@Autowired
+	ReportsService reportsService;
+	
+	/*
+	 * Dashboard
+	 */
+    @ApiOperation(response = Dashboard.class, value = "Get Dashboard Report") // label for swagger 
+	@GetMapping("/dashboard")
+	public ResponseEntity<?> getDashboard(@RequestParam String warehouseId) throws Exception {
+    	Dashboard dashboard = reportsService.getDashboard(warehouseId);
+		return new ResponseEntity<>(dashboard, HttpStatus.OK);
+	}
+    
+    @ApiOperation(response = MobileDashboard.class, value = "Get Dashboard Report") // label for swagger 
+   	@GetMapping("/dashboard/mobile")
+   	public ResponseEntity<?> getMobileDashboard(@RequestParam String warehouseId) throws Exception {
+       	MobileDashboard dashboard = reportsService.getMobileDashboard(warehouseId);
+   		return new ResponseEntity<>(dashboard, HttpStatus.OK);
+   	}
+	
+	/*
+	 * Stock Report
+	 */
+    @ApiOperation(response = Inventory.class, value = "Get Stock Report") // label for swagger 
+	@GetMapping("/stockReport")
+	public ResponseEntity<?> getStockReport(@RequestParam List<String> warehouseId, 
+			@RequestParam(required = false) List<String> itemCode, @RequestParam(required = false) String itemText, 
+			@RequestParam String stockTypeText) {
+    	List<StockReport> stockReportList = reportsService.getStockReport(warehouseId, itemCode, itemText, stockTypeText);
+		return new ResponseEntity<>(stockReportList, HttpStatus.OK);
+	}
+    
+    /*
+	 * Inventory Report
+	 */
+    @ApiOperation(response = Inventory.class, value = "Get Stock Report") // label for swagger 
+	@GetMapping("/inventoryReport")
+	public ResponseEntity<?> getInventoryReport(@RequestParam List<String> warehouseId, 
+			@RequestParam(required = false) List<String> itemCode, @RequestParam(required = false) String storageBin, 
+			@RequestParam(required = false) String stockTypeText, @RequestParam(required = false) List<String> stSectionIds) {
+    	List<InventoryReport> inventoryReportList = reportsService.getInventoryReport(warehouseId, itemCode, storageBin, stockTypeText, stSectionIds);
+		return new ResponseEntity<>(inventoryReportList, HttpStatus.OK);
+	}
+    
+    /*
+	 * Stock movement report
+	 */
+    @ApiOperation(response = StockMovementReport.class, value = "Get StockMovement Report") // label for swagger 
+	@GetMapping("/stockMovementReport")
+	public ResponseEntity<?> getStockMovementReport(@RequestParam String warehouseId, 
+			@RequestParam String itemCode, @RequestParam String fromCreatedOn, 
+			@RequestParam String toCreatedOn) throws java.text.ParseException {
+    	List<StockMovementReport> inventoryReportList = 
+    			reportsService.getStockMovementReport(warehouseId, itemCode, fromCreatedOn, toCreatedOn);
+		return new ResponseEntity<>(inventoryReportList, HttpStatus.OK);
+	}
+    
+    /*
+	 * Order status report
+	 */
+    @ApiOperation(response = OrderStatusReport.class, value = "Get StockMovement Report") // label for swagger 
+	@GetMapping("/orderStatusReport")
+	public ResponseEntity<?> getOrderStatusReport(@RequestParam String warehouseId, 
+			@RequestParam String fromDeliveryDate, @RequestParam String toDeliveryDate, 
+			@RequestParam(required = false) List<String> customerCode, @RequestParam(required = false) List<String> orderNumber, 
+			@RequestParam(required = false) List<String> orderType, @RequestParam(required = false) List<Long> statusId) 
+					throws ParseException, java.text.ParseException {
+    	List<OrderStatusReport> orderStatusReportList = 
+    			reportsService.getOrderStatusReport(warehouseId, fromDeliveryDate, toDeliveryDate, customerCode,
+    					orderNumber, orderType, statusId);
+		return new ResponseEntity<>(orderStatusReportList, HttpStatus.OK);
+	}
+    
+    /*
+   	 * Shipment Delivery 
+   	 */
+    @ApiOperation(response = ShipmentDeliveryReport.class, value = "Get ShipmentDelivery Report") // label for swagger 
+   	@GetMapping("/shipmentDelivery")
+   	public ResponseEntity<?> getShipmentDeliveryReport(@RequestParam String warehouseId, 
+   			@RequestParam String fromDeliveryDate, @RequestParam String toDeliveryDate, 
+   			@RequestParam(required = false) String storeCode, @RequestParam(required = false) List<String> soType, 
+   			@RequestParam(required = false) String orderNumber) throws ParseException, java.text.ParseException {
+    	List<ShipmentDeliveryReport> shipmentDeliveryList = reportsService.getShipmentDeliveryReport(warehouseId, 
+       			fromDeliveryDate, toDeliveryDate, storeCode, soType, orderNumber);
+   		return new ResponseEntity<>(shipmentDeliveryList, HttpStatus.OK);
+   	}
+    
+    /*
+   	 * Shipment Delivery Summary
+   	 */
+    @ApiOperation(response = ShipmentDeliverySummaryReport.class, value = "Get ShipmentDeliverySummary Report") // label for swagger 
+   	@GetMapping("/shipmentDeliverySummary")
+   	public ResponseEntity<?> getShipmentDeliveryReport(@RequestParam String fromDeliveryDate, 
+   			@RequestParam String toDeliveryDate, @RequestParam(required = false) List<String> customerCode) 
+   					throws ParseException, java.text.ParseException {
+    	List<ShipmentDeliverySummaryReport> shipmentDeliverySummaryReport = 
+    			reportsService.getShipmentDeliverySummaryReport(fromDeliveryDate, toDeliveryDate, customerCode);
+   		return new ResponseEntity<>(shipmentDeliverySummaryReport, HttpStatus.OK);
+   	}
+    
+    /*
+   	 * Shipment Dispatch Summary
+   	 */
+    @ApiOperation(response = ShipmentDispatchSummaryReport.class, value = "Get ShipmentDispatchSummary Report") // label for swagger 
+   	@GetMapping("/shipmentDispatchSummary")
+   	public ResponseEntity<?> getShipmentDispatchSummaryReport(@RequestParam String fromDeliveryDate, 
+   			@RequestParam String toDeliveryDate, @RequestParam(required = false) List<String> customerCode) 
+   					throws ParseException, java.text.ParseException {
+    	ShipmentDispatchSummaryReport shipmentDeliverySummaryReport = 
+    			reportsService.getShipmentDispatchSummaryReport(fromDeliveryDate, toDeliveryDate, customerCode);
+   		return new ResponseEntity<>(shipmentDeliverySummaryReport, HttpStatus.OK);
+   	}
+    
+    /*
+   	 * Receipt Confirmation
+   	 */
+    @ApiOperation(response = ReceiptConfimationReport.class, value = "Get ReceiptConfimation Report") // label for swagger 
+   	@GetMapping("/receiptConfirmation")
+   	public ResponseEntity<?> getReceiptConfimationReport(@RequestParam String asnNumber) 
+   					throws Exception {
+    	ReceiptConfimationReport receiptConfimationReport = reportsService.getReceiptConfimationReport(asnNumber);
+   		return new ResponseEntity<>(receiptConfimationReport, HttpStatus.OK);
+   	}
+}

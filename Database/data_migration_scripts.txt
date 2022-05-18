@@ -1,0 +1,9 @@
+-- Data Upload scripts
+
+-- BomLine--------------------------------------------------
+ALTER TABLE `WMS`.`tblbomline` 
+  DROP PRIMARY KEY;
+  
+ALTER TABLE `WMS`.`tblbomline` 
+  ADD CONSTRAINT bomline_uk
+    UNIQUE KEY (`LANG_ID`, `C_ID`, `PLANT_ID`, `WH_ID`, `BOM_NO`, `CHL_ITEM_CODE`);

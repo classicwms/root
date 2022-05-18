@@ -1,0 +1,84 @@
+
+
+  
+
+
+
+
+<div class="card  border-0 bg-white "style="overflow: hidden;">
+    <div mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle class="d-flex justify-content-between align-items-center header_colour text-white p-2">
+      <h5 class="my-auto">Pack Details</h5>
+      <mat-icon class="text-white" mat-dialog-close>close</mat-icon>
+    </div>
+    <div class="row mx-0 mt-2 ">
+      <div class="col-8 mt-1">
+        <div class="form-group mb-0">
+          <label for="inputEmail4" class="mb-0">No of Labels</label>
+          <mat-form-field class="mb-0 w-100 " appearance="outline">
+            <input matInput placeholder="Enter">
+          </mat-form-field>
+        </div>
+    </div>
+  </div>
+  
+  <div class="d-flex justify-content-center mr-3 mb-1 pb-2">
+    <button   mat-raised-button mat-dialog-close class=" bg-red text-white ml-1" >
+      <mat-icon class="">close</mat-icon> Cancel
+    </button>
+    <button   mat-raised-button mat-dialog-close class=" bg-darkblue text-white ml-1" >
+        <mat-icon class="">done</mat-icon> Confirm
+      </button>
+  </div>
+  <!-- <div class="scroll">
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 col-12 w-100">
+  
+
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef>
+            <mat-checkbox (change)="$event ? masterToggle() : null"
+              [checked]="selection.hasValue() && isAllSelected()"
+              [indeterminate]="selection.hasValue() && !isAllSelected()" [aria-label]="checkboxLabel()">
+            </mat-checkbox>
+          </th>
+          <td mat-cell *matCellDef="let row">
+            <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
+              [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)">
+            </mat-checkbox>
+          </td>
+        </ng-container>
+    
+    
+
+        <ng-container matColumnDef="no">
+          <th mat-header-cell *matHeaderCellDef> Pack No </th>
+          <td mat-cell *matCellDef="let element"> {{element.no}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="dimensions">
+          <th mat-header-cell *matHeaderCellDef>Qty</th>
+          <td mat-cell *matCellDef="let element"> {{element.dimensions}} </td>
+        </ng-container>
+      
+     
+        <ng-container matColumnDef="width">
+          <th mat-header-cell *matHeaderCellDef>TO Number</th>
+          <td mat-cell *matCellDef="let element"> {{element.width}} </td>
+        </ng-container>
+   
+     
+        <ng-container matColumnDef="uom">
+          <th mat-header-cell *matHeaderCellDef> Proposed Bin </th>
+          <td mat-cell *matCellDef="let element"> {{element.uom}} </td>
+        </ng-container>
+    
+        <tr mat-header-row *matHeaderRowDef="displayedColumns;sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="selection.toggle(row)">
+        </tr>
+      </table>
+  </div> -->
+  
+  
+  </div>
+  
+  
+  

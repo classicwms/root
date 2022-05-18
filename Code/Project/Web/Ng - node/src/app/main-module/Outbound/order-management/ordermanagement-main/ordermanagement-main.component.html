@@ -1,0 +1,547 @@
+<div class="row mx-1 pl-2">
+  <div class="col-12">
+    <!--inner header-->
+
+    <div class="row  text-secondary pr-1 inner_header mt-1">
+      <div class="col bg-white d-flex align-items-center mt-1 px-1 py-1 pathname">
+
+
+        <nav aria-label="breadcrumb" class="d-flex align-items-center">
+          <ol class="breadcrumb mb-0 bg-white d-flex align-items-center">
+              <li class="breadcrumb-item"
+                  class="text-muted whs-fontsize-1-2rem  my-auto"><mat-icon class="align-middle my-auto">home</mat-icon></li>
+              <li class="breadcrumb-item"
+                          class="text-muted whs-fontsize-1-2rem  my-auto">Outbound</li>
+              <li class="breadcrumb-item text-muted whs-fontsize-1-2rem  my-auto">Order Management</li>
+          </ol>
+      </nav>
+
+
+
+        <div class="d-flex ml-auto my-auto">
+          <div [hidden]="isShowDiv"> <input matInput class="form-control filter_button mx-2 border-bottom"
+              placeholder="Search" style="width:90%">
+          </div>
+          <div [ngClass]="showFloatingButtons == true ? 'floating-pane-active' : 'floating-pane-deactive'"
+            class="button-row d-flex align-items-center">
+            <!--
+                    <button mat-mini-fab *ngIf="showFloatingButtons == true" class="floating-buttons  d-flex align-items-center justify-content-center bg-pink text-white mx-2"
+                    matTooltip="Add">
+                    <mat-icon class="action-icon d-flex align-items-center justify-content-center">add_circle_outline</mat-icon>
+                  </button>
+                  -->
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class=" floating-buttons  d-flex align-items-center justify-content-center text-white   yellowaction"
+              matTooltip="Display">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">search</mat-icon>
+            </button>
+            <button disabled mat-mini-fab *ngIf="showFloatingButtons == true" 
+              class="floating-buttons disabled  d-flex align-items-center justify-content-center text-white  blueaction "
+              matTooltip="Edit">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">edit</mat-icon>
+            </button>
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class=" floating-buttons  d-flex align-items-center justify-content-center redaction text-white  align-middle"
+              matTooltip="Delete">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">delete</mat-icon>
+            </button>
+            <!-- 
+                    <button  mat-mini-fab *ngIf="showFloatingButtons == true"
+                  class="floating-buttons  d-flex align-items-center justify-content-center text-white  bg-success  " matTooltip="Info">
+                  <mat-icon class="action-icon d-flex align-items-center justify-content-center">info_outline</mat-icon>
+                </button>
+                  -->
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class="floating-buttons  d-flex align-items-center justify-content-center text-white  darkblueaction "
+              matTooltip="Download">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">download</mat-icon>
+            </button>
+
+
+            <button mat-mini-fab (click)="toggleFloat()" class="mx-2 text-white action-button"
+              [ngClass]="{'bg-orange' : toggle, 'purple': !toggle}">
+              <mat-icon>{{icon}}</mat-icon>Options
+            </button>
+            <button mat-mini-fab    disabled
+            class=" floating-buttons1 disabled d-flex align-items-center justify-content-center darkaction text-white mx-2 mr-3 align-middle" matTooltip="Delete">
+            <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">add</mat-icon>
+          </button>
+              <button mat-mini-fab  
+                class=" floating-buttons1  d-flex align-items-center justify-content-center greyaction text-white mx-2 mr-3 align-middle" matTooltip="Delete">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">save</mat-icon>
+              </button>
+            <button mat-mini-fab  class="text-white mx-2 action-button  bg-red" type="button" (click)="drawer.toggle()"
+              mat-button>
+              <mat-icon class="">tune</mat-icon> Filter
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <!--main-section-tabbar-->
+    <!-- <app-main-section-tabbar>
+    </app-main-section-tabbar> -->
+  </div>
+    <!--main section-->
+    <div class="row pr-1 mt-1 mx-0 w-100 bg-white">
+      <app-order-tab></app-order-tab>
+     </div>
+    <mat-drawer-container class="example-container  w-100">
+      <mat-drawer #drawer class="example-sidenav " mode="over" position="end">
+        <div class="card-header whs-bg-grey text-white d-flex justify-content-between align-items-center">
+          <h6 class="my-auto mb-0">Search Parameter</h6>
+          <mat-icon (click)="drawer.toggle()">close</mat-icon>
+        </div>
+        <div class="row searchscroll mt-1 mr-1 p-2 pl-3">
+          <div class="col-12 pr-0">
+            <div class="form-group mb-0">
+              <label for="inputEmail4" class="mb-0">Warehouse No</label>
+              <mat-form-field class="mb-0 w-100 " appearance="outline">
+            
+                <mat-select class="mb-0" placeholder="Select">
+                  <mat-option value="option">Option</mat-option>
+                  <mat-option value="option2">Option2</mat-option>
+                  <mat-option value="option3">Option3</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="col-12 pr-0">
+            <div class="form-group mb-0">
+              <label for="inputEmail4" class="mb-0">Pre Outbound No</label>
+              <mat-form-field class="mb-0 w-100 " appearance="outline">
+                
+                <mat-select placeholder="select">
+                  <mat-option value="option">Option</mat-option>
+                  <mat-option value="option2">Option2</mat-option>
+                  <mat-option value="option3">Option3</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="col-12 pr-0">
+            <div class="form-group mb-0">
+              <label for="inputEmail4" class="mb-0">Order Type</label>
+              <mat-form-field class="mb-0 w-100 " appearance="outline">
+                
+                <mat-select placeholder="select">
+                  <mat-option value="option">Option</mat-option>
+                  <mat-option value="option2">Option2</mat-option>
+                  <mat-option value="option3">Option3</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="col-12 pr-0">
+            <div class="form-group mb-1">
+              <label for="inputEmail4" class="mb-0">SO No</label>
+              <mat-form-field class="mb-0 w-100 " appearance="outline">
+                
+                <mat-select placeholder="select">
+                  <mat-option value="option">Option</mat-option>
+                  <mat-option value="option2">Option2</mat-option>
+                  <mat-option value="option3">Option3</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="col-12 pr-0">
+            <label for="inputEmail4" class="mb-1">Required Date</label>
+            <mat-form-field class="mb-0 w-100 " appearance="outline">
+              <mat-label>Choose a date</mat-label>
+              <input matInput [matDatepicker]="picker">
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+          </div>
+          <div class="col-12 pr-0">
+            <label for="inputEmail4" class="mb-1">Order Date</label>
+            <mat-form-field class="mb-0 w-100 " appearance="outline">
+              <mat-label>Choose a date</mat-label>
+              <input matInput [matDatepicker]="picker3">
+              <mat-datepicker-toggle matSuffix [for]="picker3"></mat-datepicker-toggle>
+              <mat-datepicker #picker3></mat-datepicker>
+            </mat-form-field>
+          </div>
+          <div class="col-12 pr-0">
+            <div class="form-group mb-0">
+              <label for="inputEmail4" class="mb-0">Store Code</label>
+              <mat-form-field class="mb-0 w-100 " appearance="outline">
+            
+                <mat-select class="mb-0" placeholder="Select">
+                  <mat-option value="option">Option</mat-option>
+                  <mat-option value="option2">Option2</mat-option>
+                  <mat-option value="option3">Option3</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+       
+          <div class="col-12 pr-0">
+            <div class="form-group mb-0">
+              <label for="inputEmail4" class="mb-0">So Type</label>
+              <mat-form-field class="mb-0 w-100 " appearance="outline">
+            
+                <mat-select class="mb-0" placeholder="Select">
+                  <mat-option value="option">Option</mat-option>
+                  <mat-option value="option2">Option2</mat-option>
+                  <mat-option value="option3">Option3</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+          
+          <div class="col-12 pr-0">
+            <div class="form-group mb-0">
+              <label for="inputEmail4" class="mb-0">Product Code</label>
+              <mat-form-field class="mb-0 w-100 " appearance="outline">
+            
+                <mat-select class="mb-0" placeholder="Select">
+                  <mat-option value="option">Option</mat-option>
+                  <mat-option value="option2">Option2</mat-option>
+                  <mat-option value="option3">Option3</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="col-12 pr-0">
+            <div class="form-group mb-0">
+              <label for="inputEmail4" class="mb-0">Status</label>
+              <mat-form-field class="mb-0 w-100 " appearance="outline">
+            
+                <mat-select class="mb-0" placeholder="Select">
+                  <mat-option value="option">Option</mat-option>
+                  <mat-option value="option2">Option2</mat-option>
+                  <mat-option value="option3">Option3</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-center align-items-center py-2">
+          <button mat-raised-button color="warn" class="text-white mx-1 px-4">
+            <mat-icon class="">restart_alt</mat-icon> Reset
+          </button>
+          <button mat-raised-button class="bg-darkblue text-white mx-1">
+            <mat-icon class="">done</mat-icon> Search
+          </button>
+        </div>
+      </mat-drawer>
+      <div class="example-sidenav-content">
+    <div class="row pr-3 bg-white">
+        <div class="scroll1 col-12 px-0 mt-1">
+          <div class="scroll2">
+            <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 w-100">
+
+              <!-- Checkbox Column -->
+              <ng-container matColumnDef="select" sticky>
+                <th mat-header-cell *matHeaderCellDef>
+                  <mat-checkbox (change)="$event ? masterToggle() : null"
+                    [checked]="selection.hasValue() && isAllSelected()" disabled
+                    [indeterminate]="selection.hasValue() && !isAllSelected()" [aria-label]="checkboxLabel()">
+                  </mat-checkbox>
+                </th>
+                <td mat-cell *matCellDef="let row">
+                  <mat-checkbox (click)="$event.stopPropagation()" (change)="clearselection(row)"
+                    [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)">
+                  </mat-checkbox>
+                </td>
+              </ng-container>
+
+
+              <!-- Symbol Column -->
+              <ng-container matColumnDef="no">
+                <th mat-header-cell *matHeaderCellDef> S No </th>
+                <td mat-cell *matCellDef="let element"> {{element.no}} </td>
+              </ng-container>
+              <!-- Weight Column -->
+              <ng-container matColumnDef="lineno">
+                <th mat-header-cell *matHeaderCellDef>Line No </th>
+                <td mat-cell *matCellDef="let element"> {{element.lineno}} </td>
+              </ng-container>
+              <!-- Weight Column -->
+              <ng-container matColumnDef="partner">
+                <th mat-header-cell *matHeaderCellDef>Store Code</th>
+                <td mat-cell *matCellDef="let element"> {{element.partner}} </td>
+              </ng-container>
+                 <!-- Weight Column -->
+                 <ng-container matColumnDef="sname">
+                  <th mat-header-cell *matHeaderCellDef>Store Name</th>
+                  <td mat-cell *matCellDef="let element"> {{element.sname}} </td>
+                </ng-container>
+              <!-- Symbol Column -->
+              <ng-container matColumnDef="product">
+                <th mat-header-cell *matHeaderCellDef>Required Date</th>
+                <td mat-cell *matCellDef="let element"> {{element.product}} </td>
+              </ng-container>
+               <!-- Symbol Column -->
+               <ng-container matColumnDef="description">
+                <th mat-header-cell *matHeaderCellDef>Line No</th>
+                <td mat-cell *matCellDef="let element"> {{element.description}} </td>
+              </ng-container>
+               <!-- Symbol Column -->
+               <ng-container matColumnDef="refdocno">
+                <th mat-header-cell *matHeaderCellDef>SO No </th>
+                <td mat-cell *matCellDef="let element"> {{element.refdocno}} </td>
+              </ng-container>
+                  <!-- Symbol Column -->
+                  <ng-container matColumnDef="sotype">
+                    <th mat-header-cell *matHeaderCellDef>SO Type </th>
+                    <td mat-cell *matCellDef="let element"> {{element.sotype}} </td>
+                  </ng-container>
+               <!-- Symbol Column -->
+               <ng-container matColumnDef="variant">
+                <th mat-header-cell *matHeaderCellDef>Vairant </th>
+                <td mat-cell *matCellDef="let element"> {{element.variant}} </td>
+              </ng-container>
+               <!-- Symbol Column -->
+               <ng-container matColumnDef="type">
+                <th mat-header-cell *matHeaderCellDef>Order Type </th>
+                <td mat-cell *matCellDef="let element"> {{element.type}} </td>
+              </ng-container>
+               <!-- Symbol Column -->
+               <ng-container matColumnDef="preoutboundno">
+                <th mat-header-cell *matHeaderCellDef>Pre Outbound No </th>
+                <td mat-cell *matCellDef="let element"> {{element.preoutboundno}} </td>
+              </ng-container>
+               <!-- Symbol Column -->
+               <ng-container matColumnDef="order">
+                <th mat-header-cell *matHeaderCellDef>Mfr Part No </th>
+                <td mat-cell *matCellDef="let element"> {{element.order}} </td>
+              </ng-container>
+               <!-- Symbol Column -->
+               <ng-container matColumnDef="uom">
+                <th mat-header-cell *matHeaderCellDef>Order Qty </th>
+                <td mat-cell *matCellDef="let element"> {{element.uom}} </td>
+              </ng-container>
+                <!-- Symbol Column -->
+                <ng-container matColumnDef="req">
+                  <th mat-header-cell *matHeaderCellDef>Order Date </th>
+                  <td mat-cell *matCellDef="let element"> {{element.req}} </td>
+                </ng-container>
+                  <!-- Symbol Column -->
+               <ng-container matColumnDef="allocated">
+                <th mat-header-cell *matHeaderCellDef>Product Code </th>
+                <td mat-cell *matCellDef="let element"> {{element.allocated}} </td>
+              </ng-container>
+                       <!-- Symbol Column -->
+                       <ng-container matColumnDef="reallocated">
+                        <th mat-header-cell *matHeaderCellDef>Description </th>
+                        <td mat-cell *matCellDef="let element"> {{element.reallocated}} </td>
+                      </ng-container>
+                              <!-- Symbol Column -->
+                              <ng-container matColumnDef="ref1">
+                                <th mat-header-cell *matHeaderCellDef>Inv Qty </th>
+                                <td mat-cell *matCellDef="let element"> {{element.ref1}} </td>
+                              </ng-container>
+                                      <!-- Symbol Column -->
+                       <ng-container matColumnDef="ref2">
+                        <th mat-header-cell *matHeaderCellDef>Allocated Qty </th>
+                        <td mat-cell *matCellDef="let element"> {{element.ref2}} </td>
+                      </ng-container>
+                              <!-- Symbol Column -->
+                              <ng-container matColumnDef="ref3">
+                                <th mat-header-cell *matHeaderCellDef>Reallocated Qty </th>
+                                <td mat-cell *matCellDef="let element"> {{element.ref3}} </td>
+                              </ng-container>
+                <!-- Symbol Column -->
+                <ng-container matColumnDef="status">
+                  <th mat-header-cell *matHeaderCellDef>Status </th>
+                  <td mat-cell *matCellDef="let element"> {{element.status}} </td>
+                </ng-container>
+                <ng-container matColumnDef="binlocation">
+                  <th mat-header-cell *matHeaderCellDef >Bin Location </th>
+                  <td *matCellDef="let row;let element" class="p-0 border-bottom">
+                    <button mat-icon-button (click)="binlocation();">
+                      <mat-icon class="text-secondary">open_in_new</mat-icon>
+                    </button>
+                  </td>
+                </ng-container>
+                <!--actions-->
+                <ng-container matColumnDef="actions" sticky>
+                    <th mat-header-cell *matHeaderCellDef class="stick">Actions </th>
+                    <td *matCellDef="let row;let element" class="p-0 border-bottom stick">
+                      <button mat-icon-button [matMenuTriggerFor]="menu">
+                        <mat-icon class="text-secondary">more_horiz</mat-icon>
+                      </button>
+                    </td>
+                  </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns;sticky: true"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="selection.toggle(row)">
+              </tr>
+            </table>
+          </div>
+
+        </div>
+        <div class="buttons border bg-white pb-1 w-100 d-flex justify-content-end">
+        <div class="p-0 mx-1 "style="background-color: #ffff;">
+          <mat-paginator class="" showFirstLastButtons [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]"
+            aria-label="Select page of periodic elements">
+          </mat-paginator>
+        </div>
+        </div>
+      </div>
+      <div class="d-flex justify-content-center align-items-center py-2 bg-white">
+        <button mat-raised-button class="text-white mr-1 px-4" color="warn">
+          <mat-icon class="">close</mat-icon> Cancel
+        </button>
+        <button mat-raised-button class="bg-darkblue px-4 text-white ml-1" routerLink="/main/outbound/assignment">
+          <mat-icon class="">done</mat-icon> Process So
+        </button>
+      </div>
+      </div>
+    </mat-drawer-container>
+
+  
+
+
+
+
+
+  <mat-menu #menu="matMenu">
+    <ng-template matMenuContent>
+      <button mat-menu-item>Unallocate</button>
+      <button mat-menu-item>Allocate</button>
+    </ng-template>
+  </mat-menu>
+  <!--right pane-->
+  <div class="col-3 pl-1 pr-1 mt-1 d-none">
+    <div class="whs-rightpane bg-white shadow">
+      <div class="text-dark p-2 bg-white">
+        <div class="whs-vertical-scroll">
+          <div class="d-flex justify-content-start my-1">
+            <label for="" class="mr-5 mt-1">Variant</label>
+            <label for="" class=" mt-1 ml-4 pl-3">Preoutbound</label>
+          </div>
+          <hr class="my-0">
+          <div class="row mt-1">
+            <div class="col-12 pr-0">
+              <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">Warehouse No</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+              
+                  <mat-select class="mb-0" placeholder="Select">
+                    <mat-option value="option">Option</mat-option>
+                    <mat-option value="option2">Option2</mat-option>
+                    <mat-option value="option3">Option3</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="col-12 pr-0">
+              <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">Pre Outbound Number</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+                  
+                  <mat-select placeholder="select">
+                    <mat-option value="option">Option</mat-option>
+                    <mat-option value="option2">Option2</mat-option>
+                    <mat-option value="option3">Option3</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="col-12 pr-0">
+              <div class="form-group mb-1">
+                <label for="inputEmail4" class="mb-0">SO No</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+                  
+                  <mat-select placeholder="select">
+                    <mat-option value="option">Option</mat-option>
+                    <mat-option value="option2">Option2</mat-option>
+                    <mat-option value="option3">Option3</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="col-12 pr-0">
+              <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">Product Code</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+              
+                  <mat-select class="mb-0" placeholder="Select">
+                    <mat-option value="option">Option</mat-option>
+                    <mat-option value="option2">Option2</mat-option>
+                    <mat-option value="option3">Option3</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="col-12 pr-0">
+              <label for="inputEmail4" class="mb-1">Date</label>
+              <mat-form-field class="mb-0 w-100 " appearance="outline">
+                <mat-label>Choose a date</mat-label>
+                <input matInput [matDatepicker]="picker">
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+              </mat-form-field>
+            </div>
+            <div class="col-12 pr-0">
+              <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">Order type</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+              
+                  <mat-select class="mb-0" placeholder="Select">
+                    <mat-option value="option">Option</mat-option>
+                    <mat-option value="option2">Option2</mat-option>
+                    <mat-option value="option3">Option3</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="col-12 pr-0">
+              <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">Status</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+              
+                  <mat-select class="mb-0" placeholder="Select">
+                    <mat-option value="option">Option</mat-option>
+                    <mat-option value="option2">Option2</mat-option>
+                    <mat-option value="option3">Option3</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-center my-1">
+          <button mat-raised-button class="text-white mr-1" color="warn">
+            <mat-icon class="">close</mat-icon> Cancel
+          </button>
+          <button mat-raised-button class="bg-darkblue  text-white mx-1" >
+            <mat-icon class="">search</mat-icon> Search
+          </button>
+        </div>
+      </div>
+      <div class="row  no-gutters">
+        <div class="col-6 pl-0 d-none">
+            <div class="whs-rightpane-box border d-flex flex-column align-items-center justify-content-center">
+              <i class="far fa-arrow-alt-circle-down fa-2x"></i>
+              <p class="mb-0 mt-1">Storage Setup</p>
+            </div>
+          </div>
+          <div class="col-6 pl-0  d-none">
+            <div class="whs-rightpane-box border d-flex flex-column align-items-center justify-content-center">
+              <i class="far fa-arrow-alt-circle-down fa-2x"></i>
+              <p class="mb-0 mt-1">Item Setup</p>
+            </div>
+          </div>
+        <div class="col-6 pl-0 d-none">
+          <div class="whs-rightpane-box border d-flex flex-column align-items-center justify-content-center">
+            <i class="far fa-arrow-alt-circle-down fa-2x"></i>
+            <p class="mb-0 mt-1">Storage Setup</p>
+          </div>
+        </div>
+        <div class="col-6 pl-0 d-none">
+          <div class="whs-rightpane-box border d-flex flex-column align-items-center justify-content-center">
+            <i class="far fa-arrow-alt-circle-down fa-2x"></i>
+            <p class="mb-0 mt-1">Item Setup</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

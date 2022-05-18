@@ -1,0 +1,393 @@
+<div class="row mx-1 pl-2"> 
+    <div class="col-12">
+      <!--inner header-->
+  
+      <app-innerheader [title1]="title1" [title2]="title2"></app-innerheader>
+      <!--main-section-tabbar
+      <app-main-section-tabbar>
+      </app-main-section-tabbar>  -->
+      <!--vertical tab-->
+      <div class="row pr-1 mt-1">
+        <div class="col-2 px-0  pr-1 mt-2">
+          <app-subsidenav></app-subsidenav>
+        </div>
+  
+        <div class="col-10 px-0 pl-1 pb-1">
+          <form>
+            <button type="submit" class="btn " visible="false" hidden="hidden" id="btnsave"></button>
+            <div >
+              <!--<p class="my-1 pl-1 row  font-weight-bold  text-dark mx-0">General Data</p>-->
+              <div class="mt-2">
+                <ul class="nav nav-tabs mt-1">
+                  <li class="nav-item">
+                    <p class="nav-link navpadding bg-white whs-text-grey pl-2 py-1 pl-1 row mx-0" href="#">
+                      <img src="./assets/img/icons/shield.png" class="header_icon" alt="" srcset=""> General Data 1</p>
+                  </li>
+                </ul>
+                <div section="frame1" class="bg-white mt-1 text-dark shadow">
+  
+                  <div class="p-1 resp_padding px-4">
+                    <div class="row pt-2">
+                      <div class="col-4">
+                        <div class="d-flex flex-column">
+  
+                          <label for="inputState" class="mb-0 text-dark">Storage Bin </label>
+                          <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                            <input matInput placeholder="AP-Readonly">
+                          </mat-form-field>
+                        </div>
+                      </div>
+                      <div class="col-4   ">
+                        <div class="d-flex flex-column">
+                          <label for="inputState" class="mb-0 text-dark">Description</label>
+                          <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                            <input matInput placeholder="AP-Readonly">
+                          </mat-form-field>
+                        </div>
+                      </div>
+                      <div class="col-4">
+                        <div class="d-flex flex-column   ">
+                          <label for="inputState" class="mb-0 text-dark ">Bin Class</label>
+                          <mat-form-field class="form-group input_field mb-0 " appearance="outline">
+                        
+                            <mat-select  placeholder="select">
+                              <mat-option value="option">Option</mat-option>
+                              <mat-option value="option2">Option2</mat-option>
+                              <mat-option value="option3">Option3</mat-option>
+                            </mat-select>
+                          </mat-form-field>
+                        </div>
+                      </div>
+                      <div class="col-4">
+                        <div class="d-flex flex-column">
+  
+                          <label for="inputState" class="mb-0 text-dark">Barcode
+                          </label>
+                          <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                            <input matInput placeholder="AP-Readonly">
+                          </mat-form-field>
+                        </div>
+                      </div>
+                     
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!--<p class="my-1 pl-1 row font-weight-bold text-dark mx-0 ">Address</p>-->
+              <div class="mt-2">
+                <ul class="nav nav-tabs mt-1">
+                  <li class="nav-item">
+                    <p class="nav-link navpadding bg-white whs-text-grey pl-2 py-1 pl-1 row mx-0" href="#">
+                      <img src="./assets/img/icons/shield.png" class="header_icon" alt="" srcset=""> General Data 2</p>
+                  </li>
+                </ul>
+                <div section="frame1" class="bg-white mt-1 text-dark shadow">
+                  <div class="p-1 resp_padding px-4">
+                    <div class="row pt-2">
+                        <div class="col-4">
+                            <div class="d-flex flex-column   ">
+                              <label for="inputState" class="mb-0 text-dark ">Warehouse No</label>
+                              <mat-form-field class="form-group input_field mb-0 " appearance="outline">
+                            
+                                <mat-select  placeholder="select">
+                                  <mat-option value="option">Option</mat-option>
+                                  <mat-option value="option2">Option2</mat-option>
+                                  <mat-option value="option3">Option3</mat-option>
+                                </mat-select>
+                              </mat-form-field>
+                            </div>
+                          </div>
+                          <div class="col-4">
+                            <div class="d-flex flex-column   ">
+                              <label for="inputState" class="mb-0 text-dark ">Floor</label>
+                              <mat-form-field class="form-group input_field mb-0 " appearance="outline">
+                            
+                                <mat-select  placeholder="select">
+                                  <mat-option value="option">Option</mat-option>
+                                  <mat-option value="option2">Option2</mat-option>
+                                  <mat-option value="option3">Option3</mat-option>
+                                </mat-select>
+                              </mat-form-field>
+                            </div>
+                          </div>
+                          <div class="col-4">
+                            <div class="d-flex flex-column   ">
+                              <label for="inputState" class="mb-0 text-dark ">Storage Section</label>
+                              <mat-form-field class="form-group input_field mb-0 " appearance="outline">
+                            
+                                <mat-select  placeholder="select">
+                                  <mat-option value="option">Option</mat-option>
+                                  <mat-option value="option2">Option2</mat-option>
+                                  <mat-option value="option3">Option3</mat-option>
+                                </mat-select>
+                              </mat-form-field>
+                            </div>
+                          </div>
+                          <div class="col-4">
+                            <div class="d-flex flex-column   ">
+                              <label for="inputState" class="mb-0 text-dark ">Row</label>
+                              <mat-form-field class="form-group input_field mb-0 " appearance="outline">
+                            
+                                <mat-select  placeholder="select">
+                                  <mat-option value="option">Option</mat-option>
+                                  <mat-option value="option2">Option2</mat-option>
+                                  <mat-option value="option3">Option3</mat-option>
+                                </mat-select>
+                              </mat-form-field>
+                            </div>
+                          </div>
+                 
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!--page 2-->
+              <div class="mt-2 d-none">
+                <ul class="nav nav-tabs mt-1">
+                  <li class="nav-item">
+                    <p class="nav-link navpadding bg-white whs-text-grey pl-2 py-1 pl-1 row mx-0" href="#">
+                      <img src="./assets/img/icons/shield.png" class="header_icon" alt="" srcset=""> Oraganizational Unit 2</p>
+                  </li>
+                </ul>
+                <div section="frame1" class="bg-white mt-1 text-dark shadow">
+                  <div class="p-1 resp_padding px-4">
+                    <div class="row pt-2">
+                        <div class="col-4">
+                            <div class="d-flex flex-column   ">
+                              <label for="inputState" class="mb-0 text-dark ">Aisle</label>
+                              <mat-form-field class="form-group input_field mb-0 " appearance="outline">
+                            
+                                <mat-select  placeholder="select">
+                                  <mat-option value="option">Option</mat-option>
+                                  <mat-option value="option2">Option2</mat-option>
+                                  <mat-option value="option3">Option3</mat-option>
+                                </mat-select>
+                              </mat-form-field>
+                            </div>
+                          </div>
+                          <div class="col-4">
+                            <div class="d-flex flex-column   ">
+                              <label for="inputState" class="mb-0 text-dark ">Span/Rack </label>
+                              <mat-form-field class="form-group input_field mb-0 " appearance="outline">
+                            
+                                <mat-select  placeholder="select">
+                                  <mat-option value="option">Option</mat-option>
+                                  <mat-option value="option2">Option2</mat-option>
+                                  <mat-option value="option3">Option3</mat-option>
+                                </mat-select>
+                              </mat-form-field>
+                            </div>
+                          </div>
+                          <div class="col-4">
+                            <div class="d-flex flex-column   ">
+                              <label for="inputState" class="mb-0 text-dark ">Shelf/Level</label>
+                              <mat-form-field class="form-group input_field mb-0 " appearance="outline">
+                            
+                                <mat-select  placeholder="select">
+                                  <mat-option value="option">Option</mat-option>
+                                  <mat-option value="option2">Option2</mat-option>
+                                  <mat-option value="option3">Option3</mat-option>
+                                </mat-select>
+                              </mat-form-field>
+                            </div>
+                          </div>
+                 
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-2  d-none">
+                <ul class="nav nav-tabs mt-1">
+                  <li class="nav-item">
+                    <p class="nav-link navpadding bg-white whs-text-grey pl-2 py-1 pl-1 row mx-0" href="#">
+                      <img src="./assets/img/icons/shield.png" class="header_icon" alt="" srcset=""> Capacity</p>
+                  </li>
+                </ul>
+                <div section="frame1" class="bg-white mt-1 text-dark shadow">
+              
+                    <div class="row mx-0">
+                        <div class="scroll col-12 px-0">
+                            <table mat-table [dataSource]="dataSource" class="w-100">
+                        
+                                <!-- Checkbox Column -->
+                                <ng-container matColumnDef="select">
+                                  <th mat-header-cell *matHeaderCellDef>
+                                    <mat-checkbox (change)="$event ? masterToggle() : null"
+                                      [checked]="selection.hasValue() && isAllSelected()"
+                                      [indeterminate]="selection.hasValue() && !isAllSelected()" [aria-label]="checkboxLabel()">
+                                    </mat-checkbox>
+                                  </th>
+                                  <td mat-cell *matCellDef="let row">
+                                    <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
+                                      [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)">
+                                    </mat-checkbox>
+                                  </td>
+                                </ng-container>
+                            
+                            
+                                <!-- Symbol Column -->
+                                <ng-container matColumnDef="no">
+                                  <th mat-header-cell *matHeaderCellDef> S No </th>
+                                  <td mat-cell *matCellDef="let element"> {{element.no}} </td>
+                                </ng-container>
+                                <!-- Weight Column -->
+                                <ng-container matColumnDef="x">
+                                  <th mat-header-cell *matHeaderCellDef>		Bin Section</th>
+                                  <td mat-cell *matCellDef="let element"> {{element.x}} </td>
+                                </ng-container>
+                            
+                                <tr mat-header-row *matHeaderRowDef="displayedColumns;sticky: true"></tr>
+                                <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="selection.toggle(row)">
+                                </tr>
+                              </table>
+                        </div>
+                       
+                        
+                    </div>
+               
+            </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="col-12 px-0 mx-0 pb-1">
+          <div class="p-0 mx-1 "style="background-color: #ffff;">
+            <mat-paginator class="" showFirstLastButtons [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]"
+              aria-label="Select page of periodic elements">
+            </mat-paginator>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--right pane-->
+    <div class="col-3 pl-1 pr-1 mt-1 d-none">
+      <div class="whs-rightpane bg-white shadow">
+        <div class="text-dark p-2 bg-white">
+          <div class="whs-vertical-scroll">
+            <div class="d-flex justify-content-start my-1">
+              <label for="" class="mr-5 mt-1">Variant</label>
+              <label for="" class=" mt-1 ml-4 pl-3">Company Tab</label>
+            </div>
+            <hr class="my-0">
+            <div class="row mt-1">
+              <div class="col-6 pr-1">
+                <div class="form-group mb-0">
+                  <label for="inputEmail4" class="mb-0">Warehouse No</label>
+                  <mat-form-field class="mb-0 w-100 " appearance="outline">
+                
+                    <mat-select class="mb-0" placeholder="Select">
+                      <mat-option value="option">Option</mat-option>
+                      <mat-option value="option2">Option2</mat-option>
+                      <mat-option value="option3">Option3</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="col-6 pl-1">
+                <div class="form-group mb-0">
+                  <label for="inputEmail4" class="mb-0">Product</label>
+                  <mat-form-field class="mb-0 w-100 " appearance="outline">
+                
+                    <mat-select placeholder="select">
+                      <mat-option value="option">Option</mat-option>
+                      <mat-option value="option2">Option2</mat-option>
+                      <mat-option value="option3">Option3</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="col-6 pr-1">
+                <div class="form-group mb-1">
+                  <label for="inputEmail4" class="mb-0">Item Type</label>
+                  <mat-form-field class="mb-0 w-100 " appearance="outline">
+                
+                    <mat-select placeholder="select">
+                      <mat-option value="option">Option</mat-option>
+                      <mat-option value="option2">Option2</mat-option>
+                      <mat-option value="option3">Option3</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="col-6 pl-1">
+                <div class="form-group mb-0">
+                  <label for="inputEmail4" class="mb-0">Item Group</label>
+                  <mat-form-field class="mb-0 w-100 " appearance="outline">
+                
+                    <mat-select class="mb-0" placeholder="Select">
+                      <mat-option value="option">Option</mat-option>
+                      <mat-option value="option2">Option2</mat-option>
+                      <mat-option value="option3">Option3</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="col-6 pr-1">
+                <div class="form-group mb-0">
+                  <label for="inputEmail4" class="mb-0">Item Sub Group</label>
+                  <mat-form-field class="mb-0 w-100 " appearance="outline">
+                
+                    <mat-select class="mb-0" placeholder="Select">
+                      <mat-option value="option">Option</mat-option>
+                      <mat-option value="option2">Option2</mat-option>
+                      <mat-option value="option3">Option3</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="col-6 pl-1">
+                <div class="form-group mb-0">
+                  <label for="inputEmail4" class="mb-0">Item Sub Group</label>
+                  <mat-form-field class="mb-0 w-100 " appearance="outline">
+                
+                    <mat-select class="mb-0" placeholder="Select">
+                      <mat-option value="option">Option</mat-option>
+                      <mat-option value="option2">Option2</mat-option>
+                      <mat-option value="option3">Option3</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="col-6 pr-1">
+                <label for="inputEmail4" class="mb-1">From</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+                  <mat-label>Choose a date</mat-label>
+                  <input matInput [matDatepicker]="picker">
+                  <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                  <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+              </div>
+              <div class="col-6 pl-1">
+                <label for="inputEmail4" class="mb-1">To</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+                  <mat-label>Choose a date</mat-label>
+                  <input matInput [matDatepicker]="date">
+                  <mat-datepicker-toggle matSuffix [for]="date"></mat-datepicker-toggle>
+                  <mat-datepicker #date></mat-datepicker>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-center my-1">
+            <button mat-raised-button class="text-white mr-1" color="warn">
+              <mat-icon class="">close</mat-icon> Cancel
+            </button>
+            <button mat-raised-button class="bg-darkblue  text-white mx-1">
+              <mat-icon class="">search</mat-icon> Search
+            </button>
+          </div>
+        </div>
+        <div class="row  no-gutters">
+              <div class="col-6 pl-0">
+            <div class="whs-rightpane-box border d-flex flex-column align-items-center justify-content-center">
+              <i class="far fa-arrow-alt-circle-down fa-2x"></i>
+              <p class="mb-0 mt-1">Storage Setup</p>
+            </div>
+          </div>
+  
+        </div>
+      </div>
+    </div>
+  </div>

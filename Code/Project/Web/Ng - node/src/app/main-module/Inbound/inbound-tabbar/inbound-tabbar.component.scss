@@ -1,0 +1,42 @@
+
+  ::ng-deep .mat-ink-bar{
+    height: 0px !important
+  }
+  ::ng-deep.mat-tab-link{
+    opacity: 100% !important;
+    
+  }
+  ::ng-deep .mat-tab-label-active
+  { padding: 0rem 2rem;height: 3rem;filter: drop-shadow(0px -3px 3px rgba(0, 0, 0, 0.25)) drop-shadow(0px 3px 3px rgba(0, 0, 0, 0.25));background-color: #267fa0 !important; color: white !important;}
+
+
+a{text-decoration: none !important;}
+
+
+
+//new design css
+
+
+
+
+.tabbar{
+height: 3.1rem;
+}
+.menu{width: 10rem;}
+.blue{background-color: rgba(87, 160, 228, 0);}
+.blue-text{color: #666666;}
+
+
+
+//tabbar
+
+
+.icon{padding: 0rem 2rem;height: 3rem;border-radius: 10px;margin-left: 1.5rem; margin-right: 1.5rem;}
+.active{ padding: 0rem 2rem;height: 3rem;filter: drop-shadow(0px -3px 3px rgba(0, 0, 0, 0.25)) drop-shadow(0px 3px 3px rgba(0, 0, 0, 0.25));border-radius: 10px;background-color: white;
+margin-left: 1.5rem; margin-right: 1.5rem;}
+
+
+.blue:hover{background-color: rgba(102, 102, 102, 0.3);}
+.blue-text{color: #006990;}
+
+a{text-decoration: none;}

@@ -1,0 +1,63 @@
+<mat-card class="example-card">
+    <mat-card-header class="example-card ">
+        <mat-card-title class="example-card ">{{menulist}}
+        </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <hr>
+        <cdk-tree [dataSource]="dataSource" [treeControl]="treeControl" style="font-size: small !important;;">
+            <!-- This is the tree node template for leaf nodes -->
+            <cdk-tree-node *cdkTreeNodeDef="let node" cdkTreeNodePadding
+                [style.display]="shouldRender(node) ? 'flex' : 'none'"
+                class="example-tree-node justify-content-between">
+                <!-- use a disabled button to provide padding for tree leaf -->
+                <!-- <button mat-icon-button disabled></button> -->
+                <span>
+                    <i class="fas fa-angle-double-right hvr-icon pr-2 "></i>
+                    <span class="badge whs-badge badge-light mr-2 bg-success text-white">{{node.value}}</span>
+                    {{node.name}}
+                </span>
+                <div>
+                    <span style="color: green;">
+                        {{node.status}}
+                    </span>
+                    <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+                        <mat-icon class="example-icon">more_vert</mat-icon>
+                    </button>
+                    <mat-menu #menu="matMenu" class="custom-class">
+                        <button mat-menu-item (click)="btnClick(node.url)">
+                            <mat-icon class="example-icon">dialpad</mat-icon>
+                            <span>create</span>
+                        </button>
+                        <button mat-menu-item disabled (click)="btnClick(node.url)">
+                            <mat-icon class="example-icon">voicemail</mat-icon>
+                            <span>Check voice mail</span>
+                        </button>
+                        <button mat-menu-item (click)="btnClick(node.url)">
+                            <mat-icon class="example-icon">notifications_off</mat-icon>
+                            <span>Disable alerts</span>
+                        </button>
+                    </mat-menu>
+                </div>
+            </cdk-tree-node>
+            <!-- This is the tree node template for expandable nodes -->
+            <cdk-tree-node *cdkTreeNodeDef="let node; when: hasChild" cdkTreeNodePadding
+                [style.display]="shouldRender(node) ? 'flex' : 'none'"
+                class="example-tree-node justify-content-between">
+                <button mat-icon-button cdkTreeNodeToggle [attr.aria-label]="'Toggle ' + node.name"
+                    (click)="node.isExpanded = !node.isExpanded"
+                    [style.visibility]="node.expandable ? 'visible' : 'hidden'">
+                    <mat-icon class="mat-icon-rtl-mirror">
+                        {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+                    </mat-icon>
+                    {{node.name}}
+                </button>
+
+
+
+                <p class="mb-0 text-warning"><small>{{node.status}}</small></p>
+            </cdk-tree-node>
+        </cdk-tree>
+    </mat-card-content>
+
+</mat-card>

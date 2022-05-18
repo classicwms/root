@@ -1,0 +1,1579 @@
+<div class="row 
+
+
+mt-2 px-3 mx-1">
+    <div class="col-3 px-1 ">
+      <div class="card shadow ">
+        <div class="card-header whs-green text-white d-flex text-center p-2 border whs-border-green">
+          <p class="mb-0 mx-auto"><strong>Enterprise Setup</strong></p>
+        </div>
+        <div class="card-body list-group p-0 whs-border-green border-bottom">
+          <div class="whs-scroll">
+            <mat-accordion>
+              <mat-expansion-panel #panel1 hideToggle>
+                <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                  <mat-panel-title class="d-flex justify-content-between collaplefont">
+                    <div class="d-flex">
+                      <mat-icon class="text-secondary" style="font-size:20px;">{{panel1.expanded? 'remove' : 'add'}}
+                      </mat-icon>
+                      <p class="mb-0 font-1rem mx-3"> Organization Setup</p>
+                    </div>
+                    <div>
+                      <p class="mb-0 text-warning"><small>Progress</small></p>
+                    </div>
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+                <mat-selection-list #shoes [multiple]="false">
+                  <mat-list-option class="border-y">
+                    <div class="d-flex justify-content-between align-items-center p-1  pr-1 pl-4">
+                      <div class="d-flex"> <i
+                          class="fas fa-angle-double-right hvr-icon text-secondary mr-3 hvr-wobble-horizontal"
+                          style="font-size:16px;"></i>
+                        <span class="badge whs-badge badge-light mr-2 bg-success text-white">1</span>
+                        <p class="mb-0 font-1rem mr-3 text-secondary">Company</p>
+                      </div>
+                      <div class=" d-flex inline">
+                        <p class="mb-0 text-success my-auto mr-2"><small>Completed</small></p>
+                        <i mat-icon-button [matMenuTriggerFor]="menu"
+                          class="fas fa-elliplis-h my-auto btn-sm text-secondary"></i>
+                      </div>
+                    </div>
+                    <mat-menu #menu="matMenu">
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">add</mat-icon>Create
+                      </button>
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">delete_outline</mat-icon>Delete
+                      </button>
+                    </mat-menu>
+                  </mat-list-option>
+                  <mat-list-option class="border-y">
+                    <div class="d-flex justify-content-between align-items-center p-1  pr-1 pl-4">
+                      <div class="d-flex"> <i
+                          class="fas fa-angle-double-right hvr-icon text-secondary mr-3 hvr-wobble-horizontal"
+                          style="font-size:16px;"></i>
+                        <span class="badge whs-badge badge-light mr-2 bg-success text-white">1</span>
+                        <p class="mb-0 font-1rem mr-3 text-secondary">Plant</p>
+                      </div>
+                      <div class=" d-flex inline">
+                        <p class="mb-0 text-success my-auto mr-2"><small>Completed</small></p>
+                        <i mat-icon-button [matMenuTriggerFor]="menu"
+                          class="fas fa-elliplis-h my-auto btn-sm text-secondary"></i>
+                      </div>
+                    </div>
+                    <mat-menu #menu="matMenu">
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">add</mat-icon>Create
+                      </button>
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">delete_outline</mat-icon>Delete
+                      </button>
+                    </mat-menu>
+                  </mat-list-option>
+                  <mat-list-option class="border-y">
+                    <div class="d-flex justify-content-between align-items-center p-1  pr-1 pl-4">
+                      <div class="d-flex"> <i
+                          class="fas fa-angle-double-right hvr-icon text-secondary mr-3 hvr-wobble-horizontal"
+                          style="font-size:16px;"></i>
+                        <span class="badge whs-badge badge-light mr-2 whs-bg-grey   text-white">1</span>
+                        <p class="mb-0 font-1rem mr-3 text-secondary">
+                          Warehouse
+                        </p>
+                      </div>
+                      <div class=" d-flex inline">
+                        <p class="mb-0 text-warning my-auto mr-2"><small>Progress</small></p>
+                        <i mat-icon-button [matMenuTriggerFor]="menu"
+                          class="fas fa-elliplis-h my-auto btn-sm text-secondary"></i>
+                      </div>
+                    </div>
+                    <mat-menu #menu="matMenu">
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">add</mat-icon>Create
+                      </button>
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">delete_outline</mat-icon>Delete
+                      </button>
+                    </mat-menu>
+                  </mat-list-option>
+                  <mat-list-option class="border-y">
+                    <div class="d-flex justify-content-between align-items-center p-1  pr-1 pl-4">
+                      <div class="d-flex"> <i
+                          class="fas fa-angle-double-right hvr-icon text-secondary mr-3 hvr-wobble-horizontal"
+                          style="font-size:16px;"></i>
+                        <span class="badge whs-badge badge-light mr-2 bg-danger text-white">1</span>
+                        <p class="mb-0 font-1rem mr-3 text-secondary">Floor</p>
+                      </div>
+                      <div class=" d-flex inline">
+                        <p class="mb-0 text-danger my-auto mr-2"><small>Waiting</small></p>
+                        <i mat-icon-button [matMenuTriggerFor]="menu"
+                          class="fas fa-elliplis-h my-auto btn-sm text-secondary"></i>
+                      </div>
+                    </div>
+                    <mat-menu #menu="matMenu">
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">add</mat-icon>Create
+                      </button>
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">delete_outline</mat-icon>Delete
+                      </button>
+                    </mat-menu>
+                  </mat-list-option>
+                  <mat-list-option class="border-y">
+                    <div class="d-flex justify-content-between align-items-center p-1  pr-1 pl-4">
+                      <div class="d-flex"> <i
+                          class="fas fa-angle-double-right hvr-icon text-secondary mr-3 hvr-wobble-horizontal"
+                          style="font-size:16px;"></i>
+                        <span class="badge whs-badge badge-light mr-2 bg-danger text-white">1</span>
+                        <p class="mb-0 font-1rem mr-3 text-secondary">Storage</p>
+                      </div>
+                      <div class=" d-flex inline">
+                        <p class="mb-0 text-danger my-auto mr-2"><small>Waiting</small></p>
+                        <i mat-icon-button [matMenuTriggerFor]="menu"
+                          class="fas fa-elliplis-h my-auto btn-sm text-secondary"></i>
+                      </div>
+                    </div>
+                    <mat-menu #menu="matMenu">
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">add</mat-icon>Create
+                      </button>
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">delete_outline</mat-icon>Delete
+                      </button>
+                    </mat-menu>
+                  </mat-list-option>
+                </mat-selection-list>
+              </mat-expansion-panel>
+              <mat-expansion-panel #panel2 hideToggle>
+                <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                  <mat-panel-title class="d-flex justify-content-between collaplefont">
+                    <div class="d-flex">
+                      <mat-icon class="text-secondary" style="font-size:20px;">{{panel2.expanded? 'remove' : 'add'}}
+                      </mat-icon>
+                      <p class="mb-0 font-1rem mx-3"> Storage Setup</p>
+                    </div>
+                    <div>
+                      <p class="mb-0 text-success"><small>Completed</small></p>
+                    </div>
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+                <mat-selection-list #shoes [multiple]="false">
+                  <mat-list-option class="border-y">
+                    <div class="d-flex justify-content-between align-items-center p-1  pr-1 pl-4">
+                      <div class="d-flex"> <i
+                          class="fas fa-angle-double-right hvr-icon text-secondary mr-3 hvr-wobble-horizontal"
+                          style="font-size:16px;"></i>
+                        <span class="badge whs-badge badge-light mr-2 bg-success text-white">4</span>
+                        <p class="mb-0 font-1rem mr-3 text-secondary">Storage Class</p>
+                      </div>
+                      <div class=" d-flex inline">
+                        <p class="mb-0 text-success my-auto mr-2"><small>Completed</small></p>
+                        <i mat-icon-button [matMenuTriggerFor]="menu"
+                          class="fas fa-elliplis-h my-auto btn-sm text-secondary"></i>
+                      </div>
+                    </div>
+                    <mat-menu #menu="matMenu">
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">add</mat-icon>Create
+                      </button>
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">delete_outline</mat-icon>Delete
+                      </button>
+                    </mat-menu>
+                  </mat-list-option>
+                  <mat-list-option class="border-y">
+                    <div class="d-flex justify-content-between align-items-center p-1  pr-1 pl-4">
+                      <div class="d-flex"> <i
+                          class="fas fa-angle-double-right hvr-icon text-secondary mr-3 hvr-wobble-horizontal"
+                          style="font-size:16px;"></i>
+                        <span class="badge whs-badge badge-light mr-2 bg-success text-white">12</span>
+                        <p class="mb-0 font-1rem mr-3 text-secondary">Storage Type
+
+                        </p>
+                      </div>
+                      <div class=" d-flex inline">
+                        <p class="mb-0 text-success my-auto mr-2"><small>Completed</small></p>
+                        <i mat-icon-button [matMenuTriggerFor]="menu"
+                          class="fas fa-elliplis-h my-auto btn-sm text-secondary"></i>
+                      </div>
+                    </div>
+                    <mat-menu #menu="matMenu">
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">add</mat-icon>Create
+                      </button>
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">delete_outline</mat-icon>Delete
+                      </button>
+                    </mat-menu>
+                  </mat-list-option>
+                  <mat-list-option class="border-y">
+                    <div class="d-flex justify-content-between align-items-center p-1  pr-1 pl-4">
+                      <div class="d-flex"> <i
+                          class="fas fa-angle-double-right hvr-icon text-secondary mr-3 hvr-wobble-horizontal"
+                          style="font-size:16px;"></i>
+                        <span class="badge whs-badge badge-light mr-2 whs-bg-grey   text-white">6</span>
+                        <p class="mb-0 font-1rem mr-3 text-secondary">Storage Bin Typr</p>
+                      </div>
+                      <div class=" d-flex inline">
+                        <p class="mb-0 text-warning my-auto mr-2"><small>Progress</small></p>
+                        <i mat-icon-button [matMenuTriggerFor]="menu"
+                          class="fas fa-elliplis-h my-auto btn-sm text-secondary"></i>
+                      </div>
+                    </div>
+                    <mat-menu #menu="matMenu">
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">add</mat-icon>Create
+                      </button>
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">delete_outline</mat-icon>Delete
+                      </button>
+                    </mat-menu>
+                  </mat-list-option>
+                  <mat-list-option class="border-y">
+                    <div class="d-flex justify-content-between align-items-center p-1  pr-1 pl-4">
+                      <div class="d-flex"> <i
+                          class="fas fa-angle-double-right hvr-icon text-secondary mr-3 hvr-wobble-horizontal"
+                          style="font-size:16px;"></i>
+                        <span class="badge whs-badge badge-light mr-2 px-2 bg-danger text-white">8</span>
+                        <p class="mb-0 font-1rem mr-3 text-secondary">Strategies</p>
+                      </div>
+                      <div class=" d-flex inline">
+                        <p class="mb-0 text-danger my-auto mr-2"><small>Waiting</small></p>
+                        <i mat-icon-button [matMenuTriggerFor]="menu"
+                          class="fas fa-elliplis-h my-auto btn-sm text-secondary"></i>
+                      </div>
+                    </div>
+                    <mat-menu #menu="matMenu">
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">add</mat-icon>Create
+                      </button>
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">delete_outline</mat-icon>Delete
+                      </button>
+                    </mat-menu>
+                  </mat-list-option>
+                </mat-selection-list>
+              </mat-expansion-panel>
+              <mat-expansion-panel #panel3 hideToggle>
+                <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                  <mat-panel-title class="d-flex justify-content-between collaplefont">
+                    <div class="d-flex">
+                      <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                      </mat-icon>
+                      <p class="mb-0 font-1rem mx-3"> Product Setup</p>
+                    </div>
+                    <div>
+                      <p class="mb-0 text-warning"><small>Progress</small></p>
+                    </div>
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+                <mat-selection-list #shoes [multiple]="false">
+                  <mat-list-option class="border-y">
+                    <div class="d-flex justify-content-between align-items-center p-1  pr-1 pl-4">
+                      <div class="d-flex"> <i
+                          class="fas fa-angle-double-right hvr-icon text-secondary mr-3 hvr-wobble-horizontal"
+                          style="font-size:16px;"></i>
+                        <span class="badge whs-badge badge-light mr-2 bg-success text-white">6</span>
+                        <p class="mb-0 font-1rem mr-3 text-secondary">Item Typr</p>
+                      </div>
+                      <div class=" d-flex inline">
+                        <p class="mb-0 text-success my-auto mr-2"><small>Completed</small></p>
+                        <i mat-icon-button [matMenuTriggerFor]="menu"
+                          class="fas fa-elliplis-h my-auto btn-sm text-secondary"></i>
+                      </div>
+                    </div>
+                    <mat-menu #menu="matMenu">
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">add</mat-icon>Create
+                      </button>
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">delete_outline</mat-icon>Delete
+                      </button>
+                    </mat-menu>
+                  </mat-list-option>
+                  <mat-list-option class="border-y">
+                    <div class="d-flex justify-content-between align-items-center p-1  pr-1 pl-4">
+                      <div class="d-flex"> <i
+                          class="fas fa-angle-double-right hvr-icon text-secondary mr-3 hvr-wobble-horizontal"
+                          style="font-size:16px;"></i>
+                        <span class="badge whs-badge badge-light mr-2 bg-success text-white">60</span>
+                        <p class="mb-0 font-1rem mr-3 text-secondary"> Item Group</p>
+                      </div>
+                      <div class=" d-flex inline">
+                        <p class="mb-0 text-success my-auto mr-2"><small>Completed</small></p>
+                        <i mat-icon-button [matMenuTriggerFor]="menu"
+                          class="fas fa-elliplis-h my-auto btn-sm text-secondary"></i>
+                      </div>
+                    </div>
+                    <mat-menu #menu="matMenu">
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">add</mat-icon>Create
+                      </button>
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">delete_outline</mat-icon>Delete
+                      </button>
+                    </mat-menu>
+                  </mat-list-option>
+                  <mat-list-option class="border-y">
+                    <div class="d-flex justify-content-between align-items-center p-1  pr-1 pl-4">
+                      <div class="d-flex"> <i
+                          class="fas fa-angle-double-right hvr-icon text-secondary mr-3 hvr-wobble-horizontal"
+                          style="font-size:16px;"></i>
+                        <span class="badge whs-badge badge-light mr-2 whs-bg-grey   text-white">12</span>
+                        <p class="mb-0 font-1rem mr-3 text-secondary">Sub Item Group</p>
+                      </div>
+                      <div class=" d-flex inline">
+                        <p class="mb-0 text-warning my-auto mr-2"><small>Progress</small></p>
+                        <i mat-icon-button [matMenuTriggerFor]="menu"
+                          class="fas fa-elliplis-h my-auto btn-sm text-secondary"></i>
+                      </div>
+                    </div>
+                    <mat-menu #menu="matMenu">
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">add</mat-icon>Create
+                      </button>
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">delete_outline</mat-icon>Delete
+                      </button>
+                    </mat-menu>
+                  </mat-list-option>
+                  <mat-list-option class="border-y">
+                    <div class="d-flex justify-content-between align-items-center p-1  pr-1 pl-4">
+                      <div class="d-flex"> <i
+                          class="fas fa-angle-double-right hvr-icon text-secondary mr-3 hvr-wobble-horizontal"
+                          style="font-size:16px;"></i>
+                        <span class="badge whs-badge badge-light mr-2 bg-danger text-white">1</span>
+                        <p class="mb-0 font-1rem mr-3 text-secondary">Batch Serial
+
+                        </p>
+                      </div>
+                      <div class=" d-flex inline">
+                        <p class="mb-0 text-danger my-auto mr-2"><small>Waiting</small></p>
+                        <i mat-icon-button [matMenuTriggerFor]="menu"
+                          class="fas fa-elliplis-h my-auto btn-sm text-secondary"></i>
+                      </div>
+                    </div>
+                    <mat-menu #menu="matMenu">
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">add</mat-icon>Create
+                      </button>
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">delete_outline</mat-icon>Delete
+                      </button>
+                    </mat-menu>
+                  </mat-list-option>
+                  <mat-list-option class="border-y">
+                    <div class="d-flex justify-content-between align-items-center p-1  pr-1 pl-4">
+                      <div class="d-flex"> <i
+                          class="fas fa-angle-double-right hvr-icon text-secondary mr-3 hvr-wobble-horizontal"
+                          style="font-size:16px;"></i>
+                        <span class="badge whs-badge badge-light mr-2 bg-danger  text-white">1</span>
+                        <p class="mb-0 font-1rem mr-3 text-secondary">Variant Management</p>
+                      </div>
+                      <div class=" d-flex inline">
+                        <p class="mb-0 text-danger my-auto mr-2"><small>Waiting</small></p>
+                        <i mat-icon-button [matMenuTriggerFor]="menu"
+                          class="fas fa-elliplis-h my-auto btn-sm text-secondary"></i>
+                      </div>
+                    </div>
+                    <mat-menu #menu="matMenu">
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">add</mat-icon>Create
+                      </button>
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">delete_outline</mat-icon>Delete
+                      </button>
+                    </mat-menu>
+                  </mat-list-option>
+                  <mat-list-option class="border-y">
+                    <div class="d-flex justify-content-between align-items-center p-1  pr-1 pl-4">
+                      <div class="d-flex"> <i
+                          class="fas fa-angle-double-right hvr-icon text-secondary mr-3 hvr-wobble-horizontal"
+                          style="font-size:16px;"></i>
+                        <span class="badge whs-badge badge-light mr-2 bg-danger  text-white">1</span>
+                        <p class="mb-0 font-1rem mr-3 text-secondary">Barcode Management</p>
+                      </div>
+                      <div class=" d-flex inline">
+                        <p class="mb-0 text-danger my-auto mr-2"><small>Waiting</small></p>
+                        <i mat-icon-button [matMenuTriggerFor]="menu"
+                          class="fas fa-elliplis-h my-auto btn-sm text-secondary"></i>
+                      </div>
+                    </div>
+                    <mat-menu #menu="matMenu">
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">add</mat-icon>Create
+                      </button>
+                      <button mat-menu-item>
+                        <mat-icon class="mx-1">delete_outline</mat-icon>Delete
+                      </button>
+                    </mat-menu>
+                  </mat-list-option>
+                </mat-selection-list>
+              </mat-expansion-panel>
+            </mat-accordion>
+          </div>
+        </div>
+        <div class="  card-footer p-0 whs-green">
+          <small class="text-white float-right"></small>
+        </div>
+      </div>
+    </div>
+     <!--masters-->
+     <div class="col-3 px-1">
+      <div class="card shadow">
+        <div class="card-header whs-red text-white d-flex text-center p-2 border border-danger">
+          <p class="mb-0 mx-auto"><strong>Masters</strong></p>
+        </div>
+        <div class="card-body list-group p-0 border-danger border-bottom">
+            <div class="whs-scroll">
+              <mat-accordion>
+                <mat-expansion-panel #panel1 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel1.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">  Item Master</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel2 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel2.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">Storage Bin</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-success"><small>Completed</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">Handling Equipment</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">Handling Unit</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                 <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3"> Customer</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                 <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">BOM - Kitting</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">Vendor</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3"> Dock</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">  Packing Material</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3"> Number Range Item</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                 <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">Number Range Storage Bin</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3"> Number Range Transaction</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">Number Range Pallet Case</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">Audit Log</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">Work Center</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3"> Cycle Count Scheduler</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+
+              </mat-accordion>
+            </div>
+          </div>
+        <div class="card-footer p-0 whs-red">
+          <small class="text-white float-right"> </small>
+        </div>
+      </div>
+    </div>
+     <!--inboud-->
+     <div class="col-3 px-1">
+      <div class="card shadow">
+        <div class="card-header whs-yellow text-white d-flex text-center p-2 border border-warning">
+          <p class="mb-0 mx-auto"><strong>Inbound</strong></p>
+        </div>
+        <div class="card-body list-group p-0 border-warning border-bottom">
+            <div class="whs-scroll">
+              <mat-accordion>
+                <mat-expansion-panel #panel1 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel1.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">Pre Inbound Creation</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel2 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel2.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">Receipt Planning</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-success"><small>Completed</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3"> Dock Planning</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3"> Inbound Integration Log</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3"> Dock Management</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                 <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">  Container Receipt</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                 <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">Case Receipt</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">Putaway</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3"> Inbound Confirmation</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+
+              </mat-accordion>
+            </div>
+          </div>
+        <div class="card-footer p-0 whs-red">
+          <small class="text-white float-right"> </small>
+        </div>
+      </div>
+    </div>
+<!--make and chnage-->
+    <div class="col-3 px-1">
+      <div class="card shadow">
+        <div class="card-header whs-grey text-white d-flex text-center p-2 border whs-border-grey">
+          <p class="mb-0 mx-auto"><strong>Make & Change</strong></p>
+        </div>
+        <div class="card-body list-group p-0 whs-border-grey border-bottom">
+            <div class="whs-scroll">
+              <mat-accordion>
+                <mat-expansion-panel #panel1 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel1.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">Warehouse to Warehouse</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel2 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel2.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">Inhouse Transfers</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-success"><small>Completed</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3"> Scrapping</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3"> Block - Item</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">  Block- Storage Bin</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+
+              </mat-accordion>
+            </div>
+          </div>
+        <div class="card-footer p-0 whs-red">
+          <small class="text-white float-right"> </small>
+        </div>
+      </div>
+    </div>
+
+    <!--outbound-->
+    <div class="col-3 px-1 mt-1">
+      <div class="card shadow">
+        <div class="card-header whs-yellow text-white d-flex text-center p-2 border border-warning">
+          <p class="mb-0 mx-auto"><strong>Outbound</strong></p>
+        </div>
+        <div class="card-body list-group p-0 border-warning border-bottom">
+            <div class="whs-scroll">
+              <mat-accordion>
+                <mat-expansion-panel #panel1 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel1.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3"> Pre Outbound Creation</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel2 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel2.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">Outbound Integration Log</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-success"><small>Completed</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3"> Orders Allocation</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">Picking</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">  Quality</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel4 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel4.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">  Packing</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel5 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel5.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">  Delivery Confirmation</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel6 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel6.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">   Cross Docking - Creation</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel7 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel7.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">   Cross Docking - Confirmation</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel9 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel9.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">  Return Orders Creation</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+               
+
+              </mat-accordion>
+            </div>
+          </div>
+        <div class="card-footer p-0 whs-red">
+          <small class="text-white float-right"> </small>
+        </div>
+      </div>
+    </div>
+
+    <!--cycle count-->
+    <div class="col-3 px-1 mt-1">
+      <div class="card shadow">
+        <div class="card-header whs-grey text-white d-flex text-center p-2 border whs-border-grey">
+          <p class="mb-0 mx-auto"><strong>Cycle Count</strong></p>
+        </div>
+        <div class="card-body list-group p-0 whs-border-grey border-bottom">
+            <div class="whs-scroll">
+              <mat-accordion>
+                <mat-expansion-panel #panel1 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel1.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3"> Cycle Count Creation</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel2 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel2.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3"> Cycle Count Confirmation</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-success"><small>Completed</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+               
+
+              </mat-accordion>
+            </div>
+          </div>
+        <div class="card-footer p-0 whs-red">
+          <small class="text-white float-right"> </small>
+        </div>
+      </div>
+    </div>
+
+     <!--reports-->
+     <div class="col-3 px-1 mt-1">
+      <div class="card shadow">
+        <div class="card-header whs-yellow text-white d-flex text-center p-2 border border-warning">
+          <p class="mb-0 mx-auto"><strong>Reports</strong></p>
+        </div>
+        <div class="card-body list-group p-0 border-warning border-bottom">
+            <div class="whs-scroll">
+              <mat-accordion>
+                <mat-expansion-panel #panel1 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel1.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">  Utilization</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel2 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel2.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">Fulfillment</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-success"><small>Completed</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">Inventory Levels</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">Ageing</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel3 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3"> Productivity</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel4 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel4.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3"> Ontime Delviery</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel5 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel5.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3"> Througput</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel6 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel6.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">  Readiness</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel7 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel7.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">  Planned Results</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel9 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel9.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">GR</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel9 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel9.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3"> Barcodes/QR Code Labels</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel10 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel10.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">Putaway List</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel11 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel11.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">Receipt Confirmation</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel12 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel12.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">Transfer List</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel13 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel13.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">Picking List</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel14 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel14.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3"> Packing List</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+                <mat-expansion-panel #panel15 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont">
+                      <div class="d-flex">
+                        <mat-icon class="text-secondary" style="font-size:20px;">{{panel15.expanded? 'remove' : 'add'}}
+                        </mat-icon>
+                        <p class="mb-0 font-1rem mx-3">Shipment List</p>
+                      </div>
+                      <div>
+                        <p class="mb-0 text-warning"><small>Progress</small></p>
+                      </div>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <mat-selection-list #shoes [multiple]="false">
+                  </mat-selection-list>
+                </mat-expansion-panel>
+               
+
+              </mat-accordion>
+            </div>
+          </div>
+        <div class="card-footer p-0 whs-red">
+          <small class="text-white float-right"> </small>
+        </div>
+      </div>
+    </div>
+
+
+        <!--Dashboards-->
+        <div class="col-3 px-1 mt-1">
+          <div class="card shadow">
+            <div class="card-header whs-red text-white d-flex text-center p-2 border border-danger">
+              <p class="mb-0 mx-auto"><strong>Dashboards</strong></p>
+            </div>
+            <div class="card-body list-group p-0 border-danger border-bottom">
+                <div class="whs-scroll">
+                  <mat-accordion>
+                    <mat-expansion-panel #panel1 hideToggle>
+                      <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                        <mat-panel-title class="d-flex justify-content-between collapsefont">
+                          <div class="d-flex">
+                            <mat-icon class="text-secondary" style="font-size:20px;">{{panel1.expanded? 'remove' : 'add'}}
+                            </mat-icon>
+                            <p class="mb-0 font-1rem mx-3"> Warehouse Insights</p>
+                          </div>
+                          <div>
+                            <p class="mb-0 text-warning"><small>Progress</small></p>
+                          </div>
+                        </mat-panel-title>
+                      </mat-expansion-panel-header>
+                      <mat-selection-list #shoes [multiple]="false">
+                      </mat-selection-list>
+                    </mat-expansion-panel>
+                    <mat-expansion-panel #panel2 hideToggle>
+                      <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                        <mat-panel-title class="d-flex justify-content-between collapsefont">
+                          <div class="d-flex">
+                            <mat-icon class="text-secondary" style="font-size:20px;">{{panel2.expanded? 'remove' : 'add'}}
+                            </mat-icon>
+                            <p class="mb-0 font-1rem mx-3">Inbound Performance</p>
+                          </div>
+                          <div>
+                            <p class="mb-0 text-success"><small>Completed</small></p>
+                          </div>
+                        </mat-panel-title>
+                      </mat-expansion-panel-header>
+                      <mat-selection-list #shoes [multiple]="false">
+                      </mat-selection-list>
+                    </mat-expansion-panel>
+                    <mat-expansion-panel #panel3 hideToggle>
+                      <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                        <mat-panel-title class="d-flex justify-content-between collapsefont">
+                          <div class="d-flex">
+                            <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                            </mat-icon>
+                            <p class="mb-0 font-1rem mx-3"> Shipment Performance</p>
+                          </div>
+                          <div>
+                            <p class="mb-0 text-warning"><small>Progress</small></p>
+                          </div>
+                        </mat-panel-title>
+                      </mat-expansion-panel-header>
+                      <mat-selection-list #shoes [multiple]="false">
+                      </mat-selection-list>
+                    </mat-expansion-panel>
+                    <mat-expansion-panel #panel3 hideToggle>
+                      <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                        <mat-panel-title class="d-flex justify-content-between collapsefont">
+                          <div class="d-flex">
+                            <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                            </mat-icon>
+                            <p class="mb-0 font-1rem mx-3"> Cycle Count Analysis</p>
+                          </div>
+                          <div>
+                            <p class="mb-0 text-warning"><small>Progress</small></p>
+                          </div>
+                        </mat-panel-title>
+                      </mat-expansion-panel-header>
+                      <mat-selection-list #shoes [multiple]="false">
+                      </mat-selection-list>
+                    </mat-expansion-panel>
+                     <mat-expansion-panel #panel3 hideToggle>
+                      <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                        <mat-panel-title class="d-flex justify-content-between collapsefont">
+                          <div class="d-flex">
+                            <mat-icon class="text-secondary" style="font-size:20px;">{{panel3.expanded? 'remove' : 'add'}}
+                            </mat-icon>
+                            <p class="mb-0 font-1rem mx-3">  Orders Analysis</p>
+                          </div>
+                          <div>
+                            <p class="mb-0 text-warning"><small>Progress</small></p>
+                          </div>
+                        </mat-panel-title>
+                      </mat-expansion-panel-header>
+                      <mat-selection-list #shoes [multiple]="false">
+                      </mat-selection-list>
+                    </mat-expansion-panel>
+                     
+    
+                  </mat-accordion>
+                </div>
+              </div>
+            <div class="card-footer p-0 whs-red">
+              <small class="text-white float-right"> </small>
+            </div>
+          </div>
+        </div>
+</div>
