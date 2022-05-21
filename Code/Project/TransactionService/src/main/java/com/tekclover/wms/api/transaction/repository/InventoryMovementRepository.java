@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.transaction.repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,9 +15,6 @@ import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMoveme
 @Transactional
 public interface InventoryMovementRepository extends JpaRepository<InventoryMovement,Long>, JpaSpecificationExecutor<InventoryMovement> {
 	
-	/**
-	 * 
-	 */
 	public List<InventoryMovement> findAll();
 	
 	/**
@@ -43,4 +41,7 @@ public interface InventoryMovementRepository extends JpaRepository<InventoryMove
 				String languageId, String companyCodeId, String plantId, String warehouseId, Long movementType, Long submovementType, String palletCode, String caseCode, String packBarcodes, String itemCode, Long variantCode, String variantSubCode, String batchSerialNumber, String movementDocumentNo, Long deletionIndicator);
 
 	public Optional<InventoryMovement> findByMovementType(Long movementType);
+	
+	public List<InventoryMovement> findByMovementTypeInAndSubmovementTypeInAndCreatedOnBetween(List<Long> movementType, 
+			List<Long> submovementType, Date dateFrom, Date dateTo);
 }

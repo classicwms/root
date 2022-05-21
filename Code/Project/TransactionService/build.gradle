@@ -44,7 +44,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	
-	runtimeOnly 'mysql:mysql-connector-java'
+	//runtimeOnly 'mysql:mysql-connector-java'
+	// --------MS-SQL-Server Driver
+	implementation group: 'com.microsoft.sqlserver', name: 'mssql-jdbc', version: '8.1.1.jre8-preview'
 	
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	

@@ -13,7 +13,7 @@ public class PerpetualHeaderCompositeKey implements Serializable {
 	 * `C_ID`, `PLANT_ID`, `WH_ID`, `CC_TYP_ID`, `CC_NO`, `MVT_TYP_ID`, `SUB_MVT_TYP_ID`
 	 */
 	private String companyCodeId;
-	private String palntId;
+	private String plantId;
 	private String warehouseId;
 	private Long cycleCountTypeId;
 	private String cycleCountNo;

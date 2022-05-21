@@ -614,13 +614,13 @@ public class ReportsService extends BaseService {
 			throw new BadRequestException("WarehouseId can't be blank.");
 		}
 		
-		// Date range
-		if (fromDeliveryDate == null || toDeliveryDate == null) {
-			throw new BadRequestException("DeliveryDate can't be blank.");
+		if (orderNumber == null) {
+			throw new BadRequestException("OrderNumber can't be blank.");
 		}
 		
 		SearchOutboundLineReport searchOutboundLineReport = new SearchOutboundLineReport();
 		searchOutboundLineReport.setWarehouseId(warehouseId);
+		searchOutboundLineReport.setRefDocNumber(orderNumber);
 		
 		if (!storeCode.isEmpty()) {
 			searchOutboundLineReport.setPartnerCode(storeCode);
@@ -630,11 +630,6 @@ public class ReportsService extends BaseService {
 		if (!soType.isEmpty()) {
 			searchOutboundLineReport.setSoTypeRefField1(soType);
 			log.info("soType: " + soType);
-		}
-
-		if (!orderNumber.isEmpty()) {
-			searchOutboundLineReport.setRefDocNumber(orderNumber);
-			log.info("orderNumber: " + orderNumber);
 		}
 
 		if (fromDeliveryDate != null && toDeliveryDate != null) {

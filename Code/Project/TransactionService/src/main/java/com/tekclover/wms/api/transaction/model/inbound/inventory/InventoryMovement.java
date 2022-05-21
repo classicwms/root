@@ -88,6 +88,9 @@ public class InventoryMovement {
 	@Column(name = "MVT_DOC_NO") 
 	private String movementDocumentNo;
 	
+	@Column(name = "MFR_PART") 
+	private String manufacturerPartNo;
+	
 	@Column(name = "ST_BIN") 
 	private String storageBin;
 	

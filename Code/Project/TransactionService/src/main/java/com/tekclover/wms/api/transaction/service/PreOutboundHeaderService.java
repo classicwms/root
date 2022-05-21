@@ -852,8 +852,19 @@ public class PreOutboundHeaderService extends BaseService {
 				orderManagementLine.setStatusId(STATUS_ID);
 				orderManagementLine.setPickupCreatedBy("MSD_INT");
 				orderManagementLine.setPickupCreatedOn(new Date());
-				orderManagementLine.setProposedStorageBin(stBinInventory.getStorageBin());
-				orderManagementLine.setProposedPackBarCode(stBinInventory.getPackBarcodes());
+				if (stBinInventory.getStorageBin() == null) {
+					orderManagementLine.setProposedStorageBin(null);
+				} else {
+					orderManagementLine.setProposedStorageBin(stBinInventory.getStorageBin());
+				}
+				
+				if (stBinInventory.getPackBarcodes() == null) {
+					orderManagementLine.setProposedPackBarCode(null);
+				} else {
+					orderManagementLine.setProposedPackBarCode(stBinInventory.getPackBarcodes());
+				}
+				
+				
 				orderManagementLine = orderManagementLineRepository.save(orderManagementLine);
 				log.info("-----2------orderManagementLine created:-------> " + orderManagementLine);
 				

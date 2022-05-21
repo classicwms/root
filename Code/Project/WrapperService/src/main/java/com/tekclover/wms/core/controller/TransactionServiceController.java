@@ -1292,17 +1292,19 @@ public class TransactionServiceController {
    	 */
     @ApiOperation(response = ShipmentDeliveryReport.class, value = "Get ShipmentDelivery Report") // label for swagger 
    	@GetMapping("/reports/shipmentDelivery")
-   	public ResponseEntity<?> getShipmentDeliveryReport(@RequestParam String reportFormat, 
-   			@RequestParam String warehouseId, @RequestParam String fromDeliveryDate,
-   			@RequestParam String toDeliveryDate, @RequestParam(required = false) String storeCode, 
+   	public ResponseEntity<?> getShipmentDeliveryReport(@RequestParam String warehouseId, 
+   			@RequestParam(required = false) String fromDeliveryDate,
+   			@RequestParam(required = false) String toDeliveryDate, 
+   			@RequestParam(required = false) String storeCode, 
    			@RequestParam(required = false) List<String> soType, 
-   			@RequestParam(required = false) String orderNumber, @RequestParam String authToken) 
+   			@RequestParam String orderNumber, 
+   			@RequestParam String authToken) 
    					throws ParseException, java.text.ParseException {
     	ShipmentDeliveryReport[] shipmentDeliveryList = transactionService.getShipmentDeliveryReport(warehouseId, 
        			fromDeliveryDate, toDeliveryDate, storeCode, soType, orderNumber, authToken);
     	
     	// Export Report (html/pdf)
-    	String fileUploadedPath = reportService.exportShipmentDelivery (shipmentDeliveryList, reportFormat);
+    	String fileUploadedPath = reportService.exportShipmentDelivery (shipmentDeliveryList, "pdf");
    		return new ResponseEntity<>(fileUploadedPath, HttpStatus.OK);
    	}
     

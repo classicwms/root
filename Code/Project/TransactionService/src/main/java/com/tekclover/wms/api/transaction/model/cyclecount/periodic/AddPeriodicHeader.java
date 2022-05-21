@@ -1,4 +1,4 @@
-package com.tekclover.wms.api.transaction.model.cyclecount.perpetual;
+package com.tekclover.wms.api.transaction.model.cyclecount.periodic;
 
 import java.util.Date;
 import java.util.List;
@@ -6,10 +6,10 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class UpdatePerpetualHeader {
+public class AddPeriodicHeader {
 
 	private String companyCodeId;
-	private String plantId;
+	private String palntId;
 	private String warehouseId;
 	private Long cycleCountTypeId;
 	private String cycleCountNo;
@@ -27,11 +27,12 @@ public class UpdatePerpetualHeader {
 	private String referenceField9;
 	private String referenceField10;
 	private Long deletionIndicator;
-	private String confirmedBy;
-	private Date confirmedOn;	
 	private String createdBy;
 	private Date createdOn = new Date();
 	private String countedBy;
 	private Date countedOn = new Date();
-	private List<UpdatePerpetualLine> updatePerpetualLine;
+	private String confirmedBy;
+	private Date confirmedOn = new Date();
+
+	private List<AddPeriodicHeader> addPeriodicHeader;
 }

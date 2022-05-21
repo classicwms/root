@@ -9,7 +9,7 @@ import lombok.Data;
 public class AddPerpetualHeader {
 
 	private String companyCodeId;
-	private String palntId;
+	private String plantId;
 	private String warehouseId;
 	private Long cycleCountTypeId;
 	private String cycleCountNo;
@@ -34,5 +34,5 @@ public class AddPerpetualHeader {
 	private String confirmedBy;
 	private Date confirmedOn = new Date();
 
-	private List<AddPerpetualHeader> addPerpetualHeader;
+	private List<AddPerpetualLine> addPerpetualLine;
 }

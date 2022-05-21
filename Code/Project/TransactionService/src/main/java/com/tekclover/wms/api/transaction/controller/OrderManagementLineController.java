@@ -46,7 +46,7 @@ public class OrderManagementLineController {
 	@GetMapping("")
 	public ResponseEntity<?> getAll() {
 		List<OrderManagementLine> ordermangementlineList = ordermangementlineService.getOrderManagementLines();
-		return new ResponseEntity<>(ordermangementlineList, HttpStatus.OK); 
+		return new ResponseEntity<>(ordermangementlineList, HttpStatus.OK);
 	}
     
     @ApiOperation(response = OrderManagementLine.class, value = "Get a OrderManagementLine") // label for swagger 
@@ -72,7 +72,8 @@ public class OrderManagementLineController {
 	@PostMapping("")
 	public ResponseEntity<?> postOrderManagementLine(@Valid @RequestBody AddOrderManagementLine newOrderManagementLine, @RequestParam String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
-		OrderManagementLine createdOrderManagementLine = ordermangementlineService.createOrderManagementLine(newOrderManagementLine, loginUserID);
+		OrderManagementLine createdOrderManagementLine = 
+				ordermangementlineService.createOrderManagementLine(newOrderManagementLine, loginUserID);
 		return new ResponseEntity<>(createdOrderManagementLine , HttpStatus.OK);
 	}
     

@@ -6,8 +6,8 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class UpdatePerpetualHeader {
-
+public class PerpetualHeaderEntity { 
+	
 	private String companyCodeId;
 	private String plantId;
 	private String warehouseId;
@@ -27,11 +27,12 @@ public class UpdatePerpetualHeader {
 	private String referenceField9;
 	private String referenceField10;
 	private Long deletionIndicator;
-	private String confirmedBy;
-	private Date confirmedOn;	
 	private String createdBy;
-	private Date createdOn = new Date();
+	private Date createdOn;
 	private String countedBy;
-	private Date countedOn = new Date();
-	private List<UpdatePerpetualLine> updatePerpetualLine;
+	private Date countedOn;
+	private String confirmedBy;
+	private Date confirmedOn;
+	
+	private List<PerpetualLineEntity> perpetualLine;
 }

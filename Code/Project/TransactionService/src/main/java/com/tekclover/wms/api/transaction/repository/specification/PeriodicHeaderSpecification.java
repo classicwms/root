@@ -12,8 +12,8 @@ import javax.persistence.criteria.Root;
 import org.springframework.context.annotation.DeferredImportSelector.Group;
 import org.springframework.data.jpa.domain.Specification;
 
-import com.tekclover.wms.api.transaction.model.cyclecount.PeriodicHeader;
-import com.tekclover.wms.api.transaction.model.cyclecount.SearchPeriodicHeader;
+import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicHeader;
+import com.tekclover.wms.api.transaction.model.cyclecount.periodic.SearchPeriodicHeader;
 
 @SuppressWarnings("serial")
 public class PeriodicHeaderSpecification implements Specification<PeriodicHeader> {

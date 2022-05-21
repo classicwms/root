@@ -209,8 +209,6 @@ public class OrderManagementLineService extends BaseService {
 		try {
 			AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
 			for (OrderManagementLine orderManagementLine : searchResults) {
-				log.info("orderManagementLine -----------> :  " + orderManagementLine);
-				
 				if (orderManagementLine.getProposedStorageBin() != null && 
 						orderManagementLine.getProposedStorageBin().trim().length() > 0) {
 					StorageBin storageBin = 
@@ -227,8 +225,6 @@ public class OrderManagementLineService extends BaseService {
 			log.error("Error on : " + e.toString());
 			throw new BadRequestException(e.toString());
 		}
-		
-		log.info("results: " + searchResults);
 		return searchResults;
 	}
 	
@@ -242,7 +238,6 @@ public class OrderManagementLineService extends BaseService {
 	 */
 	public OrderManagementLine createOrderManagementLine (AddOrderManagementLine newOrderManagementLine, String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
-		
 		OrderManagementLine dbOrderManagementLine = new OrderManagementLine();
 		log.info("newOrderManagementLine : " + newOrderManagementLine);
 		BeanUtils.copyProperties(newOrderManagementLine, dbOrderManagementLine);
@@ -318,6 +313,7 @@ public class OrderManagementLineService extends BaseService {
 			String partnerCode, Long lineNumber, String itemCode, String loginUserID) {
 		OrderManagementLine dbOrderManagementLine = 
 				getOrderManagementLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode);
+		log.info("Selected record: " + dbOrderManagementLine);
 		
 		Long OB_ORD_TYP_ID = dbOrderManagementLine.getOutboundOrderTypeId();
 		Double ORD_QTY = dbOrderManagementLine.getOrderQty();
@@ -584,13 +580,18 @@ public class OrderManagementLineService extends BaseService {
 			
 			/*
 			 * Deleting current record and inserting new record (since UK is allowing to update 
-			 * prop_st_bin and Pack_bar_codes columns
+			 * prop_st_bin and Pack_bar_codes columns)
 			 */
+			try {
+				orderManagementLineRepository.delete(orderManagementLine);
+				log.info("--#---orderManagementLine--deleted----: " + orderManagementLine);
+			} catch (Exception e) {
+				log.info("--Error---orderManagementLine--deleted----: " + orderManagementLine);
+				e.printStackTrace();
+			}
+			
 			OrderManagementLine newOrderManagementLine = new OrderManagementLine();
 			BeanUtils.copyProperties(orderManagementLine, newOrderManagementLine, CommonUtils.getNullPropertyNames(orderManagementLine));
-			orderManagementLineRepository.delete(orderManagementLine);
-			log.info("--#---orderManagementLine--deleted----: " + orderManagementLine);
-			
 			newOrderManagementLine.setProposedStorageBin(maxQtyHoldsInventory.getStorageBin());
 			newOrderManagementLine.setProposedPackBarCode(maxQtyHoldsInventory.getPackBarcodes());
 			OrderManagementLine createdOrderManagementLine = orderManagementLineRepository.save(newOrderManagementLine);
@@ -658,6 +659,16 @@ public class OrderManagementLineService extends BaseService {
 				}
 				log.info ("ALLOC_QTY -----1--->: " + ALLOC_QTY);
 				
+				if (orderManagementLine.getStatusId() == 47L) {
+					try {
+						orderManagementLineRepository.delete(orderManagementLine);
+						log.info("--#---orderManagementLine--deleted----: " + orderManagementLine);
+					} catch (Exception e) {
+						log.info("--Error---orderManagementLine--deleted----: " + orderManagementLine);
+						e.printStackTrace();
+					}
+				}
+				
 				orderManagementLine.setAllocatedQty(ALLOC_QTY);
 				orderManagementLine.setReAllocatedQty(ALLOC_QTY);
 							
@@ -682,33 +693,20 @@ public class OrderManagementLineService extends BaseService {
 				 * Deleting current record and inserting new record (since UK is not allowing to update 
 				 * prop_st_bin and Pack_bar_codes columns
 				 */
-				if (orderManagementLine.getProposedStorageBin() == null && orderManagementLine.getProposedPackBarCode() == null) {
-					orderManagementLineRepository.delete(orderManagementLine);
-					log.info("--$---orderManagementLine--deleted----: " + orderManagementLine);
-					
-					newOrderManagementLine = new OrderManagementLine();
-					BeanUtils.copyProperties(orderManagementLine, newOrderManagementLine, CommonUtils.getNullPropertyNames(orderManagementLine));
-					newOrderManagementLine.setProposedStorageBin(stBinInventory.getStorageBin());
-					newOrderManagementLine.setProposedPackBarCode(stBinInventory.getPackBarcodes());
-					OrderManagementLine createdOrderManagementLine = orderManagementLineRepository.save(newOrderManagementLine);
-					log.info("--2---createdOrderManagementLine newly created------: " + createdOrderManagementLine);
-					allocatedQtyFromOrderMgmt = createdOrderManagementLine.getAllocatedQty();
-				} else {
-					newOrderManagementLine = new OrderManagementLine();
-					BeanUtils.copyProperties(orderManagementLine, newOrderManagementLine, CommonUtils.getNullPropertyNames(orderManagementLine));
-					newOrderManagementLine.setProposedStorageBin(stBinInventory.getStorageBin());
-					newOrderManagementLine.setProposedPackBarCode(stBinInventory.getPackBarcodes());
-					OrderManagementLine createdOrderManagementLine = orderManagementLineRepository.save(newOrderManagementLine);
-					log.info("--2---createdOrderManagementLine newly created------: " + createdOrderManagementLine);
-					allocatedQtyFromOrderMgmt = createdOrderManagementLine.getAllocatedQty();
-				}
+				newOrderManagementLine = new OrderManagementLine();
+				BeanUtils.copyProperties(orderManagementLine, newOrderManagementLine, CommonUtils.getNullPropertyNames(orderManagementLine));
+				newOrderManagementLine.setProposedStorageBin(stBinInventory.getStorageBin());
+				newOrderManagementLine.setProposedPackBarCode(stBinInventory.getPackBarcodes());
+				OrderManagementLine createdOrderManagementLine = orderManagementLineRepository.save(newOrderManagementLine);
+				log.info("--else---createdOrderManagementLine newly created------: " + createdOrderManagementLine);
+				allocatedQtyFromOrderMgmt = createdOrderManagementLine.getAllocatedQty();
 				
 				if (ORD_QTY > ALLOC_QTY) {
 					ORD_QTY = ORD_QTY - ALLOC_QTY;
 				}
 				
 //				if (orderManagementLine.getAllocatedQty() > 0) {
-				if (allocatedQtyFromOrderMgmt> 0) {
+				if (allocatedQtyFromOrderMgmt > 0) {
 					// Update Inventory table
 					Inventory inventoryForUpdate = inventoryService.getInventory(warehouseId, stBinInventory.getPackBarcodes(), 
 							itemCode, stBinInventory.getStorageBin());

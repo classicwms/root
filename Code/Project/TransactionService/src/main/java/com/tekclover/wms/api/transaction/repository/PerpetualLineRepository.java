@@ -1,7 +1,6 @@
 package com.tekclover.wms.api.transaction.repository;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -16,7 +15,10 @@ public interface PerpetualLineRepository extends JpaRepository<PerpetualLine,Lon
 	
 	public List<PerpetualLine> findAll();
 	
-	public Optional<PerpetualLine> 
+	public PerpetualLine 
 		findByCompanyCodeIdAndPlantIdAndWarehouseIdAndCycleCountNoAndStorageBinAndItemCodeAndPackBarcodesAndDeletionIndicator(
-				String companyCodeId, String plantId, String warehouseId, String cycleCountNo, String storageBin, String itemCode, String packBarcodes, Long deletionIndicator);
+				String companyCodeId, String plantId, String warehouseId, String cycleCountNo, 
+				String storageBin, String itemCode, String packBarcodes, Long deletionIndicator);
+	
+	 public List<PerpetualLine> findByCycleCountNoAndDeletionIndicator(String cycleCountNo, Long deletionIndicator);
 }

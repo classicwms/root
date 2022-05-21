@@ -66,8 +66,6 @@ public class MastersService {
 			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
-//			e.printStackTrace();
-//			throw e;
 			return null;
 		}
 	}
@@ -282,7 +280,6 @@ public class MastersService {
 			headers.add("Authorization", "Bearer " + authToken);
 			
 			HttpEntity<?> entity = new HttpEntity<>(modifiedStorageBin, headers);
-			
 			HttpClient client = HttpClients.createDefault();
 			RestTemplate restTemplate = getRestTemplate();
 			restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client)); 

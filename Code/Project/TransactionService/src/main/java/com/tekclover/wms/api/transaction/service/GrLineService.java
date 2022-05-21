@@ -81,9 +81,6 @@ public class GrLineService extends BaseService {
 	private AuthTokenService authTokenService;
 	
 	@Autowired
-	private IDMasterService idmasterService;
-	
-	@Autowired
 	private MastersService mastersService;
 	
 	private static final String WAREHOUSEID_111 = "111";

@@ -1,11 +1,12 @@
-package com.tekclover.wms.api.transaction.model.cyclecount.perpetual;
+package com.tekclover.wms.api.transaction.model.cyclecount.periodic;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.Data;
 
 @Data
-public class AddPerpetualLine {
+public class AddPeriodicLine {
 
 	private String companyCodeId;
 	private String plantId;
@@ -51,4 +52,5 @@ public class AddPerpetualLine {
 	private String countedBy;
 	private Date countedOn = new Date();
 
+	private List<AddPeriodicLine> addPeriodicLine;
 }

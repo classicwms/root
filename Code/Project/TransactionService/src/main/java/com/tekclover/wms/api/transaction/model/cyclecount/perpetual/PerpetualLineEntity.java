@@ -5,20 +5,23 @@ import java.util.Date;
 import lombok.Data;
 
 @Data
-public class AddPerpetualLine {
-
+public class PerpetualLineEntity { 
+	
 	private String companyCodeId;
 	private String plantId;
 	private String warehouseId;
 	private String cycleCountNo;
 	private String storageBin;
 	private String itemCode;
+	private String itemDesc;
 	private String packBarcodes;
 	private Long variantCode;
 	private String variantSubCode;
 	private String batchSerialNumber;
 	private Long stockTypeId;
-	private String specialStockIndicator;
+	private String storageSectionId;
+	private String manufacturerPartNo;
+	private Long specialStockIndicator;
 	private Double inventoryQuantity;
 	private String inventoryUom;
 	private Double countedQty;
@@ -47,8 +50,7 @@ public class AddPerpetualLine {
 	private String createdBy;
 	private Date createdOn = new Date();
 	private String confirmedBy;
-	private Date confirmedOn = new Date();
+	private Date confirmedOn;
 	private String countedBy;
 	private Date countedOn = new Date();
-
 }

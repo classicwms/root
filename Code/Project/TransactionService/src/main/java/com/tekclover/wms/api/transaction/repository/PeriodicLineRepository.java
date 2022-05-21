@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.tekclover.wms.api.transaction.model.cyclecount.PeriodicLine;
+import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicLine;
 
 @Repository
 @Transactional

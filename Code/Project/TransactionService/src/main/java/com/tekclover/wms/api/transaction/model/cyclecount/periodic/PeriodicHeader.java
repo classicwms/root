@@ -1,4 +1,4 @@
-package com.tekclover.wms.api.transaction.model.cyclecount.perpetual;
+package com.tekclover.wms.api.transaction.model.cyclecount.periodic;
 
 import java.util.Date;
 
@@ -18,18 +18,18 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 /*
- * `C_ID`, `PLANT_ID`, `WH_ID`, `CC_TYP_ID`, `CC_NO`, `MVT_TYP_ID`, `SUB_MVT_TYP_ID`
+ * `C_ID`, `PLANT_ID`, `WH_ID`, `CC_TYP_ID`, `CC_NO`
  */
 @Table(
-		name = "tblperpetualheader", 
+		name = "tblPeriodicHeader", 
 		uniqueConstraints = { 
 				@UniqueConstraint (
-						name = "unique_key_perpetualheader", 
-						columnNames = {"C_ID", "PLANT_ID", "WH_ID", "CC_TYP_ID", "CC_NO", "MVT_TYP_ID", "SUB_MVT_TYP_ID"})
+						name = "unique_key_periodicheader", 
+						columnNames = {"C_ID", "PLANT_ID", "WH_ID", "CC_TYP_ID", "CC_NO"})
 				}
 		)
-@IdClass(PerpetualHeaderCompositeKey.class)
-public class PerpetualHeader { 
+@IdClass(PeriodicHeaderCompositeKey.class)
+public class PeriodicHeader { 
 	
 	@Id
 	@Column(name = "C_ID")
@@ -37,7 +37,7 @@ public class PerpetualHeader {
 	
 	@Id
 	@Column(name = "PLANT_ID") 
-	private String plantId;
+	private String palntId;
 	
 	@Id
 	@Column(name = "WH_ID") 
@@ -99,17 +99,17 @@ public class PerpetualHeader {
 	private String createdBy;
 	
 	@Column(name = "CC_CTD_ON")
-	private Date createdOn;
+	private Date createdOn = new Date();
 	
 	@Column(name = "CC_CNT_BY")
 	private String countedBy;
 	
 	@Column(name = "CC_CNT_ON") 
-	private Date countedOn;
+	private Date countedOn = new Date();
 	
 	@Column(name = "CC_CNF_BY") 
 	private String confirmedBy;
 	
 	@Column(name = "CC_CNF_ON") 
-	private Date confirmedOn;
+	private Date confirmedOn = new Date();
 }
