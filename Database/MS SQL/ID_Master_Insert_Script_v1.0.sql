@@ -1,160 +1,153 @@
 
 -- WMS - ID Master Insert scripts
 
-INSERT INTO `WMS`.`tblusermanagement` (`usr_id`, `c_id`, `ctd_by`, `cur_decimal`, `date_for_id`, `is_deleted`, `mail_id`, `fst_nm`, `lang_id`, `lst_nm`, `password`, `plant_id`, `status_id`, `user_nm`, `usr_role_id`, `usr_typ_id`, `wh_id`) 
+INSERT INTO tblusermanagement (usr_id, c_id, ctd_by, cur_decimal, date_for_id, is_deleted, mail_id, fst_nm, lang_id, lst_nm, password, plant_id, status_id, user_nm, usr_role_id, usr_typ_id, wh_id) 
 VALUES ('wms', '1000', 'raj', '1', '1', '0', 'raj@tekclover.com', 'Raj', 'EN', 'Raj', '$2a$10$2vBZ88KzAgCZlcbp33jkyOtX/vB4AdheVeNitofJfYtxBnEWWyb8G', '1001', '1', 'raj', '1', '1', '110');
+GO
 
-
-----------------------------------------------------tblverticalid--------------------------------------------------
-
-INSERT INTO `WMS`.`tblverticalid` (`VERT_ID`,`LANG_ID`,`VERTICAL`,`REMARK`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblverticalid (VERT_ID,LANG_ID,VERTICAL,REMARK,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (01,'EN','Retail',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
--------------------------------------------------------------------------------------------------------------------
-
-----------------------------------------------------tblcompanyid--------------------------------------------------
-
-INSERT INTO `WMS`.`tblcompanyid` (`C_ID`,`LANG_ID`,`C_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblcompanyid (C_ID,LANG_ID,C_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,'EN','True Value',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
--------------------------------------------------------------------------------------------------------------------
-
-----------------------------------------------------tblwarehouseid--------------------------------------------------
-
-INSERT INTO `WMS`.`tblwarehouseid` (`C_ID`,`WH_ID`,`LANG_ID`,`PLANT_ID`,`WH_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblwarehouseid (C_ID,WH_ID,LANG_ID,PLANT_ID,WH_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,'110','EN',1001,'TV Warehouse',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
-INSERT INTO `WMS`.`tblwarehouseid` (`C_ID`,`WH_ID`,`LANG_ID`,`PLANT_ID`,`WH_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblwarehouseid (C_ID,WH_ID,LANG_ID,PLANT_ID,WH_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,'111','EN',1001,'TE Warehouse',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
--------------------------------------------------------------------------------------------------------------------
-
-----------------------------------------------------tblplantid--------------------------------------------------
-
-INSERT INTO `WMS`.`tblplantid` (`C_ID`,`PLANT_ID`,`LANG_ID`,`PLANT_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblplantid (C_ID,PLANT_ID,LANG_ID,PLANT_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001'EN','True Value',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
------------------------------------------------------------------------------------------------------------------
+GO
 
-----------------------------------------------------tblfloorid--------------------------------------------------
-
-INSERT INTO `WMS`.`tblfloorid` (`C_ID`,`PLANT_ID`,`WH_ID`,`FL_ID`,`LANG_ID`,`FL_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblfloorid (C_ID,PLANT_ID,WH_ID,FL_ID,LANG_ID,FL_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110','01','EN','Basement floor',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
-INSERT INTO `WMS`.`tblfloorid` (`C_ID`,`PLANT_ID`,`WH_ID`,`FL_ID`,`LANG_ID`,`FL_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblfloorid (C_ID,PLANT_ID,WH_ID,FL_ID,LANG_ID,FL_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110','02','EN','Ground floor',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
-INSERT INTO `WMS`.`tblfloorid` (`C_ID`,`PLANT_ID`,`WH_ID`,`FL_ID`,`LANG_ID`,`FL_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblfloorid (C_ID,PLANT_ID,WH_ID,FL_ID,LANG_ID,FL_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111','02','EN','Ground floor',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
-INSERT INTO `WMS`.`tblfloorid` (`C_ID`,`PLANT_ID`,`WH_ID`,`FL_ID`,`LANG_ID`,`FL_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblfloorid (C_ID,PLANT_ID,WH_ID,FL_ID,LANG_ID,FL_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111','02','EN','Ground floor',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
------------------------------------------------------------------------------------------------------------------
-
-----------------------------------------------------tblstoragesectionid--------------------------------------------------
-
-INSERT INTO `WMS`.`tblstoragesectionid` (`C_ID`,`PLANT_ID`,`WH_ID`,`FL_ID`,`ST_SEC_ID`,`ST_SEC`,`LANG_ID`,`ST_SEC_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstoragesectionid (C_ID,PLANT_ID,WH_ID,FL_ID,ST_SEC_ID,ST_SEC,LANG_ID,ST_SEC_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',01,'ZB','Basement section','EN','Basement section',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
-INSERT INTO `WMS`.`tblstoragesectionid` (`C_ID`,`PLANT_ID`,`WH_ID`,`FL_ID`,`ST_SEC_ID`,`ST_SEC`,`LANG_ID`,`ST_SEC_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstoragesectionid (C_ID,PLANT_ID,WH_ID,FL_ID,ST_SEC_ID,ST_SEC,LANG_ID,ST_SEC_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',01,'ZG','Ground Section','EN','Ground Section',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
-INSERT INTO `WMS`.`tblstoragesectionid` (`C_ID`,`PLANT_ID`,`WH_ID`,`FL_ID`,`ST_SEC_ID`,`ST_SEC`,`LANG_ID`,`ST_SEC_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstoragesectionid (C_ID,PLANT_ID,WH_ID,FL_ID,ST_SEC_ID,ST_SEC,LANG_ID,ST_SEC_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',01,'ZC','Corner Section','EN','Corner Section',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
-INSERT INTO `WMS`.`tblstoragesectionid` (`C_ID`,`PLANT_ID`,`WH_ID`,`FL_ID`,`ST_SEC_ID`,`ST_SEC`,`LANG_ID`,`ST_SEC_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstoragesectionid (C_ID,PLANT_ID,WH_ID,FL_ID,ST_SEC_ID,ST_SEC,LANG_ID,ST_SEC_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',01,'ZD','Damage Section','EN','Damage Section',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
-INSERT INTO `WMS`.`tblstoragesectionid` (`C_ID`,`PLANT_ID`,`WH_ID`,`FL_ID`,`ST_SEC_ID`,`ST_SEC`,`LANG_ID`,`ST_SEC_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstoragesectionid (C_ID,PLANT_ID,WH_ID,FL_ID,ST_SEC_ID,ST_SEC,LANG_ID,ST_SEC_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',02,'ZB','Basement section','EN','Basement section',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
-INSERT INTO `WMS`.`tblstoragesectionid` (`C_ID`,`PLANT_ID`,`WH_ID`,`FL_ID`,`ST_SEC_ID`,`ST_SEC`,`LANG_ID`,`ST_SEC_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstoragesectionid (C_ID,PLANT_ID,WH_ID,FL_ID,ST_SEC_ID,ST_SEC,LANG_ID,ST_SEC_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',02,'ZG','Ground Section','EN','Ground Section',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
-INSERT INTO `WMS`.`tblstoragesectionid` (`C_ID`,`PLANT_ID`,`WH_ID`,`FL_ID`,`ST_SEC_ID`,`ST_SEC`,`LANG_ID`,`ST_SEC_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstoragesectionid (C_ID,PLANT_ID,WH_ID,FL_ID,ST_SEC_ID,ST_SEC,LANG_ID,ST_SEC_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',02,'ZC','Corner Section','EN','Corner Section',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
-INSERT INTO `WMS`.`tblstoragesectionid` (`C_ID`,`PLANT_ID`,`WH_ID`,`FL_ID`,`ST_SEC_ID`,`ST_SEC`,`LANG_ID`,`ST_SEC_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstoragesectionid (C_ID,PLANT_ID,WH_ID,FL_ID,ST_SEC_ID,ST_SEC,LANG_ID,ST_SEC_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',02,'ZD','Damage Section','EN','Damage Section',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
-INSERT INTO `WMS`.`tblstoragesectionid` (`C_ID`,`PLANT_ID`,`WH_ID`,`FL_ID`,`ST_SEC_ID`,`ST_SEC`,`LANG_ID`,`ST_SEC_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstoragesectionid (C_ID,PLANT_ID,WH_ID,FL_ID,ST_SEC_ID,ST_SEC,LANG_ID,ST_SEC_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',01,'ZB','Basement section','EN','Basement section',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
-INSERT INTO `WMS`.`tblstoragesectionid` (`C_ID`,`PLANT_ID`,`WH_ID`,`FL_ID`,`ST_SEC_ID`,`ST_SEC`,`LANG_ID`,`ST_SEC_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstoragesectionid (C_ID,PLANT_ID,WH_ID,FL_ID,ST_SEC_ID,ST_SEC,LANG_ID,ST_SEC_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',01,'ZG','Ground Section','EN','Ground Section',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
-INSERT INTO `WMS`.`tblstoragesectionid` (`C_ID`,`PLANT_ID`,`WH_ID`,`FL_ID`,`ST_SEC_ID`,`ST_SEC`,`LANG_ID`,`ST_SEC_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstoragesectionid (C_ID,PLANT_ID,WH_ID,FL_ID,ST_SEC_ID,ST_SEC,LANG_ID,ST_SEC_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',01,'ZC','Corner Section','EN','Corner Section',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
-INSERT INTO `WMS`.`tblstoragesectionid` (`C_ID`,`PLANT_ID`,`WH_ID`,`FL_ID`,`ST_SEC_ID`,`ST_SEC`,`LANG_ID`,`ST_SEC_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstoragesectionid (C_ID,PLANT_ID,WH_ID,FL_ID,ST_SEC_ID,ST_SEC,LANG_ID,ST_SEC_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',01,'ZD','Damage Section','EN','Damage Section',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
-INSERT INTO `WMS`.`tblstoragesectionid` (`C_ID`,`PLANT_ID`,`WH_ID`,`FL_ID`,`ST_SEC_ID`,`ST_SEC`,`LANG_ID`,`ST_SEC_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstoragesectionid (C_ID,PLANT_ID,WH_ID,FL_ID,ST_SEC_ID,ST_SEC,LANG_ID,ST_SEC_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',02,'ZT','TE section','EN','TE section',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
-INSERT INTO `WMS`.`tblstoragesectionid` (`C_ID`,`PLANT_ID`,`WH_ID`,`FL_ID`,`ST_SEC_ID`,`ST_SEC`,`LANG_ID`,`ST_SEC_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstoragesectionid (C_ID,PLANT_ID,WH_ID,FL_ID,ST_SEC_ID,ST_SEC,LANG_ID,ST_SEC_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',02,'ZB','Basement section','EN','Basement section',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
-INSERT INTO `WMS`.`tblstoragesectionid` (`C_ID`,`PLANT_ID`,`WH_ID`,`FL_ID`,`ST_SEC_ID`,`ST_SEC`,`LANG_ID`,`ST_SEC_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstoragesectionid (C_ID,PLANT_ID,WH_ID,FL_ID,ST_SEC_ID,ST_SEC,LANG_ID,ST_SEC_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',02,'ZG','Ground Section','EN','Ground Section',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
-INSERT INTO `WMS`.`tblstoragesectionid` (`C_ID`,`PLANT_ID`,`WH_ID`,`FL_ID`,`ST_SEC_ID`,`ST_SEC`,`LANG_ID`,`ST_SEC_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstoragesectionid (C_ID,PLANT_ID,WH_ID,FL_ID,ST_SEC_ID,ST_SEC,LANG_ID,ST_SEC_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',02,'ZC','Corner Section','EN','Corner Section',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
-INSERT INTO `WMS`.`tblstoragesectionid` (`C_ID`,`PLANT_ID`,`WH_ID`,`FL_ID`,`ST_SEC_ID`,`ST_SEC`,`LANG_ID`,`ST_SEC_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstoragesectionid (C_ID,PLANT_ID,WH_ID,FL_ID,ST_SEC_ID,ST_SEC,LANG_ID,ST_SEC_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',02,'ZD','Damage Section','EN','Damage Section',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
-INSERT INTO `WMS`.`tblstoragesectionid` (`C_ID`,`PLANT_ID`,`WH_ID`,`FL_ID`,`ST_SEC_ID`,`ST_SEC`,`LANG_ID`,`ST_SEC_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstoragesectionid (C_ID,PLANT_ID,WH_ID,FL_ID,ST_SEC_ID,ST_SEC,LANG_ID,ST_SEC_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',02,'ZT','TE Section','EN','TE Section',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
-----------------------------------------------------------------------------------------------------------------------------
-
-----------------------------------------------------tblstorageclassid----------------------------------------------------------------
-
-INSERT INTO `WMS`.`tblstorageclassid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ST_CL_ID`,`LANG_ID`,`ST_CL_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstorageclassid (C_ID,PLANT_ID,WH_ID,ST_CL_ID,LANG_ID,ST_CL_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,'EN','General storage',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
-INSERT INTO `WMS`.`tblstorageclassid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ST_CL_ID`,`LANG_ID`,`ST_CL_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstorageclassid (C_ID,PLANT_ID,WH_ID,ST_CL_ID,LANG_ID,ST_CL_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,'EN','General storage',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
----------------------------------------------------------------------------------------------------------------------------------------
-
-----------------------------------------------------tblstoragetypeid----------------------------------------------------------------
-
-INSERT INTO `WMS`.`tblstoragetypeid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ST_CL_ID`,`ST_TYP_ID`,`LANG_ID`,`ST_TYP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstoragetypeid (C_ID,PLANT_ID,WH_ID,ST_CL_ID,ST_TYP_ID,LANG_ID,ST_TYP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,1,'EN','General',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
-INSERT INTO `WMS`.`tblstoragetypeid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ST_CL_ID`,`ST_TYP_ID`,`LANG_ID`,`ST_TYP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstoragetypeid (C_ID,PLANT_ID,WH_ID,ST_CL_ID,ST_TYP_ID,LANG_ID,ST_TYP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,1,'EN','General',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
------------------------------------------------------------------------------------------------------------------------------------------
---HARIRAAM COmpleted
-----------------------------------------------------tblstoragebintypeid----------------------------------------------------------------
-
-INSERT INTO `WMS`.`tblstoragebintypeid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ST_CL_ID`,`ST_TYP_ID`,`ST_BIN_TYP_ID`,`LANG_ID`,`ST_BIN_TYP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstoragebintypeid (C_ID,PLANT_ID,WH_ID,ST_CL_ID,ST_TYP_ID,ST_BIN_TYP_ID,LANG_ID,ST_BIN_TYP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,1,1,'EN','General',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
-INSERT INTO `WMS`.`tblstoragebintypeid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ST_CL_ID`,`ST_TYP_ID`,`ST_BIN_TYP_ID`,`LANG_ID`,`ST_BIN_TYP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstoragebintypeid (C_ID,PLANT_ID,WH_ID,ST_CL_ID,ST_TYP_ID,ST_BIN_TYP_ID,LANG_ID,ST_BIN_TYP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,1,1,'EN','General',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
+GO
 
------------------------------------------------------------------------------------------------------------------------------------------
-
----HARIRAAM COMPLETED
-
-
-----------------------------------------------------tblusertypeid----------------------------------------------------------------
-
-INSERT INTO `WMS`.`tblusertypeid` (`C_ID`,`PLANT_ID`,`WH_ID`,`USR_TYP_ID`,`LANG_ID`,`USR_TYP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblusertypeid (C_ID,PLANT_ID,WH_ID,USR_TYP_ID,LANG_ID,USR_TYP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,'EN','HHT',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblusertypeid` (`C_ID`,`PLANT_ID`,`WH_ID`,`USR_TYP_ID`,`LANG_ID`,`USR_TYP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblusertypeid (C_ID,PLANT_ID,WH_ID,USR_TYP_ID,LANG_ID,USR_TYP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',2,'EN','PORTAL',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblusertypeid` (`C_ID`,`PLANT_ID`,`WH_ID`,`USR_TYP_ID`,`LANG_ID`,`USR_TYP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblusertypeid (C_ID,PLANT_ID,WH_ID,USR_TYP_ID,LANG_ID,USR_TYP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,'EN','HHT',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblusertypeid` (`C_ID`,`PLANT_ID`,`WH_ID`,`USR_TYP_ID`,`LANG_ID`,`USR_TYP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblusertypeid (C_ID,PLANT_ID,WH_ID,USR_TYP_ID,LANG_ID,USR_TYP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',2,'EN','PORTAL',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
 ------------------------------------------------------------------------------------------------------------------------------------
@@ -162,34 +155,34 @@ VALUES (1000,1001,'111',2,'EN','PORTAL',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CU
 
 ----------------------------------------------------tbluomid----------------------------------------------------------------
 
-INSERT INTO `WMS`.`tbluomid` (`C_ID`,`UOM_ID`,`LANG_ID`,`UOM_TEXT`,`UOM_TYP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tbluomid (C_ID,UOM_ID,LANG_ID,UOM_TEXT,UOM_TYP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,'CM','EN','Centimetre','length',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tbluomid` (`C_ID`,`UOM_ID`,`LANG_ID`,`UOM_TEXT`,`UOM_TYP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tbluomid (C_ID,UOM_ID,LANG_ID,UOM_TEXT,UOM_TYP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,'FEET','EN','FEET','length',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tbluomid` (`C_ID`,`UOM_ID`,`LANG_ID`,`UOM_TEXT`,`UOM_TYP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tbluomid (C_ID,UOM_ID,LANG_ID,UOM_TEXT,UOM_TYP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,'G','EN','Gram','standard',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tbluomid` (`C_ID`,`UOM_ID`,`LANG_ID`,`UOM_TEXT`,`UOM_TYP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tbluomid (C_ID,UOM_ID,LANG_ID,UOM_TEXT,UOM_TYP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,'KG','EN','Kilogram','standard',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tbluomid` (`C_ID`,`UOM_ID`,`LANG_ID`,`UOM_TEXT`,`UOM_TYP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tbluomid (C_ID,UOM_ID,LANG_ID,UOM_TEXT,UOM_TYP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,'METRE','EN','METRE','length',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tbluomid` (`C_ID`,`UOM_ID`,`LANG_ID`,`UOM_TEXT`,`UOM_TYP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tbluomid (C_ID,UOM_ID,LANG_ID,UOM_TEXT,UOM_TYP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,'MM','EN','Millimtre','length',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tbluomid` (`C_ID`,`UOM_ID`,`LANG_ID`,`UOM_TEXT`,`UOM_TYP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tbluomid (C_ID,UOM_ID,LANG_ID,UOM_TEXT,UOM_TYP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,'PACK','EN','PACK','standard',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tbluomid` (`C_ID`,`UOM_ID`,`LANG_ID`,`UOM_TEXT`,`UOM_TYP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tbluomid (C_ID,UOM_ID,LANG_ID,UOM_TEXT,UOM_TYP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,'PIECE','EN','PIECE','standard',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tbluomid` (`C_ID`,`UOM_ID`,`LANG_ID`,`UOM_TEXT`,`UOM_TYP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tbluomid (C_ID,UOM_ID,LANG_ID,UOM_TEXT,UOM_TYP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,'ROLL','EN','METRE','length',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tbluomid` (`C_ID`,`UOM_ID`,`LANG_ID`,`UOM_TEXT`,`UOM_TYP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tbluomid (C_ID,UOM_ID,LANG_ID,UOM_TEXT,UOM_TYP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,'SET','EN','SET','standard',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
 
@@ -199,10 +192,10 @@ VALUES (1000,'SET','EN','SET','standard',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',C
 
 ----------------------------------------------------tbllevelid----------------------------------------------------------------
 
-INSERT INTO `WMS`.`tbllevelid` (`C_ID`,`PLANT_ID`,`WH_ID`,`LEVEL_ID`,`LANG_ID`,`LEVEL`,`LEVEL_REF`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tbllevelid (C_ID,PLANT_ID,WH_ID,LEVEL_ID,LANG_ID,LEVEL,LEVEL_REF,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,'EN','WAREHOUSE','110',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tbllevelid` (`C_ID`,`PLANT_ID`,`WH_ID`,`LEVEL_ID`,`LANG_ID`,`LEVEL`,`LEVEL_REF`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tbllevelid (C_ID,PLANT_ID,WH_ID,LEVEL_ID,LANG_ID,LEVEL,LEVEL_REF,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,'EN','WAREHOUSE','111',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
 ------------------------------------------------------------------------------------------------------------------------------
@@ -210,30 +203,30 @@ VALUES (1000,1001,'110',1,'EN','WAREHOUSE','111',0,'SUPERADMIN',CURDATE(),'SUPER
 
 ----------------------------------------------------tblcurrency_id----------------------------------------------------------------
 
-INSERT INTO `WMS`.`tblcurrencyid` (`CURR_ID`,`LANG_ID`,`CURR_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblcurrencyid (CURR_ID,LANG_ID,CURR_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('KWD','EN','Kuwait Dinar',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblcurrencyid` (`CURR_ID`,`LANG_ID`,`CURR_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblcurrencyid (CURR_ID,LANG_ID,CURR_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('USD','EN','US Dollar',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
 -------------------------------------------------------------------------------------------------------------------------------------
 ---HARIRAAM COMPLETED
 ----------------------------------------------------tblbarcodetypeid----------------------------------------------------------------
 
-INSERT INTO `WMS`.`tblbarcodetypeid` (`C_ID`,`PLANT_ID`,`WH_ID`,`BAR_TYP_ID`,`LANG_ID`,`BAR_TYP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblbarcodetypeid (C_ID,PLANT_ID,WH_ID,BAR_TYP_ID,LANG_ID,BAR_TYP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,'EN','1D',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblbarcodetypeid` (`C_ID`,`PLANT_ID`,`WH_ID`,`BAR_TYP_ID`,`LANG_ID`,`BAR_TYP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblbarcodetypeid (C_ID,PLANT_ID,WH_ID,BAR_TYP_ID,LANG_ID,BAR_TYP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,'EN','1D',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
 -------------------------------------------------------------------------------------------------------------------------------------
 ---HARIRAAM COMPLETED
 ----------------------------------------------------tblbarcodesubtypeid----------------------------------------------------------------
 
-INSERT INTO `WMS`.`tblbarcodesubtypeid` (`C_ID`,`PLANT_ID`,`WH_ID`,`BAR_TYP_ID`,`BAR_SUB_ID`,`LANG_ID`,`BAR_SUB_TYP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblbarcodesubtypeid (C_ID,PLANT_ID,WH_ID,BAR_TYP_ID,BAR_SUB_ID,LANG_ID,BAR_SUB_TYP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,1,'EN','INTERNAL',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblbarcodesubtypeid` (`C_ID`,`PLANT_ID`,`WH_ID`,`BAR_TYP_ID`,`BAR_SUB_ID`,`LANG_ID`,`BAR_SUB_TYP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblbarcodesubtypeid (C_ID,PLANT_ID,WH_ID,BAR_TYP_ID,BAR_SUB_ID,LANG_ID,BAR_SUB_TYP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,1,'EN','INTERNAL',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
 ----------------------------------------------------------------------------------------------------------------------------------------
@@ -241,16 +234,16 @@ VALUES (1000,1001,'111',1,1,'EN','INTERNAL',0,'SUPERADMIN',CURDATE(),'SUPERADMIN
 
 ----------------------------------------------------tblstrategyid----------------------------------------------------------------
 
-INSERT INTO `WMS`.`tblstrategyid` (`C_ID`,`PLANT_ID`,`WH_ID`,`STR_TYP_ID`,`ST_NO`,`LANG_ID`,`STR_TYP_TEXT`,`ST_NO_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstrategyid (C_ID,PLANT_ID,WH_ID,STR_TYP_ID,ST_NO,LANG_ID,STR_TYP_TEXT,ST_NO_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,1,'EN','Putaway','Fixed Bin',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstrategyid` (`C_ID`,`PLANT_ID`,`WH_ID`,`STR_TYP_ID`,`ST_NO`,`LANG_ID`,`STR_TYP_TEXT`,`ST_NO_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstrategyid (C_ID,PLANT_ID,WH_ID,STR_TYP_ID,ST_NO,LANG_ID,STR_TYP_TEXT,ST_NO_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',2,1,'EN','Picking','Wave',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstrategyid` (`C_ID`,`PLANT_ID`,`WH_ID`,`STR_TYP_ID`,`ST_NO`,`LANG_ID`,`STR_TYP_TEXT`,`ST_NO_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstrategyid (C_ID,PLANT_ID,WH_ID,STR_TYP_ID,ST_NO,LANG_ID,STR_TYP_TEXT,ST_NO_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,1,'EN','Putaway','Fixed Bin',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstrategyid` (`C_ID`,`PLANT_ID`,`WH_ID`,`STR_TYP_ID`,`ST_NO`,`LANG_ID`,`STR_TYP_TEXT`,`ST_NO_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstrategyid (C_ID,PLANT_ID,WH_ID,STR_TYP_ID,ST_NO,LANG_ID,STR_TYP_TEXT,ST_NO_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',2,1,'EN','Picking','Wave',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
 --------------------------------------------------------------------------------------------------------------------------------
@@ -258,10 +251,10 @@ VALUES (1000,1001,'111',2,1,'EN','Picking','Wave',0,'SUPERADMIN',CURDATE(),'SUPE
 
 ----------------------------------------------------tblwarehousetypeid----------------------------------------------------------------
 
-INSERT INTO `WMS`.`tblwarehousetypeid` (`C_ID`,`PLANT_ID`,`WH_ID`,`WH_TYP_ID`,`LANG_ID`,`WH_TYP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblwarehousetypeid (C_ID,PLANT_ID,WH_ID,WH_TYP_ID,LANG_ID,WH_TYP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',01,'EN','Integration',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblwarehousetypeid` (`C_ID`,`PLANT_ID`,`WH_ID`,`WH_TYP_ID`,`LANG_ID`,`WH_TYP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblwarehousetypeid (C_ID,PLANT_ID,WH_ID,WH_TYP_ID,LANG_ID,WH_TYP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',01,'EN','Integration',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
 -------------------------------------------------------------------------------------------------------------------------------------------
@@ -269,34 +262,34 @@ VALUES (1000,1001,'111',01,'EN','Integration',0,'SUPERADMIN',CURDATE(),'SUPERADM
 
 -----------------------------------------------------tblbinclassid----------------------------------------------------------------
 
-INSERT INTO `WMS`.`tblbinclassid` (`C_ID`,`PLANT_ID`,`WH_ID`,`BIN_CL_ID`,`LANG_ID`,`BIN_CLASS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblbinclassid (C_ID,PLANT_ID,WH_ID,BIN_CL_ID,LANG_ID,BIN_CLASS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,'EN','Storage Bin',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblbinclassid` (`C_ID`,`PLANT_ID`,`WH_ID`,`BIN_CL_ID`,`LANG_ID`,`BIN_CLASS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblbinclassid (C_ID,PLANT_ID,WH_ID,BIN_CL_ID,LANG_ID,BIN_CLASS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',2,'EN','Interim Bin',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblbinclassid` (`C_ID`,`PLANT_ID`,`WH_ID`,`BIN_CL_ID`,`LANG_ID`,`BIN_CLASS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblbinclassid (C_ID,PLANT_ID,WH_ID,BIN_CL_ID,LANG_ID,BIN_CLASS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',3,'EN','GR (Staging)',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblbinclassid` (`C_ID`,`PLANT_ID`,`WH_ID`,`BIN_CL_ID`,`LANG_ID`,`BIN_CLASS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblbinclassid (C_ID,PLANT_ID,WH_ID,BIN_CL_ID,LANG_ID,BIN_CLASS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',4,'EN','Quality (staging)',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblbinclassid` (`C_ID`,`PLANT_ID`,`WH_ID`,`BIN_CL_ID`,`LANG_ID`,`BIN_CLASS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblbinclassid (C_ID,PLANT_ID,WH_ID,BIN_CL_ID,LANG_ID,BIN_CLASS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',5,'EN','Stock count(interim)',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblbinclassid` (`C_ID`,`PLANT_ID`,`WH_ID`,`BIN_CL_ID`,`LANG_ID`,`BIN_CLASS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblbinclassid (C_ID,PLANT_ID,WH_ID,BIN_CL_ID,LANG_ID,BIN_CLASS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,'EN','Storage Bin',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblbinclassid` (`C_ID`,`PLANT_ID`,`WH_ID`,`BIN_CL_ID`,`LANG_ID`,`BIN_CLASS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblbinclassid (C_ID,PLANT_ID,WH_ID,BIN_CL_ID,LANG_ID,BIN_CLASS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',2,'EN','Interim Bin ',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblbinclassid` (`C_ID`,`PLANT_ID`,`WH_ID`,`BIN_CL_ID`,`LANG_ID`,`BIN_CLASS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblbinclassid (C_ID,PLANT_ID,WH_ID,BIN_CL_ID,LANG_ID,BIN_CLASS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',3,'EN','GR (Staging)',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblbinclassid` (`C_ID`,`PLANT_ID`,`WH_ID`,`BIN_CL_ID`,`LANG_ID`,`BIN_CLASS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblbinclassid (C_ID,PLANT_ID,WH_ID,BIN_CL_ID,LANG_ID,BIN_CLASS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',4,'EN','Quality (staging)',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblbinclassid` (`C_ID`,`PLANT_ID`,`WH_ID`,`BIN_CL_ID`,`LANG_ID`,`BIN_CLASS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblbinclassid (C_ID,PLANT_ID,WH_ID,BIN_CL_ID,LANG_ID,BIN_CLASS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',5,'EN','Stock count(interim)',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
 ------------------------------------------------------------------------------------------------------------------------------------------
@@ -304,1659 +297,1659 @@ VALUES (1000,1001,'111',5,'EN','Stock count(interim)',0,'SUPERADMIN',CURDATE(),'
 ----------------------------------------------------tblcountryid----------------------------------------------------------------
 
 
-INSERT INTO `WMS`.`tblcountryid` (`Country_ID`,`LANG_ID`,`COUNTRY_NM`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblcountryid (Country_ID,LANG_ID,COUNTRY_NM,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('KW','EN','KUWAIT',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
 ----------------------------------------------------------------------------------------------------------------------------------
 ----HARIRAAM COMPLETED
 ----------------------------------------------------tblstateid----------------------------------------------------------------
 
-INSERT INTO `WMS`.`tblstateid` (`COUNTRY_ID`,`STATE_ID`,`LANG_ID`,`STATE_NM`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstateid (COUNTRY_ID,STATE_ID,LANG_ID,STATE_NM,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('KW','JA','EN','Jahra',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstateid` (`COUNTRY_ID`,`STATE_ID`,`LANG_ID`,`STATE_NM`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstateid (COUNTRY_ID,STATE_ID,LANG_ID,STATE_NM,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('KW','FW','EN','Farwaniya',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstateid` (`COUNTRY_ID`,`STATE_ID`,`LANG_ID`,`STATE_NM`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstateid (COUNTRY_ID,STATE_ID,LANG_ID,STATE_NM,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('KW','CG','EN','Capital',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
 -----------------------------------------------------------------------------------------------------------------------------------
 ----HARIRAAM COMPLETED
 ----------------------------------------------------tblcityid----------------------------------------------------------------
 
-INSERT INTO `WMS`.`tblcityid` (`COUNTRY_ID`,`STATE_ID`,`CITY_ID`,`ZIP_CD`,`LANG_ID`,`CITY_NM`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblcityid (COUNTRY_ID,STATE_ID,CITY_ID,ZIP_CD,LANG_ID,CITY_NM,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('KW','JA','AM',3200,'EN','Amghara',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblcityid` (`COUNTRY_ID`,`STATE_ID`,`CITY_ID`,`ZIP_CD`,`LANG_ID`,`CITY_NM`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblcityid (COUNTRY_ID,STATE_ID,CITY_ID,ZIP_CD,LANG_ID,CITY_NM,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('KW','FW','AL',85000,'EN','Alrai',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblcityid` (`COUNTRY_ID`,`STATE_ID`,`CITY_ID`,`ZIP_CD`,`LANG_ID`,`CITY_NM`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblcityid (COUNTRY_ID,STATE_ID,CITY_ID,ZIP_CD,LANG_ID,CITY_NM,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('KW','CG','SH',70030,'EN','Shuwaik',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblcityid` (`COUNTRY_ID`,`STATE_ID`,`CITY_ID`,`ZIP_CD`,`LANG_ID`,`CITY_NM`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblcityid (COUNTRY_ID,STATE_ID,CITY_ID,ZIP_CD,LANG_ID,CITY_NM,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('KW','FW','EG',85000,'EN','Egaila',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblcityid` (`COUNTRY_ID`,`STATE_ID`,`CITY_ID`,`ZIP_CD`,`LANG_ID`,`CITY_NM`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblcityid (COUNTRY_ID,STATE_ID,CITY_ID,ZIP_CD,LANG_ID,CITY_NM,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('KW','JA','AB',3200,'EN','Abdali',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
 --------------------------------------------------------------------------------------------------------------------------------
 ----HARIRAAM COMPLETED
 ----------------------------------------------------tblvariantid----------------------------------------------------------------
 
-INSERT INTO `WMS`.`tblvariantid` (`C_ID`,`PLANT_ID`,`WH_ID`,`VAR_ID`,`VAR_TYP`,`VAR_SUB_ID`,`VAR_ID_TEXT`,`VAR_SUB_ID_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblvariantid (C_ID,PLANT_ID,WH_ID,VAR_ID,VAR_TYP,VAR_SUB_ID,VAR_ID_TEXT,VAR_SUB_ID_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,'GENERAL',1,'GENERAL','GENERAL',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblvariantid` (`C_ID`,`PLANT_ID`,`WH_ID`,`VAR_ID`,`VAR_TYP`,`VAR_SUB_ID`,`VAR_ID_TEXT`,`VAR_SUB_ID_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblvariantid (C_ID,PLANT_ID,WH_ID,VAR_ID,VAR_TYP,VAR_SUB_ID,VAR_ID_TEXT,VAR_SUB_ID_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,'GENERAL',1,'GENERAL','GENERAL',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
 ---------------------------------------------------------------------------------------------------------------------------------------
 ----HARIRAAM COMPLETED
 ----------------------------------------------------tblitemtypeid----------------------------------------------------------------
 
-INSERT INTO `WMS`.`tblitemtypeid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYPE_ID`,`ITM_TYP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblitemtypeid (C_ID,PLANT_ID,WH_ID,ITM_TYPE_ID,ITM_TYP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,'Stock Item',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblitemtypeid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYPE_ID`,`ITM_TYP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblitemtypeid (C_ID,PLANT_ID,WH_ID,ITM_TYPE_ID,ITM_TYP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,'Stock Item',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
 -------------------------------------------------------------------------------------------------------------------------------------------
 ----HARIRAAM COMPLETED
 ----------------------------------------------------tblitemgroupid----------------------------------------------------------------
 
-INSERT INTO `WMS`.`tblitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYPE_ID`,`ITM_GRP_ID`,`IMT_GRP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYPE_ID,ITM_GRP_ID,IMT_GRP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,1,'General Item Group',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYPE_ID`,`ITM_GRP_ID`,`IMT_GRP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYPE_ID,ITM_GRP_ID,IMT_GRP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,2,'HARDWARE & BUILDING MATERIALS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYPE_ID`,`ITM_GRP_ID`,`IMT_GRP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYPE_ID,ITM_GRP_ID,IMT_GRP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,3,'HOME DECOR & CARPETS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYPE_ID`,`ITM_GRP_ID`,`IMT_GRP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYPE_ID,ITM_GRP_ID,IMT_GRP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,4,'AUTOMOTIVE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYPE_ID`,`ITM_GRP_ID`,`IMT_GRP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYPE_ID,ITM_GRP_ID,IMT_GRP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,5,'HOUSEWARE & CLEANING',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYPE_ID`,`ITM_GRP_ID`,`IMT_GRP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYPE_ID,ITM_GRP_ID,IMT_GRP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,6,'STATIONARY',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYPE_ID`,`ITM_GRP_ID`,`IMT_GRP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYPE_ID,ITM_GRP_ID,IMT_GRP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,7,'LAWN AND GARDEN',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYPE_ID`,`ITM_GRP_ID`,`IMT_GRP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYPE_ID,ITM_GRP_ID,IMT_GRP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,8,'TOYS.',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYPE_ID`,`ITM_GRP_ID`,`IMT_GRP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYPE_ID,ITM_GRP_ID,IMT_GRP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,9,'LUGGAGE & SPORTING',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYPE_ID`,`ITM_GRP_ID`,`IMT_GRP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYPE_ID,ITM_GRP_ID,IMT_GRP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,10,'HAND & POWER TOOLS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYPE_ID`,`ITM_GRP_ID`,`IMT_GRP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYPE_ID,ITM_GRP_ID,IMT_GRP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,11,'BATHROOM',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYPE_ID`,`ITM_GRP_ID`,`IMT_GRP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYPE_ID,ITM_GRP_ID,IMT_GRP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,12,'ELECTRICAL',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYPE_ID`,`ITM_GRP_ID`,`IMT_GRP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYPE_ID,ITM_GRP_ID,IMT_GRP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,13,'PAINT',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYPE_ID`,`ITM_GRP_ID`,`IMT_GRP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYPE_ID,ITM_GRP_ID,IMT_GRP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,14,'OUT DOOR LIVING',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYPE_ID`,`ITM_GRP_ID`,`IMT_GRP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYPE_ID,ITM_GRP_ID,IMT_GRP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,15,'APPLIANCE & ELECTRONICS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYPE_ID`,`ITM_GRP_ID`,`IMT_GRP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYPE_ID,ITM_GRP_ID,IMT_GRP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,16,'LINEN',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYPE_ID`,`ITM_GRP_ID`,`IMT_GRP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYPE_ID,ITM_GRP_ID,IMT_GRP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,17,'PLUMBING',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYPE_ID`,`ITM_GRP_ID`,`IMT_GRP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYPE_ID,ITM_GRP_ID,IMT_GRP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,18,'Retail Main Category',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYPE_ID`,`ITM_GRP_ID`,`IMT_GRP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYPE_ID,ITM_GRP_ID,IMT_GRP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,19,'MISCELLANEOUS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYPE_ID`,`ITM_GRP_ID`,`IMT_GRP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYPE_ID,ITM_GRP_ID,IMT_GRP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,20,'CAKEWARE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYPE_ID`,`ITM_GRP_ID`,`IMT_GRP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYPE_ID,ITM_GRP_ID,IMT_GRP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,21,'AIR FRESHENER',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYPE_ID`,`ITM_GRP_ID`,`IMT_GRP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYPE_ID,ITM_GRP_ID,IMT_GRP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,22,'DINNERWARE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYPE_ID`,`ITM_GRP_ID`,`IMT_GRP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYPE_ID,ITM_GRP_ID,IMT_GRP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,23,'SUNDRY CREDITORS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYPE_ID`,`ITM_GRP_ID`,`IMT_GRP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYPE_ID,ITM_GRP_ID,IMT_GRP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,24,'BATHROOM ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYPE_ID`,`ITM_GRP_ID`,`IMT_GRP`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYPE_ID,ITM_GRP_ID,IMT_GRP,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,25,'FOREIGN',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
 ------------------------------------------------------------------------------------------------------------------------------------
 ----HARIRAAM COMPLETED
 ----------------------------------------------------tblsubitemgroupid----------------------------------------------------------------
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,1,1,'General Sub Item Group','EN','General Sub Item Group',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,2,2,'UTILITY ACCESSORIES','EN','UTILITY ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,3,3,'FLOOR COVERING ROLLS & MATS','EN','FLOOR COVERING ROLLS & MATS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,4,4,'CAR ACCESSORIES','EN','CAR ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,5,5,'PLASTICWARE','EN','PLASTICWARE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,5,6,'CLEANING ACCESSORIES','EN','CLEANING ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,6,8,'STATIONARY ACCESSORIES','EN','STATIONARY ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,7,10,'GARDEN ACCESSORIES','EN','GARDEN ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,6,11,'PARTY ITEMS','EN','PARTY ITEMS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,8,12,'STUFF TOYS','EN','STUFF TOYS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,9,13,'HARD & SOFT LUGGAGES','EN','HARD & SOFT LUGGAGES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,5,14,'FLASK AND VACUUM JUG','EN','FLASK AND VACUUM JUG',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,10,15,'POWER TOOLS ACCESSORIES','EN','POWER TOOLS ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,11,16,'BATHROOM ACCESSORIES','EN','BATHROOM ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,6,17,'SCHOOL BAG','EN','SCHOOL BAG',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,10,18,'PLUMBING TOOLS','EN','PLUMBING TOOLS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,5,19,'GLASSWARE','EN','GLASSWARE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,2,20,'KNOB HANDLES & HOUSE NO','EN','KNOB HANDLES & HOUSE NO',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,7,21,'PLANTERS','EN','PLANTERS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,5,22,'KITCHEN UTENSILS','EN','KITCHEN UTENSILS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,12,23,'BULBS & BULB CHANGER','EN','BULBS & BULB CHANGER',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,13,24,'SPRAY PAINTS','EN','SPRAY PAINTS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,10,25,'TOOL BOX','EN','TOOL BOX',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,14,26,'CAMPING ITEMS','EN','CAMPING ITEMS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,5,27,'CUTLERY','EN','CUTLERY',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,7,28,'PET HOUSE & ACCESSORIES','EN','PET HOUSE & ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,5,29,'KITCHEN SHELVES','EN','KITCHEN SHELVES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,8,30,'X MAS DECORATIONS','EN','X MAS DECORATIONS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,10,31,'HAND TOOLS','EN','HAND TOOLS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,11,32,'SHOWER CURTAIN & ROD','EN','SHOWER CURTAIN & ROD',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,15,33,'HOUSE HOLD APPLIANCE','EN','HOUSE HOLD APPLIANCE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,16,34,'CUSHION & COVERS','EN','CUSHION & COVERS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,2,35,'SHELVING UTILITIES','EN','SHELVING UTILITIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,9,36,'LUGGAGE ACCESSORIES','EN','LUGGAGE ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,5,37,'WASTE BASKET','EN','WASTE BASKET',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,7,38,'FOUNTAINS','EN','FOUNTAINS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,7,39,'GARDEN FURNITURE & CUSHION','EN','GARDEN FURNITURE & CUSHION',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,8,40,'ACTION TOYS ACCESSORIES','EN','ACTION TOYS ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,5,41,'DINNERWARE','EN','DINNERWARE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,9,42,'SPORTING GOODS','EN','SPORTING GOODS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,13,43,'UTILITY TAPES','EN','UTILITY TAPES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,17,44,'PLUMBING ACCESSORIES','EN','PLUMBING ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,5,45,'BAKEWARE','EN','BAKEWARE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,7,46,'PAVILION & TENT','EN','PAVILION & TENT',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,14,47,'GRILL& ACCESSORIES','EN','GRILL& ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,11,48,'HANGER & LAUNDRY ACCESSORIES','EN','HANGER & LAUNDRY ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,13,49,'PAINT & THINNER','EN','PAINT & THINNER',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,13,50,'LADDER','EN','LADDER',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,8,51,'GAMES','EN','GAMES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,3,52,'CLOCKS','EN','CLOCKS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,3,53,'POTPOURRI & FRAGRANCE OILS','EN','POTPOURRI & FRAGRANCE OILS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,5,54,'TRAYS','EN','TRAYS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,12,55,'ELECTRICAL EXTENSION','EN','ELECTRICAL EXTENSION',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,5,56,'FURNITURE','EN','FURNITURE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,5,57,'CLOTH DRYER-IRON BOARD&ACCESSORIES','EN','CLOTH DRYER-IRON BOARD&ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,10,58,'SAFETY TOOLS & ACCESSORIES','EN','SAFETY TOOLS & ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,6,59,'WILLOW BASKET','EN','WILLOW BASKET',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,3,60,'DECORATIVE GLASS & ACCESSORIES','EN','DECORATIVE GLASS & ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,5,61,'KNIFE & CUTTING BOARD','EN','KNIFE & CUTTING BOARD',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,3,62,'PICTURE FRAMES','EN','PICTURE FRAMES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,18,63,'CHILDREN CRAFT ACCESORIES','EN','CHILDREN CRAFT ACCESORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,13,64,'GLUES & PUTTIES','EN','GLUES & PUTTIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,5,65,'CLEANING LIQUIDS','EN','CLEANING LIQUIDS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,16,66,'COMFORTER','EN','COMFORTER',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,8,67,'EDUCATIONAL TOYS','EN','EDUCATIONAL TOYS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,6,68,'PACKING METERIALS','EN','PACKING METERIALS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,11,69,'TOWELS & BATH ROBE','EN','TOWELS & BATH ROBE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,16,70,'PILLOWS','EN','PILLOWS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,4,71,'OIL AND LUBRICANT','EN','OIL AND LUBRICANT',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,11,72,'BATHROOM SHELVES','EN','BATHROOM SHELVES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,15,73,'HOUSE HOLD ELECTRONICS','EN','HOUSE HOLD ELECTRONICS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,3,74,'DOOR MATS','EN','DOOR MATS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,16,75,'BLANKETS','EN','BLANKETS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,5,76,'DISPOSIBLE PARTY LINE','EN','DISPOSIBLE PARTY LINE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,3,77,'FRAMED ART','EN','FRAMED ART',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,18,78,'Z - STORE SUPPLIES','EN','Z - STORE SUPPLIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,9,79,'CASUAL BAG','EN','CASUAL BAG',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,3,80,'DECORATIVE AND BED LAMPS','EN','DECORATIVE AND BED LAMPS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,16,81,'BED LINEN','EN','BED LINEN',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,7,82,'PRESSURE WASHER & ACCESSORIES','EN','PRESSURE WASHER & ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,15,83,'COMPUTER ACCESSORIES','EN','COMPUTER ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,2,84,'SHOE RACK','EN','SHOE RACK',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,11,85,'TOILET SEATS','EN','TOILET SEATS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,7,86,'PEST CONTROL & INSECT KILLERS','EN','PEST CONTROL & INSECT KILLERS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,13,87,'PAINT ACCESSORIES','EN','PAINT ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,3,88,'HOME FRAGRANCES','EN','HOME FRAGRANCES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,19,89,'SERVICE','EN','SERVICE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,16,90,'GARMENTS','EN','GARMENTS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,16,91,'KIDS BEDDING & KIDS ACCESSORIES','EN','KIDS BEDDING & KIDS ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,7,92,'LAWN MOVERS','EN','LAWN MOVERS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,7,93,'UMBRELLA / BASE','EN','UMBRELLA / BASE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,10,94,'POWER TOOLS','EN','POWER TOOLS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,7,95,'GARDEN HEATER &ACCESORIES','EN','GARDEN HEATER &ACCESORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,9,96,'SHOES & FOOTWARE','EN','SHOES & FOOTWARE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,5,97,'TISSUES & ACCESSORIES','EN','TISSUES & ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,3,98,'LANTERNS','EN','LANTERNS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,3,99,'TABLE & BED LAMPS','EN','TABLE & BED LAMPS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,9,100,'FISHING ITEMS','EN','FISHING ITEMS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,7,101,'WILLOW/RATTAN ITEMS','EN','WILLOW/RATTAN ITEMS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,7,102,'GARDEN TOOLS','EN','GARDEN TOOLS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,20,103,'ICING & DECORATION','EN','ICING & DECORATION',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,3,104,'SUNGLASS & READING GLASS','EN','SUNGLASS & READING GLASS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,12,105,'BATTERIES & TORCHES','EN','BATTERIES & TORCHES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,8,106,'X-MAS TREES','EN','X-MAS TREES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,13,107,'WOOD PAINTS','EN','WOOD PAINTS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,21,108,'ROOM SPRAYS & MISTS','EN','ROOM SPRAYS & MISTS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,6,109,'ZIP LOCK PRODUCTS','EN','ZIP LOCK PRODUCTS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,3,110,'CANDLE STANDS','EN','CANDLE STANDS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,22,111,'STONEWARE PLATES & MUGS','EN','STONEWARE PLATES & MUGS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,3,112,'POSTERS','EN','POSTER',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,15,113,'PC AND MOBILE ACCESSORIES','EN','PC AND MOBILE ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,14,114,'BEACH ITEMS','EN','BEACH ITEMS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,3,115,'CARPET','EN','CARPET',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,8,116,'REMOTE CONTROL TOYS','EN','REMOTE CONTROL TOYS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,20,117,'CAKE DECORATION (NON EDIBLE)','EN','CAKE DECORATION (NON EDIBLE)',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,12,118,'ELECTRICAL ACCESSORIES','EN','ELECTRICAL ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,7,119,'SWING ITEMS','EN','SWING ITEMS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,17,120,'FAUCET','EN','FAUCET',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,21,121,'AROMA OIL DIFFUSERS','EN','AROMA OIL DIFFUSERS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,2,122,'SCREWS & BOLTS','EN','SCREWS & BOLTS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,12,123,'LIGHTINGS','EN','LIGHTINGS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,6,124,'THERMAL PRODUCTS','EN','THERMAL PRODUCTS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,6,125,'GIFT WRAPPING ACCESSORIES & CARDS','EN','GIFT WRAPPING ACCESSORIES & CARDS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,16,126,'SEATING BALL','EN','SEATING BALL',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,7,127,'PLANT FOOD','EN','PLANT FOOD',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,22,128,'BONE CHINA PLATES & MUGS','EN','BONE CHINA PLATES & MUGS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,6,129,'HALLOWEEN PRODUCTS','EN','HALLOWEEN PRODUCTS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,5,130,'TABLE COVER&RUNNER','EN','TABLE COVER&RUNNER',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,15,131,'ELECTRONIC ACCESSORIES','EN','ELECTRONIC ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,5,132,'PLACEMAT & TABLEMAT','EN','PLACEMAT & TABLEMAT',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,11,133,'BATH MATS & RUGS','EN','BATH MATS & RUGS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,22,134,'EARTHENWARE PLATES & MUGS','EN','EARTHENWARE PLATES & MUGS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,8,135,'BOARD GAMES','EN','BOARD GAMES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,3,136,'AIR FRESHENER','EN','AIR FRESHENER',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,16,137,'BEAN BAGS','EN','BEAN BAGS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,15,138,'PERSONAL CARE ITEMS','EN','PERSONAL CARE ITEMS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,7,139,'ARTIFICIAL FLOWERS & PLANTS','EN','ARTIFICIAL FLOWERS & PLANTS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,5,140,'CANISTER','EN','CANISTER',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,7,141,'LIVING PLANTS','EN','LIVING PLANTS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,23,142,'RAJA COMPANY (W.L.L.)','EN','RAJA COMPANY (W.L.L.)',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,2,143,'LOCKS & KEY BOX','EN','LOCKS & KEY BOX',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,2,144,'WIRE SHELVES & SAFES','EN','WIRE SHELVES & SAFES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,24,145,'HYGIENE AND HEALTH ITEMS','EN','HYGIENE AND HEALTH ITEMS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,3,146,'JEWEL BOX & MAKEUP HOLDER','EN','JEWEL BOX & MAKEUP HOLDER',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,22,147,'SERVING BOWL','EN','SERVING BOWL',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,3,148,'CANDLES','EN','CANDLES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,6,149,'RIBBONS','EN','RIBBONS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,3,150,'FRAMED STAND & PLATE STAND','EN','FRAMED STAND & PLATE STAND',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,25,151,'A.AUTOMOTIVE','EN','A.AUTOMOTIVE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,5,152,'FOOD SERVING CART','EN','FOOD SERVING CART',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,22,153,'PORCELAIN PLATES & MUGS','EN','PORCELAIN PLATES & MUGS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,3,154,'MIRRORS','EN','MIRRORS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,8,155,'CRAFT TOYS ACCESSORIES','EN','CRAFT TOYS ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,5,156,'TABLE & KITCHEN LINEN','EN','TABLE & KITCHEN LINEN',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,16,157,'CURTAIN & ACCESSORIES','EN','CURTAIN & ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,3,158,'WALL DECORATION','EN','WALL DECORATION',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,3,159,'SILVERWARE','EN','SILVERWARE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,6,160,'LIBRARY','EN','LIBRARY',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,21,161,'AROMA REED DIFFUSERS','EN','AROMA REED DIFFUSERS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,2,162,'BLINDS','EN','BLINDS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,5,163,'CAKEWARE','EN','CAKEWARE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,8,164,'IN&OUTDOOR PLAY POOLS','EN','IN&OUTDOOR PLAY POOLS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,18,165,'LINEN','EN','LINEN',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,9,166,'SWIMMING ITEMS','EN','SWIMMING ITEMS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,22,167,'DINNER BOWL','EN','DINNER BOWL',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,3,168,'VASES','EN','VASES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,25,169,'SHENZHEN PLASTIC CO. (China)','EN','SHENZHEN PLASTIC CO. (China)',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 -----------
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,1,1,'General Sub Item Group','EN','General Sub Item Group',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,2,2,'UTILITY ACCESSORIES','EN','UTILITY ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,3,3,'FLOOR COVERING ROLLS & MATS','EN','FLOOR COVERING ROLLS & MATS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,4,4,'CAR ACCESSORIES','EN','CAR ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,5,5,'PLASTICWARE','EN','PLASTICWARE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,5,6,'CLEANING ACCESSORIES','EN','CLEANING ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,6,8,'STATIONARY ACCESSORIES','EN','STATIONARY ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,7,10,'GARDEN ACCESSORIES','EN','GARDEN ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,6,11,'PARTY ITEMS','EN','PARTY ITEMS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,8,12,'STUFF TOYS','EN','STUFF TOYS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,9,13,'HARD & SOFT LUGGAGES','EN','HARD & SOFT LUGGAGES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,5,14,'FLASK AND VACUUM JUG','EN','FLASK AND VACUUM JUG',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,10,15,'POWER TOOLS ACCESSORIES','EN','POWER TOOLS ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,11,16,'BATHROOM ACCESSORIES','EN','BATHROOM ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,6,17,'SCHOOL BAG','EN','SCHOOL BAG',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,10,18,'PLUMBING TOOLS','EN','PLUMBING TOOLS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,5,19,'GLASSWARE','EN','GLASSWARE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,2,20,'KNOB HANDLES & HOUSE NO','EN','KNOB HANDLES & HOUSE NO',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,7,21,'PLANTERS','EN','PLANTERS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,5,22,'KITCHEN UTENSILS','EN','KITCHEN UTENSILS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,12,23,'BULBS & BULB CHANGER','EN','BULBS & BULB CHANGER',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,13,24,'SPRAY PAINTS','EN','SPRAY PAINTS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,10,25,'TOOL BOX','EN','TOOL BOX',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,14,26,'CAMPING ITEMS','EN','CAMPING ITEMS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,5,27,'CUTLERY','EN','CUTLERY',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,7,28,'PET HOUSE & ACCESSORIES','EN','PET HOUSE & ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,5,29,'KITCHEN SHELVES','EN','KITCHEN SHELVES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,8,30,'X MAS DECORATIONS','EN','X MAS DECORATIONS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,10,31,'HAND TOOLS','EN','HAND TOOLS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,11,32,'SHOWER CURTAIN & ROD','EN','SHOWER CURTAIN & ROD',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,15,33,'HOUSE HOLD APPLIANCE','EN','HOUSE HOLD APPLIANCE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,16,34,'CUSHION & COVERS','EN','CUSHION & COVERS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,2,35,'SHELVING UTILITIES','EN','SHELVING UTILITIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,9,36,'LUGGAGE ACCESSORIES','EN','LUGGAGE ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,5,37,'WASTE BASKET','EN','WASTE BASKET',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,7,38,'FOUNTAINS','EN','FOUNTAINS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,7,39,'GARDEN FURNITURE & CUSHION','EN','GARDEN FURNITURE & CUSHION',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,8,40,'ACTION TOYS ACCESSORIES','EN','ACTION TOYS ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,5,41,'DINNERWARE','EN','DINNERWARE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,9,42,'SPORTING GOODS','EN','SPORTING GOODS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,13,43,'UTILITY TAPES','EN','UTILITY TAPES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,17,44,'PLUMBING ACCESSORIES','EN','PLUMBING ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,5,45,'BAKEWARE','EN','BAKEWARE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,7,46,'PAVILION & TENT','EN','PAVILION & TENT',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,14,47,'GRILL& ACCESSORIES','EN','GRILL& ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,11,48,'HANGER & LAUNDRY ACCESSORIES','EN','HANGER & LAUNDRY ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,13,49,'PAINT & THINNER','EN','PAINT & THINNER',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,13,50,'LADDER','EN','LADDER',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,8,51,'GAMES','EN','GAMES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,3,52,'CLOCKS','EN','CLOCKS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,3,53,'POTPOURRI & FRAGRANCE OILS','EN','POTPOURRI & FRAGRANCE OILS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,5,54,'TRAYS','EN','TRAYS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,12,55,'ELECTRICAL EXTENSION','EN','ELECTRICAL EXTENSION',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,5,56,'FURNITURE','EN','FURNITURE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,5,57,'CLOTH DRYER-IRON BOARD&ACCESSORIES','EN','CLOTH DRYER-IRON BOARD&ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,10,58,'SAFETY TOOLS & ACCESSORIES','EN','SAFETY TOOLS & ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,6,59,'WILLOW BASKET','EN','WILLOW BASKET',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,3,60,'DECORATIVE GLASS & ACCESSORIES','EN','DECORATIVE GLASS & ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,5,61,'KNIFE & CUTTING BOARD','EN','KNIFE & CUTTING BOARD',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,3,62,'PICTURE FRAMES','EN','PICTURE FRAMES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,18,63,'CHILDREN CRAFT ACCESORIES','EN','CHILDREN CRAFT ACCESORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,13,64,'GLUES & PUTTIES','EN','GLUES & PUTTIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,5,65,'CLEANING LIQUIDS','EN','CLEANING LIQUIDS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,16,66,'COMFORTER','EN','COMFORTER',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,8,67,'EDUCATIONAL TOYS','EN','EDUCATIONAL TOYS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,6,68,'PACKING METERIALS','EN','PACKING METERIALS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,11,69,'TOWELS & BATH ROBE','EN','TOWELS & BATH ROBE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,16,70,'PILLOWS','EN','PILLOWS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,4,71,'OIL AND LUBRICANT','EN','OIL AND LUBRICANT',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,11,72,'BATHROOM SHELVES','EN','BATHROOM SHELVES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,15,73,'HOUSE HOLD ELECTRONICS','EN','HOUSE HOLD ELECTRONICS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,3,74,'DOOR MATS','EN','DOOR MATS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,16,75,'BLANKETS','EN','BLANKETS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,5,76,'DISPOSIBLE PARTY LINE','EN','DISPOSIBLE PARTY LINE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,3,77,'FRAMED ART','EN','FRAMED ART',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,18,78,'Z - STORE SUPPLIES','EN','Z - STORE SUPPLIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,9,79,'CASUAL BAG','EN','CASUAL BAG',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,3,80,'DECORATIVE AND BED LAMPS','EN','DECORATIVE AND BED LAMPS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,16,81,'BED LINEN','EN','BED LINEN',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,7,82,'PRESSURE WASHER & ACCESSORIES','EN','PRESSURE WASHER & ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,15,83,'COMPUTER ACCESSORIES','EN','COMPUTER ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,2,84,'SHOE RACK','EN','SHOE RACK',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,11,85,'TOILET SEATS','EN','TOILET SEATS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,7,86,'PEST CONTROL & INSECT KILLERS','EN','PEST CONTROL & INSECT KILLERS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,13,87,'PAINT ACCESSORIES','EN','PAINT ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,3,88,'HOME FRAGRANCES','EN','HOME FRAGRANCES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,19,89,'SERVICE','EN','SERVICE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,16,90,'GARMENTS','EN','GARMENTS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,16,91,'KIDS BEDDING & KIDS ACCESSORIES','EN','KIDS BEDDING & KIDS ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,7,92,'LAWN MOVERS','EN','LAWN MOVERS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,7,93,'UMBRELLA / BASE','EN','UMBRELLA / BASE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,10,94,'POWER TOOLS','EN','POWER TOOLS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,7,95,'GARDEN HEATER &ACCESORIES','EN','GARDEN HEATER &ACCESORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,9,96,'SHOES & FOOTWARE','EN','SHOES & FOOTWARE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,5,97,'TISSUES & ACCESSORIES','EN','TISSUES & ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,3,98,'LANTERNS','EN','LANTERNS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,3,99,'TABLE & BED LAMPS','EN','TABLE & BED LAMPS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,9,100,'FISHING ITEMS','EN','FISHING ITEMS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,7,101,'WILLOW/RATTAN ITEMS','EN','WILLOW/RATTAN ITEMS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,7,102,'GARDEN TOOLS','EN','GARDEN TOOLS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,20,103,'ICING & DECORATION','EN','ICING & DECORATION',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,3,104,'SUNGLASS & READING GLASS','EN','SUNGLASS & READING GLASS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,12,105,'BATTERIES & TORCHES','EN','BATTERIES & TORCHES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,8,106,'X-MAS TREES','EN','X-MAS TREES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,13,107,'WOOD PAINTS','EN','WOOD PAINTS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,21,108,'ROOM SPRAYS & MISTS','EN','ROOM SPRAYS & MISTS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,6,109,'ZIP LOCK PRODUCTS','EN','ZIP LOCK PRODUCTS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,3,111,'CANDLE STANDS','EN','CANDLE STANDS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,22,111,'STONEWARE PLATES & MUGS','EN','STONEWARE PLATES & MUGS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,3,112,'POSTERS','EN','POSTER',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,15,113,'PC AND MOBILE ACCESSORIES','EN','PC AND MOBILE ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,14,114,'BEACH ITEMS','EN','BEACH ITEMS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,3,115,'CARPET','EN','CARPET',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,8,116,'REMOTE CONTROL TOYS','EN','REMOTE CONTROL TOYS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,20,117,'CAKE DECORATION (NON EDIBLE)','EN','CAKE DECORATION (NON EDIBLE)',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,12,118,'ELECTRICAL ACCESSORIES','EN','ELECTRICAL ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,7,119,'SWING ITEMS','EN','SWING ITEMS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,17,120,'FAUCET','EN','FAUCET',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,21,121,'AROMA OIL DIFFUSERS','EN','AROMA OIL DIFFUSERS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,2,122,'SCREWS & BOLTS','EN','SCREWS & BOLTS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,12,123,'LIGHTINGS','EN','LIGHTINGS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,6,124,'THERMAL PRODUCTS','EN','THERMAL PRODUCTS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,6,125,'GIFT WRAPPING ACCESSORIES & CARDS','EN','GIFT WRAPPING ACCESSORIES & CARDS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,16,126,'SEATING BALL','EN','SEATING BALL',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,7,127,'PLANT FOOD','EN','PLANT FOOD',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,22,128,'BONE CHINA PLATES & MUGS','EN','BONE CHINA PLATES & MUGS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,6,129,'HALLOWEEN PRODUCTS','EN','HALLOWEEN PRODUCTS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,5,130,'TABLE COVER&RUNNER','EN','TABLE COVER&RUNNER',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,15,131,'ELECTRONIC ACCESSORIES','EN','ELECTRONIC ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,5,132,'PLACEMAT & TABLEMAT','EN','PLACEMAT & TABLEMAT',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,11,133,'BATH MATS & RUGS','EN','BATH MATS & RUGS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,22,134,'EARTHENWARE PLATES & MUGS','EN','EARTHENWARE PLATES & MUGS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,8,135,'BOARD GAMES','EN','BOARD GAMES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,3,136,'AIR FRESHENER','EN','AIR FRESHENER',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,16,137,'BEAN BAGS','EN','BEAN BAGS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,15,138,'PERSONAL CARE ITEMS','EN','PERSONAL CARE ITEMS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,7,139,'ARTIFICIAL FLOWERS & PLANTS','EN','ARTIFICIAL FLOWERS & PLANTS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,5,140,'CANISTER','EN','CANISTER',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,7,141,'LIVING PLANTS','EN','LIVING PLANTS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,23,142,'RAJA COMPANY (W.L.L.)','EN','RAJA COMPANY (W.L.L.)',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,2,143,'LOCKS & KEY BOX','EN','LOCKS & KEY BOX',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,2,144,'WIRE SHELVES & SAFES','EN','WIRE SHELVES & SAFES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,24,145,'HYGIENE AND HEALTH ITEMS','EN','HYGIENE AND HEALTH ITEMS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,3,146,'JEWEL BOX & MAKEUP HOLDER','EN','JEWEL BOX & MAKEUP HOLDER',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,22,147,'SERVING BOWL','EN','SERVING BOWL',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,3,148,'CANDLES','EN','CANDLES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,6,149,'RIBBONS','EN','RIBBONS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,3,150,'FRAMED STAND & PLATE STAND','EN','FRAMED STAND & PLATE STAND',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,25,151,'A.AUTOMOTIVE','EN','A.AUTOMOTIVE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,5,152,'FOOD SERVING CART','EN','FOOD SERVING CART',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,22,153,'PORCELAIN PLATES & MUGS','EN','PORCELAIN PLATES & MUGS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,3,154,'MIRRORS','EN','MIRRORS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,8,155,'CRAFT TOYS ACCESSORIES','EN','CRAFT TOYS ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,5,156,'TABLE & KITCHEN LINEN','EN','TABLE & KITCHEN LINEN',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,16,157,'CURTAIN & ACCESSORIES','EN','CURTAIN & ACCESSORIES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,3,158,'WALL DECORATION','EN','WALL DECORATION',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,3,159,'SILVERWARE','EN','SILVERWARE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,6,160,'LIBRARY','EN','LIBRARY',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,21,161,'AROMA REED DIFFUSERS','EN','AROMA REED DIFFUSERS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,2,162,'BLINDS','EN','BLINDS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,5,163,'CAKEWARE','EN','CAKEWARE',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,8,164,'IN&OUTDOOR PLAY POOLS','EN','IN&OUTDOOR PLAY POOLS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,18,165,'LINEN','EN','LINEN',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,9,166,'SWIMMING ITEMS','EN','SWIMMING ITEMS',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,22,167,'DINNER BOWL','EN','DINNER BOWL',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,3,168,'VASES','EN','VASES',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblsubitemgroupid` (`C_ID`,`PLANT_ID`,`WH_ID`,`ITM_TYP_ID`,`ITM_GRP_ID`,`SUB_ITM_GRP_ID`,`SUB_ITM_GRP`,`LANG_ID`,`SUB_ITM_GRP_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblsubitemgroupid (C_ID,PLANT_ID,WH_ID,ITM_TYP_ID,ITM_GRP_ID,SUB_ITM_GRP_ID,SUB_ITM_GRP,LANG_ID,SUB_ITM_GRP_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,25,169,'SHENZHEN PLASTIC CO. (China)','EN','SHENZHEN PLASTIC CO. (China)',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
 ---------------------------------------------------------------------------------------------------------------------------------------
 
 ----------------------------------------------------tblstatusid----------------------------------------------------------------
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',1,'Active',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',2,'In active',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',3,'Empty',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',4,'Full',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',5,'ASN in Progress',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',6,'ASN Open',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',7,'ASN Updated',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',8,'ASN deleted',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',9,'Preinbound reversed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',10,'Container received',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',11,'Container receipt updated',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',12,'Case Receipt Open',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',13,'Case Receipt in Progress',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',14,'Case Receipt Confirmed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',15,'Case Receipt Reversed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',16,'Item receipt Open',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',17,'Item receipt Confirmed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',18,'Item receipt reversed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',19,'Putaway created',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',20,'Putaway confirmed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',21,'Putaway updated',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',22,'Putaway reversed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',23,'Inbound Open/in-progress',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',24,'Receipt Confirmed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',25,'Inbound reversed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',26,'Receipt Planning',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',27,'Dock Planning',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',28,'In houseTransfer Open',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',29,'In houseTransfer Created',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',30,'In house Transfer Confirmed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',31,'In house Transfer Reversed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',32,'WH transfer Request Open',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',33,'WH transfer Request Created',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',34,'WH transfer Request updated',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',36,'WH transfer Request reversed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',37,'WH transfer Request received',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',38,'Preboutbound Open',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',39,'Preoutbound created',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',40,'Goods Issued',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',41,'Order Allocation',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',42,'Order Partially allocated',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',43,'Order Allocated',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',44,'Preoutbound Updated',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',45,'Reallocated',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',46,'Preoutbound deleted',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',47,'Unallocated',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',48,'Picker Assigned/Pick in Progress',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',49,'Picker reassigned',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',50,'Picked/Quality Open',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',51,'Picker Denial',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',52,'Picking updated',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',53,'Picking reversed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',54,'Quality Open',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',55,'Quality Confirmed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',56,'Quality reversed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',57,'Delivery Open',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',58,'Packing reversed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',59,'Delivered',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',60,'Delivery reversed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',61,'Outbound Order Closed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',62,'Back order',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',63,'Cross Dock',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',64,'Block',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',65,'Released',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',66,'Reservation Open',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',67,'Reservation Created',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',68,'Reservation Order Created',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',69,'Stock count Open',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',70,'Stock Count Creation',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',71,'Stock Count Closed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',72,'Stock Count user assigned',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',73,'Stock Count counting inprogress',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',74,'Stock Count Counted',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',75,'Stock Count recounted/Closed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',76,'Stock Count Write off/Closed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',77,'Stock Count Skipped/Closed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',78,'Stock Count Confirmed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',79,'CD Open',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',80,'CD Created',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',81,'CD Partially allocated',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',82,'CD Allocated',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',83,'CD Partially Confirmed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',84,'CD Confirmed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',85,'CD Reversed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'110',86,'CD Closed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',1,'Active',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',2,'In active',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',3,'Empty',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',4,'Full',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',5,'ASN in Progress',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',6,'ASN Open',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',7,'ASN Updated',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',8,'ASN deleted',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',9,'Preinbound reversed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',10,'Container received',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',11,'Container receipt updated',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',12,'Case Receipt Open',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',13,'Case Receipt in Progress',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',14,'Case Receipt Confirmed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',15,'Case Receipt Reversed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',16,'Item receipt Open',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',17,'Item receipt Confirmed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',18,'Item receipt reversed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',19,'Putaway created',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',20,'Putaway confirmed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',21,'Putaway updated',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',22,'Putaway reversed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',23,'Inbound Open/in-progress',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',24,'Receipt Confirmed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',25,'Inbound reversed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',26,'Receipt Planning',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',27,'Dock Planning',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',28,'In houseTransfer Open',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',29,'In houseTransfer Created',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',30,'In house Transfer Confirmed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',31,'In house Transfer Reversed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',32,'WH transfer Request Open',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',33,'WH transfer Request Created',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',34,'WH transfer Request updated',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',36,'WH transfer Request reversed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',37,'WH transfer Request received',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',38,'Preboutbound Open',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',39,'Preoutbound created',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',40,'Goods Issued',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',41,'Order Allocation',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',42,'Order Partially allocated',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',43,'Order Allocated',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',44,'Preoutbound Updated',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',45,'Reallocated',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',46,'Preoutbound deleted',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',47,'Unallocated',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',48,'Picker Assigned/Pick in Progress',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',49,'Picker reassigned',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',50,'Picked/Quality Open',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',51,'Picker Denial',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',52,'Picking updated',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',53,'Picking reversed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',54,'Quality Open',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',55,'Quality Confirmed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',56,'Quality reversed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',57,'Delivery Open',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',58,'Packing reversed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',59,'Delivered',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',60,'Delivery reversed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',61,'Outbound Order Closed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',62,'Back order',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',63,'Cross Dock',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',64,'Block',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',65,'Released',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',66,'Reservation Open',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',67,'Reservation Created',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',68,'Reservation Order Created',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',69,'Stock count Open',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',70,'Stock Count Creation',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',71,'Stock Count Closed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',72,'Stock Count user assigned',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',73,'Stock Count counting inprogress',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',74,'Stock Count Counted',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',75,'Stock Count recounted/Closed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',76,'Stock Count Write off/Closed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',77,'Stock Count Skipped/Closed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',78,'Stock Count Confirmed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',79,'CD Open',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',80,'CD Created',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',81,'CD Partially allocated',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',82,'CD Allocated',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',83,'CD Partially Confirmed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',84,'CD Confirmed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',85,'CD Reversed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblstatusid` (`LANG_ID`,`C_ID`,`PLANT_ID`,`WH_ID`,`STATUS_ID`,`STATUS_TEXT`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblstatusid (LANG_ID,C_ID,PLANT_ID,WH_ID,STATUS_ID,STATUS_TEXT,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES ('EN',1000,1001,'111',86,'CD Closed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
 ---------------------------------------------------------------------------------------------------------------------------------------------
@@ -1964,118 +1957,118 @@ VALUES ('EN',1000,1001,'111',86,'CD Closed',0,'SUPERADMIN',CURDATE(),'SUPERADMIN
 
 ----------------------------------------------------tblprocesssequenceid----------------------------------------------------------------
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,1,'EN','Inbound','Preinbound',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,2,'EN','Inbound','Container receipt',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,3,'EN','Inbound','Goods Receipt',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,4,'EN','Inbound','Putaway',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,5,'EN','Inbound','Inbound Confirmation',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',1,6,'EN','Inbound','Reversals',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',2,7,'EN','Outbound','Preoutbound',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',2,8,'EN','Outbound','Order Management',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',2,9,'EN','Outbound','Picking',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',2,10,'EN','Outbound','Quality',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',2,11,'EN','Outbound','Packing',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',2,12,'EN','Outbound','Delivery',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',2,13,'EN','Outbound','Reversals',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',3,14,'EN','Make and Change','Inhouse',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',3,15,'EN','Make and Change','Warehouse',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',3,16,'EN','Make and Change','stock type to Stock type',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',4,17,'EN','Transfer','SKU to SKU',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',4,18,'EN','Stock Count','Perpetual',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'110',4,19,'EN','Stock Count','Periodic',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,1,'EN','Inbound','Preinbound',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,2,'EN','Inbound','Container receipt',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,3,'EN','Inbound','Goods Receipt',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,4,'EN','Inbound','Putaway',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,5,'EN','Inbound','Inbound Confirmation',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',1,6,'EN','Inbound','Reversals',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',2,7,'EN','Outbound','Preoutbound',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',2,8,'EN','Outbound','Order Management',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',2,9,'EN','Outbound','Picking',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',2,10,'EN','Outbound','Quality',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',2,11,'EN','Outbound','Packing',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',2,12,'EN','Outbound','Delivery',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',2,13,'EN','Outbound','Reversals',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',3,14,'EN','Make and Change','Inhouse',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',3,15,'EN','Make and Change','Warehouse',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',3,16,'EN','Make and Change','stock type to Stock type',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',4,17,'EN','Transfer','SKU to SKU',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',4,18,'EN','Stock Count','Perpetual',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
-INSERT INTO `WMS`.`tblprocesssequenceid` (`C_ID`,`PLANT_ID`,`WH_ID`,`PROCESS_ID`,`SUB_PROCESS_SEQ_ID`,`LANG_ID`,`PROCESS`,`SUBPROCESS`,`IS_DELETED`,`CTD_BY`,`CTD_ON`,`UTD_BY`,`UTD_ON`)
+INSERT INTO tblprocesssequenceid (C_ID,PLANT_ID,WH_ID,PROCESS_ID,SUB_PROCESS_SEQ_ID,LANG_ID,PROCESS,SUBPROCESS,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
 VALUES (1000,1001,'111',4,19,'EN','Stock Count','Periodic',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',CURDATE());
 
 ------------------------------------------------------------------------------------------------------------------------------------------
