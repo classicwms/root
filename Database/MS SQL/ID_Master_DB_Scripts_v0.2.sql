@@ -12,7 +12,7 @@ CREATE TABLE `WMS`.`tbllanguageid` (
   `UTD_BY` NVARCHAR(50) NULL,
   `UTD_ON` DATETIME NULL,
   PRIMARY KEY (`LANG_ID`))
-COMMENT = 'LANGUAGE ID';
+GO
 
 -- Vertical ID Table
 CREATE TABLE `WMS`.`tblverticalid` (
@@ -26,7 +26,7 @@ CREATE TABLE `WMS`.`tblverticalid` (
   `UTD_BY` NVARCHAR(50) NULL,
   `UTD_ON` DATETIME NULL,
   PRIMARY KEY (`VERT_ID`, `LANG_ID`))
-COMMENT = 'Vertical ID';
+GO
 
 -- Currency ID Table
 CREATE TABLE `WMS`.`tblcurrencyid` (
