@@ -1,0 +1,75 @@
+
+truncate table tblcontainerreceipt;
+truncate table tblpreinboundheader;
+truncate table tblpreinboundline;
+truncate table tblstagingheader;
+truncate table tblstagingline;
+truncate table tblgrheader;
+truncate table tblgrline;
+truncate table tblputawayheader;
+truncate table tblputawayline;
+truncate table tblinboundheader;
+truncate table tblinboundline;
+truncate table tblpreoutboundheader;
+truncate table tblpreoutboundline;
+truncate table tblordermangementheader;
+truncate table tblordermangementline;
+truncate table tblpickupheader;
+truncate table tblpickupline;
+truncate table tblqualityheader;
+truncate table tblqualityline;
+truncate table tbloutboundheader;
+truncate table tbloutboundline;
+truncate table tblinventory;
+truncate table tblinventorymovement;
+
+-- ALTER TABLE `WMS`.`tblinventorymovement` 
+ADD COLUMN `BAL_OH_QTY` DECIMAL(30,2) NULL AFTER `MVT_UOM`;
+
+
+-- BomLine--------------------------------------------------
+ALTER TABLE inventory ADD CONSTRAINT UC_Person UNIQUE (id, name, quantity)
+
+INSERT INTO Inventory VALUES (1, 'banana', 150); 
+INSERT INTO Inventory VALUES (2, 'orange', 154);
+INSERT INTO Inventory VALUES (3, 'orange', 123);
+INSERT INTO Inventory VALUES (4, 'orange', 123);
+INSERT INTO Inventory VALUES (4, 'apple', 123);
+INSERT INTO Inventory VALUES (4, 'apple', 123);
+
+SELECT * FROM Inventory
+
+
+SELECT alloc_qty FROM tblordermangementline;
+
+
+GG1GBG001, ET06, GG1GBG001, GG1GBL003]
+
+SELECT case_code,pack_barcode,st_bin,inv_qty FROM tblinventory where wh_id='110' and itm_code='30002
+
+ALTER TABLE `WMS`.`tblpickupheader` 
+ADD COLUMN `ASS_PICKER_ID` VARCHAR(50) NULL AFTER `STATUS_ID`;
+
+LANG_ID	C_ID	PLANT_ID	WH_ID	ITM_CODE	PARTNER_TYP	PARTNER_CODE	PARTNER_ITM_CODE	PARTNER_ITM_BAR	MFR_BAR	BRND_NM	STK	STK_UOM	STATUS_ID	REF_FIELD_1	REF_FIELD_2	REF_FIELD_3	
+
+update tblinboundline 
+set status_id=20
+where pre_ib_no='1020000026' and ref_doc_no='ASN000006' and wh_id=110;
+
+update tblinboundheader
+set status_id=5
+where pre_ib_no='1020000026' and ref_doc_no='ASN000006' and wh_id=110;
+
+select * from tblinboundheader where pre_ib_no='1020000026' and ref_doc_no='ASN000006' and wh_id=110;
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+# data-source configurations
+spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+spring.jpa.hibernate.ddl-auto=update
+spring.datasource.url=jdbc:mysql://localhost:3306/WMS?user=root&password=P@$$w0rd&useUnicode=true
+
+#local conf
+spring.datasource.username=root
+spring.datasource.password=P@$$w0rd
