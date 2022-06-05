@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
  * `LANG_ID`, `C_ID`, `PLANT_ID`, `WH_ID`, `HU_UNIT`
  */
 @Table(
-		name = "tblHandlingUnit", 
+		name = "tblhandlingunit", 
 		uniqueConstraints = { 
 				@UniqueConstraint (
 						name = "unique_key_handlingunit", 

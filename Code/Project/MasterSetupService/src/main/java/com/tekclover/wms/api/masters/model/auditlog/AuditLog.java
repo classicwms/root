@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "tblAuditLog")
+@Table(name = "tblauditlog")
 public class AuditLog { 
 	
 	@Id

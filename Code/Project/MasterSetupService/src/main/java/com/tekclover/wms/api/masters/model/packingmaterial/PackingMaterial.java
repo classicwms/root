@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
  * `LANG_ID`, `C_ID`, `PLANT_ID`, `WH_ID`, `PACK_MAT_NO`
  */
 @Table(
-		name = "tblPackingMaterial", 
+		name = "tblpackingmaterial", 
 		uniqueConstraints = { 
 				@UniqueConstraint (
 						name = "unique_key_packingmaterial", 
