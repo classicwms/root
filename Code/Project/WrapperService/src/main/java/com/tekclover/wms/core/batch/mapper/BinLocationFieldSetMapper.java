@@ -16,7 +16,7 @@ public class BinLocationFieldSetMapper implements FieldSetMapper<BinLocation> {
 				fieldSet.readString("warehouseId"),
 				fieldSet.readString("storageBin"),
 				fieldSet.readLong("floorId"),
-				fieldSet.readLong("storageSectionId"),
+				fieldSet.readString("storageSectionId"),
 				fieldSet.readString("rowId"),
 				fieldSet.readString("aisleNumber"),
 				fieldSet.readString("spanId"),
