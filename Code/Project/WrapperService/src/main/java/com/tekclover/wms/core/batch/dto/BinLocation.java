@@ -18,7 +18,7 @@ public class BinLocation {
 	private String aisleNumber;		// AISLE_ID
 	private String spanId;			// SPAN_ID
 	private String shelfId;			// SHELF_ID
-	private Long binSectionId;		// BIN_SECTION_ID
+	private String binSectionId;		// BIN_SECTION_ID
 	private Long storageTypeId;		// ST_TYP_ID
 	private Long binClassId;		// BIN_CL_ID
 	private String description;		// ST_BIN_TEXT
@@ -55,7 +55,7 @@ public class BinLocation {
 	* @param createdBy
 	*/
 	public BinLocation (String languageId, String companyCodeId, String plantId, String warehouseId, String storageBin, Long floorId, 
-						String storageSectionId, String rowId, String aisleNumber, String spanId, String shelfId, Long binSectionId, 
+						String storageSectionId, String rowId, String aisleNumber, String spanId, String shelfId, String binSectionId, 
 					   Long storageTypeId, Long binClassId, String description,	String binBarcode, Boolean putawayBlock, 
 					   Boolean pickingBlock, String blockReason, Long statusId, Long deletionIndicator, String createdBy) {
 		this.languageId = languageId;
