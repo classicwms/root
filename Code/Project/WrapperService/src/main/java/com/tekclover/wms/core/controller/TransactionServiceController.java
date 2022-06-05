@@ -1327,9 +1327,10 @@ public class TransactionServiceController {
     			transactionService.getShipmentDeliverySummaryReport(fromDeliveryDate, toDeliveryDate, customerCode, authToken);
     	log.info("shipmentDeliverySummaryReport : " + Arrays.asList(shipmentDeliverySummaryReport));
     	
-    	// Export Report (html/pdf)
-    	String fileUploadedPath = reportService.exportShipmentDeliverySummary (shipmentDeliverySummaryReport, reportFormat);
-   		return new ResponseEntity<>(fileUploadedPath, HttpStatus.OK);
+//    	// Export Report (html/pdf)
+//    	String fileUploadedPath = reportService.exportShipmentDeliverySummary (shipmentDeliverySummaryReport, reportFormat);
+//   		return new ResponseEntity<>(fileUploadedPath, HttpStatus.OK);
+    	return new ResponseEntity<>(shipmentDeliverySummaryReport, HttpStatus.OK);
    	}
     
     /*
@@ -1344,9 +1345,10 @@ public class TransactionServiceController {
     			transactionService.getShipmentDispatchSummaryReport(fromDeliveryDate, toDeliveryDate, customerCode, authToken);
     	log.info("-shipmentDispatchSummary : " + shipmentDispatchSummary);
     	
-    	// Export Report (html/pdf)
-    	String fileUploadedPath = reportService.exportShipmentDispatchSummary (shipmentDispatchSummary, reportFormat);
-   		return new ResponseEntity<>(fileUploadedPath, HttpStatus.OK);
+//    	// Export Report (html/pdf)
+//    	String fileUploadedPath = reportService.exportShipmentDispatchSummary (shipmentDispatchSummary, reportFormat);
+//   		return new ResponseEntity<>(fileUploadedPath, HttpStatus.OK);
+    	return new ResponseEntity<>(shipmentDispatchSummary, HttpStatus.OK);
    	}
     
     /*
@@ -1358,9 +1360,10 @@ public class TransactionServiceController {
    			@RequestParam String authToken) throws Exception {
     	ReceiptConfimationReport receiptConfimationReport = transactionService.getReceiptConfimationReport(asnNumber, authToken);
     	
-    	// Export Report (html/pdf)
-    	String fileUploadedPath = reportService.exportReceiptConfimationReport (receiptConfimationReport, reportFormat);
-   		return new ResponseEntity<>(fileUploadedPath, HttpStatus.OK);
+//    	// Export Report (html/pdf)
+//    	String fileUploadedPath = reportService.exportReceiptConfimationReport (receiptConfimationReport, reportFormat);
+//   		return new ResponseEntity<>(fileUploadedPath, HttpStatus.OK);
+    	return new ResponseEntity<>(receiptConfimationReport, HttpStatus.OK);
    	}
     
     /*

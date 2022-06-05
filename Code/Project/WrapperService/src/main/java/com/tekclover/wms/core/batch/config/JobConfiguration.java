@@ -82,7 +82,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 	public JdbcBatchItemWriter<BomHeader> bomHeaderItemWriter() {
 		JdbcBatchItemWriter<BomHeader> itemWriter = new JdbcBatchItemWriter<>();
 		itemWriter.setDataSource(this.dataSource);
-		itemWriter.setSql("INSERT INTO TBLBOMHEADER (LANG_ID,C_ID,PLANT_ID,WH_ID,PAR_ITM_CODE, BOM_NO, PAR_ITM_QTY, "
+		itemWriter.setSql("INSERT INTO tblbomheader (LANG_ID,C_ID,PLANT_ID,WH_ID,PAR_ITM_CODE, BOM_NO, PAR_ITM_QTY, "
 				+ "STATUS_ID, Is_deleted, CTD_BY, CTD_ON, UTD_BY, UTD_ON) "
 				+ "VALUES (:languageId, :companyCode, :plantId, :warehouseId, "
 				+ ":parentItemCode, :bomNumber, :parentItemQuantity, :statusId,\r\n"
@@ -122,7 +122,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 	public JdbcBatchItemWriter<BomLine> bomLineItemWriter() throws Exception {
 		JdbcBatchItemWriter<BomLine> itemWriter = new JdbcBatchItemWriter<>();
 		itemWriter.setDataSource(this.dataSource);
-		itemWriter.setSql("INSERT INTO TBLBOMLINE "
+		itemWriter.setSql("INSERT INTO tblbomline "
 				+ "(LANG_ID, C_ID, PLANT_ID, WH_ID, BOM_NO, CHL_ITEM_CODE, CHL_ITM_QTY, STATUS_ID, "
 				+ "IS_DELETED, CTD_BY, CTD_ON, UTD_BY, UTD_ON) "
 				+ "VALUES (:languageId, :companyCodeId, :plantId, :warehouseId, "
@@ -165,7 +165,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 	public JdbcBatchItemWriter<BinLocation> storageBinItemWriter() {
 		JdbcBatchItemWriter<BinLocation> itemWriter = new JdbcBatchItemWriter<>();
 		itemWriter.setDataSource(this.dataSource);
-		itemWriter.setSql("INSERT INTO TBLSTORAGEBIN "
+		itemWriter.setSql("INSERT INTO tblstoragebin "
 				+ " (LANG_ID, C_ID, PLANT_ID, WH_ID, ST_BIN, FL_ID, ST_SEC_ID, ROW_ID, AISLE_ID, SPAN_ID, SHELF_ID, "
 				+ " BIN_SECTION_ID, ST_TYP_ID, BIN_CL_ID, ST_BIN_TEXT, BIN_BAR, PUTAWAY_BLOCK, PICK_BLOCK, BLK_REASON, "
 				+ " STATUS_ID, IS_DELETED, CTD_BY, CTD_ON, UTD_BY, UTD_ON) "
@@ -209,7 +209,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 	public JdbcBatchItemWriter<BusinessPartner> businessPartnerItemWriter() {
 		JdbcBatchItemWriter<BusinessPartner> itemWriter = new JdbcBatchItemWriter<>();
 		itemWriter.setDataSource(this.dataSource);
-		itemWriter.setSql("INSERT INTO TBLBUSINESSPARTNER (LANG_ID, C_ID, PLANT_ID, WH_ID, PARTNER_TYP, PARTNER_CODE, PARTNER_NM, "
+		itemWriter.setSql("INSERT INTO tblbusinesspartner (LANG_ID, C_ID, PLANT_ID, WH_ID, PARTNER_TYP, PARTNER_CODE, PARTNER_NM, "
 				+ "ADD_1, ADD_2, Zone, COUNTRY, STATE, PH_NO, FX_NO, MAIL_ID, REF_TXT, LOCATION, LATITUDE, LONGITUDE, ST_TYP_ID, "
 				+ "ST_BIN, STATUS_ID, IS_DELETED, CTD_BY, CTD_ON, UTD_BY, UTD_ON) "
 				+ "VALUES (:languageId, :companyCodeId, :plantId, :warehouseId, :businessParnterType, :partnerCode, :partnerName, "
@@ -251,7 +251,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 	public JdbcBatchItemWriter<HandlingEquipment> handlingEquipmentItemWriter() {
 		JdbcBatchItemWriter<HandlingEquipment> itemWriter = new JdbcBatchItemWriter<>();
 		itemWriter.setDataSource(this.dataSource);
-		itemWriter.setSql("INSERT INTO TBLHANDLINGEQUIPMENT (LANG_ID, C_ID, PLANT_ID, WH_ID, HE_ID, CATEGORY, HU_UNIT, AQU_DT, "
+		itemWriter.setSql("INSERT INTO tblhandlingequipment (LANG_ID, C_ID, PLANT_ID, WH_ID, HE_ID, CATEGORY, HU_UNIT, AQU_DT, "
 				+ "AQU_VAL, CURR_ID, MOD_NO, MFR_PART, CTY_ORG, HE_BAR, STATUS_ID, IS_DELETED, CTD_BY, CTD_ON, UTD_BY, UTD_ON) "
 				+ "VALUES (:languageId, :companyCodeId, :plantId, :warehouseId, :handlingEquipmentId, :category, :handlingUnit,"
 				+ " :acquistionDate, :acquistionValue, :currencyId, :modelNo, :manufacturerPartNo, :countryOfOrigin, :heBarcode, :statusId,\r\n"
@@ -291,7 +291,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 	public JdbcBatchItemWriter<Inventory> inventoryItemWriter() {
 		JdbcBatchItemWriter<Inventory> itemWriter = new JdbcBatchItemWriter<>();
 		itemWriter.setDataSource(this.dataSource);
-		itemWriter.setSql("INSERT INTO TBLINVENTORY (LANG_ID, C_ID, PLANT_ID, WH_ID, ITM_CODE, PACK_BARCODE, ST_BIN, STCK_TYP_ID, "
+		itemWriter.setSql("INSERT INTO tblinventory (LANG_ID, C_ID, PLANT_ID, WH_ID, ITM_CODE, PACK_BARCODE, ST_BIN, STCK_TYP_ID, "
 				+ "SP_ST_IND_ID, BIN_CL_ID, TEXT, INV_QTY, INV_UOM, IS_DELETED, IU_CTD_BY, IU_CTD_ON) "
 				+ "VALUES (:languageId, :companyCodeId, :plantId, :warehouseId, :itemCode, :packBarcode, :storageBin, :stockTypeId,"
 				+ ":specialStockIndicatorId, :binClassId, :description, :inventoryQuantity, :inventoryUom,\r\n"
@@ -331,7 +331,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 	public JdbcBatchItemWriter<ImBasicData1> imBasicData1ItemWriter() {
 		JdbcBatchItemWriter<ImBasicData1> itemWriter = new JdbcBatchItemWriter<>();
 		itemWriter.setDataSource(this.dataSource);
-		itemWriter.setSql("INSERT INTO TBLIMBASICDATA1 (LANG_ID, C_ID, PLANT_ID, WH_ID, ITM_CODE, UOM_ID, TEXT, MFR_PART, ITM_TYP_ID, "
+		itemWriter.setSql("INSERT INTO tblimbasicdata1 (LANG_ID, C_ID, PLANT_ID, WH_ID, ITM_CODE, UOM_ID, TEXT, MFR_PART, ITM_TYP_ID, "
 				+ "ITM_GRP_ID, SUB_ITM_GRP_ID, ST_SEC_ID, STATUS_ID, IS_DELETED, CTD_BY, CTD_ON, UTD_BY, UTD_ON) "
 				+ "VALUES (:languageId, :companyCodeId, :plantId, :warehouseId, :itemCode, :uomId, :description, :manufacturerPartNo,"
 				+ " :itemType, :itemGroup, :subItemGroup, :storageSectionId, :statusId,\r\n"
@@ -371,7 +371,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 	public JdbcBatchItemWriter<ImBasicData1> imBasicData1WhId111ItemWriter() {
 		JdbcBatchItemWriter<ImBasicData1> itemWriter = new JdbcBatchItemWriter<>();
 		itemWriter.setDataSource(this.dataSource);
-		itemWriter.setSql("INSERT INTO TBLIMBASICDATA1 (LANG_ID, C_ID, PLANT_ID, WH_ID, ITM_CODE, UOM_ID, TEXT, MFR_PART, ITM_TYP_ID, "
+		itemWriter.setSql("INSERT INTO tblimbasicdata1 (LANG_ID, C_ID, PLANT_ID, WH_ID, ITM_CODE, UOM_ID, TEXT, MFR_PART, ITM_TYP_ID, "
 				+ "ITM_GRP_ID, SUB_ITM_GRP_ID, ST_SEC_ID, STATUS_ID, IS_DELETED, CTD_BY, CTD_ON, UTD_BY, UTD_ON) "
 				+ "VALUES (:languageId, :companyCodeId, :plantId, :warehouseId, :itemCode, :uomId, :description, :manufacturerPartNo,"
 				+ " :itemType, :itemGroup, :subItemGroup, :storageSectionId, :statusId,\r\n"
@@ -411,7 +411,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 	public JdbcBatchItemWriter<IMPartner> imPartnerItemWriter() {
 		JdbcBatchItemWriter<IMPartner> itemWriter = new JdbcBatchItemWriter<>();
 		itemWriter.setDataSource(this.dataSource);
-		itemWriter.setSql("INSERT INTO TBLBUSINESSPARTNER (LANG_ID, C_ID, PLANT_ID, WH_ID, ITM_CODE, PARTNER_TYP, PARTNER_CODE, "
+		itemWriter.setSql("INSERT INTO tblbusinesspartner (LANG_ID, C_ID, PLANT_ID, WH_ID, ITM_CODE, PARTNER_TYP, PARTNER_CODE, "
 				+ "PARTNER_ITM_CODE, MFR_BAR, BRND_NM, STATUS_ID, REF_FIELD_1, REF_FIELD_2, REF_FIELD_3, IS_DELETED, CTD_BY, "
 				+ "CTD_ON, UTD_BY, UTD_ON) "
 				+ "VALUES (:languageId, :companyCodeId, :plantId, :warehouseId, :itemCode, :businessParnterType, :businessPartnerCode,"
@@ -452,7 +452,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 	public JdbcBatchItemWriter<IMPartner> imPartnerWhId111ItemWriter() {
 		JdbcBatchItemWriter<IMPartner> itemWriter = new JdbcBatchItemWriter<>();
 		itemWriter.setDataSource(this.dataSource);
-		itemWriter.setSql("INSERT INTO TBLBUSINESSPARTNER (LANG_ID, C_ID, PLANT_ID, WH_ID, ITM_CODE, PARTNER_TYP, PARTNER_CODE, "
+		itemWriter.setSql("INSERT INTO tblbusinesspartner (LANG_ID, C_ID, PLANT_ID, WH_ID, ITM_CODE, PARTNER_TYP, PARTNER_CODE, "
 				+ "PARTNER_ITM_CODE, MFR_BAR, BRND_NM, STATUS_ID, REF_FIELD_1, REF_FIELD_2, REF_FIELD_3, IS_DELETED, CTD_BY, "
 				+ "CTD_ON, UTD_BY, UTD_ON) "
 				+ "VALUES (:languageId, :companyCodeId, :plantId, :warehouseId, :itemCode, :businessParnterType, :businessPartnerCode,"
