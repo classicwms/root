@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
  * `C_ID`, `PLANT_ID`, `WH_ID`, `CC_NO`, `ST_BIN`, `ITM_CODE`, `PACK_BARCODE`
  */
 @Table(
-		name = "tblPerpetualLine", 
+		name = "tblperpetualline", 
 		uniqueConstraints = { 
 				@UniqueConstraint (
 						name = "unique_key_perpetualline", 
