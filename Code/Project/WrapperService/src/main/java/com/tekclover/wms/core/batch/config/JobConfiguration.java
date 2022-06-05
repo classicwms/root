@@ -86,7 +86,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 				+ "STATUS_ID, Is_deleted, CTD_BY, CTD_ON, UTD_BY, UTD_ON) "
 				+ "VALUES (:languageId, :companyCode, :plantId, :warehouseId, "
 				+ ":parentItemCode, :bomNumber, :parentItemQuantity, :statusId,\r\n"
-				+ ":deletionIndicator, :createdBy, CURDATE(), :createdBy, CURDATE())");
+				+ ":deletionIndicator, :createdBy, GETDATE(), :createdBy, GETDATE())");
 		itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider());
 		itemWriter.afterPropertiesSet();
 		return itemWriter;
@@ -127,7 +127,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 				+ "IS_DELETED, CTD_BY, CTD_ON, UTD_BY, UTD_ON) "
 				+ "VALUES (:languageId, :companyCodeId, :plantId, :warehouseId, "
 				+ ":bomNumber, :childItemCode, :childItemQuantity, :statusId,\r\n"
-				+ ":deletionIndicator, :createdBy, CURDATE(), :createdBy, CURDATE())");
+				+ ":deletionIndicator, :createdBy, GETDATE(), :createdBy, GETDATE())");
 		itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider());
 		itemWriter.afterPropertiesSet();
 		return itemWriter;
@@ -172,7 +172,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 				+ "VALUES (:languageId, :companyCodeId, :plantId, :warehouseId, :storageBin, :floorId, :storageSectionId,"
 				+ ":rowId, :aisleNumber, :spanId, :shelfId, :binSectionId, :storageTypeId, :binClassId, :description, "
 				+ ":binBarcode, :putawayBlock, :pickingBlock, :blockReason, :statusId,\r\n"
-				+ ":deletionIndicator, :createdBy, CURDATE(), :createdBy, CURDATE())");
+				+ ":deletionIndicator, :createdBy, GETDATE(), :createdBy, GETDATE())");
 		itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider());
 		itemWriter.afterPropertiesSet();
 		return itemWriter;
@@ -215,7 +215,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 				+ "VALUES (:languageId, :companyCodeId, :plantId, :warehouseId, :businessParnterType, :partnerCode, :partnerName, "
 				+ ":address1, :address2, :zone, :country, :state, :phoneNumber, :faxNumber, :emailId, :referenceText, :location, "
 				+ ":lattitude, :longitude, :storageTypeId, :storageBin, :statusId,\r\n"
-				+ ":deletionIndicator, :createdBy, CURDATE(), :createdBy, CURDATE())");
+				+ ":deletionIndicator, :createdBy, GETDATE(), :createdBy, GETDATE())");
 		itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider());
 		itemWriter.afterPropertiesSet();
 		return itemWriter;
@@ -255,7 +255,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 				+ "AQU_VAL, CURR_ID, MOD_NO, MFR_PART, CTY_ORG, HE_BAR, STATUS_ID, IS_DELETED, CTD_BY, CTD_ON, UTD_BY, UTD_ON) "
 				+ "VALUES (:languageId, :companyCodeId, :plantId, :warehouseId, :handlingEquipmentId, :category, :handlingUnit,"
 				+ " :acquistionDate, :acquistionValue, :currencyId, :modelNo, :manufacturerPartNo, :countryOfOrigin, :heBarcode, :statusId,\r\n"
-				+ " :deletionIndicator, :createdBy, CURDATE(), :createdBy, CURDATE())");
+				+ " :deletionIndicator, :createdBy, GETDATE(), :createdBy, GETDATE())");
 		itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider());
 		itemWriter.afterPropertiesSet();
 		return itemWriter;
@@ -295,7 +295,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 				+ "SP_ST_IND_ID, BIN_CL_ID, TEXT, INV_QTY, INV_UOM, IS_DELETED, IU_CTD_BY, IU_CTD_ON) "
 				+ "VALUES (:languageId, :companyCodeId, :plantId, :warehouseId, :itemCode, :packBarcode, :storageBin, :stockTypeId,"
 				+ ":specialStockIndicatorId, :binClassId, :description, :inventoryQuantity, :inventoryUom,\r\n"
-				+ ":deletionIndicator, :createdBy, CURDATE())");
+				+ ":deletionIndicator, :createdBy, GETDATE())");
 		itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider());
 		itemWriter.afterPropertiesSet();
 		return itemWriter;
@@ -335,7 +335,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 				+ "ITM_GRP_ID, SUB_ITM_GRP_ID, ST_SEC_ID, STATUS_ID, IS_DELETED, CTD_BY, CTD_ON, UTD_BY, UTD_ON) "
 				+ "VALUES (:languageId, :companyCodeId, :plantId, :warehouseId, :itemCode, :uomId, :description, :manufacturerPartNo,"
 				+ " :itemType, :itemGroup, :subItemGroup, :storageSectionId, :statusId,\r\n"
-				+ ":deletionIndicator, :createdBy, CURDATE(), :createdBy, CURDATE())");
+				+ ":deletionIndicator, :createdBy, GETDATE(), :createdBy, GETDATE())");
 		itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider());
 		itemWriter.afterPropertiesSet();
 		return itemWriter;
@@ -375,7 +375,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 				+ "ITM_GRP_ID, SUB_ITM_GRP_ID, ST_SEC_ID, STATUS_ID, IS_DELETED, CTD_BY, CTD_ON, UTD_BY, UTD_ON) "
 				+ "VALUES (:languageId, :companyCodeId, :plantId, :warehouseId, :itemCode, :uomId, :description, :manufacturerPartNo,"
 				+ " :itemType, :itemGroup, :subItemGroup, :storageSectionId, :statusId,\r\n"
-				+ ":deletionIndicator, :createdBy, CURDATE(), :createdBy, CURDATE())");
+				+ ":deletionIndicator, :createdBy, GETDATE(), :createdBy, GETDATE())");
 		itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider());
 		itemWriter.afterPropertiesSet();
 		return itemWriter;
@@ -416,7 +416,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 				+ "CTD_ON, UTD_BY, UTD_ON) "
 				+ "VALUES (:languageId, :companyCodeId, :plantId, :warehouseId, :itemCode, :businessParnterType, :businessPartnerCode,"
 				+ ":partnerItemNo, :mfrBarcode, :brandName, :statusId, :referenceField1, :referenceField2, :referenceField3,\r\n"
-				+ ":deletionIndicator, :createdBy, CURDATE(), :createdBy, CURDATE())");
+				+ ":deletionIndicator, :createdBy, GETDATE(), :createdBy, GETDATE())");
 		itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider());
 		itemWriter.afterPropertiesSet();
 		return itemWriter;
@@ -457,7 +457,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 				+ "CTD_ON, UTD_BY, UTD_ON) "
 				+ "VALUES (:languageId, :companyCodeId, :plantId, :warehouseId, :itemCode, :businessParnterType, :businessPartnerCode,"
 				+ ":partnerItemNo, :mfrBarcode, :brandName, :statusId, :referenceField1, :referenceField2, :referenceField3,\r\n"
-				+ ":deletionIndicator, :createdBy, CURDATE(), :createdBy, CURDATE())");
+				+ ":deletionIndicator, :createdBy, GETDATE(), :createdBy, GETDATE())");
 		itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider());
 		itemWriter.afterPropertiesSet();
 		return itemWriter;
