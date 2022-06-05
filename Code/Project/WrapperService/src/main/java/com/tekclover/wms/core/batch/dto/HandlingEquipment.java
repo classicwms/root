@@ -14,9 +14,9 @@ public class HandlingEquipment {
 	private String handlingEquipmentId;
 	private String category;
 	private String handlingUnit;
-	private Date acquistionDate;
-	private Double acquistionValue;
-	private Long currencyId;
+	private String acquistionDate;
+	private String acquistionValue;
+	private String currencyId;
 	private String modelNo;
 	private String manufacturerPartNo;
 	private String countryOfOrigin;
@@ -46,7 +46,7 @@ public class HandlingEquipment {
 	* @param createdby
 	*/
 	public HandlingEquipment (String languageId, String companyCodeId, String plantId, String warehouseId, String handlingEquipmentId, 
-					String category, String handlingUnit, Date acquistionDate, Double acquistionValue, Long currencyId, 
+					String category, String handlingUnit, String acquistionDate, String acquistionValue, String currencyId, 
 					String modelNo, String manufacturerPartNo, String countryOfOrigin, String heBarcode, Long statusId, 
 					Long deletionIndicator, String createdBy) {
 		this.languageId = languageId;

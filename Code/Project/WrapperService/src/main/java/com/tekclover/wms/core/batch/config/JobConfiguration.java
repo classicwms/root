@@ -255,7 +255,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 				+ "AQU_VAL, CURR_ID, MOD_NO, MFR_PART, CTY_ORG, HE_BAR, STATUS_ID, IS_DELETED, CTD_BY, CTD_ON, UTD_BY, UTD_ON) "
 				+ "VALUES (:languageId, :companyCodeId, :plantId, :warehouseId, :handlingEquipmentId, :category, :handlingUnit,"
 				+ " :acquistionDate, :acquistionValue, :currencyId, :modelNo, :manufacturerPartNo, :countryOfOrigin, :heBarcode, :statusId,\r\n"
-				+ " :deletionIndicator, :createdBy, GETDATE(), :createdBy, GETDATE())");
+				+ " :deletionIndicator, :createdBy, CURDATE(), :createdBy, CURDATE())");
 		itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider());
 		itemWriter.afterPropertiesSet();
 		return itemWriter;
