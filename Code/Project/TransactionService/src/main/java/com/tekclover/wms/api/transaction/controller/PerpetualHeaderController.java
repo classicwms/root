@@ -63,7 +63,7 @@ public class PerpetualHeaderController {
 		return new ResponseEntity<>(perpetualheader, HttpStatus.OK);
 	}
     
-	@ApiOperation(response = PerpetualHeader.class, value = "Search PerpetualHeader") // label for swagger
+	@ApiOperation(response = PerpetualHeaderEntity.class, value = "Search PerpetualHeader") // label for swagger
 	@PostMapping("/findPerpetualHeader")
 	public List<PerpetualHeaderEntity> findPerpetualHeader(@RequestBody SearchPerpetualHeader searchPerpetualHeader)
 			throws Exception {
@@ -83,7 +83,7 @@ public class PerpetualHeaderController {
      * Pass From and To dates entered in Header screen into INVENOTRYMOVEMENT tables in IM_CTD_BY field 
      * along with selected MVT_TYP_ID/SUB_MVT_TYP_ID values and fetch the below values
      */
-    @ApiOperation(response = PerpetualHeader.class, value = "Create PerpetualHeader") // label for swagger
+    @ApiOperation(response = PerpetualLineEntity.class, value = "Create PerpetualHeader") // label for swagger
    	@PostMapping("/run")
    	public ResponseEntity<?> postRunPerpetualHeader(@Valid @RequestBody RunPerpetualHeader runPerpetualHeader) 
    			throws IllegalAccessException, InvocationTargetException {

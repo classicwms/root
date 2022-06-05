@@ -1,7 +1,6 @@
 package com.tekclover.wms.core.service;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -22,10 +21,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.tekclover.wms.core.config.PropertiesConfig;
 import com.tekclover.wms.core.model.transaction.AXApiResponse;
 import com.tekclover.wms.core.model.transaction.AddGrLine;
+import com.tekclover.wms.core.model.transaction.AddPerpetualHeader;
 import com.tekclover.wms.core.model.transaction.AddPickupLine;
 import com.tekclover.wms.core.model.transaction.AddPutAwayLine;
 import com.tekclover.wms.core.model.transaction.AddQualityLine;
 import com.tekclover.wms.core.model.transaction.AssignHHTUser;
+import com.tekclover.wms.core.model.transaction.AssignHHTUserCC;
 import com.tekclover.wms.core.model.transaction.AssignPicker;
 import com.tekclover.wms.core.model.transaction.CaseConfirmation;
 import com.tekclover.wms.core.model.transaction.ContainerReceipt;
@@ -48,6 +49,10 @@ import com.tekclover.wms.core.model.transaction.OutboundHeader;
 import com.tekclover.wms.core.model.transaction.OutboundLine;
 import com.tekclover.wms.core.model.transaction.OutboundReversal;
 import com.tekclover.wms.core.model.transaction.PackBarcode;
+import com.tekclover.wms.core.model.transaction.PerpetualHeader;
+import com.tekclover.wms.core.model.transaction.PerpetualHeaderEntity;
+import com.tekclover.wms.core.model.transaction.PerpetualLine;
+import com.tekclover.wms.core.model.transaction.PerpetualLineEntity;
 import com.tekclover.wms.core.model.transaction.PickupHeader;
 import com.tekclover.wms.core.model.transaction.PickupLine;
 import com.tekclover.wms.core.model.transaction.PreInboundHeader;
@@ -59,7 +64,7 @@ import com.tekclover.wms.core.model.transaction.PutAwayLine;
 import com.tekclover.wms.core.model.transaction.QualityHeader;
 import com.tekclover.wms.core.model.transaction.QualityLine;
 import com.tekclover.wms.core.model.transaction.ReceiptConfimationReport;
-import com.tekclover.wms.core.model.transaction.ReceiptConfimationReport;
+import com.tekclover.wms.core.model.transaction.RunPerpetualHeader;
 import com.tekclover.wms.core.model.transaction.SearchContainerReceipt;
 import com.tekclover.wms.core.model.transaction.SearchGrHeader;
 import com.tekclover.wms.core.model.transaction.SearchGrLine;
@@ -70,6 +75,7 @@ import com.tekclover.wms.core.model.transaction.SearchOrderManagementLine;
 import com.tekclover.wms.core.model.transaction.SearchOutboundHeader;
 import com.tekclover.wms.core.model.transaction.SearchOutboundLine;
 import com.tekclover.wms.core.model.transaction.SearchOutboundReversal;
+import com.tekclover.wms.core.model.transaction.SearchPerpetualHeader;
 import com.tekclover.wms.core.model.transaction.SearchPickupHeader;
 import com.tekclover.wms.core.model.transaction.SearchPickupLine;
 import com.tekclover.wms.core.model.transaction.SearchPreInboundHeader;
@@ -90,6 +96,8 @@ import com.tekclover.wms.core.model.transaction.StagingLineEntity;
 import com.tekclover.wms.core.model.transaction.StockMovementReport;
 import com.tekclover.wms.core.model.transaction.StockReport;
 import com.tekclover.wms.core.model.transaction.UpdateOutboundLine;
+import com.tekclover.wms.core.model.transaction.UpdatePerpetualHeader;
+import com.tekclover.wms.core.model.transaction.UpdatePerpetualLine;
 import com.tekclover.wms.core.repository.MongoTransactionRepository;
 
 import lombok.extern.slf4j.Slf4j;
@@ -3278,6 +3286,219 @@ public class TransactionService {
 			throw e;
 		}
 	}
+
+	//---------------------------------PerpetualHeader----------------------------------------------------
+	// GET ALL
+	public PerpetualHeader[] getPerpetualHeaders(String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "perpetualheader");
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<PerpetualHeader[]> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, PerpetualHeader[].class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	public PerpetualHeader[] getPerpetualHeader(String warehouseId, Long cycleCountTypeId,
+			String cycleCountNo, Long movementTypeId, Long subMovementTypeId, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "perpetualheader/" + cycleCountNo)
+					.queryParam("warehouseId", warehouseId)
+					.queryParam("cycleCountTypeId", cycleCountTypeId)
+					.queryParam("movementTypeId", movementTypeId)
+					.queryParam("subMovementTypeId", subMovementTypeId);
+					
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<PerpetualHeader[]> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, PerpetualHeader[].class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
 	
+	// FIND ALL - findPerpetualHeader
+	public PerpetualHeaderEntity[] findPerpetualHeader (SearchPerpetualHeader searchPerpetualHeader,
+		String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "perpetualheader/findPerpetualHeader");
+			HttpEntity<?> entity = new HttpEntity<>(searchPerpetualHeader, headers);	
+			ResponseEntity<PerpetualHeaderEntity[]> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, PerpetualHeaderEntity[].class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	// POST - CREATE
+	public PerpetualHeader createPerpetualHeader(@Valid AddPerpetualHeader newPerpetualHeader, String loginUserID,
+			String authToken) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.add("User-Agent", "MNRClara RestTemplate");
+		headers.add("Authorization", "Bearer " + authToken);
+		UriComponentsBuilder builder = 
+				UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "perpetualheader");
+		HttpEntity<?> entity = new HttpEntity<>(newPerpetualHeader, headers);
+		ResponseEntity<PerpetualHeader> result = 
+				getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PerpetualHeader.class);
+		log.info("result : " + result.getStatusCode());
+		return result.getBody();
+	}
 	
+	// POST - RUN
+	public PerpetualLineEntity[] runPerpetualHeader(@Valid RunPerpetualHeader runPerpetualHeader,
+			String authToken) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.add("User-Agent", "MNRClara RestTemplate");
+		headers.add("Authorization", "Bearer " + authToken);
+		UriComponentsBuilder builder = 
+				UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "perpetualheader/run");
+		HttpEntity<?> entity = new HttpEntity<>(runPerpetualHeader, headers);
+		ResponseEntity<PerpetualLineEntity[]> result = 
+				getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PerpetualLineEntity[].class);
+		log.info("result : " + result.getStatusCode());
+		return result.getBody();
+	}
+
+	// PATCH 
+	public PerpetualHeader updatePerpetualHeader(String warehouseId, Long cycleCountTypeId, String cycleCountNo,
+			Long movementTypeId, Long subMovementTypeId, String loginUserID,
+			@Valid UpdatePerpetualHeader updatePerpetualHeader, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			
+			HttpEntity<?> entity = new HttpEntity<>(updatePerpetualHeader, headers);
+			HttpClient client = HttpClients.createDefault();
+			RestTemplate restTemplate = getRestTemplate();
+			restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client)); 
+			
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "perpetualheader/" + cycleCountNo)
+					.queryParam("warehouseId", warehouseId)
+					.queryParam("cycleCountTypeId", cycleCountTypeId)
+					.queryParam("movementTypeId", movementTypeId)
+					.queryParam("subMovementTypeId", subMovementTypeId)
+					.queryParam("loginUserID", loginUserID);
+			
+			ResponseEntity<PerpetualHeader> result = 
+					restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, PerpetualHeader.class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	// DELETE
+	public boolean deletePerpetualHeader(String warehouseId, Long cycleCountTypeId, String cycleCountNo,
+			Long movementTypeId, Long subMovementTypeId, String loginUserID, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "perpetualheader/" + cycleCountNo)
+					.queryParam("warehouseId", warehouseId)
+					.queryParam("cycleCountTypeId", cycleCountTypeId)
+					.queryParam("movementTypeId", movementTypeId)
+					.queryParam("subMovementTypeId", subMovementTypeId)
+					.queryParam("loginUserID", loginUserID);
+			ResponseEntity<String> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity, String.class);
+			log.info("result : " + result);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	// PATCH 
+	public PerpetualLine[] updateAssingHHTUser(List<AssignHHTUserCC> assignHHTUser, String loginUserID, 
+			String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			
+			HttpEntity<?> entity = new HttpEntity<>(assignHHTUser, headers);
+			HttpClient client = HttpClients.createDefault();
+			RestTemplate restTemplate = getRestTemplate();
+			restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+			
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "perpetualline/assigingHHTUser")
+					.queryParam("loginUserID", loginUserID);
+			ResponseEntity<PerpetualLine[]> result = 
+					restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, PerpetualLine[].class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	// PATCH
+	public PerpetualLine[] updatePerpetualLine(String cycleCountNo, List<UpdatePerpetualLine> updatePerpetualLine,
+			String loginUserID, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			
+			HttpEntity<?> entity = new HttpEntity<>(updatePerpetualLine, headers);
+			HttpClient client = HttpClients.createDefault();
+			RestTemplate restTemplate = getRestTemplate();
+			restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+			
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "perpetualline/" + cycleCountNo)
+					.queryParam("loginUserID", loginUserID);
+			ResponseEntity<PerpetualLine[]> result = 
+					restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, PerpetualLine[].class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
 }	

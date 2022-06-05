@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
  * `C_ID`, `PLANT_ID`, `WH_ID`, `CC_TYP_ID`, `CC_NO`
  */
 @Table(
-		name = "tblPeriodicHeader", 
+		name = "tblperiodicheader", 
 		uniqueConstraints = { 
 				@UniqueConstraint (
 						name = "unique_key_periodicheader", 

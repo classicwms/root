@@ -2,14 +2,12 @@ package com.tekclover.wms.core.controller;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -26,11 +24,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tekclover.wms.core.model.transaction.AXApiResponse;
 import com.tekclover.wms.core.model.transaction.AddGrLine;
+import com.tekclover.wms.core.model.transaction.AddPerpetualHeader;
 import com.tekclover.wms.core.model.transaction.AddPickupLine;
 import com.tekclover.wms.core.model.transaction.AddPutAwayLine;
 import com.tekclover.wms.core.model.transaction.AddQualityLine;
-import com.tekclover.wms.core.model.transaction.AdditionalBin;
 import com.tekclover.wms.core.model.transaction.AssignHHTUser;
+import com.tekclover.wms.core.model.transaction.AssignHHTUserCC;
 import com.tekclover.wms.core.model.transaction.AssignPicker;
 import com.tekclover.wms.core.model.transaction.CaseConfirmation;
 import com.tekclover.wms.core.model.transaction.ContainerReceipt;
@@ -52,6 +51,10 @@ import com.tekclover.wms.core.model.transaction.OutboundHeader;
 import com.tekclover.wms.core.model.transaction.OutboundLine;
 import com.tekclover.wms.core.model.transaction.OutboundReversal;
 import com.tekclover.wms.core.model.transaction.PackBarcode;
+import com.tekclover.wms.core.model.transaction.PerpetualHeader;
+import com.tekclover.wms.core.model.transaction.PerpetualHeaderEntity;
+import com.tekclover.wms.core.model.transaction.PerpetualLine;
+import com.tekclover.wms.core.model.transaction.PerpetualLineEntity;
 import com.tekclover.wms.core.model.transaction.PickupHeader;
 import com.tekclover.wms.core.model.transaction.PickupLine;
 import com.tekclover.wms.core.model.transaction.PreInboundHeader;
@@ -63,6 +66,7 @@ import com.tekclover.wms.core.model.transaction.PutAwayLine;
 import com.tekclover.wms.core.model.transaction.QualityHeader;
 import com.tekclover.wms.core.model.transaction.QualityLine;
 import com.tekclover.wms.core.model.transaction.ReceiptConfimationReport;
+import com.tekclover.wms.core.model.transaction.RunPerpetualHeader;
 import com.tekclover.wms.core.model.transaction.SearchContainerReceipt;
 import com.tekclover.wms.core.model.transaction.SearchGrHeader;
 import com.tekclover.wms.core.model.transaction.SearchGrLine;
@@ -73,6 +77,7 @@ import com.tekclover.wms.core.model.transaction.SearchOrderManagementLine;
 import com.tekclover.wms.core.model.transaction.SearchOutboundHeader;
 import com.tekclover.wms.core.model.transaction.SearchOutboundLine;
 import com.tekclover.wms.core.model.transaction.SearchOutboundReversal;
+import com.tekclover.wms.core.model.transaction.SearchPerpetualHeader;
 import com.tekclover.wms.core.model.transaction.SearchPickupHeader;
 import com.tekclover.wms.core.model.transaction.SearchPickupLine;
 import com.tekclover.wms.core.model.transaction.SearchPreInboundHeader;
@@ -92,6 +97,8 @@ import com.tekclover.wms.core.model.transaction.StagingLine;
 import com.tekclover.wms.core.model.transaction.StagingLineEntity;
 import com.tekclover.wms.core.model.transaction.StockMovementReport;
 import com.tekclover.wms.core.model.transaction.StockReport;
+import com.tekclover.wms.core.model.transaction.UpdatePerpetualHeader;
+import com.tekclover.wms.core.model.transaction.UpdatePerpetualLine;
 import com.tekclover.wms.core.service.ReportService;
 import com.tekclover.wms.core.service.TransactionService;
 
@@ -1377,4 +1384,97 @@ public class TransactionServiceController {
        	MobileDashboard dashboard = transactionService.getMobileDashboard(warehouseId, authToken);
    		return new ResponseEntity<>(dashboard, HttpStatus.OK);
    	}
+    
+    /*
+     * -----------------------------Perpetual Count----------------------------------------------------
+     */
+    @ApiOperation(response = PerpetualHeader.class, value = "Get all PerpetualHeader details") // label for swagger
+	@GetMapping("/perpetualheader")
+	public ResponseEntity<?> getPerpetualHeaders(@RequestParam String authToken) {
+		PerpetualHeader[] perpetualheaderList = transactionService.getPerpetualHeaders(authToken);
+		return new ResponseEntity<>(perpetualheaderList, HttpStatus.OK); 
+	}
+    
+    @ApiOperation(response = PerpetualHeader.class, value = "Get a PerpetualHeader") // label for swagger 
+	@GetMapping("/perpetualheader/{cycleCountNo}")
+	public ResponseEntity<?> getPerpetualHeader(@PathVariable String cycleCountNo, @RequestParam String warehouseId,
+			@RequestParam Long cycleCountTypeId, @RequestParam Long movementTypeId, @RequestParam Long subMovementTypeId,
+			@RequestParam String authToken) {
+    	PerpetualHeader[] perpetualheader = 
+    			transactionService.getPerpetualHeader(warehouseId, cycleCountTypeId, cycleCountNo, 
+    					movementTypeId, subMovementTypeId, authToken);
+    	log.info("PerpetualHeader : " + perpetualheader);
+		return new ResponseEntity<>(perpetualheader, HttpStatus.OK);
+	}
+    
+	@ApiOperation(response = PerpetualHeaderEntity[].class, value = "Search PerpetualHeader") // label for swagger
+	@PostMapping("/perpetualheader/findPerpetualHeader")
+	public PerpetualHeaderEntity[] findPerpetualHeader(@RequestBody SearchPerpetualHeader searchPerpetualHeader,
+			@RequestParam String authToken) throws Exception {
+		return transactionService.findPerpetualHeader(searchPerpetualHeader, authToken);
+	}
+    
+    @ApiOperation(response = PerpetualHeader.class, value = "Create PerpetualHeader") // label for swagger
+	@PostMapping("/perpetualheader")
+	public ResponseEntity<?> postPerpetualHeader(@Valid @RequestBody AddPerpetualHeader newPerpetualHeader, 
+			@RequestParam String loginUserID, @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+		PerpetualHeader createdPerpetualHeader = 
+				transactionService.createPerpetualHeader(newPerpetualHeader, loginUserID, authToken);
+		return new ResponseEntity<>(createdPerpetualHeader, HttpStatus.OK);
+	}
+    
+    /*
+     * Pass From and To dates entered in Header screen into INVENOTRYMOVEMENT tables in IM_CTD_BY field 
+     * along with selected MVT_TYP_ID/SUB_MVT_TYP_ID values and fetch the below values
+     */
+    @ApiOperation(response = PerpetualLineEntity[].class, value = "Create PerpetualHeader") // label for swagger
+   	@PostMapping("/perpetualheader/run")
+   	public ResponseEntity<?> postRunPerpetualHeader(@Valid @RequestBody RunPerpetualHeader runPerpetualHeader,
+   			@RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+    	PerpetualLineEntity[] perpetualLineEntity = 
+   				transactionService.runPerpetualHeader(runPerpetualHeader, authToken);
+   		return new ResponseEntity<>(perpetualLineEntity , HttpStatus.OK);
+   	}
+    
+    @ApiOperation(response = PerpetualHeader.class, value = "Update PerpetualHeader") // label for swagger
+    @PatchMapping("/perpetualheader/{cycleCountNo}")
+	public ResponseEntity<?> patchPerpetualHeader(@PathVariable String cycleCountNo, @RequestParam String warehouseId, 
+			@RequestParam Long cycleCountTypeId, @RequestParam Long movementTypeId, @RequestParam Long subMovementTypeId,
+			@Valid @RequestBody UpdatePerpetualHeader updatePerpetualHeader, @RequestParam String loginUserID,
+			@RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+		PerpetualHeader createdPerpetualHeader = 
+				transactionService.updatePerpetualHeader(warehouseId, cycleCountTypeId, cycleCountNo, movementTypeId, 
+						subMovementTypeId, loginUserID, updatePerpetualHeader, authToken);
+		return new ResponseEntity<>(createdPerpetualHeader , HttpStatus.OK);
+	}
+    
+    @ApiOperation(response = PerpetualHeader.class, value = "Delete PerpetualHeader") // label for swagger
+	@DeleteMapping("/perpetualheader/{cycleCountNo}")
+	public ResponseEntity<?> deletePerpetualHeader(@PathVariable String cycleCountNo, @RequestParam String warehouseId, 
+			@RequestParam Long cycleCountTypeId, @RequestParam Long movementTypeId, @RequestParam Long subMovementTypeId, 
+			@RequestParam String loginUserID, @RequestParam String authToken) {
+    	transactionService.deletePerpetualHeader(warehouseId, cycleCountTypeId, cycleCountNo, movementTypeId, 
+    			subMovementTypeId, loginUserID, authToken);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+    
+    //-------------------------------PerpetualLine---------------------------------------------------------------------
+    @ApiOperation(response = PerpetualLine[].class, value = "Update AssignHHTUser") // label for swagger
+    @PatchMapping("/perpetualline/assigingHHTUser")
+	public ResponseEntity<?> patchAssingHHTUser (@RequestBody List<AssignHHTUserCC> assignHHTUser, 
+			@RequestParam String loginUserID, @RequestParam String authToken) 
+					throws IllegalAccessException, InvocationTargetException {
+		PerpetualLine[] createdPerpetualLine = transactionService.updateAssingHHTUser (assignHHTUser, loginUserID, authToken);
+		return new ResponseEntity<>(createdPerpetualLine , HttpStatus.OK);
+	}
+    
+    @ApiOperation(response = PerpetualLine.class, value = "Update PerpetualLine") // label for swagger
+    @PatchMapping("/perpetualline/{cycleCountNo}")
+	public ResponseEntity<?> patchAssingHHTUser (@PathVariable String cycleCountNo, 
+			@RequestBody List<UpdatePerpetualLine> updatePerpetualLine, @RequestParam String loginUserID,
+			@RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+		PerpetualLine[] createdPerpetualLine = 
+				transactionService.updatePerpetualLine (cycleCountNo, updatePerpetualLine, loginUserID, authToken);
+		return new ResponseEntity<>(createdPerpetualLine , HttpStatus.OK);
+	}
 }

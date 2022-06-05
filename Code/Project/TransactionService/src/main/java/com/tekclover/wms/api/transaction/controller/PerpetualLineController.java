@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.AssignHHTUser;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.AssignHHTUserCC;
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualLine;
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.UpdatePerpetualLine;
 import com.tekclover.wms.api.transaction.service.PerpetualLineService;
@@ -36,11 +36,11 @@ public class PerpetualLineController {
 	@Autowired
 	PerpetualLineService perpetuallineService;
 	
-    @ApiOperation(response = PerpetualLine.class, value = "AssignHHTUser") // label for swagger
+    @ApiOperation(response = PerpetualLine[].class, value = "AssignHHTUser") // label for swagger
     @PatchMapping("/assigingHHTUser")
-	public ResponseEntity<?> patchAssingHHTUser (@RequestBody AssignHHTUser assignHHTUser, 
+	public ResponseEntity<?> patchAssingHHTUser (@RequestBody List<AssignHHTUserCC> assignHHTUser, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
-		PerpetualLine createdPerpetualLine = perpetuallineService.updateAssingHHTUser (assignHHTUser, loginUserID);
+		List<PerpetualLine> createdPerpetualLine = perpetuallineService.updateAssingHHTUser (assignHHTUser, loginUserID);
 		return new ResponseEntity<>(createdPerpetualLine , HttpStatus.OK);
 	}
     

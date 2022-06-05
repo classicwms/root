@@ -19,4 +19,6 @@ public interface PerpetualHeaderRepository extends JpaRepository<PerpetualHeader
 	public Optional<PerpetualHeader> findByCompanyCodeIdAndPlantIdAndWarehouseIdAndCycleCountTypeIdAndCycleCountNoAndMovementTypeIdAndSubMovementTypeIdAndDeletionIndicator(
 			String companyCode, String plantId, String warehouseId, Long cycleCountTypeId, String cycleCountNo,
 			Long movementTypeId, Long subMovementTypeId, long l);
+	
+	public PerpetualHeader findByCycleCountNo(String cycleCountNo);
 }

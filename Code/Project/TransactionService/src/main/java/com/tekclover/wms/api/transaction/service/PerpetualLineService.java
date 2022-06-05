@@ -12,8 +12,10 @@ import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.AddPerpetualHeader;
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.AddPerpetualLine;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.AssignHHTUser;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.AssignHHTUserCC;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualHeader;
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualLine;
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.UpdatePerpetualLine;
 import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
@@ -52,6 +54,9 @@ public class PerpetualLineService extends BaseService {
 	
 	@Autowired
 	MastersService mastersService;
+	
+	@Autowired
+	PerpetualHeaderService perpetualHeaderService;
 	
 	/**
 	 * getPerpetualLines
@@ -126,15 +131,20 @@ public class PerpetualLineService extends BaseService {
 	 * @param loginUserID
 	 * @return
 	 */
-	public PerpetualLine updateAssingHHTUser (AssignHHTUser assignHHTUser, String loginUserID) {
-		PerpetualLine dbPerpetualLine = getPerpetualLine(assignHHTUser.getWarehouseId(), assignHHTUser.getCycleCountNo(), 
-				assignHHTUser.getStorageBin(), assignHHTUser.getItemCode(), assignHHTUser.getPackBarcodes());
-		dbPerpetualLine.setCycleCounterId(assignHHTUser.getCycleCounterId());
-		dbPerpetualLine.setCycleCounterName(assignHHTUser.getCycleCounterName());
-		dbPerpetualLine.setStatusId("72");
-		dbPerpetualLine.setCountedBy(loginUserID);
-		dbPerpetualLine.setCountedOn(new Date());
-		return perpetualLineRepository.save(dbPerpetualLine);
+	public List<PerpetualLine> updateAssingHHTUser (List<AssignHHTUserCC> assignHHTUsers, String loginUserID) {
+		List<PerpetualLine> responseList = new ArrayList<>();
+		for (AssignHHTUserCC assignHHTUser : assignHHTUsers) {
+			PerpetualLine dbPerpetualLine = getPerpetualLine(assignHHTUser.getWarehouseId(), assignHHTUser.getCycleCountNo(), 
+					assignHHTUser.getStorageBin(), assignHHTUser.getItemCode(), assignHHTUser.getPackBarcodes());
+			dbPerpetualLine.setCycleCounterId(assignHHTUser.getCycleCounterId());
+			dbPerpetualLine.setCycleCounterName(assignHHTUser.getCycleCounterName());
+			dbPerpetualLine.setStatusId("72");
+			dbPerpetualLine.setCountedBy(loginUserID);
+			dbPerpetualLine.setCountedOn(new Date());
+			PerpetualLine updatedPerpetualLine = perpetualLineRepository.save(dbPerpetualLine);
+			responseList.add(updatedPerpetualLine);
+		}
+		return responseList;
 	}
 	
 	/**
@@ -201,9 +211,11 @@ public class PerpetualLineService extends BaseService {
 	 * @param updatePerpetualLines
 	 * @param loginUserID
 	 * @return
+	 * @throws InvocationTargetException 
+	 * @throws IllegalAccessException 
 	 */
 	public List<PerpetualLine> updatePerpetualLine(String cycleCountNo, List<UpdatePerpetualLine> updatePerpetualLines,
-			String loginUserID) {
+			String loginUserID) throws IllegalAccessException, InvocationTargetException {
 		List<PerpetualLine> responsePerpetualLines = new ArrayList<>();
 		for (UpdatePerpetualLine updatePerpetualLine : updatePerpetualLines) {
 			PerpetualLine dbPerpetualLine = getPerpetualLine(updatePerpetualLine.getWarehouseId(), 
@@ -274,16 +286,18 @@ public class PerpetualLineService extends BaseService {
 				responsePerpetualLines.add(updatedPerpetualLine);
 				
 				/*
-				 * Inventory table update
-				 * ---------------------------
-				 * Insert a new record by passing WH_ID/ITM_CODE/PACK_BARCODE/ST_BIN (fetch ST_BIN 
-				 * from STORAGEBIN table where BIN_CL_ID=5) values in INVENTORY table and append INV_QTY as 
-				 * VAR_QTY
+				 * Also create New CC_NO record as below
 				 */
-				createInventory (updatedPerpetualLine);
-				createInventoryMovement (updatedPerpetualLine) ;
+				AddPerpetualHeader newPerpetualHeader = new AddPerpetualHeader();
+				PerpetualHeader perpetualHeader = perpetualHeaderService.getPerpetualHeader(updatedPerpetualLine.getCycleCountNo());
+				BeanUtils.copyProperties(perpetualHeader, newPerpetualHeader, CommonUtils.getNullPropertyNames(perpetualHeader));
+				newPerpetualHeader.setReferenceField1(updatedPerpetualLine.getCycleCountNo());
+				PerpetualHeader createdPerpetualHeader = 
+						perpetualHeaderService.createPerpetualHeader(newPerpetualHeader, loginUserID);
+				log.info("createdPerpetualHeader : " + createdPerpetualHeader);
 			}
 		}
+		
 		return responsePerpetualLines;
 	}
 	

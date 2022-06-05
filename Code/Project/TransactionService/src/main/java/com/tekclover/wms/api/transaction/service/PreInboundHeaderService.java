@@ -578,7 +578,7 @@ public class PreInboundHeaderService extends BaseService {
 		preInboundLine.setReferenceField2("BOM ITEM");
 		
 		// REF_FIELD_4
-		preInboundLine.setReferenceField4("4");
+		preInboundLine.setReferenceField4(inboundIntegrationLine.getSalesOrderReference());
 		
 		preInboundLine.setDeletionIndicator(0L);
 		preInboundLine.setCreatedBy("MSD_INT");

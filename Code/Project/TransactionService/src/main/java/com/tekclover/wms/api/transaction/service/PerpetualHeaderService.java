@@ -79,6 +79,16 @@ public class PerpetualHeaderService extends BaseService {
 	
 	/**
 	 * 
+	 * @param cycleCountNo
+	 * @return
+	 */
+	public PerpetualHeader getPerpetualHeader (String cycleCountNo) {
+		PerpetualHeader perpetualHeader = perpetualHeaderRepository.findByCycleCountNo(cycleCountNo);
+		return perpetualHeader;
+	}
+	
+	/**
+	 * 
 	 * @param warehouseId
 	 * @param cycleCountTypeId
 	 * @param cycleCountNo
@@ -347,7 +357,7 @@ public class PerpetualHeaderService extends BaseService {
 			Long subMovementTypeId, String loginUserID) {
 		PerpetualHeader dbPerpetualHeader = getPerpetualHeaderRecord(warehouseId, cycleCountTypeId, cycleCountNo, movementTypeId, 
 				subMovementTypeId);
-		if ( dbPerpetualHeader != null) {
+		if ( dbPerpetualHeader != null && dbPerpetualHeader.getStatusId().equalsIgnoreCase("70")) {
 			dbPerpetualHeader.setDeletionIndicator(1L);
 			dbPerpetualHeader.setCountedBy(loginUserID);
 			dbPerpetualHeader.setCountedOn(new Date());
