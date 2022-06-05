@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = "email")})
+@Table(name = "tbluser")
 public class User {
 
     public enum Role {USER, ADMIN, USER_MANAGER}
