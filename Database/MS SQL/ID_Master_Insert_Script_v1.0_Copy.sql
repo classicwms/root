@@ -6,6 +6,6 @@ VALUES ('wms', '1000', 'raj', '1', '1', '0', 'raj@tekclover.com', 'Raj', 'EN', '
 GO
 
 INSERT INTO tblverticalid (VERT_ID,LANG_ID,VERTICAL,REMARK,IS_DELETED,CTD_BY,CTD_ON,UTD_BY,UTD_ON)
-VALUES (01,'EN','Retail',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',GETDATE());
+VALUES (1,'EN','Retail','Remarks',0,'SUPERADMIN',CURDATE(),'SUPERADMIN',GETDATE());
 GO
 
