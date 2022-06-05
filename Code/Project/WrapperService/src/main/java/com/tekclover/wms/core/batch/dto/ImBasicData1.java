@@ -16,7 +16,7 @@ public class ImBasicData1 {
 	private Long itemType;
 	private Long itemGroup;
 	private Long subItemGroup;
-	private Long storageSectionId;
+	private String storageSectionId;
 	private Long statusId;
 	private Long deletionIndicator;
 	private String createdBy;
@@ -40,7 +40,7 @@ public class ImBasicData1 {
 	*/
 	public ImBasicData1 (String languageId, String companyCodeId, String plantId, String warehouseId, String itemCode, String uomId,
 						 String description, String manufacturerPartNo, Long itemType, Long itemGroup, Long subItemGroup, 
-						 Long storageSectionId, Long statusId, Long deletionIndicator, String createdBy) {
+						 String storageSectionId, Long statusId, Long deletionIndicator, String createdBy) {
 		this.languageId = languageId;
 		this.companyCodeId = companyCodeId;
 		this.plantId = plantId;

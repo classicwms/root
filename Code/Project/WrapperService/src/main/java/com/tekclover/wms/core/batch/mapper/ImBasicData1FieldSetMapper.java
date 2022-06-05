@@ -21,7 +21,7 @@ public class ImBasicData1FieldSetMapper implements FieldSetMapper<ImBasicData1> 
 				fieldSet.readLong("itemType"),
 				fieldSet.readLong("itemGroup"),
 				fieldSet.readLong("subItemGroup"),
-				fieldSet.readLong("storageSectionId"),
+				fieldSet.readString("storageSectionId"),
 				fieldSet.readLong("statusId"),
 				fieldSet.readLong("deletionIndicator"),
 				fieldSet.readString("createdBy")
