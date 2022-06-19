@@ -172,4 +172,5 @@ public class PerpetualLine {
 	
 	@Column(name = "CC_CNT_ON") 
 	private Date countedOn;
+	
 }

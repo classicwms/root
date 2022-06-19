@@ -60,7 +60,7 @@ public class PickupHeaderSpecification implements Specification<PickupHeader> {
          }
 		 
 		 if (searchPickupHeader.getProposedPackCode() != null && !searchPickupHeader.getProposedPackCode().isEmpty()) {
-        	 final Path<Group> group = root.<Group> get("proposedPackCode");
+        	 final Path<Group> group = root.<Group> get("proposedPackBarCode");
         	 predicates.add(group.in(searchPickupHeader.getProposedPackCode()));
          }
 		 
@@ -77,6 +77,11 @@ public class PickupHeaderSpecification implements Specification<PickupHeader> {
 		 if (searchPickupHeader.getSoType() != null && !searchPickupHeader.getSoType().isEmpty()) {
         	 final Path<Group> group = root.<Group> get("referenceField1");
         	 predicates.add(group.in(searchPickupHeader.getSoType()));
+         }
+		 
+		 if (searchPickupHeader.getAssignedPickerId() != null && !searchPickupHeader.getAssignedPickerId().isEmpty()) {
+        	 final Path<Group> group = root.<Group> get("assignedPickerId");
+        	 predicates.add(group.in(searchPickupHeader.getAssignedPickerId()));
          }
 		 
 		 predicates.add(cb.equal(root.get("deletionIndicator"), 0L));		 

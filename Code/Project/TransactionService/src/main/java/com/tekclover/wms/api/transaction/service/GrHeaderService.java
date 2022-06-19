@@ -184,7 +184,7 @@ public class GrHeaderService extends BaseService {
 		}
 		GrHeaderSpecification spec = new GrHeaderSpecification(searchGrHeader);
 		List<GrHeader> results = grHeaderRepository.findAll(spec);
-		log.info("results: " + results);
+//		log.info("results: " + results);
 		return results;
 	}
 	

@@ -74,5 +74,32 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 
 	public List<OutboundLine> findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndReferenceField2AndDeletionIndicator(
 			String warehouseId, String preOutboundNo, String refDocNumber, String referenceField2, Long deletionIndicator);
-
+	
+	/*
+	 * Reports
+	 */
+	@Query (value = "SELECT COUNT(OB_LINE_NO) FROM tbloutboundline \r\n"
+			+ "WHERE REF_DOC_NO IN :refDocNo AND REF_FIELD_2 IS NULL \r\n"
+			+ "GROUP BY OB_LINE_NO", nativeQuery = true)
+	public List<Long> findLineItem_NByRefDocNoAndRefField2IsNull (@Param(value = "refDocNo") List<String> refDocNo);
+	
+	@Query (value = "SELECT COUNT(OB_LINE_NO) FROM tbloutboundline \r\n"
+			+ "WHERE REF_DOC_NO IN :refDocNo AND DLV_QTY > 0 AND REF_FIELD_2 IS NULL \r\n"
+			+ "GROUP BY OB_LINE_NO", nativeQuery = true)
+	public List<Long> findShippedLines (@Param(value = "refDocNo") List<String> refDocNo);
+	
+	/*
+	 * Line Shipped
+	 * ---------------------
+	 * Pass PRE_OB_NO/OB_LINE_NO/ITM_CODE in OUTBOUNDLINE table and fetch Count of OB_LINE_NO values
+	 * where REF_FIELD_2 = Null and DLV_QTY>0
+	 */
+	@Query (value = "SELECT COUNT(OB_LINE_NO) FROM tbloutboundline \r\n"
+			+ " WHERE PRE_OB_NO = :preOBNo AND OB_LINE_NO = :obLineNo AND ITM_CODE = :itemCode \r\n"
+			+ " AND DLV_QTY > 0 AND REF_FIELD_2 IS NULL \r\n"
+			+ " GROUP BY OB_LINE_NO", nativeQuery = true)
+	public List<Long> findLineShipped(
+			@Param(value = "preOBNo") String preOBNo,
+			@Param(value = "obLineNo") Long obLineNo, 
+			@Param(value = "itemCode") String itemCode);
 }

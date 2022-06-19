@@ -109,20 +109,19 @@ public class InventoryService extends BaseService {
 	 * @param binClassId
 	 * @return
 	 */
-//	public Inventory getInventoryForBalanceOHQty (String warehouseId, String packBarcodes, String itemCode, Long binClassId) {
-//		Optional<Inventory> inventory = 
-//				inventoryRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPackBarcodesAndItemCodeAndBinClassIdNotAndDeletionIndicator(
-//						getLanguageId(),
-//						getCompanyCode(),
-//						getPlantId(),
-//						warehouseId, 
-//						packBarcodes, 
-//						itemCode, 
-//						binClassId,
-//						0L
-//						);
-//		return inventory.get();
-//	}
+	public List<Inventory> getInventoryForStockReport (String warehouseId, String itemCode, Long stockTypeId) {
+		List<Inventory> inventory = 
+				inventoryRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndAndStockTypeIdNotAndDeletionIndicator(
+						getLanguageId(),
+						getCompanyCode(),
+						getPlantId(),
+						warehouseId, 
+						itemCode, 
+						stockTypeId,
+						0L
+						);
+		return inventory;
+	}
 	
 	/**
 	 * 
@@ -143,13 +142,6 @@ public class InventoryService extends BaseService {
 						itemCode, 
 						0L
 						);
-//		if (inventory.isEmpty()) {
-//			throw new BadRequestException("The given InventoryForDelete ID : " +
-//										", warehouseId: " + warehouseId + 
-//										", packBarcodes: " + packBarcodes + 
-//										", itemCode: " + itemCode + 
-//										" doesn't exist.");
-//		} 
 		return inventory;
 	}
 	
@@ -376,6 +368,20 @@ public class InventoryService extends BaseService {
 		return inventory;
 	}
 	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param itemCode
+	 * @param storageBin
+	 * @param stockTypeId
+	 * @return
+	 */
+	public List<Long> getInventoryQtyCount (String warehouseId, String itemCode, List<String> storageBin, 
+			Long stockTypeId) {
+		List<Long> inventory = inventoryRepository.findInventoryQtyCount(warehouseId, itemCode, storageBin, stockTypeId);
+		return inventory;
+	}
+	
 	
 	/**
 	 * 
@@ -387,7 +393,7 @@ public class InventoryService extends BaseService {
 			throws ParseException {
 		InventorySpecification spec = new InventorySpecification(searchInventory);
 		List<Inventory> results = inventoryRepository.findAll(spec);
-		log.info("results: " + results);
+//		log.info("results: " + results);
 		return results;
 	}
 	
@@ -463,8 +469,12 @@ public class InventoryService extends BaseService {
 	public boolean deleteInventory(String warehouseId, String packBarcodes, String itemCode) {
 		try {
 			List<Inventory> inventoryList = getInventoryForDelete (warehouseId, packBarcodes, itemCode);
+			log.info("inventoryList : " + inventoryList);
 			if (inventoryList != null) {
-				inventoryRepository.deleteAll(inventoryList);
+				for (Inventory inventory : inventoryList) {
+					inventoryRepository.delete(inventory);
+					log.info("inventory deleted.");
+				}
 				return true;
 			}
 			return false;

@@ -162,7 +162,7 @@ public class QualityLineService extends BaseService {
 			throws ParseException {
 		QualityLineSpecification spec = new QualityLineSpecification(searchQualityLine);
 		List<QualityLine> results = qualityLineRepository.findAll(spec);
-		log.info("results: " + results);
+//		log.info("results: " + results);
 		return results;
 	}
 	
@@ -223,7 +223,14 @@ public class QualityLineService extends BaseService {
 			if (outboundLine != null) {
 				outboundLine.setDeliveryOrderNo(DLV_ORD_NO);
 				outboundLine.setStatusId(57L);
-				outboundLine.setDeliveryQty(dbQualityLine.getQualityQty());
+				
+				Double exisitingDelQty = 0D;
+				if (outboundLine.getDeliveryQty() != null) {
+					exisitingDelQty = outboundLine.getDeliveryQty();
+				} else {
+					exisitingDelQty = 0D;
+				}
+				outboundLine.setDeliveryQty(exisitingDelQty + dbQualityLine.getQualityQty());
 				outboundLine = outboundLineRepository.save(outboundLine);
 				log.info("outboundLine updated : " + outboundLine);
 			}

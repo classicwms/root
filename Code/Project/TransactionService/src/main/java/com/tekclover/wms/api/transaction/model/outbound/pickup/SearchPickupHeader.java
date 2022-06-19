@@ -29,5 +29,5 @@ public class SearchPickupHeader {
 	private List<Long> outboundOrderTypeId;
 	private List<Long> statusId;
 	private List<String> soType; // referenceField1;
-//	private List<String> assignedPicker;
+	private List<String> assignedPickerId;
 }

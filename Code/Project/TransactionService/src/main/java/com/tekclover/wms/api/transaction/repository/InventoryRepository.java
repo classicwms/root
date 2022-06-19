@@ -5,6 +5,8 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -112,4 +114,30 @@ public interface InventoryRepository extends JpaRepository<Inventory,Long>, JpaS
 	public Optional<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPackBarcodesAndItemCodeAndBinClassIdNotAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId, String packBarcodes,
 			String itemCode, Long binClassId, Long deletionIndicator);
+
+	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndAndStockTypeIdNotAndDeletionIndicator(
+			String languageId, String companyCode, String plantId, String warehouseId, String itemCode,
+			Long stockTypeId, Long l);
+	
+	/*
+	 * Reports
+	 */
+	
+//	SearchInventory searchInventory = new SearchInventory();
+//	searchInventory.setWarehouseId(Arrays.asList(warehouseId));
+//	searchInventory.setItemCode(Arrays.asList(itemCode));
+//	searchInventory.setStorageBin(storageBinList);
+//	searchInventory.setStockTypeId(Arrays.asList(stockTypeId));
+//	searchInventory.setBinClassId(Arrays.asList(1L));
+//	List<Inventory> inventoryList = inventoryService.findInventory(searchInventory);
+	
+	@Query (value = "SELECT SUM(INV_QTY) FROM tblinventory \r\n"
+			+ " WHERE WH_ID = :warehouseId AND ITM_CODE = :itemCode AND \r\n"
+			+ " ST_BIN IN :storageBin AND STCK_TYP_ID = :stockTypeId AND BIN_CL_ID = 1 \r\n"
+			+ " GROUP BY ITM_CODE", nativeQuery = true)
+	public List<Long> findInventoryQtyCount (
+			@Param(value = "warehouseId") String warehouseId,
+			@Param(value = "itemCode") String itemCode,
+			@Param(value = "storageBin") List<String> storageBin,
+			@Param(value = "stockTypeId") Long stockTypeId);
 }

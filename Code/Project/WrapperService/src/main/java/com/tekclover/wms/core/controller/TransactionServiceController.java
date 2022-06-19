@@ -1309,10 +1309,7 @@ public class TransactionServiceController {
    					throws ParseException, java.text.ParseException {
     	ShipmentDeliveryReport[] shipmentDeliveryList = transactionService.getShipmentDeliveryReport(warehouseId, 
        			fromDeliveryDate, toDeliveryDate, storeCode, soType, orderNumber, authToken);
-    	
-    	// Export Report (html/pdf)
-    	String fileUploadedPath = reportService.exportShipmentDelivery (shipmentDeliveryList, "pdf");
-   		return new ResponseEntity<>(fileUploadedPath, HttpStatus.OK);
+   		return new ResponseEntity<>(shipmentDeliveryList, HttpStatus.OK);
    	}
     
     /*
@@ -1320,16 +1317,12 @@ public class TransactionServiceController {
    	 */
     @ApiOperation(response = ShipmentDeliverySummaryReport.class, value = "Get ShipmentDeliverySummary Report") // label for swagger 
    	@GetMapping("/reports/shipmentDeliverySummary")
-   	public ResponseEntity<?> getShipmentDeliveryReport(@RequestParam String reportFormat, @RequestParam String fromDeliveryDate, 
+   	public ResponseEntity<?> getShipmentDeliveryReport(@RequestParam String fromDeliveryDate, 
    			@RequestParam String toDeliveryDate, @RequestParam(required = false) List<String> customerCode, 
    			@RequestParam String authToken) throws ParseException, java.text.ParseException {
     	ShipmentDeliverySummaryReport[] shipmentDeliverySummaryReport = 
     			transactionService.getShipmentDeliverySummaryReport(fromDeliveryDate, toDeliveryDate, customerCode, authToken);
     	log.info("shipmentDeliverySummaryReport : " + Arrays.asList(shipmentDeliverySummaryReport));
-    	
-//    	// Export Report (html/pdf)
-//    	String fileUploadedPath = reportService.exportShipmentDeliverySummary (shipmentDeliverySummaryReport, reportFormat);
-//   		return new ResponseEntity<>(fileUploadedPath, HttpStatus.OK);
     	return new ResponseEntity<>(shipmentDeliverySummaryReport, HttpStatus.OK);
    	}
     
@@ -1338,16 +1331,12 @@ public class TransactionServiceController {
    	 */
     @ApiOperation(response = ShipmentDispatchSummaryReport.class, value = "Get ShipmentDispatchSummary Report") // label for swagger 
    	@GetMapping("/shipmentDispatchSummary")
-   	public ResponseEntity<?> getShipmentDispatchSummaryReport(@RequestParam String reportFormat, @RequestParam String fromDeliveryDate, 
+   	public ResponseEntity<?> getShipmentDispatchSummaryReport(@RequestParam String fromDeliveryDate, 
    			@RequestParam String toDeliveryDate, @RequestParam(required = false) List<String> customerCode, 
    			@RequestParam String authToken) throws ParseException, java.text.ParseException {
     	ShipmentDispatchSummaryReport shipmentDispatchSummary = 
     			transactionService.getShipmentDispatchSummaryReport(fromDeliveryDate, toDeliveryDate, customerCode, authToken);
     	log.info("-shipmentDispatchSummary : " + shipmentDispatchSummary);
-    	
-//    	// Export Report (html/pdf)
-//    	String fileUploadedPath = reportService.exportShipmentDispatchSummary (shipmentDispatchSummary, reportFormat);
-//   		return new ResponseEntity<>(fileUploadedPath, HttpStatus.OK);
     	return new ResponseEntity<>(shipmentDispatchSummary, HttpStatus.OK);
    	}
     
@@ -1356,13 +1345,9 @@ public class TransactionServiceController {
    	 */
     @ApiOperation(response = ReceiptConfimationReport.class, value = "Get ReceiptConfimation Report") // label for swagger 
    	@GetMapping("/reports/receiptConfirmation")
-   	public ResponseEntity<?> getReceiptConfimationReport(@RequestParam String reportFormat, @RequestParam String asnNumber, 
+   	public ResponseEntity<?> getReceiptConfimationReport(@RequestParam String asnNumber, 
    			@RequestParam String authToken) throws Exception {
     	ReceiptConfimationReport receiptConfimationReport = transactionService.getReceiptConfimationReport(asnNumber, authToken);
-    	
-//    	// Export Report (html/pdf)
-//    	String fileUploadedPath = reportService.exportReceiptConfimationReport (receiptConfimationReport, reportFormat);
-//   		return new ResponseEntity<>(fileUploadedPath, HttpStatus.OK);
     	return new ResponseEntity<>(receiptConfimationReport, HttpStatus.OK);
    	}
     

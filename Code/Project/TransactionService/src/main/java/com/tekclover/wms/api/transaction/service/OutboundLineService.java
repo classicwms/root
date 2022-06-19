@@ -245,6 +245,20 @@ public class OutboundLineService extends BaseService {
 	}
 	
 	/**
+	 * 
+	 * @param preOBNo
+	 * @param obLineNo
+	 * @param itemCode
+	 * @return
+	 */
+	public List<Long> getLineShipped(String preOBNo, Long obLineNo, String itemCode) {
+		List<Long> lineShippedList = outboundLineRepository.findLineShipped(preOBNo, obLineNo, itemCode);
+		return lineShippedList;
+	}
+	
+	
+	
+	/**
 	 * Pass the Selected WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/OB_LINE_NO/ITM_CODE in OUTBOUNDLINE table and 
 	 * update SATATU_ID as 48
 	 * @param warehouseId
@@ -271,6 +285,26 @@ public class OutboundLineService extends BaseService {
 					",lineNumber:" + lineNumber +
 					",itemCode:" + itemCode +
 					" doesn't exist.");
+	}
+	
+	/**
+	 * 
+	 * @param refDocNo
+	 * @return
+	 */
+	public List<Long> getLineItem_NByRefDocNoAndRefField2IsNull (List<String> refDocNo) {
+		List<Long> lineItems = outboundLineRepository.findLineItem_NByRefDocNoAndRefField2IsNull (refDocNo);
+		return lineItems;
+	}
+	
+	/**
+	 * 
+	 * @param refDocNo
+	 * @return
+	 */
+	public List<Long> getShippedLines (List<String> refDocNo) {
+		List<Long> lineItems = outboundLineRepository.findShippedLines(refDocNo);
+		return lineItems;
 	}
 	
 	/**
@@ -340,7 +374,7 @@ public class OutboundLineService extends BaseService {
 		
 		OutboundLineSpecification spec = new OutboundLineSpecification(searchOutboundLine);
 		List<OutboundLine> outboundLineSearchResults = outboundLineRepository.findAll(spec);
-		log.info("search results: " + outboundLineSearchResults);
+//		log.info("search results: " + outboundLineSearchResults);
 		return outboundLineSearchResults;
 	}
 	
@@ -423,6 +457,17 @@ public class OutboundLineService extends BaseService {
 			String partnerCode, String loginUserID) throws IllegalAccessException, InvocationTargetException {
 		List<OutboundLine> outboundLineList = getOutboundLine(warehouseId, preOutboundNo, refDocNumber, partnerCode);
 		log.info("outboundLine outboundLineList : " + outboundLineList);
+		
+		long matchedCount = outboundLineList.stream().filter(a->a.getStatusId() == 57L || a.getStatusId() == 47L || 
+				a.getStatusId() == 51L || a.getStatusId() == 41L).count();
+		boolean isConditionMet = (matchedCount == outboundLineList.size());
+		log.info("isConditionMet : " + isConditionMet);
+		
+		if (!isConditionMet) {
+			throw new BadRequestException("Order is not completely Processed.");
+		} else {
+			log.info("Order can be Processed.");
+		}
 		
 		/*
 		 * Pass the selectedWH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/ITEM_CODE/OB_LINE_NO values in OUTBOUNDLINE table and 

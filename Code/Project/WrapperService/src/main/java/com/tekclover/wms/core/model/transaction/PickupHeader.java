@@ -16,7 +16,8 @@ import lombok.NoArgsConstructor;
 @Data
 public class PickupHeader { 
 	
-	private String languageId;
+private String languageId;
+	
 	private String companyCodeId;
 	private String plantId;
 	private String warehouseId;
@@ -35,6 +36,7 @@ public class PickupHeader {
 	private Long specialStockIndicatorId;
 	private String manufacturerPartNo;
 	private Long statusId;
+	private String assignedPickerId;
 	private String referenceField1;
 	private String referenceField2;
 	private String referenceField3;
@@ -48,11 +50,10 @@ public class PickupHeader {
 	private Long deletionIndicator;
 	private String remarks;
 	private String pickupCreatedBy;
-	private Date pickupCreatedOn = new Date();
+	private Date pickupCreatedOn;
 	private String pickConfimedBy;
-	private Date pickConfimedOn = new Date();
 	private String pickUpdatedBy;
-	private Date pickUpdatedOn = new Date();
+	private Date pickUpdatedOn;
 	private String pickupReversedBy;
-	private Date pickupReversedOn = new Date();
+	private Date pickupReversedOn;
 }

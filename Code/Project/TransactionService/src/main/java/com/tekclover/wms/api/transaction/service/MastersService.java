@@ -48,7 +48,6 @@ public class MastersService {
 	
 	
 	//--------------------------------------------------------------------------------------------------------------------
-	
 	// GET ImBasicData1
 	public ImBasicData1 getImBasicData1ByItemCode(String itemCode, String warehouseId, String authToken) {
 		try {
@@ -63,7 +62,7 @@ public class MastersService {
 					.queryParam("warehouseId", warehouseId);
 			ResponseEntity<ImBasicData1> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, ImBasicData1.class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			return null;
@@ -82,7 +81,7 @@ public class MastersService {
 					.queryParam("loginUserID", loginUserID);
 			ResponseEntity<ImBasicData1> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity,
 					ImBasicData1.class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -106,7 +105,7 @@ public class MastersService {
 						.queryParam("warehouseId", warehouseId);
 			ResponseEntity<BomHeader> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, BomHeader.class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -129,7 +128,7 @@ public class MastersService {
 					.queryParam("warehouseId", warehouseId);
 			ResponseEntity<BomLine[]> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, BomLine[].class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -153,7 +152,7 @@ public class MastersService {
 					UriComponentsBuilder.fromHttpUrl(getMastersServiceApiUrl() + "storagebin/" + storageBin);
 			ResponseEntity<StorageBin> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, StorageBin.class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -175,7 +174,7 @@ public class MastersService {
 					UriComponentsBuilder.fromHttpUrl(getMastersServiceApiUrl() + "storagebin/" + warehouseId + "/bins/" + binClassId);
 			ResponseEntity<StorageBin> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, StorageBin.class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -196,7 +195,7 @@ public class MastersService {
 					UriComponentsBuilder.fromHttpUrl(getMastersServiceApiUrl() + "storagebin/putaway");
 			ResponseEntity<StorageBin[]> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, StorageBin[].class);
-			log.info("result : " + result);
+//			log.info("result : " + result);
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -218,7 +217,7 @@ public class MastersService {
 						.queryParam("statusId", statusId);
 			ResponseEntity<StorageBin[]> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, StorageBin[].class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -240,7 +239,7 @@ public class MastersService {
 						.queryParam("statusId", statusId);
 			ResponseEntity<StorageBin[]> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, StorageBin[].class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -263,7 +262,7 @@ public class MastersService {
 						.queryParam("stSectionIds", stSectionIds);
 			ResponseEntity<StorageBin[]> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, StorageBin[].class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -290,7 +289,7 @@ public class MastersService {
 			
 			ResponseEntity<StorageBin> result = 
 					restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, StorageBin.class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -313,7 +312,7 @@ public class MastersService {
 						.queryParam("warehouseId", warehouseId);
 			ResponseEntity<HandlingEquipment> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, HandlingEquipment.class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -334,7 +333,7 @@ public class MastersService {
 					UriComponentsBuilder.fromHttpUrl(getMastersServiceApiUrl() + "businesspartner/" + partnerCode );
 			ResponseEntity<BusinessPartner> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, BusinessPartner.class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			throw e;

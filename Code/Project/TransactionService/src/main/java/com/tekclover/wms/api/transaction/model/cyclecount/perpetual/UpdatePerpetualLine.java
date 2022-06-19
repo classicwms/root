@@ -33,6 +33,8 @@ public class UpdatePerpetualLine {
 	private String approverCode;
 	private String approvalStatus;
 	private String remarks;
+	private String manufacturerPartNo;
+	private String storageSectionId;
 	private String referenceField1;
 	private String referenceField2;
 	private String referenceField3;

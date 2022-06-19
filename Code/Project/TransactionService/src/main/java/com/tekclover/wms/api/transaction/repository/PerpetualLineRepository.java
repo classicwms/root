@@ -20,5 +20,8 @@ public interface PerpetualLineRepository extends JpaRepository<PerpetualLine,Lon
 				String companyCodeId, String plantId, String warehouseId, String cycleCountNo, 
 				String storageBin, String itemCode, String packBarcodes, Long deletionIndicator);
 	
-	 public List<PerpetualLine> findByCycleCountNoAndDeletionIndicator(String cycleCountNo, Long deletionIndicator);
+	public List<PerpetualLine> findByCycleCountNoAndDeletionIndicator(String cycleCountNo, Long deletionIndicator);
+
+	public List<PerpetualLine> findByCycleCountNoAndCycleCounterIdInAndDeletionIndicator(String cycleCountNo,
+			List<String> cycleCounterId, Long deletionIndicator);
 }

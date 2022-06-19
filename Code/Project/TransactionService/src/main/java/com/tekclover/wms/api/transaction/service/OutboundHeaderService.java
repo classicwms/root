@@ -127,6 +127,29 @@ public class OutboundHeaderService {
 	
 	/**
 	 * 
+	 * @param warehouseId
+	 * @param partnerCode
+	 * @return
+	 */
+	public List<Long> getTotalOrder_N (String warehouseId, String partnerCode) {
+		List<Long> totalOrderCount = outboundHeaderRepository.findTotalOrder_NByWarehouseIdAndPartnerCode(warehouseId, partnerCode);
+		return totalOrderCount;
+	}
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param partnerCode
+	 * @return
+	 */
+	public List<String> getRefDocListByWarehouseIdAndPartnerCode (String warehouseId, String partnerCode) {
+		List<String> totalOrderList = 
+				outboundHeaderRepository.findRefDocNoByWarehouseIdAndPartnerCode(warehouseId, partnerCode);
+		return totalOrderList;
+	}
+	
+	/**
+	 * 
 	 * @param searchOutboundHeader
 	 * @return
 	 * @throws ParseException
@@ -175,7 +198,7 @@ public class OutboundHeaderService {
 			}
 		}
 		
-		log.info("headerSearchResults: " + headerSearchResults);
+//		log.info("headerSearchResults: " + headerSearchResults);
 		return headerSearchResults;
 	}
 	

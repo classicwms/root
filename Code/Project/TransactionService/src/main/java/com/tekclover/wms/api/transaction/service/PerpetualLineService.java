@@ -79,7 +79,7 @@ public class PerpetualLineService extends BaseService {
 				perpetualLineRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndCycleCountNoAndStorageBinAndItemCodeAndPackBarcodesAndDeletionIndicator(
 						getCompanyCode(), getPlantId(), warehouseId, cycleCountNo, storageBin, itemCode, 
 						packBarcodes, 0L);
-		if (perpetualLine != null) {
+		if (perpetualLine == null) {
 			throw new BadRequestException("The given PerpetualLine ID - "
 					+ " warehouseId: " + warehouseId + ","
 					+ "cycleCountNo: " + cycleCountNo + "," 
@@ -98,9 +98,18 @@ public class PerpetualLineService extends BaseService {
 	 */
 	public List<PerpetualLine> getPerpetualLine (String cycleCountNo) {
 		List<PerpetualLine> perpetualLine = perpetualLineRepository.findByCycleCountNoAndDeletionIndicator(cycleCountNo, 0L);
-		if (perpetualLine.isEmpty()) {
-			throw new BadRequestException("The given cycleCountNo: " + cycleCountNo);
-		} 
+		return perpetualLine;
+	}
+	
+	/**
+	 * 
+	 * @param cycleCountNo
+	 * @param cycleCounterId
+	 * @return
+	 */
+	public List<PerpetualLine> getPerpetualLine (String cycleCountNo, List<String> cycleCounterId) {
+		List<PerpetualLine> perpetualLine = 
+				perpetualLineRepository.findByCycleCountNoAndCycleCounterIdInAndDeletionIndicator(cycleCountNo, cycleCounterId, 0L);
 		return perpetualLine;
 	}
 	
@@ -217,86 +226,90 @@ public class PerpetualLineService extends BaseService {
 	public List<PerpetualLine> updatePerpetualLine(String cycleCountNo, List<UpdatePerpetualLine> updatePerpetualLines,
 			String loginUserID) throws IllegalAccessException, InvocationTargetException {
 		List<PerpetualLine> responsePerpetualLines = new ArrayList<>();
-		for (UpdatePerpetualLine updatePerpetualLine : updatePerpetualLines) {
-			PerpetualLine dbPerpetualLine = getPerpetualLine(updatePerpetualLine.getWarehouseId(), 
-					updatePerpetualLine.getCycleCountNo(), 
-					updatePerpetualLine.getStorageBin(), 
-					updatePerpetualLine.getItemCode(), 
-					updatePerpetualLine.getPackBarcodes());
-			BeanUtils.copyProperties(updatePerpetualLine, dbPerpetualLine, CommonUtils.getNullPropertyNames(updatePerpetualLine));
-			dbPerpetualLine.setRemarks(updatePerpetualLine.getRemarks());
-			dbPerpetualLine.setCycleCountAction(updatePerpetualLine.getCycleCountAction());	
-			
-			/*
-			 * 1. Action = WRITEOFF 
-			 * If ACTION = WRITEOFF , update ACTION field in PERPETUALLINE as WRITEOFF by passing unique fields and 
-			 * update in STATUS_ID field as "76"
-			 */
-			if (updatePerpetualLine.getStatusId().equalsIgnoreCase(WRITEOFF)) {
-				dbPerpetualLine.setStatusId("76");
-				dbPerpetualLine.setCycleCountAction(WRITEOFF);
-				PerpetualLine updatedPerpetualLine = perpetualLineRepository.save(dbPerpetualLine);
-				log.info("updatedPerpetualLine : " + updatedPerpetualLine);
-				responsePerpetualLines.add(updatedPerpetualLine);
+		try {
+			for (UpdatePerpetualLine updatePerpetualLine : updatePerpetualLines) {
+				PerpetualLine dbPerpetualLine = getPerpetualLine(updatePerpetualLine.getWarehouseId(), 
+						updatePerpetualLine.getCycleCountNo(), 
+						updatePerpetualLine.getStorageBin(), 
+						updatePerpetualLine.getItemCode(), 
+						updatePerpetualLine.getPackBarcodes());
+				BeanUtils.copyProperties(updatePerpetualLine, dbPerpetualLine, CommonUtils.getNullPropertyNames(updatePerpetualLine));
+				dbPerpetualLine.setRemarks(updatePerpetualLine.getRemarks());
+				dbPerpetualLine.setCycleCountAction(updatePerpetualLine.getCycleCountAction());	
 				
 				/*
-				 * Inventory table update
-				 * ---------------------------
-				 * Fetch CNT_QTY of the selected ITM_CODE and Pass WH_ID/ITM_CODE/ST_BIN/PACK_BARCODE values in INVENTORY table 
-				 * and replace INV_QTY as CNT_QTY
+				 * 1. Action = WRITEOFF 
+				 * If ACTION = WRITEOFF , update ACTION field in PERPETUALLINE as WRITEOFF by passing unique fields and 
+				 * update in STATUS_ID field as "76"
 				 */
-				updateInventory (updatedPerpetualLine);
-				createInventoryMovement (updatedPerpetualLine) ;
-			}
-			
-			
-			/*
-			 * 2. Action = SKIP
-			 * if ACTION = SKIP in UI,  update ACTION field in PERPETUALLINE as SKIP by passing unique fields 
-			 * and update in STATUS_ID field as "77"
-			 */
-			if (updatePerpetualLine.getStatusId().equalsIgnoreCase(SKIP)) {
-				dbPerpetualLine.setStatusId("77");
-				dbPerpetualLine.setCycleCountAction(SKIP);
-				PerpetualLine updatedPerpetualLine = perpetualLineRepository.save(dbPerpetualLine);
-				log.info("updatedPerpetualLine : " + updatedPerpetualLine);
-				responsePerpetualLines.add(updatedPerpetualLine);
+				if (updatePerpetualLine.getCycleCountAction().equalsIgnoreCase(WRITEOFF)) {
+					dbPerpetualLine.setStatusId("76");
+					dbPerpetualLine.setCycleCountAction(WRITEOFF);
+					PerpetualLine updatedPerpetualLine = perpetualLineRepository.save(dbPerpetualLine);
+					log.info("updatedPerpetualLine : " + updatedPerpetualLine);
+					responsePerpetualLines.add(updatedPerpetualLine);
+					
+					/*
+					 * Inventory table update
+					 * ---------------------------
+					 * Fetch CNT_QTY of the selected ITM_CODE and Pass WH_ID/ITM_CODE/ST_BIN/PACK_BARCODE values in INVENTORY table 
+					 * and replace INV_QTY as CNT_QTY
+					 */
+					updateInventory (updatedPerpetualLine);
+					createInventoryMovement (updatedPerpetualLine) ;
+				}
+				
 				
 				/*
-				 * Inventory table update
-				 * ---------------------------
-				 * Insert a new record by passing WH_ID/ITM_CODE/PACK_BARCODE/ST_BIN (fetch ST_BIN 
-				 * from STORAGEBIN table where BIN_CL_ID=5) values in INVENTORY table and append INV_QTY as 
-				 * VAR_QTY
+				 * 2. Action = SKIP
+				 * if ACTION = SKIP in UI,  update ACTION field in PERPETUALLINE as SKIP by passing unique fields 
+				 * and update in STATUS_ID field as "77"
 				 */
-				createInventory (updatedPerpetualLine);
-				createInventoryMovement (updatedPerpetualLine) ;
-			}
-			
-			/*
-			 * 3. Action = RECOUNT (default Action Value)
-			 * If ACTION = RECOUNT, update ACTION field in PERPETUALLINE as SKIP by passing unique fields 
-			 * and update in STATUS_ID field as "75 "
-			 */
-			if (updatePerpetualLine.getStatusId().equalsIgnoreCase(RECOUNT)) {
-				dbPerpetualLine.setStatusId("75");
-				dbPerpetualLine.setCycleCountAction(RECOUNT);
-				PerpetualLine updatedPerpetualLine = perpetualLineRepository.save(dbPerpetualLine);
-				log.info("updatedPerpetualLine : " + updatedPerpetualLine);
-				responsePerpetualLines.add(updatedPerpetualLine);
+				if (updatePerpetualLine.getCycleCountAction().equalsIgnoreCase(SKIP)) {
+					dbPerpetualLine.setStatusId("77");
+					dbPerpetualLine.setCycleCountAction(SKIP);
+					PerpetualLine updatedPerpetualLine = perpetualLineRepository.save(dbPerpetualLine);
+					log.info("updatedPerpetualLine : " + updatedPerpetualLine);
+					responsePerpetualLines.add(updatedPerpetualLine);
+					
+					/*
+					 * Inventory table update
+					 * ---------------------------
+					 * Insert a new record by passing WH_ID/ITM_CODE/PACK_BARCODE/ST_BIN (fetch ST_BIN 
+					 * from STORAGEBIN table where BIN_CL_ID=5) values in INVENTORY table and append INV_QTY as 
+					 * VAR_QTY
+					 */
+					createInventory (updatedPerpetualLine);
+					createInventoryMovement (updatedPerpetualLine) ;
+				}
 				
 				/*
-				 * Also create New CC_NO record as below
+				 * 3. Action = RECOUNT (default Action Value)
+				 * If ACTION = RECOUNT, update ACTION field in PERPETUALLINE as SKIP by passing unique fields 
+				 * and update in STATUS_ID field as "75 "
 				 */
-				AddPerpetualHeader newPerpetualHeader = new AddPerpetualHeader();
-				PerpetualHeader perpetualHeader = perpetualHeaderService.getPerpetualHeader(updatedPerpetualLine.getCycleCountNo());
-				BeanUtils.copyProperties(perpetualHeader, newPerpetualHeader, CommonUtils.getNullPropertyNames(perpetualHeader));
-				newPerpetualHeader.setReferenceField1(updatedPerpetualLine.getCycleCountNo());
-				PerpetualHeader createdPerpetualHeader = 
-						perpetualHeaderService.createPerpetualHeader(newPerpetualHeader, loginUserID);
-				log.info("createdPerpetualHeader : " + createdPerpetualHeader);
+				if (updatePerpetualLine.getCycleCountAction().equalsIgnoreCase(RECOUNT)) {
+					dbPerpetualLine.setStatusId("75");
+					dbPerpetualLine.setCycleCountAction(RECOUNT);
+					PerpetualLine updatedPerpetualLine = perpetualLineRepository.save(dbPerpetualLine);
+					log.info("updatedPerpetualLine : " + updatedPerpetualLine);
+					responsePerpetualLines.add(updatedPerpetualLine);
+					
+					/*
+					 * Also create New CC_NO record as below
+					 */
+					AddPerpetualHeader newPerpetualHeader = new AddPerpetualHeader();
+					PerpetualHeader perpetualHeader = perpetualHeaderService.getPerpetualHeader(updatedPerpetualLine.getCycleCountNo());
+					BeanUtils.copyProperties(perpetualHeader, newPerpetualHeader, CommonUtils.getNullPropertyNames(perpetualHeader));
+					newPerpetualHeader.setReferenceField1(updatedPerpetualLine.getCycleCountNo());
+					PerpetualHeader createdPerpetualHeader = 
+							perpetualHeaderService.createPerpetualHeader(newPerpetualHeader, loginUserID);
+					log.info("createdPerpetualHeader : " + createdPerpetualHeader);
+				}
 			}
-		}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
 		
 		return responsePerpetualLines;
 	}
@@ -405,7 +418,7 @@ public class PerpetualLineService extends BaseService {
 		// IM_CTD_ON
 		inventoryMovement.setCreatedOn(updatedPerpetualLine.getCreatedOn());
 		inventoryMovement = inventoryMovementRepository.save(inventoryMovement);
-		log.info("cerated InventoryMovement : " + inventoryMovement);
+		log.info("created InventoryMovement : " + inventoryMovement);
 		return inventoryMovement;
 	}
 }

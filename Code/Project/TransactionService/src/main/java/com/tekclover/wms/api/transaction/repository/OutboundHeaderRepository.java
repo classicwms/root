@@ -5,6 +5,8 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,4 +33,20 @@ public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader,L
 
 	public OutboundHeader findByRefDocNumberAndDeletionIndicator(String refDocNumber, long l);
 
+	/*
+	 * Reports
+	 */
+	@Query (value = "SELECT COUNT(REF_DOC_NO) AS refDocNoCount FROM tbloutboundheader \r\n"
+			+ "WHERE WH_ID = :warehouseId AND PARTNER_CODE = :partnerCode \r\n"
+			+ "GROUP BY REF_DOC_NO", nativeQuery = true)
+	public List<Long> findTotalOrder_NByWarehouseIdAndPartnerCode (
+									@Param(value = "warehouseId") String warehouseId,
+									@Param(value = "partnerCode") String partnerCode);
+	
+	@Query (value = "SELECT REF_DOC_NO AS refDocNo FROM tbloutboundheader \r\n"
+			+ "WHERE WH_ID = :warehouseId AND PARTNER_CODE = :partnerCode \r\n"
+			+ "GROUP BY REF_DOC_NO", nativeQuery = true)
+	public List<String> findRefDocNoByWarehouseIdAndPartnerCode (
+									@Param(value = "warehouseId") String warehouseId,
+									@Param(value = "partnerCode") String partnerCode);
 }

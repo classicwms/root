@@ -116,6 +116,9 @@ public interface GrLineRepository extends JpaRepository<GrLine,Long>, JpaSpecifi
 	 */
 	public List<GrLine> findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndPreInboundNoAndRefDocNumberAndLineNoAndItemCodeAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId, String preInboundNo,
-			String refDocNumber, Long lineNo, String itemCode, long l);
+			String refDocNumber, Long lineNo, String itemCode, Long l);
+	
+	public List<GrLine> findByLanguageIdAndCompanyCodeAndPlantIdAndRefDocNumberAndPackBarcodesAndDeletionIndicator(
+			String languageId, String companyCode, String plantId, String refDocNumber, String packBarcodes, Long l);
 	
 }

@@ -30,4 +30,7 @@ public class SearchPerpetualHeader {
 	private Date startCreatedOn;
 	private Date endCreatedOn;
 	
-	}
+	// From Line table
+	private List<String> cycleCounterId;
+	
+}

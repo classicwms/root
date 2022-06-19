@@ -147,7 +147,7 @@ public class TransactionService {
 		HttpEntity<?> entity = new HttpEntity<>(createdInboundIntegrationHeader, headers);
 		ResponseEntity<PreInboundHeader> result = 
 				getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PreInboundHeader.class);
-		log.info("result : " + result.getStatusCode());
+//		log.info("result : " + result.getStatusCode());
 		return result.getBody();
 	}
 
@@ -163,7 +163,7 @@ public class TransactionService {
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "preinboundheader");
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			ResponseEntity<PreInboundHeader[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, PreInboundHeader[].class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -184,7 +184,7 @@ public class TransactionService {
 					.queryParam("warehouseId", warehouseId);
 			HttpEntity<?> entity = new HttpEntity<>(headers);	
 			ResponseEntity<PreInboundHeader> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, PreInboundHeader.class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -205,7 +205,7 @@ public class TransactionService {
 			HttpEntity<?> entity = new HttpEntity<>(newPreInboundLine, headers);	
 			ResponseEntity<StagingHeader> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, StagingHeader.class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -226,7 +226,7 @@ public class TransactionService {
 					.queryParam("warehouseId", warehouseId);
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			ResponseEntity<PreInboundHeader[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, PreInboundHeader[].class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -245,7 +245,7 @@ public class TransactionService {
 				.queryParam("loginUserID", loginUserID);
 		HttpEntity<?> entity = new HttpEntity<>(newPreInboundHeader, headers);
 		ResponseEntity<PreInboundHeader> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PreInboundHeader.class);
-		log.info("result : " + result.getStatusCode());
+//		log.info("result : " + result.getStatusCode());
 		return result.getBody();
 	}
 	
@@ -262,7 +262,7 @@ public class TransactionService {
 			HttpEntity<?> entity = new HttpEntity<>(searchPreInboundHeader, headers);	
 			ResponseEntity<PreInboundHeader[]> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, PreInboundHeader[].class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -291,7 +291,7 @@ public class TransactionService {
 					.queryParam("loginUserID", loginUserID);
 			
 			ResponseEntity<PreInboundHeader> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, PreInboundHeader.class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -314,7 +314,7 @@ public class TransactionService {
 					.queryParam("preInboundNo", preInboundNo)
 					.queryParam("loginUserID", loginUserID);
 			ResponseEntity<String> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity, String.class);
-			log.info("result : " + result);
+//			log.info("result : " + result);
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -334,7 +334,7 @@ public class TransactionService {
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "preinboundline");
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			ResponseEntity<PreInboundLine[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, PreInboundLine[].class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -361,7 +361,7 @@ public class TransactionService {
 			HttpEntity<?> entity = new HttpEntity<>(headers);	
 			ResponseEntity<PreInboundLine> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, PreInboundLine.class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -3347,7 +3347,7 @@ public class TransactionService {
 					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "perpetualheader/findPerpetualHeader");
 			HttpEntity<?> entity = new HttpEntity<>(searchPerpetualHeader, headers);	
 			ResponseEntity<PerpetualHeaderEntity[]> result = 
-					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, PerpetualHeaderEntity[].class);
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PerpetualHeaderEntity[].class);
 			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
@@ -3364,7 +3364,8 @@ public class TransactionService {
 		headers.add("User-Agent", "MNRClara RestTemplate");
 		headers.add("Authorization", "Bearer " + authToken);
 		UriComponentsBuilder builder = 
-				UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "perpetualheader");
+				UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "perpetualheader")
+				.queryParam("loginUserID", loginUserID);
 		HttpEntity<?> entity = new HttpEntity<>(newPerpetualHeader, headers);
 		ResponseEntity<PerpetualHeader> result = 
 				getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PerpetualHeader.class);

@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.transaction.model.report;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.Data;
 
@@ -21,15 +22,15 @@ public class ShipmentDeliverySummaryReport {
 	private Double shippedQty;				// Shipped Qty
 	private Double percentageShipped;		// % Shipped
 	
-	// Summary List
-	private String partnerCode;
-	private String type;
-	
-	// Summary Metrics
-	private Double totalOrder;
-	private Double lineItems;
-	private Double metricsPercentageShipped;
+//	// Summary List
+//	private String partnerCode;
+//	private String type;
+//	
+//	// Summary Metrics
+//	private Double totalOrder;
+//	private Double lineItems;
+//	private Double metricsPercentageShipped;
 
 //	private List<SummaryList> summaryList;
-//	private List<SummaryMetrics> summaryMetrics;
+	private List<SummaryMetrics> summaryMetrics;
 }

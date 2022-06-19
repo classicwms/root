@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.inbound.InboundLine;
+import com.tekclover.wms.api.transaction.model.inbound.gr.GrLine;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.AddPutAwayHeader;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.PutAwayHeader;
@@ -56,6 +57,9 @@ public class PutAwayHeaderService extends BaseService {
 	
 	@Autowired
 	private InventoryService inventoryService;
+	
+	@Autowired
+	private GrLineService grLineService;
 	
 	/**
 	 * getPutAwayHeaders
@@ -347,22 +351,29 @@ public class PutAwayHeaderService extends BaseService {
 	 */
 	public List<PutAwayHeader> updatePutAwayHeader(String refDocNumber, String packBarcodes, String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
-		log.info("updatePutAwayHeader---------> : called.....");
+		String warehouseId = null;
+		String caseCode = null;
+		String palletCode = null;
+		String storageBin = null;
+		
 		/*
 		 * Pass WH_ID/REF_DOC_NO/PACK_BARCODE values in PUTAWAYHEADER table and fetch STATUS_ID value and PA_NO
 		 * 1. If STATUS_ID=20, then
 		 */
 		List<PutAwayHeader> putAwayHeaderList = getPutAwayHeader (refDocNumber, packBarcodes);
-		log.info("putAwayHeaderList : " + putAwayHeaderList);
+		List<GrLine> grLineList = grLineService.getGrLine(refDocNumber, packBarcodes);
 		
-		String warehouseId = null;
+		// Fetching Item Code
 		String itemCode = null;
-		String caseCode = null;
-		String palletCode = null;
+		if (grLineList != null) {
+			itemCode = grLineList.get(0).getItemCode();
+		}
+		
 		for (PutAwayHeader dbPutAwayHeader : putAwayHeaderList) {
 			warehouseId = dbPutAwayHeader.getWarehouseId();
 			palletCode = dbPutAwayHeader.getPalletCode();
 			caseCode = dbPutAwayHeader.getCaseCode();
+			storageBin = dbPutAwayHeader.getProposedStorageBin();
 			
 			log.info("dbPutAwayHeader---------> : " + dbPutAwayHeader.getWarehouseId() + "," + 
 					refDocNumber + "," + dbPutAwayHeader.getPutAwayNumber());	
@@ -428,6 +439,7 @@ public class PutAwayHeaderService extends BaseService {
 			 * PA_UTD_BY = USR_ID and PA_UTD_ON=Server time and fetch CASE_CODE
 			 */
 			if (dbPutAwayHeader.getStatusId() == 19L || dbPutAwayHeader.getStatusId() == 20L) {
+				log.info("---#---deleteInventory: " + warehouseId + "," + packBarcodes + "," + itemCode);
 				boolean isDeleted = inventoryService.deleteInventory(warehouseId, packBarcodes, itemCode);
 				log.info("---#---deleteInventory deleted.." + isDeleted);
 				
@@ -442,10 +454,9 @@ public class PutAwayHeaderService extends BaseService {
 		}
 		
 		// Insert a record into INVENTORYMOVEMENT table as below
-		List<PutAwayLine> putAwayLines = putAwayLineService.getPutAwayLine(refDocNumber, packBarcodes);
-		for (PutAwayLine putAwayLine : putAwayLines) {
-			log.info("-------putAwayLine-----> : " + putAwayLine);
-			createInventoryMovement(putAwayLine, caseCode, palletCode);
+		for (GrLine grLine : grLineList) {
+			log.info("-------grLine-----> : " + grLine);
+			createInventoryMovement(grLine, caseCode, palletCode, storageBin);
 		}
 		
 		return putAwayHeaderList;
@@ -455,12 +466,13 @@ public class PutAwayHeaderService extends BaseService {
 	 * 
 	 * @param putAwayLine
 	 * @param caseCode 
+	 * @param storageBin 
 	 */
-	private void createInventoryMovement(PutAwayLine putAwayLine, String caseCode, String palletCode) {
+	private void createInventoryMovement(GrLine grLine, String caseCode, String palletCode, String storageBin) {
 		InventoryMovement inventoryMovement = new InventoryMovement();
-		BeanUtils.copyProperties(putAwayLine, inventoryMovement, CommonUtils.getNullPropertyNames(putAwayLine));
+		BeanUtils.copyProperties(grLine, inventoryMovement, CommonUtils.getNullPropertyNames(grLine));
 		
-		inventoryMovement.setCompanyCodeId(putAwayLine.getCompanyCode());
+		inventoryMovement.setCompanyCodeId(grLine.getCompanyCode());
 		
 		// CASE_CODE
 		inventoryMovement.setCaseCode(caseCode);
@@ -487,31 +499,31 @@ public class PutAwayHeaderService extends BaseService {
 		inventoryMovement.setBatchSerialNumber("1");
 		
 		// MVT_DOC_NO
-		inventoryMovement.setMovementDocumentNo(putAwayLine.getPutAwayNumber());
+		inventoryMovement.setMovementDocumentNo(grLine.getGoodsReceiptNo());
 		
 		// ST_BIN
-		inventoryMovement.setStorageBin(putAwayLine.getConfirmedStorageBin());
+		inventoryMovement.setStorageBin(storageBin);
 		
 		// MVT_QTY
-		inventoryMovement.setMovementQty(putAwayLine.getPutawayConfirmedQty());
+		inventoryMovement.setMovementQty(grLine.getGoodReceiptQty());
 		
 		// MVT_QTY_VAL
 		inventoryMovement.setMovementQtyValue("N");
 		
 		// MVT_UOM
-		inventoryMovement.setInventoryUom(putAwayLine.getPutAwayUom());
+		inventoryMovement.setInventoryUom(grLine.getGrUom());
 		
 		// PACK_BARCODES
-		inventoryMovement.setPackBarcodes(putAwayLine.getPackBarcodes());
+		inventoryMovement.setPackBarcodes(grLine.getPackBarcodes());
 		
 		// ITEM_CODE
-		inventoryMovement.setItemCode(putAwayLine.getItemCode());
+		inventoryMovement.setItemCode(grLine.getItemCode());
 		
 		// IM_CTD_BY
-		inventoryMovement.setCreatedBy(putAwayLine.getCreatedBy());
+		inventoryMovement.setCreatedBy(grLine.getCreatedBy());
 		
 		// IM_CTD_ON
-		inventoryMovement.setCreatedOn(putAwayLine.getCreatedOn());
+		inventoryMovement.setCreatedOn(grLine.getCreatedOn());
 		inventoryMovement = inventoryMovementRepository.save(inventoryMovement);
 		log.info("inventoryMovement created: " + inventoryMovement);
 	}

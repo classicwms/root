@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class MetricsSummary {
-	private Double totalOrder;
+	private Long totalOrder;
 	private Double lineItems;
 	private Double percentageShipped;
 }

@@ -74,7 +74,7 @@ public class PerpetualHeaderService extends BaseService {
 		perpetualHeaderList = perpetualHeaderList.stream()
 				.filter(n -> n.getDeletionIndicator() != null && n.getDeletionIndicator() == 0L)
 				.collect(Collectors.toList());
-		return convertToEntity (perpetualHeaderList);
+		return convertToEntity (perpetualHeaderList, null);
 	}
 	
 	/**
@@ -109,7 +109,7 @@ public class PerpetualHeaderService extends BaseService {
 					+ "subMovementTypeId: " + subMovementTypeId
 					+ " doesn't exist.");
 		}
-		return convertToEntity (Arrays.asList(optPerpetualHeader.get()));
+		return convertToEntity (Arrays.asList(optPerpetualHeader.get()), null);
 	}
 	
 	/**
@@ -182,7 +182,7 @@ public class PerpetualHeaderService extends BaseService {
 		PerpetualHeaderSpecification spec = new PerpetualHeaderSpecification(searchPerpetualHeader);
 		List<PerpetualHeader> perpetualHeaderResults = perpetualHeaderRepository.findAll(spec);
 		log.info("perpetualHeaderResults: " + perpetualHeaderResults);
-		return convertToEntity (perpetualHeaderResults);
+		return convertToEntity (perpetualHeaderResults, searchPerpetualHeader.getCycleCounterId());
 	}
 	
 	/**
@@ -240,8 +240,13 @@ public class PerpetualHeaderService extends BaseService {
 			Inventory inventory = inventoryService.getInventory(inventoryMovement.getWarehouseId(), 
 					inventoryMovement.getPackBarcodes(), inventoryMovement.getItemCode(), 
 					inventoryMovement.getStorageBin());
-			perpetualLine.setInventoryQuantity(inventory.getInventoryQuantity());
-			perpetualLine.setInventoryUom(inventory.getInventoryUom());
+			log.info("inventory : " + inventory);
+			
+			if (inventory != null) {
+				perpetualLine.setInventoryQuantity(inventory.getInventoryQuantity());
+				perpetualLine.setInventoryUom(inventory.getInventoryUom());
+			}
+			
 			perpetualLineList.add(perpetualLine);
 		}
 		
@@ -370,14 +375,21 @@ public class PerpetualHeaderService extends BaseService {
 	/**
 	 * 
 	 * @param perpetualHeaderList
+	 * @param list 
 	 * @return
 	 */
-	private List<PerpetualHeaderEntity> convertToEntity (List<PerpetualHeader> perpetualHeaderList) {
+	private List<PerpetualHeaderEntity> convertToEntity (List<PerpetualHeader> perpetualHeaderList, 
+			List<String> cycleCounterId) {
 		List<PerpetualHeaderEntity> listPerpetualHeaderEntity = new ArrayList<>();
 		for (PerpetualHeader perpetualHeader : perpetualHeaderList) {
-			List<PerpetualLine> perpetualLineList = perpetualLineService.getPerpetualLine(perpetualHeader.getCycleCountNo());
-			log.info("perpetualLineList found: " + perpetualLineList);
+			List<PerpetualLine> perpetualLineList = null;
+			if (cycleCounterId != null) {
+				perpetualLineList = perpetualLineService.getPerpetualLine(perpetualHeader.getCycleCountNo(), cycleCounterId);
+			} else {
+				perpetualLineList = perpetualLineService.getPerpetualLine(perpetualHeader.getCycleCountNo());
+			}
 			
+			log.info("perpetualLineList found: " + perpetualLineList);
 			List<PerpetualLineEntity> listPerpetualLineEntity = new ArrayList<>();
 			for (PerpetualLine perpetualLine : perpetualLineList) {
 				PerpetualLineEntity perpetualLineEntity = new PerpetualLineEntity();

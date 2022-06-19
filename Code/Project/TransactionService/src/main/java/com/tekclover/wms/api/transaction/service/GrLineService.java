@@ -209,6 +209,31 @@ public class GrLineService extends BaseService {
 	
 	/**
 	 * 
+	 * @param refDocNumber
+	 * @param packBarcodes
+	 * @return
+	 */
+	public List<GrLine> getGrLine (String refDocNumber, String packBarcodes) {
+		List<GrLine> grLine = 
+				grLineRepository.findByLanguageIdAndCompanyCodeAndPlantIdAndRefDocNumberAndPackBarcodesAndDeletionIndicator(
+				getLanguageId(),
+				getCompanyCode(),
+				getPlantId(),
+				refDocNumber,
+				packBarcodes,
+				0L);
+		if (grLine.isEmpty()) {
+			throw new BadRequestException("The given values: " + 
+					",refDocNumber: " + refDocNumber + "," +
+					",packBarcodes: " + packBarcodes + "," +
+					" doesn't exist in GRLine.");
+		} 
+		
+		return grLine;
+	}
+	
+	/**
+	 * 
 	 * @param searchGrLine
 	 * @return
 	 * @throws ParseException
