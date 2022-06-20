@@ -42,11 +42,11 @@ public class OutboundLine {
 	private String referenceField10;
 	private Long deletionIndicator;
 	private String createdBy;
-	private Date createdOn = new Date();
+	private Date createdOn;
 	private String deliveryConfirmedBy;
-	private Date deliveryConfirmedOn = new Date();
+	private Date deliveryConfirmedOn;
 	private String updatedBy;
-	private Date updatedOn = new Date();
+	private Date updatedOn;
 	private String reversedBy;
-	private Date reversedOn = new Date();
+	private Date reversedOn;
 }

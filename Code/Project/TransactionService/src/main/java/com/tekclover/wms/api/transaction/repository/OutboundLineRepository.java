@@ -64,6 +64,15 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
     public List<Long> getDeliveryLines(@Param ("warehouseId") String warehouseId,
     									@Param ("preOutboundNo") String preOutboundNo,
     									@Param ("refDocNumber") String refDocNumber);
+	
+	@Query(value="SELECT SUM(DLV_QTY) AS deliveryQty \r\n"
+			+ "FROM tbloutboundline \r\n"
+			+ "WHERE WH_ID = :warehouseId AND PRE_OB_NO = :preOutboundNo "
+			+ "AND REF_DOC_NO = :refDocNumber AND REF_FIELD_2 IS NULL AND DLV_QTY > 0\r\n"
+			+ "GROUP BY OB_LINE_NO;", nativeQuery=true)
+    public List<Long> getDeliveryQty(@Param ("warehouseId") String warehouseId,
+    									@Param ("preOutboundNo") String preOutboundNo,
+    									@Param ("refDocNumber") String refDocNumber);
 
 	public List<OutboundLine> findByRefDocNumberAndItemCodeAndDeletionIndicator(String refDocNumber, String itemCode,
 			Long deletionIndicator);
@@ -79,14 +88,22 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 	 * Reports
 	 */
 	@Query (value = "SELECT COUNT(OB_LINE_NO) FROM tbloutboundline \r\n"
-			+ "WHERE REF_DOC_NO IN :refDocNo AND REF_FIELD_2 IS NULL \r\n"
-			+ "GROUP BY OB_LINE_NO", nativeQuery = true)
-	public List<Long> findLineItem_NByRefDocNoAndRefField2IsNull (@Param(value = "refDocNo") List<String> refDocNo);
+			+ " WHERE REF_DOC_NO IN :refDocNo AND REF_FIELD_2 IS NULL \r\n"
+			+ " AND DLV_CNF_ON BETWEEN :startDate AND :endDate \r\n"
+			+ " GROUP BY OB_LINE_NO", nativeQuery = true)
+	public List<Long> findLineItem_NByRefDocNoAndRefField2IsNull (
+			@Param(value = "refDocNo") List<String> refDocNo,
+			@Param ("startDate") Date startDate,
+			@Param ("endDate") Date endDate);
 	
 	@Query (value = "SELECT COUNT(OB_LINE_NO) FROM tbloutboundline \r\n"
-			+ "WHERE REF_DOC_NO IN :refDocNo AND DLV_QTY > 0 AND REF_FIELD_2 IS NULL \r\n"
-			+ "GROUP BY OB_LINE_NO", nativeQuery = true)
-	public List<Long> findShippedLines (@Param(value = "refDocNo") List<String> refDocNo);
+			+ " WHERE REF_DOC_NO IN :refDocNo AND DLV_QTY > 0 AND REF_FIELD_2 IS NULL \r\n"
+			+ " AND DLV_CNF_ON BETWEEN :startDate AND :endDate \r\n"
+			+ " GROUP BY OB_LINE_NO", nativeQuery = true)
+	public List<Long> findShippedLines (
+			@Param(value = "refDocNo") List<String> refDocNo,
+			@Param ("startDate") Date startDate,
+			@Param ("endDate") Date endDate);
 	
 	/*
 	 * Line Shipped

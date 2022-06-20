@@ -20,6 +20,6 @@ public class OrderStatusReport {
 	private Date orderReceivedDate;		// REF_DOC_DATE
 	private Date expectedDeliveryDate;	// REQ_DEL_DATE
 	private Double percentageOfDelivered;	// (DLV_QTY/ORD_QTY)*100
-	private Long statusId;				// STATUS_ID
+	private String statusId;				// STATUS_ID
 }
 

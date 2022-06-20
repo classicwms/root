@@ -47,7 +47,7 @@ public class OutboundLineOrderStatusReportSpecification implements Specification
         	 predicates.add(group.in(searchOrderStatusReport.getRefDocNumber()));
          }
 		 
-		 if (searchOrderStatusReport.getRefDocNumber() != null && !searchOrderStatusReport.getRefDocNumber().isEmpty()) {
+		 if (searchOrderStatusReport.getOrderType() != null && !searchOrderStatusReport.getOrderType().isEmpty()) {
 			 final Path<Group> group = root.<Group> get("referenceField1");
         	 predicates.add(group.in(searchOrderStatusReport.getOrderType()));
          }

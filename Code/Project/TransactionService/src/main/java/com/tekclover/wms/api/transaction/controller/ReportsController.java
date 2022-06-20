@@ -136,7 +136,7 @@ public class ReportsController {
    	public ResponseEntity<?> getShipmentDeliveryReport(@RequestParam String fromDeliveryDate, 
    			@RequestParam String toDeliveryDate, @RequestParam(required = false) List<String> customerCode) 
    					throws ParseException, java.text.ParseException {
-    	List<ShipmentDeliverySummaryReport> shipmentDeliverySummaryReport = 
+    	ShipmentDeliverySummaryReport shipmentDeliverySummaryReport = 
     			reportsService.getShipmentDeliverySummaryReport(fromDeliveryDate, toDeliveryDate, customerCode);
    		return new ResponseEntity<>(shipmentDeliverySummaryReport, HttpStatus.OK);
    	}

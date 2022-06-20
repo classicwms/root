@@ -444,7 +444,7 @@ public class PutAwayLineService extends BaseService {
 		inventoryMovement.setPalletCode("999999");
 		
 		// MVT_DOC_NO
-		inventoryMovement.setMovementDocumentNo(dbPutAwayLine.getPutAwayNumber());
+		inventoryMovement.setMovementDocumentNo(dbPutAwayLine.getRefDocNumber());
 		
 		// ST_BIN
 		inventoryMovement.setStorageBin(dbPutAwayLine.getConfirmedStorageBin());
@@ -459,13 +459,18 @@ public class PutAwayLineService extends BaseService {
 		inventoryMovement.setInventoryUom(dbPutAwayLine.getPutAwayUom());
 		
 		/*
+		 * -----THE BELOW IS NOT USED-------------
 		 * Pass WH_ID/ITM_CODE/PACK_BARCODE/BIN_CL_ID is equal to 1 in INVENTORY table and fetch INV_QTY
-		 * BAL_OH_QTY = INV_QTY - MVT_QTY
+		 * BAL_OH_QTY = INV_QTY
 		 */
-		Inventory inventory = inventoryService.getInventory(dbPutAwayLine.getWarehouseId(), 
-				dbPutAwayLine.getPackBarcodes(), dbPutAwayLine.getItemCode(), dbPutAwayLine.getConfirmedStorageBin());	
-		Double BAL_OH_QTY = inventory.getInventoryQuantity() - inventoryMovement.getMovementQty();
-		inventoryMovement.setBalanceOHQty(BAL_OH_QTY);
+//		Inventory inventory = inventoryService.getInventory(dbPutAwayLine.getWarehouseId(), 
+//				dbPutAwayLine.getPackBarcodes(), dbPutAwayLine.getItemCode(), dbPutAwayLine.getConfirmedStorageBin());
+		// -------------------------------------------
+		
+		// PASS WH_ID/ITM_CODE/BIN_CL_ID and sum the INV_QTY for all selected inventory
+		List<Inventory> inventoryList = inventoryService.getInventory (dbPutAwayLine.getWarehouseId(), dbPutAwayLine.getItemCode(), 1L);
+		double sumOfInvQty = inventoryList.stream().mapToDouble(a->a.getInventoryQuantity()).sum();
+		inventoryMovement.setBalanceOHQty(sumOfInvQty);
 		
 		// IM_CTD_BY
 		inventoryMovement.setCreatedBy(dbPutAwayLine.getCreatedBy());

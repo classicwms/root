@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 public class PerpetualLine { 
-	
+	private String languageId;
 	private String companyCodeId;
 	private String plantId;
 	private String warehouseId;

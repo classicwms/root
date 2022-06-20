@@ -165,8 +165,8 @@ public class PerpetualLineService extends BaseService {
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	public List<PerpetualLine> updatePerpetualLine (List<UpdatePerpetualLine> updatePerpetualLines, String loginUserID) 
-			throws IllegalAccessException, InvocationTargetException {
+	public List<PerpetualLine> updatePerpetualLineForMobileCount (List<UpdatePerpetualLine> updatePerpetualLines, 
+			String loginUserID) throws IllegalAccessException, InvocationTargetException {
 		List<PerpetualLine> responsePerpetualLines = new ArrayList<>();
 		for (UpdatePerpetualLine updatePerpetualLine : updatePerpetualLines) {
 			PerpetualLine dbPerpetualLine = getPerpetualLine(updatePerpetualLine.getWarehouseId(), updatePerpetualLine.getCycleCountNo(), 
@@ -194,7 +194,7 @@ public class PerpetualLineService extends BaseService {
 					dbPerpetualLine.setStatusId("78");
 				} else if (VAR_QTY > 0 || VAR_QTY < 0) {
 					dbPerpetualLine.setStatusId("74");
-				}
+				} 
 				
 				dbPerpetualLine.setCountedBy(loginUserID);
 				dbPerpetualLine.setCountedOn(new Date());
@@ -211,6 +211,7 @@ public class PerpetualLineService extends BaseService {
 				responsePerpetualLines.add(createdPerpetualLine);
 			}
 		}
+		
 		return responsePerpetualLines;
 	}
 

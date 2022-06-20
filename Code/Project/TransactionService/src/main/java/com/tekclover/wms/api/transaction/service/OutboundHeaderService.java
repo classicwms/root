@@ -131,8 +131,10 @@ public class OutboundHeaderService {
 	 * @param partnerCode
 	 * @return
 	 */
-	public List<Long> getTotalOrder_N (String warehouseId, String partnerCode) {
-		List<Long> totalOrderCount = outboundHeaderRepository.findTotalOrder_NByWarehouseIdAndPartnerCode(warehouseId, partnerCode);
+	public List<Long> getTotalOrder_N (String warehouseId, String partnerCode, 
+			String refField1, Date startDate, Date endDate) {
+		List<Long> totalOrderCount = outboundHeaderRepository.findTotalOrder_NByWarehouseIdAndPartnerCode(warehouseId, 
+				partnerCode, refField1, startDate, endDate);
 		return totalOrderCount;
 	}
 	
@@ -142,9 +144,10 @@ public class OutboundHeaderService {
 	 * @param partnerCode
 	 * @return
 	 */
-	public List<String> getRefDocListByWarehouseIdAndPartnerCode (String warehouseId, String partnerCode) {
+	public List<String> getRefDocListByWarehouseIdAndPartnerCode (String warehouseId, String partnerCode,
+			Date startDate, Date endDate) {
 		List<String> totalOrderList = 
-				outboundHeaderRepository.findRefDocNoByWarehouseIdAndPartnerCode(warehouseId, partnerCode);
+				outboundHeaderRepository.findRefDocNoByWarehouseIdAndPartnerCode(warehouseId, partnerCode, startDate, endDate);
 		return totalOrderList;
 	}
 	
@@ -185,16 +188,20 @@ public class OutboundHeaderService {
 						outboundHeader.getPreOutboundNo(), outboundHeader.getRefDocNumber());
 				List<Long> sumOfOrderedQty = outboundLineService.getSumOfOrderedQty (outboundHeader.getWarehouseId(), 
 						outboundHeader.getPreOutboundNo(), outboundHeader.getRefDocNumber());
-				List<Long> countofOrderedLines = outboundLineService.getCountofOrderedLines (outboundHeader.getWarehouseId(), 
+				List<Long> countOfOrderedLines = outboundLineService.getCountofOrderedLines (outboundHeader.getWarehouseId(), 
+						outboundHeader.getPreOutboundNo(), outboundHeader.getRefDocNumber());
+				List<Long> sumOfDeliveryQtyList = outboundLineService.getDeliveryQty (outboundHeader.getWarehouseId(), 
 						outboundHeader.getPreOutboundNo(), outboundHeader.getRefDocNumber());
 				
 				double deliveryLinesCount = deliveryLines.stream().mapToLong(Long::longValue).sum();
 				double sumOfOrderedQtyValue = sumOfOrderedQty.stream().mapToLong(Long::longValue).sum();
-				double countofOrderedLinesvalue = countofOrderedLines.stream().mapToLong(Long::longValue).sum();
+				double countOfOrderedLinesvalue = countOfOrderedLines.stream().mapToLong(Long::longValue).sum();
+				double sumOfDeliveryQty = sumOfDeliveryQtyList.stream().mapToLong(Long::longValue).sum();
 				
+				outboundHeader.setReferenceField7 (String.valueOf(sumOfDeliveryQty));
 				outboundHeader.setReferenceField8 (String.valueOf(deliveryLinesCount));
 				outboundHeader.setReferenceField9 (String.valueOf(sumOfOrderedQtyValue));
-				outboundHeader.setReferenceField10 (String.valueOf(countofOrderedLinesvalue));
+				outboundHeader.setReferenceField10 (String.valueOf(countOfOrderedLinesvalue));
 			}
 		}
 		

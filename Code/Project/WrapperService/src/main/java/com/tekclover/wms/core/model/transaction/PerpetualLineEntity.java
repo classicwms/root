@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class PerpetualLineEntity { 
-	
+	private String languageId;
 	private String companyCodeId;
 	private String plantId;
 	private String warehouseId;

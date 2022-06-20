@@ -46,7 +46,7 @@ public class PerpetualLineController {
     
     @ApiOperation(response = PerpetualLine.class, value = "Update PerpetualLine") // label for swagger
     @PatchMapping("/{cycleCountNo}")
-	public ResponseEntity<?> patchAssingHHTUser (@PathVariable String cycleCountNo, 
+	public ResponseEntity<?> patchPerpetualLine (@PathVariable String cycleCountNo, 
 			@RequestBody List<UpdatePerpetualLine> updatePerpetualLine, @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
 		List<PerpetualLine> createdPerpetualLine = 
 				perpetuallineService.updatePerpetualLine (cycleCountNo, updatePerpetualLine, loginUserID);

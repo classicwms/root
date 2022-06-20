@@ -1320,7 +1320,7 @@ public class TransactionServiceController {
    	public ResponseEntity<?> getShipmentDeliveryReport(@RequestParam String fromDeliveryDate, 
    			@RequestParam String toDeliveryDate, @RequestParam(required = false) List<String> customerCode, 
    			@RequestParam String authToken) throws ParseException, java.text.ParseException {
-    	ShipmentDeliverySummaryReport[] shipmentDeliverySummaryReport = 
+    	ShipmentDeliverySummaryReport shipmentDeliverySummaryReport = 
     			transactionService.getShipmentDeliverySummaryReport(fromDeliveryDate, toDeliveryDate, customerCode, authToken);
     	log.info("shipmentDeliverySummaryReport : " + Arrays.asList(shipmentDeliverySummaryReport));
     	return new ResponseEntity<>(shipmentDeliverySummaryReport, HttpStatus.OK);

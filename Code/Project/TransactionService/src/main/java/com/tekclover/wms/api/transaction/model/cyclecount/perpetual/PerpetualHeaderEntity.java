@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 public class PerpetualHeaderEntity { 
-	
+	private String languageId;
 	private String companyCodeId;
 	private String plantId;
 	private String warehouseId;

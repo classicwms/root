@@ -201,6 +201,18 @@ public class PerpetualHeaderService extends BaseService {
 		for (InventoryMovement inventoryMovement : inventoryMovements) {
 			PerpetualLineEntity perpetualLine = new PerpetualLineEntity();
 			
+			// LANG_ID
+			perpetualLine.setLanguageId(inventoryMovement.getLanguageId());
+			
+			// C_ID
+			perpetualLine.setCompanyCodeId(inventoryMovement.getCompanyCodeId());
+			
+			// PLANT_ID
+			perpetualLine.setPlantId(inventoryMovement.getPlantId());
+			
+			// WH_ID
+			perpetualLine.setWarehouseId(inventoryMovement.getWarehouseId());
+			
 			// ITM_CODE
 			perpetualLine.setItemCode(inventoryMovement.getItemCode());
 			
@@ -345,9 +357,32 @@ public class PerpetualHeaderService extends BaseService {
 	public PerpetualHeader updatePerpetualHeader (String warehouseId, Long cycleCountTypeId, String cycleCountNo, 
 			Long movementTypeId, Long subMovementTypeId, String loginUserID, UpdatePerpetualHeader updatePerpetualHeader) 
 			throws IllegalAccessException, InvocationTargetException {
+		// Update Line Details
+		List<PerpetualLine> lines = perpetualLineService.updatePerpetualLineForMobileCount (updatePerpetualHeader.getUpdatePerpetualLine(), loginUserID);
+		log.info("Lines Updated : " + lines);
+		
 		PerpetualHeader dbPerpetualHeader = getPerpetualHeaderRecord(warehouseId, cycleCountTypeId, cycleCountNo, movementTypeId, 
 				subMovementTypeId);
 		BeanUtils.copyProperties(updatePerpetualHeader, dbPerpetualHeader, CommonUtils.getNullPropertyNames(updatePerpetualHeader));
+		
+		/*
+		 * Pass CC_NO in PERPETUALLINE table and validate STATUS_ID of the selected records. 
+		 * 1. If STATUS_ID=78 for all the selected records, update STATUS_ID of PERPETUALHEADER table as "78" by passing CC_NO
+		 * 2. If STATUS_ID=74 for all the selected records, Update STATUS_ID of PERPETUALHEADER table as "74" by passing CC_NO
+		 * Else Update STATUS_ID as "73"
+		 */
+		List<PerpetualLine> PerpetualLines = perpetualLineService.getPerpetualLine (cycleCountNo);
+		long count_78 = PerpetualLines.stream().filter(a->a.getStatusId().equalsIgnoreCase("78")).count();
+		long count_74 = PerpetualLines.stream().filter(a->a.getStatusId().equalsIgnoreCase("74")).count();
+		
+		if (PerpetualLines.size() == count_78) {
+			dbPerpetualHeader.setStatusId("78");
+		} else if (PerpetualLines.size() == count_74) {
+			dbPerpetualHeader.setStatusId("74");
+		} else {
+			dbPerpetualHeader.setStatusId("73");
+		}
+		
 		dbPerpetualHeader.setCountedBy(loginUserID);
 		dbPerpetualHeader.setCountedOn(new Date());
 		return perpetualHeaderRepository.save(dbPerpetualHeader);

@@ -32,6 +32,10 @@ import lombok.NoArgsConstructor;
 public class PerpetualLine { 
 	
 	@Id
+	@Column(name = "LANG_ID")
+	private String languageId;
+	
+	@Id
 	@Column(name = "C_ID")
 	private String companyCodeId;
 	

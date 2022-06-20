@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.inbound.InboundLine;
 import com.tekclover.wms.api.transaction.model.inbound.gr.GrLine;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.AddPutAwayHeader;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.PutAwayHeader;
@@ -455,7 +456,7 @@ public class PutAwayHeaderService extends BaseService {
 		
 		// Insert a record into INVENTORYMOVEMENT table as below
 		for (GrLine grLine : grLineList) {
-			log.info("-------grLine-----> : " + grLine);
+//			log.info("-------grLine-----> : " + grLine);
 			createInventoryMovement(grLine, caseCode, palletCode, storageBin);
 		}
 		
@@ -499,7 +500,7 @@ public class PutAwayHeaderService extends BaseService {
 		inventoryMovement.setBatchSerialNumber("1");
 		
 		// MVT_DOC_NO
-		inventoryMovement.setMovementDocumentNo(grLine.getGoodsReceiptNo());
+		inventoryMovement.setMovementDocumentNo(grLine.getRefDocNumber());
 		
 		// ST_BIN
 		inventoryMovement.setStorageBin(storageBin);
@@ -509,6 +510,12 @@ public class PutAwayHeaderService extends BaseService {
 		
 		// MVT_QTY_VAL
 		inventoryMovement.setMovementQtyValue("N");
+		
+		// BAL_OH_QTY
+		// PASS WH_ID/ITM_CODE/BIN_CL_ID and sum the INV_QTY for all selected inventory
+		List<Inventory> inventoryList = inventoryService.getInventory (grLine.getWarehouseId(), grLine.getItemCode(), 1L);
+		double sumOfInvQty = inventoryList.stream().mapToDouble(a->a.getInventoryQuantity()).sum();
+		inventoryMovement.setBalanceOHQty(sumOfInvQty);
 		
 		// MVT_UOM
 		inventoryMovement.setInventoryUom(grLine.getGrUom());

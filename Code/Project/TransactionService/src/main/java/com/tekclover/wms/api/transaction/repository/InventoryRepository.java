@@ -122,15 +122,6 @@ public interface InventoryRepository extends JpaRepository<Inventory,Long>, JpaS
 	/*
 	 * Reports
 	 */
-	
-//	SearchInventory searchInventory = new SearchInventory();
-//	searchInventory.setWarehouseId(Arrays.asList(warehouseId));
-//	searchInventory.setItemCode(Arrays.asList(itemCode));
-//	searchInventory.setStorageBin(storageBinList);
-//	searchInventory.setStockTypeId(Arrays.asList(stockTypeId));
-//	searchInventory.setBinClassId(Arrays.asList(1L));
-//	List<Inventory> inventoryList = inventoryService.findInventory(searchInventory);
-	
 	@Query (value = "SELECT SUM(INV_QTY) FROM tblinventory \r\n"
 			+ " WHERE WH_ID = :warehouseId AND ITM_CODE = :itemCode AND \r\n"
 			+ " ST_BIN IN :storageBin AND STCK_TYP_ID = :stockTypeId AND BIN_CL_ID = 1 \r\n"

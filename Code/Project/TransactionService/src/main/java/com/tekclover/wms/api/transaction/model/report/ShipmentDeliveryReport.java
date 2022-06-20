@@ -8,6 +8,7 @@ import lombok.Data;
 public class ShipmentDeliveryReport {
 
 	private String deliveryTo;
+	private String partnerName;
 	private Date deliveryDate;
 	private String orderType;
 	//---------------------------------

@@ -3168,7 +3168,7 @@ public class TransactionService {
 	}
 
 	// GET - ShipmentDeliverySummary
-	public ShipmentDeliverySummaryReport[] getShipmentDeliverySummaryReport(String fromDeliveryDate, String toDeliveryDate,
+	public ShipmentDeliverySummaryReport getShipmentDeliverySummaryReport(String fromDeliveryDate, String toDeliveryDate,
 			List<String> customerCode, String authToken) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
@@ -3183,9 +3183,9 @@ public class TransactionService {
 					.queryParam("customerCode", customerCode);
 			
 			HttpEntity<?> entity = new HttpEntity<>(headers);
-			ResponseEntity<ShipmentDeliverySummaryReport[]> result =
+			ResponseEntity<ShipmentDeliverySummaryReport> result =
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, 
-							ShipmentDeliverySummaryReport[].class);
+							ShipmentDeliverySummaryReport.class);
 			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {

@@ -246,6 +246,18 @@ public class OutboundLineService extends BaseService {
 	
 	/**
 	 * 
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @return
+	 */
+	public List<Long> getDeliveryQty (String warehouseId, String preOutboundNo, String refDocNumber) {
+		List<Long> deliveryQtyList = outboundLineRepository.getDeliveryQty(warehouseId, preOutboundNo, refDocNumber);
+		return deliveryQtyList;
+	}
+	
+	/**
+	 * 
 	 * @param preOBNo
 	 * @param obLineNo
 	 * @param itemCode
@@ -292,18 +304,19 @@ public class OutboundLineService extends BaseService {
 	 * @param refDocNo
 	 * @return
 	 */
-	public List<Long> getLineItem_NByRefDocNoAndRefField2IsNull (List<String> refDocNo) {
-		List<Long> lineItems = outboundLineRepository.findLineItem_NByRefDocNoAndRefField2IsNull (refDocNo);
+	public List<Long> getLineItem_NByRefDocNoAndRefField2IsNull (List<String> refDocNo, Date startDate, Date endDate) {
+		List<Long> lineItems = 
+				outboundLineRepository.findLineItem_NByRefDocNoAndRefField2IsNull (refDocNo, startDate, endDate);
 		return lineItems;
 	}
-	
+
 	/**
 	 * 
 	 * @param refDocNo
 	 * @return
 	 */
-	public List<Long> getShippedLines (List<String> refDocNo) {
-		List<Long> lineItems = outboundLineRepository.findShippedLines(refDocNo);
+	public List<Long> getShippedLines (List<String> refDocNo, Date startDate, Date endDate) {
+		List<Long> lineItems = outboundLineRepository.findShippedLines(refDocNo, startDate, endDate);
 		return lineItems;
 	}
 	
@@ -637,10 +650,10 @@ public class OutboundLineService extends BaseService {
 							StorageBin storageBin = mastersService.getStorageBin(outboundLine.getWarehouseId(), BIN_CLASS_ID, 
 									authTokenForMastersService.getAccess_token());
 							
-							String movementDocumentNo = outboundLine.getDeliveryOrderNo();
+							String movementDocumentNo = outboundLine.getRefDocNumber();
 							String stBin = storageBin.getStorageBin();
 							String movementQtyValue = "N";
-							InventoryMovement inventoryMovement = createInventoryMovement(qualityLine, movementDocumentNo, stBin, 
+							InventoryMovement inventoryMovement = createInventoryMovement(updatedPickupLine, movementDocumentNo, stBin, 
 									movementQtyValue, loginUserID, true);
 							log.info("InventoryMovement created : " + inventoryMovement);
 						} catch (Exception e) {
@@ -768,7 +781,6 @@ public class OutboundLineService extends BaseService {
 				 * Fetch WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/OB_LINE_NO/ITM_CODE values from QCLINE table and 
 				 * pass the keys in PICKUPLINE table  and update STATUS_ID = 53									
 				 */
-//				PickupLine pickupLine = updatePickupLine (qualityLine, loginUserID); // Discussed to remove this function
 				PickupLine pickupLine = pickupLineService.deletePickupLine(outboundLine.getWarehouseId(), outboundLine.getPreOutboundNo(), 
 						outboundLine.getRefDocNumber(), outboundLine.getPartnerCode(), outboundLine.getLineNumber(),
 						outboundLine.getItemCode(), loginUserID);
@@ -797,7 +809,6 @@ public class OutboundLineService extends BaseService {
 				 * Fetch WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/OB_LINE_NO/ITM_CODE values from PICKUPLINE table 
 				 * and pass the keys in PICKUPHEADER table and Delete PickUpHeader
 				 */
-//				PickupHeader pickupHeader = updatePickupHeader (pickupLine, loginUserID); // Discussed to remove this update
 				PickupHeader pickupHeader = pickupHeaderService.deletePickupHeader(outboundLine.getWarehouseId(), outboundLine.getPreOutboundNo(), 
 						outboundLine.getRefDocNumber(), outboundLine.getPartnerCode(),
 						pickupLine.getPickupNumber(), outboundLine.getLineNumber(), outboundLine.getItemCode(), loginUserID);
@@ -835,7 +846,7 @@ public class OutboundLineService extends BaseService {
 				String movementDocumentNo = outboundLine.getDeliveryOrderNo();
 				String stBin = storageBin.getStorageBin();
 				String movementQtyValue = "N";
-				InventoryMovement inventoryMovement = createInventoryMovement(qualityLine, movementDocumentNo, stBin, 
+				InventoryMovement inventoryMovement = createInventoryMovement(pickupLine, movementDocumentNo, stBin, 
 						movementQtyValue, loginUserID, false);
 				log.info("InventoryMovement created for update 1-->: " + inventoryMovement);
 				
@@ -844,7 +855,7 @@ public class OutboundLineService extends BaseService {
 				movementDocumentNo = pickupLine.getPickupNumber();
 				stBin = pickupLine.getPickedStorageBin();
 				movementQtyValue = "P";
-				inventoryMovement = createInventoryMovement(qualityLine, movementDocumentNo, stBin, 
+				inventoryMovement = createInventoryMovement(pickupLine, movementDocumentNo, stBin, 
 						movementQtyValue, loginUserID, false);
 				log.info("InventoryMovement created for update 2-->: " + inventoryMovement);
 			}
@@ -852,10 +863,6 @@ public class OutboundLineService extends BaseService {
 			/*-----------------------------Next Process----------------------------------------------------------*/
 			// If STATUS_ID = 50 - Reversal of Picking Confirmation
 			if (outboundLine.getStatusId() == 50L) {
-				QualityLine dbQualityLine = qualityLineService.getQualityLine(outboundLine.getWarehouseId(), 
-								outboundLine.getPreOutboundNo(), outboundLine.getRefDocNumber(), outboundLine.getPartnerCode(), 
-								outboundLine.getLineNumber(), outboundLine.getItemCode());
-				
 				/*----------------------STEP 1------------------------------------------------
 				 * Fetch WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/OB_LINE_NO/ITM_CODE values from OUTBOUNDLINE table and 
 				 * pass the keys in PICKUPLINE table and update STATUS_ID=53 and Delete the record
@@ -864,11 +871,21 @@ public class OutboundLineService extends BaseService {
 						outboundLine.getRefDocNumber(), outboundLine.getPartnerCode(), outboundLine.getLineNumber(),
 						outboundLine.getItemCode(), loginUserID);
 				
-				/*---------------STEP 2-----PickupHeader update-------------------------------
-				 * Fetch WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/OB_LINE_NO/ITM_CODE values from PICKUPLINE table and 
-				 * pass the keys in PICKUPHEADER table  and update STATUS_ID=53									
-				 */
-				PickupHeader pickupHeader = updatePickupHeader (pickupLine, loginUserID);
+				// DELETE PICKUP_HEADER
+				PickupHeader pickupHeader = pickupHeaderService.deletePickupHeader(outboundLine.getWarehouseId(), outboundLine.getPreOutboundNo(), 
+						outboundLine.getRefDocNumber(), outboundLine.getPartnerCode(),
+						pickupLine.getPickupNumber(), outboundLine.getLineNumber(), outboundLine.getItemCode(), loginUserID);
+				log.info("pickupHeader deleted : " + pickupHeader);
+				
+				// DELETE QUALITY_HEADER
+				QualityHeader dbQualityHeader = qualityHeaderService.getQualityHeaderForReversal(outboundLine.getWarehouseId(), 
+						outboundLine.getPreOutboundNo(), outboundLine.getRefDocNumber(), pickupLine.getPickupNumber(), outboundLine.getPartnerCode());
+				if (dbQualityHeader != null) {
+					QualityHeader qualityHeader = qualityHeaderService.deleteQualityHeader(outboundLine.getWarehouseId(), 
+							outboundLine.getPreOutboundNo(), refDocNumber, dbQualityHeader.getQualityInspectionNo(), 
+							dbQualityHeader.getActualHeNo(), loginUserID);
+					log.info("QualityHeader----------Deleted-------> : " + qualityHeader);
+				}
 				
 				/*---------------STEP 3-----OrderManagementLine update-------------------------------
 				 * Fetch WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/OB_LINE_NO/ITM_CODE values from PICKUPHEADER table and 
@@ -904,16 +921,17 @@ public class OutboundLineService extends BaseService {
 						pickupLine.getPickedPackCode(), reversedQty, outboundLine.getStatusId(), loginUserID);
 				outboundReversalList.add(createdOutboundReversal);
 				/****************************************************************************/
+				
 				/*-----------------------InventoryMovement----------------------------------*/
 				// Inserting record in InventoryMovement------UPDATE 1-----------------------
 				AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
 				Long BIN_CLASS_ID = 4L;
 				StorageBin storageBin = mastersService.getStorageBin(outboundLine.getWarehouseId(), BIN_CLASS_ID, authTokenForMastersService.getAccess_token());
 				
-				String movementDocumentNo = dbQualityLine.getQualityInspectionNo();
+				String movementDocumentNo = pickupLine.getRefDocNumber();
 				String stBin = storageBin.getStorageBin();
 				String movementQtyValue = "N";
-				InventoryMovement inventoryMovement = createInventoryMovement(dbQualityLine, movementDocumentNo, stBin, 
+				InventoryMovement inventoryMovement = createInventoryMovement(pickupLine, movementDocumentNo, stBin, 
 						movementQtyValue, loginUserID, false);
 				log.info("InventoryMovement created for update 1-->: " + inventoryMovement);
 				
@@ -922,7 +940,7 @@ public class OutboundLineService extends BaseService {
 				movementDocumentNo = pickupLine.getPickupNumber();
 				stBin = pickupLine.getPickedStorageBin();
 				movementQtyValue = "P";
-				inventoryMovement = createInventoryMovement(dbQualityLine, movementDocumentNo, stBin, 
+				inventoryMovement = createInventoryMovement(pickupLine, movementDocumentNo, stBin, 
 						movementQtyValue, loginUserID, false);
 				log.info("InventoryMovement created for update 2-->: " + inventoryMovement);
 			}
@@ -943,11 +961,12 @@ public class OutboundLineService extends BaseService {
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	private InventoryMovement createInventoryMovement (QualityLine qualityLine, 
+	private InventoryMovement createInventoryMovement (PickupLine pickupLine, 
 			String movementDocumentNo, String storageBin, String movementQtyValue, String loginUserID, boolean isFromDelivery ) 
 					throws IllegalAccessException, InvocationTargetException {
+		// Flag "isFromDelivery" is not used anywhere. 
 		AddInventoryMovement inventoryMovement = new AddInventoryMovement();
-		BeanUtils.copyProperties(qualityLine, inventoryMovement, CommonUtils.getNullPropertyNames(qualityLine));
+		BeanUtils.copyProperties(pickupLine, inventoryMovement, CommonUtils.getNullPropertyNames(pickupLine));
 		
 		// MVT_TYP_ID
 		inventoryMovement.setMovementType(3L);
@@ -956,7 +975,7 @@ public class OutboundLineService extends BaseService {
 		inventoryMovement.setSubmovementType(5L);
 		
 		// PACK_BARCODE
-		inventoryMovement.setPackBarcodes(qualityLine.getPickPackBarCode());
+		inventoryMovement.setPackBarcodes(pickupLine.getPickedPackCode());
 		
 		// VAR_ID
 		inventoryMovement.setVariantCode(1L);
@@ -980,45 +999,25 @@ public class OutboundLineService extends BaseService {
 		inventoryMovement.setMovementQtyValue(movementQtyValue);
 		
 		// MVT_QTY
-		inventoryMovement.setMovementQty(qualityLine.getQualityQty());
+		inventoryMovement.setMovementQty(pickupLine.getPickConfirmQty());
 		
 		// MVT_UOM
-		inventoryMovement.setInventoryUom(qualityLine.getQualityConfirmUom());
+		inventoryMovement.setInventoryUom(pickupLine.getPickUom());
 		
-		if (isFromDelivery) {
-			/*
-			 * Pass WH_ID/ITM_CODE/PICK_PACK_BARCODE/BIN_CL_ID is equal to 5 in INVENTORY table and fetch INV_QTY
-			 * If the record is Null, consider INV_QTY as Zero
-			 * BAL_OH_QTY = INV_QTY - MVT_QTY
-			 */
-			Inventory inventory = inventoryService.getInventory(qualityLine.getWarehouseId(), 
-					qualityLine.getPickPackBarCode(), qualityLine.getItemCode(), 5L);	
-			Double BAL_OH_QTY = 0D;
-			if (inventory != null) {
-				BAL_OH_QTY = inventory.getInventoryQuantity() + inventoryMovement.getMovementQty();
-			} else {
-				BAL_OH_QTY = inventoryMovement.getMovementQty();
-			}
-			log.info("-----1-----BAL_OH_QTY----------> : " + BAL_OH_QTY);
-			inventoryMovement.setBalanceOHQty(BAL_OH_QTY);
-		} else {
-			/*
-			 * Pass WH_ID/ITM_CODE/PACK_BARCODE/BIN_CL_ID is equal to 1 in INVENTORY table and fetch INV_QTY
-			 * BAL_OH_QTY = INV_QTY - MVT_QTY
-			 */
-			Inventory inventory = inventoryService.getInventory(qualityLine.getWarehouseId(), 
-					qualityLine.getPickPackBarCode(), qualityLine.getItemCode(), 1L);	
-			Double BAL_OH_QTY = inventory.getInventoryQuantity() + inventoryMovement.getMovementQty();
-			log.info("----2------BAL_OH_QTY----------> : " + BAL_OH_QTY);
-			inventoryMovement.setBalanceOHQty(BAL_OH_QTY);
-		}
+		// BAL_OH_QTY
+		// PASS WH_ID/ITM_CODE/BIN_CL_ID and sum the INV_QTY for all selected inventory
+		List<Inventory> inventoryList = inventoryService.getInventory (pickupLine.getWarehouseId(), pickupLine.getItemCode(), 1L);
+		double sumOfInvQty = inventoryList.stream().mapToDouble(a->a.getInventoryQuantity()).sum();
+		inventoryMovement.setBalanceOHQty(sumOfInvQty);
+	
 		// IM_CTD_BY
-		inventoryMovement.setCreatedBy(qualityLine.getQualityConfirmedBy());
+		inventoryMovement.setCreatedBy(pickupLine.getPickupConfirmedBy());
 		
 		// IM_CTD_ON
-		inventoryMovement.setCreatedOn(qualityLine.getQualityCreatedOn());
+		inventoryMovement.setCreatedOn(pickupLine.getPickupCreatedOn());
 
-		InventoryMovement createdInventoryMovement = inventoryMovementService.createInventoryMovement(inventoryMovement, loginUserID);
+		InventoryMovement createdInventoryMovement = 
+				inventoryMovementService.createInventoryMovement(inventoryMovement, loginUserID);
 		return createdInventoryMovement;
 	}
 

@@ -83,6 +83,28 @@ public class QualityHeaderService {
 	/**
 	 * 
 	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param pickupNumber
+	 * @param partnerCode
+	 * @return
+	 */
+	public QualityHeader getQualityHeaderForReversal (String warehouseId, String preOutboundNo, String refDocNumber, 
+			String pickupNumber, String partnerCode) {
+		QualityHeader qualityHeader = 
+				qualityHeaderRepository.findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPickupNumberAndPartnerCodeAndDeletionIndicator (
+						warehouseId, preOutboundNo, refDocNumber, pickupNumber, partnerCode, 0L);
+		if (qualityHeader != null) {
+			return qualityHeader;
+		} 
+		log.info("Given values for QualityHeader : " + warehouseId + ":" + preOutboundNo + ":" + refDocNumber + ":" + pickupNumber
+				+ ":" + partnerCode + " doesn't exist.");
+		return null;
+	}
+	
+	/**
+	 * 
+	 * @param warehouseId
 	 * @return
 	 */
 	public List<QualityHeader> getQualityHeaderCount (String warehouseId) {
