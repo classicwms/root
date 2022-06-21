@@ -287,72 +287,77 @@ public class ReportsService extends BaseService {
 	 */
 	public List<InventoryReport> getInventoryReport(List<String> warehouseId, List<String> itemCode, String storageBin,
 			String stockTypeText, List<String> stSectionIds) {
-		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-		
-		if (warehouseId == null) {
-			throw new BadRequestException("WarehouseId can't be blank.");
-		}
-		
-		SearchInventory searchInventory = new SearchInventory();
-		searchInventory.setWarehouseId(warehouseId);
-		searchInventory.setItemCode(itemCode);
-		
-		/*
-		 * If ST_SEC_ID field value is entered in Search field, Pass ST_SEC_ID in STORAGE_BIN table and 
-		 * fetch ST_BIN values and pass these values in INVENTORY table to fetch the output values
-		 */
-		if (stSectionIds != null) {
-			StorageBin[] dbStorageBin = mastersService.getStorageBinBySectionId(stSectionIds, authTokenForMastersService.getAccess_token());
-			List<String> stBins = Arrays.asList(dbStorageBin).stream().map(StorageBin::getStorageBin).collect(Collectors.toList());
-			searchInventory.setStorageBin(stBins);
-		}
-		
-		List<Inventory> inventoryList = inventoryService.findInventory(searchInventory);
-		List<InventoryReport> reportInventoryList = new ArrayList<>();
-		for (Inventory dbInventory : inventoryList) {
-			InventoryReport reportInventory = new InventoryReport();
+		try {
+			AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
 			
-			// WH_ID
-			reportInventory.setWarehouseId(dbInventory.getWarehouseId());
+			if (warehouseId == null) {
+				throw new BadRequestException("WarehouseId can't be blank.");
+			}
 			
-			// ITM_CODE
-			reportInventory.setItemCode(dbInventory.getItemCode());
+			SearchInventory searchInventory = new SearchInventory();
+			searchInventory.setWarehouseId(warehouseId);
+			searchInventory.setItemCode(itemCode);
 			
 			/*
-			 * ITEM_TEXT
-			 * 
-			 * Pass the fetched ITM_CODE values in IMBASICDATA1 table and fetch MFR_SKU values
+			 * If ST_SEC_ID field value is entered in Search field, Pass ST_SEC_ID in STORAGE_BIN table and 
+			 * fetch ST_BIN values and pass these values in INVENTORY table to fetch the output values
 			 */
-			ImBasicData1 imBasicData1 = 
-					mastersService.getImBasicData1ByItemCode(dbInventory.getItemCode(), dbInventory.getWarehouseId(), authTokenForMastersService.getAccess_token());
-			reportInventory.setDescription(imBasicData1.getDescription());
+			if (stSectionIds != null) {
+				StorageBin[] dbStorageBin = mastersService.getStorageBinBySectionId(stSectionIds, authTokenForMastersService.getAccess_token());
+				List<String> stBins = Arrays.asList(dbStorageBin).stream().map(StorageBin::getStorageBin).collect(Collectors.toList());
+				searchInventory.setStorageBin(stBins);
+			}
 			
-			// INV_UOM
-			reportInventory.setUom(dbInventory.getInventoryUom());
-			
-			// ST_BIN
-			reportInventory.setStorageBin(dbInventory.getStorageBin());
-			log.info("dbInventory.getStorageBin() : " + dbInventory.getStorageBin());
-			
-			/*
-			 * ST_SEC_ID
-			 * Pass the selected ST_BIN values into STORAGEBIN table and fetch ST_SEC_ID values
-			 */
-			StorageBin stBin = 
-					mastersService.getStorageBin(dbInventory.getStorageBin(), authTokenForMastersService.getAccess_token());
-			reportInventory.setStorageSectionId(stBin.getStorageSectionId());
-			
-			// PACK_BARCODE
-			reportInventory.setPackBarcodes(dbInventory.getPackBarcodes());
-			
-			// INV_QTY
-			reportInventory.setInventoryQty(dbInventory.getInventoryQuantity());
-			
-			// STCK_TYP_ID/STCK_TYP_TEXT
-			reportInventory.setStockType(dbInventory.getStockTypeId());
-			reportInventoryList.add(reportInventory);
+			List<Inventory> inventoryList = inventoryService.findInventory(searchInventory);
+			List<InventoryReport> reportInventoryList = new ArrayList<>();
+			for (Inventory dbInventory : inventoryList) {
+				InventoryReport reportInventory = new InventoryReport();
+				
+				// WH_ID
+				reportInventory.setWarehouseId(dbInventory.getWarehouseId());
+				
+				// ITM_CODE
+				reportInventory.setItemCode(dbInventory.getItemCode());
+				
+				/*
+				 * ITEM_TEXT
+				 * 
+				 * Pass the fetched ITM_CODE values in IMBASICDATA1 table and fetch MFR_SKU values
+				 */
+				ImBasicData1 imBasicData1 = 
+						mastersService.getImBasicData1ByItemCode(dbInventory.getItemCode(), dbInventory.getWarehouseId(), authTokenForMastersService.getAccess_token());
+				reportInventory.setDescription(imBasicData1.getDescription());
+				
+				// INV_UOM
+				reportInventory.setUom(dbInventory.getInventoryUom());
+				
+				// ST_BIN
+				reportInventory.setStorageBin(dbInventory.getStorageBin());
+				log.info("dbInventory.getStorageBin() : " + dbInventory.getStorageBin());
+				
+				/*
+				 * ST_SEC_ID
+				 * Pass the selected ST_BIN values into STORAGEBIN table and fetch ST_SEC_ID values
+				 */
+				StorageBin stBin = 
+						mastersService.getStorageBin(dbInventory.getStorageBin(), authTokenForMastersService.getAccess_token());
+				reportInventory.setStorageSectionId(stBin.getStorageSectionId());
+				
+				// PACK_BARCODE
+				reportInventory.setPackBarcodes(dbInventory.getPackBarcodes());
+				
+				// INV_QTY
+				reportInventory.setInventoryQty(dbInventory.getInventoryQuantity());
+				
+				// STCK_TYP_ID/STCK_TYP_TEXT
+				reportInventory.setStockType(dbInventory.getStockTypeId());
+				reportInventoryList.add(reportInventory);
+			}
+			return reportInventoryList;
+		} catch (ParseException e) {
+			e.printStackTrace();
 		}
-		return reportInventoryList;
+		return null;
 	}
 	
 	/**
