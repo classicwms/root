@@ -354,7 +354,7 @@ public class ReportsService extends BaseService {
 				reportInventoryList.add(reportInventory);
 			}
 			return reportInventoryList;
-		} catch (ParseException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
