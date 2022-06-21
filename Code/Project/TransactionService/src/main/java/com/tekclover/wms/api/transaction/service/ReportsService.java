@@ -648,7 +648,16 @@ public class ReportsService extends BaseService {
 			orderStatusReport.setExpectedDeliveryDate(outboundHeader.getRequiredDeliveryDate());
 			
 			// % of Delivered - (DLV_QTY/ORD_QTY)*100
-			double percOfDlv = (outboundLine.getDeliveryQty() / outboundLine.getOrderQty()) * 100;
+			double deliveryQty = 0;
+			double orderQty = 0;
+			if (outboundLine.getDeliveryQty() != null) {
+				deliveryQty = outboundLine.getDeliveryQty();
+			}
+			
+			if (outboundLine.getOrderQty() != null) {
+				orderQty = outboundLine.getOrderQty();
+			}
+			double percOfDlv = Math.round((deliveryQty / orderQty) * 100);
 			orderStatusReport.setPercentageOfDelivered(percOfDlv);
 			
 			// STATUS_ID

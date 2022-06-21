@@ -46,11 +46,11 @@ public class AddQualityLine {
 	private String referenceField10;
 	private Long deletionIndicator;
 	private String qualityCreatedBy;
-	private Date qualityCreatedOn = new Date();
+	private Date qualityCreatedOn;
 	private String qualityConfirmedBy;
-	private Date qualityConfirmedOn = new Date();
+	private Date qualityConfirmedOn;
 	private String qualityUpdatedBy;
-	private Date qualityUpdatedOn = new Date();
+	private Date qualityUpdatedOn;
 	private String qualityReversedBy;
-	private Date qualityReversedOn = new Date();
+	private Date qualityReversedOn;
 }
