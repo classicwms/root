@@ -318,6 +318,7 @@ public class ReportsService extends BaseService {
 				
 				// ITM_CODE
 				reportInventory.setItemCode(dbInventory.getItemCode());
+				log.info("dbInventory.getItemCode() : " + dbInventory.getItemCode());
 				
 				/*
 				 * ITEM_TEXT
@@ -326,7 +327,11 @@ public class ReportsService extends BaseService {
 				 */
 				ImBasicData1 imBasicData1 = 
 						mastersService.getImBasicData1ByItemCode(dbInventory.getItemCode(), dbInventory.getWarehouseId(), authTokenForMastersService.getAccess_token());
-				reportInventory.setDescription(imBasicData1.getDescription());
+				log.info("imBasicData1 : " + imBasicData1);
+				
+				if (imBasicData1 != null) {
+					reportInventory.setDescription(imBasicData1.getDescription());
+				}
 				
 				// INV_UOM
 				reportInventory.setUom(dbInventory.getInventoryUom());
