@@ -439,15 +439,15 @@ public class ReportsService extends BaseService {
 			 * 2. MVT_TYP_ID = 3, SUB_MVT_TYP_ID=4
 			 * 3. MVT_TYP_ID = 2"
 			 */
-			if (inventoryMovement.getMovementType() == 1 && inventoryMovement.getSubmovementType() == 2) {
+			if (inventoryMovement.getMovementType() == 1L && inventoryMovement.getSubmovementType() == 2L) {
 				stockMovementReport.setMovementQty(inventoryMovement.getMovementQty());
-			} else if (inventoryMovement.getMovementType() == 1 && inventoryMovement.getSubmovementType() == 3) {
+			} else if (inventoryMovement.getMovementType() == 1L && inventoryMovement.getSubmovementType() == 3L) {
 				stockMovementReport.setMovementQty(-inventoryMovement.getMovementQty()); // Assign -ve number
-			} else if (inventoryMovement.getMovementType() == 3 && inventoryMovement.getSubmovementType() == 4) {
+			} else if (inventoryMovement.getMovementType() == 3L && inventoryMovement.getSubmovementType() == 4L) {
 				stockMovementReport.setMovementQty(inventoryMovement.getMovementQty()); 
-			} else if (inventoryMovement.getMovementType() == 2) {
+			} /*else if (inventoryMovement.getMovementType() == 2L) {
 				stockMovementReport.setMovementQty(inventoryMovement.getMovementQty()); 
-			} 
+			} */
 			
 			/*
 			 * Document type
@@ -479,9 +479,9 @@ public class ReportsService extends BaseService {
 				if (!inboundLine.isEmpty()) {
 					stockMovementReport.setCustomerCode(inboundLine.get(0).getVendorCode());
 				}
-			} else if (inventoryMovement.getMovementType() == 2) {
+			} /*else if (inventoryMovement.getMovementType() == 2) {
 				stockMovementReport.setCustomerCode("BIN to BIN");
-			} else if (inventoryMovement.getMovementType() == 3) {
+			} */ else if (inventoryMovement.getMovementType() == 3) {
 				OutboundHeader outboundHeader = outboundHeaderService.getOutboundHeader(inventoryMovement.getMovementDocumentNo());
 				if (outboundHeader != null) {
 					stockMovementReport.setCustomerCode(outboundHeader.getPartnerCode());
@@ -529,10 +529,10 @@ public class ReportsService extends BaseService {
 			if (inventoryMovement.getMovementType() == 1) {
 				Double openingStock = balanceOHQty - movementQty;
 				stockMovementReport.setOpeningStock(openingStock);
-			} else if (inventoryMovement.getMovementType() == 2) {
+			} /*else if (inventoryMovement.getMovementType() == 2) {
 				Double openingStock = balanceOHQty + movementQty;
 				stockMovementReport.setOpeningStock(openingStock);
-			} else if (inventoryMovement.getMovementType() == 3) {
+			} */ else if (inventoryMovement.getMovementType() == 3) {
 				Double openingStock = balanceOHQty + movementQty;
 				stockMovementReport.setOpeningStock(openingStock);
 			}

@@ -816,7 +816,7 @@ public class OutboundLineService extends BaseService {
 				
 				/*---------------STEP 5-----OrderManagement update-------------------------------
 				 * Fetch WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/OB_LINE_NO/ITM_CODE values from PICKUPHEADER table 
-				 * and pass the keys in ORDERMANAGEMENTLINE table  and update STATUS_ID as 47
+				 * and pass the keys in ORDERMANAGEMENTLINE table and update STATUS_ID as 47
 				 */
 				OrderManagementLine orderManagementLine = updateOrderManagementLine (pickupHeader, loginUserID);
 				log.info("orderManagementLine updated : " + orderManagementLine);
@@ -1006,7 +1006,8 @@ public class OutboundLineService extends BaseService {
 		
 		// BAL_OH_QTY
 		// PASS WH_ID/ITM_CODE/BIN_CL_ID and sum the INV_QTY for all selected inventory
-		List<Inventory> inventoryList = inventoryService.getInventory (pickupLine.getWarehouseId(), pickupLine.getItemCode(), 1L);
+		List<Inventory> inventoryList = 
+				inventoryService.getInventory (pickupLine.getWarehouseId(), pickupLine.getItemCode(), 1L);
 		double sumOfInvQty = inventoryList.stream().mapToDouble(a->a.getInventoryQuantity()).sum();
 		inventoryMovement.setBalanceOHQty(sumOfInvQty);
 	
@@ -1101,7 +1102,7 @@ public class OutboundLineService extends BaseService {
 	private OrderManagementLine updateOrderManagementLine(PickupHeader pickupHeader, String loginUserID) throws IllegalAccessException, InvocationTargetException {
 		UpdateOrderManagementLine updateOrderManagementLine = new UpdateOrderManagementLine();
 		updateOrderManagementLine.setPickupNumber(null);
-		updateOrderManagementLine.setStatusId(47L);
+		updateOrderManagementLine.setStatusId(43L);
 		OrderManagementLine orderManagementLine = orderManagementLineService.updateOrderManagementLine(pickupHeader.getWarehouseId(), pickupHeader.getPreOutboundNo(), 
 				pickupHeader.getRefDocNumber(), pickupHeader.getPartnerCode(), pickupHeader.getLineNumber(), 
 				pickupHeader.getItemCode(), loginUserID, updateOrderManagementLine);
