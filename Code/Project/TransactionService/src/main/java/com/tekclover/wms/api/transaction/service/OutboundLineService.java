@@ -613,8 +613,8 @@ public class OutboundLineService extends BaseService {
 							/*-----------------Inventory Updates---------------------------*/
 							// String warehouseId, String itemCode, Long binClassId
 							Long BIN_CL_ID = 5L;
-							List<Inventory> inventoryList = inventoryService.getInventory(outboundLine.getWarehouseId(), 
-									outboundLine.getItemCode(), BIN_CL_ID);
+							List<Inventory> inventoryList = inventoryService.getInventoryForDeliveryConfirmtion (outboundLine.getWarehouseId(), 
+									outboundLine.getItemCode(), updatedQualityLine.getPickPackBarCode(), BIN_CL_ID); //pack_bar_code
 							
 							for(Inventory inventory : inventoryList) {
 								Double INV_QTY = inventory.getInventoryQuantity() - outboundLine.getDeliveryQty();

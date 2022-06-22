@@ -10,6 +10,10 @@ import javax.persistence.EntityNotFoundException;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.expression.ParseException;
 import org.springframework.stereotype.Service;
 
@@ -104,6 +108,34 @@ public class InventoryService extends BaseService {
 	/**
 	 * 
 	 * @param warehouseId
+	 * @param itemCode
+	 * @param packBarcodes
+	 * @param binClassId
+	 * @return
+	 */
+	public List<Inventory> getInventoryForDeliveryConfirmtion (String warehouseId, String itemCode, 
+			String packBarcodes, Long binClassId) {
+		List<Inventory> inventory = 
+				inventoryRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndPackBarcodesAndBinClassIdAndDeletionIndicator(
+						getLanguageId(),
+						getCompanyCode(),
+						getPlantId(),
+						warehouseId, 						
+						itemCode, 
+						packBarcodes, 
+						binClassId,
+						0L
+						);
+		if (inventory != null) {
+			return inventory;
+		}
+		return null;
+	}
+	
+	
+	/**
+	 * 
+	 * @param warehouseId
 	 * @param packBarcodes
 	 * @param itemCode
 	 * @param binClassId
@@ -111,7 +143,7 @@ public class InventoryService extends BaseService {
 	 */
 	public List<Inventory> getInventoryForStockReport (String warehouseId, String itemCode, Long stockTypeId) {
 		List<Inventory> inventory = 
-				inventoryRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndAndStockTypeIdNotAndDeletionIndicator(
+				inventoryRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndAndStockTypeIdAndDeletionIndicator(
 						getLanguageId(),
 						getCompanyCode(),
 						getPlantId(),
@@ -385,7 +417,25 @@ public class InventoryService extends BaseService {
 	
 	/**
 	 * 
+	 * @param sortBy 
+	 * @param pageSize 
+	 * @param pageNo 
 	 * @param searchInventoryMovement
+	 * @return
+	 * @throws ParseException
+	 */
+	public Page<Inventory> findInventory(SearchInventory searchInventory, Integer pageNo, Integer pageSize, String sortBy) 
+			throws ParseException {
+		Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
+		InventorySpecification spec = new InventorySpecification(searchInventory);
+		Page<Inventory> results = inventoryRepository.findAll(spec, paging);
+//		log.info("results: " + results);
+		return results;
+	}
+	
+	/**
+	 * 
+	 * @param searchInventory
 	 * @return
 	 * @throws ParseException
 	 */

@@ -90,7 +90,7 @@ public class IDMasterService {
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			ResponseEntity<UserManagement> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, UserManagement.class);
-			log.info("result : " + result.getBody());
+//			log.info("result : " + result.getBody());
 			return result.getBody();
 		} catch (Exception e) {
 			throw new BadRequestException(e.getLocalizedMessage());
@@ -109,7 +109,7 @@ public class IDMasterService {
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "usermanagement");
 			ResponseEntity<UserManagement[]> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, UserManagement[].class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -131,7 +131,7 @@ public class IDMasterService {
 			HttpEntity<?> entity = new HttpEntity<>(headers);	
 			ResponseEntity<UserManagement> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, UserManagement.class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -152,7 +152,7 @@ public class IDMasterService {
 			HttpEntity<?> entity = new HttpEntity<>(newUserManagement, headers);
 			ResponseEntity<UserManagement> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, UserManagement.class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			throw e;
@@ -180,7 +180,7 @@ public class IDMasterService {
 					.queryParam("warehouseId", warehouseId);
 			ResponseEntity<UserManagement> result = 
 					restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, UserManagement.class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			throw e;
@@ -202,7 +202,7 @@ public class IDMasterService {
 					.queryParam("warehouseId", warehouseId);
 			ResponseEntity<String> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity, String.class);
-			log.info("result : " + result);
+//			log.info("result : " + result);
 			return true;
 		} catch (Exception e) {
 			throw e;
@@ -222,7 +222,7 @@ public class IDMasterService {
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "companyid/" + companyId);
 			ResponseEntity<CompanyId> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, CompanyId.class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -241,7 +241,7 @@ public class IDMasterService {
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "companyid");
 			ResponseEntity<CompanyId[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, CompanyId[].class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -263,7 +263,7 @@ public class IDMasterService {
 					UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "companyid")
 					.queryParam("loginUserID", loginUserID);
 			ResponseEntity<CompanyId> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, CompanyId.class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -289,7 +289,7 @@ public class IDMasterService {
 			        .queryParam("loginUserID", loginUserID);
 			
 			ResponseEntity<CompanyId> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, CompanyId.class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -310,7 +310,7 @@ public class IDMasterService {
 					UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "companyid/" + companyId)
 					.queryParam("loginUserID", loginUserID);
 			ResponseEntity<String> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity, String.class);
-			log.info("result : " + result);
+//			log.info("result : " + result);
 			return true;
 		} catch (Exception e) {
 			throw e;
@@ -330,7 +330,7 @@ public class IDMasterService {
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "currency/" + currencyId);
 			ResponseEntity<Currency> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Currency.class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -349,7 +349,7 @@ public class IDMasterService {
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "currency");
 			ResponseEntity<Currency[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Currency[].class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -369,7 +369,7 @@ public class IDMasterService {
 			
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "currency");
 			ResponseEntity<Currency> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, Currency.class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -395,7 +395,7 @@ public class IDMasterService {
 					UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "currency/" + currencyId);
 			
 			ResponseEntity<Currency> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, Currency.class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -414,7 +414,7 @@ public class IDMasterService {
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "currency/" + currencyId);
 			ResponseEntity<String> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity, String.class);
-			log.info("result : " + result);
+//			log.info("result : " + result);
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -435,7 +435,7 @@ public class IDMasterService {
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "city/" + cityId);
 			ResponseEntity<City> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, City.class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -454,7 +454,7 @@ public class IDMasterService {
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "city");
 			ResponseEntity<City[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, City[].class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -474,7 +474,7 @@ public class IDMasterService {
 			
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "city");
 			ResponseEntity<City> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, City.class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -499,7 +499,7 @@ public class IDMasterService {
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "city/" + cityId);
 			
 			ResponseEntity<City> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, City.class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -518,7 +518,7 @@ public class IDMasterService {
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "city/" + cityId);
 			ResponseEntity<String> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity, String.class);
-			log.info("result : " + result);
+//			log.info("result : " + result);
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -539,7 +539,7 @@ public class IDMasterService {
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "country/" + countryId);
 			ResponseEntity<Country> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Country.class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -558,7 +558,7 @@ public class IDMasterService {
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "country");
 			ResponseEntity<Country[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Country[].class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -578,7 +578,7 @@ public class IDMasterService {
 			
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "country");
 			ResponseEntity<Country> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, Country.class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();

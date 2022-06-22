@@ -3,9 +3,9 @@ package com.tekclover.wms.api.transaction.repository;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +14,7 @@ import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 
 @Repository
 @Transactional
-public interface InventoryRepository extends JpaRepository<Inventory,Long>, JpaSpecificationExecutor<Inventory> {
+public interface InventoryRepository extends PagingAndSortingRepository<Inventory,Long>, JpaSpecificationExecutor<Inventory> {
 	
 	public List<Inventory> findAll();
 	
@@ -115,7 +115,7 @@ public interface InventoryRepository extends JpaRepository<Inventory,Long>, JpaS
 			String languageId, String companyCode, String plantId, String warehouseId, String packBarcodes,
 			String itemCode, Long binClassId, Long deletionIndicator);
 
-	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndAndStockTypeIdNotAndDeletionIndicator(
+	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndAndStockTypeIdAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId, String itemCode,
 			Long stockTypeId, Long l);
 	
@@ -131,4 +131,8 @@ public interface InventoryRepository extends JpaRepository<Inventory,Long>, JpaS
 			@Param(value = "itemCode") String itemCode,
 			@Param(value = "storageBin") List<String> storageBin,
 			@Param(value = "stockTypeId") Long stockTypeId);
+
+	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndPackBarcodesAndBinClassIdAndDeletionIndicator(
+			String languageId, String companyCode, String plantId, String warehouseId, String itemCode,
+			String packBarcodes, Long binClassId, long l); 
 }

@@ -7,6 +7,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.expression.ParseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,6 +52,7 @@ import com.tekclover.wms.core.model.transaction.OutboundHeader;
 import com.tekclover.wms.core.model.transaction.OutboundLine;
 import com.tekclover.wms.core.model.transaction.OutboundReversal;
 import com.tekclover.wms.core.model.transaction.PackBarcode;
+import com.tekclover.wms.core.model.transaction.PaginatedResponse;
 import com.tekclover.wms.core.model.transaction.PerpetualHeader;
 import com.tekclover.wms.core.model.transaction.PerpetualHeaderEntity;
 import com.tekclover.wms.core.model.transaction.PerpetualLine;
@@ -945,6 +947,16 @@ public class TransactionServiceController {
 			@RequestParam String authToken) throws Exception {
 		return transactionService.findInventory(searchInventory, authToken);
 	}
+	
+	@ApiOperation(response = Inventory.class, value = "Search Inventory") // label for swagger
+	@PostMapping("/inventory/findInventory/pagination")
+	public Page<Inventory> findInventory(@RequestBody SearchInventory searchInventory,
+			@RequestParam(defaultValue = "0") Integer pageNo,
+			@RequestParam(defaultValue = "10") Integer pageSize,
+			@RequestParam(defaultValue = "itemCode") String sortBy,
+			@RequestParam String authToken) throws Exception {
+		return transactionService.findInventory(searchInventory, pageNo, pageSize, sortBy, authToken);
+	}
 
 	@ApiOperation(response = Inventory.class, value = "Create Inventory") // label for swagger
 	@PostMapping("/inventory")
@@ -1245,10 +1257,16 @@ public class TransactionServiceController {
     @ApiOperation(response = StockReport.class, value = "Get StockReport") // label for swagger 
    	@GetMapping("/reports/stockReport")
    	public ResponseEntity<?> getStockReport(@RequestParam List<String> warehouseId, 
-   			@RequestParam(required = false) List<String> itemCode, @RequestParam(required = false) String itemText, 
+   			@RequestParam(required = false) List<String> itemCode, 
+   			@RequestParam(required = false) String itemText, 
    			@RequestParam String stockTypeText,
+   			@RequestParam(defaultValue = "0") Integer pageNo,
+			@RequestParam(defaultValue = "10") Integer pageSize,
+			@RequestParam(defaultValue = "itemCode") String sortBy,
    			@RequestParam String authToken) {
-    	StockReport[] stockReport = transactionService.getStockReports(warehouseId, itemCode, itemText, stockTypeText, authToken);
+    	StockReport[] stockReport = 
+    			transactionService.getStockReports(warehouseId, itemCode, itemText, stockTypeText, 
+    					pageNo, pageSize, sortBy, authToken);
    		return new ResponseEntity<>(stockReport, HttpStatus.OK);
    	}
     
@@ -1258,11 +1276,17 @@ public class TransactionServiceController {
     @ApiOperation(response = InventoryReport.class, value = "Get Inventory Report") // label for swagger 
 	@GetMapping("/reports/inventoryReport")
 	public ResponseEntity<?> getInventoryReport(@RequestParam List<String> warehouseId, 
-			@RequestParam(required = false) List<String> itemCode, @RequestParam(required = false) String storageBin, 
-			@RequestParam(required = false) String stockTypeText, @RequestParam(required = false) List<String> stSectionIds, 
+			@RequestParam(required = false) List<String> itemCode, 
+			@RequestParam(required = false) String storageBin, 
+			@RequestParam(required = false) String stockTypeText, 
+			@RequestParam(required = false) List<String> stSectionIds, 
+			@RequestParam(defaultValue = "0") Integer pageNo,
+			@RequestParam(defaultValue = "10") Integer pageSize,
+			@RequestParam(defaultValue = "itemCode") String sortBy,
 			@RequestParam String authToken) {
     	InventoryReport[] inventoryReportList = 	
-    			transactionService.getInventoryReport(warehouseId, itemCode, storageBin, stockTypeText, stSectionIds, authToken);
+    			transactionService.getInventoryReport(warehouseId, itemCode, storageBin, stockTypeText, stSectionIds, 
+    					pageNo, pageSize, sortBy, authToken);
 		return new ResponseEntity<>(inventoryReportList, HttpStatus.OK);
 	}
     

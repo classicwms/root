@@ -6,6 +6,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -45,7 +46,7 @@ public class ImBasicData1Controller {
     @ApiOperation(response = ImBasicData1.class, value = "Get all ImBasicData1 details") // label for swagger
 	@GetMapping("")
 	public ResponseEntity<?> getAll() {
-		List<ImBasicData1> imbasicdata1List = imbasicdata1Service.getImBasicData1s();
+		Iterable<ImBasicData1> imbasicdata1List = imbasicdata1Service.getImBasicData1s();
 		return new ResponseEntity<>(imbasicdata1List, HttpStatus.OK); 
 	}
     
@@ -58,6 +59,16 @@ public class ImBasicData1Controller {
 		return new ResponseEntity<>(imbasicdata1, HttpStatus.OK);
 	}
     
+	@ApiOperation(response = ImBasicData1.class, value = "Search ImBasicData1") // label for swagger
+	@PostMapping("/findImBasicData1/pagination")
+	public Page<ImBasicData1> findImBasicData1(@RequestBody SearchImBasicData1 searchImBasicData1,
+			@RequestParam(defaultValue = "0") Integer pageNo,
+			@RequestParam(defaultValue = "10") Integer pageSize,
+			@RequestParam(defaultValue = "itemCode") String sortBy)
+			throws Exception {
+		return imbasicdata1Service.findImBasicData1(searchImBasicData1, pageNo, pageSize, sortBy);
+	}
+	
 	@ApiOperation(response = ImBasicData1.class, value = "Search ImBasicData1") // label for swagger
 	@PostMapping("/findImBasicData1")
 	public List<ImBasicData1> findImBasicData1(@RequestBody SearchImBasicData1 searchImBasicData1)

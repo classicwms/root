@@ -65,9 +65,15 @@ public class ReportsController {
     @ApiOperation(response = Inventory.class, value = "Get Stock Report") // label for swagger 
 	@GetMapping("/stockReport")
 	public ResponseEntity<?> getStockReport(@RequestParam List<String> warehouseId, 
-			@RequestParam(required = false) List<String> itemCode, @RequestParam(required = false) String itemText, 
-			@RequestParam String stockTypeText) {
-    	List<StockReport> stockReportList = reportsService.getStockReport(warehouseId, itemCode, itemText, stockTypeText);
+			@RequestParam(required = false) List<String> itemCode, 
+			@RequestParam(required = false) String itemText, 
+			@RequestParam String stockTypeText,
+			@RequestParam(defaultValue = "0") Integer pageNo,
+			@RequestParam(defaultValue = "10") Integer pageSize,
+			@RequestParam(defaultValue = "itemCode") String sortBy) {
+    	List<StockReport> stockReportList = 
+    			reportsService.getStockReport(warehouseId, itemCode, itemText, stockTypeText,
+    					pageNo, pageSize, sortBy);
 		return new ResponseEntity<>(stockReportList, HttpStatus.OK);
 	}
     
@@ -77,9 +83,16 @@ public class ReportsController {
     @ApiOperation(response = Inventory.class, value = "Get Stock Report") // label for swagger 
 	@GetMapping("/inventoryReport")
 	public ResponseEntity<?> getInventoryReport(@RequestParam List<String> warehouseId, 
-			@RequestParam(required = false) List<String> itemCode, @RequestParam(required = false) String storageBin, 
-			@RequestParam(required = false) String stockTypeText, @RequestParam(required = false) List<String> stSectionIds) {
-    	List<InventoryReport> inventoryReportList = reportsService.getInventoryReport(warehouseId, itemCode, storageBin, stockTypeText, stSectionIds);
+			@RequestParam(required = false) List<String> itemCode, 
+			@RequestParam(required = false) String storageBin, 
+			@RequestParam(required = false) String stockTypeText, 
+			@RequestParam(required = false) List<String> stSectionIds,
+			@RequestParam(defaultValue = "0") Integer pageNo,
+			@RequestParam(defaultValue = "10") Integer pageSize,
+			@RequestParam(defaultValue = "itemCode") String sortBy) {
+    	List<InventoryReport> inventoryReportList = 
+    			reportsService.getInventoryReport(warehouseId, itemCode, storageBin, stockTypeText, stSectionIds,
+    					pageNo, pageSize, sortBy);
 		return new ResponseEntity<>(inventoryReportList, HttpStatus.OK);
 	}
     

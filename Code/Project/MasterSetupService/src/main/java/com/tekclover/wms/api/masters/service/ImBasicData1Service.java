@@ -4,12 +4,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.masters.model.imbasicdata1.AddImBasicData1;
@@ -34,12 +37,13 @@ public class ImBasicData1Service {
 	 * getImBasicData1s
 	 * @return
 	 */
-	public List<ImBasicData1> getImBasicData1s () {
-		List<ImBasicData1> imbasicdata1List = imbasicdata1Repository.findAll();
-		log.info("imbasicdata1List : " + imbasicdata1List);
-		imbasicdata1List = imbasicdata1List.stream()
-				.filter(n -> n.getDeletionIndicator() != null && n.getDeletionIndicator() == 0)
-				.collect(Collectors.toList());
+	public Iterable<ImBasicData1> getImBasicData1s () {
+		Iterable<ImBasicData1> imbasicdata1List = imbasicdata1Repository.findAll();
+//		log.info("imbasicdata1List : " + imbasicdata1List);
+		
+//		imbasicdata1List = Arrays.asimbasicdata1List.stream()
+//				.filter(n -> n.getDeletionIndicator() != null && n.getDeletionIndicator() == 0)
+//				.collect(Collectors.toList());
 		return imbasicdata1List;
 	}
 	
@@ -55,6 +59,37 @@ public class ImBasicData1Service {
 			return imbasicdata1.get();
 		} 
 		return null;
+	}
+	
+	/**
+	 * 
+	 * @param searchImBasicData1
+	 * @param sortBy 
+	 * @param pageSize 
+	 * @param pageNo 
+	 * @return
+	 * @throws Exception
+	 */
+	public Page<ImBasicData1> findImBasicData1(SearchImBasicData1 searchImBasicData1, 
+			Integer pageNo, Integer pageSize, String sortBy) 
+			throws Exception {
+		if (searchImBasicData1.getStartCreatedOn() != null && searchImBasicData1.getEndCreatedOn() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchImBasicData1.getStartCreatedOn(), searchImBasicData1.getEndCreatedOn());
+			searchImBasicData1.setStartCreatedOn(dates[0]);
+			searchImBasicData1.setEndCreatedOn(dates[1]);
+		}
+		
+		if (searchImBasicData1.getStartUpdatedOn() != null && searchImBasicData1.getEndUpdatedOn() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchImBasicData1.getStartUpdatedOn(), searchImBasicData1.getEndUpdatedOn());
+			searchImBasicData1.setStartUpdatedOn(dates[0]);
+			searchImBasicData1.setEndUpdatedOn(dates[1]);
+		}
+		
+		Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
+		ImBasicData1Specification spec = new ImBasicData1Specification(searchImBasicData1);
+		Page<ImBasicData1> results = imbasicdata1Repository.findAll(spec, paging);
+		log.info("results: " + results);
+		return results;
 	}
 	
 	/**

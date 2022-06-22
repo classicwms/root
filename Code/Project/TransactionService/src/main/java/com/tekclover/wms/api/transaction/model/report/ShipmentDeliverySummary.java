@@ -7,7 +7,6 @@ import lombok.Data;
 @Data
 public class ShipmentDeliverySummary {
 
-	private String printedOn; 				// 02-Dec-2021 3:00:11PM
 	private String so;						// REF_DOC_NO
 	
 	// SummaryList

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.expression.ParseException;
 import org.springframework.stereotype.Service;
 
@@ -126,7 +127,7 @@ public class ReportsService extends BaseService {
 	 * @return
 	 */
 	public List<StockReport> getStockReport (List<String> warehouseId, List<String> itemCode, String itemText, 
-			String stockTypeText) {
+			String stockTypeText, Integer pageNo, Integer pageSize, String sortBy) {
 		if (warehouseId == null) {
 			throw new BadRequestException("WarehouseId can't be blank.");
 		}
@@ -136,7 +137,6 @@ public class ReportsService extends BaseService {
 		}
 		
 		try {
-			AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
 			SearchInventory searchInventory = new SearchInventory();
 			searchInventory.setWarehouseId(warehouseId);
 			
@@ -161,16 +161,9 @@ public class ReportsService extends BaseService {
 			
 			searchInventory.setStockTypeId(stockTypeIdList);
 			
-			List<Inventory> inventoryList = inventoryService.findInventory(searchInventory);
-			log.info("inventoryList size: " + inventoryList.size());
+			Page<Inventory> inventoryList = inventoryService.findInventory(searchInventory, pageNo, pageSize, sortBy);
+//			log.info("inventoryList size: " + inventoryList);
 //			log.info("inventoryList : " + inventoryList);
-			
-			Double DMGD_INV_QTY = 0D;
-			Double HOLD_INV_QTY = 0D;
-			Double ONHAND_INV_QTY = 0D;
-			Double ON_HAND_INVQTY = 0D;
-			Double DAMAGED_INVQTY = 0D;
-			Double HOLD_INVQTY = 0D;
 			
 			List<StockReport> stockReportList = new ArrayList<>();
 			for (Inventory inventory : inventoryList) {
@@ -204,49 +197,49 @@ public class ReportsService extends BaseService {
 					 */
 					// ON HAND
 					List<String> storageSectionIds = Arrays.asList("ZB","ZG","ZC","ZT");
-					ON_HAND_INVQTY = ON_HAND_INVQTY + getInventoryQty (inventory.getWarehouseId(), inventory.getItemCode(), 1L, storageSectionIds);
+					double ON_HAND_INVQTY = getInventoryQty (inventory.getWarehouseId(), inventory.getItemCode(), 1L, storageSectionIds);
 					stockReport.setOnHandQty(ON_HAND_INVQTY);
 					
 					// DAMAGED
 					storageSectionIds = Arrays.asList("ZD");
-					DAMAGED_INVQTY = DAMAGED_INVQTY + getInventoryQty (inventory.getWarehouseId(), inventory.getItemCode(), 1L, storageSectionIds);
+					double DAMAGED_INVQTY = getInventoryQty (inventory.getWarehouseId(), inventory.getItemCode(), 1L, storageSectionIds);
 					stockReport.setDamageQty(DAMAGED_INVQTY);
 					
 					// HOLD
 					storageSectionIds = Arrays.asList("ZB","ZG","ZD","ZC","ZT");
-					HOLD_INVQTY = HOLD_INVQTY + getInventoryQty (inventory.getWarehouseId(), inventory.getItemCode(), 7L, storageSectionIds);
+					double HOLD_INVQTY = getInventoryQty (inventory.getWarehouseId(), inventory.getItemCode(), 7L, storageSectionIds);
 					stockReport.setHoldQty(HOLD_INVQTY);
 					
 					// Available Qty
-					Double AVAILABLE_QTY = ON_HAND_INVQTY + DAMAGED_INVQTY + HOLD_INVQTY;
+					double AVAILABLE_QTY = ON_HAND_INVQTY + DAMAGED_INVQTY + HOLD_INVQTY;
 					stockReport.setAvailableQty(AVAILABLE_QTY);
 					
+					if (AVAILABLE_QTY != 0) {
+						stockReportList.add(stockReport);	
+					}
 					log.info("ALL-------stockReport:" + stockReport);
-					stockReportList.add(stockReport);
 				} else if (stockTypeText.equalsIgnoreCase("ON HAND")) {
 					// stock_type_id = 1
 					List<String> storageSectionIds = Arrays.asList("ZB","ZG","ZC","ZT");
-					Double INV_QTY = getInventoryQty (inventory.getWarehouseId(), inventory.getItemCode(), 1L, storageSectionIds);
+					double INV_QTY = getInventoryQty (inventory.getWarehouseId(), inventory.getItemCode(), 1L, storageSectionIds);
 					if (INV_QTY != 0) {
-						ONHAND_INV_QTY = ONHAND_INV_QTY + INV_QTY;
-						stockReport.setOnHandQty(ONHAND_INV_QTY);
+						stockReport.setOnHandQty(INV_QTY);
 						stockReport.setDamageQty(0D);
 						stockReport.setHoldQty(0D);
-						stockReport.setAvailableQty(ONHAND_INV_QTY);
+						stockReport.setAvailableQty(INV_QTY);
 						log.info("ON HAND-------stockReport:" + stockReport);
 						stockReportList.add(stockReport);
 					}
 				} else if (stockTypeText.equalsIgnoreCase("DAMAGED")) {
 					// stock_type_id = 1
 					List<String> storageSectionIds = Arrays.asList("ZD");
-					Double INV_QTY = getInventoryQty (inventory.getWarehouseId(), inventory.getItemCode(), 1L, storageSectionIds);
+					double INV_QTY = getInventoryQty (inventory.getWarehouseId(), inventory.getItemCode(), 1L, storageSectionIds);
 					
 					if (INV_QTY != 0) {
-						DMGD_INV_QTY = DMGD_INV_QTY + INV_QTY;
-						stockReport.setDamageQty(DMGD_INV_QTY);
+						stockReport.setDamageQty(INV_QTY);
 						stockReport.setOnHandQty(0D);
 						stockReport.setHoldQty(0D);
-						stockReport.setAvailableQty(DMGD_INV_QTY);
+						stockReport.setAvailableQty(INV_QTY);
 						
 						log.info("DAMAGED-------stockReport:" + stockReport);
 						stockReportList.add(stockReport);
@@ -254,14 +247,13 @@ public class ReportsService extends BaseService {
 				} else if (stockTypeText.equalsIgnoreCase("HOLD")) {
 					// STCK_TYP_ID = 7
 					List<String> storageSectionIds = Arrays.asList("ZB","ZG","ZD","ZC","ZT");
-					Double INV_QTY = getInventoryQty (inventory.getWarehouseId(), inventory.getItemCode(), 7L, storageSectionIds);
+					double INV_QTY = getInventoryQty (inventory.getWarehouseId(), inventory.getItemCode(), 7L, storageSectionIds);
 					
 					if (INV_QTY != 0) {
-						HOLD_INV_QTY = HOLD_INV_QTY + INV_QTY;
-						stockReport.setHoldQty(HOLD_INV_QTY);
+						stockReport.setHoldQty(INV_QTY);
 						stockReport.setOnHandQty(0D);
 						stockReport.setDamageQty(0D);
-						stockReport.setAvailableQty(HOLD_INV_QTY);
+						stockReport.setAvailableQty(INV_QTY);
 						log.info("HOLD-------stockReport:" + stockReport);
 						stockReportList.add(stockReport);
 					}
@@ -283,10 +275,16 @@ public class ReportsService extends BaseService {
 	 * @param storageBin
 	 * @param stockTypeText
 	 * @param stSectionIds
+	 * @param sortBy 
+	 * @param pageSize 
+	 * @param pageNo 
+	 * @param sortBy 
+	 * @param pageSize 
+	 * @param pageNo 
 	 * @return 
 	 */
 	public List<InventoryReport> getInventoryReport(List<String> warehouseId, List<String> itemCode, String storageBin,
-			String stockTypeText, List<String> stSectionIds) {
+			String stockTypeText, List<String> stSectionIds, Integer pageNo, Integer pageSize, String sortBy) {
 		try {
 			AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
 			
@@ -308,7 +306,8 @@ public class ReportsService extends BaseService {
 				searchInventory.setStorageBin(stBins);
 			}
 			
-			List<Inventory> inventoryList = inventoryService.findInventory(searchInventory);
+			Page<Inventory> inventoryList = inventoryService.findInventory(searchInventory, pageNo, pageSize, sortBy);
+			
 			List<InventoryReport> reportInventoryList = new ArrayList<>();
 			for (Inventory dbInventory : inventoryList) {
 				InventoryReport reportInventory = new InventoryReport();
@@ -834,16 +833,12 @@ public class ReportsService extends BaseService {
 				outboundLineService.findOutboundLineShipmentReport(searchOutboundLine);
 		log.info("outboundLineSearchResults : " + outboundLineSearchResults);
 		
-		String warehouseId = null;
-		String preOutboundNo = null;
-		String refDocNumber = null;
-		Long obLineNo = null;
-		String itemCode = null;
-		
 		ShipmentDeliverySummaryReport shipmentDeliverySummaryReport = new ShipmentDeliverySummaryReport();
 		List<ShipmentDeliverySummary> shipmentDeliverySummaryList = new ArrayList<>();
+		String warehouseId = null;
 		try {
 			for (OutboundLine outboundLine : outboundLineSearchResults) {
+				String refDocNumber = outboundLine.getRefDocNumber();
 				
 				// Report Preparation
 				ShipmentDeliverySummary shipmentDeliverySummary = new ShipmentDeliverySummary();
@@ -857,7 +852,7 @@ public class ReportsService extends BaseService {
 				} catch (Exception e) {
 					List<OutboundHeader> outboundHeaders = outboundHeaderService.getOutboundHeaders();
 					outboundHeaders = outboundHeaders.stream()
-						.filter(a -> a.getRefDocNumber().equalsIgnoreCase(outboundLine.getRefDocNumber()))
+						.filter(a -> a.getRefDocNumber().equalsIgnoreCase(refDocNumber))
 						.collect(Collectors.toList());
 					outboundHeader = outboundHeaders.get(0);
 					log.info("outboundHeader : " + outboundHeader);
@@ -875,10 +870,10 @@ public class ReportsService extends BaseService {
 				 * where REF_FIELD_2 = Null and display
 				 */
 				warehouseId = outboundLine.getWarehouseId();
-				preOutboundNo = outboundLine.getPreOutboundNo();
-				refDocNumber = outboundLine.getRefDocNumber();
-				obLineNo = outboundLine.getLineNumber();
-				itemCode = outboundLine.getItemCode();
+				String preOutboundNo = outboundLine.getPreOutboundNo();
+				Long obLineNo = outboundLine.getLineNumber();
+				String itemCode = outboundLine.getItemCode();
+				
 				List<OutboundLine> reportOutboundLineList = 
 						outboundLineService.getOutboundLineForReports(warehouseId, preOutboundNo, refDocNumber);
 				log.info("reportOutboundLineList : " + reportOutboundLineList);
@@ -1366,12 +1361,20 @@ public class ReportsService extends BaseService {
 			List<Inventory> stBinInventoryList = inventoryService.getInventoryForStockReport(warehouseId, itemCode, stockTypeId);
 			if (!stBinInventoryList.isEmpty()) {
 				List<String> stBins = stBinInventoryList.stream().map(Inventory::getStorageBin).collect(Collectors.toList());
+				log.info ("stBins : " + stBins);
+				log.info ("storageSectionIds : " + storageSectionIds);
+				
 				List<StorageBin> storagebinList = 
 						storagebinRepository.findByStorageBinInAndStorageSectionIdInAndPutawayBlockAndPickingBlockAndDeletionIndicatorOrderByStorageBinDesc(
 								stBins, storageSectionIds, 0, 0, 0L);
+				log.info ("storagebinList : " + storagebinList);
 				if (storagebinList != null && !storagebinList.isEmpty()) {
 					List<String> storageBinList = storagebinList.stream().map(StorageBin::getStorageBin).collect(Collectors.toList());
-					List<Long> inventoryQtyCountList = inventoryService.getInventoryQtyCount (warehouseId, itemCode, storageBinList, stockTypeId);
+					log.info("inventory-params-----> : wh_id:" + warehouseId + "," + ",itemCode:" + itemCode
+							+ ",storageBinList:" + storageBinList + ",stockTypeId: " + stockTypeId);
+					
+					List<Long> inventoryQtyCountList = 
+							inventoryService.getInventoryQtyCount (warehouseId, itemCode, storageBinList, stockTypeId);
 					log.info("inventoryList--------> : " + inventoryQtyCountList.stream().mapToLong(Long::longValue).sum());
 					
 					long qty = inventoryQtyCountList.stream().mapToLong(Long::longValue).sum();

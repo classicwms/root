@@ -6,6 +6,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -71,11 +72,21 @@ public class InventoryController {
 	}
     
     @ApiOperation(response = Inventory.class, value = "Search Inventory") // label for swagger
-	@PostMapping("/findInventory")
-	public List<Inventory> findInventory(@RequestBody SearchInventory searchInventory) 
+	@PostMapping("/findInventory/pagination")
+	public Page<Inventory> findInventory(@RequestBody SearchInventory searchInventory,
+			@RequestParam(defaultValue = "0") Integer pageNo,
+			@RequestParam(defaultValue = "10") Integer pageSize,
+			@RequestParam(defaultValue = "itemCode") String sortBy) 
 			throws Exception {
-		return inventoryService.findInventory(searchInventory);
+		return inventoryService.findInventory(searchInventory, pageNo, pageSize, sortBy);
 	}
+    
+    @ApiOperation(response = Inventory.class, value = "Search Inventory") // label for swagger
+   	@PostMapping("/findInventory")
+   	public List<Inventory> findInventory(@RequestBody SearchInventory searchInventory) 
+   			throws Exception {
+   		return inventoryService.findInventory(searchInventory);
+   	}
     
     @ApiOperation(response = Inventory.class, value = "Create Inventory") // label for swagger
 	@PostMapping("")

@@ -8,6 +8,7 @@ import javax.validation.Valid;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -49,6 +50,7 @@ import com.tekclover.wms.core.model.transaction.OutboundHeader;
 import com.tekclover.wms.core.model.transaction.OutboundLine;
 import com.tekclover.wms.core.model.transaction.OutboundReversal;
 import com.tekclover.wms.core.model.transaction.PackBarcode;
+import com.tekclover.wms.core.model.transaction.PaginatedResponse;
 import com.tekclover.wms.core.model.transaction.PerpetualHeader;
 import com.tekclover.wms.core.model.transaction.PerpetualHeaderEntity;
 import com.tekclover.wms.core.model.transaction.PerpetualLine;
@@ -2300,6 +2302,33 @@ public class TransactionService {
 		}
 	}
 	
+	public PaginatedResponse<Inventory> findInventory(SearchInventory searchInventory, Integer pageNo, Integer pageSize, String sortBy, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "inventory/findInventory/pagination")
+					.queryParam("pageNo", pageNo)
+					.queryParam("pageSize", pageSize)
+					.queryParam("sortBy", sortBy);
+			
+			HttpEntity<?> entity = new HttpEntity<>(searchInventory, headers);	
+			
+			ParameterizedTypeReference<PaginatedResponse<Inventory>> responseType = 
+					new ParameterizedTypeReference<PaginatedResponse<Inventory>>() {};
+			ResponseEntity<PaginatedResponse<Inventory>> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, responseType);
+			
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	
 	// POST
 	public Inventory createInventory (Inventory newInventory, String loginUserID, String authToken) {
 		HttpHeaders headers = new HttpHeaders();
@@ -3033,7 +3062,7 @@ public class TransactionService {
 	
 	// GET - STOCK REPORT
 	public StockReport[] getStockReports(List<String> warehouseId, List<String> itemCode, String itemText,
-			String stockTypeText, String authToken) {
+			String stockTypeText, Integer pageNo, Integer pageSize, String sortBy, String authToken) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -3045,11 +3074,14 @@ public class TransactionService {
 					.queryParam("warehouseId", warehouseId)
 					.queryParam("itemCode", itemCode)
 					.queryParam("itemText", itemText)
-					.queryParam("stockTypeText",stockTypeText);
+					.queryParam("stockTypeText",stockTypeText)
+					.queryParam("pageNo", pageNo)
+					.queryParam("pageSize", pageSize)
+					.queryParam("sortBy", sortBy);
 			HttpEntity<?> entity = new HttpEntity<>(headers);
-			ResponseEntity<StockReport[]> result =
+			
+			ResponseEntity<StockReport[]> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, StockReport[].class);
-			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -3059,7 +3091,7 @@ public class TransactionService {
 
 	// GET - INVENTORY REPORT
 	public InventoryReport[] getInventoryReport(List<String> warehouseId, List<String> itemCode, String storageBin,
-			String stockTypeText, List<String> stSectionIds, String authToken) {
+			String stockTypeText, List<String> stSectionIds, Integer pageNo, Integer pageSize, String sortBy, String authToken) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -3072,11 +3104,14 @@ public class TransactionService {
 					.queryParam("itemCode", itemCode)
 					.queryParam("storageBin", storageBin)
 					.queryParam("stockTypeText", stockTypeText)
-					.queryParam("stSectionIds", stSectionIds);
+					.queryParam("stSectionIds", stSectionIds)
+					.queryParam("pageNo", pageNo)
+					.queryParam("pageSize", pageSize)
+					.queryParam("sortBy", sortBy);
 			HttpEntity<?> entity = new HttpEntity<>(headers);
-			ResponseEntity<InventoryReport[]> result =
+			
+			ResponseEntity<InventoryReport[]> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, InventoryReport[].class);
-			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -5,6 +5,7 @@ import java.util.Collections;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -17,9 +18,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.tekclover.wms.core.config.PropertiesConfig;
 import com.tekclover.wms.core.model.masters.AuditLog;
-import com.tekclover.wms.core.model.masters.BOM;
 import com.tekclover.wms.core.model.masters.BomHeader;
-import com.tekclover.wms.core.model.masters.BomLine;
 import com.tekclover.wms.core.model.masters.BusinessPartner;
 import com.tekclover.wms.core.model.masters.HandlingEquipment;
 import com.tekclover.wms.core.model.masters.HandlingUnit;
@@ -38,6 +37,7 @@ import com.tekclover.wms.core.model.masters.SearchImBasicData1;
 import com.tekclover.wms.core.model.masters.SearchPackingMaterial;
 import com.tekclover.wms.core.model.masters.SearchStorageBin;
 import com.tekclover.wms.core.model.masters.StorageBin;
+import com.tekclover.wms.core.model.transaction.PaginatedResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -876,6 +876,34 @@ public class MastersService {
 					.queryParam("warehouseId", warehouseId);
 			ResponseEntity<ImBasicData1> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, ImBasicData1.class);
 			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	
+	// POST - findImBasicData1
+	public PaginatedResponse<ImBasicData1> findImBasicData11(SearchImBasicData1 searchImBasicData1, Integer pageNo, 
+			Integer pageSize, String sortBy, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "imbasicdata1/findImBasicData1/pagination")
+					.queryParam("pageNo", pageNo)
+					.queryParam("pageSize", pageSize)
+					.queryParam("sortBy", sortBy);
+			HttpEntity<?> entity = new HttpEntity<>(searchImBasicData1, headers);	
+			
+			ParameterizedTypeReference<PaginatedResponse<ImBasicData1>> responseType = 
+					new ParameterizedTypeReference<PaginatedResponse<ImBasicData1>>() {};
+			ResponseEntity<PaginatedResponse<ImBasicData1>> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, responseType);
+			
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();

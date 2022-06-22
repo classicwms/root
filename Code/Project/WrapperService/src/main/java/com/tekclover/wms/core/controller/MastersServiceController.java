@@ -1,6 +1,7 @@
 package com.tekclover.wms.core.controller;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
@@ -41,6 +42,7 @@ import com.tekclover.wms.core.model.masters.SearchImBasicData1;
 import com.tekclover.wms.core.model.masters.SearchPackingMaterial;
 import com.tekclover.wms.core.model.masters.SearchStorageBin;
 import com.tekclover.wms.core.model.masters.StorageBin;
+import com.tekclover.wms.core.model.transaction.PaginatedResponse;
 import com.tekclover.wms.core.service.MastersService;
 import com.tekclover.wms.core.service.RegisterService;
 
@@ -290,6 +292,16 @@ public class MastersServiceController {
 		return new ResponseEntity<>(imalternateuom, HttpStatus.OK);
 	}
     
+	@ApiOperation(response = ImBasicData1.class, value = "Search ImBasicData1") // label for swagger
+	@PostMapping("/imbasicdata1/findImBasicData1/pagination")
+	public PaginatedResponse<ImBasicData1> findImBasicData1(@RequestBody SearchImBasicData1 searchImBasicData1,
+			@RequestParam(defaultValue = "0") Integer pageNo,
+			@RequestParam(defaultValue = "10") Integer pageSize,
+			@RequestParam(defaultValue = "itemCode") String sortBy,
+			@RequestParam String authToken) throws Exception {
+		return mastersService.findImBasicData11(searchImBasicData1, pageNo, pageSize, sortBy, authToken);
+	}
+	
 	@ApiOperation(response = ImBasicData1.class, value = "Search ImBasicData1") // label for swagger
 	@PostMapping("/imbasicdata1/findImBasicData1")
 	public ImBasicData1[] findImBasicData1(@RequestBody SearchImBasicData1 searchImBasicData1,
