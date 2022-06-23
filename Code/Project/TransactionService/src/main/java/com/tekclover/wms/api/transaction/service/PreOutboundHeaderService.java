@@ -562,7 +562,10 @@ public class PreOutboundHeaderService extends BaseService {
 				mastersService.getImBasicData1ByItemCode(outboundIntegrationLine.getItemCode(), 
 						outboundIntegrationHeader.getWarehouseID(),
 						authTokenForMastersService.getAccess_token());
-		preOutboundLine.setDescription(imBasicData1.getDescription());
+		log.info("imBasicData1 : " + imBasicData1);
+		if (imBasicData1.getDescription() != null) {
+			preOutboundLine.setDescription(imBasicData1.getDescription());
+		}
 		
 		// ORD_QTY
 		preOutboundLine.setOrderQty(outboundIntegrationLine.getOrderedQty());

@@ -108,7 +108,7 @@ public class MastersService {
 //			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 //			throw e;
 			return null;
 		}

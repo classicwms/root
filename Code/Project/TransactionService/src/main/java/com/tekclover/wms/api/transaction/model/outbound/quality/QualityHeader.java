@@ -18,14 +18,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 /*
- * `LANG_ID`, `C_ID`, `PLANT_ID`, `WH_ID`, `PRE_OB_NO`, `REF_DOC_NO`, `PARTNER_CODE`, `PU_NO`, `QC_NO`, `PICK_HE_NO`
+ * `LANG_ID`, `C_ID`, `PLANT_ID`, `WH_ID`, `PRE_OB_NO`, `REF_DOC_NO`, `PARTNER_CODE`, 
+ * `PU_NO`, `QC_NO`, `PICK_HE_NO`
  */
 @Table(
 		name = "tblqualityheader", 
 		uniqueConstraints = { 
 				@UniqueConstraint (
 						name = "unique_key_qualityheader", 
-						columnNames = {"LANG_ID", "C_ID", "PLANT_ID", "WH_ID", "PRE_OB_NO", "REF_DOC_NO", "PARTNER_CODE", "PU_NO", "QC_NO", "PICK_HE_NO"})
+						columnNames = {"LANG_ID", "C_ID", "PLANT_ID", "WH_ID", "PRE_OB_NO", "REF_DOC_NO", 
+								"PARTNER_CODE", "PU_NO", "QC_NO", "PICK_HE_NO"})
 				}
 		)
 @IdClass(QualityHeaderCompositeKey.class)
