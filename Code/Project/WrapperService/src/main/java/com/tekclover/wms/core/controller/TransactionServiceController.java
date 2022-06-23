@@ -52,7 +52,6 @@ import com.tekclover.wms.core.model.transaction.OutboundHeader;
 import com.tekclover.wms.core.model.transaction.OutboundLine;
 import com.tekclover.wms.core.model.transaction.OutboundReversal;
 import com.tekclover.wms.core.model.transaction.PackBarcode;
-import com.tekclover.wms.core.model.transaction.PaginatedResponse;
 import com.tekclover.wms.core.model.transaction.PerpetualHeader;
 import com.tekclover.wms.core.model.transaction.PerpetualHeaderEntity;
 import com.tekclover.wms.core.model.transaction.PerpetualLine;
@@ -1096,11 +1095,40 @@ public class TransactionServiceController {
 	
 	@ApiOperation(response = OrderManagementLine.class, value = "Assign Picker") // label for swagger
     @PatchMapping("/ordermanagementline/assignPicker")
-	public ResponseEntity<?> assignPicker(@RequestBody List<AssignPicker> assignPicker, @RequestParam String assignedPickerId, @RequestParam String loginUserID, @RequestParam String authToken) 
+	public ResponseEntity<?> assignPicker(@RequestBody List<AssignPicker> assignPicker, 
+			@RequestParam String assignedPickerId, @RequestParam String loginUserID, @RequestParam String authToken) 
 					throws IllegalAccessException, InvocationTargetException {
 		OrderManagementLine[] updatedOrderManagementLine = 
 				transactionService.doAssignPicker(assignPicker, assignedPickerId, loginUserID, authToken);
 		return new ResponseEntity<>(updatedOrderManagementLine , HttpStatus.OK);
+	}
+	
+	@ApiOperation(response = OrderManagementLine.class, value = "Update OrderMangementLine") // label for swagger
+    @PatchMapping("/ordermanagementline/{refDocNumber}")
+	public ResponseEntity<?> patchOrderMangementLine(@PathVariable String refDocNumber, 
+			@RequestParam String warehouseId, @RequestParam String preOutboundNo, 
+			@RequestParam String partnerCode, @RequestParam Long lineNumber, 
+			@RequestParam String itemCode, @RequestParam String proposedStorageBin, @RequestParam String proposedPackCode,
+			@Valid @RequestBody OrderManagementLine updateOrderMangementLine, @RequestParam String loginUserID,
+			@RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+    	OrderManagementLine createdOrderMangementLine = 
+    			transactionService.updateOrderManagementLine(warehouseId, preOutboundNo, refDocNumber, 
+						partnerCode, lineNumber, itemCode, proposedStorageBin, proposedPackCode, 
+						loginUserID, updateOrderMangementLine, authToken);
+		return new ResponseEntity<>(createdOrderMangementLine , HttpStatus.OK);
+	}
+    
+    @ApiOperation(response = OrderManagementLine.class, value = "Delete OrderManagementLine") // label for swagger
+	@DeleteMapping("/ordermanagementline/{refDocNumber}")
+	public ResponseEntity<?> deleteOrderManagementLine(@PathVariable String refDocNumber, 
+			@RequestParam String warehouseId, @RequestParam String preOutboundNo, 
+			@RequestParam String partnerCode, @RequestParam Long lineNumber, 
+			@RequestParam String itemCode, @RequestParam String proposedStorageBin, 
+			@RequestParam String proposedPackCode, @RequestParam String loginUserID,
+			@RequestParam String authToken) {
+    	transactionService.deleteOrderManagementLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, 
+    			lineNumber, itemCode, proposedStorageBin, proposedPackCode, loginUserID, authToken);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	
 	/*

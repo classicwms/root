@@ -23,6 +23,7 @@ import com.tekclover.wms.api.transaction.model.outbound.ordermangement.AddOrderM
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.AssignPicker;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.OrderManagementLine;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.SearchOrderManagementLine;
+import com.tekclover.wms.api.transaction.model.outbound.ordermangement.UpdateOrderManagementLine;
 import com.tekclover.wms.api.transaction.service.OrderManagementLineService;
 
 import io.swagger.annotations.Api;
@@ -110,10 +111,27 @@ public class OrderManagementLineController {
 		return new ResponseEntity<>(updatedOrderManagementLine , HttpStatus.OK);
 	}
     
+    @ApiOperation(response = OrderManagementLine.class, value = "Update OrderMangementLine") // label for swagger
+    @PatchMapping("/{refDocNumber}")
+	public ResponseEntity<?> patchOrderMangementLine(@PathVariable String refDocNumber, 
+			@RequestParam String warehouseId, @RequestParam String preOutboundNo, 
+			@RequestParam String partnerCode, @RequestParam Long lineNumber, 
+			@RequestParam String itemCode, @RequestParam String proposedStorageBin, @RequestParam String proposedPackCode,
+			@Valid @RequestBody UpdateOrderManagementLine updateOrderMangementLine, @RequestParam String loginUserID) 
+			throws IllegalAccessException, InvocationTargetException {
+    	OrderManagementLine createdOrderMangementLine = 
+				ordermangementlineService.updateOrderManagementLine(warehouseId, preOutboundNo, refDocNumber, 
+						partnerCode, lineNumber, itemCode, proposedStorageBin, proposedPackCode, loginUserID, updateOrderMangementLine);
+		return new ResponseEntity<>(createdOrderMangementLine , HttpStatus.OK);
+	}
+    
     @ApiOperation(response = OrderManagementLine.class, value = "Delete OrderManagementLine") // label for swagger
 	@DeleteMapping("/{refDocNumber}")
 	public ResponseEntity<?> deleteOrderManagementLine(@PathVariable String refDocNumber, 
-			@RequestParam String warehouseId, @RequestParam String preOutboundNo, @RequestParam String partnerCode, @RequestParam Long lineNumber, @RequestParam String itemCode, @RequestParam String proposedStorageBin, @RequestParam String proposedPackCode, @RequestParam String loginUserID) {
+			@RequestParam String warehouseId, @RequestParam String preOutboundNo, 
+			@RequestParam String partnerCode, @RequestParam Long lineNumber, 
+			@RequestParam String itemCode, @RequestParam String proposedStorageBin, 
+			@RequestParam String proposedPackCode, @RequestParam String loginUserID) {
     	ordermangementlineService.deleteOrderManagementLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, 
     			lineNumber, itemCode, proposedStorageBin, proposedPackCode, loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);

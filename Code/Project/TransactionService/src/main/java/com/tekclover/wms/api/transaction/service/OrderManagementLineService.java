@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
+import javax.validation.Valid;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -782,6 +783,35 @@ public class OrderManagementLineService extends BaseService {
 				partnerCode, lineNumber, itemCode);
 		if (dbOrderManagementLine != null) {
 			BeanUtils.copyProperties(updateOrderManagementLine, dbOrderManagementLine, CommonUtils.getNullPropertyNames(updateOrderManagementLine));
+			dbOrderManagementLine.setPickupUpdatedBy(loginUserID);
+			dbOrderManagementLine.setPickupUpdatedOn(new Date());
+			return orderManagementLineRepository.save(dbOrderManagementLine);
+		}
+		return null;
+	}
+	
+	/**
+	 * updateOrderManagementLine
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @param lineNumber
+	 * @param itemCode
+	 * @param proposedStorageBin
+	 * @param proposedPackCode
+	 * @param loginUserID
+	 * @param updateOrderMangementLine
+	 * @return
+	 */
+	public OrderManagementLine updateOrderManagementLine (String warehouseId, String preOutboundNo, String refDocNumber,
+			String partnerCode, Long lineNumber, String itemCode, String proposedStorageBin, String proposedPackCode,
+			String loginUserID, @Valid UpdateOrderManagementLine updateOrderMangementLine) {
+		OrderManagementLine dbOrderManagementLine = getOrderManagementLine(warehouseId, preOutboundNo, refDocNumber, 
+				partnerCode, lineNumber, itemCode, proposedStorageBin, proposedPackCode);
+		if (dbOrderManagementLine != null) {
+			BeanUtils.copyProperties(updateOrderMangementLine, dbOrderManagementLine, 
+					CommonUtils.getNullPropertyNames(updateOrderMangementLine));
 			dbOrderManagementLine.setPickupUpdatedBy(loginUserID);
 			dbOrderManagementLine.setPickupUpdatedOn(new Date());
 			return orderManagementLineRepository.save(dbOrderManagementLine);
