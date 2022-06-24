@@ -85,13 +85,12 @@ public class OutboundHeaderService {
 		if (outboundHeader != null) {
 			return outboundHeader;
 		} 
-		log.info("The given OutboundHeader ID : " + 
+		throw new BadRequestException ("The given OutboundHeader ID : " + 
 					"warehouseId : " + warehouseId +
 					",preOutboundNo : " + preOutboundNo +
 					",refDocNumber : " + refDocNumber +
 					",partnerCode : " + partnerCode +
 					" doesn't exist.");
-		return null;
 	}
 	
 	/**

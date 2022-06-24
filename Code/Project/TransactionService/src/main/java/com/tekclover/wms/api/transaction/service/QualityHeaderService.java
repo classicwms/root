@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
 import org.springframework.stereotype.Service;
 
+import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.outbound.quality.AddQualityHeader;
 import com.tekclover.wms.api.transaction.model.outbound.quality.QualityHeader;
 import com.tekclover.wms.api.transaction.model.outbound.quality.SearchQualityHeader;
@@ -100,7 +101,7 @@ public class QualityHeaderService {
 		if (qualityHeader != null) {
 			return qualityHeader;
 		} 
-		log.info("The given QualityHeader values : " + 
+		throw new BadRequestException("The given QualityHeader values : " + 
 				"warehouseId : " + warehouseId +
 				"preOutboundNo : " + preOutboundNo +
 				"refDocNumber : " + refDocNumber +
@@ -109,7 +110,6 @@ public class QualityHeaderService {
 				"qualityInspectionNo : " + qualityInspectionNo +
 				"actualHeNo : " + actualHeNo +
 				" doesn't exist.");
-		return null;
 	}
 	
 	/**

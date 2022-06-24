@@ -119,7 +119,7 @@ public class PickupHeaderService {
 		if (pickupHeader != null && pickupHeader.getDeletionIndicator() == 0) {
 			return pickupHeader;
 		} 
-		log.info("The given PickupHeader ID : " + 
+		throw new BadRequestException ("The given PickupHeader ID : " + 
 					"warehouseId : " + warehouseId + 
 					",preOutboundNo : " + preOutboundNo +
 					",refDocNumber : " + refDocNumber +
@@ -128,7 +128,6 @@ public class PickupHeaderService {
 					",lineNumber : " + lineNumber +
 					",itemCode : " + itemCode +
 					" doesn't exist.");
-		return null;
 	}
 	
 	/**

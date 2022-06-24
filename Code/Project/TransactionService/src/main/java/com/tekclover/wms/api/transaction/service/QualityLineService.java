@@ -171,16 +171,15 @@ public class QualityLineService extends BaseService {
 		if (qualityLine != null) {
 			return qualityLine;
 		} 
-		log.info("The given QualityLine ID : " + 
-					"warehouseId:" + warehouseId +
-					",preOutboundNo:" + preOutboundNo +
-					",refDocNumber:" + refDocNumber +
-					",partnerCode:" + partnerCode +
-					",lineNumber:" + lineNumber +
-					",qualityInspectionNo:" + qualityInspectionNo +
-					",itemCode:" + itemCode +
-					" doesn't exist.");
-		return null;
+		throw new BadRequestException ("The given QualityLine ID : " + 
+			"warehouseId:" + warehouseId +
+			",preOutboundNo:" + preOutboundNo +
+			",refDocNumber:" + refDocNumber +
+			",partnerCode:" + partnerCode +
+			",lineNumber:" + lineNumber +
+			",qualityInspectionNo:" + qualityInspectionNo +
+			",itemCode:" + itemCode +
+			" doesn't exist.");
 	}
 	
 	/**

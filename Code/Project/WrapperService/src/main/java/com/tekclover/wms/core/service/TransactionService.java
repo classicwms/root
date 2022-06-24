@@ -2814,6 +2814,7 @@ public class TransactionService {
 					.queryParam("preOutboundNo", preOutboundNo)
 					.queryParam("partnerCode", partnerCode)
 					.queryParam("lineNumber", lineNumber)
+					.queryParam("refDocNumber", refDocNumber)
 					.queryParam("itemCode", itemCode)
 					.queryParam("proposedStorageBin", proposedStorageBin)
 					.queryParam("proposedPackCode", proposedPackCode)
@@ -3030,7 +3031,7 @@ public class TransactionService {
 			headers.add("Authorization", "Bearer " + authToken);
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			UriComponentsBuilder builder = 
-					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "pickupline/" + actualHeNo)
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "qualityheader/" + qualityInspectionNo)
 					.queryParam("warehouseId", warehouseId)
 					.queryParam("preOutboundNo", preOutboundNo)
 					.queryParam("refDocNumber", refDocNumber)
@@ -3361,7 +3362,7 @@ public class TransactionService {
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 			headers.add("User-Agent", "MNRClara's RestTemplate");
 			headers.add("Authorization", "Bearer " + authToken);
-			HttpEntity<?> entity = new HttpEntity<>(headers);
+			HttpEntity<?> entity = new HttpEntity<>(updateOutboundLine, headers);
 			
 			HttpClient client = HttpClients.createDefault();
 			RestTemplate restTemplate = getRestTemplate();

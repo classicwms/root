@@ -41,6 +41,4 @@ public class OutboundHeader {
 	private Date updatedOn = new Date();
 	private String reversedBy;
 	private Date reversedOn = new Date();
-
-	private List<OutboundHeader> addOutboundHeader;
 }
