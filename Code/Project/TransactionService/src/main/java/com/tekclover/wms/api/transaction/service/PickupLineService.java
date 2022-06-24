@@ -120,6 +120,44 @@ public class PickupLineService extends BaseService {
 	 * @param refDocNumber
 	 * @param partnerCode
 	 * @param lineNumber
+	 * @param pickupNumber
+	 * @param itemCode
+	 * @param pickedStorageBin
+	 * @param pickedPackCode
+	 * @param actualHeNo
+	 * @return
+	 */
+	private PickupLine getPickupLineForUpdate(String warehouseId, String preOutboundNo, String refDocNumber,
+			String partnerCode, Long lineNumber, String pickupNumber, String itemCode, String pickedStorageBin,
+			String pickedPackCode, String actualHeNo) {
+		PickupLine pickupLine = 
+				pickupLineRepository.findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndPickupNumberAndItemCodeAndPickedStorageBinAndPickedPackCodeAndActualHeNoAndDeletionIndicator(
+				warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, pickupNumber, itemCode, pickedStorageBin, 
+				 pickedPackCode, actualHeNo, 0L);
+		if (pickupLine != null) {
+			return pickupLine;
+		} 
+		throw new BadRequestException ("The given OrderManagementLine ID : " + 
+					"warehouseId:" + warehouseId +
+					",preOutboundNo:" + preOutboundNo +
+					",refDocNumber:" + refDocNumber +
+					",partnerCode:" + partnerCode +
+					",lineNumber:" + lineNumber +
+					",pickupNumber:" + pickupNumber +
+					",itemCode:" + itemCode +
+					",pickedStorageBin:" + pickedStorageBin +
+					",pickedPackCode:" + pickedPackCode +
+					",actualHeNo:" + actualHeNo +
+					" doesn't exist.");
+	}
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @param lineNumber
 	 * @param itemCode
 	 * @return
 	 */
@@ -515,7 +553,75 @@ public class PickupLineService extends BaseService {
 	}
 	
 	/**
-	 * deletePickupLine
+	 * 
+	 * @param actualHeNo
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @param lineNumber
+	 * @param pickupNumber
+	 * @param itemCode
+	 * @param pickedStorageBin
+	 * @param pickedPackCode
+	 * @param loginUserID
+	 * @param updatePickupLine
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
+	public PickupLine updatePickupLine (String actualHeNo, String warehouseId, String preOutboundNo, String refDocNumber, 
+			String partnerCode, Long lineNumber, String pickupNumber, String itemCode, String pickedStorageBin, 
+			String pickedPackCode, String loginUserID, UpdatePickupLine updatePickupLine) 
+			throws IllegalAccessException, InvocationTargetException {
+		PickupLine dbPickupLine = getPickupLineForUpdate (warehouseId,  preOutboundNo,  refDocNumber, 
+				 partnerCode, lineNumber,  pickupNumber,  itemCode,  pickedStorageBin, 
+				 pickedPackCode, actualHeNo);
+		if (dbPickupLine != null) {
+			BeanUtils.copyProperties(updatePickupLine, dbPickupLine, CommonUtils.getNullPropertyNames(updatePickupLine));
+			dbPickupLine.setPickupUpdatedBy(loginUserID);
+			dbPickupLine.setPickupUpdatedOn(new Date());
+			return pickupLineRepository.save(dbPickupLine);
+		}
+		return null;
+	}
+
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @param lineNumber
+	 * @param pickupNumber
+	 * @param itemCode
+	 * @param actualHeNo
+	 * @param pickedStorageBin
+	 * @param pickedPackCode
+	 * @param loginUserID
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
+	public PickupLine deletePickupLine (String warehouseId, String preOutboundNo, String refDocNumber, 
+			String partnerCode, Long lineNumber, String pickupNumber, String itemCode, String actualHeNo, 
+			String pickedStorageBin, String pickedPackCode, String loginUserID) 
+			throws IllegalAccessException, InvocationTargetException {
+		PickupLine dbPickupLine = getPickupLineForUpdate (warehouseId,  preOutboundNo,  refDocNumber, 
+				 partnerCode, lineNumber,  pickupNumber,  itemCode,  pickedStorageBin, 
+				 pickedPackCode, actualHeNo);
+		if (dbPickupLine != null) {
+			dbPickupLine.setDeletionIndicator(1L);
+			dbPickupLine.setPickupUpdatedBy(loginUserID);
+			dbPickupLine.setPickupUpdatedOn(new Date());
+			return pickupLineRepository.save(dbPickupLine);
+		} else {
+			throw new EntityNotFoundException("Error in deleting Id: " + lineNumber);
+		}
+	}
+	
+	/**
+	 * 
 	 * @param warehouseId
 	 * @param preOutboundNo
 	 * @param refDocNumber
@@ -523,8 +629,7 @@ public class PickupLineService extends BaseService {
 	 * @param lineNumber
 	 * @param itemCode
 	 * @param loginUserID
-	 * @param updatePickupLine
-	 * @return 
+	 * @return
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */

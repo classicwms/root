@@ -25,7 +25,8 @@ import lombok.NoArgsConstructor;
 		uniqueConstraints = { 
 				@UniqueConstraint (
 						name = "unique_key_outboundline", 
-						columnNames = {"LANG_ID", "C_ID", "PLANT_ID", "WH_ID", "PRE_OB_NO", "REF_DOC_NO", "PARTNER_CODE", "OB_LINE_NO", "ITM_CODE"})
+						columnNames = {"LANG_ID", "C_ID", "PLANT_ID", "WH_ID", "PRE_OB_NO", "REF_DOC_NO", 
+								"PARTNER_CODE", "OB_LINE_NO", "ITM_CODE"})
 				}
 		)
 @IdClass(OutboundLineCompositeKey.class)

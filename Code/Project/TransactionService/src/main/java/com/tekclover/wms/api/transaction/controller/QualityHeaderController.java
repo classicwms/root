@@ -9,7 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.tekclover.wms.api.transaction.model.outbound.quality.AddQualityHeader;
 import com.tekclover.wms.api.transaction.model.outbound.quality.QualityHeader;
 import com.tekclover.wms.api.transaction.model.outbound.quality.SearchQualityHeader;
+import com.tekclover.wms.api.transaction.model.outbound.quality.UpdateQualityHeader;
 import com.tekclover.wms.api.transaction.service.QualityHeaderService;
 
 import io.swagger.annotations.Api;
@@ -58,5 +62,31 @@ public class QualityHeaderController {
 			throws IllegalAccessException, InvocationTargetException {
 		QualityHeader createdQualityHeader = qualityheaderService.createQualityHeader(newQualityHeader, loginUserID);
 		return new ResponseEntity<>(createdQualityHeader , HttpStatus.OK);
+	}
+    
+    @ApiOperation(response = QualityHeader.class, value = "Update QualityHeader") // label for swagger
+    @PatchMapping("/{qualityInspectionNo}")
+	public ResponseEntity<?> patchQualityHeader(@PathVariable String qualityInspectionNo, 
+			@RequestParam String warehouseId, @RequestParam String preOutboundNo, 
+			@RequestParam String refDocNumber, @RequestParam String partnerCode, 
+			@RequestParam String pickupNumber, @RequestParam String actualHeNo,
+			@Valid @RequestBody UpdateQualityHeader updateQualityHeader, 
+			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
+		QualityHeader updatedQualityHeader = 
+				qualityheaderService.updateQualityHeader(warehouseId, preOutboundNo, refDocNumber, 
+						partnerCode, pickupNumber, qualityInspectionNo, actualHeNo, loginUserID, updateQualityHeader);
+		return new ResponseEntity<>(updatedQualityHeader , HttpStatus.OK);
+	}
+    
+    @ApiOperation(response = QualityHeader.class, value = "Delete QualityHeader") // label for swagger
+	@DeleteMapping("/{qualityInspectionNo}")
+	public ResponseEntity<?> deleteQualityHeader(@PathVariable String qualityInspectionNo, 
+			@RequestParam String warehouseId, @RequestParam String preOutboundNo, 
+			@RequestParam String refDocNumber, @RequestParam String partnerCode, 
+			@RequestParam String pickupNumber, @RequestParam String actualHeNo, 
+			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
+    	qualityheaderService.deleteQualityHeader(warehouseId, preOutboundNo, refDocNumber, 
+				partnerCode, pickupNumber, qualityInspectionNo, actualHeNo, loginUserID);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 }

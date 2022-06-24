@@ -201,7 +201,7 @@ public class PickupHeaderService {
 	}
 	
 	/**
-	 * deletePickupHeader
+	 * 
 	 * @param warehouseId
 	 * @param preOutboundNo
 	 * @param refDocNumber
@@ -211,10 +211,41 @@ public class PickupHeaderService {
 	 * @param itemCode
 	 * @param loginUserID
 	 * @return
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
 	 */
 	public PickupHeader deletePickupHeader (String warehouseId, String preOutboundNo, String refDocNumber,
 			String partnerCode, String pickupNumber, Long lineNumber, String itemCode, String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
+		PickupHeader dbPickupHeader = getPickupHeader(warehouseId, preOutboundNo, refDocNumber, partnerCode, 
+				pickupNumber, lineNumber, itemCode);
+		if (dbPickupHeader != null) {
+			dbPickupHeader.setDeletionIndicator(1L);
+			dbPickupHeader.setPickupReversedBy(loginUserID);
+			dbPickupHeader.setPickupReversedOn(new Date());
+			return pickupHeaderRepository.save(dbPickupHeader);
+		} else {
+			throw new EntityNotFoundException("Error in deleting PickupHeader : -> Id: " + lineNumber);
+		}
+	}
+	
+	/**
+	 * deletePickupHeader
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @param pickupNumber
+	 * @param lineNumber
+	 * @param itemCode
+	 * @param loginUserID
+	 * @param loginUserID2 
+	 * @param proposedPackCode 
+	 * @return
+	 */
+	public PickupHeader deletePickupHeader (String warehouseId, String preOutboundNo, String refDocNumber,
+			String partnerCode, String pickupNumber, Long lineNumber, String itemCode, String proposedStorageBin,
+			String proposedPackCode, String loginUserID) throws IllegalAccessException, InvocationTargetException {
 		PickupHeader dbPickupHeader = getPickupHeader(warehouseId, preOutboundNo, refDocNumber, partnerCode, 
 				pickupNumber, lineNumber, itemCode);
 		if (dbPickupHeader != null) {

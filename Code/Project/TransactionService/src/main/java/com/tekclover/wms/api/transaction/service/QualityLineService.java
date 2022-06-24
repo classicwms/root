@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
+import javax.validation.Valid;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -154,6 +155,36 @@ public class QualityLineService extends BaseService {
 	
 	/**
 	 * 
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @param lineNumber
+	 * @param qualityInspectionNo
+	 * @param itemCode
+	 * @return
+	 */
+	private QualityLine getQualityLineForUpdate(String warehouseId, String preOutboundNo, String refDocNumber,
+			String partnerCode, Long lineNumber, String qualityInspectionNo, String itemCode) {
+		QualityLine qualityLine = qualityLineRepository.findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndQualityInspectionNoAndItemCodeAndDeletionIndicator(
+				warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, qualityInspectionNo, itemCode, 0L);
+		if (qualityLine != null) {
+			return qualityLine;
+		} 
+		log.info("The given QualityLine ID : " + 
+					"warehouseId:" + warehouseId +
+					",preOutboundNo:" + preOutboundNo +
+					",refDocNumber:" + refDocNumber +
+					",partnerCode:" + partnerCode +
+					",lineNumber:" + lineNumber +
+					",qualityInspectionNo:" + qualityInspectionNo +
+					",itemCode:" + itemCode +
+					" doesn't exist.");
+		return null;
+	}
+	
+	/**
+	 * 
 	 * @param searchQualityLine
 	 * @return
 	 * @throws ParseException
@@ -162,7 +193,6 @@ public class QualityLineService extends BaseService {
 			throws ParseException {
 		QualityLineSpecification spec = new QualityLineSpecification(searchQualityLine);
 		List<QualityLine> results = qualityLineRepository.findAll(spec);
-//		log.info("results: " + results);
 		return results;
 	}
 	
@@ -430,6 +460,33 @@ public class QualityLineService extends BaseService {
 	}
 	
 	/**
+	 * 
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @param lineNumber
+	 * @param qualityInspectionNo
+	 * @param itemCode
+	 * @param loginUserID
+	 * @param updateQualityLine
+	 * @return
+	 */
+	public QualityLine updateQualityLine(String warehouseId, String preOutboundNo, String refDocNumber,
+			String partnerCode, Long lineNumber, String qualityInspectionNo, String itemCode, String loginUserID,
+			@Valid UpdateQualityLine updateQualityLine) {
+		QualityLine dbQualityLine = getQualityLineForUpdate (warehouseId, preOutboundNo, refDocNumber, partnerCode, 
+				lineNumber, qualityInspectionNo, itemCode);
+		if (dbQualityLine != null) {
+			BeanUtils.copyProperties(updateQualityLine, dbQualityLine, CommonUtils.getNullPropertyNames(updateQualityLine));
+			dbQualityLine.setQualityUpdatedBy(loginUserID);
+			dbQualityLine.setQualityUpdatedOn(new Date());
+			return qualityLineRepository.save(dbQualityLine);
+		}
+		return null;
+	}
+	
+	/**
 	 * deleteQualityLine
 	 * @param warehouseId
 	 * @param preOutboundNo
@@ -446,6 +503,32 @@ public class QualityLineService extends BaseService {
 			String partnerCode, Long lineNumber, String itemCode, String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
 		QualityLine dbQualityLine = getQualityLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode);
+		if ( dbQualityLine != null) {
+			dbQualityLine.setDeletionIndicator(1L);
+			dbQualityLine.setQualityUpdatedBy(loginUserID);
+			dbQualityLine.setQualityUpdatedOn(new Date());
+			return qualityLineRepository.save(dbQualityLine);
+		} else {
+			throw new EntityNotFoundException("Error in deleting Id: " + lineNumber);
+		}
+	}
+
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @param lineNumber
+	 * @param qualityInspectionNo
+	 * @param itemCode
+	 * @param loginUserID
+	 * @return
+	 */
+	public QualityLine deleteQualityLine(String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode,
+			Long lineNumber, String qualityInspectionNo, String itemCode, String loginUserID) {
+		QualityLine dbQualityLine = getQualityLineForUpdate (warehouseId, preOutboundNo, refDocNumber, partnerCode, 
+				lineNumber, qualityInspectionNo, itemCode);
 		if ( dbQualityLine != null) {
 			dbQualityLine.setDeletionIndicator(1L);
 			dbQualityLine.setQualityUpdatedBy(loginUserID);

@@ -1141,6 +1141,32 @@ public class TransactionServiceController {
 		return transactionService.findPickupHeader(searchPickupHeader, authToken);
 	}
 	
+   @ApiOperation(response = PickupHeader.class, value = "Update PickupHeader") // label for swagger
+    @PatchMapping("/pickupheader/{pickupNumber}")
+	public ResponseEntity<?> patchPickupHeader(@PathVariable String pickupNumber, @RequestParam String warehouseId, 
+			@RequestParam String preOutboundNo, @RequestParam String refDocNumber, @RequestParam String partnerCode, 
+			@RequestParam Long lineNumber, @RequestParam String itemCode, @Valid @RequestBody PickupHeader updatePickupHeader, 
+			@RequestParam String loginUserID, @RequestParam String authToken) 
+			throws IllegalAccessException, InvocationTargetException {
+		PickupHeader createdPickupHeader = 
+				transactionService.updatePickupHeader(warehouseId, preOutboundNo, refDocNumber, partnerCode, 
+						pickupNumber, lineNumber, itemCode, loginUserID, updatePickupHeader, authToken);
+		return new ResponseEntity<>(createdPickupHeader , HttpStatus.OK);
+	}
+    
+    @ApiOperation(response = PickupHeader.class, value = "Delete PickupHeader") // label for swagger
+	@DeleteMapping("/pickupheader/{pickupNumber}")
+	public ResponseEntity<?> deletePickupHeader(@PathVariable String pickupNumber, 
+			@RequestParam String warehouseId, @RequestParam String preOutboundNo, 
+			@RequestParam String refDocNumber, @RequestParam String partnerCode, 
+			@RequestParam Long lineNumber, @RequestParam String itemCode, @RequestParam String proposedStorageBin, 
+			@RequestParam String proposedPackCode, @RequestParam String loginUserID, @RequestParam String authToken) 
+					throws IllegalAccessException, InvocationTargetException {
+    	transactionService.deletePickupHeader(warehouseId, preOutboundNo, refDocNumber, partnerCode, pickupNumber, 
+    			lineNumber, itemCode, proposedStorageBin, proposedPackCode, loginUserID, authToken);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+	
 	/*
 	 * -------------------------PickupLine----------------------------------------------------
 	 */
@@ -1171,6 +1197,36 @@ public class TransactionServiceController {
 		return transactionService.findPickupLine(searchPickupLine, authToken);
 	}
 	
+	@ApiOperation(response = PickupLine.class, value = "Update PickupLine") // label for swagger
+    @PatchMapping("/pickupline/{actualHeNo}")
+	public ResponseEntity<?> patchPickupLine(@PathVariable String actualHeNo, @RequestParam String warehouseId, 
+			@RequestParam String preOutboundNo, @RequestParam String refDocNumber, @RequestParam String partnerCode, 
+			@RequestParam Long lineNumber, @RequestParam String pickupNumber, @RequestParam String itemCode, 
+			@RequestParam String pickedStorageBin, @RequestParam String pickedPackCode,
+			@Valid @RequestBody PickupLine updatePickupLine, @RequestParam String loginUserID,
+			@RequestParam String authToken) 
+			throws IllegalAccessException, InvocationTargetException {
+		PickupLine createdPickupLine = 
+				transactionService.updatePickupLine(warehouseId, preOutboundNo, refDocNumber, 
+						partnerCode, lineNumber, pickupNumber, itemCode, pickedStorageBin, pickedPackCode, 
+						actualHeNo, loginUserID, updatePickupLine, authToken);
+		return new ResponseEntity<>(createdPickupLine , HttpStatus.OK);
+	}
+	
+    @ApiOperation(response = PickupLine.class, value = "Delete PickupLine") // label for swagger
+   	@DeleteMapping("/pickupline/{actualHeNo}")
+   	public ResponseEntity<?> deletePickupLine(@PathVariable String actualHeNo, 
+   			@RequestParam String warehouseId, @RequestParam String preOutboundNo, 
+   			@RequestParam String refDocNumber, @RequestParam String partnerCode, 
+   			@RequestParam Long lineNumber, @RequestParam String pickupNumber, @RequestParam String itemCode, 
+   			@RequestParam String pickedStorageBin, @RequestParam String pickedPackCode, 
+   			@RequestParam String loginUserID, @RequestParam String authToken) 
+   					throws IllegalAccessException, InvocationTargetException {
+    	transactionService.deletePickupLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, 
+    			pickupNumber, itemCode, actualHeNo, pickedStorageBin, pickedPackCode, loginUserID, authToken);
+   		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+   	}
+	
 	/*
 	 * ------------------------QualityHeader--------------------------------------------------------
 	 */
@@ -1180,6 +1236,31 @@ public class TransactionServiceController {
 	public QualityHeader[] findQualityHeader(@RequestBody SearchQualityHeader searchQualityHeader,
 			@RequestParam String authToken) throws Exception {
 		return transactionService.findQualityHeader(searchQualityHeader, authToken);
+	}
+	
+    @ApiOperation(response = QualityHeader.class, value = "Update QualityHeader") // label for swagger
+    @PatchMapping("/qualityheader/{qualityInspectionNo}")
+	public ResponseEntity<?> patchQualityHeader(@PathVariable String qualityInspectionNo, 
+			@RequestParam String warehouseId, @RequestParam String preOutboundNo, 
+			@RequestParam String refDocNumber, @RequestParam String partnerCode, 
+			@RequestParam String pickupNumber, @RequestParam String actualHeNo,
+			@Valid @RequestBody QualityHeader updateQualityHeader, 
+			@RequestParam String loginUserID, @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+		QualityHeader updatedQualityHeader = transactionService.updateQualityHeader(warehouseId, preOutboundNo, refDocNumber, 
+						partnerCode, pickupNumber, qualityInspectionNo, actualHeNo, loginUserID, updateQualityHeader, authToken);
+		return new ResponseEntity<>(updatedQualityHeader , HttpStatus.OK);
+	}
+    
+    @ApiOperation(response = QualityHeader.class, value = "Delete QualityHeader") // label for swagger
+	@DeleteMapping("/qualityheader/{qualityInspectionNo}")
+	public ResponseEntity<?> deleteQualityHeader(@PathVariable String qualityInspectionNo, 
+			@RequestParam String warehouseId, @RequestParam String preOutboundNo, 
+			@RequestParam String refDocNumber, @RequestParam String partnerCode, 
+			@RequestParam String pickupNumber, @RequestParam String actualHeNo, 
+			@RequestParam String loginUserID, @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+    	transactionService.deleteQualityHeader(warehouseId, preOutboundNo, refDocNumber, 
+				partnerCode, pickupNumber, qualityInspectionNo, actualHeNo, loginUserID, authToken);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	
 	/*
@@ -1201,6 +1282,32 @@ public class TransactionServiceController {
 		return new ResponseEntity<>(createdQualityLine , HttpStatus.OK);
 	}
 	
+	 @ApiOperation(response = QualityLine.class, value = "Update QualityLine") // label for swagger
+    @PatchMapping("/qualityline/{partnerCode}")
+	public ResponseEntity<?> patchQualityLine(@PathVariable String partnerCode, 
+			@RequestParam String warehouseId, @RequestParam String preOutboundNo, 
+			@RequestParam String refDocNumber, @RequestParam Long lineNumber, 
+			@RequestParam String qualityInspectionNo, @RequestParam String itemCode,
+			@Valid @RequestBody QualityLine updateQualityLine, @RequestParam String loginUserID,
+			@RequestParam String authToken)	throws IllegalAccessException, InvocationTargetException {
+		QualityLine createdQualityLine = 
+				transactionService.updateQualityLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, 
+						lineNumber, qualityInspectionNo, itemCode, loginUserID, updateQualityLine, authToken);
+		return new ResponseEntity<>(createdQualityLine , HttpStatus.OK);
+	}
+    
+    @ApiOperation(response = QualityLine.class, value = "Delete QualityLine") // label for swagger
+	@DeleteMapping("/qualityline/{partnerCode}")
+	public ResponseEntity<?> deleteQualityLine(@PathVariable String partnerCode, 
+			@RequestParam String warehouseId, @RequestParam String preOutboundNo, 
+			@RequestParam String refDocNumber, @RequestParam Long lineNumber, 
+			@RequestParam String qualityInspectionNo, @RequestParam String itemCode, 
+			@RequestParam String loginUserID, @RequestParam String authToken) {
+    	transactionService.deleteQualityLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, 
+				lineNumber, qualityInspectionNo, itemCode, loginUserID, authToken);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+	
 	/*
 	 * ---------------------------OutboundHeader--------------------------------------------------------
 	 */
@@ -1211,36 +1318,30 @@ public class TransactionServiceController {
 		return transactionService.findOutboundHeader(searchOutboundHeader, authToken);
 	}
 	
+	@ApiOperation(response = OutboundHeader.class, value = "Update OutboundHeader") // label for swagger
+    @PatchMapping("/outboundheader/{preOutboundNo}")
+	public ResponseEntity<?> patchOutboundHeader(@PathVariable String preOutboundNo, 
+			@RequestParam String warehouseId, @RequestParam String refDocNumber, @RequestParam String partnerCode,
+			@Valid @RequestBody OutboundHeader updateOutboundHeader, @RequestParam String loginUserID,
+			@RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+		OutboundHeader createdOutboundHeader = 
+				transactionService.updateOutboundHeader(warehouseId, preOutboundNo, refDocNumber, partnerCode, 
+						updateOutboundHeader, loginUserID, authToken);
+		return new ResponseEntity<>(createdOutboundHeader , HttpStatus.OK);
+	}
+    
+    @ApiOperation(response = OutboundHeader.class, value = "Delete OutboundHeader") // label for swagger
+	@DeleteMapping("/outboundheader/{preOutboundNo}")
+	public ResponseEntity<?> deleteOutboundHeader(@PathVariable String preOutboundNo, 
+			@RequestParam String warehouseId, @RequestParam String refDocNumber, @RequestParam String partnerCode, 
+			@RequestParam String loginUserID, @RequestParam String authToken) {
+    	transactionService.deleteOutboundHeader(warehouseId, preOutboundNo, refDocNumber, partnerCode, loginUserID, authToken);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+	
 	/*
 	 * ----------------------OutboundLine----------------------------------------------------------
 	 */
-//	@ApiOperation(response = OutboundLine.class, value = "Get a Ordered Lines Count") // label for swagger 
-//   	@GetMapping("/outboundline/delivery/orderedLines")
-//   	public ResponseEntity<?> getOutboundLine(@RequestParam String warehouseId, 
-//   			@RequestParam String preOutboundNo, @RequestParam String refDocNumber, @RequestParam String authToken) {
-//       	Long countOfLines = transactionService.getCountofOrderedLines(warehouseId, preOutboundNo, refDocNumber, authToken);
-//       	log.info("countOfLines : " + countOfLines);
-//   		return new ResponseEntity<>(countOfLines, HttpStatus.OK);
-//   	}
-//    
-//    @ApiOperation(response = OutboundLine.class, value = "Get Total Quantity") // label for swagger 
-//   	@GetMapping("/outboundline/delivery/totalQuantity")
-//   	public ResponseEntity<?> getSumOfOrderedQty(@RequestParam String warehouseId, 
-//   			@RequestParam String preOutboundNo, @RequestParam String refDocNumber, @RequestParam String authToken) {
-//       	Long orderedQtySum = transactionService.getSumOfOrderedQty(warehouseId, preOutboundNo, refDocNumber, authToken);
-//       	log.info("orderedQtySum : " + orderedQtySum);
-//   		return new ResponseEntity<>(orderedQtySum, HttpStatus.OK);
-//   	}
-//    
-//    @ApiOperation(response = OutboundLine.class, value = "Get Delivery Lines") // label for swagger 
-//   	@GetMapping("/outboundline/delivery/deliveryLines")
-//   	public ResponseEntity<?> getDeliveryLines(@RequestParam String warehouseId, 
-//   			@RequestParam String preOutboundNo, @RequestParam String refDocNumber, @RequestParam String authToken) {
-//       	Long deliveryLines = transactionService.getDeliveryLines(warehouseId, preOutboundNo, refDocNumber, authToken);
-//       	log.info("deliveryLines : " + deliveryLines);
-//   		return new ResponseEntity<>(deliveryLines, HttpStatus.OK);
-//   	}
-    
     @ApiOperation(response = OutboundLine.class, value = "Search OutboundLine") // label for swagger
 	@PostMapping("/outboundline/findOutboundLine")
 	public OutboundLine[] findOutboundLine(@RequestBody SearchOutboundLine searchOutboundLine,
@@ -1254,8 +1355,33 @@ public class TransactionServiceController {
 			@RequestParam String refDocNumber, @RequestParam String partnerCode, @RequestParam String loginUserID,
 			@RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
 		OutboundLine[] createdOutboundLine = 
-				transactionService.deliveryConfirmation(warehouseId, preOutboundNo, refDocNumber, partnerCode, loginUserID, authToken);
+				transactionService.deliveryConfirmation(warehouseId, preOutboundNo, refDocNumber, 
+						partnerCode, loginUserID, authToken);
 		return new ResponseEntity<>(createdOutboundLine , HttpStatus.OK);
+	}
+    
+    @ApiOperation(response = OutboundLine.class, value = "Update OutboundLine") // label for swagger
+    @PatchMapping("/outboundline/{lineNumber}")
+	public ResponseEntity<?> patchOutboundLine(@PathVariable Long lineNumber, 
+			@RequestParam String warehouseId, @RequestParam String preOutboundNo, 
+			@RequestParam String refDocNumber, @RequestParam String partnerCode, @RequestParam String itemCode,
+			@Valid @RequestBody OutboundLine updateOutboundLine, @RequestParam String loginUserID,
+			@RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+		OutboundLine updatedOutboundLine = 
+				transactionService.updateOutboundLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, 
+						lineNumber, itemCode, loginUserID, updateOutboundLine, authToken);
+		return new ResponseEntity<>(updatedOutboundLine , HttpStatus.OK);
+	}
+    
+    @ApiOperation(response = OutboundLine.class, value = "Delete OutboundLine") // label for swagger
+	@DeleteMapping("/outboundline/{lineNumber}")
+	public ResponseEntity<?> deleteOutboundLine(@PathVariable Long lineNumber, 
+			@RequestParam String warehouseId, @RequestParam String preOutboundNo, @RequestParam String refDocNumber, 
+			@RequestParam String partnerCode, @RequestParam String itemCode, @RequestParam String loginUserID,
+			@RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+    	transactionService.deleteOutboundLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, 
+    			itemCode, loginUserID, authToken);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
     
     /*

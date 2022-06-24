@@ -2764,6 +2764,69 @@ public class TransactionService {
 			throw e;
 		}
 	}
+	
+	// PATCH
+	public PickupHeader updatePickupHeader(String warehouseId, String preOutboundNo, String refDocNumber,
+			String partnerCode, String pickupNumber, Long lineNumber, String itemCode, String loginUserID,
+			@Valid PickupHeader updatePickupHeader, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			HttpEntity<?> entity = new HttpEntity<>(updatePickupHeader, headers);
+			HttpClient client = HttpClients.createDefault();
+			RestTemplate restTemplate = getRestTemplate();
+			restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client)); 
+			
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "pickupheader/" + pickupNumber)
+					.queryParam("warehouseId", warehouseId)
+					.queryParam("preOutboundNo", preOutboundNo)
+					.queryParam("refDocNumber", refDocNumber)
+					.queryParam("partnerCode", partnerCode)
+					.queryParam("lineNumber", lineNumber)
+					.queryParam("itemCode", itemCode)
+					.queryParam("loginUserID", loginUserID);			
+			ResponseEntity<PickupHeader> result = 
+					restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, PickupHeader.class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	
+	// DELETE
+	public boolean deletePickupHeader(String warehouseId, String preOutboundNo, String refDocNumber, 
+			String partnerCode, String pickupNumber, Long lineNumber, String itemCode, String proposedStorageBin, 
+			String proposedPackCode, String loginUserID, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "pickupheader/" + pickupNumber)
+					.queryParam("warehouseId", warehouseId)
+					.queryParam("preOutboundNo", preOutboundNo)
+					.queryParam("partnerCode", partnerCode)
+					.queryParam("lineNumber", lineNumber)
+					.queryParam("itemCode", itemCode)
+					.queryParam("proposedStorageBin", proposedStorageBin)
+					.queryParam("proposedPackCode", proposedPackCode)
+					.queryParam("loginUserID", loginUserID);
+			ResponseEntity<String> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity, String.class);
+			log.info("result : " + result);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
 
 	/*--------------------------PickupLine----------------------------------------------------*/
 	// GET
@@ -2833,6 +2896,75 @@ public class TransactionService {
 		}
 	}
 	
+	// PATCH
+	public PickupLine updatePickupLine(String warehouseId, String preOutboundNo, String refDocNumber,
+			String partnerCode, Long lineNumber, String pickupNumber, String itemCode, 
+			String pickedStorageBin, String pickedPackCode, String actualHeNo, String loginUserID, 
+			@Valid PickupLine updatePickupLine, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			HttpEntity<?> entity = new HttpEntity<>(updatePickupLine, headers);
+			HttpClient client = HttpClients.createDefault();
+			RestTemplate restTemplate = getRestTemplate();
+			restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client)); 
+			
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "pickupline/" + actualHeNo)
+					.queryParam("warehouseId", warehouseId)
+					.queryParam("preOutboundNo", preOutboundNo)
+					.queryParam("refDocNumber", refDocNumber)
+					.queryParam("partnerCode", partnerCode)
+					.queryParam("lineNumber", lineNumber)
+					.queryParam("pickupNumber", pickupNumber)
+					.queryParam("itemCode", itemCode)
+					.queryParam("pickedStorageBin", pickedStorageBin)
+					.queryParam("pickedPackCode", pickedPackCode)
+					.queryParam("loginUserID", loginUserID);			
+			ResponseEntity<PickupLine> result = 
+					restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, PickupLine.class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	
+	// DELETE
+	public boolean deletePickupLine(String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode,
+			Long lineNumber, String pickupNumber, String itemCode, String actualHeNo, String pickedStorageBin,
+			String pickedPackCode, String loginUserID, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "pickupline/" + actualHeNo)
+					.queryParam("warehouseId", warehouseId)
+					.queryParam("preOutboundNo", preOutboundNo)
+					.queryParam("refDocNumber", refDocNumber)
+					.queryParam("partnerCode", partnerCode)
+					.queryParam("lineNumber", lineNumber)
+					.queryParam("pickupNumber", pickupNumber)
+					.queryParam("itemCode", itemCode)
+					.queryParam("pickedStorageBin", pickedStorageBin)
+					.queryParam("pickedPackCode", pickedPackCode)
+					.queryParam("loginUserID", loginUserID);	
+			ResponseEntity<String> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity, String.class);
+			log.info("result : " + result);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	
 	/*-----------------------------QualityHeader---------------------------------------------------------*/
 	
 	// POST - findQualityHeader
@@ -2851,6 +2983,67 @@ public class TransactionService {
 			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
+			throw e;
+		}
+	}
+	
+	// PATCH
+	public QualityHeader updateQualityHeader(String warehouseId, String preOutboundNo, String refDocNumber,
+			String partnerCode, String pickupNumber, String qualityInspectionNo, String actualHeNo, String loginUserID,
+			@Valid QualityHeader updateQualityHeader, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			HttpEntity<?> entity = new HttpEntity<>(updateQualityHeader, headers);
+			HttpClient client = HttpClients.createDefault();
+			RestTemplate restTemplate = getRestTemplate();
+			restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client)); 
+			
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "qualityheader/" + qualityInspectionNo)
+					.queryParam("warehouseId", warehouseId)
+					.queryParam("preOutboundNo", preOutboundNo)
+					.queryParam("refDocNumber", refDocNumber)
+					.queryParam("partnerCode", partnerCode)
+					.queryParam("pickupNumber", pickupNumber)
+					.queryParam("actualHeNo", actualHeNo)
+					.queryParam("loginUserID", loginUserID);			
+			ResponseEntity<QualityHeader> result = 
+					restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, QualityHeader.class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	
+	// DELETE
+	public boolean deleteQualityHeader(String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode,
+			String pickupNumber, String qualityInspectionNo, String actualHeNo, String loginUserID, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "pickupline/" + actualHeNo)
+					.queryParam("warehouseId", warehouseId)
+					.queryParam("preOutboundNo", preOutboundNo)
+					.queryParam("refDocNumber", refDocNumber)
+					.queryParam("partnerCode", partnerCode)
+					.queryParam("pickupNumber", pickupNumber)
+					.queryParam("actualHeNo", actualHeNo)
+					.queryParam("loginUserID", loginUserID);	
+			ResponseEntity<String> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity, String.class);
+			log.info("result : " + result);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
 			throw e;
 		}
 	}
@@ -2899,6 +3092,68 @@ public class TransactionService {
 		}
 	}
 	
+	// PATCH
+	public QualityLine updateQualityLine(String warehouseId, String preOutboundNo, String refDocNumber,
+		String partnerCode, Long lineNumber, String qualityInspectionNo, String itemCode, String loginUserID,
+		@Valid QualityLine updateQualityLine, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			HttpEntity<?> entity = new HttpEntity<>(updateQualityLine, headers);
+			HttpClient client = HttpClients.createDefault();
+			RestTemplate restTemplate = getRestTemplate();
+			restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client)); 
+			
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "qualityline/" + partnerCode)
+					.queryParam("warehouseId", warehouseId)
+					.queryParam("preOutboundNo", preOutboundNo)
+					.queryParam("refDocNumber", refDocNumber)
+					.queryParam("partnerCode", partnerCode)
+					.queryParam("lineNumber", lineNumber)
+					.queryParam("qualityInspectionNo", qualityInspectionNo)
+					.queryParam("itemCode", itemCode)
+					.queryParam("loginUserID", loginUserID);			
+			ResponseEntity<QualityLine> result = 
+					restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, QualityLine.class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	
+	// DELETE
+	public boolean deleteQualityLine(String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode,
+			Long lineNumber, String qualityInspectionNo, String itemCode, String loginUserID, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "qualityline/" + partnerCode)
+					.queryParam("warehouseId", warehouseId)
+					.queryParam("preOutboundNo", preOutboundNo)
+					.queryParam("refDocNumber", refDocNumber)
+					.queryParam("partnerCode", partnerCode)
+					.queryParam("lineNumber", lineNumber)
+					.queryParam("qualityInspectionNo", qualityInspectionNo)
+					.queryParam("itemCode", itemCode)
+					.queryParam("loginUserID", loginUserID);	
+			ResponseEntity<String> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity, String.class);
+			log.info("result : " + result);
+			return true;
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+	
 	/*
 	 * ----------------------OutboundHeader-----------------------------------------------------------------
 	 */
@@ -2917,6 +3172,60 @@ public class TransactionService {
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, OutboundHeader[].class);
 			log.info("result : " + result.getStatusCode());
 			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	
+	// PATCH
+	public OutboundHeader updateOutboundHeader(String warehouseId, String preOutboundNo, String refDocNumber,
+			String partnerCode, @Valid OutboundHeader updateOutboundHeader, String loginUserID, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			HttpEntity<?> entity = new HttpEntity<>(updateOutboundHeader, headers);
+			HttpClient client = HttpClients.createDefault();
+			RestTemplate restTemplate = getRestTemplate();
+			restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client)); 
+			
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "outboundheader/" + preOutboundNo)
+					.queryParam("warehouseId", warehouseId)
+					.queryParam("refDocNumber", refDocNumber)
+					.queryParam("partnerCode", partnerCode)
+					.queryParam("loginUserID", loginUserID);			
+			ResponseEntity<OutboundHeader> result = 
+					restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, OutboundHeader.class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	
+	// DELETE
+	public boolean deleteOutboundHeader(String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode,
+			String loginUserID, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "outboundheader/" + preOutboundNo)
+					.queryParam("warehouseId", warehouseId)
+					.queryParam("refDocNumber", refDocNumber)
+					.queryParam("partnerCode", partnerCode)
+					.queryParam("loginUserID", loginUserID);
+			ResponseEntity<String> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity, String.class);
+			log.info("result : " + result);
+			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -3046,7 +3355,7 @@ public class TransactionService {
 	// PATCH ----
 	public OutboundLine updateOutboundLine(String warehouseId, String preOutboundNo, String refDocNumber,
 			String partnerCode, Long lineNumber, String itemCode, String loginUserID,
-			@Valid UpdateOutboundLine updateOutboundLine, String authToken) {
+			@Valid OutboundLine updateOutboundLine, String authToken) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -3071,6 +3380,33 @@ public class TransactionService {
 			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
+			throw e;
+		}
+	}
+	
+	// DELETE
+	public boolean deleteOutboundLine(String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode,
+			Long lineNumber, String itemCode, String loginUserID, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "outboundline/" + lineNumber)
+					.queryParam("warehouseId", warehouseId)
+					.queryParam("preOutboundNo", preOutboundNo)
+					.queryParam("refDocNumber", refDocNumber)
+					.queryParam("partnerCode", partnerCode)
+					.queryParam("itemCode", itemCode)
+					.queryParam("loginUserID", loginUserID);
+			ResponseEntity<String> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity, String.class);
+			log.info("result : " + result);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
 			throw e;
 		}
 	}

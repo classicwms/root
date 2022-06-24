@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -94,8 +95,22 @@ public class PickupLineController {
 			@Valid @RequestBody UpdatePickupLine updatePickupLine, @RequestParam String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
 		PickupLine createdPickupLine = 
-				pickuplineService.updatePickupLine(warehouseId, preOutboundNo, refDocNumber, 
-						partnerCode, lineNumber, itemCode, loginUserID, updatePickupLine);
+				pickuplineService.updatePickupLine(actualHeNo, warehouseId, preOutboundNo, refDocNumber, 
+						partnerCode, lineNumber, pickupNumber, itemCode, pickedStorageBin, pickedPackCode,
+						loginUserID, updatePickupLine);
 		return new ResponseEntity<>(createdPickupLine , HttpStatus.OK);
+	}
+    
+    @ApiOperation(response = PickupLine.class, value = "Delete PickupLine") // label for swagger
+	@DeleteMapping("/{actualHeNo}")
+	public ResponseEntity<?> deletePickupLine(@PathVariable String actualHeNo, 
+			@RequestParam String warehouseId, @RequestParam String preOutboundNo, 
+			@RequestParam String refDocNumber, @RequestParam String partnerCode, 
+			@RequestParam Long lineNumber, @RequestParam String pickupNumber, @RequestParam String itemCode, 
+			@RequestParam String pickedStorageBin, @RequestParam String pickedPackCode, 
+			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
+    	pickuplineService.deletePickupLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, 
+    			pickupNumber, itemCode, actualHeNo, pickedStorageBin, pickedPackCode, loginUserID);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 }

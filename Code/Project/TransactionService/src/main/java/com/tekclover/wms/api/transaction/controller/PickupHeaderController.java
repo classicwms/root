@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -86,5 +87,18 @@ public class PickupHeaderController {
 				pickupheaderService.updatePickupHeader(warehouseId, preOutboundNo, refDocNumber, partnerCode, 
 						pickupNumber, lineNumber, itemCode, loginUserID, updatePickupHeader);
 		return new ResponseEntity<>(createdPickupHeader , HttpStatus.OK);
+	}
+    
+    @ApiOperation(response = PickupHeader.class, value = "Delete PickupHeader") // label for swagger
+	@DeleteMapping("/{pickupNumber}")
+	public ResponseEntity<?> deletePickupHeader(@PathVariable String pickupNumber, 
+			@RequestParam String warehouseId, @RequestParam String preOutboundNo, 
+			@RequestParam String refDocNumber, @RequestParam String partnerCode, 
+			@RequestParam Long lineNumber, @RequestParam String itemCode, @RequestParam String proposedStorageBin, 
+			@RequestParam String proposedPackCode, @RequestParam String loginUserID) 
+					throws IllegalAccessException, InvocationTargetException {
+    	pickupheaderService.deletePickupHeader(warehouseId, preOutboundNo, refDocNumber, partnerCode, pickupNumber, 
+    			lineNumber, itemCode, proposedStorageBin, proposedPackCode, loginUserID);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 }

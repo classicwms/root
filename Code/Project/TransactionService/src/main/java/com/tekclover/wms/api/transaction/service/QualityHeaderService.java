@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
+import javax.validation.Valid;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,6 +78,37 @@ public class QualityHeaderService {
 			return qualityHeader;
 		} 
 		log.info("The given QualityHeader ID : " + qualityInspectionNo + " doesn't exist.");
+		return null;
+	}
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @param pickupNumber
+	 * @param qualityInspectionNo
+	 * @param actualHeNo
+	 * @return
+	 */
+	private QualityHeader getQualityHeaderForUpdate(String warehouseId, String preOutboundNo, String refDocNumber,
+			String partnerCode, String pickupNumber, String qualityInspectionNo, String actualHeNo) {
+		QualityHeader qualityHeader = 
+				qualityHeaderRepository.findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndPickupNumberAndQualityInspectionNoAndActualHeNoAndDeletionIndicator(
+						warehouseId, preOutboundNo, refDocNumber, partnerCode, pickupNumber, qualityInspectionNo, actualHeNo, 0L);
+		if (qualityHeader != null) {
+			return qualityHeader;
+		} 
+		log.info("The given QualityHeader values : " + 
+				"warehouseId : " + warehouseId +
+				"preOutboundNo : " + preOutboundNo +
+				"refDocNumber : " + refDocNumber +
+				"partnerCode : " + partnerCode +
+				"pickupNumber : " + pickupNumber +
+				"qualityInspectionNo : " + qualityInspectionNo +
+				"actualHeNo : " + actualHeNo +
+				" doesn't exist.");
 		return null;
 	}
 	
@@ -162,7 +194,35 @@ public class QualityHeaderService {
 	public QualityHeader updateQualityHeader (String warehouseId, String preOutboundNo, String refDocNumber, 
 			String qualityInspectionNo, String actualHeNo, String loginUserID, UpdateQualityHeader updateQualityHeader)
 					throws IllegalAccessException, InvocationTargetException {
-		QualityHeader dbQualityHeader = getQualityHeaderForUpdate (warehouseId, preOutboundNo, refDocNumber, qualityInspectionNo, actualHeNo);
+		QualityHeader dbQualityHeader = getQualityHeaderForUpdate (warehouseId, preOutboundNo, 
+				refDocNumber, qualityInspectionNo, actualHeNo);
+		if (dbQualityHeader != null) {
+			BeanUtils.copyProperties(updateQualityHeader, dbQualityHeader, CommonUtils.getNullPropertyNames(updateQualityHeader));
+			dbQualityHeader.setQualityUpdatedBy(loginUserID);
+			dbQualityHeader.setQualityUpdatedOn(new Date());
+			return qualityHeaderRepository.save(dbQualityHeader);
+		}
+		return null;
+	}
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @param pickupNumber
+	 * @param qualityInspectionNo
+	 * @param actualHeNo
+	 * @param loginUserID
+	 * @param updateQualityHeader
+	 * @return
+	 */
+	public QualityHeader updateQualityHeader(String warehouseId, String preOutboundNo, String refDocNumber,
+			String partnerCode, String pickupNumber, String qualityInspectionNo, String actualHeNo, String loginUserID,
+			@Valid UpdateQualityHeader updateQualityHeader) {
+		QualityHeader dbQualityHeader = getQualityHeaderForUpdate (warehouseId, preOutboundNo, refDocNumber, partnerCode, 
+				pickupNumber, qualityInspectionNo, actualHeNo);
 		if (dbQualityHeader != null) {
 			BeanUtils.copyProperties(updateQualityHeader, dbQualityHeader, CommonUtils.getNullPropertyNames(updateQualityHeader));
 			dbQualityHeader.setQualityUpdatedBy(loginUserID);
@@ -180,6 +240,32 @@ public class QualityHeaderService {
 	 */
 	public QualityHeader deleteQualityHeader (String warehouseId, String preOutboundNo, String refDocNumber, String qualityInspectionNo, String actualHeNo, String loginUserID) {
 		QualityHeader qualityHeader = getQualityHeader(warehouseId, preOutboundNo, refDocNumber, qualityInspectionNo, actualHeNo);
+		if ( qualityHeader != null) {
+			qualityHeader.setDeletionIndicator(1L);
+			qualityHeader.setQualityUpdatedBy(loginUserID);
+			qualityHeader.setQualityUpdatedOn(new Date());
+			return qualityHeaderRepository.save(qualityHeader);
+		} else {
+			throw new EntityNotFoundException("Error in deleting Id: " + qualityInspectionNo);
+		}
+	}
+
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @param pickupNumber
+	 * @param qualityInspectionNo
+	 * @param actualHeNo
+	 * @param loginUserID
+	 * @return 
+	 */
+	public QualityHeader deleteQualityHeader(String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode,
+			String pickupNumber, String qualityInspectionNo, String actualHeNo, String loginUserID) {
+		QualityHeader qualityHeader = getQualityHeaderForUpdate (warehouseId, preOutboundNo, refDocNumber, partnerCode, 
+				pickupNumber, qualityInspectionNo, actualHeNo);
 		if ( qualityHeader != null) {
 			qualityHeader.setDeletionIndicator(1L);
 			qualityHeader.setQualityUpdatedBy(loginUserID);

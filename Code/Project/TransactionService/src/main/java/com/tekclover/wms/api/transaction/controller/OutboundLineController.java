@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,6 +23,7 @@ import com.tekclover.wms.api.transaction.model.outbound.AddOutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundLineReport;
+import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.outboundreversal.OutboundReversal;
 import com.tekclover.wms.api.transaction.service.OutboundLineService;
 
@@ -89,6 +91,19 @@ public class OutboundLineController {
 		List<OutboundLine> createdOutboundLine = 
 				outboundlineService.deliveryConfirmation(warehouseId, preOutboundNo, refDocNumber, partnerCode, loginUserID);
 		return new ResponseEntity<>(createdOutboundLine , HttpStatus.OK);
+	}
+    
+    @ApiOperation(response = OutboundLine.class, value = "Update OutboundLine") // label for swagger
+    @PatchMapping("/{lineNumber}")
+	public ResponseEntity<?> patchOutboundLine(@PathVariable Long lineNumber, 
+			@RequestParam String warehouseId, @RequestParam String preOutboundNo, 
+			@RequestParam String refDocNumber, @RequestParam String partnerCode, @RequestParam String itemCode,
+			@Valid @RequestBody UpdateOutboundLine updateOutboundLine, @RequestParam String loginUserID) 
+			throws IllegalAccessException, InvocationTargetException {
+		OutboundLine updatedOutboundLine = 
+				outboundlineService.updateOutboundLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, 
+						lineNumber, itemCode, loginUserID, updateOutboundLine);
+		return new ResponseEntity<>(updatedOutboundLine , HttpStatus.OK);
 	}
     
     @ApiOperation(response = OutboundLine.class, value = "Delete OutboundLine") // label for swagger
