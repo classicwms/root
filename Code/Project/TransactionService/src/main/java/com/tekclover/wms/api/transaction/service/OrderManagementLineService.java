@@ -414,9 +414,8 @@ public class OrderManagementLineService extends BaseService {
 			 * by passing WH_ID/PRE_OB_NO/OB_LINE_NO/REF_DOC_NO/ITM_CODE			
 			 */
 			log.info("dbOrderManagementLine.getPickupNumber() -----> : " + dbOrderManagementLine.getPickupNumber() );
-//			if (dbOrderManagementLine.getPickupNumber() == null) {
+			if (dbOrderManagementLine.getPickupNumber() == null) {
 				long NUM_RAN_CODE = 10;
-//				UserManagement userManagement = getUserManagement(loginUserID);
 				String PU_NO = getNextRangeNumber(NUM_RAN_CODE, dbOrderManagementLine.getWarehouseId());
 				log.info("PU_NO : " + PU_NO);
 				
@@ -451,7 +450,7 @@ public class OrderManagementLineService extends BaseService {
 				dbOrderManagementLine.setPickupNumber(PU_NO);
 				dbOrderManagementLine = orderManagementLineRepository.save (dbOrderManagementLine);
 				log.info("OrderManagementLine updated : " + dbOrderManagementLine);
-//			}
+			}
 			orderManagementLineList.add(dbOrderManagementLine);
 		}
 		return orderManagementLineList;
