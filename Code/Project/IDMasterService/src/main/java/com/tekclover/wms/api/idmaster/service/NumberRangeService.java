@@ -67,8 +67,9 @@ public class NumberRangeService {
 		}
 		NumberRange numberRange = optNumberRange.get();
 		String strCurrentValue = numberRange.getNumberRangeCurrent();
+		log.info("New currentValue generated : " + strCurrentValue);
 		Long currentValue = 0L;
-		if (strCurrentValue.startsWith("A")) { 			// Increment logic for AuditLog Insert
+		if (strCurrentValue != null && strCurrentValue.trim().startsWith("A")) { 			// Increment logic for AuditLog Insert
 			strCurrentValue = strCurrentValue.substring(2); // AL1000002
 			currentValue = Long.valueOf(strCurrentValue);
 			currentValue ++;
@@ -76,6 +77,7 @@ public class NumberRangeService {
 			numberRange.setNumberRangeCurrent(strCurrentValue);
 			log.info("currentValue of A: " + currentValue);
 		} else {
+			strCurrentValue = strCurrentValue.trim();
 			currentValue = Long.valueOf(strCurrentValue);
 			currentValue ++;
 			log.info("currentValue : " + currentValue);
