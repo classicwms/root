@@ -625,7 +625,8 @@ public class OutboundLineService extends BaseService {
 								}
 								
 								if (INV_QTY == 0) {
-									inventoryRepository.delete(inventory);
+//									[Prod Fix: 28-06] - Discussed to comment delete Inventory operation to avoid unwanted delete of Inventory
+//									inventoryRepository.delete(inventory);
 									log.info("inventory record is deleted...");
 								}
 								
@@ -1150,7 +1151,8 @@ public class OutboundLineService extends BaseService {
 		log.info("Inventory updated : " + inventory);
 		
 		if (INV_QTY == 0) {
-			inventoryRepository.delete(inventory);
+//			[Prod Fix: 28-06] - Discussed to comment delete Inventory operation to avoid unwanted delete of Inventory
+//			inventoryRepository.delete(inventory);
 			log.info("inventory record is deleted...");
 		}
 		return inventory;

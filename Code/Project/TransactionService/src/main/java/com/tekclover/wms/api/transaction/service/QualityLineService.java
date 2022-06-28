@@ -304,7 +304,8 @@ public class QualityLineService extends BaseService {
 				log.info("inventory updated : " + inventory);
 				
 				if (INV_QTY == 0) {
-					inventoryRepository.delete(inventory);
+//					[Prod Fix: 28-06] - Discussed to comment delete Inventory operation to avoid unwanted delete of Inventory
+//					inventoryRepository.delete(inventory);
 					log.info("inventory record is deleted...");
 				}
 			}

@@ -626,7 +626,9 @@ public class OrderManagementLineService extends BaseService {
 				
 				if (inventoryQty == 0 && allocatedQty == 0) {
 					log.info("inventoryForUpdate inventoryQty became zero." + inventoryQty);
-					inventoryRepository.delete(inventoryForUpdate);
+					
+//					[Prod Fix: 28-06] - Discussed to comment delete Inventory operation to avoid unwanted delete of Inventory
+//					inventoryRepository.delete(inventoryForUpdate);  
 				}
 			}
 			return createdOrderManagementLine;
@@ -731,7 +733,9 @@ public class OrderManagementLineService extends BaseService {
 					
 					if (inventoryQty == 0 && allocatedQty == 0) {
 						log.info("inventoryForUpdate inventoryQty became zero." + inventoryQty);
-						inventoryRepository.delete(inventoryForUpdate);
+						
+//						[Prod Fix: 28-06] - Discussed to comment delete Inventory operation to avoid unwanted delete of Inventory
+//						inventoryRepository.delete(inventoryForUpdate);
 					}
 				}
 				

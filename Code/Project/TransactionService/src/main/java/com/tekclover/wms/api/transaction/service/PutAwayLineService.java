@@ -325,7 +325,8 @@ public class PutAwayLineService extends BaseService {
 						
 						// Deleting inventory
 						if (INV_QTY == 0) {
-							inventoryRepository.delete(existinginventory);
+//							[Prod Fix: 28-06] - Discussed to comment delete Inventory operation to avoid unwanted delete of Inventory
+//							inventoryRepository.delete(existinginventory);
 						} else if (INV_QTY > 0) {
 							existinginventory.setInventoryQuantity(INV_QTY);
 							Inventory updatedInventory = inventoryRepository.save(existinginventory);
