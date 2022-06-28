@@ -63,6 +63,8 @@ public class InventorySpecification implements Specification<Inventory> {
         	 final Path<Group> group = root.<Group> get("binClassId");
         	 predicates.add(group.in(searchInventory.getBinClassId()));
          }
+		 
+		 predicates.add(cb.equal(root.get("deletionIndicator"), 0L));
 		     	         
          return cb.and(predicates.toArray(new Predicate[] {}));
      }

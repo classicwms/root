@@ -271,11 +271,13 @@ public class PickupLineService extends BaseService {
 			 * if PICK_CNF_QTY > 0, insert STATUS_ID = 50
 			 * If PICK_CNF_QTY = 0, insert STATUS_ID = 51
 			 */
-			if (newPickupLine.getPickConfirmQty() > 0) {
-				STATUS_ID = 50L;
-			} else if (newPickupLine.getPickConfirmQty() == 0D) {
-				STATUS_ID = 51L;
-			} 
+			if (STATUS_ID == 0) {
+				if (newPickupLine.getPickConfirmQty() > 0) {
+					STATUS_ID = 50L;
+				} else if (newPickupLine.getPickConfirmQty() == 0D) {
+					STATUS_ID = 51L;
+				} 
+			}
 			
 			dbPickupLine.setStatusId(STATUS_ID);
 			dbPickupLine.setDeletionIndicator(0L);
