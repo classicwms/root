@@ -255,12 +255,11 @@ public class PickupLineService extends BaseService {
 		String partnerCode = null;
 		String pickupNumber = null;
 		
+		boolean isQtyAvail = false;
 		// Create PickUpLine
 		for (AddPickupLine newPickupLine : newPickupLines) {
 			PickupLine dbPickupLine = new PickupLine();
 			BeanUtils.copyProperties(newPickupLine, dbPickupLine, CommonUtils.getNullPropertyNames(newPickupLine));
-			log.info("newPickupLine : " + newPickupLine);
-			
 			Warehouse warehouse = getWarehouse(newPickupLine.getWarehouseId());
 			dbPickupLine.setLanguageId(warehouse.getLanguageId());
 			dbPickupLine.setCompanyCodeId(warehouse.getCompanyCode());
@@ -271,13 +270,22 @@ public class PickupLineService extends BaseService {
 			 * if PICK_CNF_QTY > 0, insert STATUS_ID = 50
 			 * If PICK_CNF_QTY = 0, insert STATUS_ID = 51
 			 */
-			if (STATUS_ID == 0) {
+//			if (STATUS_ID == 0) {
 				if (newPickupLine.getPickConfirmQty() > 0) {
-					STATUS_ID = 50L;
-				} else if (newPickupLine.getPickConfirmQty() == 0D) {
-					STATUS_ID = 51L;
-				} 
+//					STATUS_ID = 50L;
+					isQtyAvail = true;
+				} //else if (newPickupLine.getPickConfirmQty() == 0D) {
+//					STATUS_ID = 51L;
+				//} 
+//			}
+			
+			if (isQtyAvail) {
+				STATUS_ID = 50L;
+			} else {
+				STATUS_ID = 51L;
 			}
+			
+			log.info("newPickupLine STATUS: " + STATUS_ID);
 			
 			dbPickupLine.setStatusId(STATUS_ID);
 			dbPickupLine.setDeletionIndicator(0L);
