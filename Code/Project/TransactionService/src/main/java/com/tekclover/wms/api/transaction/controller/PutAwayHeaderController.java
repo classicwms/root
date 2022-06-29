@@ -56,7 +56,7 @@ public class PutAwayHeaderController {
 			@RequestParam String palletCode, @RequestParam String caseCode, @RequestParam String packBarcodes, 
 			@RequestParam String proposedStorageBin) {
     	PutAwayHeader putawayheader = putawayheaderService.getPutAwayHeader(warehouseId, preInboundNo, refDocNumber, goodsReceiptNo, palletCode, caseCode, packBarcodes, putAwayNumber, proposedStorageBin);
-    	log.info("PutAwayHeader : " + putawayheader);
+//    	log.info("PutAwayHeader : " + putawayheader);
 		return new ResponseEntity<>(putawayheader, HttpStatus.OK);
 	}
     
@@ -65,7 +65,7 @@ public class PutAwayHeaderController {
 	public ResponseEntity<?> getPutAwayHeader(@PathVariable String putAwayNumber, @RequestParam String warehouseId, 
 			@RequestParam String preInboundNo, @RequestParam String refDocNumber) {
     	List<PutAwayHeader> putawayheader = putawayheaderService.getPutAwayHeader(warehouseId, preInboundNo, refDocNumber, putAwayNumber);
-    	log.info("PutAwayHeader : " + putawayheader);
+//    	log.info("PutAwayHeader : " + putawayheader);
 		return new ResponseEntity<>(putawayheader, HttpStatus.OK);
 	}
     
@@ -73,7 +73,7 @@ public class PutAwayHeaderController {
 	@GetMapping("/{refDocNumber}/inboundreversal/asn")
 	public ResponseEntity<?> getPutAwayHeaderForASN(@PathVariable String refDocNumber) {
     	List<PutAwayHeader> putawayheader = putawayheaderService.getPutAwayHeader(refDocNumber);
-    	log.info("PutAwayHeader : " + putawayheader);
+//    	log.info("PutAwayHeader : " + putawayheader);
 		return new ResponseEntity<>(putawayheader, HttpStatus.OK);
 	}
     

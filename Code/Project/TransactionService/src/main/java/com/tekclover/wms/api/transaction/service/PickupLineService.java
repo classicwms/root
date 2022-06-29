@@ -189,7 +189,7 @@ public class PickupLineService extends BaseService {
 			throws ParseException {
 		PickupLineSpecification spec = new PickupLineSpecification(searchPickupLine);
 		List<PickupLine> results = pickupLineRepository.findAll(spec);
-		log.info("results: " + results);
+//		log.info("results: " + results);
 		return results;
 	}
 	

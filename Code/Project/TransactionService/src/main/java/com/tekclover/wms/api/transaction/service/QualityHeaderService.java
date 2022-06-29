@@ -154,7 +154,7 @@ public class QualityHeaderService {
 	public List<QualityHeader> findQualityHeader (SearchQualityHeader searchQualityHeader) throws ParseException {
 		QualityHeaderSpecification spec = new QualityHeaderSpecification(searchQualityHeader);
 		List<QualityHeader> results = qualityHeaderRepository.findAll(spec);
-		log.info("results: " + results);
+//		log.info("results: " + results);
 		return results;
 	}
 	

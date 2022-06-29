@@ -82,7 +82,7 @@ public class PreOutboundLineService extends BaseService {
 			throws ParseException {
 		PreOutboundLineSpecification spec = new PreOutboundLineSpecification(searchPreOutboundLine);
 		List<PreOutboundLine> results = preOutboundLineRepository.findAll(spec);
-		log.info("results: " + results);
+//		log.info("results: " + results);
 		return results;
 	}
 	

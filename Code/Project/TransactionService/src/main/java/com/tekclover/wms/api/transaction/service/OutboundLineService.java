@@ -339,7 +339,7 @@ public class OutboundLineService extends BaseService {
 		
 		OutboundLineSpecification spec = new OutboundLineSpecification(searchOutboundLine);
 		List<OutboundLine> outboundLineSearchResults = outboundLineRepository.findAll(spec);
-		log.info("results: " + outboundLineSearchResults);
+//		log.info("results: " + outboundLineSearchResults);
 		
 		/*
 		 * Pass WH-ID/REF_DOC_NO/PRE_OB_NO/OB_LINE_NO/ITM_CODE

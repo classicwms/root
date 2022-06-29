@@ -241,7 +241,7 @@ public class GrLineService extends BaseService {
 	public List<GrLine> findGrLine(SearchGrLine searchGrLine) throws ParseException {
 		GrLineSpecification spec = new GrLineSpecification(searchGrLine);
 		List<GrLine> results = grLineRepository.findAll(spec);
-		log.info("results: " + results);
+//		log.info("results: " + results);
 		return results;
 	}
 	

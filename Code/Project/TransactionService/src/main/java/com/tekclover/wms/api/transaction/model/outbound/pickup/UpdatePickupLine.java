@@ -16,6 +16,7 @@ import lombok.Data;
 	private String partnerCode;
 	private Long lineNumber;
 	private String pickupNumber;
+	private Double pickConfirmQty;
 	private String itemCode;
 	private String actualHeNo;
 	private String pickedStorageBin;

@@ -255,7 +255,7 @@ public class InboundHeaderService extends BaseService {
 		
 		InboundHeaderSpecification spec = new InboundHeaderSpecification(searchInboundHeader);
 		List<InboundHeader> results = inboundHeaderRepository.findAll(spec);
-		log.info("results: " + results);
+//		log.info("results: " + results);
 		return results;
 	}
 	
