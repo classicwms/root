@@ -2977,7 +2977,8 @@ public class TransactionService {
 			headers.add("Authorization", "Bearer " + authToken);
 			
 			UriComponentsBuilder builder = 
-					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "qualityheader");
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "qualityheader")
+					.queryParam("loginUserID", loginUserID);
 			HttpEntity<?> entity = new HttpEntity<>(newQualityHeader, headers);	
 			ResponseEntity<QualityHeader> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, QualityHeader.class);
