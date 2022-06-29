@@ -1230,6 +1230,15 @@ public class TransactionServiceController {
 	/*
 	 * ------------------------QualityHeader--------------------------------------------------------
 	 */
+    
+    @ApiOperation(response = QualityHeader.class, value = "Create QualityHeader") // label for swagger
+	@PostMapping("/qualityheader")
+	public ResponseEntity<?> postQualityHeader(@Valid @RequestBody QualityHeader newQualityHeader, 
+			@RequestParam String loginUserID, @RequestParam String authToken) 
+			throws IllegalAccessException, InvocationTargetException {
+		QualityHeader createdQualityHeader = transactionService.createQualityHeader(newQualityHeader, loginUserID, authToken);
+		return new ResponseEntity<>(createdQualityHeader , HttpStatus.OK);
+	}
 	
 	@ApiOperation(response = QualityHeader.class, value = "Search QualityHeader") // label for swagger
 	@PostMapping("/qualityheader/findQualityHeader")

@@ -46,9 +46,6 @@ public class BatchJobScheduler {
 	@Autowired
 	private Job jobIMPartnerWhId111;
 	
-//	@Autowired
-//	private Job job1;
-
 	@Autowired
 	private JobLauncher jobLauncher;
 

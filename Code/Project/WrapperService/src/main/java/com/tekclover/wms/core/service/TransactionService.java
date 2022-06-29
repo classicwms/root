@@ -149,7 +149,6 @@ public class TransactionService {
 		HttpEntity<?> entity = new HttpEntity<>(createdInboundIntegrationHeader, headers);
 		ResponseEntity<PreInboundHeader> result = 
 				getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PreInboundHeader.class);
-//		log.info("result : " + result.getStatusCode());
 		return result.getBody();
 	}
 
@@ -2967,6 +2966,27 @@ public class TransactionService {
 	}
 	
 	/*-----------------------------QualityHeader---------------------------------------------------------*/
+	
+	//POST - CREATE QUALITY HEADER
+	public QualityHeader createQualityHeader(@Valid QualityHeader newQualityHeader, String loginUserID,
+			String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "qualityheader");
+			HttpEntity<?> entity = new HttpEntity<>(newQualityHeader, headers);	
+			ResponseEntity<QualityHeader> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, QualityHeader.class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			throw e;
+		}
+	}
 	
 	// POST - findQualityHeader
 	public QualityHeader[] findQualityHeader(SearchQualityHeader searchQualityHeader, String authToken) {
