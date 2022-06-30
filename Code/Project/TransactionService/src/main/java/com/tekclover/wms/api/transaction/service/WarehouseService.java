@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import javax.validation.Valid;
 
@@ -196,7 +197,7 @@ public class WarehouseService extends BaseService {
 			
 			// Mongo Primary Key
 			InboundIntegrationHeader apiHeader = new InboundIntegrationHeader();
-			apiHeader.setId(asnHeader.getAsnNumber());
+			apiHeader.setId(asnHeader.getAsnNumber() + ":" + getUUID());
 			apiHeader.setRefDocumentNo(asnHeader.getAsnNumber());
 			apiHeader.setRefDocumentType("ASN");
 			apiHeader.setWarehouseID(asnHeader.getWareHouseId());
@@ -261,7 +262,7 @@ public class WarehouseService extends BaseService {
 			
 			// Mongo Primary Key
 			InboundIntegrationHeader apiHeader = new InboundIntegrationHeader();
-			apiHeader.setId(storeReturnHeader.getTransferOrderNumber());
+			apiHeader.setId(storeReturnHeader.getTransferOrderNumber() + ":" + getUUID());
 			apiHeader.setRefDocumentNo(storeReturnHeader.getTransferOrderNumber());
 			apiHeader.setWarehouseID(storeReturnHeader.getWareHouseId());
 			apiHeader.setRefDocumentType("RETURN");			
@@ -327,7 +328,7 @@ public class WarehouseService extends BaseService {
 			
 			// Mongo Primary Key
 			InboundIntegrationHeader apiHeader = new InboundIntegrationHeader();
-			apiHeader.setId(soReturnHeader.getReturnOrderReference());
+			apiHeader.setId(soReturnHeader.getReturnOrderReference() + ":" + getUUID());
 			apiHeader.setRefDocumentNo(soReturnHeader.getReturnOrderReference());
 			apiHeader.setWarehouseID(soReturnHeader.getWareHouseId());
 			apiHeader.setRefDocumentType("RETURN");	
@@ -394,7 +395,7 @@ public class WarehouseService extends BaseService {
 			
 			// Mongo Primary Key
 			InboundIntegrationHeader apiHeader = new InboundIntegrationHeader();
-			apiHeader.setId(interWarehouseTransferInHeader.getTransferOrderNumber());
+			apiHeader.setId(interWarehouseTransferInHeader.getTransferOrderNumber() + ":" + getUUID());
 			apiHeader.setRefDocumentNo(interWarehouseTransferInHeader.getTransferOrderNumber());
 			apiHeader.setWarehouseID(interWarehouseTransferInHeader.getToWhsId());
 			apiHeader.setRefDocumentType("WH2WH");				// Hardcoded Value "WH to WH"
@@ -458,7 +459,7 @@ public class WarehouseService extends BaseService {
 			
 			// Mongo Primary Key
 			OutboundIntegrationHeader apiHeader = new OutboundIntegrationHeader();
-			apiHeader.setId(soHeader.getTransferOrderNumber());
+			apiHeader.setId(soHeader.getTransferOrderNumber() + ":" + getUUID());
 			apiHeader.setWarehouseID(soHeader.getWareHouseId());
 			apiHeader.setPartnerCode(soHeader.getStoreID());
 			apiHeader.setPartnerName(soHeader.getStoreName());
@@ -519,7 +520,7 @@ public class WarehouseService extends BaseService {
 			
 			// Mongo Primary Key
 			OutboundIntegrationHeader apiHeader = new OutboundIntegrationHeader();
-			apiHeader.setId(salesOrderHeader.getSalesOrderNumber());
+			apiHeader.setId(salesOrderHeader.getSalesOrderNumber() + ":" + getUUID());
 			apiHeader.setWarehouseID(salesOrderHeader.getWareHouseId());
 			apiHeader.setPartnerCode(salesOrderHeader.getStoreID());
 			apiHeader.setPartnerName(salesOrderHeader.getStoreName());
@@ -579,7 +580,7 @@ public class WarehouseService extends BaseService {
 			
 			// Mongo Primary Key
 			OutboundIntegrationHeader apiHeader = new OutboundIntegrationHeader();
-			apiHeader.setId(returnPOHeader.getPoNumber());
+			apiHeader.setId(returnPOHeader.getPoNumber() + ":" + getUUID());
 			apiHeader.setWarehouseID(returnPOHeader.getWareHouseId());
 			apiHeader.setPartnerCode(returnPOHeader.getStoreID());
 			apiHeader.setPartnerName(returnPOHeader.getStoreName());
@@ -641,7 +642,7 @@ public class WarehouseService extends BaseService {
 			
 			// Mongo Primary Key
 			OutboundIntegrationHeader apiHeader = new OutboundIntegrationHeader();
-			apiHeader.setId(interWarehouseTransferOutHeader.getTransferOrderNumber());
+			apiHeader.setId(interWarehouseTransferOutHeader.getTransferOrderNumber() + ":" + getUUID());
 			apiHeader.setWarehouseID(interWarehouseTransferOutHeader.getFromWhsID());
 			apiHeader.setPartnerCode(interWarehouseTransferOutHeader.getToWhsID());
 			apiHeader.setPartnerName(interWarehouseTransferOutHeader.getStoreName());
@@ -687,7 +688,6 @@ public class WarehouseService extends BaseService {
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 		headers.add("User-Agent", "AX-API RestTemplate");
 		headers.add("Authorization", "Bearer " + authToken);
-		
 		UriComponentsBuilder builder = 
 				UriComponentsBuilder.fromHttpUrl(propertiesConfig.getAxapiServiceAsnUrl());
 		HttpEntity<?> entity = new HttpEntity<>(asn, headers);
@@ -860,4 +860,17 @@ public class WarehouseService extends BaseService {
 			throw new BadRequestException("Warehouse Id must be either 110 or 111");
 		}
 	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public static synchronized String getUUID() {
+		String uniqueID = UUID.randomUUID().toString();
+		return uniqueID;
+	}
+	
+//	public static void main(String[] args) {
+//		System.out.println(getUUID());
+//	}
 }
