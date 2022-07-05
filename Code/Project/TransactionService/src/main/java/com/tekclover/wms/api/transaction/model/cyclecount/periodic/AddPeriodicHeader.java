@@ -34,5 +34,5 @@ public class AddPeriodicHeader {
 	private String confirmedBy;
 	private Date confirmedOn = new Date();
 
-	private List<AddPeriodicHeader> addPeriodicHeader;
+	private List<AddPeriodicLine> addPeriodicLine;
 }

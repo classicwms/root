@@ -44,16 +44,6 @@ public class PerpetualHeaderSpecification implements Specification<PerpetualHead
         	 predicates.add(group.in(searchPerpetualHeader.getCycleCountNo()));
          }
 		   
-		 if (searchPerpetualHeader.getMovementTypeId() != null && !searchPerpetualHeader.getMovementTypeId().isEmpty()) {
-        	 final Path<Group> group = root.<Group> get("movementTypeId");
-        	 predicates.add(group.in(searchPerpetualHeader.getMovementTypeId()));
-         }
-         
-		 if (searchPerpetualHeader.getSubMovementTypeId() != null && !searchPerpetualHeader.getSubMovementTypeId().isEmpty()) {
-        	 final Path<Group> group = root.<Group> get("subMovementTypeId");
-        	 predicates.add(group.in(searchPerpetualHeader.getSubMovementTypeId()));
-         }
-		 
 		 if (searchPerpetualHeader.getStatusId() != null && !searchPerpetualHeader.getStatusId().isEmpty()) {	
         	 final Path<Group> group = root.<Group> get("statusId");
         	 predicates.add(group.in(searchPerpetualHeader.getStatusId()));
@@ -64,8 +54,9 @@ public class PerpetualHeaderSpecification implements Specification<PerpetualHead
         	 predicates.add(group.in(searchPerpetualHeader.getCreatedBy()));
          }   		 
 	
-		  if (searchPerpetualHeader.getStartCreatedOn() != null && searchPerpetualHeader.getEndCreatedOn() != null) {
-        	 predicates.add(cb.between(root.get("createdOn"), searchPerpetualHeader.getStartCreatedOn(), searchPerpetualHeader.getEndCreatedOn()));
+		 if (searchPerpetualHeader.getStartCreatedOn() != null && searchPerpetualHeader.getEndCreatedOn() != null) {
+        	 predicates.add(cb.between(root.get("createdOn"), searchPerpetualHeader.getStartCreatedOn(), 
+        			 searchPerpetualHeader.getEndCreatedOn()));
          }
 			
          return cb.and(predicates.toArray(new Predicate[] {}));

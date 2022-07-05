@@ -33,7 +33,7 @@ public class PeriodicLine {
 	
 	@Id
 	@Column(name = "C_ID") 
-	private String companyCodeId;
+	private String companyCode;
 	
 	@Id
 	@Column(name = "PLANT_ID") 
@@ -93,7 +93,7 @@ public class PeriodicLine {
 	private String cycleCounterName;
 	
 	@Column(name = "STATUS_ID") 
-	private String statusId;
+	private Long statusId;
 	
 	@Column(name = "ACTION") 
 	private String cycleCountAction;
@@ -166,4 +166,5 @@ public class PeriodicLine {
 	
 	@Column(name = "CC_CNT_ON") 
 	private Date countedOn = new Date();
+
 }

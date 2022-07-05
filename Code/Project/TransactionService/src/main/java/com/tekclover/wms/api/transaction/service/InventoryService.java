@@ -414,6 +414,16 @@ public class InventoryService extends BaseService {
 		return inventory;
 	}
 	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param stBins
+	 * @return
+	 */
+	public List<Inventory> getInventoryByStorageBin (String warehouseId, List<String> stBins) {
+		List<Inventory> inventory = inventoryRepository.findByWarehouseIdAndStorageBinIn(warehouseId, stBins);
+		return inventory;
+	}
 	
 	/**
 	 * 

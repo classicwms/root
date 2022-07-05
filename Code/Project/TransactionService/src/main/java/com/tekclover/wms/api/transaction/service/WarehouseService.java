@@ -3,11 +3,14 @@ package com.tekclover.wms.api.transaction.service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.validation.Valid;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -27,6 +30,8 @@ import com.tekclover.wms.api.transaction.model.outbound.preoutbound.OutboundInte
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.ASN;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.ASNHeader;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.ASNLine;
+import com.tekclover.wms.api.transaction.model.warehouse.inbound.InboundOrder;
+import com.tekclover.wms.api.transaction.model.warehouse.inbound.InboundOrderLines;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.InterWarehouseTransferIn;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.InterWarehouseTransferInHeader;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.InterWarehouseTransferInLine;
@@ -41,6 +46,8 @@ import com.tekclover.wms.api.transaction.model.warehouse.inbound.confirmation.In
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.InterWarehouseTransferOut;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.InterWarehouseTransferOutHeader;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.InterWarehouseTransferOutLine;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.OutboundOrder;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.OutboundOrderLine;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.ReturnPO;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.ReturnPOHeader;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.ReturnPOLine;
@@ -54,6 +61,7 @@ import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.I
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.Shipment;
 import com.tekclover.wms.api.transaction.repository.MongoInboundRepository;
 import com.tekclover.wms.api.transaction.repository.MongoOutboundRepository;
+import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -70,6 +78,9 @@ public class WarehouseService extends BaseService {
 	
 	@Autowired
 	PropertiesConfig propertiesConfig;
+	
+	@Autowired
+	OrderService ibOrderService;
 	
 	/**
 	 * 
@@ -205,6 +216,7 @@ public class WarehouseService extends BaseService {
 			apiHeader.setOrderReceivedOn(new Date());
 			apiHeader.setProcessedStatusId(0L);
 			
+			Set<InboundOrderLines> orderLines = new HashSet<>();
 			List<InboundIntegrationLine> apiLines = new ArrayList<>();
 			for (ASNLine asnLine : asnLines) {
 				InboundIntegrationLine apiLine = new InboundIntegrationLine();
@@ -230,10 +242,24 @@ public class WarehouseService extends BaseService {
 				apiLine.setUom(asnLine.getUom());								// ORD_UOM
 				apiLine.setItemCaseQty(asnLine.getPackQty());					// ITM_CASE_QTY
 				apiLines.add(apiLine);
+				
+				//------Lines
+				InboundOrderLines lines = new InboundOrderLines();
+				BeanUtils.copyProperties(apiLine, lines, CommonUtils.getNullPropertyNames(apiLine));
+				orderLines.add(lines);
 			}
 			apiHeader.setInboundIntegrationLine(apiLines);
 			InboundIntegrationHeader createdInboundIntegration = mongoInboundRepository.save(apiHeader);
 			log.info("createdInboundIntegration : " + createdInboundIntegration);
+			
+			// Store in SQL DB
+			InboundOrder newInboundOrder = new InboundOrder();
+			BeanUtils.copyProperties(apiHeader, newInboundOrder, CommonUtils.getNullPropertyNames(apiHeader));
+			newInboundOrder.setOrderId(asnHeader.getAsnNumber());
+			newInboundOrder.setOrderProcessedOn(new Date());
+			newInboundOrder.setLines(orderLines);
+			InboundOrder createdOrder = ibOrderService.createInboundOrders(newInboundOrder);
+			log.info("ASN createdOrder in SQL: " + createdOrder);
 			return createdInboundIntegration;
 		} catch (Exception e) {
 			throw e;
@@ -270,6 +296,7 @@ public class WarehouseService extends BaseService {
 			apiHeader.setOrderReceivedOn(new Date());
 			apiHeader.setProcessedStatusId(0L);
 			
+			Set<InboundOrderLines> orderLines = new HashSet<>();
 			List<InboundIntegrationLine> apiLines = new ArrayList<>();
 			for (StoreReturnLine storeReturnLine : storeReturnLines) {
 				InboundIntegrationLine apiLine = new InboundIntegrationLine();
@@ -295,11 +322,25 @@ public class WarehouseService extends BaseService {
 				apiLine.setUom(storeReturnLine.getUom());								// ORD_UOM
 				apiLine.setItemCaseQty(storeReturnLine.getPackQty());					// ITM_CASE_QTY
 				apiLines.add(apiLine);
+				
+				//------Lines
+				InboundOrderLines lines = new InboundOrderLines();
+				BeanUtils.copyProperties(apiLine, lines, CommonUtils.getNullPropertyNames(apiLine));
+				orderLines.add(lines);
 			}
 			apiHeader.setInboundIntegrationLine(apiLines);
-			
 			InboundIntegrationHeader createdInboundIntegration = mongoInboundRepository.save(apiHeader);
 			log.info("createdInboundIntegration : " + createdInboundIntegration);
+			
+			// Store in SQL DB
+			InboundOrder newInboundOrder = new InboundOrder();
+			BeanUtils.copyProperties(apiHeader, newInboundOrder, CommonUtils.getNullPropertyNames(apiHeader));
+			newInboundOrder.setOrderId(storeReturnHeader.getTransferOrderNumber());
+			newInboundOrder.setOrderProcessedOn(new Date());
+			newInboundOrder.setLines(orderLines);
+			InboundOrder createdOrder = ibOrderService.createInboundOrders(newInboundOrder);
+			log.info("StoreReturn - createdOrder in SQL: " + createdOrder);
+						
 			return createdInboundIntegration;
 		} catch (Exception e) {
 			throw e;
@@ -336,6 +377,7 @@ public class WarehouseService extends BaseService {
 			apiHeader.setOrderReceivedOn(new Date());
 			apiHeader.setProcessedStatusId(0L);
 			
+			Set<InboundOrderLines> orderLines = new HashSet<>();
 			List<InboundIntegrationLine> apiLines = new ArrayList<>();
 			for (SOReturnLine soReturnLine : storeReturnLines) {
 				InboundIntegrationLine apiLine = new InboundIntegrationLine();
@@ -362,10 +404,25 @@ public class WarehouseService extends BaseService {
 				apiLine.setItemCaseQty(soReturnLine.getPackQty());						// ITM_CASE_QTY
 				apiLine.setSalesOrderReference(soReturnLine.getSalesOrderReference());	// REF_FIELD_4
 				apiLines.add(apiLine);
+				
+				//------Lines
+				InboundOrderLines lines = new InboundOrderLines();
+				BeanUtils.copyProperties(apiLine, lines, CommonUtils.getNullPropertyNames(apiLine));
+				orderLines.add(lines);
 			}
 			apiHeader.setInboundIntegrationLine(apiLines);
 			InboundIntegrationHeader createdInboundIntegration = mongoInboundRepository.save(apiHeader);
 			log.info("createdInboundIntegration : " + createdInboundIntegration);
+			
+			// Store in SQL DB
+			InboundOrder newInboundOrder = new InboundOrder();
+			BeanUtils.copyProperties(apiHeader, newInboundOrder, CommonUtils.getNullPropertyNames(apiHeader));
+			newInboundOrder.setOrderId(soReturnHeader.getReturnOrderReference());
+			newInboundOrder.setOrderProcessedOn(new Date());
+			newInboundOrder.setLines(orderLines);
+			InboundOrder createdOrder = ibOrderService.createInboundOrders(newInboundOrder);
+			log.info("SOReturn - createdOrder in SQL: " + createdOrder);
+						
 			return createdInboundIntegration;
 		} catch (Exception e) {
 			throw e;
@@ -403,6 +460,7 @@ public class WarehouseService extends BaseService {
 			apiHeader.setOrderReceivedOn(new Date());
 			apiHeader.setProcessedStatusId(0L);
 			
+			Set<InboundOrderLines> orderLines = new HashSet<>();
 			List<InboundIntegrationLine> apiLines = new ArrayList<>();
 			for (InterWarehouseTransferInLine iwhTransferLine : interWarehouseTransferInLines) {
 				InboundIntegrationLine apiLine = new InboundIntegrationLine();
@@ -428,10 +486,24 @@ public class WarehouseService extends BaseService {
 				apiLine.setUom(iwhTransferLine.getUom());									// ORD_UOM
 				apiLine.setItemCaseQty(iwhTransferLine.getPackQty());						// ITM_CASE_QTY
 				apiLines.add(apiLine);
+				
+				//------Lines
+				InboundOrderLines lines = new InboundOrderLines();
+				BeanUtils.copyProperties(apiLine, lines, CommonUtils.getNullPropertyNames(apiLine));
+				orderLines.add(lines);
 			}
 			apiHeader.setInboundIntegrationLine(apiLines);
 			InboundIntegrationHeader createdInboundIntegration = mongoInboundRepository.save(apiHeader);
 			log.info("createdInboundIntegration : " + createdInboundIntegration);
+			
+			// Store in SQL DB
+			InboundOrder newInboundOrder = new InboundOrder();
+			BeanUtils.copyProperties(apiHeader, newInboundOrder, CommonUtils.getNullPropertyNames(apiHeader));
+			newInboundOrder.setOrderId(interWarehouseTransferInHeader.getTransferOrderNumber());
+			newInboundOrder.setOrderProcessedOn(new Date());
+			newInboundOrder.setLines(orderLines);
+			InboundOrder createdOrder = ibOrderService.createInboundOrders(newInboundOrder);
+			log.info("InterWarehouseTransfer - createdOrder in SQL: " + createdOrder);
 			return createdInboundIntegration;
 		} catch (Exception e) {
 			throw e;
@@ -477,6 +549,7 @@ public class WarehouseService extends BaseService {
 				throw new BadRequestException("Date format should be MM-dd-yyyy");
 			}
 			
+			Set<OutboundOrderLine> orderLines = new HashSet<>();
 			List<OutboundIntegrationLine> apiLines = new ArrayList<>();
 			for (SOLine soLine : soLines) {
 				OutboundIntegrationLine apiLine = new OutboundIntegrationLine();
@@ -487,11 +560,26 @@ public class WarehouseService extends BaseService {
 				apiLine.setUom(soLine.getUom()); 								// ORD_UOM
 				apiLine.setRefField1ForOrderType(soLine.getOrderType());		// ORDER_TYPE
 				apiLines.add(apiLine);
+				
+				//------Lines
+				OutboundOrderLine lines = new OutboundOrderLine();
+				BeanUtils.copyProperties(apiLine, lines, CommonUtils.getNullPropertyNames(apiLine));
+				orderLines.add(lines);
 			}
 			apiHeader.setOutboundIntegrationLine(apiLines);
 			
 			OutboundIntegrationHeader createdOutboundIntegration = mongoOutboundRepository.save(apiHeader);
 			log.info("createdOutboundIntegration : " + createdOutboundIntegration);
+			
+			// Store in SQL DB
+			OutboundOrder newOutboundOrder = new OutboundOrder();
+			BeanUtils.copyProperties(apiHeader, newOutboundOrder, CommonUtils.getNullPropertyNames(apiHeader));
+			newOutboundOrder.setOrderId(soHeader.getTransferOrderNumber());
+			newOutboundOrder.setOrderProcessedOn(new Date());
+			newOutboundOrder.setLines(orderLines);
+			OutboundOrder createdOrder = ibOrderService.createOutboundOrders(newOutboundOrder);
+			log.info("ShipmentOrder - createdOrder in SQL: " + createdOrder);
+						
 			return createdOutboundIntegration;
 		} catch (Exception e) {
 			throw e;
@@ -537,7 +625,7 @@ public class WarehouseService extends BaseService {
 			} catch (Exception e) {
 				throw new BadRequestException("Date format should be MM-dd-yyyy");
 			}
-			
+			Set<OutboundOrderLine> orderLines = new HashSet<>();
 			List<OutboundIntegrationLine> apiLines = new ArrayList<>();
 			for (SalesOrderLine soLine : salesOrderLines) {
 				OutboundIntegrationLine apiLine = new OutboundIntegrationLine();
@@ -548,10 +636,25 @@ public class WarehouseService extends BaseService {
 				apiLine.setUom(soLine.getUom()); 								// ORD_UOM
 				apiLine.setRefField1ForOrderType(soLine.getOrderType());		// ORDER_TYPE
 				apiLines.add(apiLine);
+				
+				//------Lines
+				OutboundOrderLine lines = new OutboundOrderLine();
+				BeanUtils.copyProperties(apiLine, lines, CommonUtils.getNullPropertyNames(apiLine));
+				orderLines.add(lines);
 			}
 			apiHeader.setOutboundIntegrationLine(apiLines);
 			OutboundIntegrationHeader createdOutboundIntegration = mongoOutboundRepository.save(apiHeader);
 			log.info("createdOutboundIntegration : " + createdOutboundIntegration);
+			
+			// Store in SQL DB
+			OutboundOrder newOutboundOrder = new OutboundOrder();
+			BeanUtils.copyProperties(apiHeader, newOutboundOrder, CommonUtils.getNullPropertyNames(apiHeader));
+			newOutboundOrder.setOrderId(salesOrderHeader.getSalesOrderNumber());
+			newOutboundOrder.setOrderProcessedOn(new Date());
+			newOutboundOrder.setLines(orderLines);
+			OutboundOrder createdOrder = ibOrderService.createOutboundOrders(newOutboundOrder);
+			log.info("ShipmentOrder - createdOrder in SQL: " + createdOrder);
+						
 			return createdOutboundIntegration;
 		} catch (Exception e) {
 			throw e;
@@ -597,7 +700,7 @@ public class WarehouseService extends BaseService {
 			} catch (Exception e) {
 				throw new BadRequestException("Date format should be MM-dd-yyyy");
 			}
-			
+			Set<OutboundOrderLine> orderLines = new HashSet<>();
 			List<OutboundIntegrationLine> apiLines = new ArrayList<>();
 			for (ReturnPOLine rpoLine : returnPOLines) {
 				OutboundIntegrationLine apiLine = new OutboundIntegrationLine();
@@ -608,10 +711,25 @@ public class WarehouseService extends BaseService {
 				apiLine.setUom(rpoLine.getUom()); 								// ORD_UOM
 				apiLine.setRefField1ForOrderType(rpoLine.getOrderType());		// ORDER_TYPE
 				apiLines.add(apiLine);
+				
+				//------Lines
+				OutboundOrderLine lines = new OutboundOrderLine();
+				BeanUtils.copyProperties(apiLine, lines, CommonUtils.getNullPropertyNames(apiLine));
+				orderLines.add(lines);
 			}
 			apiHeader.setOutboundIntegrationLine(apiLines);
 			OutboundIntegrationHeader createdOutboundIntegration = mongoOutboundRepository.save(apiHeader);
 			log.info("createdOutboundIntegration : " + createdOutboundIntegration);
+			
+			// Store in SQL DB
+			OutboundOrder newOutboundOrder = new OutboundOrder();
+			BeanUtils.copyProperties(apiHeader, newOutboundOrder, CommonUtils.getNullPropertyNames(apiHeader));
+			newOutboundOrder.setOrderId(returnPOHeader.getPoNumber());
+			newOutboundOrder.setOrderProcessedOn(new Date());
+			newOutboundOrder.setLines(orderLines);
+			OutboundOrder createdOrder = ibOrderService.createOutboundOrders(newOutboundOrder);
+			log.info("ShipmentOrder - createdOrder in SQL: " + createdOrder);
+						
 			return createdOutboundIntegration;
 		} catch (Exception e) {
 			throw e;
@@ -659,7 +777,7 @@ public class WarehouseService extends BaseService {
 			} catch (Exception e) {
 				throw new BadRequestException("Date format should be MM-dd-yyyy");
 			}
-			
+			Set<OutboundOrderLine> orderLines = new HashSet<>();
 			List<OutboundIntegrationLine> apiLines = new ArrayList<>();
 			for (InterWarehouseTransferOutLine iwhTransferLine : interWarehouseTransferOutLines) {
 				OutboundIntegrationLine apiLine = new OutboundIntegrationLine();
@@ -670,10 +788,24 @@ public class WarehouseService extends BaseService {
 				apiLine.setUom(iwhTransferLine.getUom()); 								// ORD_UOM
 				apiLine.setRefField1ForOrderType(iwhTransferLine.getOrderType());		// ORDER_TYPE
 				apiLines.add(apiLine);
+				
+				//------Lines
+				OutboundOrderLine lines = new OutboundOrderLine();
+				BeanUtils.copyProperties(apiLine, lines, CommonUtils.getNullPropertyNames(apiLine));
+				orderLines.add(lines);
 			}
 			apiHeader.setOutboundIntegrationLine(apiLines);
 			OutboundIntegrationHeader createdOutboundIntegration = mongoOutboundRepository.save(apiHeader);
 			log.info("createdOutboundIntegration : " + createdOutboundIntegration);
+			
+			// Store in SQL DB
+			OutboundOrder newOutboundOrder = new OutboundOrder();
+			BeanUtils.copyProperties(apiHeader, newOutboundOrder, CommonUtils.getNullPropertyNames(apiHeader));
+			newOutboundOrder.setOrderId(interWarehouseTransferOutHeader.getTransferOrderNumber());
+			newOutboundOrder.setOrderProcessedOn(new Date());
+			newOutboundOrder.setLines(orderLines);
+			OutboundOrder createdOrder = ibOrderService.createOutboundOrders(newOutboundOrder);
+			log.info("ShipmentOrder - createdOrder in SQL: " + createdOrder);
 			return createdOutboundIntegration;
 		} catch (Exception e) {
 			throw e;

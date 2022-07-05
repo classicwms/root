@@ -33,11 +33,11 @@ public class PeriodicHeader {
 	
 	@Id
 	@Column(name = "C_ID")
-	private String companyCodeId;
+	private String companyCode;
 	
 	@Id
 	@Column(name = "PLANT_ID") 
-	private String palntId;
+	private String plantId;
 	
 	@Id
 	@Column(name = "WH_ID") 
@@ -51,16 +51,8 @@ public class PeriodicHeader {
 	@Column(name = "CC_NO") 
 	private String cycleCountNo;
 	
-	@Id
-	@Column(name = "MVT_TYP_ID")
-	private Long movementTypeId;
-	
-	@Id
-	@Column(name = "SUB_MVT_TYP_ID")
-	private Long subMovementTypeId;
-	
 	@Column(name = "STATUS_ID") 
-	private String statusId;
+	private Long statusId;
 	
 	@Column(name = "REF_FIELD_1") 
 	private String referenceField1;

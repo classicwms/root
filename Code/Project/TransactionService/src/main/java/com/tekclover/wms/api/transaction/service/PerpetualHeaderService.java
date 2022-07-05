@@ -294,12 +294,6 @@ public class PerpetualHeaderService extends BaseService {
 		// CC_TYP_ID
 		dbPerpetualHeader.setCycleCountTypeId(1L);
 		
-		// MVT_TYP_ID
-//		dbPerpetualHeader.setMovementTypeId(newPerpetualHeader.getMovementTypeId());
-		
-		// SUB_MVT_TYP_ID
-//		dbPerpetualHeader.setSubMovementTypeId(newPerpetualHeader.getSubMovementTypeId());
-		
 		// STATUS_ID - HardCoded Value "70"
 		dbPerpetualHeader.setStatusId("70");
 		dbPerpetualHeader.setDeletionIndicator(0L);
@@ -371,13 +365,13 @@ public class PerpetualHeaderService extends BaseService {
 		 * 2. If STATUS_ID=74 for all the selected records, Update STATUS_ID of PERPETUALHEADER table as "74" by passing CC_NO
 		 * Else Update STATUS_ID as "73"
 		 */
-		List<PerpetualLine> PerpetualLines = perpetualLineService.getPerpetualLine (cycleCountNo);
-		long count_78 = PerpetualLines.stream().filter(a->a.getStatusId().equalsIgnoreCase("78")).count();
-		long count_74 = PerpetualLines.stream().filter(a->a.getStatusId().equalsIgnoreCase("74")).count();
+		List<PerpetualLine> perpetualLines = perpetualLineService.getPerpetualLine (cycleCountNo);
+		long count_78 = perpetualLines.stream().filter(a->a.getStatusId().equalsIgnoreCase("78")).count();
+		long count_74 = perpetualLines.stream().filter(a->a.getStatusId().equalsIgnoreCase("74")).count();
 		
-		if (PerpetualLines.size() == count_78) {
+		if (perpetualLines.size() == count_78) {
 			dbPerpetualHeader.setStatusId("78");
-		} else if (PerpetualLines.size() == count_74) {
+		} else if (perpetualLines.size() == count_74) {
 			dbPerpetualHeader.setStatusId("74");
 		} else {
 			dbPerpetualHeader.setStatusId("73");

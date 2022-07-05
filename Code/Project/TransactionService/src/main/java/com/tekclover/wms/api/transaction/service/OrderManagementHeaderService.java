@@ -103,21 +103,6 @@ public class OrderManagementHeaderService {
 	}
 	
 	/**
-	 * 
-	 * @param searchOrderManagementHeader
-	 * @return
-	 * @throws ParseException
-	 */
-//	public List<OrderManagementHeader> findOrderManagementHeader(SearchOrderManagementHeader searchOrderManagementHeader) 
-//			throws ParseException {
-//		OrderManagementHeaderSpecification spec = new OrderManagementHeaderSpecification(searchOrderManagementHeader);
-//		List<OrderManagementHeader> results = orderManagementHeaderRepository.findAll(spec);
-//		log.info("results: " + results);
-//		return results;
-//	}
-	
-	
-	/**
 	 * createOrderManagementHeader
 	 * @param newOrderManagementHeader
 	 * @param loginUserID 

@@ -59,7 +59,6 @@ public class PerpetualHeaderController {
     	List<PerpetualHeaderEntity> perpetualheader = 
     			perpetualheaderService.getPerpetualHeader(warehouseId, cycleCountTypeId, cycleCountNo, 
     					movementTypeId, subMovementTypeId);
-    	log.info("PerpetualHeader : " + perpetualheader);
 		return new ResponseEntity<>(perpetualheader, HttpStatus.OK);
 	}
     

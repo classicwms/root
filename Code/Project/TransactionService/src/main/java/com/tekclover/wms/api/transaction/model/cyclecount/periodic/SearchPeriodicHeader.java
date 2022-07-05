@@ -26,4 +26,4 @@ public class SearchPeriodicHeader {
 	private Date startCreatedOn;
 	private Date endCreatedOn;
 	
-	}
+}

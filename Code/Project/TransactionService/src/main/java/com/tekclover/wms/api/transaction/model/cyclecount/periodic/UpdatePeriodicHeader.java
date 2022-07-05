@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.transaction.model.cyclecount.periodic;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.Data;
 
@@ -32,4 +33,5 @@ public class UpdatePeriodicHeader {
 	private Date countedOn = new Date();
 	private String confirmedBy;
 	private Date confirmedOn = new Date();
+	private List<UpdatePeriodicLine> updatePeriodicLine;
 }

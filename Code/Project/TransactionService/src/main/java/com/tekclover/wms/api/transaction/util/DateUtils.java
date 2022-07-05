@@ -252,6 +252,26 @@ public class DateUtils {
 		return date;
 	}
 	
+	/**
+	 * 
+	 * @param strDate
+	 * @return
+	 * @throws ParseException
+	 */
+	public static Date convertStringToDate_end(String strDate) throws ParseException {
+		strDate = strDate + " 23:59:00";
+		Date date = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss").parse(strDate);
+		log.info("convertStringToDate-------> : " + date);
+		return date;
+	}
+	
+	public static Date convertStringToDate_start(String strDate) throws ParseException {
+		strDate = strDate + " 00:00:01";
+		Date date = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss").parse(strDate);
+		log.info("convertStringToDate-------> : " + date);
+		return date;
+	}
+	
 	public static String convertDate2String(Date date) {
 		DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss a");  
 		String strDate = dateFormat.format(date);  

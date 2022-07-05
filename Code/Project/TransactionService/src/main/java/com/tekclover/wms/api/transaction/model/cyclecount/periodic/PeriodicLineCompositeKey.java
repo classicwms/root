@@ -12,7 +12,7 @@ public class PeriodicLineCompositeKey implements Serializable {
 	/*
 	 * `C_ID`, `PLANT_ID`, `WH_ID`, `CC_NO`, `ST_BIN`, `ITM_CODE`, `PACK_BARCODE` 
 	 */
-	private String companyCodeId;
+	private String companyCode;
 	private String plantId;
 	private String warehouseId;
 	private String cycleCountNo;

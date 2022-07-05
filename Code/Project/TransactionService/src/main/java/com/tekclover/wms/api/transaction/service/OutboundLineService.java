@@ -476,14 +476,47 @@ public class OutboundLineService extends BaseService {
 		boolean isConditionMet = (matchedCount == outboundLineList.size());
 		log.info("isConditionMet : " + isConditionMet);
 		
+		AXApiResponse axapiResponse = null;
 		if (!isConditionMet) {
 			throw new BadRequestException("Order is not completely Processed.");
 		} else {
-			log.info("Order can be Processed.");
+			log.info("Order can be Processed."); 
+			/*
+			 * Call this respective API end points when REF_DOC_NO is confirmed with STATUS_ID = 59 in OUTBOUNDHEADER and 
+			 * OUTBOUNDLINE tables and based on OB_ORD_TYP_ID as per API document
+			 */
+			OutboundHeader confirmedOutboundHeader = outboundHeaderService.getOutboundHeader(warehouseId, preOutboundNo, refDocNumber);
+			List<OutboundLine> confirmedOutboundLines = getOutboundLine(warehouseId, preOutboundNo, refDocNumber);
+			log.info("OutboundOrderTypeId : " + confirmedOutboundHeader.getOutboundOrderTypeId() );
+			log.info("confirmedOutboundLines: " + confirmedOutboundLines);
+			
+			// if OB_ORD_TYP_ID = 0 in OUTBOUNDHEADER table - call Shipment Confirmation
+			if (confirmedOutboundHeader.getOutboundOrderTypeId() == 0L && confirmedOutboundLines != null) {
+				axapiResponse = postShipment (confirmedOutboundHeader, confirmedOutboundLines);
+				log.info("AXApiResponse: " + axapiResponse);
+			}
+			
+			// if OB_ORD_TYP_ID = 1 in OUTBOUNDHEADER table - Interwarehouse Shipment Confirmation
+			if (confirmedOutboundHeader.getOutboundOrderTypeId() == 1L && confirmedOutboundLines != null) {
+				axapiResponse = postInterwarehouseShipment (confirmedOutboundHeader, confirmedOutboundLines);
+				log.info("AXApiResponse: " + axapiResponse);
+			}
+			
+			//  if OB_ORD_TYP_ID = 2 in OUTBOUNDHEADER table - Return PO Confirmation
+			if (confirmedOutboundHeader.getOutboundOrderTypeId() == 2L && confirmedOutboundLines != null) {
+				axapiResponse = postReturnPO (confirmedOutboundHeader, confirmedOutboundLines);
+				log.info("AXApiResponse: " + axapiResponse);
+			}
+			
+			// if OB_ORD_TYP_ID = 3 in OUTBOUNDHEADER table - Sale Order Confirmation - True Express
+			if (confirmedOutboundHeader.getOutboundOrderTypeId() == 3L && confirmedOutboundLines != null) {
+				axapiResponse = postSalesOrder (confirmedOutboundHeader, confirmedOutboundLines);
+				log.info("AXApiResponse: " + axapiResponse);
+			}
 		}
 		
 		/*
-		 * Pass the selectedWH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/ITEM_CODE/OB_LINE_NO values in OUTBOUNDLINE table and 
+		 * Pass the selected WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/ITEM_CODE/OB_LINE_NO values in OUTBOUNDLINE table and 
 		 * Validate STATUS_ID = 55 or 47 or 51, if yes
 		 */
 		List<OutboundLine> responseOutboundLineList = new ArrayList<>();
@@ -491,40 +524,6 @@ public class OutboundLineService extends BaseService {
 			if (outboundLine.getStatusId() == 57L || outboundLine.getStatusId() == 47L || outboundLine.getStatusId() == 51L
 					|| outboundLine.getStatusId() == 41L) {
 				/*---------------------AXAPI-integration----------------------------------------------------------*/
-				/*
-				 * Call this respective API end points when REF_DOC_NO is confirmed with STATUS_ID = 59 in OUTBOUNDHEADER and 
-				 * OUTBOUNDLINE tables and based on OB_ORD_TYP_ID as per API document
-				 */
-				OutboundHeader confirmedOutboundHeader = outboundHeaderService.getOutboundHeader(warehouseId, preOutboundNo, refDocNumber);
-				List<OutboundLine> confirmedOutboundLines = getOutboundLine(warehouseId, preOutboundNo, refDocNumber);
-				log.info("OutboundOrderTypeId : " + confirmedOutboundHeader.getOutboundOrderTypeId() );
-				log.info("confirmedOutboundLines: " + confirmedOutboundLines);
-				
-				AXApiResponse axapiResponse = null;
-				// if OB_ORD_TYP_ID = 0 in OUTBOUNDHEADER table - call Shipment Confirmation
-				if (confirmedOutboundHeader.getOutboundOrderTypeId() == 0L && confirmedOutboundLines != null) {
-					axapiResponse = postShipment (confirmedOutboundHeader, confirmedOutboundLines);
-					log.info("AXApiResponse: " + axapiResponse);
-				}
-				
-				// if OB_ORD_TYP_ID = 1 in OUTBOUNDHEADER table - Interwarehouse Shipment Confirmation
-				if (confirmedOutboundHeader.getOutboundOrderTypeId() == 1L && confirmedOutboundLines != null) {
-					axapiResponse = postInterwarehouseShipment (confirmedOutboundHeader, confirmedOutboundLines);
-					log.info("AXApiResponse: " + axapiResponse);
-				}
-				
-				//  if OB_ORD_TYP_ID = 2 in OUTBOUNDHEADER table - Return PO Confirmation
-				if (confirmedOutboundHeader.getOutboundOrderTypeId() == 2L && confirmedOutboundLines != null) {
-					axapiResponse = postReturnPO (confirmedOutboundHeader, confirmedOutboundLines);
-					log.info("AXApiResponse: " + axapiResponse);
-				}
-				
-				// if OB_ORD_TYP_ID = 3 in OUTBOUNDHEADER table - Sale Order Confirmation - True Express
-				if (confirmedOutboundHeader.getOutboundOrderTypeId() == 3L && confirmedOutboundLines != null) {
-					axapiResponse = postSalesOrder (confirmedOutboundHeader, confirmedOutboundLines);
-					log.info("AXApiResponse: " + axapiResponse);
-				}
-				
 				// Checking the AX-API response
 				if (axapiResponse.getStatusCode() != null && axapiResponse.getStatusCode().equalsIgnoreCase("200")) {
 					if (outboundLine.getStatusId() == 57L) {
@@ -638,8 +637,8 @@ public class OutboundLineService extends BaseService {
 									log.info("inventory updated : " + inventory);
 								}
 							}
-							/*-------------------Inserting record in InventoryMovement-------------------------------------*/
 							
+							/*-------------------Inserting record in InventoryMovement-------------------------------------*/
 							// Fetch WH_ID/REF_DOC_NO/PRE_OB_NO/PARTNER_CODE/OB_LINE_NO/ITM_CODE from Outboundline table and 
 							// pass the same in Qualityline table and fetch the records and update INVENTORYMOVEMENT table
 							QualityLine qualityLine = 
