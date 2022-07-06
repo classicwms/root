@@ -325,16 +325,18 @@ public class PerpetualHeaderService extends BaseService {
 			log.info("createdPerpetualLine : " + createdPerpetualLine);
 			perpetualLines.add(createdPerpetualLine);
 			
+			//----------Discussed to Remove this update on 06-07-2022------------------------------------------------
 			/*
-			 * On Successful Cycle count creation , fetch ST_BIN from PERPETUALLINE for the selected WH_ID/CC_NO and
+			 * On Successful Cycle count creation, fetch ST_BIN from PERPETUALLINE for the selected WH_ID/CC_NO and
 			 * Pass WH_ID/ ST_BIN in STORAGEBIN table and update PUTAWAY_BLOCK,PICK_BLOCK values with "TRUE"
 			 */
-			StorageBin modifiedStorageBin = new StorageBin();
-			modifiedStorageBin.setPutawayBlock(1);
-			modifiedStorageBin.setPickingBlock(1);
-			StorageBin updatedStorageBin = mastersService.updateStorageBin(createdPerpetualLine.getStorageBin(), 
-					modifiedStorageBin, loginUserID, authTokenForMastersService.getAccess_token());
-			log.info("updatedStorageBin : " + updatedStorageBin);
+//			StorageBin modifiedStorageBin = new StorageBin();
+//			modifiedStorageBin.setPutawayBlock(1);
+//			modifiedStorageBin.setPickingBlock(1);
+//			StorageBin updatedStorageBin = mastersService.updateStorageBin(createdPerpetualLine.getStorageBin(), 
+//					modifiedStorageBin, loginUserID, authTokenForMastersService.getAccess_token());
+//			log.info("updatedStorageBin : " + updatedStorageBin);
+			//----------Discussed to Remove this update on 06-07-2022------------------------------------------------
 		}
 		return createdPerpetualHeader;
 	}

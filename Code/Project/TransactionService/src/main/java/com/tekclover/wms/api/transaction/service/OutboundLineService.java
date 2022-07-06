@@ -539,6 +539,9 @@ public class OutboundLineService extends BaseService {
 							// OUTBOUNDHEADER update
 							UpdateOutboundHeader updateOutboundHeader = new UpdateOutboundHeader();
 							updateOutboundHeader.setStatusId(59L);
+							updateOutboundHeader.setDeliveryConfirmedOn(new Date());
+							updateOutboundHeader.setUpdatedOn(new Date());
+							updateOutboundHeader.setUpdatedBy(loginUserID);
 							OutboundHeader updatedOutboundHeader = 
 									outboundHeaderService.updateOutboundHeader(warehouseId, preOutboundNo, refDocNumber, partnerCode, updateOutboundHeader, loginUserID);
 							log.info("updatedOutboundHeader updated : " + updatedOutboundHeader);
