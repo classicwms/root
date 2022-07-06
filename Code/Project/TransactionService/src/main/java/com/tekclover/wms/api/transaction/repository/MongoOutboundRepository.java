@@ -10,7 +10,7 @@ import com.tekclover.wms.api.transaction.model.outbound.preoutbound.OutboundInte
 @Repository
 public interface MongoOutboundRepository extends MongoRepository<OutboundIntegrationHeader, String> {
 	
-	public List<OutboundIntegrationHeader> findByProcessedStatusIdOrderByOrderReceivedOnDesc(Long processedStatusId);
+	public List<OutboundIntegrationHeader> findByProcessedStatusIdOrderByOrderReceivedOn(Long processedStatusId);
 	
 	public OutboundIntegrationHeader findByRefDocumentNo(String refDocumentNo);
 }

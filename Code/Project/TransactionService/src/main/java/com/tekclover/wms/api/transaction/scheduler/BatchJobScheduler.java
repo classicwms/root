@@ -48,7 +48,7 @@ public class BatchJobScheduler {
 		log.info("The time is :" + new Date());
 		
 		if (inboundList == null || inboundList.isEmpty()) {
-			inboundList = mongoInboundRepository.findByProcessedStatusIdOrderByOrderReceivedOnDesc(0L);
+			inboundList = mongoInboundRepository.findByProcessedStatusIdOrderByOrderReceivedOn(0L);
 			spList = new CopyOnWriteArrayList<InboundIntegrationHeader>(inboundList); 
 			
 			log.info("Latest InboundIntegrationHeader : " + inboundList);
@@ -82,7 +82,7 @@ public class BatchJobScheduler {
 		log.info("The time is :" + new Date());
 		
 		if (outboundList == null || outboundList.isEmpty()) {
-			outboundList = mongoOutboundRepository.findByProcessedStatusIdOrderByOrderReceivedOnDesc(0L);
+			outboundList = mongoOutboundRepository.findByProcessedStatusIdOrderByOrderReceivedOn(0L);
 			spOutboundList = new CopyOnWriteArrayList<OutboundIntegrationHeader>(outboundList);
 			log.info("Latest OutboundIntegrationHeader : " + outboundList);
 			log.info("There is no record found to process...Waiting..");
