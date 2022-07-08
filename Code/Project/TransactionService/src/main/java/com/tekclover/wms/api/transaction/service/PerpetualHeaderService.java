@@ -305,7 +305,6 @@ public class PerpetualHeaderService extends BaseService {
 		log.info("createdPerpetualHeader : " + createdPerpetualHeader);
 		
 		// Lines Creation
-		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
 		List<PerpetualLine> perpetualLines = new ArrayList<>();
 		for (AddPerpetualLine newPerpetualLine : newPerpetualHeader.getAddPerpetualLine()) {
 			PerpetualLine dbPerpetualLine = new PerpetualLine();

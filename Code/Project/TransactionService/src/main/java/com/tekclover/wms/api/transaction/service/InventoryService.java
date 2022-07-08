@@ -439,7 +439,6 @@ public class InventoryService extends BaseService {
 		Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
 		InventorySpecification spec = new InventorySpecification(searchInventory);
 		Page<Inventory> results = inventoryRepository.findAll(spec, paging);
-//		log.info("results: " + results);
 		return results;
 	}
 	

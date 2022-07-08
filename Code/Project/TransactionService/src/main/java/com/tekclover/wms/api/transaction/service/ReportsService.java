@@ -13,6 +13,10 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.expression.ParseException;
 import org.springframework.stereotype.Service;
 
@@ -126,7 +130,7 @@ public class ReportsService extends BaseService {
 	 * @param stockTypeId
 	 * @return
 	 */
-	public List<StockReport> getStockReport (List<String> warehouseId, List<String> itemCode, String itemText, 
+	public Page<StockReport> getStockReport (List<String> warehouseId, List<String> itemCode, String itemText, 
 			String stockTypeText, Integer pageNo, Integer pageSize, String sortBy) {
 		if (warehouseId == null) {
 			throw new BadRequestException("WarehouseId can't be blank.");
@@ -161,6 +165,7 @@ public class ReportsService extends BaseService {
 			
 			searchInventory.setStockTypeId(stockTypeIdList);
 			
+			Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
 			Page<Inventory> inventoryList = inventoryService.findInventory(searchInventory, pageNo, pageSize, sortBy);
 //			log.info("inventoryList size: " + inventoryList);
 //			log.info("inventoryList : " + inventoryList);
@@ -260,7 +265,8 @@ public class ReportsService extends BaseService {
 				}
 			}
 			log.info("stockReportList : " + stockReportList);
-			return stockReportList;
+			final Page<StockReport> page = new PageImpl<>(stockReportList, pageable, inventoryList.getTotalElements());
+			return page;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -283,7 +289,7 @@ public class ReportsService extends BaseService {
 	 * @param pageNo 
 	 * @return 
 	 */
-	public List<InventoryReport> getInventoryReport(List<String> warehouseId, List<String> itemCode, String storageBin,
+	public Page<InventoryReport> getInventoryReport (List<String> warehouseId, List<String> itemCode, String storageBin,
 			String stockTypeText, List<String> stSectionIds, Integer pageNo, Integer pageSize, String sortBy) {
 		try {
 			AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
@@ -306,8 +312,8 @@ public class ReportsService extends BaseService {
 				searchInventory.setStorageBin(stBins);
 			}
 			
+			Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
 			Page<Inventory> inventoryList = inventoryService.findInventory(searchInventory, pageNo, pageSize, sortBy);
-			
 			List<InventoryReport> reportInventoryList = new ArrayList<>();
 			for (Inventory dbInventory : inventoryList) {
 				InventoryReport reportInventory = new InventoryReport();
@@ -357,7 +363,8 @@ public class ReportsService extends BaseService {
 				reportInventory.setStockType(dbInventory.getStockTypeId());
 				reportInventoryList.add(reportInventory);
 			}
-			return reportInventoryList;
+			final Page<InventoryReport> page = new PageImpl<>(reportInventoryList, pageable, inventoryList.getTotalElements());
+			return page;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -399,11 +406,8 @@ public class ReportsService extends BaseService {
 		try {
 			fromDate = DateUtils.convertStringToDate(fromCreatedOn);
 			fromDate = DateUtils.addTimeToDate(fromDate);
-			log.info("Date---f----->: " + fromDate);
-			
 			toDate = DateUtils.convertStringToDate(toCreatedOn);
 			toDate = DateUtils.addTimeToDate(toDate);
-			log.info("Date---t----->: " + toDate);
 		} catch (Exception e) {
 			throw new BadRequestException("Date shoud be in MM-dd-yyyy format.");
 		}
@@ -465,11 +469,11 @@ public class ReportsService extends BaseService {
 			 * if MVT_TYP_ID=3, Hard Coded Value "Outbound", 
 			 * MVT_TYP_ID=2, Harcoded Value "Transfer"
 			 */
-			if (inventoryMovement.getMovementType() == 1) {
+			if (inventoryMovement.getMovementType() == 1L) {
 				stockMovementReport.setDocumentType("Inbound");
-			} /*else if (inventoryMovement.getMovementType() == 2) {
+			} /*else if (inventoryMovement.getMovementType() == 2L) {
 				stockMovementReport.setDocumentType("Transfer");
-			} */ else if (inventoryMovement.getMovementType() == 3) {
+			} */ else if (inventoryMovement.getMovementType() == 3L) {
 				stockMovementReport.setDocumentType("Outbound");
 			}
 			
@@ -483,14 +487,14 @@ public class ReportsService extends BaseService {
 			 * 2. For MVT_TYP_ID = 3 records, pass MVT_DOC_NO in OUTBOUNDHEADER table and fetch PARTNER_CODE values and fill
 			 * 3. For MVT_TYP_ID = 2, Hard Coded Value "" BIN to BIN"""
 			 */
-			if (inventoryMovement.getMovementType() == 1) {
+			if (inventoryMovement.getMovementType() == 1L) {
 				List<InboundLine> inboundLine = inboundLineService.getInboundLine(inventoryMovement.getMovementDocumentNo());
 				if (!inboundLine.isEmpty()) {
 					stockMovementReport.setCustomerCode(inboundLine.get(0).getVendorCode());
 				}
 			} /*else if (inventoryMovement.getMovementType() == 2) {
 				stockMovementReport.setCustomerCode("BIN to BIN");
-			} */ else if (inventoryMovement.getMovementType() == 3) {
+			} */ else if (inventoryMovement.getMovementType() == 3L) {
 				OutboundHeader outboundHeader = outboundHeaderService.getOutboundHeader(inventoryMovement.getMovementDocumentNo());
 				if (outboundHeader != null) {
 					stockMovementReport.setCustomerCode(outboundHeader.getPartnerCode());
@@ -505,23 +509,16 @@ public class ReportsService extends BaseService {
 			
 			DateTimeFormatter newTimePattern = DateTimeFormatter.ofPattern("HH:mm:ss");
 			String currentTime = datetime.format(newTimePattern);
-			
-			log.info("CurrentDate : " + currentDate);
 			stockMovementReport.setCreatedOn(currentDate);
-			
-			log.info("CurrentTime : " + currentTime);
 			stockMovementReport.setCreatedTime(currentTime);
-			
-			// BAL_OH_QTY
-			if (inventoryMovement.getBalanceOHQty() != null) {
-				stockMovementReport.setBalanceOHQty(inventoryMovement.getBalanceOHQty());
-			}
 			
 			Double balanceOHQty = 0D;
 			Double movementQty = 0D;
 			
+			// BAL_OH_QTY
 			if (inventoryMovement.getBalanceOHQty() != null) {
 				balanceOHQty = inventoryMovement.getBalanceOHQty();
+				stockMovementReport.setBalanceOHQty(balanceOHQty);
 			}
 			
 			if (inventoryMovement.getMovementQty() != null) {
@@ -1010,15 +1007,20 @@ public class ReportsService extends BaseService {
 			ShipmentDispatchHeader header = new ShipmentDispatchHeader();
 			header.setPartnerCode(partnerCode);
 			
+			// Obtaining Child
+			List<OutboundLine> partnerOBLines = outboundLineSearchResults
+											.stream()
+											.filter(a->a.getPartnerCode().equalsIgnoreCase(partnerCode))
+											.collect(Collectors.toList());
+			
 			// List
 			List<ShipmentDispatchList> shipmentDispatchList = new ArrayList<>();
 			double totalLinesOrdered = 0.0;
 			double totalLinesShipped = 0.0;
 			double totalOrderedQty = 0.0;
 			double totalShippedQty = 0.0;
-			double averagePercentage = 0.0;
 		
-			for (OutboundLine outboundLine : outboundLineSearchResults) {
+			for (OutboundLine outboundLine : partnerOBLines) {
 				ShipmentDispatchList list = new ShipmentDispatchList();
 				list.setSoNumber(outboundLine.getRefDocNumber()); 			// REF_DOC_NO
 				
@@ -1127,10 +1129,8 @@ public class ReportsService extends BaseService {
 				 */
 				double percShipped = Math.round((shippedQty / orderedQty) * 100);
 				list.setPerentageShipped(percShipped);
-				averagePercentage += percShipped;
 				shipmentDispatchList.add(list);
 				log.info("percentage Shipped : " + percShipped);
-				log.info("averagePercentage : " + averagePercentage);
 			}
 			
 			/*
@@ -1140,6 +1140,7 @@ public class ReportsService extends BaseService {
 			header.setTotalLinesShipped(totalLinesShipped);
 			header.setTotalOrderedQty(totalOrderedQty);
 			header.setTotalShippedQty(totalShippedQty);
+			double averagePercentage = Math.round((totalShippedQty / totalOrderedQty) * 100);
 			header.setAveragePercentage(averagePercentage);
 			log.info("header : " + header);
 			

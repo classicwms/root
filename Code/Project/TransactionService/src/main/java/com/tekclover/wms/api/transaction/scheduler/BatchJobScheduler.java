@@ -1,7 +1,6 @@
 package com.tekclover.wms.api.transaction.scheduler;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -45,17 +44,16 @@ public class BatchJobScheduler {
 //	@Scheduled(cron ="* * * * * *")
 	@Scheduled(fixedDelay = 50000)
 	public void processInboundRecord() throws IllegalAccessException, InvocationTargetException {
-		log.info("The time is :" + new Date());
+//		log.info("The time is :" + new Date());
 		
 		if (inboundList == null || inboundList.isEmpty()) {
 			inboundList = mongoInboundRepository.findTopByProcessedStatusIdOrderByOrderReceivedOn(0L);
 			spList = new CopyOnWriteArrayList<InboundIntegrationHeader>(inboundList); 
-			
-			log.info("Latest InboundIntegrationHeader : " + inboundList);
 			log.info("There is no record found to process...Waiting..");
 		}
 		
 		if (inboundList != null) {
+			log.info("Latest InboundIntegrationHeader : " + inboundList);
 			for (InboundIntegrationHeader inbound : spList) {
 				try {
 					InboundHeader inboundheader = 
@@ -79,20 +77,19 @@ public class BatchJobScheduler {
 	// OutboundRecord
 	@Scheduled(fixedDelay = 25000)
 	public void processOutboundRecord() throws IllegalAccessException, InvocationTargetException {
-		log.info("The time is :" + new Date());
+//		log.info("The time is :" + new Date());
 		
 		if (outboundList == null || outboundList.isEmpty()) {
 			outboundList = mongoOutboundRepository.findTopByProcessedStatusIdOrderByOrderReceivedOn(0L);
 			spOutboundList = new CopyOnWriteArrayList<OutboundIntegrationHeader>(outboundList);
-			log.info("Latest OutboundIntegrationHeader : " + outboundList);
 			log.info("There is no record found to process...Waiting..");
 		}
 		
 		if (outboundList != null) {
+			log.info("Latest OutboundIntegrationHeader : " + outboundList);
 			for (OutboundIntegrationHeader outbound : spOutboundList) {
 				try {
 					OutboundHeader outboundHeader = preOutboundHeaderService.processOutboundReceived(outbound);
-					log.info("outboundHeader : " + outboundHeader);
 					if (outboundHeader != null) {
 						outbound.setProcessedStatusId(10L);
 						mongoOutboundRepository.save(outbound);

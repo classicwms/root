@@ -203,6 +203,15 @@ public class PeriodicLineService {
 		return responsePeriodicLines;
 	}
 	
+	/**
+	 * 
+	 * @param cycleCountNo
+	 * @param updatePeriodicLines
+	 * @param loginUserID
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
 	public List<PeriodicLine> updatePeriodicLine(String cycleCountNo, List<UpdatePeriodicLine> updatePeriodicLines,
 			String loginUserID) throws IllegalAccessException, InvocationTargetException {
 		List<PeriodicLine> responsePeriodicLines = new ArrayList<>();

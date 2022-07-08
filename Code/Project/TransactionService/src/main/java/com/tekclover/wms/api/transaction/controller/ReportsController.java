@@ -3,6 +3,7 @@ package com.tekclover.wms.api.transaction.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.expression.ParseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -71,8 +72,7 @@ public class ReportsController {
 			@RequestParam(defaultValue = "0") Integer pageNo,
 			@RequestParam(defaultValue = "10") Integer pageSize,
 			@RequestParam(defaultValue = "itemCode") String sortBy) {
-    	List<StockReport> stockReportList = 
-    			reportsService.getStockReport(warehouseId, itemCode, itemText, stockTypeText,
+    	Page<StockReport> stockReportList = reportsService.getStockReport(warehouseId, itemCode, itemText, stockTypeText,
     					pageNo, pageSize, sortBy);
 		return new ResponseEntity<>(stockReportList, HttpStatus.OK);
 	}
@@ -90,8 +90,7 @@ public class ReportsController {
 			@RequestParam(defaultValue = "0") Integer pageNo,
 			@RequestParam(defaultValue = "10") Integer pageSize,
 			@RequestParam(defaultValue = "itemCode") String sortBy) {
-    	List<InventoryReport> inventoryReportList = 
-    			reportsService.getInventoryReport(warehouseId, itemCode, storageBin, stockTypeText, stSectionIds,
+    	Page<InventoryReport> inventoryReportList = reportsService.getInventoryReport(warehouseId, itemCode, storageBin, stockTypeText, stSectionIds,
     					pageNo, pageSize, sortBy);
 		return new ResponseEntity<>(inventoryReportList, HttpStatus.OK);
 	}

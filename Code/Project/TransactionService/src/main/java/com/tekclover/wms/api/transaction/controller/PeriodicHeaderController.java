@@ -99,7 +99,7 @@ public class PeriodicHeaderController {
 	@DeleteMapping("/{cycleCountNo}")
 	public ResponseEntity<?> deletePeriodicHeader(@PathVariable String cycleCountNo, @RequestParam String companyCodeId, 
 			@RequestParam String palntId, @RequestParam String warehouseId, @RequestParam Long cycleCountTypeId,
-			@RequestParam Long movementTypeId, @RequestParam Long subMovementTypeId, @RequestParam String loginUserID) {
+			@RequestParam String loginUserID) {
     	periodicheaderService.deletePeriodicHeader(companyCodeId, palntId, warehouseId, cycleCountTypeId, cycleCountNo, loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}

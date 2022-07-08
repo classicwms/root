@@ -13,8 +13,6 @@ public class AddPeriodicHeader {
 	private String warehouseId;
 	private Long cycleCountTypeId;
 	private String cycleCountNo;
-	private Long movementTypeId;
-	private Long subMovementTypeId;
 	private String statusId;
 	private String referenceField1;
 	private String referenceField2;
