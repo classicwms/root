@@ -6,8 +6,6 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,24 +35,34 @@ public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader,L
 	/*
 	 * Reports
 	 */
-	@Query (value = "SELECT COUNT(REF_DOC_NO) FROM tbloutboundheader \r\n"
-			+ " WHERE WH_ID = :warehouseId AND PARTNER_CODE = :partnerCode AND REF_FIELD_1 = :refField1 \r\n"
-			+ " AND DLV_CNF_ON BETWEEN :startDate AND :endDate \r\n"
-			+ " GROUP BY REF_DOC_NO", nativeQuery = true)
-	public List<Long> findTotalOrder_NByWarehouseIdAndPartnerCode (
-									@Param(value = "warehouseId") String warehouseId,
-									@Param(value = "partnerCode") String partnerCode,
-									@Param(value = "refField1") String refField1,
-									@Param ("startDate") Date startDate,
-									@Param ("endDate") Date endDate);
+//	@Query (value = "SELECT COUNT(REF_DOC_NO) FROM tbloutboundheader \r\n"
+//			+ " WHERE WH_ID = :warehouseId AND PARTNER_CODE = :partnerCode AND REF_FIELD_1 = :refField1 \r\n"
+//			+ " AND DLV_CNF_ON BETWEEN :startDate AND :endDate AND STATUS_ID = 59 \r\n"
+//			+ " GROUP BY REF_DOC_NO", nativeQuery = true)
+//	public List<Long> findTotalOrder_NByWarehouseIdAndPartnerCode (
+//									@Param(value = "warehouseId") String warehouseId,
+//									@Param(value = "partnerCode") String partnerCode,
+//									@Param(value = "refField1") String refField1,
+//									@Param ("startDate") Date startDate,
+//									@Param ("endDate") Date endDate);
 	
-	@Query (value = "SELECT REF_DOC_NO AS refDocNo FROM tbloutboundheader \r\n"
-			+ " WHERE WH_ID = :warehouseId AND PARTNER_CODE = :partnerCode \r\n"
-			+ " AND DLV_CNF_ON BETWEEN :startDate AND :endDate \r\n"
-			+ " GROUP BY REF_DOC_NO", nativeQuery = true)
-	public List<String> findRefDocNoByWarehouseIdAndPartnerCode (
-									@Param(value = "warehouseId") String warehouseId,
-									@Param(value = "partnerCode") String partnerCode,
-									@Param ("startDate") Date startDate,
-									@Param ("endDate") Date endDate);
+	public List<OutboundHeader> findByWarehouseIdAndPartnerCodeAndReferenceField1AndStatusIdAndDeliveryConfirmedOnBetween (
+			String warehouseId, String partnerCode, String refField1, Long statusId, Date startDate, Date endDate);
+	
+//	@Query (value = "SELECT REF_DOC_NO AS refDocNo FROM tbloutboundheader \r\n"
+//			+ " WHERE WH_ID = :warehouseId AND PARTNER_CODE = :partnerCode \r\n"
+//			+ " AND STATUSI_ID = 59 AND DLV_CNF_ON BETWEEN :startDate AND :endDate \r\n"
+//			+ " GROUP BY REF_DOC_NO", nativeQuery = true)
+//	public List<String> findRefDocNoByWarehouseIdAndPartnerCode (
+//									@Param(value = "warehouseId") String warehouseId,
+//									@Param(value = "partnerCode") String partnerCode,
+//									@Param ("startDate") Date startDate,
+//									@Param ("endDate") Date endDate);
+	
+	public List<OutboundHeader> findByStatusIdAndDeliveryConfirmedOnBetween (Long statusId, Date startDate, Date endDate);
+	public List<OutboundHeader> findByStatusIdAndPartnerCodeAndDeliveryConfirmedOnBetween (Long statusId, 
+			String partnerCode, Date startDate, Date endDate);
+	
+//	public List<OutboundHeader> findByStatusIdAndPartnerCodeAndDeliveryConfirmedOnBetweenAndReferenceField1 (Long statusId, 
+//			String partnerCode, Date startDate, Date endDate, String refField1);
 }

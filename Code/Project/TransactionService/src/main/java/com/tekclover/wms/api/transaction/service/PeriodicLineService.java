@@ -17,6 +17,7 @@ import com.tekclover.wms.api.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.AddPeriodicHeader;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.AddPeriodicLine;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicHeader;
+import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicHeaderEntity;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicLine;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.UpdatePeriodicLine;
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.AssignHHTUserCC;
@@ -291,7 +292,7 @@ public class PeriodicLineService {
 					PeriodicHeader perpetualHeader = periodicHeaderService.getPeriodicHeader(updatedPeriodicLine.getCycleCountNo());
 					BeanUtils.copyProperties(perpetualHeader, newPeriodicHeader, CommonUtils.getNullPropertyNames(perpetualHeader));
 					newPeriodicHeader.setReferenceField1(updatedPeriodicLine.getCycleCountNo());
-					PeriodicHeader createdPeriodicHeader = 
+					PeriodicHeaderEntity createdPeriodicHeader = 
 							periodicHeaderService.createPeriodicHeader(newPeriodicHeader, loginUserID);
 					log.info("createdPeriodicHeader : " + createdPeriodicHeader);
 				}

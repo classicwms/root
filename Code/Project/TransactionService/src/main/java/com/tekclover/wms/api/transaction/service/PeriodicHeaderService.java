@@ -19,6 +19,7 @@ import com.tekclover.wms.api.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.AddPeriodicHeader;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.AddPeriodicLine;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicHeader;
+import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicHeaderEntity;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicLine;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicLineEntity;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.SearchPeriodicHeader;
@@ -60,11 +61,11 @@ public class PeriodicHeaderService extends BaseService {
 	 * getPeriodicHeaders
 	 * @return
 	 */
-	public List<PeriodicHeader> getPeriodicHeaders() {
+	public List<PeriodicHeaderEntity> getPeriodicHeaders() {
 		List<PeriodicHeader> periodicHeaderList = periodicHeaderRepository.findAll();
 		periodicHeaderList = periodicHeaderList.stream().filter(n -> n.getDeletionIndicator() == 0)
 				.collect(Collectors.toList());
-		return periodicHeaderList;
+		return convertToEntity (periodicHeaderList);
 	}
 
 	/**
@@ -78,6 +79,7 @@ public class PeriodicHeaderService extends BaseService {
 				periodicHeaderRepository.findByCompanyCodeAndPlantIdAndWarehouseIdAndCycleCountTypeIdAndCycleCountNo(
 						companyCode, plantId, warehouseId, cycleCountTypeId, cycleCountNo);
 		if (periodicHeader != null && periodicHeader.getDeletionIndicator() == 0) {
+//			return convertToEntity (periodicHeader);
 			return periodicHeader;
 		}
 		throw new BadRequestException("The given PeriodicHeader ID : " + cycleCountTypeId + " doesn't exist.");
@@ -90,7 +92,7 @@ public class PeriodicHeaderService extends BaseService {
 	 * @throws ParseException
 	 * @throws java.text.ParseException 
 	 */
-	public List<PeriodicHeader> findPeriodicHeader(SearchPeriodicHeader searchPeriodicHeader) 
+	public List<PeriodicHeaderEntity> findPeriodicHeader(SearchPeriodicHeader searchPeriodicHeader) 
 			throws ParseException, java.text.ParseException {
 		if (searchPeriodicHeader.getStartCreatedOn() != null && searchPeriodicHeader.getStartCreatedOn() != null) {
 			Date[] dates = DateUtils.addTimeToDatesForSearch(searchPeriodicHeader.getStartCreatedOn(),
@@ -99,15 +101,62 @@ public class PeriodicHeaderService extends BaseService {
 			searchPeriodicHeader.setEndCreatedOn(dates[1]);
 		}
 		PeriodicHeaderSpecification spec = new PeriodicHeaderSpecification(searchPeriodicHeader);
-		List<PeriodicHeader> results = periodicHeaderRepository.findAll(spec);
-		log.info("results: " + results);
-		return results;
+		List<PeriodicHeader> periodicHeaderResults = periodicHeaderRepository.findAll(spec);
+		return convertToEntity (periodicHeaderResults);
 	}
 	
 	/**
-	 * Pass the selected ST_SEC_ID values into STORAGEBIN table and fetch ST_BIN values
-	 * Pass the fetched WH_ID/ST_BIN values into INVENOTRY tables  and fetch the below values
+	 * 
+	 * @param periodicheaderList
+	 * @return
+	 */
+	private List<PeriodicHeaderEntity> convertToEntity (List<PeriodicHeader> periodicheaderList) {
+		List<PeriodicHeaderEntity> listPeriodicHeaderEntity = new ArrayList<>();
+		for (PeriodicHeader periodicheader : periodicheaderList) {
+			List<PeriodicLine> perpetualLineList = periodicLineService.getPeriodicLine(periodicheader.getCycleCountNo());
+			
+			List<PeriodicLineEntity> listPeriodicLineEntity = new ArrayList<>();
+			for (PeriodicLine periodicLine : perpetualLineList) {
+				PeriodicLineEntity perpetualLineEntity = new PeriodicLineEntity();
+				BeanUtils.copyProperties(periodicLine, perpetualLineEntity, CommonUtils.getNullPropertyNames(periodicLine));
+				listPeriodicLineEntity.add(perpetualLineEntity);
+			}
+			
+			PeriodicHeaderEntity periodicheaderEntity = new PeriodicHeaderEntity();
+			BeanUtils.copyProperties(periodicheader, periodicheaderEntity, CommonUtils.getNullPropertyNames(periodicheader));
+			periodicheaderEntity.setPeriodicLine(listPeriodicLineEntity);
+			listPeriodicHeaderEntity.add(periodicheaderEntity);
+		}
+		return listPeriodicHeaderEntity;
+	}
+	
+	/**
+	 * 
+	 * @param periodicheader
+	 * @return
+	 */
+	private PeriodicHeaderEntity convertToEntity (PeriodicHeader periodicheader) {
+		List<PeriodicLine> perpetualLineList = periodicLineService.getPeriodicLine(periodicheader.getCycleCountNo());
+		
+		List<PeriodicLineEntity> listPeriodicLineEntity = new ArrayList<>();
+		for (PeriodicLine periodicLine : perpetualLineList) {
+			PeriodicLineEntity perpetualLineEntity = new PeriodicLineEntity();
+			BeanUtils.copyProperties(periodicLine, perpetualLineEntity, CommonUtils.getNullPropertyNames(periodicLine));
+			listPeriodicLineEntity.add(perpetualLineEntity);
+		}
+		
+		PeriodicHeaderEntity periodicheaderEntity = new PeriodicHeaderEntity();
+		BeanUtils.copyProperties(periodicheader, periodicheaderEntity, CommonUtils.getNullPropertyNames(periodicheader));
+		periodicheaderEntity.setPeriodicLine(listPeriodicLineEntity);
+		return periodicheaderEntity;
+	}
+	
+	/**
+	 * Pass the selected ST_SEC_ID values into STORAGEBIN table and fetch ST_BIN
+	 * values Pass the fetched WH_ID/ST_BIN values into INVENOTRY tables and fetch
+	 * the below values
 	 * -----------------------------------------------------------------------------------------
+	 * 
 	 * @param warehouseId
 	 * @param stSecIds
 	 * @return
@@ -185,7 +234,7 @@ public class PeriodicHeaderService extends BaseService {
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	public PeriodicHeader createPeriodicHeader(AddPeriodicHeader newPeriodicHeader, String loginUserID)
+	public PeriodicHeaderEntity createPeriodicHeader(AddPeriodicHeader newPeriodicHeader, String loginUserID)
 			throws IllegalAccessException, InvocationTargetException {
 		PeriodicHeader dbPeriodicHeader = new PeriodicHeader();
 		BeanUtils.copyProperties(newPeriodicHeader, dbPeriodicHeader, CommonUtils.getNullPropertyNames(newPeriodicHeader));
@@ -220,9 +269,6 @@ public class PeriodicHeaderService extends BaseService {
 			PeriodicLine dbPeriodicLine = new PeriodicLine();
 			BeanUtils.copyProperties(newPeriodicLine, dbPeriodicLine, CommonUtils.getNullPropertyNames(newPeriodicLine));
 			
-			// LANG_ID
-//			dbPeriodicLine.setLanguageId("EN");
-			
 			// WH_ID
 			dbPeriodicLine.setWarehouseId(createdPeriodicHeader.getWarehouseId());
 			
@@ -242,7 +288,18 @@ public class PeriodicHeaderService extends BaseService {
 			log.info("createdPeriodicLine : " + createdPeriodicLine);
 			periodicLineList.add(createdPeriodicLine);
 		}
-		return createdPeriodicHeader;
+		PeriodicHeaderEntity periodicheaderEntity = new PeriodicHeaderEntity();
+		BeanUtils.copyProperties(createdPeriodicHeader, periodicheaderEntity, CommonUtils.getNullPropertyNames(createdPeriodicHeader));
+		
+		List<PeriodicLineEntity> listPeriodicLineEntity = new ArrayList<>();
+		for (PeriodicLine periodicLine : periodicLineList) {
+			PeriodicLineEntity perpetualLineEntity = new PeriodicLineEntity();
+			BeanUtils.copyProperties(periodicLine, perpetualLineEntity, CommonUtils.getNullPropertyNames(periodicLine));
+			listPeriodicLineEntity.add(perpetualLineEntity);
+		}
+		
+		periodicheaderEntity.setPeriodicLine(listPeriodicLineEntity);
+		return periodicheaderEntity;
 	}
 
 	/**
@@ -266,8 +323,8 @@ public class PeriodicHeaderService extends BaseService {
 		
 		/*
 		 * Pass CC_NO in PERPETUALLINE table and validate STATUS_ID of the selected records. 
-		 * 1. If STATUS_ID=78 for all the selected records, update STATUS_ID of PERPETUALHEADER table as "78" by passing CC_NO
-		 * 2. If STATUS_ID=74 for all the selected records, Update STATUS_ID of PERPETUALHEADER table as "74" by passing CC_NO
+		 * 1. If STATUS_ID=78 for all the selected records, update STATUS_ID of periodicheader table as "78" by passing CC_NO
+		 * 2. If STATUS_ID=74 for all the selected records, Update STATUS_ID of periodicheader table as "74" by passing CC_NO
 		 * Else Update STATUS_ID as "73"
 		 */
 		List<PeriodicLine> PeriodicLines = periodicLineService.getPeriodicLine (cycleCountNo);

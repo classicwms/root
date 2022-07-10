@@ -8,9 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +64,7 @@ import com.tekclover.wms.api.transaction.model.report.StockMovementReport;
 import com.tekclover.wms.api.transaction.model.report.StockReport;
 import com.tekclover.wms.api.transaction.model.report.SummaryMetrics;
 import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
+import com.tekclover.wms.api.transaction.repository.OutboundHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundLineRepository;
 import com.tekclover.wms.api.transaction.repository.StorageBinRepository;
 import com.tekclover.wms.api.transaction.util.DateUtils;
@@ -125,6 +124,9 @@ public class ReportsService extends BaseService {
 	ImBasicData1Repository imbasicdata1Repository;
 	
 	@Autowired
+	OutboundHeaderRepository outboundHeaderRepository;
+	
+	@Autowired
 	OutboundLineRepository outboundLineRepository;
 	
 	/**
@@ -170,9 +172,12 @@ public class ReportsService extends BaseService {
 			}
 			
 			searchInventory.setStockTypeId(stockTypeIdList);
+			log.info("searchInventory : " + searchInventory);
 			
 			Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
 			Page<Inventory> inventoryList = inventoryService.findInventory(searchInventory, pageNo, pageSize, sortBy);
+			log.info("inventoryList : " + inventoryList);
+			
 			List<StockReport> stockReportList = new ArrayList<>();
 			for (Inventory inventory : inventoryList) {
 				StockReport stockReport = new StockReport();
@@ -830,107 +835,54 @@ public class ReportsService extends BaseService {
 			throw new BadRequestException("Date shoud be in MM-dd-yyyy format.");
 		}
 		
-		List<OutboundLine> outboundLineSearchResults = null;
-		if (!customerCode.isEmpty()) {
-			outboundLineSearchResults = outboundLineRepository.findByPartnerCodeInAndDeliveryConfirmedOnBetween(customerCode, fromDeliveryDate_d, toDeliveryDate_d);
-			log.info("outboundLineSearchResults---1---> : " + outboundLineSearchResults);
-		} else {
-			outboundLineSearchResults = outboundLineRepository.findByDeliveryConfirmedOnBetween(fromDeliveryDate_d, toDeliveryDate_d);
-			log.info("outboundLineSearchResults----2---> : " + outboundLineSearchResults);
-		}
-		
+		List<OutboundHeader> outboundHeaderList = outboundHeaderRepository.findByStatusIdAndDeliveryConfirmedOnBetween (59L, fromDeliveryDate_d, toDeliveryDate_d);
 		ShipmentDeliverySummaryReport shipmentDeliverySummaryReport = new ShipmentDeliverySummaryReport();
 		List<ShipmentDeliverySummary> shipmentDeliverySummaryList = new ArrayList<>();
 		String warehouseId = null;
-		Set<String> uniqueRefDocNo = new HashSet<>();
 		try {
-			for (OutboundLine outboundLine : outboundLineSearchResults) {
-				String refDocNumber = outboundLine.getRefDocNumber();
+			for (OutboundHeader outboundHeader : outboundHeaderList) {
+				// Report Preparation
+				ShipmentDeliverySummary shipmentDeliverySummary = new ShipmentDeliverySummary();
 				
-				if (uniqueRefDocNo.add(refDocNumber)) {
-					log.info("uniqueRefDocNumber : " + refDocNumber);
-					
-					// Report Preparation
-					ShipmentDeliverySummary shipmentDeliverySummary = new ShipmentDeliverySummary();
-					
-					// SO
-					shipmentDeliverySummary.setSo(outboundLine.getRefDocNumber());
-					
-					OutboundHeader outboundHeader = null;
-					try {
-						outboundHeader = outboundHeaderService.getOutboundHeader(outboundLine.getRefDocNumber());
-						log.info("outboundHeader : " + outboundHeader);
-					} catch (Exception e) {
-						List<OutboundHeader> outboundHeaders = outboundHeaderService.getOutboundHeaders();
-						outboundHeaders = outboundHeaders.stream()
-							.filter(a -> a.getRefDocNumber().equalsIgnoreCase(refDocNumber))
-							.collect(Collectors.toList());
-						outboundHeader = outboundHeaders.get(0);
-						log.info("outboundHeader : " + outboundHeader);
-					}
-					
-					shipmentDeliverySummary.setExpectedDeliveryDate(outboundHeader.getRequiredDeliveryDate());	// DEL_DATE
-					shipmentDeliverySummary.setDeliveryDateTime(outboundLine.getDeliveryConfirmedOn()); 		// DLV_CNF_ON
-					shipmentDeliverySummary.setBranchCode(outboundLine.getPartnerCode()); 						// PARTNER_CODE/PARTNER_NM
-					shipmentDeliverySummary.setOrderType(outboundLine.getReferenceField1()); 					// REF_FIELD_1 - Order type
-					
-					/*
-					 * Line Ordered
-					 * ---------------------
-					 * Pass WH_ID/PRE_OB_NO/REF_DOC_NO in OUTBOUNDLINE and fetch the COUNT of Lines for OB_LINE_NO 
-					 * where REF_FIELD_2 = Null and display
-					 */
-					warehouseId = outboundLine.getWarehouseId();
-					String preOutboundNo = outboundLine.getPreOutboundNo();
-					Long obLineNo = outboundLine.getLineNumber();
-					String itemCode = outboundLine.getItemCode();
-					
-					List<OutboundLine> reportOutboundLineList = 
-							outboundLineService.getOutboundLineForReports(warehouseId, preOutboundNo, refDocNumber);
-					log.info("reportOutboundLineList : " + reportOutboundLineList);
-					
-					if (!reportOutboundLineList.isEmpty()) {
-						shipmentDeliverySummary.setLineOrdered(reportOutboundLineList.stream().count());
-						
-						/*
-						 * Ordered Qty
-						 * --------------------------------------------------------
-						 * Pass WH_ID/PRE_OB_NO/REF_DOC_NO in OUTBOUNDLINE and fetch the SUM of ORD_QTY values for OB_LINE_NO 
-						 * where REF_FIELD_2 = Null and display
-						 */
-						List<Long> sumOrderedQtyList = outboundLineService.getSumOfOrderedQty(warehouseId, preOutboundNo, refDocNumber);
-						double sumOrderedQty = sumOrderedQtyList.stream().mapToLong(Long::longValue).sum();
-						shipmentDeliverySummary.setOrderedQty(sumOrderedQty);
-						
-						/*
-						 * Shipped Qty
-						 * --------------------
-						 * Pass WH_ID/PRE_OB_NO/REF_DOC_NO in OUTBOUNDLINE and fetch the SUM of DLV_QTY values for OB_LINE_NO 
-						 * where REF_FIELD_2 = Null and display
-						 */
-						List<Long> sumShippedQtyList = outboundLineService.getDeliveryLines(warehouseId, preOutboundNo, refDocNumber);
-						double sumShippedQty = sumShippedQtyList.stream().mapToLong(Long::longValue).sum();
-						shipmentDeliverySummary.setShippedQty(sumShippedQty);
-						
-						// % Shipped - Divide (Shipped lines/Ordered Lines)*100
-						double percShipped = Math.round((sumShippedQty / sumOrderedQty) * 100);
-						shipmentDeliverySummary.setPercentageShipped(percShipped);
-						log.info("shipmentDeliverySummary : " + shipmentDeliverySummary);
-					}
-					
-					/*
-					 * Line Shipped
-					 * ---------------------
-					 * Pass PRE_OB_NO/OB_LINE_NO/ITM_CODE in OUTBOUNDLINE table and fetch Count of OB_LINE_NO values
-					 * where REF_FIELD_2 = Null and DLV_QTY>0
-					 */
-					List<Long> lineShippedList = outboundLineService.getLineShipped (preOutboundNo, obLineNo, itemCode);
-					long lineShippedCount = lineShippedList.stream().mapToLong(Long::longValue).sum();
-					shipmentDeliverySummary.setLineShipped(lineShippedCount);
-							
-					shipmentDeliverySummaryList.add(shipmentDeliverySummary);
-					log.info("shipmentDeliverySummaryReportList : " + shipmentDeliverySummaryList);
-				}
+				shipmentDeliverySummary.setSo(outboundHeader.getRefDocNumber());							// SO
+				shipmentDeliverySummary.setExpectedDeliveryDate(outboundHeader.getRequiredDeliveryDate());	// DEL_DATE
+				shipmentDeliverySummary.setDeliveryDateTime(outboundHeader.getDeliveryConfirmedOn()); 		// DLV_CNF_ON
+				shipmentDeliverySummary.setBranchCode(outboundHeader.getPartnerCode()); 						// PARTNER_CODE/PARTNER_NM
+				shipmentDeliverySummary.setOrderType(outboundHeader.getReferenceField1()); 
+				
+				// Line Ordered
+				List<Long> countOfOrderedLines = outboundLineService.getCountofOrderedLines (outboundHeader.getWarehouseId(), 
+						outboundHeader.getPreOutboundNo(), outboundHeader.getRefDocNumber());
+				
+				// Line Shipped
+				List<Long> deliveryLines = outboundLineService.getDeliveryLines (outboundHeader.getWarehouseId(), 
+						outboundHeader.getPreOutboundNo(), outboundHeader.getRefDocNumber());
+				
+				// Ordered Qty
+				List<Long> sumOfOrderedQty = outboundLineService.getSumOfOrderedQty (outboundHeader.getWarehouseId(), 
+						outboundHeader.getPreOutboundNo(), outboundHeader.getRefDocNumber());
+				
+				// Shipped Qty
+				List<Long> sumOfDeliveryQtyList = outboundLineService.getDeliveryQty (outboundHeader.getWarehouseId(), 
+						outboundHeader.getPreOutboundNo(), outboundHeader.getRefDocNumber());
+				
+				double countOfOrderedLinesvalue = countOfOrderedLines.stream().mapToLong(Long::longValue).sum();
+				double deliveryLinesCount = deliveryLines.stream().mapToLong(Long::longValue).sum();
+				double sumOfOrderedQtyValue = sumOfOrderedQty.stream().mapToLong(Long::longValue).sum();
+				double sumOfDeliveryQty = sumOfDeliveryQtyList.stream().mapToLong(Long::longValue).sum();
+				
+				shipmentDeliverySummary.setLineOrdered(countOfOrderedLinesvalue);
+				shipmentDeliverySummary.setLineShipped (deliveryLinesCount);
+				shipmentDeliverySummary.setOrderedQty(sumOfOrderedQtyValue);
+				shipmentDeliverySummary.setShippedQty(sumOfDeliveryQty);
+				
+				// % Shipped - Divide (Shipped lines/Ordered Lines)*100
+				double percShipped = Math.round((deliveryLinesCount / countOfOrderedLinesvalue) * 100);
+				shipmentDeliverySummary.setPercentageShipped(percShipped);
+				log.info("shipmentDeliverySummary : " + shipmentDeliverySummary);
+
+				shipmentDeliverySummaryList.add(shipmentDeliverySummary);
+				log.info("shipmentDeliverySummaryReportList : " + shipmentDeliverySummaryList);
 			}
 			
 			//--------------------------------------------------------------------------------------------------------------------------------
@@ -1316,17 +1268,17 @@ public class ReportsService extends BaseService {
 	private SummaryMetrics getMetricsDetails (String type, String warehouseId, String partnerCode, 
 			String refField1, Date fromDeliveryDate_d, Date toDeliveryDate_d) 
 					throws ParseException, java.text.ParseException {
-		List<Long> total_order_NList = 
-				outboundHeaderService.getTotalOrder_N (warehouseId, partnerCode, refField1, fromDeliveryDate_d, toDeliveryDate_d);
-		log.info("total_order_N List: " + total_order_NList);
-		
-		long total_order_N = total_order_NList.stream().mapToLong(Long::longValue).sum();
-		log.info("total_order_N : " + total_order_N);
-		
-		List<String> refDocNoList = 
-				outboundHeaderService.getRefDocListByWarehouseIdAndPartnerCode (warehouseId, partnerCode, 
-						fromDeliveryDate_d, toDeliveryDate_d);
+		List<OutboundHeader> outboundHeaderList = 
+				outboundHeaderRepository.findByStatusIdAndPartnerCodeAndDeliveryConfirmedOnBetween (59L, partnerCode, fromDeliveryDate_d, toDeliveryDate_d);
+		List<String> refDocNoList = outboundHeaderList.stream()
+				.filter(a->a.getReferenceField1().equalsIgnoreCase(refField1))
+				.map(OutboundHeader::getRefDocNumber).collect(Collectors.toList());
 		log.info("refDocNoList : " + refDocNoList);
+		
+		List<String> refField1List = outboundHeaderList.stream().map(OutboundHeader::getReferenceField1).collect(Collectors.toList());
+		
+		Long totalOrdeCount = refField1List.stream().filter(a->a.equalsIgnoreCase(refField1)).count();
+		log.info("refField1List : " + refField1List + "," + totalOrdeCount);
 		
 		/*
 		 * 101- Line items(N)
@@ -1354,7 +1306,7 @@ public class ReportsService extends BaseService {
 			
 			// Populate Metrics
 			MetricsSummary metricsSummary = new MetricsSummary();
-			metricsSummary.setTotalOrder(total_order_N);
+			metricsSummary.setTotalOrder(totalOrdeCount);
 			metricsSummary.setLineItems(line_item_N);
 			metricsSummary.setPercentageShipped(percShipped_N);
 			

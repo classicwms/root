@@ -126,32 +126,6 @@ public class OutboundHeaderService {
 	
 	/**
 	 * 
-	 * @param warehouseId
-	 * @param partnerCode
-	 * @return
-	 */
-	public List<Long> getTotalOrder_N (String warehouseId, String partnerCode, 
-			String refField1, Date startDate, Date endDate) {
-		List<Long> totalOrderCount = outboundHeaderRepository.findTotalOrder_NByWarehouseIdAndPartnerCode(warehouseId, 
-				partnerCode, refField1, startDate, endDate);
-		return totalOrderCount;
-	}
-	
-	/**
-	 * 
-	 * @param warehouseId
-	 * @param partnerCode
-	 * @return
-	 */
-	public List<String> getRefDocListByWarehouseIdAndPartnerCode (String warehouseId, String partnerCode,
-			Date startDate, Date endDate) {
-		List<String> totalOrderList = 
-				outboundHeaderRepository.findRefDocNoByWarehouseIdAndPartnerCode(warehouseId, partnerCode, startDate, endDate);
-		return totalOrderList;
-	}
-	
-	/**
-	 * 
 	 * @param searchOutboundHeader
 	 * @return
 	 * @throws ParseException

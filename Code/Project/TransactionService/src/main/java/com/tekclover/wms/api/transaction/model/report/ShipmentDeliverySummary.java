@@ -14,8 +14,8 @@ public class ShipmentDeliverySummary {
 	private Date deliveryDateTime; 			// Delivery date/Time
 	private String branchCode;				// Branch Code
 	private String orderType;				// Order type
-	private Long lineOrdered;				// Line Ordered
-	private Long lineShipped;				// Line Shipped
+	private Double lineOrdered;				// Line Ordered
+	private Double lineShipped;				// Line Shipped
 	private Double orderedQty;				// Ordered Qty
 	private Double shippedQty;				// Shipped Qty
 	private Double percentageShipped;		// % Shipped

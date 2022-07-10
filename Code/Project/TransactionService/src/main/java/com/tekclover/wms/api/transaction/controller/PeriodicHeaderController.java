@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.AddPeriodicHeader;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicHeader;
+import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicHeaderEntity;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicLineEntity;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.SearchPeriodicHeader;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.UpdatePeriodicHeader;
@@ -47,7 +48,7 @@ public class PeriodicHeaderController {
     @ApiOperation(response = PeriodicHeader.class, value = "Get all PeriodicHeader details") // label for swagger
 	@GetMapping("")
 	public ResponseEntity<?> getAll() {
-		List<PeriodicHeader> periodicheaderList = periodicheaderService.getPeriodicHeaders();
+		List<PeriodicHeaderEntity> periodicheaderList = periodicheaderService.getPeriodicHeaders();
 		return new ResponseEntity<>(periodicheaderList, HttpStatus.OK); 
 	}
     
@@ -62,7 +63,7 @@ public class PeriodicHeaderController {
     
 	@ApiOperation(response = PeriodicHeader.class, value = "Search PeriodicHeader") // label for swagger
 	@PostMapping("/findPeriodicHeader")
-	public List<PeriodicHeader> findPeriodicHeader(@RequestBody SearchPeriodicHeader searchPeriodicHeader)
+	public List<PeriodicHeaderEntity> findPeriodicHeader(@RequestBody SearchPeriodicHeader searchPeriodicHeader)
 			throws Exception {
 		return periodicheaderService.findPeriodicHeader(searchPeriodicHeader);
 	}
@@ -79,7 +80,7 @@ public class PeriodicHeaderController {
 	@PostMapping("")
 	public ResponseEntity<?> postPeriodicHeader(@Valid @RequestBody AddPeriodicHeader newPeriodicHeader, @RequestParam String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
-		PeriodicHeader createdPeriodicHeader = periodicheaderService.createPeriodicHeader(newPeriodicHeader, loginUserID);
+		PeriodicHeaderEntity createdPeriodicHeader = periodicheaderService.createPeriodicHeader(newPeriodicHeader, loginUserID);
 		return new ResponseEntity<>(createdPeriodicHeader , HttpStatus.OK);
 	}
     
