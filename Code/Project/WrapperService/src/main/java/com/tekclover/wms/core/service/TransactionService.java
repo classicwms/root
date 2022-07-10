@@ -22,6 +22,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.tekclover.wms.core.config.PropertiesConfig;
 import com.tekclover.wms.core.model.transaction.AXApiResponse;
 import com.tekclover.wms.core.model.transaction.AddGrLine;
+import com.tekclover.wms.core.model.transaction.AddPeriodicHeader;
 import com.tekclover.wms.core.model.transaction.AddPerpetualHeader;
 import com.tekclover.wms.core.model.transaction.AddPickupLine;
 import com.tekclover.wms.core.model.transaction.AddPutAwayLine;
@@ -51,6 +52,9 @@ import com.tekclover.wms.core.model.transaction.OutboundLine;
 import com.tekclover.wms.core.model.transaction.OutboundReversal;
 import com.tekclover.wms.core.model.transaction.PackBarcode;
 import com.tekclover.wms.core.model.transaction.PaginatedResponse;
+import com.tekclover.wms.core.model.transaction.PeriodicHeader;
+import com.tekclover.wms.core.model.transaction.PeriodicHeaderEntity;
+import com.tekclover.wms.core.model.transaction.PeriodicLine;
 import com.tekclover.wms.core.model.transaction.PerpetualHeader;
 import com.tekclover.wms.core.model.transaction.PerpetualHeaderEntity;
 import com.tekclover.wms.core.model.transaction.PerpetualLine;
@@ -77,6 +81,7 @@ import com.tekclover.wms.core.model.transaction.SearchOrderManagementLine;
 import com.tekclover.wms.core.model.transaction.SearchOutboundHeader;
 import com.tekclover.wms.core.model.transaction.SearchOutboundLine;
 import com.tekclover.wms.core.model.transaction.SearchOutboundReversal;
+import com.tekclover.wms.core.model.transaction.SearchPeriodicHeader;
 import com.tekclover.wms.core.model.transaction.SearchPerpetualHeader;
 import com.tekclover.wms.core.model.transaction.SearchPickupHeader;
 import com.tekclover.wms.core.model.transaction.SearchPickupLine;
@@ -97,7 +102,8 @@ import com.tekclover.wms.core.model.transaction.StagingLine;
 import com.tekclover.wms.core.model.transaction.StagingLineEntity;
 import com.tekclover.wms.core.model.transaction.StockMovementReport;
 import com.tekclover.wms.core.model.transaction.StockReport;
-import com.tekclover.wms.core.model.transaction.UpdateOutboundLine;
+import com.tekclover.wms.core.model.transaction.UpdatePeriodicHeader;
+import com.tekclover.wms.core.model.transaction.UpdatePeriodicLine;
 import com.tekclover.wms.core.model.transaction.UpdatePerpetualHeader;
 import com.tekclover.wms.core.model.transaction.UpdatePerpetualLine;
 import com.tekclover.wms.core.repository.MongoTransactionRepository;
@@ -3483,7 +3489,7 @@ public class TransactionService {
 	/*----------------------------------REPORTS----------------------------------------------------------*/
 	
 	// GET - STOCK REPORT
-	public StockReport[] getStockReports(List<String> warehouseId, List<String> itemCode, String itemText,
+	public PaginatedResponse<StockReport> getStockReports(List<String> warehouseId, List<String> itemCode, String itemText,
 			String stockTypeText, Integer pageNo, Integer pageSize, String sortBy, String authToken) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
@@ -3502,8 +3508,13 @@ public class TransactionService {
 					.queryParam("sortBy", sortBy);
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			
-			ResponseEntity<StockReport[]> result = 
-					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, StockReport[].class);
+//			ResponseEntity<StockReport[]> result = 
+//					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, StockReport[].class);
+			
+			ParameterizedTypeReference<PaginatedResponse<StockReport>> responseType = 
+					new ParameterizedTypeReference<PaginatedResponse<StockReport>>() {};
+			ResponseEntity<PaginatedResponse<StockReport>> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, responseType);
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -3512,7 +3523,7 @@ public class TransactionService {
 	}
 
 	// GET - INVENTORY REPORT
-	public InventoryReport[] getInventoryReport(List<String> warehouseId, List<String> itemCode, String storageBin,
+	public PaginatedResponse<InventoryReport> getInventoryReport(List<String> warehouseId, List<String> itemCode, String storageBin,
 			String stockTypeText, List<String> stSectionIds, Integer pageNo, Integer pageSize, String sortBy, String authToken) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
@@ -3531,9 +3542,13 @@ public class TransactionService {
 					.queryParam("pageSize", pageSize)
 					.queryParam("sortBy", sortBy);
 			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ParameterizedTypeReference<PaginatedResponse<InventoryReport>> responseType = 
+					new ParameterizedTypeReference<PaginatedResponse<InventoryReport>>() {};
+			ResponseEntity<PaginatedResponse<InventoryReport>> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, responseType);
 			
-			ResponseEntity<InventoryReport[]> result = 
-					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, InventoryReport[].class);
+//			ResponseEntity<InventoryReport[]> result = 
+//					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, InventoryReport[].class);
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -3952,6 +3967,219 @@ public class TransactionService {
 					.queryParam("loginUserID", loginUserID);
 			ResponseEntity<PerpetualLine[]> result = 
 					restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, PerpetualLine[].class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	
+	//---------------------------------PeriodicHeader----------------------------------------------------
+	// GET ALL
+	public PeriodicHeaderEntity[] getPeriodicHeaders(String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "periodicheader");
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<PeriodicHeaderEntity[]> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, PeriodicHeaderEntity[].class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	// GET
+	public PeriodicHeader[] getPeriodicHeader(String warehouseId, Long cycleCountTypeId,
+			String cycleCountNo, Long movementTypeId, Long subMovementTypeId, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "periodicheader/" + cycleCountNo)
+					.queryParam("warehouseId", warehouseId)
+					.queryParam("cycleCountTypeId", cycleCountTypeId)
+					.queryParam("movementTypeId", movementTypeId)
+					.queryParam("subMovementTypeId", subMovementTypeId);
+					
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<PeriodicHeader[]> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, PeriodicHeader[].class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	
+	// FIND ALL - findPeriodicHeader
+	public PeriodicHeaderEntity[] findPeriodicHeader (SearchPeriodicHeader searchPeriodicHeader,
+		String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "periodicheader/findPeriodicHeader");
+			HttpEntity<?> entity = new HttpEntity<>(searchPeriodicHeader, headers);	
+			ResponseEntity<PeriodicHeaderEntity[]> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PeriodicHeaderEntity[].class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	// POST - CREATE
+	public PeriodicHeaderEntity createPeriodicHeader(@Valid AddPeriodicHeader newPeriodicHeader, String loginUserID,
+			String authToken) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.add("User-Agent", "MNRClara RestTemplate");
+		headers.add("Authorization", "Bearer " + authToken);
+		UriComponentsBuilder builder = 
+				UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "periodicheader")
+				.queryParam("loginUserID", loginUserID);
+		HttpEntity<?> entity = new HttpEntity<>(newPeriodicHeader, headers);
+		ResponseEntity<PeriodicHeaderEntity> result = 
+				getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PeriodicHeaderEntity.class);
+		log.info("result : " + result.getStatusCode());
+		return result.getBody();
+	}
+	
+	// POST - RUN
+	public PeriodicLine[] runPeriodicHeader(String warehouseId, List<String> stSecIds, String authToken) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.add("User-Agent", "MNRClara RestTemplate");
+		headers.add("Authorization", "Bearer " + authToken);
+		UriComponentsBuilder builder = 
+				UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "periodicheader/run")
+				.queryParam("warehouseId", warehouseId)
+				.queryParam("stSecIds", stSecIds);
+		HttpEntity<?> entity = new HttpEntity<>(headers);
+		ResponseEntity<PeriodicLine[]> result = 
+				getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PeriodicLine[].class);
+		log.info("result : " + result.getStatusCode());
+		return result.getBody();
+	}
+
+	// PATCH 
+	public PeriodicHeader updatePeriodicHeader(String warehouseId, Long cycleCountTypeId, String cycleCountNo,
+			String loginUserID, UpdatePeriodicHeader updatePeriodicHeader, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			
+			HttpEntity<?> entity = new HttpEntity<>(updatePeriodicHeader, headers);
+			HttpClient client = HttpClients.createDefault();
+			RestTemplate restTemplate = getRestTemplate();
+			restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client)); 
+			
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "periodicheader/" + cycleCountNo)
+					.queryParam("warehouseId", warehouseId)
+					.queryParam("cycleCountTypeId", cycleCountTypeId)
+					.queryParam("loginUserID", loginUserID);
+			
+			ResponseEntity<PeriodicHeader> result = 
+					restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, PeriodicHeader.class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	// DELETE
+	public boolean deletePeriodicHeader(String warehouseId, Long cycleCountTypeId, String cycleCountNo,
+			String loginUserID, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "periodicheader/" + cycleCountNo)
+					.queryParam("warehouseId", warehouseId)
+					.queryParam("cycleCountTypeId", cycleCountTypeId)
+					.queryParam("loginUserID", loginUserID);
+			ResponseEntity<String> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity, String.class);
+			log.info("result : " + result);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	// PATCH 
+	public PeriodicLine[] updatePeriodicLineAssingHHTUser(List<AssignHHTUserCC> assignHHTUser, String loginUserID, 
+			String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			
+			HttpEntity<?> entity = new HttpEntity<>(assignHHTUser, headers);
+			HttpClient client = HttpClients.createDefault();
+			RestTemplate restTemplate = getRestTemplate();
+			restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+			
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "periodicline/assigingHHTUser")
+					.queryParam("loginUserID", loginUserID);
+			ResponseEntity<PeriodicLine[]> result = 
+					restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, PeriodicLine[].class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	// PATCH
+	public PeriodicLine[] updatePeriodicLine(String cycleCountNo, List<UpdatePeriodicLine> updatePeriodicLine,
+			String loginUserID, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			
+			HttpEntity<?> entity = new HttpEntity<>(updatePeriodicLine, headers);
+			HttpClient client = HttpClients.createDefault();
+			RestTemplate restTemplate = getRestTemplate();
+			restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+			
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "periodicline/" + cycleCountNo)
+					.queryParam("loginUserID", loginUserID);
+			ResponseEntity<PeriodicLine[]> result = 
+					restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, PeriodicLine[].class);
 			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
