@@ -8,7 +8,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -179,96 +181,99 @@ public class ReportsService extends BaseService {
 			log.info("inventoryList : " + inventoryList);
 			
 			List<StockReport> stockReportList = new ArrayList<>();
+			Set<String> uniqueItemCode = new HashSet<>();
 			for (Inventory inventory : inventoryList) {
-				StockReport stockReport = new StockReport();
-			
-				// WH_ID
-				stockReport.setWarehouseId(inventory.getWarehouseId());
+				if (uniqueItemCode.add(inventory.getItemCode())) {
+					StockReport stockReport = new StockReport();
 				
-				// ITM_CODE
-				stockReport.setItemCode(inventory.getItemCode());
-				
-				/*
-				 * MFR_SKU 
-				 * --------------
-				 * Pass the fetched ITM_CODE values in IMBASICDATA1 table and fetch MFR_SKU values
-				 */
-				ImBasicData1 imBasicData1 = imbasicdata1Repository.findByItemCodeAndWarehouseIdAndDeletionIndicator(
-						inventory.getItemCode(), inventory.getWarehouseId(), 0L);
-				if (imBasicData1 != null) {
-					stockReport.setManufacturerSKU(imBasicData1.getManufacturerPartNo());
-					stockReport.setItemText(imBasicData1.getDescription());
-				} else {
-					stockReport.setManufacturerSKU("");
-					stockReport.setItemText("");
-				} 
-				
-				if (stockTypeText.equalsIgnoreCase("ALL")) {
+					// WH_ID
+					stockReport.setWarehouseId(inventory.getWarehouseId());
+					
+					// ITM_CODE
+					stockReport.setItemCode(inventory.getItemCode());
+					
 					/*
-					 * For onhand, damageqty -> stock_type_id is 1
-					 * For Hold -> stok_type_id is 7
+					 * MFR_SKU 
+					 * --------------
+					 * Pass the fetched ITM_CODE values in IMBASICDATA1 table and fetch MFR_SKU values
 					 */
-					// ON HAND
-					List<String> storageSectionIds = Arrays.asList("ZB","ZG","ZC","ZT");
-					double ON_HAND_INVQTY = getInventoryQty (inventory.getWarehouseId(), inventory.getItemCode(), 1L, storageSectionIds);
-					stockReport.setOnHandQty(ON_HAND_INVQTY);
+					ImBasicData1 imBasicData1 = imbasicdata1Repository.findByItemCodeAndWarehouseIdAndDeletionIndicator(
+							inventory.getItemCode(), inventory.getWarehouseId(), 0L);
+					if (imBasicData1 != null) {
+						stockReport.setManufacturerSKU(imBasicData1.getManufacturerPartNo());
+						stockReport.setItemText(imBasicData1.getDescription());
+					} else {
+						stockReport.setManufacturerSKU("");
+						stockReport.setItemText("");
+					} 
 					
-					// DAMAGED
-					storageSectionIds = Arrays.asList("ZD");
-					double DAMAGED_INVQTY = getInventoryQty (inventory.getWarehouseId(), inventory.getItemCode(), 1L, storageSectionIds);
-					stockReport.setDamageQty(DAMAGED_INVQTY);
-					
-					// HOLD
-					storageSectionIds = Arrays.asList("ZB","ZG","ZD","ZC","ZT");
-					double HOLD_INVQTY = getInventoryQty (inventory.getWarehouseId(), inventory.getItemCode(), 7L, storageSectionIds);
-					stockReport.setHoldQty(HOLD_INVQTY);
-					
-					// Available Qty
-					double AVAILABLE_QTY = ON_HAND_INVQTY + DAMAGED_INVQTY + HOLD_INVQTY;
-					stockReport.setAvailableQty(AVAILABLE_QTY);
-					
-					if (AVAILABLE_QTY != 0) {
-						stockReportList.add(stockReport);	
-					}
-					log.info("ALL-------stockReport:" + stockReport);
-				} else if (stockTypeText.equalsIgnoreCase("ON HAND")) {
-					// stock_type_id = 1
-					List<String> storageSectionIds = Arrays.asList("ZB","ZG","ZC","ZT");
-					double INV_QTY = getInventoryQty (inventory.getWarehouseId(), inventory.getItemCode(), 1L, storageSectionIds);
-					if (INV_QTY != 0) {
-						stockReport.setOnHandQty(INV_QTY);
-						stockReport.setDamageQty(0D);
-						stockReport.setHoldQty(0D);
-						stockReport.setAvailableQty(INV_QTY);
-						log.info("ON HAND-------stockReport:" + stockReport);
-						stockReportList.add(stockReport);
-					}
-				} else if (stockTypeText.equalsIgnoreCase("DAMAGED")) {
-					// stock_type_id = 1
-					List<String> storageSectionIds = Arrays.asList("ZD");
-					double INV_QTY = getInventoryQty (inventory.getWarehouseId(), inventory.getItemCode(), 1L, storageSectionIds);
-					
-					if (INV_QTY != 0) {
-						stockReport.setDamageQty(INV_QTY);
-						stockReport.setOnHandQty(0D);
-						stockReport.setHoldQty(0D);
-						stockReport.setAvailableQty(INV_QTY);
+					if (stockTypeText.equalsIgnoreCase("ALL")) {
+						/*
+						 * For onhand, damageqty -> stock_type_id is 1
+						 * For Hold -> stok_type_id is 7
+						 */
+						// ON HAND
+						List<String> storageSectionIds = Arrays.asList("ZB","ZG","ZC","ZT");
+						double ON_HAND_INVQTY = getInventoryQty (inventory.getWarehouseId(), inventory.getItemCode(), 1L, storageSectionIds);
+						stockReport.setOnHandQty(ON_HAND_INVQTY);
 						
-						log.info("DAMAGED-------stockReport:" + stockReport);
-						stockReportList.add(stockReport);
-					}
-				} else if (stockTypeText.equalsIgnoreCase("HOLD")) {
-					// STCK_TYP_ID = 7
-					List<String> storageSectionIds = Arrays.asList("ZB","ZG","ZD","ZC","ZT");
-					double INV_QTY = getInventoryQty (inventory.getWarehouseId(), inventory.getItemCode(), 7L, storageSectionIds);
-					
-					if (INV_QTY != 0) {
-						stockReport.setHoldQty(INV_QTY);
-						stockReport.setOnHandQty(0D);
-						stockReport.setDamageQty(0D);
-						stockReport.setAvailableQty(INV_QTY);
-						log.info("HOLD-------stockReport:" + stockReport);
-						stockReportList.add(stockReport);
+						// DAMAGED
+						storageSectionIds = Arrays.asList("ZD");
+						double DAMAGED_INVQTY = getInventoryQty (inventory.getWarehouseId(), inventory.getItemCode(), 1L, storageSectionIds);
+						stockReport.setDamageQty(DAMAGED_INVQTY);
+						
+						// HOLD
+						storageSectionIds = Arrays.asList("ZB","ZG","ZD","ZC","ZT");
+						double HOLD_INVQTY = getInventoryQty (inventory.getWarehouseId(), inventory.getItemCode(), 7L, storageSectionIds);
+						stockReport.setHoldQty(HOLD_INVQTY);
+						
+						// Available Qty
+						double AVAILABLE_QTY = ON_HAND_INVQTY + DAMAGED_INVQTY + HOLD_INVQTY;
+						stockReport.setAvailableQty(AVAILABLE_QTY);
+						
+						if (AVAILABLE_QTY != 0) {
+							stockReportList.add(stockReport);	
+						}
+						log.info("ALL-------stockReport:" + stockReport);
+					} else if (stockTypeText.equalsIgnoreCase("ON HAND")) {
+						// stock_type_id = 1
+						List<String> storageSectionIds = Arrays.asList("ZB","ZG","ZC","ZT");
+						double INV_QTY = getInventoryQty (inventory.getWarehouseId(), inventory.getItemCode(), 1L, storageSectionIds);
+						if (INV_QTY != 0) {
+							stockReport.setOnHandQty(INV_QTY);
+							stockReport.setDamageQty(0D);
+							stockReport.setHoldQty(0D);
+							stockReport.setAvailableQty(INV_QTY);
+							log.info("ON HAND-------stockReport:" + stockReport);
+							stockReportList.add(stockReport);
+						}
+					} else if (stockTypeText.equalsIgnoreCase("DAMAGED")) {
+						// stock_type_id = 1
+						List<String> storageSectionIds = Arrays.asList("ZD");
+						double INV_QTY = getInventoryQty (inventory.getWarehouseId(), inventory.getItemCode(), 1L, storageSectionIds);
+						
+						if (INV_QTY != 0) {
+							stockReport.setDamageQty(INV_QTY);
+							stockReport.setOnHandQty(0D);
+							stockReport.setHoldQty(0D);
+							stockReport.setAvailableQty(INV_QTY);
+							
+							log.info("DAMAGED-------stockReport:" + stockReport);
+							stockReportList.add(stockReport);
+						}
+					} else if (stockTypeText.equalsIgnoreCase("HOLD")) {
+						// STCK_TYP_ID = 7
+						List<String> storageSectionIds = Arrays.asList("ZB","ZG","ZD","ZC","ZT");
+						double INV_QTY = getInventoryQty (inventory.getWarehouseId(), inventory.getItemCode(), 7L, storageSectionIds);
+						
+						if (INV_QTY != 0) {
+							stockReport.setHoldQty(INV_QTY);
+							stockReport.setOnHandQty(0D);
+							stockReport.setDamageQty(0D);
+							stockReport.setAvailableQty(INV_QTY);
+							log.info("HOLD-------stockReport:" + stockReport);
+							stockReportList.add(stockReport);
+						}
 					}
 				}
 			}
