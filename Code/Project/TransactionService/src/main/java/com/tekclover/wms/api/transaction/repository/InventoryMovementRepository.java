@@ -44,4 +44,15 @@ public interface InventoryMovementRepository extends JpaRepository<InventoryMove
 	
 	public List<InventoryMovement> findByMovementTypeInAndSubmovementTypeInAndCreatedOnBetween(List<Long> movementType, 
 			List<Long> submovementType, Date dateFrom, Date dateTo);
+	
+	/*
+	 * SearchInventoryMovement searchInventoryMovement = new SearchInventoryMovement();
+		searchInventoryMovement.setWarehouseId(Arrays.asList(warehouseId));
+		searchInventoryMovement.setItemCode(Arrays.asList(itemCode));
+		searchInventoryMovement.setFromCreatedOn(fromDate);
+		searchInventoryMovement.setToCreatedOn(toDate);
+//		searchInventoryMovement.setSubmovementType(Arrays.asList(2L, 3L));
+	 */
+	public List<InventoryMovement> findByWarehouseIdAndItemCodeAndCreatedOnBetweenAndMovementTypeAndSubmovementTypeIn (
+			String warehouseId, String itemCode, Date startDate, Date endDate, Long movementType, List<Long> submovementType);
 }

@@ -36,7 +36,6 @@ import com.tekclover.wms.api.transaction.model.inbound.containerreceipt.SearchCo
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.SearchInventory;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.SearchInventoryMovement;
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.PreInboundHeader;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.PutAwayHeader;
 import com.tekclover.wms.api.transaction.model.inbound.staging.StagingHeader;
@@ -66,6 +65,7 @@ import com.tekclover.wms.api.transaction.model.report.StockMovementReport;
 import com.tekclover.wms.api.transaction.model.report.StockReport;
 import com.tekclover.wms.api.transaction.model.report.SummaryMetrics;
 import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
+import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundLineRepository;
 import com.tekclover.wms.api.transaction.repository.StorageBinRepository;
@@ -130,6 +130,9 @@ public class ReportsService extends BaseService {
 	
 	@Autowired
 	OutboundLineRepository outboundLineRepository;
+	
+	@Autowired
+	InventoryMovementRepository inventoryMovementRepository;
 	
 	/**
 	 * Stock Report
@@ -425,16 +428,31 @@ public class ReportsService extends BaseService {
 			throw new BadRequestException("Date shoud be in MM-dd-yyyy format.");
 		}
 		
-		SearchInventoryMovement searchInventoryMovement = new SearchInventoryMovement();
-		searchInventoryMovement.setWarehouseId(Arrays.asList(warehouseId));
-		searchInventoryMovement.setItemCode(Arrays.asList(itemCode));
-		searchInventoryMovement.setFromCreatedOn(fromDate);
-		searchInventoryMovement.setToCreatedOn(toDate);
-		searchInventoryMovement.setSubmovementType(Arrays.asList(2L, 3L));
-		List<InventoryMovement> inventoryMovementSearchResults = 
-				inventoryMovementService.findInventoryMovement(searchInventoryMovement);
-		log.info("inventoryMovementSearchResults------> : " + inventoryMovementSearchResults);
+//		SearchInventoryMovement searchInventoryMovement = new SearchInventoryMovement();
+//		searchInventoryMovement.setWarehouseId(Arrays.asList(warehouseId));
+//		searchInventoryMovement.setItemCode(Arrays.asList(itemCode));
+//		searchInventoryMovement.setFromCreatedOn(fromDate);
+//		searchInventoryMovement.setToCreatedOn(toDate);
+////		searchInventoryMovement.setSubmovementType(Arrays.asList(2L, 3L));
+//		List<InventoryMovement> inventoryMovementSearchResults = 
+//				inventoryMovementService.findInventoryMovement(searchInventoryMovement);
+//		log.info("inventoryMovementSearchResults------> : " + inventoryMovementSearchResults);
 		
+		List<InventoryMovement> inventoryMovementSearchResults_123 = inventoryMovementRepository.findByWarehouseIdAndItemCodeAndCreatedOnBetweenAndMovementTypeAndSubmovementTypeIn (warehouseId,
+				itemCode, fromDate, toDate, 1L, Arrays.asList(2L, 3L));
+		List<StockMovementReport> reportStockMovementList_1 = fillData (inventoryMovementSearchResults_123);
+		log.info("reportStockMovementList_1 : " + reportStockMovementList_1);
+		
+		List<InventoryMovement> inventoryMovementSearchResults_35 = inventoryMovementRepository.findByWarehouseIdAndItemCodeAndCreatedOnBetweenAndMovementTypeAndSubmovementTypeIn (warehouseId,
+				itemCode, fromDate, toDate, 3L, Arrays.asList(5L));
+		List<StockMovementReport> reportStockMovementList_2 = fillData (inventoryMovementSearchResults_35);
+		log.info("reportStockMovementList_2 : " + reportStockMovementList_2);
+		
+		reportStockMovementList_1.addAll(reportStockMovementList_2);
+		return reportStockMovementList_1;
+	}
+	
+	private List<StockMovementReport> fillData (List<InventoryMovement> inventoryMovementSearchResults) {
 		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
 		List<StockMovementReport> reportStockMovementList = new ArrayList<>();
 		for (InventoryMovement inventoryMovement : inventoryMovementSearchResults) {
@@ -462,18 +480,16 @@ public class ReportsService extends BaseService {
 			/*
 			 * "Fetch MVT_QTY values where
 			 * 1. MVT_TYP_ID = 1, SUB_MVT_TYP_ID=2,3 (Subtract MVT_QTY values between 2 and 3)
-			 * 2. MVT_TYP_ID = 3, SUB_MVT_TYP_ID=4
+			 * 2. MVT_TYP_ID = 3, SUB_MVT_TYP_ID=5
 			 * 3. MVT_TYP_ID = 2"
 			 */
 			if (inventoryMovement.getMovementType() == 1L && inventoryMovement.getSubmovementType() == 2L) {
 				stockMovementReport.setMovementQty(inventoryMovement.getMovementQty());
 			} else if (inventoryMovement.getMovementType() == 1L && inventoryMovement.getSubmovementType() == 3L) {
 				stockMovementReport.setMovementQty(-inventoryMovement.getMovementQty()); // Assign -ve number
-			} else if (inventoryMovement.getMovementType() == 3L && inventoryMovement.getSubmovementType() == 4L) {
+			} else if (inventoryMovement.getMovementType() == 3L && inventoryMovement.getSubmovementType() == 5L) {
 				stockMovementReport.setMovementQty(inventoryMovement.getMovementQty()); 
-			} /*else if (inventoryMovement.getMovementType() == 2L) {
-				stockMovementReport.setMovementQty(inventoryMovement.getMovementQty()); 
-			} */
+			} 
 			
 			/*
 			 * Document type
@@ -484,9 +500,7 @@ public class ReportsService extends BaseService {
 			 */
 			if (inventoryMovement.getMovementType() == 1L) {
 				stockMovementReport.setDocumentType("Inbound");
-			} /*else if (inventoryMovement.getMovementType() == 2L) {
-				stockMovementReport.setDocumentType("Transfer");
-			} */ else if (inventoryMovement.getMovementType() == 3L) {
+			} else if (inventoryMovement.getMovementType() == 3L) {
 				stockMovementReport.setDocumentType("Outbound");
 			}
 			
@@ -496,20 +510,18 @@ public class ReportsService extends BaseService {
 			/*
 			 * PARTNER_CODE
 			 * ---------------------------
-			 * 1. For MVT_TYP_ID = 1 records, pass MVT_DOC_NO in INBOUNDLINE table and fetch PARTNER_CODE values and fill 
-			 * 2. For MVT_TYP_ID = 3 records, pass MVT_DOC_NO in OUTBOUNDHEADER table and fetch PARTNER_CODE values and fill
+			 * 1. For MVT_TYP_ID = 1 records, pass REF_DOC_NO in INBOUNDLINE table and fetch PARTNER_CODE values and fill 
+			 * 2. For MVT_TYP_ID = 3 records, pass REF_DOC_NO in OUTBOUNDHEADER table and fetch PARTNER_CODE values and fill
 			 * 3. For MVT_TYP_ID = 2, Hard Coded Value "" BIN to BIN"""
 			 */
 			if (inventoryMovement.getMovementType() == 1L) {
-				List<InboundLine> inboundLine = inboundLineService.getInboundLine(inventoryMovement.getMovementDocumentNo());
+				List<InboundLine> inboundLine = inboundLineService.getInboundLine(inventoryMovement.getRefDocNumber());
 				log.info("inboundLine : " + inboundLine);
 				if (!inboundLine.isEmpty()) {
 					stockMovementReport.setCustomerCode(inboundLine.get(0).getVendorCode());
 				}
-			} /*else if (inventoryMovement.getMovementType() == 2) {
-				stockMovementReport.setCustomerCode("BIN to BIN");
-			} */ else if (inventoryMovement.getMovementType() == 3L) {
-				OutboundHeader outboundHeader = outboundHeaderService.getOutboundHeader(inventoryMovement.getMovementDocumentNo());
+			} else if (inventoryMovement.getMovementType() == 3L) {
+				OutboundHeader outboundHeader = outboundHeaderService.getOutboundHeader(inventoryMovement.getRefDocNumber());
 				log.info("outboundHeader : " + outboundHeader);
 				if (outboundHeader != null) {
 					stockMovementReport.setCustomerCode(outboundHeader.getPartnerCode());
@@ -550,16 +562,12 @@ public class ReportsService extends BaseService {
 			if (inventoryMovement.getMovementType() == 1) {
 				Double openingStock = balanceOHQty - movementQty;
 				stockMovementReport.setOpeningStock(openingStock);
-			} /*else if (inventoryMovement.getMovementType() == 2) {
-				Double openingStock = balanceOHQty + movementQty;
-				stockMovementReport.setOpeningStock(openingStock);
-			} */ else if (inventoryMovement.getMovementType() == 3) {
+			} else if (inventoryMovement.getMovementType() == 3) {
 				Double openingStock = balanceOHQty + movementQty;
 				stockMovementReport.setOpeningStock(openingStock);
 			}
 			reportStockMovementList.add(stockMovementReport);
 		}
-		log.info("reportStockMovementList : " + reportStockMovementList);
 		return reportStockMovementList;
 	}
 	
