@@ -19,8 +19,6 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 	
 	public List<OutboundLine> findAll();
 	
-	public List<OutboundLine> findByDeliveryConfirmedOnBetween (Date s, Date t);
-	
 	public Optional<OutboundLine> 
 		findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndDeletionIndicator(
 				String languageId, Long companyCodeId, String plantId, String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, 
@@ -51,7 +49,7 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 			+ "FROM tbloutboundline \r\n"
 			+ "WHERE WH_ID = :warehouseId AND PRE_OB_NO = :preOutboundNo "
 			+ "AND REF_DOC_NO = :refDocNumber AND REF_FIELD_2 IS NULL \r\n"
-			+ "GROUP BY OB_LINE_NO;", nativeQuery=true)
+			+ "GROUP BY REF_DOC_NO;", nativeQuery=true)
     public List<Long> getSumOfOrderedQty(@Param ("warehouseId") String warehouseId,
     									@Param ("preOutboundNo") String preOutboundNo,
     									@Param ("refDocNumber") String refDocNumber); 
@@ -60,7 +58,7 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 			+ "FROM tbloutboundline \r\n"
 			+ "WHERE WH_ID = :warehouseId AND PRE_OB_NO = :preOutboundNo "
 			+ "AND REF_DOC_NO = :refDocNumber AND REF_FIELD_2 IS NULL AND DLV_QTY > 0\r\n"
-			+ "GROUP BY OB_LINE_NO;", nativeQuery=true)
+			+ "GROUP BY REF_DOC_NO;", nativeQuery=true)
     public List<Long> getDeliveryLines(@Param ("warehouseId") String warehouseId,
     									@Param ("preOutboundNo") String preOutboundNo,
     									@Param ("refDocNumber") String refDocNumber);
@@ -69,7 +67,7 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 			+ "FROM tbloutboundline \r\n"
 			+ "WHERE WH_ID = :warehouseId AND PRE_OB_NO = :preOutboundNo "
 			+ "AND REF_DOC_NO = :refDocNumber AND REF_FIELD_2 IS NULL AND DLV_QTY > 0\r\n"
-			+ "GROUP BY OB_LINE_NO;", nativeQuery=true)
+			+ "GROUP BY REF_DOC_NO;", nativeQuery=true)
     public List<Long> getDeliveryQty(@Param ("warehouseId") String warehouseId,
     									@Param ("preOutboundNo") String preOutboundNo,
     									@Param ("refDocNumber") String refDocNumber);
@@ -114,9 +112,22 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 	@Query (value = "SELECT COUNT(OB_LINE_NO) FROM tbloutboundline \r\n"
 			+ " WHERE PRE_OB_NO = :preOBNo AND OB_LINE_NO = :obLineNo AND ITM_CODE = :itemCode \r\n"
 			+ " AND DLV_QTY > 0 AND REF_FIELD_2 IS NULL \r\n"
-			+ " GROUP BY OB_LINE_NO", nativeQuery = true)
+			+ " GROUP BY REF_DOC_NO", nativeQuery = true)
 	public List<Long> findLineShipped(
 			@Param(value = "preOBNo") String preOBNo,
 			@Param(value = "obLineNo") Long obLineNo, 
 			@Param(value = "itemCode") String itemCode);
+	
+	/**
+	 * 
+	 * @param customerCode
+	 * @param startDate
+	 * @param endDate
+	 * @return
+	 */
+	public List<OutboundLine> findByPartnerCodeInAndDeliveryConfirmedOnBetween(List<String> customerCode,
+			Date startDate, Date endDate);
+	
+	public List<OutboundLine> findByDeliveryConfirmedOnBetween(Date startDate, Date endDate);
+	
 }

@@ -175,6 +175,23 @@ public class DateUtils {
 	/**
 	 * 
 	 * @param startDate
+	 * @return
+	 * @throws ParseException
+	 */
+	public static Date addDayEndTimeToDate (Date startDate) throws ParseException {
+		LocalDate sLocalDate =  LocalDate.ofInstant(startDate.toInstant(), ZoneId.systemDefault());
+		LocalDateTime sLocalDateTime = sLocalDate.atTime(23, 59, 0);
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+		String sConvertedDateTime = formatter.format(sLocalDateTime);
+		
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");  
+		Date sDate = dateFormatter.parse(sConvertedDateTime);
+		return sDate;
+	}
+	
+	/**
+	 * 
+	 * @param startDate
 	 * @param endDate
 	 * @return
 	 * @throws ParseException

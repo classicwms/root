@@ -189,6 +189,8 @@ public class PeriodicHeaderService extends BaseService {
 			throws IllegalAccessException, InvocationTargetException {
 		PeriodicHeader dbPeriodicHeader = new PeriodicHeader();
 		BeanUtils.copyProperties(newPeriodicHeader, dbPeriodicHeader, CommonUtils.getNullPropertyNames(newPeriodicHeader));
+		dbPeriodicHeader.setCompanyCode(getCompanyCode());
+		dbPeriodicHeader.setPlantId(getPlantId());
 		
 		/*
 		 * Cycle Count No
@@ -198,7 +200,7 @@ public class PeriodicHeaderService extends BaseService {
 		 */
 		AuthToken authTokenForIDMasterService = authTokenService.getIDMasterServiceAuthToken();
 		long NUM_RAN_ID = 15;
-		String nextRangeNumber = getNextRangeNumber(NUM_RAN_ID, newPeriodicHeader.getWarehouseId(), 
+		String nextRangeNumber = getNextRangeNumber(NUM_RAN_ID, newPeriodicHeader.getWarehouseId(),
 				authTokenForIDMasterService.getAccess_token());
 		dbPeriodicHeader.setCycleCountNo(nextRangeNumber);
 		
