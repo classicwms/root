@@ -13,8 +13,6 @@ import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualLin
 @Transactional
 public interface PerpetualLineRepository extends JpaRepository<PerpetualLine,Long>, JpaSpecificationExecutor<PerpetualLine> {
 	
-	public List<PerpetualLine> findAll();
-	
 	public PerpetualLine 
 		findByCompanyCodeIdAndPlantIdAndWarehouseIdAndCycleCountNoAndStorageBinAndItemCodeAndPackBarcodesAndDeletionIndicator(
 				String companyCodeId, String plantId, String warehouseId, String cycleCountNo, 

@@ -126,7 +126,7 @@ public class PeriodicHeaderService extends BaseService {
 			
 			PeriodicLineSpecification spec = new PeriodicLineSpecification (searchPeriodicLine);
 			List<PeriodicLine> periodicLineList = periodicLineRepository.findAll(spec);
-			log.info("periodicLineList: " + periodicLineList);
+//			log.info("periodicLineList: " + periodicLineList);
 			
 			List<PeriodicLineEntity> listPeriodicLineEntity = new ArrayList<>();
 			for (PeriodicLine periodicLine : periodicLineList) {

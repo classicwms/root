@@ -1,6 +1,5 @@
 package com.tekclover.wms.api.transaction.repository;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,8 +13,6 @@ import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualHea
 @Transactional
 public interface PerpetualHeaderRepository extends JpaRepository<PerpetualHeader,Long>, 
 	JpaSpecificationExecutor<PerpetualHeader> {
-	
-	public List<PerpetualHeader> findAll();
 	
 	public Optional<PerpetualHeader> findByCompanyCodeIdAndPlantIdAndWarehouseIdAndCycleCountTypeIdAndCycleCountNoAndMovementTypeIdAndSubMovementTypeIdAndDeletionIndicator(
 			String companyCode, String plantId, String warehouseId, Long cycleCountTypeId, String cycleCountNo,

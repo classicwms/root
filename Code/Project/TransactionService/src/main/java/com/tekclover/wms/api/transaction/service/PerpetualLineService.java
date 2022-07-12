@@ -382,8 +382,9 @@ public class PerpetualLineService extends BaseService {
 		InventoryMovement inventoryMovement = new InventoryMovement();
 		BeanUtils.copyProperties(updatedPerpetualLine, inventoryMovement, CommonUtils.getNullPropertyNames(updatedPerpetualLine));
 		
-		inventoryMovement.setCompanyCodeId(updatedPerpetualLine.getCompanyCodeId());
-		inventoryMovement.setPlantId(updatedPerpetualLine.getPlantId());
+		inventoryMovement.setLanguageId(getLanguageId());
+		inventoryMovement.setCompanyCodeId(getCompanyCode());
+		inventoryMovement.setPlantId(getPlantId());
 		inventoryMovement.setWarehouseId(updatedPerpetualLine.getWarehouseId());
 		
 		// MVT_TYP_ID
@@ -412,6 +413,9 @@ public class PerpetualLineService extends BaseService {
 		} else if (updatedPerpetualLine.getVarianceQty() > 0 ) {
 			inventoryMovement.setMovementQtyValue("N");
 		} 
+		
+		inventoryMovement.setBatchSerialNumber("1");
+		inventoryMovement.setMovementDocumentNo(updatedPerpetualLine.getCycleCountNo());
 		
 		// IM_CTD_BY
 		inventoryMovement.setCreatedBy(updatedPerpetualLine.getCreatedBy());

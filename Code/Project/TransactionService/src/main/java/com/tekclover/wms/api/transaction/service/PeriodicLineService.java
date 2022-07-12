@@ -34,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class PeriodicLineService {
+public class PeriodicLineService extends BaseService {
 
 	private static final String WRITEOFF = "WRITEOFF";
 	private static final String SKIP = "SKIP";
@@ -292,6 +292,14 @@ public class PeriodicLineService {
 					PeriodicHeader perpetualHeader = periodicHeaderService.getPeriodicHeader(updatedPeriodicLine.getCycleCountNo());
 					BeanUtils.copyProperties(perpetualHeader, newPeriodicHeader, CommonUtils.getNullPropertyNames(perpetualHeader));
 					newPeriodicHeader.setReferenceField1(updatedPeriodicLine.getCycleCountNo());
+					
+					// Adding Lines
+					List<AddPeriodicLine> addPeriodicLineList = new ArrayList<>();
+					AddPeriodicLine newPeriodicLine = new AddPeriodicLine();
+					BeanUtils.copyProperties(updatedPeriodicLine, newPeriodicLine, CommonUtils.getNullPropertyNames(updatedPeriodicLine));
+					addPeriodicLineList.add(newPeriodicLine);
+					newPeriodicHeader.setAddPeriodicLine(addPeriodicLineList);
+					
 					PeriodicHeaderEntity createdPeriodicHeader = 
 							periodicHeaderService.createPeriodicHeader(newPeriodicHeader, loginUserID);
 					log.info("createdPeriodicHeader : " + createdPeriodicHeader);
@@ -371,8 +379,9 @@ public class PeriodicLineService {
 		InventoryMovement inventoryMovement = new InventoryMovement();
 		BeanUtils.copyProperties(updatedPeriodicLine, inventoryMovement, CommonUtils.getNullPropertyNames(updatedPeriodicLine));
 		
-		inventoryMovement.setCompanyCodeId(updatedPeriodicLine.getCompanyCode());
-		inventoryMovement.setPlantId(updatedPeriodicLine.getPlantId());
+		inventoryMovement.setLanguageId(getLanguageId());
+		inventoryMovement.setCompanyCodeId(getCompanyCode());
+		inventoryMovement.setPlantId(getPlantId());
 		inventoryMovement.setWarehouseId(updatedPeriodicLine.getWarehouseId());
 		
 		// MVT_TYP_ID
@@ -401,6 +410,9 @@ public class PeriodicLineService {
 		} else if (updatedPeriodicLine.getVarianceQty() > 0 ) {
 			inventoryMovement.setMovementQtyValue("N");
 		} 
+		
+		inventoryMovement.setBatchSerialNumber("1");
+		inventoryMovement.setMovementDocumentNo(updatedPeriodicLine.getCycleCountNo());
 		
 		// IM_CTD_BY
 		inventoryMovement.setCreatedBy(updatedPeriodicLine.getCreatedBy());
