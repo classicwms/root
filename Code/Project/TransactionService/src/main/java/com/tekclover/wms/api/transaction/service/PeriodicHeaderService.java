@@ -23,6 +23,7 @@ import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicHeade
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicLine;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicLineEntity;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.SearchPeriodicHeader;
+import com.tekclover.wms.api.transaction.model.cyclecount.periodic.SearchPeriodicLine;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.UpdatePeriodicHeader;
 import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
 import com.tekclover.wms.api.transaction.model.dto.StorageBin;
@@ -30,6 +31,7 @@ import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.repository.PeriodicHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.PeriodicLineRepository;
 import com.tekclover.wms.api.transaction.repository.specification.PeriodicHeaderSpecification;
+import com.tekclover.wms.api.transaction.repository.specification.PeriodicLineSpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 
@@ -73,13 +75,11 @@ public class PeriodicHeaderService extends BaseService {
 	 * @param cycleCountTypeId
 	 * @return
 	 */
-	public PeriodicHeader getPeriodicHeader(String companyCode, String plantId, String warehouseId,
-			Long cycleCountTypeId, String cycleCountNo) {
+	public PeriodicHeader getPeriodicHeader(String warehouseId, Long cycleCountTypeId, String cycleCountNo) {
 		PeriodicHeader periodicHeader = 
 				periodicHeaderRepository.findByCompanyCodeAndPlantIdAndWarehouseIdAndCycleCountTypeIdAndCycleCountNo(
-						companyCode, plantId, warehouseId, cycleCountTypeId, cycleCountNo);
+						getCompanyCode(), getPlantId(), warehouseId, cycleCountTypeId, cycleCountNo);
 		if (periodicHeader != null && periodicHeader.getDeletionIndicator() == 0) {
-//			return convertToEntity (periodicHeader);
 			return periodicHeader;
 		}
 		throw new BadRequestException("The given PeriodicHeader ID : " + cycleCountTypeId + " doesn't exist.");
@@ -102,7 +102,45 @@ public class PeriodicHeaderService extends BaseService {
 		}
 		PeriodicHeaderSpecification spec = new PeriodicHeaderSpecification(searchPeriodicHeader);
 		List<PeriodicHeader> periodicHeaderResults = periodicHeaderRepository.findAll(spec);
-		return convertToEntity (periodicHeaderResults);
+		return convertToEntity (periodicHeaderResults, searchPeriodicHeader);
+	}
+	
+	/**
+	 * 
+	 * @param periodicheaderList
+	 * @return
+	 */
+	private List<PeriodicHeaderEntity> convertToEntity (List<PeriodicHeader> periodicheaderList, SearchPeriodicHeader searchPeriodicHeader) {
+		List<PeriodicHeaderEntity> listPeriodicHeaderEntity = new ArrayList<>();
+		for (PeriodicHeader periodicheader : periodicheaderList) {
+			SearchPeriodicLine searchPeriodicLine = new SearchPeriodicLine();
+			searchPeriodicLine.setCycleCountNo(periodicheader.getCycleCountNo());
+			
+			if (searchPeriodicHeader.getCycleCounterId() != null) {
+				searchPeriodicLine.setCycleCounterId(searchPeriodicHeader.getCycleCounterId());
+			}
+			
+			if (searchPeriodicHeader.getLineStatusId() != null) {
+				searchPeriodicLine.setLineStatusId(searchPeriodicHeader.getLineStatusId());
+			}
+			
+			PeriodicLineSpecification spec = new PeriodicLineSpecification (searchPeriodicLine);
+			List<PeriodicLine> periodicLineList = periodicLineRepository.findAll(spec);
+			log.info("periodicLineList: " + periodicLineList);
+			
+			List<PeriodicLineEntity> listPeriodicLineEntity = new ArrayList<>();
+			for (PeriodicLine periodicLine : periodicLineList) {
+				PeriodicLineEntity perpetualLineEntity = new PeriodicLineEntity();
+				BeanUtils.copyProperties(periodicLine, perpetualLineEntity, CommonUtils.getNullPropertyNames(periodicLine));
+				listPeriodicLineEntity.add(perpetualLineEntity);
+			}
+			
+			PeriodicHeaderEntity periodicheaderEntity = new PeriodicHeaderEntity();
+			BeanUtils.copyProperties(periodicheader, periodicheaderEntity, CommonUtils.getNullPropertyNames(periodicheader));
+			periodicheaderEntity.setPeriodicLine(listPeriodicLineEntity);
+			listPeriodicHeaderEntity.add(periodicheaderEntity);
+		}
+		return listPeriodicHeaderEntity;
 	}
 	
 	/**
@@ -113,10 +151,9 @@ public class PeriodicHeaderService extends BaseService {
 	private List<PeriodicHeaderEntity> convertToEntity (List<PeriodicHeader> periodicheaderList) {
 		List<PeriodicHeaderEntity> listPeriodicHeaderEntity = new ArrayList<>();
 		for (PeriodicHeader periodicheader : periodicheaderList) {
-			List<PeriodicLine> perpetualLineList = periodicLineService.getPeriodicLine(periodicheader.getCycleCountNo());
-			
+			List<PeriodicLine> periodicLineList = periodicLineService.getPeriodicLine(periodicheader.getCycleCountNo());
 			List<PeriodicLineEntity> listPeriodicLineEntity = new ArrayList<>();
-			for (PeriodicLine periodicLine : perpetualLineList) {
+			for (PeriodicLine periodicLine : periodicLineList) {
 				PeriodicLineEntity perpetualLineEntity = new PeriodicLineEntity();
 				BeanUtils.copyProperties(periodicLine, perpetualLineEntity, CommonUtils.getNullPropertyNames(periodicLine));
 				listPeriodicLineEntity.add(perpetualLineEntity);
@@ -174,6 +211,11 @@ public class PeriodicHeaderService extends BaseService {
 		
 		for (Inventory inventory : inventoryList) {
 			PeriodicLineEntity periodicLine = new PeriodicLineEntity();
+			
+			periodicLine.setLanguageId(inventory.getLanguageId());
+			periodicLine.setCompanyCode(inventory.getCompanyCodeId());
+			periodicLine.setPlantId(inventory.getPlantId());
+			periodicLine.setWarehouseId(inventory.getWarehouseId());
 			
 			// ITM_CODE
 			periodicLine.setItemCode(inventory.getItemCode());
@@ -238,6 +280,7 @@ public class PeriodicHeaderService extends BaseService {
 			throws IllegalAccessException, InvocationTargetException {
 		PeriodicHeader dbPeriodicHeader = new PeriodicHeader();
 		BeanUtils.copyProperties(newPeriodicHeader, dbPeriodicHeader, CommonUtils.getNullPropertyNames(newPeriodicHeader));
+		dbPeriodicHeader.setLanguageId(getLanguageId());
 		dbPeriodicHeader.setCompanyCode(getCompanyCode());
 		dbPeriodicHeader.setPlantId(getPlantId());
 		
@@ -268,6 +311,9 @@ public class PeriodicHeaderService extends BaseService {
 		for (AddPeriodicLine newPeriodicLine : newPeriodicHeader.getAddPeriodicLine()) {
 			PeriodicLine dbPeriodicLine = new PeriodicLine();
 			BeanUtils.copyProperties(newPeriodicLine, dbPeriodicLine, CommonUtils.getNullPropertyNames(newPeriodicLine));
+			
+			// LANG_ID
+			dbPeriodicLine.setLanguageId(getLanguageId());
 			
 			// WH_ID
 			dbPeriodicLine.setWarehouseId(createdPeriodicHeader.getWarehouseId());
@@ -311,14 +357,14 @@ public class PeriodicHeaderService extends BaseService {
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	public PeriodicHeader updatePeriodicHeader (String companyCode, String plantId, String warehouseId, Long cycleCountTypeId, String cycleCountNo, 
+	public PeriodicHeader updatePeriodicHeader (String warehouseId, Long cycleCountTypeId, String cycleCountNo, 
 			String loginUserID, UpdatePeriodicHeader updatePeriodicHeader) 
 			throws IllegalAccessException, InvocationTargetException {
 		// Update Line Details
 		List<PeriodicLine> lines = periodicLineService.updatePeriodicLineForMobileCount (updatePeriodicHeader.getUpdatePeriodicLine(), loginUserID);
 		log.info("Lines Updated : " + lines);
 		
-		PeriodicHeader dbPeriodicHeader = getPeriodicHeader(companyCode, plantId, warehouseId, cycleCountTypeId, cycleCountNo);
+		PeriodicHeader dbPeriodicHeader = getPeriodicHeader(warehouseId, cycleCountTypeId, cycleCountNo);
 		BeanUtils.copyProperties(updatePeriodicHeader, dbPeriodicHeader, CommonUtils.getNullPropertyNames(updatePeriodicHeader));
 		
 		/*
@@ -351,7 +397,7 @@ public class PeriodicHeaderService extends BaseService {
 	 */
 	public void deletePeriodicHeader(String companyCode, String plantId, String warehouseId, Long cycleCountTypeId,
 			String cycleCountNo, String loginUserID) {
-		PeriodicHeader periodicHeader = getPeriodicHeader(companyCode, plantId, warehouseId, cycleCountTypeId, cycleCountNo);
+		PeriodicHeader periodicHeader = getPeriodicHeader(warehouseId, cycleCountTypeId, cycleCountNo);
 		if (periodicHeader != null) {
 			periodicHeader.setDeletionIndicator(1L);
 			periodicHeader.setConfirmedBy(loginUserID);

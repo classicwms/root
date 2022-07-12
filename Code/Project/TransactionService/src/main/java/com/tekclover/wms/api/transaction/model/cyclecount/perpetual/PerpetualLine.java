@@ -25,7 +25,8 @@ import lombok.NoArgsConstructor;
 		uniqueConstraints = { 
 				@UniqueConstraint (
 						name = "unique_key_perpetualline", 
-						columnNames = {"C_ID", "PLANT_ID", "WH_ID", "CC_NO", "ST_BIN", "ITM_CODE", "PACK_BARCODE"})
+						columnNames = {"LANG_ID", "C_ID", "PLANT_ID", "WH_ID", "CC_NO", "ST_BIN", "ITM_CODE", 
+								"PACK_BARCODE"})
 				}
 		)
 @IdClass(PerpetualLineCompositeKey.class)
@@ -103,7 +104,7 @@ public class PerpetualLine {
 	private String cycleCounterName;
 	
 	@Column(name = "STATUS_ID")
-	private String statusId;
+	private Long statusId;
 	
 	@Column(name = "ACTION") 
 	private String cycleCountAction;

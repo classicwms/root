@@ -12,7 +12,8 @@ import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualHea
 
 @Repository
 @Transactional
-public interface PerpetualHeaderRepository extends JpaRepository<PerpetualHeader,Long>, JpaSpecificationExecutor<PerpetualHeader> {
+public interface PerpetualHeaderRepository extends JpaRepository<PerpetualHeader,Long>, 
+	JpaSpecificationExecutor<PerpetualHeader> {
 	
 	public List<PerpetualHeader> findAll();
 	

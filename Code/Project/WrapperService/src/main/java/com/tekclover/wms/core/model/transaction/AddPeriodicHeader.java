@@ -7,13 +7,13 @@ import lombok.Data;
 
 @Data
 public class AddPeriodicHeader {
-
+	private String languageId;
 	private String companyCodeId;
-	private String palntId;
+	private String plantId;
 	private String warehouseId;
 	private Long cycleCountTypeId;
 	private String cycleCountNo;
-	private String statusId;
+	private Long statusId;
 	private String referenceField1;
 	private String referenceField2;
 	private String referenceField3;

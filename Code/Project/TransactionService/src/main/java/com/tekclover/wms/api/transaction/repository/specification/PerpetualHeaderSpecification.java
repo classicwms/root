@@ -44,9 +44,9 @@ public class PerpetualHeaderSpecification implements Specification<PerpetualHead
         	 predicates.add(group.in(searchPerpetualHeader.getCycleCountNo()));
          }
 		   
-		 if (searchPerpetualHeader.getStatusId() != null && !searchPerpetualHeader.getStatusId().isEmpty()) {	
+		 if (searchPerpetualHeader.getHeaderStatusId() != null && !searchPerpetualHeader.getHeaderStatusId().isEmpty()) {	
         	 final Path<Group> group = root.<Group> get("statusId");
-        	 predicates.add(group.in(searchPerpetualHeader.getStatusId()));
+        	 predicates.add(group.in(searchPerpetualHeader.getHeaderStatusId()));
          }	
 		 
 		 if (searchPerpetualHeader.getCreatedBy() != null && !searchPerpetualHeader.getCreatedBy().isEmpty()) {

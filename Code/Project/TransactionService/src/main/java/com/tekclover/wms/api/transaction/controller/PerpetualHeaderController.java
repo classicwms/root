@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.transaction.controller;
 
 import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -85,7 +86,7 @@ public class PerpetualHeaderController {
     @ApiOperation(response = PerpetualLineEntity.class, value = "Create PerpetualHeader") // label for swagger
    	@PostMapping("/run")
    	public ResponseEntity<?> postRunPerpetualHeader(@Valid @RequestBody RunPerpetualHeader runPerpetualHeader) 
-   			throws IllegalAccessException, InvocationTargetException {
+   			throws IllegalAccessException, InvocationTargetException, ParseException {
    		List<PerpetualLineEntity> inventoryMovements = perpetualheaderService.runPerpetualHeader(runPerpetualHeader);
    		return new ResponseEntity<>(inventoryMovements , HttpStatus.OK);
    	}

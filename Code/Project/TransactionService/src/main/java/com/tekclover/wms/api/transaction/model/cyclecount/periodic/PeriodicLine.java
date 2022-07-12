@@ -25,11 +25,16 @@ import lombok.NoArgsConstructor;
 		uniqueConstraints = { 
 				@UniqueConstraint (
 						name = "unique_key_periodicline", 
-						columnNames = {"C_ID", "PLANT_ID", "WH_ID", "CC_NO", "ST_BIN", "ITM_CODE", "PACK_BARCODE"})
+						columnNames = {"LANG_ID", "C_ID", "PLANT_ID", "WH_ID", "CC_NO", "ST_BIN", 
+								"ITM_CODE", "PACK_BARCODE"})
 				}
 		)
 @IdClass(PeriodicLineCompositeKey.class)
 public class PeriodicLine { 
+	
+	@Id
+	@Column(name = "LANG_ID")
+	private String languageId;
 	
 	@Id
 	@Column(name = "C_ID") 

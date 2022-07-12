@@ -12,6 +12,7 @@ public class PeriodicHeaderCompositeKey implements Serializable {
 	/*
 	 * `C_ID`, `PLANT_ID`, `WH_ID`, `CC_TYP_ID`, `CC_NO`
 	 */
+	private String languageId;
 	private String companyCode;
 	private String plantId;
 	private String warehouseId;

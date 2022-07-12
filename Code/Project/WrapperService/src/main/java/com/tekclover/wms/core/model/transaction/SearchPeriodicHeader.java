@@ -20,10 +20,12 @@ public class SearchPeriodicHeader {
 	private List<String> warehouseId;
 	private List<Long> cycleCountTypeId;
 	private List<String> cycleCountNo;
-	private List<String> statusId;
+	private List<Long> headerStatusId;
+	private List<Long> lineStatusId;
 	private List<String> createdBy;
-	
 	private Date startCreatedOn;
 	private Date endCreatedOn;
 	
+	// From Line table
+	private List<String> cycleCounterId;
 }

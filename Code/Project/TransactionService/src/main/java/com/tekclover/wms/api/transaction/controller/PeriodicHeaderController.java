@@ -25,7 +25,6 @@ import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicHeade
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicLineEntity;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.SearchPeriodicHeader;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.UpdatePeriodicHeader;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualLineEntity;
 import com.tekclover.wms.api.transaction.service.PeriodicHeaderService;
 
 import io.swagger.annotations.Api;
@@ -57,7 +56,7 @@ public class PeriodicHeaderController {
 	public ResponseEntity<?> getPeriodicHeader(@PathVariable String cycleCountNo, @RequestParam String companyCodeId, 
 		@RequestParam String palntId, @RequestParam String warehouseId, @RequestParam Long cycleCountTypeId) {
     	PeriodicHeader periodicheader = 
-    			periodicheaderService.getPeriodicHeader(companyCodeId, palntId, warehouseId, cycleCountTypeId, cycleCountNo);
+    			periodicheaderService.getPeriodicHeader(warehouseId, cycleCountTypeId, cycleCountNo);
 		return new ResponseEntity<>(periodicheader, HttpStatus.OK);
 	}
     
@@ -68,30 +67,30 @@ public class PeriodicHeaderController {
 		return periodicheaderService.findPeriodicHeader(searchPeriodicHeader);
 	}
 	
-	@ApiOperation(response = PerpetualLineEntity.class, value = "Run PeriodicHeader") // label for swagger
+	@ApiOperation(response = PeriodicLineEntity.class, value = "Run PeriodicHeader") // label for swagger
    	@PostMapping("/run")
-   	public ResponseEntity<?> postRunPerpetualHeader(@RequestParam String warehouseId, @RequestParam List<String> stSecIds) 
-   			throws IllegalAccessException, InvocationTargetException {
+   	public ResponseEntity<?> postRunPerpetualHeader(@RequestParam String warehouseId, 
+   			@RequestParam List<String> stSecIds) throws IllegalAccessException, InvocationTargetException {
    		List<PeriodicLineEntity> inventoryMovements = periodicheaderService.runPeriodicHeader(warehouseId, stSecIds);
    		return new ResponseEntity<>(inventoryMovements , HttpStatus.OK);
    	}
     
     @ApiOperation(response = PeriodicHeader.class, value = "Create PeriodicHeader") // label for swagger
 	@PostMapping("")
-	public ResponseEntity<?> postPeriodicHeader(@Valid @RequestBody AddPeriodicHeader newPeriodicHeader, @RequestParam String loginUserID) 
-			throws IllegalAccessException, InvocationTargetException {
-		PeriodicHeaderEntity createdPeriodicHeader = periodicheaderService.createPeriodicHeader(newPeriodicHeader, loginUserID);
+	public ResponseEntity<?> postPeriodicHeader(@Valid @RequestBody AddPeriodicHeader newPeriodicHeader, 
+			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
+		PeriodicHeaderEntity createdPeriodicHeader = 
+				periodicheaderService.createPeriodicHeader(newPeriodicHeader, loginUserID);
 		return new ResponseEntity<>(createdPeriodicHeader , HttpStatus.OK);
 	}
     
     @ApiOperation(response = PeriodicHeader.class, value = "Update PeriodicHeader") // label for swagger
     @PatchMapping("/{cycleCountNo}")
-	public ResponseEntity<?> patchPeriodicHeader(@PathVariable String cycleCountNo, @RequestParam String companyCodeId, 
-			@RequestParam String plantId, @RequestParam String warehouseId, @RequestParam Long cycleCountTypeId,
-			@Valid @RequestBody UpdatePeriodicHeader updatePeriodicHeader, @RequestParam String loginUserID) 
-			throws IllegalAccessException, InvocationTargetException {
+	public ResponseEntity<?> patchPeriodicHeader(@PathVariable String cycleCountNo, @RequestParam String warehouseId, 
+			@RequestParam Long cycleCountTypeId, @Valid @RequestBody UpdatePeriodicHeader updatePeriodicHeader, 
+			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
 		PeriodicHeader createdPeriodicHeader = 
-				periodicheaderService.updatePeriodicHeader(companyCodeId, plantId, warehouseId, cycleCountTypeId, 
+				periodicheaderService.updatePeriodicHeader(warehouseId, cycleCountTypeId, 
 						cycleCountNo, loginUserID, updatePeriodicHeader);
 		return new ResponseEntity<>(createdPeriodicHeader , HttpStatus.OK);
 	}

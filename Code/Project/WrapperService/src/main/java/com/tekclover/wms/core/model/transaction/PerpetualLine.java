@@ -36,7 +36,7 @@ public class PerpetualLine {
 	private Double varianceQty;
 	private String cycleCounterId;
 	private String cycleCounterName;
-	private String statusId;
+	private Long statusId;
 	private String cycleCountAction;
 	private String referenceNo;
 	private Long approvalProcessId;

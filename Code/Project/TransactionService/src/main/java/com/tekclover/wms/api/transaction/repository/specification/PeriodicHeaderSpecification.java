@@ -44,9 +44,9 @@ public class PeriodicHeaderSpecification implements Specification<PeriodicHeader
         	 predicates.add(group.in(searchPeriodicHeader.getCycleCountNo()));
          }
 		 
-		 if (searchPeriodicHeader.getStatusId() != null && !searchPeriodicHeader.getStatusId().isEmpty()) {	
+		 if (searchPeriodicHeader.getHeaderStatusId() != null && !searchPeriodicHeader.getHeaderStatusId().isEmpty()) {	
         	 final Path<Group> group = root.<Group> get("statusId");
-        	 predicates.add(group.in(searchPeriodicHeader.getStatusId()));
+        	 predicates.add(group.in(searchPeriodicHeader.getHeaderStatusId()));
          }	
 		 
 		 if (searchPeriodicHeader.getCreatedBy() != null && !searchPeriodicHeader.getCreatedBy().isEmpty()) {

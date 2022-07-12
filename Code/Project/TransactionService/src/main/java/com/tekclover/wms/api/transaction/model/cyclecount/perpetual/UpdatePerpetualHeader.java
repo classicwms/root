@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 public class UpdatePerpetualHeader {
-
+	private String languageId;
 	private String companyCodeId;
 	private String plantId;
 	private String warehouseId;
@@ -15,7 +15,7 @@ public class UpdatePerpetualHeader {
 	private String cycleCountNo;
 	private Long movementTypeId;
 	private Long subMovementTypeId;
-	private String statusId;
+	private Long statusId;
 	private String referenceField1;
 	private String referenceField2;
 	private String referenceField3;

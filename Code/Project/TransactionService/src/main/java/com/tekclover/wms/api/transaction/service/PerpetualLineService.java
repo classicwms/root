@@ -147,7 +147,7 @@ public class PerpetualLineService extends BaseService {
 					assignHHTUser.getStorageBin(), assignHHTUser.getItemCode(), assignHHTUser.getPackBarcodes());
 			dbPerpetualLine.setCycleCounterId(assignHHTUser.getCycleCounterId());
 			dbPerpetualLine.setCycleCounterName(assignHHTUser.getCycleCounterName());
-			dbPerpetualLine.setStatusId("72");
+			dbPerpetualLine.setStatusId(72L);
 			dbPerpetualLine.setCountedBy(loginUserID);
 			dbPerpetualLine.setCountedOn(new Date());
 			PerpetualLine updatedPerpetualLine = perpetualLineRepository.save(dbPerpetualLine);
@@ -191,9 +191,9 @@ public class PerpetualLineService extends BaseService {
 				 * Hardcodeed value"74" - if VAR_QTY is greater than or less than Zero
 				 */
 				if (VAR_QTY == 0) {
-					dbPerpetualLine.setStatusId("78");
+					dbPerpetualLine.setStatusId(78L);
 				} else if (VAR_QTY > 0 || VAR_QTY < 0) {
-					dbPerpetualLine.setStatusId("74");
+					dbPerpetualLine.setStatusId(74L);
 				} 
 				
 				dbPerpetualLine.setCountedBy(loginUserID);
@@ -244,7 +244,7 @@ public class PerpetualLineService extends BaseService {
 				 * update in STATUS_ID field as "76"
 				 */
 				if (updatePerpetualLine.getCycleCountAction().equalsIgnoreCase(WRITEOFF)) {
-					dbPerpetualLine.setStatusId("76");
+					dbPerpetualLine.setStatusId(76L);
 					dbPerpetualLine.setCycleCountAction(WRITEOFF);
 					PerpetualLine updatedPerpetualLine = perpetualLineRepository.save(dbPerpetualLine);
 					log.info("updatedPerpetualLine : " + updatedPerpetualLine);
@@ -267,7 +267,7 @@ public class PerpetualLineService extends BaseService {
 				 * and update in STATUS_ID field as "77"
 				 */
 				if (updatePerpetualLine.getCycleCountAction().equalsIgnoreCase(SKIP)) {
-					dbPerpetualLine.setStatusId("77");
+					dbPerpetualLine.setStatusId(77L);
 					dbPerpetualLine.setCycleCountAction(SKIP);
 					PerpetualLine updatedPerpetualLine = perpetualLineRepository.save(dbPerpetualLine);
 					log.info("updatedPerpetualLine : " + updatedPerpetualLine);
@@ -290,7 +290,7 @@ public class PerpetualLineService extends BaseService {
 				 * and update in STATUS_ID field as "75 "
 				 */
 				if (updatePerpetualLine.getCycleCountAction().equalsIgnoreCase(RECOUNT)) {
-					dbPerpetualLine.setStatusId("75");
+					dbPerpetualLine.setStatusId(75L);
 					dbPerpetualLine.setCycleCountAction(RECOUNT);
 					PerpetualLine updatedPerpetualLine = perpetualLineRepository.save(dbPerpetualLine);
 					log.info("updatedPerpetualLine : " + updatedPerpetualLine);

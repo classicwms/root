@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 public class PeriodicHeader { 
-	
+	private String languageId;
 	private String companyCode;
 	private String plantId;
 	private String warehouseId;

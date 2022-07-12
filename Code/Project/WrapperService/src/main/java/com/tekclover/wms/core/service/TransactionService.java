@@ -3870,7 +3870,6 @@ public class TransactionService {
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 			headers.add("User-Agent", "MNRClara's RestTemplate");
 			headers.add("Authorization", "Bearer " + authToken);
-			
 			HttpEntity<?> entity = new HttpEntity<>(updatePerpetualHeader, headers);
 			HttpClient client = HttpClients.createDefault();
 			RestTemplate restTemplate = getRestTemplate();
@@ -3886,7 +3885,6 @@ public class TransactionService {
 			
 			ResponseEntity<PerpetualHeader> result = 
 					restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, PerpetualHeader.class);
-			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();

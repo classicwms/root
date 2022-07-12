@@ -25,11 +25,15 @@ import lombok.NoArgsConstructor;
 		uniqueConstraints = { 
 				@UniqueConstraint (
 						name = "unique_key_periodicheader", 
-						columnNames = {"C_ID", "PLANT_ID", "WH_ID", "CC_TYP_ID", "CC_NO"})
+						columnNames = {"LANG_ID", "C_ID", "PLANT_ID", "WH_ID", "CC_TYP_ID", "CC_NO"})
 				}
 		)
 @IdClass(PeriodicHeaderCompositeKey.class)
 public class PeriodicHeader { 
+	
+	@Id
+	@Column(name = "LANG_ID")
+	private String languageId;
 	
 	@Id
 	@Column(name = "C_ID")

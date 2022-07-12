@@ -25,7 +25,8 @@ import lombok.NoArgsConstructor;
 		uniqueConstraints = { 
 				@UniqueConstraint (
 						name = "unique_key_perpetualheader", 
-						columnNames = {"C_ID", "PLANT_ID", "WH_ID", "CC_TYP_ID", "CC_NO", "MVT_TYP_ID", "SUB_MVT_TYP_ID"})
+						columnNames = {"LANG_ID", "C_ID", "PLANT_ID", "WH_ID", "CC_TYP_ID", "CC_NO", 
+								"MVT_TYP_ID", "SUB_MVT_TYP_ID"})
 				}
 		)
 @IdClass(PerpetualHeaderCompositeKey.class)
@@ -64,7 +65,7 @@ public class PerpetualHeader {
 	private Long subMovementTypeId;
 	
 	@Column(name = "STATUS_ID") 
-	private String statusId;
+	private Long statusId;
 	
 	@Column(name = "REF_FIELD_1") 
 	private String referenceField1;

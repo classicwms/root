@@ -24,7 +24,8 @@ public class SearchPerpetualHeader {
 	private List<String> cycleCountNo;
 	private List<Long> movementTypeId;
 	private List<Long> subMovementTypeId;
-	private List<String> statusId;
+	private List<Long> headerStatusId;
+	private List<Long> lineStatusId;
 	private List<String> createdBy;
 	
 	private Date startCreatedOn;

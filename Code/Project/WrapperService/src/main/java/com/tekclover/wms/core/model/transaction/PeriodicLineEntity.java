@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class PeriodicLineEntity { 
-	
+	private String languageId;
 	private String companyCode;
 	private String plantId;
 	private String warehouseId;
@@ -45,11 +45,11 @@ public class PeriodicLineEntity {
 	private String referenceField10;
 	private Long deletionIndicator;
 	private String createdBy;
-	private Date createdOn = new Date();
+	private Date createdOn;
 	private String confirmedBy;
-	private Date confirmedOn = new Date();
+	private Date confirmedOn;
 	private String countedBy;
-	private Date countedOn = new Date();
+	private Date countedOn;
 	private String storageSectionId;
 	private String manufacturerPartNo;
 	private Long specialStockIndicator;

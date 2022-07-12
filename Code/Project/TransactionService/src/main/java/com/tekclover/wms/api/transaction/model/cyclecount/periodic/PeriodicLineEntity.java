@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 public class PeriodicLineEntity { 
-	
+	private String languageId;
 	private String companyCode;
 	private String plantId;
 	private String warehouseId;

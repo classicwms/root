@@ -23,7 +23,7 @@ public class PerpetualHeader {
 	private String cycleCountNo;
 	private Long movementTypeId;
 	private Long subMovementTypeId;
-	private String statusId;
+	private Long statusId;
 	private String referenceField1;
 	private String referenceField2;
 	private String referenceField3;
