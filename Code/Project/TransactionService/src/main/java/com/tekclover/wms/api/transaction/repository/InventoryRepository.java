@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.tekclover.wms.api.transaction.model.dto.IInventory;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 
 @Repository
@@ -68,10 +69,21 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 			String languageId, String companyCode, String plantId, String warehouseId, String palletCode,
 			String caseCode, String packBarcodes, String itemCode, Long deletionIndicator);
 
+	// SQL Query for getting Inventory
+	// select inv_qty, INV_UOM from tblinventory where WH_ID=110 and PACK_BARCODE=202201200892 and ITM_CODE=0203011053 and ST_BIN='GG1GL09C02'
+	@Query (value = "SELECT INV_QTY AS inventoryQty, INV_UOM AS inventoryUom FROM tblinventory "
+			+ "WHERE WH_ID = :warehouseId AND PACK_BARCODE = :packbarCode AND "
+			+ "ITM_CODE = :itemCode AND ST_BIN = :storageBin", nativeQuery = true)
+	public IInventory findInventoryForPeriodicRun (
+			@Param(value = "warehouseId") String warehouseId,
+			@Param(value = "itemCode") String itemCode,
+			@Param(value = "storageBin") String storageBin,
+			@Param(value = "packbarCode") String packbarCode);
+	
 	public Optional<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPackBarcodesAndItemCodeAndStorageBinAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId, String packBarcodes,
 			String itemCode, String storageBin, Long deletionIndicator);
-
+	
 	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId, String itemCode, Long deletionIndicator);
 
@@ -137,4 +149,6 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 			String packBarcodes, Long binClassId, long l);
 
 	public List<Inventory> findByWarehouseIdAndStorageBinIn(String warehouseId, List<String> storageBin); 
+	
+	public List<Inventory> findByWarehouseId(String warehouseId);
 }

@@ -66,6 +66,7 @@ import com.tekclover.wms.api.transaction.model.report.StockReport;
 import com.tekclover.wms.api.transaction.model.report.SummaryMetrics;
 import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
 import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundLineRepository;
 import com.tekclover.wms.api.transaction.repository.StorageBinRepository;
@@ -133,6 +134,9 @@ public class ReportsService extends BaseService {
 	
 	@Autowired
 	InventoryMovementRepository inventoryMovementRepository;
+	
+	@Autowired
+	InventoryRepository inventoryRepository;
 	
 	/**
 	 * Stock Report
@@ -385,6 +389,69 @@ public class ReportsService extends BaseService {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	/**
+	 * 
+	 * @param pageNo
+	 * @param pageSize
+	 * @param sortBy
+	 * @return
+	 */
+	public Page<InventoryReport> scheduleInventoryReport (Integer pageNo, Integer pageSize, String sortBy) {
+		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+		Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
+		Page<Inventory> inventoryList = inventoryRepository.findAll(pageable);
+		List<InventoryReport> reportInventoryList = new ArrayList<>();
+		for (Inventory dbInventory : inventoryList) {
+			InventoryReport reportInventory = new InventoryReport();
+			
+			// WH_ID
+			reportInventory.setWarehouseId(dbInventory.getWarehouseId());
+			
+			// ITM_CODE
+			reportInventory.setItemCode(dbInventory.getItemCode());
+			
+			/*
+			 * ITEM_TEXT
+			 * 
+			 * Pass the fetched ITM_CODE values in IMBASICDATA1 table and fetch MFR_SKU values
+			 */
+			ImBasicData1 imBasicData1 = 
+					mastersService.getImBasicData1ByItemCode(dbInventory.getItemCode(), dbInventory.getWarehouseId(), authTokenForMastersService.getAccess_token());
+			log.info("imBasicData1 : " + imBasicData1);
+			
+			if (imBasicData1 != null) {
+				reportInventory.setDescription(imBasicData1.getDescription());
+			}
+			
+			// INV_UOM
+			reportInventory.setUom(dbInventory.getInventoryUom());
+			
+			// ST_BIN
+			reportInventory.setStorageBin(dbInventory.getStorageBin());
+			log.info("dbInventory.getStorageBin() : " + dbInventory.getStorageBin());
+			
+			/*
+			 * ST_SEC_ID
+			 * Pass the selected ST_BIN values into STORAGEBIN table and fetch ST_SEC_ID values
+			 */
+			StorageBin stBin = 
+					mastersService.getStorageBin(dbInventory.getStorageBin(), authTokenForMastersService.getAccess_token());
+			reportInventory.setStorageSectionId(stBin.getStorageSectionId());
+			
+			// PACK_BARCODE
+			reportInventory.setPackBarcodes(dbInventory.getPackBarcodes());
+			
+			// INV_QTY
+			reportInventory.setInventoryQty(dbInventory.getInventoryQuantity());
+			
+			// STCK_TYP_ID/STCK_TYP_TEXT
+			reportInventory.setStockType(dbInventory.getStockTypeId());
+			reportInventoryList.add(reportInventory);
+		}
+		final Page<InventoryReport> page = new PageImpl<>(reportInventoryList, pageable, inventoryList.getTotalElements());
+		return page;
 	}
 	
 	/**

@@ -74,6 +74,19 @@ public class PeriodicHeaderController {
    		List<PeriodicLineEntity> inventoryMovements = periodicheaderService.runPeriodicHeader(warehouseId, stSecIds);
    		return new ResponseEntity<>(inventoryMovements , HttpStatus.OK);
    	}
+	
+//	@ApiOperation(response = Inventory.class, value = "Search Inventory") // label for swagger
+//	@PostMapping("/run/pagination")
+//	public Page<Inventory> findInventory(@RequestParam String warehouseId, 
+//   			@RequestParam List<String> stSecIds,
+//			@RequestParam(defaultValue = "0") Integer pageNo,
+//			@RequestParam(defaultValue = "100") Integer pageSize,
+//			@RequestParam(defaultValue = "itemCode") String sortBy) 
+//			throws Exception {
+//		List<PeriodicLineEntity> inventoryMovements = 
+//				periodicheaderService.runPeriodicHeader(warehouseId, stSecIds, pageNo, pageSize, sortBy);
+//   		return new ResponseEntity<>(inventoryMovements , HttpStatus.OK);
+//	}
     
     @ApiOperation(response = PeriodicHeader.class, value = "Create PeriodicHeader") // label for swagger
 	@PostMapping("")

@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.transaction.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,10 +91,30 @@ public class ReportsController {
 			@RequestParam(defaultValue = "0") Integer pageNo,
 			@RequestParam(defaultValue = "10") Integer pageSize,
 			@RequestParam(defaultValue = "itemCode") String sortBy) {
-    	Page<InventoryReport> inventoryReportList = reportsService.getInventoryReport(warehouseId, itemCode, storageBin, stockTypeText, stSectionIds,
+    	Page<InventoryReport> inventoryReportList = 
+    			reportsService.getInventoryReport(warehouseId, itemCode, storageBin, stockTypeText, stSectionIds,
     					pageNo, pageSize, sortBy);
 		return new ResponseEntity<>(inventoryReportList, HttpStatus.OK);
 	}
+    
+    @ApiOperation(response = Inventory.class, value = "Get Stock Report") // label for swagger 
+   	@GetMapping("/inventoryReport/schedule")
+   	public ResponseEntity<?> getInventoryReport() throws Exception {
+    	int pageSize = 500;
+		Page<InventoryReport> pageResult = reportsService.scheduleInventoryReport(1, pageSize, "itemCode");
+		log.info ("pageResult : " + pageResult.getTotalElements());
+		List<InventoryReport> listRecords = new ArrayList<>();
+		listRecords.addAll(pageResult.getContent());
+		
+		log.info("pageResult.getTotalPages() : " + pageResult.getTotalPages());
+		
+		for (int pageNo = 2; pageNo <= pageResult.getTotalPages(); pageNo ++) {
+			pageResult = reportsService.scheduleInventoryReport(pageNo, pageSize, "itemCode");
+			listRecords.addAll(pageResult.getContent());
+			log.info("listRecords : " + listRecords.size());
+		}
+   		return new ResponseEntity<>(HttpStatus.OK);
+   	}
     
     /*
 	 * Stock movement report

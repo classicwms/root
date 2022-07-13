@@ -1752,4 +1752,13 @@ public class TransactionServiceController {
 				transactionService.updatePeriodicLine (cycleCountNo, updatePeriodicLine, loginUserID, authToken);
 		return new ResponseEntity<>(createdPeriodicLine , HttpStatus.OK);
 	}
+    
+    //--------------------------Schedule-Report------------------------------------------------------
+    @ApiOperation(response = InventoryReport.class, value = "Report Inventory") // label for swagger
+    @GetMapping("/reports/inventoryReport/schedule")
+	public ResponseEntity<?> scheduleInventoryReport (@RequestParam String authToken)
+			throws IllegalAccessException, InvocationTargetException {
+    	transactionService.getInventoryReport (authToken);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 }

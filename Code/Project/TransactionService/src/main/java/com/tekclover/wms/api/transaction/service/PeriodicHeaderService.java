@@ -25,9 +25,11 @@ import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicLineE
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.SearchPeriodicHeader;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.SearchPeriodicLine;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.UpdatePeriodicHeader;
+import com.tekclover.wms.api.transaction.model.dto.IInventory;
 import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
 import com.tekclover.wms.api.transaction.model.dto.StorageBin;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
+import com.tekclover.wms.api.transaction.repository.InventoryRepository;
 import com.tekclover.wms.api.transaction.repository.PeriodicHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.PeriodicLineRepository;
 import com.tekclover.wms.api.transaction.repository.specification.PeriodicHeaderSpecification;
@@ -58,6 +60,9 @@ public class PeriodicHeaderService extends BaseService {
 	
 	@Autowired
 	PeriodicLineRepository periodicLineRepository;
+	
+	@Autowired
+	InventoryRepository inventoryRepository;
 
 	/**
 	 * getPeriodicHeaders
@@ -196,6 +201,9 @@ public class PeriodicHeaderService extends BaseService {
 	 * 
 	 * @param warehouseId
 	 * @param stSecIds
+	 * @param sortBy 
+	 * @param pageSize 
+	 * @param pageNo 
 	 * @return
 	 */
 	public List<PeriodicLineEntity> runPeriodicHeader(String warehouseId, List<String> stSecIds) {
@@ -283,9 +291,12 @@ public class PeriodicHeaderService extends BaseService {
 			 * values in INVENTORY table and fetch INV_QTY/INV_UOM values and 
 			 * fill against each ITM_CODE values and this is non-editable"
 			 */
-			Inventory dbInventory = inventoryService.getInventory(inventory.getWarehouseId(), 
+//			Inventory dbInventory = inventoryService.getInventory(inventory.getWarehouseId(), 
+//					inventory.getPackBarcodes(), inventory.getItemCode(), inventory.getStorageBin());
+//			log.info("dbInventory : " + dbInventory);
+			
+			IInventory dbInventory = inventoryRepository.findInventoryForPeriodicRun (inventory.getWarehouseId(), 
 					inventory.getPackBarcodes(), inventory.getItemCode(), inventory.getStorageBin());
-			log.info("dbInventory : " + dbInventory);
 			
 			if (dbInventory != null) {
 				periodicLine.setInventoryQuantity(inventory.getInventoryQuantity());

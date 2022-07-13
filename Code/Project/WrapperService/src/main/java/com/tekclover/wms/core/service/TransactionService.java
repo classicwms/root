@@ -4185,4 +4185,24 @@ public class TransactionService {
 			throw e;
 		}
 	}
+	
+	/**
+	 * 
+	 * @param authToken
+	 */
+	public void getInventoryReport(String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "reports/inventoryReport/schedule");
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<String> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, String.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
 }	
