@@ -48,7 +48,7 @@ public class BatchJobScheduler {
 	// Schedule Report
 	@Scheduled(cron = "0 0/10 17 * * *")
 	public void scheduleInvReport() throws IllegalAccessException, InvocationTargetException {
-		reportsService.exportXlsxFile();
+//		reportsService.exportXlsxFile();
 	}
 	
 //	@Scheduled(cron ="* * * * * *")
