@@ -199,7 +199,7 @@ public class PeriodicHeaderService extends BaseService {
 	 * @return
 	 */
 	public List<PeriodicLineEntity> runPeriodicHeader(String warehouseId, List<String> stSecIds) {
-		List<PeriodicLineEntity> periodicLineList = null;
+		List<PeriodicLineEntity> globalPeriodicLineList = new ArrayList<>();
 		try {
 			AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
 			StorageBin[] storageBin = mastersService.getStorageBinBySectionId(stSecIds, authTokenForMastersService.getAccess_token());
@@ -209,72 +209,118 @@ public class PeriodicHeaderService extends BaseService {
 			
 			List<String> stBins = Arrays.asList(storageBin).stream().map(StorageBin::getStorageBin).collect(Collectors.toList());
 			log.info("stBins------> : " + stBins);
-			
-			List<Inventory> inventoryList = inventoryService.getInventoryByStorageBin (warehouseId, stBins);
-			log.info("inventoryList--size----> : " + inventoryList.size());
-			
-			periodicLineList = new ArrayList<>();
-			for (Inventory inventory : inventoryList) {
-				PeriodicLineEntity periodicLine = new PeriodicLineEntity();
+			if (stBins != null && stBins.size() > 1000) {
+				List[] splitLists = split (stBins);
 				
-				periodicLine.setLanguageId(inventory.getLanguageId());
-				periodicLine.setCompanyCode(inventory.getCompanyCodeId());
-				periodicLine.setPlantId(inventory.getPlantId());
-				periodicLine.setWarehouseId(inventory.getWarehouseId());
-				
-				// ITM_CODE
-				periodicLine.setItemCode(inventory.getItemCode());
-				
-				// Pass ITM_CODE in IMBASICDATA table and fetch ITEM_TEXT values
-				ImBasicData1 imBasicData1 = mastersService.getImBasicData1ByItemCode(inventory.getItemCode(), 
-						inventory.getWarehouseId(), authTokenForMastersService.getAccess_token());
-				periodicLine.setItemDesc(imBasicData1.getDescription());
-				
-				// ST_BIN
-				periodicLine.setStorageBin(inventory.getStorageBin());
-				
-				// ST_SEC_ID/ST_SEC
-				// Pass the ST_BIN in STORAGEBIN table and fetch ST_SEC_ID/ST_SEC values
-				StorageBin dbStorageBin = mastersService.getStorageBin(inventory.getStorageBin(),
-						authTokenForMastersService.getAccess_token());
-				periodicLine.setStorageSectionId(dbStorageBin.getStorageSectionId());
-				
-				// MFR_PART
-				// Pass ITM_CODE in IMBASICDATA table and fetch MFR_PART values
-				periodicLine.setManufacturerPartNo(imBasicData1.getManufacturerPartNo());
-				
-				// STCK_TYP_ID
-				periodicLine.setStockTypeId(inventory.getStockTypeId());
-				
-				// SP_ST_IND_ID
-				periodicLine.setSpecialStockIndicator(inventory.getSpecialStockIndicatorId());
-				
-				// PACK_BARCODE
-				periodicLine.setPackBarcodes(inventory.getPackBarcodes());
-				
-				/*
-				 * INV_QTY
-				 * -------------
-				 * Pass the filled WH_ID/ITM_CODE/PACK_BARCODE/ST_BIN
-				 * values in INVENTORY table and fetch INV_QTY/INV_UOM values and 
-				 * fill against each ITM_CODE values and this is non-editable"
-				 */
-				Inventory dbInventory = inventoryService.getInventory(inventory.getWarehouseId(), 
-						inventory.getPackBarcodes(), inventory.getItemCode(), inventory.getStorageBin());
-				log.info("dbInventory : " + dbInventory);
-				
-				if (dbInventory != null) {
-					periodicLine.setInventoryQuantity(inventory.getInventoryQuantity());
-					periodicLine.setInventoryUom(inventory.getInventoryUom());
+				for (List<String> stbinList : splitLists) {
+					List<PeriodicLineEntity> invList = getInventory (warehouseId, stbinList, authTokenForMastersService);
+					globalPeriodicLineList.addAll(invList);
 				}
-				periodicLineList.add(periodicLine);
+			} else {
+				globalPeriodicLineList = getInventory (warehouseId, stBins, authTokenForMastersService);
 			}
-			return periodicLineList;
+			
+			return globalPeriodicLineList;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		return null;
+	}
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param stbinList
+	 * @param authTokenForMastersService
+	 * @return
+	 */
+	private List<PeriodicLineEntity> getInventory (String warehouseId, List<String> stbinList, AuthToken authTokenForMastersService) {
+		List<PeriodicLineEntity> periodicLineList = new ArrayList<>();
+		List<Inventory> inventoryList = inventoryService.getInventoryByStorageBin (warehouseId, stbinList);
+		log.info("inventoryList--size----> : " + inventoryList.size());
+		for (Inventory inventory : inventoryList) {
+			PeriodicLineEntity periodicLine = new PeriodicLineEntity();
+			
+			periodicLine.setLanguageId(inventory.getLanguageId());
+			periodicLine.setCompanyCode(inventory.getCompanyCodeId());
+			periodicLine.setPlantId(inventory.getPlantId());
+			periodicLine.setWarehouseId(inventory.getWarehouseId());
+			
+			// ITM_CODE
+			periodicLine.setItemCode(inventory.getItemCode());
+			
+			// Pass ITM_CODE in IMBASICDATA table and fetch ITEM_TEXT values
+			ImBasicData1 imBasicData1 = mastersService.getImBasicData1ByItemCode(inventory.getItemCode(), 
+					inventory.getWarehouseId(), authTokenForMastersService.getAccess_token());
+			periodicLine.setItemDesc(imBasicData1.getDescription());
+			
+			// ST_BIN
+			periodicLine.setStorageBin(inventory.getStorageBin());
+			
+			// ST_SEC_ID/ST_SEC
+			// Pass the ST_BIN in STORAGEBIN table and fetch ST_SEC_ID/ST_SEC values
+			StorageBin dbStorageBin = mastersService.getStorageBin(inventory.getStorageBin(),
+					authTokenForMastersService.getAccess_token());
+			periodicLine.setStorageSectionId(dbStorageBin.getStorageSectionId());
+			
+			// MFR_PART
+			// Pass ITM_CODE in IMBASICDATA table and fetch MFR_PART values
+			periodicLine.setManufacturerPartNo(imBasicData1.getManufacturerPartNo());
+			
+			// STCK_TYP_ID
+			periodicLine.setStockTypeId(inventory.getStockTypeId());
+			
+			// SP_ST_IND_ID
+			periodicLine.setSpecialStockIndicator(inventory.getSpecialStockIndicatorId());
+			
+			// PACK_BARCODE
+			periodicLine.setPackBarcodes(inventory.getPackBarcodes());
+			
+			/*
+			 * INV_QTY
+			 * -------------
+			 * Pass the filled WH_ID/ITM_CODE/PACK_BARCODE/ST_BIN
+			 * values in INVENTORY table and fetch INV_QTY/INV_UOM values and 
+			 * fill against each ITM_CODE values and this is non-editable"
+			 */
+			Inventory dbInventory = inventoryService.getInventory(inventory.getWarehouseId(), 
+					inventory.getPackBarcodes(), inventory.getItemCode(), inventory.getStorageBin());
+			log.info("dbInventory : " + dbInventory);
+			
+			if (dbInventory != null) {
+				periodicLine.setInventoryQuantity(inventory.getInventoryQuantity());
+				periodicLine.setInventoryUom(inventory.getInventoryUom());
+			}
+			periodicLineList.add(periodicLine);
+		}
 		return periodicLineList;
 	}
+	
+	/**
+	 * 
+	 * @param list
+	 * @return
+	 */
+	public static List[] split (List<String> list) {
+        int size = list.size();
+        List<String> first = new ArrayList<>(list.subList(0, (size) / 2));
+        List<String> second = new ArrayList<>(list.subList((size) / 2, size));
+        return new List[] { first, second };
+    }
+	
+//	public static void main(String[] args) {
+//		List<String> list = new ArrayList<String>();
+//		 
+//        list.add("Geeks");
+//        list.add("Practice");
+//        list.add("Contribute");
+//        list.add("IDE");
+//        list.add("Courses");
+//        
+//        List[] l = split (list);
+//        log.info("A1 : " + l[0]);
+//        log.info("A2 : " + l[1]);
+//	}
 
 	/**
 	 * createPeriodicHeader
