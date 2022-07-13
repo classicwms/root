@@ -46,7 +46,7 @@ public class BatchJobScheduler {
 	static CopyOnWriteArrayList<OutboundIntegrationHeader> spOutboundList = null; // Outbound List
 	
 	// Schedule Report
-	@Scheduled(cron = "0 0/50 17 * * *")
+	@Scheduled(cron = "0 0 18 * * *")
 	public void scheduleInvReport() throws IllegalAccessException, InvocationTargetException {
 		reportsService.exportXlsxFile();
 	}
