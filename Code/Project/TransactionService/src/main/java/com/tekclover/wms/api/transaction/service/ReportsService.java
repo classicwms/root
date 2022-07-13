@@ -1,5 +1,9 @@
 package com.tekclover.wms.api.transaction.service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -12,6 +16,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -137,8 +144,8 @@ public class ReportsService extends BaseService {
 	@Autowired
 	InventoryRepository inventoryRepository;
 
-//	@Autowired
-//	WorkBookService workBookService;
+	@Autowired
+	WorkBookService workBookService;
 
 	/**
 	 * Stock Report ---------------------
@@ -1755,125 +1762,123 @@ public class ReportsService extends BaseService {
 	 * 
 	 * @return
 	 */
-//	public WorkBookSheetDTO exportXlsxFile() {
-//
-//		int pageSize = 500;
-//		Page<InventoryReport> pageResult = scheduleInventoryReport(0, pageSize, "itemCode");
-//		log.info("pageResult : " + pageResult.getTotalElements());
-//		List<InventoryReport> listRecords = new ArrayList<>();
-//		listRecords.addAll(pageResult.getContent());
-//		
-//		log.info("listRecords : " + listRecords);
-//		log.info("pageResult.getTotalPages() : " + pageResult.getTotalPages());
-//
-//		for (int pageNo = 1; pageNo <= pageResult.getTotalPages(); pageNo++) {
-//			pageResult = scheduleInventoryReport(pageNo, pageSize, "itemCode");
-//			listRecords.addAll(pageResult.getContent());
-//			log.info("listRecords : " + listRecords.size());
-//		}
-//
-//		WorkBookSheetDTO workBookSheetDTO = workBookService.createWorkBookWithSheet("inventory");
-//		CellStyle headerStyle = workBookSheetDTO.getStyle();
-//		CellStyle cellStyle = workBookService.createLineCellStyle(workBookSheetDTO.getWorkbook());
-//		CellStyle decimalFormatCells = workBookService.createLineCellStyle(workBookSheetDTO.getWorkbook());
-//
-//		try {
-//
-//			/*
-//			 * private String WAREHOUSEID; // WH_ID private String ITEMCODE; // ITM_CODE
-//			 * private String DESCRIPTION; // ITEM_TEXT private String UOM; // INV_UOM
-//			 * private String STORAGEBIN; // ST_BIN private String STORAGESECTIONID; //
-//			 * ST_SEC_ID private String PACKBARCODES; // PACK_BARCODE private Double
-//			 * INVENTORYQTY; // INV_QTY private Long STOCKTYPE; // STCK_TYP_TEXT
-//			 */
-//			ArrayList<String> headerData = new ArrayList<>();
-//			headerData.add("WAREHOUSEID");
-//			headerData.add("ITEMCODE");
-//			headerData.add("DESCRIPTION");
-//			headerData.add("UOM");
-//			headerData.add("STORAGEBIN");
-//			headerData.add("STORAGESECTIONID");
-//			headerData.add("PACKBARCODES");
-//			headerData.add("INVENTORYQTY");
-//			headerData.add("STOCKTYPE");
-//
-//			this.createHeaderRow(workBookSheetDTO.getWorkbook().getSheet("inventory"), headerStyle, headerData);
-//
-//			int rowIndex = 1;
-//			for (InventoryReport data : listRecords) {
-//				log.info("data : " + data);
-//				int cellIndex = 0;
-//
-//				Row row = workBookSheetDTO.getWorkbook().getSheet("inventory").createRow(rowIndex++);
-//				row.createCell(cellIndex).setCellValue(data.getWarehouseId());
-//				row.getCell(cellIndex).setCellStyle(cellStyle);
-//				cellIndex++;
-//
-//				row.createCell(cellIndex).setCellValue(data.getItemCode());
-//				row.getCell(cellIndex).setCellStyle(cellStyle);
-//				cellIndex++;
-//
-//				row.createCell(cellIndex).setCellValue(data.getDescription());
-//				row.getCell(cellIndex).setCellStyle(cellStyle);
-//				cellIndex++;
-//
-//				row.createCell(cellIndex).setCellValue(data.getUom());
-//				row.getCell(cellIndex).setCellStyle(cellStyle);
-//				cellIndex++;
-//
-//				row.createCell(cellIndex).setCellValue(data.getStorageBin());
-//				row.getCell(cellIndex).setCellStyle(cellStyle);
-//				cellIndex++;
-//
-//				row.createCell(cellIndex).setCellValue(data.getStorageSectionId());
-//				row.getCell(cellIndex).setCellStyle(cellStyle);
-//				cellIndex++;
-//
-//				row.createCell(cellIndex).setCellValue(data.getPackBarcodes());
-//				row.getCell(cellIndex).setCellStyle(cellStyle);
-//				cellIndex++;
-//
-//				row.createCell(cellIndex).setCellValue(data.getInventoryQty());
-//				row.getCell(cellIndex).setCellStyle(cellStyle);
-//				cellIndex++;
-//
-//				row.createCell(cellIndex).setCellValue(data.getStockType());
-//				row.getCell(cellIndex).setCellStyle(cellStyle);
-//			}
-//			
-//			OutputStream fout = new FileOutputStream("inventory.xlsx");
-//			workBookSheetDTO.getWorkbook().write(fout);
-//                
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		return workBookSheetDTO;
-//	}
-//
-//	public ByteArrayOutputStream getOutputStreamToByteArray(OutputStream os) throws IOException {
-//        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//        bos.write(bos.toByteArray());
-////        bos.close();
-////        bos.flush();
-//        byte[] arr = bos.toByteArray();
-//        os.write(arr);
-//        return bos;
-//    }
-//	
-//	/**
-//	 * 
-//	 * @param sheet
-//	 * @param headerStyle
-//	 * @param header
-//	 */
-//	public void createHeaderRow(Sheet sheet, CellStyle headerStyle, List<String> header) {
-//		Row headerRows = sheet.createRow(0);
-//		int k = 0;
-//		for (String value : header) {
-//			headerRows.createCell(k);
-//			headerRows.getCell(k).setCellValue(value.toString());
-//			headerRows.getCell(k).setCellStyle(headerStyle);
-//			k++;
-//		}
-//	}
+	public WorkBookSheetDTO exportXlsxFile() {
+
+		int pageSize = 500;
+		Page<InventoryReport> pageResult = scheduleInventoryReport(0, pageSize, "itemCode");
+		log.info("pageResult : " + pageResult.getTotalElements());
+		List<InventoryReport> listRecords = new ArrayList<>();
+		listRecords.addAll(pageResult.getContent());
+		
+		log.info("listRecords : " + listRecords);
+		log.info("pageResult.getTotalPages() : " + pageResult.getTotalPages());
+
+		for (int pageNo = 1; pageNo <= pageResult.getTotalPages(); pageNo++) {
+			pageResult = scheduleInventoryReport(pageNo, pageSize, "itemCode");
+			listRecords.addAll(pageResult.getContent());
+			log.info("listRecords : " + listRecords.size());
+		}
+
+		WorkBookSheetDTO workBookSheetDTO = workBookService.createWorkBookWithSheet("inventory");
+		CellStyle headerStyle = workBookSheetDTO.getStyle();
+		CellStyle cellStyle = workBookService.createLineCellStyle(workBookSheetDTO.getWorkbook());
+		CellStyle decimalFormatCells = workBookService.createLineCellStyle(workBookSheetDTO.getWorkbook());
+
+		try {
+
+			/*
+			 * private String WAREHOUSEID; // WH_ID private String ITEMCODE; // ITM_CODE
+			 * private String DESCRIPTION; // ITEM_TEXT private String UOM; // INV_UOM
+			 * private String STORAGEBIN; // ST_BIN private String STORAGESECTIONID; //
+			 * ST_SEC_ID private String PACKBARCODES; // PACK_BARCODE private Double
+			 * INVENTORYQTY; // INV_QTY private Long STOCKTYPE; // STCK_TYP_TEXT
+			 */
+			ArrayList<String> headerData = new ArrayList<>();
+			headerData.add("WAREHOUSEID");
+			headerData.add("ITEMCODE");
+			headerData.add("DESCRIPTION");
+			headerData.add("UOM");
+			headerData.add("STORAGEBIN");
+			headerData.add("STORAGESECTIONID");
+			headerData.add("PACKBARCODES");
+			headerData.add("INVENTORYQTY");
+			headerData.add("STOCKTYPE");
+
+			this.createHeaderRow(workBookSheetDTO.getWorkbook().getSheet("inventory"), headerStyle, headerData);
+
+			int rowIndex = 1;
+			for (InventoryReport data : listRecords) {
+				log.info("data : " + data);
+				int cellIndex = 0;
+
+				Row row = workBookSheetDTO.getWorkbook().getSheet("inventory").createRow(rowIndex++);
+				row.createCell(cellIndex).setCellValue(data.getWarehouseId());
+				row.getCell(cellIndex).setCellStyle(cellStyle);
+				cellIndex++;
+
+				row.createCell(cellIndex).setCellValue(data.getItemCode());
+				row.getCell(cellIndex).setCellStyle(cellStyle);
+				cellIndex++;
+
+				row.createCell(cellIndex).setCellValue(data.getDescription());
+				row.getCell(cellIndex).setCellStyle(cellStyle);
+				cellIndex++;
+
+				row.createCell(cellIndex).setCellValue(data.getUom());
+				row.getCell(cellIndex).setCellStyle(cellStyle);
+				cellIndex++;
+
+				row.createCell(cellIndex).setCellValue(data.getStorageBin());
+				row.getCell(cellIndex).setCellStyle(cellStyle);
+				cellIndex++;
+
+				row.createCell(cellIndex).setCellValue(data.getStorageSectionId());
+				row.getCell(cellIndex).setCellStyle(cellStyle);
+				cellIndex++;
+
+				row.createCell(cellIndex).setCellValue(data.getPackBarcodes());
+				row.getCell(cellIndex).setCellStyle(cellStyle);
+				cellIndex++;
+
+				row.createCell(cellIndex).setCellValue(data.getInventoryQty());
+				row.getCell(cellIndex).setCellStyle(cellStyle);
+				cellIndex++;
+
+				row.createCell(cellIndex).setCellValue(data.getStockType());
+				row.getCell(cellIndex).setCellStyle(cellStyle);
+			}
+			
+			OutputStream fout = new FileOutputStream("inventory.xlsx");
+			workBookSheetDTO.getWorkbook().write(fout);
+                
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return workBookSheetDTO;
+	}
+
+	public ByteArrayOutputStream getOutputStreamToByteArray(OutputStream os) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        bos.write(bos.toByteArray());
+        byte[] arr = bos.toByteArray();
+        os.write(arr);
+        return bos;
+    }
+	
+	/**
+	 * 
+	 * @param sheet
+	 * @param headerStyle
+	 * @param header
+	 */
+	public void createHeaderRow(Sheet sheet, CellStyle headerStyle, List<String> header) {
+		Row headerRows = sheet.createRow(0);
+		int k = 0;
+		for (String value : header) {
+			headerRows.createCell(k);
+			headerRows.getCell(k).setCellValue(value.toString());
+			headerRows.getCell(k).setCellStyle(headerStyle);
+			k++;
+		}
+	}
 }

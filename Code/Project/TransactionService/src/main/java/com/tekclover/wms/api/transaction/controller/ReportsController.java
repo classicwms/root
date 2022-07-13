@@ -99,7 +99,7 @@ public class ReportsController {
     @ApiOperation(response = Inventory.class, value = "Get Stock Report") // label for swagger 
    	@GetMapping("/inventoryReport/schedule")
    	public ResponseEntity<?> getInventoryReport() throws Exception {
-//    	reportsService.exportXlsxFile();
+    	reportsService.exportXlsxFile();
    		return new ResponseEntity<>(HttpStatus.OK);
    	}
     
