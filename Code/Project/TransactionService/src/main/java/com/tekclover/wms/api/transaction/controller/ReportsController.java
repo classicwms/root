@@ -1,6 +1,5 @@
 package com.tekclover.wms.api.transaction.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,19 +99,7 @@ public class ReportsController {
     @ApiOperation(response = Inventory.class, value = "Get Stock Report") // label for swagger 
    	@GetMapping("/inventoryReport/schedule")
    	public ResponseEntity<?> getInventoryReport() throws Exception {
-    	int pageSize = 500;
-		Page<InventoryReport> pageResult = reportsService.scheduleInventoryReport(1, pageSize, "itemCode");
-		log.info ("pageResult : " + pageResult.getTotalElements());
-		List<InventoryReport> listRecords = new ArrayList<>();
-		listRecords.addAll(pageResult.getContent());
-		
-		log.info("pageResult.getTotalPages() : " + pageResult.getTotalPages());
-		
-		for (int pageNo = 2; pageNo <= pageResult.getTotalPages(); pageNo ++) {
-			pageResult = reportsService.scheduleInventoryReport(pageNo, pageSize, "itemCode");
-			listRecords.addAll(pageResult.getContent());
-			log.info("listRecords : " + listRecords.size());
-		}
+    	reportsService.exportXlsxFile();
    		return new ResponseEntity<>(HttpStatus.OK);
    	}
     

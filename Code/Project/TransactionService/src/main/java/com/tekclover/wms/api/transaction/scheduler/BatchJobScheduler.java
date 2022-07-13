@@ -1,12 +1,10 @@
 package com.tekclover.wms.api.transaction.scheduler;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +12,6 @@ import com.tekclover.wms.api.transaction.model.inbound.InboundHeader;
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.InboundIntegrationHeader;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.OutboundIntegrationHeader;
-import com.tekclover.wms.api.transaction.model.report.InventoryReport;
 import com.tekclover.wms.api.transaction.repository.MongoInboundRepository;
 import com.tekclover.wms.api.transaction.repository.MongoOutboundRepository;
 import com.tekclover.wms.api.transaction.service.PreInboundHeaderService;
@@ -49,30 +46,14 @@ public class BatchJobScheduler {
 	static CopyOnWriteArrayList<OutboundIntegrationHeader> spOutboundList = null; // Outbound List
 	
 	// Schedule Report
-//	@Scheduled(fixedDelay = 1000)
+	@Scheduled(cron = "0 0/10 17 * * *")
 	public void scheduleInvReport() throws IllegalAccessException, InvocationTargetException {
-		/*
-		 * @RequestParam(defaultValue = "0") Integer pageNo,
-			@RequestParam(defaultValue = "10") Integer pageSize,
-			@RequestParam(defaultValue = "itemCode") String sortBy)
-		 */
-		int pageSize = 500;
-		Page<InventoryReport> pageResult = reportsService.scheduleInventoryReport(1, pageSize, "itemCode");
-		List<InventoryReport> listRecords = new ArrayList<>();
-		listRecords.addAll(pageResult.getContent());
-		
-		for (long pageNo = 2; pageNo <= pageResult.getTotalPages(); pageNo ++) {
-			pageResult = reportsService.scheduleInventoryReport(1, pageSize, "itemCode");
-			listRecords.addAll(pageResult.getContent());
-			log.info("listRecords : " + listRecords.size());
-		}
+		reportsService.exportXlsxFile();
 	}
 	
 //	@Scheduled(cron ="* * * * * *")
 	@Scheduled(fixedDelay = 50000)
 	public void processInboundRecord() throws IllegalAccessException, InvocationTargetException {
-//		log.info("The time is :" + new Date());
-		
 		if (inboundList == null || inboundList.isEmpty()) {
 			inboundList = mongoInboundRepository.findTopByProcessedStatusIdOrderByOrderReceivedOn(0L);
 			spList = new CopyOnWriteArrayList<InboundIntegrationHeader>(inboundList); 

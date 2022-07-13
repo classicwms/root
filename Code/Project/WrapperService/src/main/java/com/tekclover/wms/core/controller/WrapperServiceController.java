@@ -1,6 +1,10 @@
 package com.tekclover.wms.core.controller;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -8,7 +12,10 @@ import java.util.Optional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -210,5 +217,28 @@ public class WrapperServiceController {
    					throws FileNotFoundException, JRException, java.text.ParseException {
    		Map<String, Object> response = reportService.getOrderDetails(warehouseID, statusId, date);
        	return new ResponseEntity<>(response, HttpStatus.OK);
+   	}
+    
+    /*------------------------------------------------------------------------------------------------------*/
+    @ApiOperation(response = Optional.class, value = "Document Storage Download") // label for swagger
+   	@GetMapping("/report/inventory/download")
+   	public ResponseEntity<?> docStorageDownload() throws Exception {
+//    	String filePath = "/home/superadmin/tekclover/root/root/Classic WMS/Code/Project/TransactionService/inventory.xlsx";
+    	String filePath = "/home/ubuntu/classicwms/root/Code/Project/TransactionService/inventory.xlsx";
+    	
+    	File file = new File (filePath);
+    	Path path = Paths.get(file.getAbsolutePath());
+        ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
+
+        HttpHeaders header = new HttpHeaders();
+        header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getName());
+        header.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        header.add("Pragma", "no-cache");
+        header.add("Expires", "0");
+        return ResponseEntity.ok()
+                .headers(header)
+                .contentLength(file.length())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
    	}
 }
