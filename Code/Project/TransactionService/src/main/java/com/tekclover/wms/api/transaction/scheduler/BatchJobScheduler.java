@@ -46,12 +46,11 @@ public class BatchJobScheduler {
 	static CopyOnWriteArrayList<OutboundIntegrationHeader> spOutboundList = null; // Outbound List
 	
 	// Schedule Report
-	@Scheduled(cron = "0 0 18 * * *")
+	@Scheduled(cron = "0 0 1 * * *")
 	public void scheduleInvReport() throws IllegalAccessException, InvocationTargetException {
 		reportsService.exportXlsxFile();
 	}
 	
-//	@Scheduled(cron ="* * * * * *")
 	@Scheduled(fixedDelay = 50000)
 	public void processInboundRecord() throws IllegalAccessException, InvocationTargetException {
 		if (inboundList == null || inboundList.isEmpty()) {

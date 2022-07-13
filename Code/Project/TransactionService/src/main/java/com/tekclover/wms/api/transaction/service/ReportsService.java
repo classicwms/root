@@ -438,7 +438,7 @@ public class ReportsService extends BaseService {
 			 */
 			ImBasicData1 imBasicData1 = mastersService.getImBasicData1ByItemCode(dbInventory.getItemCode(),
 					dbInventory.getWarehouseId(), authTokenForMastersService.getAccess_token());
-			log.info("imBasicData1 : " + imBasicData1);
+//			log.info("imBasicData1 : " + imBasicData1);
 
 			if (imBasicData1 != null) {
 				reportInventory.setDescription(imBasicData1.getDescription());
@@ -449,7 +449,7 @@ public class ReportsService extends BaseService {
 
 			// ST_BIN
 			reportInventory.setStorageBin(dbInventory.getStorageBin());
-			log.info("dbInventory.getStorageBin() : " + dbInventory.getStorageBin());
+//			log.info("dbInventory.getStorageBin() : " + dbInventory.getStorageBin());
 
 			/*
 			 * ST_SEC_ID Pass the selected ST_BIN values into STORAGEBIN table and fetch
@@ -1766,17 +1766,13 @@ public class ReportsService extends BaseService {
 
 		int pageSize = 500;
 		Page<InventoryReport> pageResult = scheduleInventoryReport(0, pageSize, "itemCode");
-		log.info("pageResult : " + pageResult.getTotalElements());
 		List<InventoryReport> listRecords = new ArrayList<>();
 		listRecords.addAll(pageResult.getContent());
 		
-		log.info("listRecords : " + listRecords);
-		log.info("pageResult.getTotalPages() : " + pageResult.getTotalPages());
-
 		for (int pageNo = 1; pageNo <= pageResult.getTotalPages(); pageNo++) {
 			pageResult = scheduleInventoryReport(pageNo, pageSize, "itemCode");
 			listRecords.addAll(pageResult.getContent());
-			log.info("listRecords : " + listRecords.size());
+			log.info("listRecords count: " + listRecords.size());
 		}
 
 		WorkBookSheetDTO workBookSheetDTO = workBookService.createWorkBookWithSheet("inventory");
@@ -1808,7 +1804,6 @@ public class ReportsService extends BaseService {
 
 			int rowIndex = 1;
 			for (InventoryReport data : listRecords) {
-				log.info("data : " + data);
 				int cellIndex = 0;
 
 				Row row = workBookSheetDTO.getWorkbook().getSheet("inventory").createRow(rowIndex++);
