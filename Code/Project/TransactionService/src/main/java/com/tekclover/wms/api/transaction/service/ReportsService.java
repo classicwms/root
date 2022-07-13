@@ -137,8 +137,8 @@ public class ReportsService extends BaseService {
 	@Autowired
 	InventoryRepository inventoryRepository;
 
-	@Autowired
-	WorkBookService workBookService;
+//	@Autowired
+//	WorkBookService workBookService;
 
 	/**
 	 * Stock Report ---------------------
