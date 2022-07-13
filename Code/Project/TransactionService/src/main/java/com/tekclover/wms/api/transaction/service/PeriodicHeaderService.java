@@ -199,72 +199,80 @@ public class PeriodicHeaderService extends BaseService {
 	 * @return
 	 */
 	public List<PeriodicLineEntity> runPeriodicHeader(String warehouseId, List<String> stSecIds) {
-		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-		StorageBin[] storageBin = mastersService.getStorageBinBySectionId(stSecIds, authTokenForMastersService.getAccess_token());
-		if (storageBin == null) {
-			throw new BadRequestException("Storage Bin returned as null");
-		}
-		
-		List<String> stBins = Arrays.asList(storageBin).stream().map(StorageBin::getStorageBin).collect(Collectors.toList());
-		List<Inventory> inventoryList = inventoryService.getInventoryByStorageBin (warehouseId, stBins);
-		List<PeriodicLineEntity> periodicLineList = new ArrayList<>();
-		
-		for (Inventory inventory : inventoryList) {
-			PeriodicLineEntity periodicLine = new PeriodicLineEntity();
-			
-			periodicLine.setLanguageId(inventory.getLanguageId());
-			periodicLine.setCompanyCode(inventory.getCompanyCodeId());
-			periodicLine.setPlantId(inventory.getPlantId());
-			periodicLine.setWarehouseId(inventory.getWarehouseId());
-			
-			// ITM_CODE
-			periodicLine.setItemCode(inventory.getItemCode());
-			
-			// Pass ITM_CODE in IMBASICDATA table and fetch ITEM_TEXT values
-			ImBasicData1 imBasicData1 = mastersService.getImBasicData1ByItemCode(inventory.getItemCode(), 
-					inventory.getWarehouseId(), authTokenForMastersService.getAccess_token());
-			periodicLine.setItemDesc(imBasicData1.getDescription());
-			
-			// ST_BIN
-			periodicLine.setStorageBin(inventory.getStorageBin());
-			
-			// ST_SEC_ID/ST_SEC
-			// Pass the ST_BIN in STORAGEBIN table and fetch ST_SEC_ID/ST_SEC values
-			StorageBin dbStorageBin = mastersService.getStorageBin(inventory.getStorageBin(),
-					authTokenForMastersService.getAccess_token());
-			periodicLine.setStorageSectionId(dbStorageBin.getStorageSectionId());
-			
-			// MFR_PART
-			// Pass ITM_CODE in IMBASICDATA table and fetch MFR_PART values
-			periodicLine.setManufacturerPartNo(imBasicData1.getManufacturerPartNo());
-			
-			// STCK_TYP_ID
-			periodicLine.setStockTypeId(inventory.getStockTypeId());
-			
-			// SP_ST_IND_ID
-			periodicLine.setSpecialStockIndicator(inventory.getSpecialStockIndicatorId());
-			
-			// PACK_BARCODE
-			periodicLine.setPackBarcodes(inventory.getPackBarcodes());
-			
-			/*
-			 * INV_QTY
-			 * -------------
-			 * Pass the filled WH_ID/ITM_CODE/PACK_BARCODE/ST_BIN
-			 * values in INVENTORY table and fetch INV_QTY/INV_UOM values and 
-			 * fill against each ITM_CODE values and this is non-editable"
-			 */
-			Inventory dbInventory = inventoryService.getInventory(inventory.getWarehouseId(), 
-					inventory.getPackBarcodes(), inventory.getItemCode(), inventory.getStorageBin());
-			log.info("dbInventory : " + dbInventory);
-			
-			if (dbInventory != null) {
-				periodicLine.setInventoryQuantity(inventory.getInventoryQuantity());
-				periodicLine.setInventoryUom(inventory.getInventoryUom());
+		List<PeriodicLineEntity> periodicLineList = null;
+		try {
+			AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+			StorageBin[] storageBin = mastersService.getStorageBinBySectionId(stSecIds, authTokenForMastersService.getAccess_token());
+			if (storageBin == null) {
+				throw new BadRequestException("Storage Bin returned as null");
 			}
-			periodicLineList.add(periodicLine);
+			
+			List<String> stBins = Arrays.asList(storageBin).stream().map(StorageBin::getStorageBin).collect(Collectors.toList());
+			log.info("stBins------> : " + stBins);
+			
+			List<Inventory> inventoryList = inventoryService.getInventoryByStorageBin (warehouseId, stBins);
+			log.info("inventoryList--size----> : " + inventoryList.size());
+			
+			periodicLineList = new ArrayList<>();
+			for (Inventory inventory : inventoryList) {
+				PeriodicLineEntity periodicLine = new PeriodicLineEntity();
+				
+				periodicLine.setLanguageId(inventory.getLanguageId());
+				periodicLine.setCompanyCode(inventory.getCompanyCodeId());
+				periodicLine.setPlantId(inventory.getPlantId());
+				periodicLine.setWarehouseId(inventory.getWarehouseId());
+				
+				// ITM_CODE
+				periodicLine.setItemCode(inventory.getItemCode());
+				
+				// Pass ITM_CODE in IMBASICDATA table and fetch ITEM_TEXT values
+				ImBasicData1 imBasicData1 = mastersService.getImBasicData1ByItemCode(inventory.getItemCode(), 
+						inventory.getWarehouseId(), authTokenForMastersService.getAccess_token());
+				periodicLine.setItemDesc(imBasicData1.getDescription());
+				
+				// ST_BIN
+				periodicLine.setStorageBin(inventory.getStorageBin());
+				
+				// ST_SEC_ID/ST_SEC
+				// Pass the ST_BIN in STORAGEBIN table and fetch ST_SEC_ID/ST_SEC values
+				StorageBin dbStorageBin = mastersService.getStorageBin(inventory.getStorageBin(),
+						authTokenForMastersService.getAccess_token());
+				periodicLine.setStorageSectionId(dbStorageBin.getStorageSectionId());
+				
+				// MFR_PART
+				// Pass ITM_CODE in IMBASICDATA table and fetch MFR_PART values
+				periodicLine.setManufacturerPartNo(imBasicData1.getManufacturerPartNo());
+				
+				// STCK_TYP_ID
+				periodicLine.setStockTypeId(inventory.getStockTypeId());
+				
+				// SP_ST_IND_ID
+				periodicLine.setSpecialStockIndicator(inventory.getSpecialStockIndicatorId());
+				
+				// PACK_BARCODE
+				periodicLine.setPackBarcodes(inventory.getPackBarcodes());
+				
+				/*
+				 * INV_QTY
+				 * -------------
+				 * Pass the filled WH_ID/ITM_CODE/PACK_BARCODE/ST_BIN
+				 * values in INVENTORY table and fetch INV_QTY/INV_UOM values and 
+				 * fill against each ITM_CODE values and this is non-editable"
+				 */
+				Inventory dbInventory = inventoryService.getInventory(inventory.getWarehouseId(), 
+						inventory.getPackBarcodes(), inventory.getItemCode(), inventory.getStorageBin());
+				log.info("dbInventory : " + dbInventory);
+				
+				if (dbInventory != null) {
+					periodicLine.setInventoryQuantity(inventory.getInventoryQuantity());
+					periodicLine.setInventoryUom(inventory.getInventoryUom());
+				}
+				periodicLineList.add(periodicLine);
+			}
+			return periodicLineList;
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		
 		return periodicLineList;
 	}
 
