@@ -2,7 +2,6 @@ package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,6 +10,11 @@ import javax.persistence.EntityNotFoundException;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.expression.ParseException;
 import org.springframework.stereotype.Service;
 
@@ -25,13 +29,14 @@ import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicLineE
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.SearchPeriodicHeader;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.SearchPeriodicLine;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.UpdatePeriodicHeader;
+import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
 import com.tekclover.wms.api.transaction.model.dto.IInventory;
-import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
-import com.tekclover.wms.api.transaction.model.dto.StorageBin;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
+import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
 import com.tekclover.wms.api.transaction.repository.InventoryRepository;
 import com.tekclover.wms.api.transaction.repository.PeriodicHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.PeriodicLineRepository;
+import com.tekclover.wms.api.transaction.repository.StorageBinRepository;
 import com.tekclover.wms.api.transaction.repository.specification.PeriodicHeaderSpecification;
 import com.tekclover.wms.api.transaction.repository.specification.PeriodicLineSpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
@@ -63,6 +68,12 @@ public class PeriodicHeaderService extends BaseService {
 	
 	@Autowired
 	InventoryRepository inventoryRepository;
+	
+	@Autowired
+	StorageBinRepository storageBinRepository;
+	
+	@Autowired
+	private ImBasicData1Repository imbasicdata1Repository;
 
 	/**
 	 * getPeriodicHeaders
@@ -93,11 +104,15 @@ public class PeriodicHeaderService extends BaseService {
 	/**
 	 * 
 	 * @param searchPeriodicHeader
+	 * @param sortBy 
+	 * @param pageSize 
+	 * @param pageNo 
 	 * @return
 	 * @throws ParseException
 	 * @throws java.text.ParseException 
 	 */
-	public List<PeriodicHeaderEntity> findPeriodicHeader(SearchPeriodicHeader searchPeriodicHeader) 
+	public Page<PeriodicHeaderEntity> findPeriodicHeader(SearchPeriodicHeader searchPeriodicHeader, 
+			Integer pageNo, Integer pageSize, String sortBy) 
 			throws ParseException, java.text.ParseException {
 		if (searchPeriodicHeader.getStartCreatedOn() != null && searchPeriodicHeader.getStartCreatedOn() != null) {
 			Date[] dates = DateUtils.addTimeToDatesForSearch(searchPeriodicHeader.getStartCreatedOn(),
@@ -106,8 +121,14 @@ public class PeriodicHeaderService extends BaseService {
 			searchPeriodicHeader.setEndCreatedOn(dates[1]);
 		}
 		PeriodicHeaderSpecification spec = new PeriodicHeaderSpecification(searchPeriodicHeader);
-		List<PeriodicHeader> periodicHeaderResults = periodicHeaderRepository.findAll(spec);
-		return convertToEntity (periodicHeaderResults, searchPeriodicHeader);
+		
+		Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
+		Page<PeriodicHeader> periodicHeaderResults = periodicHeaderRepository.findAll(spec, pageable);
+		List<PeriodicHeaderEntity> periodicHeaderEntityList = 
+				convertToEntity (periodicHeaderResults.getContent(), searchPeriodicHeader);
+		final Page<PeriodicHeaderEntity> page = 
+				new PageImpl<>(periodicHeaderEntityList, pageable, periodicHeaderResults.getTotalElements());
+		return page;
 	}
 	
 	/**
@@ -131,7 +152,6 @@ public class PeriodicHeaderService extends BaseService {
 			
 			PeriodicLineSpecification spec = new PeriodicLineSpecification (searchPeriodicLine);
 			List<PeriodicLine> periodicLineList = periodicLineRepository.findAll(spec);
-//			log.info("periodicLineList: " + periodicLineList);
 			
 			List<PeriodicLineEntity> listPeriodicLineEntity = new ArrayList<>();
 			for (PeriodicLine periodicLine : periodicLineList) {
@@ -194,117 +214,78 @@ public class PeriodicHeaderService extends BaseService {
 	}
 	
 	/**
-	 * Pass the selected ST_SEC_ID values into STORAGEBIN table and fetch ST_BIN
-	 * values Pass the fetched WH_ID/ST_BIN values into INVENOTRY tables and fetch
-	 * the below values
-	 * -----------------------------------------------------------------------------------------
-	 * 
-	 * @param warehouseId
-	 * @param stSecIds
-	 * @param sortBy 
-	 * @param pageSize 
-	 * @param pageNo 
-	 * @return
-	 */
-	public List<PeriodicLineEntity> runPeriodicHeader(String warehouseId, List<String> stSecIds) {
-		List<PeriodicLineEntity> globalPeriodicLineList = new ArrayList<>();
-		try {
-			AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-			StorageBin[] storageBin = mastersService.getStorageBinBySectionId(stSecIds, authTokenForMastersService.getAccess_token());
-			if (storageBin == null) {
-				throw new BadRequestException("Storage Bin returned as null");
-			}
-			
-			List<String> stBins = Arrays.asList(storageBin).stream().map(StorageBin::getStorageBin).collect(Collectors.toList());
-			log.info("stBins------> : " + stBins);
-			if (stBins != null && stBins.size() > 1000) {
-				List[] splitLists = split (stBins);
-				
-				for (List<String> stbinList : splitLists) {
-					List<PeriodicLineEntity> invList = getInventory (warehouseId, stbinList, authTokenForMastersService);
-					globalPeriodicLineList.addAll(invList);
-				}
-			} else {
-				globalPeriodicLineList = getInventory (warehouseId, stBins, authTokenForMastersService);
-			}
-			
-			return globalPeriodicLineList;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
-	/**
 	 * 
 	 * @param warehouseId
 	 * @param stbinList
 	 * @param authTokenForMastersService
 	 * @return
 	 */
-	private List<PeriodicLineEntity> getInventory (String warehouseId, List<String> stbinList, AuthToken authTokenForMastersService) {
-		List<PeriodicLineEntity> periodicLineList = new ArrayList<>();
-		List<Inventory> inventoryList = inventoryService.getInventoryByStorageBin (warehouseId, stbinList);
-		log.info("inventoryList--size----> : " + inventoryList.size());
-		for (Inventory inventory : inventoryList) {
-			PeriodicLineEntity periodicLine = new PeriodicLineEntity();
+	public Page<PeriodicLineEntity> runPeriodicHeader(String warehouseId, Integer pageNo, 
+			Integer pageSize, String sortBy) {
+		try {
+			Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
+			Page<Inventory> inventoryList = inventoryRepository.findByWarehouseIdAndDeletionIndicator(warehouseId, 0L, pageable);
+			log.info("inventoryList--size----> : " + inventoryList.getTotalElements());
 			
-			periodicLine.setLanguageId(inventory.getLanguageId());
-			periodicLine.setCompanyCode(inventory.getCompanyCodeId());
-			periodicLine.setPlantId(inventory.getPlantId());
-			periodicLine.setWarehouseId(inventory.getWarehouseId());
-			
-			// ITM_CODE
-			periodicLine.setItemCode(inventory.getItemCode());
-			
-			// Pass ITM_CODE in IMBASICDATA table and fetch ITEM_TEXT values
-			ImBasicData1 imBasicData1 = mastersService.getImBasicData1ByItemCode(inventory.getItemCode(), 
-					inventory.getWarehouseId(), authTokenForMastersService.getAccess_token());
-			periodicLine.setItemDesc(imBasicData1.getDescription());
-			
-			// ST_BIN
-			periodicLine.setStorageBin(inventory.getStorageBin());
-			
-			// ST_SEC_ID/ST_SEC
-			// Pass the ST_BIN in STORAGEBIN table and fetch ST_SEC_ID/ST_SEC values
-			StorageBin dbStorageBin = mastersService.getStorageBin(inventory.getStorageBin(),
-					authTokenForMastersService.getAccess_token());
-			periodicLine.setStorageSectionId(dbStorageBin.getStorageSectionId());
-			
-			// MFR_PART
-			// Pass ITM_CODE in IMBASICDATA table and fetch MFR_PART values
-			periodicLine.setManufacturerPartNo(imBasicData1.getManufacturerPartNo());
-			
-			// STCK_TYP_ID
-			periodicLine.setStockTypeId(inventory.getStockTypeId());
-			
-			// SP_ST_IND_ID
-			periodicLine.setSpecialStockIndicator(inventory.getSpecialStockIndicatorId());
-			
-			// PACK_BARCODE
-			periodicLine.setPackBarcodes(inventory.getPackBarcodes());
-			
-			/*
-			 * INV_QTY
-			 * -------------
-			 * Pass the filled WH_ID/ITM_CODE/PACK_BARCODE/ST_BIN
-			 * values in INVENTORY table and fetch INV_QTY/INV_UOM values and 
-			 * fill against each ITM_CODE values and this is non-editable"
-			 */
-//			Inventory dbInventory = inventoryService.getInventory(inventory.getWarehouseId(), 
-//					inventory.getPackBarcodes(), inventory.getItemCode(), inventory.getStorageBin());
-//			log.info("dbInventory : " + dbInventory);
-			
-			IInventory dbInventory = inventoryRepository.findInventoryForPeriodicRun (inventory.getWarehouseId(), 
-					inventory.getPackBarcodes(), inventory.getItemCode(), inventory.getStorageBin());
-			
-			if (dbInventory != null) {
-				periodicLine.setInventoryQuantity(inventory.getInventoryQuantity());
-				periodicLine.setInventoryUom(inventory.getInventoryUom());
+			List<PeriodicLineEntity> periodicLineList = new ArrayList<>();
+			for (Inventory inventory : inventoryList) {
+				PeriodicLineEntity periodicLine = new PeriodicLineEntity();
+				
+				periodicLine.setLanguageId(inventory.getLanguageId());
+				periodicLine.setCompanyCode(inventory.getCompanyCodeId());
+				periodicLine.setPlantId(inventory.getPlantId());
+				periodicLine.setWarehouseId(inventory.getWarehouseId());
+				
+				// ITM_CODE
+				periodicLine.setItemCode(inventory.getItemCode());
+				
+				// Pass ITM_CODE in IMBASICDATA table and fetch ITEM_TEXT values
+				List<IImbasicData1> imbasicdata1 = imbasicdata1Repository.findByItemCode(inventory.getItemCode());
+//				log.info("imbasicdata1 : " + imbasicdata1);
+				periodicLine.setItemDesc(imbasicdata1.get(0).getDescription());
+				
+				// ST_BIN
+				periodicLine.setStorageBin(inventory.getStorageBin());
+				
+				// ST_SEC_ID/ST_SEC
+				// Pass the ST_BIN in STORAGEBIN table and fetch ST_SEC_ID/ST_SEC values
+				periodicLine.setStorageSectionId(storageBinRepository.findByStorageBin (inventory.getStorageBin())); 
+				
+				// MFR_PART
+				// Pass ITM_CODE in IMBASICDATA table and fetch MFR_PART values
+				periodicLine.setManufacturerPartNo(imbasicdata1.get(0).getManufacturePart());
+				
+				// STCK_TYP_ID
+				periodicLine.setStockTypeId(inventory.getStockTypeId());
+				
+				// SP_ST_IND_ID
+				periodicLine.setSpecialStockIndicator(inventory.getSpecialStockIndicatorId());
+				
+				// PACK_BARCODE
+				periodicLine.setPackBarcodes(inventory.getPackBarcodes());
+				
+				/*
+				 * INV_QTY
+				 * -------------
+				 * Pass the filled WH_ID/ITM_CODE/PACK_BARCODE/ST_BIN
+				 * values in INVENTORY table and fetch INV_QTY/INV_UOM values and 
+				 * fill against each ITM_CODE values and this is non-editable"
+				 */
+				IInventory dbInventory = inventoryRepository.findInventoryForPeriodicRun (inventory.getWarehouseId(), 
+						inventory.getPackBarcodes(), inventory.getItemCode(), inventory.getStorageBin());
+				
+				if (dbInventory != null) {
+					periodicLine.setInventoryQuantity(inventory.getInventoryQuantity());
+					periodicLine.setInventoryUom(inventory.getInventoryUom());
+				}
+				periodicLineList.add(periodicLine);
 			}
-			periodicLineList.add(periodicLine);
+			final Page<PeriodicLineEntity> page = new PageImpl<>(periodicLineList, pageable, inventoryList.getTotalElements());
+			return page;
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		return periodicLineList;
+		return null;
 	}
 	
 	/**
@@ -319,20 +300,6 @@ public class PeriodicHeaderService extends BaseService {
         return new List[] { first, second };
     }
 	
-//	public static void main(String[] args) {
-//		List<String> list = new ArrayList<String>();
-//		 
-//        list.add("Geeks");
-//        list.add("Practice");
-//        list.add("Contribute");
-//        list.add("IDE");
-//        list.add("Courses");
-//        
-//        List[] l = split (list);
-//        log.info("A1 : " + l[0]);
-//        log.info("A2 : " + l[1]);
-//	}
-
 	/**
 	 * createPeriodicHeader
 	 * @param newPeriodicHeader

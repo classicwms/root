@@ -6,6 +6,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -25,6 +26,7 @@ import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicHeade
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicLineEntity;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.SearchPeriodicHeader;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.UpdatePeriodicHeader;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.service.PeriodicHeaderService;
 
 import io.swagger.annotations.Api;
@@ -62,31 +64,28 @@ public class PeriodicHeaderController {
     
 	@ApiOperation(response = PeriodicHeader.class, value = "Search PeriodicHeader") // label for swagger
 	@PostMapping("/findPeriodicHeader")
-	public List<PeriodicHeaderEntity> findPeriodicHeader(@RequestBody SearchPeriodicHeader searchPeriodicHeader)
+	public ResponseEntity<?> findPeriodicHeader(
+			@RequestBody SearchPeriodicHeader searchPeriodicHeader,
+			@RequestParam(defaultValue = "0") Integer pageNo,
+			@RequestParam(defaultValue = "100") Integer pageSize,
+			@RequestParam(defaultValue = "cycleCountNo") String sortBy)
 			throws Exception {
-		return periodicheaderService.findPeriodicHeader(searchPeriodicHeader);
+		Page<PeriodicHeaderEntity> page = 
+				periodicheaderService.findPeriodicHeader(searchPeriodicHeader, pageNo, pageSize, sortBy);
+		return new ResponseEntity<>(page , HttpStatus.OK);
 	}
 	
-	@ApiOperation(response = PeriodicLineEntity.class, value = "Run PeriodicHeader") // label for swagger
-   	@PostMapping("/run")
-   	public ResponseEntity<?> postRunPerpetualHeader(@RequestParam String warehouseId, 
-   			@RequestParam List<String> stSecIds) throws IllegalAccessException, InvocationTargetException {
-   		List<PeriodicLineEntity> inventoryMovements = periodicheaderService.runPeriodicHeader(warehouseId, stSecIds);
-   		return new ResponseEntity<>(inventoryMovements , HttpStatus.OK);
-   	}
-	
-//	@ApiOperation(response = Inventory.class, value = "Search Inventory") // label for swagger
-//	@PostMapping("/run/pagination")
-//	public Page<Inventory> findInventory(@RequestParam String warehouseId, 
-//   			@RequestParam List<String> stSecIds,
-//			@RequestParam(defaultValue = "0") Integer pageNo,
-//			@RequestParam(defaultValue = "100") Integer pageSize,
-//			@RequestParam(defaultValue = "itemCode") String sortBy) 
-//			throws Exception {
-//		List<PeriodicLineEntity> inventoryMovements = 
-//				periodicheaderService.runPeriodicHeader(warehouseId, stSecIds, pageNo, pageSize, sortBy);
-//   		return new ResponseEntity<>(inventoryMovements , HttpStatus.OK);
-//	}
+	@ApiOperation(response = Inventory.class, value = "Search Inventory") // label for swagger
+	@PostMapping("/run/pagination")
+	public ResponseEntity<?> findInventory(@RequestParam String warehouseId, 
+			@RequestParam(defaultValue = "0") Integer pageNo,
+			@RequestParam(defaultValue = "100") Integer pageSize,
+			@RequestParam(defaultValue = "itemCode") String sortBy) 
+			throws Exception {
+		Page<PeriodicLineEntity> periodicLineEntity = 
+				periodicheaderService.runPeriodicHeader(warehouseId, pageNo, pageSize, sortBy);
+		return new ResponseEntity<>(periodicLineEntity , HttpStatus.OK);
+	}
     
     @ApiOperation(response = PeriodicHeader.class, value = "Create PeriodicHeader") // label for swagger
 	@PostMapping("")

@@ -625,14 +625,15 @@ public class OutboundLineService extends BaseService {
 								if (INV_QTY < 0) {
 									INV_QTY = 0D;
 								}
+
+                                // [Prod Fix: 14-07] - Hareesh - Don't need to delete the inventory just update the existing inventory quantity
+//								if (INV_QTY == 0) {
+////									[Prod Fix: 28-06] - Discussed to comment delete Inventory operation to avoid unwanted delete of Inventory
+////									inventoryRepository.delete(inventory);
+//									log.info("inventory record is deleted...");
+//								}
 								
-								if (INV_QTY == 0) {
-//									[Prod Fix: 28-06] - Discussed to comment delete Inventory operation to avoid unwanted delete of Inventory
-//									inventoryRepository.delete(inventory);
-									log.info("inventory record is deleted...");
-								}
-								
-								if (INV_QTY > 0) {
+								if (INV_QTY >= 0) {
 									inventory.setInventoryQuantity(INV_QTY);
 									
 									// INV_QTY > 0 then, update Inventory Table

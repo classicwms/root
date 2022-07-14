@@ -420,8 +420,6 @@ public class ReportsService extends BaseService {
 		String warehouseId = "110";
 		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
 		Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
-//		Page<Inventory> inventoryList = inventoryRepository.findAllAndDeletionIndicator(0L, pageable);
-		
 		Page<Inventory> inventoryList = 
 				inventoryRepository.findByWarehouseIdAndDeletionIndicator (warehouseId, 0L, pageable);
 		List<InventoryReport> reportInventoryList = new ArrayList<>();

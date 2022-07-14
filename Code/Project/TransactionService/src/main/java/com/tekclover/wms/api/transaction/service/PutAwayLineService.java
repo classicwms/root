@@ -322,12 +322,14 @@ public class PutAwayLineService extends BaseService {
 								createdPutAwayLine.getPackBarcodes(), dbPutAwayLine.getItemCode(), 3L);					
 						double INV_QTY = existinginventory.getInventoryQuantity() - createdPutAwayLine.getPutawayConfirmedQty();
 						log.info("INV_QTY : " + INV_QTY);
-						
+
+                        // [Prod Fix: 14-07] - Hareesh - Don't need to delete the inventory just update the existing inventory quantity
 						// Deleting inventory
-						if (INV_QTY == 0) {
-//							[Prod Fix: 28-06] - Discussed to comment delete Inventory operation to avoid unwanted delete of Inventory
-//							inventoryRepository.delete(existinginventory);
-						} else if (INV_QTY > 0) {
+//						if (INV_QTY == 0) {
+////							[Prod Fix: 28-06] - Discussed to comment delete Inventory operation to avoid unwanted delete of Inventory
+////							inventoryRepository.delete(existinginventory);
+//						} else
+                            if (INV_QTY >= 0) {
 							existinginventory.setInventoryQuantity(INV_QTY);
 							Inventory updatedInventory = inventoryRepository.save(existinginventory);
 							log.info("updatedInventory--------> : " + updatedInventory);
