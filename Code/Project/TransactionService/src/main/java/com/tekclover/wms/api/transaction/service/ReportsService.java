@@ -417,9 +417,13 @@ public class ReportsService extends BaseService {
 	 * @return
 	 */
 	public Page<InventoryReport> scheduleInventoryReport(Integer pageNo, Integer pageSize, String sortBy) {
+		String warehouseId = "110";
 		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
 		Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
-		Page<Inventory> inventoryList = inventoryRepository.findAll(pageable);
+//		Page<Inventory> inventoryList = inventoryRepository.findAllAndDeletionIndicator(0L, pageable);
+		
+		Page<Inventory> inventoryList = 
+				inventoryRepository.findByWarehouseIdAndDeletionIndicator (warehouseId, 0L, pageable);
 		List<InventoryReport> reportInventoryList = new ArrayList<>();
 		for (Inventory dbInventory : inventoryList) {
 			InventoryReport reportInventory = new InventoryReport();
@@ -432,13 +436,12 @@ public class ReportsService extends BaseService {
 
 			/*
 			 * ITEM_TEXT
-			 * 
+			 * -------------------------------------------------------------------------
 			 * Pass the fetched ITM_CODE values in IMBASICDATA1 table and fetch MFR_SKU
 			 * values
 			 */
 			ImBasicData1 imBasicData1 = mastersService.getImBasicData1ByItemCode(dbInventory.getItemCode(),
 					dbInventory.getWarehouseId(), authTokenForMastersService.getAccess_token());
-//			log.info("imBasicData1 : " + imBasicData1);
 
 			if (imBasicData1 != null) {
 				reportInventory.setDescription(imBasicData1.getDescription());
@@ -449,7 +452,6 @@ public class ReportsService extends BaseService {
 
 			// ST_BIN
 			reportInventory.setStorageBin(dbInventory.getStorageBin());
-//			log.info("dbInventory.getStorageBin() : " + dbInventory.getStorageBin());
 
 			/*
 			 * ST_SEC_ID Pass the selected ST_BIN values into STORAGEBIN table and fetch
