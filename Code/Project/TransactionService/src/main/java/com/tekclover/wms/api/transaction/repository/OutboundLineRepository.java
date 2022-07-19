@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import com.tekclover.wms.api.transaction.model.impl.ShipmentDispatchSummaryReportImpl;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -129,5 +130,38 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 			Date startDate, Date endDate);
 	
 	public List<OutboundLine> findByDeliveryConfirmedOnBetween(Date startDate, Date endDate);
-	
+
+	@Query(value="select ol.ref_doc_no as soNumber, ol.partner_code as partnerCode,\n" +
+			"(IF(sum(ol.dlv_qty) is not null , sum(ol.dlv_qty), 0)) as shippedQty,\n" +
+			"sum(ol.ord_qty) as orderedQty,\n" +
+			"count(ol.ord_qty) as linesOrdered,\n" +
+			"COUNT(IF(ol.dlv_qty is not null and ol.dlv_qty > 0, ol.dlv_qty, NULL)) as linesShipped,\n" +
+			"(ROUND((((IF(sum(ol.dlv_qty) is not null , sum(ol.dlv_qty), 0)) / sum(ol.ord_qty)) * 100),2)) as percentageShipped,\n" +
+			"oh.ref_doc_date as orderReceiptTime\n" +
+			"from tbloutboundline ol\n" +
+			"join tbloutboundheader oh on oh.ref_doc_no = ol.ref_doc_no \n" +
+			"where ol.partner_code in ( :partnerCode ) AND \n" +
+			"(ol.dlv_cnf_on BETWEEN :fromDeliveryDate AND :toDeliveryDate) and ol.ref_field_2 is null\n" +
+			"group by ol.ref_doc_no,ol.partner_code, oh.ref_doc_date\n" +
+			"order by ol.ref_doc_no", nativeQuery=true)
+	public List<ShipmentDispatchSummaryReportImpl> getOrderLinesForShipmentDispatchReportWithPartnerCode(@Param ("partnerCode") List<String> partnerCodes,
+																						  @Param ("fromDeliveryDate") Date fromDeliveryDate,
+																						  @Param ("toDeliveryDate") Date toDeliveryDate);
+
+	@Query(value="select ol.ref_doc_no as soNumber, ol.partner_code as partnerCode,\n" +
+			"(IF(sum(ol.dlv_qty) is not null , sum(ol.dlv_qty), 0)) as shippedQty,\n" +
+			"sum(ol.ord_qty) as orderedQty,\n" +
+			"count(ol.ord_qty) as linesOrdered,\n" +
+			"COUNT(IF(ol.dlv_qty is not null and ol.dlv_qty > 0, ol.dlv_qty, NULL)) as linesShipped,\n" +
+			"(ROUND((((IF(sum(ol.dlv_qty) is not null , sum(ol.dlv_qty), 0)) / sum(ol.ord_qty)) * 100),2)) as percentageShipped,\n" +
+			"oh.ref_doc_date as orderReceiptTime\n" +
+			"from tbloutboundline ol\n" +
+			"join tbloutboundheader oh on oh.ref_doc_no = ol.ref_doc_no \n" +
+			"where \n" +
+			"(ol.dlv_cnf_on BETWEEN :fromDeliveryDate AND :toDeliveryDate) and ol.ref_field_2 is null\n" +
+			"group by ol.ref_doc_no,ol.partner_code, oh.ref_doc_date\n" +
+			"order by ol.ref_doc_no", nativeQuery=true)
+	public List<ShipmentDispatchSummaryReportImpl> getOrderLinesForShipmentDispatchReportWithoutPartnerCode(@Param ("fromDeliveryDate") Date fromDeliveryDate,
+																						  @Param ("toDeliveryDate") Date toDeliveryDate);
+
 }

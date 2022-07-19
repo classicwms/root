@@ -13,5 +13,6 @@ public class InventoryReport {
 	private String storageSectionId;	// ST_SEC_ID 
 	private String packBarcodes;		// PACK_BARCODE
 	private Double inventoryQty;		// INV_QTY
-	private Long stockType;			// STCK_TYP_TEXT
+	private Long stockType;			    // STCK_TYP_TEXT
+	private String mfrPartNumber;       // MFR PART NO
 }

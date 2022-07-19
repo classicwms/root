@@ -8,6 +8,7 @@ import lombok.Data;
 
 @Data
 @Configuration
+//@PropertySource("classpath:application-messages-axuat.properties")
 @PropertySource("classpath:application-messages.properties")
 public class PropertiesConfig {
 

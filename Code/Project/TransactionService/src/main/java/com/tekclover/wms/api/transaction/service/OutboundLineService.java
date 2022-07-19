@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
+import com.tekclover.wms.api.transaction.model.impl.ShipmentDispatchSummaryReportImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -375,20 +376,50 @@ public class OutboundLineService extends BaseService {
 	 * @throws ParseException
 	 * @throws java.text.ParseException
 	 */
-	public List<OutboundLine> findOutboundLineShipmentReport(SearchOutboundLine searchOutboundLine) 
+//	public List<OutboundLine> findOutboundLineShipmentReport(SearchOutboundLine searchOutboundLine)
+//			throws ParseException, java.text.ParseException {
+//
+//		if (searchOutboundLine.getFromDeliveryDate() != null && searchOutboundLine.getToDeliveryDate() != null) {
+//			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundLine.getFromDeliveryDate(),
+//					searchOutboundLine.getToDeliveryDate());
+//			searchOutboundLine.setFromDeliveryDate(dates[0]);
+//			searchOutboundLine.setToDeliveryDate(dates[1]);
+//		}
+//
+//		OutboundLineSpecification spec = new OutboundLineSpecification(searchOutboundLine);
+//		List<OutboundLine> outboundLineSearchResults = outboundLineRepository.findAll(spec);
+////		log.info("search results: " + outboundLineSearchResults);
+//		return outboundLineSearchResults;
+//	}
+
+	/**
+	 *
+	 * @param searchOutboundLine
+	 * @return
+	 * @throws ParseException
+	 * @throws java.text.ParseException
+	 */
+	public List<ShipmentDispatchSummaryReportImpl> findOutboundLineShipmentReport(SearchOutboundLine searchOutboundLine)
 			throws ParseException, java.text.ParseException {
-		
+
 		if (searchOutboundLine.getFromDeliveryDate() != null && searchOutboundLine.getToDeliveryDate() != null) {
-			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundLine.getFromDeliveryDate(), 
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundLine.getFromDeliveryDate(),
 					searchOutboundLine.getToDeliveryDate());
 			searchOutboundLine.setFromDeliveryDate(dates[0]);
 			searchOutboundLine.setToDeliveryDate(dates[1]);
 		}
-		
-		OutboundLineSpecification spec = new OutboundLineSpecification(searchOutboundLine);
-		List<OutboundLine> outboundLineSearchResults = outboundLineRepository.findAll(spec);
+
+		if(searchOutboundLine.getPartnerCode().isEmpty()){
+			List<ShipmentDispatchSummaryReportImpl> outboundLineSearchResults =
+					outboundLineRepository.getOrderLinesForShipmentDispatchReportWithoutPartnerCode(searchOutboundLine.getFromDeliveryDate(),searchOutboundLine.getToDeliveryDate());
 //		log.info("search results: " + outboundLineSearchResults);
-		return outboundLineSearchResults;
+			return outboundLineSearchResults;
+		} else {
+			List<ShipmentDispatchSummaryReportImpl> outboundLineSearchResults =
+					outboundLineRepository.getOrderLinesForShipmentDispatchReportWithPartnerCode(searchOutboundLine.getPartnerCode(),searchOutboundLine.getFromDeliveryDate(),searchOutboundLine.getToDeliveryDate());
+//		log.info("search results: " + outboundLineSearchResults);
+			return outboundLineSearchResults;
+		}
 	}
 	
 	/**

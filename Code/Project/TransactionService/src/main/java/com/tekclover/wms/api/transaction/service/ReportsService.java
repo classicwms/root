@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.tekclover.wms.api.transaction.model.impl.ShipmentDispatchSummaryReportImpl;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -149,7 +150,7 @@ public class ReportsService extends BaseService {
 
 	/**
 	 * Stock Report ---------------------
-	 * 
+	 *
 	 * @param warehouseId
 	 * @param itemCode
 	 * @param itemText
@@ -308,7 +309,7 @@ public class ReportsService extends BaseService {
 
 	/**
 	 * Inventory Report -------------------------
-	 * 
+	 *
 	 * @param warehouseId
 	 * @param itemCode
 	 * @param storageBin
@@ -363,7 +364,7 @@ public class ReportsService extends BaseService {
 
 				/*
 				 * ITEM_TEXT
-				 * 
+				 *
 				 * Pass the fetched ITM_CODE values in IMBASICDATA1 table and fetch MFR_SKU
 				 * values
 				 */
@@ -410,7 +411,7 @@ public class ReportsService extends BaseService {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param pageNo
 	 * @param pageSize
 	 * @param sortBy
@@ -420,7 +421,7 @@ public class ReportsService extends BaseService {
 		String warehouseId = "110";
 		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
 		Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
-		Page<Inventory> inventoryList = 
+		Page<Inventory> inventoryList =
 				inventoryRepository.findByWarehouseIdAndDeletionIndicator (warehouseId, 0L, pageable);
 		List<InventoryReport> reportInventoryList = new ArrayList<>();
 		for (Inventory dbInventory : inventoryList) {
@@ -443,6 +444,7 @@ public class ReportsService extends BaseService {
 
 			if (imBasicData1 != null) {
 				reportInventory.setDescription(imBasicData1.getDescription());
+				reportInventory.setMfrPartNumber(imBasicData1.getManufacturerPartNo());
 			}
 
 			// INV_UOM
@@ -475,7 +477,7 @@ public class ReportsService extends BaseService {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param warehouseId
 	 * @param itemCode
 	 * @param fromCreatedOn
@@ -659,7 +661,7 @@ public class ReportsService extends BaseService {
 
 	/**
 	 * getOrderStatusReport
-	 * 
+	 *
 	 * @param warehouseId
 	 * @param fromDeliveryDate
 	 * @param toDeliveryDate
@@ -792,7 +794,7 @@ public class ReportsService extends BaseService {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param warehouseId
 	 * @param fromDeliveryDate
 	 * @param toDeliveryDate
@@ -899,7 +901,7 @@ public class ReportsService extends BaseService {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param fromDeliveryDate
 	 * @param toDeliveryDate
 	 * @param customerCode
@@ -1013,9 +1015,210 @@ public class ReportsService extends BaseService {
 		return shipmentDeliverySummaryReport;
 	}
 
-	/**
+//	/**
+//	 * ShipmentDeliverySummary Report
+//	 *
+//	 * @param fromDeliveryDate
+//	 * @param toDeliveryDate
+//	 * @param customerCode
+//	 * @return
+//	 * @throws java.text.ParseException
+//	 * @throws ParseException
+//	 */
+//	public ShipmentDispatchSummaryReport getShipmentDispatchSummaryReport(String fromDeliveryDate,
+//			String toDeliveryDate, List<String> customerCode) throws ParseException, java.text.ParseException {
+//		// Date range
+//		if (fromDeliveryDate == null || toDeliveryDate == null) {
+//			throw new BadRequestException("DeliveryDate can't be blank.");
+//		}
+//
+//		/*
+//		 * Pass the Input Parameters in Outbound Line table (Delivery date with From
+//		 * 00:00 and TO 23:49 in DLV_CNF_ON fields) and fetch the below Fields, If
+//		 * Customer Code is Selected as all or passed as Null, Pass Date ranges alone
+//		 * into OUTBOUNDLINE table
+//		 */
+//		Date fromDate = null;
+//		Date toDate = null;
+//		try {
+//			fromDate = DateUtils.convertStringToDate(fromDeliveryDate);
+//			fromDate = DateUtils.addTimeToDate(fromDate);
+//			log.info("Date---f----->: " + fromDate);
+//
+//			toDate = DateUtils.convertStringToDate(toDeliveryDate);
+//			toDate = DateUtils.addDayEndTimeToDate(toDate);
+//			log.info("Date---t----->: " + toDate);
+//		} catch (Exception e) {
+//			throw new BadRequestException("Date shoud be in MM-dd-yyyy format.");
+//		}
+//
+//		SearchOutboundLine searchOutboundLine = new SearchOutboundLine();
+//		searchOutboundLine.setFromDeliveryDate(fromDate);
+//		searchOutboundLine.setToDeliveryDate(toDate);
+//
+//		if (!customerCode.isEmpty()) {
+//			searchOutboundLine.setPartnerCode(customerCode);
+//		}
+//
+//		List<OutboundLine> outboundLineSearchResults = outboundLineService
+//				.findOutboundLineShipmentReport(searchOutboundLine);
+//		log.info("outboundLineSearchResults----->: " + outboundLineSearchResults);
+//
+//		ShipmentDispatchSummaryReport shipmentDispatchSummary = new ShipmentDispatchSummaryReport();
+//
+//		// Printed on
+//		List<String> partnerCodes = outboundLineSearchResults.stream().map(OutboundLine::getPartnerCode).distinct()
+//				.collect(Collectors.toList());
+//		log.info("partnerCodes----->: " + partnerCodes);
+//
+//		List<ShipmentDispatch> listShipmentDispatch = new ArrayList<>();
+//		for (String partnerCode : partnerCodes) {
+//			ShipmentDispatch shipmentDispatch = new ShipmentDispatch();
+//
+//			// Header
+//			ShipmentDispatchHeader header = new ShipmentDispatchHeader();
+//			header.setPartnerCode(partnerCode);
+//
+//			// Obtaining Child
+//			List<OutboundLine> partnerOBLines = outboundLineSearchResults.stream()
+//					.filter(a -> a.getPartnerCode().equalsIgnoreCase(partnerCode)).collect(Collectors.toList());
+//			// List
+//			List<ShipmentDispatchList> shipmentDispatchList = new ArrayList<>();
+//			double totalLinesOrdered = 0.0;
+//			double totalLinesShipped = 0.0;
+//			double totalOrderedQty = 0.0;
+//			double totalShippedQty = 0.0;
+//
+//			for (OutboundLine outboundLine : partnerOBLines) {
+//				ShipmentDispatchList list = new ShipmentDispatchList();
+//				list.setSoNumber(outboundLine.getRefDocNumber()); // REF_DOC_NO
+//
+//				/*
+//				 * REF_DOC_DATE ----------------- Pass REF_DOC_NO in OUTBOUNDHEADER table and
+//				 * fetch RFEF_DOC_DATE field value
+//				 */
+//				OutboundHeader outboundHeader = null;
+//				try {
+//					outboundHeader = outboundHeaderService.getOutboundHeader(outboundLine.getRefDocNumber());
+//					log.info("outboundHeader : " + outboundHeader);
+//				} catch (Exception e) {
+//					List<OutboundHeader> outboundHeaders = outboundHeaderService.getOutboundHeaders();
+//					outboundHeaders = outboundHeaders.stream()
+//							.filter(a -> a.getRefDocNumber().equalsIgnoreCase(outboundLine.getRefDocNumber()))
+//							.collect(Collectors.toList());
+//					outboundHeader = outboundHeaders.get(0);
+//					log.info("outboundHeader : " + outboundHeader);
+//				}
+//				list.setOrderReceiptTime(outboundHeader.getRefDocDate());
+//
+//				/*
+//				 * Lines ordered ----------------- Pass WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE
+//				 * in OUTBOUNDLINE and fetch the COUNT of Lines for OB_LINE_NO where REF_FIELD_2
+//				 * = Null and display
+//				 */
+//				SearchOutboundLine obLineSearch = new SearchOutboundLine();
+//				obLineSearch.setWarehouseId(Arrays.asList(outboundLine.getWarehouseId()));
+//				obLineSearch.setPreOutboundNo(Arrays.asList(outboundLine.getPreOutboundNo()));
+//				obLineSearch.setPartnerCode(partnerCodes);
+//				obLineSearch.setRefDocNumber(Arrays.asList(outboundLine.getRefDocNumber()));
+//
+//				List<OutboundLine> obResults = outboundLineService.findOutboundLineShipmentReport(obLineSearch);
+//				if (!obResults.isEmpty()) {
+//					obResults = obResults.stream().filter(a -> a.getReferenceField2() == null)
+//							.collect(Collectors.toList());
+//					double linesOrdered = obResults.stream().count();
+//					list.setLinesOrdered(linesOrdered);
+//					totalLinesOrdered += linesOrdered;
+//					log.info("linesOrdered : " + linesOrdered);
+//					log.info("totalLinesOrdered : " + totalLinesOrdered);
+//				}
+//
+//				/*
+//				 * Lines shipped
+//				 * -----------------------------------------------------------------------------
+//				 * -------- Pass PRE_OB_NO/OB_LINE_NO/ITM_CODE/REF_DOC_NO/PARTNER_CODE in
+//				 * OUTBOUNDLINE table and fetch Count of OB_LINE_NO values where
+//				 * REF_FIELD_2=Null and DLV_QTY>0
+//				 */
+//				SearchOutboundLine obLineSearch1 = new SearchOutboundLine();
+//				obLineSearch1.setPreOutboundNo(Arrays.asList(outboundLine.getPreOutboundNo()));
+//				obLineSearch1.setLineNumber(Arrays.asList(outboundLine.getLineNumber()));
+//				obLineSearch1.setItemCode(Arrays.asList(outboundLine.getItemCode()));
+//				obLineSearch1.setPartnerCode(partnerCodes);
+//				obLineSearch1.setRefDocNumber(Arrays.asList(outboundLine.getRefDocNumber()));
+//				obResults = outboundLineService.findOutboundLineShipmentReport(obLineSearch1);
+//				log.info("obResults : " + obResults);
+//
+//				if (!obResults.isEmpty()) {
+//					double linesShipped = obResults.stream().filter(
+//							a -> a.getReferenceField2() == null && a.getDeliveryQty() != null && a.getDeliveryQty() > 0)
+//							.collect(Collectors.toList()).stream().count();
+//
+//					totalLinesShipped += linesShipped;
+//					list.setLinesShipped(linesShipped);
+//					log.info("linesShipped : " + linesShipped);
+//					log.info("totalLinesShipped : " + totalLinesShipped);
+//				}
+//
+//				/*
+//				 * Ordered Qty ----------------- Pass WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE in
+//				 * OUTBOUNDLINE and fetch the SUM of ORD_QTY values for OB_LINE_NO where
+//				 * REF_FIELD_2 = Null and display
+//				 */
+//				double orderedQty = obResults.stream()
+//						.filter(a -> a.getReferenceField2() == null && a.getOrderQty() != null)
+//						.mapToDouble(OutboundLine::getOrderQty).sum();
+//				list.setOrderedQty(orderedQty);
+//				totalOrderedQty += orderedQty;
+//				log.info("orderedQty : " + orderedQty);
+//				log.info("totalOrderedQty : " + totalOrderedQty);
+//
+//				/*
+//				 * Shipped qty ------------- Pass WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CDOE in
+//				 * OUTBOUNDLINE and fetch the SUM of DLV_QTY values for OB_LINE_NO where
+//				 * REF_FIELD_2 = Null and display
+//				 */
+//				double shippedQty = obResults.stream()
+//						.filter(a -> a.getReferenceField2() == null && a.getDeliveryQty() != null)
+//						.mapToDouble(OutboundLine::getDeliveryQty).sum();
+//				list.setShippedQty(shippedQty);
+//				totalShippedQty += shippedQty;
+//				log.info("shippedQty : " + shippedQty);
+//				log.info("totalShippedQty : " + totalShippedQty);
+//
+//				/*
+//				 * % shipped - Divide (Shipped lines/Ordered Lines)*100
+//				 */
+//				double percShipped = Math.round((shippedQty / orderedQty) * 100);
+//				list.setPerentageShipped(percShipped);
+//				shipmentDispatchList.add(list);
+//				log.info("percentage Shipped : " + percShipped);
+//			}
+//
+//			/*
+//			 * Total logic
+//			 */
+//			header.setTotalLinesOrdered(totalLinesOrdered);
+//			header.setTotalLinesShipped(totalLinesShipped);
+//			header.setTotalOrderedQty(totalOrderedQty);
+//			header.setTotalShippedQty(totalShippedQty);
+//			double averagePercentage = Math.round((totalShippedQty / totalOrderedQty) * 100);
+//			header.setAveragePercentage(averagePercentage);
+//			log.info("header : " + header);
+//
+//			shipmentDispatch.setHeader(header);
+//			shipmentDispatch.setShipmentDispatchList(shipmentDispatchList);
+//			listShipmentDispatch.add(shipmentDispatch);
+//		}
+//
+//		shipmentDispatchSummary.setShipmentDispatch(listShipmentDispatch);
+//		log.info("listShipmentDispatch : " + listShipmentDispatch);
+//		return shipmentDispatchSummary;
+//	}
+
+		/**
 	 * ShipmentDeliverySummary Report
-	 * 
+	 *
 	 * @param fromDeliveryDate
 	 * @param toDeliveryDate
 	 * @param customerCode
@@ -1056,16 +1259,18 @@ public class ReportsService extends BaseService {
 
 		if (!customerCode.isEmpty()) {
 			searchOutboundLine.setPartnerCode(customerCode);
+		} else {
+			searchOutboundLine.setPartnerCode(new ArrayList<>());
 		}
 
-		List<OutboundLine> outboundLineSearchResults = outboundLineService
+		List<ShipmentDispatchSummaryReportImpl> outboundLineSearchResults = outboundLineService
 				.findOutboundLineShipmentReport(searchOutboundLine);
 		log.info("outboundLineSearchResults----->: " + outboundLineSearchResults);
 
 		ShipmentDispatchSummaryReport shipmentDispatchSummary = new ShipmentDispatchSummaryReport();
 
 		// Printed on
-		List<String> partnerCodes = outboundLineSearchResults.stream().map(OutboundLine::getPartnerCode).distinct()
+		List<String> partnerCodes = outboundLineSearchResults.stream().map(ShipmentDispatchSummaryReportImpl::getPartnerCode).distinct()
 				.collect(Collectors.toList());
 		log.info("partnerCodes----->: " + partnerCodes);
 
@@ -1078,7 +1283,7 @@ public class ReportsService extends BaseService {
 			header.setPartnerCode(partnerCode);
 
 			// Obtaining Child
-			List<OutboundLine> partnerOBLines = outboundLineSearchResults.stream()
+			List<ShipmentDispatchSummaryReportImpl> partnerOBLines = outboundLineSearchResults.stream()
 					.filter(a -> a.getPartnerCode().equalsIgnoreCase(partnerCode)).collect(Collectors.toList());
 			// List
 			List<ShipmentDispatchList> shipmentDispatchList = new ArrayList<>();
@@ -1087,110 +1292,38 @@ public class ReportsService extends BaseService {
 			double totalOrderedQty = 0.0;
 			double totalShippedQty = 0.0;
 
-			for (OutboundLine outboundLine : partnerOBLines) {
+			for (ShipmentDispatchSummaryReportImpl outboundLine : partnerOBLines) {
+
 				ShipmentDispatchList list = new ShipmentDispatchList();
-				list.setSoNumber(outboundLine.getRefDocNumber()); // REF_DOC_NO
 
-				/*
-				 * REF_DOC_DATE ----------------- Pass REF_DOC_NO in OUTBOUNDHEADER table and
-				 * fetch RFEF_DOC_DATE field value
-				 */
-				OutboundHeader outboundHeader = null;
-				try {
-					outboundHeader = outboundHeaderService.getOutboundHeader(outboundLine.getRefDocNumber());
-					log.info("outboundHeader : " + outboundHeader);
-				} catch (Exception e) {
-					List<OutboundHeader> outboundHeaders = outboundHeaderService.getOutboundHeaders();
-					outboundHeaders = outboundHeaders.stream()
-							.filter(a -> a.getRefDocNumber().equalsIgnoreCase(outboundLine.getRefDocNumber()))
-							.collect(Collectors.toList());
-					outboundHeader = outboundHeaders.get(0);
-					log.info("outboundHeader : " + outboundHeader);
-				}
-				list.setOrderReceiptTime(outboundHeader.getRefDocDate());
+				list.setSoNumber(outboundLine.getSoNumber()); // REF_DOC_NO
+  				list.setOrderReceiptTime(outboundLine.getOrderReceiptTime());
 
-				/*
-				 * Lines ordered ----------------- Pass WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE
-				 * in OUTBOUNDLINE and fetch the COUNT of Lines for OB_LINE_NO where REF_FIELD_2
-				 * = Null and display
-				 */
-				SearchOutboundLine obLineSearch = new SearchOutboundLine();
-				obLineSearch.setWarehouseId(Arrays.asList(outboundLine.getWarehouseId()));
-				obLineSearch.setPreOutboundNo(Arrays.asList(outboundLine.getPreOutboundNo()));
-				obLineSearch.setPartnerCode(partnerCodes);
-				obLineSearch.setRefDocNumber(Arrays.asList(outboundLine.getRefDocNumber()));
+				list.setLinesOrdered(outboundLine.getLinesOrdered());
 
-				List<OutboundLine> obResults = outboundLineService.findOutboundLineShipmentReport(obLineSearch);
-				if (!obResults.isEmpty()) {
-					obResults = obResults.stream().filter(a -> a.getReferenceField2() == null)
-							.collect(Collectors.toList());
-					double linesOrdered = obResults.stream().count();
-					list.setLinesOrdered(linesOrdered);
-					totalLinesOrdered += linesOrdered;
-					log.info("linesOrdered : " + linesOrdered);
-					log.info("totalLinesOrdered : " + totalLinesOrdered);
-				}
+				totalLinesOrdered += outboundLine.getLinesOrdered();
+				log.info("linesOrdered : " + outboundLine.getLinesOrdered());
+				log.info("totalLinesOrdered : " + totalLinesOrdered);
 
-				/*
-				 * Lines shipped
-				 * -----------------------------------------------------------------------------
-				 * -------- Pass PRE_OB_NO/OB_LINE_NO/ITM_CODE/REF_DOC_NO/PARTNER_CODE in
-				 * OUTBOUNDLINE table and fetch Count of OB_LINE_NO values where
-				 * REF_FIELD_2=Null and DLV_QTY>0
-				 */
-				SearchOutboundLine obLineSearch1 = new SearchOutboundLine();
-				obLineSearch1.setPreOutboundNo(Arrays.asList(outboundLine.getPreOutboundNo()));
-				obLineSearch1.setLineNumber(Arrays.asList(outboundLine.getLineNumber()));
-				obLineSearch1.setItemCode(Arrays.asList(outboundLine.getItemCode()));
-				obLineSearch1.setPartnerCode(partnerCodes);
-				obLineSearch1.setRefDocNumber(Arrays.asList(outboundLine.getRefDocNumber()));
-				obResults = outboundLineService.findOutboundLineShipmentReport(obLineSearch1);
-				log.info("obResults : " + obResults);
+				list.setLinesShipped(outboundLine.getLinesShipped());
 
-				if (!obResults.isEmpty()) {
-					double linesShipped = obResults.stream().filter(
-							a -> a.getReferenceField2() == null && a.getDeliveryQty() != null && a.getDeliveryQty() > 0)
-							.collect(Collectors.toList()).stream().count();
+				totalLinesShipped += outboundLine.getLinesShipped();
+				log.info("linesShipped : " + outboundLine.getLinesShipped());
+				log.info("totalLinesShipped : " + totalLinesShipped);
 
-					totalLinesShipped += linesShipped;
-					list.setLinesShipped(linesShipped);
-					log.info("linesShipped : " + linesShipped);
-					log.info("totalLinesShipped : " + totalLinesShipped);
-				}
-
-				/*
-				 * Ordered Qty ----------------- Pass WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE in
-				 * OUTBOUNDLINE and fetch the SUM of ORD_QTY values for OB_LINE_NO where
-				 * REF_FIELD_2 = Null and display
-				 */
-				double orderedQty = obResults.stream()
-						.filter(a -> a.getReferenceField2() == null && a.getOrderQty() != null)
-						.mapToDouble(OutboundLine::getOrderQty).sum();
-				list.setOrderedQty(orderedQty);
-				totalOrderedQty += orderedQty;
-				log.info("orderedQty : " + orderedQty);
+				list.setOrderedQty(outboundLine.getOrderedQty());
+				totalOrderedQty += outboundLine.getOrderedQty();
+				log.info("orderedQty : " + outboundLine.getOrderedQty());
 				log.info("totalOrderedQty : " + totalOrderedQty);
 
-				/*
-				 * Shipped qty ------------- Pass WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CDOE in
-				 * OUTBOUNDLINE and fetch the SUM of DLV_QTY values for OB_LINE_NO where
-				 * REF_FIELD_2 = Null and display
-				 */
-				double shippedQty = obResults.stream()
-						.filter(a -> a.getReferenceField2() == null && a.getDeliveryQty() != null)
-						.mapToDouble(OutboundLine::getDeliveryQty).sum();
-				list.setShippedQty(shippedQty);
-				totalShippedQty += shippedQty;
-				log.info("shippedQty : " + shippedQty);
+				list.setShippedQty(outboundLine.getShippedQty());
+				totalShippedQty += outboundLine.getShippedQty();
+				log.info("shippedQty : " + outboundLine.getShippedQty());
 				log.info("totalShippedQty : " + totalShippedQty);
 
-				/*
-				 * % shipped - Divide (Shipped lines/Ordered Lines)*100
-				 */
-				double percShipped = Math.round((shippedQty / orderedQty) * 100);
-				list.setPerentageShipped(percShipped);
+				list.setPerentageShipped(outboundLine.getPercentageShipped());
+                log.info("percentage Shipped : " + outboundLine.getPercentageShipped());
 				shipmentDispatchList.add(list);
-				log.info("percentage Shipped : " + percShipped);
 			}
 
 			/*
@@ -1215,7 +1348,7 @@ public class ReportsService extends BaseService {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param asnNumber
 	 * @return
 	 * @throws Exception
@@ -1347,7 +1480,7 @@ public class ReportsService extends BaseService {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param type
 	 * @param warehouseId
 	 * @param partnerCode
@@ -1414,7 +1547,7 @@ public class ReportsService extends BaseService {
 
 	/**
 	 * processInventory
-	 * 
+	 *
 	 * @param warehouseId
 	 * @param itemCode
 	 * @param stockTypeId
@@ -1459,7 +1592,7 @@ public class ReportsService extends BaseService {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param warehouseId
 	 * @return
 	 * @throws Exception
@@ -1566,7 +1699,7 @@ public class ReportsService extends BaseService {
 
 	/**
 	 * getMobileDashboard
-	 * 
+	 *
 	 * @param warehouseId
 	 * @return
 	 */
@@ -1636,7 +1769,7 @@ public class ReportsService extends BaseService {
 
 	/**
 	 * AwaitingASN Count
-	 * 
+	 *
 	 * @param warehouseId
 	 * @param date
 	 * @return
@@ -1660,7 +1793,7 @@ public class ReportsService extends BaseService {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param warehouseId
 	 * @param date
 	 * @return
@@ -1684,7 +1817,7 @@ public class ReportsService extends BaseService {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param warehouseId
 	 * @param date
 	 * @return
@@ -1708,7 +1841,7 @@ public class ReportsService extends BaseService {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param warehouseId
 	 * @param date
 	 * @return
@@ -1733,7 +1866,7 @@ public class ReportsService extends BaseService {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param warehouseId
 	 * @param date
 	 * @return
@@ -1759,7 +1892,7 @@ public class ReportsService extends BaseService {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public WorkBookSheetDTO exportXlsxFile() {
@@ -1768,7 +1901,7 @@ public class ReportsService extends BaseService {
 		Page<InventoryReport> pageResult = scheduleInventoryReport(0, pageSize, "itemCode");
 		List<InventoryReport> listRecords = new ArrayList<>();
 		listRecords.addAll(pageResult.getContent());
-		
+
 		for (int pageNo = 1; pageNo <= pageResult.getTotalPages(); pageNo++) {
 			pageResult = scheduleInventoryReport(pageNo, pageSize, "itemCode");
 			listRecords.addAll(pageResult.getContent());
@@ -1793,6 +1926,7 @@ public class ReportsService extends BaseService {
 			headerData.add("WAREHOUSEID");
 			headerData.add("ITEMCODE");
 			headerData.add("DESCRIPTION");
+			headerData.add("MFR PART NO");
 			headerData.add("UOM");
 			headerData.add("STORAGEBIN");
 			headerData.add("STORAGESECTIONID");
@@ -1819,6 +1953,10 @@ public class ReportsService extends BaseService {
 				row.getCell(cellIndex).setCellStyle(cellStyle);
 				cellIndex++;
 
+				row.createCell(cellIndex).setCellValue(data.getMfrPartNumber());
+				row.getCell(cellIndex).setCellStyle(cellStyle);
+				cellIndex++;
+
 				row.createCell(cellIndex).setCellValue(data.getUom());
 				row.getCell(cellIndex).setCellStyle(cellStyle);
 				cellIndex++;
@@ -1842,10 +1980,10 @@ public class ReportsService extends BaseService {
 				row.createCell(cellIndex).setCellValue(data.getStockType());
 				row.getCell(cellIndex).setCellStyle(cellStyle);
 			}
-			
+
 			OutputStream fout = new FileOutputStream("inventory.xlsx");
 			workBookSheetDTO.getWorkbook().write(fout);
-                
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -1859,9 +1997,9 @@ public class ReportsService extends BaseService {
         os.write(arr);
         return bos;
     }
-	
+
 	/**
-	 * 
+	 *
 	 * @param sheet
 	 * @param headerStyle
 	 * @param header
