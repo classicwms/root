@@ -132,11 +132,11 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 	public List<OutboundLine> findByDeliveryConfirmedOnBetween(Date startDate, Date endDate);
 
 	@Query(value="select ol.ref_doc_no as soNumber, ol.partner_code as partnerCode,\n" +
-			"(IF(sum(ol.dlv_qty) is not null , sum(ol.dlv_qty), 0)) as shippedQty,\n" +
+			"(CASE WHEN sum(ol.dlv_qty) is not null THEN sum(ol.dlv_qty) ELSE 0 END) as shippedQty,\n" +
 			"sum(ol.ord_qty) as orderedQty,\n" +
 			"count(ol.ord_qty) as linesOrdered,\n" +
-			"COUNT(IF(ol.dlv_qty is not null and ol.dlv_qty > 0, ol.dlv_qty, NULL)) as linesShipped,\n" +
-			"(ROUND((((IF(sum(ol.dlv_qty) is not null , sum(ol.dlv_qty), 0)) / sum(ol.ord_qty)) * 100),2)) as percentageShipped,\n" +
+			"COUNT(CASE WHEN ol.dlv_qty is not null and ol.dlv_qty > 0 THEN  ol.dlv_qty ELSE  NULL END) as linesShipped,\n" +
+			"(ROUND((((CASE WHEN sum(ol.dlv_qty) is not null  THEN  sum(ol.dlv_qty) ELSE  0 END) / sum(ol.ord_qty)) * 100),2)) as percentageShipped,\n" +
 			"oh.ref_doc_date as orderReceiptTime\n" +
 			"from tbloutboundline ol\n" +
 			"join tbloutboundheader oh on oh.ref_doc_no = ol.ref_doc_no \n" +
@@ -149,11 +149,11 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 																						  @Param ("toDeliveryDate") Date toDeliveryDate);
 
 	@Query(value="select ol.ref_doc_no as soNumber, ol.partner_code as partnerCode,\n" +
-			"(IF(sum(ol.dlv_qty) is not null , sum(ol.dlv_qty), 0)) as shippedQty,\n" +
+			"(CASE WHEN sum(ol.dlv_qty) is not null THEN sum(ol.dlv_qty) ELSE 0 END) as shippedQty,\n" +
 			"sum(ol.ord_qty) as orderedQty,\n" +
 			"count(ol.ord_qty) as linesOrdered,\n" +
-			"COUNT(IF(ol.dlv_qty is not null and ol.dlv_qty > 0, ol.dlv_qty, NULL)) as linesShipped,\n" +
-			"(ROUND((((IF(sum(ol.dlv_qty) is not null , sum(ol.dlv_qty), 0)) / sum(ol.ord_qty)) * 100),2)) as percentageShipped,\n" +
+			"COUNT(CASE WHEN ol.dlv_qty is not null and ol.dlv_qty > 0 THEN  ol.dlv_qty ELSE  NULL END) as linesShipped,\n" +
+			"(ROUND((((CASE WHEN sum(ol.dlv_qty) is not null  THEN  sum(ol.dlv_qty) ELSE  0 END) / sum(ol.ord_qty)) * 100),2)) as percentageShipped,\n" +
 			"oh.ref_doc_date as orderReceiptTime\n" +
 			"from tbloutboundline ol\n" +
 			"join tbloutboundheader oh on oh.ref_doc_no = ol.ref_doc_no \n" +
