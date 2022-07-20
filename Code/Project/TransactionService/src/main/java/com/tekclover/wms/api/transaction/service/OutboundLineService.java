@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
+import com.tekclover.wms.api.transaction.model.impl.OrderStatusReportImpl;
 import com.tekclover.wms.api.transaction.model.impl.ShipmentDispatchSummaryReportImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -410,16 +411,13 @@ public class OutboundLineService extends BaseService {
 		}
 
 		if(searchOutboundLine.getPartnerCode().isEmpty()){
-			List<ShipmentDispatchSummaryReportImpl> outboundLineSearchResults =
-					outboundLineRepository.getOrderLinesForShipmentDispatchReportWithoutPartnerCode(searchOutboundLine.getFromDeliveryDate(),searchOutboundLine.getToDeliveryDate());
-//		log.info("search results: " + outboundLineSearchResults);
-			return outboundLineSearchResults;
-		} else {
-			List<ShipmentDispatchSummaryReportImpl> outboundLineSearchResults =
-					outboundLineRepository.getOrderLinesForShipmentDispatchReportWithPartnerCode(searchOutboundLine.getPartnerCode(),searchOutboundLine.getFromDeliveryDate(),searchOutboundLine.getToDeliveryDate());
-//		log.info("search results: " + outboundLineSearchResults);
-			return outboundLineSearchResults;
+			searchOutboundLine.setPartnerCode(null);
 		}
+
+		List<ShipmentDispatchSummaryReportImpl> outboundLineSearchResults =
+					outboundLineRepository.getOrderLinesForShipmentDispatchReport(searchOutboundLine.getPartnerCode(),searchOutboundLine.getFromDeliveryDate(),searchOutboundLine.getToDeliveryDate());
+//		log.info("search results: " + outboundLineSearchResults);
+			return outboundLineSearchResults;
 	}
 	
 	/**
@@ -443,6 +441,28 @@ public class OutboundLineService extends BaseService {
 		return results;
 	}
 	
+//	/**
+//	 * findOutboundLineOrderStatusReport
+//	 * @param searchOrderStatusReport
+//	 * @return
+//	 * @throws ParseException
+//	 * @throws java.text.ParseException
+//	 */
+//	public List<OutboundLine> findOutboundLineOrderStatusReport (SearchOrderStatusReport searchOrderStatusReport)
+//			throws ParseException, java.text.ParseException {
+//		if (searchOrderStatusReport.getFromDeliveryDate() != null && searchOrderStatusReport.getToDeliveryDate() != null) {
+//			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOrderStatusReport.getFromDeliveryDate(),
+//					searchOrderStatusReport.getToDeliveryDate());
+//			searchOrderStatusReport.setFromDeliveryDate(dates[0]);
+//			searchOrderStatusReport.setToDeliveryDate(dates[1]);
+//		}
+//
+//		OutboundLineOrderStatusReportSpecification spec = new OutboundLineOrderStatusReportSpecification(searchOrderStatusReport);
+//		List<OutboundLine> results = outboundLineRepository.findAll(spec);
+//		log.info("results: " + results);
+//		return results;
+//	}
+
 	/**
 	 * findOutboundLineOrderStatusReport
 	 * @param searchOrderStatusReport
@@ -450,17 +470,23 @@ public class OutboundLineService extends BaseService {
 	 * @throws ParseException
 	 * @throws java.text.ParseException
 	 */
-	public List<OutboundLine> findOutboundLineOrderStatusReport (SearchOrderStatusReport searchOrderStatusReport) 
+	public List<OrderStatusReportImpl> findOutboundLineOrderStatusReport (SearchOrderStatusReport searchOrderStatusReport)
 			throws ParseException, java.text.ParseException {
 		if (searchOrderStatusReport.getFromDeliveryDate() != null && searchOrderStatusReport.getToDeliveryDate() != null) {
-			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOrderStatusReport.getFromDeliveryDate(), 
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOrderStatusReport.getFromDeliveryDate(),
 					searchOrderStatusReport.getToDeliveryDate());
 			searchOrderStatusReport.setFromDeliveryDate(dates[0]);
 			searchOrderStatusReport.setToDeliveryDate(dates[1]);
 		}
-		
-		OutboundLineOrderStatusReportSpecification spec = new OutboundLineOrderStatusReportSpecification(searchOrderStatusReport);
-		List<OutboundLine> results = outboundLineRepository.findAll(spec);
+
+		List<OrderStatusReportImpl> results = outboundLineRepository.getOrderStatusReportFromOutboundLines(
+				searchOrderStatusReport.getWarehouseId(),
+				searchOrderStatusReport.getFromDeliveryDate(),
+				searchOrderStatusReport.getToDeliveryDate(),
+				searchOrderStatusReport.getStatusId(),
+				searchOrderStatusReport.getPartnerCode(),
+				searchOrderStatusReport.getRefDocNumber(),
+				searchOrderStatusReport.getOrderType());
 		log.info("results: " + results);
 		return results;
 	}

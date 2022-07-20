@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import com.tekclover.wms.api.transaction.model.impl.OrderStatusReportImpl;
 import com.tekclover.wms.api.transaction.model.impl.ShipmentDispatchSummaryReportImpl;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -140,28 +141,45 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 			"oh.ref_doc_date as orderReceiptTime\n" +
 			"from tbloutboundline ol\n" +
 			"join tbloutboundheader oh on oh.ref_doc_no = ol.ref_doc_no \n" +
-			"where ol.partner_code in ( :partnerCode ) AND \n" +
-			"(ol.dlv_cnf_on BETWEEN :fromDeliveryDate AND :toDeliveryDate) and ol.ref_field_2 is null\n" +
+			"where \n" +
+			"(ol.dlv_cnf_on BETWEEN :fromDeliveryDate AND :toDeliveryDate) and ol.ref_field_2 is null and oh.status_id = 59 \n" +
+			"and (COALESCE(:partnerCode) is null or (ol.partner_code in (:partnerCode))) \n" +
 			"group by ol.ref_doc_no,ol.partner_code, oh.ref_doc_date\n" +
 			"order by ol.ref_doc_no", nativeQuery=true)
-	public List<ShipmentDispatchSummaryReportImpl> getOrderLinesForShipmentDispatchReportWithPartnerCode(@Param ("partnerCode") List<String> partnerCodes,
+	public List<ShipmentDispatchSummaryReportImpl> getOrderLinesForShipmentDispatchReport(@Param ("partnerCode") List<String> partnerCode,
 																						  @Param ("fromDeliveryDate") Date fromDeliveryDate,
 																						  @Param ("toDeliveryDate") Date toDeliveryDate);
 
-	@Query(value="select ol.ref_doc_no as soNumber, ol.partner_code as partnerCode,\n" +
-			"(CASE WHEN sum(ol.dlv_qty) is not null THEN sum(ol.dlv_qty) ELSE 0 END) as shippedQty,\n" +
-			"sum(ol.ord_qty) as orderedQty,\n" +
-			"count(ol.ord_qty) as linesOrdered,\n" +
-			"COUNT(CASE WHEN ol.dlv_qty is not null and ol.dlv_qty > 0 THEN  ol.dlv_qty ELSE  NULL END) as linesShipped,\n" +
-			"(ROUND((((CASE WHEN sum(ol.dlv_qty) is not null  THEN  sum(ol.dlv_qty) ELSE  0 END) / sum(ol.ord_qty)) * 100),2)) as percentageShipped,\n" +
-			"oh.ref_doc_date as orderReceiptTime\n" +
+
+	@Query(value="select \n" +
+			"ol.ref_doc_no as soNumber, ol.dlv_ord_no as doNumber,\n" +
+			"ol.partner_code as partnerCode, bp.partner_nm as partner_name, \n" +
+			"ol.wh_id as warehouseId, ol.itm_code as itemCode,ol.item_text as itemDescription ,\n" +
+			"ol.ord_qty as orderQty , ol.dlv_qty as deliveryQty,ol.dlv_cnf_on as deliveryConfirmedOn,\n" +
+			"(CASE \n" +
+			"WHEN ol.status_id is not null and ol.status_id = 59 THEN  'Delivered'\n" +
+			"WHEN ol.status_id is not null and (ol.status_id = 42 or ol.status_id = 43 or ol.status_id = 48 or ol.status_id = 50 or ol.status_id = 55) THEN  'In Progress'\n" +
+			"WHEN ol.status_id is not null and (ol.status_id = 47 or ol.status_id = 51) THEN  'Not fulfilled' \n" +
+			"ELSE NULL\n" +
+			"END) as statusId,\n" +
+			"oh.ref_doc_date as refDocDate , oh.req_del_date as requiredDeliveryDate\n" +
 			"from tbloutboundline ol\n" +
-			"join tbloutboundheader oh on oh.ref_doc_no = ol.ref_doc_no \n" +
-			"where \n" +
-			"(ol.dlv_cnf_on BETWEEN :fromDeliveryDate AND :toDeliveryDate) and ol.ref_field_2 is null\n" +
-			"group by ol.ref_doc_no,ol.partner_code, oh.ref_doc_date\n" +
-			"order by ol.ref_doc_no", nativeQuery=true)
-	public List<ShipmentDispatchSummaryReportImpl> getOrderLinesForShipmentDispatchReportWithoutPartnerCode(@Param ("fromDeliveryDate") Date fromDeliveryDate,
-																						  @Param ("toDeliveryDate") Date toDeliveryDate);
+			"join tblbusinesspartner bp on bp.partner_code = ol.partner_code\n" +
+			"join tbloutboundheader oh on oh.ref_doc_no = ol.ref_doc_no\n" +
+			"where\n" +
+			"ol.wh_id = :warehouseId and\n" +
+			"(ol.dlv_cnf_on between :fromDeliveryDate AND  :toDeliveryDate) \n" +
+			"and (COALESCE(:statusId) is null or (ol.status_id in (:statusId))) \n" +
+			"and (COALESCE(:partnerCode) is null or (ol.partner_code in (:partnerCode))) \n" +
+			"and (COALESCE(:orderNumber) is null or (ol.ref_doc_no in (:orderNumber))) \n" +
+			"and (COALESCE(:orderType) is null or (ol.ref_field_1 in (:orderType)))", nativeQuery=true)
+	public List<OrderStatusReportImpl> getOrderStatusReportFromOutboundLines(@Param ("warehouseId") String warehouseId,
+																			 @Param ("fromDeliveryDate") Date fromDeliveryDate,
+																			 @Param ("toDeliveryDate") Date toDeliveryDate,
+																			 @Param ("statusId") List<Long> statusId,
+																			 @Param ("partnerCode") List<String> partnerCode,
+																			 @Param ("orderNumber") List<String> orderNumber,
+																			 @Param ("orderType") List<String> orderType);
+
 
 }
