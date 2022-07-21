@@ -132,22 +132,63 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 	
 	public List<OutboundLine> findByDeliveryConfirmedOnBetween(Date startDate, Date endDate);
 
-	@Query(value="select ol.ref_doc_no as soNumber, ol.partner_code as partnerCode,\n" +
-			"(CASE WHEN sum(ol.dlv_qty) is not null THEN sum(ol.dlv_qty) ELSE 0 END) as shippedQty,\n" +
-			"sum(ol.ord_qty) as orderedQty,\n" +
-			"count(ol.ord_qty) as linesOrdered,\n" +
-			"COUNT(CASE WHEN ol.dlv_qty is not null and ol.dlv_qty > 0 THEN  ol.dlv_qty ELSE  NULL END) as linesShipped,\n" +
-			"(ROUND((((CASE WHEN sum(ol.dlv_qty) is not null  THEN  sum(ol.dlv_qty) ELSE  0 END) / sum(ol.ord_qty)) * 100),2)) as percentageShipped,\n" +
-			"oh.ref_doc_date as orderReceiptTime\n" +
-			"from tbloutboundline ol\n" +
-			"join tbloutboundheader oh on oh.ref_doc_no = ol.ref_doc_no \n" +
-			"where \n" +
-			"(ol.dlv_cnf_on BETWEEN :fromDeliveryDate AND :toDeliveryDate) and ol.ref_field_2 is null and oh.status_id = 59 \n" +
-			"and (COALESCE(:partnerCode) IS NULL OR (partner_code IN :partnerCode)) \n" +
-			"group by ol.ref_doc_no,ol.partner_code, oh.ref_doc_date\n" +
-			"order by ol.ref_doc_no", nativeQuery=true)
-	public List<ShipmentDispatchSummaryReportImpl> getOrderLinesForShipmentDispatchReport(@Param ("partnerCode") List<String> partnerCode,
-																						  @Param ("fromDeliveryDate") Date fromDeliveryDate,
+//	@Query(value="select\n" +
+//			"  ol.ref_doc_no soNumber,\n" +
+//			"  ol.partner_code partnerCode,\n" +
+//			"  case\n" +
+//			"    when sum(ol.dlv_qty) is not null then sum(ol.dlv_qty)\n" +
+//			"    else 0\n" +
+//			"  end shippedQty,\n" +
+//			"  sum(ol.ord_qty) orderedQty,\n" +
+//			"  count(ol.ord_qty) linesOrdered,\n" +
+//			"  count(case\n" +
+//			"    when (\n" +
+//			"      ol.dlv_qty is not null\n" +
+//			"      and ol.dlv_qty > 0\n" +
+//			"    ) then ol.dlv_qty\n" +
+//			"    else null\n" +
+//			"  end) linesShipped,\n" +
+//			"  round(\n" +
+//			"    ((case\n" +
+//			"      when sum(ol.dlv_qty) is not null then sum(ol.dlv_qty)\n" +
+//			"      else 0\n" +
+//			"    end / sum(ol.ord_qty)) * 100),\n" +
+//			"    2\n" +
+//			"  ) percentageShipped,\n" +
+//			"  oh.ref_doc_date orderReceiptTime\n" +
+//			"from tbloutboundline ol\n" +
+//			"  join tbloutboundheader oh\n" +
+//			"    on oh.ref_doc_no = ol.ref_doc_no\n" +
+//			"where (\n" +
+//			"  ol.dlv_cnf_on between :fromDeliveryDate and :toDeliveryDate\n" +
+//			"  and ol.ref_field_2 is null\n" +
+//			"  and oh.status_id = 59\n" +
+//			"  and (\n" +
+//			"    coalesce(:partnerCode) is null\n" +
+//			"    or ol.partner_code in (:partnerCode)\n" +
+//			"  )\n" +
+//			")\n" +
+//			"group by ol.ref_doc_no, ol.partner_code, oh.ref_doc_date\n" +
+//			"order by ol.ref_doc_no", nativeQuery=true)
+//	public List<ShipmentDispatchSummaryReportImpl> getOrderLinesForShipmentDispatchReport(@Param ("partnerCode") List<String> partnerCode,
+//																						  @Param ("fromDeliveryDate") Date fromDeliveryDate,
+//																						  @Param ("toDeliveryDate") Date toDeliveryDate);
+	
+	@Query(value="select ol.ref_doc_no as soNumber, ol.partner_code as partnerCode,\r\n"
+			+ "(CASE WHEN sum(ol.dlv_qty) is not null THEN sum(ol.dlv_qty) ELSE 0 END) as shippedQty,\r\n"
+			+ "sum(ol.ord_qty) as orderedQty,\r\n"
+			+ "count(ol.ord_qty) as linesOrdered,\r\n"
+			+ "COUNT(CASE WHEN ol.dlv_qty is not null and ol.dlv_qty > 0 THEN  ol.dlv_qty ELSE  NULL END) as linesShipped,\r\n"
+			+ "(ROUND((((CASE WHEN sum(ol.dlv_qty) is not null  THEN  sum(ol.dlv_qty) ELSE  0 END) / sum(ol.ord_qty)) * 100),2)) as percentageShipped,\r\n"
+			+ "oh.ref_doc_date as orderReceiptTime\r\n"
+			+ "from tbloutboundline ol\r\n"
+			+ "join tbloutboundheader oh on oh.ref_doc_no = ol.ref_doc_no \r\n"
+			+ "where (ol.dlv_cnf_on BETWEEN :fromDeliveryDate AND :toDeliveryDate) \r\n"
+			+ "and ol.ref_field_2 is null and oh.status_id = 59 \r\n"
+			+ "group by ol.ref_doc_no,ol.partner_code, oh.ref_doc_date\r\n"
+			+ "order by ol.ref_doc_no\r\n"
+			+ "", nativeQuery=true)
+	public List<ShipmentDispatchSummaryReportImpl> getOrderLinesForShipmentDispatchReport(@Param ("fromDeliveryDate") Date fromDeliveryDate,
 																						  @Param ("toDeliveryDate") Date toDeliveryDate);
 
 

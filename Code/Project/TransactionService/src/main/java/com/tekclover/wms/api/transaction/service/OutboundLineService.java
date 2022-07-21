@@ -9,8 +9,6 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
-import com.tekclover.wms.api.transaction.model.impl.OrderStatusReportImpl;
-import com.tekclover.wms.api.transaction.model.impl.ShipmentDispatchSummaryReportImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -21,6 +19,8 @@ import com.tekclover.wms.api.transaction.model.auth.AXAuthToken;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.transaction.model.dto.StorageBin;
 import com.tekclover.wms.api.transaction.model.dto.Warehouse;
+import com.tekclover.wms.api.transaction.model.impl.OrderStatusReportImpl;
+import com.tekclover.wms.api.transaction.model.impl.ShipmentDispatchSummaryReportImpl;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.AddInventoryMovement;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
@@ -66,7 +66,6 @@ import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.S
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.ShipmentLine;
 import com.tekclover.wms.api.transaction.repository.InventoryRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundLineRepository;
-import com.tekclover.wms.api.transaction.repository.specification.OutboundLineOrderStatusReportSpecification;
 import com.tekclover.wms.api.transaction.repository.specification.OutboundLineReportSpecification;
 import com.tekclover.wms.api.transaction.repository.specification.OutboundLineSpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
@@ -410,12 +409,16 @@ public class OutboundLineService extends BaseService {
 			searchOutboundLine.setToDeliveryDate(dates[1]);
 		}
 
-		if(searchOutboundLine.getPartnerCode().isEmpty()){
-			searchOutboundLine.setPartnerCode(null);
-		}
-
+//		if(searchOutboundLine.getPartnerCode().isEmpty()){
+//			searchOutboundLine.setPartnerCode(null);
+//		}
+		
 		List<ShipmentDispatchSummaryReportImpl> outboundLineSearchResults =
-					outboundLineRepository.getOrderLinesForShipmentDispatchReport(searchOutboundLine.getPartnerCode(),searchOutboundLine.getFromDeliveryDate(),searchOutboundLine.getToDeliveryDate());
+				outboundLineRepository.getOrderLinesForShipmentDispatchReport(searchOutboundLine.getFromDeliveryDate(), 
+						searchOutboundLine.getToDeliveryDate());
+
+//		List<ShipmentDispatchSummaryReportImpl> outboundLineSearchResults =
+//					outboundLineRepository.getOrderLinesForShipmentDispatchReport(searchOutboundLine.getPartnerCode(),searchOutboundLine.getFromDeliveryDate(),searchOutboundLine.getToDeliveryDate());
 //		log.info("search results: " + outboundLineSearchResults);
 			return outboundLineSearchResults;
 	}
