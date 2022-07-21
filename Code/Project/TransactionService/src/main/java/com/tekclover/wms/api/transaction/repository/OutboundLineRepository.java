@@ -183,7 +183,7 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 			+ "oh.ref_doc_date as orderReceiptTime\r\n"
 			+ "from tbloutboundline ol\r\n"
 			+ "join tbloutboundheader oh on oh.ref_doc_no = ol.ref_doc_no \r\n"
-			+ "where (ol.dlv_cnf_on BETWEEN :fromDeliveryDate AND :toDeliveryDate) \r\n"
+			+ "where (oh.dlv_cnf_on BETWEEN :fromDeliveryDate AND :toDeliveryDate) \r\n"
 			+ "and ol.ref_field_2 is null and oh.status_id = 59 \r\n"
 			+ "group by ol.ref_doc_no,ol.partner_code, oh.ref_doc_date\r\n"
 			+ "order by ol.ref_doc_no\r\n"
