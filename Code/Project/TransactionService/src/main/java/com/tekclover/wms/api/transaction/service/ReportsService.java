@@ -835,25 +835,26 @@ public class ReportsService extends BaseService {
 			throw new BadRequestException("Date shoud be in MM-dd-yyyy format.");
 		}
 
-		if (customerCode != null && !customerCode.isEmpty()) {
-			searchOutboundLine.setPartnerCode(customerCode);
-		}
-
-		if (orderNumber != null && !orderNumber.isEmpty()) {
-			searchOutboundLine.setRefDocNumber(orderNumber);
-		}
-
-		if (orderType != null && !orderType.isEmpty()) {
-			searchOutboundLine.setOrderType(orderType);
-		}
-
-		if (statusId != null && !statusId.isEmpty()) {
-			searchOutboundLine.setStatusId(statusId);
-		}
-
 		List<OrderStatusReportImpl> outboundLineSearchResults = outboundLineService
 				.findOutboundLineOrderStatusReport(searchOutboundLine);
 		log.info("outboundLineSearchResults--------> : " + outboundLineSearchResults);
+
+
+		if (customerCode != null && !customerCode.isEmpty()) {
+			outboundLineSearchResults = outboundLineSearchResults.stream().filter(data->customerCode.contains(data.getPartnerCode())).collect(Collectors.toList());
+		}
+
+		if (orderNumber != null && !orderNumber.isEmpty()) {
+			outboundLineSearchResults = outboundLineSearchResults.stream().filter(data->orderNumber.contains(data.getSoNumber())).collect(Collectors.toList());
+		}
+
+		if (orderType != null && !orderType.isEmpty()) {
+			outboundLineSearchResults = outboundLineSearchResults.stream().filter(data->orderType.contains(data.getOrderType())).collect(Collectors.toList());
+		}
+
+		if (statusId != null && !statusId.isEmpty()) {
+			outboundLineSearchResults = outboundLineSearchResults.stream().filter(data->statusId.contains(data.getStatusId())).collect(Collectors.toList());
+		}
 
 		List<OrderStatusReport> reportOrderStatusReportList = new ArrayList<>();
 		for (OrderStatusReportImpl outboundLine : outboundLineSearchResults) {
@@ -890,7 +891,7 @@ public class ReportsService extends BaseService {
 			 * STATUS_ID 42,43,48,50,55 , Not fulfilled- STATUS_ID 51,47)
 			 * Hardcoded directly in query
 			 */
-			orderStatusReport.setStatusId(outboundLine.getStatusId());
+			orderStatusReport.setStatusId(outboundLine.getStatusIdName());
 
 			reportOrderStatusReportList.add(orderStatusReport);
 		}
@@ -1361,15 +1362,13 @@ public class ReportsService extends BaseService {
 		searchOutboundLine.setFromDeliveryDate(fromDate);
 		searchOutboundLine.setToDeliveryDate(toDate);
 
-		if (!customerCode.isEmpty()) {
-			searchOutboundLine.setPartnerCode(customerCode);
-		} else {
-			searchOutboundLine.setPartnerCode(new ArrayList<>());
-		}
-
 		List<ShipmentDispatchSummaryReportImpl> outboundLineSearchResults = outboundLineService
 				.findOutboundLineShipmentReport(searchOutboundLine);
 		log.info("outboundLineSearchResults----->: " + outboundLineSearchResults);
+
+		if (customerCode != null && !customerCode.isEmpty()) {
+			outboundLineSearchResults = outboundLineSearchResults.stream().filter(data->customerCode.contains(data.getPartnerCode())).collect(Collectors.toList());
+		}
 
 		ShipmentDispatchSummaryReport shipmentDispatchSummary = new ShipmentDispatchSummaryReport();
 

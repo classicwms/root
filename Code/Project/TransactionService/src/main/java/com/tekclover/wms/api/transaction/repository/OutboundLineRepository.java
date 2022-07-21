@@ -192,35 +192,35 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 																						  @Param ("toDeliveryDate") Date toDeliveryDate);
 
 
-	@Query(value="select \n" +
-			"ol.ref_doc_no as soNumber, ol.dlv_ord_no as doNumber,\n" +
-			"ol.partner_code as partnerCode, bp.partner_nm as partner_name, \n" +
-			"ol.wh_id as warehouseId, ol.itm_code as itemCode,ol.item_text as itemDescription ,\n" +
-			"ol.ord_qty as orderQty , ol.dlv_qty as deliveryQty,ol.dlv_cnf_on as deliveryConfirmedOn,\n" +
-			"(CASE \n" +
-			"WHEN ol.status_id is not null and ol.status_id = 59 THEN  'Delivered'\n" +
-			"WHEN ol.status_id is not null and (ol.status_id = 42 or ol.status_id = 43 or ol.status_id = 48 or ol.status_id = 50 or ol.status_id = 55) THEN  'In Progress'\n" +
-			"WHEN ol.status_id is not null and (ol.status_id = 47 or ol.status_id = 51) THEN  'Not fulfilled' \n" +
-			"ELSE NULL\n" +
-			"END) as statusId,\n" +
-			"oh.ref_doc_date as refDocDate , oh.req_del_date as requiredDeliveryDate\n" +
-			"from tbloutboundline ol\n" +
-			"join tblbusinesspartner bp on bp.partner_code = ol.partner_code\n" +
-			"join tbloutboundheader oh on oh.ref_doc_no = ol.ref_doc_no\n" +
-			"where\n" +
-			"ol.wh_id = :warehouseId and\n" +
-			"(ol.dlv_cnf_on between :fromDeliveryDate AND  :toDeliveryDate) \n" +
-			"and (COALESCE(:statusId) is null or (ol.status_id in (:statusId))) \n" +
-			"and (COALESCE(:partnerCode) is null or (ol.partner_code in (:partnerCode))) \n" +
-			"and (COALESCE(:orderNumber) is null or (ol.ref_doc_no in (:orderNumber))) \n" +
-			"and (COALESCE(:orderType) is null or (ol.ref_field_1 in (:orderType)))", nativeQuery=true)
+	@Query(value="SELECT \r\n"
+			+ "OL.REF_DOC_NO AS sonumber, \r\n"
+			+ "OL.DLV_ORD_NO AS donumber,\r\n"
+			+ "OL.PARTNER_CODE AS partnercode, \r\n"
+			+ "BP.PARTNER_NM AS partner_name, \r\n"
+			+ "OL.WH_ID AS warehouseid, \r\n"
+			+ "OL.ITM_CODE AS itemcode,\r\n"
+			+ "OL.ITEM_TEXT AS itemdescription ,\r\n"
+			+ "OL.ORD_QTY AS orderqty, \r\n"
+			+ "OL.DLV_QTY AS deliveryqty,OL.DLV_CNF_ON AS deliveryconfirmedon,\r\n"
+			+ "(CASE \r\n"
+			+ "	WHEN OL.STATUS_ID IS NOT NULL AND OL.STATUS_ID = 59 THEN  'DELIVERED'\r\n"
+			+ "	WHEN OL.STATUS_ID IS NOT NULL AND (OL.STATUS_ID = 42 OR OL.STATUS_ID = 43 OR \r\n"
+			+ "	OL.STATUS_ID = 48 OR OL.STATUS_ID = 50 OR OL.STATUS_ID = 55) THEN  'IN PROGRESS'\r\n"
+			+ "	WHEN OL.STATUS_ID IS NOT NULL AND (OL.STATUS_ID = 47 OR OL.STATUS_ID = 51) THEN 'NOT FULFILLED' \r\n"
+			+ "		ELSE NULL\r\n"
+			+ "	END\r\n"
+			+ ") AS STATUSIDNAME,\r\n"
+			+ " OL.STATUS_ID AS STATUSID,\r\n"
+			+ " OL.REF_FIELD_1 as ORDERTYPE,\r\n"
+			+ "OH.REF_DOC_DATE AS REFDOCDATE, \r\n"
+			+ "OH.REQ_DEL_DATE AS REQUIREDDELIVERYDATE\r\n"
+			+ "FROM tbloutboundline OL\r\n"
+			+ "JOIN tblbusinesspartner BP ON BP.PARTNER_CODE = OL.PARTNER_CODE\r\n"
+			+ "JOIN tbloutboundheader OH ON OH.REF_DOC_NO = OL.REF_DOC_NO\r\n"
+			+ "WHERE OL.WH_ID = :warehouseId AND (OL.DLV_CNF_ON BETWEEN :fromDeliveryDate AND :toDeliveryDate)", nativeQuery = true)
 	public List<OrderStatusReportImpl> getOrderStatusReportFromOutboundLines(@Param ("warehouseId") String warehouseId,
 																			 @Param ("fromDeliveryDate") Date fromDeliveryDate,
-																			 @Param ("toDeliveryDate") Date toDeliveryDate,
-																			 @Param ("statusId") List<Long> statusId,
-																			 @Param ("partnerCode") List<String> partnerCode,
-																			 @Param ("orderNumber") List<String> orderNumber,
-																			 @Param ("orderType") List<String> orderType);
+																			 @Param ("toDeliveryDate") Date toDeliveryDate);
 
 
 }

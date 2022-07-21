@@ -13,7 +13,9 @@ public interface OrderStatusReportImpl {
     Date getDeliveryConfirmedOn();
     Double getOrderedQty();
     Double getDeliveryQty();
-    String getStatusId();
+    String getStatusIdName();
+    Long getStatusId();
+    String getOrderType();
     Date getRefDocDate();
     Date getRequiredDeliveryDate();
 }

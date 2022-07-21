@@ -408,18 +408,11 @@ public class OutboundLineService extends BaseService {
 			searchOutboundLine.setFromDeliveryDate(dates[0]);
 			searchOutboundLine.setToDeliveryDate(dates[1]);
 		}
-
-//		if(searchOutboundLine.getPartnerCode().isEmpty()){
-//			searchOutboundLine.setPartnerCode(null);
-//		}
 		
 		List<ShipmentDispatchSummaryReportImpl> outboundLineSearchResults =
 				outboundLineRepository.getOrderLinesForShipmentDispatchReport(searchOutboundLine.getFromDeliveryDate(), 
 						searchOutboundLine.getToDeliveryDate());
 
-//		List<ShipmentDispatchSummaryReportImpl> outboundLineSearchResults =
-//					outboundLineRepository.getOrderLinesForShipmentDispatchReport(searchOutboundLine.getPartnerCode(),searchOutboundLine.getFromDeliveryDate(),searchOutboundLine.getToDeliveryDate());
-//		log.info("search results: " + outboundLineSearchResults);
 			return outboundLineSearchResults;
 	}
 	
@@ -485,11 +478,7 @@ public class OutboundLineService extends BaseService {
 		List<OrderStatusReportImpl> results = outboundLineRepository.getOrderStatusReportFromOutboundLines(
 				searchOrderStatusReport.getWarehouseId(),
 				searchOrderStatusReport.getFromDeliveryDate(),
-				searchOrderStatusReport.getToDeliveryDate(),
-				searchOrderStatusReport.getStatusId(),
-				searchOrderStatusReport.getPartnerCode(),
-				searchOrderStatusReport.getRefDocNumber(),
-				searchOrderStatusReport.getOrderType());
+				searchOrderStatusReport.getToDeliveryDate());
 		log.info("results: " + results);
 		return results;
 	}
