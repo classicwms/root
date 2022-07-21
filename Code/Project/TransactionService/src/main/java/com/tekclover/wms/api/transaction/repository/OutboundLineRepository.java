@@ -4,8 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import com.tekclover.wms.api.transaction.model.impl.OrderStatusReportImpl;
-import com.tekclover.wms.api.transaction.model.impl.ShipmentDispatchSummaryReportImpl;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -13,6 +11,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.tekclover.wms.api.transaction.model.impl.OrderStatusReportImpl;
+import com.tekclover.wms.api.transaction.model.impl.ShipmentDispatchSummaryReportImpl;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundLine;
 
 @Repository
@@ -143,7 +143,7 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 			"join tbloutboundheader oh on oh.ref_doc_no = ol.ref_doc_no \n" +
 			"where \n" +
 			"(ol.dlv_cnf_on BETWEEN :fromDeliveryDate AND :toDeliveryDate) and ol.ref_field_2 is null and oh.status_id = 59 \n" +
-			"and (COALESCE(:partnerCode) is null or (ol.partner_code in (:partnerCode))) \n" +
+			"and (COALESCE(:partnerCode) IS NULL OR (partner_code IN :partnerCode)) \n" +
 			"group by ol.ref_doc_no,ol.partner_code, oh.ref_doc_date\n" +
 			"order by ol.ref_doc_no", nativeQuery=true)
 	public List<ShipmentDispatchSummaryReportImpl> getOrderLinesForShipmentDispatchReport(@Param ("partnerCode") List<String> partnerCode,
