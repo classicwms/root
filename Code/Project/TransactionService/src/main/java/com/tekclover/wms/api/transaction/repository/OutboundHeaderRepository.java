@@ -59,7 +59,7 @@ public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader,L
 //									@Param ("startDate") Date startDate,
 //									@Param ("endDate") Date endDate);
 	
-	public List<OutboundHeader> findByStatusIdAndDeliveryConfirmedOnBetween (Long statusId, Date startDate, Date endDate);
+	public List<OutboundHeader> findByWarehouseIdAndStatusIdAndDeliveryConfirmedOnBetween (String warehouseId,Long statusId, Date startDate, Date endDate);
 	public List<OutboundHeader> findByStatusIdAndPartnerCodeAndDeliveryConfirmedOnBetween (Long statusId, 
 			String partnerCode, Date startDate, Date endDate);
 	

@@ -154,10 +154,10 @@ public class ReportsController {
     @ApiOperation(response = ShipmentDeliverySummaryReport.class, value = "Get ShipmentDeliverySummary Report") // label for swagger 
    	@GetMapping("/shipmentDeliverySummary")
    	public ResponseEntity<?> getShipmentDeliveryReport(@RequestParam String fromDeliveryDate, 
-   			@RequestParam String toDeliveryDate, @RequestParam(required = false) List<String> customerCode) 
+   			@RequestParam String toDeliveryDate, @RequestParam(required = false) List<String> customerCode,@RequestParam(required = true) String warehouseId)
    					throws ParseException, java.text.ParseException {
     	ShipmentDeliverySummaryReport shipmentDeliverySummaryReport = 
-    			reportsService.getShipmentDeliverySummaryReport(fromDeliveryDate, toDeliveryDate, customerCode);
+    			reportsService.getShipmentDeliverySummaryReport(fromDeliveryDate, toDeliveryDate, customerCode,warehouseId);
    		return new ResponseEntity<>(shipmentDeliverySummaryReport, HttpStatus.OK);
    	}
     
@@ -167,10 +167,10 @@ public class ReportsController {
     @ApiOperation(response = ShipmentDispatchSummaryReport.class, value = "Get ShipmentDispatchSummary Report") // label for swagger 
    	@GetMapping("/shipmentDispatchSummary")
    	public ResponseEntity<?> getShipmentDispatchSummaryReport(@RequestParam String fromDeliveryDate, 
-   			@RequestParam String toDeliveryDate, @RequestParam(required = false) List<String> customerCode) 
+   			@RequestParam String toDeliveryDate, @RequestParam(required = false) List<String> customerCode,@RequestParam(required = true) String warehouseId)
    					throws ParseException, java.text.ParseException {
     	ShipmentDispatchSummaryReport shipmentDeliverySummaryReport = 
-    			reportsService.getShipmentDispatchSummaryReport(fromDeliveryDate, toDeliveryDate, customerCode);
+    			reportsService.getShipmentDispatchSummaryReport(fromDeliveryDate, toDeliveryDate, customerCode,warehouseId);
    		return new ResponseEntity<>(shipmentDeliverySummaryReport, HttpStatus.OK);
    	}
     

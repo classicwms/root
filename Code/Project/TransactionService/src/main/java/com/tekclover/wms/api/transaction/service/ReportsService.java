@@ -1015,7 +1015,7 @@ public class ReportsService extends BaseService {
 	 * @throws ParseException
 	 */
 	public ShipmentDeliverySummaryReport getShipmentDeliverySummaryReport(String fromDeliveryDate,
-			String toDeliveryDate, List<String> customerCode) throws ParseException, java.text.ParseException {
+			String toDeliveryDate, List<String> customerCode,String warehouseIds) throws ParseException, java.text.ParseException {
 		/*
 		 * Pass the Input Parameters in Outbound Line table (From and TO date in
 		 * DLV_CNF_ON fields) and fetch the below Fields, If Customer Code is Selected
@@ -1039,7 +1039,7 @@ public class ReportsService extends BaseService {
 		}
 
 		List<OutboundHeader> outboundHeaderList = outboundHeaderRepository
-				.findByStatusIdAndDeliveryConfirmedOnBetween(59L, fromDeliveryDate_d, toDeliveryDate_d);
+				.findByWarehouseIdAndStatusIdAndDeliveryConfirmedOnBetween(warehouseIds,59L, fromDeliveryDate_d, toDeliveryDate_d);
 		ShipmentDeliverySummaryReport shipmentDeliverySummaryReport = new ShipmentDeliverySummaryReport();
 		List<ShipmentDeliverySummary> shipmentDeliverySummaryList = new ArrayList<>();
 		String warehouseId = null;
@@ -1332,7 +1332,7 @@ public class ReportsService extends BaseService {
 	 * @throws ParseException
 	 */
 	public ShipmentDispatchSummaryReport getShipmentDispatchSummaryReport(String fromDeliveryDate,
-			String toDeliveryDate, List<String> customerCode) throws ParseException, java.text.ParseException {
+			String toDeliveryDate, List<String> customerCode,String warehouseId) throws ParseException, java.text.ParseException {
 		// Date range
 		if (fromDeliveryDate == null || toDeliveryDate == null) {
 			throw new BadRequestException("DeliveryDate can't be blank.");
@@ -1361,6 +1361,8 @@ public class ReportsService extends BaseService {
 		SearchOutboundLine searchOutboundLine = new SearchOutboundLine();
 		searchOutboundLine.setFromDeliveryDate(fromDate);
 		searchOutboundLine.setToDeliveryDate(toDate);
+		searchOutboundLine.setWarehouseId(new ArrayList<>());
+		searchOutboundLine.getWarehouseId().add(warehouseId);
 
 		List<ShipmentDispatchSummaryReportImpl> outboundLineSearchResults = outboundLineService
 				.findOutboundLineShipmentReport(searchOutboundLine);

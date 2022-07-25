@@ -184,12 +184,13 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 			+ "from tbloutboundline ol\r\n"
 			+ "join tbloutboundheader oh on oh.ref_doc_no = ol.ref_doc_no \r\n"
 			+ "where (oh.dlv_cnf_on BETWEEN :fromDeliveryDate AND :toDeliveryDate) \r\n"
-			+ "and ol.ref_field_2 is null and oh.status_id = 59 \r\n"
+			+ "and oh.wh_id = :warehouseId and ol.ref_field_2 is null and oh.status_id = 59 \r\n"
 			+ "group by ol.ref_doc_no,ol.partner_code, oh.ref_doc_date\r\n"
 			+ "order by ol.ref_doc_no\r\n"
 			+ "", nativeQuery=true)
 	public List<ShipmentDispatchSummaryReportImpl> getOrderLinesForShipmentDispatchReport(@Param ("fromDeliveryDate") Date fromDeliveryDate,
-																						  @Param ("toDeliveryDate") Date toDeliveryDate);
+																						  @Param ("toDeliveryDate") Date toDeliveryDate,
+																						  @Param ("warehouseId") String warehouseId);
 
 
 	@Query(value="SELECT \r\n"
