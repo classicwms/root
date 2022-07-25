@@ -64,6 +64,11 @@ public class QualityLineSpecification implements Specification<QualityLine> {
         	 final Path<Group> group = root.<Group> get("itemCode");
         	 predicates.add(group.in(searchQualityLine.getItemCode()));
          }
+
+		if (searchQualityLine.getStatusId() != null && !searchQualityLine.getStatusId().isEmpty()) {
+			final Path<Group> group = root.<Group> get("statusId");
+			predicates.add(group.in(searchQualityLine.getStatusId()));
+		}
 		 
 		 predicates.add(cb.equal(root.get("deletionIndicator"), 0L));
 

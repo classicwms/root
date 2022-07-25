@@ -17,4 +17,6 @@ public class SearchQualityLine {
 	private List<Long> lineNumber;
 	private List<String> qualityInspectionNo;
 	private List<String> itemCode;
+
+	private List<Long> statusId;
 }

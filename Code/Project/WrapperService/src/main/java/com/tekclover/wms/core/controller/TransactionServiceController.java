@@ -57,6 +57,7 @@ import com.tekclover.wms.core.model.transaction.PaginatedResponse;
 import com.tekclover.wms.core.model.transaction.PeriodicHeader;
 import com.tekclover.wms.core.model.transaction.PeriodicHeaderEntity;
 import com.tekclover.wms.core.model.transaction.PeriodicLine;
+import com.tekclover.wms.core.model.transaction.PeriodicLineEntity;
 import com.tekclover.wms.core.model.transaction.PerpetualHeader;
 import com.tekclover.wms.core.model.transaction.PerpetualHeaderEntity;
 import com.tekclover.wms.core.model.transaction.PerpetualLine;
@@ -1679,15 +1680,19 @@ public class TransactionServiceController {
     	PeriodicHeader[] Periodicheader = 
     			transactionService.getPeriodicHeader(warehouseId, cycleCountTypeId, cycleCountNo, 
     					movementTypeId, subMovementTypeId, authToken);
-    	log.info("PeriodicHeader : " + Periodicheader);
 		return new ResponseEntity<>(Periodicheader, HttpStatus.OK);
 	}
     
 	@ApiOperation(response = PeriodicHeader[].class, value = "Search PeriodicHeader") // label for swagger
 	@PostMapping("/periodicheader/findPeriodicHeader")
-	public PeriodicHeaderEntity[] findPeriodicHeader(@RequestBody SearchPeriodicHeader searchPeriodicHeader,
+	public ResponseEntity<?> findPeriodicHeader(@RequestBody SearchPeriodicHeader searchPeriodicHeader,
+			@RequestParam(defaultValue = "0") Integer pageNo,
+			@RequestParam(defaultValue = "100") Integer pageSize,
+			@RequestParam(defaultValue = "cycleCountNo") String sortBy,
 			@RequestParam String authToken) throws Exception {
-		return transactionService.findPeriodicHeader(searchPeriodicHeader, authToken);
+		Page<?> page = transactionService.findPeriodicHeader(searchPeriodicHeader, pageNo, pageSize, sortBy,
+				authToken);
+		return new ResponseEntity<>(page, HttpStatus.OK);
 	}
     
     @ApiOperation(response = PeriodicHeader.class, value = "Create PeriodicHeader") // label for swagger
@@ -1699,18 +1704,17 @@ public class TransactionServiceController {
 		return new ResponseEntity<>(createdPeriodicHeader, HttpStatus.OK);
 	}
     
-    /*
-     * Pass From and To dates entered in Header screen into INVENOTRYMOVEMENT tables in IM_CTD_BY field 
-     * along with selected MVT_TYP_ID/SUB_MVT_TYP_ID values and fetch the below values
-     */
-    @ApiOperation(response = PeriodicLine[].class, value = "Create PeriodicHeader") // label for swagger
-   	@PostMapping("/periodicheader/run")
-   	public ResponseEntity<?> postRunPeriodicHeader(@RequestParam String warehouseId, @RequestParam List<String> stSecIds,
-   			@RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
-    	PeriodicLine[] PeriodicLineEntity = 
-   				transactionService.runPeriodicHeader(warehouseId, stSecIds, authToken);
-   		return new ResponseEntity<>(PeriodicLineEntity , HttpStatus.OK);
-   	}
+    @ApiOperation(response = PeriodicLineEntity.class, value = "Search Inventory") // label for swagger
+	@PostMapping("/periodicheader/run/pagination")
+	public ResponseEntity<?> findInventory(@RequestParam String warehouseId, 
+			@RequestParam(defaultValue = "0") Integer pageNo,
+			@RequestParam(defaultValue = "100") Integer pageSize,
+			@RequestParam(defaultValue = "itemCode") String sortBy,
+			@RequestParam String authToken) 
+			throws Exception {
+		Page<?> periodicLineEntity = transactionService.runPeriodicHeader(warehouseId, pageNo, pageSize, sortBy, authToken);
+		return new ResponseEntity<>(periodicLineEntity , HttpStatus.OK);
+	}
     
     @ApiOperation(response = PeriodicHeader.class, value = "Update PeriodicHeader") // label for swagger
     @PatchMapping("/periodicheader/{cycleCountNo}")

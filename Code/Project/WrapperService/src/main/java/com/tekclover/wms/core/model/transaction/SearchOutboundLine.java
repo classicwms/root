@@ -22,4 +22,6 @@ public class SearchOutboundLine {
 	private List<Long> lineNumber;
 	private List<String> itemCode;
 
+	private List<Long> statusId;
+
 	}

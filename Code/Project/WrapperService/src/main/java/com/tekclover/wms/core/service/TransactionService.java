@@ -9,6 +9,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -55,6 +56,7 @@ import com.tekclover.wms.core.model.transaction.PaginatedResponse;
 import com.tekclover.wms.core.model.transaction.PeriodicHeader;
 import com.tekclover.wms.core.model.transaction.PeriodicHeaderEntity;
 import com.tekclover.wms.core.model.transaction.PeriodicLine;
+import com.tekclover.wms.core.model.transaction.PeriodicLineEntity;
 import com.tekclover.wms.core.model.transaction.PerpetualHeader;
 import com.tekclover.wms.core.model.transaction.PerpetualHeaderEntity;
 import com.tekclover.wms.core.model.transaction.PerpetualLine;
@@ -4023,19 +4025,23 @@ public class TransactionService {
 	}
 	
 	// FIND ALL - findPeriodicHeader
-	public PeriodicHeaderEntity[] findPeriodicHeader (SearchPeriodicHeader searchPeriodicHeader,
-		String authToken) {
+	public Page<?> findPeriodicHeader (SearchPeriodicHeader searchPeriodicHeader, Integer pageNo, 
+			Integer pageSize, String sortBy, String authToken) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 			headers.add("User-Agent", "MNRClara RestTemplate");
 			headers.add("Authorization", "Bearer " + authToken);
 			UriComponentsBuilder builder = 
-					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "periodicheader/findPeriodicHeader");
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "periodicheader/findPeriodicHeader")
+					.queryParam("pageNo", pageNo)
+					.queryParam("pageSize", pageSize)
+					.queryParam("sortBy", sortBy);
 			HttpEntity<?> entity = new HttpEntity<>(searchPeriodicHeader, headers);	
-			ResponseEntity<PeriodicHeaderEntity[]> result = 
-					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PeriodicHeaderEntity[].class);
-			log.info("result : " + result.getStatusCode());
+			ParameterizedTypeReference<PaginatedResponse<PeriodicHeaderEntity>> responseType = 
+					new ParameterizedTypeReference<PaginatedResponse<PeriodicHeaderEntity>>() {};
+			ResponseEntity<PaginatedResponse<PeriodicHeaderEntity>> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, responseType);
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -4060,21 +4066,29 @@ public class TransactionService {
 		return result.getBody();
 	}
 	
-	// POST - RUN
-	public PeriodicLine[] runPeriodicHeader(String warehouseId, List<String> stSecIds, String authToken) {
-		HttpHeaders headers = new HttpHeaders();
-		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-		headers.add("User-Agent", "MNRClara RestTemplate");
-		headers.add("Authorization", "Bearer " + authToken);
-		UriComponentsBuilder builder = 
-				UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "periodicheader/run")
-				.queryParam("warehouseId", warehouseId)
-				.queryParam("stSecIds", stSecIds);
-		HttpEntity<?> entity = new HttpEntity<>(headers);
-		ResponseEntity<PeriodicLine[]> result = 
-				getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PeriodicLine[].class);
-		log.info("result : " + result.getStatusCode());
-		return result.getBody();
+	// GET ALL
+	public Page<?> runPeriodicHeader(String warehouseId, Integer pageNo, Integer pageSize, String sortBy, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("ClientGeneral-Agent", "MNRClara RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "periodicheader/run/pagination")
+					.queryParam("pageNo", pageNo)
+					.queryParam("pageSize", pageSize)
+					.queryParam("sortBy", sortBy)
+					.queryParam("warehouseId", warehouseId);
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ParameterizedTypeReference<PaginatedResponse<PeriodicLineEntity>> responseType = 
+					new ParameterizedTypeReference<PaginatedResponse<PeriodicLineEntity>>() {};
+			ResponseEntity<PaginatedResponse<PeriodicLineEntity>> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, responseType);
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
 	}
 
 	// PATCH 

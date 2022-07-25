@@ -2018,6 +2018,8 @@ public class ReportsService extends BaseService {
 
 		try {
 
+			listRecords = listRecords.stream().filter(data->data.getInventoryQty() > 0 && data.getInventoryQty() != null).collect(Collectors.toList());
+
 			/*
 			 * private String WAREHOUSEID; // WH_ID private String ITEMCODE; // ITM_CODE
 			 * private String DESCRIPTION; // ITEM_TEXT private String UOM; // INV_UOM

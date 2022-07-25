@@ -354,6 +354,7 @@ public class OutboundLineService extends BaseService {
 				searchQualityLine.setPreOutboundNo(Arrays.asList(outboundLineSearchResult.getPreOutboundNo()));
 				searchQualityLine.setLineNumber(Arrays.asList(outboundLineSearchResult.getLineNumber()));
 				searchQualityLine.setItemCode(Arrays.asList(outboundLineSearchResult.getItemCode()));
+				searchQualityLine.setStatusId(Arrays.asList(outboundLineSearchResult.getStatusId()));
 				
 				List<QualityLine> qualityLine = qualityLineService.findQualityLine(searchQualityLine);
 				
