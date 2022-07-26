@@ -3643,7 +3643,7 @@ public class TransactionService {
 
 	// GET - ShipmentDeliverySummary
 	public ShipmentDeliverySummaryReport getShipmentDeliverySummaryReport(String fromDeliveryDate, String toDeliveryDate,
-			List<String> customerCode, String authToken) {
+			List<String> customerCode,String warehouseId, String authToken) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -3654,7 +3654,8 @@ public class TransactionService {
 					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "reports/shipmentDeliverySummary")
 					.queryParam("fromDeliveryDate", fromDeliveryDate)
 					.queryParam("toDeliveryDate", toDeliveryDate)
-					.queryParam("customerCode", customerCode);
+					.queryParam("customerCode", customerCode)
+					.queryParam("warehouseId", warehouseId);
 			
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			ResponseEntity<ShipmentDeliverySummaryReport> result =
@@ -3670,7 +3671,7 @@ public class TransactionService {
 
 	// GET - ShipmentDispatchSummary
 	public ShipmentDispatchSummaryReport getShipmentDispatchSummaryReport(String fromDeliveryDate, String toDeliveryDate,
-			List<String> customerCode, String authToken) {
+			List<String> customerCode,String warehouseId, String authToken) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -3681,7 +3682,8 @@ public class TransactionService {
 					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "reports/shipmentDispatchSummary")
 					.queryParam("fromDeliveryDate", fromDeliveryDate)
 					.queryParam("toDeliveryDate", toDeliveryDate)
-					.queryParam("customerCode", customerCode);
+					.queryParam("customerCode", customerCode)
+					.queryParam("warehouseId", warehouseId);
 			
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			ResponseEntity<ShipmentDispatchSummaryReport> result =

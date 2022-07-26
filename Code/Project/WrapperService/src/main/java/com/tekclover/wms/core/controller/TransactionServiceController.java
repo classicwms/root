@@ -1515,9 +1515,9 @@ public class TransactionServiceController {
    	@GetMapping("/reports/shipmentDeliverySummary")
    	public ResponseEntity<?> getShipmentDeliveryReport(@RequestParam String fromDeliveryDate, 
    			@RequestParam String toDeliveryDate, @RequestParam(required = false) List<String> customerCode, 
-   			@RequestParam String authToken) throws ParseException, java.text.ParseException {
+   			@RequestParam String authToken,@RequestParam(required = true) String warehouseId) throws ParseException, java.text.ParseException {
     	ShipmentDeliverySummaryReport shipmentDeliverySummaryReport = 
-    			transactionService.getShipmentDeliverySummaryReport(fromDeliveryDate, toDeliveryDate, customerCode, authToken);
+    			transactionService.getShipmentDeliverySummaryReport(fromDeliveryDate, toDeliveryDate, customerCode,warehouseId, authToken);
     	log.info("shipmentDeliverySummaryReport : " + Arrays.asList(shipmentDeliverySummaryReport));
     	return new ResponseEntity<>(shipmentDeliverySummaryReport, HttpStatus.OK);
    	}
@@ -1529,9 +1529,9 @@ public class TransactionServiceController {
    	@GetMapping("/shipmentDispatchSummary")
    	public ResponseEntity<?> getShipmentDispatchSummaryReport(@RequestParam String fromDeliveryDate, 
    			@RequestParam String toDeliveryDate, @RequestParam(required = false) List<String> customerCode, 
-   			@RequestParam String authToken) throws ParseException, java.text.ParseException {
+   			@RequestParam String authToken,@RequestParam(required = true) String warehouseId) throws ParseException, java.text.ParseException {
     	ShipmentDispatchSummaryReport shipmentDispatchSummary = 
-    			transactionService.getShipmentDispatchSummaryReport(fromDeliveryDate, toDeliveryDate, customerCode, authToken);
+    			transactionService.getShipmentDispatchSummaryReport(fromDeliveryDate, toDeliveryDate, customerCode,warehouseId, authToken);
     	log.info("-shipmentDispatchSummary : " + shipmentDispatchSummary);
     	return new ResponseEntity<>(shipmentDispatchSummary, HttpStatus.OK);
    	}
