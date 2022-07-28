@@ -871,6 +871,7 @@ public class ReportsService extends BaseService {
 			orderStatusReport.setDeliveryConfirmedOn(outboundLine.getDeliveryConfirmedOn());// DLV_CNF_ON
 			orderStatusReport.setOrderReceivedDate(outboundLine.getRefDocDate());
 			orderStatusReport.setExpectedDeliveryDate(outboundLine.getRequiredDeliveryDate());
+			orderStatusReport.setOrderType(outboundLine.getOrderType());
 
 			// % of Delivered - (DLV_QTY/ORD_QTY)*100
 			double deliveryQty = 0;

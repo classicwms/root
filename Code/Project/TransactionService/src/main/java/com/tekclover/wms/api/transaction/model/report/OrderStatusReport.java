@@ -21,5 +21,6 @@ public class OrderStatusReport {
 	private Date expectedDeliveryDate;	// REQ_DEL_DATE
 	private Double percentageOfDelivered;	// (DLV_QTY/ORD_QTY)*100
 	private String statusId;				// STATUS_ID
+	private String orderType;				// ORDER_TYPE
 }
 
