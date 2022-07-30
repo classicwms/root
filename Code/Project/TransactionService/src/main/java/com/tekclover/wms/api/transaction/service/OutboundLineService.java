@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
+import com.tekclover.wms.api.transaction.model.impl.OutBoundLineImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -267,6 +268,16 @@ public class OutboundLineService extends BaseService {
 	public List<Long> getLineShipped(String preOBNo, Long obLineNo, String itemCode) {
 		List<Long> lineShippedList = outboundLineRepository.findLineShipped(preOBNo, obLineNo, itemCode);
 		return lineShippedList;
+	}
+
+	/**
+	 *
+	 * @param refDocNumber
+	 * @return
+	 */
+	public List<OutBoundLineImpl> getOutBoundLineDataForOutBoundHeader(List<String> refDocNumber) {
+		List<OutBoundLineImpl> outBoundLines = outboundLineRepository.getOutBoundLineDataForOutBoundHeader(refDocNumber);
+		return outBoundLines;
 	}
 	
 	

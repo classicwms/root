@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import com.tekclover.wms.api.transaction.model.impl.OutBoundLineImpl;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -223,5 +224,16 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 																			 @Param ("fromDeliveryDate") Date fromDeliveryDate,
 																			 @Param ("toDeliveryDate") Date toDeliveryDate);
 
+
+	@Query(value="select \n" +
+			"ref_doc_no as refDocNo,\n" +
+			"count(ord_qty) as linesOrdered,\n" +
+			"SUM(ORD_QTY) as orderedQty,\n" +
+			"COUNT(CASE WHEN dlv_qty is not null and dlv_qty > 0 THEN  dlv_qty ELSE  NULL END) as linesShipped,\n" +
+			"(CASE WHEN sum(dlv_qty) is not null THEN sum(dlv_qty) ELSE 0 END) as shippedQty\n" +
+			"from tbloutboundline \n" +
+			"where ref_doc_no in (:refDocNo) and ref_field_2 is null\n" +
+			"group by ref_doc_no , c_id , lang_id, plant_id, wh_id, pre_ob_no, partner_code", nativeQuery=true)
+	public List<OutBoundLineImpl> getOutBoundLineDataForOutBoundHeader(@Param ("refDocNo") List<String> refDocNo);
 
 }

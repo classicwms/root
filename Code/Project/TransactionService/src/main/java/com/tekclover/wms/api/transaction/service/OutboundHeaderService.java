@@ -1,12 +1,14 @@
 package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
+import com.tekclover.wms.api.transaction.model.impl.OutBoundLineImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -156,29 +158,48 @@ public class OutboundHeaderService {
 		List<OutboundHeader> headerSearchResults = outboundHeaderRepository.findAll(spec);
 		
 		if (headerSearchResults != null) {
-			for (OutboundHeader outboundHeader : headerSearchResults) {
-				List<Long> deliveryLines = outboundLineService.getDeliveryLines (outboundHeader.getWarehouseId(), 
-						outboundHeader.getPreOutboundNo(), outboundHeader.getRefDocNumber());
-				List<Long> sumOfOrderedQty = outboundLineService.getSumOfOrderedQty (outboundHeader.getWarehouseId(), 
-						outboundHeader.getPreOutboundNo(), outboundHeader.getRefDocNumber());
-				List<Long> countOfOrderedLines = outboundLineService.getCountofOrderedLines (outboundHeader.getWarehouseId(), 
-						outboundHeader.getPreOutboundNo(), outboundHeader.getRefDocNumber());
-				List<Long> sumOfDeliveryQtyList = outboundLineService.getDeliveryQty (outboundHeader.getWarehouseId(), 
-						outboundHeader.getPreOutboundNo(), outboundHeader.getRefDocNumber());
-				
-				double deliveryLinesCount = deliveryLines.stream().mapToLong(Long::longValue).sum();
-				double sumOfOrderedQtyValue = sumOfOrderedQty.stream().mapToLong(Long::longValue).sum();
-				double countOfOrderedLinesvalue = countOfOrderedLines.stream().mapToLong(Long::longValue).sum();
-				double sumOfDeliveryQty = sumOfDeliveryQtyList.stream().mapToLong(Long::longValue).sum();
-				
-				outboundHeader.setReferenceField7 (String.valueOf(sumOfDeliveryQty));
-				outboundHeader.setReferenceField8 (String.valueOf(deliveryLinesCount));
-				outboundHeader.setReferenceField9 (String.valueOf(sumOfOrderedQtyValue));
-				outboundHeader.setReferenceField10 (String.valueOf(countOfOrderedLinesvalue));
+			//Commeted - Hareesh -30-07-2022 for performance wrote native query
+//			for (OutboundHeader outboundHeader : headerSearchResults) {
+//				List<Long> deliveryLines = outboundLineService.getDeliveryLines (outboundHeader.getWarehouseId(),
+//						outboundHeader.getPreOutboundNo(), outboundHeader.getRefDocNumber());
+//				List<Long> sumOfOrderedQty = outboundLineService.getSumOfOrderedQty (outboundHeader.getWarehouseId(),
+//						outboundHeader.getPreOutboundNo(), outboundHeader.getRefDocNumber());
+//				List<Long> countOfOrderedLines = outboundLineService.getCountofOrderedLines (outboundHeader.getWarehouseId(),
+//						outboundHeader.getPreOutboundNo(), outboundHeader.getRefDocNumber());
+//				List<Long> sumOfDeliveryQtyList = outboundLineService.getDeliveryQty (outboundHeader.getWarehouseId(),
+//						outboundHeader.getPreOutboundNo(), outboundHeader.getRefDocNumber());
+//
+//				double deliveryLinesCount = deliveryLines.stream().mapToLong(Long::longValue).sum();
+//				double sumOfOrderedQtyValue = sumOfOrderedQty.stream().mapToLong(Long::longValue).sum();
+//				double countOfOrderedLinesvalue = countOfOrderedLines.stream().mapToLong(Long::longValue).sum();
+//				double sumOfDeliveryQty = sumOfDeliveryQtyList.stream().mapToLong(Long::longValue).sum();
+//
+//				outboundHeader.setReferenceField7 (String.valueOf(sumOfDeliveryQty));
+//				outboundHeader.setReferenceField8 (String.valueOf(deliveryLinesCount));
+//				outboundHeader.setReferenceField9 (String.valueOf(sumOfOrderedQtyValue));
+//				outboundHeader.setReferenceField10 (String.valueOf(countOfOrderedLinesvalue));
+//			}
+
+			List<String> refDocNoList = new ArrayList<>();
+			headerSearchResults.forEach(headerData-> refDocNoList.add(headerData.getRefDocNumber()));
+
+			if(refDocNoList.size() > 0){
+				List<OutBoundLineImpl> outBoundLineList = outboundLineService.getOutBoundLineDataForOutBoundHeader(refDocNoList);
+				if(outBoundLineList.size() > 0){
+					headerSearchResults.forEach(headerData -> {
+						outBoundLineList.forEach(lineData->{
+							if(headerData.getRefDocNumber().equals(lineData.getRefDocNo())){
+								headerData.setReferenceField7 (String.valueOf(lineData.getShippedQty()));
+								headerData.setReferenceField8 (String.valueOf(lineData.getLinesShipped()));
+								headerData.setReferenceField9 (String.valueOf(lineData.getOrderedQty()));
+								headerData.setReferenceField10 (String.valueOf(lineData.getLinesOrdered()));
+							}
+						});
+					});
+				}
 			}
+
 		}
-		
-//		log.info("headerSearchResults: " + headerSearchResults);
 		return headerSearchResults;
 	}
 	
