@@ -152,6 +152,24 @@ public class QualityLineService extends BaseService {
 					" doesn't exist.");
 		return null;
 	}
+
+	public List<QualityLine> getQualityLineForUpdateForDeliverConformation (String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode,
+												Long lineNumber, String itemCode) {
+		List<QualityLine> qualityLine = qualityLineRepository.findAllByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndDeletionIndicator(
+				warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode, 0L);
+		if (qualityLine != null) {
+			return qualityLine;
+		}
+		log.info("The given QualityLine ID : " +
+				"warehouseId:" + warehouseId +
+				",preOutboundNo:" + preOutboundNo +
+				",refDocNumber:" + refDocNumber +
+				",partnerCode:" + partnerCode +
+				",lineNumber:" + lineNumber +
+				",itemCode:" + itemCode +
+				" doesn't exist.");
+		return null;
+	}
 	
 	/**
 	 * 
@@ -206,6 +224,11 @@ public class QualityLineService extends BaseService {
 	public List<QualityLine> createQualityLine (List<AddQualityLine> newQualityLines, String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
 		List<QualityLine> qualityLineList = new ArrayList<>();
+		/*
+		 * The below flag helps to avoid duplicate request and updating of outboundline table
+		 */
+		boolean isDuplicated = false;
+		String qualityInspectionNo = "";
 		for (AddQualityLine newQualityLine : newQualityLines) {
 			QualityLine dbQualityLine = new QualityLine();
 			BeanUtils.copyProperties(newQualityLine, dbQualityLine, CommonUtils.getNullPropertyNames(newQualityLine));
@@ -220,7 +243,7 @@ public class QualityLineService extends BaseService {
 			QualityLine createdQualityLine = qualityLineRepository.save(dbQualityLine);
 			log.info("createdQualityLine: " + createdQualityLine);
 			qualityLineList.add(dbQualityLine);
-
+			
 			/*-----------------STATUS updates in QualityHeader-----------------------*/
 			UpdateQualityHeader updateQualityHeader = new UpdateQualityHeader();
 			updateQualityHeader.setStatusId(55L);
@@ -249,7 +272,14 @@ public class QualityLineService extends BaseService {
 			OutboundLine outboundLine = outboundLineService.getOutboundLine(dbQualityLine.getWarehouseId(), 
 					dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode(),
 					dbQualityLine.getLineNumber(), dbQualityLine.getItemCode());
-			if (outboundLine != null) {
+			
+			if (qualityInspectionNo.equalsIgnoreCase(createdQualityLine.getQualityInspectionNo())) {
+				isDuplicated = true;
+			}
+			
+			log.info("qualityInspectionNo after updating second time: " + qualityInspectionNo);
+			
+			if (outboundLine != null && !isDuplicated) {
 				outboundLine.setDeliveryOrderNo(DLV_ORD_NO);
 				outboundLine.setStatusId(57L);
 				
@@ -263,6 +293,8 @@ public class QualityLineService extends BaseService {
 				outboundLine = outboundLineRepository.save(outboundLine);
 				log.info("outboundLine updated : " + outboundLine);
 			}
+			qualityInspectionNo = createdQualityLine.getQualityInspectionNo();
+			log.info("qualityInspectionNo before updating second time: " + qualityInspectionNo);
 			
 			boolean isStatus57 = false;
 			List<OutboundLine> outboundLines = outboundLineService.getOutboundLine(dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(), 
@@ -446,15 +478,17 @@ public class QualityLineService extends BaseService {
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	public QualityLine updateQualityLine (String warehouseId, String preOutboundNo, String refDocNumber, 
+	public List<QualityLine> updateQualityLine (String warehouseId, String preOutboundNo, String refDocNumber,
 			String partnerCode, Long lineNumber, String itemCode, String loginUserID, UpdateQualityLine updateQualityLine) 
 			throws IllegalAccessException, InvocationTargetException {
-		QualityLine dbQualityLine = getQualityLineForUpdate (warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode);
+		List<QualityLine> dbQualityLine = getQualityLineForUpdateForDeliverConformation(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode);
 		if (dbQualityLine != null) {
-			BeanUtils.copyProperties(updateQualityLine, dbQualityLine, CommonUtils.getNullPropertyNames(updateQualityLine));
-			dbQualityLine.setQualityUpdatedBy(loginUserID);
-			dbQualityLine.setQualityUpdatedOn(new Date());
-			return qualityLineRepository.save(dbQualityLine);
+			dbQualityLine.forEach(data->{
+				BeanUtils.copyProperties(updateQualityLine, data, CommonUtils.getNullPropertyNames(updateQualityLine));
+				data.setQualityUpdatedBy(loginUserID);
+				data.setQualityUpdatedOn(new Date());
+			});
+			return qualityLineRepository.saveAll(dbQualityLine);
 		}
 		return null;
 	}

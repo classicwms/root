@@ -616,18 +616,27 @@ public class OutboundLineService extends BaseService {
 							// QUALITYLINE
 							UpdateQualityLine updateQualityLine = new UpdateQualityLine();
 							updateQualityLine.setStatusId(59L);
-							QualityLine updatedQualityLine = qualityLineService.updateQualityLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, 
+							List<QualityLine> updatedQualityLine = qualityLineService.updateQualityLine(warehouseId, preOutboundNo, refDocNumber, partnerCode,
 									outboundLine.getLineNumber(), outboundLine.getItemCode(), loginUserID, updateQualityLine);
 							log.info("updatedQualityLine updated : " + updatedQualityLine);
 							
 							// QUALITYHEADER
 							UpdateQualityHeader updateQualityHeader = new UpdateQualityHeader();
 							updateQualityHeader.setStatusId(59L);
-							QualityHeader updatedQualityHeader = 
-									qualityHeaderService.updateQualityHeader(warehouseId, preOutboundNo, refDocNumber, 
-											updatedQualityLine.getQualityInspectionNo(), updatedQualityLine.getActualHeNo(), 
+							updatedQualityLine.forEach(qualityLine -> {
+								QualityHeader updatedQualityHeader = null;
+								try {
+									updatedQualityHeader = qualityHeaderService.updateQualityHeader(warehouseId, preOutboundNo, refDocNumber,
+											qualityLine.getQualityInspectionNo(), qualityLine.getActualHeNo(),
 											loginUserID, updateQualityHeader);
-							log.info("updatedQualityHeader updated : " + updatedQualityHeader);
+								} catch (IllegalAccessException e) {
+									e.printStackTrace();
+								} catch (InvocationTargetException e) {
+									e.printStackTrace();
+								}
+								log.info("updatedQualityHeader updated : " + updatedQualityHeader);
+							});
+
 							
 							// PICKUPLINE
 							UpdatePickupLine updatePickupLine = new UpdatePickupLine();
@@ -676,33 +685,34 @@ public class OutboundLineService extends BaseService {
 							/*-----------------Inventory Updates---------------------------*/
 							// String warehouseId, String itemCode, Long binClassId
 							Long BIN_CL_ID = 5L;
-							List<Inventory> inventoryList = inventoryService.getInventoryForDeliveryConfirmtion (outboundLine.getWarehouseId(), 
-									outboundLine.getItemCode(), updatedQualityLine.getPickPackBarCode(), BIN_CL_ID); //pack_bar_code
-							
-							for(Inventory inventory : inventoryList) {
-								Double INV_QTY = inventory.getInventoryQuantity() - outboundLine.getDeliveryQty();
-								log.info("INV_QTY : " + INV_QTY);
-								
-								if (INV_QTY < 0) {
-									INV_QTY = 0D;
-								}
+							for(QualityLine qualityLine : updatedQualityLine){
+								List<Inventory> inventoryList = inventoryService.getInventoryForDeliveryConfirmtion (outboundLine.getWarehouseId(),
+										outboundLine.getItemCode(), qualityLine.getPickPackBarCode(), BIN_CL_ID); //pack_bar_code
+								for(Inventory inventory : inventoryList) {
+									Double INV_QTY = inventory.getInventoryQuantity() - outboundLine.getDeliveryQty();
+									log.info("INV_QTY : " + INV_QTY);
 
-                                // [Prod Fix: 14-07] - Hareesh - Don't need to delete the inventory just update the existing inventory quantity
+									if (INV_QTY < 0) {
+										INV_QTY = 0D;
+									}
+
+									// [Prod Fix: 14-07] - Hareesh - Don't need to delete the inventory just update the existing inventory quantity
 //								if (INV_QTY == 0) {
 ////									[Prod Fix: 28-06] - Discussed to comment delete Inventory operation to avoid unwanted delete of Inventory
 ////									inventoryRepository.delete(inventory);
 //									log.info("inventory record is deleted...");
 //								}
-								
-								if (INV_QTY >= 0) {
-									inventory.setInventoryQuantity(INV_QTY);
-									
-									// INV_QTY > 0 then, update Inventory Table
-									inventory = inventoryRepository.save(inventory);
-									log.info("inventory updated : " + inventory);
+
+									if (INV_QTY >= 0) {
+										inventory.setInventoryQuantity(INV_QTY);
+
+										// INV_QTY > 0 then, update Inventory Table
+										inventory = inventoryRepository.save(inventory);
+										log.info("inventory updated : " + inventory);
+									}
 								}
-							}
-							
+							};
+
 							/*-------------------Inserting record in InventoryMovement-------------------------------------*/
 							// Fetch WH_ID/REF_DOC_NO/PRE_OB_NO/PARTNER_CODE/OB_LINE_NO/ITM_CODE from Outboundline table and 
 							// pass the same in Qualityline table and fetch the records and update INVENTORYMOVEMENT table
