@@ -51,4 +51,5 @@ import lombok.NoArgsConstructor;
 	private Long deletionIndicator = 0L;
 	private String createdBy;
 	private Date createdOn = new Date();
+	private Double balanceOHQty;
 }
