@@ -270,7 +270,7 @@ public class TransactionService {
 					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "preinboundheader/findPreInboundHeader");
 			HttpEntity<?> entity = new HttpEntity<>(searchPreInboundHeader, headers);	
 			ResponseEntity<PreInboundHeader[]> result = 
-					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, PreInboundHeader[].class);
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PreInboundHeader[].class);
 //			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {

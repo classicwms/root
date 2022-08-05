@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
+import com.tekclover.wms.api.transaction.model.inbound.InboundHeader;
+import com.tekclover.wms.api.transaction.repository.InboundHeaderRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,6 +37,9 @@ public class ContainerReceiptService extends BaseService {
 	
 	@Autowired
 	private IDMasterService idmasterService;
+
+	@Autowired
+	private InboundHeaderRepository inboundHeaderRepository;
 	
 	@Autowired
 	AuthTokenService authTokenService;
@@ -96,6 +101,13 @@ public class ContainerReceiptService extends BaseService {
 	public List<ContainerReceipt> findContainerReceipt(SearchContainerReceipt searchContainerReceipt) throws ParseException {
 		ContainerReceiptSpecification spec = new ContainerReceiptSpecification(searchContainerReceipt);
 		List<ContainerReceipt> results = containerReceiptRepository.findAll(spec);
+
+		for(ContainerReceipt containerReceipt : results){
+			InboundHeader inboundHeaderData = this.inboundHeaderRepository.findByRefDocNumber(containerReceipt.getRefDocNumber());
+			if(inboundHeaderData != null && inboundHeaderData.getConfirmedOn() != null){
+				containerReceipt.setReferenceField5(inboundHeaderData.getConfirmedOn().toString());
+			}
+		}
 		log.info("results: " + results);
 		return results;
 	}

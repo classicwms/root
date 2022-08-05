@@ -153,4 +153,6 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 	public List<Inventory> findByWarehouseIdAndStorageBinIn(String warehouseId, List<String> storageBin); 
 	public List<Inventory> findByWarehouseId(String warehouseId);
 	public Page<Inventory> findByWarehouseIdAndDeletionIndicator(String warehouseId, Long delFlag, Pageable pageable);
+
+	public Page<Inventory> findByWarehouseIdInAndDeletionIndicator(List<String> warehouseId, Long delFlag, Pageable pageable);
 }

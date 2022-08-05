@@ -419,11 +419,13 @@ public class ReportsService extends BaseService {
 	 * @return
 	 */
 	public Page<InventoryReport> scheduleInventoryReport(Integer pageNo, Integer pageSize, String sortBy) {
-		String warehouseId = "110";
+		List<String> warehouseId = new ArrayList<>();
+		warehouseId.add("110");
+		warehouseId.add("111");
 		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
 		Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
 		Page<Inventory> inventoryList =
-				inventoryRepository.findByWarehouseIdAndDeletionIndicator (warehouseId, 0L, pageable);
+				inventoryRepository.findByWarehouseIdInAndDeletionIndicator (warehouseId, 0L, pageable);
 		List<InventoryReport> reportInventoryList = new ArrayList<>();
 		for (Inventory dbInventory : inventoryList) {
 			InventoryReport reportInventory = new InventoryReport();
@@ -467,6 +469,10 @@ public class ReportsService extends BaseService {
 
 			// INV_QTY
 			reportInventory.setInventoryQty(dbInventory.getInventoryQuantity());
+
+			reportInventory.setAllocatedQty(dbInventory.getAllocatedQuantity());
+
+			reportInventory.setTotalQuantity(Double.sum(dbInventory.getInventoryQuantity() != null ? dbInventory.getInventoryQuantity() : 0 , dbInventory.getAllocatedQuantity() != null ? dbInventory.getAllocatedQuantity() : 0 ) );
 
 			// STCK_TYP_ID/STCK_TYP_TEXT
 			reportInventory.setStockType(dbInventory.getStockTypeId());
@@ -2040,6 +2046,8 @@ public class ReportsService extends BaseService {
 			headerData.add("STORAGESECTIONID");
 			headerData.add("PACKBARCODES");
 			headerData.add("INVENTORYQTY");
+			headerData.add("ALLOCATEDQTY");
+			headerData.add("TOTALQTY");
 			headerData.add("STOCKTYPE");
 
 			this.createHeaderRow(workBookSheetDTO.getWorkbook().getSheet("inventory"), headerStyle, headerData);
@@ -2082,6 +2090,14 @@ public class ReportsService extends BaseService {
 				cellIndex++;
 
 				row.createCell(cellIndex).setCellValue(data.getInventoryQty());
+				row.getCell(cellIndex).setCellStyle(cellStyle);
+				cellIndex++;
+
+				row.createCell(cellIndex).setCellValue(data.getAllocatedQty());
+				row.getCell(cellIndex).setCellStyle(cellStyle);
+				cellIndex++;
+
+				row.createCell(cellIndex).setCellValue(data.getTotalQuantity());
 				row.getCell(cellIndex).setCellStyle(cellStyle);
 				cellIndex++;
 
