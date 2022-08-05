@@ -63,7 +63,7 @@ public class InboundHeaderSpecification implements Specification<InboundHeader> 
          }
 
         final Path<Group> group = root.<Group> get("deletionIndicator");
-        predicates.add(group.in(1L));
+        predicates.add(group.in(0L));
 
          return cb.and(predicates.toArray(new Predicate[] {}));
      }
