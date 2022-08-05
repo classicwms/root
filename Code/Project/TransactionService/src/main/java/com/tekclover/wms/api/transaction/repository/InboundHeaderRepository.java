@@ -50,5 +50,5 @@ public interface InboundHeaderRepository extends JpaRepository<InboundHeader,Lon
 
 	public List<InboundHeader> findByWarehouseIdAndDeletionIndicator(String warehouseId, long l);
 
-	public InboundHeader findByRefDocNumber(String refDocNo);
+	public List<InboundHeader> findByRefDocNumberAndDeletionIndicator(String refDocNo,long l);
 }

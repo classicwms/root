@@ -103,9 +103,9 @@ public class ContainerReceiptService extends BaseService {
 		List<ContainerReceipt> results = containerReceiptRepository.findAll(spec);
 
 		for(ContainerReceipt containerReceipt : results){
-			InboundHeader inboundHeaderData = this.inboundHeaderRepository.findByRefDocNumber(containerReceipt.getRefDocNumber());
-			if(inboundHeaderData != null && inboundHeaderData.getConfirmedOn() != null){
-				containerReceipt.setReferenceField5(inboundHeaderData.getConfirmedOn().toString());
+			List<InboundHeader> inboundHeaderData = this.inboundHeaderRepository.findByRefDocNumberAndDeletionIndicator(containerReceipt.getRefDocNumber(),0L);
+			if(inboundHeaderData != null && !inboundHeaderData.isEmpty() && inboundHeaderData.get(0).getConfirmedOn() != null){
+				containerReceipt.setReferenceField5(inboundHeaderData.get(0).getConfirmedOn().toString());
 			}
 		}
 		log.info("results: " + results);

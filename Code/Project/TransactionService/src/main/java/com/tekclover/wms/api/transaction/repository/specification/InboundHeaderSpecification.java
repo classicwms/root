@@ -61,7 +61,10 @@ public class InboundHeaderSpecification implements Specification<InboundHeader> 
          if (searchInboundHeader.getStartConfirmedOn() != null && searchInboundHeader.getEndConfirmedOn() != null) {
         	 predicates.add(cb.between(root.get("confirmedOn"), searchInboundHeader.getStartConfirmedOn(), searchInboundHeader.getEndConfirmedOn()));
          }
-		                    
+
+        final Path<Group> group = root.<Group> get("deletionIndicator");
+        predicates.add(group.in(1L));
+
          return cb.and(predicates.toArray(new Predicate[] {}));
      }
 }
