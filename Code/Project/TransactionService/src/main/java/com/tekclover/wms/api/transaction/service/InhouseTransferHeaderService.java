@@ -128,6 +128,16 @@ public class InhouseTransferHeaderService extends BaseService {
 			throws IllegalAccessException, InvocationTargetException {
 		InhouseTransferHeader dbInhouseTransferHeader = new InhouseTransferHeader();
 		log.info("newInHouseTransferHeader : " + newInhouseTransferHeader);
+
+		if(newInhouseTransferHeader.getTransferTypeId().equals(3L)){
+			int i = 0;
+			for(AddInhouseTransferLine lineData : newInhouseTransferHeader.getInhouseTransferLine()) {
+				if(lineData.getTransferConfirmedQty() == null || lineData.getTransferOrderQty() == null || lineData.getTransferConfirmedQty() != 0 || lineData.getTransferOrderQty() != 0 ){
+					throw new BadRequestException("Transfer Quantity cannot not be null or zero for line : " + (i+1));
+				}
+				i++;
+			}
+		}
 		
 		BeanUtils.copyProperties(newInhouseTransferHeader, dbInhouseTransferHeader, CommonUtils.getNullPropertyNames(newInhouseTransferHeader));
 		AuthToken authTokenForIDMasterService = authTokenService.getIDMasterServiceAuthToken();
