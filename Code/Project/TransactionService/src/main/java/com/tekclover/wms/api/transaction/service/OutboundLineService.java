@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
-import com.tekclover.wms.api.transaction.model.impl.OutBoundLineImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -21,6 +20,7 @@ import com.tekclover.wms.api.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.transaction.model.dto.StorageBin;
 import com.tekclover.wms.api.transaction.model.dto.Warehouse;
 import com.tekclover.wms.api.transaction.model.impl.OrderStatusReportImpl;
+import com.tekclover.wms.api.transaction.model.impl.OutBoundLineImpl;
 import com.tekclover.wms.api.transaction.model.impl.ShipmentDispatchSummaryReportImpl;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.AddInventoryMovement;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
@@ -621,22 +621,14 @@ public class OutboundLineService extends BaseService {
 							log.info("updatedQualityLine updated : " + updatedQualityLine);
 							
 							// QUALITYHEADER
-							UpdateQualityHeader updateQualityHeader = new UpdateQualityHeader();
-							updateQualityHeader.setStatusId(59L);
-							updatedQualityLine.forEach(qualityLine -> {
-								QualityHeader updatedQualityHeader = null;
-								try {
-									updatedQualityHeader = qualityHeaderService.updateQualityHeader(warehouseId, preOutboundNo, refDocNumber,
-											qualityLine.getQualityInspectionNo(), qualityLine.getActualHeNo(),
-											loginUserID, updateQualityHeader);
-								} catch (IllegalAccessException e) {
-									e.printStackTrace();
-								} catch (InvocationTargetException e) {
-									e.printStackTrace();
-								}
+							if (!updatedQualityLine.isEmpty()) {
+								UpdateQualityHeader updateQualityHeader = new UpdateQualityHeader();
+								updateQualityHeader.setStatusId(59L);
+								QualityLine qualityLine = updatedQualityLine.get(0);
+								QualityHeader updatedQualityHeader = qualityHeaderService.updateQualityHeader(warehouseId, preOutboundNo, refDocNumber,
+										qualityLine.getQualityInspectionNo(), qualityLine.getActualHeNo(), loginUserID, updateQualityHeader);
 								log.info("updatedQualityHeader updated : " + updatedQualityHeader);
-							});
-
+							}
 							
 							// PICKUPLINE
 							UpdatePickupLine updatePickupLine = new UpdatePickupLine();
@@ -670,7 +662,7 @@ public class OutboundLineService extends BaseService {
 							
 							// PREOUTBOUNDLINE
 							UpdatePreOutboundLine updatePreOutboundLine = new UpdatePreOutboundLine();
-							updatePreOutboundLine.setStatusId(59l);
+							updatePreOutboundLine.setStatusId(59L);
 							PreOutboundLine updatedPreOutboundLine = preOutboundLineService.updatePreOutboundLine(warehouseId, refDocNumber, 
 									preOutboundNo, partnerCode, updatedPickupLine.getLineNumber(), updatedPickupLine.getItemCode(), loginUserID, updatePreOutboundLine);
 							log.info("updatedPreOutboundLine updated : " + updatedPreOutboundLine);
