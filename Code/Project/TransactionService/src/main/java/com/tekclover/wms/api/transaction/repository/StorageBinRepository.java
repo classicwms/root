@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.transaction.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -21,6 +22,9 @@ public interface StorageBinRepository extends JpaRepository<StorageBin,Long>, Jp
 	@Query (value = "SELECT ST_SEC_ID FROM tblstoragebin \r\n"
 			+ " WHERE ST_BIN = :storageBin", nativeQuery = true)
 	public String findByStorageBin (@Param(value = "storageBin") String storageBin);
+
+
+	Optional<StorageBin> findByStorageBinForInhouseUpdate(String storageBin);
 	
 }
 

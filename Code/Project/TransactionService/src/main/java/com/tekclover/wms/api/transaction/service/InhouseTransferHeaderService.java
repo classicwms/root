@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.tekclover.wms.api.transaction.repository.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,10 +25,6 @@ import com.tekclover.wms.api.transaction.model.mnc.InhouseTransferHeaderEntity;
 import com.tekclover.wms.api.transaction.model.mnc.InhouseTransferLine;
 import com.tekclover.wms.api.transaction.model.mnc.InhouseTransferLineEntity;
 import com.tekclover.wms.api.transaction.model.mnc.SearchInhouseTransferHeader;
-import com.tekclover.wms.api.transaction.repository.InhouseTransferHeaderRepository;
-import com.tekclover.wms.api.transaction.repository.InhouseTransferLineRepository;
-import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
-import com.tekclover.wms.api.transaction.repository.InventoryRepository;
 import com.tekclover.wms.api.transaction.repository.specification.InhouseTransferHeaderSpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
@@ -60,6 +57,9 @@ public class InhouseTransferHeaderService extends BaseService {
 	
 	@Autowired
 	private MastersService mastersService;
+
+	@Autowired
+	private StorageBinRepository storageBinRepository;
 	
 	/**
 	 * getInHouseTransferHeaders
@@ -365,12 +365,23 @@ public class InhouseTransferHeaderService extends BaseService {
 					// Deleting record
 					inventoryRepository.delete(inventorySourceItemCode);
 					log.info("---------inventory-----deleted-----");
-					
-					AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-					StorageBin modifiedStorageBin = new StorageBin();
-					modifiedStorageBin.setStatusId(0L);
-					mastersService.updateStorageBin(createdInhouseTransferLine.getSourceStorageBin(), 
-							modifiedStorageBin, loginUserID, authTokenForMastersService.getAccess_token());
+
+//					AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+//					StorageBin modifiedStorageBin = new StorageBin();
+//					modifiedStorageBin.setStatusId(0L);
+//					mastersService.updateStorageBin(createdInhouseTransferLine.getSourceStorageBin(),
+//							modifiedStorageBin, loginUserID, authTokenForMastersService.getAccess_token());
+					try {
+						StorageBin dbStorageBin = getStorageBin(createdInhouseTransferLine.getSourceStorageBin());
+						dbStorageBin.setStatusId(0L);
+						dbStorageBin.setUpdatedBy(loginUserID);
+						dbStorageBin.setUpdatedOn(new Date());
+						storageBinRepository.save(dbStorageBin);
+						log.info("---------storage bin updated-------",dbStorageBin);
+					} catch(Exception e) {
+						log.error("---------storagebin-update-----",e);
+					}
+
 				}
 				
 				// Pass WH_ID/ TGT_ITM_CODE/PACK_BARCODE/TGT_ST_BIN in INVENTORY TABLE validate for a record.
@@ -411,14 +422,28 @@ public class InhouseTransferHeaderService extends BaseService {
 					
 					newInventory.setInventoryQuantity(createdInhouseTransferLine.getTransferConfirmedQty());
 					newInventory.setInventoryUom(createdInhouseTransferLine.getTransferUom());
-					
-					AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-					StorageBin storageBin = mastersService.getStorageBin(createdInhouseTransferLine.getTargetStorageBin(), authTokenForMastersService.getAccess_token());
+
+					StorageBin storageBin = getStorageBin(createdInhouseTransferLine.getTargetStorageBin());
 					newInventory.setBinClassId(storageBin.getBinClassId());
 					Inventory createdInventory = inventoryService.createInventory(newInventory, loginUserID);
 					log.info("createdInventory------> : " + createdInventory);
 				}
 			}
+		}
+	}
+
+	/**
+	 * getStorageBin
+	 * @param storageBin
+	 * @return
+	 */
+	public StorageBin getStorageBin (String storageBin) {
+		StorageBin storagebin = storageBinRepository.findByStorageBinForInhouseUpdate(storageBin).orElse(null);
+		log.info("Storage bin==========>: " + storagebin);
+		if (storagebin != null && storagebin.getDeletionIndicator() != null && storagebin.getDeletionIndicator() == 0) {
+			return storagebin;
+		} else {
+			throw new BadRequestException("The given StorageBin ID : " + storageBin + " doesn't exist.");
 		}
 	}
 	
