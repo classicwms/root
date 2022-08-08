@@ -16,8 +16,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.tekclover.wms.api.transaction.model.impl.OrderStatusReportImpl;
-import com.tekclover.wms.api.transaction.model.impl.ShipmentDispatchSummaryReportImpl;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -35,6 +33,8 @@ import com.tekclover.wms.api.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.transaction.model.dto.BusinessPartner;
 import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
 import com.tekclover.wms.api.transaction.model.dto.StorageBin;
+import com.tekclover.wms.api.transaction.model.impl.OrderStatusReportImpl;
+import com.tekclover.wms.api.transaction.model.impl.ShipmentDispatchSummaryReportImpl;
 import com.tekclover.wms.api.transaction.model.inbound.InboundHeader;
 import com.tekclover.wms.api.transaction.model.inbound.InboundLine;
 import com.tekclover.wms.api.transaction.model.inbound.SearchInboundHeader;
@@ -469,10 +469,10 @@ public class ReportsService extends BaseService {
 
 			// INV_QTY
 			reportInventory.setInventoryQty(dbInventory.getInventoryQuantity());
-
 			reportInventory.setAllocatedQty(dbInventory.getAllocatedQuantity());
 
-			reportInventory.setTotalQuantity(Double.sum(dbInventory.getInventoryQuantity() != null ? dbInventory.getInventoryQuantity() : 0 , dbInventory.getAllocatedQuantity() != null ? dbInventory.getAllocatedQuantity() : 0 ) );
+			reportInventory.setTotalQuantity(Double.sum(dbInventory.getInventoryQuantity() != null ? dbInventory.getInventoryQuantity() : 0, 
+					dbInventory.getAllocatedQuantity() != null ? dbInventory.getAllocatedQuantity() : 0 ) );
 
 			// STCK_TYP_ID/STCK_TYP_TEXT
 			reportInventory.setStockType(dbInventory.getStockTypeId());
@@ -2008,26 +2008,26 @@ public class ReportsService extends BaseService {
 	 * @return
 	 */
 	public WorkBookSheetDTO exportXlsxFile() {
-
-		int pageSize = 500;
-		Page<InventoryReport> pageResult = scheduleInventoryReport(0, pageSize, "itemCode");
-		List<InventoryReport> listRecords = new ArrayList<>();
-		listRecords.addAll(pageResult.getContent());
-
-		for (int pageNo = 1; pageNo <= pageResult.getTotalPages(); pageNo++) {
-			pageResult = scheduleInventoryReport(pageNo, pageSize, "itemCode");
-			listRecords.addAll(pageResult.getContent());
-			log.info("listRecords count: " + listRecords.size());
-		}
-
-		WorkBookSheetDTO workBookSheetDTO = workBookService.createWorkBookWithSheet("inventory");
-		CellStyle headerStyle = workBookSheetDTO.getStyle();
-		CellStyle cellStyle = workBookService.createLineCellStyle(workBookSheetDTO.getWorkbook());
-		CellStyle decimalFormatCells = workBookService.createLineCellStyle(workBookSheetDTO.getWorkbook());
-
 		try {
+			int pageSize = 500;
+			Page<InventoryReport> pageResult = scheduleInventoryReport(0, pageSize, "itemCode");
+			List<InventoryReport> listRecords = new ArrayList<>();
+			listRecords.addAll(pageResult.getContent());
+	
+			for (int pageNo = 1; pageNo <= pageResult.getTotalPages(); pageNo++) {
+				pageResult = scheduleInventoryReport(pageNo, pageSize, "itemCode");
+				listRecords.addAll(pageResult.getContent());
+				log.info("listRecords count: " + listRecords.size());
+			}
+	
+			WorkBookSheetDTO workBookSheetDTO = workBookService.createWorkBookWithSheet("inventory");
+			CellStyle headerStyle = workBookSheetDTO.getStyle();
+			CellStyle cellStyle = workBookService.createLineCellStyle(workBookSheetDTO.getWorkbook());
+			CellStyle decimalFormatCells = workBookService.createLineCellStyle(workBookSheetDTO.getWorkbook());
 
-			listRecords = listRecords.stream().filter(data->data.getInventoryQty() > 0 && data.getInventoryQty() != null).collect(Collectors.toList());
+			listRecords = listRecords.stream()
+					.filter(data->data != null && data.getInventoryQty() != null && data.getInventoryQty() > 0)
+					.collect(Collectors.toList());
 
 			/*
 			 * private String WAREHOUSEID; // WH_ID private String ITEMCODE; // ITM_CODE
@@ -2107,11 +2107,11 @@ public class ReportsService extends BaseService {
 
 			OutputStream fout = new FileOutputStream("inventory.xlsx");
 			workBookSheetDTO.getWorkbook().write(fout);
-
+			return workBookSheetDTO;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return workBookSheetDTO;
+		return null;
 	}
 
 	public ByteArrayOutputStream getOutputStreamToByteArray(OutputStream os) throws IOException {
