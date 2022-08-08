@@ -24,7 +24,7 @@ public interface StorageBinRepository extends JpaRepository<StorageBin,Long>, Jp
 	public String findByStorageBin (@Param(value = "storageBin") String storageBin);
 
 
-	Optional<StorageBin> findByStorageBinForInhouseUpdate(String storageBin);
+	Optional<StorageBin> getByStorageBinForInhouseUpdate(String storageBin);
 	
 }
 

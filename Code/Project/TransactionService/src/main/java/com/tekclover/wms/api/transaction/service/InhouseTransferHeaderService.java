@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.tekclover.wms.api.transaction.repository.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +24,11 @@ import com.tekclover.wms.api.transaction.model.mnc.InhouseTransferHeaderEntity;
 import com.tekclover.wms.api.transaction.model.mnc.InhouseTransferLine;
 import com.tekclover.wms.api.transaction.model.mnc.InhouseTransferLineEntity;
 import com.tekclover.wms.api.transaction.model.mnc.SearchInhouseTransferHeader;
+import com.tekclover.wms.api.transaction.repository.InhouseTransferHeaderRepository;
+import com.tekclover.wms.api.transaction.repository.InhouseTransferLineRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryRepository;
+import com.tekclover.wms.api.transaction.repository.StorageBinRepository;
 import com.tekclover.wms.api.transaction.repository.specification.InhouseTransferHeaderSpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
@@ -438,7 +442,7 @@ public class InhouseTransferHeaderService extends BaseService {
 	 * @return
 	 */
 	public StorageBin getStorageBin (String storageBin) {
-		StorageBin storagebin = storageBinRepository.findByStorageBinForInhouseUpdate(storageBin).orElse(null);
+		StorageBin storagebin = storageBinRepository.getByStorageBinForInhouseUpdate(storageBin).orElse(null);
 		log.info("Storage bin==========>: " + storagebin);
 		if (storagebin != null && storagebin.getDeletionIndicator() != null && storagebin.getDeletionIndicator() == 0) {
 			return storagebin;
