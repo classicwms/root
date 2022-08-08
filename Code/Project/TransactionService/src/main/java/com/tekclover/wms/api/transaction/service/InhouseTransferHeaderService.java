@@ -442,7 +442,7 @@ public class InhouseTransferHeaderService extends BaseService {
 	 * @return
 	 */
 	public StorageBin getStorageBin (String storageBin) {
-		StorageBin storagebin = storageBinRepository.getByStorageBinForInhouseUpdate(storageBin).orElse(null);
+		StorageBin storagebin = storageBinRepository.findByStorageBinAndDeletionIndicator(storageBin, 0L).orElse(null);
 		log.info("Storage bin==========>: " + storagebin);
 		if (storagebin != null && storagebin.getDeletionIndicator() != null && storagebin.getDeletionIndicator() == 0) {
 			return storagebin;
