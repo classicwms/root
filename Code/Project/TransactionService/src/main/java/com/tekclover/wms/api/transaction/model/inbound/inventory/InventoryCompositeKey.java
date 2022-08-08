@@ -19,6 +19,6 @@ public class InventoryCompositeKey implements Serializable {
 	private String packBarcodes;
 	private String itemCode;
 	private String storageBin;
-	private Long stockTypeId;
+//	private Long stockTypeId;
 	private Long specialStockIndicatorId;
 }

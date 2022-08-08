@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 		uniqueConstraints = { 
 				@UniqueConstraint (
 						name = "unique_key_inventory", 
-						columnNames = {"LANG_ID", "C_ID", "PLANT_ID", "WH_ID", "PACK_BARCODE", "ITM_CODE", "ST_BIN", "SP_ST_IND_ID", "STCK_TYP_ID"})
+						columnNames = {"LANG_ID", "C_ID", "PLANT_ID", "WH_ID", "PACK_BARCODE", "ITM_CODE", "ST_BIN", "SP_ST_IND_ID"})
 				}
 		)
 @IdClass(InventoryCompositeKey.class)
@@ -74,7 +74,7 @@ public class Inventory {
 	@Column(name = "ST_BIN") 
 	private String storageBin;
 	
-	@Id
+//	@Id
 	@Column(name = "STCK_TYP_ID") 
 	private Long stockTypeId;
 	
