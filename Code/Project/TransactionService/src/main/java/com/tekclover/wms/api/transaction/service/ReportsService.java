@@ -469,10 +469,10 @@ public class ReportsService extends BaseService {
 
 			// INV_QTY
 			reportInventory.setInventoryQty(dbInventory.getInventoryQuantity());
-			reportInventory.setAllocatedQty(dbInventory.getAllocatedQuantity());
+//			reportInventory.setAllocatedQty(dbInventory.getAllocatedQuantity());
 
-			reportInventory.setTotalQuantity(Double.sum(dbInventory.getInventoryQuantity() != null ? dbInventory.getInventoryQuantity() : 0, 
-					dbInventory.getAllocatedQuantity() != null ? dbInventory.getAllocatedQuantity() : 0 ) );
+//			reportInventory.setTotalQuantity(Double.sum(dbInventory.getInventoryQuantity() != null ? dbInventory.getInventoryQuantity() : 0,
+//					dbInventory.getAllocatedQuantity() != null ? dbInventory.getAllocatedQuantity() : 0 ) );
 
 			// STCK_TYP_ID/STCK_TYP_TEXT
 			reportInventory.setStockType(dbInventory.getStockTypeId());
@@ -2046,8 +2046,8 @@ public class ReportsService extends BaseService {
 			headerData.add("STORAGESECTIONID");
 			headerData.add("PACKBARCODES");
 			headerData.add("INVENTORYQTY");
-			headerData.add("ALLOCATEDQTY");
-			headerData.add("TOTALQTY");
+//			headerData.add("ALLOCATEDQTY");
+//			headerData.add("TOTALQTY");
 			headerData.add("STOCKTYPE");
 
 			this.createHeaderRow(workBookSheetDTO.getWorkbook().getSheet("inventory"), headerStyle, headerData);

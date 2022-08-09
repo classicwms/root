@@ -74,4 +74,5 @@ import lombok.NoArgsConstructor;
 	private Date confirmedOn = new Date();
 	private String updatedBy;
 	private Date updatedOn = new Date();
+	private String packBarcodes;
 }

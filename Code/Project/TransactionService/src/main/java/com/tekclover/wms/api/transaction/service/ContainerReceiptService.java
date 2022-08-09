@@ -12,6 +12,7 @@ import javax.persistence.EntityNotFoundException;
 
 import com.tekclover.wms.api.transaction.model.inbound.InboundHeader;
 import com.tekclover.wms.api.transaction.repository.InboundHeaderRepository;
+import com.tekclover.wms.api.transaction.util.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -99,6 +100,13 @@ public class ContainerReceiptService extends BaseService {
 	 * @throws ParseException
 	 */
 	public List<ContainerReceipt> findContainerReceipt(SearchContainerReceipt searchContainerReceipt) throws ParseException {
+
+		if (searchContainerReceipt.getStartContainerReceivedDate() != null && searchContainerReceipt.getEndContainerReceivedDate() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchContainerReceipt.getStartContainerReceivedDate(), searchContainerReceipt.getEndContainerReceivedDate());
+			searchContainerReceipt.setStartContainerReceivedDate(dates[0]);
+			searchContainerReceipt.setStartContainerReceivedDate(dates[1]);
+		}
+
 		ContainerReceiptSpecification spec = new ContainerReceiptSpecification(searchContainerReceipt);
 		List<ContainerReceipt> results = containerReceiptRepository.findAll(spec);
 
