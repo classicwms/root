@@ -104,7 +104,7 @@ public class ContainerReceiptService extends BaseService {
 		if (searchContainerReceipt.getStartContainerReceivedDate() != null && searchContainerReceipt.getEndContainerReceivedDate() != null) {
 			Date[] dates = DateUtils.addTimeToDatesForSearch(searchContainerReceipt.getStartContainerReceivedDate(), searchContainerReceipt.getEndContainerReceivedDate());
 			searchContainerReceipt.setStartContainerReceivedDate(dates[0]);
-			searchContainerReceipt.setStartContainerReceivedDate(dates[1]);
+			searchContainerReceipt.setEndContainerReceivedDate(dates[1]);
 		}
 
 		ContainerReceiptSpecification spec = new ContainerReceiptSpecification(searchContainerReceipt);

@@ -2093,13 +2093,13 @@ public class ReportsService extends BaseService {
 				row.getCell(cellIndex).setCellStyle(cellStyle);
 				cellIndex++;
 
-				row.createCell(cellIndex).setCellValue(data.getAllocatedQty());
-				row.getCell(cellIndex).setCellStyle(cellStyle);
-				cellIndex++;
-
-				row.createCell(cellIndex).setCellValue(data.getTotalQuantity());
-				row.getCell(cellIndex).setCellStyle(cellStyle);
-				cellIndex++;
+//				row.createCell(cellIndex).setCellValue(data.getAllocatedQty());
+//				row.getCell(cellIndex).setCellStyle(cellStyle);
+//				cellIndex++;
+//
+//				row.createCell(cellIndex).setCellValue(data.getTotalQuantity());
+//				row.getCell(cellIndex).setCellStyle(cellStyle);
+//				cellIndex++;
 
 				row.createCell(cellIndex).setCellValue(data.getStockType());
 				row.getCell(cellIndex).setCellStyle(cellStyle);
