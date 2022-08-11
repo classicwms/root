@@ -101,6 +101,14 @@ public class WrapperServiceController {
     	return new ResponseEntity<>(authToken, HttpStatus.OK);
 	}
     
+    //----------------------------------------------------------------------------------------------------
+    @ApiOperation(response = Optional.class, value = "Batch Fetch") // label for swagger
+    @PostMapping("/batch-upload/jobInventoryQuery")
+    public ResponseEntity<?> jobInventoryQuery() throws Exception {
+        batchJobScheduler.runJobdbToCsvJob();
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    
     /*-----------------------------BATCH-UPLOAD----------------------------------------------------------*/
     @ApiOperation(response = Optional.class, value = "BomHeader") // label for swagger
     @PostMapping("/batch-upload/bomheader")

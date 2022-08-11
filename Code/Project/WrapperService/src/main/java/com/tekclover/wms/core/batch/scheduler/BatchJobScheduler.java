@@ -48,6 +48,9 @@ public class BatchJobScheduler {
 	
 	@Autowired
 	private JobLauncher jobLauncher;
+	
+	@Autowired
+	private Job dbToCsvJob;
 
 	/**
 	 * jobBomHeader
@@ -183,17 +186,17 @@ public class BatchJobScheduler {
 		}
 	}
 	
-	
-//	/**
-//	 * 
-//	 */
-//	public void runBatchJob1() {
-//		JobParameters params = new JobParametersBuilder().addLong("jobId", System.currentTimeMillis())
-//				.toJobParameters();
-//		try {
-//			jobLauncher.run(job1, params);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//	}
+	/*
+	 * 
+	 */
+	public void runJobdbToCsvJob() throws Exception {
+		JobParameters params = new JobParametersBuilder().addLong("jobId", System.currentTimeMillis())
+				.toJobParameters();
+		try {
+			jobLauncher.run(dbToCsvJob, params);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
 }
