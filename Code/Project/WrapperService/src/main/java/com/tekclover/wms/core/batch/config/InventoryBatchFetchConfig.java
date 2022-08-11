@@ -81,7 +81,7 @@ public class InventoryBatchFetchConfig {
     private DelimitedLineAggregator<Inventory> getDelimitedLineAggregator() {
         BeanWrapperFieldExtractor<Inventory> beanWrapperFieldExtractor = new BeanWrapperFieldExtractor<Inventory>();
         beanWrapperFieldExtractor.setNames(new String[]{"warehouseId", "itemCode", "description", "storageBin", "packBarcodes", "inventoryUom",
-        		"inventoryQuantity", "allocatedQuantity", "stockTypeId"});
+        		"inventoryQuantity", "allocatedQuantity", "stockTypeId", "referenceField10"});
         DelimitedLineAggregator<Inventory> aggregator = new DelimitedLineAggregator<Inventory>();
         aggregator.setDelimiter(",");
         aggregator.setFieldExtractor(beanWrapperFieldExtractor);

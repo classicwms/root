@@ -131,8 +131,8 @@ public class Inventory {
 //	@Column(name = "REF_FIELD_9") 
 //	private String referenceField9;
 //	
-//	@Column(name = "REF_FIELD_10")
-//	private String referenceField10;
+	@Column(name = "ref_field_10")
+	private String referenceField10;
 //	
 //	@Column(name = "IU_CTD_BY") 
 //	private String createdBy;
