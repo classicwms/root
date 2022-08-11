@@ -466,12 +466,12 @@ public class ReportsService extends BaseService {
 					reportInventory.setDescription(imBasicData1.getDescription());
 					reportInventory.setMfrPartNumber(imBasicData1.getManufacturerPartNo());
 					
-					if (dbInventory.getReferenceField8() != null) {
+					if (dbInventory.getReferenceField8() == null) {
 						dbInventory.setReferenceField8(imBasicData1.getDescription());	
 						isInventoryNeedUpdate = true;
 					}
 					
-					if (dbInventory.getReferenceField9() != null) {
+					if (dbInventory.getReferenceField9() == null) {
 						dbInventory.setReferenceField9(imBasicData1.getManufacturerPartNo());
 						isInventoryNeedUpdate = true;
 					}
@@ -496,7 +496,7 @@ public class ReportsService extends BaseService {
 						authTokenForMastersService.getAccess_token());
 				reportInventory.setStorageSectionId(stBin.getStorageSectionId());
 				
-				if (dbInventory.getReferenceField10() != null) {
+				if (dbInventory.getReferenceField10() == null) {
 					dbInventory.setReferenceField10(stBin.getStorageSectionId());
 					isInventoryNeedUpdate = true;
 				}
