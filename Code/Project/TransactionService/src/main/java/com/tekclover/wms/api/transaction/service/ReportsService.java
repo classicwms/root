@@ -440,7 +440,9 @@ public class ReportsService extends BaseService {
 		Page<Inventory> inventoryList =
 				inventoryRepository.findByWarehouseIdInAndDeletionIndicator (warehouseId, 0L, pageable);
 		List<InventoryReport> reportInventoryList = new ArrayList<>();
+		
 		for (Inventory dbInventory : inventoryList) {
+			boolean isInventoryNeedUpdate = false;
 			InventoryReport reportInventory = new InventoryReport();
 
 			// WH_ID
@@ -463,6 +465,16 @@ public class ReportsService extends BaseService {
 				if (imBasicData1 != null) {
 					reportInventory.setDescription(imBasicData1.getDescription());
 					reportInventory.setMfrPartNumber(imBasicData1.getManufacturerPartNo());
+					
+					if (dbInventory.getReferenceField8() != null) {
+						dbInventory.setReferenceField8(imBasicData1.getDescription());	
+						isInventoryNeedUpdate = true;
+					}
+					
+					if (dbInventory.getReferenceField9() != null) {
+						dbInventory.setReferenceField9(imBasicData1.getManufacturerPartNo());
+						isInventoryNeedUpdate = true;
+					}
 				}
 			} catch(Exception e) {
 				log.info("ERROR : imBasicData1 master get error " + dbInventory.getItemCode() + " " +
@@ -483,6 +495,11 @@ public class ReportsService extends BaseService {
 				StorageBin stBin = mastersService.getStorageBin(dbInventory.getStorageBin(),
 						authTokenForMastersService.getAccess_token());
 				reportInventory.setStorageSectionId(stBin.getStorageSectionId());
+				
+				if (dbInventory.getReferenceField10() != null) {
+					dbInventory.setReferenceField10(stBin.getStorageSectionId());
+					isInventoryNeedUpdate = true;
+				}
 			} catch(Exception e) {
 				log.info("ERROR : stBin master get error "+ dbInventory.getStorageBin(), e);
 			}
@@ -503,6 +520,12 @@ public class ReportsService extends BaseService {
 
 			// STCK_TYP_ID/STCK_TYP_TEXT
 			reportInventory.setStockType(dbInventory.getStockTypeId());
+			
+			if (isInventoryNeedUpdate) {
+				inventoryRepository.save(dbInventory);
+				log.info("dbInventory got updated");
+			}
+			
 			reportInventoryList.add(reportInventory);
 		}
 		final Page<InventoryReport> page = new PageImpl<>(reportInventoryList, pageable,

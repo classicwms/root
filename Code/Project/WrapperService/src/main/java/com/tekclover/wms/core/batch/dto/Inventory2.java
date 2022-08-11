@@ -10,7 +10,9 @@ public class Inventory2 {
 	private String packBarcodes;
 	private String storageBin;
 	private Long stockTypeId;
-	private String description;
+	private String description;			// ReferenceField8
+	private String mfrPartNumber;       // ReferenceField9
+	private String storageSectionId;	// ReferenceField10 
 	private Double inventoryQuantity;
 	private String inventoryUom;
 	private Double allocatedQuantity;

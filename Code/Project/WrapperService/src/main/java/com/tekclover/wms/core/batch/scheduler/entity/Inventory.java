@@ -47,5 +47,14 @@ public class Inventory {
 	
 	@Column(name = "inv_uom") 
 	private String inventoryUom;
+	
+	@Column(name = "ref_field_8") 
+	private String referenceField8;
+	
+	@Column(name = "ref_field_9") 
+	private String referenceField9;
+	
+	@Column(name = "ref_field_10")
+	private String referenceField10;
 
 }
