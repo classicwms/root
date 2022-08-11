@@ -34,7 +34,7 @@ public class Inventory {
 //	private String plantId;
 //	
 //	@Id
-	@Column(name = "WH_ID") 
+	@Column(name = "wh_id") 
 	private String warehouseId;
 	
 //	@Column(name = "PAL_CODE") 
@@ -44,31 +44,31 @@ public class Inventory {
 //	private String caseCode;
 	
 //	@Id
-	@Column(name = "PACK_BARCODE")
+	@Column(name = "pack_barcode")
 	private String packBarcodes;
 	
 	@Id
-	@Column(name = "ITM_CODE") 
+	@Column(name = "itm_code") 
 	private String itemCode;
 	
 //	@Id
-	@Column(name = "ST_BIN") 
+	@Column(name = "st_bin") 
 	private String storageBin;
 	
 //	@Id
-	@Column(name = "STCK_TYP_ID") 
+	@Column(name = "stck_typ_id") 
 	private Long stockTypeId;
 	
-	@Column(name = "TEXT") 
+	@Column(name = "text") 
 	private String description;
 	
-	@Column(name = "INV_QTY") 
+	@Column(name = "inv_qty") 
 	private Double inventoryQuantity;
 	
-	@Column(name = "ALLOC_QTY") 
+	@Column(name = "alloc_qty") 
 	private Double allocatedQuantity;
 	
-	@Column(name = "INV_UOM") 
+	@Column(name = "inv_uom") 
 	private String inventoryUom;
 
 //	@Column(name = "VAR_ID") 
