@@ -45,8 +45,7 @@ public class InventoryBatchFetchConfig {
     @Bean
     public JpaPagingItemReader<Inventory> getJpaPagingItemReader()  {
         //String sql = "select WH_ID, ITM_CODE, TEXT, ST_BIN,  PACK_BARCODE, INV_UOM, INV_QTY, ALLOC_QTY, STCK_TYP_ID from tblinventory";
-    	String sql = "select warehouseId, itemCode, description, storageBin, packBarcodes, inventoryUom,\r\n"
-    			+ "        		inventoryQuantity, allocatedQuantity, stockTypeId from Inventory";
+    	String sql = "select wh_id, itm_code, text, st_bin,  pack_barcode, inv_uom, inv_qty, alloc_qty, stck_typ_id from tblinventory";
         JpaNativeQueryProvider<Inventory> queryProvider = new JpaNativeQueryProvider<Inventory>();
         JpaPagingItemReader<Inventory> reader = new JpaPagingItemReader<>();
         queryProvider.setSqlQuery(sql);
