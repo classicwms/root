@@ -14,7 +14,7 @@ import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.database.JpaPagingItemReader;
-import org.springframework.batch.item.database.orm.JpaNativeQueryProvider;
+import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
 import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor;
 import org.springframework.batch.item.file.transform.DelimitedLineAggregator;
@@ -42,33 +42,33 @@ public class InventoryBatchFetchConfig {
     @Autowired
     private EntityManagerFactory entityManagerFactory;
     
-    @Bean
-    public JpaPagingItemReader<Inventory> getJpaPagingItemReader()  {
-        //String sql = "select WH_ID, ITM_CODE, TEXT, ST_BIN,  PACK_BARCODE, INV_UOM, INV_QTY, ALLOC_QTY, STCK_TYP_ID from tblinventory";
-    	String sql = "select wh_id AS warehouseId, itm_code AS itemCode, text AS description, st_bin AS storageBin, \r\n"
-    			+ "pack_barcode AS packBarcodes, inv_uom AS inventoryUom, inv_qty AS inventoryQuantity, alloc_qty AS allocatedQuantity, \r\n"
-    			+ "stck_typ_id AS stockTypeId from tblinventory";
-        JpaNativeQueryProvider<Inventory> queryProvider = new JpaNativeQueryProvider<Inventory>();
-        JpaPagingItemReader<Inventory> reader = new JpaPagingItemReader<>();
-        queryProvider.setSqlQuery(sql);
-        reader.setQueryProvider(queryProvider);
-        queryProvider.setEntityClass(Inventory.class);
-//        reader.setParameterValues(Collections.singletonMap("limit", 1000));
-        reader.setEntityManagerFactory(entityManagerFactory);
-        reader.setPageSize(4000);
-        reader.setSaveState(true);
-        return reader;
-    }
-    
 //    @Bean
-//    public JpaPagingItemReader getJpaPagingItemReader() {
-//        return new JpaPagingItemReaderBuilder<Inventory>()
-//                .name("Inventory")
-//                .entityManagerFactory(entityManagerFactory)
-//                .queryString("select LANG_ID, CLASS_ID, MATTER_NO from tblmattergenaccid s")
-//                .pageSize(1000)
-//                .build();
+//    public JpaPagingItemReader<Inventory> getJpaPagingItemReader()  {
+//        //String sql = "select WH_ID, ITM_CODE, TEXT, ST_BIN,  PACK_BARCODE, INV_UOM, INV_QTY, ALLOC_QTY, STCK_TYP_ID from tblinventory";
+//    	String sql = "select wh_id AS warehouseId, itm_code AS itemCode, text AS description, st_bin AS storageBin, \r\n"
+//    			+ "pack_barcode AS packBarcodes, inv_uom AS inventoryUom, inv_qty AS inventoryQuantity, alloc_qty AS allocatedQuantity, \r\n"
+//    			+ "stck_typ_id AS stockTypeId from tblinventory";
+//        JpaNativeQueryProvider<Inventory> queryProvider = new JpaNativeQueryProvider<Inventory>();
+//        JpaPagingItemReader<Inventory> reader = new JpaPagingItemReader<>();
+//        queryProvider.setSqlQuery(sql);
+//        reader.setQueryProvider(queryProvider);
+//        queryProvider.setEntityClass(Inventory.class);
+////        reader.setParameterValues(Collections.singletonMap("limit", 1000));
+//        reader.setEntityManagerFactory(entityManagerFactory);
+//        reader.setPageSize(4000);
+//        reader.setSaveState(true);
+//        return reader;
 //    }
+    
+    @Bean
+    public JpaPagingItemReader getJpaPagingItemReader() {
+        return new JpaPagingItemReaderBuilder<Inventory>()
+                .name("Inventory")
+                .entityManagerFactory(entityManagerFactory)
+                .queryString("select i from Inventory i")
+                .pageSize(1000)
+                .build();
+    }
 
     @Bean
     public FlatFileItemWriter<Inventory> writer() {
