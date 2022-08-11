@@ -1765,4 +1765,11 @@ public class TransactionServiceController {
     	transactionService.getInventoryReport (authToken);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
+    
+    @ApiOperation(response = InventoryReport[].class, value = "Get Stock Report") // label for swagger 
+   	@GetMapping("reports/inventoryReport/all")
+   	public ResponseEntity<?> getInventoryReportAll(@RequestParam String authToken) throws Exception {
+    	InventoryReport[] inventoryReportList = transactionService.generateInventoryReport(authToken);
+   		return new ResponseEntity<>(inventoryReportList, HttpStatus.OK);
+   	}
 }

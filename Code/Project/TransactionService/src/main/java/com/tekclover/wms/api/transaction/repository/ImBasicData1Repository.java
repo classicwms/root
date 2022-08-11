@@ -21,5 +21,7 @@ public interface ImBasicData1Repository extends PagingAndSortingRepository<ImBas
 			+ " WHERE ITM_CODE = :itemCode", nativeQuery = true)
 	public List<IImbasicData1> findByItemCode (@Param(value = "itemCode") String itemCode);
 
+	public ImBasicData1 findByItemCodeAndWarehouseIdInAndDeletionIndicator(String itemCode, List<String> warehouseId, long l);
+	
 	public ImBasicData1 findByItemCodeAndWarehouseIdAndDeletionIndicator(String itemCode, String warehouseId, long l);
 }

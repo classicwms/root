@@ -103,6 +103,13 @@ public class ReportsController {
    		return new ResponseEntity<>(HttpStatus.OK);
    	}
     
+    @ApiOperation(response = InventoryReport[].class, value = "Get Stock Report") // label for swagger 
+   	@GetMapping("/inventoryReport/all")
+   	public ResponseEntity<?> getInventoryReportAll() throws Exception {
+    	List<InventoryReport> inventoryReportList = reportsService.generateInventoryReport();
+   		return new ResponseEntity<>(inventoryReportList, HttpStatus.OK);
+   	}
+    
     /*
 	 * Stock movement report
 	 */

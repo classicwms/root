@@ -46,5 +46,5 @@ public class UpdatePickupHeader {
 	private Date pickUpdatedOn = new Date();
 	private String pickupReversedBy;
 	private Date pickupReversedOn = new Date();
-
+	private String assignedPickerId;
 }

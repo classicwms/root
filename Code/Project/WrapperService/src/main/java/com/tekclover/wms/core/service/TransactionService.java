@@ -4221,4 +4221,21 @@ public class TransactionService {
 			throw e;
 		}
 	}
+	
+	public InventoryReport[] generateInventoryReport(String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "reports/inventoryReport/all");
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<InventoryReport[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, InventoryReport[].class);
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
 }	

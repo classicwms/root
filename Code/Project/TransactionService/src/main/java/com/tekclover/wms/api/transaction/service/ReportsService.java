@@ -336,7 +336,7 @@ public class ReportsService extends BaseService {
 			SearchInventory searchInventory = new SearchInventory();
 			searchInventory.setWarehouseId(warehouseId);
 			searchInventory.setItemCode(itemCode);
-
+			searchInventory.setStorageBin(new ArrayList<>());
 			/*
 			 * If ST_SEC_ID field value is entered in Search field, Pass ST_SEC_ID in
 			 * STORAGE_BIN table and fetch ST_BIN values and pass these values in INVENTORY
@@ -348,6 +348,19 @@ public class ReportsService extends BaseService {
 				List<String> stBins = Arrays.asList(dbStorageBin).stream().map(StorageBin::getStorageBin)
 						.collect(Collectors.toList());
 				searchInventory.setStorageBin(stBins);
+			}
+
+			if(storageBin != null && !storageBin.trim().equals("")){
+				searchInventory.getStorageBin().add(storageBin);
+			}
+			searchInventory.setStockTypeId(new ArrayList<>());
+			if(stockTypeText.equals("ALL")){
+				searchInventory.getStockTypeId().add(1L);
+				searchInventory.getStockTypeId().add(7L);
+			} else if(stockTypeText.equals("HOLD")){
+				searchInventory.getStockTypeId().add(7L);
+			} else if(stockTypeText.equals("ON HAND")){
+				searchInventory.getStockTypeId().add(1L);
 			}
 
 			Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
@@ -495,6 +508,93 @@ public class ReportsService extends BaseService {
 		final Page<InventoryReport> page = new PageImpl<>(reportInventoryList, pageable,
 				inventoryList.getTotalElements());
 		return page;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public List<InventoryReport> generateInventoryReport() {
+		List<String> warehouseId = new ArrayList<>();
+		warehouseId.add("110");
+		warehouseId.add("111");
+//		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+		List<Inventory> inventoryList = inventoryRepository.findByWarehouseIdInAndDeletionIndicator (warehouseId, 0L);
+		List<InventoryReport> reportInventoryList = new ArrayList<>();
+		for (Inventory dbInventory : inventoryList) {
+			InventoryReport reportInventory = new InventoryReport();
+
+			// WH_ID
+			reportInventory.setWarehouseId(dbInventory.getWarehouseId());
+
+			// ITM_CODE
+			reportInventory.setItemCode(dbInventory.getItemCode());
+
+			/*
+			 * ITEM_TEXT
+			 * -------------------------------------------------------------------------
+			 * Pass the fetched ITM_CODE values in IMBASICDATA1 table and fetch MFR_SKU
+			 * values
+			 */
+
+			try {
+				
+				ImBasicData1 imbasicdata1 = imbasicdata1Repository.findByItemCodeAndWarehouseIdInAndDeletionIndicator(
+						dbInventory.getItemCode(), warehouseId, 0L);
+				
+//				ImBasicData1 imBasicData1 = mastersService.getImBasicData1ByItemCode(dbInventory.getItemCode(),
+//						dbInventory.getWarehouseId(), authTokenForMastersService.getAccess_token());
+
+				if (imbasicdata1 != null) {
+					reportInventory.setDescription(imbasicdata1.getDescription());
+					reportInventory.setMfrPartNumber(imbasicdata1.getManufacturerPartNo());
+				}
+			} catch(Exception e) {
+				log.info("ERROR : imBasicData1 master get error " + dbInventory.getItemCode() + " " +
+						dbInventory.getWarehouseId(), e);
+			}
+
+			// INV_UOM
+			reportInventory.setUom(dbInventory.getInventoryUom());
+
+			// ST_BIN
+			reportInventory.setStorageBin(dbInventory.getStorageBin());
+
+			/*
+			 * ST_SEC_ID Pass the selected ST_BIN values into STORAGEBIN table and fetch
+			 * ST_SEC_ID values
+			 */
+			try {
+//				StorageBin stBin = mastersService.getStorageBin(dbInventory.getStorageBin(),
+//						authTokenForMastersService.getAccess_token());
+				String storagebin = storagebinRepository.findByStorageBin(dbInventory.getStorageBin());
+				reportInventory.setStorageSectionId(storagebin);
+			} catch(Exception e) {
+				log.info("ERROR : stBin master get error "+ dbInventory.getStorageBin(), e);
+			}
+
+			// PACK_BARCODE
+			reportInventory.setPackBarcodes(dbInventory.getPackBarcodes());
+
+			// INV_QTY
+			try {
+				reportInventory.setInventoryQty(dbInventory.getInventoryQuantity() != null ? dbInventory.getInventoryQuantity() : 0);
+				reportInventory.setAllocatedQty(dbInventory.getAllocatedQuantity() != null ? dbInventory.getAllocatedQuantity() : 0);
+
+				reportInventory.setTotalQuantity(Double.sum(dbInventory.getInventoryQuantity() != null ? dbInventory.getInventoryQuantity() : 0,
+						dbInventory.getAllocatedQuantity() != null ? dbInventory.getAllocatedQuantity() : 0 ) );
+			} catch(Exception e) {
+				log.info("ERROR : ALL_QTY , TOTAL_QTY CALCULATE  ", e);
+			}
+
+			// STCK_TYP_ID/STCK_TYP_TEXT
+			reportInventory.setStockType(dbInventory.getStockTypeId());
+			reportInventoryList.add(reportInventory);
+		}
+//		final Page<InventoryReport> page = new PageImpl<>(reportInventoryList, pageable,
+//				inventoryList.getTotalElements());
+//		return page;
+		return reportInventoryList;
 	}
 
 	/**
