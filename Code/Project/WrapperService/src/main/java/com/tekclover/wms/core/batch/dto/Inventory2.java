@@ -7,7 +7,7 @@ public class Inventory2 {
 	
 	private String warehouseId;
 	private String itemCode;
-	private String packBarcode;
+	private String packBarcodes;
 	private String storageBin;
 	private Long stockTypeId;
 	private String description;

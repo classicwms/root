@@ -2,10 +2,8 @@ package com.tekclover.wms.core.batch.scheduler.entity;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.tekclover.wms.core.batch.dto.Inventory2;
-import com.tekclover.wms.core.repository.StorageBinRepository;
 import com.tekclover.wms.core.util.CommonUtils;
 
 public class InventoryItemProcessor implements ItemProcessor<Inventory, Inventory2> {
