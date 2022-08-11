@@ -33,7 +33,7 @@ public class Inventory {
 //	@Column(name = "PLANT_ID")
 //	private String plantId;
 //	
-	@Id
+//	@Id
 	@Column(name = "WH_ID") 
 	private String warehouseId;
 	
