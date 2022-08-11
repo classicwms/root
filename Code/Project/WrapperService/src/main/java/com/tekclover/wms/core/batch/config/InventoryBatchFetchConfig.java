@@ -44,7 +44,9 @@ public class InventoryBatchFetchConfig {
     
     @Bean
     public JpaPagingItemReader<Inventory> getJpaPagingItemReader()  {
-        String sql = "select ITM_CODE, TEXT, ST_BIN,  PACK_BARCODE, INV_UOM, INV_QTY, ALLOC_QTY, STCK_TYP_ID from tblinventory";
+        //String sql = "select WH_ID, ITM_CODE, TEXT, ST_BIN,  PACK_BARCODE, INV_UOM, INV_QTY, ALLOC_QTY, STCK_TYP_ID from tblinventory";
+    	String sql = "select warehouseId, itemCode, description, storageBin, packBarcodes, inventoryUom,\r\n"
+    			+ "        		inventoryQuantity, allocatedQuantity, stockTypeId from Inventory";
         JpaNativeQueryProvider<Inventory> queryProvider = new JpaNativeQueryProvider<Inventory>();
         JpaPagingItemReader<Inventory> reader = new JpaPagingItemReader<>();
         queryProvider.setSqlQuery(sql);
@@ -77,7 +79,7 @@ public class InventoryBatchFetchConfig {
 
     private DelimitedLineAggregator<Inventory> getDelimitedLineAggregator() {
         BeanWrapperFieldExtractor<Inventory> beanWrapperFieldExtractor = new BeanWrapperFieldExtractor<Inventory>();
-        beanWrapperFieldExtractor.setNames(new String[]{"itemCode", "description", "storageBin", "packBarcodes", "inventoryUom",
+        beanWrapperFieldExtractor.setNames(new String[]{"warehouseId", "itemCode", "description", "storageBin", "packBarcodes", "inventoryUom",
         		"inventoryQuantity", "allocatedQuantity", "stockTypeId"});
         DelimitedLineAggregator<Inventory> aggregator = new DelimitedLineAggregator<Inventory>();
         aggregator.setDelimiter(",");

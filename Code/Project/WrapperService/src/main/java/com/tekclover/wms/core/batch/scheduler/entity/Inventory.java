@@ -33,9 +33,9 @@ public class Inventory {
 //	@Column(name = "PLANT_ID")
 //	private String plantId;
 //	
-//	@Id
-//	@Column(name = "WH_ID") 
-//	private String warehouseId;
+	@Id
+	@Column(name = "WH_ID") 
+	private String warehouseId;
 	
 //	@Column(name = "PAL_CODE") 
 //	private String palletCode;
