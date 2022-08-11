@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 
+import com.tekclover.wms.core.batch.dto.Inventory2;
 import com.tekclover.wms.core.batch.scheduler.entity.Inventory;
 import com.tekclover.wms.core.batch.scheduler.entity.InventoryItemProcessor;
 
@@ -71,18 +72,30 @@ public class InventoryBatchFetchConfig {
     }
 
     @Bean
-    public FlatFileItemWriter<Inventory> writer() {
-        FlatFileItemWriter<Inventory> writer = new FlatFileItemWriter<>();
+    public FlatFileItemWriter<Inventory2> writer() {
+        FlatFileItemWriter<Inventory2> writer = new FlatFileItemWriter<>();
         writer.setResource(new FileSystemResource("data.csv"));
         writer.setLineAggregator(getDelimitedLineAggregator());
         return writer;
     }
 
-    private DelimitedLineAggregator<Inventory> getDelimitedLineAggregator() {
-        BeanWrapperFieldExtractor<Inventory> beanWrapperFieldExtractor = new BeanWrapperFieldExtractor<Inventory>();
-        beanWrapperFieldExtractor.setNames(new String[]{"warehouseId", "itemCode", "description", "storageBin", "packBarcodes", "inventoryUom",
-        		"inventoryQuantity", "allocatedQuantity", "stockTypeId", "referenceField10"});
-        DelimitedLineAggregator<Inventory> aggregator = new DelimitedLineAggregator<Inventory>();
+    /*
+     * private String warehouseId;
+	private String itemCode;
+	private String description;
+	private String storageBin;
+	private String packBarcode;
+	private String inventoryUom;
+	private Double inventoryQuantity;
+	private Double allocatedQuantity;
+	private Long stockTypeId;
+	private Double totalQty;
+     */
+    private DelimitedLineAggregator<Inventory2> getDelimitedLineAggregator() {
+        BeanWrapperFieldExtractor<Inventory2> beanWrapperFieldExtractor = new BeanWrapperFieldExtractor<Inventory2>();
+        beanWrapperFieldExtractor.setNames(new String[]{"warehouseId", "itemCode", "description", "storageBin", "packBarcodes",
+        		 "inventoryUom", "inventoryQuantity", "allocatedQuantity", "stockTypeId", "totalQty"});
+        DelimitedLineAggregator<Inventory2> aggregator = new DelimitedLineAggregator<Inventory2>();
         aggregator.setDelimiter(",");
         aggregator.setFieldExtractor(beanWrapperFieldExtractor);
         return aggregator;
