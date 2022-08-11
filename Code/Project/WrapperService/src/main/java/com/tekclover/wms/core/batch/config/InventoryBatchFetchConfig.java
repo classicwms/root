@@ -73,10 +73,10 @@ public class InventoryBatchFetchConfig {
 
     @Bean
     public FlatFileItemWriter<Inventory2> writer() {
+    	String headers = "WAREHOUSEID, ITEMCODE, DESCRIPTION, STORAGEBIN, PACKBARCODE, INVENTORYUOM,INVENTORYQUANTITY, ALLOCATEDQUANTITY,STOCKTYPEID,TOTALQTY";
+    	InventiryFlatFileWriter headeer = new InventiryFlatFileWriter(headers);
         FlatFileItemWriter<Inventory2> writer = new FlatFileItemWriter<>();
         writer.setResource(new FileSystemResource("data.csv"));
-        String headers = "WAREHOUSEID, ITEMCODE, DESCRIPTION, STORAGEBIN, PACKBARCODE, INVENTORYUOM,INVENTORYQUANTITY, ALLOCATEDQUANTITY,STOCKTYPEID,TOTALQTY";
-        InventiryFlatFileWriter headeer = new InventiryFlatFileWriter(headers);
         writer.setHeaderCallback(headeer);
         writer.setLineAggregator(getDelimitedLineAggregator());
         return writer;
