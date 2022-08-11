@@ -76,7 +76,7 @@ public class InventoryBatchFetchConfig {
     	String headers = "WAREHOUSEID, ITEMCODE, DESCRIPTION, STORAGEBIN, PACKBARCODE, INVENTORYUOM,INVENTORYQUANTITY, ALLOCATEDQUANTITY,STOCKTYPEID,TOTALQTY";
     	InventiryFlatFileWriter headeer = new InventiryFlatFileWriter(headers);
         FlatFileItemWriter<Inventory2> writer = new FlatFileItemWriter<>();
-        writer.setResource(new FileSystemResource("data.csv"));
+        writer.setResource(new FileSystemResource("inventory.csv"));
         writer.setHeaderCallback(headeer);
         writer.setLineAggregator(getDelimitedLineAggregator());
         return writer;
@@ -96,7 +96,7 @@ public class InventoryBatchFetchConfig {
      */
     private DelimitedLineAggregator<Inventory2> getDelimitedLineAggregator() {
         BeanWrapperFieldExtractor<Inventory2> beanWrapperFieldExtractor = new BeanWrapperFieldExtractor<Inventory2>();
-        beanWrapperFieldExtractor.setNames(new String[]{"warehouseId", "itemCode", "description", "storageBin", "packBarcode",
+        beanWrapperFieldExtractor.setNames(new String[]{"warehouseId", "itemCode", "description", "storageBin", "packBarcodes",
         		 "inventoryUom", "inventoryQuantity", "allocatedQuantity", "stockTypeId", "totalQty"});
         DelimitedLineAggregator<Inventory2> aggregator = new DelimitedLineAggregator<Inventory2>();
         aggregator.setDelimiter(",");
