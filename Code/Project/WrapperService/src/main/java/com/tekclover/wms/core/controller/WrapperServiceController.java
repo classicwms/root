@@ -103,7 +103,7 @@ public class WrapperServiceController {
     
     //----------------------------------------------------------------------------------------------------
     @ApiOperation(response = Optional.class, value = "Batch Fetch") // label for swagger
-    @PostMapping("/batch-upload/jobInventoryQuery")
+    @GetMapping("/batch-upload/jobInventoryQuery")
     public ResponseEntity<?> jobInventoryQuery() throws Exception {
         batchJobScheduler.runJobdbToCsvJob();
         return new ResponseEntity<>(HttpStatus.OK);
@@ -201,7 +201,7 @@ public class WrapperServiceController {
     
     /*--------------------------------Inventory--------------------------------------------------------*/
     @ApiOperation(response = Optional.class, value = "Inventory") // label for swagger
-    @GetMapping("/batch-upload/inventory")
+    @PostMapping("/batch-upload/inventory")
     public ResponseEntity<?> inventoryUpload (@RequestParam("file") MultipartFile file) 
     		throws Exception {
         Map<String, String> response = fileStorageService.storeFile(file);
