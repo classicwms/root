@@ -249,4 +249,25 @@ public class WrapperServiceController {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
    	}
+    
+    @ApiOperation(response = Optional.class, value = "Document Storage Download") // label for swagger
+   	@GetMapping("/report/inventory/online")
+   	public ResponseEntity<?> inventoryOnlineReport() throws Exception {
+    	batchJobScheduler.runJobdbToCsvJob();
+    	String filePath = "/home/ubuntu/classicwms/root/Code/Project/WrapperService/inventory.csv";
+    	File file = new File (filePath);
+    	Path path = Paths.get(file.getAbsolutePath());
+        ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
+
+        HttpHeaders header = new HttpHeaders();
+        header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getName());
+        header.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        header.add("Pragma", "no-cache");
+        header.add("Expires", "0");
+        return ResponseEntity.ok()
+                .headers(header)
+                .contentLength(file.length())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
+   	}
 }
