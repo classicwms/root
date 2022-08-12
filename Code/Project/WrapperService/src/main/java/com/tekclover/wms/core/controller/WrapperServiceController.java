@@ -201,7 +201,7 @@ public class WrapperServiceController {
     
     /*--------------------------------Inventory--------------------------------------------------------*/
     @ApiOperation(response = Optional.class, value = "Inventory") // label for swagger
-    @PostMapping("/batch-upload/inventory")
+    @GetMapping("/batch-upload/inventory")
     public ResponseEntity<?> inventoryUpload (@RequestParam("file") MultipartFile file) 
     		throws Exception {
         Map<String, String> response = fileStorageService.storeFile(file);

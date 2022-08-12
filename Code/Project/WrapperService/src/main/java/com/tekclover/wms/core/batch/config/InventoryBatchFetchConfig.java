@@ -83,17 +83,9 @@ public class InventoryBatchFetchConfig {
         return writer;
     }
 
-    /*
-     * private String warehouseId;
-	private String itemCode;
-	private String description;
-	private String storageBin;
-	private String packBarcode;
-	private String inventoryUom;
-	private Double inventoryQuantity;
-	private Double allocatedQuantity;
-	private Long stockTypeId;
-	private Double totalQty;
+    /**
+     * 
+     * @return
      */
     private DelimitedLineAggregator<Inventory2> getDelimitedLineAggregator() {
         BeanWrapperFieldExtractor<Inventory2> beanWrapperFieldExtractor = new BeanWrapperFieldExtractor<Inventory2>();
