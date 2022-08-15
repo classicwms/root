@@ -541,7 +541,6 @@ public class ReportsService extends BaseService {
 		List<String> warehouseId = new ArrayList<>();
 		warehouseId.add("110");
 		warehouseId.add("111");
-//		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
 		List<Inventory> inventoryList = inventoryRepository.findByWarehouseIdInAndDeletionIndicator (warehouseId, 0L);
 		List<InventoryReport> reportInventoryList = new ArrayList<>();
 		for (Inventory dbInventory : inventoryList) {
@@ -565,9 +564,6 @@ public class ReportsService extends BaseService {
 				ImBasicData1 imbasicdata1 = imbasicdata1Repository.findByItemCodeAndWarehouseIdInAndDeletionIndicator(
 						dbInventory.getItemCode(), warehouseId, 0L);
 				
-//				ImBasicData1 imBasicData1 = mastersService.getImBasicData1ByItemCode(dbInventory.getItemCode(),
-//						dbInventory.getWarehouseId(), authTokenForMastersService.getAccess_token());
-
 				if (imbasicdata1 != null) {
 					reportInventory.setDescription(imbasicdata1.getDescription());
 					reportInventory.setMfrPartNumber(imbasicdata1.getManufacturerPartNo());
@@ -588,8 +584,6 @@ public class ReportsService extends BaseService {
 			 * ST_SEC_ID values
 			 */
 			try {
-//				StorageBin stBin = mastersService.getStorageBin(dbInventory.getStorageBin(),
-//						authTokenForMastersService.getAccess_token());
 				String storagebin = storagebinRepository.findByStorageBin(dbInventory.getStorageBin());
 				reportInventory.setStorageSectionId(storagebin);
 			} catch(Exception e) {
@@ -614,9 +608,6 @@ public class ReportsService extends BaseService {
 			reportInventory.setStockType(dbInventory.getStockTypeId());
 			reportInventoryList.add(reportInventory);
 		}
-//		final Page<InventoryReport> page = new PageImpl<>(reportInventoryList, pageable,
-//				inventoryList.getTotalElements());
-//		return page;
 		return reportInventoryList;
 	}
 

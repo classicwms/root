@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,6 +23,7 @@ import com.tekclover.wms.api.transaction.repository.specification.PickupHeaderSp
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -197,6 +199,42 @@ public class PickupHeaderService {
 			return pickupHeaderRepository.save(dbPickupHeader);
 		}
 		return null;
+	}
+
+	/**
+	 * updateAssignedPickerInPickupHeader
+	 * @param loginUserID
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
+	@Transactional(rollbackFor = {Exception.class, Throwable.class})
+	public List<PickupHeader> patchAssignedPickerIdInPickupHeader (String loginUserID,
+											List<UpdatePickupHeader> updatePickupHeaderList) throws IllegalAccessException, InvocationTargetException {
+		List<PickupHeader> pickupHeaderList = new ArrayList<>();
+		try{
+			log.info("Process start to update Assigned Picker Id in PickupHeader: " + updatePickupHeaderList);
+			for(UpdatePickupHeader data : updatePickupHeaderList){
+				log.info("PickupHeader object to update : " + data);
+				PickupHeader dbPickupHeader = getPickupHeaderForUpdate (data.getWarehouseId(), data.getPreOutboundNo(), data.getRefDocNumber(), data.getPartnerCode(),
+						data.getPickupNumber(), data.getLineNumber(), data.getItemCode());
+				log.info("Old PickupHeader object from db : " + data);
+				if (dbPickupHeader != null) {
+					dbPickupHeader.setAssignedPickerId(data.getAssignedPickerId());
+					dbPickupHeader.setPickUpdatedBy(loginUserID);
+					dbPickupHeader.setPickUpdatedOn(new Date());
+					PickupHeader pickupHeader = pickupHeaderRepository.save(dbPickupHeader);
+					pickupHeaderList.add(pickupHeader);
+				} else {
+					log.info("No record for PickupHeader object from db for data : " + data);
+					throw new BadRequestException("Error in data");
+				}
+			}
+			return pickupHeaderList;
+		} catch (Exception e){
+			log.error("Update Assigned Picker Id in PickupHeader failed for : " + updatePickupHeaderList);
+			throw new BadRequestException("Error in data");
+		}
 	}
 	
 	/**

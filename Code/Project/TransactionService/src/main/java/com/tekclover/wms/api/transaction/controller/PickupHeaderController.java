@@ -88,6 +88,16 @@ public class PickupHeaderController {
 						pickupNumber, lineNumber, itemCode, loginUserID, updatePickupHeader);
 		return new ResponseEntity<>(createdPickupHeader , HttpStatus.OK);
 	}
+
+	@ApiOperation(response = PickupHeader.class, value = "Update Assigned PickerId in PickupHeader") // label for swagger
+	@PatchMapping("/update-assigned-picker")
+	public ResponseEntity<?> patchAssignedPickerIdInPickupHeader(@Valid @RequestBody List<UpdatePickupHeader> updatePickupHeaderList,
+											   @RequestParam("loginUserID") String loginUserID)
+			throws IllegalAccessException, InvocationTargetException {
+		List<PickupHeader> createdPickupHeader =
+				pickupheaderService.patchAssignedPickerIdInPickupHeader( loginUserID, updatePickupHeaderList);
+		return new ResponseEntity<>(createdPickupHeader , HttpStatus.OK);
+	}
     
     @ApiOperation(response = PickupHeader.class, value = "Delete PickupHeader") // label for swagger
 	@DeleteMapping("/{pickupNumber}")

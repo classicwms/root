@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
+import com.tekclover.wms.api.transaction.model.outbound.pickup.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -38,10 +39,6 @@ import com.tekclover.wms.api.transaction.model.outbound.ordermangement.UpdateOrd
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.UpdateOrderManagementLine;
 import com.tekclover.wms.api.transaction.model.outbound.outboundreversal.AddOutboundReversal;
 import com.tekclover.wms.api.transaction.model.outbound.outboundreversal.OutboundReversal;
-import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupHeader;
-import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupLine;
-import com.tekclover.wms.api.transaction.model.outbound.pickup.UpdatePickupHeader;
-import com.tekclover.wms.api.transaction.model.outbound.pickup.UpdatePickupLine;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.PreOutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.PreOutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.UpdatePreOutboundHeader;
@@ -366,16 +363,28 @@ public class OutboundLineService extends BaseService {
 				searchQualityLine.setLineNumber(Arrays.asList(outboundLineSearchResult.getLineNumber()));
 				searchQualityLine.setItemCode(Arrays.asList(outboundLineSearchResult.getItemCode()));
 //				searchQualityLine.setStatusId(Arrays.asList(outboundLineSearchResult.getStatusId()));
-				
+
 				List<QualityLine> qualityLine = qualityLineService.findQualityLine(searchQualityLine);
-				
+
 				// ----Select sum of PickConfirmQty / itemcode wise. -> Ref_field_9
-				double pickConfirmQty = qualityLine.stream().mapToDouble(QualityLine::getPickConfirmQty).sum();
-				outboundLineSearchResult.setReferenceField9(String.valueOf(pickConfirmQty));
-				
-				// ---- Select sum of QCQty / itemcode wise. -> Ref_field_10
+//				double pickConfirmQty = qualityLine.stream().mapToDouble(QualityLine::getPickConfirmQty).sum();
+//				outboundLineSearchResult.setReferenceField9(String.valueOf(pickConfirmQty));
+
+//				 ---- Select sum of QCQty / itemcode wise. -> Ref_field_10
 				double qcQty = qualityLine.stream().mapToDouble(QualityLine::getQualityQty).sum();
 				outboundLineSearchResult.setReferenceField10(String.valueOf(qcQty));
+
+				SearchPickupLine searchPickupLine = new SearchPickupLine();
+				searchPickupLine.setWarehouseId(Arrays.asList(outboundLineSearchResult.getWarehouseId()));
+				searchPickupLine.setRefDocNumber(Arrays.asList(outboundLineSearchResult.getRefDocNumber()));
+				searchPickupLine.setPreOutboundNo(Arrays.asList(outboundLineSearchResult.getPreOutboundNo()));
+				searchPickupLine.setLineNumber(Arrays.asList(outboundLineSearchResult.getLineNumber()));
+				searchPickupLine.setItemCode(Arrays.asList(outboundLineSearchResult.getItemCode()));
+
+				List<PickupLine> pickupLines = pickupLineService.findPickupLine(searchPickupLine);
+				// ----Select sum of PickConfirmQty / itemcode wise. -> Ref_field_9
+				double pickConfirmQty = pickupLines.stream().mapToDouble(PickupLine::getPickConfirmQty).sum();
+				outboundLineSearchResult.setReferenceField9(String.valueOf(pickConfirmQty));
 			}
 		}
 		return outboundLineSearchResults;

@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.tekclover.wms.core.model.transaction.*;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,93 +22,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.tekclover.wms.core.config.PropertiesConfig;
-import com.tekclover.wms.core.model.transaction.AXApiResponse;
-import com.tekclover.wms.core.model.transaction.AddGrLine;
-import com.tekclover.wms.core.model.transaction.AddPeriodicHeader;
-import com.tekclover.wms.core.model.transaction.AddPerpetualHeader;
-import com.tekclover.wms.core.model.transaction.AddPickupLine;
-import com.tekclover.wms.core.model.transaction.AddPutAwayLine;
-import com.tekclover.wms.core.model.transaction.AddQualityLine;
-import com.tekclover.wms.core.model.transaction.AssignHHTUser;
-import com.tekclover.wms.core.model.transaction.AssignHHTUserCC;
-import com.tekclover.wms.core.model.transaction.AssignPicker;
-import com.tekclover.wms.core.model.transaction.CaseConfirmation;
-import com.tekclover.wms.core.model.transaction.ContainerReceipt;
-import com.tekclover.wms.core.model.transaction.Dashboard;
-import com.tekclover.wms.core.model.transaction.GrHeader;
-import com.tekclover.wms.core.model.transaction.GrLine;
-import com.tekclover.wms.core.model.transaction.InboundHeader;
-import com.tekclover.wms.core.model.transaction.InboundHeaderEntity;
-import com.tekclover.wms.core.model.transaction.InboundIntegrationHeader;
-import com.tekclover.wms.core.model.transaction.InboundLine;
-import com.tekclover.wms.core.model.transaction.InhouseTransferHeader;
-import com.tekclover.wms.core.model.transaction.InhouseTransferLine;
-import com.tekclover.wms.core.model.transaction.Inventory;
-import com.tekclover.wms.core.model.transaction.InventoryMovement;
-import com.tekclover.wms.core.model.transaction.InventoryReport;
-import com.tekclover.wms.core.model.transaction.MobileDashboard;
-import com.tekclover.wms.core.model.transaction.OrderManagementLine;
-import com.tekclover.wms.core.model.transaction.OrderStatusReport;
-import com.tekclover.wms.core.model.transaction.OutboundHeader;
-import com.tekclover.wms.core.model.transaction.OutboundLine;
-import com.tekclover.wms.core.model.transaction.OutboundReversal;
-import com.tekclover.wms.core.model.transaction.PackBarcode;
-import com.tekclover.wms.core.model.transaction.PaginatedResponse;
-import com.tekclover.wms.core.model.transaction.PeriodicHeader;
-import com.tekclover.wms.core.model.transaction.PeriodicHeaderEntity;
-import com.tekclover.wms.core.model.transaction.PeriodicLine;
-import com.tekclover.wms.core.model.transaction.PeriodicLineEntity;
-import com.tekclover.wms.core.model.transaction.PerpetualHeader;
-import com.tekclover.wms.core.model.transaction.PerpetualHeaderEntity;
-import com.tekclover.wms.core.model.transaction.PerpetualLine;
-import com.tekclover.wms.core.model.transaction.PerpetualLineEntity;
-import com.tekclover.wms.core.model.transaction.PickupHeader;
-import com.tekclover.wms.core.model.transaction.PickupLine;
-import com.tekclover.wms.core.model.transaction.PreInboundHeader;
-import com.tekclover.wms.core.model.transaction.PreInboundLine;
-import com.tekclover.wms.core.model.transaction.PreOutboundHeader;
-import com.tekclover.wms.core.model.transaction.PreOutboundLine;
-import com.tekclover.wms.core.model.transaction.PutAwayHeader;
-import com.tekclover.wms.core.model.transaction.PutAwayLine;
-import com.tekclover.wms.core.model.transaction.QualityHeader;
-import com.tekclover.wms.core.model.transaction.QualityLine;
-import com.tekclover.wms.core.model.transaction.ReceiptConfimationReport;
-import com.tekclover.wms.core.model.transaction.RunPerpetualHeader;
-import com.tekclover.wms.core.model.transaction.SearchContainerReceipt;
-import com.tekclover.wms.core.model.transaction.SearchGrHeader;
-import com.tekclover.wms.core.model.transaction.SearchGrLine;
-import com.tekclover.wms.core.model.transaction.SearchInboundHeader;
-import com.tekclover.wms.core.model.transaction.SearchInventory;
-import com.tekclover.wms.core.model.transaction.SearchInventoryMovement;
-import com.tekclover.wms.core.model.transaction.SearchOrderManagementLine;
-import com.tekclover.wms.core.model.transaction.SearchOutboundHeader;
-import com.tekclover.wms.core.model.transaction.SearchOutboundLine;
-import com.tekclover.wms.core.model.transaction.SearchOutboundReversal;
-import com.tekclover.wms.core.model.transaction.SearchPeriodicHeader;
-import com.tekclover.wms.core.model.transaction.SearchPerpetualHeader;
-import com.tekclover.wms.core.model.transaction.SearchPickupHeader;
-import com.tekclover.wms.core.model.transaction.SearchPickupLine;
-import com.tekclover.wms.core.model.transaction.SearchPreInboundHeader;
-import com.tekclover.wms.core.model.transaction.SearchPreOutboundHeader;
-import com.tekclover.wms.core.model.transaction.SearchPreOutboundLine;
-import com.tekclover.wms.core.model.transaction.SearchPutAwayHeader;
-import com.tekclover.wms.core.model.transaction.SearchPutAwayLine;
-import com.tekclover.wms.core.model.transaction.SearchQualityHeader;
-import com.tekclover.wms.core.model.transaction.SearchQualityLine;
-import com.tekclover.wms.core.model.transaction.SearchStagingHeader;
-import com.tekclover.wms.core.model.transaction.SearchStagingLine;
-import com.tekclover.wms.core.model.transaction.ShipmentDeliveryReport;
-import com.tekclover.wms.core.model.transaction.ShipmentDeliverySummaryReport;
-import com.tekclover.wms.core.model.transaction.ShipmentDispatchSummaryReport;
-import com.tekclover.wms.core.model.transaction.StagingHeader;
-import com.tekclover.wms.core.model.transaction.StagingLine;
-import com.tekclover.wms.core.model.transaction.StagingLineEntity;
-import com.tekclover.wms.core.model.transaction.StockMovementReport;
-import com.tekclover.wms.core.model.transaction.StockReport;
-import com.tekclover.wms.core.model.transaction.UpdatePeriodicHeader;
-import com.tekclover.wms.core.model.transaction.UpdatePeriodicLine;
-import com.tekclover.wms.core.model.transaction.UpdatePerpetualHeader;
-import com.tekclover.wms.core.model.transaction.UpdatePerpetualLine;
 import com.tekclover.wms.core.repository.MongoTransactionRepository;
 
 import lombok.extern.slf4j.Slf4j;
@@ -2797,6 +2711,32 @@ public class TransactionService {
 					.queryParam("loginUserID", loginUserID);			
 			ResponseEntity<PickupHeader> result = 
 					restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, PickupHeader.class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	// PATCH
+	public PickupHeader[] patchAssignedPickerIdInPickupHeader(String loginUserID,
+															  @Valid List<UpdatePickupHeader> updatePickupHeaderList, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			HttpEntity<?> entity = new HttpEntity<>(updatePickupHeaderList, headers);
+			HttpClient client = HttpClients.createDefault();
+			RestTemplate restTemplate = getRestTemplate();
+			restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "pickupheader/update-assigned-picker")
+							.queryParam("loginUserID", loginUserID);
+			ResponseEntity<PickupHeader[]> result =
+					restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, PickupHeader[].class);
 			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
