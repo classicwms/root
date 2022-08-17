@@ -437,8 +437,9 @@ public class ReportsService extends BaseService {
 		warehouseId.add("111");
 		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
 		Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
-		Page<Inventory> inventoryList =
-				inventoryRepository.findByWarehouseIdInAndDeletionIndicator (warehouseId, 0L, pageable);
+//		Page<Inventory> inventoryList = inventoryRepository.findByWarehouseIdInAndDeletionIndicator (warehouseId, 0L, pageable);
+		
+		Page<Inventory> inventoryList = inventoryRepository.findByWarehouseIdInAndDeletionIndicatorAndItemCode (warehouseId, 0L, "020309497", pageable);
 		List<InventoryReport> reportInventoryList = new ArrayList<>();
 		
 		for (Inventory dbInventory : inventoryList) {
@@ -501,7 +502,7 @@ public class ReportsService extends BaseService {
 					isInventoryNeedUpdate = true;
 				}
 			} catch(Exception e) {
-				log.info("ERROR : stBin master get error "+ dbInventory.getStorageBin(), e);
+				log.error("ERROR : stBin master get error "+ dbInventory.getStorageBin(), e);
 			}
 
 			// PACK_BARCODE
@@ -509,15 +510,17 @@ public class ReportsService extends BaseService {
 
 			// INV_QTY
 			try {
+				log.info("dbInventory.getInventoryQuantity() : "+ dbInventory.getInventoryQuantity());
 				reportInventory.setInventoryQty(dbInventory.getInventoryQuantity() != null ? dbInventory.getInventoryQuantity() : 0);
 				reportInventory.setAllocatedQty(dbInventory.getAllocatedQuantity() != null ? dbInventory.getAllocatedQuantity() : 0);
 
 				reportInventory.setTotalQuantity(Double.sum(dbInventory.getInventoryQuantity() != null ? dbInventory.getInventoryQuantity() : 0,
 						dbInventory.getAllocatedQuantity() != null ? dbInventory.getAllocatedQuantity() : 0 ) );
 			} catch(Exception e) {
-				log.info("ERROR : ALL_QTY , TOTAL_QTY CALCULATE  ", e);
+				log.error("ERROR : ALL_QTY , TOTAL_QTY CALCULATE  ", e);
 			}
 
+			
 			// STCK_TYP_ID/STCK_TYP_TEXT
 			reportInventory.setStockType(dbInventory.getStockTypeId());
 			
@@ -664,13 +667,13 @@ public class ReportsService extends BaseService {
 //		log.info("inventoryMovementSearchResults------> : " + inventoryMovementSearchResults);
 
 		List<InventoryMovement> inventoryMovementSearchResults_123 = inventoryMovementRepository
-				.findByWarehouseIdAndItemCodeAndCreatedOnBetweenAndMovementTypeAndSubmovementTypeIn(warehouseId,
+				.findByWarehouseIdAndItemCodeAndCreatedOnBetweenAndMovementTypeAndSubmovementTypeInOrderByCreatedOnAsc(warehouseId,
 						itemCode, fromDate, toDate, 1L, Arrays.asList(2L, 3L));
 		List<StockMovementReport> reportStockMovementList_1 = fillData(inventoryMovementSearchResults_123);
 		log.info("reportStockMovementList_1 : " + reportStockMovementList_1);
 
 		List<InventoryMovement> inventoryMovementSearchResults_35 = inventoryMovementRepository
-				.findByWarehouseIdAndItemCodeAndCreatedOnBetweenAndMovementTypeAndSubmovementTypeIn(warehouseId,
+				.findByWarehouseIdAndItemCodeAndCreatedOnBetweenAndMovementTypeAndSubmovementTypeInOrderByCreatedOnAsc(warehouseId,
 						itemCode, fromDate, toDate, 3L, Arrays.asList(5L));
 		List<StockMovementReport> reportStockMovementList_2 = fillData(inventoryMovementSearchResults_35);
 		log.info("reportStockMovementList_2 : " + reportStockMovementList_2);
@@ -755,7 +758,7 @@ public class ReportsService extends BaseService {
 			// Date & Time
 			Date date = inventoryMovement.getCreatedOn();
 			LocalDateTime datetime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
-			DateTimeFormatter newPattern = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+			DateTimeFormatter newPattern = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 			String currentDate = datetime.format(newPattern);
 
 			DateTimeFormatter newTimePattern = DateTimeFormatter.ofPattern("HH:mm:ss");

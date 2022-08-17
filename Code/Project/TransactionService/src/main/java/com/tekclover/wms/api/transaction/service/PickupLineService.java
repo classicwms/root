@@ -306,6 +306,15 @@ public class PickupLineService extends BaseService {
 					Double INV_QTY = (inventory.getInventoryQuantity() + createdPickupLine.getAllocatedQty()) - dbPickupLine.getPickConfirmQty();
 					Double ALLOC_QTY = inventory.getAllocatedQuantity() - dbPickupLine.getAllocatedQty();
 					
+					/*
+					 * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
+					 */
+					// Start
+					if (INV_QTY < 0D) {
+						INV_QTY = 0D;
+					}
+					// End
+					
 					inventory.setInventoryQuantity(INV_QTY);
 					inventory.setAllocatedQuantity(ALLOC_QTY);
 					// INV_QTY > 0 then, update Inventory Table
@@ -326,6 +335,14 @@ public class PickupLineService extends BaseService {
 				
 				if (createdPickupLine.getAllocatedQty() == 0D) {
 					Double INV_QTY = inventory.getInventoryQuantity() - dbPickupLine.getPickConfirmQty();
+					/*
+					 * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
+					 */
+					// Start
+					if (INV_QTY < 0D) {
+						INV_QTY = 0D;
+					}
+					// End
 					inventory.setInventoryQuantity(INV_QTY);
 					inventory = inventoryRepository.save(inventory);
 					log.info("inventory updated : " + inventory);

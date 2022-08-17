@@ -272,6 +272,16 @@ public class OrderManagementLineService extends BaseService {
 		String storageBin = dbOrderManagementLine.getProposedStorageBin();
 		Inventory inventory = inventoryService.getInventory(warehouseId, packBarcodes, itemCode, storageBin);
 		Double invQty = inventory.getInventoryQuantity() + dbOrderManagementLine.getAllocatedQty();
+		
+		/*
+		 * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
+		 */
+		// Start
+		if (invQty < 0D) {
+			invQty = 0D;
+		}
+		// End
+		
 		inventory.setInventoryQuantity(invQty);
 		log.info("Inventory invQty: " + invQty);
 		
@@ -288,7 +298,6 @@ public class OrderManagementLineService extends BaseService {
     	 */
 		dbOrderManagementLine.setAllocatedQty(0D);
 		dbOrderManagementLine.setStatusId(47L);	
-		
 		dbOrderManagementLine.setPickupUpdatedBy(loginUserID);
 		dbOrderManagementLine.setPickupUpdatedOn(new Date());
 		OrderManagementLine updatedOrderManagementLine = orderManagementLineRepository.save(dbOrderManagementLine);
@@ -619,6 +628,15 @@ public class OrderManagementLineService extends BaseService {
 				
 				double inventoryQty = dbInventoryQty - createdOrderManagementLine.getAllocatedQty();
 				double allocatedQty = dbInvAllocatedQty + createdOrderManagementLine.getAllocatedQty();
+				
+				/*
+				 * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
+				 */
+				// Start
+				if (inventoryQty < 0) {
+					inventoryQty = 0;
+				}
+				// End
 				inventoryForUpdate.setInventoryQuantity(inventoryQty);
 				inventoryForUpdate.setAllocatedQuantity(allocatedQty);
 				inventoryForUpdate = inventoryRepository.save(inventoryForUpdate);
@@ -726,6 +744,15 @@ public class OrderManagementLineService extends BaseService {
 					
 					double inventoryQty = dbInventoryQty - allocatedQtyFromOrderMgmt;
 					double allocatedQty = dbInvAllocatedQty + allocatedQtyFromOrderMgmt;
+					
+					/*
+					 * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
+					 */
+					// Start
+					if (inventoryQty < 0) {
+						inventoryQty = 0;
+					}
+					// End
 					inventoryForUpdate.setInventoryQuantity(inventoryQty);
 					inventoryForUpdate.setAllocatedQuantity(allocatedQty);
 					inventoryForUpdate = inventoryRepository.save(inventoryForUpdate);

@@ -158,6 +158,8 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 	@QueryHints(@javax.persistence.QueryHint(name="org.hibernate.fetchSize", value="100"))
 	public Page<Inventory> findByWarehouseIdInAndDeletionIndicator(List<String> warehouseId, Long delFlag, Pageable pageable);
 	
+	public Page<Inventory> findByWarehouseIdInAndDeletionIndicatorAndItemCode(List<String> warehouseId, Long delFlag, String itemCode, Pageable pageable);
+	
 	@QueryHints(@javax.persistence.QueryHint(name="org.hibernate.fetchSize", value="1000"))
 	public List<Inventory> findByWarehouseIdInAndDeletionIndicator(List<String> warehouseId, Long delFlag);
 }
