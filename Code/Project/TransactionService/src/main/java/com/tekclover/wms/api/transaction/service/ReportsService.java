@@ -2157,7 +2157,11 @@ public class ReportsService extends BaseService {
 			CellStyle decimalFormatCells = workBookService.createLineCellStyle(workBookSheetDTO.getWorkbook());
 
 			listRecords = listRecords.stream()
-					.filter(data->data != null && data.getInventoryQty() != null && data.getInventoryQty() > 0)
+					.filter(data-> data != null && 
+							(
+								(data.getInventoryQty() != null && data.getInventoryQty() > 0) || 
+								(data.getAllocatedQty() != null && data.getAllocatedQty() > 0)
+							))
 					.collect(Collectors.toList());
 
 			/*
