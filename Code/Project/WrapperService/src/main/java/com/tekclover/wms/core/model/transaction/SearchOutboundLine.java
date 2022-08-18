@@ -1,5 +1,6 @@
 package com.tekclover.wms.core.model.transaction;
 
+import java.util.Date;
 import java.util.List;
 
 import lombok.Data;
@@ -23,5 +24,8 @@ public class SearchOutboundLine {
 	private List<String> itemCode;
 
 	private List<Long> statusId;
+
+	private Date fromDeliveryDate;	// DLV_CNF_ON
+	private Date toDeliveryDate;	// DLV_CNF_ON
 
 	}

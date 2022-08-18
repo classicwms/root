@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.tekclover.wms.core.batch.scheduler.BatchJobScheduler;
+import com.tekclover.wms.core.config.PropertiesConfig;
 import com.tekclover.wms.core.model.auth.AuthToken;
 import com.tekclover.wms.core.model.auth.AuthTokenRequest;
 import com.tekclover.wms.core.model.user.NewUser;
@@ -66,6 +67,9 @@ public class WrapperServiceController {
 	
 	@Autowired
 	ReportService reportService;
+	
+	@Autowired
+	PropertiesConfig propertiesConfig;
 	
 	/**
 	 * This endpoint is for registering thrd party clients to get the Client ID and Secret Key
@@ -231,8 +235,9 @@ public class WrapperServiceController {
     @ApiOperation(response = Optional.class, value = "Document Storage Download") // label for swagger
    	@GetMapping("/report/inventory/download")
    	public ResponseEntity<?> docStorageDownload() throws Exception {
-//    	String filePath = "/home/superadmin/tekclover/root/root/Classic WMS/Code/Project/TransactionService/inventory.xlsx";
-    	String filePath = "/home/ubuntu/classicwms/root/Code/Project/TransactionService/inventory.xlsx";
+//    	String filePath = "/home/ubuntu/classicwms/root/Code/Project/TransactionService/inventory.xlsx";
+    	String filePath = propertiesConfig.getInventoryCsvDownloadPath() + 
+    			"/TransactionService/inventory.xlsx";
     	
     	File file = new File (filePath);
     	Path path = Paths.get(file.getAbsolutePath());
@@ -254,7 +259,8 @@ public class WrapperServiceController {
    	@GetMapping("/report/inventory/online")
    	public ResponseEntity<?> inventoryOnlineReport() throws Exception {
     	batchJobScheduler.runJobdbToCsvJob();
-    	String filePath = "/home/ubuntu/classicwms/root/Code/Project/WrapperService/inventory.csv";
+//    	String filePath = "/home/ubuntu/classicwms/root/Code/Project/WrapperService/inventory.csv";
+    	String filePath = propertiesConfig.getInventoryCsvDownloadPath() + "/WrapperService/inventory.csv";
     	File file = new File (filePath);
     	Path path = Paths.get(file.getAbsolutePath());
         ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));

@@ -546,6 +546,15 @@ public class ReportsService extends BaseService {
 		warehouseId.add("111");
 		List<Inventory> inventoryList = inventoryRepository.findByWarehouseIdInAndDeletionIndicator (warehouseId, 0L);
 		List<InventoryReport> reportInventoryList = new ArrayList<>();
+		
+		inventoryList = inventoryList.stream()
+				.filter(data-> data != null && 
+						(
+							(data.getInventoryQuantity() != null && data.getInventoryQuantity() > 0) || 
+							(data.getAllocatedQuantity() != null && data.getAllocatedQuantity() > 0)
+						))
+				.collect(Collectors.toList());
+
 		for (Inventory dbInventory : inventoryList) {
 			InventoryReport reportInventory = new InventoryReport();
 
@@ -561,12 +570,9 @@ public class ReportsService extends BaseService {
 			 * Pass the fetched ITM_CODE values in IMBASICDATA1 table and fetch MFR_SKU
 			 * values
 			 */
-
 			try {
-				
 				ImBasicData1 imbasicdata1 = imbasicdata1Repository.findByItemCodeAndWarehouseIdInAndDeletionIndicator(
 						dbInventory.getItemCode(), warehouseId, 0L);
-				
 				if (imbasicdata1 != null) {
 					reportInventory.setDescription(imbasicdata1.getDescription());
 					reportInventory.setMfrPartNumber(imbasicdata1.getManufacturerPartNo());

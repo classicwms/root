@@ -18,7 +18,8 @@ public class InventoryItemProcessor implements ItemProcessor<Inventory, Inventor
     	 * private String mfrPartNumber;      	// ReferenceField9
     	 * private String storageSectionId;		// ReferenceField10 
     	 */
-    	inventory2.setDescription(inventoryInput.getReferenceField8());
+    	inventory2.setItemCode("'" + inventoryInput.getItemCode() );
+    	inventory2.setDescription(CommonUtils.escapeComma(inventoryInput.getReferenceField8()));
     	inventory2.setMfrPartNumber(inventoryInput.getReferenceField9());
     	inventory2.setStorageSectionId(inventoryInput.getReferenceField10());
     	

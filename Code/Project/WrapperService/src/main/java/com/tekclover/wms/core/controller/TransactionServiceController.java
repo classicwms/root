@@ -1291,6 +1291,13 @@ public class TransactionServiceController {
 			@RequestParam String authToken) throws Exception {
 		return transactionService.findOutboundLine(searchOutboundLine, authToken);
 	}
+
+	@ApiOperation(response = OutboundLine.class, value = "Search OutboundLine for Stock movement report") // label for swagger
+	@PostMapping("/outboundline/stock-movement-report/findOutboundLine")
+	public OutboundLine[] findOutboundLineForStockMovement(@RequestBody SearchOutboundLine searchOutboundLine,@RequestParam String authToken)
+			throws Exception {
+		return transactionService.findOutboundLineForStockMovement(searchOutboundLine,authToken);
+	}
     
     @ApiOperation(response = OutboundLine.class, value = "Update OutboundLine") // label for swagger
     @GetMapping("/outboundline/delivery/confirmation")
@@ -1691,10 +1698,10 @@ public class TransactionServiceController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
     
-    @ApiOperation(response = InventoryReport[].class, value = "Get Stock Report") // label for swagger 
-   	@GetMapping("reports/inventoryReport/all")
-   	public ResponseEntity<?> getInventoryReportAll(@RequestParam String authToken) throws Exception {
-    	InventoryReport[] inventoryReportList = transactionService.generateInventoryReport(authToken);
-   		return new ResponseEntity<>(inventoryReportList, HttpStatus.OK);
-   	}
+//    @ApiOperation(response = InventoryReport[].class, value = "Get Stock Report") // label for swagger 
+//   	@GetMapping("reports/inventoryReport/all")
+//   	public ResponseEntity<?> getInventoryReportAll(@RequestParam String authToken) throws Exception {
+//    	InventoryReport[] inventoryReportList = transactionService.generateInventoryReport(authToken);
+//   		return new ResponseEntity<>(inventoryReportList, HttpStatus.OK);
+//   	}
 }

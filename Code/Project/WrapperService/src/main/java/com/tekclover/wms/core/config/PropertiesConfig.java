@@ -107,4 +107,8 @@ public class PropertiesConfig {
 	/*-----------------Report-Path------------------------*/
 	@Value("${report.path}")
 	private String reportPath;
+	
+	@Value("${report.path.download.inventory}")
+	private String inventoryCsvDownloadPath;
+	
 }

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.BeanWrapper;
@@ -23,8 +24,14 @@ public class CommonUtils {
 		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		String hashedPassword = passwordEncoder.encode(password);
 		System.out.println(hashedPassword);
+		
+//		escapeComma();
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	public String randomUUID () {
 		int leftLimit = 48; // numeral '0'
 		int rightLimit = 122; // letter 'z'
@@ -41,6 +48,11 @@ public class CommonUtils {
 		return generatedString;
 	}
 	
+	/**
+	 * 
+	 * @param errorMsg
+	 * @return
+	 */
 	public Map<String, String> prepareErrorResponse (String errorMsg) {
 		errorMsg = errorMsg.substring(errorMsg.indexOf('['));
 		JSONArray array = new JSONArray(errorMsg);
@@ -72,5 +84,15 @@ public class CommonUtils {
 		}
 		String[] result = new String[emptyNames.size()];
 		return emptyNames.toArray(result);
+	}
+	
+	/**
+	 * 
+	 * @param escapeText
+	 * @return
+	 */
+	public static String escapeComma (String escapeText) {
+		String escaped = StringEscapeUtils.escapeCsv(escapeText); // I said "Hey, I am 5'10"."
+		return escaped;
 	}
 }

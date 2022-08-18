@@ -9,9 +9,16 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
+import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
+import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.*;
+import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.expression.ParseException;
 import org.springframework.stereotype.Service;
 
@@ -125,6 +132,9 @@ public class OutboundLineService extends BaseService {
 	
 	@Autowired
 	private WarehouseService warehouseService;
+
+	@Autowired
+	private ImBasicData1Repository imBasicData1Repository;
 	
 	/**
 	 * getOutboundLines
@@ -388,6 +398,40 @@ public class OutboundLineService extends BaseService {
 			}
 		}
 		return outboundLineSearchResults;
+	}
+
+	public List<OutboundLine> findOutboundLineForStockMovement(SearchOutboundLine searchOutboundLine)
+			throws ParseException, java.text.ParseException {
+
+		if (searchOutboundLine.getFromDeliveryDate() != null && searchOutboundLine.getToDeliveryDate() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundLine.getFromDeliveryDate(),
+					searchOutboundLine.getToDeliveryDate());
+			searchOutboundLine.setFromDeliveryDate(dates[0]);
+			searchOutboundLine.setToDeliveryDate(dates[1]);
+		}
+		searchOutboundLine.setStatusId(Arrays.asList(59L));
+		OutboundLineSpecification spec = new OutboundLineSpecification(searchOutboundLine);
+
+		Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE, Sort.by("deliveryConfirmedOn").ascending());
+
+		Page<OutboundLine> outboundLineSearchResults = outboundLineRepository.findAll(spec,pageable);
+
+//		log.info("results: " + outboundLineSearchResults);
+
+		/*
+		 * Pass WH-ID/REF_DOC_NO/PRE_OB_NO/OB_LINE_NO/ITM_CODE
+		 * PickConfirmQty & QCQty - from QualityLine table
+		 */
+		if (outboundLineSearchResults != null) {
+			for (OutboundLine outboundLineSearchResult : outboundLineSearchResults.getContent()) {
+				List<IImbasicData1> itemList = imBasicData1Repository.findByItemCode(outboundLineSearchResult.getItemCode());
+					if(!itemList.isEmpty()){
+						outboundLineSearchResult.setItemText(itemList.get(0).getDescription());
+						outboundLineSearchResult.setMfrPartNumber(itemList.get(0).getManufacturePart());
+					}
+			}
+		}
+		return outboundLineSearchResults.getContent();
 	}
 	
 	/**

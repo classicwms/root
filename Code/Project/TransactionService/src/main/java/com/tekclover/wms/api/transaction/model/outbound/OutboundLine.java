@@ -2,12 +2,7 @@ package com.tekclover.wms.api.transaction.model.outbound;
 
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -163,4 +158,10 @@ public class OutboundLine {
 	
 	@Column(name = "DLV_REV_ON") 
 	private Date reversedOn;
+
+	@Transient
+	private String itemText;
+
+	@Transient
+	private String mfrPartNumber;
 }

@@ -1,6 +1,5 @@
 package com.tekclover.wms.core.batch.config;
 
-import javax.persistence.Column;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
@@ -31,9 +30,6 @@ import com.tekclover.wms.core.batch.scheduler.entity.InventoryItemProcessor;
 @EnableBatchProcessing
 @Configuration
 public class InventoryBatchFetchConfig {
-
-    @Autowired
-    private DataSource dataSource;
 
     @Autowired
     private JobBuilderFactory jobBuilderFactory;
@@ -70,7 +66,7 @@ public class InventoryBatchFetchConfig {
         return new JpaPagingItemReaderBuilder<Inventory>()
                 .name("Inventory")
                 .entityManagerFactory(entityManagerFactory)
-                .queryString("select i from Inventory i where inventoryQuantity <> 0 and allocatedQuantity <> 0")
+                .queryString("select i from Inventory i where i.inventoryQuantity > 0 or i.allocatedQuantity > 0")
                 .pageSize(1000)
                 .build();
     }

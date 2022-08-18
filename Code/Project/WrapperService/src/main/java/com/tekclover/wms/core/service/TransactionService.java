@@ -3322,6 +3322,27 @@ public class TransactionService {
 		}
 	}
 
+	// POST - stock-movement-report-findOutboundLine
+	public OutboundLine[] findOutboundLineForStockMovement(SearchOutboundLine searchOutboundLine, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "outboundline/stock-movement-report/findOutboundLine");
+			HttpEntity<?> entity = new HttpEntity<>(searchOutboundLine, headers);
+			ResponseEntity<OutboundLine[]> result =
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, OutboundLine[].class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
 	// PATCH ----
 	public OutboundLine updateOutboundLine(String warehouseId, String preOutboundNo, String refDocNumber,
 			String partnerCode, Long lineNumber, String itemCode, String loginUserID,
