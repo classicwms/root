@@ -51,11 +51,10 @@ dependencies {
 	implementation files('libs/com.lowagie.text-2.1.7.jar')
 	///////////////////////////////////////////////////////////////////////////////////////
 	
-	//implementation group: 'com.microsoft.sqlserver', name: 'mssql-jdbc', version: '8.1.0.jre8-preview'
+	implementation group: 'com.microsoft.sqlserver', name: 'mssql-jdbc', version: '8.1.0.jre8-preview'
+	implementation 'org.apache.commons:commons-text:1.9'
 	
-	//runtimeOnly 'mysql:mysql-connector-java'
-	// --------MS-SQL-Server Driver
-	implementation group: 'com.microsoft.sqlserver', name: 'mssql-jdbc', version: '8.1.1.jre8-preview'
+	runtimeOnly 'mysql:mysql-connector-java'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 }
