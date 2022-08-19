@@ -1294,7 +1294,7 @@ public class TransactionServiceController {
 
 	@ApiOperation(response = OutboundLine.class, value = "Search OutboundLine for Stock movement report") // label for swagger
 	@PostMapping("/outboundline/stock-movement-report/findOutboundLine")
-	public OutboundLine[] findOutboundLineForStockMovement(@RequestBody SearchOutboundLine searchOutboundLine,@RequestParam String authToken)
+	public StockMovementReport[] findOutboundLineForStockMovement(@RequestBody SearchOutboundLine searchOutboundLine,@RequestParam String authToken)
 			throws Exception {
 		return transactionService.findOutboundLineForStockMovement(searchOutboundLine,authToken);
 	}

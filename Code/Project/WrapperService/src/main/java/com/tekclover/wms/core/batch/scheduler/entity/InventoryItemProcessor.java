@@ -12,13 +12,13 @@ public class InventoryItemProcessor implements ItemProcessor<Inventory, Inventor
     public Inventory2 process(Inventory inventoryInput) throws Exception {
     	Inventory2 inventory2 = new Inventory2();
     	BeanUtils.copyProperties(inventoryInput, inventory2, CommonUtils.getNullPropertyNames(inventoryInput));
-    	
     	/*
     	 * private String description;			// ReferenceField8
     	 * private String mfrPartNumber;      	// ReferenceField9
     	 * private String storageSectionId;		// ReferenceField10 
     	 */
     	inventory2.setItemCode("'" + inventoryInput.getItemCode() );
+    	inventory2.setPackBarcodes("'" + inventoryInput.getPackBarcodes());
     	inventory2.setDescription(CommonUtils.escapeComma(inventoryInput.getReferenceField8()));
     	inventory2.setMfrPartNumber(inventoryInput.getReferenceField9());
     	inventory2.setStorageSectionId(inventoryInput.getReferenceField10());

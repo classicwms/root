@@ -5,7 +5,9 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +15,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 public class Inventory { 
-
+	
 	private String languageId;
 	private String companyCodeId;
 	private String plantId;
@@ -31,13 +33,13 @@ public class Inventory {
 	private String referenceOrderNo;
 	private String storageMethod;
 	private Long binClassId;
-	private String description ;
+	private String description;
 	private Double inventoryQuantity;
 	private Double allocatedQuantity;
 	private String inventoryUom;
 	private Date manufacturerDate;
 	private Date expiryDate;
-	private Long deletionIndicator = 0L;
+	private Long deletionIndicator;
 	private String referenceField1;
 	private String referenceField2;
 	private String referenceField3;

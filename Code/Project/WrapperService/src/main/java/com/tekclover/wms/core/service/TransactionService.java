@@ -3323,7 +3323,7 @@ public class TransactionService {
 	}
 
 	// POST - stock-movement-report-findOutboundLine
-	public OutboundLine[] findOutboundLineForStockMovement(SearchOutboundLine searchOutboundLine, String authToken) {
+	public StockMovementReport[] findOutboundLineForStockMovement(SearchOutboundLine searchOutboundLine, String authToken) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -3333,8 +3333,8 @@ public class TransactionService {
 			UriComponentsBuilder builder =
 					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "outboundline/stock-movement-report/findOutboundLine");
 			HttpEntity<?> entity = new HttpEntity<>(searchOutboundLine, headers);
-			ResponseEntity<OutboundLine[]> result =
-					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, OutboundLine[].class);
+			ResponseEntity<StockMovementReport[]> result =
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, StockMovementReport[].class);
 			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {

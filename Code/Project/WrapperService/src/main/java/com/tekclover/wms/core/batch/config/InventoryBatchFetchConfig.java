@@ -58,9 +58,6 @@ public class InventoryBatchFetchConfig {
 //        return reader;
 //    }
     
-//  private Double inventoryQuantity;
-//	private Double allocatedQuantity;
-    
     @Bean
     public JpaPagingItemReader getJpaPagingItemReader() {
         return new JpaPagingItemReaderBuilder<Inventory>()
@@ -68,6 +65,7 @@ public class InventoryBatchFetchConfig {
                 .entityManagerFactory(entityManagerFactory)
                 .queryString("select i from Inventory i where i.inventoryQuantity > 0 or i.allocatedQuantity > 0")
                 .pageSize(1000)
+                .saveState(true)
                 .build();
     }
 
@@ -107,7 +105,7 @@ public class InventoryBatchFetchConfig {
     @Bean
     public Job dbToCsvJob() {
         JobBuilder jobBuilder = jobBuilderFactory.get("dbToCsvJob");
-        jobBuilder.incrementer(new RunIdIncrementer());
+//        jobBuilder.incrementer(new RunIdIncrementer());
         FlowJobBuilder flowJobBuilder = jobBuilder.flow(getDbToCsvStep()).end();
         Job job = flowJobBuilder.build();
         return job;
