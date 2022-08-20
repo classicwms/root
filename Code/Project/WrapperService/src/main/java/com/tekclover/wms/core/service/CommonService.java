@@ -101,4 +101,23 @@ public class CommonService {
 		CommonUtils cUtils = new CommonUtils ();
 		return cUtils.randomUUID();
 	}
+	
+	public AXAuthToken generateAXOAuthToken() {
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+		
+		AXUserAuth axapiUserAuth = new AXUserAuth();
+		axapiUserAuth.setUsername("TestAxUser");
+		axapiUserAuth.setPassword("Wms-@tv@ndtsc-!nt00");
+		
+		HttpEntity<?> entity = new HttpEntity<>(axapiUserAuth, headers);
+		String accessTokenUrl = "http://168.187.214.59:8040/api/ax/gettoken";
+		log.info("Access token url: " + accessTokenUrl);
+		
+		ResponseEntity<AXAuthToken> response = 
+				restTemplate.exchange(accessTokenUrl, HttpMethod.POST, entity, AXAuthToken.class);
+		log.info("AX Response ---------" + response.getBody());
+		return response.getBody();
+	}
 }

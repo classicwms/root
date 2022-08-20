@@ -51,6 +51,9 @@ public class BatchJobScheduler {
 	
 	@Autowired
 	private Job dbToCsvJob;
+	
+	@Autowired
+	private Job periodicJob;
 
 	/**
 	 * jobBomHeader
@@ -194,6 +197,17 @@ public class BatchJobScheduler {
 				.toJobParameters();
 		try {
 			jobLauncher.run(dbToCsvJob, params);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	
+	public void runJobPeriodic() throws Exception {
+		JobParameters params = new JobParametersBuilder().addLong("jobId", System.currentTimeMillis())
+				.toJobParameters();
+		try {
+			jobLauncher.run(periodicJob, params);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;

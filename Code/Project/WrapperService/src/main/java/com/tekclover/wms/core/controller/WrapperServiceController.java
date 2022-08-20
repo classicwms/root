@@ -71,6 +71,15 @@ public class WrapperServiceController {
 	@Autowired
 	PropertiesConfig propertiesConfig;
 	
+	
+	@ApiOperation(response = Optional.class, value = "TestAXAPI") // label for swagger
+	@PostMapping("/testAXAPI")
+	public ResponseEntity<?> testAXAPI () {
+		commonService.generateAXOAuthToken();
+    	return new ResponseEntity<>(HttpStatus.OK);
+	}
+	 
+	 
 	/**
 	 * This endpoint is for registering thrd party clients to get the Client ID and Secret Key
 	 * @param clientName
@@ -110,6 +119,13 @@ public class WrapperServiceController {
     @GetMapping("/batch-upload/jobInventoryQuery")
     public ResponseEntity<?> jobInventoryQuery() throws Exception {
         batchJobScheduler.runJobdbToCsvJob();
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    
+    @ApiOperation(response = Optional.class, value = "jobPeriodicRun") // label for swagger
+    @GetMapping("/batch-upload/jobPeriodicRun")
+    public ResponseEntity<?> jobPeriodicRun() throws Exception {
+        batchJobScheduler.runJobPeriodic();
         return new ResponseEntity<>(HttpStatus.OK);
     }
     
