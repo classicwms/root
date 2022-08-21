@@ -108,7 +108,7 @@ public class CommonService {
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 		
 		AXUserAuth axapiUserAuth = new AXUserAuth();
-		axapiUserAuth.setUsername("TestAxUser");
+		axapiUserAuth.setUsername("AxUser");
 		axapiUserAuth.setPassword("Wms-@tv@ndtsc-!nt00");
 		
 		HttpEntity<?> entity = new HttpEntity<>(axapiUserAuth, headers);
