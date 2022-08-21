@@ -2,6 +2,8 @@ package com.tekclover.wms.api.transaction.model.report;
 
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 public class StockMovementReport {
 
@@ -17,4 +19,6 @@ public class StockMovementReport {
 	private String createdTime;			// IM_CTD_ON Time
 	private Double balanceOHQty;		// Document Number
 	private Double openingStock;		// Opening Stock
+
+	private Date confirmedOn;
 }

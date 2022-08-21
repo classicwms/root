@@ -63,7 +63,9 @@ public class GrLineSpecification implements Specification<GrLine> {
         	 final Path<Group> group = root.<Group> get("statusId");
         	 predicates.add(group.in(searchGrLine.getStatusId()));
          }	
-		          	         
+		 
+		 predicates.add(cb.equal(root.get("deletionIndicator"), 0L));
+
          return cb.and(predicates.toArray(new Predicate[] {}));
      }
 }

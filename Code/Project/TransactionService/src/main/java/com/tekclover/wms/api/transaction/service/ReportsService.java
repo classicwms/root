@@ -510,7 +510,6 @@ public class ReportsService extends BaseService {
 
 			// INV_QTY
 			try {
-				log.info("dbInventory.getInventoryQuantity() : "+ dbInventory.getInventoryQuantity());
 				reportInventory.setInventoryQty(dbInventory.getInventoryQuantity() != null ? dbInventory.getInventoryQuantity() : 0);
 				reportInventory.setAllocatedQty(dbInventory.getAllocatedQuantity() != null ? dbInventory.getAllocatedQuantity() : 0);
 

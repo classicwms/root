@@ -5,6 +5,9 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.model.impl.OutBoundLineImpl;
+import com.tekclover.wms.api.transaction.model.impl.StockMovementReportImpl;
+import com.tekclover.wms.api.transaction.model.report.StockMovementReport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -70,9 +73,9 @@ public class OutboundLineController {
 
 	@ApiOperation(response = OutboundLine.class, value = "Search OutboundLine for Stock movement report") // label for swagger
 	@PostMapping("/stock-movement-report/findOutboundLine")
-	public List<OutboundLine> findOutboundLineForStockMovement(@RequestBody SearchOutboundLine searchOutboundLine)
+	public List<StockMovementReport> findLinesForStockMovement(@RequestBody SearchOutboundLine searchOutboundLine)
 			throws Exception {
-		return outboundlineService.findOutboundLineForStockMovement(searchOutboundLine);
+		return outboundlineService.findLinesForStockMovement(searchOutboundLine);
 	}
 	
 	@ApiOperation(response = OutboundLine.class, value = "Search OutboundLine") // label for swagger

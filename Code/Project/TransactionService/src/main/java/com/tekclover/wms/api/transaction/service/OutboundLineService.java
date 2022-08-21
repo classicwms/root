@@ -1,18 +1,18 @@
 package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
 import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
 import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
+import com.tekclover.wms.api.transaction.model.impl.StockMovementReportImpl;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.*;
+import com.tekclover.wms.api.transaction.model.report.StockMovementReport;
 import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
+import com.tekclover.wms.api.transaction.repository.InboundLineRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -84,6 +84,9 @@ public class OutboundLineService extends BaseService {
 	
 	@Autowired
 	private OutboundLineRepository outboundLineRepository;
+
+	@Autowired
+	private InboundLineRepository inboundLineRepository;
 	
 	@Autowired
 	private OutboundHeaderService outboundHeaderService;
@@ -400,7 +403,7 @@ public class OutboundLineService extends BaseService {
 		return outboundLineSearchResults;
 	}
 
-	public List<OutboundLine> findOutboundLineForStockMovement(SearchOutboundLine searchOutboundLine)
+	public List<StockMovementReport> findLinesForStockMovement(SearchOutboundLine searchOutboundLine)
 			throws ParseException, java.text.ParseException {
 
 		if (searchOutboundLine.getFromDeliveryDate() != null && searchOutboundLine.getToDeliveryDate() != null) {
@@ -409,12 +412,25 @@ public class OutboundLineService extends BaseService {
 			searchOutboundLine.setFromDeliveryDate(dates[0]);
 			searchOutboundLine.setToDeliveryDate(dates[1]);
 		}
-		searchOutboundLine.setStatusId(Arrays.asList(59L));
-		OutboundLineSpecification spec = new OutboundLineSpecification(searchOutboundLine);
 
-		Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE, Sort.by("deliveryConfirmedOn").ascending());
+		List<StockMovementReportImpl> allLineData = new ArrayList<>();
 
-		Page<OutboundLine> outboundLineSearchResults = outboundLineRepository.findAll(spec,pageable);
+		List<StockMovementReportImpl> outboundLineSearchResults = outboundLineRepository.findOutboundLineForStockMovement(searchOutboundLine.getItemCode(),searchOutboundLine.getWarehouseId(),59L,searchOutboundLine.getFromDeliveryDate(),searchOutboundLine.getToDeliveryDate());
+		List<StockMovementReportImpl> inboundLineSearchResults = inboundLineRepository.findInboundLineForStockMovement(searchOutboundLine.getItemCode(),searchOutboundLine.getWarehouseId(),24L,searchOutboundLine.getFromDeliveryDate(),searchOutboundLine.getToDeliveryDate());
+
+		allLineData.addAll(outboundLineSearchResults);
+		allLineData.addAll(inboundLineSearchResults);
+
+		allLineData.sort(Comparator.comparing(StockMovementReportImpl::getConfirmedOn));
+
+
+		List<StockMovementReport> stockMovementReports = new ArrayList<>();
+
+		allLineData.forEach(data->{
+			StockMovementReport stockMovementReport = new StockMovementReport();
+			BeanUtils.copyProperties(data,stockMovementReport);
+			stockMovementReports.add(stockMovementReport);
+		});
 
 //		log.info("results: " + outboundLineSearchResults);
 
@@ -422,16 +438,7 @@ public class OutboundLineService extends BaseService {
 		 * Pass WH-ID/REF_DOC_NO/PRE_OB_NO/OB_LINE_NO/ITM_CODE
 		 * PickConfirmQty & QCQty - from QualityLine table
 		 */
-		if (outboundLineSearchResults != null) {
-			for (OutboundLine outboundLineSearchResult : outboundLineSearchResults.getContent()) {
-				List<IImbasicData1> itemList = imBasicData1Repository.findByItemCode(outboundLineSearchResult.getItemCode());
-					if(!itemList.isEmpty()){
-						outboundLineSearchResult.setItemText(itemList.get(0).getDescription());
-						outboundLineSearchResult.setMfrPartNumber(itemList.get(0).getManufacturePart());
-					}
-			}
-		}
-		return outboundLineSearchResults.getContent();
+		return stockMovementReports;
 	}
 	
 	/**

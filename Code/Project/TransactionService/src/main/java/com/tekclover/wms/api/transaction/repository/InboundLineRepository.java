@@ -1,10 +1,14 @@
 package com.tekclover.wms.api.transaction.repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import com.tekclover.wms.api.transaction.model.impl.StockMovementReportImpl;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,5 +59,18 @@ public interface InboundLineRepository extends JpaRepository<InboundLine,Long>, 
 			String preInboundNo, String referenceField1, Long statusId, Long deletionIndicator);
 
 	public List<InboundLine> findByRefDocNumberAndDeletionIndicator(String refDocNumber, long l);
+
+	@Query(value="select il.wh_id as warehouseId, il.itm_code as itemCode , \n" +
+			" 'InBound' as documentType ,il.ref_doc_no as refDocNumber, il.partner_code as partnerCode,\n" +
+			" il.ib_cnf_on as confirmedOn, (COALESCE(il.accept_qty,0) + COALESCE(il.damage_qty,0)) as deliveryQty, im.text,im.mfr_part \n" +
+			" from tblinboundline il\n" +
+			" join tblimbasicdata1 im on il.itm_code = im.itm_code \n" +
+			" WHERE il.ITM_CODE in (:itemCode) AND il.WH_ID in (:warehouseId) AND il.status_id = :statusId " +
+			" AND il.ib_cnf_on between :fromDate and :toDate " , nativeQuery=true)
+	public List<StockMovementReportImpl> findInboundLineForStockMovement(@Param("itemCode") List<String> itemCode,
+																		  @Param ("warehouseId") List<String> warehouseId,
+																		  @Param ("statusId") Long statusId,
+																		  @Param ("fromDate") Date fromDate,
+																		  @Param ("toDate") Date toDate);
 }
 

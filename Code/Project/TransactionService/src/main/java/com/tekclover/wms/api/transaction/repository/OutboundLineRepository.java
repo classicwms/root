@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.tekclover.wms.api.transaction.model.impl.OutBoundLineImpl;
+import com.tekclover.wms.api.transaction.model.impl.StockMovementReportImpl;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -235,5 +236,18 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 			"where ref_doc_no in (:refDocNo) and ref_field_2 is null\n" +
 			"group by ref_doc_no , c_id , lang_id, plant_id, wh_id, pre_ob_no, partner_code", nativeQuery=true)
 	public List<OutBoundLineImpl> getOutBoundLineDataForOutBoundHeader(@Param ("refDocNo") List<String> refDocNo);
+
+	@Query(value="select ol.wh_id as warehouseId, ol.itm_code as itemCode , \n" +
+			" 'OutBound' as documentType , ol.ref_doc_no as documentNumber, ol.partner_code as customerCode,\n" +
+			" ol.DLV_CNF_ON as confirmedOn, ol.dlv_qty as movementQty, im.text as itemText,im.mfr_part as manufacturerSKU \n" +
+			" from tbloutboundline ol\n" +
+			" join tblimbasicdata1 im on ol.itm_code = im.itm_code \n" +
+			" WHERE ol.ITM_CODE in (:itemCode) AND ol.WH_ID in (:warehouseId) AND ol.status_id = :statusId " +
+			" AND ol.DLV_CNF_ON between :fromDate and :toDate " , nativeQuery=true)
+	public List<StockMovementReportImpl> findOutboundLineForStockMovement(@Param ("itemCode") List<String> itemCode,
+																		  @Param ("warehouseId") List<String> warehouseId,
+																		  @Param ("statusId") Long statusId,
+																		  @Param ("fromDate") Date fromDate,
+																		  @Param ("toDate") Date toDate);
 
 }
