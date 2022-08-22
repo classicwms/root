@@ -19,7 +19,8 @@ public class BomHeaderFieldSetMapper implements FieldSetMapper<BomHeader> {
 				fieldSet.readDouble("parentItemQuantity"),
 				fieldSet.readLong("statusId"),
 				fieldSet.readLong("deletionIndicator"),
-				fieldSet.readString("createdBy")
+				fieldSet.readString("createdBy"),
+				fieldSet.readDate("createdOn")
 			);
 	}
 }

@@ -68,7 +68,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 		DefaultLineMapper<BomHeader> customerLineMapper = new DefaultLineMapper<>();
 		DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
 		tokenizer.setNames(new String[] { "languageId", "companyCode", "plantId", "warehouseId", "parentItemCode",
-				"bomNumber", "parentItemQuantity", "statusId", "deletionIndicator", "createdBy"});
+				"bomNumber", "parentItemQuantity", "statusId", "deletionIndicator", "createdBy", "createdOn"});
 
 		customerLineMapper.setLineTokenizer(tokenizer);
 		customerLineMapper.setFieldSetMapper(new BomHeaderFieldSetMapper());
@@ -86,7 +86,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 				+ "STATUS_ID, Is_deleted, CTD_BY, CTD_ON, UTD_BY, UTD_ON) "
 				+ "VALUES (:languageId, :companyCode, :plantId, :warehouseId, "
 				+ ":parentItemCode, :bomNumber, :parentItemQuantity, :statusId,\r\n"
-				+ ":deletionIndicator, :createdBy, GETDATE(), :createdBy, GETDATE())");
+				+ ":deletionIndicator, :createdBy, convert(datetime, :createdOn), :createdBy, convert(datetime, :createdOn))");
 		itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider());
 		itemWriter.afterPropertiesSet();
 		return itemWriter;
@@ -109,7 +109,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 		DefaultLineMapper<BomLine> customerLineMapper = new DefaultLineMapper<>();
 		DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
 		tokenizer.setNames(new String[] { "languageId", "companyCodeId", "plantId", "warehouseId", "bomNumber", "childItemCode", "childItemQuantity", 
-										"statusId", "deletionIndicator", "createdBy"});
+										"statusId", "deletionIndicator", "createdBy", "createdOn"});
 		customerLineMapper.setLineTokenizer(tokenizer);
 		customerLineMapper.setFieldSetMapper(new BomLineFieldSetMapper());
 		customerLineMapper.afterPropertiesSet();
@@ -127,7 +127,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 				+ "IS_DELETED, CTD_BY, CTD_ON, UTD_BY, UTD_ON) "
 				+ "VALUES (:languageId, :companyCodeId, :plantId, :warehouseId, "
 				+ ":bomNumber, :childItemCode, :childItemQuantity, :statusId,\r\n"
-				+ ":deletionIndicator, :createdBy, GETDATE(), :createdBy, GETDATE())");
+				+ ":deletionIndicator, :createdBy, convert(datetime, :createdOn), :createdBy, convert(datetime, :createdOn))");
 		itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider());
 		itemWriter.afterPropertiesSet();
 		return itemWriter;

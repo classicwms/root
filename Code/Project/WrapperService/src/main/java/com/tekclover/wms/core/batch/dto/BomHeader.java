@@ -1,5 +1,7 @@
 package com.tekclover.wms.core.batch.dto;
 
+import java.util.Date;
+
 import lombok.Data;
 
 @Data
@@ -15,6 +17,7 @@ public class BomHeader {
 	private Long statusId;
 	private Long deletionIndicator;
 	private String createdBy;
+	private Date createdOn;
 	
 	/**
 	 * 
@@ -30,7 +33,7 @@ public class BomHeader {
 	 * @param createdBy
 	 */
 	public BomHeader (String languageId, String companyCode, String plantId, String warehouseId, String parentItemCode,
-			Long bomNumber, Double parentItemQuantity, Long statusId, Long deletionIndicator, String createdBy) {
+			Long bomNumber, Double parentItemQuantity, Long statusId, Long deletionIndicator, String createdBy, Date createdOn) {
 		this.languageId = languageId;
 		this.companyCode = companyCode;
 		this.plantId = plantId;
@@ -41,5 +44,6 @@ public class BomHeader {
 		this.statusId = statusId;
 		this.deletionIndicator = deletionIndicator;
 		this.createdBy = createdBy;
+		this.createdOn = createdOn;
 	}
 }

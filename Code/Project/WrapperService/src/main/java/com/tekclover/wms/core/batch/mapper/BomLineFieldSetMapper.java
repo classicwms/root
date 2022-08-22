@@ -19,7 +19,8 @@ public class BomLineFieldSetMapper implements FieldSetMapper<BomLine> {
 			fieldSet.readDouble("childItemQuantity"),
 			fieldSet.readLong("statusId"),
 			fieldSet.readLong("deletionIndicator"),
-			fieldSet.readString("createdBy")
+			fieldSet.readString("createdBy"),
+			fieldSet.readDate("createdOn")
 		);
 	}
 }
