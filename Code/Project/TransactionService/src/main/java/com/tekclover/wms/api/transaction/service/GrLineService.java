@@ -241,7 +241,6 @@ public class GrLineService extends BaseService {
 	public List<GrLine> findGrLine(SearchGrLine searchGrLine) throws ParseException {
 		GrLineSpecification spec = new GrLineSpecification(searchGrLine);
 		List<GrLine> results = grLineRepository.findAll(spec);
-//		log.info("results: " + results);
 		return results;
 	}
 	
@@ -360,13 +359,30 @@ public class GrLineService extends BaseService {
 					dbGrLine.setUpdatedBy(loginUserID);
 					dbGrLine.setCreatedOn(new Date());
 					dbGrLine.setUpdatedOn(new Date());
-					GrLine createdGRLine = grLineRepository.save(dbGrLine);
-					log.info("createdGRLine : " + createdGRLine);
-					createdGRLines.add(createdGRLine);
-					
-					if (createdGRLine != null) {
-						// Record Insertion in PUTAWAYHEADER table 
-						createPutAwayHeader (createdGRLine, loginUserID);
+					List<GrLine> oldGrLine = grLineRepository.findByGoodsReceiptNoAndItemCodeAndLineNoAndLanguageIdAndCompanyCodeAndPlantIdAndRefDocNumberAndPackBarcodesAndWarehouseIdAndPreInboundNoAndCaseCodeAndDeletionIndicator(
+							dbGrLine.getGoodsReceiptNo(),dbGrLine.getItemCode(),dbGrLine.getLineNo(),
+							dbGrLine.getLanguageId(),
+							dbGrLine.getCompanyCode(),
+							dbGrLine.getPlantId(),
+							dbGrLine.getRefDocNumber(),
+							dbGrLine.getPackBarcodes(),
+							dbGrLine.getWarehouseId(),
+							dbGrLine.getPreInboundNo(),
+							dbGrLine.getCaseCode(),
+							0L
+					);
+					GrLine createdGRLine = null;
+
+					//validate to check if grline is already exists
+					if(oldGrLine == null || oldGrLine.isEmpty()){
+						createdGRLine = grLineRepository.save(dbGrLine);
+						log.info("createdGRLine : " + createdGRLine);
+						createdGRLines.add(createdGRLine);
+
+						if (createdGRLine != null) {
+							// Record Insertion in PUTAWAYHEADER table
+							createPutAwayHeader (createdGRLine, loginUserID);
+						}
 					}
 				}
 				log.info("Records were inserted successfully...");

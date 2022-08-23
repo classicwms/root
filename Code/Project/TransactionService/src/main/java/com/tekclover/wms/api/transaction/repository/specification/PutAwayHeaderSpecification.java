@@ -75,6 +75,8 @@ public class PutAwayHeaderSpecification implements Specification<PutAwayHeader> 
          if (searchPutAwayHeader.getStartCreatedOn() != null && searchPutAwayHeader.getEndCreatedOn() != null) {
              predicates.add(cb.between(root.get("createdOn"), searchPutAwayHeader.getStartCreatedOn(), searchPutAwayHeader.getEndCreatedOn()));
          }
+
+		predicates.add(cb.equal(root.get("deletionIndicator"), 0L));
 		         
          return cb.and(predicates.toArray(new Predicate[] {}));
      }

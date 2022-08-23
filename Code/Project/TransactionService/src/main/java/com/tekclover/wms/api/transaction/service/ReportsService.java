@@ -1611,10 +1611,12 @@ public class ReportsService extends BaseService {
 			receiptConfimation = new ReceiptConfimationReport();
 			ReceiptHeader receiptHeader = new ReceiptHeader();
 
-			SearchInboundHeader searchInboundHeader = new SearchInboundHeader();
-			searchInboundHeader.setRefDocNumber(Arrays.asList(asnNumber));
-			List<InboundHeader> inboundHeaderSearchResults = inboundHeaderService
-					.findInboundHeader(searchInboundHeader);
+			// 22-08-2022-Hareesh //commented the not used method call
+
+//			SearchInboundHeader searchInboundHeader = new SearchInboundHeader();
+//			searchInboundHeader.setRefDocNumber(Arrays.asList(asnNumber));
+//			List<InboundHeader> inboundHeaderSearchResults = inboundHeaderService
+//					.findInboundHeader(searchInboundHeader);
 //			log.info("inboundHeaderSearchResults : " + inboundHeaderSearchResults);
 
 			List<InboundLine> inboundLineSearchResults = inboundLineService.getInboundLine(asnNumber);
