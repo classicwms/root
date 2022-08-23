@@ -11,6 +11,8 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
+import com.tekclover.wms.api.transaction.repository.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -31,13 +33,6 @@ import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.PutAwayHeader;
 import com.tekclover.wms.api.transaction.model.inbound.staging.StagingLineEntity;
-import com.tekclover.wms.api.transaction.repository.GrHeaderRepository;
-import com.tekclover.wms.api.transaction.repository.GrLineRepository;
-import com.tekclover.wms.api.transaction.repository.InboundLineRepository;
-import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
-import com.tekclover.wms.api.transaction.repository.InventoryRepository;
-import com.tekclover.wms.api.transaction.repository.PutAwayHeaderRepository;
-import com.tekclover.wms.api.transaction.repository.StagingLineRepository;
 import com.tekclover.wms.api.transaction.repository.specification.GrLineSpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 
@@ -82,6 +77,9 @@ public class GrLineService extends BaseService {
 	
 	@Autowired
 	private MastersService mastersService;
+
+	@Autowired
+	private ImBasicData1Repository imbasicdata1Repository;
 	
 	private static final String WAREHOUSEID_111 = "111";
 	
@@ -680,7 +678,8 @@ public class GrLineService extends BaseService {
 		Inventory inventory = new Inventory();
 		BeanUtils.copyProperties(createdGRLine, inventory, CommonUtils.getNullPropertyNames(createdGRLine));
 		inventory.setCompanyCodeId(createdGRLine.getCompanyCode());
-		
+
+
 		// VAR_ID, VAR_SUB_ID, STR_MTD, STR_NO ---> Hard coded as '1'
 		inventory.setVariantCode(1L);	
 		inventory.setVariantSubCode("1");
@@ -692,7 +691,16 @@ public class GrLineService extends BaseService {
 		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
 		StorageBin storageBin = mastersService.getStorageBin(createdGRLine.getWarehouseId(), 3L, authTokenForMastersService.getAccess_token());
 		inventory.setStorageBin(storageBin.getStorageBin());
-		
+
+		List<IImbasicData1> imbasicdata1 = imbasicdata1Repository.findByItemCode(inventory.getItemCode());
+		if(imbasicdata1 != null && !imbasicdata1.isEmpty()){
+			inventory.setReferenceField8(imbasicdata1.get(0).getDescription());
+			inventory.setReferenceField9(imbasicdata1.get(0).getManufacturePart());
+		}
+		if(storageBin != null){
+			inventory.setReferenceField10(storageBin.getStorageSectionId());
+		}
+
 		// STCK_TYP_ID
 		inventory.setStockTypeId(1L);
 		

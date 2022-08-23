@@ -569,17 +569,22 @@ public class ReportsService extends BaseService {
 			 * Pass the fetched ITM_CODE values in IMBASICDATA1 table and fetch MFR_SKU
 			 * values
 			 */
-			try {
-				ImBasicData1 imbasicdata1 = imbasicdata1Repository.findByItemCodeAndWarehouseIdInAndDeletionIndicator(
-						dbInventory.getItemCode(), warehouseId, 0L);
-				if (imbasicdata1 != null) {
-					reportInventory.setDescription(imbasicdata1.getDescription());
-					reportInventory.setMfrPartNumber(imbasicdata1.getManufacturerPartNo());
-				}
-			} catch(Exception e) {
-				log.info("ERROR : imBasicData1 master get error " + dbInventory.getItemCode() + " " +
-						dbInventory.getWarehouseId(), e);
-			}
+			//HARESSH- 23-08-2022 - commented since data is already directly stored during inventory creation
+//			try {
+//				ImBasicData1 imbasicdata1 = imbasicdata1Repository.findByItemCodeAndWarehouseIdInAndDeletionIndicator(
+//						dbInventory.getItemCode(), warehouseId, 0L);
+//				if (imbasicdata1 != null) {
+//					reportInventory.setDescription(imbasicdata1.getDescription());
+//					reportInventory.setMfrPartNumber(imbasicdata1.getManufacturerPartNo());
+//				}
+//			} catch(Exception e) {
+//				log.info("ERROR : imBasicData1 master get error " + dbInventory.getItemCode() + " " +
+//						dbInventory.getWarehouseId(), e);
+//			}
+
+			reportInventory.setDescription(dbInventory.getReferenceField8());
+			reportInventory.setMfrPartNumber(dbInventory.getReferenceField9());
+			reportInventory.setStorageSectionId(dbInventory.getReferenceField10());
 
 			// INV_UOM
 			reportInventory.setUom(dbInventory.getInventoryUom());
@@ -591,12 +596,14 @@ public class ReportsService extends BaseService {
 			 * ST_SEC_ID Pass the selected ST_BIN values into STORAGEBIN table and fetch
 			 * ST_SEC_ID values
 			 */
-			try {
-				String storagebin = storagebinRepository.findByStorageBin(dbInventory.getStorageBin());
-				reportInventory.setStorageSectionId(storagebin);
-			} catch(Exception e) {
-				log.info("ERROR : stBin master get error "+ dbInventory.getStorageBin(), e);
-			}
+
+			//HARESSH- 23-08-2022 - commented since data is already directly stored during inventory creation
+//			try {
+//				String storagebin = storagebinRepository.findByStorageBin(dbInventory.getStorageBin());
+//				reportInventory.setStorageSectionId(storagebin);
+//			} catch(Exception e) {
+//				log.info("ERROR : stBin master get error "+ dbInventory.getStorageBin(), e);
+//			}
 
 			// PACK_BARCODE
 			reportInventory.setPackBarcodes(dbInventory.getPackBarcodes());

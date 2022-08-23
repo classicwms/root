@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
+import com.tekclover.wms.api.transaction.repository.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,11 +28,6 @@ import com.tekclover.wms.api.transaction.model.inbound.putaway.PutAwayHeader;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.PutAwayLine;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.SearchPutAwayLine;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.UpdatePutAwayLine;
-import com.tekclover.wms.api.transaction.repository.InboundLineRepository;
-import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
-import com.tekclover.wms.api.transaction.repository.InventoryRepository;
-import com.tekclover.wms.api.transaction.repository.PutAwayHeaderRepository;
-import com.tekclover.wms.api.transaction.repository.PutAwayLineRepository;
 import com.tekclover.wms.api.transaction.repository.specification.PutAwayLineSpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 
@@ -69,6 +66,9 @@ public class PutAwayLineService extends BaseService {
 	
 	@Autowired
 	private InboundLineService inboundLineService;
+
+	@Autowired
+	private ImBasicData1Repository imbasicdata1Repository;
 	
 	/**
 	 * getPutAwayLines
@@ -311,7 +311,16 @@ public class PutAwayLineService extends BaseService {
 					AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
 					StorageBin dbStorageBin = mastersService.getStorageBin(dbPutAwayLine.getConfirmedStorageBin(), authTokenForMastersService.getAccess_token());
 					inventory.setBinClassId(dbStorageBin.getBinClassId());
-					
+
+					List<IImbasicData1> imbasicdata1 = imbasicdata1Repository.findByItemCode(inventory.getItemCode());
+					if(imbasicdata1 != null && !imbasicdata1.isEmpty()){
+						inventory.setReferenceField8(imbasicdata1.get(0).getDescription());
+						inventory.setReferenceField9(imbasicdata1.get(0).getManufacturePart());
+					}
+					if(dbStorageBin != null){
+						inventory.setReferenceField10(dbStorageBin.getStorageSectionId());
+					}
+
 					/*
 					 * Insert PA_CNF_QTY value in this field. 
 					 * Also Pass WH_ID/PACK_BARCODE/ITM_CODE/BIN_CL_ID=3 in INVENTORY table and fetch ST_BIN/INV_QTY value. 

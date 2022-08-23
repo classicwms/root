@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
+import com.tekclover.wms.api.transaction.repository.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,11 +26,6 @@ import com.tekclover.wms.api.transaction.model.mnc.InhouseTransferHeaderEntity;
 import com.tekclover.wms.api.transaction.model.mnc.InhouseTransferLine;
 import com.tekclover.wms.api.transaction.model.mnc.InhouseTransferLineEntity;
 import com.tekclover.wms.api.transaction.model.mnc.SearchInhouseTransferHeader;
-import com.tekclover.wms.api.transaction.repository.InhouseTransferHeaderRepository;
-import com.tekclover.wms.api.transaction.repository.InhouseTransferLineRepository;
-import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
-import com.tekclover.wms.api.transaction.repository.InventoryRepository;
-import com.tekclover.wms.api.transaction.repository.StorageBinRepository;
 import com.tekclover.wms.api.transaction.repository.specification.InhouseTransferHeaderSpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
@@ -65,6 +62,9 @@ public class InhouseTransferHeaderService extends BaseService {
 
 	@Autowired
 	private StorageBinRepository storageBinRepository;
+
+	@Autowired
+	private ImBasicData1Repository imbasicdata1Repository;
 	
 	/**
 	 * getInHouseTransferHeaders
@@ -431,6 +431,16 @@ public class InhouseTransferHeaderService extends BaseService {
 
 					StorageBin storageBin = getStorageBin(createdInhouseTransferLine.getTargetStorageBin());
 					newInventory.setBinClassId(storageBin.getBinClassId());
+
+					List<IImbasicData1> imbasicdata1 = imbasicdata1Repository.findByItemCode(newInventory.getItemCode());
+					if(imbasicdata1 != null && !imbasicdata1.isEmpty()){
+						newInventory.setReferenceField8(imbasicdata1.get(0).getDescription());
+						newInventory.setReferenceField9(imbasicdata1.get(0).getManufacturePart());
+					}
+					if(storageBin != null){
+						newInventory.setReferenceField10(storageBin.getStorageSectionId());
+					}
+
 					Inventory createdInventory = inventoryService.createInventory(newInventory, loginUserID);
 					log.info("createdInventory------> : " + createdInventory);
 				}

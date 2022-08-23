@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
+import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -75,6 +77,9 @@ public class PickupLineService extends BaseService {
 	
 	@Autowired
 	private AuthTokenService authTokenService;
+
+	@Autowired
+	private ImBasicData1Repository imbasicdata1Repository;
 	
 	/**
 	 * getPickupLines
@@ -405,6 +410,16 @@ public class PickupLineService extends BaseService {
 					newInventory.setStorageBin(storageBin.getStorageBin());
 					newInventory.setInventoryQuantity(dbPickupLine.getPickConfirmQty());
 					newInventory.setSpecialStockIndicatorId(dbPickupLine.getSpecialStockIndicatorId());
+
+					List<IImbasicData1> imbasicdata1 = imbasicdata1Repository.findByItemCode(newInventory.getItemCode());
+					if(imbasicdata1 != null && !imbasicdata1.isEmpty()){
+						newInventory.setReferenceField8(imbasicdata1.get(0).getDescription());
+						newInventory.setReferenceField9(imbasicdata1.get(0).getManufacturePart());
+					}
+					if(storageBin != null){
+						newInventory.setReferenceField10(storageBin.getStorageSectionId());
+					}
+
 					Inventory createdInventory = inventoryService.createInventory(newInventory, loginUserID);
 					log.info("newInventory created : " + createdInventory);
 				}

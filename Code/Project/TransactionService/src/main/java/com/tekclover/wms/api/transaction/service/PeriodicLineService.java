@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
+import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
+import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -60,6 +62,9 @@ public class PeriodicLineService extends BaseService {
 	
 	@Autowired
 	private PeriodicLineRepository periodicLineRepository;
+
+	@Autowired
+	private ImBasicData1Repository imbasicdata1Repository;
 
 	/**
 	 * getPeriodicLines
@@ -349,6 +354,15 @@ public class PeriodicLineService extends BaseService {
 		StorageBin storageBin = 
 				mastersService.getStorageBin(updatePeriodicLine.getWarehouseId(), 5L, authTokenForMastersService.getAccess_token());
 		inventory.setStorageBin(storageBin.getStorageBin());
+
+		List<IImbasicData1> imbasicdata1 = imbasicdata1Repository.findByItemCode(inventory.getItemCode());
+		if(imbasicdata1 != null && !imbasicdata1.isEmpty()){
+			inventory.setReferenceField8(imbasicdata1.get(0).getDescription());
+			inventory.setReferenceField9(imbasicdata1.get(0).getManufacturePart());
+		}
+		if(storageBin != null){
+			inventory.setReferenceField10(storageBin.getStorageSectionId());
+		}
 		
 		// STCK_TYP_ID
 		inventory.setStockTypeId(1L);
