@@ -151,7 +151,7 @@ public class InboundLineService extends BaseService {
 	 * @return
 	 */
 	public List<InboundLine> getInboundLine (String refDocNumber) {
-		List<InboundLine> inboundLine = inboundLineRepository.findByRefDocNumberAndDeletionIndicatorAndReferenceField1IsNull(refDocNumber, 0L);
+		List<InboundLine> inboundLine = inboundLineRepository.findByRefDocNumberAndDeletionIndicator(refDocNumber, 0L);
 		log.info("inboundLine : " + inboundLine);
 		return inboundLine;
 	}

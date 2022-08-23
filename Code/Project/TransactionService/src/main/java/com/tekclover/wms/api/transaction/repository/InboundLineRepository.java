@@ -60,8 +60,6 @@ public interface InboundLineRepository extends JpaRepository<InboundLine,Long>, 
 
 	public List<InboundLine> findByRefDocNumberAndDeletionIndicator(String refDocNumber, long l);
 
-	public List<InboundLine> findByRefDocNumberAndDeletionIndicatorAndReferenceField1IsNull(String refDocNumber, long l);
-
 	@Query(value="select il.wh_id as warehouseId, il.itm_code as itemCode , \n" +
 			" 'InBound' as documentType ,il.ref_doc_no as refDocNumber, il.partner_code as partnerCode,\n" +
 			" il.ib_cnf_on as confirmedOn, (COALESCE(il.accept_qty,0) + COALESCE(il.damage_qty,0)) as deliveryQty, im.text,im.mfr_part \n" +
