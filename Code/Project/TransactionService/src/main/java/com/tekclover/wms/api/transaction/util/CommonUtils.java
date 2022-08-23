@@ -114,7 +114,29 @@ public class CommonUtils {
 		
 //		CommonUtils o = new CommonUtils();
 //		o.sortList();
+		
+		List<String> list = new ArrayList<> ();
+		list.add("A1");
+		list.add("A2");
+		list.add("A3");
+		list.add("A4");
+		list.add("A5");
+		list.add("A6");
+		List[] list1 = splitList (list);
+		System.out.println(list1[0]);
+		System.out.println(list1[1]);
+	}
 	
+	private static<T> List[] splitList (List<String> list) {
+	    // get the size of the list
+	    int size = list.size();
+	 
+	    // construct a new list from the returned view by `List.subList()` method
+	    List<String> first = new ArrayList<>(list.subList(0, (size + 1)/2));
+	    List<String> second = new ArrayList<>(list.subList((size + 1)/2, size));
+	 
+	    // return an array of lists to accommodate both lists
+	    return new List[] {first, second};
 	}
 	
 	@Data

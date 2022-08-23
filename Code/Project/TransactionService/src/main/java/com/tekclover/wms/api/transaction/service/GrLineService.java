@@ -509,24 +509,35 @@ public class GrLineService extends BaseService {
 							mastersService.getStorageBinByStatus(createdGRLine.getWarehouseId(), 0L, authTokenForMastersService.getAccess_token());
 					List<StorageBin> storageBinEMPTYList = Arrays.asList(storageBinEMPTY);				
 					List<String> stBins = storageBinEMPTYList.stream().map(StorageBin::getStorageBin).collect(Collectors.toList());
+					
 					/*
 					 * Pass ST_BIN values into STORAGEBIN table  where where ST_SEC_ID = ZB,ZG,ZD,ZC,ZT and 
 					 * PUTAWAY_BLOCK and PICK_BLOCK columns are Null( FALSE) and fetch the filteerd values and 
 					 * Sort the latest and Insert.
 					 */
-					storageSectionIds = Arrays.asList("ZB","ZG","ZC","ZT"); // Removing ZD
-					StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
-					storageBinPutAway.setStorageBin(stBins);
-					storageBinPutAway.setStorageSectionIds(storageSectionIds);
 					
-					StorageBin[] storageBin = mastersService.getStorageBin(storageBinPutAway, authTokenForMastersService.getAccess_token());
-					if (storageBin != null && storageBin.length > 0) {
-						putAwayHeader.setProposedStorageBin(storageBin[0].getStorageBin());
+					// Prod Issue - SQL Grammer on StorageBin-----23-08-2022
+					// Start
+					if (stBins != null && stBins.size() > 2000) {
+						List[] listArray = splitList (stBins);
+						StorageBin[] storageBin = getStorageBin(storageSectionIds, listArray[0], authTokenForMastersService.getAccess_token());
+						if (storageBin != null && storageBin.length > 0) {
+							putAwayHeader.setProposedStorageBin(storageBin[0].getStorageBin());
+						} else {
+							storageBin = getStorageBin(storageSectionIds, listArray[1], authTokenForMastersService.getAccess_token());
+							putAwayHeader.setProposedStorageBin(storageBin[0].getStorageBin());
+						}
 					} else {
-						Long binClassID = 2L;
-						StorageBin stBin = mastersService.getStorageBin(createdGRLine.getWarehouseId(), binClassID, authTokenForMastersService.getAccess_token());
-						putAwayHeader.setProposedStorageBin(stBin.getStorageBin());
+						StorageBin[] storageBin = getStorageBin(storageSectionIds, stBins, authTokenForMastersService.getAccess_token());
+						if (storageBin != null && storageBin.length > 0) {
+							putAwayHeader.setProposedStorageBin(storageBin[0].getStorageBin());
+						} else {
+							Long binClassID = 2L;
+							StorageBin stBin = mastersService.getStorageBin(createdGRLine.getWarehouseId(), binClassID, authTokenForMastersService.getAccess_token());
+							putAwayHeader.setProposedStorageBin(stBin.getStorageBin());
+						}
 					}
+					// End
 				}
 				
 				/*
@@ -575,6 +586,40 @@ public class GrLineService extends BaseService {
 			/*----------------INVENTORYMOVEMENT table Update---------------------------------------------*/
 			createInventoryMovement (createdGRLine, createdinventory);
 		}
+	}
+	
+	/**
+	 * 
+	 * @param storageSectionIds
+	 * @param stBins
+	 * @param authToken
+	 * @return
+	 */
+	private StorageBin[] getStorageBin (List<String> storageSectionIds, List<String> stBins, String authToken ) {
+		StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
+		storageSectionIds = Arrays.asList("ZB","ZG","ZC","ZT"); // Removing ZD
+		storageBinPutAway.setStorageBin(stBins);
+		storageBinPutAway.setStorageSectionIds(storageSectionIds);
+		StorageBin[] storageBin = mastersService.getStorageBin(storageBinPutAway, authToken);
+		return storageBin;
+	}
+	
+	/**
+	 * 
+	 * @param <T>
+	 * @param list
+	 * @return
+	 */
+	private static<T> List[] splitList (List<String> list) {
+	    // get the size of the list
+	    int size = list.size();
+	 
+	    // construct a new list from the returned view by `List.subList()` method
+	    List<String> first = new ArrayList<>(list.subList(0, (size + 1)/2));
+	    List<String> second = new ArrayList<>(list.subList((size + 1)/2, size));
+	 
+	    // return an array of lists to accommodate both lists
+	    return new List[] {first, second};
 	}
 	
 	/**
