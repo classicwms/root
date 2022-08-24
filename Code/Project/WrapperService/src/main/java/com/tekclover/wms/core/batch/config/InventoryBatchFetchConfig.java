@@ -63,7 +63,7 @@ public class InventoryBatchFetchConfig {
         return new JpaPagingItemReaderBuilder<Inventory>()
                 .name("Inventory")
                 .entityManagerFactory(entityManagerFactory)
-                .queryString("select i from Inventory i where i.inventoryQuantity > 0 or i.allocatedQuantity > 0")
+                .queryString("select i from Inventory i where (i.inventoryQuantity > 0 or i.allocatedQuantity > 0) and i.deletionIndicator = 0 ")
                 .pageSize(1000)
                 .saveState(true)
                 .build();
