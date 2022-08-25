@@ -585,6 +585,10 @@ public class ReportsService extends BaseService {
 			reportInventory.setDescription(dbInventory.getReferenceField8());
 			reportInventory.setMfrPartNumber(dbInventory.getReferenceField9());
 			reportInventory.setStorageSectionId(dbInventory.getReferenceField10());
+			reportInventory.setAisleId(dbInventory.getReferenceField5());
+			reportInventory.setLevelId(dbInventory.getReferenceField6());
+			reportInventory.setRowId(dbInventory.getReferenceField7());
+
 
 			// INV_UOM
 			reportInventory.setUom(dbInventory.getInventoryUom());

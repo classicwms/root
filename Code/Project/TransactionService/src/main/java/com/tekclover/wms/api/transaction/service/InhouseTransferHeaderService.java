@@ -439,6 +439,9 @@ public class InhouseTransferHeaderService extends BaseService {
 					}
 					if(storageBin != null){
 						newInventory.setReferenceField10(storageBin.getStorageSectionId());
+						newInventory.setReferenceField5(storageBin.getAisleNumber());
+						newInventory.setReferenceField6(storageBin.getShelfId());
+						newInventory.setReferenceField7(storageBin.getRowId());
 					}
 
 					Inventory createdInventory = inventoryService.createInventory(newInventory, loginUserID);

@@ -550,17 +550,32 @@ public class GrLineService extends BaseService {
 					List<String> stBins = storageBinEMPTYList.stream().map(StorageBin::getStorageBin).collect(Collectors.toList());
 					
 					// Pass ST_BIN values into STORAGEBIN table  where where ST_SEC_ID = ZD and PUTAWAY_BLOCK and 
-					// PICK_BLOCK columns are Null( FALSE) 
-					StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
-					storageBinPutAway.setStorageBin(stBins);
-					storageBinPutAway.setStorageSectionIds(storageSectionIds);
-					StorageBin[] storageBin = mastersService.getStorageBin(storageBinPutAway, authTokenForMastersService.getAccess_token());
-					if (storageBin != null && storageBin.length > 0) {
-						putAwayHeader.setProposedStorageBin(storageBin[0].getStorageBin());
+					// PICK_BLOCK columns are Null( FALSE)
+					if (stBins != null && stBins.size() > 2000) {
+						StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
+						List[] listArray = splitList (stBins);
+						storageBinPutAway.setStorageBin(listArray[0]);
+						storageBinPutAway.setStorageSectionIds(storageSectionIds);
+						StorageBin[] storageBin = mastersService.getStorageBin(storageBinPutAway, authTokenForMastersService.getAccess_token());
+						if (storageBin != null && storageBin.length > 0) {
+							putAwayHeader.setProposedStorageBin(storageBin[0].getStorageBin());
+						} else {
+							storageBinPutAway.setStorageBin(listArray[1]);
+							storageBin = mastersService.getStorageBin(storageBinPutAway, authTokenForMastersService.getAccess_token());
+							putAwayHeader.setProposedStorageBin(storageBin[0].getStorageBin());
+						}
 					} else {
-						Long binClassID = 2L;
-						StorageBin stBin = mastersService.getStorageBin(createdGRLine.getWarehouseId(), binClassID, authTokenForMastersService.getAccess_token());
-						putAwayHeader.setProposedStorageBin(stBin.getStorageBin());
+						StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
+						storageBinPutAway.setStorageBin(stBins);
+						storageBinPutAway.setStorageSectionIds(storageSectionIds);
+						StorageBin[] storageBin = mastersService.getStorageBin(storageBinPutAway, authTokenForMastersService.getAccess_token());
+						if (storageBin != null && storageBin.length > 0) {
+							putAwayHeader.setProposedStorageBin(storageBin[0].getStorageBin());
+						} else {
+							Long binClassID = 2L;
+							StorageBin stBin = mastersService.getStorageBin(createdGRLine.getWarehouseId(), binClassID, authTokenForMastersService.getAccess_token());
+							putAwayHeader.setProposedStorageBin(stBin.getStorageBin());
+						}
 					}
 				}
 			}
@@ -699,6 +714,9 @@ public class GrLineService extends BaseService {
 		}
 		if(storageBin != null){
 			inventory.setReferenceField10(storageBin.getStorageSectionId());
+			inventory.setReferenceField5(storageBin.getAisleNumber());
+			inventory.setReferenceField6(storageBin.getShelfId());
+			inventory.setReferenceField7(storageBin.getRowId());
 		}
 
 		// STCK_TYP_ID

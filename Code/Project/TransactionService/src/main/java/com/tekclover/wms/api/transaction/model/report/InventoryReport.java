@@ -18,4 +18,9 @@ public class InventoryReport {
 	private Double allocatedQty;		// ALLOCATED_QTY
 	private Double totalQuantity;		// ALLOCATED_QTY
 
+	//from storage bin
+	private String aisleId;       // AISLE_ID
+	private String levelId;		// SHELF_ID
+	private String rowId;		// ROW_ID
+
 }

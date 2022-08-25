@@ -362,6 +362,9 @@ public class PeriodicLineService extends BaseService {
 		}
 		if(storageBin != null){
 			inventory.setReferenceField10(storageBin.getStorageSectionId());
+			inventory.setReferenceField5(storageBin.getAisleNumber());
+			inventory.setReferenceField6(storageBin.getShelfId());
+			inventory.setReferenceField7(storageBin.getRowId());
 		}
 		
 		// STCK_TYP_ID

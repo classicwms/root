@@ -319,6 +319,9 @@ public class PutAwayLineService extends BaseService {
 					}
 					if(dbStorageBin != null){
 						inventory.setReferenceField10(dbStorageBin.getStorageSectionId());
+						inventory.setReferenceField5(dbStorageBin.getAisleNumber());
+						inventory.setReferenceField6(dbStorageBin.getShelfId());
+						inventory.setReferenceField7(dbStorageBin.getRowId());
 					}
 
 					/*

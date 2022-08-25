@@ -14,4 +14,9 @@ public class InventoryReport {
 	private String packBarcodes;		// PACK_BARCODE
 	private Double inventoryQty;		// INV_QTY
 	private Long stockType;			// STCK_TYP_TEXT
+
+	//from storage bin
+	private String aisleId;       // AISLE_ID
+	private String levelId;		// SHELF_ID
+	private String rowId;		// ROW_ID
 }
