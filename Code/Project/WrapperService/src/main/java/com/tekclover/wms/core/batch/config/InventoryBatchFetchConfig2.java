@@ -1,6 +1,5 @@
 package com.tekclover.wms.core.batch.config;
 
-import javax.batch.api.chunk.ItemWriter;
 import javax.persistence.EntityManagerFactory;
 
 import org.springframework.batch.core.Job;
@@ -12,12 +11,18 @@ import org.springframework.batch.core.job.builder.FlowJobBuilder;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JpaPagingItemReader;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
+import org.springframework.batch.item.file.FlatFileItemWriter;
+import org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor;
+import org.springframework.batch.item.file.transform.DelimitedLineAggregator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.FileSystemResource;
 
+import com.tekclover.wms.core.batch.dto.Inventory2;
 import com.tekclover.wms.core.batch.scheduler.entity.Inventory;
 import com.tekclover.wms.core.batch.scheduler.entity.InventoryItemProcessor;
 
@@ -57,24 +62,41 @@ public class InventoryBatchFetchConfig2 {
 		return new JpaPagingItemReaderBuilder<Inventory>().name("Inventory").entityManagerFactory(entityManagerFactory)
 				.queryString(
 						"select i from Inventory i where (i.inventoryQuantity > 0 or i.allocatedQuantity > 0) and i.deletionIndicator = 0 ")
-				.pageSize(1000)
-				.saveState(true).build();
+				.pageSize(1000).saveState(true).build();
 	}
 
 	@Bean
-	public ItemWriter<Inventory2> customerItemWriter(){
-		return items -> {
-			for(Inventory2 c : items) {
-				System.out.println(c.toString());
-			}
-		};
+	public ItemWriter<Inventory2> writer() {
+		String headers = "WAREHOUSEID, ITEMCODE, DESCRIPTION, STORAGEBIN, PACKBARCODE, MFRPARTNUMBER, STORAGESECTIONID, INVENTORYUOM,INVENTORYQUANTITY, "
+				+ "ALLOCATEDQUANTITY,STOCKTYPEID,TOTALQTY";
+		InventiryFlatFileWriter headeer = new InventiryFlatFileWriter(headers);
+		FlatFileItemWriter<Inventory2> writer = new FlatFileItemWriter<>();
+		writer.setResource(new FileSystemResource("inventory.csv"));
+		writer.setHeaderCallback(headeer);
+		writer.setLineAggregator(getDelimitedLineAggregator());
+		return writer;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	private DelimitedLineAggregator<Inventory2> getDelimitedLineAggregator() {
+		BeanWrapperFieldExtractor<Inventory2> beanWrapperFieldExtractor = new BeanWrapperFieldExtractor<Inventory2>();
+		beanWrapperFieldExtractor.setNames(new String[] { "warehouseId", "itemCode", "description", "storageBin",
+				"packBarcodes", "mfrPartNumber", "storageSectionId", "inventoryUom", "inventoryQuantity",
+				"allocatedQuantity", "stockTypeId", "totalQty" });
+		DelimitedLineAggregator<Inventory2> aggregator = new DelimitedLineAggregator<Inventory2>();
+		aggregator.setDelimiter(",");
+		aggregator.setFieldExtractor(beanWrapperFieldExtractor);
+		return aggregator;
 	}
 
 	@Bean
 	public Step getDbToCsvStep() {
 		StepBuilder stepBuilder = stepBuilderFactory.get("getDbToCsvStep");
 		SimpleStepBuilder<Inventory, Inventory> simpleStepBuilder = stepBuilder.chunk(1000);
-		return simpleStepBuilder.reader(getJpaPagingItemReader()).processor(processor()).writer(customerItemWriter()).build();
+		return simpleStepBuilder.reader(getJpaPagingItemReader()).processor(processor()).writer(writer()).build();
 	}
 
 	@Bean
