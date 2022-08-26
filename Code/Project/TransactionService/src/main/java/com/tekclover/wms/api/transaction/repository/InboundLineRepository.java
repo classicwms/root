@@ -62,10 +62,11 @@ public interface InboundLineRepository extends JpaRepository<InboundLine,Long>, 
 
 	@Query(value="select il.wh_id as warehouseId, il.itm_code as itemCode , \n" +
 			" 'InBound' as documentType ,il.ref_doc_no as documentNumber, il.partner_code as partnerCode,\n" +
-			" il.ib_cnf_on as confirmedOn, (COALESCE(il.accept_qty,0) + COALESCE(il.damage_qty,0)) as movementQty, im.text as itemText ,im.mfr_part as manufacturerSKU \n" +
+			" x.pa_cnf_on as confirmedOn, (COALESCE(il.accept_qty,0) + COALESCE(il.damage_qty,0)) as movementQty, im.text as itemText ,im.mfr_part as manufacturerSKU \n" +
 			" from tblinboundline il\n" +
 			" join tblimbasicdata1 im on il.itm_code = im.itm_code \n" +
-			" WHERE il.ITM_CODE in (:itemCode) AND il.WH_ID in (:warehouseId) AND il.status_id = :statusId " +
+			" join (select TOP 1 * from tblputawayline pa where pa.itm_code in (:itemCode) order by pa_cnf_on asc) as x on il.ref_doc_no = x.ref_doc_no  \n" +
+			" WHERE il.ITM_CODE in (:itemCode) AND il.WH_ID in (:warehouseId) AND il.status_id = :statusId \n" +
 			" AND il.ib_cnf_on between :fromDate and :toDate " , nativeQuery=true)
 	public List<StockMovementReportImpl> findInboundLineForStockMovement(@Param("itemCode") List<String> itemCode,
 																		  @Param ("warehouseId") List<String> warehouseId,

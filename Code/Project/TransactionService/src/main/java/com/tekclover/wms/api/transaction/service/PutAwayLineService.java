@@ -1,10 +1,7 @@
 package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
@@ -292,77 +289,85 @@ public class PutAwayLineService extends BaseService {
 				dbPutAwayLine.setUpdatedBy(loginUserID);
 				dbPutAwayLine.setCreatedOn(new Date());
 				dbPutAwayLine.setUpdatedOn(new Date());
-				PutAwayLine createdPutAwayLine = putAwayLineRepository.save(dbPutAwayLine);
-				log.info("createdPutAwayLine created: " + createdPutAwayLine);
-				createdPutAwayLines.add(createdPutAwayLine);
-				
-				if (createdPutAwayLine != null && createdPutAwayLine.getPutawayConfirmedQty() > 0L ) {
-				
-					// Insert a record into INVENTORY table as below
-					Inventory inventory = new Inventory();
-					BeanUtils.copyProperties(createdPutAwayLine, inventory, CommonUtils.getNullPropertyNames(createdPutAwayLine));
-					inventory.setCompanyCodeId(createdPutAwayLine.getCompanyCode());
-					inventory.setVariantCode(1L); 				// VAR_ID
-					inventory.setVariantSubCode("1"); 			// VAR_SUB_ID
-					inventory.setStorageMethod("1"); 			// STR_MTD
-					inventory.setBatchSerialNumber("1"); 		// STR_NO
-					inventory.setStorageBin(createdPutAwayLine.getConfirmedStorageBin());
-					
-					AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-					StorageBin dbStorageBin = mastersService.getStorageBin(dbPutAwayLine.getConfirmedStorageBin(), authTokenForMastersService.getAccess_token());
-					inventory.setBinClassId(dbStorageBin.getBinClassId());
+				//HAREESH - 25-08-2022 Added to restrict duplicate qty creation in inbound
+				Optional<PutAwayLine> existingPutAwayLine = putAwayLineRepository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndGoodsReceiptNoAndPreInboundNoAndRefDocNumberAndPutAwayNumberAndLineNoAndItemCodeAndProposedStorageBinAndConfirmedStorageBinInAndDeletionIndicator(
+						newPutAwayLine.getLanguageId(), newPutAwayLine.getCompanyCode(), newPutAwayLine.getPlantId(), newPutAwayLine.getWarehouseId(), newPutAwayLine.getGoodsReceiptNo(), newPutAwayLine.getPreInboundNo(), newPutAwayLine.getRefDocNumber(), newPutAwayLine.getPutAwayNumber(), newPutAwayLine.getLineNo(), newPutAwayLine.getItemCode(),
+						newPutAwayLine.getProposedStorageBin(), Arrays.asList(newPutAwayLine.getConfirmedStorageBin()), newPutAwayLine.getDeletionIndicator());
 
-					List<IImbasicData1> imbasicdata1 = imbasicdata1Repository.findByItemCode(inventory.getItemCode());
-					if(imbasicdata1 != null && !imbasicdata1.isEmpty()){
-						inventory.setReferenceField8(imbasicdata1.get(0).getDescription());
-						inventory.setReferenceField9(imbasicdata1.get(0).getManufacturePart());
-					}
-					if(dbStorageBin != null){
-						inventory.setReferenceField10(dbStorageBin.getStorageSectionId());
-						inventory.setReferenceField5(dbStorageBin.getAisleNumber());
-						inventory.setReferenceField6(dbStorageBin.getShelfId());
-						inventory.setReferenceField7(dbStorageBin.getRowId());
-					}
+				if(!existingPutAwayLine.isPresent()){
+					PutAwayLine createdPutAwayLine = putAwayLineRepository.save(dbPutAwayLine);
+					log.info("createdPutAwayLine created: " + createdPutAwayLine);
+					createdPutAwayLines.add(createdPutAwayLine);
+					if (createdPutAwayLine != null && createdPutAwayLine.getPutawayConfirmedQty() > 0L ) {
 
-					/*
-					 * Insert PA_CNF_QTY value in this field. 
-					 * Also Pass WH_ID/PACK_BARCODE/ITM_CODE/BIN_CL_ID=3 in INVENTORY table and fetch ST_BIN/INV_QTY value. 
-					 * Update INV_QTY value by (INV_QTY - PA_CNF_QTY) . If this value becomes Zero, then delete the record"
-					 */
-					try {
-						Inventory existinginventory = inventoryService.getInventory(createdPutAwayLine.getWarehouseId(), 
-								createdPutAwayLine.getPackBarcodes(), dbPutAwayLine.getItemCode(), 3L);					
-						double INV_QTY = existinginventory.getInventoryQuantity() - createdPutAwayLine.getPutawayConfirmedQty();
-						log.info("INV_QTY : " + INV_QTY);
+						// Insert a record into INVENTORY table as below
+						Inventory inventory = new Inventory();
+						BeanUtils.copyProperties(createdPutAwayLine, inventory, CommonUtils.getNullPropertyNames(createdPutAwayLine));
+						inventory.setCompanyCodeId(createdPutAwayLine.getCompanyCode());
+						inventory.setVariantCode(1L); 				// VAR_ID
+						inventory.setVariantSubCode("1"); 			// VAR_SUB_ID
+						inventory.setStorageMethod("1"); 			// STR_MTD
+						inventory.setBatchSerialNumber("1"); 		// STR_NO
+						inventory.setStorageBin(createdPutAwayLine.getConfirmedStorageBin());
 
-                        // [Prod Fix: 14-07] - Hareesh - Don't need to delete the inventory just update the existing inventory quantity
-						// Deleting inventory
+						AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+						StorageBin dbStorageBin = mastersService.getStorageBin(dbPutAwayLine.getConfirmedStorageBin(), authTokenForMastersService.getAccess_token());
+						inventory.setBinClassId(dbStorageBin.getBinClassId());
+
+						List<IImbasicData1> imbasicdata1 = imbasicdata1Repository.findByItemCode(inventory.getItemCode());
+						if(imbasicdata1 != null && !imbasicdata1.isEmpty()){
+							inventory.setReferenceField8(imbasicdata1.get(0).getDescription());
+							inventory.setReferenceField9(imbasicdata1.get(0).getManufacturePart());
+						}
+						if(dbStorageBin != null){
+							inventory.setReferenceField10(dbStorageBin.getStorageSectionId());
+							inventory.setReferenceField5(dbStorageBin.getAisleNumber());
+							inventory.setReferenceField6(dbStorageBin.getShelfId());
+							inventory.setReferenceField7(dbStorageBin.getRowId());
+						}
+
+						/*
+						 * Insert PA_CNF_QTY value in this field.
+						 * Also Pass WH_ID/PACK_BARCODE/ITM_CODE/BIN_CL_ID=3 in INVENTORY table and fetch ST_BIN/INV_QTY value.
+						 * Update INV_QTY value by (INV_QTY - PA_CNF_QTY) . If this value becomes Zero, then delete the record"
+						 */
+						try {
+							Inventory existinginventory = inventoryService.getInventory(createdPutAwayLine.getWarehouseId(),
+									createdPutAwayLine.getPackBarcodes(), dbPutAwayLine.getItemCode(), 3L);
+							double INV_QTY = existinginventory.getInventoryQuantity() - createdPutAwayLine.getPutawayConfirmedQty();
+							log.info("INV_QTY : " + INV_QTY);
+
+							// [Prod Fix: 14-07] - Hareesh - Don't need to delete the inventory just update the existing inventory quantity
+							// Deleting inventory
 //						if (INV_QTY == 0) {
 ////							[Prod Fix: 28-06] - Discussed to comment delete Inventory operation to avoid unwanted delete of Inventory
 ////							inventoryRepository.delete(existinginventory);
 //						} else
-                            if (INV_QTY >= 0) {
-							existinginventory.setInventoryQuantity(INV_QTY);
-							Inventory updatedInventory = inventoryRepository.save(existinginventory);
-							log.info("updatedInventory--------> : " + updatedInventory);
+							if (INV_QTY >= 0) {
+								existinginventory.setInventoryQuantity(INV_QTY);
+								Inventory updatedInventory = inventoryRepository.save(existinginventory);
+								log.info("updatedInventory--------> : " + updatedInventory);
+							}
+						} catch (Exception e) {
+							log.info("Existing Inventory---Error-----> : " + e.toString());
 						}
-					} catch (Exception e) {
-						log.info("Existing Inventory---Error-----> : " + e.toString());
+
+						// INV_QTY
+						inventory.setInventoryQuantity(createdPutAwayLine.getPutawayConfirmedQty());
+
+						// INV_UOM
+						inventory.setInventoryUom(createdPutAwayLine.getPutAwayUom());
+						inventory.setCreatedBy(createdPutAwayLine.getCreatedBy());
+						inventory.setCreatedOn(createdPutAwayLine.getCreatedOn());
+						Inventory createdInventory = inventoryRepository.save(inventory);
+						log.info("createdInventory : " + createdInventory);
+
+						/* Insert a record into INVENTORYMOVEMENT table */
+						InventoryMovement createdInventoryMovement = createInventoryMovement (createdPutAwayLine);
+						log.info("inventoryMovement created: " + createdInventoryMovement);
 					}
-					
-					// INV_QTY
-					inventory.setInventoryQuantity(createdPutAwayLine.getPutawayConfirmedQty());
-					
-					// INV_UOM
-					inventory.setInventoryUom(createdPutAwayLine.getPutAwayUom());
-					inventory.setCreatedBy(createdPutAwayLine.getCreatedBy());
-					inventory.setCreatedOn(createdPutAwayLine.getCreatedOn());
-					Inventory createdInventory = inventoryRepository.save(inventory);
-					log.info("createdInventory : " + createdInventory);
-					
-					/* Insert a record into INVENTORYMOVEMENT table */
-					InventoryMovement createdInventoryMovement = createInventoryMovement (createdPutAwayLine);
-					log.info("inventoryMovement created: " + createdInventoryMovement);
+				} else {
+					log.info("Putaway Line already exist : " + existingPutAwayLine.get());
 				}
 			}
 			
