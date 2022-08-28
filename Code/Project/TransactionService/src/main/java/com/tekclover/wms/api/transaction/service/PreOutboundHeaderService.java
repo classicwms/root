@@ -50,6 +50,7 @@ import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -228,6 +229,7 @@ public class PreOutboundHeaderService extends BaseService {
 	/*
      * Process the PreoutboundIntegraion data
      */
+	@Transactional(rollbackFor = {Exception.class, Throwable.class})
 	public OutboundHeader processOutboundReceived (OutboundIntegrationHeader outboundIntegrationHeader) 
 			throws IllegalAccessException, InvocationTargetException, BadRequestException, Exception {
 		String warehouseId = outboundIntegrationHeader.getWarehouseID();
@@ -466,8 +468,9 @@ public class PreOutboundHeaderService extends BaseService {
 		
 		// ITEM_TEXT - Pass CHL_ITM_CODE as ITM_CODE in IMBASICDATA1 table and fetch ITEM_TEXT and insert
 		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+		//HAREESH 27-08-2022 - bom line creation get item description based on child item code change
 		ImBasicData1 imBasicData1 = 
-				mastersService.getImBasicData1ByItemCode(outboundIntegrationLine.getItemCode(), 
+				mastersService.getImBasicData1ByItemCode(dbBomLine.getChildItemCode(),
 						outboundIntegrationHeader.getWarehouseID(), authTokenForMastersService.getAccess_token());
 		preOutboundLine.setDescription(imBasicData1.getDescription());
 		

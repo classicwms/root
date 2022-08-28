@@ -35,7 +35,7 @@ public class InventoryService extends BaseService {
 	
 	@Autowired
 	private InventoryRepository inventoryRepository;
-	
+
 	/**
 	 * getInventorys
 	 * @return

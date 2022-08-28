@@ -310,13 +310,22 @@ public class PickupLineService extends BaseService {
 				if (createdPickupLine.getAllocatedQty() > 0D) {
 					Double INV_QTY = (inventory.getInventoryQuantity() + createdPickupLine.getAllocatedQty()) - dbPickupLine.getPickConfirmQty();
 					Double ALLOC_QTY = inventory.getAllocatedQuantity() - dbPickupLine.getAllocatedQty();
-					
+
 					/*
 					 * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
 					 */
 					// Start
 					if (INV_QTY < 0D) {
 						INV_QTY = 0D;
+					}
+					// End
+
+					/*
+					 * [Prod Fix: 26-08] - Discussed to make negative inventory to zero
+					 */
+					// Start
+					if (ALLOC_QTY < 0D) {
+						ALLOC_QTY = 0D;
 					}
 					// End
 					

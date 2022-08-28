@@ -1,27 +1,5 @@
 package com.tekclover.wms.api.transaction.service;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import javax.persistence.EntityNotFoundException;
-
-import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
-import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
-import com.tekclover.wms.api.transaction.model.impl.StockMovementReportImpl;
-import com.tekclover.wms.api.transaction.model.outbound.pickup.*;
-import com.tekclover.wms.api.transaction.model.report.StockMovementReport;
-import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
-import com.tekclover.wms.api.transaction.repository.InboundLineRepository;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.expression.ParseException;
-import org.springframework.stereotype.Service;
-
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AXAuthToken;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
@@ -30,53 +8,42 @@ import com.tekclover.wms.api.transaction.model.dto.Warehouse;
 import com.tekclover.wms.api.transaction.model.impl.OrderStatusReportImpl;
 import com.tekclover.wms.api.transaction.model.impl.OutBoundLineImpl;
 import com.tekclover.wms.api.transaction.model.impl.ShipmentDispatchSummaryReportImpl;
+import com.tekclover.wms.api.transaction.model.impl.StockMovementReportImpl;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.AddInventoryMovement;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
-import com.tekclover.wms.api.transaction.model.outbound.AddOutboundLine;
-import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
-import com.tekclover.wms.api.transaction.model.outbound.OutboundLine;
-import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundLine;
-import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundLineReport;
-import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundHeader;
-import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundLine;
+import com.tekclover.wms.api.transaction.model.outbound.*;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.OrderManagementHeader;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.OrderManagementLine;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.UpdateOrderManagementHeader;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.UpdateOrderManagementLine;
 import com.tekclover.wms.api.transaction.model.outbound.outboundreversal.AddOutboundReversal;
 import com.tekclover.wms.api.transaction.model.outbound.outboundreversal.OutboundReversal;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.*;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.PreOutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.PreOutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.UpdatePreOutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.UpdatePreOutboundLine;
-import com.tekclover.wms.api.transaction.model.outbound.quality.QualityHeader;
-import com.tekclover.wms.api.transaction.model.outbound.quality.QualityLine;
-import com.tekclover.wms.api.transaction.model.outbound.quality.SearchQualityLine;
-import com.tekclover.wms.api.transaction.model.outbound.quality.UpdateQualityHeader;
-import com.tekclover.wms.api.transaction.model.outbound.quality.UpdateQualityLine;
+import com.tekclover.wms.api.transaction.model.outbound.quality.*;
 import com.tekclover.wms.api.transaction.model.report.SearchOrderStatusReport;
+import com.tekclover.wms.api.transaction.model.report.StockMovementReport;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.confirmation.AXApiResponse;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.InterWarehouseShipment;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.InterWarehouseShipmentHeader;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.InterWarehouseShipmentLine;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.ReturnPO;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.ReturnPOHeader;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.ReturnPOLine;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.SalesOrder;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.SalesOrderHeader;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.SalesOrderLine;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.Shipment;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.ShipmentHeader;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.ShipmentLine;
-import com.tekclover.wms.api.transaction.repository.InventoryRepository;
-import com.tekclover.wms.api.transaction.repository.OutboundLineRepository;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.*;
+import com.tekclover.wms.api.transaction.repository.*;
 import com.tekclover.wms.api.transaction.repository.specification.OutboundLineReportSpecification;
 import com.tekclover.wms.api.transaction.repository.specification.OutboundLineSpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.ParseException;
+import org.springframework.stereotype.Service;
+
+import javax.persistence.EntityNotFoundException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -138,6 +105,9 @@ public class OutboundLineService extends BaseService {
 
 	@Autowired
 	private ImBasicData1Repository imBasicData1Repository;
+
+	@Autowired
+	private OrderManagementLineRepository orderManagementLineRepository;
 	
 	/**
 	 * getOutboundLines
@@ -989,7 +959,8 @@ public class OutboundLineService extends BaseService {
 			
 			/*-----------------------------Next Process----------------------------------------------------------*/
 			// If STATUS_ID = 50 - Reversal of Picking Confirmation
-			if (outboundLine.getStatusId() == 50L) {
+			// HAREESH 27-08-2022 added status id 51
+			if (outboundLine.getStatusId() == 50L || outboundLine.getStatusId() == 51L) {
 				/*----------------------STEP 1------------------------------------------------
 				 * Fetch WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/OB_LINE_NO/ITM_CODE values from OUTBOUNDLINE table and 
 				 * pass the keys in PICKUPLINE table and update STATUS_ID=53 and Delete the record
@@ -1230,11 +1201,28 @@ public class OutboundLineService extends BaseService {
 		UpdateOrderManagementLine updateOrderManagementLine = new UpdateOrderManagementLine();
 		updateOrderManagementLine.setPickupNumber(null);
 		updateOrderManagementLine.setStatusId(43L);
-		OrderManagementLine orderManagementLine = orderManagementLineService.updateOrderManagementLine(pickupHeader.getWarehouseId(), pickupHeader.getPreOutboundNo(), 
-				pickupHeader.getRefDocNumber(), pickupHeader.getPartnerCode(), pickupHeader.getLineNumber(), 
-				pickupHeader.getItemCode(), loginUserID, updateOrderManagementLine);
-		log.info("OrderManagementLine updated : " + orderManagementLine);
-		return orderManagementLine;
+
+		//HAREESH - 27-08-2022 pickup number null update was reflected due to bean util null property ignore , so wrote the method here and manually set pickupnumber to null
+
+//		OrderManagementLine orderManagementLine = orderManagementLineService.updateOrderManagementLine(pickupHeader.getWarehouseId(), pickupHeader.getPreOutboundNo(),
+//				pickupHeader.getRefDocNumber(), pickupHeader.getPartnerCode(), pickupHeader.getLineNumber(),
+//				pickupHeader.getItemCode(), loginUserID, updateOrderManagementLine);
+
+		OrderManagementLine dbOrderManagementLine = orderManagementLineService.getOrderManagementLine(pickupHeader.getWarehouseId(), pickupHeader.getPreOutboundNo(),
+				pickupHeader.getRefDocNumber(), pickupHeader.getPartnerCode(), pickupHeader.getLineNumber(),
+				pickupHeader.getItemCode());
+		if (dbOrderManagementLine != null) {
+			BeanUtils.copyProperties(updateOrderManagementLine, dbOrderManagementLine, CommonUtils.getNullPropertyNames(updateOrderManagementLine));
+			dbOrderManagementLine.setPickupUpdatedBy(loginUserID);
+			dbOrderManagementLine.setPickupNumber(null);
+			dbOrderManagementLine.setStatusId(43L);
+			dbOrderManagementLine.setPickupUpdatedOn(new Date());
+			OrderManagementLine orderManagementLine = orderManagementLineRepository.save(dbOrderManagementLine);
+			log.info("OrderManagementLine updated : " + orderManagementLine);
+			return orderManagementLine;
+		} else {
+			return null;
+		}
 	}
 
 	/**
