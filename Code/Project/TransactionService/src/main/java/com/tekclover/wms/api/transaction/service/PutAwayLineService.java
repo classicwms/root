@@ -508,11 +508,11 @@ public class PutAwayLineService extends BaseService {
 	 * @throws InvocationTargetException
 	 */
 	public PutAwayLine updatePutAwayLine (String warehouseId, String goodsReceiptNo, String preInboundNo, String refDocNumber, 
-			String putAwayNumber, Long lineNo, String itemCode, String proposedStorageBin, List<String> confirmedStorageBin, 
+			String putAwayNumber, Long lineNo, String itemCode, String proposedStorageBin, String confirmedStorageBin,
 			String loginUserID, UpdatePutAwayLine updatePutAwayLine) 
 			throws IllegalAccessException, InvocationTargetException {
 		PutAwayLine dbPutAwayLine = getPutAwayLine(warehouseId, goodsReceiptNo, preInboundNo, refDocNumber, putAwayNumber, 
-				lineNo, itemCode, proposedStorageBin, confirmedStorageBin);
+				lineNo, itemCode, proposedStorageBin, Arrays.asList(confirmedStorageBin));
 		BeanUtils.copyProperties(updatePutAwayLine, dbPutAwayLine, CommonUtils.getNullPropertyNames(updatePutAwayLine));
 		dbPutAwayLine.setUpdatedBy(loginUserID);
 		dbPutAwayLine.setUpdatedOn(new Date());

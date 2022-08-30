@@ -107,7 +107,7 @@ public class PutAwayLineController {
     
     @ApiOperation(response = PutAwayLine.class, value = "Update PutAwayLine") // label for swagger
     @PatchMapping("/{confirmedStorageBin}")
-	public ResponseEntity<?> patchPutAwayLine(@PathVariable List<String> confirmedStorageBin, @RequestParam String warehouseId, 
+	public ResponseEntity<?> patchPutAwayLine(@PathVariable String confirmedStorageBin, @RequestParam String warehouseId,
 			@RequestParam String goodsReceiptNo, @RequestParam String preInboundNo, @RequestParam String refDocNumber, 
 			@RequestParam String putAwayNumber, @RequestParam Long lineNo, @RequestParam String itemCode, 
 			@RequestParam String proposedStorageBin, @Valid @RequestBody UpdatePutAwayLine updatePutAwayLine, 
