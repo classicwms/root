@@ -190,13 +190,13 @@ public class OrderManagementLineService extends BaseService {
 	public List<OrderManagementLine> findOrderManagementLine(SearchOrderManagementLine searchOrderManagementLine) 
 			throws ParseException, java.text.ParseException {		
 		
-		if (searchOrderManagementLine.getStartRequiredDeliveryDate() != null && searchOrderManagementLine.getStartRequiredDeliveryDate() != null) {
+		if (searchOrderManagementLine.getStartRequiredDeliveryDate() != null && searchOrderManagementLine.getEndRequiredDeliveryDate() != null) {
 			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOrderManagementLine.getStartRequiredDeliveryDate(), searchOrderManagementLine.getEndRequiredDeliveryDate());
 			searchOrderManagementLine.setStartRequiredDeliveryDate(dates[0]);
 			searchOrderManagementLine.setEndRequiredDeliveryDate(dates[1]);
 		}
 		
-		if (searchOrderManagementLine.getStartOrderDate() != null && searchOrderManagementLine.getStartOrderDate() != null) {
+		if (searchOrderManagementLine.getStartOrderDate() != null && searchOrderManagementLine.getEndOrderDate() != null) {
 			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOrderManagementLine.getStartOrderDate(), searchOrderManagementLine.getEndOrderDate());
 			searchOrderManagementLine.setStartOrderDate(dates[0]);
 			searchOrderManagementLine.setEndOrderDate(dates[1]);
@@ -212,7 +212,7 @@ public class OrderManagementLineService extends BaseService {
 			for (OrderManagementLine orderManagementLine : searchResults) {
 				if (orderManagementLine.getProposedStorageBin() != null && 
 						orderManagementLine.getProposedStorageBin().trim().length() > 0) {
-					StorageBin storageBin = 
+					StorageBin storageBin =
 							mastersService.getStorageBin(orderManagementLine.getProposedStorageBin(), authTokenForMastersService.getAccess_token());
 					
 					// Ref_Field_9 for storing ST_SEC_ID

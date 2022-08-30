@@ -39,6 +39,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.lang.reflect.InvocationTargetException;
@@ -842,6 +843,7 @@ public class OutboundLineService extends BaseService {
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
+	@Transactional(rollbackFor = {Exception.class, Throwable.class})
 	public List<OutboundReversal> doReversal(String refDocNumber, String itemCode, String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
 		List<OutboundLine> outboundLineList = 
@@ -888,7 +890,7 @@ public class OutboundLineService extends BaseService {
 				 * in INVENTORY table and update INV_QTY as (INV_QTY - DLV_QTY ) and 
 				 * delete the record if INV_QTY = 0 (Update 1)								
 				 */
-				Inventory inventory = updateInventory1(pickupLine);
+				Inventory inventory = updateInventory1(pickupLine,outboundLine.getStatusId());
 				
 				/*---------------STEP 3.2-----Inventory update-------------------------------
 				 * Pass WH_ID/_ITM_CODE/ST_BIN from PICK_ST_BIN /PACK_BARCODE as PICK_PACK_BARCODE of PICKUPLINE 
@@ -897,8 +899,10 @@ public class OutboundLineService extends BaseService {
 				inventory = inventoryService.getInventory(pickupLine.getWarehouseId(), pickupLine.getPickedPackCode(), 
 						pickupLine.getItemCode(), pickupLine.getPickedStorageBin());
 				
-				Double INV_QTY = inventory.getInventoryQuantity() + pickupLine.getPickConfirmQty();
-				inventory.setInventoryQuantity(INV_QTY);
+//				Double INV_QTY = inventory.getInventoryQuantity() + pickupLine.getPickConfirmQty();
+				// HAREESH -28-08-2022 change to update allocated qty
+				Double ALLOC_QTY = inventory.getAllocatedQuantity() + pickupLine.getPickConfirmQty();
+				inventory.setAllocatedQuantity(ALLOC_QTY);
 				inventory = inventoryRepository.save(inventory);
 				log.info("inventory updated : " + inventory);
 				
@@ -997,7 +1001,10 @@ public class OutboundLineService extends BaseService {
 				 * INVENTORY table and update INV_QTY as (INV_QTY - PICK_CNF_QTY ) and 
 				 * delete the record If INV_QTY = 0 - (Update 1)								
 				 */
-				Inventory inventory = updateInventory1(pickupLine);
+				Inventory inventory = new Inventory();
+				if(outboundLine.getStatusId() == 50L){
+					inventory = updateInventory1(pickupLine,outboundLine.getStatusId());
+				}
 				
 				/*---------------STEP 3.2-----Inventory update-------------------------------
 				 * Pass WH_ID/_ITM_CODE/ST_BIN from PICK_ST_BIN/PACK_BARCODE from PICK_PACK_BARCODE of PICKUPLINE in 
@@ -1006,8 +1013,22 @@ public class OutboundLineService extends BaseService {
 				inventory = inventoryService.getInventory(pickupLine.getWarehouseId(), pickupLine.getPickedPackCode(), 
 						pickupLine.getItemCode(), pickupLine.getPickedStorageBin());
 				
-				Double INV_QTY = inventory.getInventoryQuantity() + pickupLine.getPickConfirmQty();
-				inventory.setInventoryQuantity(INV_QTY);
+//				Double INV_QTY = inventory.getInventoryQuantity() + pickupLine.getPickConfirmQty();
+
+				// HAREESH -28-08-2022 change to update allocated qty
+				if(outboundLine.getStatusId() == 50L){
+					Double ALLOC_QTY = inventory.getAllocatedQuantity() + pickupLine.getPickConfirmQty();
+					inventory.setAllocatedQuantity(ALLOC_QTY);
+				} else {
+					Double INV_QTY =  inventory.getInventoryQuantity() - pickupHeader.getPickToQty();
+					if(INV_QTY < 0) {
+						log.info("inventory qty calculated for statuId = 51L : " + INV_QTY);
+						throw new BadRequestException("The inventory quantity cannot be is less than zero" );
+					}
+					inventory.setInventoryQuantity(INV_QTY);
+					Double ALLOC_QTY = inventory.getAllocatedQuantity() + pickupHeader.getPickToQty();
+					inventory.setAllocatedQuantity(ALLOC_QTY);
+				}
 				inventory = inventoryRepository.save(inventory);
 				log.info("inventory updated : " + inventory);
 				
@@ -1250,9 +1271,12 @@ public class OutboundLineService extends BaseService {
 	 * @param  
 	 * @return
 	 */
-	private Inventory updateInventory1(PickupLine pickupLine) {
+	private Inventory updateInventory1(PickupLine pickupLine,Long statusId) {
 		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
 		Long BIN_CLASS_ID = 5L;
+		if(statusId == 50L){
+			BIN_CLASS_ID = 4L;
+		}
 		StorageBin storageBin = mastersService.getStorageBin(pickupLine.getWarehouseId(), BIN_CLASS_ID, authTokenForMastersService.getAccess_token());
 		Inventory inventory = inventoryService.getInventory(pickupLine.getWarehouseId(), pickupLine.getPickedPackCode(), 
 				pickupLine.getItemCode(), storageBin.getStorageBin());

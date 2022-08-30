@@ -120,7 +120,7 @@ public class PutAwayLineController {
     
     @ApiOperation(response = PutAwayLine.class, value = "Delete PutAwayLine") // label for swagger
 	@DeleteMapping("/{confirmedStorageBin}")
-	public ResponseEntity<?> deletePutAwayLine(@PathVariable List<String> confirmedStorageBin, @RequestParam String languageId, @RequestParam String companyCodeId, @RequestParam String plantId, @RequestParam String warehouseId, @RequestParam String goodsReceiptNo, @RequestParam String preInboundNo, @RequestParam String refDocNumber, @RequestParam String putAwayNumber, @RequestParam Long lineNo, @RequestParam String itemCode, @RequestParam String proposedStorageBin, @RequestParam String loginUserID) {
+	public ResponseEntity<?> deletePutAwayLine(@PathVariable String confirmedStorageBin, @RequestParam String languageId, @RequestParam String companyCodeId, @RequestParam String plantId, @RequestParam String warehouseId, @RequestParam String goodsReceiptNo, @RequestParam String preInboundNo, @RequestParam String refDocNumber, @RequestParam String putAwayNumber, @RequestParam Long lineNo, @RequestParam String itemCode, @RequestParam String proposedStorageBin, @RequestParam String loginUserID) {
     	putawaylineService.deletePutAwayLine(languageId, companyCodeId, plantId, warehouseId, goodsReceiptNo, preInboundNo, refDocNumber, putAwayNumber, lineNo, itemCode, proposedStorageBin, confirmedStorageBin, loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}

@@ -551,9 +551,9 @@ public class PutAwayLineService extends BaseService {
 	 */
 	public void deletePutAwayLine (String languageId, String companyCodeId, String plantId, String warehouseId, 
 			String goodsReceiptNo, String preInboundNo, String refDocNumber, String putAwayNumber, Long lineNo, 
-			String itemCode, String proposedStorageBin, List<String> confirmedStorageBin, String loginUserID) {
+			String itemCode, String proposedStorageBin, String confirmedStorageBin, String loginUserID) {
 		PutAwayLine putAwayLine = getPutAwayLine(warehouseId, goodsReceiptNo, preInboundNo, refDocNumber, putAwayNumber, 
-				lineNo, itemCode, proposedStorageBin, confirmedStorageBin);
+				lineNo, itemCode, proposedStorageBin, Arrays.asList(confirmedStorageBin));
 		if ( putAwayLine != null) {
 			putAwayLine.setDeletionIndicator(1L);
 			putAwayLine.setUpdatedBy(loginUserID);
