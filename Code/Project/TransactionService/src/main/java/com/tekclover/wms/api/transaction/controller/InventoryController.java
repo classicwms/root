@@ -87,6 +87,13 @@ public class InventoryController {
    			throws Exception {
    		return inventoryService.findInventory(searchInventory);
    	}
+
+	@ApiOperation(response = Inventory.class, value = "Search Inventory by quantity validation") // label for swagger
+	@PostMapping("/get-all-validated-inventory")
+	public List<Inventory> getQuantityValidatedInventory(@RequestBody SearchInventory searchInventory)
+			throws Exception {
+		return inventoryService.getQuantityValidatedInventory(searchInventory);
+	}
     
     @ApiOperation(response = Inventory.class, value = "Create Inventory") // label for swagger
 	@PostMapping("")

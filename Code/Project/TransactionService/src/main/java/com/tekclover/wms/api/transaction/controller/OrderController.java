@@ -94,4 +94,6 @@ public class OrderController {
        	OutboundOrder createdOutboundOrder = orderService.createOutboundOrders(newOutboundOrder);
    		return new ResponseEntity<>(createdOutboundOrder , HttpStatus.OK);
    	}
+       
+    
 }

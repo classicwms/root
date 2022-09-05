@@ -455,6 +455,16 @@ public class InventoryService extends BaseService {
 //		log.info("results: " + results);
 		return results;
 	}
+
+	public List<Inventory> getQuantityValidatedInventory(SearchInventory searchInventory)
+			throws ParseException {
+		InventorySpecification spec = new InventorySpecification(searchInventory);
+		List<Inventory> results = inventoryRepository.findAll(spec);
+		if(!results.isEmpty()){
+			results = results.stream().filter(x->  (x.getInventoryQuantity() != null && x.getInventoryQuantity() != 0) && (x.getAllocatedQuantity() != null && x.getAllocatedQuantity() != 0) ).collect(Collectors.toList());
+		}
+		return results;
+	}
 	
 	/**
 	 * createInventory
