@@ -8,11 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanWrapper;
@@ -142,5 +138,26 @@ public class CommonUtils {
 	@Data
 	class Inventory {
 		private long qty;
+	}
+
+	public static <T extends Object> List<T[]> splitArrayList(T[] array, int splitSize) {
+
+		int numberOfArrays = array.length / splitSize;
+		int remainder = array.length % splitSize;
+
+		int start = 0;
+		int end = 0;
+
+		List<T[]> list = new ArrayList<T[]>();
+		for (int i = 0; i < numberOfArrays; i++) {
+			end += splitSize;
+			list.add(Arrays.copyOfRange(array, start, end));
+			start = end;
+		}
+
+		if(remainder > 0) {
+			list.add(Arrays.copyOfRange(array, start, (start + remainder)));
+		}
+		return list;
 	}
 }

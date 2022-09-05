@@ -32,6 +32,9 @@ import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
 @Slf4j
 @Validated
 @Api(tags = {"Reports"}, value = "Reports  Operations related to ReportsController") // label for swagger
@@ -74,6 +77,16 @@ public class ReportsController {
 			@RequestParam(defaultValue = "itemCode") String sortBy) {
     	Page<StockReport> stockReportList = reportsService.getStockReport(warehouseId, itemCode, itemText, stockTypeText,
     					pageNo, pageSize, sortBy);
+		return new ResponseEntity<>(stockReportList, HttpStatus.OK);
+	}
+
+	@ApiOperation(response = Inventory.class, value = "Get Stock Report") // label for swagger
+	@GetMapping("/stockReport-all")
+	public ResponseEntity<?> getAllStockReport(@RequestParam List<String> warehouseId,
+											@RequestParam(required = false) List<String> itemCode,
+											@RequestParam(required = false) String itemText,
+											@RequestParam(required = true) String stockTypeText) {
+		List<StockReport> stockReportList = reportsService.getAllStockReport(warehouseId, itemCode, itemText, stockTypeText);
 		return new ResponseEntity<>(stockReportList, HttpStatus.OK);
 	}
     

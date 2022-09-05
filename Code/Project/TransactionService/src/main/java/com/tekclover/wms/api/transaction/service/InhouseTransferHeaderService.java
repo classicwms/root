@@ -128,7 +128,6 @@ public class InhouseTransferHeaderService extends BaseService {
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	@Transactional(rollbackFor = {Exception.class, Throwable.class})
 	public InhouseTransferHeaderEntity createInHouseTransferHeader (AddInhouseTransferHeader newInhouseTransferHeader, 
 			String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {

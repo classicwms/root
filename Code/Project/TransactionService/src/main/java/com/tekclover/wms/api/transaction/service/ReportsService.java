@@ -16,9 +16,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.tekclover.wms.api.transaction.model.impl.StockReportImpl;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -306,6 +308,33 @@ public class ReportsService extends BaseService {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public List<StockReport> getAllStockReport(List<String> warehouseId, List<String> itemCode, String itemText,
+											String stockTypeText) {
+		if (warehouseId == null) {
+			throw new BadRequestException("WarehouseId can't be blank.");
+		}
+
+		if (stockTypeText == null) {
+			throw new BadRequestException("StockTypeText can't be blank.");
+		}
+		if(itemText != null && itemText.trim().equals("")){
+			itemText = null;
+		}
+		if(itemCode != null && itemCode.isEmpty()){
+			itemCode = null;
+		}
+		List<StockReport> stockReportList = new ArrayList<>();
+		List<StockReportImpl> reportList =  inventoryRepository.getAllStockReport(warehouseId, itemCode, itemText,
+				stockTypeText);
+
+		reportList.forEach(data->{
+			StockReport stockReport = new StockReport();
+			BeanUtils.copyProperties(data,stockReport);
+			stockReportList.add(stockReport);
+		});
+		return stockReportList;
 	}
 
 	/**

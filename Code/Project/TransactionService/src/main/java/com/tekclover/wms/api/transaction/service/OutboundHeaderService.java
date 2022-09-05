@@ -2,6 +2,7 @@ package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,6 +26,7 @@ import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.yaml.snakeyaml.util.ArrayUtils;
 
 @Slf4j
 @Service
@@ -184,18 +186,27 @@ public class OutboundHeaderService {
 			headerSearchResults.forEach(headerData-> refDocNoList.add(headerData.getRefDocNumber()));
 
 			if(refDocNoList.size() > 0){
-				List<OutBoundLineImpl> outBoundLineList = outboundLineService.getOutBoundLineDataForOutBoundHeader(refDocNoList);
-				if(outBoundLineList.size() > 0){
-					headerSearchResults.forEach(headerData -> {
-						outBoundLineList.forEach(lineData->{
-							if(headerData.getRefDocNumber().equals(lineData.getRefDocNo())){
-								headerData.setReferenceField7 (String.valueOf(lineData.getShippedQty()));
-								headerData.setReferenceField8 (String.valueOf(lineData.getLinesShipped()));
-								headerData.setReferenceField9 (String.valueOf(lineData.getOrderedQty()));
-								headerData.setReferenceField10 (String.valueOf(lineData.getLinesOrdered()));
-							}
+				log.info("Get OutboundHeader reference document size :"+ refDocNoList.size());
+				String[] stringArray = refDocNoList.toArray(new String[0]);
+				List<String[]> arrayParts = CommonUtils.splitArrayList(stringArray, 2000);
+				log.info("Get OutboundHeader reference document split array :"+ arrayParts);
+				for(String[] array: arrayParts) {
+					log.info("Get OutboundLine data for reference document number array size:"+array.length);
+					log.info("Get OutboundLine data for reference document number :" + Arrays.asList(array));
+					List<OutBoundLineImpl> outBoundLineList = outboundLineService.getOutBoundLineDataForOutBoundHeader(Arrays.asList(array));
+					if(outBoundLineList.size() > 0){
+						log.info("Get OutboundLine data for reference document numbers size :" + outBoundLineList.size());
+						headerSearchResults.forEach(headerData -> {
+							outBoundLineList.forEach(lineData->{
+								if(headerData.getRefDocNumber().equals(lineData.getRefDocNo())){
+									headerData.setReferenceField7 (String.valueOf(lineData.getShippedQty()));
+									headerData.setReferenceField8 (String.valueOf(lineData.getLinesShipped()));
+									headerData.setReferenceField9 (String.valueOf(lineData.getOrderedQty()));
+									headerData.setReferenceField10 (String.valueOf(lineData.getLinesOrdered()));
+								}
+							});
 						});
-					});
+					}
 				}
 			}
 

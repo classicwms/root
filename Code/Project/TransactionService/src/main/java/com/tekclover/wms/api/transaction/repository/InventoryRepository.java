@@ -1,8 +1,10 @@
 package com.tekclover.wms.api.transaction.repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import com.tekclover.wms.api.transaction.model.impl.StockReportImpl;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -162,4 +164,32 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 	
 	@QueryHints(@javax.persistence.QueryHint(name="org.hibernate.fetchSize", value="1000"))
 	public List<Inventory> findByWarehouseIdInAndDeletionIndicator(List<String> warehouseId, Long delFlag);
+
+	@Query (value = "select itemCode,warehouseId,manufacturerSKU,itemText,onHandQty,damageQty,holdQty,(COALESCE(onHandQty ,0) + COALESCE(damageQty,0) + COALESCE(holdQty,0)) as availableQty from \n" +
+			"(select i.itm_code as itemCode,i.wh_id as warehouseId ,i.ref_field_9 as manufacturerSKU , i.ref_field_8 as itemText , \n" +
+			"(case \n" +
+			"WHEN :stockTypeText in ('ALL','ON HAND') THEN (select sum(inv_qty) from tblinventory where itm_code = i.itm_code and stck_typ_id = 1 and ref_field_10 in ('ZB', 'ZG', 'ZC', 'ZT'))\n" +
+			"WHEN :stockTypeText = 'DAMAGED' THEN (select sum(inv_qty) from tblinventory where itm_code = i.itm_code and stck_typ_id = 1 and ref_field_10 in ('ZD'))\n" +
+			"WHEN :stockTypeText = 'HOLD' THEN (select sum(inv_qty) from tblinventory where itm_code = i.itm_code and stck_typ_id = 1 and ref_field_10 in ('ZB', 'ZG', 'ZC', 'ZT','ZD'))\n" +
+			"ELSE 0\n" +
+			"END ) as onHandQty,\n" +
+			"(case \n" +
+			"WHEN :stockTypeText in ('ALL','ON HAND') THEN (select sum(inv_qty) from tblinventory where itm_code = i.itm_code and stck_typ_id = 1 and ref_field_10 in ('ZD'))\n" +
+			"ELSE 0\n" +
+			"END ) as damageQty,\n" +
+			"(case \n" +
+			"WHEN :stockTypeText in ('ALL','ON HAND') THEN (select sum(inv_qty) from tblinventory where itm_code = i.itm_code and stck_typ_id = 7 and ref_field_10 in ('ZB', 'ZG', 'ZC', 'ZT','ZD'))\n" +
+			"ELSE 0\n" +
+			"END ) as holdQty\n" +
+			"from tblinventory i \n" +
+			"join tblimbasicdata1 im on i.itm_code = im.itm_code\n" +
+			"where (:itemText IS NULL or (i.ref_field_8 = :itemText)) \n" +
+			"AND i.wh_id IN (:warehouseIds) \n" +
+			"AND (COALESCE(:itemCodes, null) IS NULL OR (i.itm_code IN (:itemCodes))) \n" +
+			"group by i.itm_code ,i.wh_id , i.ref_field_9 , i.ref_field_8) as X", nativeQuery = true)
+	public List<StockReportImpl> getAllStockReport (
+			@Param(value = "warehouseIds") List<String> warehouseId,
+			@Param(value = "itemCodes") List<String> itemCode,
+			@Param(value = "itemText") String itemText,
+			@Param(value = "stockTypeText") String stockTypeText);
 }

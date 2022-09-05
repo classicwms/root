@@ -229,7 +229,6 @@ public class PreOutboundHeaderService extends BaseService {
 	/*
      * Process the PreoutboundIntegraion data
      */
-	@Transactional(rollbackFor = {Exception.class, Throwable.class})
 	public OutboundHeader processOutboundReceived (OutboundIntegrationHeader outboundIntegrationHeader) 
 			throws IllegalAccessException, InvocationTargetException, BadRequestException, Exception {
 		String warehouseId = outboundIntegrationHeader.getWarehouseID();

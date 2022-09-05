@@ -499,11 +499,11 @@ public class PreInboundHeaderService extends BaseService {
 		// Inserting into InboundLog Table.
 		InboundIntegrationLog createdInboundIntegrationLog = createInboundIntegrationLog (createdPreInboundHeader);
 		
-		if (createdInboundIntegrationLog != null) {
-			inboundIntegrationHeader.setProcessedStatusId(1L);
-			inboundIntegrationHeader.setOrderProcessedOn(new Date());
-			mongoRepository.save(inboundIntegrationHeader);
-		}
+//		if (createdInboundIntegrationLog != null) {
+//			inboundIntegrationHeader.setProcessedStatusId(1L);
+//			inboundIntegrationHeader.setOrderProcessedOn(new Date());
+//			mongoRepository.save(inboundIntegrationHeader);
+//		}
 		
 		return createdInboundHeader;
 	}

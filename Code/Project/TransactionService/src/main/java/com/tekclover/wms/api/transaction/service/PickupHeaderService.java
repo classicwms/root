@@ -208,7 +208,6 @@ public class PickupHeaderService {
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	@Transactional(rollbackFor = {Exception.class, Throwable.class})
 	public List<PickupHeader> patchAssignedPickerIdInPickupHeader (String loginUserID,
 											List<UpdatePickupHeader> updatePickupHeaderList) throws IllegalAccessException, InvocationTargetException {
 		List<PickupHeader> pickupHeaderList = new ArrayList<>();

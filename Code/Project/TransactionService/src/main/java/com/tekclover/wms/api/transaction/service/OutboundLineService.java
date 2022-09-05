@@ -843,7 +843,6 @@ public class OutboundLineService extends BaseService {
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	@Transactional(rollbackFor = {Exception.class, Throwable.class})
 	public List<OutboundReversal> doReversal(String refDocNumber, String itemCode, String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
 		List<OutboundLine> outboundLineList = 
