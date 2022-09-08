@@ -85,8 +85,6 @@ public class BatchJobScheduler {
 	// OutboundRecord
 	@Scheduled(fixedDelay = 25000)
 	public void processOutboundRecord() throws IllegalAccessException, InvocationTargetException {
-//		log.info("The time is :" + new Date());
-		
 		if (outboundList == null || outboundList.isEmpty()) {
 			outboundList = mongoOutboundRepository.findTopByProcessedStatusIdOrderByOrderReceivedOn(0L);
 			spOutboundList = new CopyOnWriteArrayList<OutboundIntegrationHeader>(outboundList);

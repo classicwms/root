@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.InboundOrder;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.OutboundOrder;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.ShipmentOrder;
 import com.tekclover.wms.api.transaction.service.OrderService;
 
 import io.swagger.annotations.Api;
@@ -73,27 +74,34 @@ public class OrderController {
    		return new ResponseEntity<>(outboundOrderList, HttpStatus.OK);
    	}
        
-       @ApiOperation(response = OutboundOrder.class, value = "Get a Orders") // label for swagger 
+    @ApiOperation(response = OutboundOrder.class, value = "Get a Orders") // label for swagger 
    	@GetMapping("/outbound/orders/{orderId}")
    	public ResponseEntity<?> getOBOrdersById(@PathVariable String orderId) {
        	OutboundOrder orders = orderService.getOBOrderById(orderId);
    		return new ResponseEntity<>(orders, HttpStatus.OK);
    	}
        
-       @ApiOperation(response = OutboundOrder.class, value = "Get a Orders") // label for swagger 
+    @ApiOperation(response = OutboundOrder.class, value = "Get a Orders") // label for swagger 
    	@GetMapping("/outbound/orders/{orderDate}/date")
    	public ResponseEntity<?> getOBOrdersByDate(@PathVariable String orderDate) throws ParseException {
        	List<OutboundOrder> orders = orderService.getOBOrderByDate(orderDate);
    		return new ResponseEntity<>(orders, HttpStatus.OK);
    	}
        
-       @ApiOperation(response = OutboundOrder.class, value = "Create OutboundOrder") // label for swagger
+    @ApiOperation(response = OutboundOrder.class, value = "Create OutboundOrder") // label for swagger
    	@PostMapping("/outbound")
    	public ResponseEntity<?> postOrders(@RequestBody OutboundOrder newOutboundOrder) 
    			throws IllegalAccessException, InvocationTargetException {
        	OutboundOrder createdOutboundOrder = orderService.createOutboundOrders(newOutboundOrder);
    		return new ResponseEntity<>(createdOutboundOrder , HttpStatus.OK);
    	}
-       
     
+    /*-----------------------Reprocess------------------------------------------------------*/
+    @ApiOperation(response = OutboundOrder.class, value = "Create OutboundOrder") // label for swagger
+   	@GetMapping("/outbound/requeue/{orderId}")
+   	public ResponseEntity<?> pushOrders(@PathVariable String orderId) 
+   			throws IllegalAccessException, InvocationTargetException {
+       	ShipmentOrder createdOutboundOrder = orderService.pushOrder(orderId);
+   		return new ResponseEntity<>(createdOutboundOrder , HttpStatus.OK);
+   	}
 }

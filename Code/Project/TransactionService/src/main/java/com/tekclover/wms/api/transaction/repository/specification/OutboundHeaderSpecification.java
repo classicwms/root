@@ -68,7 +68,7 @@ public class OutboundHeaderSpecification implements Specification<OutboundHeader
          }
 		 		
 		 if (searchOutboundHeader.getStartOrderDate() != null && searchOutboundHeader.getEndOrderDate() != null) {
-        	 predicates.add(cb.between(root.get("orderDate"), searchOutboundHeader.getStartOrderDate(), searchOutboundHeader.getEndOrderDate()));
+        	 predicates.add(cb.between(root.get("createdOn"), searchOutboundHeader.getStartOrderDate(), searchOutboundHeader.getEndOrderDate()));
          }
 		 
 		// orderType - Ref_Field_1

@@ -129,6 +129,23 @@ public class QualityLineService extends BaseService {
 					",itemCode:" + itemCode +
 					" doesn't exist.");
 	}
+
+	public List<QualityLine> getQualityLineForReversal (String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode,
+									   Long lineNumber, String itemCode) {
+		List<QualityLine> qualityLine = qualityLineRepository.findAllByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndDeletionIndicator(
+				warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode, 0L);
+		if (qualityLine != null) {
+			return qualityLine;
+		}
+		throw new BadRequestException ("The given QualityLine ID : " +
+				"warehouseId:" + warehouseId +
+				",preOutboundNo:" + preOutboundNo +
+				",refDocNumber:" + refDocNumber +
+				",partnerCode:" + partnerCode +
+				",lineNumber:" + lineNumber +
+				",itemCode:" + itemCode +
+				" doesn't exist.");
+	}
 	
 	/**
 	 * 
@@ -605,6 +622,24 @@ public class QualityLineService extends BaseService {
 			dbQualityLine.setQualityUpdatedBy(loginUserID);
 			dbQualityLine.setQualityUpdatedOn(new Date());
 			return qualityLineRepository.save(dbQualityLine);
+		} else {
+			throw new EntityNotFoundException("Error in deleting Id: " + lineNumber);
+		}
+	}
+
+	public List<QualityLine> deleteQualityLineForReversal (String warehouseId, String preOutboundNo, String refDocNumber,
+										  String partnerCode, Long lineNumber, String itemCode, String loginUserID)
+			throws IllegalAccessException, InvocationTargetException {
+		List<QualityLine> dbQualityLine = getQualityLineForReversal(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode);
+		if ( dbQualityLine != null && !dbQualityLine.isEmpty()) {
+			List<QualityLine> qualityLineList = new ArrayList<>();
+			dbQualityLine.forEach(data->{
+				data.setDeletionIndicator(1L);
+				data.setQualityUpdatedBy(loginUserID);
+				data.setQualityUpdatedOn(new Date());
+				qualityLineList.add(data);
+			});
+			return qualityLineRepository.saveAll(qualityLineList);
 		} else {
 			throw new EntityNotFoundException("Error in deleting Id: " + lineNumber);
 		}

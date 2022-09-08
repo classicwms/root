@@ -157,6 +157,24 @@ public class OrderManagementLineService extends BaseService {
 					",itemCode:" + itemCode +
 					" doesn't exist.");
 	}
+
+	public List<OrderManagementLine> getOrderManagementLineForReversal (String warehouseId, String preOutboundNo, String refDocNumber,
+													   String partnerCode, Long lineNumber, String itemCode) {
+		List<OrderManagementLine> orderManagementHeader =
+				orderManagementLineRepository.findAllByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndDeletionIndicator(
+						warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode, 0L);
+		if (orderManagementHeader != null) {
+			return orderManagementHeader;
+		}
+		throw new BadRequestException("The given OrderManagementLine ID : " +
+				"warehouseId:" + warehouseId +
+				",preOutboundNo:" + preOutboundNo +
+				",refDocNumber:" + refDocNumber +
+				",partnerCode:" + partnerCode +
+				",lineNumber:" + lineNumber +
+				",itemCode:" + itemCode +
+				" doesn't exist.");
+	}
 	
 	/**
 	 * 

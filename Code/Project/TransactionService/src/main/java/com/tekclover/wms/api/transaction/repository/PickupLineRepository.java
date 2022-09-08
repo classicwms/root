@@ -26,4 +26,12 @@ public interface PickupLineRepository extends JpaRepository<PickupLine,Long>, Jp
 			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
 			String pickupNumber, String itemCode, String pickedStorageBin, String pickedPackCode, String actualHeNo,
 			long l);
+
+	public List<PickupLine> findAllByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndDeletionIndicator(
+			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
+			String itemCode, Long deletionIndicator);
+
+	public List<PickupLine> findAllByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndPickedPackCodeAndDeletionIndicator(
+			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
+			String itemCode,String pickedPackCode, Long deletionIndicator);
 }
