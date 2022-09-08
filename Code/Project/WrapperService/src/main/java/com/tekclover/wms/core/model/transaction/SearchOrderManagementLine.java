@@ -25,6 +25,6 @@ public class SearchOrderManagementLine {
 	private Date startRequiredDeliveryDate;
 	private Date endRequiredDeliveryDate;
 	private Date startOrderDate;
-	private Date endoOrderDate;
+	private Date endOrderDate;
 
 }

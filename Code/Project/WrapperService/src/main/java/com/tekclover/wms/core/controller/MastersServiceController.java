@@ -21,9 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tekclover.wms.core.model.masters.AuditLog;
-import com.tekclover.wms.core.model.masters.BOM;
 import com.tekclover.wms.core.model.masters.BomHeader;
-import com.tekclover.wms.core.model.masters.BomLine;
 import com.tekclover.wms.core.model.masters.BusinessPartner;
 import com.tekclover.wms.core.model.masters.HandlingEquipment;
 import com.tekclover.wms.core.model.masters.HandlingUnit;
@@ -33,6 +31,7 @@ import com.tekclover.wms.core.model.masters.ImBasicData2;
 import com.tekclover.wms.core.model.masters.ImPacking;
 import com.tekclover.wms.core.model.masters.ImPartner;
 import com.tekclover.wms.core.model.masters.ImStrategies;
+import com.tekclover.wms.core.model.masters.ItemCodeDesc;
 import com.tekclover.wms.core.model.masters.PackingMaterial;
 import com.tekclover.wms.core.model.masters.SearchBomHeader;
 import com.tekclover.wms.core.model.masters.SearchBusinessPartner;
@@ -309,6 +308,13 @@ public class MastersServiceController {
 		return mastersService.findImBasicData1(searchImBasicData1, authToken);
 	}
     
+	@ApiOperation(response = ImBasicData1.class, value = "Like Search ImBasicData1") // label for swagger
+	@GetMapping("/imbasicdata1/findItemCodeByLike")
+	public ItemCodeDesc[] getImBasicData1LikeSearch(@RequestParam String likeSearchByItemCodeNDesc,
+			@RequestParam String authToken) throws Exception {
+		return mastersService.findImBasicData1LikeSearch(likeSearchByItemCodeNDesc, authToken);
+	}
+	
     @ApiOperation(response = Optional.class, value = "Create ImAlternateUom") // label for swagger
     @RequestMapping(value = "/imalternateuom", method = RequestMethod.POST)
 	public ResponseEntity<?> createImAlternateUom(@RequestBody ImAlternateUom newImAlternateUom, 

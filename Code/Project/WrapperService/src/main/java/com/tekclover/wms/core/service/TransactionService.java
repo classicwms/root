@@ -1,32 +1,23 @@
 package com.tekclover.wms.core.service;
 
-import java.util.Collections;
-import java.util.List;
-
-import javax.validation.Valid;
-
+import com.tekclover.wms.core.config.PropertiesConfig;
 import com.tekclover.wms.core.model.transaction.*;
+import com.tekclover.wms.core.repository.MongoTransactionRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.tekclover.wms.core.config.PropertiesConfig;
-import com.tekclover.wms.core.repository.MongoTransactionRepository;
-
-import lombok.extern.slf4j.Slf4j;
+import javax.validation.Valid;
+import java.util.Collections;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -1930,7 +1921,6 @@ public class TransactionService {
 					.queryParam("putAwayNumber", putAwayNumber)
 					.queryParam("lineNo", lineNo)
 					.queryParam("itemCode", itemCode)
-					.queryParam("confirmedStorageBin", confirmedStorageBin)
 					.queryParam("proposedStorageBin", proposedStorageBin)
 					.queryParam("loginUserID", loginUserID);
 			
@@ -1944,7 +1934,7 @@ public class TransactionService {
 	}
 	
 	// DELETE
-	public boolean deletePutAwayLine (String warehouseId, String goodsReceiptNo, String preInboundNo, String refDocNumber, String putAwayNumber, Long lineNo, String itemCode, String proposedStorageBin, String confirmedStorageBin, String loginUserID, String authToken) {
+	public boolean deletePutAwayLine (String languageId,String companyCodeId, String plantId,String warehouseId, String goodsReceiptNo, String preInboundNo, String refDocNumber, String putAwayNumber, Long lineNo, String itemCode, String proposedStorageBin, String confirmedStorageBin, String loginUserID, String authToken) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -1954,6 +1944,9 @@ public class TransactionService {
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			UriComponentsBuilder builder = 
 					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "putawayline/" + confirmedStorageBin)
+					.queryParam("languageId", languageId)
+					.queryParam("companyCodeId", companyCodeId)
+					.queryParam("plantId", plantId)
 					.queryParam("warehouseId", warehouseId)
 					.queryParam("preInboundNo", preInboundNo)
 					.queryParam("refDocNumber", refDocNumber)
@@ -2218,6 +2211,27 @@ public class TransactionService {
 					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "inventory/findInventory");
 			HttpEntity<?> entity = new HttpEntity<>(searchInventory, headers);	
 			ResponseEntity<Inventory[]> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, Inventory[].class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	// POST - FinderQuery
+	public Inventory[] getQuantityValidatedInventory(SearchInventory searchInventory, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "inventory/get-all-validated-inventory");
+			HttpEntity<?> entity = new HttpEntity<>(searchInventory, headers);
+			ResponseEntity<Inventory[]> result =
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, Inventory[].class);
 			log.info("result : " + result.getStatusCode());
 			return result.getBody();
@@ -3489,6 +3503,32 @@ public class TransactionService {
 		}
 	}
 
+	public StockReport[] getAllStockReports(List<String> warehouseId, List<String> itemCode, String itemText,
+														  String stockTypeText,String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "reports/stockReport-all")
+							.queryParam("warehouseId", warehouseId)
+							.queryParam("itemCode", itemCode)
+							.queryParam("itemText", itemText)
+							.queryParam("stockTypeText",stockTypeText);
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+
+			ResponseEntity<StockReport[]> result =
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, StockReport[].class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
 	// GET - INVENTORY REPORT
 	public PaginatedResponse<InventoryReport> getInventoryReport(List<String> warehouseId, List<String> itemCode, String storageBin,
 			String stockTypeText, List<String> stSectionIds, Integer pageNo, Integer pageSize, String sortBy, String authToken) {
@@ -4203,4 +4243,32 @@ public class TransactionService {
 			throw e;
 		}
 	}
+
+//	/**
+//	 * sendEmail
+//	 * @param email
+//	 * @param authToken
+//	 * @return
+//	 */
+//	public String sendEmail (MultipartFile file,String authToken) throws Exception {
+//		try {
+//			HttpHeaders headers = new HttpHeaders();
+//			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+//			headers.add("User-Agent", "ClassicWMS RestTemplate");
+//			headers.add("Authorization", "Bearer " + authToken);
+//
+//			MultiValueMap<String, Object> body
+//					= new LinkedMultiValueMap<>();
+//			body.add("file", file);
+//
+//			HttpEntity<MultiValueMap<String, Object>> entity = new HttpEntity<>(body,headers);
+//			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "/sendmail/attachment").queryParam("file", file);
+//			ResponseEntity<String> result = getRestTemplate().postForEntity(builder.toUriString(), entity, String.class);
+//			log.info("result : " + result.getStatusCode());
+//			return result.getBody();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			throw e;
+//		}
+//	}
 }	

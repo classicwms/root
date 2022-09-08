@@ -12,6 +12,7 @@ import java.util.Optional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.tekclover.wms.core.batch.config.singleton.AccountService;
+import com.tekclover.wms.core.batch.config.singleton.AppConfig;
 import com.tekclover.wms.core.batch.scheduler.BatchJobScheduler;
 import com.tekclover.wms.core.config.PropertiesConfig;
 import com.tekclover.wms.core.model.auth.AuthToken;
@@ -114,12 +117,32 @@ public class WrapperServiceController {
     	return new ResponseEntity<>(authToken, HttpStatus.OK);
 	}
     
+    
     //----------------------------------------------------------------------------------------------------
+    @ApiOperation(response = Optional.class, value = "Batch Fetch") // label for swagger
+    @GetMapping("/batch-fetch/jobInventoryQuery")
+    public ResponseEntity<?> jobInventoryQuery2() throws Exception {
+    	AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+    	 
+        batchJobScheduler.runJobdbToCsvJob2();
+       
+		AccountService service2 = context.getBean("accountService", AccountService.class);
+		log.info("inventory size: " + service2.getInventoryHolder().size());
+		context.close();
+        return new ResponseEntity<>(service2.getInventoryHolder(), HttpStatus.OK);
+    }
+    
     @ApiOperation(response = Optional.class, value = "Batch Fetch") // label for swagger
     @GetMapping("/batch-upload/jobInventoryQuery")
     public ResponseEntity<?> jobInventoryQuery() throws Exception {
+    	AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+    	 
         batchJobScheduler.runJobdbToCsvJob();
-        return new ResponseEntity<>(HttpStatus.OK);
+       
+		AccountService service2 = context.getBean("accountService", AccountService.class);
+		log.info("inventory size: " + service2.getInventoryHolder().size());
+		context.close();
+        return new ResponseEntity<>(service2.getInventoryHolder(), HttpStatus.OK);
     }
     
     @ApiOperation(response = Optional.class, value = "jobPeriodicRun") // label for swagger

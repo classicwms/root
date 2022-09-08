@@ -1,37 +1,24 @@
 package com.tekclover.wms.core.controller;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.validation.Valid;
-
 import com.tekclover.wms.core.model.transaction.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.expression.ParseException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.tekclover.wms.core.service.ReportService;
 import com.tekclover.wms.core.service.TransactionService;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.expression.ParseException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.List;
 
 @Slf4j
 @CrossOrigin(origins = "*")
@@ -766,10 +753,10 @@ public class TransactionServiceController {
 
 	@ApiOperation(response = PutAwayLine.class, value = "Delete PutAwayLine") // label for swagger
 	@DeleteMapping("/putawayline/{confirmedStorageBin}")
-	public ResponseEntity<?> deletePutAwayLine(@PathVariable String confirmedStorageBin, @RequestParam String warehouseId, @RequestParam String goodsReceiptNo, 
+	public ResponseEntity<?> deletePutAwayLine(@PathVariable String confirmedStorageBin,@RequestParam String languageId, @RequestParam String companyCodeId, @RequestParam String plantId, @RequestParam String warehouseId, @RequestParam String goodsReceiptNo,
 			@RequestParam String preInboundNo, @RequestParam String refDocNumber, @RequestParam String putAwayNumber, @RequestParam Long lineNo, 
 			@RequestParam String itemCode, @RequestParam String proposedStorageBin, @RequestParam String loginUserID, @RequestParam String authToken) {
-		transactionService.deletePutAwayLine(warehouseId, goodsReceiptNo, preInboundNo, refDocNumber, putAwayNumber, lineNo, itemCode, proposedStorageBin, 
+		transactionService.deletePutAwayLine(languageId,companyCodeId,plantId,warehouseId, goodsReceiptNo, preInboundNo, refDocNumber, putAwayNumber, lineNo, itemCode, proposedStorageBin,
 				confirmedStorageBin, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
@@ -870,6 +857,15 @@ public class TransactionServiceController {
 			@RequestParam String authToken) throws Exception {
 		return transactionService.findInventory(searchInventory, authToken);
 	}
+
+	@ApiOperation(response = Inventory.class, value = "Search Inventory by quantity validation") // label for swagger
+	@PostMapping("/get-all-validated-inventory")
+	public Inventory[] getQuantityValidatedInventory(@RequestBody SearchInventory searchInventory,
+									 @RequestParam String authToken) throws Exception {
+		return transactionService.getQuantityValidatedInventory(searchInventory, authToken);
+	}
+
+	
 	
 	@ApiOperation(response = Inventory.class, value = "Search Inventory") // label for swagger
 	@PostMapping("/inventory/findInventory/pagination")
@@ -1373,6 +1369,16 @@ public class TransactionServiceController {
     					pageNo, pageSize, sortBy, authToken);
    		return new ResponseEntity<>(stockReport, HttpStatus.OK);
    	}
+
+	@ApiOperation(response = StockReport.class, value = "Get All Stock Report") // label for swagger
+	@GetMapping("/reports/stockReport-all")
+	public ResponseEntity<?> getAllStockReport(@RequestParam List<String> warehouseId,
+											   @RequestParam(required = false) List<String> itemCode,
+											   @RequestParam(required = false) String itemText,
+											   @RequestParam(required = true) String stockTypeText,@RequestParam String authToken) {
+		StockReport[] stockReportList = transactionService.getAllStockReports(warehouseId, itemCode, itemText, stockTypeText,authToken);
+		return new ResponseEntity<>(stockReportList, HttpStatus.OK);
+	}
     
     /*
 	 * Inventory Report
@@ -1704,4 +1710,12 @@ public class TransactionServiceController {
 //    	InventoryReport[] inventoryReportList = transactionService.generateInventoryReport(authToken);
 //   		return new ResponseEntity<>(inventoryReportList, HttpStatus.OK);
 //   	}
+
+//	@ApiOperation(response = Optional.class,value = "Send Pdf through Email") // label for swagger
+//	@PostMapping("/sendmail/attachment")
+//	public ResponseEntity<?> sendReportThroughEmail(@RequestParam("file") MultipartFile file, @RequestParam String authToken)
+//			throws Exception {
+//		transactionService.sendEmail(file,authToken);
+//		return new ResponseEntity<>(HttpStatus.OK);
+//	}
 }

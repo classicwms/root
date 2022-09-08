@@ -9,9 +9,7 @@ import com.tekclover.wms.core.batch.config.singleton.AppConfig;
 import com.tekclover.wms.core.batch.dto.Inventory2;
 import com.tekclover.wms.core.util.CommonUtils;
 
-public class InventoryItemProcessor implements ItemProcessor<Inventory, Inventory2> {
-	
-	AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+public class InventoryItemProcessor2 implements ItemProcessor<Inventory, Inventory2> {
 	
     @Override
     public Inventory2 process(Inventory inventoryInput) throws Exception {
@@ -33,9 +31,6 @@ public class InventoryItemProcessor implements ItemProcessor<Inventory, Inventor
 		
     	inventory2.setTotalQty(Double.sum(inventoryInput.getInventoryQuantity() != null ? inventoryInput.getInventoryQuantity() : 0,
     			inventoryInput.getAllocatedQuantity() != null ? inventoryInput.getAllocatedQuantity() : 0 ));
-    	
-		AccountService service1 = context.getBean("accountService", AccountService.class);
-		service1.setInventory(inventory2);
         return inventory2;
     }
 }

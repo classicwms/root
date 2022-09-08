@@ -28,6 +28,7 @@ import com.tekclover.wms.core.model.masters.ImBasicData2;
 import com.tekclover.wms.core.model.masters.ImPacking;
 import com.tekclover.wms.core.model.masters.ImPartner;
 import com.tekclover.wms.core.model.masters.ImStrategies;
+import com.tekclover.wms.core.model.masters.ItemCodeDesc;
 import com.tekclover.wms.core.model.masters.PackingMaterial;
 import com.tekclover.wms.core.model.masters.SearchBomHeader;
 import com.tekclover.wms.core.model.masters.SearchBusinessPartner;
@@ -928,6 +929,26 @@ public class MastersService {
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
+			throw e;
+		}
+	}
+	
+	// POST - findImBasicData1LikeSearch
+	public ItemCodeDesc[] findImBasicData1LikeSearch(String likeSearchByItemCodeNDesc, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "imbasicdata1/findItemCodeByLike")
+					.queryParam("likeSearchByItemCodeNDesc", likeSearchByItemCodeNDesc);
+			HttpEntity<?> entity = new HttpEntity<>(headers);	
+			ResponseEntity<ItemCodeDesc[]> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, ItemCodeDesc[].class);
+			return result.getBody();
+		} catch (Exception e) {
 			throw e;
 		}
 	}
