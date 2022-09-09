@@ -145,9 +145,9 @@ public class WarehouseService extends BaseService {
 	 * @param shipmenOrder
 	 * @return
 	 */
-	public ShipmentOrder postSO( ShipmentOrder shipmenOrder) {
+	public ShipmentOrder postSO( ShipmentOrder shipmenOrder, boolean isRerun) {
 		log.info("ShipmenOrder received from External: " + shipmenOrder);
-		OutboundIntegrationHeader savedSoHeader = saveSOInMongo (shipmenOrder);
+		OutboundIntegrationHeader savedSoHeader = saveSOInMongo (shipmenOrder, isRerun);
 		log.info("savedSoHeader in Mongo: " + savedSoHeader.getRefDocumentNo());
 		return shipmenOrder;
 	}
@@ -513,7 +513,7 @@ public class WarehouseService extends BaseService {
 	/*-----------------------------------OUTBOUND----------------------------------------------------------------------*/
 	
 	// POST SOHeader
-	private OutboundIntegrationHeader saveSOInMongo (ShipmentOrder shipmenOrder) {
+	private OutboundIntegrationHeader saveSOInMongo (ShipmentOrder shipmenOrder, boolean isRerun) {
 		try {
 			SOHeader soHeader = shipmenOrder.getSoHeader();
 			// Warehouse ID Validation
@@ -571,14 +571,16 @@ public class WarehouseService extends BaseService {
 			OutboundIntegrationHeader createdOutboundIntegration = mongoOutboundRepository.save(apiHeader);
 			log.info("createdOutboundIntegration : " + createdOutboundIntegration);
 			
-			// Store in SQL DB
-			OutboundOrder newOutboundOrder = new OutboundOrder();
-			BeanUtils.copyProperties(apiHeader, newOutboundOrder, CommonUtils.getNullPropertyNames(apiHeader));
-			newOutboundOrder.setOrderId(soHeader.getTransferOrderNumber());
-			newOutboundOrder.setOrderProcessedOn(new Date());
-			newOutboundOrder.setLines(orderLines);
-			OutboundOrder createdOrder = ibOrderService.createOutboundOrders(newOutboundOrder);
-			log.info("ShipmentOrder - createdOrder in SQL: " + createdOrder);
+			if (!isRerun) {
+				// Store in SQL DB
+				OutboundOrder newOutboundOrder = new OutboundOrder();
+				BeanUtils.copyProperties(apiHeader, newOutboundOrder, CommonUtils.getNullPropertyNames(apiHeader));
+				newOutboundOrder.setOrderId(soHeader.getTransferOrderNumber());
+				newOutboundOrder.setOrderProcessedOn(new Date());
+				newOutboundOrder.setLines(orderLines);
+				OutboundOrder createdOrder = ibOrderService.createOutboundOrders(newOutboundOrder);
+				log.info("ShipmentOrder - createdOrder in SQL: " + createdOrder);
+			}
 						
 			return createdOutboundIntegration;
 		} catch (Exception e) {

@@ -167,7 +167,7 @@ public class OrderService {
 				so.setSoHeader(soHeader);
 				so.setSoLine(soLines);
 				
-				ShipmentOrder createdSO = warehouseService.postSO(so);
+				ShipmentOrder createdSO = warehouseService.postSO(so, true);
 				if (createdSO != null) {
 					return createdSO;
 				}

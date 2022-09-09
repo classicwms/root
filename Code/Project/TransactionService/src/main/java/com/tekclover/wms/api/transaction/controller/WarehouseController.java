@@ -140,7 +140,7 @@ public class WarehouseController {
 	public ResponseEntity<?> postShipmenOrder(@Valid @RequestBody ShipmentOrder shipmenOrder) 
 			throws IllegalAccessException, InvocationTargetException {
     	try {
-			ShipmentOrder createdSO = warehouseService.postSO(shipmenOrder);
+			ShipmentOrder createdSO = warehouseService.postSO(shipmenOrder, false);
 			if (createdSO != null) {
 				WarehouseApiResponse response = new WarehouseApiResponse();
 				response.setStatusCode("200");
