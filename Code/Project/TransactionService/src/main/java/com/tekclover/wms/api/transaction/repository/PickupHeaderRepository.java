@@ -28,4 +28,8 @@ public interface PickupHeaderRepository extends JpaRepository<PickupHeader,Long>
 	public PickupHeader findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndPickupNumberAndDeletionIndicator(
 			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, String pickupNumber,
 			Long deletionIndicator);
+
+	public List<PickupHeader> findAllByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndPickupNumberAndLineNumberAndItemCodeAndDeletionIndicator(
+			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, String pickupNumber,
+			Long lineNumber, String itemCode, Long deletionIndicator);
 }

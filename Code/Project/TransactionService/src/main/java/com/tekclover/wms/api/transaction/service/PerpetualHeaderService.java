@@ -206,8 +206,7 @@ public class PerpetualHeaderService extends BaseService {
 		List<InventoryMovement> inventoryMovements = inventoryMovementRepository.findByMovementTypeInAndSubmovementTypeInAndCreatedOnBetween (
 				runPerpetualHeader.getMovementTypeId(), runPerpetualHeader.getSubMovementTypeId(),
 				runPerpetualHeader.getDateFrom(), runPerpetualHeader.getDateTo());
-		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-		
+//		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
 		List<PerpetualLineEntity> perpetualLineList = new ArrayList<>();
 		for (InventoryMovement inventoryMovement : inventoryMovements) {
 			PerpetualLineEntity perpetualLine = new PerpetualLineEntity();
@@ -226,23 +225,22 @@ public class PerpetualHeaderService extends BaseService {
 			
 			// ITM_CODE
 			perpetualLine.setItemCode(inventoryMovement.getItemCode());
-			
+
+			// HAREESH 11-09-2022 comment item master get and item name from inventory itself
 			// Pass ITM_CODE in IMBASICDATA table and fetch ITEM_TEXT values
-			ImBasicData1 imBasicData1 = mastersService.getImBasicData1ByItemCode(inventoryMovement.getItemCode(), 
-					inventoryMovement.getWarehouseId(), authTokenForMastersService.getAccess_token());
-			perpetualLine.setItemDesc(imBasicData1.getDescription());
+//			ImBasicData1 imBasicData1 = mastersService.getImBasicData1ByItemCode(inventoryMovement.getItemCode(),
+//					inventoryMovement.getWarehouseId(), authTokenForMastersService.getAccess_token());
 			
 			// ST_BIN
 			perpetualLine.setStorageBin(inventoryMovement.getStorageBin());
-			
+
+			// HAREESH 11-09-2022 comment storage related data master get and get from inventory itself
 			// ST_SEC_ID/ST_SEC
 			// Pass the ST_BIN in STORAGEBIN table and fetch ST_SEC_ID/ST_SEC values
-			StorageBin storageBin = mastersService.getStorageBin(inventoryMovement.getStorageBin(), authTokenForMastersService.getAccess_token());
-			perpetualLine.setStorageSectionId(storageBin.getStorageSectionId());
+//			StorageBin storageBin = mastersService.getStorageBin(inventoryMovement.getStorageBin(), authTokenForMastersService.getAccess_token());
 			
 			// MFR_PART
 			// Pass ITM_CODE in IMBASICDATA table and fetch MFR_PART values
-			perpetualLine.setManufacturerPartNo(imBasicData1.getManufacturerPartNo());
 			
 			// STCK_TYP_ID
 			perpetualLine.setStockTypeId(inventoryMovement.getStockTypeId());
@@ -266,13 +264,26 @@ public class PerpetualHeaderService extends BaseService {
 			log.info("inventory : " + inventory);
 			
 			if (inventory != null) {
-				perpetualLine.setInventoryQuantity(inventory.getInventoryQuantity());
+				perpetualLine.setInventoryQuantity((inventory.getInventoryQuantity() != null ? inventory.getInventoryQuantity() : 0 ) + (inventory.getAllocatedQuantity() != null ? inventory.getAllocatedQuantity() : 0 ));
 				perpetualLine.setInventoryUom(inventory.getInventoryUom());
+
+				perpetualLine.setItemDesc(inventory.getReferenceField8());
+				perpetualLine.setManufacturerPartNo(inventory.getReferenceField9());
+				perpetualLine.setStorageSectionId(inventory.getReferenceField10());
 			}
+			perpetualLine.setCreatedOn(null);
+			perpetualLine.setCountedOn(null);
 			perpetualLineList.add(perpetualLine);
 		}
+
+		List<PerpetualLineEntity> uniqueArray = new ArrayList<>();
+		for (PerpetualLineEntity perpetualLine : perpetualLineList) {
+			if(!uniqueArray.contains(perpetualLine)) {
+				uniqueArray.add(perpetualLine);
+			}
+		}
 		
-		return perpetualLineList;
+		return uniqueArray;
 	}
 	
 	/**

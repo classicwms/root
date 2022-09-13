@@ -184,22 +184,24 @@ public class PerpetualLineService extends BaseService {
 				dbPerpetualLine.setInventoryQuantity(INV_QTY);
 				
 				// CTD_QTY
-				double CTD_QTY = updatePerpetualLine.getCountedQty();
-				dbPerpetualLine.setCountedQty(CTD_QTY);
-				
-				// VAR_QTY = INV_QTY - CTD_QTY
-				double VAR_QTY = INV_QTY - CTD_QTY;
-				dbPerpetualLine.setVarianceQty(VAR_QTY);
-				
-				/*
-				 * HardCoded Value "78" if VAR_QTY = 0 and 
-				 * Hardcodeed value"74" - if VAR_QTY is greater than or less than Zero
-				 */
-				if (VAR_QTY == 0) {
-					dbPerpetualLine.setStatusId(78L);
-				} else if (VAR_QTY > 0 || VAR_QTY < 0) {
-					dbPerpetualLine.setStatusId(74L);
-				} 
+				if(updatePerpetualLine.getCountedQty() != null ) {
+					double CTD_QTY = updatePerpetualLine.getCountedQty();
+					dbPerpetualLine.setCountedQty(CTD_QTY);
+
+					// VAR_QTY = INV_QTY - CTD_QTY
+					double VAR_QTY = INV_QTY - CTD_QTY;
+					dbPerpetualLine.setVarianceQty(VAR_QTY);
+
+					/*
+					 * HardCoded Value "78" if VAR_QTY = 0 and
+					 * Hardcodeed value"74" - if VAR_QTY is greater than or less than Zero
+					 */
+					if (VAR_QTY == 0) {
+						dbPerpetualLine.setStatusId(78L);
+					} else if (VAR_QTY > 0 || VAR_QTY < 0) {
+						dbPerpetualLine.setStatusId(74L);
+					}
+				}
 				
 				dbPerpetualLine.setCountedBy(loginUserID);
 				dbPerpetualLine.setCountedOn(new Date());

@@ -200,6 +200,24 @@ public class PickupLineService extends BaseService {
 					" doesn't exist.");
 		return null;
 	}
+
+	public List<PickupLine> getPickupLineForUpdateConfirmation(String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode,
+											 Long lineNumber, String itemCode) {
+		List<PickupLine> pickupLine = pickupLineRepository.findAllByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndDeletionIndicator(
+				warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode, 0L);
+		if (pickupLine != null && !pickupLine.isEmpty()) {
+			return pickupLine;
+		}
+		log.info ("The given OrderManagementLine ID : " +
+				"warehouseId:" + warehouseId +
+				",preOutboundNo:" + preOutboundNo +
+				",refDocNumber:" + refDocNumber +
+				",partnerCode:" + partnerCode +
+				",lineNumber:" + lineNumber +
+				",itemCode:" + itemCode +
+				" doesn't exist.");
+		return null;
+	}
 	
 	/**
 	 * 
@@ -368,7 +386,7 @@ public class PickupLineService extends BaseService {
 						}
 					}
 
-					if (createdPickupLine.getAllocatedQty() == 0D) {
+					if ( createdPickupLine.getAllocatedQty() == null || createdPickupLine.getAllocatedQty() == 0D) {
 						Double INV_QTY = inventory.getInventoryQuantity() - dbPickupLine.getPickConfirmQty();
 						/*
 						 * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
@@ -625,6 +643,23 @@ public class PickupLineService extends BaseService {
 			dbPickupLine.setPickupUpdatedBy(loginUserID);
 			dbPickupLine.setPickupUpdatedOn(new Date());
 			return pickupLineRepository.save(dbPickupLine);
+		}
+		return null;
+	}
+
+	public List<PickupLine> updatePickupLineForConfirmation (String warehouseId, String preOutboundNo, String refDocNumber,
+										String partnerCode, Long lineNumber, String itemCode, String loginUserID, UpdatePickupLine updatePickupLine)
+			throws IllegalAccessException, InvocationTargetException {
+		List<PickupLine> dbPickupLine = getPickupLineForUpdateConfirmation (warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode);
+		if (dbPickupLine != null && !dbPickupLine.isEmpty()) {
+			List<PickupLine> toSave = new ArrayList<>();
+			for(PickupLine data : dbPickupLine) {
+				BeanUtils.copyProperties(updatePickupLine, data, CommonUtils.getNullPropertyNames(updatePickupLine));
+				data.setPickupUpdatedBy(loginUserID);
+				data.setPickupUpdatedOn(new Date());
+				toSave.add(data);
+			}
+			return pickupLineRepository.saveAll(toSave);
 		}
 		return null;
 	}

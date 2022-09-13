@@ -78,6 +78,8 @@ public class PickupLineSpecification implements Specification<PickupLine> {
         	 final Path<Group> group = root.<Group> get("pickedPackCode");
         	 predicates.add(group.in(searchPickupLine.getPickedPackCode()));
 		 }
+
+		predicates.add(cb.equal(root.get("deletionIndicator"), 0L));
 			
          return cb.and(predicates.toArray(new Predicate[] {}));
      }

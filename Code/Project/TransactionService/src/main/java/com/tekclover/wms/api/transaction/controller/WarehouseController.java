@@ -58,6 +58,7 @@ public class WarehouseController {
 				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			WarehouseApiResponse response = new WarehouseApiResponse();
 			response.setStatusCode("400");
 			response.setMessage("Not Success: " + e.getLocalizedMessage());
@@ -80,6 +81,7 @@ public class WarehouseController {
 				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			WarehouseApiResponse response = new WarehouseApiResponse();
 			response.setStatusCode("400");
 			response.setMessage("Not Success: " + e.getLocalizedMessage());
@@ -102,6 +104,7 @@ public class WarehouseController {
 				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			WarehouseApiResponse response = new WarehouseApiResponse();
 			response.setStatusCode("400");
 			response.setMessage("Not Success: " + e.getLocalizedMessage());
@@ -125,6 +128,7 @@ public class WarehouseController {
 				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			WarehouseApiResponse response = new WarehouseApiResponse();
 			response.setStatusCode("400");
 			response.setMessage("Not Success: " + e.getLocalizedMessage());
@@ -148,6 +152,7 @@ public class WarehouseController {
 				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			WarehouseApiResponse response = new WarehouseApiResponse();
 			response.setStatusCode("400");
 			response.setMessage("Not Success: " + e.getLocalizedMessage());
@@ -170,6 +175,7 @@ public class WarehouseController {
 				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			WarehouseApiResponse response = new WarehouseApiResponse();
 			response.setStatusCode("400");
 			response.setMessage("Not Success: " + e.getLocalizedMessage());
@@ -192,6 +198,7 @@ public class WarehouseController {
 				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			WarehouseApiResponse response = new WarehouseApiResponse();
 			response.setStatusCode("400");
 			response.setMessage("Not Success: " + e.getLocalizedMessage());
@@ -216,6 +223,7 @@ public class WarehouseController {
 				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			WarehouseApiResponse response = new WarehouseApiResponse();
 			response.setStatusCode("400");
 			response.setMessage("Not Success: " + e.getLocalizedMessage());

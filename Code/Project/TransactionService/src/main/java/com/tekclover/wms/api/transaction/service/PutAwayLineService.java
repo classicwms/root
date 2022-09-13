@@ -290,11 +290,11 @@ public class PutAwayLineService extends BaseService {
 				dbPutAwayLine.setCreatedOn(new Date());
 				dbPutAwayLine.setUpdatedOn(new Date());
 				//HAREESH - 25-08-2022 Added to restrict duplicate qty creation in inbound
-				Optional<PutAwayLine> existingPutAwayLine = putAwayLineRepository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndGoodsReceiptNoAndPreInboundNoAndRefDocNumberAndPutAwayNumberAndLineNoAndItemCodeAndProposedStorageBinAndConfirmedStorageBinInAndDeletionIndicator(
+				PutAwayLine existingPutAwayLine = putAwayLineRepository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndGoodsReceiptNoAndPreInboundNoAndRefDocNumberAndPutAwayNumberAndLineNoAndItemCodeAndProposedStorageBinAndConfirmedStorageBinInAndDeletionIndicator(
 						newPutAwayLine.getLanguageId(), newPutAwayLine.getCompanyCode(), newPutAwayLine.getPlantId(), newPutAwayLine.getWarehouseId(), newPutAwayLine.getGoodsReceiptNo(), newPutAwayLine.getPreInboundNo(), newPutAwayLine.getRefDocNumber(), newPutAwayLine.getPutAwayNumber(), newPutAwayLine.getLineNo(), newPutAwayLine.getItemCode(),
-						newPutAwayLine.getProposedStorageBin(), Arrays.asList(newPutAwayLine.getConfirmedStorageBin()), newPutAwayLine.getDeletionIndicator());
-
-				if(!existingPutAwayLine.isPresent()){
+						newPutAwayLine.getProposedStorageBin(), Arrays.asList(newPutAwayLine.getConfirmedStorageBin()), newPutAwayLine.getDeletionIndicator()).orElse(null);
+				log.info("Existing putawayline already created : " + existingPutAwayLine);
+				if(existingPutAwayLine == null) {
 					PutAwayLine createdPutAwayLine = putAwayLineRepository.save(dbPutAwayLine);
 					log.info("createdPutAwayLine created: " + createdPutAwayLine);
 					createdPutAwayLines.add(createdPutAwayLine);
@@ -367,7 +367,7 @@ public class PutAwayLineService extends BaseService {
 						log.info("inventoryMovement created: " + createdInventoryMovement);
 					}
 				} else {
-					log.info("Putaway Line already exist : " + existingPutAwayLine.get());
+					log.info("Putaway Line already exist : " + existingPutAwayLine);
 				}
 			}
 			

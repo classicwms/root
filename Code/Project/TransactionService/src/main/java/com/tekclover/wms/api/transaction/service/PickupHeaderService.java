@@ -114,11 +114,11 @@ public class PickupHeaderService {
 	 */
 	public PickupHeader getPickupHeaderForUpdate (String warehouseId, String preOutboundNo, String refDocNumber,
 			String partnerCode, String pickupNumber, Long lineNumber, String itemCode) {
-		PickupHeader pickupHeader = 
+		PickupHeader pickupHeader =
 				pickupHeaderRepository.findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndPickupNumberAndLineNumberAndItemCodeAndDeletionIndicator (
 						warehouseId, preOutboundNo, refDocNumber, partnerCode, pickupNumber, 
     					lineNumber, itemCode, 0L);
-		if (pickupHeader != null && pickupHeader.getDeletionIndicator() == 0) {
+		if (pickupHeader != null) {
 			return pickupHeader;
 		} 
 		throw new BadRequestException ("The given PickupHeader ID : " + 
@@ -130,6 +130,26 @@ public class PickupHeaderService {
 					",lineNumber : " + lineNumber +
 					",itemCode : " + itemCode +
 					" doesn't exist.");
+	}
+
+	public List<PickupHeader> getPickupHeaderForUpdateConfirmation (String warehouseId, String preOutboundNo, String refDocNumber,
+																	String partnerCode, String pickupNumber, Long lineNumber, String itemCode) {
+		List<PickupHeader> pickupHeader =
+				pickupHeaderRepository.findAllByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndPickupNumberAndLineNumberAndItemCodeAndDeletionIndicator (
+						warehouseId, preOutboundNo, refDocNumber, partnerCode, pickupNumber,
+						lineNumber, itemCode, 0L);
+		if (pickupHeader != null && !pickupHeader.isEmpty()) {
+			return pickupHeader;
+		}
+		throw new BadRequestException ("The given PickupHeader ID : " +
+				"warehouseId : " + warehouseId +
+				",preOutboundNo : " + preOutboundNo +
+				",refDocNumber : " + refDocNumber +
+				",partnerCode : " + partnerCode +
+				",pickupNumber : " + pickupNumber +
+				",lineNumber : " + lineNumber +
+				",itemCode : " + itemCode +
+				" doesn't exist.");
 	}
 	
 	/**
@@ -197,6 +217,24 @@ public class PickupHeaderService {
 			dbPickupHeader.setPickUpdatedBy(loginUserID);
 			dbPickupHeader.setPickUpdatedOn(new Date());
 			return pickupHeaderRepository.save(dbPickupHeader);
+		}
+		return null;
+	}
+
+	public List<PickupHeader> updatePickupHeaderForConfirmation (String warehouseId, String preOutboundNo, String refDocNumber,
+											String partnerCode, String pickupNumber, Long lineNumber, String itemCode, String loginUserID,
+											UpdatePickupHeader updatePickupHeader) throws IllegalAccessException, InvocationTargetException {
+		List<PickupHeader> dbPickupHeader = getPickupHeaderForUpdateConfirmation (warehouseId, preOutboundNo, refDocNumber, partnerCode,
+				pickupNumber, lineNumber, itemCode);
+		if (dbPickupHeader != null && !dbPickupHeader.isEmpty()) {
+			List<PickupHeader> toSave = new ArrayList<>();
+			for(PickupHeader data : dbPickupHeader) {
+				BeanUtils.copyProperties(updatePickupHeader, data, CommonUtils.getNullPropertyNames(updatePickupHeader));
+				data.setPickUpdatedBy(loginUserID);
+				data.setPickUpdatedOn(new Date());
+				toSave.add(data);
+			}
+			return pickupHeaderRepository.saveAll(toSave);
 		}
 		return null;
 	}
