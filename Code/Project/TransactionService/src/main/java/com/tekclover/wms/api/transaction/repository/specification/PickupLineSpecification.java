@@ -79,6 +79,15 @@ public class PickupLineSpecification implements Specification<PickupLine> {
         	 predicates.add(group.in(searchPickupLine.getPickedPackCode()));
 		 }
 
+		if (searchPickupLine.getStatusId() != null && !searchPickupLine.getStatusId().isEmpty()) {
+			final Path<Group> group = root.<Group> get("statusId");
+			predicates.add(group.in(searchPickupLine.getStatusId()));
+		}
+
+		if (searchPickupLine.getFromPickConfirmedOn() != null && searchPickupLine.getToPickConfirmedOn() != null) {
+			predicates.add(cb.between(root.get("pickupConfirmedOn"), searchPickupLine.getFromPickConfirmedOn(), searchPickupLine.getToPickConfirmedOn()));
+		}
+
 		predicates.add(cb.equal(root.get("deletionIndicator"), 0L));
 			
          return cb.and(predicates.toArray(new Predicate[] {}));

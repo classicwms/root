@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
+import com.tekclover.wms.api.transaction.util.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -90,8 +91,16 @@ public class InventoryMovementService extends BaseService {
 	 * @param searchInventoryMovement
 	 * @return
 	 */
-	public List<InventoryMovement> findInventoryMovement(SearchInventoryMovement searchInventoryMovement) 
-				throws ParseException {
+	public List<InventoryMovement> findInventoryMovement(SearchInventoryMovement searchInventoryMovement)
+			throws ParseException, java.text.ParseException {
+
+
+		if (searchInventoryMovement.getFromCreatedOn() != null && searchInventoryMovement.getToCreatedOn() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchInventoryMovement.getFromCreatedOn(), searchInventoryMovement.getToCreatedOn());
+			searchInventoryMovement.setFromCreatedOn(dates[0]);
+			searchInventoryMovement.setToCreatedOn(dates[1]);
+		}
+
 		InventoryMovementSpecification spec = new InventoryMovementSpecification(searchInventoryMovement);
 		List<InventoryMovement> results = inventoryMovementRepository.findAll(spec);
 		log.info("results: " + results);

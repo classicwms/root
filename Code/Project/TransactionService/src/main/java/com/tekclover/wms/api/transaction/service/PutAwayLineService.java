@@ -1,20 +1,23 @@
 package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
-import com.tekclover.wms.api.transaction.repository.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
+import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
 import com.tekclover.wms.api.transaction.model.dto.StorageBin;
 import com.tekclover.wms.api.transaction.model.dto.Warehouse;
 import com.tekclover.wms.api.transaction.model.inbound.InboundLine;
@@ -25,6 +28,12 @@ import com.tekclover.wms.api.transaction.model.inbound.putaway.PutAwayHeader;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.PutAwayLine;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.SearchPutAwayLine;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.UpdatePutAwayLine;
+import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
+import com.tekclover.wms.api.transaction.repository.InboundLineRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryRepository;
+import com.tekclover.wms.api.transaction.repository.PutAwayHeaderRepository;
+import com.tekclover.wms.api.transaction.repository.PutAwayLineRepository;
 import com.tekclover.wms.api.transaction.repository.specification.PutAwayLineSpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 
@@ -289,6 +298,8 @@ public class PutAwayLineService extends BaseService {
 				dbPutAwayLine.setUpdatedBy(loginUserID);
 				dbPutAwayLine.setCreatedOn(new Date());
 				dbPutAwayLine.setUpdatedOn(new Date());
+				
+//				LANG_ID", "C_ID", "PLANT_ID", "WH_ID", "GR_NO", "PRE_IB_NO", "REF_DOC_NO", "PA_NO", "IB_LINE_NO", "ITM_CODE", "PROP_ST_BIN", "CNF_ST_BIN""
 				//HAREESH - 25-08-2022 Added to restrict duplicate qty creation in inbound
 				PutAwayLine existingPutAwayLine = putAwayLineRepository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndGoodsReceiptNoAndPreInboundNoAndRefDocNumberAndPutAwayNumberAndLineNoAndItemCodeAndProposedStorageBinAndConfirmedStorageBinInAndDeletionIndicator(
 						newPutAwayLine.getLanguageId(), newPutAwayLine.getCompanyCode(), newPutAwayLine.getPlantId(), newPutAwayLine.getWarehouseId(), newPutAwayLine.getGoodsReceiptNo(), newPutAwayLine.getPreInboundNo(), newPutAwayLine.getRefDocNumber(), newPutAwayLine.getPutAwayNumber(), newPutAwayLine.getLineNo(), newPutAwayLine.getItemCode(),

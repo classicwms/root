@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.transaction.model.outbound.pickup;
 
+import java.util.Date;
 import java.util.List;
 
 import lombok.Data;
@@ -29,4 +30,8 @@ public class SearchPickupLine {
 	private List<String> actualHeNo;
 	private List<String> pickedStorageBin;
 	private List<String> pickedPackCode;
+
+	private List<Long> statusId;
+	private Date fromPickConfirmedOn;
+	private Date toPickConfirmedOn;
 }

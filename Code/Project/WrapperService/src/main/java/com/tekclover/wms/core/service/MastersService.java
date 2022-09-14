@@ -946,7 +946,7 @@ public class MastersService {
 					.queryParam("likeSearchByItemCodeNDesc", likeSearchByItemCodeNDesc);
 			HttpEntity<?> entity = new HttpEntity<>(headers);	
 			ResponseEntity<ItemCodeDesc[]> result = 
-					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, ItemCodeDesc[].class);
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, ItemCodeDesc[].class);
 			return result.getBody();
 		} catch (Exception e) {
 			throw e;

@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @Validated
 @Api(tags = {"InhouseTransferLine"}, value = "InhouseTransferLine  Operations related to InhouseTransferLineController") // label for swagger
 @SwaggerDefinition(tags = {@Tag(name = "InhouseTransferLine ",description = "Operations related to InhouseTransferLine ")})
-@RequestMapping("/InhouseTransferLine")
+@RequestMapping("/inhousetransferline")
 @RestController
 public class InhouseTransferLineController {
 	
@@ -58,9 +58,10 @@ public class InhouseTransferLineController {
     
 	@ApiOperation(response = InhouseTransferLine.class, value = "Search InhouseTransferLine") // label for swagger
 	@PostMapping("/findInhouseTransferLine")
-	public List<InhouseTransferLine> findInhouseTransferLine(@RequestBody SearchInhouseTransferLine searchInhouseTransferLine)
+	public ResponseEntity<?> findInhouseTransferLine(@RequestBody SearchInhouseTransferLine searchInhouseTransferLine)
 			throws Exception {
-		return inhouseTransferLineService.findInhouseTransferLine(searchInhouseTransferLine);
+		List<InhouseTransferLine> results = inhouseTransferLineService.findInhouseTransferLine(searchInhouseTransferLine);
+		return new ResponseEntity<>(results , HttpStatus.OK);
 	}
     
     @ApiOperation(response = InhouseTransferLine.class, value = "Create InhouseTransferLine") // label for swagger

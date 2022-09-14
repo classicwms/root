@@ -1,5 +1,6 @@
 package com.tekclover.wms.core.model.transaction;
 
+import java.util.Date;
 import java.util.List;
 
 import lombok.Data;
@@ -31,4 +32,7 @@ public class SearchInventoryMovement {
 	private List<String> variantSubCode;
 	private List<String> batchSerialNumber;
 	private List<String> movementDocumentNo;
+
+	private Date fromCreatedOn;
+	private Date toCreatedOn;
 }

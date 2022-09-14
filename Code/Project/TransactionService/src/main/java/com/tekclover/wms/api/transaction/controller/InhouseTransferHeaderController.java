@@ -52,15 +52,16 @@ public class InhouseTransferHeaderController {
 	@GetMapping("/{transferNumber}")
 	public ResponseEntity<?> getInHouseTransferHeader(@PathVariable String transferNumber, @RequestParam String warehouseId, @RequestParam Long transferTypeId) {
     	InhouseTransferHeader inhousetransferheader = inHouseTransferHeaderService.getInHouseTransferHeader(warehouseId, transferNumber, transferTypeId);
-    	log.info("InHouseTransferHeader : " + inhousetransferheader);
 		return new ResponseEntity<>(inhousetransferheader, HttpStatus.OK);
 	}
     
 	@ApiOperation(response = InhouseTransferHeader.class, value = "Search InHouseTransferHeader") // label for swagger
 	@PostMapping("/findInHouseTransferHeader")
-	public List<InhouseTransferHeader> findInHouseTransferHeader(@RequestBody SearchInhouseTransferHeader searchInHouseTransferHeader)
+	public ResponseEntity<?> findInHouseTransferHeader(@RequestBody SearchInhouseTransferHeader searchInHouseTransferHeader)
 			throws Exception {
-		return inHouseTransferHeaderService.findInHouseTransferHeader(searchInHouseTransferHeader);
+		log.info("called...");
+		List<InhouseTransferHeader> results = inHouseTransferHeaderService.findInHouseTransferHeader(searchInHouseTransferHeader);
+		return new ResponseEntity<>(results, HttpStatus.OK);
 	}
     
     @ApiOperation(response = InhouseTransferHeader.class, value = "Create InHouseTransferHeader") // label for swagger

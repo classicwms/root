@@ -166,9 +166,9 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 	public List<Inventory> findByWarehouseIdInAndDeletionIndicator(List<String> warehouseId, Long delFlag);
 
 	@Query (value = "select itemCode,warehouseId,manufacturerSKU,itemText,onHandQty,damageQty,holdQty,(COALESCE(onHandQty ,0) + COALESCE(damageQty,0) + COALESCE(holdQty,0)) as availableQty from \n" +
-			"(select i.itm_code as itemCode,i.wh_id as warehouseId ,i.ref_field_9 as manufacturerSKU , i.ref_field_8 as itemText , \n" +
+			"(select i.itm_code as itemCode,i.wh_id as warehouseId ,i.ref_field_9 as manufacturerSKU , im.text as itemText , \n" +
 			"(case \n" +
-			"WHEN :stockTypeText in ('ALL','ON HAND') THEN (select sum(CASE WHEN inv_qty > 0 THEN inv_qty ELSE 0 END) from tblinventory where itm_code = i.itm_code and stck_typ_id = 1 and IS_DELETED = 0 and ref_field_10 in ('ZB', 'ZG', 'ZC', 'ZT'))\n" +
+			"WHEN :stockTypeText in ('ALL','ON HAND') THEN (select sum(CASE WHEN inv_qty > 0 THEN inv_qty ELSE 0 END) + sum(COALESCE(alloc_qty,0)) from tblinventory where itm_code = i.itm_code and stck_typ_id = 1 and IS_DELETED = 0 and ref_field_10 in ('ZB', 'ZG', 'ZC', 'ZT'))\n" +
 			"ELSE 0\n" +
 			"END ) as onHandQty,\n" +
 			"(case \n" +
@@ -186,7 +186,7 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 			"where (:itemText IS NULL or (i.ref_field_8 = :itemText)) \n" +
 			"AND i.wh_id IN (:warehouseIds) \n" +
 			"AND (COALESCE(:itemCodes, null) IS NULL OR (i.itm_code IN (:itemCodes))) AND i.IS_DELETED = 0 \n" +
-			"group by i.itm_code ,i.wh_id , i.ref_field_9 , i.ref_field_8) as X", nativeQuery = true)
+			"group by i.itm_code ,i.wh_id , i.ref_field_9 , im.text) as X", nativeQuery = true)
 	public List<StockReportImpl> getAllStockReport (
 			@Param(value = "warehouseIds") List<String> warehouseId,
 			@Param(value = "itemCodes") List<String> itemCode,

@@ -2378,12 +2378,25 @@ public class TransactionService {
 					.queryParam("transferTypeId", transferTypeId);
 			HttpEntity<?> entity = new HttpEntity<>(headers);	
 			ResponseEntity<InhouseTransferHeader> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, InhouseTransferHeader.class);
-			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
 		}
+	}
+	
+	// POST - Find
+	public InhouseTransferHeader[] findInHouseTransferHeader(SearchInhouseTransferHeader searchInHouseTransferHeader, String authToken) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.add("User-Agent", "MNRClara RestTemplate");
+		headers.add("Authorization", "Bearer " + authToken);
+		
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "inhousetransferheader/findInHouseTransferHeader");
+		HttpEntity<?> entity = new HttpEntity<>(searchInHouseTransferHeader, headers);
+		ResponseEntity<InhouseTransferHeader[]> result = 
+				getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, InhouseTransferHeader[].class);
+		return result.getBody();
 	}
 	
 	// POST
@@ -2445,6 +2458,20 @@ public class TransactionService {
 		}
 	}
 	
+	// POST - Find
+	public InhouseTransferLine[] findInhouseTransferLine(SearchInhouseTransferLine searchInhouseTransferLine, String authToken) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.add("User-Agent", "MNRClara RestTemplate");
+		headers.add("Authorization", "Bearer " + authToken);
+		
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "inhousetransferline/findInhouseTransferLine");
+		HttpEntity<?> entity = new HttpEntity<>(searchInhouseTransferLine, headers);
+		ResponseEntity<InhouseTransferLine[]> result = 
+				getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, InhouseTransferLine[].class);
+		return result.getBody();
+	}
+	
 	// POST
 	public InhouseTransferLine createInhouseTransferLine (InhouseTransferLine newInhouseTransferLine, String loginUserID, String authToken) {
 		HttpHeaders headers = new HttpHeaders();
@@ -2457,7 +2484,6 @@ public class TransactionService {
 		HttpEntity<?> entity = new HttpEntity<>(newInhouseTransferLine, headers);
 		ResponseEntity<InhouseTransferLine> result = 
 				getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, InhouseTransferLine.class);
-		log.info("result : " + result.getStatusCode());
 		return result.getBody();
 	}
 	

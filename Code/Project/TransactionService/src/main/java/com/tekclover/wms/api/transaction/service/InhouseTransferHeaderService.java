@@ -7,14 +7,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
-import com.tekclover.wms.api.transaction.repository.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
+import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
 import com.tekclover.wms.api.transaction.model.dto.StorageBin;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.AddInventory;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
@@ -26,12 +25,17 @@ import com.tekclover.wms.api.transaction.model.mnc.InhouseTransferHeaderEntity;
 import com.tekclover.wms.api.transaction.model.mnc.InhouseTransferLine;
 import com.tekclover.wms.api.transaction.model.mnc.InhouseTransferLineEntity;
 import com.tekclover.wms.api.transaction.model.mnc.SearchInhouseTransferHeader;
+import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
+import com.tekclover.wms.api.transaction.repository.InhouseTransferHeaderRepository;
+import com.tekclover.wms.api.transaction.repository.InhouseTransferLineRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryRepository;
+import com.tekclover.wms.api.transaction.repository.StorageBinRepository;
 import com.tekclover.wms.api.transaction.repository.specification.InhouseTransferHeaderSpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -116,7 +120,6 @@ public class InhouseTransferHeaderService extends BaseService {
 	
 		InhouseTransferHeaderSpecification spec = new InhouseTransferHeaderSpecification(searchInHouseTransferHeader);
 		List<InhouseTransferHeader> results = inhouseTransferHeaderRepository.findAll(spec);
-		log.info("results: " + results);
 		return results;
 	}
 	

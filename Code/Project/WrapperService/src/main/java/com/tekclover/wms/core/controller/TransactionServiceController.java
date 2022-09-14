@@ -918,10 +918,19 @@ public class TransactionServiceController {
 
 	@ApiOperation(response = InhouseTransferHeader.class, value = "Get a InHouseTransferHeader") // label for swagger
 	@GetMapping("/inhousetransferheader/{transferNumber}")
-	public ResponseEntity<?> getInHouseTransferHeader(@PathVariable String transferNumber, @RequestParam String warehouseId, @RequestParam Long transferTypeId, @RequestParam String authToken) {
-		InhouseTransferHeader dbInHouseTransferHeader = transactionService.getInhouseTransferHeader(warehouseId, transferNumber, transferTypeId, authToken);
+	public ResponseEntity<?> getInHouseTransferHeader(@PathVariable String transferNumber, @RequestParam String warehouseId, 
+			@RequestParam Long transferTypeId, @RequestParam String authToken) {
+		InhouseTransferHeader dbInHouseTransferHeader = 
+				transactionService.getInhouseTransferHeader(warehouseId, transferNumber, transferTypeId, authToken);
 		log.info("InHouseTransferHeader : " + dbInHouseTransferHeader);
 		return new ResponseEntity<>(dbInHouseTransferHeader, HttpStatus.OK);
+	}
+	
+	@ApiOperation(response = InhouseTransferHeader.class, value = "Search InHouseTransferHeader") // label for swagger
+	@PostMapping("/inhousetransferheader/findInHouseTransferHeader")
+	public InhouseTransferHeader[] findInHouseTransferHeader(@RequestBody SearchInhouseTransferHeader searchInHouseTransferHeader,
+			@RequestParam String authToken) throws Exception {
+		return transactionService.findInHouseTransferHeader(searchInHouseTransferHeader, authToken);
 	}
 
 	@ApiOperation(response = InhouseTransferHeader.class, value = "Create InHouseTransferHeader") // label for swagger
@@ -944,12 +953,21 @@ public class TransactionServiceController {
 
 	@ApiOperation(response = InhouseTransferLine.class, value = "Get a InHouseTransferLine") // label for swagger
 	@GetMapping("/inhousetransferline/{transferNumber}")
-	public ResponseEntity<?> getInHouseTransferLine(@PathVariable String transferNumber, @RequestParam String warehouseId, @RequestParam String sourceItemCode, @RequestParam String authToken) {
-		InhouseTransferLine dbInHouseTransferLine = transactionService.getInhouseTransferLine(warehouseId, transferNumber, sourceItemCode, authToken);
+	public ResponseEntity<?> getInHouseTransferLine(@PathVariable String transferNumber, @RequestParam String warehouseId, 
+			@RequestParam String sourceItemCode, @RequestParam String authToken) {
+		InhouseTransferLine dbInHouseTransferLine = 
+				transactionService.getInhouseTransferLine(warehouseId, transferNumber, sourceItemCode, authToken);
 		log.info("InHouseTransferLine : " + dbInHouseTransferLine);
 		return new ResponseEntity<>(dbInHouseTransferLine, HttpStatus.OK);
 	}
 
+	@ApiOperation(response = InhouseTransferLine.class, value = "Search InhouseTransferLine") // label for swagger
+	@PostMapping("/inhousetransferline/findInhouseTransferLine")
+	public InhouseTransferLine[] findInhouseTransferLine(@RequestBody SearchInhouseTransferLine searchInhouseTransferLine,
+			@RequestParam String authToken) throws Exception {
+		return transactionService.findInhouseTransferLine(searchInhouseTransferLine, authToken);
+	}
+	
 	@ApiOperation(response = InhouseTransferLine.class, value = "Create InHouseTransferLine") // label for swagger
 	@PostMapping("/inhousetransferline")
 	public ResponseEntity<?> postInHouseTransferLine(@Valid @RequestBody InhouseTransferLine newInHouseTransferLine, @RequestParam String loginUserID,

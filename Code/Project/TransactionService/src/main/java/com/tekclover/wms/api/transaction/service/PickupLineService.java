@@ -12,6 +12,7 @@ import javax.validation.Valid;
 
 import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
 import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
+import com.tekclover.wms.api.transaction.util.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -225,8 +226,14 @@ public class PickupLineService extends BaseService {
 	 * @return
 	 * @throws ParseException
 	 */
-	public List<PickupLine> findPickupLine(SearchPickupLine searchPickupLine) 
-			throws ParseException {
+	public List<PickupLine> findPickupLine(SearchPickupLine searchPickupLine)
+			throws ParseException, java.text.ParseException {
+
+		if (searchPickupLine.getFromPickConfirmedOn() != null && searchPickupLine.getToPickConfirmedOn() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchPickupLine.getFromPickConfirmedOn(), searchPickupLine.getToPickConfirmedOn());
+			searchPickupLine.setFromPickConfirmedOn(dates[0]);
+			searchPickupLine.setToPickConfirmedOn(dates[1]);
+		}
 		PickupLineSpecification spec = new PickupLineSpecification(searchPickupLine);
 		List<PickupLine> results = pickupLineRepository.findAll(spec);
 //		log.info("results: " + results);

@@ -30,4 +30,8 @@ public class SearchPickupLine {
 	private List<String> actualHeNo;
 	private List<String> pickedStorageBin;
 	private List<String> pickedPackCode;
+
+	private List<Long> statusId;
+	private Date fromPickConfirmedOn;
+	private Date toPickConfirmedOn;
 	}
