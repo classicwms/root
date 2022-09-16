@@ -10,9 +10,6 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
-import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
-import com.tekclover.wms.api.transaction.util.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -20,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
+import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
 import com.tekclover.wms.api.transaction.model.dto.StorageBin;
 import com.tekclover.wms.api.transaction.model.dto.Warehouse;
 import com.tekclover.wms.api.transaction.model.inbound.gr.StorageBinPutAway;
@@ -37,11 +35,13 @@ import com.tekclover.wms.api.transaction.model.outbound.pickup.SearchPickupLine;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.UpdatePickupLine;
 import com.tekclover.wms.api.transaction.model.outbound.quality.AddQualityHeader;
 import com.tekclover.wms.api.transaction.model.outbound.quality.QualityHeader;
+import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
 import com.tekclover.wms.api.transaction.repository.InventoryRepository;
 import com.tekclover.wms.api.transaction.repository.PickupHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.PickupLineRepository;
 import com.tekclover.wms.api.transaction.repository.specification.PickupLineSpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
+import com.tekclover.wms.api.transaction.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -236,7 +236,6 @@ public class PickupLineService extends BaseService {
 		}
 		PickupLineSpecification spec = new PickupLineSpecification(searchPickupLine);
 		List<PickupLine> results = pickupLineRepository.findAll(spec);
-//		log.info("results: " + results);
 		return results;
 	}
 	

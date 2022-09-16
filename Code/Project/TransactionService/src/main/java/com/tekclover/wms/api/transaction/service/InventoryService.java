@@ -452,10 +452,15 @@ public class InventoryService extends BaseService {
 			throws ParseException {
 		InventorySpecification spec = new InventorySpecification(searchInventory);
 		List<Inventory> results = inventoryRepository.findAll(spec);
-//		log.info("results: " + results);
 		return results;
 	}
 
+	/**
+	 * 
+	 * @param searchInventory
+	 * @return
+	 * @throws ParseException
+	 */
 	public List<Inventory> getQuantityValidatedInventory(SearchInventory searchInventory)
 			throws ParseException {
 		InventorySpecification spec = new InventorySpecification(searchInventory);

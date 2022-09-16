@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,7 @@ import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMoveme
 @Transactional
 public interface InventoryMovementRepository extends JpaRepository<InventoryMovement,Long>, JpaSpecificationExecutor<InventoryMovement> {
 	
+	@QueryHints(@javax.persistence.QueryHint(name="org.hibernate.fetchSize", value="1000"))
 	public List<InventoryMovement> findAll();
 	
 	/**

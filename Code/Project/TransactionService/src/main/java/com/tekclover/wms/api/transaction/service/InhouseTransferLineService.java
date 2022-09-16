@@ -81,7 +81,6 @@ public class InhouseTransferLineService extends BaseService {
 		}
 		InhouseTransferLineSpecification spec = new InhouseTransferLineSpecification(searchInhouseTransferLine);
 		List<InhouseTransferLine> results = inhouseTransferLineRepository.findAll(spec);
-//		log.info("results: " + results);
 		return results;
 	}
 	

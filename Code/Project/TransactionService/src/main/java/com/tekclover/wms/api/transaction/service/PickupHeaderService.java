@@ -23,7 +23,6 @@ import com.tekclover.wms.api.transaction.repository.specification.PickupHeaderSp
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -162,7 +161,6 @@ public class PickupHeaderService {
 			throws ParseException {
 		PickupHeaderSpecification spec = new PickupHeaderSpecification(searchPickupHeader);
 		List<PickupHeader> results = pickupHeaderRepository.findAll(spec);
-		log.info("results: " + results);
 		return results;
 	}
 	

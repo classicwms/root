@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +15,7 @@ import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupLine;
 @Transactional
 public interface PickupLineRepository extends JpaRepository<PickupLine,Long>, JpaSpecificationExecutor<PickupLine> {
 	
+	@QueryHints(@javax.persistence.QueryHint(name="org.hibernate.fetchSize", value="1000"))
 	public List<PickupLine> findAll();
 	
 	public Optional<PickupLine> findByActualHeNo(String actualHeNo);
