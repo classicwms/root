@@ -2149,7 +2149,7 @@ public class ReportsService extends BaseService {
 		searchOutboundLine.setToDeliveryDate(toDeliveryDate);
 		List<OutboundLine> outboundLineSearchResults = outboundLineService.findOutboundLine(searchOutboundLine);
 		long shippedLineCount = outboundLineSearchResults.stream()
-				.filter(o -> o.getReferenceField2() == null && o.getDeliveryQty() > 0).count();
+				.filter(o -> o.getReferenceField2() == null && o.getDeliveryQty() != null  && o.getDeliveryQty() > 0).count();
 
 		log.info("shippedLineCount : " + shippedLineCount);
 		return shippedLineCount;
@@ -2175,7 +2175,7 @@ public class ReportsService extends BaseService {
 		searchOutboundLine.setToDeliveryDate(toDeliveryDate);
 		List<OutboundLine> outboundLineSearchResults = outboundLineService.findOutboundLine(searchOutboundLine);
 		long normalCount = outboundLineSearchResults.stream().filter(o -> o.getReferenceField1().equalsIgnoreCase(type)
-				&& o.getReferenceField2() == null && o.getDeliveryQty() > 0).count();
+				&& o.getReferenceField2() == null && o.getDeliveryQty() != null && o.getDeliveryQty() > 0).count();
 
 		log.info("normalCount : " + normalCount);
 		return normalCount;

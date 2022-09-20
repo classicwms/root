@@ -999,6 +999,11 @@ public class OutboundLineService extends BaseService {
 								pickupLine.getPickupNumber(), outboundLine.getLineNumber(), outboundLine.getItemCode(), loginUserID);
 						log.info("pickupHeader deleted : " + pickupHeader);
 
+						QualityLine qualityLine = qualityLineService.deleteQualityLineValidated(outboundLine.getWarehouseId(), outboundLine.getPreOutboundNo(),
+								outboundLine.getRefDocNumber(), outboundLine.getPartnerCode(), outboundLine.getLineNumber(),
+								outboundLine.getItemCode(), loginUserID);
+						log.info("QualityLine----------Deleted-------> : " + qualityLine);
+
 						// DELETE QUALITY_HEADER
 						QualityHeader dbQualityHeader = qualityHeaderService.getQualityHeaderForReversal(outboundLine.getWarehouseId(),
 								outboundLine.getPreOutboundNo(), outboundLine.getRefDocNumber(), pickupLine.getPickupNumber(), outboundLine.getPartnerCode());
@@ -1023,7 +1028,7 @@ public class OutboundLineService extends BaseService {
 						 * delete the record If INV_QTY = 0 - (Update 1)
 						 */
 						Inventory inventory = new Inventory();
-						if (outboundLine.getStatusId() == 50L) {
+						if (dbQualityHeader != null) {
 							inventory = updateInventory1(pickupLine, outboundLine.getStatusId());
 						}
 
@@ -1037,7 +1042,7 @@ public class OutboundLineService extends BaseService {
 //				Double INV_QTY = inventory.getInventoryQuantity() + pickupLine.getPickConfirmQty();
 						if(inventory != null) {
 							// HAREESH -28-08-2022 change to update allocated qty
-							if (outboundLine.getStatusId() == 50L) {
+							if (pickupLine.getStatusId() == 50L) {
 								Double ALLOC_QTY = inventory.getAllocatedQuantity() + pickupLine.getPickConfirmQty();
 								inventory.setAllocatedQuantity(ALLOC_QTY);
 							} else {

@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.util.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -239,6 +240,13 @@ public class PutAwayLineService extends BaseService {
 	 * @throws Exception
 	 */
 	public List<PutAwayLine> findPutAwayLine(SearchPutAwayLine searchPutAwayLine) throws Exception {
+
+		if (searchPutAwayLine.getFromConfirmedDate() != null && searchPutAwayLine.getToConfirmedDate() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchPutAwayLine.getFromConfirmedDate(), searchPutAwayLine.getToConfirmedDate());
+			searchPutAwayLine.setFromConfirmedDate(dates[0]);
+			searchPutAwayLine.setToConfirmedDate(dates[1]);
+		}
+
 		PutAwayLineSpecification spec = new PutAwayLineSpecification(searchPutAwayLine);
 		List<PutAwayLine> results = putAwayLineRepository.findAll(spec);
 		log.info("results: " + results);

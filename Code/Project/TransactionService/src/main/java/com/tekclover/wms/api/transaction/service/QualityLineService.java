@@ -130,6 +130,16 @@ public class QualityLineService extends BaseService {
 					" doesn't exist.");
 	}
 
+	public QualityLine getQualityLineValidated (String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode,
+									   Long lineNumber, String itemCode) {
+		QualityLine qualityLine = qualityLineRepository.findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndDeletionIndicator(
+				warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode, 0L);
+		if (qualityLine != null) {
+			return qualityLine;
+		}
+		return null;
+	}
+
 	public List<QualityLine> getQualityLineForReversal (String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode,
 									   Long lineNumber, String itemCode) {
 		List<QualityLine> qualityLine = qualityLineRepository.findAllByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndDeletionIndicator(
@@ -642,6 +652,20 @@ public class QualityLineService extends BaseService {
 			return qualityLineRepository.saveAll(qualityLineList);
 		} else {
 			throw new EntityNotFoundException("Error in deleting Id: " + lineNumber);
+		}
+	}
+
+	public QualityLine deleteQualityLineValidated (String warehouseId, String preOutboundNo, String refDocNumber,
+										  String partnerCode, Long lineNumber, String itemCode, String loginUserID)
+			throws IllegalAccessException, InvocationTargetException {
+		QualityLine dbQualityLine = getQualityLineValidated(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode);
+		if ( dbQualityLine != null) {
+			dbQualityLine.setDeletionIndicator(1L);
+			dbQualityLine.setQualityUpdatedBy(loginUserID);
+			dbQualityLine.setQualityUpdatedOn(new Date());
+			return qualityLineRepository.save(dbQualityLine);
+		} else {
+			return null;
 		}
 	}
 
