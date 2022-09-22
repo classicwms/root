@@ -71,6 +71,7 @@ public class ContainerReceiptController {
 			@RequestParam String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
 		ContainerReceipt createdContainerReceipt = containerreceiptService.createContainerReceipt(newContainerReceipt, loginUserID);
+		log.info("created container receipt data : " + createdContainerReceipt);
 		return new ResponseEntity<>(createdContainerReceipt , HttpStatus.OK);
 	}
     
@@ -81,6 +82,7 @@ public class ContainerReceiptController {
 			throws IllegalAccessException, InvocationTargetException {
 		ContainerReceipt createdContainerReceipt = 
 				containerreceiptService.updateContainerReceipt(containerReceiptNo, updateContainerReceipt, loginUserID);
+		log.info("updated container receipt data : " + createdContainerReceipt);
 		return new ResponseEntity<>(createdContainerReceipt , HttpStatus.OK);
 	}
     

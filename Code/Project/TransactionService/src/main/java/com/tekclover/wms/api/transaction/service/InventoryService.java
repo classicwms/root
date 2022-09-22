@@ -266,6 +266,7 @@ public class InventoryService extends BaseService {
 			log.error ("---------Inventory is null-----------");
 			return null;
 		}
+		log.info("getInventory record----------> : " + inventory.get());
 		return inventory.get();
 	}
 	

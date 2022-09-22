@@ -914,10 +914,12 @@ public class OutboundLineService extends BaseService {
 
 //				Double INV_QTY = inventory.getInventoryQuantity() + pickupLine.getPickConfirmQty();
 							// HAREESH -28-08-2022 change to update allocated qty
-							Double ALLOC_QTY = inventory.getAllocatedQuantity() + pickupLine.getPickConfirmQty();
-							inventory.setAllocatedQuantity(ALLOC_QTY);
-							inventory = inventoryRepository.save(inventory);
-							log.info("inventory updated : " + inventory);
+							if(inventory != null){
+								Double ALLOC_QTY = (inventory.getAllocatedQuantity() != null ? inventory.getAllocatedQuantity() : 0)  + (pickupLine.getPickConfirmQty() != null ? pickupLine.getPickConfirmQty() : 0);
+								inventory.setAllocatedQuantity(ALLOC_QTY);
+								inventory = inventoryRepository.save(inventory);
+								log.info("inventory updated : " + inventory);
+							}
 						}
 
 						/*---------------STEP 4-----PickupHeader update-------------------------------
@@ -1043,16 +1045,16 @@ public class OutboundLineService extends BaseService {
 						if(inventory != null) {
 							// HAREESH -28-08-2022 change to update allocated qty
 							if (pickupLine.getStatusId() == 50L) {
-								Double ALLOC_QTY = inventory.getAllocatedQuantity() + pickupLine.getPickConfirmQty();
+								Double ALLOC_QTY = (inventory.getAllocatedQuantity() != null ? inventory.getAllocatedQuantity() : 0)  + (pickupLine.getPickConfirmQty() != null ? pickupLine.getPickConfirmQty() : 0);
 								inventory.setAllocatedQuantity(ALLOC_QTY);
 							} else {
-								Double INV_QTY = inventory.getInventoryQuantity() - pickupHeader.getPickToQty();
+								Double INV_QTY = (inventory.getInventoryQuantity() != null ? inventory.getInventoryQuantity() : 0)  - (pickupHeader.getPickToQty() != null ? pickupHeader.getPickToQty() : 0);
 								if (INV_QTY < 0) {
 									log.info("inventory qty calculated for statuId = 51L : " + INV_QTY);
 									throw new BadRequestException("The inventory quantity cannot be less than zero");
 								}
 								inventory.setInventoryQuantity(INV_QTY);
-								Double ALLOC_QTY = inventory.getAllocatedQuantity() + pickupHeader.getPickToQty();
+								Double ALLOC_QTY = (inventory.getAllocatedQuantity() != null ? inventory.getAllocatedQuantity() : 0  ) + (pickupHeader.getPickToQty() != null ? pickupHeader.getPickToQty() : 0);
 								inventory.setAllocatedQuantity(ALLOC_QTY);
 							}
 							inventory = inventoryRepository.save(inventory);

@@ -286,7 +286,7 @@ public class PutAwayLineService extends BaseService {
 	public List<PutAwayLine> putAwayLineConfirm(@Valid List<AddPutAwayLine> newPutAwayLines, String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
 		List<PutAwayLine> createdPutAwayLines = new ArrayList<>();
-		
+		log.info("newPutAwayLines to confirm : " + newPutAwayLines);
 		try {
 			for ( AddPutAwayLine newPutAwayLine : newPutAwayLines) {
 				PutAwayLine dbPutAwayLine = new PutAwayLine();

@@ -101,6 +101,7 @@ public class PutAwayLineController {
    	public ResponseEntity<?> postPutAwayLineConfirm(@Valid @RequestBody List<AddPutAwayLine> newPutAwayLine, 
    			@RequestParam String loginUserID) 
    			throws IllegalAccessException, InvocationTargetException {
+		log.info("Request for putAwayLines to confirm : " + newPutAwayLine);
    		List<PutAwayLine> createdPutAwayLine = putawaylineService.putAwayLineConfirm(newPutAwayLine, loginUserID);
    		return new ResponseEntity<>(createdPutAwayLine , HttpStatus.OK);
    	}

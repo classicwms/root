@@ -532,31 +532,31 @@ public class PickupLineService extends BaseService {
 				pickupNumber = dbPickupLine.getPickupNumber();
 
 				pickupLineList.add(dbPickupLine);
+
+				/*---------------------------------------------PickupHeader Updates---------------------------------------*/
+				//-----------------logic for checking all records as 51 then only it should go to update header-----------*/
+
+				boolean isStatus51 = false;
+				List<Long> statusList = pickupLineList.stream().map(PickupLine::getStatusId).collect(Collectors.toList());
+				long statusIdCount = statusList.stream().filter(a -> a == 51L).count();
+				log.info("status count : " + (statusIdCount == statusList.size()));
+				isStatus51 = (statusIdCount == statusList.size());
+				if (!statusList.isEmpty() && isStatus51) {
+					STATUS_ID = 51L;
+				} else {
+					STATUS_ID = 50L;
+				}
+
+				PickupHeader pickupHeader = pickupHeaderService.getPickupHeader(warehouseId, preOutboundNo, refDocNumber,
+						partnerCode, pickupNumber);
+				pickupHeader.setStatusId(STATUS_ID);
+				pickupHeader.setPickUpdatedBy(loginUserID);
+				pickupHeader.setPickUpdatedOn(new Date());
+				pickupHeader = pickupHeaderRepository.save(pickupHeader);
+				log.info("pickupHeader updated: " + pickupHeader);
+
 			}
 		}
-		
-		/*---------------------------------------------PickupHeader Updates---------------------------------------*/
-		//-----------------logic for checking all records as 51 then only it should go to update header-----------*/
-		
-		boolean isStatus51 = false;
-		List<Long> statusList = pickupLineList.stream().map(PickupLine::getStatusId).collect(Collectors.toList());
-		long statusIdCount = statusList.stream().filter(a -> a == 51L).count();
-		log.info("status count : " + (statusIdCount == statusList.size()));
-		isStatus51 = (statusIdCount == statusList.size());
-		if (!statusList.isEmpty() && isStatus51) {
-			STATUS_ID = 51L;
-		} else {
-			STATUS_ID = 50L;
-		}
-		
-		PickupHeader pickupHeader = pickupHeaderService.getPickupHeader(warehouseId, preOutboundNo, refDocNumber, 
-				partnerCode, pickupNumber);
-		pickupHeader.setStatusId(STATUS_ID);
-		pickupHeader.setPickUpdatedBy(loginUserID);
-		pickupHeader.setPickUpdatedOn(new Date());
-		pickupHeader = pickupHeaderRepository.save(pickupHeader);
-		log.info("pickupHeader updated: " + pickupHeader);
-		
 		return pickupLineList;
 	}
 	

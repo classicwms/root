@@ -176,6 +176,8 @@ public class ContainerReceiptService extends BaseService {
 	public ContainerReceipt updateContainerReceipt (String containerReceiptNo, 
 			UpdateContainerReceipt updateContainerReceipt, String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
+		log.info("update container receipt no : " + containerReceiptNo);
+		log.info("update container receipt data : " + updateContainerReceipt);
 		ContainerReceipt dbContainerReceipt = getContainerReceipt(containerReceiptNo);
 		BeanUtils.copyProperties(updateContainerReceipt, dbContainerReceipt, CommonUtils.getNullPropertyNames(updateContainerReceipt));
 		
