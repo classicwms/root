@@ -342,7 +342,9 @@ public class PickupLineService extends BaseService {
 			List<PickupLine> pickupLinesList = pickupLineRepository.findAllByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndPickedPackCodeAndDeletionIndicator(
 					newPickupLine.getWarehouseId(),newPickupLine.getPreOutboundNo(),newPickupLine.getRefDocNumber(),newPickupLine.getPartnerCode(),newPickupLine.getLineNumber(),
 					newPickupLine.getItemCode(),newPickupLine.getPickedPackCode(), 0L);
-			if(pickupLinesList == null || pickupLinesList.isEmpty()) {
+			log.info("pickupLinesList existing: " + pickupLinesList);
+			
+//			if(pickupLinesList == null || pickupLinesList.isEmpty()) { 
 				PickupLine createdPickupLine = pickupLineRepository.save(dbPickupLine);
 				log.info("dbPickupLine created: " + createdPickupLine);
 
@@ -533,7 +535,7 @@ public class PickupLineService extends BaseService {
 
 				pickupLineList.add(dbPickupLine);
 
-			}
+//			}
 		}
 		/*---------------------------------------------PickupHeader Updates---------------------------------------*/
 		//-----------------logic for checking all records as 51 then only it should go to update header-----------*/
