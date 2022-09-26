@@ -73,6 +73,19 @@ public class PickupHeaderService {
 					",itemCode : " + itemCode +
 					" doesn't exist.");
 	}
+
+	public PickupHeader getPickupHeaderForReversal (String warehouseId, String preOutboundNo, String refDocNumber,
+										 String partnerCode, String pickupNumber, Long lineNumber, String itemCode) {
+		PickupHeader pickupHeader =
+				pickupHeaderRepository.findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndPickupNumberAndLineNumberAndItemCodeAndDeletionIndicator (
+						warehouseId, preOutboundNo, refDocNumber, partnerCode, pickupNumber,
+						lineNumber, itemCode, 0L);
+		if (pickupHeader != null && pickupHeader.getDeletionIndicator() == 0) {
+			return pickupHeader;
+		} else {
+			return null;
+		}
+	}
 	
 	/**
 	 * getPickupHeader
@@ -298,6 +311,21 @@ public class PickupHeaderService {
 			return pickupHeaderRepository.save(dbPickupHeader);
 		} else {
 			throw new EntityNotFoundException("Error in deleting PickupHeader : -> Id: " + lineNumber);
+		}
+	}
+
+	public PickupHeader deletePickupHeaderForReversal (String warehouseId, String preOutboundNo, String refDocNumber,
+											String partnerCode, String pickupNumber, Long lineNumber, String itemCode, String loginUserID)
+			throws IllegalAccessException, InvocationTargetException {
+		PickupHeader dbPickupHeader = getPickupHeaderForReversal(warehouseId, preOutboundNo, refDocNumber, partnerCode,
+				pickupNumber, lineNumber, itemCode);
+		if (dbPickupHeader != null) {
+			dbPickupHeader.setDeletionIndicator(1L);
+			dbPickupHeader.setPickupReversedBy(loginUserID);
+			dbPickupHeader.setPickupReversedOn(new Date());
+			return pickupHeaderRepository.save(dbPickupHeader);
+		} else {
+			return null;
 		}
 	}
 	

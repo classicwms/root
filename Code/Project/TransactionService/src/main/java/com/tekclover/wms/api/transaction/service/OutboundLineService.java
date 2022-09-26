@@ -926,7 +926,7 @@ public class OutboundLineService extends BaseService {
 						 * Fetch WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/OB_LINE_NO/ITM_CODE values from PICKUPLINE table
 						 * and pass the keys in PICKUPHEADER table and Delete PickUpHeader
 						 */
-						PickupHeader pickupHeader = pickupHeaderService.deletePickupHeader(outboundLine.getWarehouseId(), outboundLine.getPreOutboundNo(),
+						PickupHeader pickupHeader = pickupHeaderService.deletePickupHeaderForReversal(outboundLine.getWarehouseId(), outboundLine.getPreOutboundNo(),
 								outboundLine.getRefDocNumber(), outboundLine.getPartnerCode(),
 								pickupLine.getPickupNumber(), outboundLine.getLineNumber(), outboundLine.getItemCode(), loginUserID);
 						log.info("pickupHeader deleted : " + pickupHeader);
@@ -936,8 +936,10 @@ public class OutboundLineService extends BaseService {
 						 * and pass the keys in ORDERMANAGEMENTLINE table and update STATUS_ID as 47
 						 */
 						// HAREESH 07/09/2022 change from single line get to multiple line get since there maybe be multiple records for same parameter
-						List<OrderManagementLine> orderManagementLine = updateOrderManagementLineForReversal(pickupHeader, loginUserID);
-						log.info("orderManagementLine updated : " + orderManagementLine);
+						if(pickupHeader != null) {
+							List<OrderManagementLine> orderManagementLine = updateOrderManagementLineForReversal(pickupHeader, loginUserID);
+							log.info("orderManagementLine updated : " + orderManagementLine);
+						}
 
 						/*------------------------Record insertion in Outbound Reversal table----------------------------*/
 						/////////RECORD-1/////////////////////////////////////////////////////////////////////////////////
@@ -996,7 +998,7 @@ public class OutboundLineService extends BaseService {
 				if (pickupLineList != null && !pickupLineList.isEmpty()) {
 					for (PickupLine pickupLine : pickupLineList) {
 						// DELETE PICKUP_HEADER
-						PickupHeader pickupHeader = pickupHeaderService.deletePickupHeader(outboundLine.getWarehouseId(), outboundLine.getPreOutboundNo(),
+						PickupHeader pickupHeader = pickupHeaderService.deletePickupHeaderForReversal(outboundLine.getWarehouseId(), outboundLine.getPreOutboundNo(),
 								outboundLine.getRefDocNumber(), outboundLine.getPartnerCode(),
 								pickupLine.getPickupNumber(), outboundLine.getLineNumber(), outboundLine.getItemCode(), loginUserID);
 						log.info("pickupHeader deleted : " + pickupHeader);
@@ -1021,8 +1023,10 @@ public class OutboundLineService extends BaseService {
 						 * pass the keys in ORDERMANAGEMENTLINE table  and update STATUS_ID as 47
 						 */
 						// HAREESH 07/09/2022 change from single line get to multiple line get since there maybe be multiple records for same parameter
-						List<OrderManagementLine> orderManagementLine = updateOrderManagementLineForReversal(pickupHeader, loginUserID);
-						log.info("orderManagementLine updated : " + orderManagementLine);
+						if(pickupHeader != null) {
+							List<OrderManagementLine> orderManagementLine = updateOrderManagementLineForReversal(pickupHeader, loginUserID);
+							log.info("orderManagementLine updated : " + orderManagementLine);
+						}
 
 						/*---------------STEP 3.1-----Inventory update-------------------------------
 						 * Pass WH_ID/_ITM_CODE/ST_BIN of BIN_CLASS_ID=4/PACK_BARCODE as PICK_PACK_BARCODE of PICKUPLINE in
@@ -1048,13 +1052,13 @@ public class OutboundLineService extends BaseService {
 								Double ALLOC_QTY = (inventory.getAllocatedQuantity() != null ? inventory.getAllocatedQuantity() : 0)  + (pickupLine.getPickConfirmQty() != null ? pickupLine.getPickConfirmQty() : 0);
 								inventory.setAllocatedQuantity(ALLOC_QTY);
 							} else {
-								Double INV_QTY = (inventory.getInventoryQuantity() != null ? inventory.getInventoryQuantity() : 0)  - (pickupHeader.getPickToQty() != null ? pickupHeader.getPickToQty() : 0);
+								Double INV_QTY = (inventory.getInventoryQuantity() != null ? inventory.getInventoryQuantity() : 0)  - (pickupLine.getPickConfirmQty() != null ? pickupLine.getPickConfirmQty() : 0);
 								if (INV_QTY < 0) {
 									log.info("inventory qty calculated for statuId = 51L : " + INV_QTY);
 									throw new BadRequestException("The inventory quantity cannot be less than zero");
 								}
 								inventory.setInventoryQuantity(INV_QTY);
-								Double ALLOC_QTY = (inventory.getAllocatedQuantity() != null ? inventory.getAllocatedQuantity() : 0  ) + (pickupHeader.getPickToQty() != null ? pickupHeader.getPickToQty() : 0);
+								Double ALLOC_QTY = (inventory.getAllocatedQuantity() != null ? inventory.getAllocatedQuantity() : 0  ) + (pickupLine.getPickConfirmQty() != null ? pickupLine.getPickConfirmQty() : 0);
 								inventory.setAllocatedQuantity(ALLOC_QTY);
 							}
 							inventory = inventoryRepository.save(inventory);
@@ -1295,6 +1299,21 @@ public class OutboundLineService extends BaseService {
             });
             List<OrderManagementLine> orderManagementLine = orderManagementLineRepository.saveAll(orderManagementLineList);
             log.info("OrderManagementLine updated : " + orderManagementLine);
+			if(orderManagementLine.size() > 1) {
+				log.info("Delete OrderManagementLines if more that one line : ");
+				int i = 0;
+				List<OrderManagementLine> deleteOrderManagementLineList = new ArrayList<>();
+				for(OrderManagementLine line : orderManagementLine) {
+					if(i != 0){
+						line.setDeletionIndicator(1L);
+						deleteOrderManagementLineList.add(line);
+					}
+					i++;
+				}
+				log.info("OrderManagementLines for delete : " + deleteOrderManagementLineList);
+				orderManagementLineRepository.saveAll(deleteOrderManagementLineList);
+				log.info("OrderManagementLines deleted : ");
+			}
             return orderManagementLine;
         } else {
             return null;
