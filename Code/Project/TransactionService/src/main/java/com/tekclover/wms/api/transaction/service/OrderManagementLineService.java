@@ -304,6 +304,9 @@ public class OrderManagementLineService extends BaseService {
 		log.info("Inventory invQty: " + invQty);
 		
 		Double allocQty = inventory.getAllocatedQuantity() - dbOrderManagementLine.getAllocatedQty();
+		if (allocQty < 0D) {
+			allocQty = 0D;
+		}
 		inventory.setAllocatedQuantity(allocQty);
 		log.info("Inventory allocQty: " + allocQty);
 		
@@ -860,6 +863,9 @@ public class OrderManagementLineService extends BaseService {
 		if (dbOrderManagementLine != null) {
 			BeanUtils.copyProperties(updateOrderMangementLine, dbOrderManagementLine, 
 					CommonUtils.getNullPropertyNames(updateOrderMangementLine));
+			if(updateOrderMangementLine.getPickupNumber() == null){
+				dbOrderManagementLine.setPickupNumber(null);
+			}
 			dbOrderManagementLine.setPickupUpdatedBy(loginUserID);
 			dbOrderManagementLine.setPickupUpdatedOn(new Date());
 			return orderManagementLineRepository.save(dbOrderManagementLine);

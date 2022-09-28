@@ -15,7 +15,6 @@ import javax.persistence.EntityNotFoundException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
@@ -244,7 +243,7 @@ public class PreOutboundHeaderService extends BaseService {
 		
 		// Getting PreOutboundNo from NumberRangeTable
 		String preOutboundNo = getPreOutboundNo(warehouseId);
-		String refField1ForOrderType  = null;
+		String refField1ForOrderType = null;
 		
 		List<PreOutboundLine> overallCreatedPreoutboundLineList = new ArrayList<>();
 		for (OutboundIntegrationLine outboundIntegrationLine : outboundIntegrationHeader.getOutboundIntegrationLine()) {
@@ -939,19 +938,19 @@ public class PreOutboundHeaderService extends BaseService {
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	public OutboundIntegrationLog createOutboundIntegrationLog (OutboundIntegrationHeader inbound) 
+	public OutboundIntegrationLog createOutboundIntegrationLog (OutboundIntegrationHeader outbound) 
 			throws IllegalAccessException, InvocationTargetException {
-		Warehouse warehouse = getWarehouse(inbound.getWarehouseID());
+		Warehouse warehouse = getWarehouse(outbound.getWarehouseID());
 		OutboundIntegrationLog dbOutboundIntegrationLog = new OutboundIntegrationLog();
 		dbOutboundIntegrationLog.setLanguageId("EN");
 		dbOutboundIntegrationLog.setCompanyCodeId(warehouse.getCompanyCode());
 		dbOutboundIntegrationLog.setPlantId(warehouse.getPlantId());
 		dbOutboundIntegrationLog.setWarehouseId(warehouse.getWarehouseId());
-		dbOutboundIntegrationLog.setIntegrationLogNumber(inbound.getRefDocumentNo());
-		dbOutboundIntegrationLog.setRefDocNumber(inbound.getRefDocumentNo());
-		dbOutboundIntegrationLog.setOrderReceiptDate(inbound.getOrderProcessedOn());
+		dbOutboundIntegrationLog.setIntegrationLogNumber(outbound.getRefDocumentNo());
+		dbOutboundIntegrationLog.setRefDocNumber(outbound.getRefDocumentNo());
+		dbOutboundIntegrationLog.setOrderReceiptDate(outbound.getOrderProcessedOn());
 		dbOutboundIntegrationLog.setIntegrationStatus("FAILED");
-		dbOutboundIntegrationLog.setOrderReceiptDate(inbound.getOrderProcessedOn());
+		dbOutboundIntegrationLog.setOrderReceiptDate(outbound.getOrderProcessedOn());
 		dbOutboundIntegrationLog.setDeletionIndicator(0L);
 		dbOutboundIntegrationLog.setCreatedBy("MSD_API");
 		dbOutboundIntegrationLog.setCreatedOn(new Date());
@@ -959,4 +958,32 @@ public class PreOutboundHeaderService extends BaseService {
 		log.info("dbOutboundIntegrationLog : " + dbOutboundIntegrationLog);
 		return dbOutboundIntegrationLog;
 	}
+	
+	/**
+	 * 
+	 * @param outbound
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
+//	public OutboundIntegrationLog createOutboundIntegrationLog1 (OutboundOrder outbound) 
+//			throws IllegalAccessException, InvocationTargetException {
+//		Warehouse warehouse = getWarehouse(outbound.getWarehouseID());
+//		OutboundIntegrationLog dbOutboundIntegrationLog = new OutboundIntegrationLog();
+//		dbOutboundIntegrationLog.setLanguageId("EN");
+//		dbOutboundIntegrationLog.setCompanyCodeId(warehouse.getCompanyCode());
+//		dbOutboundIntegrationLog.setPlantId(warehouse.getPlantId());
+//		dbOutboundIntegrationLog.setWarehouseId(warehouse.getWarehouseId());
+//		dbOutboundIntegrationLog.setIntegrationLogNumber(outbound.getRefDocumentNo());
+//		dbOutboundIntegrationLog.setRefDocNumber(outbound.getRefDocumentNo());
+//		dbOutboundIntegrationLog.setOrderReceiptDate(outbound.getOrderProcessedOn());
+//		dbOutboundIntegrationLog.setIntegrationStatus("FAILED");
+//		dbOutboundIntegrationLog.setOrderReceiptDate(outbound.getOrderProcessedOn());
+//		dbOutboundIntegrationLog.setDeletionIndicator(0L);
+//		dbOutboundIntegrationLog.setCreatedBy("MSD_API");
+//		dbOutboundIntegrationLog.setCreatedOn(new Date());
+//		dbOutboundIntegrationLog = outboundIntegrationLogRepository.save(dbOutboundIntegrationLog);
+//		log.info("dbOutboundIntegrationLog : " + dbOutboundIntegrationLog);
+//		return dbOutboundIntegrationLog;
+//	}
 }

@@ -80,7 +80,7 @@ public class WarehouseService extends BaseService {
 	PropertiesConfig propertiesConfig;
 	
 	@Autowired
-	OrderService ibOrderService;
+	OrderService orderService;
 	
 	/**
 	 * 
@@ -147,7 +147,8 @@ public class WarehouseService extends BaseService {
 	 */
 	public ShipmentOrder postSO( ShipmentOrder shipmenOrder, boolean isRerun) {
 		log.info("ShipmenOrder received from External: " + shipmenOrder);
-		OutboundIntegrationHeader savedSoHeader = saveSOInMongo (shipmenOrder, isRerun);
+		OutboundIntegrationHeader savedSoHeader = saveSOInMongo (shipmenOrder, isRerun);	// With Nongo
+//		OutboundOrder savedSoHeader = saveSO (shipmenOrder, isRerun);						// Without Nongo
 		log.info("savedSoHeader in Mongo: " + savedSoHeader.getRefDocumentNo());
 		return shipmenOrder;
 	}
@@ -258,7 +259,7 @@ public class WarehouseService extends BaseService {
 			newInboundOrder.setOrderId(asnHeader.getAsnNumber());
 			newInboundOrder.setOrderProcessedOn(new Date());
 			newInboundOrder.setLines(orderLines);
-			InboundOrder createdOrder = ibOrderService.createInboundOrders(newInboundOrder);
+			InboundOrder createdOrder = orderService.createInboundOrders(newInboundOrder);
 			log.info("ASN createdOrder in SQL: " + createdOrder);
 			return createdInboundIntegration;
 		} catch (Exception e) {
@@ -338,7 +339,7 @@ public class WarehouseService extends BaseService {
 			newInboundOrder.setOrderId(storeReturnHeader.getTransferOrderNumber());
 			newInboundOrder.setOrderProcessedOn(new Date());
 			newInboundOrder.setLines(orderLines);
-			InboundOrder createdOrder = ibOrderService.createInboundOrders(newInboundOrder);
+			InboundOrder createdOrder = orderService.createInboundOrders(newInboundOrder);
 			log.info("StoreReturn - createdOrder in SQL: " + createdOrder);
 						
 			return createdInboundIntegration;
@@ -420,7 +421,7 @@ public class WarehouseService extends BaseService {
 			newInboundOrder.setOrderId(soReturnHeader.getReturnOrderReference());
 			newInboundOrder.setOrderProcessedOn(new Date());
 			newInboundOrder.setLines(orderLines);
-			InboundOrder createdOrder = ibOrderService.createInboundOrders(newInboundOrder);
+			InboundOrder createdOrder = orderService.createInboundOrders(newInboundOrder);
 			log.info("SOReturn - createdOrder in SQL: " + createdOrder);
 						
 			return createdInboundIntegration;
@@ -502,7 +503,7 @@ public class WarehouseService extends BaseService {
 			newInboundOrder.setOrderId(interWarehouseTransferInHeader.getTransferOrderNumber());
 			newInboundOrder.setOrderProcessedOn(new Date());
 			newInboundOrder.setLines(orderLines);
-			InboundOrder createdOrder = ibOrderService.createInboundOrders(newInboundOrder);
+			InboundOrder createdOrder = orderService.createInboundOrders(newInboundOrder);
 			log.info("InterWarehouseTransfer - createdOrder in SQL: " + createdOrder);
 			return createdInboundIntegration;
 		} catch (Exception e) {
@@ -578,7 +579,7 @@ public class WarehouseService extends BaseService {
 				newOutboundOrder.setOrderId(soHeader.getTransferOrderNumber());
 				newOutboundOrder.setOrderProcessedOn(new Date());
 				newOutboundOrder.setLines(orderLines);
-				OutboundOrder createdOrder = ibOrderService.createOutboundOrders(newOutboundOrder);
+				OutboundOrder createdOrder = orderService.createOutboundOrders(newOutboundOrder);
 				log.info("ShipmentOrder - createdOrder in SQL: " + createdOrder);
 			}
 						
@@ -654,7 +655,7 @@ public class WarehouseService extends BaseService {
 			newOutboundOrder.setOrderId(salesOrderHeader.getSalesOrderNumber());
 			newOutboundOrder.setOrderProcessedOn(new Date());
 			newOutboundOrder.setLines(orderLines);
-			OutboundOrder createdOrder = ibOrderService.createOutboundOrders(newOutboundOrder);
+			OutboundOrder createdOrder = orderService.createOutboundOrders(newOutboundOrder);
 			log.info("ShipmentOrder - createdOrder in SQL: " + createdOrder);
 						
 			return createdOutboundIntegration;
@@ -729,7 +730,7 @@ public class WarehouseService extends BaseService {
 			newOutboundOrder.setOrderId(returnPOHeader.getPoNumber());
 			newOutboundOrder.setOrderProcessedOn(new Date());
 			newOutboundOrder.setLines(orderLines);
-			OutboundOrder createdOrder = ibOrderService.createOutboundOrders(newOutboundOrder);
+			OutboundOrder createdOrder = orderService.createOutboundOrders(newOutboundOrder);
 			log.info("ShipmentOrder - createdOrder in SQL: " + createdOrder);
 						
 			return createdOutboundIntegration;
@@ -806,7 +807,7 @@ public class WarehouseService extends BaseService {
 			newOutboundOrder.setOrderId(interWarehouseTransferOutHeader.getTransferOrderNumber());
 			newOutboundOrder.setOrderProcessedOn(new Date());
 			newOutboundOrder.setLines(orderLines);
-			OutboundOrder createdOrder = ibOrderService.createOutboundOrders(newOutboundOrder);
+			OutboundOrder createdOrder = orderService.createOutboundOrders(newOutboundOrder);
 			log.info("ShipmentOrder - createdOrder in SQL: " + createdOrder);
 			return createdOutboundIntegration;
 		} catch (Exception e) {
@@ -1004,7 +1005,67 @@ public class WarehouseService extends BaseService {
 		return uniqueID;
 	}
 	
-//	public static void main(String[] args) {
-//		System.out.println(getUUID());
-//	}
+	//===============================================================================================================================================
+	
+	// POST SOHeader
+	private OutboundOrder saveSO (ShipmentOrder shipmenOrder, boolean isRerun) {
+		try {
+			SOHeader soHeader = shipmenOrder.getSoHeader();
+			
+			// Warehouse ID Validation
+			validateWarehouseId (soHeader.getWareHouseId());
+			
+			// Checking for duplicate RefDocNumber
+			OutboundOrder obOrder = orderService.getOBOrderById(soHeader.getTransferOrderNumber());
+			
+			if (obOrder != null) {
+				throw new BadRequestException("TransferOrderNumber is already posted and it can't be duplicated.");
+			}
+						
+			List<SOLine> soLines = shipmenOrder.getSoLine();
+			
+			OutboundOrder apiHeader = new OutboundOrder();
+			apiHeader.setOrderId(soHeader.getTransferOrderNumber());
+			apiHeader.setWarehouseID(soHeader.getWareHouseId());
+			apiHeader.setPartnerCode(soHeader.getStoreID());
+			apiHeader.setPartnerName(soHeader.getStoreName());
+			apiHeader.setRefDocumentNo(soHeader.getTransferOrderNumber());
+			apiHeader.setOutboundOrderTypeID(0L);
+			apiHeader.setRefDocumentType("SO");						// Hardcoded value "SO"
+			apiHeader.setOrderProcessedOn(new Date());
+			apiHeader.setOrderReceivedOn(new Date());
+			apiHeader.setProcessedStatusId(0L);
+			
+			try {
+				Date reqDelDate = DateUtils.convertStringToDate(soHeader.getRequiredDeliveryDate());
+				apiHeader.setRequiredDeliveryDate(reqDelDate);
+			} catch (Exception e) {
+				throw new BadRequestException("Date format should be MM-dd-yyyy");
+			}
+			
+			Set<OutboundOrderLine> orderLines = new HashSet<>();
+			long id = 1;
+			for (SOLine soLine : soLines) {
+				OutboundOrderLine apiLine = new OutboundOrderLine();
+				apiLine.setId(id++);
+				apiLine.setLineReference(soLine.getLineReference()); 			// IB_LINE_NO
+				apiLine.setItemCode(soLine.getSku());							// ITM_CODE
+				apiLine.setItemText(soLine.getSkuDescription()); 				// ITEM_TEXT
+				apiLine.setOrderedQty(soLine.getOrderedQty());					// ORD_QTY
+				apiLine.setUom(soLine.getUom()); 								// ORD_UOM
+				apiLine.setRefField1ForOrderType(soLine.getOrderType());		// ORDER_TYPE
+				orderLines.add(apiLine);
+			}
+			
+			apiHeader.setLines(orderLines);
+			apiHeader.setOrderProcessedOn(new Date());
+			apiHeader.setProcessedStatusId(0L);
+			log.info("apiHeader : " + apiHeader);
+			OutboundOrder createdOrder = orderService.createOutboundOrders(apiHeader);
+			log.info("ShipmentOrder - createdOrder in SQL: " + createdOrder);
+			return apiHeader;
+		} catch (Exception e) {
+			throw e;
+		}
+	}
 }

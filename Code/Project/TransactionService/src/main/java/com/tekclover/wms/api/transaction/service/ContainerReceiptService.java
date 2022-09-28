@@ -114,6 +114,8 @@ public class ContainerReceiptService extends BaseService {
 			List<InboundHeader> inboundHeaderData = this.inboundHeaderRepository.findByRefDocNumberAndDeletionIndicator(containerReceipt.getRefDocNumber(),0L);
 			if(inboundHeaderData != null && !inboundHeaderData.isEmpty() && inboundHeaderData.get(0).getConfirmedOn() != null){
 				containerReceipt.setReferenceField5(inboundHeaderData.get(0).getConfirmedOn().toString());
+			} else {
+				containerReceipt.setReferenceField5(null);
 			}
 		}
 		log.info("results: " + results);

@@ -114,6 +114,25 @@ public class OrderService {
 		OutboundOrder outboundOrder = outboundOrderRepository.save(newOutboundOrder);
 		return outboundOrder;
 	}
+	
+	/**
+	 * 
+	 * @param orderId
+	 * @param newOutboundOrder
+	 * @return
+	 */
+	public OutboundOrder updateProcessedOrder(String orderId) {
+		OutboundOrder dbOutboundOrder = getOBOrderById(orderId);
+		log.info("orderId : " + orderId);
+		log.info("dbOutboundOrder : " + dbOutboundOrder);
+		if (dbOutboundOrder != null) {
+			dbOutboundOrder.setProcessedStatusId(10L);
+			dbOutboundOrder.setOrderProcessedOn(new Date());
+			OutboundOrder outboundOrder = outboundOrderRepository.save(dbOutboundOrder);
+			return outboundOrder;
+		}
+		return dbOutboundOrder;
+	}
 
 	/**
 	 * 

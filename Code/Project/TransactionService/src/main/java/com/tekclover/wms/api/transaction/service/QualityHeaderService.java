@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -60,7 +61,10 @@ public class QualityHeaderService {
 		log.info("The given QualityHeader ID : " + qualityInspectionNo + " doesn't exist.");
 		return null;
 	}
-	
+
+
+
+
 	/**
 	 * 
 	 * @param warehouseId
@@ -121,12 +125,12 @@ public class QualityHeaderService {
 	 * @param partnerCode
 	 * @return
 	 */
-	public QualityHeader getQualityHeaderForReversal (String warehouseId, String preOutboundNo, String refDocNumber, 
+	public List<QualityHeader> getQualityHeaderForReversal (String warehouseId, String preOutboundNo, String refDocNumber,
 			String pickupNumber, String partnerCode) {
-		QualityHeader qualityHeader = 
-				qualityHeaderRepository.findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPickupNumberAndPartnerCodeAndDeletionIndicator (
+		List<QualityHeader> qualityHeader =
+				qualityHeaderRepository.findAllByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPickupNumberAndPartnerCodeAndDeletionIndicator (
 						warehouseId, preOutboundNo, refDocNumber, pickupNumber, partnerCode, 0L);
-		if (qualityHeader != null) {
+		if (qualityHeader != null && qualityHeader.size() != 0) {
 			return qualityHeader;
 		} 
 		log.info("Given values for QualityHeader : " + warehouseId + ":" + preOutboundNo + ":" + refDocNumber + ":" + pickupNumber
@@ -244,6 +248,22 @@ public class QualityHeaderService {
 			qualityHeader.setQualityUpdatedBy(loginUserID);
 			qualityHeader.setQualityUpdatedOn(new Date());
 			return qualityHeaderRepository.save(qualityHeader);
+		} else {
+			throw new EntityNotFoundException("Error in deleting Id: " + qualityInspectionNo);
+		}
+	}
+
+	public List<QualityHeader> deleteQualityHeaderForReversal (String warehouseId, String preOutboundNo, String refDocNumber, String qualityInspectionNo, String actualHeNo, String loginUserID) {
+		List<QualityHeader> qualityHeader = getQualityHeaderForReversal(warehouseId, preOutboundNo, refDocNumber, qualityInspectionNo, actualHeNo);
+		if ( qualityHeader != null && qualityHeader.size() != 0) {
+			List<QualityHeader> toUpdate = new ArrayList<>();
+			qualityHeader.forEach(data-> {
+				data.setDeletionIndicator(1L);
+				data.setQualityUpdatedBy(loginUserID);
+				data.setQualityUpdatedOn(new Date());
+				toUpdate.add(data);
+			});
+			return qualityHeaderRepository.saveAll(toUpdate);
 		} else {
 			throw new EntityNotFoundException("Error in deleting Id: " + qualityInspectionNo);
 		}

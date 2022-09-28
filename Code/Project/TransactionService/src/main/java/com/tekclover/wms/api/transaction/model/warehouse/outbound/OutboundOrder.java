@@ -6,9 +6,10 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 import lombok.Data;
@@ -35,8 +36,10 @@ public class OutboundOrder {
 	private Long processedStatusId;
 	private Long outboundOrderTypeID;
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+//	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "orderId", nullable = false)
     private Set<OutboundOrderLine> lines;
 }
+
 

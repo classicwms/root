@@ -16,4 +16,5 @@ public interface OutboundOrderRepository extends JpaRepository<OutboundOrder,Lon
 
 	public OutboundOrder findByOrderId(String orderId);
 	public List<OutboundOrder> findByOrderReceivedOnBetween (Date date1, Date date2);
+	public List<OutboundOrder> findTopByProcessedStatusIdOrderByOrderReceivedOn(long l);
 }
