@@ -35,7 +35,7 @@ public interface QualityHeaderRepository extends JpaRepository<QualityHeader,Lon
 			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, String pickupNumber,
 			String qualityInspectionNo, String actualHeNo, long l);
 
-	public List<QualityHeader> findAllByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPickupNumberAndPartnerCodeAndDeletionIndicator(
-			String warehouseId, String preOutboundNo, String refDocNumber, String pickupNumber, String partnerCode,
+	public List<QualityHeader> findAllByWarehouseIdAndPreOutboundNoAndRefDocNumberAndQualityInspectionNoAndActualHeNoAndDeletionIndicator(
+			String warehouseId, String preOutboundNo, String refDocNumber, String qualityInspectionNo, String actualHeNo,
 			Long l);
 }

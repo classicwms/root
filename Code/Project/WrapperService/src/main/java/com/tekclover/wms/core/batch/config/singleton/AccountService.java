@@ -3,31 +3,32 @@ package com.tekclover.wms.core.batch.config.singleton;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.tekclover.wms.core.batch.dto.Inventory2;
+import com.tekclover.wms.core.batch.scheduler.entity.InventoryMovement;
+import com.tekclover.wms.core.batch.scheduler.entity.InventoryMovement2;
 
 public class AccountService {
 
-	private static List<Inventory2> inventoryHolder;
-	private Inventory2 inventory;
+	private static List<InventoryMovement2> inventoryHolder;
+	private InventoryMovement2 inventoryMovement;
 	
 	public AccountService () {
 		inventoryHolder = new ArrayList<>(50000);
 	}
 	
-	public List<Inventory2> getInventoryHolder() {
+	public List<InventoryMovement2> getInventoryHolder() {
 		return inventoryHolder;
 	}
 	
-	public void setInventoryHolder(List<Inventory2> items) {
+	public void setInventoryHolder(List<InventoryMovement2> items) {
 		AccountService.inventoryHolder.addAll(items);
 	}
 	
-	public Inventory2 getInventory() {
-		return inventory;
+	public InventoryMovement2 getInventory() {
+		return inventoryMovement;
 	}
 	
-	public void setInventory(Inventory2 inventory) {
-		this.inventory = inventory;
-		AccountService.inventoryHolder.add(inventory);
+	public void setInventory(InventoryMovement2 inventoryMovement) {
+		this.inventoryMovement = inventoryMovement;
+		AccountService.inventoryHolder.add(inventoryMovement);
 	}
 }

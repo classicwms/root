@@ -3,11 +3,9 @@ package com.tekclover.wms.api.transaction.repository.specification;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 
+import org.springframework.context.annotation.DeferredImportSelector;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.tekclover.wms.api.transaction.model.inbound.InboundLine;
@@ -34,8 +32,13 @@ public class InboundLineSpecification implements Specification<InboundLine> {
         	 predicates.add(cb.between(root.get("confirmedOn"), searchInboundLine.getStartConfirmedOn(), 
         			 searchInboundLine.getEndConfirmedOn()));
          }
-         
-         predicates.add (cb.equal(root.get("referenceField1"), searchInboundLine.getReferenceField1()));
+
+        if (searchInboundLine.getStatusId() != null && !searchInboundLine.getStatusId().isEmpty()) {
+            final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group> get("statusId");
+            predicates.add(group.in(searchInboundLine.getStatusId()));
+        }
+
+        predicates.add (cb.equal(root.get("referenceField1"), searchInboundLine.getReferenceField1()));
 		                    
          return cb.and(predicates.toArray(new Predicate[] {}));
      }

@@ -652,7 +652,7 @@ public class QualityLineService extends BaseService {
 			});
 			return qualityLineRepository.saveAll(qualityLineList);
 		} else {
-			throw new EntityNotFoundException("Error in deleting Id: " + lineNumber);
+			return null;
 		}
 	}
 

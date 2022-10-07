@@ -1,5 +1,6 @@
 package com.tekclover.wms.core.model.transaction;
 
+import java.util.Date;
 import java.util.List;
 
 import lombok.Data;
@@ -26,4 +27,8 @@ public class SearchPutAwayLine {
 	private List<String> itemCode;
 	private List<String> proposedStorageBin;
 	private List<String> confirmedStorageBin;
+
+	private List<String> packBarCodes;
+	private Date fromConfirmedDate;
+	private Date toConfirmedDate;
 }

@@ -126,15 +126,15 @@ public class QualityHeaderService {
 	 * @return
 	 */
 	public List<QualityHeader> getQualityHeaderForReversal (String warehouseId, String preOutboundNo, String refDocNumber,
-			String pickupNumber, String partnerCode) {
+			String qualityInspectionNo, String actualHeNo) {
 		List<QualityHeader> qualityHeader =
-				qualityHeaderRepository.findAllByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPickupNumberAndPartnerCodeAndDeletionIndicator (
-						warehouseId, preOutboundNo, refDocNumber, pickupNumber, partnerCode, 0L);
+				qualityHeaderRepository.findAllByWarehouseIdAndPreOutboundNoAndRefDocNumberAndQualityInspectionNoAndActualHeNoAndDeletionIndicator (
+						warehouseId, preOutboundNo, refDocNumber, qualityInspectionNo, actualHeNo, 0L);
 		if (qualityHeader != null && qualityHeader.size() != 0) {
 			return qualityHeader;
 		} 
-		log.info("Given values for QualityHeader : " + warehouseId + ":" + preOutboundNo + ":" + refDocNumber + ":" + pickupNumber
-				+ ":" + partnerCode + " doesn't exist.");
+		log.info("Given values for QualityHeader : " + warehouseId + ":" + preOutboundNo + ":" + refDocNumber + ":" + qualityInspectionNo
+				+ ":" + actualHeNo + " doesn't exist.");
 		return null;
 	}
 	

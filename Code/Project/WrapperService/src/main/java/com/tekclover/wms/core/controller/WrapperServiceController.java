@@ -120,14 +120,14 @@ public class WrapperServiceController {
     
     //----------------------------------------------------------------------------------------------------
     @ApiOperation(response = Optional.class, value = "Batch Fetch") // label for swagger
-    @GetMapping("/batch-fetch/jobInventoryQuery")
+    @GetMapping("/batch-fetch/jobInventoryMovementQuery")
     public ResponseEntity<?> jobInventoryQuery2() throws Exception {
     	AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
     	 
         batchJobScheduler.runJobdbToCsvJob2();
        
 		AccountService service2 = context.getBean("accountService", AccountService.class);
-		log.info("inventory size: " + service2.getInventoryHolder().size());
+		log.info("inventoryMovement size: " + service2.getInventoryHolder().size());
 		context.close();
         return new ResponseEntity<>(service2.getInventoryHolder(), HttpStatus.OK);
     }

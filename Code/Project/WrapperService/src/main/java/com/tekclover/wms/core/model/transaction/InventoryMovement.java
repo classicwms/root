@@ -12,9 +12,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-
-	public class InventoryMovement { 
-
+public class InventoryMovement {
 	private String languageId;
 	private String companyCodeId;
 	private String plantId;

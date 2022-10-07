@@ -510,6 +510,12 @@ public class PickupLineService extends BaseService {
 					String QC_NO = getNextRangeNumber(NUM_RAN_CODE, warehouse.getWarehouseId());
 					newQualityHeader.setQualityInspectionNo(QC_NO);
 
+					//------ PROD FIX : 29/09/2022:HAREESH -------(CWMS/IW/2022/018)
+					if(dbPickupLine.getPickConfirmQty() != null) {
+						newQualityHeader.setQcToQty(String.valueOf(dbPickupLine.getPickConfirmQty()));
+					}
+					newQualityHeader.setReferenceField1(dbPickupLine.getPickedStorageBin());
+					newQualityHeader.setReferenceField2(dbPickupLine.getPickedPackCode());
 					// STATUS_ID - Hard Coded Value "54"
 					newQualityHeader.setStatusId(54L);
 					QualityHeader createdQualityHeader = qualityHeaderService.createQualityHeader(newQualityHeader, loginUserID);

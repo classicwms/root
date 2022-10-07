@@ -208,7 +208,7 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 			+ "(CASE \r\n"
 			+ "	WHEN OL.STATUS_ID IS NOT NULL AND OL.STATUS_ID = 59 THEN  'DELIVERED'\r\n"
 			+ "	WHEN OL.STATUS_ID IS NOT NULL AND (OL.STATUS_ID = 42 OR OL.STATUS_ID = 43 OR \r\n"
-			+ "	OL.STATUS_ID = 48 OR OL.STATUS_ID = 50 OR OL.STATUS_ID = 55) THEN  'IN PROGRESS'\r\n"
+			+ "	OL.STATUS_ID = 48 OR OL.STATUS_ID = 50 OR OL.STATUS_ID = 55 OR OL.STATUS_ID = 57) THEN  'IN PROGRESS'\r\n"
 			+ "	WHEN OL.STATUS_ID IS NOT NULL AND (OL.STATUS_ID = 47 OR OL.STATUS_ID = 51) THEN 'NOT FULFILLED' \r\n"
 			+ "		ELSE NULL\r\n"
 			+ "	END\r\n"

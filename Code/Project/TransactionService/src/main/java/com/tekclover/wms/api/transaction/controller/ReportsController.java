@@ -55,6 +55,76 @@ public class ReportsController {
     	Dashboard dashboard = reportsService.getDashboard(warehouseId);
 		return new ResponseEntity<>(dashboard, HttpStatus.OK);
 	}
+
+	/*
+	 * Dashboard - AWAITING ASN
+	 */
+	@ApiOperation(response = Dashboard.class, value = "Get Dashboard Report") // label for swagger
+	@GetMapping("/dashboard/awaiting-asn")
+	public ResponseEntity<?> getDashboardAwaitingASN(@RequestParam String warehouseId) throws Exception {
+		Dashboard dashboard = reportsService.getDashboardAwaitingASN(warehouseId);
+		return new ResponseEntity<>(dashboard, HttpStatus.OK);
+	}
+
+	/*
+	 * Dashboard - CONTAINER RECEIVED
+	 */
+	@ApiOperation(response = Dashboard.class, value = "Get Dashboard Report") // label for swagger
+	@GetMapping("/dashboard/container-received")
+	public ResponseEntity<?> getDashboardContainerReceived(@RequestParam String warehouseId) throws Exception {
+		Dashboard dashboard = reportsService.getDashboardContainerReceived(warehouseId);
+		return new ResponseEntity<>(dashboard, HttpStatus.OK);
+	}
+
+	/*
+	 * Dashboard - ITEM RECEIVED
+	 */
+	@ApiOperation(response = Dashboard.class, value = "Get Dashboard Report") // label for swagger
+	@GetMapping("/dashboard/item-received")
+	public ResponseEntity<?> getDashboardItemReceived(@RequestParam String warehouseId) throws Exception {
+		Dashboard dashboard = reportsService.getDashboardItemReceived(warehouseId);
+		return new ResponseEntity<>(dashboard, HttpStatus.OK);
+	}
+
+	/*
+	 * Dashboard - SHIPPED LINE
+	 */
+	@ApiOperation(response = Dashboard.class, value = "Get Dashboard Report") // label for swagger
+	@GetMapping("/dashboard/shipped-line")
+	public ResponseEntity<?> getDashboardShippedLine(@RequestParam String warehouseId) throws Exception {
+		Dashboard dashboard = reportsService.getDashboardShippedLine(warehouseId);
+		return new ResponseEntity<>(dashboard, HttpStatus.OK);
+	}
+
+	/*
+	 * Dashboard - NORMAL COUNT
+	 */
+	@ApiOperation(response = Dashboard.class, value = "Get Dashboard Report") // label for swagger
+	@GetMapping("/dashboard/normal-count")
+	public ResponseEntity<?> getDashboardNormalCount(@RequestParam String warehouseId) throws Exception {
+		Dashboard dashboard = reportsService.getDashboardNormalCount(warehouseId);
+		return new ResponseEntity<>(dashboard, HttpStatus.OK);
+	}
+
+	/*
+	 * Dashboard - SPECIAL COUNT
+	 */
+	@ApiOperation(response = Dashboard.class, value = "Get Dashboard Report") // label for swagger
+	@GetMapping("/dashboard/special-count")
+	public ResponseEntity<?> getDashboardSpecialCount(@RequestParam String warehouseId) throws Exception {
+		Dashboard dashboard = reportsService.getDashboardSpecialCount(warehouseId);
+		return new ResponseEntity<>(dashboard, HttpStatus.OK);
+	}
+
+	/*
+	 * Dashboard - BIN STATUS
+	 */
+	@ApiOperation(response = Dashboard.class, value = "Get Dashboard Report") // label for swagger
+	@GetMapping("/dashboard/bin-status")
+	public ResponseEntity<?> getDashboardBinStatus(@RequestParam String warehouseId) throws Exception {
+		Dashboard dashboard = reportsService.getDashboardBinStatus(warehouseId);
+		return new ResponseEntity<>(dashboard, HttpStatus.OK);
+	}
     
     @ApiOperation(response = MobileDashboard.class, value = "Get Dashboard Report") // label for swagger 
    	@GetMapping("/dashboard/mobile")

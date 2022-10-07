@@ -13,16 +13,15 @@ import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.database.JpaPagingItemReader;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
-import org.springframework.batch.item.file.transform.BeanWrapperFieldExtractor;
-import org.springframework.batch.item.file.transform.DelimitedLineAggregator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.tekclover.wms.core.batch.dto.Inventory2;
 import com.tekclover.wms.core.batch.scheduler.entity.Inventory;
 import com.tekclover.wms.core.batch.scheduler.entity.InventoryCustomItemWriter;
 import com.tekclover.wms.core.batch.scheduler.entity.InventoryItemProcessor2;
+import com.tekclover.wms.core.batch.scheduler.entity.InventoryMovement;
+import com.tekclover.wms.core.batch.scheduler.entity.InventoryMovement2;
 
 @EnableBatchProcessing
 @Configuration
@@ -39,15 +38,15 @@ public class InventoryBatchFetchConfig2 {
 
 	@Bean
 	public JpaPagingItemReader getJpaPagingItemReader2() {
-		return new JpaPagingItemReaderBuilder<Inventory>()
-				.name("Inventory")
+		return new JpaPagingItemReaderBuilder<InventoryMovement>()
+				.name("InventoryMovement")
 				.entityManagerFactory(entityManagerFactory)
-				.queryString("select i from Inventory i where (i.inventoryQuantity > 0 or i.allocatedQuantity > 0) and i.deletionIndicator = 0 ")
+				.queryString("select i from InventoryMovement i ")
 				.pageSize(10000)
 				.saveState(false)
 				.build();
 	}
-
+	
 	@Bean
 	public InventoryCustomItemWriter writer2() {
 		InventoryCustomItemWriter writer = new InventoryCustomItemWriter();
@@ -57,7 +56,7 @@ public class InventoryBatchFetchConfig2 {
 	@Bean
 	public Step getDbToCsvStep2() {
 		StepBuilder stepBuilder = stepBuilderFactory.get("getDbToCsvStep2");
-		SimpleStepBuilder<Inventory, Inventory> simpleStepBuilder = stepBuilder.chunk(10000);
+		SimpleStepBuilder<InventoryMovement, InventoryMovement> simpleStepBuilder = stepBuilder.chunk(10000);
 		return simpleStepBuilder.reader(getJpaPagingItemReader2()).processor(processor2()).writer(writer2()).build();
 	}
 

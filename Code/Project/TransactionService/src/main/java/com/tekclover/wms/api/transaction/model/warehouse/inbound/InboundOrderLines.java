@@ -16,8 +16,6 @@ import lombok.Data;
 @Table(name = "tbliborderlines")
 @Data
 public class InboundOrderLines {
-
-	@JsonIgnore
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -36,4 +34,5 @@ public class InboundOrderLines {
 	private String uom;										// ORD_UOM
 	private Double itemCaseQty;								// ITM_CASE_QTY
 	private String salesOrderReference;						// REF_FIELD_4
+	private String orderId;
 }

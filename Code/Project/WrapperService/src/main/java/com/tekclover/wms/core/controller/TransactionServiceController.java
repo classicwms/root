@@ -1,6 +1,7 @@
 package com.tekclover.wms.core.controller;
 
 import com.tekclover.wms.core.model.transaction.*;
+import com.tekclover.wms.core.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.core.service.ReportService;
 import com.tekclover.wms.core.service.TransactionService;
 import io.swagger.annotations.Api;
@@ -1513,6 +1514,76 @@ public class TransactionServiceController {
     	Dashboard dashboard = transactionService.getDashboard(warehouseId, authToken);
 		return new ResponseEntity<>(dashboard, HttpStatus.OK);
 	}
+
+	/*
+	 * Dashboard - AWAITING ASN
+	 */
+	@ApiOperation(response = Dashboard.class, value = "Get Dashboard AWAITING ASN") // label for swagger
+	@GetMapping("/reports/dashboard/awaiting-asn")
+	public ResponseEntity<?> getDashboardAwaitingASN(@RequestParam String warehouseId, @RequestParam String authToken) throws java.text.ParseException {
+		Dashboard dashboard = transactionService.getDashboardAwaitingASN(warehouseId,authToken);
+		return new ResponseEntity<>(dashboard, HttpStatus.OK);
+	}
+
+	/*
+	 * Dashboard - CONTAINER RECEIVED
+	 */
+	@ApiOperation(response = Dashboard.class, value = "Get Dashboard CONTAINER RECEIVED") // label for swagger
+	@GetMapping("/reports/dashboard/container-received")
+	public ResponseEntity<?> getDashboardContainerReceived(@RequestParam String warehouseId, @RequestParam String authToken) throws java.text.ParseException {
+		Dashboard dashboard = transactionService.getDashboardContainerReceived(warehouseId,authToken);
+		return new ResponseEntity<>(dashboard, HttpStatus.OK);
+	}
+
+	/*
+	 * Dashboard - ITEM RECEIVED
+	 */
+	@ApiOperation(response = Dashboard.class, value = "Get Dashboard ITEM RECEIVED") // label for swagger
+	@GetMapping("/reports/dashboard/item-received")
+	public ResponseEntity<?> getDashboardItemReceived(@RequestParam String warehouseId, @RequestParam String authToken) throws java.text.ParseException {
+		Dashboard dashboard = transactionService.getDashboardItemReceived(warehouseId,authToken);
+		return new ResponseEntity<>(dashboard, HttpStatus.OK);
+	}
+
+	/*
+	 * Dashboard - SHIPPED LINE
+	 */
+	@ApiOperation(response = Dashboard.class, value = "Get Dashboard SHIPPED LINE") // label for swagger
+	@GetMapping("/reports/dashboard/shipped-line")
+	public ResponseEntity<?> getDashboardShippedLine(@RequestParam String warehouseId, @RequestParam String authToken) throws java.text.ParseException {
+		Dashboard dashboard = transactionService.getDashboardShippedLine(warehouseId,authToken);
+		return new ResponseEntity<>(dashboard, HttpStatus.OK);
+	}
+
+	/*
+	 * Dashboard - NORMAL COUNT
+	 */
+	@ApiOperation(response = Dashboard.class, value = "Get Dashboard NORMAL COUNT") // label for swagger
+	@GetMapping("/reports/dashboard/normal-count")
+	public ResponseEntity<?> getDashboardNormalCount(@RequestParam String warehouseId, @RequestParam String authToken) throws java.text.ParseException {
+		Dashboard dashboard = transactionService.getDashboardNormalCount(warehouseId,authToken);
+		return new ResponseEntity<>(dashboard, HttpStatus.OK);
+	}
+
+	/*
+	 * Dashboard - SPECIAL COUNT
+	 */
+	@ApiOperation(response = Dashboard.class, value = "Get Dashboard SPECIAL COUNT") // label for swagger
+	@GetMapping("/reports/dashboard/special-count")
+	public ResponseEntity<?> getDashboardSpecialCount(@RequestParam String warehouseId, @RequestParam String authToken) throws java.text.ParseException {
+		Dashboard dashboard = transactionService.getDashboardSpecialCount(warehouseId,authToken);
+		return new ResponseEntity<>(dashboard, HttpStatus.OK);
+	}
+
+	/*
+	 * Dashboard - BIN STATUS
+	 */
+	@ApiOperation(response = Dashboard.class, value = "Get Dashboard BIN STATUS") // label for swagger
+	@GetMapping("/reports/dashboard/bin-status")
+	public ResponseEntity<?> getDashboardBinStatus(@RequestParam String warehouseId, @RequestParam String authToken) throws java.text.ParseException {
+		Dashboard dashboard = transactionService.getDashboardBinStatus(warehouseId,authToken);
+		return new ResponseEntity<>(dashboard, HttpStatus.OK);
+	}
     
     /*
      * MobileDashboard
@@ -1736,4 +1807,26 @@ public class TransactionServiceController {
 //		transactionService.sendEmail(file,authToken);
 //		return new ResponseEntity<>(HttpStatus.OK);
 //	}
+
+	@ApiOperation(response = ShipmentOrder.class, value = "Create Shipment Order") // label for swagger
+	@PostMapping("/warehouse/outbound/so")
+	public ResponseEntity<?> postShipmenOrder(@Valid @RequestBody ShipmentOrder shipmenOrder,@RequestParam String authToken)
+			throws IllegalAccessException, InvocationTargetException {
+		WarehouseApiResponse createdSO = transactionService.postSO(shipmenOrder, authToken);
+		return new ResponseEntity<>(createdSO, HttpStatus.OK);
+	}
+
+	@ApiOperation(response = InboundOrder.class, value = "Get inbound Order by id ") // label for swagger
+	@GetMapping("/orders/inbound/orders/{orderId}")
+	public ResponseEntity<?> getInboundOrdersById(@PathVariable String orderId,@RequestParam String authToken) {
+		InboundOrder orders = transactionService.getInboundOrderById(orderId,authToken);
+		return new ResponseEntity<>(orders, HttpStatus.OK);
+	}
+
+	@ApiOperation(response = OutboundOrder.class, value = "Get outbound Order by id ") // label for swagger
+	@GetMapping("/orders/outbound/orders/{orderId}")
+	public ResponseEntity<?> getOutboundOrdersById(@PathVariable String orderId,@RequestParam String authToken) {
+		OutboundOrder orders = transactionService.getOutboundOrdersById(orderId,authToken);
+		return new ResponseEntity<>(orders, HttpStatus.OK);
+	}
 }

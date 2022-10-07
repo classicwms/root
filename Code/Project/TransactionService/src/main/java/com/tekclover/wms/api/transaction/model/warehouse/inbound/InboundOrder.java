@@ -6,8 +6,8 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -19,7 +19,7 @@ import lombok.Data;
 public class InboundOrder {
 	
 	@Id
-	@Column(name = "orderId", nullable = false)
+	@Column(name = "order_id", nullable = false)
 	private String orderId;
 
 	private String refDocumentNo; 			// REF_DOC_NO
@@ -30,8 +30,7 @@ public class InboundOrder {
 	private Date orderProcessedOn;
 	private Long processedStatusId;
 	
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "orderId", nullable = false)
+	@OneToMany(cascade = CascadeType.ALL,mappedBy = "orderId",fetch = FetchType.EAGER)
     private Set<InboundOrderLines> lines;
 	
 }

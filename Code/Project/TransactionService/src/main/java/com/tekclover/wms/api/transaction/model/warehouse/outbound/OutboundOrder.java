@@ -8,8 +8,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import lombok.Data;
@@ -20,7 +19,7 @@ import lombok.Data;
 public class OutboundOrder {
 
 	@Id
-	@Column(name = "orderId", nullable = false)
+	@Column(name = "order_id", nullable = false)
 	private String orderId;
 	
 	private String warehouseID; 			// WH_ID
@@ -35,10 +34,7 @@ public class OutboundOrder {
 	private Date orderProcessedOn;
 	private Long processedStatusId;
 	private Long outboundOrderTypeID;
-
-//	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "orderId", nullable = false)
+	@OneToMany(cascade = CascadeType.ALL,mappedBy = "orderId",fetch = FetchType.EAGER)
     private Set<OutboundOrderLine> lines;
 }
 

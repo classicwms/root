@@ -470,7 +470,9 @@ public class PreOutboundHeaderService extends BaseService {
 		ImBasicData1 imBasicData1 = 
 				mastersService.getImBasicData1ByItemCode(dbBomLine.getChildItemCode(),
 						outboundIntegrationHeader.getWarehouseID(), authTokenForMastersService.getAccess_token());
-		preOutboundLine.setDescription(imBasicData1.getDescription());
+		if (imBasicData1 != null) {
+			preOutboundLine.setDescription(imBasicData1.getDescription());
+		}
 		
 		// PARTNER_CODE
 		preOutboundLine.setPartnerCode(outboundIntegrationHeader.getPartnerCode());

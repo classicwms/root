@@ -15,6 +15,7 @@ import com.tekclover.wms.api.transaction.model.warehouse.outbound.OutboundOrder;
 public interface OutboundOrderRepository extends JpaRepository<OutboundOrder,Long> {
 
 	public OutboundOrder findByOrderId(String orderId);
+	public OutboundOrder findByRefDocumentNo(String refDocumentNo);
 	public List<OutboundOrder> findByOrderReceivedOnBetween (Date date1, Date date2);
 	public List<OutboundOrder> findTopByProcessedStatusIdOrderByOrderReceivedOn(long l);
 }

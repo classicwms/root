@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.transaction.model.inbound;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.Data;
 
@@ -15,4 +16,6 @@ public class SearchInboundLine {
 	private String referenceField1;	
 	private Date startConfirmedOn;
 	private Date endConfirmedOn;
+
+	private List<Long> statusId;
 }

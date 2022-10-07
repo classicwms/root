@@ -387,7 +387,7 @@ public class OutboundLineService extends BaseService {
 		List<StockMovementReportImpl> allLineData = new ArrayList<>();
 
 		List<StockMovementReportImpl> outboundLineSearchResults = outboundLineRepository.findOutboundLineForStockMovement(searchOutboundLine.getItemCode(),searchOutboundLine.getWarehouseId(),59L,searchOutboundLine.getFromDeliveryDate(),searchOutboundLine.getToDeliveryDate());
-		List<StockMovementReportImpl> inboundLineSearchResults = inboundLineRepository.findInboundLineForStockMovement(searchOutboundLine.getItemCode(),searchOutboundLine.getWarehouseId(),24L,searchOutboundLine.getFromDeliveryDate(),searchOutboundLine.getToDeliveryDate());
+		List<StockMovementReportImpl> inboundLineSearchResults = inboundLineRepository.findInboundLineForStockMovement(searchOutboundLine.getItemCode(),searchOutboundLine.getWarehouseId(),Arrays.asList(20L,24L),searchOutboundLine.getFromDeliveryDate(),searchOutboundLine.getToDeliveryDate());
 
 		allLineData.addAll(outboundLineSearchResults);
 		allLineData.addAll(inboundLineSearchResults);
@@ -906,7 +906,7 @@ public class OutboundLineService extends BaseService {
 				 */
 				if(pickupLineList != null && !pickupLineList.isEmpty()){
 					for(PickupLine pickupLine : pickupLineList) {
-						Inventory inventory = updateInventory1(pickupLine,outboundLine.getStatusId());
+						Inventory inventory = updateInventory1(pickupLine,pickupLine.getStatusId());
 
 						/*---------------STEP 4-----PickupHeader update-------------------------------
 						 * Fetch WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/OB_LINE_NO/ITM_CODE values from PICKUPLINE table
@@ -938,15 +938,16 @@ public class OutboundLineService extends BaseService {
 							inventory = inventoryService.getInventory(pickupLine.getWarehouseId(), pickupLine.getPickedPackCode(),
 									pickupLine.getItemCode(), pickupLine.getPickedStorageBin());
 
-//				Double INV_QTY = inventory.getInventoryQuantity() + pickupLine.getPickConfirmQty();
 							// HAREESH -28-08-2022 change to update allocated qty
 							if(inventory != null && pickupHeader != null){
-								for (PickupHeader pickupHeaderData : pickupHeader) {
-									Double ALLOC_QTY = (inventory.getAllocatedQuantity() != null ? inventory.getAllocatedQuantity() : 0) + (pickupHeaderData.getPickToQty() != null ? pickupHeaderData.getPickToQty() : 0);
-									inventory.setAllocatedQuantity(ALLOC_QTY);
+//								for (PickupHeader pickupHeaderData : pickupHeader) {
+//									Double ALLOC_QTY = (inventory.getAllocatedQuantity() != null ? inventory.getAllocatedQuantity() : 0) + (pickupHeaderData.getPickToQty() != null ? pickupHeaderData.getPickToQty() : 0);
+//									inventory.setAllocatedQuantity(ALLOC_QTY);
+									Double INV_QTY = inventory.getInventoryQuantity() + pickupLine.getPickConfirmQty();
+									inventory.setInventoryQuantity(INV_QTY);
 									inventory = inventoryRepository.save(inventory);
 									log.info("inventory updated : " + inventory);
-								}
+//								}
 							}
 						}
 
@@ -1015,9 +1016,9 @@ public class OutboundLineService extends BaseService {
 								pickupLine.getPickupNumber(), outboundLine.getLineNumber(), outboundLine.getItemCode(), loginUserID);
 						log.info("pickupHeader deleted : " + pickupHeader);
 
-						List<QualityLine> qualityLine = qualityLineService.getQualityLineForReversal(outboundLine.getWarehouseId(), outboundLine.getPreOutboundNo(),
+						List<QualityLine> qualityLine = qualityLineService.deleteQualityLineForReversal(outboundLine.getWarehouseId(), outboundLine.getPreOutboundNo(),
 								outboundLine.getRefDocNumber(), outboundLine.getPartnerCode(), outboundLine.getLineNumber(),
-								outboundLine.getItemCode());
+								outboundLine.getItemCode(),loginUserID);
 						log.info("QualityLine----------Deleted-------> : " + qualityLine);
 
 						// DELETE QUALITY_HEADER
@@ -1049,38 +1050,31 @@ public class OutboundLineService extends BaseService {
 						 * INVENTORY table and update INV_QTY as (INV_QTY - PICK_CNF_QTY ) and
 						 * delete the record If INV_QTY = 0 - (Update 1)
 						 */
-						Inventory inventory = new Inventory();
-						if (dbQualityHeader != null) {
-							inventory = updateInventory1(pickupLine, outboundLine.getStatusId());
-						}
+						updateInventory1(pickupLine, pickupLine.getStatusId());
 
 						/*---------------STEP 3.2-----Inventory update-------------------------------
 						 * Pass WH_ID/_ITM_CODE/ST_BIN from PICK_ST_BIN/PACK_BARCODE from PICK_PACK_BARCODE of PICKUPLINE in
 						 * INVENTORY table and update INV_QTY as (INV_QTY + PICK_CNF_QTY )- (Update 2)
 						 */
-						inventory = inventoryService.getInventory(pickupLine.getWarehouseId(), pickupLine.getPickedPackCode(),
+						Inventory inventory = inventoryService.getInventory(pickupLine.getWarehouseId(), pickupLine.getPickedPackCode(),
 								pickupLine.getItemCode(), pickupLine.getPickedStorageBin());
 
 //				Double INV_QTY = inventory.getInventoryQuantity() + pickupLine.getPickConfirmQty();
 						if(inventory != null) {
 							// HAREESH -28-08-2022 change to update allocated qty
-							if (pickupLine.getStatusId() == 50L && pickupHeader != null) {
-								Double ALLOC_QTY = (inventory.getAllocatedQuantity() != null ? inventory.getAllocatedQuantity() : 0)  + (pickupLine.getPickConfirmQty() != null ? pickupLine.getPickConfirmQty() : 0);
-								inventory.setAllocatedQuantity(ALLOC_QTY);
-							} else {
-								if(pickupHeader != null) {
-									for (PickupHeader pickupHeaderData : pickupHeader) {
-										Double INV_QTY = (inventory.getInventoryQuantity() != null ? inventory.getInventoryQuantity() : 0)  - (pickupHeaderData.getPickToQty() != null ? pickupHeaderData.getPickToQty() : 0);
-										if (INV_QTY < 0) {
-											log.info("inventory qty calculated is less than 0: " + INV_QTY);
-											INV_QTY = Double.valueOf(0);
-										}
-										inventory.setInventoryQuantity(INV_QTY);
-										Double ALLOC_QTY = (inventory.getAllocatedQuantity() != null ? inventory.getAllocatedQuantity() : 0  ) + (pickupHeaderData.getPickToQty() != null ? pickupHeaderData.getPickToQty() : 0);
-										inventory.setAllocatedQuantity(ALLOC_QTY);
-									}
-								}
+//							if (pickupLine.getStatusId() == 50L && pickupHeader != null) {
+////								Double ALLOC_QTY = (inventory.getAllocatedQuantity() != null ? inventory.getAllocatedQuantity() : 0)  + (pickupLine.getPickConfirmQty() != null ? pickupLine.getPickConfirmQty() : 0);
+////								inventory.setAllocatedQuantity(ALLOC_QTY);
+//							} else {
+							Double INV_QTY = (inventory.getInventoryQuantity() != null ? inventory.getInventoryQuantity() : 0)  + (pickupLine.getPickConfirmQty() != null ? pickupLine.getPickConfirmQty() : 0);
+							if (INV_QTY < 0) {
+								log.info("inventory qty calculated is less than 0: " + INV_QTY);
+								INV_QTY = Double.valueOf(0);
 							}
+							inventory.setInventoryQuantity(INV_QTY);
+//							Double ALLOC_QTY = (inventory.getAllocatedQuantity() != null ? inventory.getAllocatedQuantity() : 0  ) + (pickupHeaderData.getPickToQty() != null ? pickupHeaderData.getPickToQty() : 0);
+//							inventory.setAllocatedQuantity(ALLOC_QTY);
+//							}
 							inventory = inventoryRepository.save(inventory);
 							log.info("inventory updated : " + inventory);
 						}
@@ -1305,7 +1299,7 @@ public class OutboundLineService extends BaseService {
     private List<OrderManagementLine> updateOrderManagementLineForReversal(PickupHeader pickupHeader, String loginUserID) throws IllegalAccessException, InvocationTargetException {
         //HAREESH - 27-08-2022 pickup number null update was reflected due to bean util null property ignore , so wrote the method here and manually set pickupnumber to null
 
-        List<OrderManagementLine> dbOrderManagementLine = orderManagementLineService.getOrderManagementLineForReversal(pickupHeader.getWarehouseId(), pickupHeader.getPreOutboundNo(),
+        List<OrderManagementLine> dbOrderManagementLine = orderManagementLineService.getListOrderManagementLine(pickupHeader.getWarehouseId(), pickupHeader.getPreOutboundNo(),
                 pickupHeader.getRefDocNumber(), pickupHeader.getPartnerCode(), pickupHeader.getLineNumber(),
                 pickupHeader.getItemCode());
         if (dbOrderManagementLine != null && !dbOrderManagementLine.isEmpty()) {
@@ -1313,7 +1307,7 @@ public class OutboundLineService extends BaseService {
             dbOrderManagementLine.forEach(data->{
                 data.setPickupUpdatedBy(loginUserID);
                 data.setPickupNumber(null);
-                data.setStatusId(43L);
+                data.setStatusId(47L);
                 data.setPickupUpdatedOn(new Date());
                 orderManagementLineList.add(data);
             });

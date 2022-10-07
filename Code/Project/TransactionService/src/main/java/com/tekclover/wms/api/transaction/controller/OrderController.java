@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tekclover.wms.api.transaction.model.inbound.gr.GrHeader;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.InboundOrder;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.OutboundOrder;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.ShipmentOrder;
@@ -94,6 +96,13 @@ public class OrderController {
    			throws IllegalAccessException, InvocationTargetException {
        	OutboundOrder createdOutboundOrder = orderService.createOutboundOrders(newOutboundOrder);
    		return new ResponseEntity<>(createdOutboundOrder , HttpStatus.OK);
+   	}
+    
+    @ApiOperation(response = GrHeader.class, value = "Delete GrHeader") // label for swagger
+   	@DeleteMapping("/outbound/so/{orderId}")
+   	public ResponseEntity<?> deleteGrHeader(@PathVariable String orderId) {
+    	orderService.deleteObOrder(orderId);
+   		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
    	}
     
     /*-----------------------Reprocess------------------------------------------------------*/

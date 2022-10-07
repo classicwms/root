@@ -8,13 +8,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tekclover.wms.api.transaction.model.inbound.preinbound.InboundIntegrationHeader;
+import com.tekclover.wms.api.transaction.model.outbound.preoutbound.OutboundIntegrationHeader;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.ASN;
+import com.tekclover.wms.api.transaction.model.warehouse.inbound.InboundOrder;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.InterWarehouseTransferIn;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.SaleOrderReturn;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.StoreReturn;
@@ -50,7 +53,7 @@ public class WarehouseController {
 	public ResponseEntity<?> postASN(@Valid @RequestBody ASN asn) 
 			throws IllegalAccessException, InvocationTargetException {
 		try {
-			InboundIntegrationHeader createdASNHeader = warehouseService.postWarehouseASN(asn);
+			InboundOrder createdASNHeader = warehouseService.postWarehouseASN(asn);
 			if (createdASNHeader != null) {
 				WarehouseApiResponse response = new WarehouseApiResponse();
 				response.setStatusCode("200");
@@ -73,7 +76,7 @@ public class WarehouseController {
 	public ResponseEntity<?> postStoreReturn(@Valid @RequestBody StoreReturn storeReturn) 
 			throws IllegalAccessException, InvocationTargetException {
     	try {
-			StoreReturn createdStoreReturn = warehouseService.postStoreReturn(storeReturn);
+			InboundOrder createdStoreReturn = warehouseService.postStoreReturn(storeReturn);
 			if (createdStoreReturn != null) {
 				WarehouseApiResponse response = new WarehouseApiResponse();
 				response.setStatusCode("200");
@@ -96,7 +99,7 @@ public class WarehouseController {
 	public ResponseEntity<?> postSOReturn(@Valid @RequestBody SaleOrderReturn soReturn) 
 			throws IllegalAccessException, InvocationTargetException {
     	try {
-			SaleOrderReturn createdSOReturn = warehouseService.postSOReturn(soReturn);
+			InboundOrder createdSOReturn = warehouseService.postSOReturn(soReturn);
 			if (createdSOReturn != null) {
 				WarehouseApiResponse response = new WarehouseApiResponse();
 				response.setStatusCode("200");
@@ -119,7 +122,7 @@ public class WarehouseController {
 	public ResponseEntity<?> postInterWarehouseTransfer(@Valid @RequestBody InterWarehouseTransferIn interWarehouseTransferIn) 
 			throws IllegalAccessException, InvocationTargetException {
     	try {
-			InterWarehouseTransferIn createdInterWarehouseTransferIn = 
+			InboundOrder createdInterWarehouseTransferIn = 
 					warehouseService.postInterWarehouseTransfer(interWarehouseTransferIn);
 			if (createdInterWarehouseTransferIn != null) {
 				WarehouseApiResponse response = new WarehouseApiResponse();
@@ -137,7 +140,7 @@ public class WarehouseController {
 		return null;
 	}
     
-    /*--------------------------------Outbound-------------------------------------------------------------*/
+    /*--------------------------------Outbound--------------------------------------------------------------*/
     /*----------------------------Shipment order------------------------------------------------------------*/
     @ApiOperation(response = ShipmentOrder.class, value = "Create Shipment Order") // label for swagger
 	@PostMapping("/outbound/so")
@@ -159,6 +162,14 @@ public class WarehouseController {
 			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 		}
 		return null;
+	}
+    
+    //---------------------------MONGO----------------------------------------------------------------------------
+    @ApiOperation(response = ShipmentOrder.class, value = "Get all Mongo Orders") // label for swagger
+	@GetMapping("/outbound/so/{orderId}")
+	public ResponseEntity<?> updateSO(@PathVariable String orderId) {
+    	OutboundIntegrationHeader header = warehouseService.updateSO(orderId);
+		return new ResponseEntity<>(header, HttpStatus.OK); 
 	}
     
     /*----------------------------Sale order True Express-------------------------------------------------------*/
@@ -231,4 +242,6 @@ public class WarehouseController {
 		}
 		return null;
    	}
+    
+   
 }

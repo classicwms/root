@@ -142,75 +142,54 @@ public class OutboundHeaderService {
 			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartRequiredDeliveryDate(), searchOutboundHeader.getEndRequiredDeliveryDate());
 			searchOutboundHeader.setStartRequiredDeliveryDate(dates[0]);
 			searchOutboundHeader.setEndRequiredDeliveryDate(dates[1]);
+		} else {
+			searchOutboundHeader.setStartRequiredDeliveryDate(null);
+			searchOutboundHeader.setEndRequiredDeliveryDate(null);
 		}
 		
 		if (searchOutboundHeader.getStartDeliveryConfirmedOn() != null && searchOutboundHeader.getStartDeliveryConfirmedOn() != null) {
 			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartDeliveryConfirmedOn(), searchOutboundHeader.getEndDeliveryConfirmedOn());
 			searchOutboundHeader.setStartDeliveryConfirmedOn(dates[0]);
 			searchOutboundHeader.setEndDeliveryConfirmedOn(dates[1]);
+		} else {
+			searchOutboundHeader.setStartDeliveryConfirmedOn(null);
+			searchOutboundHeader.setEndDeliveryConfirmedOn(null);
 		}
 		
 		if (searchOutboundHeader.getStartOrderDate() != null && searchOutboundHeader.getStartOrderDate() != null) {
 			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartOrderDate(), searchOutboundHeader.getEndOrderDate());
 			searchOutboundHeader.setStartOrderDate(dates[0]);
 			searchOutboundHeader.setEndOrderDate(dates[1]);
+		} else {
+			searchOutboundHeader.setStartOrderDate(null);
+			searchOutboundHeader.setEndOrderDate(null);
 		}
-		
-		OutboundHeaderSpecification spec = new OutboundHeaderSpecification(searchOutboundHeader);
-		List<OutboundHeader> headerSearchResults = outboundHeaderRepository.findAll(spec);
-		
-		if (headerSearchResults != null) {
-			//Commeted - Hareesh -30-07-2022 for performance wrote native query
-//			for (OutboundHeader outboundHeader : headerSearchResults) {
-//				List<Long> deliveryLines = outboundLineService.getDeliveryLines (outboundHeader.getWarehouseId(),
-//						outboundHeader.getPreOutboundNo(), outboundHeader.getRefDocNumber());
-//				List<Long> sumOfOrderedQty = outboundLineService.getSumOfOrderedQty (outboundHeader.getWarehouseId(),
-//						outboundHeader.getPreOutboundNo(), outboundHeader.getRefDocNumber());
-//				List<Long> countOfOrderedLines = outboundLineService.getCountofOrderedLines (outboundHeader.getWarehouseId(),
-//						outboundHeader.getPreOutboundNo(), outboundHeader.getRefDocNumber());
-//				List<Long> sumOfDeliveryQtyList = outboundLineService.getDeliveryQty (outboundHeader.getWarehouseId(),
-//						outboundHeader.getPreOutboundNo(), outboundHeader.getRefDocNumber());
-//
-//				double deliveryLinesCount = deliveryLines.stream().mapToLong(Long::longValue).sum();
-//				double sumOfOrderedQtyValue = sumOfOrderedQty.stream().mapToLong(Long::longValue).sum();
-//				double countOfOrderedLinesvalue = countOfOrderedLines.stream().mapToLong(Long::longValue).sum();
-//				double sumOfDeliveryQty = sumOfDeliveryQtyList.stream().mapToLong(Long::longValue).sum();
-//
-//				outboundHeader.setReferenceField7 (String.valueOf(sumOfDeliveryQty));
-//				outboundHeader.setReferenceField8 (String.valueOf(deliveryLinesCount));
-//				outboundHeader.setReferenceField9 (String.valueOf(sumOfOrderedQtyValue));
-//				outboundHeader.setReferenceField10 (String.valueOf(countOfOrderedLinesvalue));
-//			}
 
-			List<String> refDocNoList = new ArrayList<>();
-			headerSearchResults.forEach(headerData-> refDocNoList.add(headerData.getRefDocNumber()));
-
-			if(refDocNoList.size() > 0){
-				log.info("Get OutboundHeader reference document size :"+ refDocNoList.size());
-				String[] stringArray = refDocNoList.toArray(new String[0]);
-				List<String[]> arrayParts = CommonUtils.splitArrayList(stringArray, 2000);
-				log.info("Get OutboundHeader reference document split array :"+ arrayParts);
-				for(String[] array: arrayParts) {
-					log.info("Get OutboundLine data for reference document number array size:"+array.length);
-					log.info("Get OutboundLine data for reference document number :" + Arrays.asList(array));
-					List<OutBoundLineImpl> outBoundLineList = outboundLineService.getOutBoundLineDataForOutBoundHeader(Arrays.asList(array));
-					if(outBoundLineList.size() > 0){
-						log.info("Get OutboundLine data for reference document numbers size :" + outBoundLineList.size());
-						headerSearchResults.forEach(headerData -> {
-							outBoundLineList.forEach(lineData->{
-								if(headerData.getRefDocNumber().equals(lineData.getRefDocNo())){
-									headerData.setReferenceField7 (String.valueOf(lineData.getShippedQty()));
-									headerData.setReferenceField8 (String.valueOf(lineData.getLinesShipped()));
-									headerData.setReferenceField9 (String.valueOf(lineData.getOrderedQty()));
-									headerData.setReferenceField10 (String.valueOf(lineData.getLinesOrdered()));
-								}
-							});
-						});
-					}
-				}
-			}
-
+		if(searchOutboundHeader.getWarehouseId() == null || searchOutboundHeader.getWarehouseId().isEmpty()) {
+			searchOutboundHeader.setWarehouseId(null);
 		}
+		if(searchOutboundHeader.getRefDocNumber() == null || searchOutboundHeader.getRefDocNumber().isEmpty()) {
+			searchOutboundHeader.setRefDocNumber(null);
+		}
+		if(searchOutboundHeader.getPartnerCode() == null || searchOutboundHeader.getPartnerCode().isEmpty()) {
+			searchOutboundHeader.setPartnerCode(null);
+		}
+		if(searchOutboundHeader.getOutboundOrderTypeId() == null || searchOutboundHeader.getOutboundOrderTypeId().isEmpty()) {
+			searchOutboundHeader.setOutboundOrderTypeId(null);
+		}
+		if(searchOutboundHeader.getSoType() == null || searchOutboundHeader.getSoType().isEmpty()) {
+			searchOutboundHeader.setSoType(null);
+		}
+		if(searchOutboundHeader.getStatusId() == null || searchOutboundHeader.getStatusId().isEmpty()) {
+			searchOutboundHeader.setStatusId(null);
+		}
+
+		List<OutboundHeader> headerSearchResults = outboundHeaderRepository.findAllOutBoundHeaderData(searchOutboundHeader.getWarehouseId(),
+				searchOutboundHeader.getRefDocNumber(),searchOutboundHeader.getPartnerCode(),searchOutboundHeader.getOutboundOrderTypeId(),
+				searchOutboundHeader.getStatusId(),searchOutboundHeader.getSoType(),
+				searchOutboundHeader.getStartRequiredDeliveryDate(),searchOutboundHeader.getEndRequiredDeliveryDate(),
+				searchOutboundHeader.getStartDeliveryConfirmedOn(),searchOutboundHeader.getEndDeliveryConfirmedOn(),
+				searchOutboundHeader.getStartOrderDate(),searchOutboundHeader.getEndOrderDate());
 		return headerSearchResults;
 	}
 	

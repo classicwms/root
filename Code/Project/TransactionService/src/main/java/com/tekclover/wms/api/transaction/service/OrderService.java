@@ -17,6 +17,7 @@ import com.tekclover.wms.api.transaction.model.warehouse.outbound.SOHeader;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.SOLine;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.ShipmentOrder;
 import com.tekclover.wms.api.transaction.repository.InboundOrderRepository;
+import com.tekclover.wms.api.transaction.repository.OutboundOrderLinesRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundOrderRepository;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 
@@ -31,6 +32,9 @@ public class OrderService {
 	
 	@Autowired
 	OutboundOrderRepository outboundOrderRepository;
+	
+	@Autowired
+	OutboundOrderLinesRepository outboundOrderLinesRepository;
 	
 	@Autowired
 	WarehouseService warehouseService;
@@ -49,7 +53,7 @@ public class OrderService {
 	 * @return
 	 */
 	public InboundOrder getOrderById(String orderId) {
-		return inboundOrderRepository.findByOrderId(orderId);
+		return inboundOrderRepository.findByRefDocumentNo (orderId);
 	}
 	
 	/**
@@ -74,6 +78,24 @@ public class OrderService {
 		return inboundOrder;
 	}
 	
+	/**
+	 * 
+	 * @param orderId
+	 * @return
+	 */
+	public InboundOrder updateProcessedInboundOrder(String orderId) {
+		InboundOrder dbInboundOrder = getOrderById (orderId);
+		log.info("orderId : " + orderId);
+		log.info("dbInboundOrder : " + dbInboundOrder);
+		if (dbInboundOrder != null) {
+			dbInboundOrder.setProcessedStatusId(10L);
+			dbInboundOrder.setOrderProcessedOn(new Date());
+			InboundOrder inboundOrder = inboundOrderRepository.save(dbInboundOrder);
+			return inboundOrder;
+		}
+		return dbInboundOrder;
+	}
+	
 	//-----------------------------Outbound-------------------------------------------
 	
 	/**
@@ -90,7 +112,8 @@ public class OrderService {
 	 * @return
 	 */
 	public OutboundOrder getOBOrderById(String orderId) {
-		return outboundOrderRepository.findByOrderId(orderId);
+//		return outboundOrderRepository.findByOrderId(orderId);
+		return outboundOrderRepository.findByRefDocumentNo (orderId);
 	}
 	
 	/**
@@ -132,6 +155,19 @@ public class OrderService {
 			return outboundOrder;
 		}
 		return dbOutboundOrder;
+	}
+	
+	/**
+	 * 
+	 * @param orderId
+	 */
+	public void deleteObOrder (String orderId) {
+		OutboundOrder existingOrder = getOBOrderById(orderId);
+		if (existingOrder == null) {
+			throw new BadRequestException(" Order : " + orderId + " doesn't exist.");
+		}
+		outboundOrderLinesRepository.deleteAll(existingOrder.getLines());
+		outboundOrderRepository.delete(existingOrder);
 	}
 
 	/**

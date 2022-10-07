@@ -34,8 +34,8 @@ public class InventoryItemProcessor implements ItemProcessor<Inventory, Inventor
     	inventory2.setTotalQty(Double.sum(inventoryInput.getInventoryQuantity() != null ? inventoryInput.getInventoryQuantity() : 0,
     			inventoryInput.getAllocatedQuantity() != null ? inventoryInput.getAllocatedQuantity() : 0 ));
     	
-		AccountService service1 = context.getBean("accountService", AccountService.class);
-		service1.setInventory(inventory2);
+//		AccountService service1 = context.getBean("accountService", AccountService.class);
+//		service1.setInventory(inventory2);
         return inventory2;
     }
 }

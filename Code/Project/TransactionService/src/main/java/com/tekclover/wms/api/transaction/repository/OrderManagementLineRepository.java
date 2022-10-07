@@ -36,4 +36,8 @@ public interface OrderManagementLineRepository extends JpaRepository<OrderManage
 	public List<OrderManagementLine> findAllByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndDeletionIndicator(
 			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
 			String itemCode, Long deletionIndicator);
+
+	public List<OrderManagementLine> findAllByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndProposedStorageBinAndProposedPackBarCodeAndDeletionIndicator(
+			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
+			String itemCode, String proposedStorageBin, String proposedPackBarCode, Long deletionIndicator);
 }

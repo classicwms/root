@@ -2,35 +2,20 @@ package com.tekclover.wms.core.batch.scheduler.entity;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.BeanUtils;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import com.tekclover.wms.core.batch.config.singleton.AccountService;
-import com.tekclover.wms.core.batch.config.singleton.AppConfig;
-import com.tekclover.wms.core.batch.dto.Inventory2;
 import com.tekclover.wms.core.util.CommonUtils;
 
-public class InventoryItemProcessor2 implements ItemProcessor<Inventory, Inventory2> {
+public class InventoryItemProcessor2 implements ItemProcessor<InventoryMovement, InventoryMovement2> {
 	
     @Override
-    public Inventory2 process(Inventory inventoryInput) throws Exception {
-    	Inventory2 inventory2 = new Inventory2();
-    	BeanUtils.copyProperties(inventoryInput, inventory2, CommonUtils.getNullPropertyNames(inventoryInput));
-    	/*
-    	 * private String description;			// ReferenceField8
-    	 * private String mfrPartNumber;      	// ReferenceField9
-    	 * private String storageSectionId;		// ReferenceField10 
-    	 */
-    	inventory2.setItemCode("\t" + inventoryInput.getItemCode() );
-    	inventory2.setPackBarcodes("\t" + inventoryInput.getPackBarcodes());
-    	inventory2.setDescription(CommonUtils.escapeComma(inventoryInput.getReferenceField8()));
-    	inventory2.setMfrPartNumber(inventoryInput.getReferenceField9());
-    	inventory2.setStorageSectionId(inventoryInput.getReferenceField10());
+    public InventoryMovement2 process(InventoryMovement invMovement1) throws Exception {
+    	InventoryMovement2 invMovement2 = new InventoryMovement2();
+//    	invMovement2.setLanguageId(invMovement1.getLanguageId());
+//    	invMovement2.setCompanyCodeId(invMovement1.getCompanyCodeId());
+//    	invMovement2.setPlantId(invMovement1.getPlantId());
+//    	invMovement2.setWarehouseId(invMovement1.getWarehouseId());
     	
-    	inventory2.setInventoryQuantity(inventoryInput.getInventoryQuantity() != null ? inventoryInput.getInventoryQuantity() : 0);
-    	inventory2.setAllocatedQuantity(inventoryInput.getAllocatedQuantity() != null ? inventoryInput.getAllocatedQuantity() : 0);
-		
-    	inventory2.setTotalQty(Double.sum(inventoryInput.getInventoryQuantity() != null ? inventoryInput.getInventoryQuantity() : 0,
-    			inventoryInput.getAllocatedQuantity() != null ? inventoryInput.getAllocatedQuantity() : 0 ));
-        return inventory2;
+    	BeanUtils.copyProperties(invMovement1, invMovement2, CommonUtils.getNullPropertyNames(invMovement1));
+        return invMovement2;
     }
 }

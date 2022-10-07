@@ -129,6 +129,26 @@ public class OrderManagementLineService extends BaseService {
 					",proposedPackCode:" + proposedPackCode +
 					" doesn't exist.");
 	}
+
+	public List<OrderManagementLine> getListOrderManagementLine (String warehouseId, String preOutboundNo, String refDocNumber,
+													   String partnerCode, Long lineNumber, String itemCode, String proposedStorageBin, String proposedPackCode) {
+		List<OrderManagementLine> orderManagementLineList =
+				orderManagementLineRepository.findAllByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndProposedStorageBinAndProposedPackBarCodeAndDeletionIndicator(
+						warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode, proposedStorageBin, proposedPackCode, 0L);
+		if (orderManagementLineList != null && !orderManagementLineList.isEmpty()) {
+			return orderManagementLineList;
+		}
+		throw new BadRequestException("The given OrderManagementLine ID : " +
+				"warehouseId:" + warehouseId +
+				",preOutboundNo:" + preOutboundNo +
+				",refDocNumber:" + refDocNumber +
+				",partnerCode:" + partnerCode +
+				",lineNumber:" + lineNumber +
+				",itemCode:" + itemCode +
+				",proposedStorageBin:" + proposedStorageBin +
+				",proposedPackCode:" + proposedPackCode +
+				" doesn't exist.");
+	}
 	
 	/**
 	 * Used by Allocation
@@ -158,13 +178,13 @@ public class OrderManagementLineService extends BaseService {
 					" doesn't exist.");
 	}
 
-	public List<OrderManagementLine> getOrderManagementLineForReversal (String warehouseId, String preOutboundNo, String refDocNumber,
+	public List<OrderManagementLine> getListOrderManagementLine (String warehouseId, String preOutboundNo, String refDocNumber,
 													   String partnerCode, Long lineNumber, String itemCode) {
-		List<OrderManagementLine> orderManagementHeader =
+		List<OrderManagementLine> orderManagementLine =
 				orderManagementLineRepository.findAllByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndDeletionIndicator(
 						warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode, 0L);
-		if (orderManagementHeader != null) {
-			return orderManagementHeader;
+		if (orderManagementLine != null && !orderManagementLine.isEmpty()) {
+			return orderManagementLine;
 		}
 		throw new BadRequestException("The given OrderManagementLine ID : " +
 				"warehouseId:" + warehouseId +
@@ -276,54 +296,62 @@ public class OrderManagementLineService extends BaseService {
 	public OrderManagementLine doUnAllocation (String warehouseId, String preOutboundNo, String refDocNumber, 
 			String partnerCode, Long lineNumber, String itemCode, String proposedStorageBin, String proposedPackBarCode, 
 			String loginUserID) throws IllegalAccessException, InvocationTargetException {
-		OrderManagementLine dbOrderManagementLine = 
-				getOrderManagementLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode,
-						proposedStorageBin, proposedPackBarCode);
-		
-		/*
-		 * Update Inventory table
-		 * --------------------------
-		 * Pass the WH_ID/ITM_CODE/PACK_BARCODE(PROP_PACK_BARCODE)/ST_BIN(PROP_ST_BIN) values in INVENTORY table 
-		 * update INV_QTY as (INV_QTY+ALLOC_QTY) and change ALLOC_QTY as 0 			
-		 */
-		String packBarcodes = dbOrderManagementLine.getProposedPackBarCode();
-		String storageBin = dbOrderManagementLine.getProposedStorageBin();
-		Inventory inventory = inventoryService.getInventory(warehouseId, packBarcodes, itemCode, storageBin);
-		Double invQty = inventory.getInventoryQuantity() + dbOrderManagementLine.getAllocatedQty();
-		
-		/*
-		 * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
-		 */
-		// Start
-		if (invQty < 0D) {
-			invQty = 0D;
+
+		//HAREESH - 2022-10-01- Validate multiple ordermanagement lines
+		List<OrderManagementLine> orderManagementLineList =
+				getListOrderManagementLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode);
+			log.info("Processing Order management Line : " + orderManagementLineList);
+			/*
+			 * Update Inventory table
+			 * --------------------------
+			 * Pass the WH_ID/ITM_CODE/PACK_BARCODE(PROP_PACK_BARCODE)/ST_BIN(PROP_ST_BIN) values in INVENTORY table
+			 * update INV_QTY as (INV_QTY+ALLOC_QTY) and change ALLOC_QTY as 0
+			 */
+		int i = 0;
+		for (OrderManagementLine dbOrderManagementLine : orderManagementLineList) {
+			String packBarcodes = dbOrderManagementLine.getProposedPackBarCode();
+			String storageBin = dbOrderManagementLine.getProposedStorageBin();
+			Inventory inventory = inventoryService.getInventory(warehouseId, packBarcodes, itemCode, storageBin);
+			Double invQty = inventory.getInventoryQuantity() + dbOrderManagementLine.getAllocatedQty();
+
+			/*
+			 * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
+			 */
+			// Start
+			if (invQty < 0D) {
+				invQty = 0D;
+			}
+			// End
+
+			inventory.setInventoryQuantity(invQty);
+			log.info("Inventory invQty: " + invQty);
+
+			Double allocQty = inventory.getAllocatedQuantity() - dbOrderManagementLine.getAllocatedQty();
+			if (allocQty < 0D) {
+				allocQty = 0D;
+			}
+			inventory.setAllocatedQuantity(allocQty);
+			log.info("Inventory allocQty: " + allocQty);
+
+			inventory = inventoryRepository.save(inventory);
+			log.info("Inventory updated: " + inventory);
+
+			/*
+			 * 1. Update ALLOC_QTY value as 0
+			 * 2. Update STATUS_ID = 47
+			 */
+			dbOrderManagementLine.setAllocatedQty(0D);
+			dbOrderManagementLine.setStatusId(47L);
+			dbOrderManagementLine.setPickupUpdatedBy(loginUserID);
+			dbOrderManagementLine.setPickupUpdatedOn(new Date());
+			if(i != 0){
+				dbOrderManagementLine.setDeletionIndicator(1L);
+			}
+			OrderManagementLine updatedOrderManagementLine = orderManagementLineRepository.save(dbOrderManagementLine);
+			log.info("OrderManagementLine updated: " + updatedOrderManagementLine);
+			i++;
 		}
-		// End
-		
-		inventory.setInventoryQuantity(invQty);
-		log.info("Inventory invQty: " + invQty);
-		
-		Double allocQty = inventory.getAllocatedQuantity() - dbOrderManagementLine.getAllocatedQty();
-		if (allocQty < 0D) {
-			allocQty = 0D;
-		}
-		inventory.setAllocatedQuantity(allocQty);
-		log.info("Inventory allocQty: " + allocQty);
-		
-		inventory = inventoryRepository.save(inventory);
-		log.info("Inventory updated: " + inventory);
-		
-		/*
-    	 * 1. Update ALLOC_QTY value as 0
-    	 * 2. Update STATUS_ID = 47
-    	 */
-		dbOrderManagementLine.setAllocatedQty(0D);
-		dbOrderManagementLine.setStatusId(47L);	
-		dbOrderManagementLine.setPickupUpdatedBy(loginUserID);
-		dbOrderManagementLine.setPickupUpdatedOn(new Date());
-		OrderManagementLine updatedOrderManagementLine = orderManagementLineRepository.save(dbOrderManagementLine);
-		log.info("OrderManagementLine updated: " + updatedOrderManagementLine);
-		return dbOrderManagementLine;
+		return !orderManagementLineList.isEmpty() ? orderManagementLineList.get(0) : null;
 	}
 	
 	/**
@@ -342,27 +370,28 @@ public class OrderManagementLineService extends BaseService {
 	 */
 	public OrderManagementLine doAllocation (String warehouseId, String preOutboundNo, String refDocNumber, 
 			String partnerCode, Long lineNumber, String itemCode, String loginUserID) {
-		OrderManagementLine dbOrderManagementLine = 
+
+		OrderManagementLine dbOrderManagementLine =
 				getOrderManagementLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode);
-		log.info("Selected record: " + dbOrderManagementLine);
-		
-		Long OB_ORD_TYP_ID = dbOrderManagementLine.getOutboundOrderTypeId();
-		Double ORD_QTY = dbOrderManagementLine.getOrderQty();
-		
-		if (OB_ORD_TYP_ID == 0L || OB_ORD_TYP_ID == 1L || OB_ORD_TYP_ID == 3L) {
-			List<String> storageSectionIds = Arrays.asList("ZB","ZC","ZG","ZT"); //ZB,ZC,ZG,ZT
-			dbOrderManagementLine = updateAllocation (dbOrderManagementLine, storageSectionIds, ORD_QTY, warehouseId, itemCode, loginUserID);
-		}
-		
-		if (OB_ORD_TYP_ID == 2L) {
-			List<String> storageSectionIds = Arrays.asList("ZD"); //ZD
-			dbOrderManagementLine = updateAllocation (dbOrderManagementLine, storageSectionIds, ORD_QTY, warehouseId, itemCode, loginUserID);
-			
-		}
-		dbOrderManagementLine.setPickupUpdatedBy(loginUserID);
-		dbOrderManagementLine.setPickupUpdatedOn(new Date());
-		dbOrderManagementLine = orderManagementLineRepository.save (dbOrderManagementLine);
-		return dbOrderManagementLine;
+			log.info("Processing Order management Line : " + dbOrderManagementLine);
+			Long OB_ORD_TYP_ID = dbOrderManagementLine.getOutboundOrderTypeId();
+			Double ORD_QTY = dbOrderManagementLine.getOrderQty();
+
+			if (OB_ORD_TYP_ID == 0L || OB_ORD_TYP_ID == 1L || OB_ORD_TYP_ID == 3L) {
+				List<String> storageSectionIds = Arrays.asList("ZB","ZC","ZG","ZT"); //ZB,ZC,ZG,ZT
+				dbOrderManagementLine = updateAllocation (dbOrderManagementLine, storageSectionIds, ORD_QTY, warehouseId, itemCode, loginUserID);
+			}
+
+			if (OB_ORD_TYP_ID == 2L) {
+				List<String> storageSectionIds = Arrays.asList("ZD"); //ZD
+				dbOrderManagementLine = updateAllocation (dbOrderManagementLine, storageSectionIds, ORD_QTY, warehouseId, itemCode, loginUserID);
+
+			}
+			dbOrderManagementLine.setPickupUpdatedBy(loginUserID);
+			dbOrderManagementLine.setPickupUpdatedOn(new Date());
+			OrderManagementLine updatedOrderManagementLine = orderManagementLineRepository.save(dbOrderManagementLine);
+			log.info("OrderManagementLine updated: " + updatedOrderManagementLine);
+		return updatedOrderManagementLine;
 	}
 	
 	/**

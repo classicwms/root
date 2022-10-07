@@ -22,4 +22,6 @@ public class SearchQualityHeader {
 	private List<String> soType; //referenceField1;
 	private Date startqualityCreatedOn;
 	private Date endqualityCreatedOn;
+
+	private List<String> warehouseId;
 }

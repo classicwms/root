@@ -6,15 +6,12 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import lombok.Data;
 
 @Entity
 @Table(name = "tbloborderlines")
 @Data
 public class OutboundOrderLine { 
-	@JsonIgnore
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,4 +22,5 @@ public class OutboundOrderLine {
 	private Double orderedQty;								// ORD_QTY
 	private String uom;										// ORD_UOM
 	private String refField1ForOrderType;					// REF_FIELD_1
+	private String orderId;
 }

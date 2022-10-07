@@ -1987,6 +1987,247 @@ public class ReportsService extends BaseService {
 		return dashboard;
 	}
 
+	public Dashboard getDashboardAwaitingASN(String warehouseId) throws Exception {
+
+		Dashboard dashboard = new Dashboard();
+
+		/*--------------------------DAY-----------------------------------------------*/
+		Dashboard.Day day = dashboard.new Day();
+		Dashboard.Day.Receipts dayReceipts = day.new Receipts();
+
+		/*-----------------------Receipts--------------------------------------------*/
+		// Awaiting ASN
+		long awaitingASNCount = getAwaitingASNCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1));
+		dayReceipts.setAwaitingASN(awaitingASNCount);
+
+		day.setReceipts(dayReceipts);
+		dashboard.setDay(day);
+
+		/*--------------------------MONTH--------------------------------------------*/
+		Dashboard.Month month = dashboard.new Month();
+		Dashboard.Month.Receipts monthReceipts = month.new Receipts();
+
+		/*-----------------------Receipts--------------------------------------------*/
+		// Awaiting ASN
+		LocalDate today = LocalDate.now();
+		today = today.withDayOfMonth(1);
+		log.info("First day of current month: " + today.withDayOfMonth(1));
+		Date beginningOfMonth = Date.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant());
+		awaitingASNCount = getAwaitingASNCount(warehouseId, beginningOfMonth, new Date());
+		monthReceipts.setAwaitingASN(awaitingASNCount);
+
+		month.setReceipts(monthReceipts);
+		dashboard.setMonth(month);
+		return dashboard;
+	}
+
+	public Dashboard getDashboardContainerReceived(String warehouseId) throws Exception {
+
+		Dashboard dashboard = new Dashboard();
+		/*--------------------------DAY-----------------------------------------------*/
+		Dashboard.Day day = dashboard.new Day();
+		Dashboard.Day.Receipts dayReceipts = day.new Receipts();
+
+		/*-----------------------Receipts--------------------------------------------*/
+
+		// Container Received
+		long containerReceivedCount = getContainerReceivedCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1));
+		dayReceipts.setContainerReceived(containerReceivedCount);
+
+		day.setReceipts(dayReceipts);
+		dashboard.setDay(day);
+
+		/*--------------------------MONTH--------------------------------------------*/
+		Dashboard.Month month = dashboard.new Month();
+		Dashboard.Month.Receipts monthReceipts = month.new Receipts();
+
+		/*-----------------------Receipts--------------------------------------------*/
+		// Awaiting ASN
+		LocalDate today = LocalDate.now();
+		today = today.withDayOfMonth(1);
+		log.info("First day of current month: " + today.withDayOfMonth(1));
+		Date beginningOfMonth = Date.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+		// Container Received
+		containerReceivedCount = getContainerReceivedCount(warehouseId, beginningOfMonth, new Date());
+		monthReceipts.setContainerReceived(containerReceivedCount);
+
+		month.setReceipts(monthReceipts);
+		dashboard.setMonth(month);
+		return dashboard;
+	}
+
+	public Dashboard getDashboardItemReceived(String warehouseId) throws Exception {
+
+		Dashboard dashboard = new Dashboard();
+
+		/*--------------------------DAY-----------------------------------------------*/
+		Dashboard.Day day = dashboard.new Day();
+		Dashboard.Day.Receipts dayReceipts = day.new Receipts();
+
+		/*-----------------------Receipts--------------------------------------------*/
+
+		// Item Received
+		long itemReceivedCount = getItemReceivedCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1));
+		dayReceipts.setItemReceived(itemReceivedCount);
+
+		day.setReceipts(dayReceipts);
+		dashboard.setDay(day);
+
+		/*--------------------------MONTH--------------------------------------------*/
+		Dashboard.Month month = dashboard.new Month();
+		Dashboard.Month.Receipts monthReceipts = month.new Receipts();
+
+		/*-----------------------Receipts--------------------------------------------*/
+		// Awaiting ASN
+		LocalDate today = LocalDate.now();
+		today = today.withDayOfMonth(1);
+		log.info("First day of current month: " + today.withDayOfMonth(1));
+		Date beginningOfMonth = Date.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+		// Item Received
+		itemReceivedCount = getItemReceivedCount(warehouseId, beginningOfMonth, new Date());
+		monthReceipts.setItemReceived(itemReceivedCount);
+
+		month.setReceipts(monthReceipts);
+		dashboard.setMonth(month);
+		return dashboard;
+	}
+
+	public Dashboard getDashboardShippedLine(String warehouseId) throws Exception {
+
+		Dashboard dashboard = new Dashboard();
+		/*--------------------------DAY-----------------------------------------------*/
+		Dashboard.Day day = dashboard.new Day();
+		Dashboard.Day.Shipping dayShipping = day.new Shipping();
+
+		/*-----------------------Shipping---------------------------------------------*/
+		// ShippedLine Count
+		long shippedLineCount = getShippedLineCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1));
+		dayShipping.setShippedLine(shippedLineCount);
+
+		day.setShipping(dayShipping);
+		dashboard.setDay(day);
+
+		/*--------------------------MONTH--------------------------------------------*/
+		Dashboard.Month month = dashboard.new Month();
+		Dashboard.Month.Shipping monthShipping = month.new Shipping();
+
+		/*-----------------------Receipts--------------------------------------------*/
+		// Awaiting ASN
+		LocalDate today = LocalDate.now();
+		today = today.withDayOfMonth(1);
+		log.info("First day of current month: " + today.withDayOfMonth(1));
+		Date beginningOfMonth = Date.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant());
+		/*-----------------------Shipping---------------------------------------------*/
+		// ShippedLine Count
+		shippedLineCount = getShippedLineCount(warehouseId, beginningOfMonth, new Date());
+		monthShipping.setShippedLine(shippedLineCount);
+
+		month.setShipping(monthShipping);
+		dashboard.setMonth(month);
+		return dashboard;
+	}
+
+	public Dashboard getDashboardNormalCount(String warehouseId) throws Exception {
+
+		Dashboard dashboard = new Dashboard();
+		/*--------------------------DAY-----------------------------------------------*/
+		Dashboard.Day day = dashboard.new Day();
+		Dashboard.Day.Shipping dayShipping = day.new Shipping();
+
+		/*-----------------------Shipping---------------------------------------------*/
+		// Normal Count
+		long normalCount = getNormalNSpecialCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1), "N");
+		dayShipping.setNormal(normalCount);
+
+		day.setShipping(dayShipping);
+		dashboard.setDay(day);
+
+		/*--------------------------MONTH--------------------------------------------*/
+		Dashboard.Month month = dashboard.new Month();
+		Dashboard.Month.Shipping monthShipping = month.new Shipping();
+
+		/*-----------------------Receipts--------------------------------------------*/
+		// Awaiting ASN
+		LocalDate today = LocalDate.now();
+		today = today.withDayOfMonth(1);
+		log.info("First day of current month: " + today.withDayOfMonth(1));
+		Date beginningOfMonth = Date.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+		/*-----------------------Shipping---------------------------------------------*/
+
+		// Normal Count
+		normalCount = getNormalNSpecialCount(warehouseId, beginningOfMonth, new Date(), "N");
+		monthShipping.setNormal(normalCount);
+
+		month.setShipping(monthShipping);
+		dashboard.setMonth(month);
+		return dashboard;
+	}
+
+	public Dashboard getDashboardSpecialCount(String warehouseId) throws Exception {
+
+		Dashboard dashboard = new Dashboard();
+		/*--------------------------DAY-----------------------------------------------*/
+		Dashboard.Day day = dashboard.new Day();
+		Dashboard.Day.Shipping dayShipping = day.new Shipping();
+
+		/*-----------------------Shipping---------------------------------------------*/
+		// Special Count
+		long specialCount = getNormalNSpecialCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1), "S");
+		dayShipping.setSpecial(specialCount);
+
+		day.setShipping(dayShipping);
+		dashboard.setDay(day);
+
+		/*--------------------------MONTH--------------------------------------------*/
+		Dashboard.Month month = dashboard.new Month();
+		Dashboard.Month.Shipping monthShipping = month.new Shipping();
+
+		/*-----------------------Receipts--------------------------------------------*/
+		// Awaiting ASN
+		LocalDate today = LocalDate.now();
+		today = today.withDayOfMonth(1);
+		log.info("First day of current month: " + today.withDayOfMonth(1));
+		Date beginningOfMonth = Date.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+		/*-----------------------Shipping---------------------------------------------*/
+		// ShippedLine Count
+		// Special Count
+		specialCount = getNormalNSpecialCount(warehouseId, beginningOfMonth, new Date(), "S");
+		monthShipping.setSpecial(specialCount);
+
+		month.setShipping(monthShipping);
+		dashboard.setMonth(month);
+		return dashboard;
+	}
+
+	public Dashboard getDashboardBinStatus(String warehouseId) throws Exception {
+
+		Dashboard dashboard = new Dashboard();
+		/*
+		 * --------------------------Bin
+		 * Status-------------------------------------------------- Pass the Logged in
+		 * WH_ID in STORAGBIN table and fetch Count of Records where Status_ID = 0 and
+		 * Status_ID is not equal to Zero
+		 */
+		Dashboard.BinStatus binStatus = dashboard.new BinStatus();
+		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+		StorageBin[] storageBins = mastersService.getStorageBinByStatus(warehouseId, 0L,
+				authTokenForMastersService.getAccess_token());
+		long statusCount = Arrays.asList(storageBins).stream().count();
+		binStatus.setStatusEqualToZeroCount(statusCount);
+
+		storageBins = mastersService.getStorageBinByStatusNotEqual(warehouseId, 0L,
+				authTokenForMastersService.getAccess_token());
+		statusCount = Arrays.asList(storageBins).stream().count();
+		binStatus.setStatusNotEqualToZeroCount(statusCount);
+
+		dashboard.setBinStatus(binStatus);
+		return dashboard;
+	}
+
 	/**
 	 * getMobileDashboard
 	 *
@@ -2072,10 +2313,13 @@ public class ReportsService extends BaseService {
 		 * and current date in CR_CTD_ON field in CONTAINERRECEIPT table and fetch the
 		 * count of records where REF_DOC_NO is Null
 		 */
+
 		SearchContainerReceipt searchContainerReceipt = new SearchContainerReceipt();
 		searchContainerReceipt.setWarehouseId(Arrays.asList(warehouseId));
-		searchContainerReceipt.setFromCreatedOn(fromCreatedOn);
-		searchContainerReceipt.setToCreatedOn(toCreatedOn);
+
+		Date[] dates = DateUtils.addTimeToDatesForSearch(fromCreatedOn,toCreatedOn);
+		searchContainerReceipt.setFromCreatedOn(dates[0]);
+		searchContainerReceipt.setToCreatedOn(dates[1]);
 		List<ContainerReceipt> containerReceipt = containerReceiptService.findContainerReceipt(searchContainerReceipt);
 		long awaitingASNCount = containerReceipt.stream().filter(c -> c.getRefDocNumber() == null).count();
 		log.info("awaitingASNCount : " + awaitingASNCount);
@@ -2098,8 +2342,10 @@ public class ReportsService extends BaseService {
 		 */
 		SearchInboundHeader searchInboundHeader = new SearchInboundHeader();
 		searchInboundHeader.setWarehouseId(Arrays.asList(warehouseId));
-		searchInboundHeader.setStartConfirmedOn(startConfirmedOn);
-		searchInboundHeader.setEndConfirmedOn(endConfirmedOn);
+		Date[] dates = DateUtils.addTimeToDatesForSearch(startConfirmedOn,endConfirmedOn);
+		searchInboundHeader.setStartConfirmedOn(dates[0]);
+		searchInboundHeader.setEndConfirmedOn(dates[1]);
+		searchInboundHeader.setStatusId(Arrays.asList(24L));
 		List<InboundHeader> inboundHeaderSearchResults = inboundHeaderService.findInboundHeader(searchInboundHeader);
 		long containerReceivedCount = inboundHeaderSearchResults.stream().count();
 		log.info("containerReceivedCount : " + containerReceivedCount);
@@ -2122,8 +2368,10 @@ public class ReportsService extends BaseService {
 		SearchInboundLine searchInboundLine = new SearchInboundLine();
 		searchInboundLine.setWarehouseId(warehouseId);
 		searchInboundLine.setReferenceField1(null);
-		searchInboundLine.setStartConfirmedOn(startConfirmedOn);
-		searchInboundLine.setEndConfirmedOn(endConfirmedOn);
+		Date[] dates = DateUtils.addTimeToDatesForSearch(startConfirmedOn,endConfirmedOn);
+		searchInboundLine.setStartConfirmedOn(dates[0]);
+		searchInboundLine.setEndConfirmedOn(dates[1]);
+		searchInboundLine.setStatusId(Arrays.asList(24L));
 		List<InboundLine> inboundLineSearchResults = inboundLineService.findInboundLine(searchInboundLine);
 		long itemReceivedCount = inboundLineSearchResults.stream().count();
 		log.info("itemReceivedCount : " + itemReceivedCount);
@@ -2145,8 +2393,10 @@ public class ReportsService extends BaseService {
 		 */
 		SearchOutboundLine searchOutboundLine = new SearchOutboundLine();
 		searchOutboundLine.setWarehouseId(Arrays.asList(warehouseId));
-		searchOutboundLine.setFromDeliveryDate(fromDeliveryDate);
-		searchOutboundLine.setToDeliveryDate(toDeliveryDate);
+		Date[] dates = DateUtils.addTimeToDatesForSearch(fromDeliveryDate,toDeliveryDate);
+		searchOutboundLine.setFromDeliveryDate(dates[0]);
+		searchOutboundLine.setToDeliveryDate(dates[1]);
+		searchOutboundLine.setStatusId(Arrays.asList(59L));
 		List<OutboundLine> outboundLineSearchResults = outboundLineService.findOutboundLine(searchOutboundLine);
 		long shippedLineCount = outboundLineSearchResults.stream()
 				.filter(o -> o.getReferenceField2() == null && o.getDeliveryQty() != null  && o.getDeliveryQty() > 0).count();
@@ -2171,8 +2421,10 @@ public class ReportsService extends BaseService {
 		 */
 		SearchOutboundLine searchOutboundLine = new SearchOutboundLine();
 		searchOutboundLine.setWarehouseId(Arrays.asList(warehouseId));
-		searchOutboundLine.setFromDeliveryDate(fromDeliveryDate);
-		searchOutboundLine.setToDeliveryDate(toDeliveryDate);
+		Date[] dates = DateUtils.addTimeToDatesForSearch(fromDeliveryDate,toDeliveryDate);
+		searchOutboundLine.setFromDeliveryDate(dates[0]);
+		searchOutboundLine.setToDeliveryDate(dates[1]);
+		searchOutboundLine.setStatusId(Arrays.asList(59L));
 		List<OutboundLine> outboundLineSearchResults = outboundLineService.findOutboundLine(searchOutboundLine);
 		long normalCount = outboundLineSearchResults.stream().filter(o -> o.getReferenceField1().equalsIgnoreCase(type)
 				&& o.getReferenceField2() == null && o.getDeliveryQty() != null && o.getDeliveryQty() > 0).count();

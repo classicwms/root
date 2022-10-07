@@ -16,4 +16,6 @@ public interface InboundOrderRepository extends JpaRepository<InboundOrder,Long>
 
 	public InboundOrder findByOrderId(String orderId);
 	public List<InboundOrder> findByOrderReceivedOnBetween (Date date1, Date date2);
+	public List<InboundOrder> findTopByProcessedStatusIdOrderByOrderReceivedOn(long l);
+	public InboundOrder findByRefDocumentNo(String orderId);
 }

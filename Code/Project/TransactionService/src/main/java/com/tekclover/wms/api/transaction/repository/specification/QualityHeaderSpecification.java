@@ -67,8 +67,14 @@ public class QualityHeaderSpecification implements Specification<QualityHeader> 
 		 if (searchQualityHeader.getStartQualityCreatedOn() != null && searchQualityHeader.getEndQualityCreatedOn() != null) {
         	 predicates.add(cb.between(root.get("qualityCreatedOn"), searchQualityHeader.getStartQualityCreatedOn(), searchQualityHeader.getEndQualityCreatedOn()));
          }
-		 
-		 predicates.add(cb.equal(root.get("deletionIndicator"), 0L));
+
+
+		if (searchQualityHeader.getWarehouseId() != null && !searchQualityHeader.getWarehouseId().isEmpty()) {
+			final Path<Group> group = root.<Group> get("warehouseId");
+			predicates.add(group.in(searchQualityHeader.getWarehouseId()));
+		}
+
+		predicates.add(cb.equal(root.get("deletionIndicator"), 0L));
 			
          return cb.and(predicates.toArray(new Predicate[] {}));
      }
