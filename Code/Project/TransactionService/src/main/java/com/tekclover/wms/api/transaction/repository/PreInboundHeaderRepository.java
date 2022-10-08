@@ -36,4 +36,6 @@ public interface PreInboundHeaderRepository extends JpaRepository<PreInboundHead
 			String warehouseId, String preInboundNo, String refDocNumner, Long deletionIndicator);
 
 	public Optional<PreInboundHeaderEntity> findByPreInboundNoAndDeletionIndicator(String preInboundNo, long l);
+	
+	public Optional<PreInboundHeaderEntity> findByRefDocNumberAndDeletionIndicator(String refDocNumber, long l);
 }

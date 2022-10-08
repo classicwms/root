@@ -1327,10 +1327,8 @@ public class WarehouseService extends BaseService {
 			}
 			
 			Set<OutboundOrderLine> orderLines = new HashSet<>();
-			long id = 1;
 			for (SOLine soLine : soLines) {
 				OutboundOrderLine apiLine = new OutboundOrderLine();
-				apiLine.setId(id++);
 				apiLine.setLineReference(soLine.getLineReference()); 			// IB_LINE_NO
 				apiLine.setItemCode(soLine.getSku());							// ITM_CODE
 				apiLine.setItemText(soLine.getSkuDescription()); 				// ITEM_TEXT
@@ -1389,10 +1387,8 @@ public class WarehouseService extends BaseService {
 				throw new BadRequestException("Date format should be MM-dd-yyyy");
 			}
 			Set<OutboundOrderLine> orderLines = new HashSet<>();
-			long id = 1;
 			for (SalesOrderLine soLine : salesOrderLines) {
 				OutboundOrderLine apiLine = new OutboundOrderLine();
-				apiLine.setId(id++);
 				apiLine.setLineReference(soLine.getLineReference()); 			// IB_LINE_NO
 				apiLine.setItemCode(soLine.getSku());							// ITM_CODE
 				apiLine.setItemText(soLine.getSkuDescription()); 				// ITEM_TEXT
@@ -1457,10 +1453,8 @@ public class WarehouseService extends BaseService {
 			}
 			
 			Set<OutboundOrderLine> orderLines = new HashSet<>();
-			long id = 1;
 			for (ReturnPOLine rpoLine : returnPOLines) {
 				OutboundOrderLine apiLine = new OutboundOrderLine();
-				apiLine.setId(id++);
 				apiLine.setLineReference(rpoLine.getLineReference()); 			// IB_LINE_NO
 				apiLine.setItemCode(rpoLine.getSku());							// ITM_CODE
 				apiLine.setItemText(rpoLine.getSkuDescription()); 				// ITEM_TEXT
@@ -1526,10 +1520,8 @@ public class WarehouseService extends BaseService {
 			}
 			
 			Set<OutboundOrderLine> orderLines = new HashSet<>();
-			long id = 1;
 			for (InterWarehouseTransferOutLine iwhTransferLine : interWarehouseTransferOutLines) {
 				OutboundOrderLine apiLine = new OutboundOrderLine();
-				apiLine.setId(id++);
 				apiLine.setLineReference(iwhTransferLine.getLineReference()); 			// IB_LINE_NO
 				apiLine.setItemCode(iwhTransferLine.getSku());							// ITM_CODE
 				apiLine.setItemText(iwhTransferLine.getSkuDescription()); 				// ITEM_TEXT

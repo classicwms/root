@@ -34,4 +34,6 @@ public interface PreOutboundHeaderRepository extends JpaRepository<PreOutboundHe
 				String preOutboundNo, String partnerCode, Long deletionIndicator);
 
 	public PreOutboundHeader findByPreOutboundNo(String preOutboundNo);
+
+	public Optional<PreOutboundHeader> findByRefDocNumberAndDeletionIndicator(String refDocumentNo, long l);
 }

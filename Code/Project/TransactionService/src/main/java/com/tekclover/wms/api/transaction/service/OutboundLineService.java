@@ -387,7 +387,7 @@ public class OutboundLineService extends BaseService {
 		List<StockMovementReportImpl> allLineData = new ArrayList<>();
 
 		List<StockMovementReportImpl> outboundLineSearchResults = outboundLineRepository.findOutboundLineForStockMovement(searchOutboundLine.getItemCode(),searchOutboundLine.getWarehouseId(),59L,searchOutboundLine.getFromDeliveryDate(),searchOutboundLine.getToDeliveryDate());
-		List<StockMovementReportImpl> inboundLineSearchResults = inboundLineRepository.findInboundLineForStockMovement(searchOutboundLine.getItemCode(),searchOutboundLine.getWarehouseId(),Arrays.asList(20L,24L),searchOutboundLine.getFromDeliveryDate(),searchOutboundLine.getToDeliveryDate());
+		List<StockMovementReportImpl> inboundLineSearchResults = inboundLineRepository.findInboundLineForStockMovement(searchOutboundLine.getItemCode(),searchOutboundLine.getWarehouseId(),Arrays.asList(20L,24L));
 
 		allLineData.addAll(outboundLineSearchResults);
 		allLineData.addAll(inboundLineSearchResults);
@@ -906,16 +906,13 @@ public class OutboundLineService extends BaseService {
 				 */
 				if(pickupLineList != null && !pickupLineList.isEmpty()){
 					for(PickupLine pickupLine : pickupLineList) {
-						Inventory inventory = updateInventory1(pickupLine,pickupLine.getStatusId());
+						Inventory inventory = updateInventory1(pickupLine,outboundLine.getStatusId());
 
-						/*---------------STEP 4-----PickupHeader update-------------------------------
-						 * Fetch WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/OB_LINE_NO/ITM_CODE values from PICKUPLINE table
-						 * and pass the keys in PICKUPHEADER table and Delete PickUpHeader
-						 */
-						List<PickupHeader> pickupHeader = pickupHeaderService.deletePickupHeaderForReversal(outboundLine.getWarehouseId(), outboundLine.getPreOutboundNo(),
+						//Get pickupheader for inventory update
+						List<PickupHeader> pickupHeader = pickupHeaderService.getPickupHeaderForReversal(outboundLine.getWarehouseId(), outboundLine.getPreOutboundNo(),
 								outboundLine.getRefDocNumber(), outboundLine.getPartnerCode(),
-								pickupLine.getPickupNumber(), outboundLine.getLineNumber(), outboundLine.getItemCode(), loginUserID);
-						log.info("pickupHeader deleted : " + pickupHeader);
+								pickupLine.getPickupNumber(), outboundLine.getLineNumber(), outboundLine.getItemCode());
+						log.info("get pickupHeader : " + pickupHeader);
 
 						/*---------------STEP 5-----OrderManagement update-------------------------------
 						 * Fetch WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/OB_LINE_NO/ITM_CODE values from PICKUPHEADER table
@@ -992,6 +989,18 @@ public class OutboundLineService extends BaseService {
 								movementQtyValue, loginUserID, false);
 						log.info("InventoryMovement created for update 2-->: " + inventoryMovement);
 					};
+
+					//Delete pickupheader after inventory update
+					for(PickupLine pickupLine : pickupLineList) {
+						/*---------------STEP 4-----PickupHeader update-------------------------------
+						 * Fetch WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/OB_LINE_NO/ITM_CODE values from PICKUPLINE table
+						 * and pass the keys in PICKUPHEADER table and Delete PickUpHeader
+						 */
+						List<PickupHeader> pickupHeader = pickupHeaderService.deletePickupHeaderForReversal(outboundLine.getWarehouseId(), outboundLine.getPreOutboundNo(),
+								outboundLine.getRefDocNumber(), outboundLine.getPartnerCode(),
+								pickupLine.getPickupNumber(), outboundLine.getLineNumber(), outboundLine.getItemCode(),loginUserID);
+						log.info("pickupHeader deleted : " + pickupHeader);
+					}
 				}
 			}
 			
@@ -1010,11 +1019,12 @@ public class OutboundLineService extends BaseService {
 						outboundLine.getItemCode(), loginUserID);
 				if (pickupLineList != null && !pickupLineList.isEmpty()) {
 					for (PickupLine pickupLine : pickupLineList) {
-						// DELETE PICKUP_HEADER
-						List<PickupHeader> pickupHeader = pickupHeaderService.deletePickupHeaderForReversal(outboundLine.getWarehouseId(), outboundLine.getPreOutboundNo(),
+
+						//get pickup header
+						List<PickupHeader> pickupHeader = pickupHeaderService.getPickupHeaderForReversal(outboundLine.getWarehouseId(), outboundLine.getPreOutboundNo(),
 								outboundLine.getRefDocNumber(), outboundLine.getPartnerCode(),
-								pickupLine.getPickupNumber(), outboundLine.getLineNumber(), outboundLine.getItemCode(), loginUserID);
-						log.info("pickupHeader deleted : " + pickupHeader);
+								pickupLine.getPickupNumber(), outboundLine.getLineNumber(), outboundLine.getItemCode());
+						log.info("get pickupHeader : " + pickupHeader);
 
 						List<QualityLine> qualityLine = qualityLineService.deleteQualityLineForReversal(outboundLine.getWarehouseId(), outboundLine.getPreOutboundNo(),
 								outboundLine.getRefDocNumber(), outboundLine.getPartnerCode(), outboundLine.getLineNumber(),
@@ -1050,7 +1060,7 @@ public class OutboundLineService extends BaseService {
 						 * INVENTORY table and update INV_QTY as (INV_QTY - PICK_CNF_QTY ) and
 						 * delete the record If INV_QTY = 0 - (Update 1)
 						 */
-						updateInventory1(pickupLine, pickupLine.getStatusId());
+						updateInventory1(pickupLine, outboundLine.getStatusId());
 
 						/*---------------STEP 3.2-----Inventory update-------------------------------
 						 * Pass WH_ID/_ITM_CODE/ST_BIN from PICK_ST_BIN/PACK_BARCODE from PICK_PACK_BARCODE of PICKUPLINE in
@@ -1109,6 +1119,14 @@ public class OutboundLineService extends BaseService {
 						inventoryMovement = createInventoryMovement(pickupLine, movementDocumentNo, stBin,
 								movementQtyValue, loginUserID, false);
 						log.info("InventoryMovement created for update 2-->: " + inventoryMovement);
+					}
+
+					//Delete pickupheader after inventory update
+					for(PickupLine pickupLine : pickupLineList) {
+						List<PickupHeader> pickupHeader = pickupHeaderService.deletePickupHeaderForReversal(outboundLine.getWarehouseId(), outboundLine.getPreOutboundNo(),
+								outboundLine.getRefDocNumber(), outboundLine.getPartnerCode(),
+								pickupLine.getPickupNumber(), outboundLine.getLineNumber(), outboundLine.getItemCode(),loginUserID);
+						log.info("pickupHeader deleted : " + pickupHeader);
 					}
 				}
 			}

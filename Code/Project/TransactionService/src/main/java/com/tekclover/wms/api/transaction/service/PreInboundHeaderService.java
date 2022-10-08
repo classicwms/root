@@ -95,6 +95,9 @@ public class PreInboundHeaderService extends BaseService {
 	@Autowired
 	InboundIntegrationLogRepository inboundIntegrationLogRepository;
 	
+	@Autowired
+	OrderService orderService;
+	
 	/**
 	 * getPreInboundHeaders
 	 * @return
@@ -399,6 +402,15 @@ public class PreInboundHeaderService extends BaseService {
 	 */
 	public InboundHeader processInboundReceived (String refDocNumber, InboundIntegrationHeader inboundIntegrationHeader) 
 			throws IllegalAccessException, InvocationTargetException, BadRequestException, Exception {
+		/*
+		 * Checking whether received refDocNumber processed already.
+		 */
+		Optional<PreInboundHeaderEntity> orderProcessedStatus = preInboundHeaderRepository.findByRefDocNumberAndDeletionIndicator(refDocNumber, 0);
+		if (!orderProcessedStatus.isEmpty()) {
+			orderService.updateProcessedInboundOrder(refDocNumber);
+			throw new BadRequestException("Order :" + refDocNumber + " already processed. Reprocessing can't be allowed.");
+		}
+		
 		String warehouseId = inboundIntegrationHeader.getWarehouseID();
 		log.info("warehouseId : " + warehouseId);
 		
@@ -751,6 +763,7 @@ public class PreInboundHeaderService extends BaseService {
 		// PREINBOUNDLINE Update
 		String preInboundNo = null;
 		String containerNo = null;
+		String warehouseId = null;
 		for (AddPreInboundLine preInboundLine : inputPreInboundLines) {
 			PreInboundLineEntity objUpdatePreInboundLine = new PreInboundLineEntity();
 			BeanUtils.copyProperties(preInboundLine, objUpdatePreInboundLine, CommonUtils.getNullPropertyNames(preInboundLine));
@@ -764,11 +777,13 @@ public class PreInboundHeaderService extends BaseService {
 				isPreInboundLineUpdated = true;
 				preInboundNo = updatedPreInboundLine.getPreInboundNo();
 				containerNo = updatedPreInboundLine.getContainerNo();
+				warehouseId = updatedPreInboundLine.getWarehouseId();
 			}
 		}
 				
 		// PREINBOUNDHEADER Update
-		PreInboundHeader preInboundHeader = getPreInboundHeaderByPreInboundNo (preInboundNo);
+//		PreInboundHeader preInboundHeader = getPreInboundHeaderByPreInboundNo (preInboundNo);
+		PreInboundHeader preInboundHeader = getPreInboundHeader (preInboundNo, warehouseId);
 		log.info("preInboundHeader---found-------> : " + preInboundHeader);
 		
 		PreInboundHeaderEntity preInboundHeaderEntity = copyBeanToHeaderEntity(preInboundHeader);

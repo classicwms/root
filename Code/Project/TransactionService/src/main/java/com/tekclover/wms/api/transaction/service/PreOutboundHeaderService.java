@@ -94,6 +94,9 @@ public class PreOutboundHeaderService extends BaseService {
 	@Autowired
 	private MastersService mastersService;
 	
+	@Autowired
+	OrderService orderService;
+	
 	/**
 	 * getPreOutboundHeaders
 	 * @return
@@ -230,6 +233,17 @@ public class PreOutboundHeaderService extends BaseService {
      */
 	public OutboundHeader processOutboundReceived (OutboundIntegrationHeader outboundIntegrationHeader) 
 			throws IllegalAccessException, InvocationTargetException, BadRequestException, Exception {
+		/*
+		 * Checking whether received refDocNumber processed already.
+		 */
+		Optional<PreOutboundHeader> orderProcessedStatus = 
+				preOutboundHeaderRepository.findByRefDocNumberAndDeletionIndicator(outboundIntegrationHeader.getRefDocumentNo(), 0);
+		if (!orderProcessedStatus.isEmpty()) {
+			orderService.updateProcessedOrder(outboundIntegrationHeader.getRefDocumentNo());
+			throw new BadRequestException("Order :" + outboundIntegrationHeader.getRefDocumentNo() + 
+					" already processed. Reprocessing can't be allowed.");
+		}
+		
 		String warehouseId = outboundIntegrationHeader.getWarehouseID();
 		log.info("warehouseId : " + warehouseId);
 		
