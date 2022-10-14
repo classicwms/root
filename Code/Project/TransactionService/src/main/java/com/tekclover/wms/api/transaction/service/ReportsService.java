@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.tekclover.wms.api.transaction.model.impl.StockReportImpl;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -37,6 +36,7 @@ import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
 import com.tekclover.wms.api.transaction.model.dto.StorageBin;
 import com.tekclover.wms.api.transaction.model.impl.OrderStatusReportImpl;
 import com.tekclover.wms.api.transaction.model.impl.ShipmentDispatchSummaryReportImpl;
+import com.tekclover.wms.api.transaction.model.impl.StockReportImpl;
 import com.tekclover.wms.api.transaction.model.inbound.InboundHeader;
 import com.tekclover.wms.api.transaction.model.inbound.InboundLine;
 import com.tekclover.wms.api.transaction.model.inbound.SearchInboundHeader;
@@ -727,6 +727,11 @@ public class ReportsService extends BaseService {
 		return reportStockMovementList_1;
 	}
 
+	/**
+	 * 
+	 * @param inventoryMovementSearchResults
+	 * @return
+	 */
 	private List<StockMovementReport> fillData(List<InventoryMovement> inventoryMovementSearchResults) {
 		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
 		List<StockMovementReport> reportStockMovementList = new ArrayList<>();

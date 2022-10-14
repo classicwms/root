@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
@@ -302,6 +303,24 @@ public class DateUtils {
 		return strDate;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 * @throws ParseException
+	 */
+	public static Date getCurrentKWTDateTime() throws ParseException {
+		ZonedDateTime zdt = ZonedDateTime.now(ZoneId.of("Asia/Kuwait")) ;
+		LocalDateTime kwtLocalDateTime = zdt.toLocalDateTime();
+		System.out.println(kwtLocalDateTime);
+		
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+		String sConvertedDateTime = formatter.format(kwtLocalDateTime);
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");  
+		Date kwtDate = dateFormatter.parse(sConvertedDateTime);
+		System.out.println(kwtDate);
+		return kwtDate;
+	}
+	
 	public static void main(String[] args) throws ParseException {
 //		String str = "01-08-2022"; 
 //		str += " 00:00:00";
@@ -312,8 +331,8 @@ public class DateUtils {
 		
 //		LocalTime time = LocalTime.now();
 //		System.out.println("---------> " + time);
-		String str = "04-30-2022";// + time.getHour() + ":" + time.getMinute() + ":" + time.getSecond(); 
-		convertStringToDate (str);
+//		String str = "04-30-2022";// + time.getHour() + ":" + time.getMinute() + ":" + time.getSecond(); 
+//		convertStringToDate (str);
 		
 //		LocalDate today = LocalDate.now();
 //		System.out.println("First day: " + today.withDayOfMonth(1));
@@ -322,6 +341,16 @@ public class DateUtils {
 //		Date date = Date.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant());
 //		System.out.println("---------> " + date);
 //		date2String_MMDDYYYY (new Date());
+		
+		ZonedDateTime zdt = ZonedDateTime.now(ZoneId.of("Asia/Kuwait")) ;
+		LocalDateTime kwtLocalDateTime = zdt.toLocalDateTime();
+		System.out.println(kwtLocalDateTime);
+		
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+		String sConvertedDateTime = formatter.format(kwtLocalDateTime);
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");  
+		Date kwtDate = dateFormatter.parse(sConvertedDateTime);
+		System.out.println(kwtDate);
 	}
 
 	public static Date dateSubtract (int noOfDays) {

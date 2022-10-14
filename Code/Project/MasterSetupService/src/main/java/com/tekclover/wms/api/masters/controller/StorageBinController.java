@@ -59,6 +59,14 @@ public class StorageBinController {
 	}
     
     @ApiOperation(response = StorageBin.class, value = "Get a StorageBin") // label for swagger 
+   	@GetMapping("/{storageBin}/warehouseId")
+   	public ResponseEntity<?> getStorageBin(@PathVariable String storageBin, @RequestParam String warehouseId) {
+       	StorageBin storagebin = storagebinService.getStorageBin(warehouseId, storageBin);
+       	log.info("StorageBin : " + storagebin);
+   		return new ResponseEntity<>(storagebin, HttpStatus.OK);
+   	}
+    
+    @ApiOperation(response = StorageBin.class, value = "Get a StorageBin") // label for swagger 
    	@GetMapping("/{warehouseId}/status")
    	public ResponseEntity<?> getStorageBinByStatus(@PathVariable String warehouseId, @RequestParam Long statusId) {
        	List<StorageBin> storagebin = storagebinService.getStorageBinByStatus(warehouseId, statusId);

@@ -59,6 +59,29 @@ public class PreOutboundLineService extends BaseService {
 	
 	/**
 	 * 
+	 * @param languageId
+	 * @param companyCodeId
+	 * @param plantId
+	 * @param warehouseId
+	 * @param refDocNumber
+	 * @param preOutboundNo
+	 * @param partnerCode
+	 * @return
+	 */
+	public List<PreOutboundLine> getPreOutboundLine (String languageId, String companyCodeId, String plantId, String warehouseId, 
+			String refDocNumber, String preOutboundNo, String partnerCode) {
+		List<PreOutboundLine> preOutboundLine = 
+				preOutboundLineRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndPartnerCodeAndDeletionIndicator (
+						languageId, companyCodeId, plantId, warehouseId, refDocNumber, preOutboundNo, partnerCode, 0L);
+		if (!preOutboundLine.isEmpty()) {
+			return preOutboundLine;
+		} 
+
+		return null;
+	}
+	
+	/**
+	 * 
 	 * @param lineNumber
 	 * @return
 	 */
@@ -128,6 +151,32 @@ public class PreOutboundLineService extends BaseService {
 		}
 		return null;
 	}
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param refDocNumber
+	 * @param preOutboundNo
+	 * @param partnerCode
+	 * @param loginUserID
+	 * @param updatePreOutboundLine
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
+	public PreOutboundLine updatePreOutboundLine (String warehouseId, String refDocNumber, String preOutboundNo, String partnerCode, String loginUserID, 
+			UpdatePreOutboundLine updatePreOutboundLine) 
+			throws IllegalAccessException, InvocationTargetException {
+		List<PreOutboundLine> dbPreOutboundLines = getPreOutboundLine (getLanguageId(), getCompanyCode(), getPlantId(), warehouseId, refDocNumber, preOutboundNo, partnerCode);
+		for (PreOutboundLine dbPreOutboundLine : dbPreOutboundLines) {
+			BeanUtils.copyProperties(updatePreOutboundLine, dbPreOutboundLine, CommonUtils.getNullPropertyNames(updatePreOutboundLine));
+			dbPreOutboundLine.setUpdatedBy(loginUserID);
+			dbPreOutboundLine.setUpdatedOn(new Date());
+			return preOutboundLineRepository.save(dbPreOutboundLine);
+		}
+		return null;
+	}
+	
 	
 	/**
 	 * deletePreOutboundLine

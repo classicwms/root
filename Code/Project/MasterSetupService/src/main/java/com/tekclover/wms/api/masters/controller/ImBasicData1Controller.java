@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tekclover.wms.api.masters.model.dto.ItemCodeDesc;
 import com.tekclover.wms.api.masters.model.imbasicdata1.AddImBasicData1;
 import com.tekclover.wms.api.masters.model.imbasicdata1.ImBasicData1;
 import com.tekclover.wms.api.masters.model.imbasicdata1.SearchImBasicData1;
@@ -74,6 +75,13 @@ public class ImBasicData1Controller {
 	public List<ImBasicData1> findImBasicData1(@RequestBody SearchImBasicData1 searchImBasicData1)
 			throws Exception {
 		return imbasicdata1Service.findImBasicData1(searchImBasicData1);
+	}
+	
+	@ApiOperation(response = ImBasicData1.class, value = "Like Search ImBasicData1") // label for swagger
+	@GetMapping("/findItemCodeByLike")
+	public List<ItemCodeDesc> getImBasicData1LikeSearch(@RequestParam String likeSearchByItemCodeNDesc)
+			throws Exception {
+		return imbasicdata1Service.findImBasicData1LikeSearch(likeSearchByItemCodeNDesc);
 	}
 	
     @ApiOperation(response = ImBasicData1.class, value = "Create ImBasicData1") // label for swagger

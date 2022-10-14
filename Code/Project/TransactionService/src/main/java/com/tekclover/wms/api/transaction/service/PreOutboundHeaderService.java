@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -145,7 +146,7 @@ public class PreOutboundHeaderService extends BaseService {
 	public List<PreOutboundHeader> findPreOutboundHeader(SearchPreOutboundHeader searchPreOutboundHeader) 
 			throws Exception {
 		
-		if (searchPreOutboundHeader.getStartRequiredDeliveryDate() != null && searchPreOutboundHeader.getStartRequiredDeliveryDate() != null) {
+		if (searchPreOutboundHeader.getStartRequiredDeliveryDate() != null && searchPreOutboundHeader.getEndRequiredDeliveryDate() != null) {
 			Date[] dates = DateUtils.addTimeToDatesForSearch(searchPreOutboundHeader.getStartRequiredDeliveryDate(), searchPreOutboundHeader.getEndRequiredDeliveryDate());
 			searchPreOutboundHeader.setStartRequiredDeliveryDate(dates[0]);
 			searchPreOutboundHeader.setEndRequiredDeliveryDate(dates[1]);
@@ -379,13 +380,19 @@ public class PreOutboundHeaderService extends BaseService {
 	 * @param createdPreOutboundHeader
 	 * @param statusId
 	 * @return 
+	 * @throws ParseException 
 	 */
-	private OutboundHeader createOutboundHeader(PreOutboundHeader createdPreOutboundHeader, Long statusId) {
+	private OutboundHeader createOutboundHeader(PreOutboundHeader createdPreOutboundHeader, Long statusId) throws ParseException {
 		OutboundHeader outboundHeader = new OutboundHeader();
 		BeanUtils.copyProperties(createdPreOutboundHeader, outboundHeader, 
 				CommonUtils.getNullPropertyNames(createdPreOutboundHeader));
 		OrderManagementHeader dbOrderManagementHeader = orderManagementHeaderService.getOrderManagementHeader (createdPreOutboundHeader.getPreOutboundNo());
 		
+		/*
+		 * Setting up KuwaitTime
+		 */
+		Date kwtDate = DateUtils.getCurrentKWTDateTime();
+		outboundHeader.setRefDocDate(kwtDate);	
 		outboundHeader.setStatusId (dbOrderManagementHeader.getStatusId());
 		outboundHeader.setCreatedBy(createdPreOutboundHeader.getCreatedBy());
 		outboundHeader.setCreatedOn(createdPreOutboundHeader.getCreatedOn());
@@ -415,9 +422,10 @@ public class PreOutboundHeaderService extends BaseService {
 	 * @param outboundIntegrationHeader
 	 * @param refField1ForOrderType 
 	 * @return
+	 * @throws ParseException 
 	 */
 	private PreOutboundHeader createPreOutboundHeader(String companyCodeId, String plantId, String preOutboundNo,
-			OutboundIntegrationHeader outboundIntegrationHeader, String refField1ForOrderType) {
+			OutboundIntegrationHeader outboundIntegrationHeader, String refField1ForOrderType) throws ParseException {
 		PreOutboundHeader preOutboundHeader = new PreOutboundHeader();
 		preOutboundHeader.setLanguageId("EN");											
 		preOutboundHeader.setCompanyCodeId(companyCodeId);
@@ -426,15 +434,22 @@ public class PreOutboundHeaderService extends BaseService {
 		preOutboundHeader.setRefDocNumber(outboundIntegrationHeader.getRefDocumentNo());
 		preOutboundHeader.setPreOutboundNo(preOutboundNo);												// PRE_OB_NO
 		preOutboundHeader.setPartnerCode(outboundIntegrationHeader.getPartnerCode());
-		preOutboundHeader.setOutboundOrderTypeId(outboundIntegrationHeader.getOutboundOrderTypeID());													// Hardcoded value "0"
+		preOutboundHeader.setOutboundOrderTypeId(outboundIntegrationHeader.getOutboundOrderTypeID());	// Hardcoded value "0"
 		preOutboundHeader.setReferenceDocumentType("SO");												// Hardcoded value "SO"
+		
+		/*
+		 * Setting up KuwaitTime
+		 */
+		Date kwtDate = DateUtils.getCurrentKWTDateTime();
+		preOutboundHeader.setRefDocDate(kwtDate);
 		preOutboundHeader.setStatusId(39L);
 		preOutboundHeader.setRequiredDeliveryDate(outboundIntegrationHeader.getRequiredDeliveryDate());
+		
 		// REF_FIELD_1
 		preOutboundHeader.setReferenceField1(refField1ForOrderType);
 		preOutboundHeader.setDeletionIndicator(0L);
 		preOutboundHeader.setCreatedBy("MSD_INT");
-		preOutboundHeader.setCreatedOn(new Date());	
+		preOutboundHeader.setCreatedOn(kwtDate);	
 		PreOutboundHeader createdPreOutboundHeader = preOutboundHeaderRepository.save(preOutboundHeader);
 		log.info("createdPreOutboundHeader : " + createdPreOutboundHeader);
 		return createdPreOutboundHeader;
@@ -791,6 +806,18 @@ public class PreOutboundHeaderService extends BaseService {
 			orderManagementLine.setPickupCreatedOn(new Date());
 			orderManagementLine.setProposedStorageBin(maxQtyHoldsInventory.getStorageBin());
 			orderManagementLine.setProposedPackBarCode(maxQtyHoldsInventory.getPackBarcodes());
+			
+			// Ref_Field_9 for storing ST_SEC_ID
+			orderManagementLine.setReferenceField9(maxQtyHoldsInventory.getReferenceField9());
+			
+			// Span ID
+			// Getting StorageBin by WarehouseId
+			StorageBin spanIdStorageBin = mastersService.getStorageBin(orderManagementLine.getProposedStorageBin(), orderManagementLine.getWarehouseId(),
+							authTokenForMastersService.getAccess_token());
+			
+			// Ref_Field_10 for storing SPAN_ID
+			orderManagementLine.setReferenceField10(spanIdStorageBin.getSpanId());
+			
 			orderManagementLine = orderManagementLineRepository.save(orderManagementLine);
 			log.info("---1--orderManagementLine created------: " + orderManagementLine);
 			
@@ -953,9 +980,10 @@ public class PreOutboundHeaderService extends BaseService {
 	 * @return
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
+	 * @throws ParseException 
 	 */
 	public OutboundIntegrationLog createOutboundIntegrationLog (OutboundIntegrationHeader outbound) 
-			throws IllegalAccessException, InvocationTargetException {
+			throws IllegalAccessException, InvocationTargetException, ParseException {
 		Warehouse warehouse = getWarehouse(outbound.getWarehouseID());
 		OutboundIntegrationLog dbOutboundIntegrationLog = new OutboundIntegrationLog();
 		dbOutboundIntegrationLog.setLanguageId("EN");
@@ -969,7 +997,11 @@ public class PreOutboundHeaderService extends BaseService {
 		dbOutboundIntegrationLog.setOrderReceiptDate(outbound.getOrderProcessedOn());
 		dbOutboundIntegrationLog.setDeletionIndicator(0L);
 		dbOutboundIntegrationLog.setCreatedBy("MSD_API");
-		dbOutboundIntegrationLog.setCreatedOn(new Date());
+		/*
+		 * Setting up KuwaitTime
+		 */
+		Date kwtDate = DateUtils.getCurrentKWTDateTime();
+		dbOutboundIntegrationLog.setCreatedOn(kwtDate);
 		dbOutboundIntegrationLog = outboundIntegrationLogRepository.save(dbOutboundIntegrationLog);
 		log.info("dbOutboundIntegrationLog : " + dbOutboundIntegrationLog);
 		return dbOutboundIntegrationLog;

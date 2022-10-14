@@ -153,7 +153,28 @@ public class MastersService {
 		}
 	}
 	
-	
+	// GET StorageBin - /{storageBin}/warehouseId
+	public StorageBin getStorageBin (String storageBin, String warehouseId, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "Classic WMS's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getMastersServiceApiUrl() + "storagebin/" + storageBin + "/warehouseId")
+					.queryParam("warehouseId", warehouseId);
+			
+			ResponseEntity<StorageBin> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, StorageBin.class);
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+		
 	// GET StorageBin - /{warehouseId}/bins/{binClassId}
 	public StorageBin getStorageBin (String warehouseId, Long binClassId, String authToken) {
 		try {

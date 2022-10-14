@@ -79,7 +79,7 @@ public class PreOutboundHeaderSpecification implements Specification<PreOutbound
 		}
 
 		if (searchPreOutboundHeader.getStartOrderDate() != null && searchPreOutboundHeader.getEndOrderDate() != null) {
-			predicates.add(cb.between(root.get("orderDate"), searchPreOutboundHeader.getStartOrderDate(),
+			predicates.add(cb.between(root.get("refDocDate"), searchPreOutboundHeader.getStartOrderDate(),
 					searchPreOutboundHeader.getEndOrderDate()));
 		}
 

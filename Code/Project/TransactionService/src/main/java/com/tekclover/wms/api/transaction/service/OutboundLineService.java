@@ -1,5 +1,21 @@
 package com.tekclover.wms.api.transaction.service;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.persistence.EntityNotFoundException;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.ParseException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AXAuthToken;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
@@ -12,39 +28,59 @@ import com.tekclover.wms.api.transaction.model.impl.StockMovementReportImpl;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.AddInventoryMovement;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
-import com.tekclover.wms.api.transaction.model.outbound.*;
+import com.tekclover.wms.api.transaction.model.outbound.AddOutboundLine;
+import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
+import com.tekclover.wms.api.transaction.model.outbound.OutboundLine;
+import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundLine;
+import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundLineReport;
+import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundHeader;
+import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.OrderManagementHeader;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.OrderManagementLine;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.UpdateOrderManagementHeader;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.UpdateOrderManagementLine;
 import com.tekclover.wms.api.transaction.model.outbound.outboundreversal.AddOutboundReversal;
 import com.tekclover.wms.api.transaction.model.outbound.outboundreversal.OutboundReversal;
-import com.tekclover.wms.api.transaction.model.outbound.pickup.*;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupHeader;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupLine;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.SearchPickupLine;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.UpdatePickupHeader;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.UpdatePickupLine;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.PreOutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.PreOutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.UpdatePreOutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.UpdatePreOutboundLine;
-import com.tekclover.wms.api.transaction.model.outbound.quality.*;
+import com.tekclover.wms.api.transaction.model.outbound.quality.QualityHeader;
+import com.tekclover.wms.api.transaction.model.outbound.quality.QualityLine;
+import com.tekclover.wms.api.transaction.model.outbound.quality.SearchQualityLine;
+import com.tekclover.wms.api.transaction.model.outbound.quality.UpdateQualityHeader;
+import com.tekclover.wms.api.transaction.model.outbound.quality.UpdateQualityLine;
 import com.tekclover.wms.api.transaction.model.report.SearchOrderStatusReport;
 import com.tekclover.wms.api.transaction.model.report.StockMovementReport;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.confirmation.AXApiResponse;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.*;
-import com.tekclover.wms.api.transaction.repository.*;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.InterWarehouseShipment;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.InterWarehouseShipmentHeader;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.InterWarehouseShipmentLine;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.ReturnPO;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.ReturnPOHeader;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.ReturnPOLine;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.SalesOrder;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.SalesOrderHeader;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.SalesOrderLine;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.Shipment;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.ShipmentHeader;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.ShipmentLine;
+import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
+import com.tekclover.wms.api.transaction.repository.InboundLineRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryRepository;
+import com.tekclover.wms.api.transaction.repository.OrderManagementLineRepository;
+import com.tekclover.wms.api.transaction.repository.OutboundLineRepository;
 import com.tekclover.wms.api.transaction.repository.specification.OutboundLineReportSpecification;
 import com.tekclover.wms.api.transaction.repository.specification.OutboundLineSpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.expression.ParseException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
-import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -374,41 +410,41 @@ public class OutboundLineService extends BaseService {
 		return outboundLineSearchResults;
 	}
 
+	/**
+	 * 
+	 * @param searchOutboundLine
+	 * @return
+	 * @throws ParseException
+	 * @throws java.text.ParseException
+	 */
 	public List<StockMovementReport> findLinesForStockMovement(SearchOutboundLine searchOutboundLine)
 			throws ParseException, java.text.ParseException {
-
 		if (searchOutboundLine.getFromDeliveryDate() != null && searchOutboundLine.getToDeliveryDate() != null) {
 			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundLine.getFromDeliveryDate(),
 					searchOutboundLine.getToDeliveryDate());
 			searchOutboundLine.setFromDeliveryDate(dates[0]);
 			searchOutboundLine.setToDeliveryDate(dates[1]);
 		}
-
+		
 		List<StockMovementReportImpl> allLineData = new ArrayList<>();
-
-		List<StockMovementReportImpl> outboundLineSearchResults = outboundLineRepository.findOutboundLineForStockMovement(searchOutboundLine.getItemCode(),searchOutboundLine.getWarehouseId(),59L,searchOutboundLine.getFromDeliveryDate(),searchOutboundLine.getToDeliveryDate());
-		List<StockMovementReportImpl> inboundLineSearchResults = inboundLineRepository.findInboundLineForStockMovement(searchOutboundLine.getItemCode(),searchOutboundLine.getWarehouseId(),Arrays.asList(20L,24L));
-
+		List<StockMovementReportImpl> outboundLineSearchResults = 
+				outboundLineRepository.findOutboundLineForStockMovement(searchOutboundLine.getItemCode(), searchOutboundLine.getWarehouseId(),
+						59L, searchOutboundLine.getFromDeliveryDate(), searchOutboundLine.getToDeliveryDate());
+		
+		List<StockMovementReportImpl> inboundLineSearchResults = 
+				inboundLineRepository.findInboundLineForStockMovement(searchOutboundLine.getItemCode(), searchOutboundLine.getWarehouseId(),
+						Arrays.asList(20L,24L));
+		
 		allLineData.addAll(outboundLineSearchResults);
 		allLineData.addAll(inboundLineSearchResults);
-
 		allLineData.sort(Comparator.comparing(StockMovementReportImpl::getConfirmedOn));
 
-
 		List<StockMovementReport> stockMovementReports = new ArrayList<>();
-
 		allLineData.forEach(data->{
 			StockMovementReport stockMovementReport = new StockMovementReport();
 			BeanUtils.copyProperties(data,stockMovementReport);
 			stockMovementReports.add(stockMovementReport);
 		});
-
-//		log.info("results: " + outboundLineSearchResults);
-
-		/*
-		 * Pass WH-ID/REF_DOC_NO/PRE_OB_NO/OB_LINE_NO/ITM_CODE
-		 * PickConfirmQty & QCQty - from QualityLine table
-		 */
 		return stockMovementReports;
 	}
 	
@@ -572,7 +608,7 @@ public class OutboundLineService extends BaseService {
 		if (!isConditionMet) {
 			throw new BadRequestException("Order is not completely Processed.");
 		} else {
-			log.info("Order can be Processed."); 
+			log.info("Order can be Processed.");
 			/*
 			 * Call this respective API end points when REF_DOC_NO is confirmed with STATUS_ID = 59 in OUTBOUNDHEADER and 
 			 * OUTBOUNDLINE tables and based on OB_ORD_TYP_ID as per API document
@@ -621,22 +657,32 @@ public class OutboundLineService extends BaseService {
 					if (outboundLine.getStatusId() == 57L) {
 						try {
 							// Pass the above values in OUTBOUNDHEADER and OUTBOUNDLINE tables and update STATUS_ID as "59"
-							outboundLine.setStatusId(59L);
-							outboundLine.setUpdatedBy(loginUserID);
-							outboundLine.setUpdatedOn(new Date());
-							outboundLine = outboundLineRepository.save(outboundLine);
-							log.info("outboundLine updated : " + outboundLine);
-							responseOutboundLineList.add(outboundLine);
+							try {
+								outboundLine.setStatusId(59L);
+								outboundLine.setUpdatedBy(loginUserID);
+								outboundLine.setUpdatedOn(new Date());
+								outboundLine = outboundLineRepository.save(outboundLine);
+								log.info("outboundLine updated : " + outboundLine);
+								responseOutboundLineList.add(outboundLine);
+							} catch (Exception e) {
+								e.printStackTrace();
+								log.error("deliveryConfirmation---OutboundLine update error: " + outboundLine);
+							}
 							
 							// OUTBOUNDHEADER update
-							UpdateOutboundHeader updateOutboundHeader = new UpdateOutboundHeader();
-							updateOutboundHeader.setStatusId(59L);
-							updateOutboundHeader.setDeliveryConfirmedOn(new Date());
-							updateOutboundHeader.setUpdatedOn(new Date());
-							updateOutboundHeader.setUpdatedBy(loginUserID);
-							OutboundHeader updatedOutboundHeader = 
-									outboundHeaderService.updateOutboundHeader(warehouseId, preOutboundNo, refDocNumber, partnerCode, updateOutboundHeader, loginUserID);
-							log.info("updatedOutboundHeader updated : " + updatedOutboundHeader);
+							try {
+								UpdateOutboundHeader updateOutboundHeader = new UpdateOutboundHeader();
+								updateOutboundHeader.setStatusId(59L);
+								updateOutboundHeader.setDeliveryConfirmedOn(new Date());
+								updateOutboundHeader.setUpdatedOn(new Date());
+								updateOutboundHeader.setUpdatedBy(loginUserID);
+								OutboundHeader updatedOutboundHeader = 
+										outboundHeaderService.updateOutboundHeader(warehouseId, preOutboundNo, refDocNumber, partnerCode, updateOutboundHeader, loginUserID);
+								log.info("updatedOutboundHeader updated : " + updatedOutboundHeader);
+							} catch (Exception e) {
+								e.printStackTrace();
+								log.error("deliveryConfirmation---UpdateOutboundHeader update error: [args]" + preOutboundNo + "," + refDocNumber + "," + partnerCode);
+							}
 							
 							/*
 							 * Pass the selected WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE values and update STATUS_ID as 59 
@@ -645,109 +691,137 @@ public class OutboundLineService extends BaseService {
 							 * PREOUTBOUNDHEADER,PREOUTBOUNDLINE
 							 */
 							// QUALITYLINE
-							UpdateQualityLine updateQualityLine = new UpdateQualityLine();
-							updateQualityLine.setStatusId(59L);
-							List<QualityLine> updatedQualityLine = qualityLineService.updateQualityLine(warehouseId, preOutboundNo, refDocNumber, partnerCode,
-									outboundLine.getLineNumber(), outboundLine.getItemCode(), loginUserID, updateQualityLine);
-							log.info("updatedQualityLine updated : " + updatedQualityLine);
-							
-							// QUALITYHEADER
-							if (!updatedQualityLine.isEmpty()) {
-								UpdateQualityHeader updateQualityHeader = new UpdateQualityHeader();
-								updateQualityHeader.setStatusId(59L);
-								QualityLine qualityLine = updatedQualityLine.get(0);
-								QualityHeader updatedQualityHeader = qualityHeaderService.updateQualityHeader(warehouseId, preOutboundNo, refDocNumber,
-										qualityLine.getQualityInspectionNo(), qualityLine.getActualHeNo(), loginUserID, updateQualityHeader);
-								log.info("updatedQualityHeader updated : " + updatedQualityHeader);
+							try {
+								UpdateQualityLine updateQualityLine = new UpdateQualityLine();
+								updateQualityLine.setStatusId(59L);
+								List<QualityLine> updatedQualityLine = qualityLineService.updateQualityLine(warehouseId, preOutboundNo, refDocNumber, partnerCode,
+										outboundLine.getLineNumber(), outboundLine.getItemCode(), loginUserID, updateQualityLine);
+								log.info("updatedQualityLine updated : " + updatedQualityLine);
+								
+								// QUALITYHEADER
+								if (!updatedQualityLine.isEmpty()) {
+									UpdateQualityHeader updateQualityHeader = new UpdateQualityHeader();
+									updateQualityHeader.setStatusId(59L);
+									QualityLine qualityLine = updatedQualityLine.get(0);
+									QualityHeader updatedQualityHeader = qualityHeaderService.updateQualityHeader(warehouseId, preOutboundNo, refDocNumber,
+											qualityLine.getQualityInspectionNo(), qualityLine.getActualHeNo(), loginUserID, updateQualityHeader);
+									log.info("QualityInspectionNo : " + qualityLine.getQualityInspectionNo() + ", ActualHeNo : " + qualityLine.getActualHeNo());
+									log.info("updatedQualityHeader updated : " + updatedQualityHeader);
+								}
+								
+								/*-----------------Inventory Updates---------------------------*/
+								// String warehouseId, String itemCode, Long binClassId
+								Long BIN_CL_ID = 5L;
+								for(QualityLine qualityLine : updatedQualityLine) {
+									List<Inventory> inventoryList = inventoryService.getInventoryForDeliveryConfirmtion (outboundLine.getWarehouseId(),
+											outboundLine.getItemCode(), qualityLine.getPickPackBarCode(), BIN_CL_ID); //pack_bar_code
+									for(Inventory inventory : inventoryList) {
+										Double INV_QTY = inventory.getInventoryQuantity() - outboundLine.getDeliveryQty();
+										log.info("INV_QTY : " + INV_QTY);
+
+										if (INV_QTY < 0) {
+											INV_QTY = 0D;
+										}
+
+										// [Prod Fix: 14-07] - Hareesh - Don't need to delete the inventory just update the existing inventory quantity
+//									if (INV_QTY == 0) {
+////										[Prod Fix: 28-06] - Discussed to comment delete Inventory operation to avoid unwanted delete of Inventory
+////										inventoryRepository.delete(inventory);
+//										log.info("inventory record is deleted...");
+//									}
+
+										if (INV_QTY >= 0) {
+											inventory.setInventoryQuantity(INV_QTY);
+
+											// INV_QTY > 0 then, update Inventory Table
+											inventory = inventoryRepository.save(inventory);
+											log.info("inventory updated : " + inventory);
+										}
+									}
+								}
+							} catch (Exception e) {
+								e.printStackTrace();
+								log.info("Update QualityHeader & line error: [args] " + warehouseId  + "," + preOutboundNo  + "," + refDocNumber  + "," + partnerCode  + "," + 
+										outboundLine.getLineNumber()  + "," +  outboundLine.getItemCode());
 							}
 							
 							// PICKUPLINE
-							UpdatePickupLine updatePickupLine = new UpdatePickupLine();
-							updatePickupLine.setStatusId(59L);
-							//HAREESH 11/-9/2022 changed to list instead of getting a single row , because of duplication error
-							List<PickupLine> updatedPickupLine = pickupLineService.updatePickupLineForConfirmation(warehouseId, preOutboundNo, refDocNumber,
-									partnerCode, outboundLine.getLineNumber(), outboundLine.getItemCode(), loginUserID, updatePickupLine);
-							log.info("updatedPickupLine updated : " + updatedPickupLine);
+							// HAREESH 11/-9/2022 changed to list instead of getting a single row , because of duplication error
+							List<PickupLine> updatedPickupLine = null;
+							try {
+								UpdatePickupLine updatePickupLine = new UpdatePickupLine();
+								updatePickupLine.setStatusId(59L);
+								updatedPickupLine = pickupLineService.updatePickupLineForConfirmation(warehouseId, preOutboundNo, refDocNumber,
+										partnerCode, outboundLine.getLineNumber(), outboundLine.getItemCode(), loginUserID, updatePickupLine);
+								log.info("updatedPickupLine updated : " + updatedPickupLine);
 							
-							// PICKUPHEADER
-							UpdatePickupHeader updatePickupHeader = new UpdatePickupHeader();
-							updatePickupHeader.setStatusId(59L);
-							for(PickupLine pickupLine : updatedPickupLine) {
-								List<PickupHeader> updatedPickupHeader = pickupHeaderService.updatePickupHeaderForConfirmation(warehouseId, preOutboundNo, refDocNumber,
-										partnerCode, pickupLine.getPickupNumber(), pickupLine.getLineNumber(), pickupLine.getItemCode(),
-										loginUserID, updatePickupHeader);
-								log.info("updatedPickupLine updated : " + updatedPickupHeader);
-
-								// ORDERMANAGEMENTLINE
-								if(updatedPickupHeader != null && !updatedPickupHeader.isEmpty()){
-									UpdateOrderManagementLine updateOrderManagementLine = new UpdateOrderManagementLine();
-									updateOrderManagementLine.setStatusId(59L);
-									OrderManagementLine updatedOrderManagementLine = orderManagementLineService.updateOrderManagementLine(warehouseId,
-											preOutboundNo, refDocNumber, partnerCode, updatedPickupHeader.get(0).getLineNumber(), updatedPickupHeader.get(0).getItemCode(),
-											loginUserID, updateOrderManagementLine);
-									log.info("updatedOrderManagementLine updated : " + updatedOrderManagementLine);
+								// PICKUPHEADER
+								UpdatePickupHeader updatePickupHeader = new UpdatePickupHeader();
+								updatePickupHeader.setStatusId(59L);
+								for(PickupLine pickupLine : updatedPickupLine) {
+									List<PickupHeader> updatedPickupHeader = pickupHeaderService.updatePickupHeaderForConfirmation(warehouseId, preOutboundNo, refDocNumber,
+											partnerCode, pickupLine.getPickupNumber(), pickupLine.getLineNumber(), pickupLine.getItemCode(),
+											loginUserID, updatePickupHeader);
+									log.info("updatedPickupLine updated : " + updatedPickupHeader);
+	
+									// ORDERMANAGEMENTLINE
+									if(updatedPickupHeader != null && !updatedPickupHeader.isEmpty()){
+										UpdateOrderManagementLine updateOrderManagementLine = new UpdateOrderManagementLine();
+										updateOrderManagementLine.setStatusId(59L);
+										OrderManagementLine updatedOrderManagementLine = orderManagementLineService.updateOrderManagementLine(warehouseId,
+												preOutboundNo, refDocNumber, partnerCode, updatedPickupHeader.get(0).getLineNumber(), updatedPickupHeader.get(0).getItemCode(),
+												loginUserID, updateOrderManagementLine);
+										log.info("updatedOrderManagementLine updated : " + updatedOrderManagementLine);
+									}
 								}
+							} catch (Exception e) {
+								e.printStackTrace();
+								log.info("Update PickupLine error: [args] " + warehouseId  + "," + preOutboundNo  + "," + refDocNumber  + "," + partnerCode  + "," + 
+										outboundLine.getLineNumber()  + "," +  outboundLine.getItemCode());
 							}
 							
-							// ORDERMANAGEMENTHEADER
-							UpdateOrderManagementHeader updateOrderManagementHeader = new UpdateOrderManagementHeader();
-							updateOrderManagementHeader.setStatusId(59L);
-							OrderManagementHeader updatedOrderManagementHeader = orderManagementHeaderService.updateOrderManagementHeader(warehouseId, 
-									preOutboundNo, refDocNumber, partnerCode, loginUserID, updateOrderManagementHeader);
-							log.info("updatedOrderManagementHeader updated : " + updatedOrderManagementHeader);
+							try {
+								// ORDERMANAGEMENTHEADER
+								UpdateOrderManagementHeader updateOrderManagementHeader = new UpdateOrderManagementHeader();
+								updateOrderManagementHeader.setStatusId(59L);
+								OrderManagementHeader updatedOrderManagementHeader = orderManagementHeaderService.updateOrderManagementHeader(warehouseId, 
+										preOutboundNo, refDocNumber, partnerCode, loginUserID, updateOrderManagementHeader);
+								log.info("updatedOrderManagementHeader updated : " + updatedOrderManagementHeader);
+							} catch (Exception e) {
+								e.printStackTrace();
+								log.info("Update OrderManagementHeader error: [args] " + warehouseId  + "," + preOutboundNo  + "," + refDocNumber  + "," + partnerCode );
+							}
 							
-							// PREOUTBOUNDLINE
-							if(updatedPickupLine != null && !updatedPickupLine.isEmpty()) {
+							try {
+								// PREOUTBOUNDLINE
 								UpdatePreOutboundLine updatePreOutboundLine = new UpdatePreOutboundLine();
 								updatePreOutboundLine.setStatusId(59L);
 								PreOutboundLine updatedPreOutboundLine = preOutboundLineService.updatePreOutboundLine(warehouseId, refDocNumber,
-										preOutboundNo, partnerCode, updatedPickupLine.get(0).getLineNumber(), updatedPickupLine.get(0).getItemCode(), loginUserID, updatePreOutboundLine);
+										preOutboundNo, partnerCode, loginUserID, updatePreOutboundLine);
 								log.info("updatedPreOutboundLine updated : " + updatedPreOutboundLine);
+							} catch (Exception e) {
+								e.printStackTrace();
+								log.info("Update PreOutboundLine error: [args] " + warehouseId  + "," + preOutboundNo  + "," + refDocNumber  + "," + partnerCode );
 							}
-							// PREOUTBOUNDHEADER
-							UpdatePreOutboundHeader updatePreOutboundHeader = new UpdatePreOutboundHeader();
-							updatePreOutboundHeader.setStatusId(59L);
-							PreOutboundHeader updatedPreOutboundHeader = preOutboundHeaderService.updatePreOutboundHeader(warehouseId, refDocNumber, 
-									preOutboundNo, partnerCode, loginUserID, updatePreOutboundHeader);
-							log.info("updatedPreOutboundHeader updated : " + updatedPreOutboundHeader);
 							
-							/*-----------------Inventory Updates---------------------------*/
-							// String warehouseId, String itemCode, Long binClassId
-							Long BIN_CL_ID = 5L;
-							for(QualityLine qualityLine : updatedQualityLine){
-								List<Inventory> inventoryList = inventoryService.getInventoryForDeliveryConfirmtion (outboundLine.getWarehouseId(),
-										outboundLine.getItemCode(), qualityLine.getPickPackBarCode(), BIN_CL_ID); //pack_bar_code
-								for(Inventory inventory : inventoryList) {
-									Double INV_QTY = inventory.getInventoryQuantity() - outboundLine.getDeliveryQty();
-									log.info("INV_QTY : " + INV_QTY);
-
-									if (INV_QTY < 0) {
-										INV_QTY = 0D;
-									}
-
-									// [Prod Fix: 14-07] - Hareesh - Don't need to delete the inventory just update the existing inventory quantity
-//								if (INV_QTY == 0) {
-////									[Prod Fix: 28-06] - Discussed to comment delete Inventory operation to avoid unwanted delete of Inventory
-////									inventoryRepository.delete(inventory);
-//									log.info("inventory record is deleted...");
-//								}
-
-									if (INV_QTY >= 0) {
-										inventory.setInventoryQuantity(INV_QTY);
-
-										// INV_QTY > 0 then, update Inventory Table
-										inventory = inventoryRepository.save(inventory);
-										log.info("inventory updated : " + inventory);
-									}
-								}
-							};
-
+							try {
+								// PREOUTBOUNDHEADER
+								UpdatePreOutboundHeader updatePreOutboundHeader = new UpdatePreOutboundHeader();
+								updatePreOutboundHeader.setStatusId(59L);
+								PreOutboundHeader updatedPreOutboundHeader = preOutboundHeaderService.updatePreOutboundHeader(warehouseId, refDocNumber, 
+										preOutboundNo, partnerCode, loginUserID, updatePreOutboundHeader);
+								log.info("updatedPreOutboundHeader updated : " + updatedPreOutboundHeader);
+							} catch (Exception e) {
+								e.printStackTrace();
+								log.info("Update PreOutboundHeader error: [args] " + warehouseId  + "," + preOutboundNo  + "," + refDocNumber  + "," + partnerCode );
+							}
+							
 							/*-------------------Inserting record in InventoryMovement-------------------------------------*/
 							// Fetch WH_ID/REF_DOC_NO/PRE_OB_NO/PARTNER_CODE/OB_LINE_NO/ITM_CODE from Outboundline table and 
 							// pass the same in Qualityline table and fetch the records and update INVENTORYMOVEMENT table
-							QualityLine qualityLine = 
-									qualityLineService.getQualityLine(warehouseId, preOutboundNo, refDocNumber, 
-											partnerCode, outboundLine.getLineNumber(), outboundLine.getItemCode());
+//							QualityLine qualityLine = 
+//									qualityLineService.getQualityLine(warehouseId, preOutboundNo, refDocNumber, 
+//											partnerCode, outboundLine.getLineNumber(), outboundLine.getItemCode());
 				
 							Long BIN_CLASS_ID = 5L;
 							AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
@@ -1291,29 +1365,33 @@ public class OutboundLineService extends BaseService {
 		updateOrderManagementLine.setStatusId(43L);
 
 		//HAREESH - 27-08-2022 pickup number null update was reflected due to bean util null property ignore , so wrote the method here and manually set pickupnumber to null
-
 //		OrderManagementLine orderManagementLine = orderManagementLineService.updateOrderManagementLine(pickupHeader.getWarehouseId(), pickupHeader.getPreOutboundNo(),
 //				pickupHeader.getRefDocNumber(), pickupHeader.getPartnerCode(), pickupHeader.getLineNumber(),
 //				pickupHeader.getItemCode(), loginUserID, updateOrderManagementLine);
 
-		OrderManagementLine dbOrderManagementLine = orderManagementLineService.getOrderManagementLine(pickupHeader.getWarehouseId(), pickupHeader.getPreOutboundNo(),
-				pickupHeader.getRefDocNumber(), pickupHeader.getPartnerCode(), pickupHeader.getLineNumber(),
-				pickupHeader.getItemCode());
-		if (dbOrderManagementLine != null) {
+		List<OrderManagementLine> dbOrderManagementLines = orderManagementLineService.getOrderManagementLine(pickupHeader.getWarehouseId(), pickupHeader.getPreOutboundNo(),
+				pickupHeader.getRefDocNumber(), pickupHeader.getPartnerCode(), pickupHeader.getLineNumber(), pickupHeader.getItemCode());
+		OrderManagementLine updatedOrderManagementLine = null;
+		for (OrderManagementLine dbOrderManagementLine : dbOrderManagementLines) {
 			BeanUtils.copyProperties(updateOrderManagementLine, dbOrderManagementLine, CommonUtils.getNullPropertyNames(updateOrderManagementLine));
 			dbOrderManagementLine.setPickupUpdatedBy(loginUserID);
 			dbOrderManagementLine.setPickupNumber(null);
 			dbOrderManagementLine.setStatusId(43L);
 			dbOrderManagementLine.setPickupUpdatedOn(new Date());
-			OrderManagementLine orderManagementLine = orderManagementLineRepository.save(dbOrderManagementLine);
-			log.info("OrderManagementLine updated : " + orderManagementLine);
-			return orderManagementLine;
-		} else {
-			return null;
+			updatedOrderManagementLine = orderManagementLineRepository.save(dbOrderManagementLine);
+			log.info("OrderManagementLine updated : " + updatedOrderManagementLine);
 		}
+		return updatedOrderManagementLine;
 	}
 
-
+	/**
+	 * 
+	 * @param pickupHeader
+	 * @param loginUserID
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
     private List<OrderManagementLine> updateOrderManagementLineForReversal(PickupHeader pickupHeader, String loginUserID) throws IllegalAccessException, InvocationTargetException {
         //HAREESH - 27-08-2022 pickup number null update was reflected due to bean util null property ignore , so wrote the method here and manually set pickupnumber to null
 

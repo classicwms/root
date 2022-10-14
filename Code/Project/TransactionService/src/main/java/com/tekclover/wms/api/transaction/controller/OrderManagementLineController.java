@@ -136,4 +136,12 @@ public class OrderManagementLineController {
     			lineNumber, itemCode, proposedStorageBin, proposedPackCode, loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
+    
+    //----------------------Update--Ref9&10------------------------------------------------------------
+    @ApiOperation(response = OrderManagementLine.class, value = "Get a OrderManagementLine") // label for swagger 
+   	@GetMapping("/updateRefFields")
+   	public ResponseEntity<?> updateRefFields() {
+       	ordermangementlineService.updateRef9ANDRef10();
+   		return new ResponseEntity<>(HttpStatus.OK);
+   	}
 }

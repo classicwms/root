@@ -514,8 +514,11 @@ public class PickupLineService extends BaseService {
 					if(dbPickupLine.getPickConfirmQty() != null) {
 						newQualityHeader.setQcToQty(String.valueOf(dbPickupLine.getPickConfirmQty()));
 					}
+					
 					newQualityHeader.setReferenceField1(dbPickupLine.getPickedStorageBin());
 					newQualityHeader.setReferenceField2(dbPickupLine.getPickedPackCode());
+					newQualityHeader.setReferenceField3(dbPickupLine.getDescription());
+					
 					// STATUS_ID - Hard Coded Value "54"
 					newQualityHeader.setStatusId(54L);
 					QualityHeader createdQualityHeader = qualityHeaderService.createQualityHeader(newQualityHeader, loginUserID);

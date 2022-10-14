@@ -134,6 +134,22 @@ public class StorageBinService {
 	
 	/**
 	 * 
+	 * @param warehouseId
+	 * @param storageBin
+	 * @return
+	 */
+	public StorageBin getStorageBin (String warehouseId, String storageBin) {
+		StorageBin storagebin = storagebinRepository.findByWarehouseIdAndStorageBinAndDeletionIndicator(warehouseId, storageBin, 0L);
+		log.info("Storage bin==========>: " + storagebin);
+		if (storagebin != null && storagebin.getDeletionIndicator() != null && storagebin.getDeletionIndicator() == 0) {
+			return storagebin;
+		} else {
+			throw new BadRequestException("The given StorageBin ID : " + storageBin + " doesn't exist.");
+		}
+	}
+	
+	/**
+	 * 
 	 * @param stSectionIds
 	 * @return
 	 */

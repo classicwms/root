@@ -36,4 +36,20 @@ public interface PreOutboundLineRepository extends JpaRepository<PreOutboundLine
 		findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndPartnerCodeAndLineNumberAndItemCodeAndDeletionIndicator(
 				String languageId, String companyCodeId, String plantId, String warehouseId, String refDocNumber, String preOutboundNo, String partnerCode, 
 				Long lineNumber, String itemCode, Long deletionIndicator);
+
+	/**
+	 * 
+	 * @param languageId
+	 * @param companyCodeId
+	 * @param plantId
+	 * @param warehouseId
+	 * @param refDocNumber
+	 * @param preOutboundNo
+	 * @param partnerCode
+	 * @param l
+	 * @return
+	 */
+	public List<PreOutboundLine> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndPartnerCodeAndDeletionIndicator(
+			String languageId, String companyCodeId, String plantId, String warehouseId, String refDocNumber,
+			String preOutboundNo, String partnerCode, long l);
 }

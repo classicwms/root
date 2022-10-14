@@ -29,7 +29,7 @@ public interface OrderManagementLineRepository extends JpaRepository<OrderManage
 			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
 			String itemCode, String proposedStorageBin, String proposedPackBarCode, Long deletionIndicator);
 
-	public OrderManagementLine findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndDeletionIndicator(
+	public List<OrderManagementLine> findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndDeletionIndicator(
 			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
 			String itemCode, Long deletionIndicator);
 
@@ -40,4 +40,6 @@ public interface OrderManagementLineRepository extends JpaRepository<OrderManage
 	public List<OrderManagementLine> findAllByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndProposedStorageBinAndProposedPackBarCodeAndDeletionIndicator(
 			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
 			String itemCode, String proposedStorageBin, String proposedPackBarCode, Long deletionIndicator);
+	
+	public List<OrderManagementLine> findByWarehouseIdAndStatusIdIn(String warehouseId, List<Long> statusIds);
 }

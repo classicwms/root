@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.masters.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -15,4 +16,5 @@ public interface ImBasicData1Repository extends PagingAndSortingRepository<ImBas
 JpaSpecificationExecutor<ImBasicData1> {
 
 	public Optional<ImBasicData1> findByItemCodeAndWarehouseIdAndDeletionIndicator(String itemCode, String warehouseId, Long deletionIndicator);
+	public List<ImBasicData1> findByItemCodeLikeAndDescriptionLike(String itemCode, String itemDesc);
 }

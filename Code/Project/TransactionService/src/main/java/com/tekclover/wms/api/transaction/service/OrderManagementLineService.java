@@ -130,6 +130,18 @@ public class OrderManagementLineService extends BaseService {
 					" doesn't exist.");
 	}
 
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @param lineNumber
+	 * @param itemCode
+	 * @param proposedStorageBin
+	 * @param proposedPackCode
+	 * @return
+	 */
 	public List<OrderManagementLine> getListOrderManagementLine (String warehouseId, String preOutboundNo, String refDocNumber,
 													   String partnerCode, Long lineNumber, String itemCode, String proposedStorageBin, String proposedPackCode) {
 		List<OrderManagementLine> orderManagementLineList =
@@ -160,9 +172,9 @@ public class OrderManagementLineService extends BaseService {
 	 * @param itemCode
 	 * @return
 	 */
-	public OrderManagementLine getOrderManagementLine (String warehouseId, String preOutboundNo, String refDocNumber, 
+	public List<OrderManagementLine> getOrderManagementLine (String warehouseId, String preOutboundNo, String refDocNumber, 
 			String partnerCode, Long lineNumber, String itemCode) {
-		OrderManagementLine orderManagementHeader = 
+		List<OrderManagementLine> orderManagementHeader = 
 				orderManagementLineRepository.findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndDeletionIndicator(
 						warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode, 0L);
 		if (orderManagementHeader != null) {
@@ -178,6 +190,16 @@ public class OrderManagementLineService extends BaseService {
 					" doesn't exist.");
 	}
 
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @param lineNumber
+	 * @param itemCode
+	 * @return
+	 */
 	public List<OrderManagementLine> getListOrderManagementLine (String warehouseId, String preOutboundNo, String refDocNumber,
 													   String partnerCode, Long lineNumber, String itemCode) {
 		List<OrderManagementLine> orderManagementLine =
@@ -242,29 +264,55 @@ public class OrderManagementLineService extends BaseService {
 		OrderManagementLineSpecification spec = new OrderManagementLineSpecification(searchOrderManagementLine);
 		List<OrderManagementLine> searchResults = orderManagementLineRepository.findAll(spec);
 		
-		/*
-		 * Getting StorageBin and SpanID from Masters-StorageBin table
-		 */
-		try {
-			AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-			for (OrderManagementLine orderManagementLine : searchResults) {
-				if (orderManagementLine.getProposedStorageBin() != null && 
-						orderManagementLine.getProposedStorageBin().trim().length() > 0) {
-					StorageBin storageBin =
-							mastersService.getStorageBin(orderManagementLine.getProposedStorageBin(), authTokenForMastersService.getAccess_token());
-					
-					// Ref_Field_9 for storing ST_SEC_ID
-					orderManagementLine.setReferenceField9(storageBin.getStorageSectionId());
-					
-					// Ref_Field_10 for storing SPAN_ID
-					orderManagementLine.setReferenceField10(storageBin.getSpanId());
-				}
-			}
-		} catch (Exception e) {
-			log.error("Error on : " + e.toString());
-			throw new BadRequestException(e.toString());
-		}
+//		/*
+//		 * Getting StorageBin and SpanID from Masters-StorageBin table
+//		 */
+//		try {
+//			AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+//			for (OrderManagementLine orderManagementLine : searchResults) {
+//				if (orderManagementLine.getProposedStorageBin() != null && 
+//						orderManagementLine.getProposedStorageBin().trim().length() > 0) {
+//					// Getting StorageBin by WarehouseId
+//					StorageBin storageBin =
+//							mastersService.getStorageBin(orderManagementLine.getProposedStorageBin(), 
+//									orderManagementLine.getWarehouseId(),
+//									authTokenForMastersService.getAccess_token());
+//			
+//					// Ref_Field_9 for storing ST_SEC_ID
+//					orderManagementLine.setReferenceField9(storageBin.getStorageSectionId());
+//					
+//					// Ref_Field_10 for storing SPAN_ID
+//					orderManagementLine.setReferenceField10(storageBin.getSpanId());
+//				}
+//			}
+//		} catch (Exception e) {
+//			log.error("Error on : " + e.toString());
+//			throw new BadRequestException(e.toString());
+//		}
 		return searchResults;
+	}
+	
+	public void updateRef9ANDRef10() {
+		List<OrderManagementLine> searchResults = 
+				orderManagementLineRepository.findByWarehouseIdAndStatusIdIn(WAREHOUSE_ID_110, Arrays.asList(42L, 43L, 47L));
+		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+		for (OrderManagementLine orderManagementLine : searchResults) {
+			if (orderManagementLine.getProposedStorageBin() != null && 
+					orderManagementLine.getProposedStorageBin().trim().length() > 0) {
+				// Getting StorageBin by WarehouseId
+				StorageBin storageBin =
+						mastersService.getStorageBin(orderManagementLine.getProposedStorageBin(), 
+								orderManagementLine.getWarehouseId(),
+								authTokenForMastersService.getAccess_token());
+		
+				// Ref_Field_9 for storing ST_SEC_ID
+				orderManagementLine.setReferenceField9(storageBin.getStorageSectionId());
+				
+				// Ref_Field_10 for storing SPAN_ID
+				orderManagementLine.setReferenceField10(storageBin.getSpanId());
+				orderManagementLineRepository.save(orderManagementLine);
+			}
+		}
 	}
 	
 	/**
@@ -370,10 +418,27 @@ public class OrderManagementLineService extends BaseService {
 	 */
 	public OrderManagementLine doAllocation (String warehouseId, String preOutboundNo, String refDocNumber, 
 			String partnerCode, Long lineNumber, String itemCode, String loginUserID) {
-
-		OrderManagementLine dbOrderManagementLine =
+		List<OrderManagementLine> dbOrderManagementLines =
 				getOrderManagementLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode);
-			log.info("Processing Order management Line : " + dbOrderManagementLine);
+			log.info("Processing Order management Line : " + dbOrderManagementLines);
+			OrderManagementLine dbOrderManagementLine = null;
+			
+			// If results is multiple reords then keeping one record and deleting rest of them
+			if (dbOrderManagementLines != null && !dbOrderManagementLines.isEmpty()) {
+				dbOrderManagementLine = dbOrderManagementLines.get(0); // Keeping the first record
+				
+				// Deleting the rest
+				for (int i = 1; i < dbOrderManagementLines.size(); i ++) {
+					// warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode, proposedStorageBin, proposedPackCode
+					OrderManagementLine	orderManagementLineToDelete = dbOrderManagementLines.get(i);
+					deleteOrderManagementLine (orderManagementLineToDelete.getWarehouseId(), orderManagementLineToDelete.getPreOutboundNo(), 
+							orderManagementLineToDelete.getRefDocNumber(), orderManagementLineToDelete.getPartnerCode(), orderManagementLineToDelete.getLineNumber(),
+							orderManagementLineToDelete.getItemCode(), orderManagementLineToDelete.getProposedStorageBin(), 
+							orderManagementLineToDelete.getProposedPackBarCode(), loginUserID);
+					log.info("Deleted the other orderManagementLine : " + orderManagementLineToDelete);
+				}
+			}
+			
 			Long OB_ORD_TYP_ID = dbOrderManagementLine.getOutboundOrderTypeId();
 			Double ORD_QTY = dbOrderManagementLine.getOrderQty();
 
@@ -859,9 +924,9 @@ public class OrderManagementLineService extends BaseService {
 	public OrderManagementLine updateOrderManagementLine (String warehouseId, String preOutboundNo, String refDocNumber,
 			String partnerCode, Long lineNumber, String itemCode, String loginUserID, UpdateOrderManagementLine updateOrderManagementLine) 
 					throws IllegalAccessException, InvocationTargetException {
-		OrderManagementLine dbOrderManagementLine = getOrderManagementLine(warehouseId, preOutboundNo, refDocNumber, 
+		List<OrderManagementLine> dbOrderManagementLines = getOrderManagementLine(warehouseId, preOutboundNo, refDocNumber, 
 				partnerCode, lineNumber, itemCode);
-		if (dbOrderManagementLine != null) {
+		for  (OrderManagementLine dbOrderManagementLine : dbOrderManagementLines) {
 			BeanUtils.copyProperties(updateOrderManagementLine, dbOrderManagementLine, CommonUtils.getNullPropertyNames(updateOrderManagementLine));
 			dbOrderManagementLine.setPickupUpdatedBy(loginUserID);
 			dbOrderManagementLine.setPickupUpdatedOn(new Date());
@@ -907,8 +972,10 @@ public class OrderManagementLineService extends BaseService {
 	 * @param loginUserID 
 	 * @param refDocNumber
 	 */
-	public void deleteOrderManagementLine (String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber, String itemCode, String proposedStorageBin, String proposedPackCode, String loginUserID) {
-		OrderManagementLine orderManagementHeader = getOrderManagementLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode, proposedStorageBin, proposedPackCode);
+	public void deleteOrderManagementLine (String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber, 
+			String itemCode, String proposedStorageBin, String proposedPackCode, String loginUserID) {
+		OrderManagementLine orderManagementHeader = 
+				getOrderManagementLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode, proposedStorageBin, proposedPackCode);
 		if ( orderManagementHeader != null) {
 			orderManagementHeader.setDeletionIndicator(1L);
 			orderManagementLineRepository.save(orderManagementHeader);

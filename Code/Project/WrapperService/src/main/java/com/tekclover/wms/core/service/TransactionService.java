@@ -2553,6 +2553,25 @@ public class TransactionService {
 			throw e;
 		}
 	}
+	
+	
+	public String updateRef9ANDRef10(String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "ordermanagementline/updateRefFields");
+			HttpEntity<?> entity = new HttpEntity<>(headers);	
+			ResponseEntity<String> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, String.class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			throw e;
+		}
+	}
 
 	// PATCH 
 	public OrderManagementLine doUnAllocation(String warehouseId, String preOutboundNo, String refDocNumber,

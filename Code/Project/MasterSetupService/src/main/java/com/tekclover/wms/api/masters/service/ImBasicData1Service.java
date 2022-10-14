@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.masters.service;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.tekclover.wms.api.masters.model.dto.ItemCodeDesc;
 import com.tekclover.wms.api.masters.model.imbasicdata1.AddImBasicData1;
 import com.tekclover.wms.api.masters.model.imbasicdata1.ImBasicData1;
 import com.tekclover.wms.api.masters.model.imbasicdata1.SearchImBasicData1;
@@ -116,6 +118,26 @@ public class ImBasicData1Service {
 		List<ImBasicData1> results = imbasicdata1Repository.findAll(spec);
 		log.info("results: " + results);
 		return results;
+	}
+	
+	/**
+	 * 
+	 * @param likeSearchByItemCodeNDesc
+	 * @return
+	 */
+	public List<ItemCodeDesc> findImBasicData1LikeSearch(String likeSearchByItemCodeNDesc) {
+		likeSearchByItemCodeNDesc = "%" + likeSearchByItemCodeNDesc + "%";
+		List<ImBasicData1> imBasicData1List = 
+				imbasicdata1Repository.findByItemCodeLikeAndDescriptionLike(likeSearchByItemCodeNDesc, likeSearchByItemCodeNDesc);
+		List<ItemCodeDesc> listItemCodeDesc = new ArrayList<>();
+		for (ImBasicData1 imBasicData1 : imBasicData1List) {
+			ItemCodeDesc itemCodeDesc = new ItemCodeDesc();
+			itemCodeDesc.setItemCode(imBasicData1.getItemCode());
+			itemCodeDesc.setDescription(imBasicData1.getDescription());
+			listItemCodeDesc.add(itemCodeDesc);
+		}
+		
+		return listItemCodeDesc;
 	}
 	
 	/**

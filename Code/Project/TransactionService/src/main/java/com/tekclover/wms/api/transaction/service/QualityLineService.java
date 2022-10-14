@@ -9,8 +9,6 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
-import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -18,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
+import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
 import com.tekclover.wms.api.transaction.model.dto.StorageBin;
 import com.tekclover.wms.api.transaction.model.dto.Warehouse;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.AddInventory;
@@ -34,6 +33,7 @@ import com.tekclover.wms.api.transaction.model.outbound.quality.QualityLine;
 import com.tekclover.wms.api.transaction.model.outbound.quality.SearchQualityLine;
 import com.tekclover.wms.api.transaction.model.outbound.quality.UpdateQualityHeader;
 import com.tekclover.wms.api.transaction.model.outbound.quality.UpdateQualityLine;
+import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
 import com.tekclover.wms.api.transaction.repository.InventoryRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundLineRepository;
 import com.tekclover.wms.api.transaction.repository.QualityLineRepository;
@@ -266,6 +266,27 @@ public class QualityLineService extends BaseService {
 	
 	/**
 	 * 
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @param lineNumber
+	 * @param qualityInspectionNo
+	 * @param itemCode
+	 * @return
+	 */
+	private QualityLine findQualityLine (String warehouseId, String preOutboundNo, String refDocNumber,
+			String partnerCode, Long lineNumber, String qualityInspectionNo, String itemCode) {
+		QualityLine qualityLine = qualityLineRepository.findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndQualityInspectionNoAndItemCodeAndDeletionIndicator(
+				warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, qualityInspectionNo, itemCode, 0L);
+		if (qualityLine != null) {
+			return qualityLine;
+		} 
+		return null;
+	}
+	
+	/**
+	 * 
 	 * @param searchQualityLine
 	 * @return
 	 * @throws ParseException
@@ -287,6 +308,8 @@ public class QualityLineService extends BaseService {
 	 */
 	public List<QualityLine> createQualityLine (List<AddQualityLine> newQualityLines, String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
+		log.info("-------createQualityLine--------called-------> " + new Date());		
+		
 		List<QualityLine> qualityLineList = new ArrayList<>();
 		/*
 		 * The below flag helps to avoid duplicate request and updating of outboundline table
@@ -316,47 +339,71 @@ public class QualityLineService extends BaseService {
 			/*
 			 * Checking whether the record already exists (created) or not. If it is not created then only the rest of the logic has been carry forward
 			 */
-			if (existingQualityLine == null) { 
+			if (existingQualityLine == null) {
 				QualityLine createdQualityLine = qualityLineRepository.save(dbQualityLine);
 				log.info("createdQualityLine: " + createdQualityLine);
 				qualityLineList.add(dbQualityLine);
-				
-				/*-----------------STATUS updates in QualityHeader-----------------------*/
+			}
+		}
+		
+		/*
+		 * Collecting created QualityLine List
+		 */
+		List<QualityLine> createdQualityLineList = new ArrayList<>();
+		for (QualityLine qualityLine : qualityLineList) {
+			QualityLine createdQualityLine = findQualityLine (qualityLine.getWarehouseId(), qualityLine.getPreOutboundNo(), qualityLine.getRefDocNumber(),
+					qualityLine.getPartnerCode(), qualityLine.getLineNumber(), qualityLine.getQualityInspectionNo(), qualityLine.getItemCode());
+			log.info("Querying QualityLine record after creating: " + createdQualityLine);
+			createdQualityLineList.add(createdQualityLine);
+		}
+		
+		/*
+		 * Based on created QualityLine List, updating respective tables
+		 */
+		for (QualityLine dbQualityLine : createdQualityLineList) {
+			/*-----------------STATUS updates in QualityHeader-----------------------*/
+			try {
 				UpdateQualityHeader updateQualityHeader = new UpdateQualityHeader();
 				updateQualityHeader.setStatusId(55L);
 				QualityHeader qualityHeader = qualityHeaderService.updateQualityHeader(dbQualityLine.getWarehouseId(), 
 						dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(), dbQualityLine.getQualityInspectionNo(), 
 						dbQualityLine.getActualHeNo(), loginUserID, updateQualityHeader);
 				log.info("qualityHeader updated : " + qualityHeader);
-				
-				/*-------------OTUBOUNDHEADER/OUTBOUNDLINE table updates------------------------------*/
-				/*
-				 * DLV_ORD_NO
-				 * ------------------------------------------------------------------------------------
-				 * Pass WH_ID - User logged in WH_ID and NUM_RAN_CODE = 12  in NUMBERRANGE table and 
-				 * fetch NUM_RAN_CURRENT value of FISCALYEAR=CURRENT YEAR and add +1 and insert
-				 */
-				Long NUM_RAN_CODE = 12L;
-				String DLV_ORD_NO = getNextRangeNumber(NUM_RAN_CODE, dbQualityLine.getWarehouseId());
-				
-				/*-------------------OUTBOUNDLINE------Update---------------------------*/
-				/*
-				 * Pass WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE /OB_LINE_NO/_ITM_CODE values in QUALITYILINE table and 
-				 * fetch QC_QTY values  and pass the same values in OUTBOUNDLINE table and update DLV_QTY
-				 * 
-				 * Pass Unique keys in OUTBOUNDLINE table and update STATUS_ID as "57"
-				 */
+			} catch (Exception e) {
+				e.printStackTrace();
+				log.error("UpdateQualityHeader Error: Passed args::" + dbQualityLine.getWarehouseId() + "," + 
+						dbQualityLine.getPreOutboundNo() + "," + dbQualityLine.getRefDocNumber() + "," + dbQualityLine.getQualityInspectionNo(), 
+						dbQualityLine.getActualHeNo()) ;
+			}
+			
+			/*-------------OTUBOUNDHEADER/OUTBOUNDLINE table updates------------------------------*/
+			/*
+			 * DLV_ORD_NO
+			 * ------------------------------------------------------------------------------------
+			 * Pass WH_ID - User logged in WH_ID and NUM_RAN_CODE = 12  in NUMBERRANGE table and 
+			 * fetch NUM_RAN_CURRENT value of FISCALYEAR=CURRENT YEAR and add +1 and insert
+			 */
+			Long NUM_RAN_CODE = 12L;
+			String DLV_ORD_NO = getNextRangeNumber(NUM_RAN_CODE, dbQualityLine.getWarehouseId());
+			
+			/*-------------------OUTBOUNDLINE------Update---------------------------*/
+			/*
+			 * Pass WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE /OB_LINE_NO/_ITM_CODE values in QUALITYILINE table and 
+			 * fetch QC_QTY values  and pass the same values in OUTBOUNDLINE table and update DLV_QTY
+			 * 
+			 * Pass Unique keys in OUTBOUNDLINE table and update STATUS_ID as "57"
+			 */
+//			if (qualityInspectionNo.equalsIgnoreCase(createdQualityLine.getQualityInspectionNo())) {
+//				isDuplicated = true;
+//			}
+//			log.info("qualityInspectionNo after updating second time: " + qualityInspectionNo);
+//			if (outboundLine != null && !isDuplicated) {
+			
+			try {
 				OutboundLine outboundLine = outboundLineService.getOutboundLine(dbQualityLine.getWarehouseId(), 
 						dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode(),
 						dbQualityLine.getLineNumber(), dbQualityLine.getItemCode());
-				
-				if (qualityInspectionNo.equalsIgnoreCase(createdQualityLine.getQualityInspectionNo())) {
-					isDuplicated = true;
-				}
-				
-				log.info("qualityInspectionNo after updating second time: " + qualityInspectionNo);
-				
-				if (outboundLine != null && !isDuplicated) {
+				if (outboundLine != null) {
 					outboundLine.setDeliveryOrderNo(DLV_ORD_NO);
 					outboundLine.setStatusId(57L);
 					
@@ -370,18 +417,26 @@ public class QualityLineService extends BaseService {
 					outboundLine = outboundLineRepository.save(outboundLine);
 					log.info("outboundLine updated : " + outboundLine);
 				}
-				qualityInspectionNo = createdQualityLine.getQualityInspectionNo();
-				log.info("qualityInspectionNo before updating second time: " + qualityInspectionNo);
-				
-				boolean isStatus57 = false;
-				List<OutboundLine> outboundLines = outboundLineService.getOutboundLine(dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(), 
-						dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode());
-				outboundLines = outboundLines.stream().filter(o -> o.getStatusId() == 57L).collect(Collectors.toList());
-				if (outboundLines != null) {
-					isStatus57 = true;
-				}
-				
-				/*-------------------OUTBOUNDHEADER------Update---------------------------*/
+			} catch (Exception e) {
+				e.printStackTrace();
+				log.error("OutboundLine Error: Passed args::" + dbQualityLine.getWarehouseId() + "," + 
+						dbQualityLine.getPreOutboundNo() + "," + dbQualityLine.getRefDocNumber() + "," + dbQualityLine.getPartnerCode(), 
+						dbQualityLine.getLineNumber() + "," + dbQualityLine.getItemCode()) ;
+			}
+			
+//			qualityInspectionNo = createdQualityLine.getQualityInspectionNo();
+//			log.info("qualityInspectionNo before updating second time: " + qualityInspectionNo);
+			
+			boolean isStatus57 = false;
+			List<OutboundLine> outboundLines = outboundLineService.getOutboundLine(dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(), 
+					dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode());
+			outboundLines = outboundLines.stream().filter(o -> o.getStatusId() == 57L).collect(Collectors.toList());
+			if (outboundLines != null) {
+				isStatus57 = true;
+			}
+			
+			/*-------------------OUTBOUNDHEADER------Update---------------------------*/
+			try {
 				UpdateOutboundHeader updateOutboundHeader = new UpdateOutboundHeader();
 				updateOutboundHeader.setDeliveryOrderNo(DLV_ORD_NO);
 				if (isStatus57) { // If Status if 57 then update OutboundHeader with Status 57.
@@ -392,20 +447,27 @@ public class QualityLineService extends BaseService {
 						dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode(), 
 						updateOutboundHeader, loginUserID);
 				log.info("outboundHeader updated : " + outboundHeader);
-				
-				/*-----------------Inventory Updates--------------------------------------*/
-				// Pass WH_ID/ITM_CODE/ST_BIN/PACK_BARCODE in INVENTORY table 
-				AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-				Long BIN_CLASS_ID = 4L;
-				StorageBin storageBin = mastersService.getStorageBin(dbQualityLine.getWarehouseId(), BIN_CLASS_ID, authTokenForMastersService.getAccess_token());
-				Warehouse warehouse = getWarehouse(dbQualityLine.getWarehouseId());
-				
-				Inventory inventory = inventoryService.getInventory(dbQualityLine.getWarehouseId(), dbQualityLine.getPickPackBarCode(), 
-						dbQualityLine.getItemCode(), storageBin.getStorageBin());
-				log.info("inventory---BIN_CLASS_ID-4----> : " + inventory);
-				
-				if (inventory != null) {
+			} catch (Exception e) {
+				e.printStackTrace();
+				log.error("UpdateOutboundHeader Error: Passed args::" + dbQualityLine.getWarehouseId() + "," + 
+						dbQualityLine.getPreOutboundNo() + "," + dbQualityLine.getRefDocNumber() + "," + dbQualityLine.getPartnerCode()) ;
+			}
+			
+			/*-----------------Inventory Updates--------------------------------------*/
+			// Pass WH_ID/ITM_CODE/ST_BIN/PACK_BARCODE in INVENTORY table 
+			AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+			Long BIN_CLASS_ID = 4L;
+			StorageBin storageBin = mastersService.getStorageBin(dbQualityLine.getWarehouseId(), BIN_CLASS_ID, authTokenForMastersService.getAccess_token());
+			Warehouse warehouse = getWarehouse(dbQualityLine.getWarehouseId());
+			
+			Inventory inventory = inventoryService.getInventory(dbQualityLine.getWarehouseId(), dbQualityLine.getPickPackBarCode(), 
+					dbQualityLine.getItemCode(), storageBin.getStorageBin());
+			log.info("inventory---BIN_CLASS_ID-4----> : " + inventory);
+			
+			if (inventory != null) {
+				try {
 					Double INV_QTY = inventory.getInventoryQuantity() - dbQualityLine.getQualityQty(); // INV_QTY (of Inventory) - QC_QTY
+					log.info("Calculated inventory INV_QTY: " + INV_QTY);
 					inventory.setInventoryQuantity(INV_QTY);
 					
 					// INV_QTY > 0 then, update Inventory Table
@@ -413,44 +475,56 @@ public class QualityLineService extends BaseService {
 					log.info("inventory updated : " + inventory);
 					
 					if (INV_QTY == 0) {
-	//					[Prod Fix: 28-06] - Discussed to comment delete Inventory operation to avoid unwanted delete of Inventory
-	//					inventoryRepository.delete(inventory);
-						log.info("inventory record is deleted...");
+//					[Prod Fix: 28-06] - Discussed to comment delete Inventory operation to avoid unwanted delete of Inventory
+//					inventoryRepository.delete(inventory);
+//						log.info("inventory record is deleted...");
+						log.info("inventory INV_QTY: " + INV_QTY);
 					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					log.error("Inventory Update Error: " + inventory );
 				}
-				
-				/*-------------------Inserting record in InventoryMovement-------------------------------------*/
-				Long subMvtTypeId = 2L;
-				String movementDocumentNo = dbQualityLine.getQualityInspectionNo();
-				String stBin = storageBin.getStorageBin();
-				String movementQtyValue = "N";
-				InventoryMovement inventoryMovement = createInventoryMovement(dbQualityLine, subMvtTypeId, movementDocumentNo, stBin, 
-						movementQtyValue, loginUserID);
-				log.info("InventoryMovement created : " + inventoryMovement);
-				
-				/*--------------------------------------------------------------------------*/
-				// 2.Insert a new record in INVENTORY table as below
-				// Fetch from QUALITYLINE table and insert WH_ID/ITM_CODE/ST_BIN= (ST_BIN value of BIN_CLASS_ID=5 
-				// from STORAGEBIN table)/PACK_BARCODE/INV_QTY = QC_QTY - INVENTORY UPDATE 2			
-				BIN_CLASS_ID = 5L;
-				storageBin = mastersService.getStorageBin(dbQualityLine.getWarehouseId(), BIN_CLASS_ID, authTokenForMastersService.getAccess_token());
-				warehouse = getWarehouse(dbQualityLine.getWarehouseId());
-				
-				/*
-				 * Checking Inventory table before creating new record inventory
-				 */
-				// Pass WH_ID/ITM_CODE/ST_BIN = (ST_BIN value of BIN_CLASS_ID=5 /PACK_BARCODE
-				Inventory existingInventory = inventoryService.getInventory (dbQualityLine.getWarehouseId(), dbQualityLine.getPickPackBarCode(),
-						dbQualityLine.getItemCode(), storageBin.getStorageBin());
-				log.info("existingInventory : " + existingInventory);
-				if (existingInventory != null) {
-					Double INV_QTY = existingInventory.getInventoryQuantity() + dbQualityLine.getQualityQty();
-					UpdateInventory updateInventory = new UpdateInventory();
-					updateInventory.setInventoryQuantity(INV_QTY);
+			}
+			
+			/*-------------------Inserting record in InventoryMovement-------------------------------------*/
+			Long subMvtTypeId = 2L;
+			String movementDocumentNo = dbQualityLine.getQualityInspectionNo();
+			String stBin = storageBin.getStorageBin();
+			String movementQtyValue = "N";
+			InventoryMovement inventoryMovement = createInventoryMovement(dbQualityLine, subMvtTypeId, movementDocumentNo, stBin, 
+					movementQtyValue, loginUserID);
+			log.info("InventoryMovement created : " + inventoryMovement);
+			
+			/*--------------------------------------------------------------------------*/
+			// 2.Insert a new record in INVENTORY table as below
+			// Fetch from QUALITYLINE table and insert WH_ID/ITM_CODE/ST_BIN= (ST_BIN value of BIN_CLASS_ID=5 
+			// from STORAGEBIN table)/PACK_BARCODE/INV_QTY = QC_QTY - INVENTORY UPDATE 2			
+			BIN_CLASS_ID = 5L;
+			storageBin = mastersService.getStorageBin(dbQualityLine.getWarehouseId(), BIN_CLASS_ID, authTokenForMastersService.getAccess_token());
+			warehouse = getWarehouse(dbQualityLine.getWarehouseId());
+			
+			/*
+			 * Checking Inventory table before creating new record inventory
+			 */
+			// Pass WH_ID/ITM_CODE/ST_BIN = (ST_BIN value of BIN_CLASS_ID=5 /PACK_BARCODE
+			Inventory existingInventory = inventoryService.getInventory (dbQualityLine.getWarehouseId(), dbQualityLine.getPickPackBarCode(),
+					dbQualityLine.getItemCode(), storageBin.getStorageBin());
+			log.info("existingInventory : " + existingInventory);
+			if (existingInventory != null) {
+				Double INV_QTY = existingInventory.getInventoryQuantity() + dbQualityLine.getQualityQty();
+				UpdateInventory updateInventory = new UpdateInventory();
+				updateInventory.setInventoryQuantity(INV_QTY);
+				try {
 					Inventory updatedInventory = inventoryService.updateInventory(dbQualityLine.getWarehouseId(), dbQualityLine.getPickPackBarCode(), 
 							dbQualityLine.getItemCode(), storageBin.getStorageBin(), 1L, 1L, updateInventory);
 					log.info("updatedInventory----------> : " + updatedInventory);
-				} else {
+				} catch (Exception e) {
+					e.printStackTrace();
+					log.info("updatedInventory error----------> : " + e.toString());
+				}
+				
+			} else {
+				try {
 					log.info("AddInventory========>");
 					AddInventory newInventory = new AddInventory();
 					newInventory.setLanguageId(warehouse.getLanguageId());
@@ -479,20 +553,23 @@ public class QualityLineService extends BaseService {
 
 					Inventory createdInventory = inventoryService.createInventory(newInventory, loginUserID);
 					log.info("newInventory created : " + createdInventory);
+				} catch (Exception e) {
+					e.printStackTrace();
+					log.info("NewInventory create Error: " + e.toString());
 				}
-				
-				/*-----------------------InventoryMovement----------------------------------*/
-				// Inserting record in InventoryMovement
-				subMvtTypeId = 2L;
-				movementDocumentNo = DLV_ORD_NO;
-				stBin = storageBin.getStorageBin();
-				movementQtyValue = "P";
-				inventoryMovement = createInventoryMovement(dbQualityLine, subMvtTypeId, movementDocumentNo, stBin, 
-						movementQtyValue, loginUserID);
-				log.info("InventoryMovement created for update2: " + inventoryMovement);
 			}
+			
+			/*-----------------------InventoryMovement----------------------------------*/
+			// Inserting record in InventoryMovement
+			subMvtTypeId = 2L;
+			movementDocumentNo = DLV_ORD_NO;
+			stBin = storageBin.getStorageBin();
+			movementQtyValue = "P";
+			inventoryMovement = createInventoryMovement(dbQualityLine, subMvtTypeId, movementDocumentNo, stBin, 
+					movementQtyValue, loginUserID);
+			log.info("InventoryMovement created for update2: " + inventoryMovement);
 		}
-		return qualityLineList;
+		return createdQualityLineList;
 	}
 	
 	/**
