@@ -808,7 +808,7 @@ public class PreOutboundHeaderService extends BaseService {
 			orderManagementLine.setProposedPackBarCode(maxQtyHoldsInventory.getPackBarcodes());
 			
 			// Ref_Field_9 for storing ST_SEC_ID
-			orderManagementLine.setReferenceField9(maxQtyHoldsInventory.getReferenceField9());
+			orderManagementLine.setReferenceField9(maxQtyHoldsInventory.getReferenceField10());
 			
 			// Span ID
 			// Getting StorageBin by WarehouseId
