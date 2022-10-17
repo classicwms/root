@@ -40,7 +40,7 @@ import com.tekclover.wms.api.transaction.model.inbound.staging.StagingHeader;
 import com.tekclover.wms.api.transaction.repository.InboundHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.InboundIntegrationLogRepository;
 import com.tekclover.wms.api.transaction.repository.InboundLineRepository;
-import com.tekclover.wms.api.transaction.repository.MongoInboundRepository;
+//import com.tekclover.wms.api.transaction.repository.MongoInboundRepository;
 import com.tekclover.wms.api.transaction.repository.PreInboundHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.PreInboundLineRepository;
 import com.tekclover.wms.api.transaction.repository.StagingHeaderRepository;
@@ -56,8 +56,8 @@ public class PreInboundHeaderService extends BaseService {
 	
 	private static String WAREHOUSEID_NUMBERRANGE = "110";
 
-	@Autowired
-	MongoInboundRepository mongoRepository;
+//	@Autowired
+//	MongoInboundRepository mongoRepository;
 	
 	@Autowired
 	private PreInboundHeaderRepository preInboundHeaderRepository;

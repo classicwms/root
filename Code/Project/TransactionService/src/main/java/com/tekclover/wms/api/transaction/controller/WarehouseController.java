@@ -8,14 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tekclover.wms.api.transaction.model.outbound.preoutbound.OutboundIntegrationHeader;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.ASN;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.InboundOrder;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.InterWarehouseTransferIn;
@@ -165,12 +162,12 @@ public class WarehouseController {
 	}
     
     //---------------------------MONGO----------------------------------------------------------------------------
-    @ApiOperation(response = ShipmentOrder.class, value = "Get all Mongo Orders") // label for swagger
-	@GetMapping("/outbound/so/{orderId}")
-	public ResponseEntity<?> updateSO(@PathVariable String orderId) {
-    	OutboundIntegrationHeader header = warehouseService.updateSO(orderId);
-		return new ResponseEntity<>(header, HttpStatus.OK); 
-	}
+//    @ApiOperation(response = ShipmentOrder.class, value = "Get all Mongo Orders") // label for swagger
+//	@GetMapping("/outbound/so/{orderId}")
+//	public ResponseEntity<?> updateSO(@PathVariable String orderId) {
+//    	OutboundIntegrationHeader header = warehouseService.updateSO(orderId);
+//		return new ResponseEntity<>(header, HttpStatus.OK); 
+//	}
     
     /*----------------------------Sale order True Express-------------------------------------------------------*/
     @ApiOperation(response = SalesOrder.class, value = "Sale order True Express") // label for swagger

@@ -22,8 +22,6 @@ import com.tekclover.wms.api.transaction.model.warehouse.inbound.InboundOrderLin
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.OutboundOrder;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.OutboundOrderLine;
 import com.tekclover.wms.api.transaction.repository.InboundOrderRepository;
-import com.tekclover.wms.api.transaction.repository.MongoInboundRepository;
-import com.tekclover.wms.api.transaction.repository.MongoOutboundRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundOrderRepository;
 import com.tekclover.wms.api.transaction.service.OrderService;
 import com.tekclover.wms.api.transaction.service.PreInboundHeaderService;
@@ -43,11 +41,11 @@ public class BatchJobScheduler {
 	@Autowired
 	PreOutboundHeaderService preOutboundHeaderService;
 	
-	@Autowired
-	MongoInboundRepository mongoInboundRepository;
-	
-	@Autowired
-	MongoOutboundRepository mongoOutboundRepository;
+//	@Autowired
+//	MongoInboundRepository mongoInboundRepository;
+//	
+//	@Autowired
+//	MongoOutboundRepository mongoOutboundRepository;
 	
 	@Autowired
 	ReportsService reportsService;

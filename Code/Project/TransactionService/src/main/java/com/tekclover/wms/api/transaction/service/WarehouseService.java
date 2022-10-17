@@ -21,7 +21,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.tekclover.wms.api.transaction.config.PropertiesConfig;
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
-import com.tekclover.wms.api.transaction.model.outbound.preoutbound.OutboundIntegrationHeader;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.ASN;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.ASNHeader;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.ASNLine;
@@ -54,8 +53,6 @@ import com.tekclover.wms.api.transaction.model.warehouse.outbound.SalesOrderLine
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.ShipmentOrder;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.InterWarehouseShipment;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.Shipment;
-import com.tekclover.wms.api.transaction.repository.MongoInboundRepository;
-import com.tekclover.wms.api.transaction.repository.MongoOutboundRepository;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -64,11 +61,11 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class WarehouseService extends BaseService {
 	
-	@Autowired
-	MongoInboundRepository mongoInboundRepository;
-	
-	@Autowired
-	MongoOutboundRepository mongoOutboundRepository;
+//	@Autowired
+//	MongoInboundRepository mongoInboundRepository;
+//	
+//	@Autowired
+//	MongoOutboundRepository mongoOutboundRepository;
 	
 	@Autowired
 	PropertiesConfig propertiesConfig;
@@ -161,12 +158,12 @@ public class WarehouseService extends BaseService {
 	 * @param orderId
 	 * @return
 	 */
-	public OutboundIntegrationHeader updateSO( String orderId) {
-		OutboundIntegrationHeader soOrder = mongoOutboundRepository.findByRefDocumentNo(orderId);
-		log.info("soOrder: " + soOrder);
-		soOrder.setProcessedStatusId(0L);
-		return soOrder;
-	}
+//	public OutboundIntegrationHeader updateSO( String orderId) {
+//		OutboundIntegrationHeader soOrder = mongoOutboundRepository.findByRefDocumentNo(orderId);
+//		log.info("soOrder: " + soOrder);
+//		soOrder.setProcessedStatusId(0L);
+//		return soOrder;
+//	}
 	
 	/**
 	 * 
