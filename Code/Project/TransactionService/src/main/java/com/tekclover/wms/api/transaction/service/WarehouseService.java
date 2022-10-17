@@ -1,6 +1,5 @@
 package com.tekclover.wms.api.transaction.service;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -10,7 +9,6 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -23,8 +21,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.tekclover.wms.api.transaction.config.PropertiesConfig;
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
-import com.tekclover.wms.api.transaction.model.inbound.preinbound.InboundIntegrationHeader;
-import com.tekclover.wms.api.transaction.model.inbound.preinbound.InboundIntegrationLine;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.OutboundIntegrationHeader;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.ASN;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.ASNHeader;
@@ -60,7 +56,6 @@ import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.I
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.Shipment;
 import com.tekclover.wms.api.transaction.repository.MongoInboundRepository;
 import com.tekclover.wms.api.transaction.repository.MongoOutboundRepository;
-import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -214,324 +209,324 @@ public class WarehouseService extends BaseService {
 	
 	/*-----------------------MONGO PROCESS---------------------------------------------------------------------*/
 	// POST ASNHeader
-	private InboundIntegrationHeader saveASNInMongo (ASN asn) {
-		try {
-			ASNHeader asnHeader = asn.getAsnHeader();
-			
-			// Warehouse ID Validation
-			validateWarehouseId (asnHeader.getWareHouseId());
-			
-			// Checking for duplicate RefDocNumber
-			InboundIntegrationHeader dbApiHeader = mongoInboundRepository.findByRefDocumentNo(asnHeader.getAsnNumber());
-			if (dbApiHeader != null) {
-				throw new BadRequestException("ASN is already posted and it can't be duplicated.");
-			}
-			
-			List<ASNLine> asnLines = asn.getAsnLine();
-			
-			// Mongo Primary Key
-			InboundIntegrationHeader apiHeader = new InboundIntegrationHeader();
-			apiHeader.setId(asnHeader.getAsnNumber() + ":" + getUUID());
-			apiHeader.setRefDocumentNo(asnHeader.getAsnNumber());
-			apiHeader.setRefDocumentType("ASN");
-			apiHeader.setWarehouseID(asnHeader.getWareHouseId());
-			apiHeader.setInboundOrderTypeId(1L);
-			apiHeader.setOrderReceivedOn(new Date());
-			apiHeader.setProcessedStatusId(0L);
-			
-			Set<InboundOrderLines> orderLines = new HashSet<>();
-			List<InboundIntegrationLine> apiLines = new ArrayList<>();
-			for (ASNLine asnLine : asnLines) {
-				InboundIntegrationLine apiLine = new InboundIntegrationLine();
-				apiLine.setLineReference(asnLine.getLineReference()); 			// IB_LINE_NO
-				apiLine.setItemCode(asnLine.getSku());							// ITM_CODE
-				apiLine.setItemText(asnLine.getSkuDescription()); 				// ITEM_TEXT
-				apiLine.setInvoiceNumber(asnLine.getInvoiceNumber());			// INV_NO
-				apiLine.setContainerNumber(asnLine.getContainerNumber());		// CONT_NO
-				apiLine.setSupplierCode(asnLine.getSupplierCode());				// PARTNER_CODE
-				apiLine.setSupplierPartNumber(asnLine.getSupplierPartNumber()); // PARTNER_ITM_CODE
-				apiLine.setManufacturerName(asnLine.getManufacturerName());		// BRND_NM
-				apiLine.setManufacturerPartNo(asnLine.getManufacturerPartNo());	// MFR_PART
-				
-				// EA_DATE
-				try {
-					Date reqDelDate = DateUtils.convertStringToDate(asnLine.getExpectedDate());
-					apiLine.setExpectedDate(reqDelDate);
-				} catch (Exception e) {
-					throw new BadRequestException("Date format should be MM-dd-yyyy");
-				}
-				
-				apiLine.setOrderedQty(asnLine.getExpectedQty());				// ORD_QTY
-				apiLine.setUom(asnLine.getUom());								// ORD_UOM
-				apiLine.setItemCaseQty(asnLine.getPackQty());					// ITM_CASE_QTY
-				apiLines.add(apiLine);
-				
-				//------Lines
-				InboundOrderLines lines = new InboundOrderLines();
-				BeanUtils.copyProperties(apiLine, lines, CommonUtils.getNullPropertyNames(apiLine));
-				orderLines.add(lines);
-			}
-			apiHeader.setInboundIntegrationLine(apiLines);
-			InboundIntegrationHeader createdInboundIntegration = null;//mongoInboundRepository.save(apiHeader);
-			log.info("createdInboundIntegration : " + createdInboundIntegration);
-			
-			// Store in SQL DB
-			InboundOrder newInboundOrder = new InboundOrder();
-			BeanUtils.copyProperties(apiHeader, newInboundOrder, CommonUtils.getNullPropertyNames(apiHeader));
-			newInboundOrder.setOrderId(asnHeader.getAsnNumber());
-			newInboundOrder.setOrderProcessedOn(new Date());
-			newInboundOrder.setLines(orderLines);
-			InboundOrder createdOrder = orderService.createInboundOrders(newInboundOrder);
-			log.info("ASN createdOrder in SQL: " + createdOrder);
-			return createdInboundIntegration;
-		} catch (Exception e) {
-			throw e;
-		}
-	}
-	
+//	private InboundIntegrationHeader saveASNInMongo (ASN asn) {
+//		try {
+//			ASNHeader asnHeader = asn.getAsnHeader();
+//			
+//			// Warehouse ID Validation
+//			validateWarehouseId (asnHeader.getWareHouseId());
+//			
+//			// Checking for duplicate RefDocNumber
+//			InboundIntegrationHeader dbApiHeader = mongoInboundRepository.findByRefDocumentNo(asnHeader.getAsnNumber());
+//			if (dbApiHeader != null) {
+//				throw new BadRequestException("ASN is already posted and it can't be duplicated.");
+//			}
+//			
+//			List<ASNLine> asnLines = asn.getAsnLine();
+//			
+//			// Mongo Primary Key
+//			InboundIntegrationHeader apiHeader = new InboundIntegrationHeader();
+//			apiHeader.setId(asnHeader.getAsnNumber() + ":" + getUUID());
+//			apiHeader.setRefDocumentNo(asnHeader.getAsnNumber());
+//			apiHeader.setRefDocumentType("ASN");
+//			apiHeader.setWarehouseID(asnHeader.getWareHouseId());
+//			apiHeader.setInboundOrderTypeId(1L);
+//			apiHeader.setOrderReceivedOn(new Date());
+//			apiHeader.setProcessedStatusId(0L);
+//			
+//			Set<InboundOrderLines> orderLines = new HashSet<>();
+//			List<InboundIntegrationLine> apiLines = new ArrayList<>();
+//			for (ASNLine asnLine : asnLines) {
+//				InboundIntegrationLine apiLine = new InboundIntegrationLine();
+//				apiLine.setLineReference(asnLine.getLineReference()); 			// IB_LINE_NO
+//				apiLine.setItemCode(asnLine.getSku());							// ITM_CODE
+//				apiLine.setItemText(asnLine.getSkuDescription()); 				// ITEM_TEXT
+//				apiLine.setInvoiceNumber(asnLine.getInvoiceNumber());			// INV_NO
+//				apiLine.setContainerNumber(asnLine.getContainerNumber());		// CONT_NO
+//				apiLine.setSupplierCode(asnLine.getSupplierCode());				// PARTNER_CODE
+//				apiLine.setSupplierPartNumber(asnLine.getSupplierPartNumber()); // PARTNER_ITM_CODE
+//				apiLine.setManufacturerName(asnLine.getManufacturerName());		// BRND_NM
+//				apiLine.setManufacturerPartNo(asnLine.getManufacturerPartNo());	// MFR_PART
+//				
+//				// EA_DATE
+//				try {
+//					Date reqDelDate = DateUtils.convertStringToDate(asnLine.getExpectedDate());
+//					apiLine.setExpectedDate(reqDelDate);
+//				} catch (Exception e) {
+//					throw new BadRequestException("Date format should be MM-dd-yyyy");
+//				}
+//				
+//				apiLine.setOrderedQty(asnLine.getExpectedQty());				// ORD_QTY
+//				apiLine.setUom(asnLine.getUom());								// ORD_UOM
+//				apiLine.setItemCaseQty(asnLine.getPackQty());					// ITM_CASE_QTY
+//				apiLines.add(apiLine);
+//				
+//				//------Lines
+//				InboundOrderLines lines = new InboundOrderLines();
+//				BeanUtils.copyProperties(apiLine, lines, CommonUtils.getNullPropertyNames(apiLine));
+//				orderLines.add(lines);
+//			}
+//			apiHeader.setInboundIntegrationLine(apiLines);
+//			InboundIntegrationHeader createdInboundIntegration = null;//mongoInboundRepository.save(apiHeader);
+//			log.info("createdInboundIntegration : " + createdInboundIntegration);
+//			
+//			// Store in SQL DB
+//			InboundOrder newInboundOrder = new InboundOrder();
+//			BeanUtils.copyProperties(apiHeader, newInboundOrder, CommonUtils.getNullPropertyNames(apiHeader));
+//			newInboundOrder.setOrderId(asnHeader.getAsnNumber());
+//			newInboundOrder.setOrderProcessedOn(new Date());
+//			newInboundOrder.setLines(orderLines);
+//			InboundOrder createdOrder = orderService.createInboundOrders(newInboundOrder);
+//			log.info("ASN createdOrder in SQL: " + createdOrder);
+//			return createdInboundIntegration;
+//		} catch (Exception e) {
+//			throw e;
+//		}
+//	}
+//	
 	/**
 	 * 
 	 * @param storeReturnHeader
 	 * @return
 	 */
-	private InboundIntegrationHeader saveStoreReturnInMongo(StoreReturn storeReturn) {
-		try {
-			StoreReturnHeader storeReturnHeader = storeReturn.getStoreReturnHeader();
-			
-			// Warehouse ID Validation
-			validateWarehouseId (storeReturnHeader.getWareHouseId());
-			
-			// Checking for duplicate RefDocNumber
-			InboundIntegrationHeader dbApiHeader = mongoInboundRepository.findByRefDocumentNo(storeReturnHeader.getTransferOrderNumber());
-			if (dbApiHeader != null) {
-				throw new BadRequestException("TransferOrderNumber is already posted and it can't be duplicated.");
-			}
-						
-			List<StoreReturnLine> storeReturnLines = storeReturn.getStoreReturnLine();
-			
-			// Mongo Primary Key
-			InboundIntegrationHeader apiHeader = new InboundIntegrationHeader();
-			apiHeader.setId(storeReturnHeader.getTransferOrderNumber() + ":" + getUUID());
-			apiHeader.setRefDocumentNo(storeReturnHeader.getTransferOrderNumber());
-			apiHeader.setWarehouseID(storeReturnHeader.getWareHouseId());
-			apiHeader.setRefDocumentType("RETURN");			
-			apiHeader.setInboundOrderTypeId(2L);
-			apiHeader.setOrderReceivedOn(new Date());
-			apiHeader.setProcessedStatusId(0L);
-			
-			Set<InboundOrderLines> orderLines = new HashSet<>();
-			List<InboundIntegrationLine> apiLines = new ArrayList<>();
-			for (StoreReturnLine storeReturnLine : storeReturnLines) {
-				InboundIntegrationLine apiLine = new InboundIntegrationLine();
-				apiLine.setLineReference(storeReturnLine.getLineReference()); 			// IB_LINE_NO
-				apiLine.setItemCode(storeReturnLine.getSku());							// ITM_CODE
-				apiLine.setItemText(storeReturnLine.getSkuDescription()); 				// ITEM_TEXT
-				apiLine.setInvoiceNumber(storeReturnLine.getInvoiceNumber());			// INV_NO
-				apiLine.setContainerNumber(storeReturnLine.getContainerNumber());		// CONT_NO
-				apiLine.setSupplierCode(storeReturnLine.getStoreID());					// PARTNER_CODE
-				apiLine.setSupplierPartNumber(storeReturnLine.getSupplierPartNumber()); // PARTNER_ITM_CODE
-				apiLine.setManufacturerName(storeReturnLine.getManufacturerName());		// BRND_NM
-				apiLine.setManufacturerPartNo(storeReturnLine.getManufacturerPartNo());	// MFR_PART
-				
-				// EA_DATE
-				try {
-					Date reqDelDate = DateUtils.convertStringToDate(storeReturnLine.getExpectedDate());
-					apiLine.setExpectedDate(reqDelDate);
-				} catch (Exception e) {
-					throw new BadRequestException("Date format should be MM-dd-yyyy");
-				}
-				
-				apiLine.setOrderedQty(storeReturnLine.getExpectedQty());				// ORD_QTY
-				apiLine.setUom(storeReturnLine.getUom());								// ORD_UOM
-				apiLine.setItemCaseQty(storeReturnLine.getPackQty());					// ITM_CASE_QTY
-				apiLines.add(apiLine);
-				
-				//------Lines
-				InboundOrderLines lines = new InboundOrderLines();
-				BeanUtils.copyProperties(apiLine, lines, CommonUtils.getNullPropertyNames(apiLine));
-				orderLines.add(lines);
-			}
-			apiHeader.setInboundIntegrationLine(apiLines);
-			InboundIntegrationHeader createdInboundIntegration = null;//mongoInboundRepository.save(apiHeader);
-			log.info("createdInboundIntegration : " + createdInboundIntegration);
-			
-			// Store in SQL DB
-			InboundOrder newInboundOrder = new InboundOrder();
-			BeanUtils.copyProperties(apiHeader, newInboundOrder, CommonUtils.getNullPropertyNames(apiHeader));
-			newInboundOrder.setOrderId(storeReturnHeader.getTransferOrderNumber());
-			newInboundOrder.setOrderProcessedOn(new Date());
-			newInboundOrder.setLines(orderLines);
-			InboundOrder createdOrder = orderService.createInboundOrders(newInboundOrder);
-			log.info("StoreReturn - createdOrder in SQL: " + createdOrder);
-						
-			return createdInboundIntegration;
-		} catch (Exception e) {
-			throw e;
-		}
-	}
+//	private InboundIntegrationHeader saveStoreReturnInMongo(StoreReturn storeReturn) {
+//		try {
+//			StoreReturnHeader storeReturnHeader = storeReturn.getStoreReturnHeader();
+//			
+//			// Warehouse ID Validation
+//			validateWarehouseId (storeReturnHeader.getWareHouseId());
+//			
+//			// Checking for duplicate RefDocNumber
+//			InboundIntegrationHeader dbApiHeader = mongoInboundRepository.findByRefDocumentNo(storeReturnHeader.getTransferOrderNumber());
+//			if (dbApiHeader != null) {
+//				throw new BadRequestException("TransferOrderNumber is already posted and it can't be duplicated.");
+//			}
+//						
+//			List<StoreReturnLine> storeReturnLines = storeReturn.getStoreReturnLine();
+//			
+//			// Mongo Primary Key
+//			InboundIntegrationHeader apiHeader = new InboundIntegrationHeader();
+//			apiHeader.setId(storeReturnHeader.getTransferOrderNumber() + ":" + getUUID());
+//			apiHeader.setRefDocumentNo(storeReturnHeader.getTransferOrderNumber());
+//			apiHeader.setWarehouseID(storeReturnHeader.getWareHouseId());
+//			apiHeader.setRefDocumentType("RETURN");			
+//			apiHeader.setInboundOrderTypeId(2L);
+//			apiHeader.setOrderReceivedOn(new Date());
+//			apiHeader.setProcessedStatusId(0L);
+//			
+//			Set<InboundOrderLines> orderLines = new HashSet<>();
+//			List<InboundIntegrationLine> apiLines = new ArrayList<>();
+//			for (StoreReturnLine storeReturnLine : storeReturnLines) {
+//				InboundIntegrationLine apiLine = new InboundIntegrationLine();
+//				apiLine.setLineReference(storeReturnLine.getLineReference()); 			// IB_LINE_NO
+//				apiLine.setItemCode(storeReturnLine.getSku());							// ITM_CODE
+//				apiLine.setItemText(storeReturnLine.getSkuDescription()); 				// ITEM_TEXT
+//				apiLine.setInvoiceNumber(storeReturnLine.getInvoiceNumber());			// INV_NO
+//				apiLine.setContainerNumber(storeReturnLine.getContainerNumber());		// CONT_NO
+//				apiLine.setSupplierCode(storeReturnLine.getStoreID());					// PARTNER_CODE
+//				apiLine.setSupplierPartNumber(storeReturnLine.getSupplierPartNumber()); // PARTNER_ITM_CODE
+//				apiLine.setManufacturerName(storeReturnLine.getManufacturerName());		// BRND_NM
+//				apiLine.setManufacturerPartNo(storeReturnLine.getManufacturerPartNo());	// MFR_PART
+//				
+//				// EA_DATE
+//				try {
+//					Date reqDelDate = DateUtils.convertStringToDate(storeReturnLine.getExpectedDate());
+//					apiLine.setExpectedDate(reqDelDate);
+//				} catch (Exception e) {
+//					throw new BadRequestException("Date format should be MM-dd-yyyy");
+//				}
+//				
+//				apiLine.setOrderedQty(storeReturnLine.getExpectedQty());				// ORD_QTY
+//				apiLine.setUom(storeReturnLine.getUom());								// ORD_UOM
+//				apiLine.setItemCaseQty(storeReturnLine.getPackQty());					// ITM_CASE_QTY
+//				apiLines.add(apiLine);
+//				
+//				//------Lines
+//				InboundOrderLines lines = new InboundOrderLines();
+//				BeanUtils.copyProperties(apiLine, lines, CommonUtils.getNullPropertyNames(apiLine));
+//				orderLines.add(lines);
+//			}
+//			apiHeader.setInboundIntegrationLine(apiLines);
+//			InboundIntegrationHeader createdInboundIntegration = null;//mongoInboundRepository.save(apiHeader);
+//			log.info("createdInboundIntegration : " + createdInboundIntegration);
+//			
+//			// Store in SQL DB
+//			InboundOrder newInboundOrder = new InboundOrder();
+//			BeanUtils.copyProperties(apiHeader, newInboundOrder, CommonUtils.getNullPropertyNames(apiHeader));
+//			newInboundOrder.setOrderId(storeReturnHeader.getTransferOrderNumber());
+//			newInboundOrder.setOrderProcessedOn(new Date());
+//			newInboundOrder.setLines(orderLines);
+//			InboundOrder createdOrder = orderService.createInboundOrders(newInboundOrder);
+//			log.info("StoreReturn - createdOrder in SQL: " + createdOrder);
+//						
+//			return createdInboundIntegration;
+//		} catch (Exception e) {
+//			throw e;
+//		}
+//	}
 	
 	/**
 	 * 
 	 * @param soReturn
 	 * @return
 	 */
-	private InboundIntegrationHeader saveSOReturnInMongo(SaleOrderReturn soReturn) {
-		try {
-			SOReturnHeader soReturnHeader = soReturn.getSoReturnHeader();
-			
-			// Warehouse ID Validation
-			validateWarehouseId (soReturnHeader.getWareHouseId());
-			
-			// Checking for duplicate RefDocNumber
-			InboundIntegrationHeader dbApiHeader = mongoInboundRepository.findByRefDocumentNo(soReturnHeader.getReturnOrderReference());
-			if (dbApiHeader != null) {
-				throw new BadRequestException("Return Order Reference is already posted and it can't be duplicated.");
-			}
-						
-			List<SOReturnLine> storeReturnLines = soReturn.getSoReturnLine();
-			
-			// Mongo Primary Key
-			InboundIntegrationHeader apiHeader = new InboundIntegrationHeader();
-			apiHeader.setId(soReturnHeader.getReturnOrderReference() + ":" + getUUID());
-			apiHeader.setRefDocumentNo(soReturnHeader.getReturnOrderReference());
-			apiHeader.setWarehouseID(soReturnHeader.getWareHouseId());
-			apiHeader.setRefDocumentType("RETURN");	
-			apiHeader.setInboundOrderTypeId(4L);										// Hardcoded Value 4
-			apiHeader.setOrderReceivedOn(new Date());
-			apiHeader.setProcessedStatusId(0L);
-			
-			Set<InboundOrderLines> orderLines = new HashSet<>();
-			List<InboundIntegrationLine> apiLines = new ArrayList<>();
-			for (SOReturnLine soReturnLine : storeReturnLines) {
-				InboundIntegrationLine apiLine = new InboundIntegrationLine();
-				apiLine.setLineReference(soReturnLine.getLineReference()); 				// IB_LINE_NO
-				apiLine.setItemCode(soReturnLine.getSku());								// ITM_CODE
-				apiLine.setItemText(soReturnLine.getSkuDescription()); 					// ITEM_TEXT
-				apiLine.setInvoiceNumber(soReturnLine.getInvoiceNumber());				// INV_NO
-				apiLine.setContainerNumber(soReturnLine.getContainerNumber());			// CONT_NO
-				apiLine.setSupplierCode(soReturnLine.getStoreID());						// PARTNER_CODE
-				apiLine.setSupplierPartNumber(soReturnLine.getSupplierPartNumber());	// PARTNER_ITM_CODE
-				apiLine.setManufacturerName(soReturnLine.getManufacturerName());		// BRND_NM
-				apiLine.setManufacturerPartNo(soReturnLine.getManufacturerPartNo());	// MFR_PART
-				
-				// EA_DATE
-				try {
-					Date reqDelDate = DateUtils.convertStringToDate(soReturnLine.getExpectedDate());
-					apiLine.setExpectedDate(reqDelDate);
-				} catch (Exception e) {
-					throw new BadRequestException("Date format should be MM-dd-yyyy");
-				}
-				
-				apiLine.setOrderedQty(soReturnLine.getExpectedQty());					// ORD_QTY
-				apiLine.setUom(soReturnLine.getUom());									// ORD_UOM
-				apiLine.setItemCaseQty(soReturnLine.getPackQty());						// ITM_CASE_QTY
-				apiLine.setSalesOrderReference(soReturnLine.getSalesOrderReference());	// REF_FIELD_4
-				apiLines.add(apiLine);
-				
-				//------Lines
-				InboundOrderLines lines = new InboundOrderLines();
-				BeanUtils.copyProperties(apiLine, lines, CommonUtils.getNullPropertyNames(apiLine));
-				orderLines.add(lines);
-			}
-			apiHeader.setInboundIntegrationLine(apiLines);
-			InboundIntegrationHeader createdInboundIntegration = null;//mongoInboundRepository.save(apiHeader);
-			log.info("createdInboundIntegration : " + createdInboundIntegration);
-			
-			// Store in SQL DB
-			InboundOrder newInboundOrder = new InboundOrder();
-			BeanUtils.copyProperties(apiHeader, newInboundOrder, CommonUtils.getNullPropertyNames(apiHeader));
-			newInboundOrder.setOrderId(soReturnHeader.getReturnOrderReference());
-			newInboundOrder.setOrderProcessedOn(new Date());
-			newInboundOrder.setLines(orderLines);
-			InboundOrder createdOrder = orderService.createInboundOrders(newInboundOrder);
-			log.info("SOReturn - createdOrder in SQL: " + createdOrder);
-						
-			return createdInboundIntegration;
-		} catch (Exception e) {
-			throw e;
-		}
-	}
+//	private InboundIntegrationHeader saveSOReturnInMongo(SaleOrderReturn soReturn) {
+//		try {
+//			SOReturnHeader soReturnHeader = soReturn.getSoReturnHeader();
+//			
+//			// Warehouse ID Validation
+//			validateWarehouseId (soReturnHeader.getWareHouseId());
+//			
+//			// Checking for duplicate RefDocNumber
+//			InboundIntegrationHeader dbApiHeader = mongoInboundRepository.findByRefDocumentNo(soReturnHeader.getReturnOrderReference());
+//			if (dbApiHeader != null) {
+//				throw new BadRequestException("Return Order Reference is already posted and it can't be duplicated.");
+//			}
+//						
+//			List<SOReturnLine> storeReturnLines = soReturn.getSoReturnLine();
+//			
+//			// Mongo Primary Key
+//			InboundIntegrationHeader apiHeader = new InboundIntegrationHeader();
+//			apiHeader.setId(soReturnHeader.getReturnOrderReference() + ":" + getUUID());
+//			apiHeader.setRefDocumentNo(soReturnHeader.getReturnOrderReference());
+//			apiHeader.setWarehouseID(soReturnHeader.getWareHouseId());
+//			apiHeader.setRefDocumentType("RETURN");	
+//			apiHeader.setInboundOrderTypeId(4L);										// Hardcoded Value 4
+//			apiHeader.setOrderReceivedOn(new Date());
+//			apiHeader.setProcessedStatusId(0L);
+//			
+//			Set<InboundOrderLines> orderLines = new HashSet<>();
+//			List<InboundIntegrationLine> apiLines = new ArrayList<>();
+//			for (SOReturnLine soReturnLine : storeReturnLines) {
+//				InboundIntegrationLine apiLine = new InboundIntegrationLine();
+//				apiLine.setLineReference(soReturnLine.getLineReference()); 				// IB_LINE_NO
+//				apiLine.setItemCode(soReturnLine.getSku());								// ITM_CODE
+//				apiLine.setItemText(soReturnLine.getSkuDescription()); 					// ITEM_TEXT
+//				apiLine.setInvoiceNumber(soReturnLine.getInvoiceNumber());				// INV_NO
+//				apiLine.setContainerNumber(soReturnLine.getContainerNumber());			// CONT_NO
+//				apiLine.setSupplierCode(soReturnLine.getStoreID());						// PARTNER_CODE
+//				apiLine.setSupplierPartNumber(soReturnLine.getSupplierPartNumber());	// PARTNER_ITM_CODE
+//				apiLine.setManufacturerName(soReturnLine.getManufacturerName());		// BRND_NM
+//				apiLine.setManufacturerPartNo(soReturnLine.getManufacturerPartNo());	// MFR_PART
+//				
+//				// EA_DATE
+//				try {
+//					Date reqDelDate = DateUtils.convertStringToDate(soReturnLine.getExpectedDate());
+//					apiLine.setExpectedDate(reqDelDate);
+//				} catch (Exception e) {
+//					throw new BadRequestException("Date format should be MM-dd-yyyy");
+//				}
+//				
+//				apiLine.setOrderedQty(soReturnLine.getExpectedQty());					// ORD_QTY
+//				apiLine.setUom(soReturnLine.getUom());									// ORD_UOM
+//				apiLine.setItemCaseQty(soReturnLine.getPackQty());						// ITM_CASE_QTY
+//				apiLine.setSalesOrderReference(soReturnLine.getSalesOrderReference());	// REF_FIELD_4
+//				apiLines.add(apiLine);
+//				
+//				//------Lines
+//				InboundOrderLines lines = new InboundOrderLines();
+//				BeanUtils.copyProperties(apiLine, lines, CommonUtils.getNullPropertyNames(apiLine));
+//				orderLines.add(lines);
+//			}
+//			apiHeader.setInboundIntegrationLine(apiLines);
+//			InboundIntegrationHeader createdInboundIntegration = null;//mongoInboundRepository.save(apiHeader);
+//			log.info("createdInboundIntegration : " + createdInboundIntegration);
+//			
+//			// Store in SQL DB
+//			InboundOrder newInboundOrder = new InboundOrder();
+//			BeanUtils.copyProperties(apiHeader, newInboundOrder, CommonUtils.getNullPropertyNames(apiHeader));
+//			newInboundOrder.setOrderId(soReturnHeader.getReturnOrderReference());
+//			newInboundOrder.setOrderProcessedOn(new Date());
+//			newInboundOrder.setLines(orderLines);
+//			InboundOrder createdOrder = orderService.createInboundOrders(newInboundOrder);
+//			log.info("SOReturn - createdOrder in SQL: " + createdOrder);
+//						
+//			return createdInboundIntegration;
+//		} catch (Exception e) {
+//			throw e;
+//		}
+//	}
 	
 	/**
 	 * 
 	 * @param interWarehouseTransferIn
 	 * @return
 	 */
-	private InboundIntegrationHeader saveInterWarehouseTransferInMongo(
-			InterWarehouseTransferIn interWarehouseTransferIn) {
-		try {
-			InterWarehouseTransferInHeader interWarehouseTransferInHeader = interWarehouseTransferIn.getInterWarehouseTransferInHeader();
-			// Warehouse ID Validation
-			validateWarehouseId (interWarehouseTransferInHeader.getToWhsId());
-			
-			// Checking for duplicate RefDocNumber
-			InboundIntegrationHeader dbApiHeader = 
-					mongoInboundRepository.findByRefDocumentNo(interWarehouseTransferInHeader.getTransferOrderNumber());
-			if (dbApiHeader != null) {
-				throw new BadRequestException("TransferOrderNumber is already posted and it can't be duplicated.");
-			}
-						
-			List<InterWarehouseTransferInLine> interWarehouseTransferInLines = interWarehouseTransferIn.getInterWarehouseTransferInLine();
-			
-			// Mongo Primary Key
-			InboundIntegrationHeader apiHeader = new InboundIntegrationHeader();
-			apiHeader.setId(interWarehouseTransferInHeader.getTransferOrderNumber() + ":" + getUUID());
-			apiHeader.setRefDocumentNo(interWarehouseTransferInHeader.getTransferOrderNumber());
-			apiHeader.setWarehouseID(interWarehouseTransferInHeader.getToWhsId());
-			apiHeader.setRefDocumentType("WH2WH");				// Hardcoded Value "WH to WH"
-			apiHeader.setInboundOrderTypeId(3L);				// Hardcoded Value 3
-			apiHeader.setOrderReceivedOn(new Date());
-			apiHeader.setProcessedStatusId(0L);
-			
-			Set<InboundOrderLines> orderLines = new HashSet<>();
-			List<InboundIntegrationLine> apiLines = new ArrayList<>();
-			for (InterWarehouseTransferInLine iwhTransferLine : interWarehouseTransferInLines) {
-				InboundIntegrationLine apiLine = new InboundIntegrationLine();
-				apiLine.setLineReference(iwhTransferLine.getLineReference()); 				// IB_LINE_NO
-				apiLine.setItemCode(iwhTransferLine.getSku());								// ITM_CODE
-				apiLine.setItemText(iwhTransferLine.getSkuDescription()); 					// ITEM_TEXT
-				apiLine.setInvoiceNumber(iwhTransferLine.getInvoiceNumber());				// INV_NO
-				apiLine.setContainerNumber(iwhTransferLine.getContainerNumber());			// CONT_NO
-				apiLine.setSupplierCode(iwhTransferLine.getFromWhsId());					// PARTNER_CODE
-				apiLine.setSupplierPartNumber(iwhTransferLine.getSupplierPartNumber());		// PARTNER_ITM_CODE
-				apiLine.setManufacturerName(iwhTransferLine.getManufacturerName());			// BRND_NM
-				apiLine.setManufacturerPartNo(iwhTransferLine.getManufacturerPartNo());		// MFR_PART
-				
-				// EA_DATE
-				try {
-					Date reqDelDate = DateUtils.convertStringToDate(iwhTransferLine.getExpectedDate());
-					apiLine.setExpectedDate(reqDelDate);
-				} catch (Exception e) {
-					throw new BadRequestException("Date format should be MM-dd-yyyy");
-				}
-				
-				apiLine.setOrderedQty(iwhTransferLine.getExpectedQty());					// ORD_QTY
-				apiLine.setUom(iwhTransferLine.getUom());									// ORD_UOM
-				apiLine.setItemCaseQty(iwhTransferLine.getPackQty());						// ITM_CASE_QTY
-				apiLines.add(apiLine);
-				
-				//------Lines
-				InboundOrderLines lines = new InboundOrderLines();
-				BeanUtils.copyProperties(apiLine, lines, CommonUtils.getNullPropertyNames(apiLine));
-				orderLines.add(lines);
-			}
-			apiHeader.setInboundIntegrationLine(apiLines);
-			InboundIntegrationHeader createdInboundIntegration = null;//mongoInboundRepository.save(apiHeader);
-			log.info("createdInboundIntegration : " + createdInboundIntegration);
-			
-			// Store in SQL DB
-			InboundOrder newInboundOrder = new InboundOrder();
-			BeanUtils.copyProperties(apiHeader, newInboundOrder, CommonUtils.getNullPropertyNames(apiHeader));
-			newInboundOrder.setOrderId(interWarehouseTransferInHeader.getTransferOrderNumber());
-			newInboundOrder.setOrderProcessedOn(new Date());
-			newInboundOrder.setLines(orderLines);
-			InboundOrder createdOrder = orderService.createInboundOrders(newInboundOrder);
-			log.info("InterWarehouseTransfer - createdOrder in SQL: " + createdOrder);
-			return createdInboundIntegration;
-		} catch (Exception e) {
-			throw e;
-		}
-	}
+//	private InboundIntegrationHeader saveInterWarehouseTransferInMongo(
+//			InterWarehouseTransferIn interWarehouseTransferIn) {
+//		try {
+//			InterWarehouseTransferInHeader interWarehouseTransferInHeader = interWarehouseTransferIn.getInterWarehouseTransferInHeader();
+//			// Warehouse ID Validation
+//			validateWarehouseId (interWarehouseTransferInHeader.getToWhsId());
+//			
+//			// Checking for duplicate RefDocNumber
+//			InboundIntegrationHeader dbApiHeader = 
+//					mongoInboundRepository.findByRefDocumentNo(interWarehouseTransferInHeader.getTransferOrderNumber());
+//			if (dbApiHeader != null) {
+//				throw new BadRequestException("TransferOrderNumber is already posted and it can't be duplicated.");
+//			}
+//						
+//			List<InterWarehouseTransferInLine> interWarehouseTransferInLines = interWarehouseTransferIn.getInterWarehouseTransferInLine();
+//			
+//			// Mongo Primary Key
+//			InboundIntegrationHeader apiHeader = new InboundIntegrationHeader();
+//			apiHeader.setId(interWarehouseTransferInHeader.getTransferOrderNumber() + ":" + getUUID());
+//			apiHeader.setRefDocumentNo(interWarehouseTransferInHeader.getTransferOrderNumber());
+//			apiHeader.setWarehouseID(interWarehouseTransferInHeader.getToWhsId());
+//			apiHeader.setRefDocumentType("WH2WH");				// Hardcoded Value "WH to WH"
+//			apiHeader.setInboundOrderTypeId(3L);				// Hardcoded Value 3
+//			apiHeader.setOrderReceivedOn(new Date());
+//			apiHeader.setProcessedStatusId(0L);
+//			
+//			Set<InboundOrderLines> orderLines = new HashSet<>();
+//			List<InboundIntegrationLine> apiLines = new ArrayList<>();
+//			for (InterWarehouseTransferInLine iwhTransferLine : interWarehouseTransferInLines) {
+//				InboundIntegrationLine apiLine = new InboundIntegrationLine();
+//				apiLine.setLineReference(iwhTransferLine.getLineReference()); 				// IB_LINE_NO
+//				apiLine.setItemCode(iwhTransferLine.getSku());								// ITM_CODE
+//				apiLine.setItemText(iwhTransferLine.getSkuDescription()); 					// ITEM_TEXT
+//				apiLine.setInvoiceNumber(iwhTransferLine.getInvoiceNumber());				// INV_NO
+//				apiLine.setContainerNumber(iwhTransferLine.getContainerNumber());			// CONT_NO
+//				apiLine.setSupplierCode(iwhTransferLine.getFromWhsId());					// PARTNER_CODE
+//				apiLine.setSupplierPartNumber(iwhTransferLine.getSupplierPartNumber());		// PARTNER_ITM_CODE
+//				apiLine.setManufacturerName(iwhTransferLine.getManufacturerName());			// BRND_NM
+//				apiLine.setManufacturerPartNo(iwhTransferLine.getManufacturerPartNo());		// MFR_PART
+//				
+//				// EA_DATE
+//				try {
+//					Date reqDelDate = DateUtils.convertStringToDate(iwhTransferLine.getExpectedDate());
+//					apiLine.setExpectedDate(reqDelDate);
+//				} catch (Exception e) {
+//					throw new BadRequestException("Date format should be MM-dd-yyyy");
+//				}
+//				
+//				apiLine.setOrderedQty(iwhTransferLine.getExpectedQty());					// ORD_QTY
+//				apiLine.setUom(iwhTransferLine.getUom());									// ORD_UOM
+//				apiLine.setItemCaseQty(iwhTransferLine.getPackQty());						// ITM_CASE_QTY
+//				apiLines.add(apiLine);
+//				
+//				//------Lines
+//				InboundOrderLines lines = new InboundOrderLines();
+//				BeanUtils.copyProperties(apiLine, lines, CommonUtils.getNullPropertyNames(apiLine));
+//				orderLines.add(lines);
+//			}
+//			apiHeader.setInboundIntegrationLine(apiLines);
+//			InboundIntegrationHeader createdInboundIntegration = null;//mongoInboundRepository.save(apiHeader);
+//			log.info("createdInboundIntegration : " + createdInboundIntegration);
+//			
+//			// Store in SQL DB
+//			InboundOrder newInboundOrder = new InboundOrder();
+//			BeanUtils.copyProperties(apiHeader, newInboundOrder, CommonUtils.getNullPropertyNames(apiHeader));
+//			newInboundOrder.setOrderId(interWarehouseTransferInHeader.getTransferOrderNumber());
+//			newInboundOrder.setOrderProcessedOn(new Date());
+//			newInboundOrder.setLines(orderLines);
+//			InboundOrder createdOrder = orderService.createInboundOrders(newInboundOrder);
+//			log.info("InterWarehouseTransfer - createdOrder in SQL: " + createdOrder);
+//			return createdInboundIntegration;
+//		} catch (Exception e) {
+//			throw e;
+//		}
+//	}
 	
 	/*-----------------------------------OUTBOUND----------------------------------------------------------------------*/
 	
