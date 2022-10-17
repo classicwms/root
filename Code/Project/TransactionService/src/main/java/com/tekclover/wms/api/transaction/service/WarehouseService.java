@@ -272,7 +272,7 @@ public class WarehouseService extends BaseService {
 				orderLines.add(lines);
 			}
 			apiHeader.setInboundIntegrationLine(apiLines);
-			InboundIntegrationHeader createdInboundIntegration = mongoInboundRepository.save(apiHeader);
+			InboundIntegrationHeader createdInboundIntegration = null;//mongoInboundRepository.save(apiHeader);
 			log.info("createdInboundIntegration : " + createdInboundIntegration);
 			
 			// Store in SQL DB
@@ -352,7 +352,7 @@ public class WarehouseService extends BaseService {
 				orderLines.add(lines);
 			}
 			apiHeader.setInboundIntegrationLine(apiLines);
-			InboundIntegrationHeader createdInboundIntegration = mongoInboundRepository.save(apiHeader);
+			InboundIntegrationHeader createdInboundIntegration = null;//mongoInboundRepository.save(apiHeader);
 			log.info("createdInboundIntegration : " + createdInboundIntegration);
 			
 			// Store in SQL DB
@@ -434,7 +434,7 @@ public class WarehouseService extends BaseService {
 				orderLines.add(lines);
 			}
 			apiHeader.setInboundIntegrationLine(apiLines);
-			InboundIntegrationHeader createdInboundIntegration = mongoInboundRepository.save(apiHeader);
+			InboundIntegrationHeader createdInboundIntegration = null;//mongoInboundRepository.save(apiHeader);
 			log.info("createdInboundIntegration : " + createdInboundIntegration);
 			
 			// Store in SQL DB
@@ -516,7 +516,7 @@ public class WarehouseService extends BaseService {
 				orderLines.add(lines);
 			}
 			apiHeader.setInboundIntegrationLine(apiLines);
-			InboundIntegrationHeader createdInboundIntegration = mongoInboundRepository.save(apiHeader);
+			InboundIntegrationHeader createdInboundIntegration = null;//mongoInboundRepository.save(apiHeader);
 			log.info("createdInboundIntegration : " + createdInboundIntegration);
 			
 			// Store in SQL DB
