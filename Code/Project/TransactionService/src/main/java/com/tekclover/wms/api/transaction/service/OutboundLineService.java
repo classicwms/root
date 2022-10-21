@@ -832,6 +832,7 @@ public class OutboundLineService extends BaseService {
 									log.info("InventoryMovement created : " + inventoryMovement);
 								}
 							}
+							
 							//----------------------END--------------------------------------------------------------------------------------------
 						} catch (Exception e) {
 							log.info("Updating respective tables having Error : " + e.getLocalizedMessage());
