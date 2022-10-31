@@ -253,7 +253,7 @@ public class PutAwayHeaderService extends BaseService {
 		
 		PutAwayHeaderSpecification spec = new PutAwayHeaderSpecification(searchPutAwayHeader);
 		List<PutAwayHeader> results = putAwayHeaderRepository.findAll(spec);
-		log.info("results: " + results);
+//		log.info("results: " + results);
 		return results;
 	}
 	
@@ -439,7 +439,7 @@ public class PutAwayHeaderService extends BaseService {
 			 * Pass the selected REF_DOC_NO/PACK_BARCODE values  and PUTAWAYHEADER tables and update Status ID as 22 and 
 			 * PA_UTD_BY = USR_ID and PA_UTD_ON=Server time and fetch CASE_CODE
 			 */
-			if (dbPutAwayHeader.getStatusId() == 19L || dbPutAwayHeader.getStatusId() == 20L) {
+			if (dbPutAwayHeader.getStatusId() == 19L) {
 				log.info("---#---deleteInventory: " + warehouseId + "," + packBarcodes + "," + itemCode);
 				boolean isDeleted = inventoryService.deleteInventory(warehouseId, packBarcodes, itemCode);
 				log.info("---#---deleteInventory deleted.." + isDeleted);
@@ -456,7 +456,6 @@ public class PutAwayHeaderService extends BaseService {
 		
 		// Insert a record into INVENTORYMOVEMENT table as below
 		for (GrLine grLine : grLineList) {
-//			log.info("-------grLine-----> : " + grLine);
 			createInventoryMovement(grLine, caseCode, palletCode, storageBin);
 		}
 		

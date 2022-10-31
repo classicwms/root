@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.transaction.util.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,6 +36,7 @@ import com.tekclover.wms.api.transaction.repository.PutAwayHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.PutAwayLineRepository;
 import com.tekclover.wms.api.transaction.repository.specification.PutAwayLineSpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
+import com.tekclover.wms.api.transaction.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -249,7 +249,7 @@ public class PutAwayLineService extends BaseService {
 
 		PutAwayLineSpecification spec = new PutAwayLineSpecification(searchPutAwayLine);
 		List<PutAwayLine> results = putAwayLineRepository.findAll(spec);
-		log.info("results: " + results);
+//		log.info("results: " + results);
 		return results;
 	}
 	

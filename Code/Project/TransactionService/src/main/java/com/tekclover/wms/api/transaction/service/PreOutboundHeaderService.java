@@ -16,6 +16,7 @@ import javax.persistence.EntityNotFoundException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
@@ -232,6 +233,7 @@ public class PreOutboundHeaderService extends BaseService {
 	/*
      * Process the PreoutboundIntegraion data
      */
+	@Transactional
 	public OutboundHeader processOutboundReceived (OutboundIntegrationHeader outboundIntegrationHeader) 
 			throws IllegalAccessException, InvocationTargetException, BadRequestException, Exception {
 		/*

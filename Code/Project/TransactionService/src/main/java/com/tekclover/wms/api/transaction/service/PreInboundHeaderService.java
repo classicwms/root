@@ -13,6 +13,7 @@ import javax.persistence.EntityNotFoundException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
@@ -271,7 +272,7 @@ public class PreInboundHeaderService extends BaseService {
 		
 		PreInboundHeaderSpecification spec = new PreInboundHeaderSpecification(searchPreInboundHeader);
 		List<PreInboundHeaderEntity> results = preInboundHeaderRepository.findAll(spec);
-		log.info("results: " + results);
+//		log.info("results: " + results);
 		return results;
 	}
 	
@@ -400,6 +401,7 @@ public class PreInboundHeaderService extends BaseService {
 	 * @throws InvocationTargetException 
 	 * @throws IllegalAccessException 
 	 */
+	@Transactional
 	public InboundHeader processInboundReceived (String refDocNumber, InboundIntegrationHeader inboundIntegrationHeader) 
 			throws IllegalAccessException, InvocationTargetException, BadRequestException, Exception {
 		/*

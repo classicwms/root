@@ -372,8 +372,6 @@ public class InboundHeaderService extends BaseService {
 	public AXApiResponse updateInboundHeaderConfirm(String warehouseId, String preInboundNo, String refDocNumber, String loginUserID)
 			throws IllegalAccessException, InvocationTargetException {
 		List<InboundLine> dbInboundLines = inboundLineService.getInboundLine (warehouseId, refDocNumber, preInboundNo);
-		log.info("updateInboundHeaderConfirm-----> : " + dbInboundLines);
-		
 		boolean sendConfirmationToAX = false;
 		
 		// Checking relevant tables for sending confirmation to AX
@@ -450,34 +448,39 @@ public class InboundHeaderService extends BaseService {
 		 * */
 		AXApiResponse axapiResponse = null;
 		if (sendConfirmationToAX) {
-			InboundHeader confirmedInboundHeader = getInboundHeaderByEntity(warehouseId, refDocNumber, preInboundNo);
-			List<InboundLine> confirmedInboundLines = 
-					inboundLineService.getInboundLinebyRefDocNoISNULL(confirmedInboundHeader.getWarehouseId(), 
-							confirmedInboundHeader.getRefDocNumber(), confirmedInboundHeader.getPreInboundNo());
-			
-			log.info("Order type id: " + confirmedInboundHeader.getInboundOrderTypeId());
-			// If IB_ORD_TYP_ID = 1, call ASN API
-			if (confirmedInboundHeader.getInboundOrderTypeId() == 1L) { 
-				axapiResponse = postASN(confirmedInboundHeader, confirmedInboundLines);
-				log.info("AXApiResponse: " + axapiResponse);
-			} 
-			
-			// If IB_ORD_TYP_ID = 2, call StoreReturns API
-			if (confirmedInboundHeader.getInboundOrderTypeId() == 2L) { 
-				axapiResponse = postStoreReturn(confirmedInboundHeader, confirmedInboundLines);
-				log.info("AXApiResponse: " + axapiResponse);
-			} 
-			
-			// If IB_ORD_TYP_ID = 3, call InterWarehouse Receipt Confirmation API
-			if (confirmedInboundHeader.getInboundOrderTypeId() == 3L) { 
-				axapiResponse = postInterWarehouse(confirmedInboundHeader, confirmedInboundLines);
-				log.info("AXApiResponse: " + axapiResponse);
-			} 
-			
-			// If IB_ORD_TYP_ID = 4, call Sale Order Returns API
-			if (confirmedInboundHeader.getInboundOrderTypeId() == 4L) { 
-				axapiResponse = postSOReturn(confirmedInboundHeader, confirmedInboundLines);
-				log.info("AXApiResponse: " + axapiResponse);
+			try {
+				InboundHeader confirmedInboundHeader = getInboundHeaderByEntity(warehouseId, refDocNumber, preInboundNo);
+				List<InboundLine> confirmedInboundLines = 
+						inboundLineService.getInboundLinebyRefDocNoISNULL(confirmedInboundHeader.getWarehouseId(), 
+								confirmedInboundHeader.getRefDocNumber(), confirmedInboundHeader.getPreInboundNo());
+				
+				log.info("Order type id: " + confirmedInboundHeader.getInboundOrderTypeId());
+				// If IB_ORD_TYP_ID = 1, call ASN API
+				if (confirmedInboundHeader.getInboundOrderTypeId() == 1L) { 
+					axapiResponse = postASN(confirmedInboundHeader, confirmedInboundLines);
+					log.info("AXApiResponse: " + axapiResponse);
+				} 
+				
+				// If IB_ORD_TYP_ID = 2, call StoreReturns API
+				if (confirmedInboundHeader.getInboundOrderTypeId() == 2L) { 
+					axapiResponse = postStoreReturn(confirmedInboundHeader, confirmedInboundLines);
+					log.info("AXApiResponse: " + axapiResponse);
+				} 
+				
+				// If IB_ORD_TYP_ID = 3, call InterWarehouse Receipt Confirmation API
+				if (confirmedInboundHeader.getInboundOrderTypeId() == 3L) { 
+					axapiResponse = postInterWarehouse(confirmedInboundHeader, confirmedInboundLines);
+					log.info("AXApiResponse: " + axapiResponse);
+				} 
+				
+				// If IB_ORD_TYP_ID = 4, call Sale Order Returns API
+				if (confirmedInboundHeader.getInboundOrderTypeId() == 4L) { 
+					axapiResponse = postSOReturn(confirmedInboundHeader, confirmedInboundLines);
+					log.info("AXApiResponse: " + axapiResponse);
+				}
+			} catch (Exception e) {
+				log.error("AXApiResponse error: " + e.toString());
+				e.printStackTrace();
 			}
 		}
 		
@@ -497,33 +500,48 @@ public class InboundHeaderService extends BaseService {
 			if (axapiResponse != null && axapiResponse.getStatusCode() != null && 
 					axapiResponse.getStatusCode().equalsIgnoreCase("200")) {
 				// Checking the status of Line record whether Status = 20
-				BeanUtils.copyProperties(dbInboundLine, dbInboundLine, CommonUtils.getNullPropertyNames(dbInboundLine));
-				dbInboundLine.setStatusId(statusId);
-				dbInboundLine.setConfirmedBy(loginUserID);
-				dbInboundLine.setConfirmedOn(new Date());
-				dbInboundLine.setUpdatedBy(loginUserID);
-				dbInboundLine.setUpdatedOn(new Date());
-				dbInboundLine = inboundLineRepository.save(dbInboundLine);
-				log.info("dbInboundLine updated : " + dbInboundLine);
+				try {
+					BeanUtils.copyProperties(dbInboundLine, dbInboundLine, CommonUtils.getNullPropertyNames(dbInboundLine));
+					dbInboundLine.setStatusId(statusId);
+					dbInboundLine.setConfirmedBy(loginUserID);
+					dbInboundLine.setConfirmedOn(new Date());
+					dbInboundLine.setUpdatedBy(loginUserID);
+					dbInboundLine.setUpdatedOn(new Date());
+					dbInboundLine = inboundLineRepository.save(dbInboundLine);
+					log.info("dbInboundLine updated : " + dbInboundLine);
+				} catch (Exception e1) {
+					log.error("InboundLine update error: " + e1.toString());
+					e1.printStackTrace();
+				}
 		
-				// Inbound Header Update
-				InboundHeader dbInboundHeader = getInboundHeaderByEntity(warehouseId, refDocNumber, preInboundNo);
-				dbInboundHeader.setStatusId(statusId);
-				dbInboundHeader.setUpdatedBy(loginUserID);
-				dbInboundHeader.setUpdatedOn(new Date());
-				dbInboundHeader.setConfirmedBy(loginUserID);
-				dbInboundHeader.setConfirmedOn(new Date());
-				dbInboundHeader = inboundHeaderRepository.save(dbInboundHeader);
-				log.info("updatedInboundLine updated : " + dbInboundHeader);
+				try {
+					// Inbound Header Update
+					InboundHeader dbInboundHeader = getInboundHeaderByEntity(warehouseId, refDocNumber, preInboundNo);
+					dbInboundHeader.setStatusId(statusId);
+					dbInboundHeader.setUpdatedBy(loginUserID);
+					dbInboundHeader.setUpdatedOn(new Date());
+					dbInboundHeader.setConfirmedBy(loginUserID);
+					dbInboundHeader.setConfirmedOn(new Date());
+					dbInboundHeader = inboundHeaderRepository.save(dbInboundHeader);
+					log.info("InboundHeader updated : " + dbInboundHeader);
+				} catch (Exception e1) {
+					log.info("InboundHeader update error: " + dbInboundLine);
+					e1.printStackTrace();
+				}
 				
 				// PREINBOUND table updates
-				PreInboundHeader preInboundHeader = preInboundHeaderService.updatePreInboundHeader(preInboundNo, warehouseId, 
-						refDocNumber, statusId, loginUserID);
-				log.info("PreInboundHeader updated : " + preInboundHeader);
-				
-				PreInboundLineEntity preInboundLine = preInboundLineService.updatePreInboundLine(preInboundNo, warehouseId, 
-						refDocNumber, dbInboundLine.getLineNo(), dbInboundLine.getItemCode(), statusId, loginUserID);
-				log.info("preInboundLine updated : " + preInboundLine);	
+				try {
+					PreInboundHeader preInboundHeader = preInboundHeaderService.updatePreInboundHeader(preInboundNo, warehouseId, 
+							refDocNumber, statusId, loginUserID);
+					log.info("PreInboundHeader updated : " + preInboundHeader);
+					
+					PreInboundLineEntity preInboundLine = preInboundLineService.updatePreInboundLine(preInboundNo, warehouseId, 
+							refDocNumber, dbInboundLine.getLineNo(), dbInboundLine.getItemCode(), statusId, loginUserID);
+					log.info("PreInboundLine updated : " + preInboundLine);
+				} catch (Exception e1) {
+					log.error("PreInboundHeader & line update error: " + e1.toString());
+					e1.printStackTrace();
+				}	
 				
 				try {
 					// GRHEADER/GRLINE table updates
@@ -531,14 +549,19 @@ public class InboundHeaderService extends BaseService {
 							dbInboundLine.getItemCode(), statusId, loginUserID);
 					log.info("grHeaderService updated : ");
 				} catch (Exception e) {
-					log.error("Record not found: " + e.getLocalizedMessage());
+					log.error("grHeaderService update error: " + e.getLocalizedMessage());
+					e.printStackTrace();
 				}	
 			
-				// /STAGINGHEADER/STAGINGLINE table updates
-				stagingHeaderService.updateStagingHeader(warehouseId, preInboundNo, refDocNumber, dbInboundLine.getLineNo(), 
-						dbInboundLine.getItemCode(), statusId, loginUserID);
-				log.info("stagingHeaderService updated : ");
-				
+				try {
+					// /STAGINGHEADER/STAGINGLINE table updates
+					stagingHeaderService.updateStagingHeader(warehouseId, preInboundNo, refDocNumber, dbInboundLine.getLineNo(), 
+							dbInboundLine.getItemCode(), statusId, loginUserID);
+					log.info("stagingHeaderService updated : ");
+				} catch (Exception e) {
+					log.error("stagingHeaderService update error: " + e.getLocalizedMessage());
+					e.printStackTrace();
+				}
 			}
 		}
 		return axapiResponse;

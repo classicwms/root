@@ -10,22 +10,22 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
-import com.tekclover.wms.api.transaction.model.inbound.InboundHeader;
-import com.tekclover.wms.api.transaction.repository.InboundHeaderRepository;
-import com.tekclover.wms.api.transaction.util.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
+import com.tekclover.wms.api.transaction.model.inbound.InboundHeader;
 import com.tekclover.wms.api.transaction.model.inbound.containerreceipt.AddContainerReceipt;
 import com.tekclover.wms.api.transaction.model.inbound.containerreceipt.ContainerReceipt;
 import com.tekclover.wms.api.transaction.model.inbound.containerreceipt.SearchContainerReceipt;
 import com.tekclover.wms.api.transaction.model.inbound.containerreceipt.UpdateContainerReceipt;
 import com.tekclover.wms.api.transaction.repository.ContainerReceiptRepository;
+import com.tekclover.wms.api.transaction.repository.InboundHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.specification.ContainerReceiptSpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
+import com.tekclover.wms.api.transaction.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -118,7 +118,6 @@ public class ContainerReceiptService extends BaseService {
 				containerReceipt.setReferenceField5(null);
 			}
 		}
-		log.info("results: " + results);
 		return results;
 	}
 	

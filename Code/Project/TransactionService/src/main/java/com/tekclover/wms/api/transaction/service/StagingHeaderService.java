@@ -154,7 +154,7 @@ public class StagingHeaderService extends BaseService {
 		
 		StagingHeaderSpecification spec = new StagingHeaderSpecification(searchStagingHeader);
 		List<StagingHeader> results = stagingHeaderRepository.findAll(spec);
-		log.info("results: " + results);
+//		log.info("results: " + results);
 		return results;
 	}
 	

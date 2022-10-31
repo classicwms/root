@@ -71,7 +71,7 @@ public class PreInboundHeaderController {
 	@GetMapping("/{preInboundNo}")
 	public ResponseEntity<?> getPreInboundHeader(@PathVariable String preInboundNo, @RequestParam String warehouseId) {
     	PreInboundHeader preinboundheader = preinboundheaderService.getPreInboundHeader(preInboundNo, warehouseId);
-    	log.info("PreInboundHeader : " + preinboundheader);
+//    	log.info("PreInboundHeader : " + preinboundheader);
 		return new ResponseEntity<>(preinboundheader, HttpStatus.OK);
 	}
     
@@ -79,7 +79,7 @@ public class PreInboundHeaderController {
    	@GetMapping("/inboundconfirm")
    	public ResponseEntity<?> getPreInboundHeader(@RequestParam String warehouseId) {
        	List<PreInboundHeader> preinboundheader = preinboundheaderService.getPreInboundHeaderWithStatusId(warehouseId);
-       	log.info("PreInboundHeader : " + preinboundheader);
+//       	log.info("PreInboundHeader : " + preinboundheader);
    		return new ResponseEntity<>(preinboundheader, HttpStatus.OK);
    	}
     

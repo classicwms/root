@@ -8,7 +8,11 @@ import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanWrapper;
@@ -112,15 +116,16 @@ public class CommonUtils {
 //		o.sortList();
 		
 		List<String> list = new ArrayList<> ();
-		list.add("A1");
-		list.add("A2");
-		list.add("A3");
-		list.add("A4");
-		list.add("A5");
-		list.add("A6");
-		List[] list1 = splitList (list);
-		System.out.println(list1[0]);
-		System.out.println(list1[1]);
+		for (int i=0; i < 5560; i++) {
+			list.add("A" + i);
+		}
+		
+//		List[] list1 = splitList (list);
+//		System.out.println(list1[0]);
+//		System.out.println(list1[1]);
+		
+		List<List<String>> l = splitArrayList (list, 1800);
+//		System.out.println(l);
 	}
 	
 	private static<T> List[] splitList (List<String> list) {
@@ -140,24 +145,32 @@ public class CommonUtils {
 		private long qty;
 	}
 
-	public static <T extends Object> List<T[]> splitArrayList(T[] array, int splitSize) {
-
-		int numberOfArrays = array.length / splitSize;
-		int remainder = array.length % splitSize;
-
+	/**
+	 * 
+	 * @param list2
+	 * @param splitSize
+	 * @return
+	 */
+	public static List<List<String>> splitArrayList(List<String> list2, int splitSize) {
+		int numberOfArrays = list2.size() / splitSize;
+		int remainder = list2.size() % splitSize;
 		int start = 0;
 		int end = 0;
 
-		List<T[]> list = new ArrayList<T[]>();
+		List<List<String>> finallist = new ArrayList<>();
 		for (int i = 0; i < numberOfArrays; i++) {
 			end += splitSize;
-			list.add(Arrays.copyOfRange(array, start, end));
+			List<String> splitlist = new ArrayList<>(list2.subList(start, end));
+			System.out.println(splitlist + "\n");
+			finallist.add (splitlist);
 			start = end;
 		}
 
 		if(remainder > 0) {
-			list.add(Arrays.copyOfRange(array, start, (start + remainder)));
+			List<String> splitlist = new ArrayList<>(list2.subList(start, (start + remainder)));
+			finallist.add(splitlist);
+			System.out.println(splitlist + "\n");
 		}
-		return list;
+		return finallist;
 	}
 }

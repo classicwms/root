@@ -21,6 +21,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.tekclover.wms.api.transaction.config.PropertiesConfig;
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
+import com.tekclover.wms.api.transaction.controller.exception.InboundOrderRequestException;
+import com.tekclover.wms.api.transaction.controller.exception.OutboundOrderRequestException;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.ASN;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.ASNHeader;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.ASNLine;
@@ -1036,7 +1038,7 @@ public class WarehouseService extends BaseService {
 			// Checking for duplicate RefDocNumber
 			InboundOrder dbApiHeader = orderService.getOrderById(asnHeader.getAsnNumber());
 			if (dbApiHeader != null) {
-				throw new BadRequestException("ASN is already posted and it can't be duplicated.");
+				throw new InboundOrderRequestException("ASN is already posted and it can't be duplicated.");
 			}
 						
 			List<ASNLine> asnLines = asn.getAsnLine();
@@ -1099,7 +1101,7 @@ public class WarehouseService extends BaseService {
 			// Checking for duplicate RefDocNumber
 			InboundOrder dbApiHeader = orderService.getOrderById(storeReturnHeader.getTransferOrderNumber());
 			if (dbApiHeader != null) {
-				throw new BadRequestException("StoreReturn is already posted and it can't be duplicated.");
+				throw new InboundOrderRequestException("StoreReturn is already posted and it can't be duplicated.");
 			}
 						
 			List<StoreReturnLine> storeReturnLines = storeReturn.getStoreReturnLine();
@@ -1131,7 +1133,7 @@ public class WarehouseService extends BaseService {
 					Date reqDelDate = DateUtils.convertStringToDate(storeReturnLine.getExpectedDate());
 					apiLine.setExpectedDate(reqDelDate);
 				} catch (Exception e) {
-					throw new BadRequestException("Date format should be MM-dd-yyyy");
+					throw new InboundOrderRequestException("Date format should be MM-dd-yyyy");
 				}
 				
 				apiLine.setOrderedQty(storeReturnLine.getExpectedQty());				// ORD_QTY
@@ -1163,7 +1165,7 @@ public class WarehouseService extends BaseService {
 			// Checking for duplicate RefDocNumber
 			InboundOrder dbApiHeader = orderService.getOrderById(soReturnHeader.getReturnOrderReference());
 			if (dbApiHeader != null) {
-				throw new BadRequestException("Return Order Reference is already posted and it can't be duplicated.");
+				throw new InboundOrderRequestException("Return Order Reference is already posted and it can't be duplicated.");
 			}
 						
 			List<SOReturnLine> storeReturnLines = soReturn.getSoReturnLine();
@@ -1195,7 +1197,7 @@ public class WarehouseService extends BaseService {
 					Date reqDelDate = DateUtils.convertStringToDate(soReturnLine.getExpectedDate());
 					apiLine.setExpectedDate(reqDelDate);
 				} catch (Exception e) {
-					throw new BadRequestException("Date format should be MM-dd-yyyy");
+					throw new InboundOrderRequestException("Date format should be MM-dd-yyyy");
 				}
 				
 				apiLine.setOrderedQty(soReturnLine.getExpectedQty());					// ORD_QTY
@@ -1227,7 +1229,7 @@ public class WarehouseService extends BaseService {
 			// Checking for duplicate RefDocNumber
 			InboundOrder dbApiHeader = orderService.getOrderById(interWarehouseTransferInHeader.getTransferOrderNumber());
 			if (dbApiHeader != null) {
-				throw new BadRequestException("InterWarehouseTransfer is already posted and it can't be duplicated.");
+				throw new InboundOrderRequestException("InterWarehouseTransfer is already posted and it can't be duplicated.");
 			}
 						
 			List<InterWarehouseTransferInLine> interWarehouseTransferInLines = interWarehouseTransferIn.getInterWarehouseTransferInLine();
@@ -1259,7 +1261,7 @@ public class WarehouseService extends BaseService {
 					Date reqDelDate = DateUtils.convertStringToDate(iwhTransferLine.getExpectedDate());
 					apiLine.setExpectedDate(reqDelDate);
 				} catch (Exception e) {
-					throw new BadRequestException("Date format should be MM-dd-yyyy");
+					throw new InboundOrderRequestException("Date format should be MM-dd-yyyy");
 				}
 				
 				apiLine.setOrderedQty(iwhTransferLine.getExpectedQty());					// ORD_QTY
@@ -1294,7 +1296,7 @@ public class WarehouseService extends BaseService {
 			OutboundOrder obOrder = orderService.getOBOrderById(soHeader.getTransferOrderNumber());
 			
 			if (obOrder != null) {
-				throw new BadRequestException("TransferOrderNumber is already posted and it can't be duplicated.");
+				throw new OutboundOrderRequestException("TransferOrderNumber is getting duplicated. This order already exists in the System.");
 			}
 						
 			List<SOLine> soLines = shipmenOrder.getSoLine();
@@ -1315,7 +1317,7 @@ public class WarehouseService extends BaseService {
 				Date reqDelDate = DateUtils.convertStringToDate(soHeader.getRequiredDeliveryDate());
 				apiHeader.setRequiredDeliveryDate(reqDelDate);
 			} catch (Exception e) {
-				throw new BadRequestException("Date format should be MM-dd-yyyy");
+				throw new OutboundOrderRequestException("Date format should be MM-dd-yyyy");
 			}
 			
 			Set<OutboundOrderLine> orderLines = new HashSet<>();
@@ -1356,7 +1358,7 @@ public class WarehouseService extends BaseService {
 			OutboundOrder obOrder = orderService.getOBOrderById(salesOrderHeader.getSalesOrderNumber());
 			
 			if (obOrder != null) {
-				throw new BadRequestException("SalesOrderNumber is already posted and it can't be duplicated.");
+				throw new OutboundOrderRequestException("SalesOrderNumber is already posted and it can't be duplicated.");
 			}
 						
 			List<SalesOrderLine> salesOrderLines = salesOrder.getSalesOrderLine();
@@ -1376,7 +1378,7 @@ public class WarehouseService extends BaseService {
 				Date reqDelDate = DateUtils.convertStringToDate(salesOrderHeader.getRequiredDeliveryDate());
 				apiHeader.setRequiredDeliveryDate(reqDelDate);
 			} catch (Exception e) {
-				throw new BadRequestException("Date format should be MM-dd-yyyy");
+				throw new OutboundOrderRequestException("Date format should be MM-dd-yyyy");
 			}
 			Set<OutboundOrderLine> orderLines = new HashSet<>();
 			for (SalesOrderLine soLine : salesOrderLines) {
@@ -1419,7 +1421,7 @@ public class WarehouseService extends BaseService {
 			OutboundOrder obOrder = orderService.getOBOrderById(returnPOHeader.getPoNumber());
 			
 			if (obOrder != null) {
-				throw new BadRequestException("PONumber is already posted and it can't be duplicated.");
+				throw new OutboundOrderRequestException("PONumber is already posted and it can't be duplicated.");
 			}
 						
 			List<ReturnPOLine> returnPOLines = returnPO.getReturnPOLine();
@@ -1441,7 +1443,7 @@ public class WarehouseService extends BaseService {
 				Date reqDelDate = DateUtils.convertStringToDate(returnPOHeader.getRequiredDeliveryDate());
 				apiHeader.setRequiredDeliveryDate(reqDelDate);
 			} catch (Exception e) {
-				throw new BadRequestException("Date format should be MM-dd-yyyy");
+				throw new OutboundOrderRequestException("Date format should be MM-dd-yyyy");
 			}
 			
 			Set<OutboundOrderLine> orderLines = new HashSet<>();
@@ -1485,7 +1487,7 @@ public class WarehouseService extends BaseService {
 			OutboundOrder obOrder = orderService.getOBOrderById(interWarehouseTransferOutHeader.getTransferOrderNumber());
 			
 			if (obOrder != null) {
-				throw new BadRequestException("TransferOrderNumber is already posted and it can't be duplicated.");
+				throw new OutboundOrderRequestException("TransferOrderNumber is already posted and it can't be duplicated.");
 			}
 						
 			List<InterWarehouseTransferOutLine> interWarehouseTransferOutLines = 
@@ -1508,7 +1510,7 @@ public class WarehouseService extends BaseService {
 				Date reqDelDate = DateUtils.convertStringToDate(interWarehouseTransferOutHeader.getRequiredDeliveryDate());
 				apiHeader.setRequiredDeliveryDate(reqDelDate);
 			} catch (Exception e) {
-				throw new BadRequestException("Date format should be MM-dd-yyyy");
+				throw new OutboundOrderRequestException("Date format should be MM-dd-yyyy");
 			}
 			
 			Set<OutboundOrderLine> orderLines = new HashSet<>();

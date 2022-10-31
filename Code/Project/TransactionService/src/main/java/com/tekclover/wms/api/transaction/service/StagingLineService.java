@@ -191,7 +191,7 @@ public class StagingLineService extends BaseService {
 			throws ParseException {
 		StagingLineSpecification spec = new StagingLineSpecification(searchStagingLine);
 		List<StagingLineEntity> searchResults = stagingLineEntityRepository.findAll(spec);
-		log.info("searchResults: " + searchResults);
+//		log.info("searchResults: " + searchResults);
 		
 		List<StagingLineEntity> stagingLineEntityList = 
 				searchResults.stream().filter(n -> n.getDeletionIndicator() != null && 

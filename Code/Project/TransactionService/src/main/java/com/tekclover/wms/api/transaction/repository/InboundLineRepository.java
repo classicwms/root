@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.transaction.repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,15 +60,17 @@ public interface InboundLineRepository extends JpaRepository<InboundLine,Long>, 
 
 	public List<InboundLine> findByRefDocNumberAndDeletionIndicator(String refDocNumber, long l);
 
-	@Query(value="select il.wh_id as warehouseId, il.itm_code as itemCode , \n" +
-			" 'InBound' as documentType ,il.ref_doc_no as documentNumber, il.partner_code as partnerCode,\n" +
-			" x.pa_cnf_on as confirmedOn, (COALESCE(il.accept_qty,0) + COALESCE(il.damage_qty,0)) as movementQty, im.text as itemText ,im.mfr_part as manufacturerSKU \n" +
-			" from tblinboundline il\n" +
-			" join tblimbasicdata1 im on il.itm_code = im.itm_code \n" +
-			" join (select * from tblputawayline pa where pa.itm_code in (:itemCode)) as x on il.ref_doc_no = x.ref_doc_no  \n" +
-			" WHERE il.ITM_CODE in (:itemCode) AND x.ib_line_no = il.ib_line_no AND il.WH_ID in (:warehouseId) AND il.status_id in (:statusId)", nativeQuery=true)
+	@Query(value="select il.wh_id as warehouseId, il.itm_code as itemCode, 'InBound' as documentType ,il.ref_doc_no as documentNumber, il.partner_code as partnerCode, "
+			+ " (COALESCE(il.accept_qty,0) + COALESCE(il.damage_qty,0)) as movementQty, im.text as itemText ,im.mfr_part as manufacturerSKU from tblinboundline il "
+			+ " join tblimbasicdata1 im on il.itm_code = im.itm_code WHERE il.ITM_CODE in (:itemCode) AND il.WH_ID in (:warehouseId) AND il.status_id in (:statusId) "
+			+ " AND (il.accept_qty is not null OR il.damage_qty is not null)", 
+			nativeQuery=true)
 	public List<StockMovementReportImpl> findInboundLineForStockMovement(@Param("itemCode") List<String> itemCode,
 																		  @Param ("warehouseId") List<String> warehouseId,
 																		  @Param ("statusId") List<Long> statusId);
+	
+	@Query(value="Select top 1 PA_CNF_ON from tblputawayline where ref_doc_no = :refDocNo and itm_code = :itemCode order by PA_CNF_ON DESC", 
+			nativeQuery=true)
+	public Date findDateFromPutawayLine(@Param("refDocNo") String refDocNo, @Param("itemCode") String itemCode);
 }
 

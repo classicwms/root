@@ -293,16 +293,16 @@ public class PickupLineService extends BaseService {
 	public List<PickupLine> createPickupLine (@Valid List<AddPickupLine> newPickupLines, String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
 		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-		List<PickupLine> pickupLineList = new ArrayList<>();
 		Long STATUS_ID = 0L;
 		String warehouseId = null;
 		String preOutboundNo = null;
 		String refDocNumber = null;
 		String partnerCode = null;
 		String pickupNumber = null;
-		
 		boolean isQtyAvail = false;
+		
 		// Create PickUpLine
+		List<PickupLine> createdPickupLineList = new ArrayList<>();
 		for (AddPickupLine newPickupLine : newPickupLines) {
 			PickupLine dbPickupLine = new PickupLine();
 			BeanUtils.copyProperties(newPickupLine, dbPickupLine, CommonUtils.getNullPropertyNames(newPickupLine));
@@ -312,18 +312,9 @@ public class PickupLineService extends BaseService {
 			dbPickupLine.setPlantId(warehouse.getPlantId());
 			
 			// STATUS_ID
-			/*
-			 * if PICK_CNF_QTY > 0, insert STATUS_ID = 50
-			 * If PICK_CNF_QTY = 0, insert STATUS_ID = 51
-			 */
-//			if (STATUS_ID == 0) {
-				if (newPickupLine.getPickConfirmQty() > 0) {
-//					STATUS_ID = 50L;
-					isQtyAvail = true;
-				} //else if (newPickupLine.getPickConfirmQty() == 0D) {
-//					STATUS_ID = 51L;
-				//} 
-//			}
+			if (newPickupLine.getPickConfirmQty() > 0) {
+				isQtyAvail = true;
+			}
 			
 			if (isQtyAvail) {
 				STATUS_ID = 50L;
@@ -339,23 +330,22 @@ public class PickupLineService extends BaseService {
 			dbPickupLine.setPickupCreatedOn(new Date());
 			dbPickupLine.setPickupUpdatedBy(loginUserID);
 			dbPickupLine.setPickupUpdatedOn(new Date());
-			List<PickupLine> pickupLinesList = pickupLineRepository.findAllByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndPickedPackCodeAndDeletionIndicator(
-					newPickupLine.getWarehouseId(),newPickupLine.getPreOutboundNo(),newPickupLine.getRefDocNumber(),newPickupLine.getPartnerCode(),newPickupLine.getLineNumber(),
-					newPickupLine.getItemCode(),newPickupLine.getPickedPackCode(), 0L);
-			log.info("pickupLinesList existing: " + pickupLinesList);
 			
-//			if(pickupLinesList == null || pickupLinesList.isEmpty()) { 
-				PickupLine createdPickupLine = pickupLineRepository.save(dbPickupLine);
-				log.info("dbPickupLine created: " + createdPickupLine);
-
-				/*---------------------------------------------Inventory Updates-------------------------------------------*/
-				// Pass WH_ID/ITM_CODE/ST_BIN/PACK_BARCODE in INVENTORY table
-				Inventory inventory = inventoryService.getInventory(dbPickupLine.getWarehouseId(), dbPickupLine.getPickedPackCode(),
-						dbPickupLine.getItemCode(), dbPickupLine.getPickedStorageBin());
-				log.info("inventory record : " + inventory);
-				if (inventory != null) {
-					if (createdPickupLine.getAllocatedQty() > 0D) {
-						Double INV_QTY = (inventory.getInventoryQuantity() + createdPickupLine.getAllocatedQty()) - dbPickupLine.getPickConfirmQty();
+			PickupLine createdPickupLine = pickupLineRepository.save(dbPickupLine);
+			log.info("dbPickupLine created: " + createdPickupLine);
+			createdPickupLineList.add(createdPickupLine);
+		}
+		
+		/*---------------------------------------------Inventory Updates-------------------------------------------*/
+		// Updating respective tables
+		for (PickupLine dbPickupLine : createdPickupLineList) {
+			Inventory inventory = inventoryService.getInventory(dbPickupLine.getWarehouseId(), dbPickupLine.getPickedPackCode(),
+					dbPickupLine.getItemCode(), dbPickupLine.getPickedStorageBin());
+			log.info("inventory record queried: " + inventory);
+			if (inventory != null) {
+				if (dbPickupLine.getAllocatedQty() > 0D) {
+					try {
+						Double INV_QTY = (inventory.getInventoryQuantity() + dbPickupLine.getAllocatedQty()) - dbPickupLine.getPickConfirmQty();
 						Double ALLOC_QTY = inventory.getAllocatedQuantity() - dbPickupLine.getAllocatedQty();
 
 						/*
@@ -365,12 +355,7 @@ public class PickupLineService extends BaseService {
 						if (INV_QTY < 0D) {
 							INV_QTY = 0D;
 						}
-						// End
-
-						/*
-						 * [Prod Fix: 26-08] - Discussed to make negative inventory to zero
-						 */
-						// Start
+						
 						if (ALLOC_QTY < 0D) {
 							ALLOC_QTY = 0D;
 						}
@@ -378,24 +363,32 @@ public class PickupLineService extends BaseService {
 
 						inventory.setInventoryQuantity(INV_QTY);
 						inventory.setAllocatedQuantity(ALLOC_QTY);
+						
 						// INV_QTY > 0 then, update Inventory Table
 						inventory = inventoryRepository.save(inventory);
 						log.info("inventory updated : " + inventory);
 
 						if (INV_QTY == 0) {
-//						[Prod Fix: 28-06] - Discussed to comment delete Inventory operation to avoid unwanted delete of Inventory
-//						inventoryRepository.delete(inventory);
-							log.info("inventory record is deleted...");
-							StorageBin dbStorageBin =
-									mastersService.getStorageBin(inventory.getStorageBin(), authTokenForMastersService.getAccess_token());
 							// Setting up statusId = 0
-							dbStorageBin.setStatusId(0L);
-							mastersService.updateStorageBin(inventory.getStorageBin(), dbStorageBin, loginUserID, authTokenForMastersService.getAccess_token());
+							try {
+								StorageBin dbStorageBin = mastersService.getStorageBin(inventory.getStorageBin(), authTokenForMastersService.getAccess_token());
+								dbStorageBin.setStatusId(0L);
+								mastersService.updateStorageBin(inventory.getStorageBin(), dbStorageBin, loginUserID, authTokenForMastersService.getAccess_token());
+							} catch (Exception e) {
+								log.error ("updateStorageBin Error :" + e.toString());
+								e.printStackTrace();
+							}
 						}
+					} catch (Exception e) {
+						log.error ("Inventory Update :" + e.toString());
+						e.printStackTrace();
 					}
+				}
 
-					if ( createdPickupLine.getAllocatedQty() == null || createdPickupLine.getAllocatedQty() == 0D) {
-						Double INV_QTY = inventory.getInventoryQuantity() - dbPickupLine.getPickConfirmQty();
+				if ( dbPickupLine.getAllocatedQty() == null || dbPickupLine.getAllocatedQty() == 0D) {
+					Double INV_QTY;
+					try {
+						INV_QTY = inventory.getInventoryQuantity() - dbPickupLine.getPickConfirmQty();
 						/*
 						 * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
 						 */
@@ -407,56 +400,74 @@ public class PickupLineService extends BaseService {
 						inventory.setInventoryQuantity(INV_QTY);
 						inventory = inventoryRepository.save(inventory);
 						log.info("inventory updated : " + inventory);
-
+						
 						if (INV_QTY == 0) {
-//						[Prod Fix: 28-06] - Discussed to comment delete Inventory operation to avoid unwanted delete of Inventory
-//						inventoryRepository.delete(inventory);
-							log.info("inventory record is deleted...");
-							StorageBin dbStorageBin =
-									mastersService.getStorageBin(inventory.getStorageBin(), authTokenForMastersService.getAccess_token());
-							// Setting up statusId = 0
-							dbStorageBin.setStatusId(0L);
-							mastersService.updateStorageBin(inventory.getStorageBin(), dbStorageBin, loginUserID, authTokenForMastersService.getAccess_token());
+							try {
+								// Setting up statusId = 0
+								StorageBin dbStorageBin = mastersService.getStorageBin(inventory.getStorageBin(), authTokenForMastersService.getAccess_token());
+								dbStorageBin.setStatusId(0L);
+								mastersService.updateStorageBin(inventory.getStorageBin(), dbStorageBin, loginUserID, authTokenForMastersService.getAccess_token());
+							} catch (Exception e) {
+								log.error ("updateStorageBin Error :" + e.toString());
+								e.printStackTrace();
+							}
 						}
+					} catch (Exception e1) {
+						log.error ("Inventory cum StorageBin update: Error :" + e1.toString());
+						e1.printStackTrace();
 					}
 				}
-				// Inserting record in InventoryMovement
-				Long subMvtTypeId = 1L;
-				String movementDocumentNo = dbPickupLine.getPickupNumber();
-				String stBin = dbPickupLine.getPickedStorageBin();
-				String movementQtyValue = "N";
-				InventoryMovement inventoryMovement = createInventoryMovement(dbPickupLine, subMvtTypeId, movementDocumentNo, stBin,
+			}
+			
+			// Inserting record in InventoryMovement
+			Long subMvtTypeId;
+			String movementDocumentNo;
+			String stBin;
+			String movementQtyValue;
+			InventoryMovement inventoryMovement;
+			try {
+				subMvtTypeId = 1L;
+				movementDocumentNo = dbPickupLine.getPickupNumber();
+				stBin = dbPickupLine.getPickedStorageBin();
+				movementQtyValue = "N";
+				inventoryMovement = createInventoryMovement(dbPickupLine, subMvtTypeId, movementDocumentNo, stBin,
 						movementQtyValue, loginUserID);
 				log.info("InventoryMovement created : " + inventoryMovement);
+			} catch (Exception e) {
+				log.error ("InventoryMovement create Error :" + e.toString());
+				e.printStackTrace();
+			}
 
-				/*--------------------------------------------------------------------------*/
-				// 3. Insert a new record in INVENTORY table as below
-				// Fetch from PICKUPLINE table and insert WH_ID/ITM_CODE/ST_BIN = (ST_BIN value of BIN_CLASS_ID=4
-				// from STORAGEBIN table)/PACK_BARCODE/INV_QTY = PICK_CNF_QTY.
-
-				Long BIN_CLASS_ID = 4L;
-				StorageBin storageBin = mastersService.getStorageBin(dbPickupLine.getWarehouseId(), BIN_CLASS_ID, authTokenForMastersService.getAccess_token());
-
-				/*
-				 * Checking Inventory table before creating new record inventory
-				 */
-				// Pass WH_ID/ITM_CODE/ST_BIN = (ST_BIN value of BIN_CLASS_ID=4 /PACK_BARCODE
-				Inventory existingInventory = inventoryService.getInventory (dbPickupLine.getWarehouseId(), dbPickupLine.getPickedPackCode(),
-						dbPickupLine.getItemCode(), storageBin.getStorageBin());
-				if (existingInventory != null) {
+			/*--------------------------------------------------------------------------*/
+			// 3. Insert a new record in INVENTORY table as below
+			// Fetch from PICKUPLINE table and insert WH_ID/ITM_CODE/ST_BIN = (ST_BIN value of BIN_CLASS_ID=4
+			// from STORAGEBIN table)/PACK_BARCODE/INV_QTY = PICK_CNF_QTY.
+			// Checking Inventory table before creating new record inventory
+			// Pass WH_ID/ITM_CODE/ST_BIN = (ST_BIN value of BIN_CLASS_ID=4 /PACK_BARCODE
+			Long BIN_CLASS_ID = 4L;
+			StorageBin storageBin = mastersService.getStorageBin(dbPickupLine.getWarehouseId(), BIN_CLASS_ID, authTokenForMastersService.getAccess_token());
+			Inventory existingInventory = inventoryService.getInventory (dbPickupLine.getWarehouseId(), dbPickupLine.getPickedPackCode(),
+					dbPickupLine.getItemCode(), storageBin.getStorageBin());
+			if (existingInventory != null) {
+				try {
 					Double INV_QTY = existingInventory.getInventoryQuantity() + dbPickupLine.getPickConfirmQty();
 					UpdateInventory updateInventory = new UpdateInventory();
 					updateInventory.setInventoryQuantity(INV_QTY);
 					Inventory updatedInventory = inventoryService.updateInventory(dbPickupLine.getWarehouseId(), dbPickupLine.getPickedPackCode(),
 							dbPickupLine.getItemCode(), storageBin.getStorageBin(), dbPickupLine.getStockTypeId(), dbPickupLine.getSpecialStockIndicatorId(),
 							updateInventory);
-					log.info("updatedInventory----------> : " + updatedInventory);
-				} else {
-					if (dbPickupLine.getStatusId() == 50L) {
+					log.info("Inventory is Updated : " + updatedInventory);
+				} catch (Exception e) {
+					log.error ("Inventory update Error :" + e.toString());
+					e.printStackTrace();
+				}
+			} else {
+				if (dbPickupLine.getStatusId() == 50L) {
+					try {
 						AddInventory newInventory = new AddInventory();
-						newInventory.setLanguageId(warehouse.getLanguageId());
-						newInventory.setCompanyCodeId(warehouse.getCompanyCode());
-						newInventory.setPlantId(warehouse.getPlantId());
+						newInventory.setLanguageId(getLanguageId());
+						newInventory.setCompanyCodeId(getCompanyCode());
+						newInventory.setPlantId(getPlantId());
 						newInventory.setBinClassId(BIN_CLASS_ID);
 						newInventory.setStockTypeId(inventory.getStockTypeId());
 						newInventory.setWarehouseId(dbPickupLine.getWarehouseId());
@@ -480,24 +491,35 @@ public class PickupLineService extends BaseService {
 
 						Inventory createdInventory = inventoryService.createInventory(newInventory, loginUserID);
 						log.info("newInventory created : " + createdInventory);
+					} catch (Exception e) {
+						log.error ("newInventory create Error :" + e.toString());
+						e.printStackTrace();
 					}
 				}
+			}
 
-				/*
-				 * ---------------------Update OUTBOUNDLINE----------------------------------------------------
-				 */
+			/*
+			 * ---------------------Update OUTBOUNDLINE----------------------------------------------------
+			 */
+			try {
 				UpdateOutboundLine updateOutboundLine = new UpdateOutboundLine();
 				updateOutboundLine.setStatusId(STATUS_ID);
 				OutboundLine outboundLine = outboundLineService.updateOutboundLine(dbPickupLine.getWarehouseId(),
 						dbPickupLine.getPreOutboundNo(), dbPickupLine.getRefDocNumber(), dbPickupLine.getPartnerCode(),
 						dbPickupLine.getLineNumber(), dbPickupLine.getItemCode(), loginUserID, updateOutboundLine);
 				log.info("outboundLine updated : " + outboundLine);
+			} catch (Exception e) {
+				log.error ("outboundLine update Error :" + e.toString());
+				e.printStackTrace();
+			}
 
-				/*
-				 * ------------------Record insertion in QUALITYHEADER table-----------------------------------
-				 * Allow to create QualityHeader only for STATUS_ID = 50
-				 */
-				if (STATUS_ID == 50) {
+			/*
+			 * ------------------Record insertion in QUALITYHEADER table-----------------------------------
+			 * Allow to create QualityHeader only for STATUS_ID = 50
+			 */
+			if (dbPickupLine.getStatusId() == 50L) {
+				String QC_NO = null;
+				try {
 					AddQualityHeader newQualityHeader = new AddQualityHeader();
 					BeanUtils.copyProperties(dbPickupLine, newQualityHeader, CommonUtils.getNullPropertyNames(dbPickupLine));
 
@@ -507,7 +529,7 @@ public class PickupLineService extends BaseService {
 					 * fetch NUM_RAN_CURRENT value of FISCALYEAR=CURRENT YEAR and add +1 and insert
 					 */
 					Long NUM_RAN_CODE = 11L;
-					String QC_NO = getNextRangeNumber(NUM_RAN_CODE, warehouse.getWarehouseId());
+					QC_NO = getNextRangeNumber(NUM_RAN_CODE, dbPickupLine.getWarehouseId());
 					newQualityHeader.setQualityInspectionNo(QC_NO);
 
 					//------ PROD FIX : 29/09/2022:HAREESH -------(CWMS/IW/2022/018)
@@ -518,14 +540,21 @@ public class PickupLineService extends BaseService {
 					newQualityHeader.setReferenceField1(dbPickupLine.getPickedStorageBin());
 					newQualityHeader.setReferenceField2(dbPickupLine.getPickedPackCode());
 					newQualityHeader.setReferenceField3(dbPickupLine.getDescription());
+					newQualityHeader.setReferenceField4(dbPickupLine.getItemCode());
+					newQualityHeader.setReferenceField5(String.valueOf(dbPickupLine.getLineNumber()));
 					
 					// STATUS_ID - Hard Coded Value "54"
 					newQualityHeader.setStatusId(54L);
 					QualityHeader createdQualityHeader = qualityHeaderService.createQualityHeader(newQualityHeader, loginUserID);
 					log.info("createdQualityHeader : " + createdQualityHeader);
+				} catch (Exception e) {
+					log.error ("createdQualityHeader Error :" + e.toString());
+					e.printStackTrace();
+				}
 
-					/*-----------------------InventoryMovement----------------------------------*/
-					// Inserting record in InventoryMovement
+				/*-----------------------InventoryMovement----------------------------------*/
+				// Inserting record in InventoryMovement
+				try {
 					subMvtTypeId = 2L;
 					movementDocumentNo = QC_NO;
 					stBin = storageBin.getStorageBin();
@@ -533,41 +562,46 @@ public class PickupLineService extends BaseService {
 					inventoryMovement = createInventoryMovement(dbPickupLine, subMvtTypeId, movementDocumentNo, stBin,
 							movementQtyValue, loginUserID);
 					log.info("InventoryMovement created for update2: " + inventoryMovement);
+				} catch (Exception e) {
+					log.error ("InventoryMovement create Error for update2 :" + e.toString());
+					e.printStackTrace();
 				}
+			}
 
-				// Properties needed for updating PickupHeader
-				warehouseId = dbPickupLine.getWarehouseId();
-				preOutboundNo = dbPickupLine.getPreOutboundNo();
-				refDocNumber = dbPickupLine.getRefDocNumber();
-				partnerCode = dbPickupLine.getPartnerCode();
-				pickupNumber = dbPickupLine.getPickupNumber();
-
-				pickupLineList.add(dbPickupLine);
-
-//			}
+			// Properties needed for updating PickupHeader
+			warehouseId = dbPickupLine.getWarehouseId();
+			preOutboundNo = dbPickupLine.getPreOutboundNo();
+			refDocNumber = dbPickupLine.getRefDocNumber();
+			partnerCode = dbPickupLine.getPartnerCode();
+			pickupNumber = dbPickupLine.getPickupNumber();
 		}
+		
 		/*---------------------------------------------PickupHeader Updates---------------------------------------*/
 		//-----------------logic for checking all records as 51 then only it should go to update header-----------*/
+		try {
+			boolean isStatus51 = false;
+			List<Long> statusList = createdPickupLineList.stream().map(PickupLine::getStatusId).collect(Collectors.toList());
+			long statusIdCount = statusList.stream().filter(a -> a == 51L).count();
+			log.info("status count : " + (statusIdCount == statusList.size()));
+			isStatus51 = (statusIdCount == statusList.size());
+			if (!statusList.isEmpty() && isStatus51) {
+				STATUS_ID = 51L;
+			} else {
+				STATUS_ID = 50L;
+			}
 
-		boolean isStatus51 = false;
-		List<Long> statusList = pickupLineList.stream().map(PickupLine::getStatusId).collect(Collectors.toList());
-		long statusIdCount = statusList.stream().filter(a -> a == 51L).count();
-		log.info("status count : " + (statusIdCount == statusList.size()));
-		isStatus51 = (statusIdCount == statusList.size());
-		if (!statusList.isEmpty() && isStatus51) {
-			STATUS_ID = 51L;
-		} else {
-			STATUS_ID = 50L;
+			PickupHeader pickupHeader = pickupHeaderService.getPickupHeader(warehouseId, preOutboundNo, refDocNumber,
+					partnerCode, pickupNumber);
+			pickupHeader.setStatusId(STATUS_ID);
+			pickupHeader.setPickUpdatedBy(loginUserID);
+			pickupHeader.setPickUpdatedOn(new Date());
+			pickupHeader = pickupHeaderRepository.save(pickupHeader);
+			log.info("PickupHeader updated: " + pickupHeader);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info("PickupHeader update error: " + e.toString());
 		}
-
-		PickupHeader pickupHeader = pickupHeaderService.getPickupHeader(warehouseId, preOutboundNo, refDocNumber,
-				partnerCode, pickupNumber);
-		pickupHeader.setStatusId(STATUS_ID);
-		pickupHeader.setPickUpdatedBy(loginUserID);
-		pickupHeader.setPickUpdatedOn(new Date());
-		pickupHeader = pickupHeaderRepository.save(pickupHeader);
-		log.info("pickupHeader updated: " + pickupHeader);
-		return pickupLineList;
+		return createdPickupLineList;
 	}
 	
 	/**

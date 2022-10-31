@@ -317,6 +317,8 @@ public class QualityLineService extends BaseService {
 		boolean isDuplicated = false;
 		String qualityInspectionNo = "";
 		for (AddQualityLine newQualityLine : newQualityLines) {
+			log.info("Input from UI:  " + newQualityLine);	
+			
 			QualityLine dbQualityLine = new QualityLine();
 			BeanUtils.copyProperties(newQualityLine, dbQualityLine, CommonUtils.getNullPropertyNames(newQualityLine));
 			
@@ -332,8 +334,8 @@ public class QualityLineService extends BaseService {
 			 * String warehouseId, String preOutboundNo, String refDocNumber,
 			String partnerCode, Long lineNumber, String qualityInspectionNo, String itemCode
 			 */
-			QualityLine existingQualityLine = findDuplicateRecord (dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(),
-					dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(), dbQualityLine.getQualityInspectionNo(), dbQualityLine.getItemCode());
+			QualityLine existingQualityLine = findDuplicateRecord (newQualityLine.getWarehouseId(), newQualityLine.getPreOutboundNo(), newQualityLine.getRefDocNumber(),
+					newQualityLine.getPartnerCode(), newQualityLine.getLineNumber(), newQualityLine.getQualityInspectionNo(), newQualityLine.getItemCode());
 			log.info("existingQualityLine record status : " + existingQualityLine);		
 			
 			/*

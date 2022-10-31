@@ -2099,41 +2099,59 @@ public class ReportsService extends BaseService {
 		return dashboard;
 	}
 
+	/**
+	 * 
+	 * @param warehouseId
+	 * @return
+	 * @throws Exception
+	 */
 	public Dashboard getDashboardShippedLine(String warehouseId) throws Exception {
 
-		Dashboard dashboard = new Dashboard();
-		/*--------------------------DAY-----------------------------------------------*/
-		Dashboard.Day day = dashboard.new Day();
-		Dashboard.Day.Shipping dayShipping = day.new Shipping();
+		try {
+			Dashboard dashboard = new Dashboard();
+			/*--------------------------DAY-----------------------------------------------*/
+			Dashboard.Day day = dashboard.new Day();
+			Dashboard.Day.Shipping dayShipping = day.new Shipping();
 
-		/*-----------------------Shipping---------------------------------------------*/
-		// ShippedLine Count
-		long shippedLineCount = getShippedLineCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1));
-		dayShipping.setShippedLine(shippedLineCount);
+			/*-----------------------Shipping---------------------------------------------*/
+			// ShippedLine Count
+			long shippedLineCount = getShippedLineCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1));
+			dayShipping.setShippedLine(shippedLineCount);
 
-		day.setShipping(dayShipping);
-		dashboard.setDay(day);
+			day.setShipping(dayShipping);
+			dashboard.setDay(day);
 
-		/*--------------------------MONTH--------------------------------------------*/
-		Dashboard.Month month = dashboard.new Month();
-		Dashboard.Month.Shipping monthShipping = month.new Shipping();
+			/*--------------------------MONTH--------------------------------------------*/
+			Dashboard.Month month = dashboard.new Month();
+			Dashboard.Month.Shipping monthShipping = month.new Shipping();
 
-		/*-----------------------Receipts--------------------------------------------*/
-		// Awaiting ASN
-		LocalDate today = LocalDate.now();
-		today = today.withDayOfMonth(1);
-		log.info("First day of current month: " + today.withDayOfMonth(1));
-		Date beginningOfMonth = Date.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant());
-		/*-----------------------Shipping---------------------------------------------*/
-		// ShippedLine Count
-		shippedLineCount = getShippedLineCount(warehouseId, beginningOfMonth, new Date());
-		monthShipping.setShippedLine(shippedLineCount);
+			/*-----------------------Receipts--------------------------------------------*/
+			// Awaiting ASN
+			LocalDate today = LocalDate.now();
+			today = today.withDayOfMonth(1);
+			log.info("First day of current month: " + today.withDayOfMonth(1));
+			Date beginningOfMonth = Date.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant());
+			/*-----------------------Shipping---------------------------------------------*/
+			// ShippedLine Count
+			shippedLineCount = getShippedLineCount(warehouseId, beginningOfMonth, new Date());
+			monthShipping.setShippedLine(shippedLineCount);
 
-		month.setShipping(monthShipping);
-		dashboard.setMonth(month);
-		return dashboard;
+			month.setShipping(monthShipping);
+			dashboard.setMonth(month);
+			log.info("dashboard-: " + dashboard);
+			return dashboard;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
+	/**
+	 * 
+	 * @param warehouseId
+	 * @return
+	 * @throws Exception
+	 */
 	public Dashboard getDashboardNormalCount(String warehouseId) throws Exception {
 
 		Dashboard dashboard = new Dashboard();
@@ -2402,9 +2420,10 @@ public class ReportsService extends BaseService {
 		searchOutboundLine.setFromDeliveryDate(dates[0]);
 		searchOutboundLine.setToDeliveryDate(dates[1]);
 		searchOutboundLine.setStatusId(Arrays.asList(59L));
-		List<OutboundLine> outboundLineSearchResults = outboundLineService.findOutboundLine(searchOutboundLine);
-		long shippedLineCount = outboundLineSearchResults.stream()
-				.filter(o -> o.getReferenceField2() == null && o.getDeliveryQty() != null  && o.getDeliveryQty() > 0).count();
+//		List<OutboundLine> outboundLineSearchResults = outboundLineService.findOutboundLine(searchOutboundLine);
+		long shippedLineCount = outboundLineService.findOutboundLine(searchOutboundLine, null);
+//		long shippedLineCount = outboundLineSearchResults.stream()
+//				.filter(o -> o.getReferenceField2() == null && o.getDeliveryQty() != null  && o.getDeliveryQty() > 0).count();
 
 		log.info("shippedLineCount : " + shippedLineCount);
 		return shippedLineCount;
@@ -2430,9 +2449,11 @@ public class ReportsService extends BaseService {
 		searchOutboundLine.setFromDeliveryDate(dates[0]);
 		searchOutboundLine.setToDeliveryDate(dates[1]);
 		searchOutboundLine.setStatusId(Arrays.asList(59L));
-		List<OutboundLine> outboundLineSearchResults = outboundLineService.findOutboundLine(searchOutboundLine);
-		long normalCount = outboundLineSearchResults.stream().filter(o -> o.getReferenceField1().equalsIgnoreCase(type)
-				&& o.getReferenceField2() == null && o.getDeliveryQty() != null && o.getDeliveryQty() > 0).count();
+//		List<OutboundLine> outboundLineSearchResults = outboundLineService.findOutboundLine(searchOutboundLine, type);
+		
+		long normalCount = outboundLineService.findOutboundLine(searchOutboundLine, type);
+//		long normalCount = outboundLineSearchResults.stream().filter(o -> o.getReferenceField1().equalsIgnoreCase(type)
+//				&& o.getReferenceField2() == null && o.getDeliveryQty() != null && o.getDeliveryQty() > 0).count();
 
 		log.info("normalCount : " + normalCount);
 		return normalCount;

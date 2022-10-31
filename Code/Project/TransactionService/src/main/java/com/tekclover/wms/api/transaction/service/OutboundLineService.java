@@ -43,7 +43,6 @@ import com.tekclover.wms.api.transaction.model.outbound.outboundreversal.AddOutb
 import com.tekclover.wms.api.transaction.model.outbound.outboundreversal.OutboundReversal;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupHeader;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupLine;
-import com.tekclover.wms.api.transaction.model.outbound.pickup.SearchPickupLine;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.UpdatePickupHeader;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.UpdatePickupLine;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.PreOutboundHeader;
@@ -52,7 +51,6 @@ import com.tekclover.wms.api.transaction.model.outbound.preoutbound.UpdatePreOut
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.UpdatePreOutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.quality.QualityHeader;
 import com.tekclover.wms.api.transaction.model.outbound.quality.QualityLine;
-import com.tekclover.wms.api.transaction.model.outbound.quality.SearchQualityLine;
 import com.tekclover.wms.api.transaction.model.outbound.quality.UpdateQualityHeader;
 import com.tekclover.wms.api.transaction.model.outbound.quality.UpdateQualityLine;
 import com.tekclover.wms.api.transaction.model.report.SearchOrderStatusReport;
@@ -75,6 +73,8 @@ import com.tekclover.wms.api.transaction.repository.InboundLineRepository;
 import com.tekclover.wms.api.transaction.repository.InventoryRepository;
 import com.tekclover.wms.api.transaction.repository.OrderManagementLineRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundLineRepository;
+import com.tekclover.wms.api.transaction.repository.PickupLineRepository;
+import com.tekclover.wms.api.transaction.repository.QualityLineRepository;
 import com.tekclover.wms.api.transaction.repository.specification.OutboundLineReportSpecification;
 import com.tekclover.wms.api.transaction.repository.specification.OutboundLineSpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
@@ -111,10 +111,16 @@ public class OutboundLineService extends BaseService {
 	private QualityLineService qualityLineService;
 	
 	@Autowired
+	private QualityLineRepository qualityLineRepository;
+	
+	@Autowired
 	private PickupLineService pickupLineService;
 	
 	@Autowired
 	private PickupHeaderService pickupHeaderService;
+	
+	@Autowired
+	private PickupLineRepository pickupLineRepository;
 	
 	@Autowired
 	private OrderManagementHeaderService orderManagementHeaderService;
@@ -352,62 +358,118 @@ public class OutboundLineService extends BaseService {
 	/**
 	 * 
 	 * @param searchOutboundLine
+	 * @param type 
 	 * @return
 	 * @throws ParseException
 	 * @throws java.text.ParseException 
 	 */
+	public long findOutboundLine(SearchOutboundLine searchOutboundLine, String type) 
+			throws ParseException, java.text.ParseException {
+		
+		try {
+			if (searchOutboundLine.getFromDeliveryDate() != null && searchOutboundLine.getToDeliveryDate() != null) {
+				Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundLine.getFromDeliveryDate(), 
+						searchOutboundLine.getToDeliveryDate());
+				searchOutboundLine.setFromDeliveryDate(dates[0]);
+				searchOutboundLine.setToDeliveryDate(dates[1]);
+			}
+			
+			OutboundLineSpecification spec = new OutboundLineSpecification(searchOutboundLine);
+			List<OutboundLine> outboundLineSearchResults = outboundLineRepository.findAll(spec);
+			
+			/*
+			 * Pass WH-ID/REF_DOC_NO/PRE_OB_NO/OB_LINE_NO/ITM_CODE
+			 * PickConfirmQty & QCQty - from QualityLine table
+			 */
+			long count = 0;
+			if (outboundLineSearchResults != null) {
+				for (OutboundLine outboundLineSearchResult : outboundLineSearchResults) {
+//				 ---- Select sum of QCQty / itemcode wise. -> Ref_field_10
+					Double qcQty = qualityLineRepository.getQualityLineCount(outboundLineSearchResult.getWarehouseId(),
+							outboundLineSearchResult.getRefDocNumber(), outboundLineSearchResult.getPreOutboundNo(), 
+							outboundLineSearchResult.getLineNumber(), outboundLineSearchResult.getItemCode());	
+					if (qcQty != null) {
+						outboundLineSearchResult.setReferenceField10(String.valueOf(qcQty));
+					}
+					
+//				// ----Select sum of PickConfirmQty / itemcode wise. -> Ref_field_9
+					Double pickConfirmQty = pickupLineRepository.getPickupLineCount(outboundLineSearchResult.getWarehouseId(),
+							outboundLineSearchResult.getRefDocNumber(), outboundLineSearchResult.getPreOutboundNo(), 
+							outboundLineSearchResult.getLineNumber(), outboundLineSearchResult.getItemCode());
+					if (pickConfirmQty != null) {
+						outboundLineSearchResult.setReferenceField9(String.valueOf(pickConfirmQty));
+					}
+					
+					if (type == null) {
+						if (outboundLineSearchResult.getReferenceField2() == null && 
+								outboundLineSearchResult.getDeliveryQty() != null  && outboundLineSearchResult.getDeliveryQty() > 0) {
+							count ++;
+						}
+					} else if (type != null) {
+						if (outboundLineSearchResult.getReferenceField1().equalsIgnoreCase(type)
+								&& outboundLineSearchResult.getReferenceField2() == null 
+								&& outboundLineSearchResult.getDeliveryQty() != null && outboundLineSearchResult.getDeliveryQty() > 0) {
+							count ++;
+						}
+					}
+				}
+			}
+			return count;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	/**
+	 * 
+	 * @param searchOutboundLine
+	 * @return
+	 * @throws ParseException
+	 * @throws java.text.ParseException
+	 */
 	public List<OutboundLine> findOutboundLine(SearchOutboundLine searchOutboundLine) 
 			throws ParseException, java.text.ParseException {
 		
-		if (searchOutboundLine.getFromDeliveryDate() != null && searchOutboundLine.getToDeliveryDate() != null) {
-			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundLine.getFromDeliveryDate(), 
-					searchOutboundLine.getToDeliveryDate());
-			searchOutboundLine.setFromDeliveryDate(dates[0]);
-			searchOutboundLine.setToDeliveryDate(dates[1]);
-		}
-		
-		OutboundLineSpecification spec = new OutboundLineSpecification(searchOutboundLine);
-		List<OutboundLine> outboundLineSearchResults = outboundLineRepository.findAll(spec);
-//		log.info("results: " + outboundLineSearchResults);
-		
-		/*
-		 * Pass WH-ID/REF_DOC_NO/PRE_OB_NO/OB_LINE_NO/ITM_CODE
-		 * PickConfirmQty & QCQty - from QualityLine table
-		 */
-		if (outboundLineSearchResults != null) {
-			for (OutboundLine outboundLineSearchResult : outboundLineSearchResults) {
-				SearchQualityLine searchQualityLine = new SearchQualityLine();
-				searchQualityLine.setWarehouseId(Arrays.asList(outboundLineSearchResult.getWarehouseId()));
-				searchQualityLine.setRefDocNumber(Arrays.asList(outboundLineSearchResult.getRefDocNumber()));
-				searchQualityLine.setPreOutboundNo(Arrays.asList(outboundLineSearchResult.getPreOutboundNo()));
-				searchQualityLine.setLineNumber(Arrays.asList(outboundLineSearchResult.getLineNumber()));
-				searchQualityLine.setItemCode(Arrays.asList(outboundLineSearchResult.getItemCode()));
-//				searchQualityLine.setStatusId(Arrays.asList(outboundLineSearchResult.getStatusId()));
-
-				List<QualityLine> qualityLine = qualityLineService.findQualityLine(searchQualityLine);
-
-				// ----Select sum of PickConfirmQty / itemcode wise. -> Ref_field_9
-//				double pickConfirmQty = qualityLine.stream().mapToDouble(QualityLine::getPickConfirmQty).sum();
-//				outboundLineSearchResult.setReferenceField9(String.valueOf(pickConfirmQty));
-
-//				 ---- Select sum of QCQty / itemcode wise. -> Ref_field_10
-				double qcQty = qualityLine.stream().mapToDouble(QualityLine::getQualityQty).sum();
-				outboundLineSearchResult.setReferenceField10(String.valueOf(qcQty));
-
-				SearchPickupLine searchPickupLine = new SearchPickupLine();
-				searchPickupLine.setWarehouseId(Arrays.asList(outboundLineSearchResult.getWarehouseId()));
-				searchPickupLine.setRefDocNumber(Arrays.asList(outboundLineSearchResult.getRefDocNumber()));
-				searchPickupLine.setPreOutboundNo(Arrays.asList(outboundLineSearchResult.getPreOutboundNo()));
-				searchPickupLine.setLineNumber(Arrays.asList(outboundLineSearchResult.getLineNumber()));
-				searchPickupLine.setItemCode(Arrays.asList(outboundLineSearchResult.getItemCode()));
-
-				List<PickupLine> pickupLines = pickupLineService.findPickupLine(searchPickupLine);
-				// ----Select sum of PickConfirmQty / itemcode wise. -> Ref_field_9
-				double pickConfirmQty = pickupLines.stream().mapToDouble(PickupLine::getPickConfirmQty).sum();
-				outboundLineSearchResult.setReferenceField9(String.valueOf(pickConfirmQty));
+		try {
+			if (searchOutboundLine.getFromDeliveryDate() != null && searchOutboundLine.getToDeliveryDate() != null) {
+				Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundLine.getFromDeliveryDate(), 
+						searchOutboundLine.getToDeliveryDate());
+				searchOutboundLine.setFromDeliveryDate(dates[0]);
+				searchOutboundLine.setToDeliveryDate(dates[1]);
 			}
+			
+			OutboundLineSpecification spec = new OutboundLineSpecification(searchOutboundLine);
+			List<OutboundLine> outboundLineSearchResults = outboundLineRepository.findAll(spec);
+			
+			/*
+			 * Pass WH-ID/REF_DOC_NO/PRE_OB_NO/OB_LINE_NO/ITM_CODE
+			 * PickConfirmQty & QCQty - from QualityLine table
+			 */
+			if (outboundLineSearchResults != null) {
+				for (OutboundLine outboundLineSearchResult : outboundLineSearchResults) {
+					Double qcQty = qualityLineRepository.getQualityLineCount(outboundLineSearchResult.getWarehouseId(),
+							outboundLineSearchResult.getRefDocNumber(), outboundLineSearchResult.getPreOutboundNo(), 
+							outboundLineSearchResult.getLineNumber(), outboundLineSearchResult.getItemCode());
+					log.info("qcQty : " + qcQty);
+					if (qcQty != null) {
+						outboundLineSearchResult.setReferenceField10(String.valueOf(qcQty));
+					}
+
+					Double pickConfirmQty = pickupLineRepository.getPickupLineCount(outboundLineSearchResult.getWarehouseId(),
+							outboundLineSearchResult.getRefDocNumber(), outboundLineSearchResult.getPreOutboundNo(), 
+							outboundLineSearchResult.getLineNumber(), outboundLineSearchResult.getItemCode());
+					log.info("pickConfirmQty : " + pickConfirmQty);
+					if (pickConfirmQty != null) {
+						outboundLineSearchResult.setReferenceField9(String.valueOf(pickConfirmQty));
+					}
+				}
+			}
+			return outboundLineSearchResults;
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		return outboundLineSearchResults;
+		return null;
 	}
 
 	/**
@@ -419,33 +481,43 @@ public class OutboundLineService extends BaseService {
 	 */
 	public List<StockMovementReport> findLinesForStockMovement(SearchOutboundLine searchOutboundLine)
 			throws ParseException, java.text.ParseException {
-		if (searchOutboundLine.getFromDeliveryDate() != null && searchOutboundLine.getToDeliveryDate() != null) {
-			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundLine.getFromDeliveryDate(),
-					searchOutboundLine.getToDeliveryDate());
-			searchOutboundLine.setFromDeliveryDate(dates[0]);
-			searchOutboundLine.setToDeliveryDate(dates[1]);
-		}
-		
-		List<StockMovementReportImpl> allLineData = new ArrayList<>();
-		List<StockMovementReportImpl> outboundLineSearchResults = 
-				outboundLineRepository.findOutboundLineForStockMovement(searchOutboundLine.getItemCode(), searchOutboundLine.getWarehouseId(),
-						59L, searchOutboundLine.getFromDeliveryDate(), searchOutboundLine.getToDeliveryDate());
-		
-		List<StockMovementReportImpl> inboundLineSearchResults = 
-				inboundLineRepository.findInboundLineForStockMovement(searchOutboundLine.getItemCode(), searchOutboundLine.getWarehouseId(),
-						Arrays.asList(20L,24L));
-		
-		allLineData.addAll(outboundLineSearchResults);
-		allLineData.addAll(inboundLineSearchResults);
-		allLineData.sort(Comparator.comparing(StockMovementReportImpl::getConfirmedOn));
+		try {
+			if (searchOutboundLine.getFromDeliveryDate() != null && searchOutboundLine.getToDeliveryDate() != null) {
+				Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundLine.getFromDeliveryDate(),
+						searchOutboundLine.getToDeliveryDate());
+				searchOutboundLine.setFromDeliveryDate(dates[0]);
+				searchOutboundLine.setToDeliveryDate(dates[1]);
+			}
+			
+			List<StockMovementReportImpl> allLineData = new ArrayList<>();
+			List<StockMovementReportImpl> outboundLineSearchResults = 
+					outboundLineRepository.findOutboundLineForStockMovement(searchOutboundLine.getItemCode(), searchOutboundLine.getWarehouseId(),
+							59L, searchOutboundLine.getFromDeliveryDate(), searchOutboundLine.getToDeliveryDate());
+			
+			List<StockMovementReportImpl> inboundLineSearchResults = 
+					inboundLineRepository.findInboundLineForStockMovement(searchOutboundLine.getItemCode(), searchOutboundLine.getWarehouseId(),
+							Arrays.asList(14L, 20L, 24L));
+			
+			allLineData.addAll(outboundLineSearchResults);
+			allLineData.addAll(inboundLineSearchResults);
 
-		List<StockMovementReport> stockMovementReports = new ArrayList<>();
-		allLineData.forEach(data->{
-			StockMovementReport stockMovementReport = new StockMovementReport();
-			BeanUtils.copyProperties(data,stockMovementReport);
-			stockMovementReports.add(stockMovementReport);
-		});
-		return stockMovementReports;
+			List<StockMovementReport> stockMovementReports = new ArrayList<>();
+			allLineData.forEach(data->{
+				StockMovementReport stockMovementReport = new StockMovementReport();
+				BeanUtils.copyProperties(data, stockMovementReport, CommonUtils.getNullPropertyNames(data));
+				if (data.getConfirmedOn() == null) {
+					Date date = inboundLineRepository.findDateFromPutawayLine (stockMovementReport.getDocumentNumber(), stockMovementReport.getItemCode());
+					stockMovementReport.setConfirmedOn(date);
+				}
+				stockMovementReports.add(stockMovementReport);
+			});
+			
+			stockMovementReports.sort(Comparator.comparing(StockMovementReport::getConfirmedOn));
+			return stockMovementReports;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	/**
@@ -683,8 +755,8 @@ public class OutboundLineService extends BaseService {
 								e.printStackTrace();
 								log.error("deliveryConfirmation---UpdateOutboundHeader update error: [args]" + preOutboundNo + "," + refDocNumber + "," + partnerCode);
 							}
-					
-						//---------------------------------------------------------------------------------------------------------------------------
+							
+							//---------------------------------------------------------------------------------------------------------------------------
 							//------------------START-------------------------
 							/*
 							 * Pass the selected WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE values and update STATUS_ID as 59 
@@ -718,7 +790,7 @@ public class OutboundLineService extends BaseService {
 									List<Inventory> inventoryList = inventoryService.getInventoryForDeliveryConfirmtion (outboundLine.getWarehouseId(),
 											outboundLine.getItemCode(), qualityLine.getPickPackBarCode(), BIN_CL_ID); //pack_bar_code
 									for(Inventory inventory : inventoryList) {
-										Double INV_QTY = inventory.getInventoryQuantity() - outboundLine.getDeliveryQty();
+										Double INV_QTY = inventory.getInventoryQuantity() - qualityLine.getQualityQty();
 										log.info("INV_QTY : " + INV_QTY);
 
 										if (INV_QTY < 0) {

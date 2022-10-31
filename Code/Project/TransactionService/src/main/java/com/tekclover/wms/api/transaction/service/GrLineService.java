@@ -11,8 +11,6 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
-import com.tekclover.wms.api.transaction.repository.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -20,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
+import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
 import com.tekclover.wms.api.transaction.model.dto.StorageBin;
 import com.tekclover.wms.api.transaction.model.inbound.InboundLine;
 import com.tekclover.wms.api.transaction.model.inbound.gr.AddGrLine;
@@ -33,6 +32,14 @@ import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.PutAwayHeader;
 import com.tekclover.wms.api.transaction.model.inbound.staging.StagingLineEntity;
+import com.tekclover.wms.api.transaction.repository.GrHeaderRepository;
+import com.tekclover.wms.api.transaction.repository.GrLineRepository;
+import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
+import com.tekclover.wms.api.transaction.repository.InboundLineRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryRepository;
+import com.tekclover.wms.api.transaction.repository.PutAwayHeaderRepository;
+import com.tekclover.wms.api.transaction.repository.StagingLineRepository;
 import com.tekclover.wms.api.transaction.repository.specification.GrLineSpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 
@@ -456,8 +463,6 @@ public class GrLineService extends BaseService {
 			
 			// PA_NO
 			AuthToken authTokenForIDMasterService = authTokenService.getIDMasterServiceAuthToken();
-//			UserManagement userManagement = idmasterService.getUserManagement(loginUserID, authTokenForIDMasterService.getAccess_token());
-			
 			long NUM_RAN_CODE = 7;
 			String nextPANumber = getNextRangeNumber (NUM_RAN_CODE, createdGRLine.getWarehouseId(), authTokenForIDMasterService.getAccess_token());
 			putAwayHeader.setPutAwayNumber(nextPANumber);
@@ -517,14 +522,18 @@ public class GrLineService extends BaseService {
 					// Prod Issue - SQL Grammer on StorageBin-----23-08-2022
 					// Start
 					if (stBins != null && stBins.size() > 2000) {
-						List[] listArray = splitList (stBins);
-						StorageBin[] storageBin = getStorageBin(storageSectionIds, listArray[0], authTokenForMastersService.getAccess_token());
-						if (storageBin != null && storageBin.length > 0) {
-							putAwayHeader.setProposedStorageBin(storageBin[0].getStorageBin());
-						} else {
-							storageBin = getStorageBin(storageSectionIds, listArray[1], authTokenForMastersService.getAccess_token());
-							putAwayHeader.setProposedStorageBin(storageBin[0].getStorageBin());
-						}
+//						List[] listArray = splitList (stBins);
+//						StorageBin[] storageBin = getStorageBin(storageSectionIds, listArray[0], authTokenForMastersService.getAccess_token());
+//						if (storageBin != null && storageBin.length > 0) {
+//							putAwayHeader.setProposedStorageBin(storageBin[0].getStorageBin());
+//						} else {
+//							storageBin = getStorageBin(storageSectionIds, listArray[1], authTokenForMastersService.getAccess_token());
+//							putAwayHeader.setProposedStorageBin(storageBin[0].getStorageBin());
+//						}
+						
+						List<List<String>> splitedList = CommonUtils.splitArrayList(stBins, 1800); // SQL Query accepts max 2100 count only in IN condition
+						StorageBin[] storageBin = getStorageBinForSplitedList(splitedList, storageSectionIds, authTokenForMastersService.getAccess_token());
+						putAwayHeader.setProposedStorageBin(storageBin[0].getStorageBin());
 					} else {
 						StorageBin[] storageBin = getStorageBin(storageSectionIds, stBins, authTokenForMastersService.getAccess_token());
 						if (storageBin != null && storageBin.length > 0) {
@@ -601,6 +610,22 @@ public class GrLineService extends BaseService {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param splitedList
+	 * @param storageSectionIds
+	 * @param authToken
+	 * @return
+	 */
+	private StorageBin[] getStorageBinForSplitedList (List<List<String>> splitedList, List<String> storageSectionIds, String authToken) {
+		for (List<String> list : splitedList) {
+			StorageBin[] storageBin = getStorageBin(storageSectionIds, list, authToken);
+			if (storageBin != null && storageBin.length > 0) {
+				return storageBin;
+			}
+		}
+		return null;
+	}
 	/**
 	 * 
 	 * @param storageSectionIds

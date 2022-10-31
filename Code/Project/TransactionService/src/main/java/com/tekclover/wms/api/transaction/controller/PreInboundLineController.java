@@ -52,7 +52,7 @@ public class PreInboundLineController {
 	@GetMapping("/{preInboundNo}")
 	public ResponseEntity<?> getPreInboundLine(@PathVariable String preInboundNo) {
     	List<PreInboundLineEntity> preinboundline = preinboundlineService.getPreInboundLine(preInboundNo);
-    	log.info("PreInboundLine : " + preinboundline);
+//    	log.info("PreInboundLine : " + preinboundline);
 		return new ResponseEntity<>(preinboundline, HttpStatus.OK);
 	}
     
