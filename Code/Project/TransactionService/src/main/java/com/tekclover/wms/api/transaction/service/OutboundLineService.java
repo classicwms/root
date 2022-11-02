@@ -451,7 +451,7 @@ public class OutboundLineService extends BaseService {
 					Double qcQty = qualityLineRepository.getQualityLineCount(outboundLineSearchResult.getWarehouseId(),
 							outboundLineSearchResult.getRefDocNumber(), outboundLineSearchResult.getPreOutboundNo(), 
 							outboundLineSearchResult.getLineNumber(), outboundLineSearchResult.getItemCode());
-					log.info("qcQty : " + qcQty);
+//					log.info("qcQty : " + qcQty);
 					if (qcQty != null) {
 						outboundLineSearchResult.setReferenceField10(String.valueOf(qcQty));
 					}
@@ -459,12 +459,61 @@ public class OutboundLineService extends BaseService {
 					Double pickConfirmQty = pickupLineRepository.getPickupLineCount(outboundLineSearchResult.getWarehouseId(),
 							outboundLineSearchResult.getRefDocNumber(), outboundLineSearchResult.getPreOutboundNo(), 
 							outboundLineSearchResult.getLineNumber(), outboundLineSearchResult.getItemCode());
-					log.info("pickConfirmQty : " + pickConfirmQty);
+//					log.info("pickConfirmQty : " + pickConfirmQty);
 					if (pickConfirmQty != null) {
 						outboundLineSearchResult.setReferenceField9(String.valueOf(pickConfirmQty));
 					}
 				}
 			}
+			return outboundLineSearchResults;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public List<OutboundLine> findOutboundLineNew(SearchOutboundLine searchOutboundLine)
+			throws ParseException, java.text.ParseException {
+
+		try {
+			if (searchOutboundLine.getFromDeliveryDate() != null && searchOutboundLine.getToDeliveryDate() != null) {
+				Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundLine.getFromDeliveryDate(),
+						searchOutboundLine.getToDeliveryDate());
+				searchOutboundLine.setFromDeliveryDate(dates[0]);
+				searchOutboundLine.setToDeliveryDate(dates[1]);
+			}
+
+			if(searchOutboundLine.getWarehouseId() == null || searchOutboundLine.getWarehouseId().isEmpty()){
+				searchOutboundLine.setWarehouseId(null);
+			}
+			if(searchOutboundLine.getPreOutboundNo() == null || searchOutboundLine.getPreOutboundNo().isEmpty()){
+				searchOutboundLine.setPreOutboundNo(null);
+			}
+			if(searchOutboundLine.getRefDocNumber() == null || searchOutboundLine.getRefDocNumber().isEmpty()){
+				searchOutboundLine.setRefDocNumber(null);
+			}
+			if(searchOutboundLine.getLineNumber() == null || searchOutboundLine.getLineNumber().isEmpty()){
+				searchOutboundLine.setLineNumber(null);
+			}
+			if(searchOutboundLine.getItemCode() == null || searchOutboundLine.getItemCode().isEmpty()){
+				searchOutboundLine.setItemCode(null);
+			}
+			if(searchOutboundLine.getStatusId() == null || searchOutboundLine.getStatusId().isEmpty()){
+				searchOutboundLine.setStatusId(null);
+			}
+			if(searchOutboundLine.getOrderType() == null || searchOutboundLine.getOrderType().isEmpty()){
+				searchOutboundLine.setOrderType(null);
+			}
+			if(searchOutboundLine.getPartnerCode() == null || searchOutboundLine.getPartnerCode().isEmpty()){
+				searchOutboundLine.setPartnerCode(null);
+			}
+
+			List<OutboundLine> outboundLineSearchResults = outboundLineRepository.findOutboundLineNew(searchOutboundLine.getWarehouseId(),
+					searchOutboundLine.getFromDeliveryDate(),searchOutboundLine.getToDeliveryDate(),searchOutboundLine.getPreOutboundNo(),
+					searchOutboundLine.getRefDocNumber(),searchOutboundLine.getLineNumber(),searchOutboundLine.getItemCode(),
+					searchOutboundLine.getStatusId(),searchOutboundLine.getOrderType(),searchOutboundLine.getPartnerCode());
+
+
 			return outboundLineSearchResults;
 		} catch (Exception e) {
 			e.printStackTrace();

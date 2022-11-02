@@ -1185,7 +1185,7 @@ public class ReportsService extends BaseService {
 				shipmentDelivery.setTotal(total);
 				shipmentDeliveryList.add(shipmentDelivery);
 			}
-			log.info("shipmentDeliveryList : " + shipmentDeliveryList);
+//			log.info("shipmentDeliveryList : " + shipmentDeliveryList);
 			return shipmentDeliveryList;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1275,7 +1275,7 @@ public class ReportsService extends BaseService {
 				log.info("shipmentDeliverySummary : " + shipmentDeliverySummary);
 
 				shipmentDeliverySummaryList.add(shipmentDeliverySummary);
-				log.info("shipmentDeliverySummaryReportList : " + shipmentDeliverySummaryList);
+//				log.info("shipmentDeliverySummaryReportList : " + shipmentDeliverySummaryList);
 			}
 
 			// --------------------------------------------------------------------------------------------------------------------------------
@@ -1636,7 +1636,7 @@ public class ReportsService extends BaseService {
 		}
 
 		shipmentDispatchSummary.setShipmentDispatch(listShipmentDispatch);
-		log.info("listShipmentDispatch : " + listShipmentDispatch);
+//		log.info("listShipmentDispatch : " + listShipmentDispatch);
 		return shipmentDispatchSummary;
 	}
 

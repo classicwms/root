@@ -71,6 +71,13 @@ public class OutboundLineController {
 		return outboundlineService.findOutboundLine(searchOutboundLine);
 	}
 
+	@ApiOperation(response = OutboundLine.class, value = "Search OutboundLine") // label for swagger
+	@PostMapping("/findOutboundLine-new")
+	public List<OutboundLine> findOutboundLineNew(@RequestBody SearchOutboundLine searchOutboundLine)
+			throws Exception {
+		return outboundlineService.findOutboundLineNew(searchOutboundLine);
+	}
+
 	@ApiOperation(response = OutboundLine.class, value = "Search OutboundLine for Stock movement report") // label for swagger
 	@PostMapping("/stock-movement-report/findOutboundLine")
 	public List<StockMovementReport> findLinesForStockMovement(@RequestBody SearchOutboundLine searchOutboundLine)

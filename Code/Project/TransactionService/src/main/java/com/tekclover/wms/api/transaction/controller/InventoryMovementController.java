@@ -58,7 +58,7 @@ public class InventoryMovementController {
     	InventoryMovement inventorymovement = 
     			inventorymovementService.getInventoryMovement(warehouseId, movementType, submovementType, palletCode, caseCode, 
     					packBarcodes, itemCode, variantCode, variantSubCode, batchSerialNumber, movementDocumentNo);
-    	log.info("InventoryMovement : " + inventorymovement);
+//    	log.info("InventoryMovement : " + inventorymovement);
 		return new ResponseEntity<>(inventorymovement, HttpStatus.OK);
 	}
     

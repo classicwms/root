@@ -820,8 +820,8 @@ public class PreOutboundHeaderService extends BaseService {
 			// Ref_Field_10 for storing SPAN_ID
 			orderManagementLine.setReferenceField10(spanIdStorageBin.getSpanId());
 			
-			orderManagementLine = orderManagementLineRepository.save(orderManagementLine);
-			log.info("---1--orderManagementLine created------: " + orderManagementLine);
+			OrderManagementLine createdOrderManagementLine = orderManagementLineRepository.save(orderManagementLine);
+			log.info("---1--orderManagementLine created------: " + createdOrderManagementLine);
 			
 			if (orderManagementLine.getAllocatedQty() > 0) {
 				// Update Inventory table
@@ -855,8 +855,11 @@ public class PreOutboundHeaderService extends BaseService {
 					inventoryRepository.delete(inventoryForUpdate);
 				}
 			}
-		} else {
+		} else { // This is for ORD_QTY > maxQtyHoldsInventory.getInventoryQuantity(), so, creating new ordermanagementline records
 			for (Inventory stBinInventory : finalInventoryList) {
+				OrderManagementLine newOrderManagementLine = new OrderManagementLine();
+				BeanUtils.copyProperties(orderManagementLine, newOrderManagementLine, CommonUtils.getNullPropertyNames(orderManagementLine));
+				
 				Long STATUS_ID = 0L;
 				Double ALLOC_QTY = 0D;
 				
@@ -872,7 +875,7 @@ public class PreOutboundHeaderService extends BaseService {
 				Double INV_QTY = stBinInventory.getInventoryQuantity();
 				
 				// INV_QTY
-				orderManagementLine.setInventoryQty(INV_QTY);
+				newOrderManagementLine.setInventoryQty(INV_QTY);
 				
 				if (ORD_QTY <= INV_QTY) {
 					ALLOC_QTY = ORD_QTY;
@@ -883,8 +886,8 @@ public class PreOutboundHeaderService extends BaseService {
 				}
 				log.info ("ALLOC_QTY -----1--->: " + ALLOC_QTY);
 				
-				orderManagementLine.setAllocatedQty(ALLOC_QTY);
-				orderManagementLine.setReAllocatedQty(ALLOC_QTY);
+				newOrderManagementLine.setAllocatedQty(ALLOC_QTY);
+				newOrderManagementLine.setReAllocatedQty(ALLOC_QTY);
 							
 				// STATUS_ID 
 				/* if ORD_QTY> ALLOC_QTY , then STATUS_ID is hardcoded as "42" */
@@ -897,33 +900,32 @@ public class PreOutboundHeaderService extends BaseService {
 					STATUS_ID = 43L;
 				}
 				
-				orderManagementLine.setStatusId(STATUS_ID);
-				orderManagementLine.setPickupCreatedBy("MSD_INT");
-				orderManagementLine.setPickupCreatedOn(new Date());
+				newOrderManagementLine.setStatusId(STATUS_ID);
+				newOrderManagementLine.setPickupCreatedBy("MSD_INT");
+				newOrderManagementLine.setPickupCreatedOn(new Date());
 				if (stBinInventory.getStorageBin() == null) {
-					orderManagementLine.setProposedStorageBin(null);
+					newOrderManagementLine.setProposedStorageBin(null);
 				} else {
-					orderManagementLine.setProposedStorageBin(stBinInventory.getStorageBin());
+					newOrderManagementLine.setProposedStorageBin(stBinInventory.getStorageBin());
 				}
 				
 				if (stBinInventory.getPackBarcodes() == null) {
-					orderManagementLine.setProposedPackBarCode(null);
+					newOrderManagementLine.setProposedPackBarCode(null);
 				} else {
-					orderManagementLine.setProposedPackBarCode(stBinInventory.getPackBarcodes());
+					newOrderManagementLine.setProposedPackBarCode(stBinInventory.getPackBarcodes());
 				}
 				
-				
-				orderManagementLine = orderManagementLineRepository.save(orderManagementLine);
-				log.info("-----2------orderManagementLine created:-------> " + orderManagementLine);
+				OrderManagementLine createdOrderManagementLine = orderManagementLineRepository.save(newOrderManagementLine);
+				log.info("-----2------orderManagementLine created:-------> " + createdOrderManagementLine);
 				
 				if (ORD_QTY > ALLOC_QTY) {
 					ORD_QTY = ORD_QTY - ALLOC_QTY;
 				}
 				
-				if (orderManagementLine.getAllocatedQty() > 0) {
+				if (createdOrderManagementLine.getAllocatedQty() > 0) {
 					// Update Inventory table
-					Inventory inventoryForUpdate = inventoryService.getInventory(warehouseId, orderManagementLine.getProposedPackBarCode(), 
-							itemCode, orderManagementLine.getProposedStorageBin());
+					Inventory inventoryForUpdate = inventoryService.getInventory(warehouseId, createdOrderManagementLine.getProposedPackBarCode(), 
+							itemCode, createdOrderManagementLine.getProposedStorageBin());
 					
 					double dbInventoryQty = 0;
 					double dbInvAllocatedQty = 0;
@@ -936,8 +938,8 @@ public class PreOutboundHeaderService extends BaseService {
 						dbInvAllocatedQty = inventoryForUpdate.getAllocatedQuantity();
 					}
 					
-					double inventoryQty = dbInventoryQty - orderManagementLine.getAllocatedQty();
-					double allocatedQty = dbInvAllocatedQty + orderManagementLine.getAllocatedQty();
+					double inventoryQty = dbInventoryQty - createdOrderManagementLine.getAllocatedQty();
+					double allocatedQty = dbInvAllocatedQty + createdOrderManagementLine.getAllocatedQty();
 					inventoryForUpdate.setInventoryQuantity(inventoryQty);
 					inventoryForUpdate.setAllocatedQuantity(allocatedQty);
 					inventoryForUpdate = inventoryRepository.save(inventoryForUpdate);

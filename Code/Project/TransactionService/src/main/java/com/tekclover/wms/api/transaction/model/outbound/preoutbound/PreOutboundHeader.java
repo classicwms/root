@@ -69,7 +69,7 @@ public class PreOutboundHeader {
 	private Long statusId;
 	
 	@Column(name = "REF_DOC_DATE") 
-	private Date refDocDate = new Date();
+	private Date refDocDate;
 	
 	@Column(name = "REQ_DEL_DATE")
 	private Date requiredDeliveryDate;

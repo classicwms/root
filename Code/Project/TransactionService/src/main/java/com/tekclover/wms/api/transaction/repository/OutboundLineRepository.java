@@ -20,23 +20,23 @@ import com.tekclover.wms.api.transaction.model.outbound.OutboundLine;
 @Repository
 @Transactional
 public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>, JpaSpecificationExecutor<OutboundLine> {
-	
+
 	public List<OutboundLine> findAll();
-	
-	public Optional<OutboundLine> 
+
+	public Optional<OutboundLine>
 		findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndDeletionIndicator(
-				String languageId, Long companyCodeId, String plantId, String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, 
+				String languageId, Long companyCodeId, String plantId, String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode,
 				Long lineNumber, String itemCode, Long deletionIndicator);
-	
+
 	public Optional<OutboundLine> findByLineNumber(Long lineNumber);
-	
+
 	public OutboundLine findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndDeletionIndicator(
 			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
 			String itemCode, Long deletionIndicator);
 
 	public List<OutboundLine> findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndDeletionIndicator(
 			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long deletionIndicator);
-	
+
 	/*
 	 * Delivery Queries
 	 */
@@ -47,8 +47,8 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 			+ "GROUP BY OB_LINE_NO;", nativeQuery=true)
     public List<Long> getCountofOrderedLines(@Param ("warehouseId") String warehouseId,
     									@Param ("preOutboundNo") String preOutboundNo,
-    									@Param ("refDocNumber") String refDocNumber); 
-	
+    									@Param ("refDocNumber") String refDocNumber);
+
 	@Query(value="SELECT SUM(ORD_QTY) AS ordQtyTotal \r\n"
 			+ "FROM tbloutboundline \r\n"
 			+ "WHERE WH_ID = :warehouseId AND PRE_OB_NO = :preOutboundNo "
@@ -56,8 +56,8 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 			+ "GROUP BY REF_DOC_NO;", nativeQuery=true)
     public List<Long> getSumOfOrderedQty(@Param ("warehouseId") String warehouseId,
     									@Param ("preOutboundNo") String preOutboundNo,
-    									@Param ("refDocNumber") String refDocNumber); 
-	
+    									@Param ("refDocNumber") String refDocNumber);
+
 	@Query(value="SELECT COUNT(OB_LINE_NO) AS deliveryLines \r\n"
 			+ "FROM tbloutboundline \r\n"
 			+ "WHERE WH_ID = :warehouseId AND PRE_OB_NO = :preOutboundNo "
@@ -66,7 +66,7 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
     public List<Long> getDeliveryLines(@Param ("warehouseId") String warehouseId,
     									@Param ("preOutboundNo") String preOutboundNo,
     									@Param ("refDocNumber") String refDocNumber);
-	
+
 	@Query(value="SELECT SUM(DLV_QTY) AS deliveryQty \r\n"
 			+ "FROM tbloutboundline \r\n"
 			+ "WHERE WH_ID = :warehouseId AND PRE_OB_NO = :preOutboundNo "
@@ -85,7 +85,7 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 
 	public List<OutboundLine> findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndReferenceField2AndDeletionIndicator(
 			String warehouseId, String preOutboundNo, String refDocNumber, String referenceField2, Long deletionIndicator);
-	
+
 	/*
 	 * Reports
 	 */
@@ -97,7 +97,7 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 			@Param(value = "refDocNo") List<String> refDocNo,
 			@Param ("startDate") Date startDate,
 			@Param ("endDate") Date endDate);
-	
+
 	@Query (value = "SELECT COUNT(OB_LINE_NO) FROM tbloutboundline \r\n"
 			+ " WHERE REF_DOC_NO IN :refDocNo AND DLV_QTY > 0 AND REF_FIELD_2 IS NULL \r\n"
 			+ " AND DLV_CNF_ON BETWEEN :startDate AND :endDate \r\n"
@@ -106,7 +106,7 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 			@Param(value = "refDocNo") List<String> refDocNo,
 			@Param ("startDate") Date startDate,
 			@Param ("endDate") Date endDate);
-	
+
 	/*
 	 * Line Shipped
 	 * ---------------------
@@ -119,11 +119,11 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 			+ " GROUP BY REF_DOC_NO", nativeQuery = true)
 	public List<Long> findLineShipped(
 			@Param(value = "preOBNo") String preOBNo,
-			@Param(value = "obLineNo") Long obLineNo, 
+			@Param(value = "obLineNo") Long obLineNo,
 			@Param(value = "itemCode") String itemCode);
-	
+
 	/**
-	 * 
+	 *
 	 * @param customerCode
 	 * @param startDate
 	 * @param endDate
@@ -131,7 +131,7 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 	 */
 	public List<OutboundLine> findByPartnerCodeInAndDeliveryConfirmedOnBetween(List<String> customerCode,
 			Date startDate, Date endDate);
-	
+
 	public List<OutboundLine> findByDeliveryConfirmedOnBetween(Date startDate, Date endDate);
 
 //	@Query(value="select\n" +
@@ -175,7 +175,7 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 //	public List<ShipmentDispatchSummaryReportImpl> getOrderLinesForShipmentDispatchReport(@Param ("partnerCode") List<String> partnerCode,
 //																						  @Param ("fromDeliveryDate") Date fromDeliveryDate,
 //																						  @Param ("toDeliveryDate") Date toDeliveryDate);
-	
+
 	@Query(value="select ol.ref_doc_no as soNumber, ol.partner_code as partnerCode,\r\n"
 			+ "(CASE WHEN sum(ol.dlv_qty) is not null THEN sum(ol.dlv_qty) ELSE 0 END) as shippedQty,\r\n"
 			+ "sum(ol.ord_qty) as orderedQty,\r\n"
@@ -249,5 +249,43 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 																		  @Param ("statusId") Long statusId,
 																		  @Param ("fromDate") Date fromDate,
 																		  @Param ("toDate") Date toDate);
+
+	@Query(value="select ob.c_id,ob.itm_code,ob.lang_id,ob.ob_line_no,ob.partner_code,ob.plant_id,ob.pre_ob_no,ob.ref_doc_no,ob.wh_id,ob.str_no,ob.dlv_ctd_by,\n" +
+			"ob.dlv_ctd_on,ob.is_deleted,ob.dlv_cnf_by,ob.dlv_cnf_on,ob.dlv_ord_no,ob.dlv_qty,ob.dlv_uom,ob.item_text,ob.ord_qty,ob.ord_uom,ob.ob_ord_typ_id,\n" +
+			"ob.ref_field_1,ob.ref_field_2,ob.ref_field_3,ob.ref_field_4,ob.ref_field_5,ob.ref_field_6,ob.ref_field_7,ob.ref_field_8,\n" +
+			"ob.dlv_rev_by,ob.dlv_rev_on,ob.sp_st_ind_id,ob.status_id,ob.stck_typ_id,ob.dlv_utd_by,ob.dlv_utd_on,ob.var_id,ob.var_sub_id,\n" +
+			"(select SUM(p.PICK_CNF_QTY) from tblpickupline p \n" +
+			"where \n" +
+			"p.wh_id = ob.wh_id and p.PRE_OB_NO = ob.PRE_OB_NO and p.OB_LINE_NO = ob.OB_LINE_NO and p.itm_code = ob.itm_code and p.ref_doc_no = ob.ref_doc_no and p.is_deleted = 0 \n" +
+			"group by p.ref_doc_no) as ref_field_9,\n" +
+			"(select SUM(q.QC_QTY) from tblqualityline q\n" +
+			"where \n" +
+			"q.wh_id = ob.wh_id and q.PRE_OB_NO = ob.PRE_OB_NO and q.OB_LINE_NO = ob.OB_LINE_NO and q.itm_code = ob.itm_code and q.ref_doc_no = ob.ref_doc_no and q.is_deleted = 0 \n" +
+			"group by q.ref_doc_no) as ref_field_10 \n" +
+			"from tbloutboundline ob\n" +
+			"where \n" +
+			"(COALESCE(:warehouseId, null) IS NULL OR (ob.wh_id IN (:warehouseId))) and \n" +
+			"(COALESCE(:refDocNo, null) IS NULL OR (ob.ref_doc_no IN (:refDocNo))) and \n" +
+			"(COALESCE(:partnerCode, null) IS NULL OR (ob.partner_code IN (:partnerCode))) and \n" +
+			"(COALESCE(:preObNumber, null) IS NULL OR (ob.pre_ob_no IN (:preObNumber))) and \n" +
+			"(COALESCE(:statusId, null) IS NULL OR (ob.status_id IN (:statusId))) and \n" +
+			"(COALESCE(:lineNo, null) IS NULL OR (ob.ob_line_no IN (:lineNo))) and \n" +
+			"(COALESCE(:itemCode, null) IS NULL OR (ob.itm_code IN (:itemCode))) and\n" +
+			"(COALESCE(:orderType, null) IS NULL OR (ob.ob_ord_typ_id IN (:orderType))) and \n" +
+			"(COALESCE(CONVERT(VARCHAR(255), :fromDeliveryDate), null) IS NULL OR (ob.DLV_CNF_ON between COALESCE(CONVERT(VARCHAR(255), :fromDeliveryDate), null) and COALESCE(CONVERT(VARCHAR(255), :toDeliveryDate), null))) \n" +
+			"group by ob.c_id,ob.itm_code,ob.lang_id,ob.ob_line_no,ob.partner_code,ob.plant_id,ob.pre_ob_no,ob.ref_doc_no,ob.wh_id,ob.str_no,ob.dlv_ctd_by,\n" +
+			"ob.dlv_ctd_on,ob.is_deleted,ob.dlv_cnf_by,ob.dlv_cnf_on,ob.dlv_ord_no,ob.dlv_qty,ob.dlv_uom,ob.item_text,ob.ord_qty,ob.ord_uom,ob.ob_ord_typ_id,\n" +
+			"ob.ref_field_1,ob.ref_field_2,ob.ref_field_3,ob.ref_field_4,ob.ref_field_5,ob.ref_field_6,ob.ref_field_7,ob.ref_field_8,ob.ref_field_9,ob.ref_field_10,\n" +
+			"ob.dlv_rev_by,ob.dlv_rev_on,ob.sp_st_ind_id,ob.status_id,ob.stck_typ_id,ob.dlv_utd_by,ob.dlv_utd_on,ob.var_id,ob.var_sub_id\n", nativeQuery = true)
+	public List<OutboundLine> findOutboundLineNew(@Param ("warehouseId") List<String> warehouseId,
+												  @Param ("fromDeliveryDate") Date fromDeliveryDate,
+												  @Param ("toDeliveryDate") Date toDeliveryDate,
+												  @Param ("preObNumber") List<String> preObNumber,
+												  @Param ("refDocNo") List<String> refDocNo,
+												  @Param ("lineNo") List<Long> lineNo,
+												  @Param ("itemCode") List<String> itemCode,
+												  @Param ("statusId") List<Long> statusId,
+												  @Param ("orderType") List<String> orderType,
+												  @Param ("partnerCode") List<String> partnerCode);
 
 }
