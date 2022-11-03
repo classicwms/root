@@ -1010,32 +1010,4 @@ public class PreOutboundHeaderService extends BaseService {
 		log.info("dbOutboundIntegrationLog : " + dbOutboundIntegrationLog);
 		return dbOutboundIntegrationLog;
 	}
-	
-	/**
-	 * 
-	 * @param outbound
-	 * @return
-	 * @throws IllegalAccessException
-	 * @throws InvocationTargetException
-	 */
-//	public OutboundIntegrationLog createOutboundIntegrationLog1 (OutboundOrder outbound) 
-//			throws IllegalAccessException, InvocationTargetException {
-//		Warehouse warehouse = getWarehouse(outbound.getWarehouseID());
-//		OutboundIntegrationLog dbOutboundIntegrationLog = new OutboundIntegrationLog();
-//		dbOutboundIntegrationLog.setLanguageId("EN");
-//		dbOutboundIntegrationLog.setCompanyCodeId(warehouse.getCompanyCode());
-//		dbOutboundIntegrationLog.setPlantId(warehouse.getPlantId());
-//		dbOutboundIntegrationLog.setWarehouseId(warehouse.getWarehouseId());
-//		dbOutboundIntegrationLog.setIntegrationLogNumber(outbound.getRefDocumentNo());
-//		dbOutboundIntegrationLog.setRefDocNumber(outbound.getRefDocumentNo());
-//		dbOutboundIntegrationLog.setOrderReceiptDate(outbound.getOrderProcessedOn());
-//		dbOutboundIntegrationLog.setIntegrationStatus("FAILED");
-//		dbOutboundIntegrationLog.setOrderReceiptDate(outbound.getOrderProcessedOn());
-//		dbOutboundIntegrationLog.setDeletionIndicator(0L);
-//		dbOutboundIntegrationLog.setCreatedBy("MSD_API");
-//		dbOutboundIntegrationLog.setCreatedOn(new Date());
-//		dbOutboundIntegrationLog = outboundIntegrationLogRepository.save(dbOutboundIntegrationLog);
-//		log.info("dbOutboundIntegrationLog : " + dbOutboundIntegrationLog);
-//		return dbOutboundIntegrationLog;
-//	}
 }

@@ -330,7 +330,10 @@ public class PutAwayLineService extends BaseService {
 						inventory.setStorageBin(createdPutAwayLine.getConfirmedStorageBin());
 
 						AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-						StorageBin dbStorageBin = mastersService.getStorageBin(dbPutAwayLine.getConfirmedStorageBin(), authTokenForMastersService.getAccess_token());
+						StorageBin dbStorageBin = 
+								mastersService.getStorageBin(dbPutAwayLine.getConfirmedStorageBin(), 
+										dbPutAwayLine.getWarehouseId(),
+										authTokenForMastersService.getAccess_token());
 						inventory.setBinClassId(dbStorageBin.getBinClassId());
 
 						List<IImbasicData1> imbasicdata1 = imbasicdata1Repository.findByItemCode(inventory.getItemCode());
