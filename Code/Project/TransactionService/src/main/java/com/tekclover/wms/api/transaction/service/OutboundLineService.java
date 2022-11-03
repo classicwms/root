@@ -538,6 +538,7 @@ public class OutboundLineService extends BaseService {
 				searchOutboundLine.setToDeliveryDate(dates[1]);
 			}
 			
+			log.info("searchOutboundLine.getWarehouseId() :  " + searchOutboundLine.getWarehouseId());
 			List<StockMovementReportImpl> allLineData = new ArrayList<>();
 			List<StockMovementReportImpl> outboundLineSearchResults = 
 					outboundLineRepository.findOutboundLineForStockMovement(searchOutboundLine.getItemCode(), searchOutboundLine.getWarehouseId(),
@@ -549,7 +550,7 @@ public class OutboundLineService extends BaseService {
 			
 			allLineData.addAll(outboundLineSearchResults);
 			allLineData.addAll(inboundLineSearchResults);
-
+			
 			List<StockMovementReport> stockMovementReports = new ArrayList<>();
 			allLineData.forEach(data->{
 				StockMovementReport stockMovementReport = new StockMovementReport();
@@ -560,7 +561,7 @@ public class OutboundLineService extends BaseService {
 				}
 				stockMovementReports.add(stockMovementReport);
 			});
-			
+			log.info("stockMovementReports :  " + stockMovementReports);			
 			stockMovementReports.sort(Comparator.comparing(StockMovementReport::getConfirmedOn));
 			return stockMovementReports;
 		} catch (Exception e) {

@@ -156,6 +156,12 @@ public class InboundLineService extends BaseService {
 		return inboundLine;
 	}
 	
+	public List<InboundLine> getInboundLine (String refDocNumber, String warehouseId) {
+		List<InboundLine> inboundLine = inboundLineRepository.findByRefDocNumberAndWarehouseIdAndDeletionIndicator(refDocNumber, warehouseId, 0L);
+		log.info("inboundLine : " + inboundLine);
+		return inboundLine;
+	}
+	
 	/**
 	 * 
 	 * @param newInboundLine

@@ -4,8 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import com.tekclover.wms.api.transaction.model.impl.OutBoundLineImpl;
-import com.tekclover.wms.api.transaction.model.impl.StockMovementReportImpl;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -14,7 +12,9 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tekclover.wms.api.transaction.model.impl.OrderStatusReportImpl;
+import com.tekclover.wms.api.transaction.model.impl.OutBoundLineImpl;
 import com.tekclover.wms.api.transaction.model.impl.ShipmentDispatchSummaryReportImpl;
+import com.tekclover.wms.api.transaction.model.impl.StockMovementReportImpl;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundLine;
 
 @Repository
@@ -242,7 +242,7 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 			" ol.DLV_CNF_ON as confirmedOn, ol.dlv_qty as movementQty, im.text as itemText,im.mfr_part as manufacturerSKU \n" +
 			" from tbloutboundline ol\n" +
 			" join tblimbasicdata1 im on ol.itm_code = im.itm_code \n" +
-			" WHERE ol.ITM_CODE in (:itemCode) AND ol.WH_ID in (:warehouseId) AND ol.status_id = :statusId " +
+			" WHERE ol.ITM_CODE in (:itemCode) AND im.WH_ID in (:warehouseId) AND ol.WH_ID in (:warehouseId) AND ol.status_id = :statusId " +
 			" AND ol.DLV_CNF_ON between :fromDate and :toDate " , nativeQuery=true)
 	public List<StockMovementReportImpl> findOutboundLineForStockMovement(@Param ("itemCode") List<String> itemCode,
 																		  @Param ("warehouseId") List<String> warehouseId,

@@ -310,6 +310,14 @@ public class ReportsService extends BaseService {
 		return null;
 	}
 
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param itemCode
+	 * @param itemText
+	 * @param stockTypeText
+	 * @return
+	 */
 	public List<StockReport> getAllStockReport(List<String> warehouseId, List<String> itemCode, String itemText,
 											String stockTypeText) {
 		if (warehouseId == null) {
@@ -319,12 +327,15 @@ public class ReportsService extends BaseService {
 		if (stockTypeText == null) {
 			throw new BadRequestException("StockTypeText can't be blank.");
 		}
+		
 		if(itemText != null && itemText.trim().equals("")){
 			itemText = null;
 		}
+		
 		if(itemCode != null && itemCode.isEmpty()){
 			itemCode = null;
 		}
+		
 		List<StockReport> stockReportList = new ArrayList<>();
 		List<StockReportImpl> reportList =  inventoryRepository.getAllStockReport(warehouseId, itemCode, itemText,
 				stockTypeText);
@@ -701,16 +712,6 @@ public class ReportsService extends BaseService {
 			throw new BadRequestException("Date shoud be in MM-dd-yyyy format.");
 		}
 
-//		SearchInventoryMovement searchInventoryMovement = new SearchInventoryMovement();
-//		searchInventoryMovement.setWarehouseId(Arrays.asList(warehouseId));
-//		searchInventoryMovement.setItemCode(Arrays.asList(itemCode));
-//		searchInventoryMovement.setFromCreatedOn(fromDate);
-//		searchInventoryMovement.setToCreatedOn(toDate);
-////		searchInventoryMovement.setSubmovementType(Arrays.asList(2L, 3L));
-//		List<InventoryMovement> inventoryMovementSearchResults = 
-//				inventoryMovementService.findInventoryMovement(searchInventoryMovement);
-//		log.info("inventoryMovementSearchResults------> : " + inventoryMovementSearchResults);
-
 		List<InventoryMovement> inventoryMovementSearchResults_123 = inventoryMovementRepository
 				.findByWarehouseIdAndItemCodeAndCreatedOnBetweenAndMovementTypeAndSubmovementTypeInOrderByCreatedOnAsc(warehouseId,
 						itemCode, fromDate, toDate, 1L, Arrays.asList(2L, 3L));
@@ -791,14 +792,13 @@ public class ReportsService extends BaseService {
 			 * to BIN"""
 			 */
 			if (inventoryMovement.getMovementType() == 1L) {
-				List<InboundLine> inboundLine = inboundLineService.getInboundLine(inventoryMovement.getRefDocNumber());
+				List<InboundLine> inboundLine = inboundLineService.getInboundLine(inventoryMovement.getRefDocNumber(), inventoryMovement.getWarehouseId());
 				log.info("inboundLine : " + inboundLine);
 				if (!inboundLine.isEmpty()) {
 					stockMovementReport.setCustomerCode(inboundLine.get(0).getVendorCode());
 				}
 			} else if (inventoryMovement.getMovementType() == 3L) {
-				OutboundHeader outboundHeader = outboundHeaderService
-						.getOutboundHeader(inventoryMovement.getRefDocNumber());
+				OutboundHeader outboundHeader = outboundHeaderService.getOutboundHeader(inventoryMovement.getRefDocNumber(), inventoryMovement.getWarehouseId());
 				log.info("outboundHeader : " + outboundHeader);
 				if (outboundHeader != null) {
 					stockMovementReport.setCustomerCode(outboundHeader.getPartnerCode());
@@ -846,140 +846,6 @@ public class ReportsService extends BaseService {
 		}
 		return reportStockMovementList;
 	}
-
-//	/**
-//	 * getOrderStatusReport
-//	 *
-//	 * @param warehouseId
-//	 * @param fromDeliveryDate
-//	 * @param toDeliveryDate
-//	 * @param customerCode
-//	 * @param orderNumber
-//	 * @param orderType
-//	 * @param statusId
-//	 * @return
-//	 * @throws java.text.ParseException
-//	 * @throws ParseException
-//	 */
-//	public List<OrderStatusReport> getOrderStatusReport(String warehouseId, String fromDeliveryDate,
-//			String toDeliveryDate, List<String> customerCode, List<String> orderNumber, List<String> orderType,
-//			List<Long> statusId) throws ParseException, java.text.ParseException {
-//		// WH_ID
-//		if (warehouseId == null) {
-//			throw new BadRequestException("WarehouseId can't be blank.");
-//		}
-//
-//		// WH_ID
-//		if (fromDeliveryDate == null || toDeliveryDate == null) {
-//			throw new BadRequestException("DeliveryDate can't be blank.");
-//		}
-//
-//		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-//		SearchOrderStatusReport searchOutboundLine = new SearchOrderStatusReport();
-//		searchOutboundLine.setWarehouseId(warehouseId);
-//
-//		try {
-//			Date fromDate = DateUtils.convertStringToDate(fromDeliveryDate);
-//			Date toDate = DateUtils.convertStringToDate(toDeliveryDate);
-//
-//			searchOutboundLine.setFromDeliveryDate(fromDate);
-//			searchOutboundLine.setToDeliveryDate(toDate);
-//			log.info("Date: " + fromDate + "," + toDate);
-//		} catch (Exception e) {
-//			throw new BadRequestException("Date shoud be in MM-dd-yyyy format.");
-//		}
-//
-//		if (customerCode != null && !customerCode.isEmpty()) {
-//			searchOutboundLine.setPartnerCode(customerCode);
-//		}
-//
-//		if (orderNumber != null && !orderNumber.isEmpty()) {
-//			searchOutboundLine.setRefDocNumber(orderNumber);
-//		}
-//
-//		if (orderType != null && !orderType.isEmpty()) {
-//			searchOutboundLine.setOrderType(orderType);
-//		}
-//
-//		if (statusId != null && !statusId.isEmpty()) {
-//			searchOutboundLine.setStatusId(statusId);
-//		}
-//
-//		List<OutboundLine> outboundLineSearchResults = outboundLineService
-//				.findOutboundLineOrderStatusReport(searchOutboundLine);
-//		log.info("outboundLineSearchResults--------> : " + outboundLineSearchResults);
-//
-//		List<OrderStatusReport> reportOrderStatusReportList = new ArrayList<>();
-//		for (OutboundLine outboundLine : outboundLineSearchResults) {
-//			OrderStatusReport orderStatusReport = new OrderStatusReport(); // WH_ID
-//			orderStatusReport.setWarehouseId(outboundLine.getWarehouseId()); // DLV_CNF_ON
-//			orderStatusReport.setSoNumber(outboundLine.getRefDocNumber()); // REF_DOC_NO
-//			orderStatusReport.setDoNumber(outboundLine.getDeliveryOrderNo()); // DLV_ORD_NO
-//			orderStatusReport.setCustomerCode(outboundLine.getPartnerCode()); // PARTNER_CODE
-//
-//			/*
-//			 * Customer name ---------------------- Pass PARTNER_CODE in BUSINESSPARTNER
-//			 * table and fetch PARTNER_NM
-//			 */
-//			try {
-//				BusinessPartner businessPartner = mastersService.getBusinessPartner(outboundLine.getPartnerCode(),
-//						authTokenForMastersService.getAccess_token());
-//				orderStatusReport.setCustomerName(businessPartner.getPartnerName());
-//			} catch (Exception e) {
-//				log.info("BusinessPartner not found for : " + outboundLine.getPartnerCode());
-//				orderStatusReport.setCustomerName(null);
-//			}
-//
-//			orderStatusReport.setSku(outboundLine.getItemCode()); // ITM_CODE
-//			orderStatusReport.setSkuDescription(outboundLine.getDescription()); // ITEM_TEXT
-//			orderStatusReport.setOrderedQty(outboundLine.getOrderQty()); // ORD_QTY
-//			orderStatusReport.setDeliveredQty(outboundLine.getDeliveryQty()); // DLV_QTY
-//			orderStatusReport.setDeliveryConfirmedOn(outboundLine.getDeliveryConfirmedOn());// DLV_CNF_ON
-//
-//			/*
-//			 * Order Received Date ------------------------------ Pass REF_DOC_NO in
-//			 * OUTBOUNDHEADER table and fetch REF_DOC_DATE
-//			 */
-//			OutboundHeader outboundHeader = outboundHeaderService.getOutboundHeader(outboundLine.getRefDocNumber());
-//			orderStatusReport.setOrderReceivedDate(outboundHeader.getRefDocDate());
-//
-//			/*
-//			 * Expected Delivery date ------------------------------- Pass REF_DOC_NO in
-//			 * OUTBOUNDHEADER table and fetch REQ_DEL_DATE
-//			 */
-//			orderStatusReport.setExpectedDeliveryDate(outboundHeader.getRequiredDeliveryDate());
-//
-//			// % of Delivered - (DLV_QTY/ORD_QTY)*100
-//			double deliveryQty = 0;
-//			double orderQty = 0;
-//			if (outboundLine.getDeliveryQty() != null) {
-//				deliveryQty = outboundLine.getDeliveryQty();
-//			}
-//
-//			if (outboundLine.getOrderQty() != null) {
-//				orderQty = outboundLine.getOrderQty();
-//			}
-//			double percOfDlv = Math.round((deliveryQty / orderQty) * 100);
-//			orderStatusReport.setPercentageOfDelivered(percOfDlv);
-//
-//			// STATUS_ID
-//			/*
-//			 * Hard coded Options Delivered- if STATUS_ID 59, Partial deliveries -If
-//			 * STATUS_ID 42,43,48,50,55 , Not fulfilled- STATUS_ID 51,47)
-//			 */
-//			Long status = outboundLine.getStatusId();
-//			if (status == 59L) {
-//				orderStatusReport.setStatusId("Delivered");
-//			} else if (status == 42L || status == 43L || status == 48L || status == 50L || status == 55L) {
-//				orderStatusReport.setStatusId("In Progress");
-//			} else if (status == 51L || status == 47L) {
-//				orderStatusReport.setStatusId("Not fulfilled");
-//			}
-//
-//			reportOrderStatusReportList.add(orderStatusReport);
-//		}
-//		return reportOrderStatusReportList;
-//	}
 
 	/**
 	 * getOrderStatusReport

@@ -32,9 +32,6 @@ import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-
 @Slf4j
 @Validated
 @Api(tags = {"Reports"}, value = "Reports  Operations related to ReportsController") // label for swagger
@@ -136,19 +133,19 @@ public class ReportsController {
 	/*
 	 * Stock Report
 	 */
-    @ApiOperation(response = Inventory.class, value = "Get Stock Report") // label for swagger 
-	@GetMapping("/stockReport")
-	public ResponseEntity<?> getStockReport(@RequestParam List<String> warehouseId, 
-			@RequestParam(required = false) List<String> itemCode, 
-			@RequestParam(required = false) String itemText, 
-			@RequestParam String stockTypeText,
-			@RequestParam(defaultValue = "0") Integer pageNo,
-			@RequestParam(defaultValue = "10") Integer pageSize,
-			@RequestParam(defaultValue = "itemCode") String sortBy) {
-    	Page<StockReport> stockReportList = reportsService.getStockReport(warehouseId, itemCode, itemText, stockTypeText,
-    					pageNo, pageSize, sortBy);
-		return new ResponseEntity<>(stockReportList, HttpStatus.OK);
-	}
+//    @ApiOperation(response = Inventory.class, value = "Get Stock Report") // label for swagger 
+//	@GetMapping("/stockReport")
+//	public ResponseEntity<?> getStockReport(@RequestParam List<String> warehouseId, 
+//			@RequestParam(required = false) List<String> itemCode, 
+//			@RequestParam(required = false) String itemText, 
+//			@RequestParam String stockTypeText,
+//			@RequestParam(defaultValue = "0") Integer pageNo,
+//			@RequestParam(defaultValue = "10") Integer pageSize,
+//			@RequestParam(defaultValue = "itemCode") String sortBy) {
+//    	Page<StockReport> stockReportList = reportsService.getStockReport(warehouseId, itemCode, itemText, stockTypeText,
+//    					pageNo, pageSize, sortBy);
+//		return new ResponseEntity<>(stockReportList, HttpStatus.OK);
+//	}
 
 	@ApiOperation(response = Inventory.class, value = "Get Stock Report") // label for swagger
 	@GetMapping("/stockReport-all")
@@ -179,12 +176,12 @@ public class ReportsController {
 		return new ResponseEntity<>(inventoryReportList, HttpStatus.OK);
 	}
     
-    @ApiOperation(response = Inventory.class, value = "Get Stock Report") // label for swagger 
-   	@GetMapping("/inventoryReport/schedule")
-   	public ResponseEntity<?> getInventoryReport() throws Exception {
-    	reportsService.exportXlsxFile();
-   		return new ResponseEntity<>(HttpStatus.OK);
-   	}
+//    @ApiOperation(response = Inventory.class, value = "Get Stock Report") // label for swagger 
+//   	@GetMapping("/inventoryReport/schedule")
+//   	public ResponseEntity<?> getInventoryReport() throws Exception {
+//    	reportsService.exportXlsxFile();
+//   		return new ResponseEntity<>(HttpStatus.OK);
+//   	}
     
     @ApiOperation(response = InventoryReport[].class, value = "Get Stock Report") // label for swagger 
    	@GetMapping("/inventoryReport/all")

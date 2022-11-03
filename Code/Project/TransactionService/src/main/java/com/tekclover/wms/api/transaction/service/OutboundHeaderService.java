@@ -1,15 +1,12 @@
 package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
-import com.tekclover.wms.api.transaction.model.impl.OutBoundLineImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -21,12 +18,10 @@ import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundHeader;
 import com.tekclover.wms.api.transaction.repository.OutboundHeaderRepository;
-import com.tekclover.wms.api.transaction.repository.specification.OutboundHeaderSpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
-import org.yaml.snakeyaml.util.ArrayUtils;
 
 @Slf4j
 @Service
@@ -125,6 +120,16 @@ public class OutboundHeaderService {
 	 */
 	public OutboundHeader getOutboundHeader (String refDocNumber) {
 		OutboundHeader outboundHeader = outboundHeaderRepository.findByRefDocNumberAndDeletionIndicator(refDocNumber, 0L);
+		return outboundHeader;
+	}
+	
+	/**
+	 * 
+	 * @param refDocNumber
+	 * @return
+	 */
+	public OutboundHeader getOutboundHeader (String refDocNumber, String warehouseId) {
+		OutboundHeader outboundHeader = outboundHeaderRepository.findByRefDocNumberAndWarehouseIdAndDeletionIndicator(refDocNumber, warehouseId, 0L);
 		return outboundHeader;
 	}
 	

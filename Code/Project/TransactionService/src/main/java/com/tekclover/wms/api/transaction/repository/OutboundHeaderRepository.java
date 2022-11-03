@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import com.tekclover.wms.api.transaction.model.impl.StockReportImpl;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -106,4 +105,7 @@ public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader,L
 			@Param(value = "endDeliveryConfirmedOn") Date endDeliveryConfirmedOn,
 	        @Param(value = "startOrderDate") Date startOrderDate,
 			@Param(value = "endOrderDate") Date endOrderDate);
+
+	public OutboundHeader findByRefDocNumberAndWarehouseIdAndDeletionIndicator(String refDocNumber, String warehouseId,
+			long l);
 }
