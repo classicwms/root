@@ -1418,6 +1418,13 @@ public class TransactionServiceController {
 		return transactionService.findOutboundLine(searchOutboundLine, authToken);
 	}
 
+	@ApiOperation(response = OutboundLine.class, value = "Search OutboundLine") // label for swagger
+	@PostMapping("/outboundline/findOutboundLine-new")
+	public OutboundLine[] findOutboundLineNew(@RequestBody SearchOutboundLine searchOutboundLine,
+										   @RequestParam String authToken) throws Exception {
+		return transactionService.findOutboundLineNew(searchOutboundLine, authToken);
+	}
+
 	@ApiOperation(response = OutboundLine.class, value = "Search OutboundLine for Stock movement report") // label for swagger
 	@PostMapping("/outboundline/stock-movement-report/findOutboundLine")
 	public StockMovementReport[] findOutboundLineForStockMovement(@RequestBody SearchOutboundLine searchOutboundLine,@RequestParam String authToken)
@@ -1552,7 +1559,7 @@ public class TransactionServiceController {
    			@RequestParam String fromDeliveryDate, @RequestParam String toDeliveryDate, 
    			@RequestParam(required = false) List<String> customerCode, @RequestParam(required = false) List<String> orderNumber, 
    			@RequestParam(required = false) List<String> orderType, @RequestParam(required = false) List<Long> statusId,
-   			@RequestParam String authToken) throws ParseException, java.text.ParseException {
+   			@RequestParam String authToken) throws ParseException, Exception {
        	OrderStatusReport[] orderStatusReportList = transactionService.getOrderStatusReport(warehouseId, 
        			fromDeliveryDate, toDeliveryDate, customerCode, orderNumber, orderType, statusId, authToken);
    		return new ResponseEntity<>(orderStatusReportList, HttpStatus.OK);
@@ -1570,23 +1577,19 @@ public class TransactionServiceController {
    			@RequestParam(required = false) List<String> soType, 
    			@RequestParam String orderNumber, 
    			@RequestParam String authToken) 
-   					throws ParseException, java.text.ParseException {
+   					throws ParseException, Exception {
     	ShipmentDeliveryReport[] shipmentDeliveryList = transactionService.getShipmentDeliveryReport(warehouseId, 
        			fromDeliveryDate, toDeliveryDate, storeCode, soType, orderNumber, authToken);
    		return new ResponseEntity<>(shipmentDeliveryList, HttpStatus.OK);
    	}
     
-    /*
-   	 * Shipment Delivery Summary
-   	 */
     @ApiOperation(response = ShipmentDeliverySummaryReport.class, value = "Get ShipmentDeliverySummary Report") // label for swagger 
-   	@GetMapping("/reports/shipmentDeliverySummary")
-   	public ResponseEntity<?> getShipmentDeliveryReport(@RequestParam String fromDeliveryDate, 
+   	@GetMapping("/reports/shipmentDeliverySummary1")
+   	public ResponseEntity<?> getShipmentDeliveryReport1(@RequestParam String fromDeliveryDate, 
    			@RequestParam String toDeliveryDate, @RequestParam(required = false) List<String> customerCode, 
-   			@RequestParam String authToken,@RequestParam(required = true) String warehouseId) throws ParseException, java.text.ParseException {
+   			@RequestParam String authToken,@RequestParam(required = true) String warehouseId) throws ParseException, Exception {
     	ShipmentDeliverySummaryReport shipmentDeliverySummaryReport = 
     			transactionService.getShipmentDeliverySummaryReport(fromDeliveryDate, toDeliveryDate, customerCode,warehouseId, authToken);
-    	log.info("shipmentDeliverySummaryReport : " + Arrays.asList(shipmentDeliverySummaryReport));
     	return new ResponseEntity<>(shipmentDeliverySummaryReport, HttpStatus.OK);
    	}
     
@@ -1597,10 +1600,9 @@ public class TransactionServiceController {
    	@GetMapping("/shipmentDispatchSummary")
    	public ResponseEntity<?> getShipmentDispatchSummaryReport(@RequestParam String fromDeliveryDate, 
    			@RequestParam String toDeliveryDate, @RequestParam(required = false) List<String> customerCode, 
-   			@RequestParam String authToken,@RequestParam(required = true) String warehouseId) throws ParseException, java.text.ParseException {
+   			@RequestParam String authToken,@RequestParam(required = true) String warehouseId) throws ParseException, Exception {
     	ShipmentDispatchSummaryReport shipmentDispatchSummary = 
     			transactionService.getShipmentDispatchSummaryReport(fromDeliveryDate, toDeliveryDate, customerCode,warehouseId, authToken);
-    	log.info("-shipmentDispatchSummary : " + shipmentDispatchSummary);
     	return new ResponseEntity<>(shipmentDispatchSummary, HttpStatus.OK);
    	}
     
@@ -1621,7 +1623,7 @@ public class TransactionServiceController {
     @ApiOperation(response = Dashboard.class, value = "Get Dashboard") // label for swagger 
 	@GetMapping("/reports/dashboard")
 	public ResponseEntity<?> getDashboard(@RequestParam String warehouseId, @RequestParam String authToken) 
-			throws java.text.ParseException {
+			throws Exception {
     	Dashboard dashboard = transactionService.getDashboard(warehouseId, authToken);
 		return new ResponseEntity<>(dashboard, HttpStatus.OK);
 	}
@@ -1631,7 +1633,7 @@ public class TransactionServiceController {
 	 */
 	@ApiOperation(response = Dashboard.class, value = "Get Dashboard AWAITING ASN") // label for swagger
 	@GetMapping("/reports/dashboard/awaiting-asn")
-	public ResponseEntity<?> getDashboardAwaitingASN(@RequestParam String warehouseId, @RequestParam String authToken) throws java.text.ParseException {
+	public ResponseEntity<?> getDashboardAwaitingASN(@RequestParam String warehouseId, @RequestParam String authToken) throws Exception {
 		Dashboard dashboard = transactionService.getDashboardAwaitingASN(warehouseId,authToken);
 		return new ResponseEntity<>(dashboard, HttpStatus.OK);
 	}
@@ -1641,7 +1643,7 @@ public class TransactionServiceController {
 	 */
 	@ApiOperation(response = Dashboard.class, value = "Get Dashboard CONTAINER RECEIVED") // label for swagger
 	@GetMapping("/reports/dashboard/container-received")
-	public ResponseEntity<?> getDashboardContainerReceived(@RequestParam String warehouseId, @RequestParam String authToken) throws java.text.ParseException {
+	public ResponseEntity<?> getDashboardContainerReceived(@RequestParam String warehouseId, @RequestParam String authToken) throws Exception {
 		Dashboard dashboard = transactionService.getDashboardContainerReceived(warehouseId,authToken);
 		return new ResponseEntity<>(dashboard, HttpStatus.OK);
 	}
@@ -1651,7 +1653,7 @@ public class TransactionServiceController {
 	 */
 	@ApiOperation(response = Dashboard.class, value = "Get Dashboard ITEM RECEIVED") // label for swagger
 	@GetMapping("/reports/dashboard/item-received")
-	public ResponseEntity<?> getDashboardItemReceived(@RequestParam String warehouseId, @RequestParam String authToken) throws java.text.ParseException {
+	public ResponseEntity<?> getDashboardItemReceived(@RequestParam String warehouseId, @RequestParam String authToken) throws Exception {
 		Dashboard dashboard = transactionService.getDashboardItemReceived(warehouseId,authToken);
 		return new ResponseEntity<>(dashboard, HttpStatus.OK);
 	}
@@ -1661,8 +1663,9 @@ public class TransactionServiceController {
 	 */
 	@ApiOperation(response = Dashboard.class, value = "Get Dashboard SHIPPED LINE") // label for swagger
 	@GetMapping("/reports/dashboard/shipped-line")
-	public ResponseEntity<?> getDashboardShippedLine(@RequestParam String warehouseId, @RequestParam String authToken) throws java.text.ParseException {
+	public ResponseEntity<?> getDashboardShippedLine(@RequestParam String warehouseId, @RequestParam String authToken) throws Exception {
 		Dashboard dashboard = transactionService.getDashboardShippedLine(warehouseId,authToken);
+		log.info("dashboard : " + dashboard);
 		return new ResponseEntity<>(dashboard, HttpStatus.OK);
 	}
 
@@ -1671,7 +1674,7 @@ public class TransactionServiceController {
 	 */
 	@ApiOperation(response = Dashboard.class, value = "Get Dashboard NORMAL COUNT") // label for swagger
 	@GetMapping("/reports/dashboard/normal-count")
-	public ResponseEntity<?> getDashboardNormalCount(@RequestParam String warehouseId, @RequestParam String authToken) throws java.text.ParseException {
+	public ResponseEntity<?> getDashboardNormalCount(@RequestParam String warehouseId, @RequestParam String authToken) throws Exception {
 		Dashboard dashboard = transactionService.getDashboardNormalCount(warehouseId,authToken);
 		return new ResponseEntity<>(dashboard, HttpStatus.OK);
 	}
@@ -1681,7 +1684,7 @@ public class TransactionServiceController {
 	 */
 	@ApiOperation(response = Dashboard.class, value = "Get Dashboard SPECIAL COUNT") // label for swagger
 	@GetMapping("/reports/dashboard/special-count")
-	public ResponseEntity<?> getDashboardSpecialCount(@RequestParam String warehouseId, @RequestParam String authToken) throws java.text.ParseException {
+	public ResponseEntity<?> getDashboardSpecialCount(@RequestParam String warehouseId, @RequestParam String authToken) throws Exception {
 		Dashboard dashboard = transactionService.getDashboardSpecialCount(warehouseId,authToken);
 		return new ResponseEntity<>(dashboard, HttpStatus.OK);
 	}
@@ -1691,7 +1694,7 @@ public class TransactionServiceController {
 	 */
 	@ApiOperation(response = Dashboard.class, value = "Get Dashboard BIN STATUS") // label for swagger
 	@GetMapping("/reports/dashboard/bin-status")
-	public ResponseEntity<?> getDashboardBinStatus(@RequestParam String warehouseId, @RequestParam String authToken) throws java.text.ParseException {
+	public ResponseEntity<?> getDashboardBinStatus(@RequestParam String warehouseId, @RequestParam String authToken) throws Exception {
 		Dashboard dashboard = transactionService.getDashboardBinStatus(warehouseId,authToken);
 		return new ResponseEntity<>(dashboard, HttpStatus.OK);
 	}

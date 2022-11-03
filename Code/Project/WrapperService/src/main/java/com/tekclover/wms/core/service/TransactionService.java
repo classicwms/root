@@ -3386,6 +3386,27 @@ public class TransactionService {
 		}
 	}
 
+	// POST - findOutboundLine
+	public OutboundLine[] findOutboundLineNew(SearchOutboundLine searchOutboundLine, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "outboundline/findOutboundLine-new");
+			HttpEntity<?> entity = new HttpEntity<>(searchOutboundLine, headers);
+			ResponseEntity<OutboundLine[]> result =
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, OutboundLine[].class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
 	// POST - stock-movement-report-findOutboundLine
 	public StockMovementReport[] findOutboundLineForStockMovement(SearchOutboundLine searchOutboundLine, String authToken) {
 		try {
@@ -3712,7 +3733,6 @@ public class TransactionService {
 			ResponseEntity<ShipmentDeliverySummaryReport> result =
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, 
 							ShipmentDeliverySummaryReport.class);
-			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -3834,6 +3854,12 @@ public class TransactionService {
 		}
 	}
 
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param authToken
+	 * @return
+	 */
 	public Dashboard getDashboardItemReceived(String warehouseId, String authToken) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
@@ -3855,6 +3881,12 @@ public class TransactionService {
 		}
 	}
 
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param authToken
+	 * @return
+	 */
 	public Dashboard getDashboardShippedLine(String warehouseId, String authToken) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
@@ -3868,7 +3900,7 @@ public class TransactionService {
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			ResponseEntity<Dashboard> result =
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Dashboard.class);
-			log.info("result : " + result.getStatusCode());
+			
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -3876,6 +3908,12 @@ public class TransactionService {
 		}
 	}
 
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param authToken
+	 * @return
+	 */
 	public Dashboard getDashboardNormalCount(String warehouseId, String authToken) {
 		try {
 			HttpHeaders headers = new HttpHeaders();

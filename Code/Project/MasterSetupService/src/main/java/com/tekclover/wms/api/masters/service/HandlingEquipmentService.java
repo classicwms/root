@@ -76,6 +76,23 @@ public class HandlingEquipmentService {
 	
 	/**
 	 * 
+	 * @param warehouseId
+	 * @param handlingEquipmentId
+	 * @return
+	 */
+	public HandlingEquipment getHandlingEquipmentByWarehouseId(String warehouseId, String handlingEquipmentId) {
+		Optional<HandlingEquipment> handlingequipment = 
+				handlingequipmentRepository.findByHandlingEquipmentIdAndWarehouseIdAndDeletionIndicator(handlingEquipmentId, warehouseId, 0L);
+		if (!handlingequipment.isEmpty()) {
+			return handlingequipment.get();
+		} else {
+			throw new BadRequestException("The given values: warehouseId-" + warehouseId + ", "
+					+ "heBarcode - " + handlingEquipmentId + " doesn't exist.");
+		}
+	}
+	
+	/**
+	 * 
 	 * @param searchHandlingEquipment
 	 * @return
 	 * @throws Exception

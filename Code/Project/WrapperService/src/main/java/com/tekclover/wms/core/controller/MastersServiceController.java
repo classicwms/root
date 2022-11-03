@@ -610,9 +610,9 @@ public class MastersServiceController {
    	public ResponseEntity<?> getStorageBins(@RequestParam String authToken) {
 		StorageBin[] storagebin = mastersService.getStorageBins(authToken);
     	log.info("StorageBin : " + storagebin);
-		return new ResponseEntity<>(storagebin, HttpStatus.OK); 
+		return new ResponseEntity<>(storagebin, HttpStatus.OK);
 	}
-    
+	
     @ApiOperation(response = StorageBin.class, value = "Get a StorageBin") // label for swagger 
 	@RequestMapping(value = "/storagebin/{storageBin}", method = RequestMethod.GET)
 	public ResponseEntity<?> getStorageBin(@PathVariable String storageBin, @RequestParam String authToken) {
@@ -620,6 +620,15 @@ public class MastersServiceController {
     	log.info("StorageBin : " + storagebin);
 		return new ResponseEntity<>(storagebin, HttpStatus.OK);
 	}
+    
+    @ApiOperation(response = StorageBin.class, value = "Get a StorageBin") // label for swagger 
+   	@GetMapping("/storagebin/{storageBin}/warehouseId")
+   	public ResponseEntity<?> getStorageBinbyWarehouseId(@PathVariable String storageBin, 
+   			@RequestParam String warehouseId, @RequestParam String authToken) {
+       	StorageBin storagebin = mastersService.getStorageBin (warehouseId, storageBin, authToken);
+       	log.info("StorageBin : " + storagebin);
+   		return new ResponseEntity<>(storagebin, HttpStatus.OK);
+   	}
     
 	@ApiOperation(response = StorageBin.class, value = "Search StorageBin") // label for swagger
 	@PostMapping("/storagebin/findStorageBin")

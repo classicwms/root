@@ -496,7 +496,7 @@ public class MastersService {
 	}
 	
 	// GET
-	public HandlingEquipment getHandlingEquipment(String warehouseId, String heBarcode, String authToken) {
+	public HandlingEquipment getHandlingEquipment(String warehouseId, String heId, String authToken) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -505,7 +505,7 @@ public class MastersService {
 			
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			UriComponentsBuilder builder = 
-					UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "handlingequipment/" + heBarcode)
+					UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "handlingequipment/" + heId)
 					.queryParam("warehouseId", warehouseId);
 			ResponseEntity<HandlingEquipment> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, HandlingEquipment.class);
@@ -1533,7 +1533,6 @@ public class MastersService {
 
 			HttpEntity<?> entity = new HttpEntity<>(packingmaterial, headers);
 			ResponseEntity<PackingMaterial> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PackingMaterial.class);
-			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1549,18 +1548,14 @@ public class MastersService {
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 			headers.add("User-Agent", "Classic WMS's RestTemplate");
 			headers.add("Authorization", "Bearer " + authToken);
-			
 			HttpEntity<?> entity = new HttpEntity<>(modifiedPackingMaterial, headers);
 			HttpClient client = HttpClients.createDefault();
 			RestTemplate restTemplate = getRestTemplate();
 			restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client)); 
-			
 			UriComponentsBuilder builder = 
 					UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "packingmaterial/" + packingMaterialNo)
 					.queryParam("loginUserID", loginUserID);
-			
 			ResponseEntity<PackingMaterial> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, PackingMaterial.class);
-			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1581,7 +1576,6 @@ public class MastersService {
 					UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "packingmaterial/" + packingMaterialNo)
 					.queryParam("loginUserID", loginUserID);
 			ResponseEntity<String> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity, String.class);
-			log.info("result : " + result);
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1601,7 +1595,6 @@ public class MastersService {
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "storagebin");
 			ResponseEntity<StorageBin[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, StorageBin[].class);
-			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1616,11 +1609,26 @@ public class MastersService {
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 			headers.add("User-Agent", "Classic WMS's RestTemplate");
 			headers.add("Authorization", "Bearer " + authToken);
-			
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "storagebin/" + storageBin);
 			ResponseEntity<StorageBin> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, StorageBin.class);
-			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	
+	// GET StorageBin
+	public StorageBin getStorageBin(String warehouseId, String storageBin, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "Classic WMS's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "storagebin/" + storageBin + "/warehouseId");
+			ResponseEntity<StorageBin> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, StorageBin.class);
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -52,8 +52,8 @@ public class HandlingEquipmentController {
     
     @ApiOperation(response = HandlingEquipment.class, value = "Get a HandlingEquipment") // label for swagger 
 	@GetMapping("/{handlingEquipmentId}")
-	public ResponseEntity<?> getHandlingEquipment(@PathVariable String handlingEquipmentId) {
-    	HandlingEquipment handlingequipment = handlingequipmentService.getHandlingEquipment(handlingEquipmentId);
+	public ResponseEntity<?> getHandlingEquipmentByWarehouseId(@PathVariable String handlingEquipmentId, @RequestParam String warehouseId) {
+    	HandlingEquipment handlingequipment = handlingequipmentService.getHandlingEquipmentByWarehouseId(warehouseId, handlingEquipmentId);
     	log.info("HandlingEquipment : " + handlingequipment);
 		return new ResponseEntity<>(handlingequipment, HttpStatus.OK);
 	}
