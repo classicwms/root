@@ -24,7 +24,9 @@ public interface StorageBinRepository extends JpaRepository<StorageBin,Long>, Jp
 	public String findByStorageBin (@Param(value = "storageBin") String storageBin);
 
 
-	Optional<StorageBin> findByStorageBinAndDeletionIndicator(String storageBin, Long delFlag);
+	public Optional<StorageBin> findByStorageBinAndDeletionIndicator(String storageBin, Long delFlag);
+
+	public StorageBin findByWarehouseIdAndStorageBinAndDeletionIndicator(String warehouseId, String storageBin, long l);
 	
 }
 

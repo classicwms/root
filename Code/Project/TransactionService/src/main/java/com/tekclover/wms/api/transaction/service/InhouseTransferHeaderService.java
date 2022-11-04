@@ -62,9 +62,6 @@ public class InhouseTransferHeaderService extends BaseService {
 	private InventoryRepository inventoryRepository;
 	
 	@Autowired
-	private MastersService mastersService;
-
-	@Autowired
 	private StorageBinRepository storageBinRepository;
 
 	@Autowired
@@ -373,14 +370,9 @@ public class InhouseTransferHeaderService extends BaseService {
 					// Deleting record
 					inventoryRepository.delete(inventorySourceItemCode);
 					log.info("---------inventory-----deleted-----");
-
-//					AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-//					StorageBin modifiedStorageBin = new StorageBin();
-//					modifiedStorageBin.setStatusId(0L);
-//					mastersService.updateStorageBin(createdInhouseTransferLine.getSourceStorageBin(),
-//							modifiedStorageBin, loginUserID, authTokenForMastersService.getAccess_token());
 					try {
-						StorageBin dbStorageBin = getStorageBin(createdInhouseTransferLine.getSourceStorageBin());
+						StorageBin dbStorageBin = getStorageBin(createdInhouseTransferLine.getWarehouseId(),
+								createdInhouseTransferLine.getSourceStorageBin());
 						dbStorageBin.setStatusId(0L);
 						dbStorageBin.setUpdatedBy(loginUserID);
 						dbStorageBin.setUpdatedOn(new Date());
@@ -431,7 +423,8 @@ public class InhouseTransferHeaderService extends BaseService {
 					newInventory.setInventoryQuantity(createdInhouseTransferLine.getTransferConfirmedQty());
 					newInventory.setInventoryUom(createdInhouseTransferLine.getTransferUom());
 
-					StorageBin storageBin = getStorageBin(createdInhouseTransferLine.getTargetStorageBin());
+					StorageBin storageBin = getStorageBin(createdInhouseTransferLine.getWarehouseId(),
+							createdInhouseTransferLine.getTargetStorageBin());
 					newInventory.setBinClassId(storageBin.getBinClassId());
 
 					List<IImbasicData1> imbasicdata1 = imbasicdata1Repository.findByItemCode(newInventory.getItemCode());
@@ -458,9 +451,8 @@ public class InhouseTransferHeaderService extends BaseService {
 	 * @param storageBin
 	 * @return
 	 */
-	public StorageBin getStorageBin (String storageBin) {
-		StorageBin storagebin = storageBinRepository.findByStorageBinAndDeletionIndicator(storageBin, 0L).orElse(null);
-		log.info("Storage bin==========>: " + storagebin);
+	public StorageBin getStorageBin (String warehouseId, String storageBin) {
+		StorageBin storagebin = storageBinRepository.findByWarehouseIdAndStorageBinAndDeletionIndicator(warehouseId, storageBin, 0L);
 		if (storagebin != null && storagebin.getDeletionIndicator() != null && storagebin.getDeletionIndicator() == 0) {
 			return storagebin;
 		} else {
