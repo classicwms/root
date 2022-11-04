@@ -31,6 +31,9 @@ public interface StorageBinRepository extends JpaRepository<StorageBin,Long>, Jp
 	public List<StorageBin> findByStorageSectionIdIn(List<String> storageSectionId);
 
 	public StorageBin findByWarehouseIdAndStorageBinAndDeletionIndicator(String warehouseId, String storageBin, long l);
+
+	public List<StorageBin> findByWarehouseIdAndStorageBinInAndStorageSectionIdInAndPutawayBlockAndPickingBlockAndDeletionIndicatorOrderByStorageBinDesc(
+			String warehouseId, List<String> storageBin, List<String> storageSectionIds, int i, int j, long l);
 }
 
 

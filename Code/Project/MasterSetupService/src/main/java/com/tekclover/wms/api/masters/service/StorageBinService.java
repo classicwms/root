@@ -67,14 +67,13 @@ public class StorageBinService {
 	 */
 	public List<StorageBin> getStorageBin (StorageBinPutAway storageBinPutAway) {
 		List<StorageBin> storagebinList = 
-				storagebinRepository.findByStorageBinInAndStorageSectionIdInAndPutawayBlockAndPickingBlockAndDeletionIndicatorOrderByStorageBinDesc(
+				storagebinRepository.findByWarehouseIdAndStorageBinInAndStorageSectionIdInAndPutawayBlockAndPickingBlockAndDeletionIndicatorOrderByStorageBinDesc(
+						storageBinPutAway.getWarehouseId(),
 						storageBinPutAway.getStorageBin(), 
 						storageBinPutAway.getStorageSectionIds(), 
 						0, 
 						0, 
 						0L);
-		log.info("storagebinList-----------> " + storagebinList);
-		
 		if (!storagebinList.isEmpty()) {
 			return storagebinList;
 		} 

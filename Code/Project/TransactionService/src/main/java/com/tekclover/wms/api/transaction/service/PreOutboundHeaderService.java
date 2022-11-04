@@ -715,6 +715,8 @@ public class PreOutboundHeaderService extends BaseService {
 		StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
 		storageBinPutAway.setStorageBin(stBins);
 		storageBinPutAway.setStorageSectionIds(storageSectionIds);
+		storageBinPutAway.setWarehouseId(warehouseId);
+		
 		StorageBin[] storageBin = mastersService.getStorageBin(storageBinPutAway, authTokenForMastersService.getAccess_token());
 		log.info("---1----selected----storageBins---from---masters-----> : " + storageBin);
 		
