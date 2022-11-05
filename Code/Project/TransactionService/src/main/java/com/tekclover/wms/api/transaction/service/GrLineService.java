@@ -497,19 +497,24 @@ public class GrLineService extends BaseService {
 				StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
 				storageBinPutAway.setStorageBin(stBins);
 				storageBinPutAway.setStorageSectionIds(storageSectionIds);
+				storageBinPutAway.setWarehouseId(createdGRLine.getWarehouseId());
 				StorageBin[] storageBin = mastersService.getStorageBin(storageBinPutAway, authTokenForMastersService.getAccess_token());
-				putAwayHeader.setProposedStorageBin(storageBin[0].getStorageBin());
+				log.info("storagebin -----------> : " + storageBin);
+				if (storageBin != null && storageBin.length > 0) {
+					putAwayHeader.setProposedStorageBin(storageBin[0].getStorageBin());
+				}
 			} else {
 				// If ST_BIN value is null 
 				// Validate if ACCEPT_QTY is not null and DAMAGE_QTY is NULL, 
 				// then pass WH_ID in STORAGEBIN table and fetch ST_BIN values for STATUS_ID=EMPTY.
 				log.info ("QuantityType : " + createdGRLine.getQuantityType());
 				if (createdGRLine.getQuantityType().equalsIgnoreCase("A")) {
-					if (createdGRLine.getWarehouseId().equalsIgnoreCase(WAREHOUSEID_111)) {
-						storageSectionIds = Arrays.asList("ZT");
-					} 
+//					if (createdGRLine.getWarehouseId().equalsIgnoreCase(WAREHOUSEID_111)) {
+//						storageSectionIds = Arrays.asList("ZT");
+//					} 
 					StorageBin[] storageBinEMPTY = 
 							mastersService.getStorageBinByStatus(createdGRLine.getWarehouseId(), 0L, authTokenForMastersService.getAccess_token());
+					log.info("storageBinEMPTY -----------> : " + storageBinEMPTY);
 					List<StorageBin> storageBinEMPTYList = Arrays.asList(storageBinEMPTY);				
 					List<String> stBins = storageBinEMPTYList.stream().map(StorageBin::getStorageBin).collect(Collectors.toList());
 					
@@ -522,18 +527,10 @@ public class GrLineService extends BaseService {
 					// Prod Issue - SQL Grammer on StorageBin-----23-08-2022
 					// Start
 					if (stBins != null && stBins.size() > 2000) {
-//						List[] listArray = splitList (stBins);
-//						StorageBin[] storageBin = getStorageBin(storageSectionIds, listArray[0], authTokenForMastersService.getAccess_token());
-//						if (storageBin != null && storageBin.length > 0) {
-//							putAwayHeader.setProposedStorageBin(storageBin[0].getStorageBin());
-//						} else {
-//							storageBin = getStorageBin(storageSectionIds, listArray[1], authTokenForMastersService.getAccess_token());
-//							putAwayHeader.setProposedStorageBin(storageBin[0].getStorageBin());
-//						}
-						
 						List<List<String>> splitedList = CommonUtils.splitArrayList(stBins, 1800); // SQL Query accepts max 2100 count only in IN condition
 						StorageBin[] storageBin = getStorageBinForSplitedList(splitedList, storageSectionIds, authTokenForMastersService.getAccess_token());
 						// Provided Null else validation
+						log.info("storageBin2 -----------> : " + storageBin);
 						if (storageBin != null && storageBin.length > 0) {
 							putAwayHeader.setProposedStorageBin(storageBin[0].getStorageBin());
 						} else {
