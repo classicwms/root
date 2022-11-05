@@ -392,7 +392,7 @@ public class OrderManagementLineService extends BaseService {
 			dbOrderManagementLine.setStatusId(47L);
 			dbOrderManagementLine.setPickupUpdatedBy(loginUserID);
 			dbOrderManagementLine.setPickupUpdatedOn(new Date());
-			if(i != 0){
+			if(i != 0) {
 				dbOrderManagementLine.setDeletionIndicator(1L);
 			}
 			OrderManagementLine updatedOrderManagementLine = orderManagementLineRepository.save(dbOrderManagementLine);

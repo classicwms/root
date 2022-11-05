@@ -533,7 +533,14 @@ public class GrLineService extends BaseService {
 						
 						List<List<String>> splitedList = CommonUtils.splitArrayList(stBins, 1800); // SQL Query accepts max 2100 count only in IN condition
 						StorageBin[] storageBin = getStorageBinForSplitedList(splitedList, storageSectionIds, authTokenForMastersService.getAccess_token());
-						putAwayHeader.setProposedStorageBin(storageBin[0].getStorageBin());
+						// Provided Null else validation
+						if (storageBin != null && storageBin.length > 0) {
+							putAwayHeader.setProposedStorageBin(storageBin[0].getStorageBin());
+						} else {
+							Long binClassID = 2L;
+							StorageBin stBin = mastersService.getStorageBin(createdGRLine.getWarehouseId(), binClassID, authTokenForMastersService.getAccess_token());
+							putAwayHeader.setProposedStorageBin(stBin.getStorageBin());
+						}
 					} else {
 						StorageBin[] storageBin = getStorageBin(storageSectionIds, stBins, authTokenForMastersService.getAccess_token());
 						if (storageBin != null && storageBin.length > 0) {
