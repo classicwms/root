@@ -371,8 +371,9 @@ public class PickupLineService extends BaseService {
 						if (INV_QTY == 0) {
 							// Setting up statusId = 0
 							try {
-								StorageBin dbStorageBin = mastersService.getStorageBin(inventory.getStorageBin(), authTokenForMastersService.getAccess_token());
+								StorageBin dbStorageBin = mastersService.getStorageBin(inventory.getStorageBin(), dbPickupLine.getWarehouseId(), authTokenForMastersService.getAccess_token());
 								dbStorageBin.setStatusId(0L);
+								dbStorageBin.setWarehouseId(warehouseId);
 								mastersService.updateStorageBin(inventory.getStorageBin(), dbStorageBin, loginUserID, authTokenForMastersService.getAccess_token());
 							} catch (Exception e) {
 								log.error ("updateStorageBin Error :" + e.toString());
@@ -404,7 +405,7 @@ public class PickupLineService extends BaseService {
 						if (INV_QTY == 0) {
 							try {
 								// Setting up statusId = 0
-								StorageBin dbStorageBin = mastersService.getStorageBin(inventory.getStorageBin(), authTokenForMastersService.getAccess_token());
+								StorageBin dbStorageBin = mastersService.getStorageBin(inventory.getStorageBin(), dbPickupLine.getWarehouseId(), authTokenForMastersService.getAccess_token());
 								dbStorageBin.setStatusId(0L);
 								mastersService.updateStorageBin(inventory.getStorageBin(), dbStorageBin, loginUserID, authTokenForMastersService.getAccess_token());
 							} catch (Exception e) {
@@ -845,6 +846,7 @@ public class PickupLineService extends BaseService {
 		StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
 		storageBinPutAway.setStorageBin(stBins);
 		storageBinPutAway.setStorageSectionIds(storageSectionIds);
+		storageBinPutAway.setWarehouseId(warehouseId);
 		StorageBin[] storageBin = mastersService.getStorageBin(storageBinPutAway, authTokenForMastersService.getAccess_token());
 		log.info("storageBin : " + Arrays.asList(storageBin));
 		
@@ -895,6 +897,7 @@ public class PickupLineService extends BaseService {
 		StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
 		storageBinPutAway.setStorageBin(stBins);
 		storageBinPutAway.setStorageSectionIds(storageSectionIds);
+		storageBinPutAway.setWarehouseId(warehouseId);
 		StorageBin[] storageBin = mastersService.getStorageBin(storageBinPutAway, authTokenForMastersService.getAccess_token());
 		if (storageBin != null && storageBin.length > 0) {
 			/* Discussed to remove SP_INND_ID parameter from get */

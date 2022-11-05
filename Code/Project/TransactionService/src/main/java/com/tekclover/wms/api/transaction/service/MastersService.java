@@ -259,7 +259,7 @@ public class MastersService {
 		
 	
 	// GET By Storage Section Id - /sectionId
-	public StorageBin[] getStorageBinBySectionId ( List<String> stSectionIds, String authToken) {
+	public StorageBin[] getStorageBinBySectionId ( String warehouseId, List<String> stSectionIds, String authToken) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -269,6 +269,7 @@ public class MastersService {
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			UriComponentsBuilder builder = 
 					UriComponentsBuilder.fromHttpUrl(getMastersServiceApiUrl() + "storagebin/sectionId")
+						.queryParam("warehouseId", warehouseId)
 						.queryParam("stSectionIds", stSectionIds);
 			ResponseEntity<StorageBin[]> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, StorageBin[].class);

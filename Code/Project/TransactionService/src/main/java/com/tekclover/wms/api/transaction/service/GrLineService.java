@@ -528,7 +528,8 @@ public class GrLineService extends BaseService {
 					// Start
 					if (stBins != null && stBins.size() > 2000) {
 						List<List<String>> splitedList = CommonUtils.splitArrayList(stBins, 1800); // SQL Query accepts max 2100 count only in IN condition
-						StorageBin[] storageBin = getStorageBinForSplitedList(splitedList, storageSectionIds, authTokenForMastersService.getAccess_token());
+						StorageBin[] storageBin = getStorageBinForSplitedList(splitedList, storageSectionIds, 
+								createdGRLine.getWarehouseId(), authTokenForMastersService.getAccess_token());
 						// Provided Null else validation
 						log.info("storageBin2 -----------> : " + storageBin);
 						if (storageBin != null && storageBin.length > 0) {
@@ -539,7 +540,7 @@ public class GrLineService extends BaseService {
 							putAwayHeader.setProposedStorageBin(stBin.getStorageBin());
 						}
 					} else {
-						StorageBin[] storageBin = getStorageBin(storageSectionIds, stBins, authTokenForMastersService.getAccess_token());
+						StorageBin[] storageBin = getStorageBin(storageSectionIds, stBins, createdGRLine.getWarehouseId(), authTokenForMastersService.getAccess_token());
 						if (storageBin != null && storageBin.length > 0) {
 							putAwayHeader.setProposedStorageBin(storageBin[0].getStorageBin());
 						} else {
@@ -569,6 +570,7 @@ public class GrLineService extends BaseService {
 						List[] listArray = splitList (stBins);
 						storageBinPutAway.setStorageBin(listArray[0]);
 						storageBinPutAway.setStorageSectionIds(storageSectionIds);
+						storageBinPutAway.setWarehouseId(createdGRLine.getWarehouseId());
 						StorageBin[] storageBin = mastersService.getStorageBin(storageBinPutAway, authTokenForMastersService.getAccess_token());
 						if (storageBin != null && storageBin.length > 0) {
 							putAwayHeader.setProposedStorageBin(storageBin[0].getStorageBin());
@@ -581,6 +583,7 @@ public class GrLineService extends BaseService {
 						StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
 						storageBinPutAway.setStorageBin(stBins);
 						storageBinPutAway.setStorageSectionIds(storageSectionIds);
+						storageBinPutAway.setWarehouseId(createdGRLine.getWarehouseId());
 						StorageBin[] storageBin = mastersService.getStorageBin(storageBinPutAway, authTokenForMastersService.getAccess_token());
 						if (storageBin != null && storageBin.length > 0) {
 							putAwayHeader.setProposedStorageBin(storageBin[0].getStorageBin());
@@ -621,9 +624,9 @@ public class GrLineService extends BaseService {
 	 * @param authToken
 	 * @return
 	 */
-	private StorageBin[] getStorageBinForSplitedList (List<List<String>> splitedList, List<String> storageSectionIds, String authToken) {
+	private StorageBin[] getStorageBinForSplitedList (List<List<String>> splitedList, List<String> storageSectionIds, String warehouseId, String authToken) {
 		for (List<String> list : splitedList) {
-			StorageBin[] storageBin = getStorageBin(storageSectionIds, list, authToken);
+			StorageBin[] storageBin = getStorageBin(storageSectionIds, list, warehouseId, authToken);
 			if (storageBin != null && storageBin.length > 0) {
 				return storageBin;
 			}
@@ -637,11 +640,12 @@ public class GrLineService extends BaseService {
 	 * @param authToken
 	 * @return
 	 */
-	private StorageBin[] getStorageBin (List<String> storageSectionIds, List<String> stBins, String authToken ) {
+	private StorageBin[] getStorageBin (List<String> storageSectionIds, List<String> stBins, String warehouseId, String authToken ) {
 		StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
 		storageSectionIds = Arrays.asList("ZB","ZG","ZC","ZT"); // Removing ZD
 		storageBinPutAway.setStorageBin(stBins);
 		storageBinPutAway.setStorageSectionIds(storageSectionIds);
+		storageBinPutAway.setWarehouseId(warehouseId);
 		StorageBin[] storageBin = mastersService.getStorageBin(storageBinPutAway, authToken);
 		return storageBin;
 	}

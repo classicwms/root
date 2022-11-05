@@ -152,8 +152,8 @@ public class StorageBinService {
 	 * @param stSectionIds
 	 * @return
 	 */
-	public List<StorageBin> getStorageBin(List<String> stSectionIds) {
-		List<StorageBin> storagebin = storagebinRepository.findByStorageSectionIdIn (stSectionIds);
+	public List<StorageBin> getStorageBin(String warehouseId, List<String> stSectionIds) {
+		List<StorageBin> storagebin = storagebinRepository.findByWarehouseIdAndStorageSectionIdIn (warehouseId, stSectionIds);
 		if (storagebin != null) {
 			return storagebin;
 		} else {
