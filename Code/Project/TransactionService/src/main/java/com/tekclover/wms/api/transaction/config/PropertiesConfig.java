@@ -8,7 +8,8 @@ import lombok.Data;
 
 @Data
 @Configuration
-@PropertySource("classpath:application-messages.properties")
+@PropertySource("classpath:application-messages-axuat.properties")
+//@PropertySource("classpath:application-messages.properties")
 public class PropertiesConfig {
 
 	@Value("${idmaster.oauth.credentials.client_id}")

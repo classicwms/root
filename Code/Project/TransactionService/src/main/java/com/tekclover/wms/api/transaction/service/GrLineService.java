@@ -509,9 +509,6 @@ public class GrLineService extends BaseService {
 				// then pass WH_ID in STORAGEBIN table and fetch ST_BIN values for STATUS_ID=EMPTY.
 				log.info ("QuantityType : " + createdGRLine.getQuantityType());
 				if (createdGRLine.getQuantityType().equalsIgnoreCase("A")) {
-//					if (createdGRLine.getWarehouseId().equalsIgnoreCase(WAREHOUSEID_111)) {
-//						storageSectionIds = Arrays.asList("ZT");
-//					} 
 					StorageBin[] storageBinEMPTY = 
 							mastersService.getStorageBinByStatus(createdGRLine.getWarehouseId(), 0L, authTokenForMastersService.getAccess_token());
 					log.info("storageBinEMPTY -----------> : " + storageBinEMPTY);
@@ -523,13 +520,14 @@ public class GrLineService extends BaseService {
 					 * PUTAWAY_BLOCK and PICK_BLOCK columns are Null( FALSE) and fetch the filteerd values and 
 					 * Sort the latest and Insert.
 					 */
-					
 					// Prod Issue - SQL Grammer on StorageBin-----23-08-2022
 					// Start
 					if (stBins != null && stBins.size() > 2000) {
 						List<List<String>> splitedList = CommonUtils.splitArrayList(stBins, 1800); // SQL Query accepts max 2100 count only in IN condition
+						storageSectionIds = Arrays.asList("ZB","ZG","ZC","ZT"); // Removing ZD
 						StorageBin[] storageBin = getStorageBinForSplitedList(splitedList, storageSectionIds, 
 								createdGRLine.getWarehouseId(), authTokenForMastersService.getAccess_token());
+						
 						// Provided Null else validation
 						log.info("storageBin2 -----------> : " + storageBin);
 						if (storageBin != null && storageBin.length > 0) {
@@ -557,7 +555,6 @@ public class GrLineService extends BaseService {
 				 * fetch ST_BIN values for STATUS_ID=EMPTY. 
 				 */
 				if (createdGRLine.getQuantityType().equalsIgnoreCase("D")) {
-					storageSectionIds = Arrays.asList("ZD");
 					StorageBin[] storageBinEMPTY = 
 							mastersService.getStorageBinByStatus(createdGRLine.getWarehouseId(), 0L, authTokenForMastersService.getAccess_token());
 					List<StorageBin> storageBinEMPTYList = Arrays.asList(storageBinEMPTY);				
@@ -566,18 +563,16 @@ public class GrLineService extends BaseService {
 					// Pass ST_BIN values into STORAGEBIN table  where where ST_SEC_ID = ZD and PUTAWAY_BLOCK and 
 					// PICK_BLOCK columns are Null( FALSE)
 					if (stBins != null && stBins.size() > 2000) {
-						StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
-						List[] listArray = splitList (stBins);
-						storageBinPutAway.setStorageBin(listArray[0]);
-						storageBinPutAway.setStorageSectionIds(storageSectionIds);
-						storageBinPutAway.setWarehouseId(createdGRLine.getWarehouseId());
-						StorageBin[] storageBin = mastersService.getStorageBin(storageBinPutAway, authTokenForMastersService.getAccess_token());
+						storageSectionIds = Arrays.asList("ZD");
+						List<List<String>> splitedList = CommonUtils.splitArrayList(stBins, 1800); // SQL Query accepts max 2100 count only in IN condition
+						StorageBin[] storageBin = getStorageBinForSplitedList(splitedList, storageSectionIds, 
+								createdGRLine.getWarehouseId(), authTokenForMastersService.getAccess_token());
 						if (storageBin != null && storageBin.length > 0) {
 							putAwayHeader.setProposedStorageBin(storageBin[0].getStorageBin());
 						} else {
-							storageBinPutAway.setStorageBin(listArray[1]);
-							storageBin = mastersService.getStorageBin(storageBinPutAway, authTokenForMastersService.getAccess_token());
-							putAwayHeader.setProposedStorageBin(storageBin[0].getStorageBin());
+							Long binClassID = 2L;
+							StorageBin stBin = mastersService.getStorageBin(createdGRLine.getWarehouseId(), binClassID, authTokenForMastersService.getAccess_token());
+							putAwayHeader.setProposedStorageBin(stBin.getStorageBin());
 						}
 					} else {
 						StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
@@ -642,7 +637,7 @@ public class GrLineService extends BaseService {
 	 */
 	private StorageBin[] getStorageBin (List<String> storageSectionIds, List<String> stBins, String warehouseId, String authToken ) {
 		StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
-		storageSectionIds = Arrays.asList("ZB","ZG","ZC","ZT"); // Removing ZD
+//		storageSectionIds = Arrays.asList("ZB","ZG","ZC","ZT"); // Removing ZD
 		storageBinPutAway.setStorageBin(stBins);
 		storageBinPutAway.setStorageSectionIds(storageSectionIds);
 		storageBinPutAway.setWarehouseId(warehouseId);
