@@ -58,11 +58,12 @@ public class WarehouseController {
 				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
 		} catch (Exception e) {
+			log.info("ASN Order Error: " + asn);
 			e.printStackTrace();
 			WarehouseApiResponse response = new WarehouseApiResponse();
-			response.setStatusCode("400");
+			response.setStatusCode("1400");
 			response.setMessage("Not Success: " + e.getLocalizedMessage());
-			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
 		}
 		return null;
 	}
@@ -81,11 +82,12 @@ public class WarehouseController {
 				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
 		} catch (Exception e) {
+			log.info("Store Return Order Error: " + storeReturn);
 			e.printStackTrace();
 			WarehouseApiResponse response = new WarehouseApiResponse();
-			response.setStatusCode("400");
+			response.setStatusCode("1400");
 			response.setMessage("Not Success: " + e.getLocalizedMessage());
-			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
 		}
 		return null;
 	}
@@ -104,11 +106,12 @@ public class WarehouseController {
 				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
 		} catch (Exception e) {
+			log.info("soReturn order Error: " + soReturn);
 			e.printStackTrace();
 			WarehouseApiResponse response = new WarehouseApiResponse();
-			response.setStatusCode("400");
+			response.setStatusCode("1400");
 			response.setMessage("Not Success: " + e.getLocalizedMessage());
-			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
 		}
 		return null;
 	}
@@ -128,11 +131,12 @@ public class WarehouseController {
 				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
 		} catch (Exception e) {
+			log.info("interWarehouseTransfer order Error: " + interWarehouseTransferIn);
 			e.printStackTrace();
 			WarehouseApiResponse response = new WarehouseApiResponse();
-			response.setStatusCode("400");
+			response.setStatusCode("1400");
 			response.setMessage("Not Success: " + e.getLocalizedMessage());
-			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
 		}
 		return null;
 	}
@@ -152,25 +156,18 @@ public class WarehouseController {
 				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
 		} catch (Exception e) {
+			log.info("ShipmentOrder order Error: " + shipmenOrder);
 			e.printStackTrace();
 			WarehouseApiResponse response = new WarehouseApiResponse();
-			response.setStatusCode("400");
+			response.setStatusCode("1400");
 			response.setMessage("Not Success: " + e.getLocalizedMessage());
-			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
 		}
 		return null;
 	}
     
-    //---------------------------MONGO----------------------------------------------------------------------------
-//    @ApiOperation(response = ShipmentOrder.class, value = "Get all Mongo Orders") // label for swagger
-//	@GetMapping("/outbound/so/{orderId}")
-//	public ResponseEntity<?> updateSO(@PathVariable String orderId) {
-//    	OutboundIntegrationHeader header = warehouseService.updateSO(orderId);
-//		return new ResponseEntity<>(header, HttpStatus.OK); 
-//	}
-    
     /*----------------------------Sale order True Express-------------------------------------------------------*/
-    @ApiOperation(response = SalesOrder.class, value = "Sale order True Express") // label for swagger
+    @ApiOperation(response = SalesOrder.class, value = "Sales order") // label for swagger
 	@PostMapping("/outbound/salesOrder")
 	public ResponseEntity<?> postSalesOrder(@Valid @RequestBody SalesOrder salesOrder) 
 			throws IllegalAccessException, InvocationTargetException {
@@ -183,11 +180,12 @@ public class WarehouseController {
 				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
 		} catch (Exception e) {
+			log.info("SalesOrder order Error: " + salesOrder);
 			e.printStackTrace();
 			WarehouseApiResponse response = new WarehouseApiResponse();
-			response.setStatusCode("400");
+			response.setStatusCode("1400");
 			response.setMessage("Not Success: " + e.getLocalizedMessage());
-			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
 		}
 		return null;
 	}
@@ -206,11 +204,12 @@ public class WarehouseController {
 				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
 		} catch (Exception e) {
+			log.info("ReturnPO order Error: " + returnPO);
 			e.printStackTrace();
 			WarehouseApiResponse response = new WarehouseApiResponse();
-			response.setStatusCode("400");
+			response.setStatusCode("1400");
 			response.setMessage("Not Success: " + e.getLocalizedMessage());
-			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
 		}
 		return null;
 	}
@@ -231,14 +230,13 @@ public class WarehouseController {
 				return new ResponseEntity<>(response, HttpStatus.OK);
 			}
 		} catch (Exception e) {
+			log.info("InterWarehouseTransferOut order Error: " + interWarehouseTransfer);
 			e.printStackTrace();
 			WarehouseApiResponse response = new WarehouseApiResponse();
-			response.setStatusCode("400");
+			response.setStatusCode("1400");
 			response.setMessage("Not Success: " + e.getLocalizedMessage());
-			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
 		}
 		return null;
    	}
-    
-   
 }

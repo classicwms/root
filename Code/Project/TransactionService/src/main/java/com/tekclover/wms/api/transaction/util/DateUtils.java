@@ -263,9 +263,8 @@ public class DateUtils {
 		LocalTime time = LocalTime.now();
 		System.out.println("---------> " + time);
 		strDate = strDate + " " + time.getHour() + ":" + time.getMinute() + ":" + time.getSecond();
-		
 		Date date = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss").parse(strDate);
-		log.info("convertStringToDate-------> : " + date);
+//		log.info("convertStringToDate-------> : " + date);
 		return date;
 	}
 	
