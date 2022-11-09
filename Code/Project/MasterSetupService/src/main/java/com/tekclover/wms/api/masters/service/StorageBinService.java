@@ -217,7 +217,7 @@ public class StorageBinService {
 	 */
 	public StorageBin updateStorageBin (String storageBin, UpdateStorageBin updateStorageBin, String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
-		StorageBin dbStorageBin = getStorageBin(storageBin);
+		StorageBin dbStorageBin = getStorageBin(updateStorageBin.getWarehouseId(), storageBin);
 		BeanUtils.copyProperties(updateStorageBin, dbStorageBin, CommonUtils.getNullPropertyNames(updateStorageBin));
 		dbStorageBin.setUpdatedBy(loginUserID);
 		dbStorageBin.setUpdatedOn(new Date());
