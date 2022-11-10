@@ -318,7 +318,6 @@ public class PutAwayLineService extends BaseService {
 					log.info("createdPutAwayLine created: " + createdPutAwayLine);
 					createdPutAwayLines.add(createdPutAwayLine);
 					if (createdPutAwayLine != null && createdPutAwayLine.getPutawayConfirmedQty() > 0L ) {
-
 						// Insert a record into INVENTORY table as below
 						Inventory inventory = new Inventory();
 						BeanUtils.copyProperties(createdPutAwayLine, inventory, CommonUtils.getNullPropertyNames(createdPutAwayLine));
@@ -341,6 +340,7 @@ public class PutAwayLineService extends BaseService {
 							inventory.setReferenceField8(imbasicdata1.get(0).getDescription());
 							inventory.setReferenceField9(imbasicdata1.get(0).getManufacturePart());
 						}
+						
 						if(dbStorageBin != null){
 							inventory.setReferenceField10(dbStorageBin.getStorageSectionId());
 							inventory.setReferenceField5(dbStorageBin.getAisleNumber());
@@ -358,13 +358,6 @@ public class PutAwayLineService extends BaseService {
 									createdPutAwayLine.getPackBarcodes(), dbPutAwayLine.getItemCode(), 3L);
 							double INV_QTY = existinginventory.getInventoryQuantity() - createdPutAwayLine.getPutawayConfirmedQty();
 							log.info("INV_QTY : " + INV_QTY);
-
-							// [Prod Fix: 14-07] - Hareesh - Don't need to delete the inventory just update the existing inventory quantity
-							// Deleting inventory
-//						if (INV_QTY == 0) {
-////							[Prod Fix: 28-06] - Discussed to comment delete Inventory operation to avoid unwanted delete of Inventory
-////							inventoryRepository.delete(existinginventory);
-//						} else
 							if (INV_QTY >= 0) {
 								existinginventory.setInventoryQuantity(INV_QTY);
 								Inventory updatedInventory = inventoryRepository.save(existinginventory);
@@ -383,7 +376,50 @@ public class PutAwayLineService extends BaseService {
 						inventory.setCreatedOn(createdPutAwayLine.getCreatedOn());
 						Inventory createdInventory = inventoryRepository.save(inventory);
 						log.info("createdInventory : " + createdInventory);
-
+						
+						List<PutAwayHeader> headers = putAwayHeaderService.getPutAwayHeader(createdPutAwayLine.getWarehouseId(), 
+								createdPutAwayLine.getPreInboundNo(), createdPutAwayLine.getRefDocNumber(), createdPutAwayLine.getPutAwayNumber());
+						for (PutAwayHeader putAwayHeader : headers) {
+							putAwayHeader.setStatusId(20L);
+							putAwayHeader = putAwayHeaderRepository.save(putAwayHeader);
+							log.info("putAwayHeader updated: " + putAwayHeader);
+						}
+						
+						/*--------------------- INBOUNDTABLE Updates ------------------------------------------*/
+						// Pass WH_ID/PRE_IB_NO/REF_DOC_NO/IB_LINE_NO/ITM_CODE values in PUTAWAYLINE table and 
+						// fetch PA_CNF_QTY values and QTY_TYPE values and updated STATUS_ID as 20
+						double addedAcceptQty = 0.0;
+						double addedDamageQty = 0.0;
+						
+						InboundLine inboundLine = inboundLineService.getInboundLine(createdPutAwayLine.getWarehouseId(), 
+								createdPutAwayLine.getRefDocNumber(), createdPutAwayLine.getPreInboundNo(), createdPutAwayLine.getLineNo(), 
+								createdPutAwayLine.getItemCode());
+						log.info("inboundLine-------------> " + inboundLine);
+						
+						// If QTY_TYPE = A, add PA_CNF_QTY with existing value in ACCEPT_QTY field
+						if (createdPutAwayLine.getQuantityType().equalsIgnoreCase("A")) {
+							if (inboundLine.getAcceptedQty() != null) {
+								addedAcceptQty = inboundLine.getAcceptedQty() + createdPutAwayLine.getPutawayConfirmedQty();
+							} else {
+								addedAcceptQty = createdPutAwayLine.getPutawayConfirmedQty();
+							}
+							inboundLine.setAcceptedQty(addedAcceptQty);
+						}
+						
+						// if QTY_TYPE = D, add PA_CNF_QTY with existing value in DAMAGE_QTY field
+						if (createdPutAwayLine.getQuantityType().equalsIgnoreCase("D")) {
+							if (inboundLine.getDamageQty() != null) {
+								addedDamageQty = inboundLine.getDamageQty() + createdPutAwayLine.getPutawayConfirmedQty();
+							} else {
+								addedDamageQty = createdPutAwayLine.getPutawayConfirmedQty();
+							}
+							inboundLine.setDamageQty(addedDamageQty);
+						}
+						
+						inboundLine.setStatusId(20L);
+						inboundLine = inboundLineRepository.save(inboundLine);
+						log.info("inboundLine updated : " + inboundLine);
+						
 						/* Insert a record into INVENTORYMOVEMENT table */
 						InventoryMovement createdInventoryMovement = createInventoryMovement (createdPutAwayLine);
 						log.info("inventoryMovement created: " + createdInventoryMovement);
@@ -396,53 +432,51 @@ public class PutAwayLineService extends BaseService {
 			/*---------------STATUS updates----Update PUTAWAYHEADER table ------------------------
 			 * Update PUTAWAYHEADER table with STATUS_ID = 20 by passing WH_ID/PRE_IB_NO/REF_DOC_NO/PA_NO
 			 */
-			for (PutAwayLine putAwayLine : createdPutAwayLines) {
-				List<PutAwayHeader> headers = putAwayHeaderService.getPutAwayHeader(putAwayLine.getWarehouseId(), 
-						putAwayLine.getPreInboundNo(), putAwayLine.getRefDocNumber(), putAwayLine.getPutAwayNumber());
-				for (PutAwayHeader putAwayHeader : headers) {
-					putAwayHeader.setStatusId(20L);
-					putAwayHeader = putAwayHeaderRepository.save(putAwayHeader);
-					log.info("putAwayHeader updated: " + putAwayHeader);
-				}
-				
-				/*--------------------- INBOUNDTABLE Updates ------------------------------------------*/
-				// Pass WH_ID/PRE_IB_NO/REF_DOC_NO/IB_LINE_NO/ITM_CODE values in PUTAWAYLINE table and 
-				// fetch PA_CNF_QTY values and QTY_TYPE values and updated STATUS_ID as 20
-				
-				double addedAcceptQty = 0.0;
-				double addedDamageQty = 0.0;
-				
-				InboundLine inboundLine = inboundLineService.getInboundLine(putAwayLine.getWarehouseId(), 
-						putAwayLine.getRefDocNumber(), putAwayLine.getPreInboundNo(), putAwayLine.getLineNo(), 
-						putAwayLine.getItemCode());
-				log.info("inboundLine-------------> " + inboundLine);
-				
-				// If QTY_TYPE = A, add PA_CNF_QTY with existing value in ACCEPT_QTY field
-				if (putAwayLine.getQuantityType().equalsIgnoreCase("A")) {
-					if (inboundLine.getAcceptedQty() != null) {
-						addedAcceptQty = inboundLine.getAcceptedQty() + putAwayLine.getPutawayConfirmedQty();
-					} else {
-						addedAcceptQty = putAwayLine.getPutawayConfirmedQty();
-					}
-					
-					inboundLine.setAcceptedQty(addedAcceptQty);
-				}
-				
-				// if QTY_TYPE = D, add PA_CNF_QTY with existing value in DAMAGE_QTY field
-				if (putAwayLine.getQuantityType().equalsIgnoreCase("D")) {
-					if (inboundLine.getDamageQty() != null) {
-						addedDamageQty = inboundLine.getDamageQty() + putAwayLine.getPutawayConfirmedQty();
-					} else {
-						addedDamageQty = putAwayLine.getPutawayConfirmedQty();
-					}
-					
-					inboundLine.setDamageQty(addedDamageQty);
-				}
-				
-				inboundLine.setStatusId(20L);
-				inboundLine = inboundLineRepository.save(inboundLine);
-				log.info("inboundLine updated : " + inboundLine);
-			}
+//			for (PutAwayLine putAwayLine : createdPutAwayLines) {
+//				List<PutAwayHeader> headers = putAwayHeaderService.getPutAwayHeader(putAwayLine.getWarehouseId(), 
+//						putAwayLine.getPreInboundNo(), putAwayLine.getRefDocNumber(), putAwayLine.getPutAwayNumber());
+//				for (PutAwayHeader putAwayHeader : headers) {
+//					putAwayHeader.setStatusId(20L);
+//					putAwayHeader = putAwayHeaderRepository.save(putAwayHeader);
+//					log.info("putAwayHeader updated: " + putAwayHeader);
+//				}
+//				
+//				/*--------------------- INBOUNDTABLE Updates ------------------------------------------*/
+//				// Pass WH_ID/PRE_IB_NO/REF_DOC_NO/IB_LINE_NO/ITM_CODE values in PUTAWAYLINE table and 
+//				// fetch PA_CNF_QTY values and QTY_TYPE values and updated STATUS_ID as 20
+//				
+//				double addedAcceptQty = 0.0;
+//				double addedDamageQty = 0.0;
+//				
+//				InboundLine inboundLine = inboundLineService.getInboundLine(putAwayLine.getWarehouseId(), 
+//						putAwayLine.getRefDocNumber(), putAwayLine.getPreInboundNo(), putAwayLine.getLineNo(), 
+//						putAwayLine.getItemCode());
+//				log.info("inboundLine-------------> " + inboundLine);
+//				
+//				// If QTY_TYPE = A, add PA_CNF_QTY with existing value in ACCEPT_QTY field
+//				if (putAwayLine.getQuantityType().equalsIgnoreCase("A")) {
+//					if (inboundLine.getAcceptedQty() != null) {
+//						addedAcceptQty = inboundLine.getAcceptedQty() + putAwayLine.getPutawayConfirmedQty();
+//					} else {
+//						addedAcceptQty = putAwayLine.getPutawayConfirmedQty();
+//					}
+//					inboundLine.setAcceptedQty(addedAcceptQty);
+//				}
+//				
+//				// if QTY_TYPE = D, add PA_CNF_QTY with existing value in DAMAGE_QTY field
+//				if (putAwayLine.getQuantityType().equalsIgnoreCase("D")) {
+//					if (inboundLine.getDamageQty() != null) {
+//						addedDamageQty = inboundLine.getDamageQty() + putAwayLine.getPutawayConfirmedQty();
+//					} else {
+//						addedDamageQty = putAwayLine.getPutawayConfirmedQty();
+//					}
+//					inboundLine.setDamageQty(addedDamageQty);
+//				}
+//				
+//				inboundLine.setStatusId(20L);
+//				inboundLine = inboundLineRepository.save(inboundLine);
+//				log.info("inboundLine updated : " + inboundLine);
+//			}
 			return createdPutAwayLines;
 		} catch (Exception e) {
 			e.printStackTrace();
