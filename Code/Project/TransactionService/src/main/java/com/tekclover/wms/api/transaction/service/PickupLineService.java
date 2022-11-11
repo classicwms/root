@@ -373,7 +373,7 @@ public class PickupLineService extends BaseService {
 							try {
 								StorageBin dbStorageBin = mastersService.getStorageBin(inventory.getStorageBin(), dbPickupLine.getWarehouseId(), authTokenForMastersService.getAccess_token());
 								dbStorageBin.setStatusId(0L);
-								dbStorageBin.setWarehouseId(warehouseId);
+								dbStorageBin.setWarehouseId(dbPickupLine.getWarehouseId());
 								mastersService.updateStorageBin(inventory.getStorageBin(), dbStorageBin, loginUserID, authTokenForMastersService.getAccess_token());
 							} catch (Exception e) {
 								log.error ("updateStorageBin Error :" + e.toString());
