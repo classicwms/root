@@ -1,10 +1,13 @@
 package com.tekclover.wms.api.transaction.repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,4 +41,11 @@ public interface PreInboundHeaderRepository extends JpaRepository<PreInboundHead
 	public Optional<PreInboundHeaderEntity> findByPreInboundNoAndDeletionIndicator(String preInboundNo, long l);
 	
 	public Optional<PreInboundHeaderEntity> findByRefDocNumberAndDeletionIndicator(String refDocNumber, long l);
+
+	@Query(value="Select REF_DOC_TYP from tblpreinboundheader where WH_ID = :warehouseId and ref_doc_no = :refDocNumber \n" +
+			" and PRE_IB_NO = :preInboundNo and IS_DELETED = :delete ", nativeQuery=true)
+	public String getReferenceDocumentTypeFromPreInboundHeader(@Param("warehouseId") String warehouseId,
+															   @Param("preInboundNo") String preInboundNo,
+															   @Param("refDocNumber") String refDocNumber,
+															   @Param("delete") Long delete);
 }

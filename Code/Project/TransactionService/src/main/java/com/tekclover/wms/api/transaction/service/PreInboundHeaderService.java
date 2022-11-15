@@ -147,6 +147,10 @@ public class PreInboundHeaderService extends BaseService {
 		PreInboundHeader preInboundHeader = getPreInboundLineItems (preInboundHeaderEntity.get());
 		return preInboundHeader;
 	}
+
+	public String getReferenceDocumentTypeFromPreInboundHeader (String warehouseId, String preInboundNo, String refDocNumner) {
+		return preInboundHeaderRepository.getReferenceDocumentTypeFromPreInboundHeader(warehouseId, preInboundNo, refDocNumner, 0L);
+	}
 	
 	/**
 	 * 

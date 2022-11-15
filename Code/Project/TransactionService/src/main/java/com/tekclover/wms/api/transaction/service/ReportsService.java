@@ -1537,24 +1537,27 @@ public class ReportsService extends BaseService {
 			double sumTotalOfDamagedQty = 0.0;
 			double sumTotalOfMissingORExcess = 0.0;
 			List<Receipt> receiptList = new ArrayList<>();
-			for (InboundLine inboundLine : inboundLineSearchResults) {
-				log.info("inboundLine---------> : " + inboundLine);
+			log.info("inboundLine---------> : " + inboundLineSearchResults);
+			if(!inboundLineSearchResults.isEmpty()) {
 				// Supplier - PARTNER_CODE
-				receiptHeader.setSupplier(inboundLine.getVendorCode());
+				receiptHeader.setSupplier(inboundLineSearchResults.get(0).getVendorCode());
 
 				// Container No
-				receiptHeader.setContainerNo(inboundLine.getContainerNo());
+				receiptHeader.setContainerNo(inboundLineSearchResults.get(0).getContainerNo());
 
 				// Order Number - REF_DOC_NO
-				receiptHeader.setOrderNumber(inboundLine.getRefDocNumber());
+				receiptHeader.setOrderNumber(inboundLineSearchResults.get(0).getRefDocNumber());
 
 				// Order Type -> PREINBOUNDHEADER - REF_DOC_TYPE
 				// Pass REF_DOC_NO in PREINBOUNDHEADER and fetch REF_DOC_TYPE
-				PreInboundHeader preInboundHeader = preInboundHeaderService.getPreInboundHeader(
-						inboundLine.getWarehouseId(), inboundLine.getPreInboundNo(), inboundLine.getRefDocNumber());
-				receiptHeader.setOrderType(preInboundHeader.getReferenceDocumentType());
-				log.info("preInboundHeader--------> : " + preInboundHeader);
-//				}
+				String referenceDocumentType = preInboundHeaderService.getReferenceDocumentTypeFromPreInboundHeader(
+						inboundLineSearchResults.get(0).getWarehouseId(), inboundLineSearchResults.get(0).getPreInboundNo(),
+						inboundLineSearchResults.get(0).getRefDocNumber());
+				receiptHeader.setOrderType(referenceDocumentType);
+				log.info("preInboundHeader referenceDocumentType--------> : " + referenceDocumentType);
+			}
+			for (InboundLine inboundLine : inboundLineSearchResults) {
+
 
 				Receipt receipt = new Receipt();
 
@@ -1622,12 +1625,12 @@ public class ReportsService extends BaseService {
 				}
 				log.info("receipt------#--> : " + receipt);
 				receiptList.add(receipt);
-
-				receiptHeader.setExpectedQtySum(sumTotalOfExpectedQty);
-				receiptHeader.setAcceptedQtySum(sumTotalOfAccxpectedQty);
-				receiptHeader.setDamagedQtySum(sumTotalOfDamagedQty);
-				receiptHeader.setMissingORExcessSum(sumTotalOfMissingORExcess);
 			}
+
+			receiptHeader.setExpectedQtySum(sumTotalOfExpectedQty);
+			receiptHeader.setAcceptedQtySum(sumTotalOfAccxpectedQty);
+			receiptHeader.setDamagedQtySum(sumTotalOfDamagedQty);
+			receiptHeader.setMissingORExcessSum(sumTotalOfMissingORExcess);
 
 			receiptConfimation.setReceiptHeader(receiptHeader);
 			receiptConfimation.setReceiptList(receiptList);
