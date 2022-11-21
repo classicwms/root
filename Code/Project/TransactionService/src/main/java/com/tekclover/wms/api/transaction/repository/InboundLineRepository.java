@@ -75,5 +75,8 @@ public interface InboundLineRepository extends JpaRepository<InboundLine,Long>, 
 
 	public List<InboundLine> findByRefDocNumberAndWarehouseIdAndDeletionIndicator(String refDocNumber,
 			String warehouseId, long l);
+
+	long countByWarehouseIdAndConfirmedOnBetweenAndStatusIdAndReferenceField1IsNull(
+			String warehouseId, Date fromDate, Date toDate,Long statusId);
 }
 

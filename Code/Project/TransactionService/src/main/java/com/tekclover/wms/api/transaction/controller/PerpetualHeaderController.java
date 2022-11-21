@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,13 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.AddPerpetualHeader;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualHeader;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualHeaderEntity;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualLineEntity;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.RunPerpetualHeader;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.SearchPerpetualHeader;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.UpdatePerpetualHeader;
 import com.tekclover.wms.api.transaction.service.PerpetualHeaderService;
 
 import io.swagger.annotations.Api;
@@ -87,7 +81,7 @@ public class PerpetualHeaderController {
    	@PostMapping("/run")
    	public ResponseEntity<?> postRunPerpetualHeader(@Valid @RequestBody RunPerpetualHeader runPerpetualHeader) 
    			throws IllegalAccessException, InvocationTargetException, ParseException {
-   		List<PerpetualLineEntity> inventoryMovements = perpetualheaderService.runPerpetualHeader(runPerpetualHeader);
+   		List<PerpetualLineEntityImpl> inventoryMovements = perpetualheaderService.runPerpetualHeaderNew(runPerpetualHeader);
    		return new ResponseEntity<>(inventoryMovements , HttpStatus.OK);
    	}
     

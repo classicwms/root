@@ -3790,193 +3790,6 @@ public class TransactionService {
 		}
 	}
 
-	// GET - Dashboard
-	public Dashboard getDashboard(String warehouseId, String authToken) {
-		try {
-			HttpHeaders headers = new HttpHeaders();
-			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-			headers.add("User-Agent", "MNRClara RestTemplate");
-			headers.add("Authorization", "Bearer " + authToken);
-			UriComponentsBuilder builder = 
-					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "reports/dashboard")
-					.queryParam("warehouseId", warehouseId);
-			
-			HttpEntity<?> entity = new HttpEntity<>(headers);
-			ResponseEntity<Dashboard> result =
-					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Dashboard.class);
-			log.info("result : " + result.getStatusCode());
-			return result.getBody();
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
-	}
-
-	public Dashboard getDashboardAwaitingASN(String warehouseId, String authToken) {
-		try {
-			HttpHeaders headers = new HttpHeaders();
-			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-			headers.add("User-Agent", "MNRClara RestTemplate");
-			headers.add("Authorization", "Bearer " + authToken);
-			UriComponentsBuilder builder =
-					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "reports/dashboard/awaiting-asn")
-							.queryParam("warehouseId", warehouseId);
-
-			HttpEntity<?> entity = new HttpEntity<>(headers);
-			ResponseEntity<Dashboard> result =
-					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Dashboard.class);
-			log.info("result : " + result.getStatusCode());
-			return result.getBody();
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
-	}
-
-	public Dashboard getDashboardContainerReceived(String warehouseId, String authToken) {
-		try {
-			HttpHeaders headers = new HttpHeaders();
-			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-			headers.add("User-Agent", "MNRClara RestTemplate");
-			headers.add("Authorization", "Bearer " + authToken);
-			UriComponentsBuilder builder =
-					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "reports/dashboard/container-received")
-							.queryParam("warehouseId", warehouseId);
-
-			HttpEntity<?> entity = new HttpEntity<>(headers);
-			ResponseEntity<Dashboard> result =
-					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Dashboard.class);
-			log.info("result : " + result.getStatusCode());
-			return result.getBody();
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
-	}
-
-	/**
-	 * 
-	 * @param warehouseId
-	 * @param authToken
-	 * @return
-	 */
-	public Dashboard getDashboardItemReceived(String warehouseId, String authToken) {
-		try {
-			HttpHeaders headers = new HttpHeaders();
-			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-			headers.add("User-Agent", "MNRClara RestTemplate");
-			headers.add("Authorization", "Bearer " + authToken);
-			UriComponentsBuilder builder =
-					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "reports/dashboard/item-received")
-							.queryParam("warehouseId", warehouseId);
-
-			HttpEntity<?> entity = new HttpEntity<>(headers);
-			ResponseEntity<Dashboard> result =
-					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Dashboard.class);
-			log.info("result : " + result.getStatusCode());
-			return result.getBody();
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
-	}
-
-	/**
-	 * 
-	 * @param warehouseId
-	 * @param authToken
-	 * @return
-	 */
-	public Dashboard getDashboardShippedLine(String warehouseId, String authToken) {
-		try {
-			HttpHeaders headers = new HttpHeaders();
-			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-			headers.add("User-Agent", "MNRClara RestTemplate");
-			headers.add("Authorization", "Bearer " + authToken);
-			UriComponentsBuilder builder =
-					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "reports/dashboard/shipped-line")
-							.queryParam("warehouseId", warehouseId);
-
-			HttpEntity<?> entity = new HttpEntity<>(headers);
-			ResponseEntity<Dashboard> result =
-					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Dashboard.class);
-			
-			return result.getBody();
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
-	}
-
-	/**
-	 * 
-	 * @param warehouseId
-	 * @param authToken
-	 * @return
-	 */
-	public Dashboard getDashboardNormalCount(String warehouseId, String authToken) {
-		try {
-			HttpHeaders headers = new HttpHeaders();
-			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-			headers.add("User-Agent", "MNRClara RestTemplate");
-			headers.add("Authorization", "Bearer " + authToken);
-			UriComponentsBuilder builder =
-					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "reports/dashboard/normal-count")
-							.queryParam("warehouseId", warehouseId);
-
-			HttpEntity<?> entity = new HttpEntity<>(headers);
-			ResponseEntity<Dashboard> result =
-					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Dashboard.class);
-			log.info("result : " + result.getStatusCode());
-			return result.getBody();
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
-	}
-
-	public Dashboard getDashboardSpecialCount(String warehouseId, String authToken) {
-		try {
-			HttpHeaders headers = new HttpHeaders();
-			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-			headers.add("User-Agent", "MNRClara RestTemplate");
-			headers.add("Authorization", "Bearer " + authToken);
-			UriComponentsBuilder builder =
-					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "reports/dashboard/special-count")
-							.queryParam("warehouseId", warehouseId);
-
-			HttpEntity<?> entity = new HttpEntity<>(headers);
-			ResponseEntity<Dashboard> result =
-					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Dashboard.class);
-			log.info("result : " + result.getStatusCode());
-			return result.getBody();
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
-	}
-
-	public Dashboard getDashboardBinStatus(String warehouseId, String authToken) {
-		try {
-			HttpHeaders headers = new HttpHeaders();
-			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-			headers.add("User-Agent", "MNRClara RestTemplate");
-			headers.add("Authorization", "Bearer " + authToken);
-			UriComponentsBuilder builder =
-					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "reports/dashboard/bin-status")
-							.queryParam("warehouseId", warehouseId);
-
-			HttpEntity<?> entity = new HttpEntity<>(headers);
-			ResponseEntity<Dashboard> result =
-					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Dashboard.class);
-			log.info("result : " + result.getStatusCode());
-			return result.getBody();
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
-	}
-
 	// GET - MpbileDashboard
 	public MobileDashboard getMobileDashboard(String warehouseId, String authToken) {
 		try {
@@ -4548,6 +4361,48 @@ public class TransactionService {
 					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "orders/outbound/orders/" + orderId);
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			ResponseEntity<OutboundOrder> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, OutboundOrder.class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	public Dashboard getDashboardCount(String warehouseId, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "reports/dashboard/get-count")
+							.queryParam("warehouseId", warehouseId);
+
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<Dashboard> result =
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, Dashboard.class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	public FastSlowMovingDashboard getFastSlowMovingDashboard(String warehouseId, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "reports/dashboard/get-fast-slow-moving")
+							.queryParam("warehouseId", warehouseId);
+
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<FastSlowMovingDashboard> result =
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, FastSlowMovingDashboard.class);
 			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {

@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.transaction.repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,4 +41,6 @@ public interface ContainerReceiptRepository extends JpaRepository<ContainerRecei
 	public Optional<ContainerReceipt> findByPreInboundNo(String containerReceiptNo);
 
 	public Optional<ContainerReceipt> findByContainerReceiptNoAndDeletionIndicator(String containerReceiptNo, Long deletionIndicator);
+
+	long countByWarehouseIdAndContainerReceivedDateBetweenAndRefDocNumberIsNull(String warehouseId, Date fromDate, Date toDate);
 }

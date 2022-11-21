@@ -354,7 +354,7 @@ public class DateUtils {
 
 	public static Date dateSubtract (int noOfDays) {
 		LocalDate today = LocalDate.now().minusDays(noOfDays);
-		today = today.withDayOfMonth(1);
+//		today = today.withDayOfMonth(1);
 		return Date.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant());
 	}
 }

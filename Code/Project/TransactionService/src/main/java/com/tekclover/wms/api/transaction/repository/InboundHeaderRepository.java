@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.transaction.repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,4 +52,7 @@ public interface InboundHeaderRepository extends JpaRepository<InboundHeader,Lon
 	public List<InboundHeader> findByWarehouseIdAndDeletionIndicator(String warehouseId, long l);
 
 	public List<InboundHeader> findByRefDocNumberAndDeletionIndicator(String refDocNo,long l);
+
+	long countByWarehouseIdAndConfirmedOnBetweenAndStatusIdAndDeletionIndicator(
+			String warehouseId, Date fromDate, Date toDate,Long statusId,Long deletionIndicator);
 }

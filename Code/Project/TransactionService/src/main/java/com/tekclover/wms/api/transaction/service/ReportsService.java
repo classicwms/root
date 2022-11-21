@@ -1,33 +1,5 @@
 package com.tekclover.wms.api.transaction.service;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.expression.ParseException;
-import org.springframework.stereotype.Service;
-
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.transaction.model.dto.BusinessPartner;
@@ -36,16 +8,10 @@ import com.tekclover.wms.api.transaction.model.dto.StorageBin;
 import com.tekclover.wms.api.transaction.model.impl.OrderStatusReportImpl;
 import com.tekclover.wms.api.transaction.model.impl.ShipmentDispatchSummaryReportImpl;
 import com.tekclover.wms.api.transaction.model.impl.StockReportImpl;
-import com.tekclover.wms.api.transaction.model.inbound.InboundHeader;
 import com.tekclover.wms.api.transaction.model.inbound.InboundLine;
-import com.tekclover.wms.api.transaction.model.inbound.SearchInboundHeader;
-import com.tekclover.wms.api.transaction.model.inbound.SearchInboundLine;
-import com.tekclover.wms.api.transaction.model.inbound.containerreceipt.ContainerReceipt;
-import com.tekclover.wms.api.transaction.model.inbound.containerreceipt.SearchContainerReceipt;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.SearchInventory;
-import com.tekclover.wms.api.transaction.model.inbound.preinbound.PreInboundHeader;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.PutAwayHeader;
 import com.tekclover.wms.api.transaction.model.inbound.staging.StagingHeader;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
@@ -54,34 +20,31 @@ import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundLineReport;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupHeader;
 import com.tekclover.wms.api.transaction.model.outbound.quality.QualityHeader;
-import com.tekclover.wms.api.transaction.model.report.Dashboard;
-import com.tekclover.wms.api.transaction.model.report.InventoryReport;
-import com.tekclover.wms.api.transaction.model.report.MetricsSummary;
-import com.tekclover.wms.api.transaction.model.report.MobileDashboard;
-import com.tekclover.wms.api.transaction.model.report.OrderStatusReport;
-import com.tekclover.wms.api.transaction.model.report.Receipt;
-import com.tekclover.wms.api.transaction.model.report.ReceiptConfimationReport;
-import com.tekclover.wms.api.transaction.model.report.ReceiptHeader;
-import com.tekclover.wms.api.transaction.model.report.SearchOrderStatusReport;
-import com.tekclover.wms.api.transaction.model.report.ShipmentDeliveryReport;
-import com.tekclover.wms.api.transaction.model.report.ShipmentDeliverySummary;
-import com.tekclover.wms.api.transaction.model.report.ShipmentDeliverySummaryReport;
-import com.tekclover.wms.api.transaction.model.report.ShipmentDispatch;
-import com.tekclover.wms.api.transaction.model.report.ShipmentDispatchHeader;
-import com.tekclover.wms.api.transaction.model.report.ShipmentDispatchList;
-import com.tekclover.wms.api.transaction.model.report.ShipmentDispatchSummaryReport;
-import com.tekclover.wms.api.transaction.model.report.StockMovementReport;
-import com.tekclover.wms.api.transaction.model.report.StockReport;
-import com.tekclover.wms.api.transaction.model.report.SummaryMetrics;
-import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
-import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
-import com.tekclover.wms.api.transaction.repository.InventoryRepository;
-import com.tekclover.wms.api.transaction.repository.OutboundHeaderRepository;
-import com.tekclover.wms.api.transaction.repository.OutboundLineRepository;
-import com.tekclover.wms.api.transaction.repository.StorageBinRepository;
+import com.tekclover.wms.api.transaction.model.report.*;
+import com.tekclover.wms.api.transaction.repository.*;
+import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
-
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
+import org.springframework.expression.ParseException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -90,8 +53,6 @@ public class ReportsService extends BaseService {
 	@Autowired
 	InventoryService inventoryService;
 
-	@Autowired
-	InventoryMovementService inventoryMovementService;
 
 	@Autowired
 	PreInboundHeaderService preInboundHeaderService;
@@ -113,9 +74,6 @@ public class ReportsService extends BaseService {
 
 	@Autowired
 	AuthTokenService authTokenService;
-
-	@Autowired
-	ContainerReceiptService containerReceiptService;
 
 	@Autowired
 	StagingHeaderService stagingHeaderService;
@@ -149,6 +107,15 @@ public class ReportsService extends BaseService {
 
 	@Autowired
 	WorkBookService workBookService;
+
+	@Autowired
+	ContainerReceiptRepository containerReceiptRepository;
+
+	@Autowired
+	InboundHeaderRepository inboundHeaderRepository;
+
+	@Autowired
+	InboundLineRepository inboundLineRepository;
 
 	/**
 	 * Stock Report ---------------------
@@ -1755,371 +1722,6 @@ public class ReportsService extends BaseService {
 	}
 
 	/**
-	 *
-	 * @param warehouseId
-	 * @return
-	 * @throws Exception
-	 */
-	public Dashboard getDashboard(String warehouseId) throws Exception {
-
-		Dashboard dashboard = new Dashboard();
-
-		/*--------------------------DAY-----------------------------------------------*/
-		Dashboard.Day day = dashboard.new Day();
-		Dashboard.Day.Receipts dayReceipts = day.new Receipts();
-		Dashboard.Day.Shipping dayShipping = day.new Shipping();
-
-		/*-----------------------Receipts--------------------------------------------*/
-		// Awaiting ASN
-		long awaitingASNCount = getAwaitingASNCount(warehouseId, new Date(), new Date());
-		dayReceipts.setAwaitingASN(awaitingASNCount);
-
-		// Container Received
-		long containerReceivedCount = getContainerReceivedCount(warehouseId, new Date(), new Date());
-		dayReceipts.setContainerReceived(containerReceivedCount);
-
-		// Item Received
-		long itemReceivedCount = getItemReceivedCount(warehouseId, new Date(), new Date());
-		dayReceipts.setItemReceived(itemReceivedCount);
-
-		/*-----------------------Shipping---------------------------------------------*/
-		// ShippedLine Count
-		long shippedLineCount = getShippedLineCount(warehouseId, new Date(), new Date());
-		dayShipping.setShippedLine(shippedLineCount);
-
-		// Normal Count
-		long normalCount = getNormalNSpecialCount(warehouseId, new Date(), new Date(), "N");
-		dayShipping.setNormal(normalCount);
-
-		// Special Count
-		long specialCount = getNormalNSpecialCount(warehouseId, new Date(), new Date(), "S");
-		dayShipping.setSpecial(specialCount);
-
-		day.setReceipts(dayReceipts);
-		day.setShipping(dayShipping);
-		dashboard.setDay(day);
-
-		/*--------------------------MONTH--------------------------------------------*/
-		Dashboard.Month month = dashboard.new Month();
-		Dashboard.Month.Receipts monthReceipts = month.new Receipts();
-		Dashboard.Month.Shipping monthShipping = month.new Shipping();
-
-		/*-----------------------Receipts--------------------------------------------*/
-		// Awaiting ASN
-		LocalDate today = LocalDate.now();
-		today = today.withDayOfMonth(1);
-		log.info("First day of current month: " + today.withDayOfMonth(1));
-		Date beginningOfMonth = Date.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant());
-		awaitingASNCount = getAwaitingASNCount(warehouseId, beginningOfMonth, new Date());
-		monthReceipts.setAwaitingASN(awaitingASNCount);
-
-		// Container Received
-		containerReceivedCount = getContainerReceivedCount(warehouseId, beginningOfMonth, new Date());
-		monthReceipts.setContainerReceived(containerReceivedCount);
-
-		// Item Received
-		itemReceivedCount = getItemReceivedCount(warehouseId, beginningOfMonth, new Date());
-		monthReceipts.setItemReceived(itemReceivedCount);
-
-		/*-----------------------Shipping---------------------------------------------*/
-		// ShippedLine Count
-		shippedLineCount = getShippedLineCount(warehouseId, beginningOfMonth, new Date());
-		monthShipping.setShippedLine(shippedLineCount);
-
-		// Normal Count
-		normalCount = getNormalNSpecialCount(warehouseId, beginningOfMonth, new Date(), "N");
-		monthShipping.setNormal(normalCount);
-
-		// Special Count
-		specialCount = getNormalNSpecialCount(warehouseId, beginningOfMonth, new Date(), "S");
-		monthShipping.setSpecial(specialCount);
-
-		month.setReceipts(monthReceipts);
-		month.setShipping(monthShipping);
-		dashboard.setMonth(month);
-
-		/*
-		 * --------------------------Bin
-		 * Status-------------------------------------------------- Pass the Logged in
-		 * WH_ID in STORAGBIN table and fetch Count of Records where Status_ID = 0 and
-		 * Status_ID is not equal to Zero
-		 */
-		Dashboard.BinStatus binStatus = dashboard.new BinStatus();
-		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-		StorageBin[] storageBins = mastersService.getStorageBinByStatus(warehouseId, 0L,
-				authTokenForMastersService.getAccess_token());
-		long statusCount = Arrays.asList(storageBins).stream().count();
-		binStatus.setStatusEqualToZeroCount(statusCount);
-
-		storageBins = mastersService.getStorageBinByStatusNotEqual(warehouseId, 0L,
-				authTokenForMastersService.getAccess_token());
-		statusCount = Arrays.asList(storageBins).stream().count();
-		binStatus.setStatusNotEqualToZeroCount(statusCount);
-
-		dashboard.setBinStatus(binStatus);
-		return dashboard;
-	}
-
-	public Dashboard getDashboardAwaitingASN(String warehouseId) throws Exception {
-
-		Dashboard dashboard = new Dashboard();
-
-		/*--------------------------DAY-----------------------------------------------*/
-		Dashboard.Day day = dashboard.new Day();
-		Dashboard.Day.Receipts dayReceipts = day.new Receipts();
-
-		/*-----------------------Receipts--------------------------------------------*/
-		// Awaiting ASN
-		long awaitingASNCount = getAwaitingASNCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1));
-		dayReceipts.setAwaitingASN(awaitingASNCount);
-
-		day.setReceipts(dayReceipts);
-		dashboard.setDay(day);
-
-		/*--------------------------MONTH--------------------------------------------*/
-		Dashboard.Month month = dashboard.new Month();
-		Dashboard.Month.Receipts monthReceipts = month.new Receipts();
-
-		/*-----------------------Receipts--------------------------------------------*/
-		// Awaiting ASN
-		LocalDate today = LocalDate.now();
-		today = today.withDayOfMonth(1);
-		log.info("First day of current month: " + today.withDayOfMonth(1));
-		Date beginningOfMonth = Date.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant());
-		awaitingASNCount = getAwaitingASNCount(warehouseId, beginningOfMonth, new Date());
-		monthReceipts.setAwaitingASN(awaitingASNCount);
-
-		month.setReceipts(monthReceipts);
-		dashboard.setMonth(month);
-		return dashboard;
-	}
-
-	public Dashboard getDashboardContainerReceived(String warehouseId) throws Exception {
-
-		Dashboard dashboard = new Dashboard();
-		/*--------------------------DAY-----------------------------------------------*/
-		Dashboard.Day day = dashboard.new Day();
-		Dashboard.Day.Receipts dayReceipts = day.new Receipts();
-
-		/*-----------------------Receipts--------------------------------------------*/
-
-		// Container Received
-		long containerReceivedCount = getContainerReceivedCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1));
-		dayReceipts.setContainerReceived(containerReceivedCount);
-
-		day.setReceipts(dayReceipts);
-		dashboard.setDay(day);
-
-		/*--------------------------MONTH--------------------------------------------*/
-		Dashboard.Month month = dashboard.new Month();
-		Dashboard.Month.Receipts monthReceipts = month.new Receipts();
-
-		/*-----------------------Receipts--------------------------------------------*/
-		// Awaiting ASN
-		LocalDate today = LocalDate.now();
-		today = today.withDayOfMonth(1);
-		log.info("First day of current month: " + today.withDayOfMonth(1));
-		Date beginningOfMonth = Date.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant());
-
-		// Container Received
-		containerReceivedCount = getContainerReceivedCount(warehouseId, beginningOfMonth, new Date());
-		monthReceipts.setContainerReceived(containerReceivedCount);
-
-		month.setReceipts(monthReceipts);
-		dashboard.setMonth(month);
-		return dashboard;
-	}
-
-	public Dashboard getDashboardItemReceived(String warehouseId) throws Exception {
-
-		Dashboard dashboard = new Dashboard();
-
-		/*--------------------------DAY-----------------------------------------------*/
-		Dashboard.Day day = dashboard.new Day();
-		Dashboard.Day.Receipts dayReceipts = day.new Receipts();
-
-		/*-----------------------Receipts--------------------------------------------*/
-
-		// Item Received
-		long itemReceivedCount = getItemReceivedCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1));
-		dayReceipts.setItemReceived(itemReceivedCount);
-
-		day.setReceipts(dayReceipts);
-		dashboard.setDay(day);
-
-		/*--------------------------MONTH--------------------------------------------*/
-		Dashboard.Month month = dashboard.new Month();
-		Dashboard.Month.Receipts monthReceipts = month.new Receipts();
-
-		/*-----------------------Receipts--------------------------------------------*/
-		// Awaiting ASN
-		LocalDate today = LocalDate.now();
-		today = today.withDayOfMonth(1);
-		log.info("First day of current month: " + today.withDayOfMonth(1));
-		Date beginningOfMonth = Date.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant());
-
-		// Item Received
-		itemReceivedCount = getItemReceivedCount(warehouseId, beginningOfMonth, new Date());
-		monthReceipts.setItemReceived(itemReceivedCount);
-
-		month.setReceipts(monthReceipts);
-		dashboard.setMonth(month);
-		return dashboard;
-	}
-
-	/**
-	 * 
-	 * @param warehouseId
-	 * @return
-	 * @throws Exception
-	 */
-	public Dashboard getDashboardShippedLine(String warehouseId) throws Exception {
-
-		try {
-			Dashboard dashboard = new Dashboard();
-			/*--------------------------DAY-----------------------------------------------*/
-			Dashboard.Day day = dashboard.new Day();
-			Dashboard.Day.Shipping dayShipping = day.new Shipping();
-
-			/*-----------------------Shipping---------------------------------------------*/
-			// ShippedLine Count
-			long shippedLineCount = getShippedLineCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1));
-			dayShipping.setShippedLine(shippedLineCount);
-
-			day.setShipping(dayShipping);
-			dashboard.setDay(day);
-
-			/*--------------------------MONTH--------------------------------------------*/
-			Dashboard.Month month = dashboard.new Month();
-			Dashboard.Month.Shipping monthShipping = month.new Shipping();
-
-			/*-----------------------Receipts--------------------------------------------*/
-			// Awaiting ASN
-			LocalDate today = LocalDate.now();
-			today = today.withDayOfMonth(1);
-			log.info("First day of current month: " + today.withDayOfMonth(1));
-			Date beginningOfMonth = Date.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant());
-			/*-----------------------Shipping---------------------------------------------*/
-			// ShippedLine Count
-			shippedLineCount = getShippedLineCount(warehouseId, beginningOfMonth, new Date());
-			monthShipping.setShippedLine(shippedLineCount);
-
-			month.setShipping(monthShipping);
-			dashboard.setMonth(month);
-			log.info("dashboard-: " + dashboard);
-			return dashboard;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	/**
-	 * 
-	 * @param warehouseId
-	 * @return
-	 * @throws Exception
-	 */
-	public Dashboard getDashboardNormalCount(String warehouseId) throws Exception {
-
-		Dashboard dashboard = new Dashboard();
-		/*--------------------------DAY-----------------------------------------------*/
-		Dashboard.Day day = dashboard.new Day();
-		Dashboard.Day.Shipping dayShipping = day.new Shipping();
-
-		/*-----------------------Shipping---------------------------------------------*/
-		// Normal Count
-		long normalCount = getNormalNSpecialCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1), "N");
-		dayShipping.setNormal(normalCount);
-
-		day.setShipping(dayShipping);
-		dashboard.setDay(day);
-
-		/*--------------------------MONTH--------------------------------------------*/
-		Dashboard.Month month = dashboard.new Month();
-		Dashboard.Month.Shipping monthShipping = month.new Shipping();
-
-		/*-----------------------Receipts--------------------------------------------*/
-		// Awaiting ASN
-		LocalDate today = LocalDate.now();
-		today = today.withDayOfMonth(1);
-		log.info("First day of current month: " + today.withDayOfMonth(1));
-		Date beginningOfMonth = Date.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant());
-
-		/*-----------------------Shipping---------------------------------------------*/
-
-		// Normal Count
-		normalCount = getNormalNSpecialCount(warehouseId, beginningOfMonth, new Date(), "N");
-		monthShipping.setNormal(normalCount);
-
-		month.setShipping(monthShipping);
-		dashboard.setMonth(month);
-		return dashboard;
-	}
-
-	public Dashboard getDashboardSpecialCount(String warehouseId) throws Exception {
-
-		Dashboard dashboard = new Dashboard();
-		/*--------------------------DAY-----------------------------------------------*/
-		Dashboard.Day day = dashboard.new Day();
-		Dashboard.Day.Shipping dayShipping = day.new Shipping();
-
-		/*-----------------------Shipping---------------------------------------------*/
-		// Special Count
-		long specialCount = getNormalNSpecialCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1), "S");
-		dayShipping.setSpecial(specialCount);
-
-		day.setShipping(dayShipping);
-		dashboard.setDay(day);
-
-		/*--------------------------MONTH--------------------------------------------*/
-		Dashboard.Month month = dashboard.new Month();
-		Dashboard.Month.Shipping monthShipping = month.new Shipping();
-
-		/*-----------------------Receipts--------------------------------------------*/
-		// Awaiting ASN
-		LocalDate today = LocalDate.now();
-		today = today.withDayOfMonth(1);
-		log.info("First day of current month: " + today.withDayOfMonth(1));
-		Date beginningOfMonth = Date.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant());
-
-		/*-----------------------Shipping---------------------------------------------*/
-		// ShippedLine Count
-		// Special Count
-		specialCount = getNormalNSpecialCount(warehouseId, beginningOfMonth, new Date(), "S");
-		monthShipping.setSpecial(specialCount);
-
-		month.setShipping(monthShipping);
-		dashboard.setMonth(month);
-		return dashboard;
-	}
-
-	public Dashboard getDashboardBinStatus(String warehouseId) throws Exception {
-
-		Dashboard dashboard = new Dashboard();
-		/*
-		 * --------------------------Bin
-		 * Status-------------------------------------------------- Pass the Logged in
-		 * WH_ID in STORAGBIN table and fetch Count of Records where Status_ID = 0 and
-		 * Status_ID is not equal to Zero
-		 */
-		Dashboard.BinStatus binStatus = dashboard.new BinStatus();
-		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-		StorageBin[] storageBins = mastersService.getStorageBinByStatus(warehouseId, 0L,
-				authTokenForMastersService.getAccess_token());
-		long statusCount = Arrays.asList(storageBins).stream().count();
-		binStatus.setStatusEqualToZeroCount(statusCount);
-
-		storageBins = mastersService.getStorageBinByStatusNotEqual(warehouseId, 0L,
-				authTokenForMastersService.getAccess_token());
-		statusCount = Arrays.asList(storageBins).stream().count();
-		binStatus.setStatusNotEqualToZeroCount(statusCount);
-
-		dashboard.setBinStatus(binStatus);
-		return dashboard;
-	}
-
-	/**
 	 * getMobileDashboard
 	 *
 	 * @param warehouseId
@@ -2197,6 +1799,7 @@ public class ReportsService extends BaseService {
 	 * @return
 	 * @throws java.text.ParseException
 	 */
+	@Transactional
 	private long getAwaitingASNCount(String warehouseId, Date fromCreatedOn, Date toCreatedOn)
 			throws java.text.ParseException {
 		/*
@@ -2204,15 +1807,10 @@ public class ReportsService extends BaseService {
 		 * and current date in CR_CTD_ON field in CONTAINERRECEIPT table and fetch the
 		 * count of records where REF_DOC_NO is Null
 		 */
-
-		SearchContainerReceipt searchContainerReceipt = new SearchContainerReceipt();
-		searchContainerReceipt.setWarehouseId(Arrays.asList(warehouseId));
-
 		Date[] dates = DateUtils.addTimeToDatesForSearch(fromCreatedOn,toCreatedOn);
-		searchContainerReceipt.setFromCreatedOn(dates[0]);
-		searchContainerReceipt.setToCreatedOn(dates[1]);
-		List<ContainerReceipt> containerReceipt = containerReceiptService.findContainerReceipt(searchContainerReceipt);
-		long awaitingASNCount = containerReceipt.stream().filter(c -> c.getRefDocNumber() == null).count();
+		fromCreatedOn = dates[0];
+		toCreatedOn = dates[1];
+		long awaitingASNCount = containerReceiptRepository.countByWarehouseIdAndContainerReceivedDateBetweenAndRefDocNumberIsNull(warehouseId,fromCreatedOn,toCreatedOn);
 		log.info("awaitingASNCount : " + awaitingASNCount);
 		return awaitingASNCount;
 	}
@@ -2224,6 +1822,7 @@ public class ReportsService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
+	@Transactional
 	private long getContainerReceivedCount(String warehouseId, Date startConfirmedOn, Date endConfirmedOn)
 			throws Exception {
 		/*
@@ -2231,14 +1830,11 @@ public class ReportsService extends BaseService {
 		 * current date in IB_CNF_ON field in INBOUNDHEADER table and fetch the count of
 		 * records
 		 */
-		SearchInboundHeader searchInboundHeader = new SearchInboundHeader();
-		searchInboundHeader.setWarehouseId(Arrays.asList(warehouseId));
 		Date[] dates = DateUtils.addTimeToDatesForSearch(startConfirmedOn,endConfirmedOn);
-		searchInboundHeader.setStartConfirmedOn(dates[0]);
-		searchInboundHeader.setEndConfirmedOn(dates[1]);
-		searchInboundHeader.setStatusId(Arrays.asList(24L));
-		List<InboundHeader> inboundHeaderSearchResults = inboundHeaderService.findInboundHeader(searchInboundHeader);
-		long containerReceivedCount = inboundHeaderSearchResults.stream().count();
+		startConfirmedOn = dates[0];
+		endConfirmedOn = dates[1];
+		long containerReceivedCount = inboundHeaderRepository.countByWarehouseIdAndConfirmedOnBetweenAndStatusIdAndDeletionIndicator(
+				warehouseId,startConfirmedOn,endConfirmedOn,24L,0L);
 		log.info("containerReceivedCount : " + containerReceivedCount);
 		return containerReceivedCount;
 	}
@@ -2250,21 +1846,18 @@ public class ReportsService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
+	@Transactional
 	private long getItemReceivedCount(String warehouseId, Date startConfirmedOn, Date endConfirmedOn) throws Exception {
 		/*
 		 * Item Received ------------------- Pass the logged in WH_ID and current date
 		 * in IB_CNF_ON field in INBOUNDLINE table and fetch the count of records where
 		 * REF_FIELD_1 is Null
 		 */
-		SearchInboundLine searchInboundLine = new SearchInboundLine();
-		searchInboundLine.setWarehouseId(warehouseId);
-		searchInboundLine.setReferenceField1(null);
 		Date[] dates = DateUtils.addTimeToDatesForSearch(startConfirmedOn,endConfirmedOn);
-		searchInboundLine.setStartConfirmedOn(dates[0]);
-		searchInboundLine.setEndConfirmedOn(dates[1]);
-		searchInboundLine.setStatusId(Arrays.asList(24L));
-		List<InboundLine> inboundLineSearchResults = inboundLineService.findInboundLine(searchInboundLine);
-		long itemReceivedCount = inboundLineSearchResults.stream().count();
+		startConfirmedOn = dates[0];
+		endConfirmedOn = dates[1];
+		long itemReceivedCount = inboundLineRepository.countByWarehouseIdAndConfirmedOnBetweenAndStatusIdAndReferenceField1IsNull(
+				warehouseId,startConfirmedOn,endConfirmedOn,24L);
 		log.info("itemReceivedCount : " + itemReceivedCount);
 		return itemReceivedCount;
 	}
@@ -2282,16 +1875,12 @@ public class ReportsService extends BaseService {
 		 * Current date as DLV_CNF_ON in OUTBOUNDLINE table and fetch Count of
 		 * OB_LINE_NO values where REF_FIELD_2=Null and DLV_QTY > 0
 		 */
-		SearchOutboundLine searchOutboundLine = new SearchOutboundLine();
-		searchOutboundLine.setWarehouseId(Arrays.asList(warehouseId));
 		Date[] dates = DateUtils.addTimeToDatesForSearch(fromDeliveryDate,toDeliveryDate);
-		searchOutboundLine.setFromDeliveryDate(dates[0]);
-		searchOutboundLine.setToDeliveryDate(dates[1]);
-		searchOutboundLine.setStatusId(Arrays.asList(59L));
-//		List<OutboundLine> outboundLineSearchResults = outboundLineService.findOutboundLine(searchOutboundLine);
-		long shippedLineCount = outboundLineService.findOutboundLine(searchOutboundLine, null);
-//		long shippedLineCount = outboundLineSearchResults.stream()
-//				.filter(o -> o.getReferenceField2() == null && o.getDeliveryQty() != null  && o.getDeliveryQty() > 0).count();
+		fromDeliveryDate = dates[0];
+		toDeliveryDate = dates[1];
+		long shippedLineCount =
+				outboundLineRepository.countByWarehouseIdAndDeliveryConfirmedOnBetweenAndStatusIdAndDeletionIndicatorAndReferenceField2IsNullAndDeliveryQtyIsNotNullAndDeliveryQtyGreaterThan(
+				warehouseId, fromDeliveryDate,toDeliveryDate,59L,0L,Double.valueOf(0));
 
 		log.info("shippedLineCount : " + shippedLineCount);
 		return shippedLineCount;
@@ -2311,17 +1900,12 @@ public class ReportsService extends BaseService {
 		 * DLV_CNF_ON in OUTBOUNDLINE table and fetch Count of OB_LINE_NO values where
 		 * REF_FIELD_1=N, REF_FIELD_2=Null and DLV_QTY>0 (Shipped Lines)
 		 */
-		SearchOutboundLine searchOutboundLine = new SearchOutboundLine();
-		searchOutboundLine.setWarehouseId(Arrays.asList(warehouseId));
 		Date[] dates = DateUtils.addTimeToDatesForSearch(fromDeliveryDate,toDeliveryDate);
-		searchOutboundLine.setFromDeliveryDate(dates[0]);
-		searchOutboundLine.setToDeliveryDate(dates[1]);
-		searchOutboundLine.setStatusId(Arrays.asList(59L));
-//		List<OutboundLine> outboundLineSearchResults = outboundLineService.findOutboundLine(searchOutboundLine, type);
-		
-		long normalCount = outboundLineService.findOutboundLine(searchOutboundLine, type);
-//		long normalCount = outboundLineSearchResults.stream().filter(o -> o.getReferenceField1().equalsIgnoreCase(type)
-//				&& o.getReferenceField2() == null && o.getDeliveryQty() != null && o.getDeliveryQty() > 0).count();
+		fromDeliveryDate = dates[0];
+		toDeliveryDate = dates[1];
+		long normalCount =
+				outboundLineRepository.countByWarehouseIdAndDeliveryConfirmedOnBetweenAndStatusIdAndDeletionIndicatorAndReferenceField1AndReferenceField2IsNullAndDeliveryQtyIsNotNullAndDeliveryQtyGreaterThan(
+						warehouseId, fromDeliveryDate,toDeliveryDate,59L,0L,type,Double.valueOf(0));
 
 		log.info("normalCount : " + normalCount);
 		return normalCount;
@@ -2468,5 +2052,175 @@ public class ReportsService extends BaseService {
 			headerRows.getCell(k).setCellStyle(headerStyle);
 			k++;
 		}
+	}
+
+	@Transactional
+	public Dashboard getDashboardCount(String warehouseId) throws Exception {
+
+		Dashboard dashboard = new Dashboard();
+
+		/*--------------------------DAY-----------------------------------------------*/
+		Dashboard.Day day = dashboard.new Day();
+		Dashboard.Day.Receipts dayReceipts = day.new Receipts();
+
+		/*-----------------------Receipts--------------------------------------------*/
+		// Awaiting ASN
+		long awaitingASNCount = getAwaitingASNCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1));
+		dayReceipts.setAwaitingASN(awaitingASNCount);
+
+		long containerReceivedCount = getContainerReceivedCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1));
+		dayReceipts.setContainerReceived(containerReceivedCount);
+
+		long itemReceivedCount = getItemReceivedCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1));
+		dayReceipts.setItemReceived(itemReceivedCount);
+
+		//Shipping Day
+		Dashboard.Day.Shipping dayShipping = day.new Shipping();
+		long shippedLineCount = getShippedLineCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1));
+		dayShipping.setShippedLine(shippedLineCount);
+
+		long normalCount = getNormalNSpecialCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1), "N");
+		dayShipping.setNormal(normalCount);
+
+		long specialCount = getNormalNSpecialCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1), "S");
+		dayShipping.setSpecial(specialCount);
+
+		day.setReceipts(dayReceipts);
+		day.setShipping(dayShipping);
+		dashboard.setDay(day);
+
+		/*--------------------------MONTH--------------------------------------------*/
+		Dashboard.Month month = dashboard.new Month();
+		Dashboard.Month.Receipts monthReceipts = month.new Receipts();
+
+		/*-----------------------Receipts--------------------------------------------*/
+		// Awaiting ASN
+		LocalDate today = LocalDate.now();
+		today = today.withDayOfMonth(1);
+		log.info("First day of current month: " + today.withDayOfMonth(1));
+		Date beginningOfMonth = Date.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+		awaitingASNCount = getAwaitingASNCount(warehouseId, beginningOfMonth, new Date());
+		monthReceipts.setAwaitingASN(awaitingASNCount);
+
+		containerReceivedCount = getContainerReceivedCount(warehouseId, beginningOfMonth, new Date());
+		monthReceipts.setContainerReceived(containerReceivedCount);
+
+		itemReceivedCount = getItemReceivedCount(warehouseId, beginningOfMonth, new Date());
+		monthReceipts.setItemReceived(itemReceivedCount);
+
+
+		//Shipping Month
+		Dashboard.Month.Shipping monthShipping = month.new Shipping();
+
+		shippedLineCount = getShippedLineCount(warehouseId, beginningOfMonth, new Date());
+		monthShipping.setShippedLine(shippedLineCount);
+
+		normalCount = getNormalNSpecialCount(warehouseId, beginningOfMonth, new Date(), "N");
+		monthShipping.setNormal(normalCount);
+
+		specialCount = getNormalNSpecialCount(warehouseId, beginningOfMonth, new Date(), "S");
+		monthShipping.setSpecial(specialCount);
+
+		//Bin Status
+		Dashboard.BinStatus binStatus = dashboard.new BinStatus();
+
+		long statusCount = storagebinRepository.countByWarehouseIdAndStatusIdAndDeletionIndicator(warehouseId,0L,0L);
+		binStatus.setStatusEqualToZeroCount(statusCount);
+
+		statusCount = storagebinRepository.countByWarehouseIdAndStatusIdNotAndDeletionIndicator(warehouseId,0L,0L);
+		binStatus.setStatusNotEqualToZeroCount(statusCount);
+
+		month.setReceipts(monthReceipts);
+		month.setShipping(monthShipping);
+		dashboard.setMonth(month);
+		dashboard.setBinStatus(binStatus);
+
+		return dashboard;
+	}
+
+	@Transactional
+	public FastSlowMovingDashboard getFastSlowMovingDashboard(String warehouseId) throws Exception {
+
+		FastSlowMovingDashboard dashboard = new FastSlowMovingDashboard();
+
+		/*--------------------------DAY-----------------------------------------------*/
+		FastSlowMovingDashboard.Day day = dashboard.new Day();
+
+		day.setItemData(getFastSlowMovingDashboardData(warehouseId,DateUtils.dateSubtract(1), DateUtils.dateSubtract(1)));
+
+		/*-----------------------Receipts--------------------------------------------*/
+		dashboard.setDay(day);
+
+		/*--------------------------MONTH--------------------------------------------*/
+		FastSlowMovingDashboard.Month month = dashboard.new Month();
+
+		/*-----------------------Receipts--------------------------------------------*/
+		// Awaiting ASN
+		LocalDate today = LocalDate.now();
+		log.info("First day of current month: " + today.withDayOfMonth(1));
+		Date beginningOfMonth = Date.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+		month.setItemData(getFastSlowMovingDashboardData(warehouseId,beginningOfMonth, new Date()));
+		dashboard.setMonth(month);
+
+		return dashboard;
+	}
+
+	@Transactional
+	private List<FastSlowMovingDashboard.ItemData> getFastSlowMovingDashboardData(String warehouseId, Date fromCreatedOn, Date toCreatedOn)
+			throws java.text.ParseException {
+		List<FastSlowMovingDashboard.ItemData> itemDataList = new ArrayList<>();
+
+		List<FastSlowMovingDashboard.ItemData> fastMoving = new ArrayList<>();
+		List<FastSlowMovingDashboard.ItemData> averageMoving = new ArrayList<>();
+		List<FastSlowMovingDashboard.ItemData> slowMoving = new ArrayList<>();
+		/*
+		 * Receipts - Awaiting ASN -------------------------- Pass the logged in WH_ID
+		 * and current date in CR_CTD_ON field in CONTAINERRECEIPT table and fetch the
+		 * count of records where REF_DOC_NO is Null
+		 */
+		Date[] dates = DateUtils.addTimeToDatesForSearch(fromCreatedOn,toCreatedOn);
+		fromCreatedOn = dates[0];
+		toCreatedOn = dates[1];
+		List<FastSlowMovingDashboard.ItemDataImpl> itemData = outboundLineRepository.getFastSlowMovingDashboardData(warehouseId,fromCreatedOn,toCreatedOn);
+		log.info("FastSlowMovingDashboard itemData : " + itemData);
+		if(itemData != null && !itemData.isEmpty()) {
+			int splitSize = itemData.size() / 3;
+			for (FastSlowMovingDashboard.ItemDataImpl item : itemData) {
+				FastSlowMovingDashboard.ItemData data = new FastSlowMovingDashboard.ItemData() ;
+				data.setItemCode(item.getItemCode());
+				data.setDeliveryQuantity(item.getDeliveryQuantity());
+				data.setItemText(item.getItemText());
+
+				if(fastMoving.size() < splitSize){
+					data.setType("FAST");
+					fastMoving.add(data);
+				} else if(fastMoving.size() == splitSize && averageMoving.size() < splitSize) {
+					data.setType("AVERAGE");
+					averageMoving.add(data);
+				} else {
+					data.setType("SLOW");
+					slowMoving.add(data);
+				}
+			}
+		}
+		itemDataList.addAll(fastMoving.stream().limit(100).collect(Collectors.toList()));
+		itemDataList.addAll(averageMoving.stream().limit(100).collect(Collectors.toList()));
+		itemDataList.addAll(slowMoving.stream().collect(lastN(100)));
+		return itemDataList;
+	}
+
+	public static <T> Collector<T, ?, List<T>> lastN(int n) {
+		return Collector.<T, Deque<T>, List<T>>of(ArrayDeque::new, (acc, t) -> {
+			if(acc.size() == n)
+				acc.pollFirst();
+			acc.add(t);
+		}, (acc1, acc2) -> {
+			while(acc2.size() < n && !acc1.isEmpty()) {
+				acc2.addFirst(acc1.pollLast());
+			}
+			return acc2;
+		}, ArrayList::new);
 	}
 }
