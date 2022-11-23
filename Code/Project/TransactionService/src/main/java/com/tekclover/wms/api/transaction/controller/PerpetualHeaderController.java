@@ -51,15 +51,15 @@ public class PerpetualHeaderController {
 	@GetMapping("/{cycleCountNo}")
 	public ResponseEntity<?> getPerpetualHeader(@PathVariable String cycleCountNo, @RequestParam String warehouseId,
 			@RequestParam Long cycleCountTypeId, @RequestParam Long movementTypeId, @RequestParam Long subMovementTypeId) {
-    	List<PerpetualHeaderEntity> perpetualheader = 
-    			perpetualheaderService.getPerpetualHeader(warehouseId, cycleCountTypeId, cycleCountNo, 
+    	PerpetualHeader perpetualheader =
+    			perpetualheaderService.getPerpetualHeaderWithLine(warehouseId, cycleCountTypeId, cycleCountNo,
     					movementTypeId, subMovementTypeId);
 		return new ResponseEntity<>(perpetualheader, HttpStatus.OK);
 	}
     
 	@ApiOperation(response = PerpetualHeaderEntity.class, value = "Search PerpetualHeader") // label for swagger
 	@PostMapping("/findPerpetualHeader")
-	public List<PerpetualHeaderEntity> findPerpetualHeader(@RequestBody SearchPerpetualHeader searchPerpetualHeader)
+	public List<PerpetualHeader> findPerpetualHeader(@RequestBody SearchPerpetualHeader searchPerpetualHeader)
 			throws Exception {
 		return perpetualheaderService.findPerpetualHeader(searchPerpetualHeader);
 	}

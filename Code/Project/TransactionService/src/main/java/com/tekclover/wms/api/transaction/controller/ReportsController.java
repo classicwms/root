@@ -9,10 +9,7 @@ import org.springframework.expression.ParseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.service.ReportsService;
@@ -49,9 +46,9 @@ public class ReportsController {
 	}
 
 	@ApiOperation(response = Dashboard.class, value = "Get Dashboard Fast Slow moving Dashboard") // label for swagger
-	@GetMapping("/dashboard/get-fast-slow-moving")
-	public ResponseEntity<?> getFastSlowMovingDashboard(@RequestParam String warehouseId) throws Exception {
-		FastSlowMovingDashboard dashboard = reportsService.getFastSlowMovingDashboard(warehouseId);
+	@PostMapping("/dashboard/get-fast-slow-moving")
+	public ResponseEntity<?> getFastSlowMovingDashboard(@RequestBody FastSlowMovingDashboardRequest fastSlowMovingDashboardRequest) throws Exception {
+		List<FastSlowMovingDashboard> dashboard = reportsService.getFastSlowMovingDashboard(fastSlowMovingDashboardRequest);
 		return new ResponseEntity<>(dashboard, HttpStatus.OK);
 	}
 	

@@ -2140,41 +2140,27 @@ public class ReportsService extends BaseService {
 	}
 
 	@Transactional
-	public FastSlowMovingDashboard getFastSlowMovingDashboard(String warehouseId) throws Exception {
+	public List<FastSlowMovingDashboard> getFastSlowMovingDashboard(FastSlowMovingDashboardRequest fastSlowMovingDashboardRequest) throws Exception {
 
-		FastSlowMovingDashboard dashboard = new FastSlowMovingDashboard();
-
-		/*--------------------------DAY-----------------------------------------------*/
-		FastSlowMovingDashboard.Day day = dashboard.new Day();
-
-		day.setItemData(getFastSlowMovingDashboardData(warehouseId,DateUtils.dateSubtract(1), DateUtils.dateSubtract(1)));
-
-		/*-----------------------Receipts--------------------------------------------*/
-		dashboard.setDay(day);
-
-		/*--------------------------MONTH--------------------------------------------*/
-		FastSlowMovingDashboard.Month month = dashboard.new Month();
-
-		/*-----------------------Receipts--------------------------------------------*/
-		// Awaiting ASN
-		LocalDate today = LocalDate.now();
-		log.info("First day of current month: " + today.withDayOfMonth(1));
-		Date beginningOfMonth = Date.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant());
-
-		month.setItemData(getFastSlowMovingDashboardData(warehouseId,beginningOfMonth, new Date()));
-		dashboard.setMonth(month);
-
-		return dashboard;
+		log.info("Fast slow moving dashboard request {}", fastSlowMovingDashboardRequest);
+		if(fastSlowMovingDashboardRequest.getWarehouseId() == null || fastSlowMovingDashboardRequest.getWarehouseId().isEmpty()) {
+			throw new BadRequestException("Please provide valid warehouseId");
+		}
+		if(fastSlowMovingDashboardRequest.getFromDate() == null || fastSlowMovingDashboardRequest.getToDate() == null) {
+			throw new BadRequestException("Please provide valid from date and to date");
+		}
+		return getFastSlowMovingDashboardData(fastSlowMovingDashboardRequest.getWarehouseId(),
+				fastSlowMovingDashboardRequest.getFromDate(), fastSlowMovingDashboardRequest.getToDate());
 	}
 
 	@Transactional
-	private List<FastSlowMovingDashboard.ItemData> getFastSlowMovingDashboardData(String warehouseId, Date fromCreatedOn, Date toCreatedOn)
+	private List<FastSlowMovingDashboard> getFastSlowMovingDashboardData(String warehouseId, Date fromCreatedOn, Date toCreatedOn)
 			throws java.text.ParseException {
-		List<FastSlowMovingDashboard.ItemData> itemDataList = new ArrayList<>();
+		List<FastSlowMovingDashboard> itemDataList = new ArrayList<>();
 
-		List<FastSlowMovingDashboard.ItemData> fastMoving = new ArrayList<>();
-		List<FastSlowMovingDashboard.ItemData> averageMoving = new ArrayList<>();
-		List<FastSlowMovingDashboard.ItemData> slowMoving = new ArrayList<>();
+		List<FastSlowMovingDashboard> fastMoving = new ArrayList<>();
+		List<FastSlowMovingDashboard> averageMoving = new ArrayList<>();
+		List<FastSlowMovingDashboard> slowMoving = new ArrayList<>();
 		/*
 		 * Receipts - Awaiting ASN -------------------------- Pass the logged in WH_ID
 		 * and current date in CR_CTD_ON field in CONTAINERRECEIPT table and fetch the
@@ -2183,12 +2169,12 @@ public class ReportsService extends BaseService {
 		Date[] dates = DateUtils.addTimeToDatesForSearch(fromCreatedOn,toCreatedOn);
 		fromCreatedOn = dates[0];
 		toCreatedOn = dates[1];
-		List<FastSlowMovingDashboard.ItemDataImpl> itemData = outboundLineRepository.getFastSlowMovingDashboardData(warehouseId,fromCreatedOn,toCreatedOn);
+		List<FastSlowMovingDashboard.FastSlowMovingDashboardImpl> itemData = outboundLineRepository.getFastSlowMovingDashboardData(warehouseId,fromCreatedOn,toCreatedOn);
 		log.info("FastSlowMovingDashboard itemData : " + itemData);
 		if(itemData != null && !itemData.isEmpty()) {
 			int splitSize = itemData.size() / 3;
-			for (FastSlowMovingDashboard.ItemDataImpl item : itemData) {
-				FastSlowMovingDashboard.ItemData data = new FastSlowMovingDashboard.ItemData() ;
+			for (FastSlowMovingDashboard.FastSlowMovingDashboardImpl item : itemData) {
+				FastSlowMovingDashboard data = new FastSlowMovingDashboard() ;
 				data.setItemCode(item.getItemCode());
 				data.setDeliveryQuantity(item.getDeliveryQuantity());
 				data.setItemText(item.getItemText());

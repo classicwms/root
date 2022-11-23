@@ -140,7 +140,7 @@ public class PerpetualHeaderService extends BaseService {
 	 * @param subMovementTypeId
 	 * @return
 	 */
-	public PerpetualHeaderEntity getPerpetualHeaderEntity (String warehouseId, Long cycleCountTypeId, String cycleCountNo, 
+	public PerpetualHeader getPerpetualHeaderWithLine (String warehouseId, Long cycleCountTypeId, String cycleCountNo,
 			Long movementTypeId, Long subMovementTypeId) {
 		Optional<PerpetualHeader> optPerpetualHeader = 
 				perpetualHeaderRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndCycleCountTypeIdAndCycleCountNoAndMovementTypeIdAndSubMovementTypeIdAndDeletionIndicator(
@@ -165,7 +165,7 @@ public class PerpetualHeaderService extends BaseService {
 	 * @throws ParseException
 	 * @throws java.text.ParseException 
 	 */
-	public List<PerpetualHeaderEntity> findPerpetualHeader(SearchPerpetualHeader searchPerpetualHeader) 
+	public List<PerpetualHeader> findPerpetualHeader(SearchPerpetualHeader searchPerpetualHeader)
 			throws ParseException, java.text.ParseException {		
 		if (searchPerpetualHeader.getStartCreatedOn() != null && searchPerpetualHeader.getStartCreatedOn() != null) {
 			Date[] dates = DateUtils.addTimeToDatesForSearch(searchPerpetualHeader.getStartCreatedOn(), 
@@ -177,8 +177,9 @@ public class PerpetualHeaderService extends BaseService {
 		PerpetualHeaderSpecification spec = new PerpetualHeaderSpecification(searchPerpetualHeader);
 		List<PerpetualHeader> perpetualHeaderResults = perpetualHeaderRepository.findAll(spec);
 //		log.info("perpetualHeaderResults: " + perpetualHeaderResults);
-		return convertToEntity (perpetualHeaderResults, 
-				searchPerpetualHeader.getCycleCounterId(), searchPerpetualHeader.getLineStatusId());
+//		return convertToEntity (perpetualHeaderResults,
+//				searchPerpetualHeader.getCycleCounterId(), searchPerpetualHeader.getLineStatusId());
+		return perpetualHeaderResults;
 	}
 	
 	/**
@@ -513,27 +514,17 @@ public class PerpetualHeaderService extends BaseService {
 		}
 		return listPerpetualHeaderEntity;
 	}
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 * @param perpetualHeader
 	 * @return
 	 */
-	private PerpetualHeaderEntity convertToEntity (PerpetualHeader perpetualHeader) {
+	private PerpetualHeader convertToEntity (PerpetualHeader perpetualHeader) {
 		List<PerpetualLine> perpetualLineList = perpetualLineService.getPerpetualLine(perpetualHeader.getCycleCountNo());
 		log.info("perpetualLineList found: " + perpetualLineList);
-		
-		List<PerpetualLineEntity> listPerpetualLineEntity = new ArrayList<>();
-		for (PerpetualLine perpetualLine : perpetualLineList) {
-			PerpetualLineEntity perpetualLineEntity = new PerpetualLineEntity();
-			BeanUtils.copyProperties(perpetualLine, perpetualLineEntity, CommonUtils.getNullPropertyNames(perpetualLine));
-			listPerpetualLineEntity.add(perpetualLineEntity);
-		}
-		
-		PerpetualHeaderEntity perpetualHeaderEntity = new PerpetualHeaderEntity();
-		BeanUtils.copyProperties(perpetualHeader, perpetualHeaderEntity, CommonUtils.getNullPropertyNames(perpetualHeader));
-		perpetualHeaderEntity.setPerpetualLine(listPerpetualLineEntity);
-		return perpetualHeaderEntity;
+		perpetualHeader.setPerpetualLine(perpetualLineList);
+		return perpetualHeader;
 	}
 }

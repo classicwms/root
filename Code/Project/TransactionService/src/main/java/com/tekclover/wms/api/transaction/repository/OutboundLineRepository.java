@@ -221,7 +221,7 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 			+ "FROM tbloutboundline OL\r\n"
 			+ "JOIN tblbusinesspartner BP ON BP.PARTNER_CODE = OL.PARTNER_CODE\r\n"
 			+ "JOIN tbloutboundheader OH ON OH.REF_DOC_NO = OL.REF_DOC_NO\r\n"
-			+ "WHERE OL.WH_ID = :warehouseId AND (OL.DLV_CNF_ON BETWEEN :fromDeliveryDate AND :toDeliveryDate)", nativeQuery = true)
+			+ "WHERE OL.WH_ID = :warehouseId AND (OL.DLV_CNF_ON BETWEEN :fromDeliveryDate AND :toDeliveryDate) and ol.is_deleted = 0 ", nativeQuery = true)
 	public List<OrderStatusReportImpl> getOrderStatusReportFromOutboundLines(@Param ("warehouseId") String warehouseId,
 																			 @Param ("fromDeliveryDate") Date fromDeliveryDate,
 																			 @Param ("toDeliveryDate") Date toDeliveryDate);
@@ -300,7 +300,7 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 			"from tbloutboundline \n" +
 			"where dlv_cnf_on between :fromDate and :toDate and wh_id = :warehouseId \n" +
 			"group by itm_code,item_text order by sum(dlv_qty) desc " , nativeQuery=true)
-	public List<FastSlowMovingDashboard.ItemDataImpl> getFastSlowMovingDashboardData(@Param ("warehouseId") String warehouseId,
+	public List<FastSlowMovingDashboard.FastSlowMovingDashboardImpl> getFastSlowMovingDashboardData(@Param ("warehouseId") String warehouseId,
 																				 @Param ("fromDate") Date fromDate,
 																				 @Param ("toDate") Date toDate);
 
