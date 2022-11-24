@@ -351,23 +351,47 @@ public class InventoryService extends BaseService {
 	 * @param allocatedQty
 	 * @return
 	 */
-	public List<Inventory> getInventoryForAdditionalBins (String warehouseId, String itemCode, String storageBin) {
+//	public List<Inventory> getInventoryForAdditionalBins (String warehouseId, String itemCode, String storageBin) {
+//		Warehouse warehouse = getWarehouse(warehouseId);
+//		log.info("InventoryForAdditionalBins ID : warehouseId: " + warehouseId
+//				+ ", itemCode: " + itemCode
+//				+ ", storageBin: " + storageBin
+//				);
+//		List<Inventory> inventory = 
+//				inventoryRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndStorageBinAndStockTypeIdAndBinClassIdAndDeletionIndicator(
+//						warehouse.getLanguageId(),
+//						warehouse.getCompanyCode(),
+//						warehouse.getPlantId(),
+//						warehouseId, 
+//						itemCode, 
+//						storageBin,
+//						1L,
+//						1L,
+//						0L
+//						);
+//		return inventory;
+//	}
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param itemCode
+	 * @param storageSectionIds
+	 * @return
+	 */
+	public List<Inventory> getInventoryForAdditionalBins(String warehouseId, String itemCode, List<String> storageSectionIds) {
 		Warehouse warehouse = getWarehouse(warehouseId);
-		log.info("InventoryForAdditionalBins ID : warehouseId: " + warehouseId
-				+ ", itemCode: " + itemCode
-				+ ", storageBin: " + storageBin
-				);
+		log.info("InventoryForAdditionalBins ID : warehouseId: " + warehouseId + ", itemCode: " + itemCode + ", storageSectionIds: " + storageSectionIds);
 		List<Inventory> inventory = 
-				inventoryRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndStorageBinAndStockTypeIdAndBinClassIdAndDeletionIndicator(
+				inventoryRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndReferenceField10InAndBinClassIdAndInventoryQuantityGreaterThan(
 						warehouse.getLanguageId(),
 						warehouse.getCompanyCode(),
 						warehouse.getPlantId(),
 						warehouseId, 
 						itemCode, 
-						storageBin,
+						storageSectionIds,
 						1L,
-						1L,
-						0L
+						0D
 						);
 		return inventory;
 	}
@@ -382,20 +406,38 @@ public class InventoryService extends BaseService {
 	 * @param specialStockIndicatorId
 	 * @return
 	 */
-	public List<Inventory> getInventoryForAdditionalBinsForOB2 (String warehouseId, String itemCode, String storageBin, 
-			Long stockTypeId) {
+//	public List<Inventory> getInventoryForAdditionalBinsForOB2 (String warehouseId, String itemCode, String storageBin, 
+//			Long stockTypeId) {
+//		Warehouse warehouse = getWarehouse(warehouseId);
+//		List<Inventory> inventory = 
+//				inventoryRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndStorageBinAndStockTypeIdAndBinClassIdAndDeletionIndicator(
+//						warehouse.getLanguageId(),
+//						warehouse.getCompanyCode(),
+//						warehouse.getPlantId(),
+//						warehouseId, 
+//						itemCode, 
+//						storageBin,
+//						stockTypeId,
+//						1L,
+//						0L
+//						);
+// 
+//		return inventory;
+//	}
+	
+	public List<Inventory> getInventoryForAdditionalBinsForOB2 (String warehouseId, String itemCode, List<String> storageSectionIds, Long stockTypeId) {
 		Warehouse warehouse = getWarehouse(warehouseId);
 		List<Inventory> inventory = 
-				inventoryRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndStorageBinAndStockTypeIdAndBinClassIdAndDeletionIndicator(
+				inventoryRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndReferenceField10InAndStockTypeIdAndBinClassIdAndInventoryQuantityGreaterThan(
 						warehouse.getLanguageId(),
 						warehouse.getCompanyCode(),
 						warehouse.getPlantId(),
 						warehouseId, 
 						itemCode, 
-						storageBin,
+						storageSectionIds,
 						stockTypeId,
 						1L,
-						0L
+						0D
 						);
  
 		return inventory;

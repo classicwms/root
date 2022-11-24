@@ -20,7 +20,6 @@ import com.tekclover.wms.api.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
 import com.tekclover.wms.api.transaction.model.dto.StorageBin;
 import com.tekclover.wms.api.transaction.model.dto.Warehouse;
-import com.tekclover.wms.api.transaction.model.inbound.gr.StorageBinPutAway;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.AddInventory;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.AddInventoryMovement;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
@@ -247,25 +246,48 @@ public class PickupLineService extends BaseService {
 	 * @param proposedPackBarCode 
 	 * @return 
 	 */
+//	public List<Inventory> getAdditionalBins (String warehouseId, String itemCode, Long OB_ORD_TYP_ID, 
+//			String proposedPackBarCode, String proposedStorageBin) {
+//		/*
+//		 *  1.Pass  WH_ID/ITM_CODE in INVENTORY table and fetch ST_BIN. 
+//		 *  Pass ST_BIN into STORAGEBIN table and filter ST_BIN values by  ST_SEC_ID values of ZB,ZC,ZG,ZT and 
+//		 *  PUTAWAY_BLOCK and PICK_BLOCK are false(Null).
+//		 */
+//		List<Inventory> stBinInventoryList = inventoryService.getInventory(warehouseId, itemCode);
+//		List<String> stBins = stBinInventoryList.stream().map(Inventory::getStorageBin).collect(Collectors.toList());
+//		log.info("stBins ---2--------> : " + stBins);
+//		log.info("stBins ---OB_ORD_TYP_ID--------> : " + OB_ORD_TYP_ID);
+//		
+//		/*
+//		 * Pass the selected WH_ID/ITM_CODE/ALLOC_QTY=0 for OB_ORD_TYP_ID =0 ,1,3 and fetch ST_BIN / PACK_BARCODE/INV_QTY values and display
+//		 */
+//		if (OB_ORD_TYP_ID == 0L || OB_ORD_TYP_ID == 1L || OB_ORD_TYP_ID == 3L) {
+//			List<String> storageSectionIds = Arrays.asList("ZB","ZC","ZG","ZT"); //ZB,ZC,ZG,ZT
+//			List<Inventory> inventoryAdditionalBins = 
+//					fetchAdditionalBins (stBins, storageSectionIds, warehouseId, itemCode, proposedPackBarCode, proposedStorageBin);
+//			return inventoryAdditionalBins;
+//		}
+//		
+//		/*
+//		 * Pass the selected ST_BIN/WH_ID/ITM_CODE/ALLOC_QTY=0/STCK_TYP_ID=2/SP_ST_IND_ID=2 for OB_ORD_TYP_ID = 2 and 
+//		 * fetch ST_BIN / PACK_BARCODE / INV_QTY  values and display
+//		 */
+//		if (OB_ORD_TYP_ID == 2L) {
+//			List<String> storageSectionIds = Arrays.asList("ZD"); //ZD
+//			List<Inventory> inventoryAdditionalBins = 
+//					fetchAdditionalBinsForOB2 (stBins, storageSectionIds, warehouseId, itemCode, proposedPackBarCode, proposedStorageBin);
+//			return inventoryAdditionalBins;
+//		}
+//		return null;
+//	}
+	
 	public List<Inventory> getAdditionalBins (String warehouseId, String itemCode, Long OB_ORD_TYP_ID, 
 			String proposedPackBarCode, String proposedStorageBin) {
-		/*
-		 *  1.Pass  WH_ID/ITM_CODE in INVENTORY table and fetch ST_BIN. 
-		 *  Pass ST_BIN into STORAGEBIN table and filter ST_BIN values by  ST_SEC_ID values of ZB,ZC,ZG,ZT and 
-		 *  PUTAWAY_BLOCK and PICK_BLOCK are false(Null).
-		 */
-		List<Inventory> stBinInventoryList = inventoryService.getInventory(warehouseId, itemCode);
-		List<String> stBins = stBinInventoryList.stream().map(Inventory::getStorageBin).collect(Collectors.toList());
-		log.info("stBins ---2--------> : " + stBins);
-		log.info("stBins ---OB_ORD_TYP_ID--------> : " + OB_ORD_TYP_ID);
+		log.info("---OB_ORD_TYP_ID--------> : " + OB_ORD_TYP_ID);
 		
-		/*
-		 * Pass the selected WH_ID/ITM_CODE/ALLOC_QTY=0 for OB_ORD_TYP_ID =0 ,1,3 and fetch ST_BIN / PACK_BARCODE/INV_QTY values and display
-		 */
 		if (OB_ORD_TYP_ID == 0L || OB_ORD_TYP_ID == 1L || OB_ORD_TYP_ID == 3L) {
 			List<String> storageSectionIds = Arrays.asList("ZB","ZC","ZG","ZT"); //ZB,ZC,ZG,ZT
-			List<Inventory> inventoryAdditionalBins = 
-					fetchAdditionalBins (stBins, storageSectionIds, warehouseId, itemCode, proposedPackBarCode, proposedStorageBin);
+			List<Inventory> inventoryAdditionalBins = fetchAdditionalBins (storageSectionIds, warehouseId, itemCode, proposedPackBarCode, proposedStorageBin);
 			return inventoryAdditionalBins;
 		}
 		
@@ -276,7 +298,7 @@ public class PickupLineService extends BaseService {
 		if (OB_ORD_TYP_ID == 2L) {
 			List<String> storageSectionIds = Arrays.asList("ZD"); //ZD
 			List<Inventory> inventoryAdditionalBins = 
-					fetchAdditionalBinsForOB2 (stBins, storageSectionIds, warehouseId, itemCode, proposedPackBarCode, proposedStorageBin);
+					fetchAdditionalBinsForOB2 (storageSectionIds, warehouseId, itemCode, proposedPackBarCode, proposedStorageBin);
 			return inventoryAdditionalBins;
 		}
 		return null;
@@ -838,49 +860,31 @@ public class PickupLineService extends BaseService {
 	 * @param proposedPackBarCode 
 	 * @return
 	 */
-	private List<Inventory> fetchAdditionalBins (List<String> stBins, List<String> storageSectionIds, 
+	private List<Inventory> fetchAdditionalBins (List<String> storageSectionIds, 
 			String warehouseId, String itemCode, String proposedPackBarCode, String proposedStorageBin) {
-		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-		List<Inventory> responseInventoryList = new ArrayList<>();
-		
-		StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
-		storageBinPutAway.setStorageBin(stBins);
-		storageBinPutAway.setStorageSectionIds(storageSectionIds);
-		storageBinPutAway.setWarehouseId(warehouseId);
-		StorageBin[] storageBin = mastersService.getStorageBin(storageBinPutAway, authTokenForMastersService.getAccess_token());
-		log.info("storageBin : " + Arrays.asList(storageBin));
-		
-		if (storageBin != null && storageBin.length > 0) {
-			// Pass the filtered ST_BIN/WH_ID/ITM_CODE/BIN_CL_ID=01/STCK_TYP_ID=1 in Inventory table and 
-			
-			List<Inventory> finalizedInventoryList = new ArrayList<>();
-			for (StorageBin dbStorageBin : storageBin) {
-				List<Inventory> listInventory = 
-						inventoryService.getInventoryForAdditionalBins (warehouseId, itemCode, dbStorageBin.getStorageBin());
-				log.info("selected listInventory--------: " + listInventory);
-				boolean toBeIncluded = false;
-				for (Inventory inventory : listInventory) {
-					if (inventory.getPackBarcodes().equalsIgnoreCase(proposedPackBarCode)) {
-						toBeIncluded = false;
-						log.info("toBeIncluded----Pack----: " + toBeIncluded);
-						if (inventory.getStorageBin().equalsIgnoreCase(proposedStorageBin)) {
-							toBeIncluded = false;
-						} else {
-							toBeIncluded = true;
-						}
-					} else {
-						toBeIncluded = true;
-					}
-					
-					log.info("toBeIncluded--------: " + toBeIncluded);
-					if (toBeIncluded) {
-						finalizedInventoryList.add(inventory);
-					}
+		List<Inventory> finalizedInventoryList = new ArrayList<>();
+		List<Inventory> listInventory = inventoryService.getInventoryForAdditionalBins (warehouseId, itemCode, storageSectionIds);
+		log.info("selected listInventory--------: " + listInventory);
+		boolean toBeIncluded = false;
+		for (Inventory inventory : listInventory) {
+			if (inventory.getPackBarcodes().equalsIgnoreCase(proposedPackBarCode)) {
+				toBeIncluded = false;
+				log.info("toBeIncluded----Pack----: " + toBeIncluded);
+				if (inventory.getStorageBin().equalsIgnoreCase(proposedStorageBin)) {
+					toBeIncluded = false;
+				} else {
+					toBeIncluded = true;
 				}
+			} else {
+				toBeIncluded = true;
 			}
-			return finalizedInventoryList;
+			
+			log.info("toBeIncluded--------: " + toBeIncluded);
+			if (toBeIncluded) {
+				finalizedInventoryList.add(inventory);
+			}
 		}
-		return responseInventoryList;
+		return finalizedInventoryList;
 	}
 	
 	/**
@@ -890,27 +894,88 @@ public class PickupLineService extends BaseService {
 	 * @param itemCode
 	 * @return
 	 */
-	private List<Inventory> fetchAdditionalBinsForOB2 (List<String> stBins, List<String> storageSectionIds, 
+	private List<Inventory> fetchAdditionalBinsForOB2 (List<String> storageSectionIds, 
 			String warehouseId, String itemCode, String proposedPackBarCode, String proposedStorageBin) {
-		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-		List<Inventory> responseInventoryList = new ArrayList<>();
-		StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
-		storageBinPutAway.setStorageBin(stBins);
-		storageBinPutAway.setStorageSectionIds(storageSectionIds);
-		storageBinPutAway.setWarehouseId(warehouseId);
-		StorageBin[] storageBin = mastersService.getStorageBin(storageBinPutAway, authTokenForMastersService.getAccess_token());
-		if (storageBin != null && storageBin.length > 0) {
-			/* Discussed to remove SP_INND_ID parameter from get */
-			// Pass the selected ST_BIN/WH_ID/ITM_CODE/ALLOC_QTY=0/STCK_TYP_ID=2 for OB_ORD_TYP_ID = 2
-			for (StorageBin dbStorageBin : storageBin) {
-				List<Inventory> listInventory = 
-						inventoryService.getInventoryForAdditionalBinsForOB2(warehouseId, itemCode, 
-									dbStorageBin.getStorageBin(), 1L /*STCK_TYP_ID*/);
-				listInventory = listInventory.stream().filter(i -> !i.getPackBarcodes().equalsIgnoreCase(proposedPackBarCode)).collect(Collectors.toList());
-				listInventory = listInventory.stream().filter(i -> !i.getStorageBin().equalsIgnoreCase(proposedStorageBin)).collect(Collectors.toList());
-				responseInventoryList.addAll(listInventory);
-			}
-		}
-		return responseInventoryList;
+		List<Inventory> listInventory = 
+				inventoryService.getInventoryForAdditionalBinsForOB2(warehouseId, itemCode, storageSectionIds, 1L /*STCK_TYP_ID*/);
+		listInventory = listInventory.stream().filter(i -> !i.getPackBarcodes().equalsIgnoreCase(proposedPackBarCode)).collect(Collectors.toList());
+		listInventory = listInventory.stream().filter(i -> !i.getStorageBin().equalsIgnoreCase(proposedStorageBin)).collect(Collectors.toList());
+		return listInventory;
 	}
+	
+//	private List<Inventory> fetchAdditionalBins (List<String> stBins, List<String> storageSectionIds, 
+//			String warehouseId, String itemCode, String proposedPackBarCode, String proposedStorageBin) {
+//		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+//		List<Inventory> responseInventoryList = new ArrayList<>();
+//		
+//		StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
+//		storageBinPutAway.setStorageBin(stBins);
+//		storageBinPutAway.setStorageSectionIds(storageSectionIds);
+//		storageBinPutAway.setWarehouseId(warehouseId);
+//		StorageBin[] storageBin = mastersService.getStorageBin(storageBinPutAway, authTokenForMastersService.getAccess_token());
+//		log.info("storageBin : " + Arrays.asList(storageBin));
+//		
+//		if (storageBin != null && storageBin.length > 0) {
+//			// Pass the filtered ST_BIN/WH_ID/ITM_CODE/BIN_CL_ID=01/STCK_TYP_ID=1 in Inventory table and 
+//			
+//			List<Inventory> finalizedInventoryList = new ArrayList<>();
+//			for (StorageBin dbStorageBin : storageBin) {
+//				List<Inventory> listInventory = 
+//						inventoryService.getInventoryForAdditionalBins (warehouseId, itemCode, dbStorageBin.getStorageBin());
+//				log.info("selected listInventory--------: " + listInventory);
+//				boolean toBeIncluded = false;
+//				for (Inventory inventory : listInventory) {
+//					if (inventory.getPackBarcodes().equalsIgnoreCase(proposedPackBarCode)) {
+//						toBeIncluded = false;
+//						log.info("toBeIncluded----Pack----: " + toBeIncluded);
+//						if (inventory.getStorageBin().equalsIgnoreCase(proposedStorageBin)) {
+//							toBeIncluded = false;
+//						} else {
+//							toBeIncluded = true;
+//						}
+//					} else {
+//						toBeIncluded = true;
+//					}
+//					
+//					log.info("toBeIncluded--------: " + toBeIncluded);
+//					if (toBeIncluded) {
+//						finalizedInventoryList.add(inventory);
+//					}
+//				}
+//			}
+//			return finalizedInventoryList;
+//		}
+//		return responseInventoryList;
+//	}
+//	
+//	/**
+//	 * 
+//	 * @param storageSectionIds
+//	 * @param warehouseId
+//	 * @param itemCode
+//	 * @return
+//	 */
+//	private List<Inventory> fetchAdditionalBinsForOB2 (List<String> stBins, List<String> storageSectionIds, 
+//			String warehouseId, String itemCode, String proposedPackBarCode, String proposedStorageBin) {
+//		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+//		List<Inventory> responseInventoryList = new ArrayList<>();
+//		StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
+//		storageBinPutAway.setStorageBin(stBins);
+//		storageBinPutAway.setStorageSectionIds(storageSectionIds);
+//		storageBinPutAway.setWarehouseId(warehouseId);
+//		StorageBin[] storageBin = mastersService.getStorageBin(storageBinPutAway, authTokenForMastersService.getAccess_token());
+//		if (storageBin != null && storageBin.length > 0) {
+//			/* Discussed to remove SP_INND_ID parameter from get */
+//			// Pass the selected ST_BIN/WH_ID/ITM_CODE/ALLOC_QTY=0/STCK_TYP_ID=2 for OB_ORD_TYP_ID = 2
+//			for (StorageBin dbStorageBin : storageBin) {
+//				List<Inventory> listInventory = 
+//						inventoryService.getInventoryForAdditionalBinsForOB2(warehouseId, itemCode, 
+//									dbStorageBin.getStorageBin(), 1L /*STCK_TYP_ID*/);
+//				listInventory = listInventory.stream().filter(i -> !i.getPackBarcodes().equalsIgnoreCase(proposedPackBarCode)).collect(Collectors.toList());
+//				listInventory = listInventory.stream().filter(i -> !i.getStorageBin().equalsIgnoreCase(proposedStorageBin)).collect(Collectors.toList());
+//				responseInventoryList.addAll(listInventory);
+//			}
+//		}
+//		return responseInventoryList;
+//	}
 }

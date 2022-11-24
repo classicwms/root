@@ -191,4 +191,12 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 			@Param(value = "itemCodes") List<String> itemCode,
 			@Param(value = "itemText") String itemText,
 			@Param(value = "stockTypeText") String stockTypeText);
+
+	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndReferenceField10InAndBinClassIdAndInventoryQuantityGreaterThan(
+			String languageId, String companyCode, String plantId, String warehouseId, String itemCode,
+			List<String> storageSectionIds, long l, Double m);
+
+	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndReferenceField10InAndStockTypeIdAndBinClassIdAndInventoryQuantityGreaterThan(
+			String languageId, String companyCode, String plantId, String warehouseId, String itemCode,
+			List<String> storageSectionIds, Long stockTypeId, long l, Double m);
 }
