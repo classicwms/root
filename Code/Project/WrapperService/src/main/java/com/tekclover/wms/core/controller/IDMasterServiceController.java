@@ -88,10 +88,11 @@ public class IDMasterServiceController {
     @ApiOperation(response = Optional.class, value = "Login User") // label for swagger
     @RequestMapping(value = "/login", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<?> loginUser(@RequestParam String name, @RequestParam String password, 
-			@RequestParam String authToken) {
+			@RequestParam String authToken, @RequestParam(required = false) String version) {
 		try {
 			UserManagement loggedUser = idmasterService.validateUserID(name, password, authToken);
 			log.info("LoginUser::: " + loggedUser);
+			log.info("version::: " + version);
 			return new ResponseEntity<>(loggedUser, HttpStatus.OK);
 		} catch (BadRequestException e) {
 			log.error("Invalid user");

@@ -137,6 +137,19 @@ public class QualityHeaderService {
 				+ ":" + actualHeNo + " doesn't exist.");
 		return null;
 	}
+
+	public List<QualityHeader> getInitialQualityHeaderForReversal (String warehouseId, String preOutboundNo, String refDocNumber,
+															String pickupNumber, String partnerCode) {
+		List<QualityHeader> qualityHeader =
+				qualityHeaderRepository.findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPickupNumberAndPartnerCodeAndDeletionIndicator (
+						warehouseId, preOutboundNo, refDocNumber, pickupNumber, partnerCode, 0L);
+		if (qualityHeader != null && qualityHeader.size() != 0) {
+			return qualityHeader;
+		}
+		log.info("Given values for QualityHeader : " + warehouseId + ":" + preOutboundNo + ":" + refDocNumber + ":" + pickupNumber
+				+ ":" + partnerCode + " doesn't exist.");
+		return null;
+	}
 	
 	/**
 	 * 

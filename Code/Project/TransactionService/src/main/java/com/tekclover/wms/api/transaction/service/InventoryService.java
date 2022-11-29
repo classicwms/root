@@ -329,7 +329,7 @@ public class InventoryService extends BaseService {
 	 */
 	public List<Inventory> getInventoryForOrderMgmt (String warehouseId, String itemCode, Long binClassId, String storageBin, Long stockTypeId) {
 		List<Inventory> inventory = 
-				inventoryRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndBinClassIdAndStorageBinAndStockTypeIdAndDeletionIndicatorAndInventoryQuantityGreaterThan(
+				inventoryRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndBinClassIdAndStorageBinAndStockTypeIdAndDeletionIndicatorAndInventoryQuantityGreaterThanOrderByInventoryQuantity(
 						getLanguageId(),
 						getCompanyCode(),
 						getPlantId(),

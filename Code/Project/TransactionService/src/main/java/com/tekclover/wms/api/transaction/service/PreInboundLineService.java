@@ -103,6 +103,12 @@ public class PreInboundLineService extends BaseService {
 			throw new BadRequestException("The given values: preInboundNo:" + preInboundNo + 
 				" doesn't exist.");
 		}
+		preInboundLines.forEach(preInboundLine->{
+			var quantity = inboundLineRepository.getQuantityByRefDocNoAndPreInboundNoAndLineNoAndItemCode(
+					preInboundLine.getItemCode(), preInboundLine.getRefDocNumber(), preInboundLine.getPreInboundNo(),
+					preInboundLine.getLineNo(), preInboundLine.getWarehouseId());
+			preInboundLine.setReferenceField5(quantity != null ? quantity.toString() : null);
+		});
 		return preInboundLines;
 	}
 	

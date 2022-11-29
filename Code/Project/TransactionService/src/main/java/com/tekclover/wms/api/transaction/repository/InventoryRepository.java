@@ -199,4 +199,8 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndReferenceField10InAndStockTypeIdAndBinClassIdAndInventoryQuantityGreaterThan(
 			String languageId, String companyCode, String plantId, String warehouseId, String itemCode,
 			List<String> storageSectionIds, Long stockTypeId, long l, Double m);
+
+	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndBinClassIdAndStorageBinAndStockTypeIdAndDeletionIndicatorAndInventoryQuantityGreaterThanOrderByInventoryQuantity(
+			String languageId, String companyCode, String plantId, String warehouseId, String itemCode, Long binClassId,
+			String storageBin, Long stockTypeId, long l, double d);
 }

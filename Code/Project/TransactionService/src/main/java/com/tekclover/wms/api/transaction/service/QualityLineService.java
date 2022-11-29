@@ -399,6 +399,7 @@ public class QualityLineService extends BaseService {
 					OutboundLine outboundLine = outboundLineService.getOutboundLine(dbQualityLine.getWarehouseId(), 
 							dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode(),
 							dbQualityLine.getLineNumber(), dbQualityLine.getItemCode());
+				log.info("DB outboundLine : " + outboundLine);
 					if (outboundLine != null) {
 						outboundLine.setDeliveryOrderNo(DLV_ORD_NO);
 						outboundLine.setStatusId(57L);
@@ -409,6 +410,7 @@ public class QualityLineService extends BaseService {
 						} else {
 							exisitingDelQty = 0D;
 						}
+						log.info("DB outboundLine existingDelQty : " + exisitingDelQty);
 						outboundLine.setDeliveryQty(exisitingDelQty + dbQualityLine.getQualityQty());
 						outboundLine = outboundLineRepository.save(outboundLine);
 						log.info("outboundLine updated : " + outboundLine);

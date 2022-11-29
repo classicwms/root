@@ -460,7 +460,7 @@ public class GrLineService extends BaseService {
 			PutAwayHeader putAwayHeader = new PutAwayHeader();
 			BeanUtils.copyProperties(createdGRLine, putAwayHeader, CommonUtils.getNullPropertyNames(createdGRLine));
 			putAwayHeader.setCompanyCodeId(createdGRLine.getCompanyCode());
-			
+			putAwayHeader.setReferenceField5(createdGRLine.getItemCode());
 			// PA_NO
 			AuthToken authTokenForIDMasterService = authTokenService.getIDMasterServiceAuthToken();
 			long NUM_RAN_CODE = 7;
@@ -728,6 +728,7 @@ public class GrLineService extends BaseService {
 		inventory.setVariantSubCode("1");
 		inventory.setStorageMethod("1");
 		inventory.setBatchSerialNumber("1");
+		inventory.setBatchSerialNumber(createdGRLine.getBatchSerialNumber());
 		inventory.setBinClassId(3L);	
 		
 		// ST_BIN ---Pass WH_ID/BIN_CL_ID=3 in STORAGEBIN table and fetch ST_BIN value and update

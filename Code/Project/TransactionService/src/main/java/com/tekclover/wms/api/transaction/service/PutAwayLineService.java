@@ -325,7 +325,9 @@ public class PutAwayLineService extends BaseService {
 						inventory.setVariantCode(1L); 				// VAR_ID
 						inventory.setVariantSubCode("1"); 			// VAR_SUB_ID
 						inventory.setStorageMethod("1"); 			// STR_MTD
-						inventory.setBatchSerialNumber("1"); 		// STR_NO
+						inventory.setBatchSerialNumber("1"); 		// STR_NO 
+						inventory.setBatchSerialNumber(newPutAwayLine.getBatchSerialNumber()); 
+						
 						inventory.setStorageBin(createdPutAwayLine.getConfirmedStorageBin());
 
 						AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();

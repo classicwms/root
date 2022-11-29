@@ -3834,7 +3834,7 @@ public class TransactionService {
 		}
 	}
 
-	public PerpetualHeader[] getPerpetualHeader(String warehouseId, Long cycleCountTypeId,
+	public PerpetualHeader getPerpetualHeader(String warehouseId, Long cycleCountTypeId,
 			String cycleCountNo, Long movementTypeId, Long subMovementTypeId, String authToken) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
@@ -3850,8 +3850,8 @@ public class TransactionService {
 					.queryParam("subMovementTypeId", subMovementTypeId);
 					
 			HttpEntity<?> entity = new HttpEntity<>(headers);
-			ResponseEntity<PerpetualHeader[]> result = 
-					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, PerpetualHeader[].class);
+			ResponseEntity<PerpetualHeader> result =
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, PerpetualHeader.class);
 			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
@@ -4390,19 +4390,19 @@ public class TransactionService {
 		}
 	}
 
-	public FastSlowMovingDashboard getFastSlowMovingDashboard(String warehouseId, String authToken) {
+	public FastSlowMovingDashboard[] getFastSlowMovingDashboard(
+			FastSlowMovingDashboardRequest fastSlowMovingDashboardRequest,String authToken) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 			headers.add("User-Agent", "MNRClara RestTemplate");
 			headers.add("Authorization", "Bearer " + authToken);
 			UriComponentsBuilder builder =
-					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "reports/dashboard/get-fast-slow-moving")
-							.queryParam("warehouseId", warehouseId);
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "reports/dashboard/get-fast-slow-moving");
 
-			HttpEntity<?> entity = new HttpEntity<>(headers);
-			ResponseEntity<FastSlowMovingDashboard> result =
-					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, FastSlowMovingDashboard.class);
+			HttpEntity<?> entity = new HttpEntity<>(fastSlowMovingDashboardRequest,headers);
+			ResponseEntity<FastSlowMovingDashboard[]> result =
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, FastSlowMovingDashboard[].class);
 			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {

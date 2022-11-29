@@ -993,9 +993,13 @@ public class OutboundLineService extends BaseService {
 			/*--------------STEP 1-------------------------------------*/
 			// If STATUS_ID = 57 - Reversal of QC/Picking confirmation
 			if (outboundLine.getStatusId() == 57L) {
+				//Get current status id for inventory update
+				Long outboundLineStatusIdBeforeUpdate = outboundLine.getStatusId();
+
 				outboundLine.setDeliveryQty(0D);
 				outboundLine.setReversedBy(loginUserID);
 				outboundLine.setReversedOn(new Date());
+				outboundLine.setStatusId(47L);
 				outboundLine = outboundLineRepository.save(outboundLine);
 				log.info("outboundLine updated : " + outboundLine);
 				
@@ -1033,7 +1037,7 @@ public class OutboundLineService extends BaseService {
 				 */
 				if(pickupLineList != null && !pickupLineList.isEmpty()){
 					for(PickupLine pickupLine : pickupLineList) {
-						Inventory inventory = updateInventory1(pickupLine,outboundLine.getStatusId());
+						Inventory inventory = updateInventory1(pickupLine,outboundLineStatusIdBeforeUpdate);
 
 						//Get pickupheader for inventory update
 						List<PickupHeader> pickupHeader = pickupHeaderService.getPickupHeaderForReversal(outboundLine.getWarehouseId(), outboundLine.getPreOutboundNo(),
@@ -1139,6 +1143,12 @@ public class OutboundLineService extends BaseService {
 				 * Fetch WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/OB_LINE_NO/ITM_CODE values from OUTBOUNDLINE table and
 				 * pass the keys in PICKUPLINE table and update STATUS_ID=53 and Delete the record
 				 */
+				// HAREESH 25/11/2022 update outboundline
+				//Get current status id for inventory update
+				Long outboundLineStatusIdBeforeUpdate = outboundLine.getStatusId();
+				outboundLine.setStatusId(47L);
+				outboundLine = outboundLineRepository.save(outboundLine);
+				log.info("outboundLine updated : " + outboundLine);
 
 				// HAREESH 07/09/2022 change from single line delete to multiple line delete since there maybe be multiple records for same parameter
 				List<PickupLine> pickupLineList = pickupLineService.deletePickupLineForReversal(outboundLine.getWarehouseId(), outboundLine.getPreOutboundNo(),
@@ -1159,7 +1169,7 @@ public class OutboundLineService extends BaseService {
 						log.info("QualityLine----------Deleted-------> : " + qualityLine);
 
 						// DELETE QUALITY_HEADER
-						List<QualityHeader> dbQualityHeader = qualityHeaderService.getQualityHeaderForReversal(outboundLine.getWarehouseId(),
+						List<QualityHeader> dbQualityHeader = qualityHeaderService.getInitialQualityHeaderForReversal(outboundLine.getWarehouseId(),
 								outboundLine.getPreOutboundNo(), outboundLine.getRefDocNumber(), pickupLine.getPickupNumber(), outboundLine.getPartnerCode());
 						if (dbQualityHeader != null && dbQualityHeader.size() > 0) {
 							for (QualityHeader qualityHeaderData : dbQualityHeader) {
@@ -1187,7 +1197,7 @@ public class OutboundLineService extends BaseService {
 						 * INVENTORY table and update INV_QTY as (INV_QTY - PICK_CNF_QTY ) and
 						 * delete the record If INV_QTY = 0 - (Update 1)
 						 */
-						updateInventory1(pickupLine, outboundLine.getStatusId());
+						updateInventory1(pickupLine, outboundLineStatusIdBeforeUpdate);
 
 						/*---------------STEP 3.2-----Inventory update-------------------------------
 						 * Pass WH_ID/_ITM_CODE/ST_BIN from PICK_ST_BIN/PACK_BARCODE from PICK_PACK_BARCODE of PICKUPLINE in
@@ -1456,6 +1466,7 @@ public class OutboundLineService extends BaseService {
             dbOrderManagementLine.forEach(data->{
                 data.setPickupUpdatedBy(loginUserID);
                 data.setPickupNumber(null);
+				data.setAllocatedQty(0D); // HAREESH 25/11/2022
                 data.setStatusId(47L);
                 data.setPickupUpdatedOn(new Date());
                 orderManagementLineList.add(data);

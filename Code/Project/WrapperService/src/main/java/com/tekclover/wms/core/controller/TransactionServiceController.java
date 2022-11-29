@@ -1,7 +1,6 @@
 package com.tekclover.wms.core.controller;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -1552,7 +1551,7 @@ public class TransactionServiceController {
 	public ResponseEntity<?> getPerpetualHeader(@PathVariable String cycleCountNo, @RequestParam String warehouseId,
 			@RequestParam Long cycleCountTypeId, @RequestParam Long movementTypeId, @RequestParam Long subMovementTypeId,
 			@RequestParam String authToken) {
-    	PerpetualHeader[] perpetualheader = 
+    	PerpetualHeader perpetualheader =
     			transactionService.getPerpetualHeader(warehouseId, cycleCountTypeId, cycleCountNo, 
     					movementTypeId, subMovementTypeId, authToken);
     	log.info("PerpetualHeader : " + perpetualheader);
@@ -1779,9 +1778,10 @@ public class TransactionServiceController {
 	}
 
 	@ApiOperation(response = Dashboard.class, value = "Get Dashboard Fast Slow moving Dashboard") // label for swagger
-	@GetMapping("/reports/dashboard/get-fast-slow-moving")
-	public ResponseEntity<?> getFastSlowMovingDashboard(@RequestParam String warehouseId, @RequestParam String authToken) throws Exception {
-		FastSlowMovingDashboard dashboard = transactionService.getFastSlowMovingDashboard(warehouseId,authToken);
+	@PostMapping("/reports/dashboard/get-fast-slow-moving")
+	public ResponseEntity<?> getFastSlowMovingDashboard(@RequestBody FastSlowMovingDashboardRequest fastSlowMovingDashboardRequest,
+														@RequestParam String authToken) throws Exception {
+		FastSlowMovingDashboard[] dashboard = transactionService.getFastSlowMovingDashboard(fastSlowMovingDashboardRequest,authToken);
 		return new ResponseEntity<>(dashboard, HttpStatus.OK);
 	}
 }

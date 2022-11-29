@@ -78,5 +78,14 @@ public interface InboundLineRepository extends JpaRepository<InboundLine,Long>, 
 
 	long countByWarehouseIdAndConfirmedOnBetweenAndStatusIdAndReferenceField1IsNull(
 			String warehouseId, Date fromDate, Date toDate,Long statusId);
+
+	@Query(value="select (COALESCE(il.accept_qty,0) + COALESCE(il.damage_qty,0)) as quantity \n" +
+			"from tblinboundline il where il.itm_code = :itemCode and il.IB_LINE_NO = :lineNo and il.ref_doc_no = :refDocNo and \n" +
+			"il.PRE_IB_NO = :preInboundNo and il.wh_id = :warehouseId and il.IS_DELETED = 0 " ,nativeQuery=true)
+	public Double getQuantityByRefDocNoAndPreInboundNoAndLineNoAndItemCode(@Param("itemCode") String itemCode,
+																		 @Param ("refDocNo") String refDocNo,
+																		 @Param ("preInboundNo") String preInboundNo,
+																		   @Param ("lineNo") Long lineNo,
+																		   @Param ("warehouseId") String warehouseId);
 }
 

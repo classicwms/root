@@ -1,6 +1,7 @@
 package com.tekclover.wms.core.model.transaction;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -41,4 +42,6 @@ public class PerpetualHeader {
 	private Date countedOn;
 	private String confirmedBy;
 	private Date confirmedOn;
+
+	private List<PerpetualLine> perpetualLine;
 }

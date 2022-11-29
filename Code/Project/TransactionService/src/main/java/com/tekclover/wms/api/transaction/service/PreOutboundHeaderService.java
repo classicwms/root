@@ -756,7 +756,8 @@ public class PreOutboundHeaderService extends BaseService {
 		
 		Inventory maxQtyHoldsInventory = new Inventory();
 		for (Inventory inventory : finalInventoryList) {
-			if (inventory.getInventoryQuantity() == tempMaxQty) {
+//			if (inventory.getInventoryQuantity() == tempMaxQty) { // Commenting this ...............
+			if (inventory.getInventoryQuantity() == ORD_QTY) { // This is avoid the If max condition so that always else block will execute
 				BeanUtils.copyProperties(inventory, maxQtyHoldsInventory, CommonUtils.getNullPropertyNames(inventory));
 			}
 		}
@@ -768,12 +769,15 @@ public class PreOutboundHeaderService extends BaseService {
 		 */
 		Collections.sort(finalInventoryList, new Comparator<Inventory>() {
             public int compare(Inventory s1, Inventory s2) {
-                return ((Double)s2.getInventoryQuantity()).compareTo(s1.getInventoryQuantity());
+                return ((Double)s1.getInventoryQuantity()).compareTo(s2.getInventoryQuantity());
             }
         });
 		
-		log.info("Collections------sort-----> : " + finalInventoryList);
-		if (ORD_QTY < maxQtyHoldsInventory.getInventoryQuantity()) {
+		for (Inventory inventory : finalInventoryList) {
+			log.info("Collections------sort-----> : " + inventory.getInventoryQuantity());
+		}
+		
+		if (maxQtyHoldsInventory.getInventoryQuantity() != null && ORD_QTY < maxQtyHoldsInventory.getInventoryQuantity()) {
 			Long STATUS_ID = 0L;
 			Double ALLOC_QTY = 0D;
 			

@@ -5,15 +5,12 @@ import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
@@ -68,16 +65,16 @@ public class CommonUtils {
 	
 	private void sortList () {
 		Inventory inv1 = new Inventory();
-		inv1.setQty(301);
+		inv1.setQty(1301L);
 		
 		Inventory inv2 = new Inventory();
-		inv2.setQty(202);
+		inv2.setQty(202L);
 		
 		Inventory inv3 = new Inventory();
-		inv3.setQty(3022);
+		inv3.setQty(3022L);
 		
 		Inventory inv4 = new Inventory();
-		inv4.setQty(202);
+		inv4.setQty(20L);
 		
 		List<Inventory> invList1 = new ArrayList<>();
 		invList1.add(inv1);
@@ -85,12 +82,20 @@ public class CommonUtils {
 		invList1.add(inv3);
 		invList1.add(inv4);
 		
-		List<Long> l = invList1.stream().map(Inventory::getQty).collect(Collectors.toList());
-		long r = l.stream().filter(a->a == 20 || a == 30).count();
-		System.out.println(r == l.size());
+		Collections.sort(invList1, new Comparator<Inventory>() {
+		      public int compare(Inventory s1, Inventory s2) {
+		          return ((Long)s1.getQty()).compareTo(s2.getQty());
+		      }
+		  });
 		
-		List<Inventory> l1 = invList1.stream().filter(a -> a.getQty() != 202).collect(Collectors.toList());
-		System.out.println(l1);
+		log.info("invList1: " + invList1);
+		
+//		List<Long> l = invList1.stream().map(Inventory::getQty).collect(Collectors.toList());
+//		long r = l.stream().filter(a->a == 20 || a == 30).count();
+//		System.out.println(r == l.size());
+//		
+//		List<Inventory> l1 = invList1.stream().filter(a -> a.getQty() != 202).collect(Collectors.toList());
+//		System.out.println(l1);
 	}
 	
 //	public static <T> boolean areAllUnique(List<T> list){
@@ -98,34 +103,36 @@ public class CommonUtils {
 //	}
 	
 	public static void main(String[] args) {
+		new CommonUtils().sortList();
+		
 //		LocalDate localDate = LocalDate.now();
 //		System.out.println(localDate);
 //		LocalDateTime datetime = LocalDateTime.now();
-		Date date = new Date();
-		LocalDateTime datetime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
-		DateTimeFormatter newPattern = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		String currentDate = datetime.format(newPattern);
-		
-		DateTimeFormatter newTimePattern = DateTimeFormatter.ofPattern("HH:mm:ss");
-		String currentTime = datetime.format(newTimePattern);
-		
-		System.out.println(currentDate);
-		System.out.println(currentTime);
-		
-//		CommonUtils o = new CommonUtils();
-//		o.sortList();
-		
-		List<String> list = new ArrayList<> ();
-		for (int i=0; i < 5560; i++) {
-			list.add("A" + i);
-		}
-		
-//		List[] list1 = splitList (list);
-//		System.out.println(list1[0]);
-//		System.out.println(list1[1]);
-		
-		List<List<String>> l = splitArrayList (list, 1800);
-//		System.out.println(l);
+//		Date date = new Date();
+//		LocalDateTime datetime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+//		DateTimeFormatter newPattern = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//		String currentDate = datetime.format(newPattern);
+//		
+//		DateTimeFormatter newTimePattern = DateTimeFormatter.ofPattern("HH:mm:ss");
+//		String currentTime = datetime.format(newTimePattern);
+//		
+//		System.out.println(currentDate);
+//		System.out.println(currentTime);
+//		
+////		CommonUtils o = new CommonUtils();
+////		o.sortList();
+//		
+//		List<String> list = new ArrayList<> ();
+//		for (int i=0; i < 5560; i++) {
+//			list.add("A" + i);
+//		}
+//		
+////		List[] list1 = splitList (list);
+////		System.out.println(list1[0]);
+////		System.out.println(list1[1]);
+//		
+//		List<List<String>> l = splitArrayList (list, 1800);
+////		System.out.println(l);
 	}
 	
 	private static<T> List[] splitList (List<String> list) {
@@ -142,7 +149,7 @@ public class CommonUtils {
 	
 	@Data
 	class Inventory {
-		private long qty;
+		private Long qty;
 	}
 
 	/**
