@@ -381,7 +381,6 @@ public class InboundHeaderService extends BaseService {
 			 * Validate putwayLines whether statusId is 20 OR 22
 			 */
 			long matchedCount = 0;
-			boolean isConditionMet = false;
 			List<Boolean> validationStatusList = new ArrayList<>();
 			try {
 				List<PutAwayLine> putAwayLineList = 
@@ -389,12 +388,18 @@ public class InboundHeaderService extends BaseService {
 							dbInboundLine.getItemCode());
 				List<Long> paStatusList = putAwayLineList.stream().map(PutAwayLine::getStatusId).collect(Collectors.toList());
 				matchedCount = paStatusList.stream().filter(a -> a == 20L || a == 22L).count();
-				isConditionMet = (matchedCount == paStatusList.size());
+				boolean isConditionMet = (matchedCount == paStatusList.size());
+				log.info("PutAwayLine status condition check : " + isConditionMet);
+				
+				if (!isConditionMet) {
+					throw new BadRequestException("Error on Inbound Confirmation: PutAwayLines are NOT processed completely.");
+				}
 				validationStatusList.add(isConditionMet);
 				log.info("PutAwayLine status----> : " + paStatusList);
-				log.info("PutAwayLine status condition check : " + isConditionMet);
+				
 			} catch (Exception e) {
 				log.error("Record not found: getPutAwayLine : " + e.getLocalizedMessage());
+				throw e;
 			}
 			
 			/*
@@ -405,12 +410,18 @@ public class InboundHeaderService extends BaseService {
 				List<PutAwayHeader> putAwayHeaderList = putAwayHeaderService.getPutAwayHeader(warehouseId, preInboundNo, refDocNumber);
 				List<Long> paheaderStatusList = putAwayHeaderList.stream().map(PutAwayHeader::getStatusId).collect(Collectors.toList());
 				matchedCount = paheaderStatusList.stream().filter(a -> a == 20L || a == 22L).count();
-				isConditionMet = (matchedCount == paheaderStatusList.size());
+				boolean isConditionMet = (matchedCount == paheaderStatusList.size());
+				log.info("PutAwayHeader status condition check : " + isConditionMet);
+				
+				if (!isConditionMet) {
+					throw new BadRequestException("Error on Inbound Confirmation: PutAwayHeaders are NOT processed completely.");
+				}
+				
 				validationStatusList.add(isConditionMet);
 				log.info("PutAwayHeader status----> : " + paheaderStatusList);
-				log.info("PutAwayHeader status condition check : " + isConditionMet);
 			} catch (Exception e) {
 				log.error("Record not found for getPutAwayHeader : " + e.getLocalizedMessage());
+				throw e;
 			}
 			
 			/*
@@ -421,22 +432,28 @@ public class InboundHeaderService extends BaseService {
 				List<StagingLineEntity> stagingLineList = stagingLineService.getStagingLine(warehouseId, refDocNumber, preInboundNo, dbInboundLine.getLineNo(), dbInboundLine.getItemCode());
 				List<Long> stagingLineStatusList = stagingLineList.stream().map(StagingLineEntity::getStatusId).collect(Collectors.toList());
 				matchedCount = stagingLineStatusList.stream().filter(a -> a == 14L || a == 17L).count();
-				isConditionMet = (matchedCount <= stagingLineStatusList.size());
+				boolean isConditionMet = (matchedCount <= stagingLineStatusList.size());
+				log.info("StagingLine status condition check : " + isConditionMet);
+				
+				if (!isConditionMet) {
+					throw new BadRequestException("Error on Inbound Confirmation: StagingLines are NOT processed completely.");
+				}
+				
 				validationStatusList.add(isConditionMet);
 				log.info("StagingLine status----> : " + stagingLineStatusList);
-				log.info("StagingLine status condition check : " + isConditionMet);
 			} catch (Exception e) {
 				log.error("Record not found for getStagingLine: " + e.getLocalizedMessage());
+				throw e;
 			}
 			
 			long conditionCount = validationStatusList.stream().filter(b -> b == true).count();
 			log.info("conditionCount : " + conditionCount);
 			log.info("conditionCount ----> : " + (conditionCount == validationStatusList.size()));
 			
-			if (conditionCount < validationStatusList.size() && dbInboundLine.getStatusId() != 20) {
-				throw new BadRequestException("Order is NOT completely processed : " + conditionCount + "," + dbInboundLine.getStatusId());
-			} else if (conditionCount == validationStatusList.size() && dbInboundLine.getStatusId() == 20) {
+			if (conditionCount == validationStatusList.size() && dbInboundLine.getStatusId() == 20) {
 				sendConfirmationToAX = true;
+			} else {
+				throw new BadRequestException("Order is NOT completely processed : " + conditionCount + "," + dbInboundLine.getStatusId());
 			}
 		}
 		

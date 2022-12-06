@@ -299,7 +299,7 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 
 	@Query(value="select itm_code as itemCode,item_text as itemText, COALESCE(sum(dlv_qty),0) as deliveryQuantity \n" +
 			"from tbloutboundline \n" +
-			"where dlv_cnf_on between :fromDate and :toDate and wh_id = :warehouseId \n" +
+			"where dlv_cnf_on between :fromDate and :toDate and wh_id = :warehouseId and dlv_qty is not null and dlv_qty > 0  \n" +
 			"group by itm_code,item_text order by sum(dlv_qty) desc " , nativeQuery=true)
 	public List<FastSlowMovingDashboard.FastSlowMovingDashboardImpl> getFastSlowMovingDashboardData(@Param ("warehouseId") String warehouseId,
 																				 @Param ("fromDate") Date fromDate,

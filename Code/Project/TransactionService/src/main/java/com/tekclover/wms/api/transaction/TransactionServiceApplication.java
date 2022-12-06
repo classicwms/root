@@ -11,14 +11,17 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
-@SpringBootApplication(exclude = { SecurityAutoConfiguration.class })
+import java.util.TimeZone;
+
+@SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
 @EnableResourceServer
 @EnableAuthorizationServer
 @EnableSwagger2
 @EnableScheduling
 public class TransactionServiceApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(TransactionServiceApplication.class, args);
-	}
+    public static void main(String[] args) {
+        TimeZone.setDefault(TimeZone.getTimeZone("GMT+3"));
+        SpringApplication.run(TransactionServiceApplication.class, args);
+    }
 }
