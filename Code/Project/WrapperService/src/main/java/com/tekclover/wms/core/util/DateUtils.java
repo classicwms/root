@@ -249,4 +249,16 @@ public class DateUtils {
 		Date out = Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());
 		log.info("dbMatterGenAcc--PriorityDate-------> : " + out);
 	}
+
+	/**
+	 *
+	 * @param strDate
+	 * @return
+	 * @throws ParseException
+	 */
+	public static Date convertStringToYYYYMMDD(String strDate) throws ParseException {
+		Date date = new SimpleDateFormat("yyyy-MM-dd").parse(strDate);
+		return date;
+	}
+
 }

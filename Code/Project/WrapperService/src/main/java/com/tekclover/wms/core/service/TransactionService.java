@@ -4,9 +4,12 @@ import com.tekclover.wms.core.config.PropertiesConfig;
 import com.tekclover.wms.core.model.transaction.*;
 import com.tekclover.wms.core.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.core.repository.MongoTransactionRepository;
+import com.tekclover.wms.core.util.CommonUtils;
+import com.tekclover.wms.core.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
@@ -17,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.validation.Valid;
+import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
 
@@ -4391,8 +4395,17 @@ public class TransactionService {
 	}
 
 	public FastSlowMovingDashboard[] getFastSlowMovingDashboard(
-			FastSlowMovingDashboardRequest fastSlowMovingDashboardRequest,String authToken) {
+			FastSlowMovingDashboardRequest requestData,String authToken) throws ParseException {
 		try {
+			FastSlowMovingDashboardRequestModel requestDataForService = new FastSlowMovingDashboardRequestModel();
+			BeanUtils.copyProperties(requestData, requestDataForService,
+					CommonUtils.getNullPropertyNames(requestData));
+			if (requestData.getFromDate() != null) {
+				requestDataForService.setFromDate(DateUtils.convertStringToYYYYMMDD(requestData.getFromDate()));
+			}
+			if (requestData.getToDate() != null) {
+				requestDataForService.setToDate(DateUtils.convertStringToYYYYMMDD(requestData.getToDate()));
+			}
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 			headers.add("User-Agent", "MNRClara RestTemplate");
@@ -4400,7 +4413,7 @@ public class TransactionService {
 			UriComponentsBuilder builder =
 					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "reports/dashboard/get-fast-slow-moving");
 
-			HttpEntity<?> entity = new HttpEntity<>(fastSlowMovingDashboardRequest,headers);
+			HttpEntity<?> entity = new HttpEntity<>(requestDataForService,headers);
 			ResponseEntity<FastSlowMovingDashboard[]> result =
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, FastSlowMovingDashboard[].class);
 			log.info("result : " + result.getStatusCode());

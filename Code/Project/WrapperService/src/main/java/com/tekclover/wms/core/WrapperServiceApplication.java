@@ -6,12 +6,15 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import java.util.TimeZone;
+
 @SuppressWarnings("deprecation")
 @SpringBootApplication
 @EnableSwagger2
 public class WrapperServiceApplication extends SpringBootServletInitializer {
 
 	public static void main(String[] args) {
+		TimeZone.setDefault(TimeZone.getTimeZone("GMT+3"));
 		SpringApplication.run(WrapperServiceApplication.class, args);
 	}
 }

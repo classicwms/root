@@ -6,10 +6,10 @@ import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Data
-public class FastSlowMovingDashboardRequest {
+public class FastSlowMovingDashboardRequestModel {
 
 	@NotNull
 	private String warehouseId;
-	private String fromDate;
-	private String toDate;
+	private Date fromDate;
+	private Date toDate;
 }
