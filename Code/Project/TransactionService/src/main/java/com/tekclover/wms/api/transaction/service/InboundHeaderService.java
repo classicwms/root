@@ -384,8 +384,7 @@ public class InboundHeaderService extends BaseService {
 			List<Boolean> validationStatusList = new ArrayList<>();
 			try {
 				List<PutAwayLine> putAwayLineList = 
-					putAwayLineService.getPutAwayLine(warehouseId, preInboundNo, refDocNumber, dbInboundLine.getLineNo(), 
-							dbInboundLine.getItemCode());
+					putAwayLineService.getPutAwayLineForInboundConfirmIndividual(warehouseId, preInboundNo, refDocNumber);
 				List<Long> paStatusList = putAwayLineList.stream().map(PutAwayLine::getStatusId).collect(Collectors.toList());
 				matchedCount = paStatusList.stream().filter(a -> a == 20L || a == 22L).count();
 				boolean isConditionMet = (matchedCount == paStatusList.size());
@@ -449,8 +448,9 @@ public class InboundHeaderService extends BaseService {
 			long conditionCount = validationStatusList.stream().filter(b -> b == true).count();
 			log.info("conditionCount : " + conditionCount);
 			log.info("conditionCount ----> : " + (conditionCount == validationStatusList.size()));
-			
-			if (conditionCount == validationStatusList.size() && dbInboundLine.getStatusId() == 20) {
+
+			//HAREESH-11/12/2022 - Removed && dbInboundLine.getStatusId() == 20 to remove validation error
+			if (conditionCount == validationStatusList.size()) {
 				sendConfirmationToAX = true;
 			} else {
 				throw new BadRequestException("Order is NOT completely processed : " + conditionCount + "," + dbInboundLine.getStatusId());

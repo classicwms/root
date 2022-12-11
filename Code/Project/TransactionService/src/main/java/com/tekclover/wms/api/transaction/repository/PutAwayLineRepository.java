@@ -86,4 +86,8 @@ public interface PutAwayLineRepository extends JpaRepository<PutAwayLine,Long>, 
 	public List<PutAwayLine> findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPutAwayNumberAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId, String refDocNumber,
 			String putAwayNumber, Long deletionIndicator);
+
+	public List<PutAwayLine> findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndPreInboundNoAndRefDocNumberAndDeletionIndicator(
+			String languageId, String companyCode, String plantId, String warehouseId, String preInboundNo, String refDocNumber,
+			Long deletionIndicator);
 }

@@ -1,9 +1,8 @@
 package com.tekclover.wms.core.model.transaction;
 
-import java.util.Date;
-import java.util.List;
-
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class SearchOutboundHeader {
@@ -26,13 +25,13 @@ public class SearchOutboundHeader {
 	private List<Long> statusId;
 	private List<String> soType; //referenceField1;
 
-	private Date startRequiredDeliveryDate;
-	private Date endRequiredDeliveryDate;
+	private String startRequiredDeliveryDate;
+	private String endRequiredDeliveryDate;
 	
-	private Date startDeliveryConfirmedOn;
-	private Date endDeliveryConfirmedOn;
+	private String startDeliveryConfirmedOn;
+	private String endDeliveryConfirmedOn;
 	
-	private Date startOrderDate;
-	private Date endOrderDate;
+	private String startOrderDate;
+	private String endOrderDate;
 
 }

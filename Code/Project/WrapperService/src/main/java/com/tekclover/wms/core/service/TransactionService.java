@@ -22,6 +22,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.validation.Valid;
 import java.text.ParseException;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -3196,8 +3197,29 @@ public class TransactionService {
 	 * ----------------------OutboundHeader-----------------------------------------------------------------
 	 */
 	// POST - findOutboundHeader
-	public OutboundHeader[] findOutboundHeader(SearchOutboundHeader searchOutboundHeader, String authToken) {
+	public OutboundHeader[] findOutboundHeader(SearchOutboundHeader requestData, String authToken) throws ParseException {
 		try {
+			SearchOutboundHeaderModel requestDataForService = new SearchOutboundHeaderModel();
+			BeanUtils.copyProperties(requestData, requestDataForService,
+					CommonUtils.getNullPropertyNames(requestData));
+			if (requestData.getStartDeliveryConfirmedOn() != null) {
+				requestDataForService.setStartDeliveryConfirmedOn(DateUtils.convertStringToYYYYMMDD(requestData.getStartDeliveryConfirmedOn()));
+			}
+			if (requestData.getEndDeliveryConfirmedOn() != null) {
+				requestDataForService.setEndDeliveryConfirmedOn(DateUtils.convertStringToYYYYMMDD(requestData.getEndDeliveryConfirmedOn()));
+			}
+			if (requestData.getStartOrderDate() != null) {
+				requestDataForService.setStartOrderDate(DateUtils.convertStringToYYYYMMDD(requestData.getStartOrderDate()));
+			}
+			if (requestData.getEndOrderDate() != null) {
+				requestDataForService.setEndOrderDate(DateUtils.convertStringToYYYYMMDD(requestData.getEndOrderDate()));
+			}
+			if (requestData.getStartRequiredDeliveryDate() != null) {
+				requestDataForService.setStartRequiredDeliveryDate(DateUtils.convertStringToYYYYMMDD(requestData.getStartRequiredDeliveryDate()));
+			}
+			if (requestData.getEndRequiredDeliveryDate() != null) {
+				requestDataForService.setEndRequiredDeliveryDate(DateUtils.convertStringToYYYYMMDD(requestData.getEndRequiredDeliveryDate()));
+			}
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 			headers.add("User-Agent", "MNRClara RestTemplate");
@@ -3205,7 +3227,7 @@ public class TransactionService {
 			
 			UriComponentsBuilder builder = 
 					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "outboundheader/findOutboundHeader");
-			HttpEntity<?> entity = new HttpEntity<>(searchOutboundHeader, headers);	
+			HttpEntity<?> entity = new HttpEntity<>(requestDataForService, headers);
 			ResponseEntity<OutboundHeader[]> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, OutboundHeader[].class);
 			log.info("result : " + result.getStatusCode());
@@ -3661,26 +3683,26 @@ public class TransactionService {
 	}
 
 	// GET - OrderStatusReport
-	public OrderStatusReport[] getOrderStatusReport(String warehouseId, String fromDeliveryDate, String toDeliveryDate,
-			List<String> customerCode, List<String> orderNumber, List<String> orderType, List<Long> statusId, String authToken) {
+	public OrderStatusReport[] getOrderStatusReport(SearchOrderStatusReport request, String authToken) throws ParseException {
 		try {
+			Date fromDate = null;
+			Date toDate = null;
+			if (request.getFromDeliveryDate() != null) {
+				fromDate = DateUtils.convertStringToYYYYMMDD(request.getFromDeliveryDate());
+			}
+			if (request.getToDeliveryDate() != null) {
+				toDate = DateUtils.convertStringToYYYYMMDD(request.getToDeliveryDate());
+			}
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 			headers.add("User-Agent", "MNRClara RestTemplate");
 			headers.add("Authorization", "Bearer " + authToken);
 			
 			UriComponentsBuilder builder = 
-					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "reports/orderStatusReport")
-					.queryParam("warehouseId", warehouseId)
-					.queryParam("fromDeliveryDate", fromDeliveryDate)
-					.queryParam("toDeliveryDate", toDeliveryDate)
-					.queryParam("customerCode", customerCode)
-					.queryParam("orderNumber", orderNumber)
-					.queryParam("orderType", orderType)
-					.queryParam("statusId", statusId);
-			HttpEntity<?> entity = new HttpEntity<>(headers);
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "reports/orderStatusReport");
+			HttpEntity<?> entity = new HttpEntity<>(request,headers);
 			ResponseEntity<OrderStatusReport[]> result =
-					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, OrderStatusReport[].class);
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, OrderStatusReport[].class);
 			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {

@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.transaction.model.impl;
 
-import java.util.Date;
+
+import java.sql.Date;
 
 public interface OrderStatusReportImpl {
     String getSoNumber();

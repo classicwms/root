@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.transaction.controller;
 
+import java.util.Date;
 import java.util.List;
 
 import com.tekclover.wms.api.transaction.model.report.*;
@@ -129,15 +130,11 @@ public class ReportsController {
 	 * Order status report
 	 */
     @ApiOperation(response = OrderStatusReport.class, value = "Get StockMovement Report") // label for swagger 
-	@GetMapping("/orderStatusReport")
-	public ResponseEntity<?> getOrderStatusReport(@RequestParam String warehouseId, 
-			@RequestParam String fromDeliveryDate, @RequestParam String toDeliveryDate, 
-			@RequestParam(required = false) List<String> customerCode, @RequestParam(required = false) List<String> orderNumber, 
-			@RequestParam(required = false) List<String> orderType, @RequestParam(required = false) List<Long> statusId) 
+	@PostMapping("/orderStatusReport")
+	public ResponseEntity<?> getOrderStatusReport(@RequestBody SearchOrderStatusReport request)
 					throws ParseException, java.text.ParseException {
     	List<OrderStatusReport> orderStatusReportList = 
-    			reportsService.getOrderStatusReport(warehouseId, fromDeliveryDate, toDeliveryDate, customerCode,
-    					orderNumber, orderType, statusId);
+    			reportsService.getOrderStatusReport(request);
 		return new ResponseEntity<>(orderStatusReportList, HttpStatus.OK);
 	}
     

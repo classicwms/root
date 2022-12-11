@@ -1,6 +1,7 @@
 package com.tekclover.wms.core.controller;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Date;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -1462,14 +1463,10 @@ public class TransactionServiceController {
    	 * Order status report
    	 */
     @ApiOperation(response = OrderStatusReport.class, value = "Get OrderStatus Report") // label for swagger 
-   	@GetMapping("/reports/orderStatusReport")
-   	public ResponseEntity<?> getOrderStatusReport(@RequestParam String warehouseId, 
-   			@RequestParam String fromDeliveryDate, @RequestParam String toDeliveryDate, 
-   			@RequestParam(required = false) List<String> customerCode, @RequestParam(required = false) List<String> orderNumber, 
-   			@RequestParam(required = false) List<String> orderType, @RequestParam(required = false) List<Long> statusId,
+   	@PostMapping("/reports/orderStatusReport")
+   	public ResponseEntity<?> getOrderStatusReport(@RequestBody @Valid SearchOrderStatusReport request,
    			@RequestParam String authToken) throws ParseException, Exception {
-       	OrderStatusReport[] orderStatusReportList = transactionService.getOrderStatusReport(warehouseId, 
-       			fromDeliveryDate, toDeliveryDate, customerCode, orderNumber, orderType, statusId, authToken);
+       	OrderStatusReport[] orderStatusReportList = transactionService.getOrderStatusReport(request, authToken);
    		return new ResponseEntity<>(orderStatusReportList, HttpStatus.OK);
    	}
     
