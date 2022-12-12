@@ -125,16 +125,12 @@ public class ReportsController {
     			reportsService.getStockMovementReport(warehouseId, itemCode, fromCreatedOn, toCreatedOn);
 		return new ResponseEntity<>(inventoryReportList, HttpStatus.OK);
 	}
-    
-    /*
-	 * Order status report
-	 */
-    @ApiOperation(response = OrderStatusReport.class, value = "Get StockMovement Report") // label for swagger 
+
+	@ApiOperation(response = OrderStatusReport.class, value = "Get StockMovement Report") // label for swagger
 	@PostMapping("/orderStatusReport")
-	public ResponseEntity<?> getOrderStatusReport(@RequestBody SearchOrderStatusReport request)
-					throws ParseException, java.text.ParseException {
-    	List<OrderStatusReport> orderStatusReportList = 
-    			reportsService.getOrderStatusReport(request);
+	public ResponseEntity<?> getOrderStatusReport(@RequestBody OrderStatusReportRequest request) throws Exception {
+		List<OrderStatusReport> orderStatusReportList =
+				reportsService.getOrderStatusReport(request);
 		return new ResponseEntity<>(orderStatusReportList, HttpStatus.OK);
 	}
     

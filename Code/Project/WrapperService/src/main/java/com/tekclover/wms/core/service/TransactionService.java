@@ -3683,15 +3683,16 @@ public class TransactionService {
 	}
 
 	// GET - OrderStatusReport
-	public OrderStatusReport[] getOrderStatusReport(SearchOrderStatusReport request, String authToken) throws ParseException {
+	public OrderStatusReport[] getOrderStatusReport(SearchOrderStatusReport requestData, String authToken) throws ParseException {
 		try {
-			Date fromDate = null;
-			Date toDate = null;
-			if (request.getFromDeliveryDate() != null) {
-				fromDate = DateUtils.convertStringToYYYYMMDD(request.getFromDeliveryDate());
+			SearchOrderStatusModel requestDataForService = new SearchOrderStatusModel();
+			BeanUtils.copyProperties(requestData, requestDataForService,
+					CommonUtils.getNullPropertyNames(requestData));
+			if (requestData.getFromDeliveryDate() != null) {
+				requestDataForService.setFromDeliveryDate(DateUtils.convertStringToYYYYMMDD(requestData.getFromDeliveryDate()));
 			}
-			if (request.getToDeliveryDate() != null) {
-				toDate = DateUtils.convertStringToYYYYMMDD(request.getToDeliveryDate());
+			if (requestData.getToDeliveryDate() != null) {
+				requestDataForService.setToDeliveryDate(DateUtils.convertStringToYYYYMMDD(requestData.getToDeliveryDate()));
 			}
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -3700,7 +3701,7 @@ public class TransactionService {
 			
 			UriComponentsBuilder builder = 
 					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "reports/orderStatusReport");
-			HttpEntity<?> entity = new HttpEntity<>(request,headers);
+			HttpEntity<?> entity = new HttpEntity<>(requestDataForService,headers);
 			ResponseEntity<OrderStatusReport[]> result =
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, OrderStatusReport[].class);
 			log.info("result : " + result.getStatusCode());

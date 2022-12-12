@@ -820,7 +820,7 @@ public class ReportsService extends BaseService {
 	 * @throws java.text.ParseException
 	 * @throws ParseException
 	 */
-	public List<OrderStatusReport> getOrderStatusReport(SearchOrderStatusReport request) throws ParseException, java.text.ParseException {
+	public List<OrderStatusReport> getOrderStatusReport(OrderStatusReportRequest request) throws ParseException, java.text.ParseException {
 		// WH_ID
 		if (request.getWarehouseId() == null) {
 			throw new BadRequestException("WarehouseId can't be blank.");
