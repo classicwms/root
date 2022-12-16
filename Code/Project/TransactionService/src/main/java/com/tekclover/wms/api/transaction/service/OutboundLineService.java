@@ -765,7 +765,7 @@ public class OutboundLineService extends BaseService {
 											outboundLine.getItemCode(), qualityLine.getPickPackBarCode(), BIN_CL_ID); //pack_bar_code
 									for(Inventory inventory : inventoryList) {
 										Double INV_QTY = inventory.getInventoryQuantity() - qualityLine.getQualityQty();
-										log.info("INV_QTY : " + INV_QTY);
+//										log.info("INV_QTY : " + INV_QTY);
 
 										if (INV_QTY < 0) {
 											INV_QTY = 0D;
@@ -776,7 +776,7 @@ public class OutboundLineService extends BaseService {
 
 											// INV_QTY > 0 then, update Inventory Table
 											inventory = inventoryRepository.save(inventory);
-											log.info("inventory updated : " + inventory);
+//											log.info("inventory updated : " + inventory);
 										}
 									}
 								}

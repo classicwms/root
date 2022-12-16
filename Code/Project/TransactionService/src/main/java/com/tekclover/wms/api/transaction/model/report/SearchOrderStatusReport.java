@@ -25,5 +25,8 @@ public class SearchOrderStatusReport {
 	private List<String> refDocNumber;	// REF_DOC_NO
 	private List<String> orderType; 	// REF_FIELD_1
 	private List<Long> statusId;		// STATUS_ID
+
+	private List<String> customerCode;
+	private List<String> orderNumber;
 	
 }
