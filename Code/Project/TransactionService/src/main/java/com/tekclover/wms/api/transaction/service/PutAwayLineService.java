@@ -119,27 +119,6 @@ public class PutAwayLineService extends BaseService {
 		
 		return putAwayLine;
 	}
-
-	public List<PutAwayLine> getPutAwayLineForInboundConfirmIndividual (String warehouseId, String preInboundNo, String refDocNumber) {
-		List<PutAwayLine> putAwayLine =
-				putAwayLineRepository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndPreInboundNoAndRefDocNumberAndDeletionIndicator(
-						getLanguageId(),
-						getCompanyCode(),
-						getPlantId(),
-						warehouseId,
-						preInboundNo,
-						refDocNumber,
-						0L);
-		if (putAwayLine.isEmpty()) {
-			throw new BadRequestException("The given values in PutAwayLine: warehouseId:" + warehouseId +
-					",preInboundNo: " + preInboundNo +
-					",refDocNumber: " + refDocNumber +
-					",warehouseId: " + warehouseId +
-					" doesn't exist.");
-		}
-
-		return putAwayLine;
-	}
 	
 	/**
 	 * 

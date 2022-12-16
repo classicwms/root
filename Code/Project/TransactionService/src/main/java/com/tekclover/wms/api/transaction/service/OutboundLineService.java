@@ -28,6 +28,7 @@ import com.tekclover.wms.api.transaction.model.impl.StockMovementReportImpl;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.AddInventoryMovement;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
+import com.tekclover.wms.api.transaction.model.integration.IntegrationApiResponse;
 import com.tekclover.wms.api.transaction.model.outbound.AddOutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundLine;
@@ -35,24 +36,19 @@ import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundLineReport;
 import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundLine;
-import com.tekclover.wms.api.transaction.model.outbound.ordermangement.OrderManagementHeader;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.OrderManagementLine;
-import com.tekclover.wms.api.transaction.model.outbound.ordermangement.UpdateOrderManagementHeader;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.UpdateOrderManagementLine;
 import com.tekclover.wms.api.transaction.model.outbound.outboundreversal.AddOutboundReversal;
 import com.tekclover.wms.api.transaction.model.outbound.outboundreversal.OutboundReversal;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupHeader;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupLine;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.UpdatePickupHeader;
-import com.tekclover.wms.api.transaction.model.outbound.pickup.UpdatePickupLine;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.PreOutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.PreOutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.UpdatePreOutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.UpdatePreOutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.quality.QualityHeader;
 import com.tekclover.wms.api.transaction.model.outbound.quality.QualityLine;
-import com.tekclover.wms.api.transaction.model.outbound.quality.UpdateQualityHeader;
-import com.tekclover.wms.api.transaction.model.outbound.quality.UpdateQualityLine;
 import com.tekclover.wms.api.transaction.model.report.SearchOrderStatusReport;
 import com.tekclover.wms.api.transaction.model.report.StockMovementReport;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.confirmation.AXApiResponse;
@@ -68,8 +64,8 @@ import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.S
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.Shipment;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.ShipmentHeader;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.ShipmentLine;
-import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
 import com.tekclover.wms.api.transaction.repository.InboundLineRepository;
+import com.tekclover.wms.api.transaction.repository.IntegrationApiResponseRepository;
 import com.tekclover.wms.api.transaction.repository.InventoryRepository;
 import com.tekclover.wms.api.transaction.repository.OrderManagementLineRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundLineRepository;
@@ -123,9 +119,6 @@ public class OutboundLineService extends BaseService {
 	private PickupLineRepository pickupLineRepository;
 	
 	@Autowired
-	private OrderManagementHeaderService orderManagementHeaderService;
-	
-	@Autowired
 	private OrderManagementLineService orderManagementLineService;
 	
 	@Autowired
@@ -147,10 +140,10 @@ public class OutboundLineService extends BaseService {
 	private WarehouseService warehouseService;
 
 	@Autowired
-	private ImBasicData1Repository imBasicData1Repository;
-
-	@Autowired
 	private OrderManagementLineRepository orderManagementLineRepository;
+	
+	@Autowired
+	private IntegrationApiResponseRepository integrationApiResponseRepository;
 	
 	/**
 	 * getOutboundLines
@@ -742,35 +735,32 @@ public class OutboundLineService extends BaseService {
 							
 							//---------------------------------------------------------------------------------------------------------------------------
 							//------------------START-------------------------
-							/*
-							 * Pass the selected WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE values and update STATUS_ID as 59 
-							 * for the below tables
-							 * QUALITYLINE, QUALITYHEADER, PICKUPLINE, PICKUPHEADER, ORDERMANAGEMENTLINE, ORDERMANAGEMENTHEADER,
-							 * PREOUTBOUNDHEADER,PREOUTBOUNDLINE
-							 */
-							// QUALITYLINE
+							// QUALITYLINE - NOT REQUIRED TO UPDATE THE STATUS
 							try {
-								UpdateQualityLine updateQualityLine = new UpdateQualityLine();
-								updateQualityLine.setStatusId(59L);
-								List<QualityLine> updatedQualityLine = qualityLineService.updateQualityLine(warehouseId, preOutboundNo, refDocNumber, partnerCode,
-										outboundLine.getLineNumber(), outboundLine.getItemCode(), loginUserID, updateQualityLine);
-								log.info("updatedQualityLine updated : " + updatedQualityLine);
+								List<QualityLine> dbQualityLine = 
+										qualityLineService.getQualityLineForUpdateForDeliverConformation(warehouseId, preOutboundNo, refDocNumber, partnerCode, outboundLine.getLineNumber(), outboundLine.getItemCode());
+								
+//								UpdateQualityLine updateQualityLine = new UpdateQualityLine();
+//								updateQualityLine.setStatusId(59L);
+//								List<QualityLine> updatedQualityLine = qualityLineService.updateQualityLine(warehouseId, preOutboundNo, refDocNumber, partnerCode,
+//										outboundLine.getLineNumber(), outboundLine.getItemCode(), loginUserID, updateQualityLine);
+//								log.info("updatedQualityLine updated : " + updatedQualityLine);
 								
 								// QUALITYHEADER
-								if (!updatedQualityLine.isEmpty()) {
-									UpdateQualityHeader updateQualityHeader = new UpdateQualityHeader();
-									updateQualityHeader.setStatusId(59L);
-									QualityLine qualityLine = updatedQualityLine.get(0);
-									QualityHeader updatedQualityHeader = qualityHeaderService.updateQualityHeader(warehouseId, preOutboundNo, refDocNumber,
-											qualityLine.getQualityInspectionNo(), qualityLine.getActualHeNo(), loginUserID, updateQualityHeader);
-									log.info("QualityInspectionNo : " + qualityLine.getQualityInspectionNo() + ", ActualHeNo : " + qualityLine.getActualHeNo());
-									log.info("updatedQualityHeader updated : " + updatedQualityHeader);
-								}
+//								if (!updatedQualityLine.isEmpty()) {
+//									UpdateQualityHeader updateQualityHeader = new UpdateQualityHeader();
+//									updateQualityHeader.setStatusId(59L);
+//									QualityLine qualityLine = updatedQualityLine.get(0);
+//									QualityHeader updatedQualityHeader = qualityHeaderService.updateQualityHeader(warehouseId, preOutboundNo, refDocNumber,
+//											qualityLine.getQualityInspectionNo(), qualityLine.getActualHeNo(), loginUserID, updateQualityHeader);
+//									log.info("QualityInspectionNo : " + qualityLine.getQualityInspectionNo() + ", ActualHeNo : " + qualityLine.getActualHeNo());
+//									log.info("updatedQualityHeader updated : " + updatedQualityHeader);
+//								}
 								
 								/*-----------------Inventory Updates---------------------------*/
 								// String warehouseId, String itemCode, Long binClassId
 								Long BIN_CL_ID = 5L;
-								for(QualityLine qualityLine : updatedQualityLine) {
+								for(QualityLine qualityLine : dbQualityLine) {
 									List<Inventory> inventoryList = inventoryService.getInventoryForDeliveryConfirmtion (outboundLine.getWarehouseId(),
 											outboundLine.getItemCode(), qualityLine.getPickPackBarCode(), BIN_CL_ID); //pack_bar_code
 									for(Inventory inventory : inventoryList) {
@@ -792,56 +782,56 @@ public class OutboundLineService extends BaseService {
 								}
 							} catch (Exception e) {
 								e.printStackTrace();
-								log.info("Update QualityHeader & line error: [args] " + warehouseId  + "," + preOutboundNo  + "," + refDocNumber  + "," + partnerCode  + "," + 
+								log.info("ERROR: Update QualityHeader & line error: [args] " + warehouseId  + "," + preOutboundNo  + "," + refDocNumber  + "," + partnerCode  + "," + 
 										outboundLine.getLineNumber()  + "," +  outboundLine.getItemCode());
 							}
 							
 							// PICKUPLINE
 							// HAREESH 11/-9/2022 changed to list instead of getting a single row , because of duplication error
-							List<PickupLine> updatedPickupLine = null;
-							try {
-								UpdatePickupLine updatePickupLine = new UpdatePickupLine();
-								updatePickupLine.setStatusId(59L);
-								updatedPickupLine = pickupLineService.updatePickupLineForConfirmation(warehouseId, preOutboundNo, refDocNumber,
-										partnerCode, outboundLine.getLineNumber(), outboundLine.getItemCode(), loginUserID, updatePickupLine);
-								log.info("updatedPickupLine updated : " + updatedPickupLine);
-							
-								// PICKUPHEADER
-								UpdatePickupHeader updatePickupHeader = new UpdatePickupHeader();
-								updatePickupHeader.setStatusId(59L);
-								for(PickupLine pickupLine : updatedPickupLine) {
-									List<PickupHeader> updatedPickupHeader = pickupHeaderService.updatePickupHeaderForConfirmation(warehouseId, preOutboundNo, refDocNumber,
-											partnerCode, pickupLine.getPickupNumber(), pickupLine.getLineNumber(), pickupLine.getItemCode(),
-											loginUserID, updatePickupHeader);
-									log.info("updatedPickupLine updated : " + updatedPickupHeader);
-	
-									// ORDERMANAGEMENTLINE
-									if(updatedPickupHeader != null && !updatedPickupHeader.isEmpty()){
-										UpdateOrderManagementLine updateOrderManagementLine = new UpdateOrderManagementLine();
-										updateOrderManagementLine.setStatusId(59L);
-										OrderManagementLine updatedOrderManagementLine = orderManagementLineService.updateOrderManagementLine(warehouseId,
-												preOutboundNo, refDocNumber, partnerCode, updatedPickupHeader.get(0).getLineNumber(), updatedPickupHeader.get(0).getItemCode(),
-												loginUserID, updateOrderManagementLine);
-										log.info("updatedOrderManagementLine updated : " + updatedOrderManagementLine);
-									}
-								}
-							} catch (Exception e) {
-								e.printStackTrace();
-								log.info("Update PickupLine error: [args] " + warehouseId  + "," + preOutboundNo  + "," + refDocNumber  + "," + partnerCode  + "," + 
-										outboundLine.getLineNumber()  + "," +  outboundLine.getItemCode());
-							}
-							
-							try {
-								// ORDERMANAGEMENTHEADER
-								UpdateOrderManagementHeader updateOrderManagementHeader = new UpdateOrderManagementHeader();
-								updateOrderManagementHeader.setStatusId(59L);
-								OrderManagementHeader updatedOrderManagementHeader = orderManagementHeaderService.updateOrderManagementHeader(warehouseId, 
-										preOutboundNo, refDocNumber, partnerCode, loginUserID, updateOrderManagementHeader);
-								log.info("updatedOrderManagementHeader updated : " + updatedOrderManagementHeader);
-							} catch (Exception e) {
-								e.printStackTrace();
-								log.info("Update OrderManagementHeader error: [args] " + warehouseId  + "," + preOutboundNo  + "," + refDocNumber  + "," + partnerCode );
-							}
+//							List<PickupLine> updatedPickupLine = null;
+//							try {
+//								UpdatePickupLine updatePickupLine = new UpdatePickupLine();
+//								updatePickupLine.setStatusId(59L);
+//								updatedPickupLine = pickupLineService.updatePickupLineForConfirmation(warehouseId, preOutboundNo, refDocNumber,
+//										partnerCode, outboundLine.getLineNumber(), outboundLine.getItemCode(), loginUserID, updatePickupLine);
+//								log.info("updatedPickupLine updated : " + updatedPickupLine);
+//							
+//								// PICKUPHEADER
+//								UpdatePickupHeader updatePickupHeader = new UpdatePickupHeader();
+//								updatePickupHeader.setStatusId(59L);
+//								for(PickupLine pickupLine : updatedPickupLine) {
+//									List<PickupHeader> updatedPickupHeader = pickupHeaderService.updatePickupHeaderForConfirmation(warehouseId, preOutboundNo, refDocNumber,
+//											partnerCode, pickupLine.getPickupNumber(), pickupLine.getLineNumber(), pickupLine.getItemCode(),
+//											loginUserID, updatePickupHeader);
+//									log.info("updatedPickupLine updated : " + updatedPickupHeader);
+//	
+//									// ORDERMANAGEMENTLINE
+//									if(updatedPickupHeader != null && !updatedPickupHeader.isEmpty()){
+//										UpdateOrderManagementLine updateOrderManagementLine = new UpdateOrderManagementLine();
+//										updateOrderManagementLine.setStatusId(59L);
+//										OrderManagementLine updatedOrderManagementLine = orderManagementLineService.updateOrderManagementLine(warehouseId,
+//												preOutboundNo, refDocNumber, partnerCode, updatedPickupHeader.get(0).getLineNumber(), updatedPickupHeader.get(0).getItemCode(),
+//												loginUserID, updateOrderManagementLine);
+//										log.info("updatedOrderManagementLine updated : " + updatedOrderManagementLine);
+//									}
+//								}
+//							} catch (Exception e) {
+//								e.printStackTrace();
+//								log.info("Update PickupLine error: [args] " + warehouseId  + "," + preOutboundNo  + "," + refDocNumber  + "," + partnerCode  + "," + 
+//										outboundLine.getLineNumber()  + "," +  outboundLine.getItemCode());
+//							}
+//							
+//							try {
+//								// ORDERMANAGEMENTHEADER
+//								UpdateOrderManagementHeader updateOrderManagementHeader = new UpdateOrderManagementHeader();
+//								updateOrderManagementHeader.setStatusId(59L);
+//								OrderManagementHeader updatedOrderManagementHeader = orderManagementHeaderService.updateOrderManagementHeader(warehouseId, 
+//										preOutboundNo, refDocNumber, partnerCode, loginUserID, updateOrderManagementHeader);
+//								log.info("updatedOrderManagementHeader updated : " + updatedOrderManagementHeader);
+//							} catch (Exception e) {
+//								e.printStackTrace();
+//								log.info("Update OrderManagementHeader error: [args] " + warehouseId  + "," + preOutboundNo  + "," + refDocNumber  + "," + partnerCode );
+//							}
 							
 							try {
 								// PREOUTBOUNDLINE
@@ -868,12 +858,6 @@ public class OutboundLineService extends BaseService {
 							}
 							
 							/*-------------------Inserting record in InventoryMovement-------------------------------------*/
-							// Fetch WH_ID/REF_DOC_NO/PRE_OB_NO/PARTNER_CODE/OB_LINE_NO/ITM_CODE from Outboundline table and 
-							// pass the same in Qualityline table and fetch the records and update INVENTORYMOVEMENT table
-//							QualityLine qualityLine = 
-//									qualityLineService.getQualityLine(warehouseId, preOutboundNo, refDocNumber, 
-//											partnerCode, outboundLine.getLineNumber(), outboundLine.getItemCode());
-				
 							Long BIN_CLASS_ID = 5L;
 							AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
 							StorageBin storageBin = mastersService.getStorageBin(outboundLine.getWarehouseId(), BIN_CLASS_ID, 
@@ -882,15 +866,15 @@ public class OutboundLineService extends BaseService {
 							String movementDocumentNo = outboundLine.getRefDocNumber();
 							String stBin = storageBin.getStorageBin();
 							String movementQtyValue = "N";
-							if(updatedPickupLine != null) {
-								for(PickupLine pickupLine : updatedPickupLine ){
+							List<PickupLine> dbPickupLine = 
+									pickupLineService.getPickupLineForUpdateConfirmation (warehouseId, preOutboundNo, refDocNumber, partnerCode, outboundLine.getLineNumber(), outboundLine.getItemCode());
+							if(dbPickupLine != null) {
+								for(PickupLine pickupLine : dbPickupLine ){
 									InventoryMovement inventoryMovement = createInventoryMovement(pickupLine, movementDocumentNo, stBin,
 											movementQtyValue, loginUserID, true);
 									log.info("InventoryMovement created : " + inventoryMovement);
 								}
 							}
-							
-							//----------------------END--------------------------------------------------------------------------------------------
 						} catch (Exception e) {
 							log.info("Updating respective tables having Error : " + e.getLocalizedMessage());
 						}
@@ -1206,22 +1190,14 @@ public class OutboundLineService extends BaseService {
 						Inventory inventory = inventoryService.getInventory(pickupLine.getWarehouseId(), pickupLine.getPickedPackCode(),
 								pickupLine.getItemCode(), pickupLine.getPickedStorageBin());
 
-//				Double INV_QTY = inventory.getInventoryQuantity() + pickupLine.getPickConfirmQty();
 						if(inventory != null) {
 							// HAREESH -28-08-2022 change to update allocated qty
-//							if (pickupLine.getStatusId() == 50L && pickupHeader != null) {
-////								Double ALLOC_QTY = (inventory.getAllocatedQuantity() != null ? inventory.getAllocatedQuantity() : 0)  + (pickupLine.getPickConfirmQty() != null ? pickupLine.getPickConfirmQty() : 0);
-////								inventory.setAllocatedQuantity(ALLOC_QTY);
-//							} else {
 							Double INV_QTY = (inventory.getInventoryQuantity() != null ? inventory.getInventoryQuantity() : 0)  + (pickupLine.getPickConfirmQty() != null ? pickupLine.getPickConfirmQty() : 0);
 							if (INV_QTY < 0) {
 								log.info("inventory qty calculated is less than 0: " + INV_QTY);
 								INV_QTY = Double.valueOf(0);
 							}
 							inventory.setInventoryQuantity(INV_QTY);
-//							Double ALLOC_QTY = (inventory.getAllocatedQuantity() != null ? inventory.getAllocatedQuantity() : 0  ) + (pickupHeaderData.getPickToQty() != null ? pickupHeaderData.getPickToQty() : 0);
-//							inventory.setAllocatedQuantity(ALLOC_QTY);
-//							}
 							inventory = inventoryRepository.save(inventory);
 							log.info("inventory updated : " + inventory);
 						}
@@ -1605,10 +1581,20 @@ public class OutboundLineService extends BaseService {
 		 * Posting to AX_API
 		 */
 		AXAuthToken authToken = authTokenService.generateAXOAuthToken();
-		AXApiResponse apiResponse = 
-				warehouseService.postInterWarehouseShipmentConfirmation(interWarehouseShipment, 
+		AXApiResponse apiResponse = warehouseService.postInterWarehouseShipmentConfirmation(interWarehouseShipment, 
 						authToken.getAccess_token());
 		log.info("apiResponse : " + apiResponse);
+		
+		// Capture the AXResponse in Table
+		IntegrationApiResponse response = new IntegrationApiResponse();
+		response.setOrderNumber(toHeader.getTransferOrderNumber());
+		response.setOrderType("OUTBOUND");
+		response.setOrderTypeId(confirmedOutboundHeader.getOutboundOrderTypeId());
+		response.setResponseCode(apiResponse.getStatusCode());
+		response.setResponseText(apiResponse.getMessage());
+		response.setTransDate(new Date());
+		
+		integrationApiResponseRepository.save(response);
 		return apiResponse;
 	}
 	
@@ -1673,6 +1659,16 @@ public class OutboundLineService extends BaseService {
 		AXAuthToken authToken = authTokenService.generateAXOAuthToken();
 		AXApiResponse apiResponse = warehouseService.postShipmentConfirmation(shipment, authToken.getAccess_token());
 		log.info("apiResponse : " + apiResponse);
+		
+		// Capture the AXResponse in Table
+		IntegrationApiResponse response = new IntegrationApiResponse();
+		response.setOrderNumber(toHeader.getTransferOrderNumber());
+		response.setOrderType("OUTBOUND");
+		response.setOrderTypeId(confirmedOutboundHeader.getOutboundOrderTypeId());
+		response.setResponseCode(apiResponse.getStatusCode());
+		response.setResponseText(apiResponse.getMessage());
+		response.setTransDate(new Date());
+		integrationApiResponseRepository.save(response);
 		return apiResponse;
 	}
 	
@@ -1730,6 +1726,16 @@ public class OutboundLineService extends BaseService {
 		AXAuthToken authToken = authTokenService.generateAXOAuthToken();
 		AXApiResponse apiResponse = warehouseService.postReturnPOConfirmation(returnPO, authToken.getAccess_token());
 		log.info("apiResponse : " + apiResponse);
+		
+		IntegrationApiResponse response = new IntegrationApiResponse();
+		response.setOrderNumber(poHeader.getPoNumber());
+		response.setOrderType("OUTBOUND");
+		response.setOrderTypeId(confirmedOutboundHeader.getOutboundOrderTypeId());
+		response.setResponseCode(apiResponse.getStatusCode());
+		response.setResponseText(apiResponse.getMessage());
+		response.setTransDate(new Date());
+		integrationApiResponseRepository.save(response);
+		
 		return apiResponse;
 	}
 	
@@ -1794,11 +1800,16 @@ public class OutboundLineService extends BaseService {
 		AXAuthToken authToken = authTokenService.generateAXOAuthToken();
 		AXApiResponse apiResponse = warehouseService.postSaleOrderConfirmation(salesOrder, authToken.getAccess_token());
 		log.info("apiResponse : " + apiResponse);
+		
+		IntegrationApiResponse response = new IntegrationApiResponse();
+		response.setOrderNumber(soHeader.getSalesOrderNumber());
+		response.setOrderType("OUTBOUND");
+		response.setOrderTypeId(confirmedOutboundHeader.getOutboundOrderTypeId());
+		response.setResponseCode(apiResponse.getStatusCode());
+		response.setResponseText(apiResponse.getMessage());
+		response.setTransDate(new Date());
+		integrationApiResponseRepository.save(response);
+		
 		return apiResponse;
-	}
-
-	public List<OutboundLine> findOutboundLineReport (SearchOutboundLine searchOutboundLine) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

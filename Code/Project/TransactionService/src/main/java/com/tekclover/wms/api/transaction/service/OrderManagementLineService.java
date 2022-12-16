@@ -670,8 +670,7 @@ public class OrderManagementLineService extends BaseService {
 		log.info("Collections------sort-----> : " + finalInventoryList);
 		if (ORD_QTY < maxQtyHoldsInventory.getInventoryQuantity()) {
 			Long STATUS_ID = 0L;
-			Double ALLOC_QTY = 0D;
-			
+			Double ALLOC_QTY = 0D;			
 			Double INV_QTY = maxQtyHoldsInventory.getInventoryQuantity();
 			
 			// INV_QTY

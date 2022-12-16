@@ -13,4 +13,5 @@ public class AXApiResponse {
 	 */
 	private String statusCode;
 	private String message;
+	
 }

@@ -1,6 +1,5 @@
 package com.tekclover.wms.api.transaction.model.impl;
 
-
 import java.util.Date;
 
 public interface OrderStatusReportImpl {

@@ -267,14 +267,6 @@ public class DateUtils {
 //		log.info("convertStringToDate-------> : " + date);
 		return date;
 	}
-
-	public static Date convertSQLtoUtilDate(java.sql.Date date) {
-		if (date != null) {
-			java.util.Date utilDate = new java.util.Date(date.getTime());
-			return utilDate;
-		}
-		return null;
-	}
 	
 	/**
 	 * 

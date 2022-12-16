@@ -21,6 +21,7 @@ import java.util.TimeZone;
 public class TransactionServiceApplication {
 
     public static void main(String[] args) {
+        TimeZone.setDefault(TimeZone.getTimeZone("GMT+3"));
         SpringApplication.run(TransactionServiceApplication.class, args);
     }
 }

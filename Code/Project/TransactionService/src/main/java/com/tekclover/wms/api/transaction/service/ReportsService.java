@@ -816,28 +816,42 @@ public class ReportsService extends BaseService {
 	/**
 	 * getOrderStatusReport
 	 *
+	 * @param warehouseId
+	 * @param fromDeliveryDate
+	 * @param toDeliveryDate
+	 * @param customerCode
+	 * @param orderNumber
+	 * @param orderType
+	 * @param statusId
 	 * @return
 	 * @throws java.text.ParseException
 	 * @throws ParseException
 	 */
-	public List<OrderStatusReport> getOrderStatusReport(OrderStatusReportRequest request) throws ParseException, java.text.ParseException {
+	public List<OrderStatusReport> getOrderStatusReport(String warehouseId, String fromDeliveryDate,
+														String toDeliveryDate, List<String> customerCode, List<String> orderNumber, List<String> orderType,
+														List<Long> statusId) throws ParseException, java.text.ParseException {
 		// WH_ID
-		if (request.getWarehouseId() == null) {
+		if (warehouseId == null) {
 			throw new BadRequestException("WarehouseId can't be blank.");
 		}
 
 		// WH_ID
-		if (request.getFromDeliveryDate() == null || request.getToDeliveryDate() == null) {
+		if (fromDeliveryDate == null || toDeliveryDate == null) {
 			throw new BadRequestException("DeliveryDate can't be blank.");
 		}
 
 		SearchOrderStatusReport searchOutboundLine = new SearchOrderStatusReport();
-		searchOutboundLine.setWarehouseId(request.getWarehouseId());
+		searchOutboundLine.setWarehouseId(warehouseId);
 
-		if(request.getFromDeliveryDate() != null && request.getToDeliveryDate() != null) {
-			Date[] dates = DateUtils.addTimeToDatesForSearch(request.getFromDeliveryDate(),request.getToDeliveryDate());
-			searchOutboundLine.setFromDeliveryDate(dates[0]);
-			searchOutboundLine.setToDeliveryDate(dates[1]);
+		try {
+			Date fromDate = DateUtils.convertStringToDate(fromDeliveryDate);
+			Date toDate = DateUtils.convertStringToDate(toDeliveryDate);
+
+			searchOutboundLine.setFromDeliveryDate(fromDate);
+			searchOutboundLine.setToDeliveryDate(toDate);
+			log.info("Date: " + fromDate + "," + toDate);
+		} catch (Exception e) {
+			throw new BadRequestException("Date shoud be in MM-dd-yyyy format.");
 		}
 
 		List<OrderStatusReportImpl> outboundLineSearchResults = outboundLineService
@@ -845,20 +859,20 @@ public class ReportsService extends BaseService {
 		log.info("outboundLineSearchResults--------> : " + outboundLineSearchResults);
 
 
-		if (request.getCustomerCode() != null && !request.getCustomerCode().isEmpty()) {
-			outboundLineSearchResults = outboundLineSearchResults.stream().filter(data->request.getCustomerCode().contains(data.getPartnerCode())).collect(Collectors.toList());
+		if (customerCode != null && !customerCode.isEmpty()) {
+			outboundLineSearchResults = outboundLineSearchResults.stream().filter(data->customerCode.contains(data.getPartnerCode())).collect(Collectors.toList());
 		}
 
-		if (request.getOrderNumber() != null && !request.getOrderNumber().isEmpty()) {
-			outboundLineSearchResults = outboundLineSearchResults.stream().filter(data->request.getOrderNumber().contains(data.getSoNumber())).collect(Collectors.toList());
+		if (orderNumber != null && !orderNumber.isEmpty()) {
+			outboundLineSearchResults = outboundLineSearchResults.stream().filter(data->orderNumber.contains(data.getSoNumber())).collect(Collectors.toList());
 		}
 
-		if (request.getOrderType() != null && !request.getOrderType().isEmpty()) {
-			outboundLineSearchResults = outboundLineSearchResults.stream().filter(data->request.getOrderType().contains(data.getOrderType())).collect(Collectors.toList());
+		if (orderType != null && !orderType.isEmpty()) {
+			outboundLineSearchResults = outboundLineSearchResults.stream().filter(data->orderType.contains(data.getOrderType())).collect(Collectors.toList());
 		}
 
-		if (request.getStatusId() != null && !request.getStatusId().isEmpty()) {
-			outboundLineSearchResults = outboundLineSearchResults.stream().filter(data->request.getStatusId().contains(data.getStatusId())).collect(Collectors.toList());
+		if (statusId != null && !statusId.isEmpty()) {
+			outboundLineSearchResults = outboundLineSearchResults.stream().filter(data->statusId.contains(data.getStatusId())).collect(Collectors.toList());
 		}
 
 		List<OrderStatusReport> reportOrderStatusReportList = new ArrayList<>();
@@ -873,15 +887,10 @@ public class ReportsService extends BaseService {
 			orderStatusReport.setSkuDescription(outboundLine.getItemDescription()); // ITEM_TEXT
 			orderStatusReport.setOrderedQty(outboundLine.getOrderedQty()); // ORD_QTY
 			orderStatusReport.setDeliveredQty(outboundLine.getDeliveryQty()); // DLV_QTY
-			orderStatusReport.setOrderType(outboundLine.getOrderType());
-			orderStatusReport.setDeliveryConfirmedOn(outboundLine.getDeliveryConfirmedOn());
+			orderStatusReport.setDeliveryConfirmedOn(outboundLine.getDeliveryConfirmedOn());// DLV_CNF_ON
 			orderStatusReport.setOrderReceivedDate(outboundLine.getRefDocDate());
 			orderStatusReport.setExpectedDeliveryDate(outboundLine.getRequiredDeliveryDate());
-
-			//Date to string conversion
-//			orderStatusReport.setDeliveryConfirmedOn(DateUtils.convertSQLtoUtilDate(outboundLine.getDeliveryConfirmedOn()));
-//			orderStatusReport.setOrderReceivedDate(DateUtils.convertSQLtoUtilDate(outboundLine.getRefDocDate()));
-//			orderStatusReport.setExpectedDeliveryDate(DateUtils.convertSQLtoUtilDate(outboundLine.getRequiredDeliveryDate()));
+			orderStatusReport.setOrderType(outboundLine.getOrderType());
 
 			// % of Delivered - (DLV_QTY/ORD_QTY)*100
 			double deliveryQty = 0;

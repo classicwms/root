@@ -1,9 +1,9 @@
 package com.tekclover.wms.api.transaction.model.report;
 
-import lombok.Data;
-
 import java.util.Date;
 import java.util.List;
+
+import lombok.Data;
 
 @Data
 public class SearchOrderStatusReport {
@@ -25,8 +25,5 @@ public class SearchOrderStatusReport {
 	private List<String> refDocNumber;	// REF_DOC_NO
 	private List<String> orderType; 	// REF_FIELD_1
 	private List<Long> statusId;		// STATUS_ID
-
-	private List<String> customerCode;
-	private List<String> orderNumber;
 	
 }
