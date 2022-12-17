@@ -839,7 +839,7 @@ public class OutboundLineService extends BaseService {
 								updatePreOutboundLine.setStatusId(59L);
 								PreOutboundLine updatedPreOutboundLine = preOutboundLineService.updatePreOutboundLine(warehouseId, refDocNumber,
 										preOutboundNo, partnerCode, loginUserID, updatePreOutboundLine);
-								log.info("updatedPreOutboundLine updated : " + updatedPreOutboundLine);
+//								log.info("updatedPreOutboundLine updated : " + updatedPreOutboundLine);
 							} catch (Exception e) {
 								e.printStackTrace();
 								log.info("Update PreOutboundLine error: [args] " + warehouseId  + "," + preOutboundNo  + "," + refDocNumber  + "," + partnerCode );

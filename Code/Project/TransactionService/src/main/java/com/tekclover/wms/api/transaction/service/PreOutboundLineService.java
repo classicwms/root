@@ -172,7 +172,7 @@ public class PreOutboundLineService extends BaseService {
 			BeanUtils.copyProperties(updatePreOutboundLine, dbPreOutboundLine, CommonUtils.getNullPropertyNames(updatePreOutboundLine));
 			dbPreOutboundLine.setUpdatedBy(loginUserID);
 			dbPreOutboundLine.setUpdatedOn(new Date());
-			return preOutboundLineRepository.save(dbPreOutboundLine);
+			dbPreOutboundLine = preOutboundLineRepository.save(dbPreOutboundLine);
 		}
 		return null;
 	}
