@@ -22,6 +22,11 @@ import com.tekclover.wms.api.transaction.model.inbound.InboundLine;
 import com.tekclover.wms.api.transaction.model.inbound.InboundLineEntity;
 import com.tekclover.wms.api.transaction.model.inbound.SearchInboundHeader;
 import com.tekclover.wms.api.transaction.model.inbound.UpdateInboundHeader;
+import com.tekclover.wms.api.transaction.model.inbound.preinbound.PreInboundHeader;
+import com.tekclover.wms.api.transaction.model.inbound.preinbound.PreInboundLineEntity;
+import com.tekclover.wms.api.transaction.model.inbound.putaway.PutAwayHeader;
+import com.tekclover.wms.api.transaction.model.inbound.putaway.PutAwayLine;
+import com.tekclover.wms.api.transaction.model.inbound.staging.StagingLineEntity;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.confirmation.ASN;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.confirmation.ASNHeader;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.confirmation.ASNLine;
@@ -370,87 +375,87 @@ public class InboundHeaderService extends BaseService {
 		boolean sendConfirmationToAX = false;
 		
 		// Checking relevant tables for sending confirmation to AX
-//		for (InboundLine dbInboundLine : dbInboundLines) {
-//			/*
-//			 * -----------Putaway Validation---------------------------
-//			 * Validate putwayLines whether statusId is 20 OR 22
-//			 */
-//			long matchedCount = 0;
-//			List<Boolean> validationStatusList = new ArrayList<>();
-//			try {
-//				List<PutAwayLine> putAwayLineList = 
-//					putAwayLineService.getPutAwayLine(warehouseId, preInboundNo, refDocNumber, dbInboundLine.getLineNo(), 
-//							dbInboundLine.getItemCode());
-//				List<Long> paStatusList = putAwayLineList.stream().map(PutAwayLine::getStatusId).collect(Collectors.toList());
-//				matchedCount = paStatusList.stream().filter(a -> a == 20L || a == 22L).count();
-//				boolean isConditionMet = (matchedCount == paStatusList.size());
-//				log.info("PutAwayLine status condition check : " + isConditionMet);
-//				
-//				if (!isConditionMet) {
-//					throw new BadRequestException("Error on Inbound Confirmation: PutAwayLines are NOT processed completely.");
-//				}
-//				validationStatusList.add(isConditionMet);
-//				log.info("PutAwayLine status----> : " + paStatusList);
-//				
-//			} catch (Exception e) {
-//				log.error("Record not found: getPutAwayLine : " + e.getLocalizedMessage());
-//				throw e;
-//			}
-//			
-//			/*
-//			 * Pass WH_ID/PRE_IB_NO/REF_DOC_NO values in PUTAWAYHEADER table and 
-//			 * Validate STATUS_ID of all the values = 20 or 22
-//			 */
-//			try {
-//				List<PutAwayHeader> putAwayHeaderList = putAwayHeaderService.getPutAwayHeader(warehouseId, preInboundNo, refDocNumber);
-//				List<Long> paheaderStatusList = putAwayHeaderList.stream().map(PutAwayHeader::getStatusId).collect(Collectors.toList());
-//				matchedCount = paheaderStatusList.stream().filter(a -> a == 20L || a == 22L).count();
-//				boolean isConditionMet = (matchedCount == paheaderStatusList.size());
-//				log.info("PutAwayHeader status condition check : " + isConditionMet);
-//				
-//				if (!isConditionMet) {
-//					throw new BadRequestException("Error on Inbound Confirmation: PutAwayHeaders are NOT processed completely.");
-//				}
-//				
-//				validationStatusList.add(isConditionMet);
-//				log.info("PutAwayHeader status----> : " + paheaderStatusList);
-//			} catch (Exception e) {
-//				log.error("Record not found for getPutAwayHeader : " + e.getLocalizedMessage());
-//				throw e;
-//			}
-//			
-//			/*
-//			 * -----------StagingLine Validation---------------------------
-//			 * Validate StagingLine whether statusId is 17 OR 14
-//			 */
-//			try {
-//				List<StagingLineEntity> stagingLineList = stagingLineService.getStagingLine(warehouseId, refDocNumber, preInboundNo, dbInboundLine.getLineNo(), dbInboundLine.getItemCode());
-//				List<Long> stagingLineStatusList = stagingLineList.stream().map(StagingLineEntity::getStatusId).collect(Collectors.toList());
-//				matchedCount = stagingLineStatusList.stream().filter(a -> a == 14L || a == 17L).count();
-//				boolean isConditionMet = (matchedCount <= stagingLineStatusList.size());
-//				log.info("StagingLine status condition check : " + isConditionMet);
-//				
-//				if (!isConditionMet) {
-//					throw new BadRequestException("Error on Inbound Confirmation: StagingLines are NOT processed completely.");
-//				}
-//				
-//				validationStatusList.add(isConditionMet);
-//				log.info("StagingLine status----> : " + stagingLineStatusList);
-//			} catch (Exception e) {
-//				log.error("Record not found for getStagingLine: " + e.getLocalizedMessage());
-//				throw e;
-//			}
-//			
-//			long conditionCount = validationStatusList.stream().filter(b -> b == true).count();
-//			log.info("conditionCount : " + conditionCount);
-//			log.info("conditionCount ----> : " + (conditionCount == validationStatusList.size()));
-//			
-//			if (conditionCount == validationStatusList.size() && dbInboundLine.getStatusId() == 20) {
-//				sendConfirmationToAX = true;
-//			} else {
-//				throw new BadRequestException("Order is NOT completely processed : " + conditionCount + "," + dbInboundLine.getStatusId());
-//			}
-//		}
+		for (InboundLine dbInboundLine : dbInboundLines) {
+			/*
+			 * -----------Putaway Validation---------------------------
+			 * Validate putwayLines whether statusId is 20 OR 22
+			 */
+			long matchedCount = 0;
+			List<Boolean> validationStatusList = new ArrayList<>();
+			try {
+				List<PutAwayLine> putAwayLineList = 
+					putAwayLineService.getPutAwayLine(warehouseId, preInboundNo, refDocNumber, dbInboundLine.getLineNo(), 
+							dbInboundLine.getItemCode());
+				List<Long> paStatusList = putAwayLineList.stream().map(PutAwayLine::getStatusId).collect(Collectors.toList());
+				matchedCount = paStatusList.stream().filter(a -> a == 20L || a == 22L).count();
+				boolean isConditionMet = (matchedCount == paStatusList.size());
+				log.info("PutAwayLine status condition check : " + isConditionMet);
+				
+				if (!isConditionMet) {
+					throw new BadRequestException("Error on Inbound Confirmation: PutAwayLines are NOT processed completely.");
+				}
+				validationStatusList.add(isConditionMet);
+				log.info("PutAwayLine status----> : " + paStatusList);
+				
+			} catch (Exception e) {
+				log.error("Record not found: getPutAwayLine : " + e.getLocalizedMessage());
+				throw e;
+			}
+			
+			/*
+			 * Pass WH_ID/PRE_IB_NO/REF_DOC_NO values in PUTAWAYHEADER table and 
+			 * Validate STATUS_ID of all the values = 20 or 22
+			 */
+			try {
+				List<PutAwayHeader> putAwayHeaderList = putAwayHeaderService.getPutAwayHeader(warehouseId, preInboundNo, refDocNumber);
+				List<Long> paheaderStatusList = putAwayHeaderList.stream().map(PutAwayHeader::getStatusId).collect(Collectors.toList());
+				matchedCount = paheaderStatusList.stream().filter(a -> a == 20L || a == 22L).count();
+				boolean isConditionMet = (matchedCount == paheaderStatusList.size());
+				log.info("PutAwayHeader status condition check : " + isConditionMet);
+				
+				if (!isConditionMet) {
+					throw new BadRequestException("Error on Inbound Confirmation: PutAwayHeaders are NOT processed completely.");
+				}
+				
+				validationStatusList.add(isConditionMet);
+				log.info("PutAwayHeader status----> : " + paheaderStatusList);
+			} catch (Exception e) {
+				log.error("Record not found for getPutAwayHeader : " + e.getLocalizedMessage());
+				throw e;
+			}
+			
+			/*
+			 * -----------StagingLine Validation---------------------------
+			 * Validate StagingLine whether statusId is 17 OR 14
+			 */
+			try {
+				List<StagingLineEntity> stagingLineList = stagingLineService.getStagingLine(warehouseId, refDocNumber, preInboundNo, dbInboundLine.getLineNo(), dbInboundLine.getItemCode());
+				List<Long> stagingLineStatusList = stagingLineList.stream().map(StagingLineEntity::getStatusId).collect(Collectors.toList());
+				matchedCount = stagingLineStatusList.stream().filter(a -> a == 14L || a == 17L).count();
+				boolean isConditionMet = (matchedCount <= stagingLineStatusList.size());
+				log.info("StagingLine status condition check : " + isConditionMet);
+				
+				if (!isConditionMet) {
+					throw new BadRequestException("Error on Inbound Confirmation: StagingLines are NOT processed completely.");
+				}
+				
+				validationStatusList.add(isConditionMet);
+				log.info("StagingLine status----> : " + stagingLineStatusList);
+			} catch (Exception e) {
+				log.error("Record not found for getStagingLine: " + e.getLocalizedMessage());
+				throw e;
+			}
+			
+			long conditionCount = validationStatusList.stream().filter(b -> b == true).count();
+			log.info("conditionCount : " + conditionCount);
+			log.info("conditionCount ----> : " + (conditionCount == validationStatusList.size()));
+			
+			if (conditionCount == validationStatusList.size() && dbInboundLine.getStatusId() == 20) {
+				sendConfirmationToAX = true;
+			} else {
+				throw new BadRequestException("Order is NOT completely processed : " + conditionCount + "," + dbInboundLine.getStatusId());
+			}
+		}
 		
 		/*
 		 * -----------Send Confirmation details to MS Dynamics through API----------------------- 
@@ -459,7 +464,7 @@ public class InboundHeaderService extends BaseService {
 		 * Once the response is 200 then, we need to update inboundline and header table with StatusId = 24.
 		 * */
 		AXApiResponse axapiResponse = null;
-		//if (sendConfirmationToAX) {
+		if (sendConfirmationToAX) {
 			try {
 				InboundHeader confirmedInboundHeader = getInboundHeaderByEntity(warehouseId, refDocNumber, preInboundNo);
 				List<InboundLine> confirmedInboundLines = 
@@ -494,88 +499,88 @@ public class InboundHeaderService extends BaseService {
 				log.error("AXApiResponse error: " + e.toString());
 				e.printStackTrace();
 			}
-		//}
+		}
 		
 		// If AX throws any error then, return the Error response
-//		if (axapiResponse != null && axapiResponse.getStatusCode() != null && !axapiResponse.getStatusCode().equalsIgnoreCase("200")) {
-//			String errorFromAXAPI = axapiResponse.getMessage();
-//			AXApiResponse axapiErrorResponse = new AXApiResponse();
-//			axapiErrorResponse.setStatusCode("400");
-//			axapiErrorResponse.setMessage("Error from AX: " + errorFromAXAPI);
-//			return axapiErrorResponse;
-//		}
+		if (axapiResponse != null && axapiResponse.getStatusCode() != null && !axapiResponse.getStatusCode().equalsIgnoreCase("200")) {
+			String errorFromAXAPI = axapiResponse.getMessage();
+			AXApiResponse axapiErrorResponse = new AXApiResponse();
+			axapiErrorResponse.setStatusCode("400");
+			axapiErrorResponse.setMessage("Error from AX: " + errorFromAXAPI);
+			return axapiErrorResponse;
+		}
 		
 		// Update relevant tables once AXResponse is success
 		Long statusId = 24L;
-//		for (InboundLine dbInboundLine : dbInboundLines) {
-//			// Checking the AX-API response
-//			if (axapiResponse != null && axapiResponse.getStatusCode() != null && 
-//					axapiResponse.getStatusCode().equalsIgnoreCase("200")) {
-//				// Checking the status of Line record whether Status = 20
-//				try {
-//					BeanUtils.copyProperties(dbInboundLine, dbInboundLine, CommonUtils.getNullPropertyNames(dbInboundLine));
-//					dbInboundLine.setStatusId(statusId);
-//					dbInboundLine.setConfirmedBy(loginUserID);
-//					dbInboundLine.setConfirmedOn(new Date());
-//					dbInboundLine.setUpdatedBy(loginUserID);
-//					dbInboundLine.setUpdatedOn(new Date());
-//					dbInboundLine = inboundLineRepository.save(dbInboundLine);
-//					log.info("dbInboundLine updated : " + dbInboundLine);
-//				} catch (Exception e1) {
-//					log.error("InboundLine update error: " + e1.toString());
-//					e1.printStackTrace();
-//				}
-//		
-//				try {
-//					// Inbound Header Update
-//					InboundHeader dbInboundHeader = getInboundHeaderByEntity(warehouseId, refDocNumber, preInboundNo);
-//					dbInboundHeader.setStatusId(statusId);
-//					dbInboundHeader.setUpdatedBy(loginUserID);
-//					dbInboundHeader.setUpdatedOn(new Date());
-//					dbInboundHeader.setConfirmedBy(loginUserID);
-//					dbInboundHeader.setConfirmedOn(new Date());
-//					dbInboundHeader = inboundHeaderRepository.save(dbInboundHeader);
-//					log.info("InboundHeader updated : " + dbInboundHeader);
-//				} catch (Exception e1) {
-//					log.info("InboundHeader update error: " + dbInboundLine);
-//					e1.printStackTrace();
-//				}
-//				
-//				// PREINBOUND table updates
-//				try {
-//					PreInboundHeader preInboundHeader = preInboundHeaderService.updatePreInboundHeader(preInboundNo, warehouseId, 
-//							refDocNumber, statusId, loginUserID);
-//					log.info("PreInboundHeader updated : " + preInboundHeader);
-//					
-//					PreInboundLineEntity preInboundLine = preInboundLineService.updatePreInboundLine(preInboundNo, warehouseId, 
-//							refDocNumber, dbInboundLine.getLineNo(), dbInboundLine.getItemCode(), statusId, loginUserID);
-//					log.info("PreInboundLine updated : " + preInboundLine);
-//				} catch (Exception e1) {
-//					log.error("PreInboundHeader & line update error: " + e1.toString());
-//					e1.printStackTrace();
-//				}	
-//				
-//				try {
-//					// GRHEADER table updates
-//					grHeaderService.updateGrHeader(warehouseId, preInboundNo, refDocNumber, dbInboundLine.getLineNo(), 
-//							dbInboundLine.getItemCode(), statusId, loginUserID);
-//					log.info("grHeaderService updated : ");
-//				} catch (Exception e) {
-//					log.error("grHeaderService update error: " + e.getLocalizedMessage());
-//					e.printStackTrace();
-//				}	
-//			
-//				try {
-//					// STAGINGHEADER table updates
-//					stagingHeaderService.updateStagingHeader(warehouseId, preInboundNo, refDocNumber, dbInboundLine.getLineNo(), 
-//							dbInboundLine.getItemCode(), statusId, loginUserID);
-//					log.info("stagingHeaderService updated : ");
-//				} catch (Exception e) {
-//					log.error("stagingHeaderService update error: " + e.getLocalizedMessage());
-//					e.printStackTrace();
-//				}
-//			}
-//		}
+		for (InboundLine dbInboundLine : dbInboundLines) {
+			// Checking the AX-API response
+			if (axapiResponse != null && axapiResponse.getStatusCode() != null && 
+					axapiResponse.getStatusCode().equalsIgnoreCase("200")) {
+				// Checking the status of Line record whether Status = 20
+				try {
+					BeanUtils.copyProperties(dbInboundLine, dbInboundLine, CommonUtils.getNullPropertyNames(dbInboundLine));
+					dbInboundLine.setStatusId(statusId);
+					dbInboundLine.setConfirmedBy(loginUserID);
+					dbInboundLine.setConfirmedOn(new Date());
+					dbInboundLine.setUpdatedBy(loginUserID);
+					dbInboundLine.setUpdatedOn(new Date());
+					dbInboundLine = inboundLineRepository.save(dbInboundLine);
+					log.info("dbInboundLine updated : " + dbInboundLine);
+				} catch (Exception e1) {
+					log.error("InboundLine update error: " + e1.toString());
+					e1.printStackTrace();
+				}
+		
+				try {
+					// Inbound Header Update
+					InboundHeader dbInboundHeader = getInboundHeaderByEntity(warehouseId, refDocNumber, preInboundNo);
+					dbInboundHeader.setStatusId(statusId);
+					dbInboundHeader.setUpdatedBy(loginUserID);
+					dbInboundHeader.setUpdatedOn(new Date());
+					dbInboundHeader.setConfirmedBy(loginUserID);
+					dbInboundHeader.setConfirmedOn(new Date());
+					dbInboundHeader = inboundHeaderRepository.save(dbInboundHeader);
+					log.info("InboundHeader updated : " + dbInboundHeader);
+				} catch (Exception e1) {
+					log.info("InboundHeader update error: " + dbInboundLine);
+					e1.printStackTrace();
+				}
+				
+				// PREINBOUND table updates
+				try {
+					PreInboundHeader preInboundHeader = preInboundHeaderService.updatePreInboundHeader(preInboundNo, warehouseId, 
+							refDocNumber, statusId, loginUserID);
+					log.info("PreInboundHeader updated : " + preInboundHeader);
+					
+					PreInboundLineEntity preInboundLine = preInboundLineService.updatePreInboundLine(preInboundNo, warehouseId, 
+							refDocNumber, dbInboundLine.getLineNo(), dbInboundLine.getItemCode(), statusId, loginUserID);
+					log.info("PreInboundLine updated : " + preInboundLine);
+				} catch (Exception e1) {
+					log.error("PreInboundHeader & line update error: " + e1.toString());
+					e1.printStackTrace();
+				}	
+				
+				try {
+					// GRHEADER table updates
+					grHeaderService.updateGrHeader(warehouseId, preInboundNo, refDocNumber, dbInboundLine.getLineNo(), 
+							dbInboundLine.getItemCode(), statusId, loginUserID);
+					log.info("grHeaderService updated : ");
+				} catch (Exception e) {
+					log.error("grHeaderService update error: " + e.getLocalizedMessage());
+					e.printStackTrace();
+				}	
+			
+				try {
+					// STAGINGHEADER table updates
+					stagingHeaderService.updateStagingHeader(warehouseId, preInboundNo, refDocNumber, dbInboundLine.getLineNo(), 
+							dbInboundLine.getItemCode(), statusId, loginUserID);
+					log.info("stagingHeaderService updated : ");
+				} catch (Exception e) {
+					log.error("stagingHeaderService update error: " + e.getLocalizedMessage());
+					e.printStackTrace();
+				}
+			}
+		}
 		return axapiResponse;
 	}
 	
