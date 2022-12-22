@@ -8,6 +8,9 @@ import javax.transaction.Transactional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.tekclover.wms.api.transaction.model.inbound.InboundHeader;
@@ -55,4 +58,14 @@ public interface InboundHeaderRepository extends JpaRepository<InboundHeader,Lon
 
 	long countByWarehouseIdAndConfirmedOnBetweenAndStatusIdAndDeletionIndicator(
 			String warehouseId, Date fromDate, Date toDate,Long statusId,Long deletionIndicator);
+	
+	/**
+	 * 
+	 * @param rssFeedEntryId
+	 * @param isRead
+	 */
+	@Modifying(clearAutomatically = true)
+	@Query("UPDATE InboundHeader ib SET ib.statusId = :statusId WHERE ib.warehouseId = :warehouseId AND ib.refDocNumber = :refDocNumber")
+	void updateInboundHeaderStatus(@Param ("warehouseId") String warehouseId,
+			@Param ("refDocNumber") String refDocNumber, @Param ("statusId") Long statusId);
 }

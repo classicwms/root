@@ -5,6 +5,9 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,4 +68,14 @@ public interface StagingHeaderRepository extends JpaRepository<StagingHeader,Lon
 	 */
 	public List<StagingHeader> findByWarehouseIdAndStatusIdAndDeletionIndicator (String warehouseId, 
 			Long statusId, Long deletionIndicator);
+	
+	/**
+	 * 
+	 * @param rssFeedEntryId
+	 * @param isRead
+	 */
+	@Modifying(clearAutomatically = true)
+	@Query("UPDATE StagingHeader ib SET ib.statusId = :statusId WHERE ib.warehouseId = :warehouseId AND ib.refDocNumber = :refDocNumber")
+	void updateStagingHeaderStatus(@Param ("warehouseId") String warehouseId,
+			@Param ("refDocNumber") String refDocNumber, @Param ("statusId") Long statusId);
 }

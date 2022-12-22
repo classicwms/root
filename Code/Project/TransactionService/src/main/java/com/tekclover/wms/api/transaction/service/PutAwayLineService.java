@@ -121,6 +121,18 @@ public class PutAwayLineService extends BaseService {
 	}
 	
 	/**
+	 * getPutAwayLineByStatusId
+	 * @param warehouseId
+	 * @param preInboundNo
+	 * @param refDocNumber
+	 * @return
+	 */
+	public long getPutAwayLineByStatusId (String warehouseId, String preInboundNo, String refDocNumber) {
+		long putAwayLineStatusIdCount = putAwayLineRepository.getPutawayLineCountByStatusId(getCompanyCode(), getPlantId(), warehouseId, preInboundNo, refDocNumber);
+		return putAwayLineStatusIdCount;
+	}
+	
+	/**
 	 * 
 	 * @param warehouseId
 	 * @param refDocNumber
@@ -378,6 +390,10 @@ public class PutAwayLineService extends BaseService {
 						inventory.setCreatedOn(createdPutAwayLine.getCreatedOn());
 						Inventory createdInventory = inventoryRepository.save(inventory);
 						log.info("createdInventory : " + createdInventory);
+						
+						// Updating StorageBin StatusId as '1'
+						dbStorageBin.setStatusId(1L);
+						mastersService.updateStorageBin(dbPutAwayLine.getConfirmedStorageBin(), dbStorageBin, loginUserID, authTokenForMastersService.getAccess_token());
 						
 						List<PutAwayHeader> headers = putAwayHeaderService.getPutAwayHeader(createdPutAwayLine.getWarehouseId(), 
 								createdPutAwayLine.getPreInboundNo(), createdPutAwayLine.getRefDocNumber(), createdPutAwayLine.getPutAwayNumber());

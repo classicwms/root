@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -85,7 +86,17 @@ public interface InboundLineRepository extends JpaRepository<InboundLine,Long>, 
 	public Double getQuantityByRefDocNoAndPreInboundNoAndLineNoAndItemCode(@Param("itemCode") String itemCode,
 																		 @Param ("refDocNo") String refDocNo,
 																		 @Param ("preInboundNo") String preInboundNo,
-																		   @Param ("lineNo") Long lineNo,
-																		   @Param ("warehouseId") String warehouseId);
+																		 @Param ("lineNo") Long lineNo,
+																		 @Param ("warehouseId") String warehouseId);
+	
+	/**
+	 * 
+	 * @param rssFeedEntryId
+	 * @param isRead
+	 */
+	@Modifying(clearAutomatically = true)
+	@Query("UPDATE InboundLine ib SET ib.statusId = :statusId WHERE ib.warehouseId = :warehouseId AND ib.refDocNumber = :refDocNumber")
+	void updateInboundLineStatus(@Param ("warehouseId") String warehouseId,
+			@Param ("refDocNumber") String refDocNumber, @Param ("statusId") Long statusId);
 }
 

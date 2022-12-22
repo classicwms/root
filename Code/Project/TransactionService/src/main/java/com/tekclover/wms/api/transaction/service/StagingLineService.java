@@ -147,6 +147,18 @@ public class StagingLineService extends BaseService {
 	/**
 	 * 
 	 * @param warehouseId
+	 * @param preInboundNo
+	 * @param refDocNumber
+	 * @return
+	 */
+	public long getStagingLineByStatusId (String warehouseId, String preInboundNo, String refDocNumber) {
+		long putAwayLineStatusIdCount = stagingLineEntityRepository.getStagingLineCountByStatusId(getCompanyCode(), getPlantId(), warehouseId, preInboundNo, refDocNumber);
+		return putAwayLineStatusIdCount;
+	}
+	
+	/**
+	 * 
+	 * @param warehouseId
 	 * @param refDocNumber
 	 * @param preInboundNo
 	 * @param lineNo

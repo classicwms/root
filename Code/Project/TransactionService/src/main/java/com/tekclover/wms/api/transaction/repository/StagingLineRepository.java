@@ -5,6 +5,8 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -82,6 +84,15 @@ public interface StagingLineRepository extends JpaRepository<StagingLineEntity,L
 		findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndLineNoAndItemCodeAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId, String preInboundNo,
 			String refDocNumber, Long lineNo, String itemCode, Long deletionIndicator);
+	
+	@Query(value="SELECT COUNT(*) FROM tblstagingline WHERE LANG_ID ='EN' AND C_ID = :companyId AND PLANT_ID = :plantId AND WH_ID = :warehouseId \r\n"
+			+ "AND PRE_IB_NO = :preInboundNo AND REF_DOC_NO = :refDocNumber AND STATUS_ID IN (14, 17) AND IS_DELETED = 0", nativeQuery=true)
+    public long getStagingLineCountByStatusId(
+    		@Param ("companyId") String companyId,
+			@Param ("plantId") String plantId,
+			@Param ("warehouseId") String warehouseId,
+			@Param ("preInboundNo") String preInboundNo,
+			@Param ("refDocNumber") String refDocNumber); 
 
 	public List<StagingLineEntity> findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndLineNoAndItemCodeAndCaseCodeAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId, String refDocNumber,

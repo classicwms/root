@@ -177,6 +177,18 @@ public class PutAwayHeaderService extends BaseService {
 	
 	/**
 	 * 
+	 * @param warehouseId
+	 * @param preInboundNo
+	 * @param refDocNumber
+	 * @return
+	 */
+	public long getPutawayHeaderByStatusId (String warehouseId, String preInboundNo, String refDocNumber) {
+		long putAwayHeaderStatusIdCount = putAwayHeaderRepository.getPutawayHeaderCountByStatusId(getCompanyCode(), getPlantId(), warehouseId, preInboundNo, refDocNumber);
+		return putAwayHeaderStatusIdCount;
+	}
+	
+	/**
+	 * 
 	 * @param refDocNumber
 	 * @param packBarcodes
 	 * @return

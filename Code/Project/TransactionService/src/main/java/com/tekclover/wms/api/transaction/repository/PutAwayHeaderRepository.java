@@ -7,6 +7,8 @@ import javax.transaction.Transactional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.tekclover.wms.api.transaction.model.inbound.putaway.PutAwayHeader;
@@ -70,6 +72,24 @@ public interface PutAwayHeaderRepository extends JpaRepository<PutAwayHeader,Lon
 	public List<PutAwayHeader> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPreInboundNoAndRefDocNumberAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId, String preInboundNo,
 			String refDocNumber, Long deletionIndicator);
+	
+	/**
+	 * 
+	 * @param companyId
+	 * @param plantId
+	 * @param warehouseId
+	 * @param preInboundNo
+	 * @param refDocNumber
+	 * @return
+	 */
+	@Query(value="SELECT COUNT(*) FROM tblputawayheader WHERE LANG_ID ='EN' AND C_ID = :companyId AND PLANT_ID = :plantId AND WH_ID = :warehouseId \r\n"
+			+ "AND PRE_IB_NO = :preInboundNo AND REF_DOC_NO = :refDocNumber AND STATUS_ID IN (20, 22) AND IS_DELETED = 0", nativeQuery=true)
+    public long getPutawayHeaderCountByStatusId(
+    		@Param ("companyId") String companyId,
+			@Param ("plantId") String plantId,
+			@Param ("warehouseId") String warehouseId,
+			@Param ("preInboundNo") String preInboundNo,
+			@Param ("refDocNumber") String refDocNumber); 
 
 	/**
 	 * 
