@@ -245,12 +245,24 @@ public class BomHeaderService extends BaseService {
 		
 		List<UpdateBomLine> updateBomLines = new ArrayList<>();
 		for (UpdateBomLine updateBomLine : updateBomHeader.getBomLines()) {
-			BomLine bomLine = bomLineService.updateBomLine(warehouseId, updateBomLine.getBomNumber(), 
-					updateBomLine.getChildItemCode(), loginUserID, updateBomLine);
-			
-			UpdateBomLine updatedBomLine = new UpdateBomLine ();
-			BeanUtils.copyProperties(bomLine, updatedBomLine, CommonUtils.getNullPropertyNames(bomLine));
-			updateBomLines.add(updatedBomLine);
+			if(updateBomLine.getBomNumber() != null) {
+				BomLine bomLine = bomLineService.updateBomLine(warehouseId, updateBomLine.getBomNumber(),
+						updateBomLine.getChildItemCode(), loginUserID, updateBomLine);
+
+				UpdateBomLine updatedBomLine = new UpdateBomLine ();
+				BeanUtils.copyProperties(bomLine, updatedBomLine, CommonUtils.getNullPropertyNames(bomLine));
+				updateBomLines.add(updatedBomLine);
+			} else {
+				AddBomLine newBomLine = new AddBomLine();
+				BeanUtils.copyProperties(updateBomLine, newBomLine, CommonUtils.getNullPropertyNames(updateBomLine));
+				newBomLine.setBomNumber(dbBomHeader.getBomNumber());
+				BomLine bomLine = bomLineService.createBomLine(newBomLine, loginUserID);
+
+				UpdateBomLine updatedBomLine = new UpdateBomLine ();
+				BeanUtils.copyProperties(bomLine, updatedBomLine, CommonUtils.getNullPropertyNames(bomLine));
+				updateBomLines.add(updatedBomLine);
+			}
+
 		}
 		
 		UpdateBomHeader updatedBomHeader = new UpdateBomHeader ();

@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.masters.model.impl.ItemListImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -79,7 +80,7 @@ public class ImBasicData1Controller {
 	
 	@ApiOperation(response = ImBasicData1.class, value = "Like Search ImBasicData1") // label for swagger
 	@GetMapping("/findItemCodeByLike")
-	public List<ItemCodeDesc> getImBasicData1LikeSearch(@RequestParam String likeSearchByItemCodeNDesc)
+	public List<ItemListImpl> getImBasicData1LikeSearch(@RequestParam String likeSearchByItemCodeNDesc)
 			throws Exception {
 		return imbasicdata1Service.findImBasicData1LikeSearch(likeSearchByItemCodeNDesc);
 	}

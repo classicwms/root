@@ -7,7 +7,7 @@ public class UpdateBomLine {
 
 	private String languageId;
 	
-	private String companyCodeId;
+	private String companyCode;
 
 	private String plantId;
 

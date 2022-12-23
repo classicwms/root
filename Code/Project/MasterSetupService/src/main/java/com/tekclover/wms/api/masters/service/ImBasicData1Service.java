@@ -8,6 +8,8 @@ import java.util.Optional;
 
 import javax.persistence.EntityNotFoundException;
 
+import com.tekclover.wms.api.masters.exception.BadRequestException;
+import com.tekclover.wms.api.masters.model.impl.ItemListImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -125,19 +127,14 @@ public class ImBasicData1Service {
 	 * @param likeSearchByItemCodeNDesc
 	 * @return
 	 */
-	public List<ItemCodeDesc> findImBasicData1LikeSearch(String likeSearchByItemCodeNDesc) {
-		likeSearchByItemCodeNDesc = "%" + likeSearchByItemCodeNDesc + "%";
-		List<ImBasicData1> imBasicData1List = 
-				imbasicdata1Repository.findByItemCodeLikeAndDescriptionLike(likeSearchByItemCodeNDesc, likeSearchByItemCodeNDesc);
-		List<ItemCodeDesc> listItemCodeDesc = new ArrayList<>();
-		for (ImBasicData1 imBasicData1 : imBasicData1List) {
-			ItemCodeDesc itemCodeDesc = new ItemCodeDesc();
-			itemCodeDesc.setItemCode(imBasicData1.getItemCode());
-			itemCodeDesc.setDescription(imBasicData1.getDescription());
-			listItemCodeDesc.add(itemCodeDesc);
+	public List<ItemListImpl> findImBasicData1LikeSearch(String likeSearchByItemCodeNDesc) {
+		if(likeSearchByItemCodeNDesc != null && !likeSearchByItemCodeNDesc.trim().isEmpty()) {
+			List<ItemListImpl> data = imbasicdata1Repository.getItemListBySearch(likeSearchByItemCodeNDesc.trim(),
+					likeSearchByItemCodeNDesc.trim(),likeSearchByItemCodeNDesc.trim());
+			return data;
+		} else {
+			throw new BadRequestException("Search string must not be empty");
 		}
-		
-		return listItemCodeDesc;
 	}
 	
 	/**
