@@ -1,29 +1,36 @@
 package com.tekclover.wms.core.service;
 
-import com.tekclover.wms.core.config.PropertiesConfig;
-import com.tekclover.wms.core.model.transaction.*;
-import com.tekclover.wms.core.model.warehouse.inbound.WarehouseApiResponse;
-import com.tekclover.wms.core.repository.MongoTransactionRepository;
-import com.tekclover.wms.core.util.CommonUtils;
-import com.tekclover.wms.core.util.DateUtils;
-import lombok.extern.slf4j.Slf4j;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import javax.validation.Valid;
+
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.validation.Valid;
-import java.text.ParseException;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import com.tekclover.wms.core.config.PropertiesConfig;
+import com.tekclover.wms.core.model.transaction.*;
+import com.tekclover.wms.core.model.warehouse.inbound.WarehouseApiResponse;
+import com.tekclover.wms.core.repository.MongoTransactionRepository;
+import com.tekclover.wms.core.util.CommonUtils;
+import com.tekclover.wms.core.util.DateUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -597,7 +604,7 @@ public class TransactionService {
 	}
 	
 	// GET - Finder
-	public InboundHeader[] findInboundHeader(SearchInboundHeader searchInboundHeader, String authToken) {
+	public InboundHeader[] findInboundHeader(SearchInboundHeader searchInboundHeader, String authToken) throws Exception {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 		headers.add("User-Agent", "MNRClara RestTemplate");
@@ -608,8 +615,18 @@ public class TransactionService {
 		HttpEntity<?> entity = new HttpEntity<>(searchInboundHeader, headers);
 		ResponseEntity<InboundHeader[]> result = 
 				getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, InboundHeader[].class);
-		log.info("result : " + result.getStatusCode());
-		return result.getBody();
+		
+		List<InboundHeader> inboundHeaderList = new ArrayList<>();
+		for (InboundHeader inboundHeader : result.getBody()) {
+			if (inboundHeader.getCreatedOn() != null) {
+				inboundHeader.setCreatedOn(DateUtils.addTimeToDate(inboundHeader.getCreatedOn(), 3));
+			}
+			if (inboundHeader.getConfirmedOn() != null) {
+				inboundHeader.setConfirmedOn(DateUtils.addTimeToDate(inboundHeader.getConfirmedOn(), 3));
+			}
+			inboundHeaderList.add(inboundHeader);
+		}
+		return inboundHeaderList.toArray(new InboundHeader[inboundHeaderList.size()]);
 	}
 	
 	// GET
@@ -1870,7 +1887,7 @@ public class TransactionService {
 	}
 	
 	// GET ALL
-	public PutAwayLine[] findPutAwayLine (SearchPutAwayLine searchPutAwayLine, String authToken) {
+	public PutAwayLine[] findPutAwayLine (SearchPutAwayLine searchPutAwayLine, String authToken) throws Exception {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -1880,8 +1897,18 @@ public class TransactionService {
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "putawayline/findPutAwayLine");
 			HttpEntity<?> entity = new HttpEntity<>(searchPutAwayLine, headers);
 			ResponseEntity<PutAwayLine[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PutAwayLine[].class);
-			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+			
+			List<PutAwayLine> putAwayLineList = new ArrayList<>();
+			for (PutAwayLine putAwayLine : result.getBody()) {
+				if (putAwayLine.getCreatedOn() != null) {
+					putAwayLine.setCreatedOn(DateUtils.addTimeToDate(putAwayLine.getCreatedOn(), 3));
+				}
+				if (putAwayLine.getConfirmedOn() != null) {
+					putAwayLine.setConfirmedOn(DateUtils.addTimeToDate(putAwayLine.getConfirmedOn(), 3));
+				}
+				putAwayLineList.add(putAwayLine);
+			}
+			return putAwayLineList.toArray(new PutAwayLine[putAwayLineList.size()]);
 		} catch (Exception e) {
 			throw e;
 		}
@@ -2026,7 +2053,7 @@ public class TransactionService {
 	}
 	
 	// POST - findInventoryMovement
-	public InventoryMovement[] findInventoryMovement(SearchInventoryMovement searchInventoryMovement, String authToken) {
+	public InventoryMovement[] findInventoryMovement(SearchInventoryMovement searchInventoryMovement, String authToken) throws Exception {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -2038,8 +2065,15 @@ public class TransactionService {
 			HttpEntity<?> entity = new HttpEntity<>(searchInventoryMovement, headers);	
 			ResponseEntity<InventoryMovement[]> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, InventoryMovement[].class);
-			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+			
+			List<InventoryMovement> inventoryMovementList = new ArrayList<>();
+			for (InventoryMovement inventoryMovement : result.getBody()) {
+				if (inventoryMovement.getCreatedOn() != null) {
+					inventoryMovement.setCreatedOn(DateUtils.addTimeToDate(inventoryMovement.getCreatedOn(), 3));
+				}
+				inventoryMovementList.add(inventoryMovement);
+			}
+			return inventoryMovementList.toArray(new InventoryMovement[inventoryMovementList.size()]);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -2360,7 +2394,6 @@ public class TransactionService {
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "inhousetransferheader");
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			ResponseEntity<InhouseTransferHeader[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, InhouseTransferHeader[].class);
-			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -2392,7 +2425,7 @@ public class TransactionService {
 	}
 	
 	// POST - Find
-	public InhouseTransferHeader[] findInHouseTransferHeader(SearchInhouseTransferHeader searchInHouseTransferHeader, String authToken) {
+	public InhouseTransferHeader[] findInHouseTransferHeader(SearchInhouseTransferHeader searchInHouseTransferHeader, String authToken) throws ParseException {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 		headers.add("User-Agent", "MNRClara RestTemplate");
@@ -2402,7 +2435,15 @@ public class TransactionService {
 		HttpEntity<?> entity = new HttpEntity<>(searchInHouseTransferHeader, headers);
 		ResponseEntity<InhouseTransferHeader[]> result = 
 				getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, InhouseTransferHeader[].class);
-		return result.getBody();
+	
+		List<InhouseTransferHeader> inhouseTransferHeaderList = new ArrayList<>();
+		for (InhouseTransferHeader inhouseTransferHeader : result.getBody()) {
+			if (inhouseTransferHeader.getCreatedOn() != null) {
+				inhouseTransferHeader.setCreatedOn(DateUtils.addTimeToDate(inhouseTransferHeader.getCreatedOn(), 3));
+			}
+			inhouseTransferHeaderList.add(inhouseTransferHeader);
+		}
+		return inhouseTransferHeaderList.toArray(new InhouseTransferHeader[inhouseTransferHeaderList.size()]);
 	}
 	
 	// POST
@@ -2465,7 +2506,7 @@ public class TransactionService {
 	}
 	
 	// POST - Find
-	public InhouseTransferLine[] findInhouseTransferLine(SearchInhouseTransferLine searchInhouseTransferLine, String authToken) {
+	public InhouseTransferLine[] findInhouseTransferLine(SearchInhouseTransferLine searchInhouseTransferLine, String authToken) throws ParseException {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 		headers.add("User-Agent", "MNRClara RestTemplate");
@@ -2475,7 +2516,15 @@ public class TransactionService {
 		HttpEntity<?> entity = new HttpEntity<>(searchInhouseTransferLine, headers);
 		ResponseEntity<InhouseTransferLine[]> result = 
 				getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, InhouseTransferLine[].class);
-		return result.getBody();
+		
+		List<InhouseTransferLine> inhouseTransferLineList = new ArrayList<>();
+		for (InhouseTransferLine inhouseTransferLine : result.getBody()) {
+			if (inhouseTransferLine.getCreatedOn() != null) {
+				inhouseTransferLine.setCreatedOn(DateUtils.addTimeToDate(inhouseTransferLine.getCreatedOn(), 3));
+			}
+			inhouseTransferLineList.add(inhouseTransferLine);
+		}
+		return inhouseTransferLineList.toArray(new InhouseTransferLine[inhouseTransferLineList.size()]);
 	}
 	
 	// POST
@@ -2893,7 +2942,7 @@ public class TransactionService {
 	}
 
 	// POST - findPickupLine
-	public PickupLine[] findPickupLine(SearchPickupLine searchPickupLine, String authToken) {
+	public PickupLine[] findPickupLine(SearchPickupLine searchPickupLine, String authToken) throws Exception {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -2905,8 +2954,18 @@ public class TransactionService {
 			HttpEntity<?> entity = new HttpEntity<>(searchPickupLine, headers);	
 			ResponseEntity<PickupLine[]> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PickupLine[].class);
-			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+			
+			List<PickupLine> pickupLineList = new ArrayList<>();
+			for (PickupLine pickupLine : result.getBody()) {
+				if (pickupLine.getPickupCreatedOn() != null) {
+					pickupLine.setPickupCreatedOn(DateUtils.addTimeToDate(pickupLine.getPickupCreatedOn(), 3));
+				}
+				if (pickupLine.getPickupConfirmedOn() != null) {
+					pickupLine.setPickupConfirmedOn(DateUtils.addTimeToDate(pickupLine.getPickupConfirmedOn(), 3));
+				}
+				pickupLineList.add(pickupLine);
+			}
+			return pickupLineList.toArray(new PickupLine[pickupLineList.size()]);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -3231,7 +3290,14 @@ public class TransactionService {
 			ResponseEntity<OutboundHeader[]> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, OutboundHeader[].class);
 			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+			
+			List<OutboundHeader> obList = new ArrayList<>();
+			for (OutboundHeader obHeader : result.getBody()) {
+				log.info("Result Conf Date :" + obHeader.getDeliveryConfirmedOn());
+				obHeader.setDeliveryConfirmedOn(DateUtils.addTimeToDate(obHeader.getDeliveryConfirmedOn(), 3));
+				obList.add(obHeader);
+			}
+			return obList.toArray(new OutboundHeader[obList.size()]);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -3658,7 +3724,7 @@ public class TransactionService {
 
 	// GET - StockMovementReport
 	public StockMovementReport[] getStockMovementReport(String warehouseId, String itemCode, String fromCreatedOn,
-			String toCreatedOn, String authToken) {
+			String toCreatedOn, String authToken) throws Exception {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -3674,8 +3740,15 @@ public class TransactionService {
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			ResponseEntity<StockMovementReport[]> result =
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, StockMovementReport[].class);
-			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+
+			List<StockMovementReport> stockMovementReportList = new ArrayList<>();
+			for (StockMovementReport stockMovementReport : result.getBody()) {
+				if (stockMovementReport.getConfirmedOn() != null) {
+					stockMovementReport.setConfirmedOn(DateUtils.addTimeToDate(stockMovementReport.getConfirmedOn(), 3));
+					stockMovementReportList.add(stockMovementReport);
+				}
+			}
+			return stockMovementReportList.toArray(new StockMovementReport[stockMovementReportList.size()]);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -3704,8 +3777,23 @@ public class TransactionService {
 			HttpEntity<?> entity = new HttpEntity<>(requestDataForService,headers);
 			ResponseEntity<OrderStatusReport[]> result =
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, OrderStatusReport[].class);
-			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+			
+			List<OrderStatusReport> orderStatusReportList = new ArrayList<>();
+			for (OrderStatusReport orderStatusReport : result.getBody()) {
+				if (orderStatusReport.getDeliveryConfirmedOn() != null) {
+					orderStatusReport.setDeliveryConfirmedOn(DateUtils.addTimeToDate(orderStatusReport.getDeliveryConfirmedOn(), 3));
+				}
+				
+				if (orderStatusReport.getOrderReceivedDate() != null) {
+					orderStatusReport.setOrderReceivedDate(DateUtils.addTimeToDate(orderStatusReport.getOrderReceivedDate(), 3));
+				}
+				
+				if (orderStatusReport.getExpectedDeliveryDate() != null) {
+					orderStatusReport.setExpectedDeliveryDate(DateUtils.addTimeToDate(orderStatusReport.getExpectedDeliveryDate(), 3));
+				}
+				orderStatusReportList.add(orderStatusReport);
+			}
+			return orderStatusReportList.toArray(new OrderStatusReport[orderStatusReportList.size()]);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -3714,7 +3802,7 @@ public class TransactionService {
 
 	// GET - ShipmentDelivery
 	public ShipmentDeliveryReport[] getShipmentDeliveryReport(String warehouseId, String fromDeliveryDate, String toDeliveryDate,
-			String storeCode, List<String> soType, String orderNumber, String authToken) {
+			String storeCode, List<String> soType, String orderNumber, String authToken) throws Exception {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -3732,8 +3820,16 @@ public class TransactionService {
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			ResponseEntity<ShipmentDeliveryReport[]> result =
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, ShipmentDeliveryReport[].class);
-			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+			
+			List<ShipmentDeliveryReport> shipmentDeliveryReportList = new ArrayList<>();
+			for (ShipmentDeliveryReport shipmentDeliveryReport : result.getBody()) {
+				if (shipmentDeliveryReport.getDeliveryDate() != null) {
+					shipmentDeliveryReport.setDeliveryDate(DateUtils.addTimeToDate(shipmentDeliveryReport.getDeliveryDate(), 3));
+					shipmentDeliveryReportList.add(shipmentDeliveryReport);
+				}
+			}
+			
+			return shipmentDeliveryReportList.toArray(new ShipmentDeliveryReport[shipmentDeliveryReportList.size()]);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -3742,7 +3838,7 @@ public class TransactionService {
 
 	// GET - ShipmentDeliverySummary
 	public ShipmentDeliverySummaryReport getShipmentDeliverySummaryReport(String fromDeliveryDate, String toDeliveryDate,
-			List<String> customerCode,String warehouseId, String authToken) {
+			List<String> customerCode,String warehouseId, String authToken) throws Exception {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -3760,7 +3856,18 @@ public class TransactionService {
 			ResponseEntity<ShipmentDeliverySummaryReport> result =
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, 
 							ShipmentDeliverySummaryReport.class);
-			return result.getBody();
+			ShipmentDeliverySummaryReport summaryReport = result.getBody();
+			
+			for (ShipmentDeliverySummary shipmentDeliverySummary : summaryReport.getShipmentDeliverySummary()) {
+				if (shipmentDeliverySummary.getExpectedDeliveryDate() != null) {
+					shipmentDeliverySummary.setExpectedDeliveryDate(DateUtils.addTimeToDate(shipmentDeliverySummary.getExpectedDeliveryDate(), 3));
+				}
+				
+				if (shipmentDeliverySummary.getDeliveryDateTime() != null) {
+					shipmentDeliverySummary.setDeliveryDateTime(DateUtils.addTimeToDate(shipmentDeliverySummary.getDeliveryDateTime(), 3));
+				}
+			}
+			return summaryReport;
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -3769,7 +3876,7 @@ public class TransactionService {
 
 	// GET - ShipmentDispatchSummary
 	public ShipmentDispatchSummaryReport getShipmentDispatchSummaryReport(String fromDeliveryDate, String toDeliveryDate,
-			List<String> customerCode,String warehouseId, String authToken) {
+			List<String> customerCode,String warehouseId, String authToken) throws Exception {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -3786,8 +3893,15 @@ public class TransactionService {
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			ResponseEntity<ShipmentDispatchSummaryReport> result =
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, ShipmentDispatchSummaryReport.class);
-			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+			ShipmentDispatchSummaryReport summaryReport = result.getBody();
+			for (ShipmentDispatch shipmentDispatch : summaryReport.getShipmentDispatch()) {
+				for (ShipmentDispatchList list : shipmentDispatch.getShipmentDispatchList()) {
+					if (list.getOrderReceiptTime() != null) {
+						list.setOrderReceiptTime(DateUtils.addTimeToDate(list.getOrderReceiptTime(), 3));
+					}
+				}
+			}
+			return summaryReport;
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;

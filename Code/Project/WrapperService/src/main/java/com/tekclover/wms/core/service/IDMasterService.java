@@ -76,7 +76,7 @@ public class IDMasterService {
 	/*--------------------------------------------UserManagement--------------------------------------*/
 	
 	// GET - /login/validate
-	public UserManagement validateUserID(String userID, String password, String authToken) {
+	public UserManagement validateUserID(String userID, String password, String authToken, String version) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -85,12 +85,12 @@ public class IDMasterService {
 			
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "login")
 			        .queryParam("userID", userID)
-			        .queryParam("password", password);
+			        .queryParam("password", password)
+			        .queryParam("version", version);
 	
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			ResponseEntity<UserManagement> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, UserManagement.class);
-//			log.info("result : " + result.getBody());
 			return result.getBody();
 		} catch (Exception e) {
 			throw new BadRequestException(e.getLocalizedMessage());

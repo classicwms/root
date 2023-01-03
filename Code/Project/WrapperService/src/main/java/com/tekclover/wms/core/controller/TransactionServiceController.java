@@ -1453,7 +1453,7 @@ public class TransactionServiceController {
    	@GetMapping("/reports/stockMovementReport")
    	public ResponseEntity<?> getStockMovementReport(@RequestParam String warehouseId, 
    			@RequestParam String itemCode, @RequestParam String fromCreatedOn, 
-   			@RequestParam String toCreatedOn, @RequestParam String authToken) {
+   			@RequestParam String toCreatedOn, @RequestParam String authToken) throws Exception {
        	StockMovementReport[] inventoryReportList = 
        			transactionService.getStockMovementReport(warehouseId, itemCode, fromCreatedOn, toCreatedOn, authToken);
    		return new ResponseEntity<>(inventoryReportList, HttpStatus.OK);

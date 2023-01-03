@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.tekclover.wms.core.config.PropertiesConfig;
@@ -941,9 +942,9 @@ public class MastersService {
 			headers.add("User-Agent", "MNRClara RestTemplate");
 			headers.add("Authorization", "Bearer " + authToken);
 			
-			UriComponentsBuilder builder = 
+			UriComponents builder =
 					UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "imbasicdata1/findItemCodeByLike")
-					.queryParam("likeSearchByItemCodeNDesc", likeSearchByItemCodeNDesc);
+					.queryParam("likeSearchByItemCodeNDesc", likeSearchByItemCodeNDesc).build();
 			HttpEntity<?> entity = new HttpEntity<>(headers);	
 			ResponseEntity<ItemCodeDesc[]> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, ItemCodeDesc[].class);

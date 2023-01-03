@@ -90,7 +90,7 @@ public class IDMasterServiceController {
 	public ResponseEntity<?> loginUser(@RequestParam String name, @RequestParam String password, 
 			@RequestParam String authToken, @RequestParam(required = false) String version) {
 		try {
-			UserManagement loggedUser = idmasterService.validateUserID(name, password, authToken);
+			UserManagement loggedUser = idmasterService.validateUserID(name, password, authToken, version);
 			log.info("LoginUser::: " + loggedUser);
 			log.info("version::: " + version);
 			return new ResponseEntity<>(loggedUser, HttpStatus.OK);

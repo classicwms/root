@@ -36,7 +36,7 @@ public class OutboundHeader {
 	private String createdBy;
 	private Date createdOn = new Date();
 	private String deliveryConfirmedBy;
-	private Date deliveryConfirmedOn = new Date();
+	private Date deliveryConfirmedOn;
 	private String updatedBy;
 	private Date updatedOn = new Date();
 	private String reversedBy;
