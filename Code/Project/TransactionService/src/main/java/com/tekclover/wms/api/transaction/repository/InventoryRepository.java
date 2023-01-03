@@ -114,6 +114,14 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndBinClassIdAndDeletionIndicator(
 			String languageId, String companyCodeId, String plantId, String warehouseId, String itemCode,
 			Long binClassId, Long deletionIndicator);
+	
+	@Query (value = "SELECT SUM(INV_QTY) FROM tblinventory \r\n"
+			+ " WHERE WH_ID = :warehouseId AND ITM_CODE = :itemCode AND \r\n"
+			+ " BIN_CL_ID = 1 \r\n"
+			+ " GROUP BY ITM_CODE", nativeQuery = true)
+	public Double getInventoryQtyCount (
+			@Param(value = "warehouseId") String warehouseId,
+			@Param(value = "itemCode") String itemCode);
 
 	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPackBarcodesAndItemCodeAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId, 
@@ -203,4 +211,13 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndBinClassIdAndStorageBinAndStockTypeIdAndDeletionIndicatorAndInventoryQuantityGreaterThanOrderByInventoryQuantity(
 			String languageId, String companyCode, String plantId, String warehouseId, String itemCode, Long binClassId,
 			String storageBin, Long stockTypeId, long l, double d);
+	
+	@Query (value = "SELECT ST_BIN AS storageBin, SUM(INV_QTY) AS inventoryQty FROM tblinventory \r\n"
+			+ "WHERE WH_ID = :warehouseId and ITM_CODE = :itemCode AND BIN_CL_ID = 1 AND STCK_TYP_ID = 1 \r\n"
+			+ "AND REF_FIELD_10 IN :storageSecIds AND IS_DELETED = 0 \r\n"
+			+ "GROUP BY ST_BIN ORDER BY SUM(INV_QTY)", nativeQuery = true)
+	public List<IInventory> findInventoryGroupByStorageBin (
+			@Param(value = "warehouseId") String warehouseId,
+			@Param(value = "itemCode") String itemCode,
+			@Param(value = "storageSecIds") List<String> storageSecIds);
 }

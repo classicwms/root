@@ -18,6 +18,7 @@ import org.springframework.expression.ParseException;
 import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
+import com.tekclover.wms.api.transaction.model.dto.IInventory;
 import com.tekclover.wms.api.transaction.model.dto.Warehouse;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.AddInventory;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
@@ -345,6 +346,18 @@ public class InventoryService extends BaseService {
 	}
 	
 	/**
+	 * 
+	 * @param warehouseId
+	 * @param itemCode
+	 * @param storageBin
+	 * @return
+	 */
+	public List<IInventory> getInventoryGroupByStorageBin (String warehouseId, String itemCode, List<String> stSecIds) {
+		List<IInventory> inventory = inventoryRepository.findInventoryGroupByStorageBin(warehouseId, itemCode, stSecIds);
+		return inventory;
+	}
+	
+	/**
 	 * Pass the selected WH_ID/ITM_CODE/ALLOC_QTY=0 for OB_ORD_TYP_ID = 0,1,3 
 	 * @param warehouseId
 	 * @param itemCode
@@ -455,6 +468,17 @@ public class InventoryService extends BaseService {
 			Long stockTypeId) {
 		List<Long> inventory = inventoryRepository.findInventoryQtyCount(warehouseId, itemCode, storageBin, stockTypeId);
 		return inventory;
+	}
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param itemCode
+	 * @return
+	 */
+	public Double getInventoryQtyCount (String warehouseId, String itemCode) {
+		Double inventoryQty = inventoryRepository.getInventoryQtyCount(warehouseId, itemCode);
+		return inventoryQty;
 	}
 	
 	/**

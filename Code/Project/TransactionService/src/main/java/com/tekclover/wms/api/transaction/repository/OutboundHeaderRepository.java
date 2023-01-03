@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -37,37 +38,13 @@ public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader,L
 	/*
 	 * Reports
 	 */
-//	@Query (value = "SELECT COUNT(REF_DOC_NO) FROM tbloutboundheader \r\n"
-//			+ " WHERE WH_ID = :warehouseId AND PARTNER_CODE = :partnerCode AND REF_FIELD_1 = :refField1 \r\n"
-//			+ " AND DLV_CNF_ON BETWEEN :startDate AND :endDate AND STATUS_ID = 59 \r\n"
-//			+ " GROUP BY REF_DOC_NO", nativeQuery = true)
-//	public List<Long> findTotalOrder_NByWarehouseIdAndPartnerCode (
-//									@Param(value = "warehouseId") String warehouseId,
-//									@Param(value = "partnerCode") String partnerCode,
-//									@Param(value = "refField1") String refField1,
-//									@Param ("startDate") Date startDate,
-//									@Param ("endDate") Date endDate);
-	
 	public List<OutboundHeader> findByWarehouseIdAndPartnerCodeAndReferenceField1AndStatusIdAndDeliveryConfirmedOnBetween (
 			String warehouseId, String partnerCode, String refField1, Long statusId, Date startDate, Date endDate);
-	
-//	@Query (value = "SELECT REF_DOC_NO AS refDocNo FROM tbloutboundheader \r\n"
-//			+ " WHERE WH_ID = :warehouseId AND PARTNER_CODE = :partnerCode \r\n"
-//			+ " AND STATUSI_ID = 59 AND DLV_CNF_ON BETWEEN :startDate AND :endDate \r\n"
-//			+ " GROUP BY REF_DOC_NO", nativeQuery = true)
-//	public List<String> findRefDocNoByWarehouseIdAndPartnerCode (
-//									@Param(value = "warehouseId") String warehouseId,
-//									@Param(value = "partnerCode") String partnerCode,
-//									@Param ("startDate") Date startDate,
-//									@Param ("endDate") Date endDate);
 	
 	public List<OutboundHeader> findByWarehouseIdAndStatusIdAndDeliveryConfirmedOnBetween (String warehouseId,Long statusId, Date startDate, Date endDate);
 	public List<OutboundHeader> findByStatusIdAndPartnerCodeAndDeliveryConfirmedOnBetween (Long statusId, 
 			String partnerCode, Date startDate, Date endDate);
 	
-//	public List<OutboundHeader> findByStatusIdAndPartnerCodeAndDeliveryConfirmedOnBetweenAndReferenceField1 (Long statusId, 
-//			String partnerCode, Date startDate, Date endDate, String refField1);
-
 	@Query(value = "select \n" +
 			"oh.c_id , oh.lang_id, oh.partner_code, oh.plant_id, oh.pre_ob_no,oh.ref_doc_no ,oh.wh_id,oh.dlv_ctd_by,oh.dlv_ctd_on,oh.is_deleted,oh.dlv_cnf_by,oh.dlv_cnf_on,\n" +
 			"oh.dlv_ord_no, oh.ob_ord_typ_id,oh.ref_doc_date,oh.ref_doc_typ,oh.remark,oh.req_del_date,oh.dlv_rev_by,oh.dlv_rev_on,oh.status_id,oh.dlv_utd_by,oh.dlv_utd_on,\n" +
@@ -108,4 +85,15 @@ public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader,L
 
 	public OutboundHeader findByRefDocNumberAndWarehouseIdAndDeletionIndicator(String refDocNumber, String warehouseId,
 			long l);
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param refDocNumber
+	 * @param statusId
+	 */
+	@Modifying(clearAutomatically = true)
+	@Query("Update OutboundHeader ob SET ob.statusId = :statusId WHERE ob.warehouseId = :warehouseId AND ob.refDocNumber = :refDocNumber")
+	public void updateOutboundHeaderStatus(@Param ("warehouseId") String warehouseId, @Param ("refDocNumber") String refDocNumber, 
+			@Param ("statusId") Long statusId);
 }

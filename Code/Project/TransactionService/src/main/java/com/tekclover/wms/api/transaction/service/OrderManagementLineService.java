@@ -3,8 +3,6 @@ package com.tekclover.wms.api.transaction.service;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,8 +17,8 @@ import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
+import com.tekclover.wms.api.transaction.model.dto.IInventory;
 import com.tekclover.wms.api.transaction.model.dto.StorageBin;
-import com.tekclover.wms.api.transaction.model.inbound.gr.StorageBinPutAway;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundLine;
@@ -589,307 +587,318 @@ public class OrderManagementLineService extends BaseService {
 	 * @param itemCode
 	 * @return
 	 */
-	private OrderManagementLine updateAllocation (OrderManagementLine orderManagementLine, List<String> storageSectionIds, Double ORD_QTY,
+	public OrderManagementLine updateAllocation (OrderManagementLine orderManagementLine, List<String> storageSectionIds, Double ORD_QTY,
 			String warehouseId, String itemCode, String loginUserID) {
-		List<Inventory> stBinInventoryList = inventoryService.getInventory(warehouseId, itemCode);
-		log.info("---Global---stBinInventoryList-------> : " + stBinInventoryList);
+		log.info("---updateAllocation----has been called---");
+//		List<Inventory> stBinInventoryList = inventoryService.getInventory(warehouseId, itemCode);
+//		log.info("---Global---stBinInventoryList-------> : " + stBinInventoryList);
+//		
+//		/*
+//		 * If the Inventory doesn't exists in the Table then inserting 0th record in Ordermanagementline table
+//		 */
+//		if (stBinInventoryList.isEmpty()) {
+//			return updateOrderManagementLine(orderManagementLine);
+//		}
+//		
+//		/* To obtain the SumOfInvQty */
+//		List<String> stBins = stBinInventoryList.stream().map(Inventory::getStorageBin).collect(Collectors.toList());
+//		log.info("---Filtered---stBins -----> : " + stBins);
+//		
+//		List<Inventory> finalInventoryList = new ArrayList<>();
+//		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+//		StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
+//		storageBinPutAway.setStorageBin(stBins);
+//		storageBinPutAway.setStorageSectionIds(storageSectionIds);
+//		storageBinPutAway.setWarehouseId(warehouseId);
+//		
+//		StorageBin[] storageBin = mastersService.getStorageBin(storageBinPutAway, authTokenForMastersService.getAccess_token());
+//		log.info("---1----selected----storageBins---from---masters-----> : " + storageBin);
+//		
+//		// If the StorageBin returns null, then creating OrderManagementLine table with Zero Alloc_qty and Inv_Qty
+//		if (storageBin == null) {
+//			return updateOrderManagementLine(orderManagementLine);
+//		}
+//		
+//		if (storageBin != null && storageBin.length > 0) {
+//			log.info("----2----selected----storageBins---from---masters-----> : " + Arrays.asList(storageBin));
+//			
+//			// Pass the filtered ST_BIN/WH_ID/ITM_CODE/BIN_CL_ID=01/STCK_TYP_ID=1 in Inventory table and fetch SUM (INV_QTY)
+//			for (StorageBin dbStorageBin : storageBin) {
+//				List<Inventory> listInventory = inventoryService.getInventoryForOrderMgmt (warehouseId, itemCode, 1L, dbStorageBin.getStorageBin(), 1L);
+//				log.info("----Selected--Inventory--by--stBin--wise----> : " + listInventory);
+//				if (listInventory != null) {
+//					finalInventoryList.addAll(listInventory);
+//				}
+//			}
+//			List<StorageBin> stBinList = Arrays.asList(storageBin);
+//			List<String> storageBinListToQueryInventory = stBinList.stream().map(StorageBin::getStorageBin).collect(Collectors.toList());
+//			List<Inventory> listInventory = inventoryService.getInventoryForOrderMgmt (warehouseId, itemCode, 1L, storageBinListToQueryInventory, 1L);
+//			if (listInventory != null) {
+//				finalInventoryList.addAll(listInventory);
+//			}
+//		}
+//		log.info("Final inventory list###########---> : " + finalInventoryList);
 		
-		/*
-		 * If the Inventory doesn't exists in the Table then inserting 0th record in Ordermanagementline table
-		 */
-		if (stBinInventoryList.isEmpty()) {
-			return updateOrderManagementLine(orderManagementLine);
-		}
+//		
+//		List<IInventory> finalInventoryList = inventoryService.getInventoryGroupByStorageBin(warehouseId, itemCode, storageSectionIds);
+//		log.info("---Global---finalInventoryList-------> : " + finalInventoryList);
+//		
+//		/*
+//		 * If the Inventory doesn't exists in the Table then inserting 0th record in Ordermanagementline table
+//		 */
+//		if (finalInventoryList.isEmpty()) {
+//			return updateOrderManagementLine(orderManagementLine);
+//		}
 		
-		/* To obtain the SumOfInvQty */
-		List<String> stBins = stBinInventoryList.stream().map(Inventory::getStorageBin).collect(Collectors.toList());
-		log.info("---Filtered---stBins -----> : " + stBins);
+//		Inventory maxQtyHoldsInventory = new Inventory();
 		
-		List<Inventory> finalInventoryList = new ArrayList<>();
-		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-		StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
-		storageBinPutAway.setStorageBin(stBins);
-		storageBinPutAway.setStorageSectionIds(storageSectionIds);
-		storageBinPutAway.setWarehouseId(warehouseId);
+//		Double tempMaxQty = 0D;
+//		for (Inventory inventory : finalInventoryList) {
+//			if (tempMaxQty < inventory.getInventoryQuantity()) {
+//				tempMaxQty = inventory.getInventoryQuantity();
+//			}
+//		}
+//		
+//		for (Inventory inventory : finalInventoryList) {
+//			if (inventory.getInventoryQuantity() == tempMaxQty) {
+//				BeanUtils.copyProperties(inventory, maxQtyHoldsInventory, CommonUtils.getNullPropertyNames(inventory));
+//			}
+//		}
+//		log.info("Found ------tempMaxQty-----> : " + tempMaxQty);
+//		log.info("Found ------tempMaxQty--Inventory---> : " + maxQtyHoldsInventory);
+//		
+//		/*
+//		 * Sorting the list
+//		 */
+//		Collections.sort(finalInventoryList, new Comparator<Inventory>() {
+//            public int compare(Inventory s1, Inventory s2) {
+//                return ((Double)s2.getInventoryQuantity()).compareTo(s1.getInventoryQuantity());
+//            }
+//        });
 		
-		StorageBin[] storageBin = mastersService.getStorageBin(storageBinPutAway, authTokenForMastersService.getAccess_token());
-		log.info("---1----selected----storageBins---from---masters-----> : " + storageBin);
+//		log.info("Collections------sort-----> : " + finalInventoryList);
+//		if (ORD_QTY < maxQtyHoldsInventory.getInventoryQuantity()) {
+//			Long STATUS_ID = 0L;
+//			Double ALLOC_QTY = 0D;			
+//			Double INV_QTY = maxQtyHoldsInventory.getInventoryQuantity();
+//			
+//			// INV_QTY
+//			orderManagementLine.setInventoryQty(INV_QTY);
+//			
+//			if (ORD_QTY <= INV_QTY) {
+//				ALLOC_QTY = ORD_QTY;
+//			} else if (ORD_QTY > INV_QTY) {
+//				ALLOC_QTY = INV_QTY;
+//			} else if (INV_QTY == 0) {
+//				ALLOC_QTY = 0D;
+//			}
+//			log.info ("ALLOC_QTY -----@@--->: " + ALLOC_QTY);
+//			
+//			orderManagementLine.setAllocatedQty(ALLOC_QTY);
+//			orderManagementLine.setReAllocatedQty(ALLOC_QTY);
+//						
+//			// STATUS_ID 
+//			/* if ORD_QTY> ALLOC_QTY , then STATUS_ID is hardcoded as "42" */
+//			if (ORD_QTY > ALLOC_QTY) {
+//				STATUS_ID = 42L;
+//			}
+//			
+//			/* if ORD_QTY=ALLOC_QTY,  then STATUS_ID is hardcoded as "43" */
+//			if (ORD_QTY == ALLOC_QTY) {
+//				STATUS_ID = 43L;
+//			}
+//			
+//			orderManagementLine.setStatusId(STATUS_ID);
+//			orderManagementLine.setPickupUpdatedBy(loginUserID);
+//			orderManagementLine.setPickupUpdatedOn(new Date());
+//			
+//			/*
+//			 * Deleting current record and inserting new record (since UK is allowing to update 
+//			 * prop_st_bin and Pack_bar_codes columns)
+//			 */
+//			try {
+//				orderManagementLineRepository.delete(orderManagementLine);
+//				log.info("--#---orderManagementLine--deleted----: " + orderManagementLine);
+//			} catch (Exception e) {
+//				log.info("--Error---orderManagementLine--deleted----: " + orderManagementLine);
+//				e.printStackTrace();
+//			}
+//			
+//			OrderManagementLine newOrderManagementLine = new OrderManagementLine();
+//			BeanUtils.copyProperties(orderManagementLine, newOrderManagementLine, CommonUtils.getNullPropertyNames(orderManagementLine));
+//			newOrderManagementLine.setProposedStorageBin(maxQtyHoldsInventory.getStorageBin());
+//			newOrderManagementLine.setProposedPackBarCode(maxQtyHoldsInventory.getPackBarcodes());
+//			OrderManagementLine createdOrderManagementLine = orderManagementLineRepository.save(newOrderManagementLine);
+//			log.info("--1---createdOrderManagementLine newly created------: " + createdOrderManagementLine);
+//			
+//			if (createdOrderManagementLine.getAllocatedQty() > 0) {
+//				// Update Inventory table
+//				Inventory inventoryForUpdate = inventoryService.getInventory(warehouseId, createdOrderManagementLine.getProposedPackBarCode(), 
+//						itemCode, createdOrderManagementLine.getProposedStorageBin());
+//				log.info("-----inventoryForUpdate------> : " + inventoryForUpdate);
+//				if (inventoryForUpdate == null) {
+//					throw new BadRequestException("Inventory found as null.");
+//				}
+//				
+//				double dbInventoryQty = 0;
+//				double dbInvAllocatedQty = 0;
+//				
+//				if (inventoryForUpdate.getAllocatedQuantity() != null) {
+//					dbInvAllocatedQty = inventoryForUpdate.getAllocatedQuantity();
+//				}
+//				
+//				if (inventoryForUpdate.getInventoryQuantity() != null) {
+//					dbInventoryQty = inventoryForUpdate.getInventoryQuantity();
+//				}
+//				
+//				double inventoryQty = dbInventoryQty - createdOrderManagementLine.getAllocatedQty();
+//				double allocatedQty = dbInvAllocatedQty + createdOrderManagementLine.getAllocatedQty();
+//				
+//				/*
+//				 * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
+//				 */
+//				// Start
+//				if (inventoryQty < 0) {
+//					inventoryQty = 0;
+//				}
+//				// End
+//				inventoryForUpdate.setInventoryQuantity(inventoryQty);
+//				inventoryForUpdate.setAllocatedQuantity(allocatedQty);
+//				inventoryForUpdate = inventoryRepository.save(inventoryForUpdate);
+//				log.info("inventoryForUpdate updated: " + inventoryForUpdate);
+//			}
+//			return createdOrderManagementLine;
+//		} else {
+//		for (Inventory stBinInventory : finalInventoryList) {
 		
-		// If the StorageBin returns null, then creating OrderManagementLine table with Zero Alloc_qty and Inv_Qty
-		if (storageBin == null) {
-			return updateOrderManagementLine(orderManagementLine);
-		}
-		
-		if (storageBin != null && storageBin.length > 0) {
-			log.info("----2----selected----storageBins---from---masters-----> : " + Arrays.asList(storageBin));
+			// Getting Inventory GroupBy ST_BIN wise
+			List<IInventory> finalInventoryList = inventoryService.getInventoryGroupByStorageBin(warehouseId, itemCode, storageSectionIds);
+			log.info("finalInventoryList Inventory ---->: " + finalInventoryList + "\n");
 			
-			// Pass the filtered ST_BIN/WH_ID/ITM_CODE/BIN_CL_ID=01/STCK_TYP_ID=1 in Inventory table and fetch SUM (INV_QTY)
-			for (StorageBin dbStorageBin : storageBin) {
-				List<Inventory> listInventory = 
-						inventoryService.getInventoryForOrderMgmt (warehouseId, itemCode, 1L, dbStorageBin.getStorageBin(), 1L);
-				log.info("----Selected--Inventory--by--stBin--wise----> : " + listInventory);
-				if (listInventory != null) {
-					finalInventoryList.addAll(listInventory);
-				}
-			}
-		}
-		log.info("Final inventory list###########---> : " + finalInventoryList);
-		
-		/*
-		 * If the Inventory doesn't exists in the Table then inserting 0th record in Ordermanamentline table
-		 */
-		if (finalInventoryList.isEmpty()) {
-			return updateOrderManagementLine(orderManagementLine);
-		}
-		
-		Double tempMaxQty = 0D;
-		for (Inventory inventory : finalInventoryList) {
-			if (tempMaxQty < inventory.getInventoryQuantity()) {
-				tempMaxQty = inventory.getInventoryQuantity();
-			}
-		}
-		
-		Inventory maxQtyHoldsInventory = new Inventory();
-		for (Inventory inventory : finalInventoryList) {
-			if (inventory.getInventoryQuantity() == tempMaxQty) {
-				BeanUtils.copyProperties(inventory, maxQtyHoldsInventory, CommonUtils.getNullPropertyNames(inventory));
-			}
-		}
-		log.info("Found ------tempMaxQty-----> : " + tempMaxQty);
-		log.info("Found ------tempMaxQty--Inventory---> : " + maxQtyHoldsInventory);
-		
-		/*
-		 * Sorting the list
-		 */
-		Collections.sort(finalInventoryList, new Comparator<Inventory>() {
-            public int compare(Inventory s1, Inventory s2) {
-                return ((Double)s2.getInventoryQuantity()).compareTo(s1.getInventoryQuantity());
-            }
-        });
-		
-		log.info("Collections------sort-----> : " + finalInventoryList);
-		if (ORD_QTY < maxQtyHoldsInventory.getInventoryQuantity()) {
-			Long STATUS_ID = 0L;
-			Double ALLOC_QTY = 0D;			
-			Double INV_QTY = maxQtyHoldsInventory.getInventoryQuantity();
-			
-			// INV_QTY
-			orderManagementLine.setInventoryQty(INV_QTY);
-			
-			if (ORD_QTY <= INV_QTY) {
-				ALLOC_QTY = ORD_QTY;
-			} else if (ORD_QTY > INV_QTY) {
-				ALLOC_QTY = INV_QTY;
-			} else if (INV_QTY == 0) {
-				ALLOC_QTY = 0D;
-			}
-			log.info ("ALLOC_QTY -----@@--->: " + ALLOC_QTY);
-			
-			orderManagementLine.setAllocatedQty(ALLOC_QTY);
-			orderManagementLine.setReAllocatedQty(ALLOC_QTY);
-						
-			// STATUS_ID 
-			/* if ORD_QTY> ALLOC_QTY , then STATUS_ID is hardcoded as "42" */
-			if (ORD_QTY > ALLOC_QTY) {
-				STATUS_ID = 42L;
-			}
-			
-			/* if ORD_QTY=ALLOC_QTY,  then STATUS_ID is hardcoded as "43" */
-			if (ORD_QTY == ALLOC_QTY) {
-				STATUS_ID = 43L;
-			}
-			
-			orderManagementLine.setStatusId(STATUS_ID);
-			orderManagementLine.setPickupUpdatedBy(loginUserID);
-			orderManagementLine.setPickupUpdatedOn(new Date());
-			
-			/*
-			 * Deleting current record and inserting new record (since UK is allowing to update 
-			 * prop_st_bin and Pack_bar_codes columns)
-			 */
-			try {
-				orderManagementLineRepository.delete(orderManagementLine);
-				log.info("--#---orderManagementLine--deleted----: " + orderManagementLine);
-			} catch (Exception e) {
-				log.info("--Error---orderManagementLine--deleted----: " + orderManagementLine);
-				e.printStackTrace();
-			}
-			
-			OrderManagementLine newOrderManagementLine = new OrderManagementLine();
-			BeanUtils.copyProperties(orderManagementLine, newOrderManagementLine, CommonUtils.getNullPropertyNames(orderManagementLine));
-			newOrderManagementLine.setProposedStorageBin(maxQtyHoldsInventory.getStorageBin());
-			newOrderManagementLine.setProposedPackBarCode(maxQtyHoldsInventory.getPackBarcodes());
-			OrderManagementLine createdOrderManagementLine = orderManagementLineRepository.save(newOrderManagementLine);
-			log.info("--1---createdOrderManagementLine newly created------: " + createdOrderManagementLine);
-			
-			if (createdOrderManagementLine.getAllocatedQty() > 0) {
-				// Update Inventory table
-				Inventory inventoryForUpdate = inventoryService.getInventory(warehouseId, createdOrderManagementLine.getProposedPackBarCode(), 
-						itemCode, createdOrderManagementLine.getProposedStorageBin());
-				log.info("-----inventoryForUpdate------> : " + inventoryForUpdate);
-				if (inventoryForUpdate == null) {
-					throw new BadRequestException("Inventory found as null.");
-				}
-				
-				double dbInventoryQty = 0;
-				double dbInvAllocatedQty = 0;
-				
-				if (inventoryForUpdate.getAllocatedQuantity() != null) {
-					dbInvAllocatedQty = inventoryForUpdate.getAllocatedQuantity();
-				}
-				
-				if (inventoryForUpdate.getInventoryQuantity() != null) {
-					dbInventoryQty = inventoryForUpdate.getInventoryQuantity();
-				}
-				
-				double inventoryQty = dbInventoryQty - createdOrderManagementLine.getAllocatedQty();
-				double allocatedQty = dbInvAllocatedQty + createdOrderManagementLine.getAllocatedQty();
-				
-				/*
-				 * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
-				 */
-				// Start
-				if (inventoryQty < 0) {
-					inventoryQty = 0;
-				}
-				// End
-				inventoryForUpdate.setInventoryQuantity(inventoryQty);
-				inventoryForUpdate.setAllocatedQuantity(allocatedQty);
-				inventoryForUpdate = inventoryRepository.save(inventoryForUpdate);
-				log.info("inventoryForUpdate updated: " + inventoryForUpdate);
-				
-				if (inventoryQty == 0 && allocatedQty == 0) {
-					log.info("inventoryForUpdate inventoryQty became zero." + inventoryQty);
-					
-//					[Prod Fix: 28-06] - Discussed to comment delete Inventory operation to avoid unwanted delete of Inventory
-//					inventoryRepository.delete(inventoryForUpdate);  
-				}
-			}
-			return createdOrderManagementLine;
-		} else {
 			OrderManagementLine newOrderManagementLine = null;
-			for (Inventory stBinInventory : finalInventoryList) {
-				Long STATUS_ID = 0L;
-				Double ALLOC_QTY = 0D;
+			
+			outerloop:
+			for (IInventory stBinWiseInventory : finalInventoryList) {
+				log.info("\nstBinWiseInventory---->: " + stBinWiseInventory.getStorageBin() + "::" + stBinWiseInventory.getInventoryQty());
 				
-				log.info("\nfinalListInventory Inventory ---->: " + stBinInventory + "\n");
-				log.info("\nBin-wise Inventory : " + stBinInventory + "\n");
+				// Getting PackBarCode by passing ST_BIN to Inventory
+				List<Inventory> listInventoryForAlloc = inventoryService.getInventoryForOrderMgmt (warehouseId, itemCode, 1L, stBinWiseInventory.getStorageBin(), 1L);
+				log.info("\nlistInventoryForAlloc Inventory ---->: " + listInventoryForAlloc + "\n");
 				
-				/*	
-				 * ALLOC_QTY
-				 * 1. If ORD_QTY< INV_QTY , then ALLOC_QTY = ORD_QTY.
-				 * 2. If ORD_QTY>INV_QTY, then ALLOC_QTY = INV_QTY.
-				 * If INV_QTY = 0, Auto fill ALLOC_QTY=0
-				 */
-				Double INV_QTY = stBinInventory.getInventoryQuantity();
-				
-				// INV_QTY
-				orderManagementLine.setInventoryQty(INV_QTY);
-				
-				if (ORD_QTY <= INV_QTY) {
-					ALLOC_QTY = ORD_QTY;
-				} else if (ORD_QTY > INV_QTY) {
-					ALLOC_QTY = INV_QTY;
-				} else if (INV_QTY == 0) {
-					ALLOC_QTY = 0D;
-				}
-				log.info ("ALLOC_QTY -----1--->: " + ALLOC_QTY);
-				
-				if (orderManagementLine.getStatusId() == 47L) {
-					try {
-						orderManagementLineRepository.delete(orderManagementLine);
-						log.info("--#---orderManagementLine--deleted----: " + orderManagementLine);
-					} catch (Exception e) {
-						log.info("--Error---orderManagementLine--deleted----: " + orderManagementLine);
-						e.printStackTrace();
+				for (Inventory stBinInventory : listInventoryForAlloc) {
+					log.info("\nBin-wise Inventory : " + stBinInventory + "\n");
+					
+					Long STATUS_ID = 0L;
+					Double ALLOC_QTY = 0D;
+					
+					/*	
+					 * ALLOC_QTY
+					 * 1. If ORD_QTY< INV_QTY , then ALLOC_QTY = ORD_QTY.
+					 * 2. If ORD_QTY>INV_QTY, then ALLOC_QTY = INV_QTY.
+					 * If INV_QTY = 0, Auto fill ALLOC_QTY=0
+					 */
+					Double INV_QTY = stBinInventory.getInventoryQuantity();
+					
+					// INV_QTY
+					orderManagementLine.setInventoryQty(INV_QTY);
+					
+					if (ORD_QTY <= INV_QTY) {
+						ALLOC_QTY = ORD_QTY;
+					} else if (ORD_QTY > INV_QTY) {
+						ALLOC_QTY = INV_QTY;
+					} else if (INV_QTY == 0) {
+						ALLOC_QTY = 0D;
 					}
-				}
-				
-				orderManagementLine.setAllocatedQty(ALLOC_QTY);
-				orderManagementLine.setReAllocatedQty(ALLOC_QTY);
-							
-				// STATUS_ID 
-				/* if ORD_QTY> ALLOC_QTY , then STATUS_ID is hardcoded as "42" */
-				if (ORD_QTY > ALLOC_QTY) {
-					STATUS_ID = 42L;
-				}
-				
-				/* if ORD_QTY=ALLOC_QTY,  then STATUS_ID is hardcoded as "43" */
-				if (ORD_QTY == ALLOC_QTY) {
-					STATUS_ID = 43L;
-				}
-				
-				orderManagementLine.setStatusId(STATUS_ID);
-				orderManagementLine.setPickupUpdatedBy(loginUserID);
-				orderManagementLine.setPickupUpdatedOn(new Date());
-				
-				double allocatedQtyFromOrderMgmt = 0.0;
-				
-				/*
-				 * Deleting current record and inserting new record (since UK is not allowing to update 
-				 * prop_st_bin and Pack_bar_codes columns
-				 */
-				newOrderManagementLine = new OrderManagementLine();
-				BeanUtils.copyProperties(orderManagementLine, newOrderManagementLine, CommonUtils.getNullPropertyNames(orderManagementLine));
-				newOrderManagementLine.setProposedStorageBin(stBinInventory.getStorageBin());
-				newOrderManagementLine.setProposedPackBarCode(stBinInventory.getPackBarcodes());
-				OrderManagementLine createdOrderManagementLine = orderManagementLineRepository.save(newOrderManagementLine);
-				log.info("--else---createdOrderManagementLine newly created------: " + createdOrderManagementLine);
-				allocatedQtyFromOrderMgmt = createdOrderManagementLine.getAllocatedQty();
-				
-				if (ORD_QTY > ALLOC_QTY) {
-					ORD_QTY = ORD_QTY - ALLOC_QTY;
-				}
-				
-//				if (orderManagementLine.getAllocatedQty() > 0) {
-				if (allocatedQtyFromOrderMgmt > 0) {
-					// Update Inventory table
-					Inventory inventoryForUpdate = inventoryService.getInventory(warehouseId, stBinInventory.getPackBarcodes(), 
-							itemCode, stBinInventory.getStorageBin());
+					log.info ("ALLOC_QTY -----1--->: " + ALLOC_QTY);
 					
-					double dbInventoryQty = 0;
-					double dbInvAllocatedQty = 0;
-					
-					if (inventoryForUpdate.getInventoryQuantity() != null) {
-						dbInventoryQty = inventoryForUpdate.getInventoryQuantity();
+					if (orderManagementLine.getStatusId() == 47L) {
+						try {
+							orderManagementLineRepository.delete(orderManagementLine);
+							log.info("--#---orderManagementLine--deleted----: " + orderManagementLine);
+						} catch (Exception e) {
+							log.info("--Error---orderManagementLine--deleted----: " + orderManagementLine);
+							e.printStackTrace();
+						}
 					}
 					
-					if (inventoryForUpdate.getAllocatedQuantity() != null) {
-						dbInvAllocatedQty = inventoryForUpdate.getAllocatedQuantity();
+					orderManagementLine.setAllocatedQty(ALLOC_QTY);
+					orderManagementLine.setReAllocatedQty(ALLOC_QTY);
+								
+					// STATUS_ID 
+					/* if ORD_QTY> ALLOC_QTY , then STATUS_ID is hardcoded as "42" */
+					if (ORD_QTY > ALLOC_QTY) {
+						STATUS_ID = 42L;
 					}
 					
-					double inventoryQty = dbInventoryQty - allocatedQtyFromOrderMgmt;
-					double allocatedQty = dbInvAllocatedQty + allocatedQtyFromOrderMgmt;
+					/* if ORD_QTY=ALLOC_QTY,  then STATUS_ID is hardcoded as "43" */
+					if (ORD_QTY == ALLOC_QTY) {
+						STATUS_ID = 43L;
+					}
+					
+					orderManagementLine.setStatusId(STATUS_ID);
+					orderManagementLine.setPickupUpdatedBy(loginUserID);
+					orderManagementLine.setPickupUpdatedOn(new Date());
+					
+					double allocatedQtyFromOrderMgmt = 0.0;
 					
 					/*
-					 * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
+					 * Deleting current record and inserting new record (since UK is not allowing to update 
+					 * prop_st_bin and Pack_bar_codes columns
 					 */
-					// Start
-					if (inventoryQty < 0) {
-						inventoryQty = 0;
-					}
-					// End
-					inventoryForUpdate.setInventoryQuantity(inventoryQty);
-					inventoryForUpdate.setAllocatedQuantity(allocatedQty);
-					inventoryForUpdate = inventoryRepository.save(inventoryForUpdate);
-					log.info("inventoryForUpdate updated: " + inventoryForUpdate);
+					newOrderManagementLine = new OrderManagementLine();
+					BeanUtils.copyProperties(orderManagementLine, newOrderManagementLine, CommonUtils.getNullPropertyNames(orderManagementLine));
+					newOrderManagementLine.setProposedStorageBin(stBinInventory.getStorageBin());
+					newOrderManagementLine.setProposedPackBarCode(stBinInventory.getPackBarcodes());
+					OrderManagementLine createdOrderManagementLine = orderManagementLineRepository.save(newOrderManagementLine);
+					log.info("--else---createdOrderManagementLine newly created------: " + createdOrderManagementLine);
+					allocatedQtyFromOrderMgmt = createdOrderManagementLine.getAllocatedQty();
 					
-					if (inventoryQty == 0 && allocatedQty == 0) {
-						log.info("inventoryForUpdate inventoryQty became zero." + inventoryQty);
-						
-//						[Prod Fix: 28-06] - Discussed to comment delete Inventory operation to avoid unwanted delete of Inventory
-//						inventoryRepository.delete(inventoryForUpdate);
+					if (ORD_QTY > ALLOC_QTY) {
+						ORD_QTY = ORD_QTY - ALLOC_QTY;
 					}
-				}
-				
-				if (ORD_QTY == ALLOC_QTY) {
-					log.info("ORD_QTY fully allocated: " + ORD_QTY);
-					break; //If the Inventory satisfied the Ord_qty
+					
+					if (allocatedQtyFromOrderMgmt > 0) {
+						// Update Inventory table
+						Inventory inventoryForUpdate = inventoryService.getInventory(warehouseId, stBinInventory.getPackBarcodes(), 
+								itemCode, stBinInventory.getStorageBin());
+						
+						double dbInventoryQty = 0;
+						double dbInvAllocatedQty = 0;
+						
+						if (inventoryForUpdate.getInventoryQuantity() != null) {
+							dbInventoryQty = inventoryForUpdate.getInventoryQuantity();
+						}
+						
+						if (inventoryForUpdate.getAllocatedQuantity() != null) {
+							dbInvAllocatedQty = inventoryForUpdate.getAllocatedQuantity();
+						}
+						
+						double inventoryQty = dbInventoryQty - allocatedQtyFromOrderMgmt;
+						double allocatedQty = dbInvAllocatedQty + allocatedQtyFromOrderMgmt;
+						
+						/*
+						 * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
+						 */
+						// Start
+						if (inventoryQty < 0) {
+							inventoryQty = 0;
+						}
+						// End
+						inventoryForUpdate.setInventoryQuantity(inventoryQty);
+						inventoryForUpdate.setAllocatedQuantity(allocatedQty);
+						inventoryForUpdate = inventoryRepository.save(inventoryForUpdate);
+						log.info("inventoryForUpdate updated: " + inventoryForUpdate);
+					}
+					
+					if (ORD_QTY == ALLOC_QTY) {
+						log.info("ORD_QTY fully allocated: " + ORD_QTY);
+						break outerloop; //If the Inventory satisfied the Ord_qty
+					}
 				}
 			}
 			log.info("newOrderManagementLine updated ---#--->" + newOrderManagementLine);
 			return newOrderManagementLine;
-		}
+//		}
 	}
 	
 	/**

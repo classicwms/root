@@ -42,4 +42,7 @@ public class IntegrationApiResponse {
 	
 	@Column(name = "TR_DATE")
 	private Date transDate;
+	
+	@Column(name = "API_URL")
+	private String apiUrl;
 }

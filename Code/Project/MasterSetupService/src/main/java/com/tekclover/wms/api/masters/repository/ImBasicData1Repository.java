@@ -23,7 +23,7 @@ JpaSpecificationExecutor<ImBasicData1> {
 
 
 	@Query(
-			value = "select itm_code as itemCode ,text as description from tblimbasicdata1 \n" +
+			value = "select TOP 50 itm_code as itemCode ,text as description from tblimbasicdata1 \n" +
 					"where ( itm_code like :searchText1% or itm_code like %:searchText2 \n" +
 					"or text like %:searchText3% ) \n" +
 					"group by itm_code,text ",

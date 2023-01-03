@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tekclover.wms.api.transaction.model.inbound.gr.GrHeader;
+import com.tekclover.wms.api.transaction.model.integration.IntegrationApiResponse;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.InboundOrder;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.OutboundOrder;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.ShipmentOrder;
@@ -112,5 +113,14 @@ public class OrderController {
    			throws IllegalAccessException, InvocationTargetException {
        	ShipmentOrder createdOutboundOrder = orderService.pushOrder(orderId);
    		return new ResponseEntity<>(createdOutboundOrder , HttpStatus.OK);
+   	}
+    
+    /*-----------------------Order Confirmation----------------------------------------------*/
+    @ApiOperation(response = IntegrationApiResponse.class, value = "IntegrationApiResponse") // label for swagger
+   	@GetMapping("/confirmation/{orderId}")
+   	public ResponseEntity<?> getOrders(@PathVariable String orderId) 
+   			throws IllegalAccessException, InvocationTargetException {
+    	List<IntegrationApiResponse> integrationApiResponseList = orderService.getConfirmationOrder(orderId);
+   		return new ResponseEntity<>(integrationApiResponseList , HttpStatus.OK);
    	}
 }

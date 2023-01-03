@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
+import com.tekclover.wms.api.transaction.model.integration.IntegrationApiResponse;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.InboundOrder;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.OutboundOrder;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.OutboundOrderLine;
@@ -17,6 +18,7 @@ import com.tekclover.wms.api.transaction.model.warehouse.outbound.SOHeader;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.SOLine;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.ShipmentOrder;
 import com.tekclover.wms.api.transaction.repository.InboundOrderRepository;
+import com.tekclover.wms.api.transaction.repository.IntegrationApiResponseRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundOrderLinesRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundOrderRepository;
 import com.tekclover.wms.api.transaction.util.DateUtils;
@@ -35,6 +37,9 @@ public class OrderService {
 	
 	@Autowired
 	OutboundOrderLinesRepository outboundOrderLinesRepository;
+	
+	@Autowired
+	IntegrationApiResponseRepository integrationApiResponseRepository;
 	
 	@Autowired
 	WarehouseService warehouseService;
@@ -229,5 +234,14 @@ public class OrderService {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * 
+	 * @param orderId
+	 * @return
+	 */
+	public List<IntegrationApiResponse> getConfirmationOrder(String orderId) {
+		return integrationApiResponseRepository.findByOrderNumber (orderId);
 	}
 }

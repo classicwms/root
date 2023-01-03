@@ -10,7 +10,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
@@ -65,22 +67,47 @@ public class CommonUtils {
 	
 	private void sortList () {
 		Inventory inv1 = new Inventory();
+		inv1.setStBin("s1");
 		inv1.setQty(1301L);
 		
 		Inventory inv2 = new Inventory();
+		inv2.setStBin("s1");
 		inv2.setQty(202L);
 		
 		Inventory inv3 = new Inventory();
+		inv3.setStBin("s2");		
 		inv3.setQty(3022L);
 		
 		Inventory inv4 = new Inventory();
-		inv4.setQty(20L);
+		inv4.setStBin("s3");	
+		inv4.setQty(120L);
+		
+		Inventory inv5 = new Inventory();
+		inv5.setStBin("s3");	
+		inv5.setQty(220L);
+		
+		Inventory inv6 = new Inventory();
+		inv6.setStBin("s3");	
+		inv6.setQty(230L);
 		
 		List<Inventory> invList1 = new ArrayList<>();
 		invList1.add(inv1);
 		invList1.add(inv2);
 		invList1.add(inv3);
 		invList1.add(inv4);
+		invList1.add(inv5);
+		invList1.add(inv6);
+		
+		Map<String, List<Inventory>> mapInventoryList = invList1.stream().collect(Collectors.groupingBy(w -> w.stBin));
+		
+		List<Inventory> finalInventoryList = new ArrayList<>();
+		for (String key : mapInventoryList.keySet()) {
+			long quantity = 0;
+			for (Inventory inv : mapInventoryList.get(key)) {
+				quantity += inv.getQty();
+//				finalInventoryList
+			}
+		}
 		
 		Collections.sort(invList1, new Comparator<Inventory>() {
 		      public int compare(Inventory s1, Inventory s2) {
@@ -88,6 +115,7 @@ public class CommonUtils {
 		      }
 		  });
 		
+		log.info("mapInventoryList: " + mapInventoryList);
 		log.info("invList1: " + invList1);
 		
 //		List<Long> l = invList1.stream().map(Inventory::getQty).collect(Collectors.toList());
@@ -150,6 +178,7 @@ public class CommonUtils {
 	@Data
 	class Inventory {
 		private Long qty;
+		private String stBin;
 	}
 
 	/**

@@ -143,6 +143,8 @@ public class OutboundHeaderService {
 	public List<OutboundHeader> findOutboundHeader(SearchOutboundHeader searchOutboundHeader) 
 			throws ParseException, java.text.ParseException {
 		
+		log.info("DeliveryConfirmedOn: " + searchOutboundHeader.getStartDeliveryConfirmedOn());
+		
 		if (searchOutboundHeader.getStartRequiredDeliveryDate() != null && searchOutboundHeader.getStartRequiredDeliveryDate() != null) {
 			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartRequiredDeliveryDate(), searchOutboundHeader.getEndRequiredDeliveryDate());
 			searchOutboundHeader.setStartRequiredDeliveryDate(dates[0]);
@@ -195,6 +197,10 @@ public class OutboundHeaderService {
 				searchOutboundHeader.getStartRequiredDeliveryDate(),searchOutboundHeader.getEndRequiredDeliveryDate(),
 				searchOutboundHeader.getStartDeliveryConfirmedOn(),searchOutboundHeader.getEndDeliveryConfirmedOn(),
 				searchOutboundHeader.getStartOrderDate(),searchOutboundHeader.getEndOrderDate());
+		
+		for (OutboundHeader ob : headerSearchResults) {
+			log.info("Result Conf Date :" + ob.getDeliveryConfirmedOn());
+		}
 		return headerSearchResults;
 	}
 	

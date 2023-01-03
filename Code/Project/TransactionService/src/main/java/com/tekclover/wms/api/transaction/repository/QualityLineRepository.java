@@ -46,5 +46,9 @@ public interface QualityLineRepository extends JpaRepository<QualityLine,Long>, 
     									@Param ("refDocNumber") String refDocNumber,
     									@Param ("preOutboundNo") String preOutboundNo,
     									@Param ("obLineNumber") Long obLineNumber,
-    									@Param ("itemCode") String itemCode); 		
+    									@Param ("itemCode") String itemCode);
+
+	public List<QualityLine> findAllByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberInAndItemCodeInAndDeletionIndicator(
+			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, List<Long> lineNumbers,
+			List<String> itemCodes, long l); 		
 }

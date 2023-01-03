@@ -13,6 +13,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.tekclover.wms.api.transaction.config.PropertiesConfig;
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AXAuthToken;
 import com.tekclover.wms.api.transaction.model.inbound.AddInboundHeader;
@@ -22,6 +23,7 @@ import com.tekclover.wms.api.transaction.model.inbound.InboundLine;
 import com.tekclover.wms.api.transaction.model.inbound.InboundLineEntity;
 import com.tekclover.wms.api.transaction.model.inbound.SearchInboundHeader;
 import com.tekclover.wms.api.transaction.model.inbound.UpdateInboundHeader;
+import com.tekclover.wms.api.transaction.model.integration.IntegrationApiResponse;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.confirmation.ASN;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.confirmation.ASNHeader;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.confirmation.ASNLine;
@@ -38,6 +40,7 @@ import com.tekclover.wms.api.transaction.model.warehouse.inbound.confirmation.St
 import com.tekclover.wms.api.transaction.repository.GrHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.InboundHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.InboundLineRepository;
+import com.tekclover.wms.api.transaction.repository.IntegrationApiResponseRepository;
 import com.tekclover.wms.api.transaction.repository.PreInboundHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.PreInboundLineRepository;
 import com.tekclover.wms.api.transaction.repository.StagingHeaderRepository;
@@ -101,6 +104,12 @@ public class InboundHeaderService extends BaseService {
 	
 	@Autowired
 	private WarehouseService warehouseService;
+	
+	@Autowired
+	PropertiesConfig propertiesConfig;
+	
+	@Autowired
+	private IntegrationApiResponseRepository integrationApiResponseRepository;
 	
 	/**
 	 * getInboundHeaders
@@ -672,7 +681,6 @@ public class InboundHeaderService extends BaseService {
 		ASNHeader asnHeader = new ASNHeader();
 		asnHeader.setAsnNumber(confirmedInboundHeader.getRefDocNumber());	// REF_DOC_NO
 		
-		
 		List<ASNLine> asnLines = new ArrayList<>();
 		for (InboundLine inboundLine : confirmedInboundLines) {
 			asnHeader.setSupplierInvoice(inboundLine.getInvoiceNo());
@@ -745,6 +753,18 @@ public class InboundHeaderService extends BaseService {
 		AXAuthToken authToken = authTokenService.generateAXOAuthToken();
 		AXApiResponse apiResponse = warehouseService.postASNConfirmation(asn, authToken.getAccess_token());
 		log.info("apiResponse : " + apiResponse);
+		
+		// Capture the AXResponse in Table
+		IntegrationApiResponse response = new IntegrationApiResponse();
+		response.setOrderNumber(asnHeader.getAsnNumber());
+		response.setOrderType("INBOUND");
+		response.setOrderTypeId(confirmedInboundHeader.getInboundOrderTypeId());
+		response.setResponseCode(apiResponse.getStatusCode());
+		response.setResponseText(apiResponse.getMessage());
+		response.setApiUrl(propertiesConfig.getAxapiServiceAsnUrl());
+		response.setTransDate(new Date());
+		
+		integrationApiResponseRepository.save(response);
 		return apiResponse;
 	}
 	
@@ -831,6 +851,18 @@ public class InboundHeaderService extends BaseService {
 		AXAuthToken authToken = authTokenService.generateAXOAuthToken();
 		AXApiResponse apiResponse = warehouseService.postStoreReturnConfirmation(storeReturn, authToken.getAccess_token());
 		log.info("apiResponse : " + apiResponse);
+		
+		// Capture the AXResponse in Table
+		IntegrationApiResponse response = new IntegrationApiResponse();
+		response.setOrderNumber(storeReturnHeader.getTransferOrderNumber());
+		response.setOrderType("INBOUND");
+		response.setOrderTypeId(confirmedInboundHeader.getInboundOrderTypeId());
+		response.setResponseCode(apiResponse.getStatusCode());
+		response.setResponseText(apiResponse.getMessage());
+		response.setApiUrl(propertiesConfig.getAxapiServiceStoreReturnUrl());
+		response.setTransDate(new Date());
+		
+		integrationApiResponseRepository.save(response);
 		return apiResponse;
 	}
 	
@@ -907,6 +939,18 @@ public class InboundHeaderService extends BaseService {
 		AXAuthToken authToken = authTokenService.generateAXOAuthToken();
 		AXApiResponse apiResponse = warehouseService.postSOReturnConfirmation(soReturn, authToken.getAccess_token());
 		log.info("apiResponse : " + apiResponse);
+		
+		// Capture the AXResponse in Table
+		IntegrationApiResponse response = new IntegrationApiResponse();
+		response.setOrderNumber(soReturnHeader.getReturnOrderReference());
+		response.setOrderType("INBOUND");
+		response.setOrderTypeId(confirmedInboundHeader.getInboundOrderTypeId());
+		response.setResponseCode(apiResponse.getStatusCode());
+		response.setResponseText(apiResponse.getMessage());
+		response.setApiUrl(propertiesConfig.getAxapiServiceSOReturnUrl());
+		response.setTransDate(new Date());
+		
+		integrationApiResponseRepository.save(response);
 		return apiResponse;
 	}
 	
@@ -994,6 +1038,18 @@ public class InboundHeaderService extends BaseService {
 		AXAuthToken authToken = authTokenService.generateAXOAuthToken();
 		AXApiResponse apiResponse = warehouseService.postInterWarehouseTransferConfirmation(interWarehouseTransfer, authToken.getAccess_token());
 		log.info("apiResponse : " + apiResponse);
+		
+		// Capture the AXResponse in Table
+		IntegrationApiResponse response = new IntegrationApiResponse();
+		response.setOrderNumber(toHeader.getTransferOrderNumber());
+		response.setOrderType("INBOUND");
+		response.setOrderTypeId(confirmedInboundHeader.getInboundOrderTypeId());
+		response.setResponseCode(apiResponse.getStatusCode());
+		response.setResponseText(apiResponse.getMessage());
+		response.setApiUrl(propertiesConfig.getAxapiServiceInterwareHouseUrl());
+		response.setTransDate(new Date());
+		
+		integrationApiResponseRepository.save(response);
 		return apiResponse;
 	}
 }

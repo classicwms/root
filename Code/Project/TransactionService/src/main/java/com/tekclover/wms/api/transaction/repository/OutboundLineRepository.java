@@ -4,9 +4,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import com.tekclover.wms.api.transaction.model.report.FastSlowMovingDashboard;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -17,6 +17,7 @@ import com.tekclover.wms.api.transaction.model.impl.OutBoundLineImpl;
 import com.tekclover.wms.api.transaction.model.impl.ShipmentDispatchSummaryReportImpl;
 import com.tekclover.wms.api.transaction.model.impl.StockMovementReportImpl;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundLine;
+import com.tekclover.wms.api.transaction.model.report.FastSlowMovingDashboard;
 
 @Repository
 @Transactional
@@ -37,7 +38,7 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 
 	public List<OutboundLine> findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndDeletionIndicator(
 			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long deletionIndicator);
-
+	
 	/*
 	 * Delivery Queries
 	 */
@@ -304,5 +305,28 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 	public List<FastSlowMovingDashboard.FastSlowMovingDashboardImpl> getFastSlowMovingDashboardData(@Param ("warehouseId") String warehouseId,
 																				 @Param ("fromDate") Date fromDate,
 																				 @Param ("toDate") Date toDate);
+
+	@Query("Select count(ob) from OutboundLine ob where ob.warehouseId=:warehouseId and ob.preOutboundNo=:preOutboundNo and \r\n"
+			+ " ob.refDocNumber=:refDocNumber and ob.partnerCode=:partnerCode and ob.statusId in :statusId and ob.deletionIndicator=:deletionIndicator")
+	public long getOutboudLineByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndStatusIdInAndDeletionIndicator(
+			 @Param ("warehouseId") String warehouseId, @Param ("preOutboundNo") String preOutboundNo, 
+			 @Param ("refDocNumber") String refDocNumber, @Param ("partnerCode") String partnerCode, @Param ("statusId") List<Long> statusId, 
+			 @Param ("deletionIndicator") long deletionIndicator);
+
+	public List<OutboundLine> findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndStatusIdInAndDeletionIndicator(
+			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, List<Long> statusId,
+			long i);
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param refDocNumber
+	 * @param statusId
+	 */
+	@Modifying(clearAutomatically = true)
+	@Query("UPDATE OutboundLine ob SET ob.statusId = :statusId WHERE ob.warehouseId = :warehouseId AND \r\n "
+			+ " ob.refDocNumber = :refDocNumber AND ob.lineNumber in :lineNumber")
+	public void updateOutboundLineStatus(@Param ("warehouseId") String warehouseId,
+			@Param ("refDocNumber") String refDocNumber, @Param ("statusId") Long statusId, @Param ("lineNumber") List<Long> lineNumber);
 
 }
