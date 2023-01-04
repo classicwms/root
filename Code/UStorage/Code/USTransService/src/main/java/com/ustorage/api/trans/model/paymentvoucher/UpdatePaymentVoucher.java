@@ -1,0 +1,67 @@
+package com.ustorage.api.trans.model.paymentvoucher;
+
+import java.util.Date;
+
+import lombok.Data;
+
+@Data
+public class UpdatePaymentVoucher {
+
+	private String serviceType;
+	private String codeId;
+
+	private String storeNumber;
+
+	private String customerName;
+
+	private String contractNumber;
+
+	private String sbu;
+
+	private String period;
+
+	private Date startDate;
+
+	private Date endDate;
+	private Date voucherDate;
+	private Date paidDate;
+
+	private String voucherAmount;
+
+	private String modeOfPayment;
+
+	private String paymentReference;
+
+	private String remarks;
+
+	private String voucherStatus;
+
+	private String documentType;
+
+	private String bank;
+
+	private String status;
+		
+	private Long deletionIndicator;
+
+	private String referenceField1;
+
+	private String referenceField2;
+
+	private String referenceField3;
+
+	private String referenceField4;
+
+	private String referenceField5;
+
+	private String referenceField6;
+
+	private String referenceField7;
+
+	private String referenceField8;
+
+	private String referenceField9;
+
+	private String referenceField10;
+
+}

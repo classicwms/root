@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="2a877dd5-353c-4935-9ae9-e0452dd3a070" name="Changes" comment="US-Trans-Mstr-Wrpr-Code-update">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ustorage/api/trans/controller/AgreementController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ustorage/api/trans/controller/AgreementController.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../.." />
+  </component>
+  <component name="JpbToolWindowState">
+    <option name="myId2FirstActivated">
+      <map>
+        <entry key="com.haulmont.jpb.jpaInspector" value="true" />
+        <entry key="com.haulmont.jpb.jpaPalette" value="true" />
+        <entry key="com.haulmont.jpb.jpaStructure" value="true" />
+      </map>
+    </option>
+    <option name="myId2Visible">
+      <map>
+        <entry key="com.haulmont.jpb.jpaInspector" value="false" />
+        <entry key="com.haulmont.jpb.jpaPalette" value="false" />
+        <entry key="com.haulmont.jpb.jpaStructure" value="false" />
+      </map>
+    </option>
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2H246MEsYmyysA7PzcElE5vNBvK" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "last_opened_file_path": "G:/root/UStorage/Code/USMasterService"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.ustorage.api.trans.model.consumablepurchase" />
+      <recent name="com.ustorage.api.trans.controller" />
+      <recent name="com.ustorage.api.trans.repository" />
+      <recent name="com.ustorage.api.trans.service" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="USTransServiceApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.ustorage.api.trans.USTransServiceApplication" />
+      <module name="UStransService.main" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.ustorage.api.trans.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.USTransServiceApplication" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="2a877dd5-353c-4935-9ae9-e0452dd3a070" name="Changes" comment="" />
+      <created>1667469668177</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1667469668177</updated>
+    </task>
+    <task id="LOCAL-00001" summary="US-Trans-Mstr-Wrpr-Code-update">
+      <created>1668771504010</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1668771504010</updated>
+    </task>
+    <task id="LOCAL-00002" summary="US-Trans-Mstr-Wrpr-Code-update-CP-ary">
+      <created>1669035076043</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1669035076044</updated>
+    </task>
+    <task id="LOCAL-00003" summary="US-Trans-Mstr-Wrpr-Code-CP-update">
+      <created>1669098673487</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1669098673487</updated>
+    </task>
+    <task id="LOCAL-00004" summary="US-Trans-Mstr-Wrpr-Code-field add">
+      <created>1669124494967</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1669124494967</updated>
+    </task>
+    <task id="LOCAL-00005" summary="US-Trans-Wrpr-status-Code">
+      <created>1669188918753</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1669188918753</updated>
+    </task>
+    <task id="LOCAL-00006" summary="US-Trans-Wrpr-Code-update">
+      <created>1669289979339</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1669289979339</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
+    <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="US-Trans-Mstr-Wrpr-Code-update" />
+    <MESSAGE value="US-Trans-Mstr-Wrpr-Code-update-CP-ary" />
+    <MESSAGE value="US-Trans-Mstr-Wrpr-Code-CP-update" />
+    <MESSAGE value="US-Trans-Mstr-Wrpr-Code-field add" />
+    <MESSAGE value="US-Trans-Wrpr-status-Code" />
+    <MESSAGE value="US-Trans-Wrpr-Code-update" />
+    <option name="LAST_COMMIT_MESSAGE" value="US-Trans-Wrpr-Code-update" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/UStransService$USTransServiceApplication.ic" NAME="USTransServiceApplication Coverage Results" MODIFIED="1669286096773" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false">
+      <FILTER>com.ustorage.api.trans.*</FILTER>
+    </SUITE>
+  </component>
+</project>
