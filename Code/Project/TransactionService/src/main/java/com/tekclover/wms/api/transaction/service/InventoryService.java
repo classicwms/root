@@ -274,6 +274,29 @@ public class InventoryService extends BaseService {
 	/**
 	 * 
 	 * @param warehouseId
+	 * @param storageBin
+	 * @return
+	 */
+	public Inventory getInventoryByStorageBin (String warehouseId, String storageBin) {
+		Optional<Inventory> inventory = 
+				inventoryRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndStorageBinAndDeletionIndicator(
+						getLanguageId(),
+						getCompanyCode(),
+						getPlantId(),
+						warehouseId, 
+						storageBin,
+						0L
+						);
+		if (inventory.isEmpty()) {
+			log.error ("---------Inventory is null-----------");
+			return null;
+		}
+		return inventory.get();
+	}
+	
+	/**
+	 * 
+	 * @param warehouseId
 	 * @param itemCode
 	 * @param binClassId
 	 * @return

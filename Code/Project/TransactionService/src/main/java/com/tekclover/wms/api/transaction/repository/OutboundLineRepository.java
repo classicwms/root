@@ -222,7 +222,7 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 			+ "FROM tbloutboundline OL\r\n"
 			+ "JOIN tblbusinesspartner BP ON BP.PARTNER_CODE = OL.PARTNER_CODE\r\n"
 			+ "JOIN tbloutboundheader OH ON OH.REF_DOC_NO = OL.REF_DOC_NO\r\n"
-			+ "WHERE OL.WH_ID = :warehouseId AND (OL.DLV_CTD_ON BETWEEN :fromDeliveryDate AND :toDeliveryDate) \n"
+			+ "WHERE OL.WH_ID = :warehouseId AND (OL.DLV_CNF_ON BETWEEN :fromDeliveryDate AND :toDeliveryDate) \n"
 			+ "and ol.is_deleted = 0 and OL.REF_FIELD_2 is null ", nativeQuery = true)
 	public List<OrderStatusReportImpl> getOrderStatusReportFromOutboundLines(@Param ("warehouseId") String warehouseId,
 																			 @Param ("fromDeliveryDate") Date fromDeliveryDate,
@@ -324,9 +324,12 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 	 * @param statusId
 	 */
 	@Modifying(clearAutomatically = true)
-	@Query("UPDATE OutboundLine ob SET ob.statusId = :statusId WHERE ob.warehouseId = :warehouseId AND \r\n "
+	@Query("UPDATE OutboundLine ob SET ob.statusId = :statusId \r\n"
+			+ " WHERE ob.warehouseId = :warehouseId AND \r\n "
 			+ " ob.refDocNumber = :refDocNumber AND ob.lineNumber in :lineNumber")
 	public void updateOutboundLineStatus(@Param ("warehouseId") String warehouseId,
-			@Param ("refDocNumber") String refDocNumber, @Param ("statusId") Long statusId, @Param ("lineNumber") List<Long> lineNumber);
+			@Param ("refDocNumber") String refDocNumber, 
+			@Param ("statusId") Long statusId, 
+			@Param ("lineNumber") List<Long> lineNumber);
 
 }

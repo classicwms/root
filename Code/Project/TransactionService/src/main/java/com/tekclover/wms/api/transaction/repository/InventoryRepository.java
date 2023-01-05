@@ -220,4 +220,7 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 			@Param(value = "warehouseId") String warehouseId,
 			@Param(value = "itemCode") String itemCode,
 			@Param(value = "storageSecIds") List<String> storageSecIds);
+
+	public Optional<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndStorageBinAndDeletionIndicator(
+			String languageId, String companyCode, String plantId, String warehouseId, String storageBin, long l);
 }

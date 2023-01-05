@@ -1,5 +1,37 @@
 package com.tekclover.wms.api.transaction.service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Deque;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.expression.ParseException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.transaction.model.dto.BusinessPartner;
@@ -20,31 +52,39 @@ import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundLineReport;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupHeader;
 import com.tekclover.wms.api.transaction.model.outbound.quality.QualityHeader;
-import com.tekclover.wms.api.transaction.model.report.*;
-import com.tekclover.wms.api.transaction.repository.*;
-import com.tekclover.wms.api.transaction.util.CommonUtils;
+import com.tekclover.wms.api.transaction.model.report.Dashboard;
+import com.tekclover.wms.api.transaction.model.report.FastSlowMovingDashboard;
+import com.tekclover.wms.api.transaction.model.report.FastSlowMovingDashboardRequest;
+import com.tekclover.wms.api.transaction.model.report.InventoryReport;
+import com.tekclover.wms.api.transaction.model.report.MetricsSummary;
+import com.tekclover.wms.api.transaction.model.report.MobileDashboard;
+import com.tekclover.wms.api.transaction.model.report.OrderStatusReport;
+import com.tekclover.wms.api.transaction.model.report.Receipt;
+import com.tekclover.wms.api.transaction.model.report.ReceiptConfimationReport;
+import com.tekclover.wms.api.transaction.model.report.ReceiptHeader;
+import com.tekclover.wms.api.transaction.model.report.SearchOrderStatusReport;
+import com.tekclover.wms.api.transaction.model.report.ShipmentDeliveryReport;
+import com.tekclover.wms.api.transaction.model.report.ShipmentDeliverySummary;
+import com.tekclover.wms.api.transaction.model.report.ShipmentDeliverySummaryReport;
+import com.tekclover.wms.api.transaction.model.report.ShipmentDispatch;
+import com.tekclover.wms.api.transaction.model.report.ShipmentDispatchHeader;
+import com.tekclover.wms.api.transaction.model.report.ShipmentDispatchList;
+import com.tekclover.wms.api.transaction.model.report.ShipmentDispatchSummaryReport;
+import com.tekclover.wms.api.transaction.model.report.StockMovementReport;
+import com.tekclover.wms.api.transaction.model.report.StockReport;
+import com.tekclover.wms.api.transaction.model.report.SummaryMetrics;
+import com.tekclover.wms.api.transaction.repository.ContainerReceiptRepository;
+import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
+import com.tekclover.wms.api.transaction.repository.InboundHeaderRepository;
+import com.tekclover.wms.api.transaction.repository.InboundLineRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryRepository;
+import com.tekclover.wms.api.transaction.repository.OutboundHeaderRepository;
+import com.tekclover.wms.api.transaction.repository.OutboundLineRepository;
+import com.tekclover.wms.api.transaction.repository.StorageBinRepository;
 import com.tekclover.wms.api.transaction.util.DateUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
-import org.springframework.expression.ParseException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -849,24 +889,22 @@ public class ReportsService extends BaseService {
 
 		List<OrderStatusReportImpl> outboundLineSearchResults = outboundLineService
 				.findOutboundLineOrderStatusReport(searchOutboundLine);
-		log.info("outboundLineSearchResults--------> : " + outboundLineSearchResults);
 
+		if (request.getCustomerCode() != null && !request.getCustomerCode().isEmpty()) {
+			outboundLineSearchResults = outboundLineSearchResults.stream().filter(data -> request.getCustomerCode().contains(data.getPartnerCode())).collect(Collectors.toList());
+		}
 
-			if (request.getCustomerCode() != null && !request.getCustomerCode().isEmpty()) {
-				outboundLineSearchResults = outboundLineSearchResults.stream().filter(data -> request.getCustomerCode().contains(data.getPartnerCode())).collect(Collectors.toList());
-			}
+		if (request.getOrderNumber() != null && !request.getOrderNumber().isEmpty()) {
+			outboundLineSearchResults = outboundLineSearchResults.stream().filter(data -> request.getOrderNumber().contains(data.getSoNumber())).collect(Collectors.toList());
+		}
 
-			if (request.getOrderNumber() != null && !request.getOrderNumber().isEmpty()) {
-				outboundLineSearchResults = outboundLineSearchResults.stream().filter(data -> request.getOrderNumber().contains(data.getSoNumber())).collect(Collectors.toList());
-			}
+		if (request.getOrderType() != null && !request.getOrderType().isEmpty()) {
+			outboundLineSearchResults = outboundLineSearchResults.stream().filter(data -> request.getOrderType().contains(data.getOrderType())).collect(Collectors.toList());
+		}
 
-			if (request.getOrderType() != null && !request.getOrderType().isEmpty()) {
-				outboundLineSearchResults = outboundLineSearchResults.stream().filter(data -> request.getOrderType().contains(data.getOrderType())).collect(Collectors.toList());
-			}
-
-			if (request.getStatusId() != null && !request.getStatusId().isEmpty()) {
-				outboundLineSearchResults = outboundLineSearchResults.stream().filter(data -> request.getStatusId().contains(data.getStatusId())).collect(Collectors.toList());
-			}
+		if (request.getStatusId() != null && !request.getStatusId().isEmpty()) {
+			outboundLineSearchResults = outboundLineSearchResults.stream().filter(data -> request.getStatusId().contains(data.getStatusId())).collect(Collectors.toList());
+		}
 
 		List<OrderStatusReport> reportOrderStatusReportList = new ArrayList<>();
 		for (OrderStatusReportImpl outboundLine : outboundLineSearchResults) {
@@ -1010,7 +1048,6 @@ public class ReportsService extends BaseService {
 				shipmentDelivery.setTotal(total);
 				shipmentDeliveryList.add(shipmentDelivery);
 			}
-//			log.info("shipmentDeliveryList : " + shipmentDeliveryList);
 			return shipmentDeliveryList;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1100,7 +1137,6 @@ public class ReportsService extends BaseService {
 				log.info("shipmentDeliverySummary : " + shipmentDeliverySummary);
 
 				shipmentDeliverySummaryList.add(shipmentDeliverySummary);
-//				log.info("shipmentDeliverySummaryReportList : " + shipmentDeliverySummaryList);
 			}
 
 			// --------------------------------------------------------------------------------------------------------------------------------

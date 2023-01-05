@@ -783,7 +783,7 @@ public class OutboundLineService extends BaseService {
 				log.info("OutboundLine updated ");
 				
 				//----------------Outbound Header update----------------------------------------------------------------------------------------
-				outboundHeaderRepository.updateOutboundHeaderStatus (warehouseId, refDocNumber, STATUS_ID_59);
+				outboundHeaderRepository.updateOutboundHeaderStatus (warehouseId, refDocNumber, STATUS_ID_59, new Date());
 				log.info("OutboundHeader updated : ");
 				
 				//----------------Preoutbound Line----------------------------------------------------------------------------------------------

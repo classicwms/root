@@ -410,12 +410,16 @@ public class PickupLineService extends BaseService {
 						if (INV_QTY == 0) {
 							// Setting up statusId = 0
 							try {
-								StorageBin dbStorageBin = mastersService.getStorageBin(inventory.getStorageBin(),
-										dbPickupLine.getWarehouseId(), authTokenForMastersService.getAccess_token());
-								dbStorageBin.setStatusId(0L);
-								dbStorageBin.setWarehouseId(dbPickupLine.getWarehouseId());
-								mastersService.updateStorageBin(inventory.getStorageBin(), dbStorageBin, loginUserID,
-										authTokenForMastersService.getAccess_token());
+								// Check whether Inventory has record or not
+								Inventory inventoryByStBin = inventoryService.getInventoryByStorageBin(warehouseId, inventory.getStorageBin());
+								if (inventoryByStBin == null) {
+									StorageBin dbStorageBin = mastersService.getStorageBin(inventory.getStorageBin(),
+											dbPickupLine.getWarehouseId(), authTokenForMastersService.getAccess_token());
+									dbStorageBin.setStatusId(0L);
+									dbStorageBin.setWarehouseId(dbPickupLine.getWarehouseId());
+									mastersService.updateStorageBin(inventory.getStorageBin(), dbStorageBin, loginUserID,
+											authTokenForMastersService.getAccess_token());
+								}
 							} catch (Exception e) {
 								log.error("updateStorageBin Error :" + e.toString());
 								e.printStackTrace();
