@@ -10,20 +10,16 @@ import javax.validation.constraints.NotBlank;
 @Data
 public class AddUser {
 
-    public enum Role {USER, ADMIN, USER_MANAGER}
-
     @NotBlank(message = "Name is mandatory")
     private String username;
     
     @NotBlank(message = "Password is mandatory")
     private String password;
-    
-    @NotBlank(message = "Email is mandatory")
+
     @Email
     private String email;
-    
-    @Enumerated(EnumType.STRING)
-    private Role role;
+
+    private String role;
     
     private String firstname;
     private String lastname;

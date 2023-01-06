@@ -74,7 +74,7 @@ public class UserService {
 	public User createUser (AddUser newUser) {
 		User dbUser = new User();
 		dbUser.setUsername(newUser.getUsername());
-		dbUser.setRole(User.Role.USER);
+		dbUser.setRole(newUser.getRole());
 		dbUser.setEmail(newUser.getEmail());
 		dbUser.setCity(newUser.getCity());
 		dbUser.setState(newUser.getState());
@@ -99,6 +99,7 @@ public class UserService {
 	 */
 	public User patchUser (Long id, User modifiedUser) {
 		User dbUser = getUser(id);
+		dbUser.setRole(modifiedUser.getRole());
 		dbUser.setEmail(modifiedUser.getEmail());
 		dbUser.setCity(modifiedUser.getCity());
 		dbUser.setState(modifiedUser.getState());

@@ -2,14 +2,11 @@ package com.ustorage.api.master.model.user;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,11 +21,8 @@ import java.util.Date;
 @Table(name = "tbluser")
 public class User {
 
-    public enum Role {USER, ADMIN, USER_MANAGER}
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    @JsonIgnore
     @Column(name = "uid")
     private Long id;
     
@@ -46,14 +40,12 @@ public class User {
     
     @Column(name = "company")
     private String company;
-    
- //   @JsonIgnore
+
     @Column(name = "password")
     private String password;
-    
-    @Enumerated(EnumType.STRING)
+
     @Column(name = "role")
-    private Role role;
+    private String role;
     
     @Column(name = "city")
     private String city;

@@ -173,7 +173,7 @@ public class DateUtils {
      * @return
      * @throws ParseException
      */
-    public static Date[] getPreviousMonth () throws ParseException {
+    public static Date[] getPreviousOneMonth () throws ParseException {
         YearMonth thisMonth = YearMonth.now();
         YearMonth lastMonth = thisMonth.minusMonths(1);
         LocalDate monthBegin = lastMonth.atDay(1);
@@ -182,10 +182,184 @@ public class DateUtils {
         log.info("monthBegin: " + monthBegin);
         log.info("monthEnd: " + monthEnd);
 
-        Date[] currentMonth = addTimeToDatesForSearch(monthBegin, monthEnd);
-        return currentMonth;
+        Date[] previousOneMonth = addTimeToDatesForSearch(monthBegin, monthEnd);
+        return previousOneMonth;
+    }
+    /**
+     *
+     * @return
+     * @throws ParseException
+     */
+    public static Date[] getPreviousSecondMonth () throws ParseException {
+        YearMonth thisMonth = YearMonth.now();
+        YearMonth lastMonth = thisMonth.minusMonths(2);
+        LocalDate monthBegin = lastMonth.atDay(1);
+        LocalDate monthEnd = lastMonth.atEndOfMonth();
+
+        log.info("monthBegin: " + monthBegin);
+        log.info("monthEnd: " + monthEnd);
+
+        Date[] previousSecondMonth = addTimeToDatesForSearch(monthBegin, monthEnd);
+        return previousSecondMonth;
     }
 
+    /**
+     *
+     * @return
+     * @throws ParseException
+     */
+    public static Date[] getPreviousThirdMonth () throws ParseException {
+        YearMonth thisMonth = YearMonth.now();
+        YearMonth lastMonth = thisMonth.minusMonths(3);
+        LocalDate monthBegin = lastMonth.atDay(1);
+        LocalDate monthEnd = lastMonth.atEndOfMonth();
+
+        log.info("monthBegin: " + monthBegin);
+        log.info("monthEnd: " + monthEnd);
+
+        Date[] previousThirdMonth = addTimeToDatesForSearch(monthBegin, monthEnd);
+        return previousThirdMonth;
+    }
+
+    /**
+     *
+     * @return
+     * @throws ParseException
+     */
+    public static Date[] getPreviousFourthMonth () throws ParseException {
+        YearMonth thisMonth = YearMonth.now();
+        YearMonth lastMonth = thisMonth.minusMonths(4);
+        LocalDate monthBegin = lastMonth.atDay(1);
+        LocalDate monthEnd = lastMonth.atEndOfMonth();
+
+        log.info("monthBegin: " + monthBegin);
+        log.info("monthEnd: " + monthEnd);
+
+        Date[] previousFourthMonth = addTimeToDatesForSearch(monthBegin, monthEnd);
+        return previousFourthMonth;
+    }
+
+    /**
+     *
+     * @return
+     * @throws ParseException
+     */
+    public static Date[] getPreviousFifthMonth () throws ParseException {
+        YearMonth thisMonth = YearMonth.now();
+        YearMonth lastMonth = thisMonth.minusMonths(5);
+        LocalDate monthBegin = lastMonth.atDay(1);
+        LocalDate monthEnd = lastMonth.atEndOfMonth();
+
+        log.info("monthBegin: " + monthBegin);
+        log.info("monthEnd: " + monthEnd);
+
+        Date[] previousFifthMonth = addTimeToDatesForSearch(monthBegin, monthEnd);
+        return previousFifthMonth;
+    }
+
+    /**
+     *
+     * @return
+     * @throws ParseException
+     */
+    public static Date[] getPreviousSixthMonth () throws ParseException {
+        YearMonth thisMonth = YearMonth.now();
+        YearMonth lastMonth = thisMonth.minusMonths(6);
+        LocalDate monthBegin = lastMonth.atDay(1);
+        LocalDate monthEnd = lastMonth.atEndOfMonth();
+
+        log.info("monthBegin: " + monthBegin);
+        log.info("monthEnd: " + monthEnd);
+
+        Date[] previousSixthMonth = addTimeToDatesForSearch(monthBegin, monthEnd);
+        return previousSixthMonth;
+    }
+
+    /**
+     *
+     * @return
+     * @throws ParseException
+     */
+    public static Date[] getPreviousSeventhMonth () throws ParseException {
+        YearMonth thisMonth = YearMonth.now();
+        YearMonth lastMonth = thisMonth.minusMonths(7);
+        LocalDate monthBegin = lastMonth.atDay(1);
+        LocalDate monthEnd = lastMonth.atEndOfMonth();
+
+        log.info("monthBegin: " + monthBegin);
+        log.info("monthEnd: " + monthEnd);
+
+        Date[] previousSeventhMonth = addTimeToDatesForSearch(monthBegin, monthEnd);
+        return previousSeventhMonth;
+    }
+    /**
+     *
+     * @return
+     * @throws ParseException
+     */
+    public static Date[] getPreviousEighthMonth () throws ParseException {
+        YearMonth thisMonth = YearMonth.now();
+        YearMonth lastMonth = thisMonth.minusMonths(8);
+        LocalDate monthBegin = lastMonth.atDay(1);
+        LocalDate monthEnd = lastMonth.atEndOfMonth();
+
+        log.info("monthBegin: " + monthBegin);
+        log.info("monthEnd: " + monthEnd);
+
+        Date[] previousEighthMonth = addTimeToDatesForSearch(monthBegin, monthEnd);
+        return previousEighthMonth;
+    }
+    /**
+     *
+     * @return
+     * @throws ParseException
+     */
+    public static Date[] getPreviousNinethMonth () throws ParseException {
+        YearMonth thisMonth = YearMonth.now();
+        YearMonth lastMonth = thisMonth.minusMonths(9);
+        LocalDate monthBegin = lastMonth.atDay(1);
+        LocalDate monthEnd = lastMonth.atEndOfMonth();
+
+        log.info("monthBegin: " + monthBegin);
+        log.info("monthEnd: " + monthEnd);
+
+        Date[] previousNinethMonth = addTimeToDatesForSearch(monthBegin, monthEnd);
+        return previousNinethMonth;
+    }
+    /**
+     *
+     * @return
+     * @throws ParseException
+     */
+    public static Date[] getPreviousTenthMonth () throws ParseException {
+        YearMonth thisMonth = YearMonth.now();
+        YearMonth lastMonth = thisMonth.minusMonths(10);
+        LocalDate monthBegin = lastMonth.atDay(1);
+        LocalDate monthEnd = lastMonth.atEndOfMonth();
+
+        log.info("monthBegin: " + monthBegin);
+        log.info("monthEnd: " + monthEnd);
+
+        Date[] previousTenthMonth = addTimeToDatesForSearch(monthBegin, monthEnd);
+        return previousTenthMonth;
+    }
+    /**
+     *
+     * @return
+     * @throws ParseException
+     */
+    public static Date[] getPreviousEleventhMonth () throws ParseException {
+        YearMonth thisMonth = YearMonth.now();
+        YearMonth lastMonth = thisMonth.minusMonths(11);
+        LocalDate monthBegin = lastMonth.atDay(1);
+        LocalDate monthEnd = lastMonth.atEndOfMonth();
+
+        log.info("monthBegin: " + monthBegin);
+        log.info("monthEnd: " + monthEnd);
+
+        Date[] previousEleventhMonth = addTimeToDatesForSearch(monthBegin, monthEnd);
+        return previousEleventhMonth;
+    }
     /**
      *
      * @return

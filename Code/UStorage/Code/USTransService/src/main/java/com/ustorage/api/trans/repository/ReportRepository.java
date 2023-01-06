@@ -522,4 +522,65 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			+ "te.IS_DELETED = 0", nativeQuery = true)
 	public List<IKeyValuePair> getEnquiry (
 			@Param(value = "customerCode") String customerCode);
+
+	//Dashboard-Ustorage Invoice-InvoiceAmount
+	@Query (value = "SELECT COALESCE(sum(convert(float,ti.invoice_amount)),0) as amount \r\n"
+			+ "FROM tblinvoice ti \r\n"
+			+ "WHERE \n"
+			+ "(COALESCE(:startDate,null) IS NULL OR (ti.invoice_date between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"
+			+ "ti.sbu='Ustorage' and ti.IS_DELETED = 0 ", nativeQuery = true)
+	public List<Float> getUstorageInvoiceAmount (
+			@Param(value ="startDate") Date startDate,
+			@Param(value ="endDate") Date endDate);
+
+	//Dashboard-Ulogistics Invoice-InvoiceAmount
+	@Query (value = "SELECT COALESCE(sum(convert(float,ti.invoice_amount)),0) as amount \r\n"
+			+ "FROM tblinvoice ti \r\n"
+			+ "WHERE \n"
+			+ "(COALESCE(:startDate,null) IS NULL OR (ti.invoice_date between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"
+			+ "ti.sbu='Ulogistics' and ti.IS_DELETED = 0 ", nativeQuery = true)
+	public List<Float> getUlogisticsInvoiceAmount (
+			@Param(value ="startDate") Date startDate,
+			@Param(value ="endDate") Date endDate);
+
+	//Dashboard-Ustorage Payment Voucher-PaidAmount
+	@Query (value = "SELECT COALESCE(sum(convert(float,tp.voucher_amount)),0) as amount \r\n"
+			+ "FROM tblpaymentvoucher tp \r\n"
+			+ "WHERE \n"
+			+ "(COALESCE(:startDate,null) IS NULL OR (tp.voucher_date between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"
+			+ "tp.sbu='Ustorage' and tp.IS_DELETED = 0", nativeQuery = true)
+	public List<Float> getUstoragePaidAmount (
+			@Param(value ="startDate") Date startDate,
+			@Param(value ="endDate") Date endDate);
+
+	//Dashboard-Ulogistics Payment Voucher-PaidAmount
+	@Query (value = "SELECT COALESCE(sum(convert(float,tp.voucher_amount)),0) as amount \r\n"
+			+ "FROM tblpaymentvoucher tp \r\n"
+			+ "WHERE \n"
+			+ "(COALESCE(:startDate,null) IS NULL OR (tp.voucher_date between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"
+			+ "tp.sbu='Ulogistics' and tp.IS_DELETED = 0", nativeQuery = true)
+	public List<Float> getUlogisticsPaidAmount (
+			@Param(value ="startDate") Date startDate,
+			@Param(value ="endDate") Date endDate);
+
+	//Dashboard-Lead Count
+	@Query (value = "SELECT count(customer_code) as count \r\n"
+			+ "FROM tblleadcustomer tl \r\n"
+			+ "WHERE \n"
+			+ "(COALESCE(:startDate,null) IS NULL OR (tl.ctd_on between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"
+			+ "tl.type='LEAD' and tl.IS_DELETED = 0", nativeQuery = true)
+	public List<Integer> getLeadCount (
+			@Param(value ="startDate") Date startDate,
+			@Param(value ="endDate") Date endDate);
+
+	//Dashboard-Customer Count
+	@Query (value = "SELECT count(customer_code) as count \r\n"
+			+ "FROM tblleadcustomer tl \r\n"
+			+ "WHERE \n"
+			+ "(COALESCE(:startDate,null) IS NULL OR (tl.ctd_on between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"
+			+ "tl.type='CUSTOMER' and tl.IS_DELETED = 0", nativeQuery = true)
+	public List<Integer> getCustomerCount (
+			@Param(value ="startDate") Date startDate,
+			@Param(value ="endDate") Date endDate);
+
 }

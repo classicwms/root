@@ -545,5 +545,413 @@ public class ReportService {
 		return dropdown;
 	}
 
+	public BilledPaid getBilledPaid () throws ParseException {
+
+		BilledPaid billedPaid = new BilledPaid();
+	//ustorage billed--------------------------------------------------------------------------------
+		InvoiceAmount invoiceAmount = new InvoiceAmount();
+		invoiceAmount.setBilled(new ArrayList<>());
+		// Current Month
+		Date[] dates = DateUtils.getCurrentMonth();
+		List<Float> currentMonth = reportRepository.getUstorageInvoiceAmount( dates[0], dates[1]);
+		if(currentMonth!=null){
+			invoiceAmount.getBilled().add(currentMonth.get(0));
+		}
+		// Previous One Month
+		Date[] dates1 = DateUtils.getPreviousOneMonth();
+		List<Float> previousOneMonth = reportRepository.getUstorageInvoiceAmount( dates1[0], dates1[1]);
+		if(previousOneMonth!=null){
+			invoiceAmount.getBilled().add(previousOneMonth.get(0));
+		}
+		// Previous Second Month
+		Date[] dates2 = DateUtils.getPreviousSecondMonth();
+		List<Float> previousSecondMonth = reportRepository.getUstorageInvoiceAmount( dates2[0], dates2[1]);
+		if(previousSecondMonth!=null){
+			invoiceAmount.getBilled().add(previousSecondMonth.get(0));
+		}
+		// Previous Third Month
+		Date[] dates3 = DateUtils.getPreviousThirdMonth();
+		List<Float> previousThirdMonth = reportRepository.getUstorageInvoiceAmount( dates3[0], dates3[1]);
+		if(previousThirdMonth!=null){
+			invoiceAmount.getBilled().add(previousThirdMonth.get(0));
+		}
+		// Previous Fourth Month
+		Date[] dates4 = DateUtils.getPreviousFourthMonth();
+		List<Float> previousFourthMonth = reportRepository.getUstorageInvoiceAmount( dates4[0], dates4[1]);
+		if(previousFourthMonth!=null){
+			invoiceAmount.getBilled().add(previousFourthMonth.get(0));
+		}
+		// Previous Fifth Month
+		Date[] dates5 = DateUtils.getPreviousFifthMonth();
+		List<Float> previousFifthMonth = reportRepository.getUstorageInvoiceAmount( dates5[0], dates5[1]);
+		if(previousFifthMonth!=null){
+			invoiceAmount.getBilled().add(previousFifthMonth.get(0));
+		}
+		// Previous Sixth Month
+		Date[] dates6 = DateUtils.getPreviousSixthMonth();
+		List<Float> previousSixthMonth = reportRepository.getUstorageInvoiceAmount( dates6[0], dates6[1]);
+		if(previousSixthMonth!=null){
+			invoiceAmount.getBilled().add(previousSixthMonth.get(0));
+		}
+		// Previous Seventh Month
+		Date[] dates7 = DateUtils.getPreviousSeventhMonth();
+		List<Float> previousSeventhMonth = reportRepository.getUstorageInvoiceAmount( dates7[0], dates7[1]);
+		if(previousSeventhMonth!=null){
+			invoiceAmount.getBilled().add(previousSeventhMonth.get(0));
+		}
+		// Previous Eighth Month
+		Date[] dates8 = DateUtils.getPreviousEighthMonth();
+		List<Float> previousEighthMonth = reportRepository.getUstorageInvoiceAmount( dates8[0], dates8[1]);
+		if(previousEighthMonth!=null){
+			invoiceAmount.getBilled().add(previousEighthMonth.get(0));
+		}else{
+			invoiceAmount.getBilled().add(previousEighthMonth.set(0,(float) 0));
+		}
+		// Previous Nineth Month
+		Date[] dates9 = DateUtils.getPreviousNinethMonth();
+		List<Float> previousNinethMonth = reportRepository.getUstorageInvoiceAmount( dates9[0], dates9[1]);
+		if(previousNinethMonth!=null){
+			invoiceAmount.getBilled().add(previousNinethMonth.get(0));
+		}
+		// Previous Tenth Month
+		Date[] dates10 = DateUtils.getPreviousTenthMonth();
+		List<Float> previousTenthMonth = reportRepository.getUstorageInvoiceAmount( dates10[0], dates10[1]);
+		if(previousTenthMonth!=null){
+			invoiceAmount.getBilled().add(previousTenthMonth.get(0));
+		}
+		// Previous Eleventh Month
+		Date[] dates11 = DateUtils.getPreviousEleventhMonth();
+		List<Float> previousEleventhMonth = reportRepository.getUstorageInvoiceAmount( dates11[0], dates11[1]);
+		if(previousEleventhMonth!=null){
+			invoiceAmount.getBilled().add(previousEleventhMonth.get(0));
+		}
+
+		billedPaid.setUstorageBilled(invoiceAmount.getBilled());
+
+//dashboard ulogistics billed-----------------------------------------------------------------------------
+		UlogisticsInvoiceAmount ulogisticsInvoiceAmount = new UlogisticsInvoiceAmount();
+		ulogisticsInvoiceAmount.setBilled(new ArrayList<>());
+		// Current Month
+		Date[] uldates = DateUtils.getCurrentMonth();
+		List<Float> ucurrentMonth = reportRepository.getUlogisticsInvoiceAmount( uldates[0], uldates[1]);
+		if(ucurrentMonth!=null){
+			ulogisticsInvoiceAmount.getBilled().add(ucurrentMonth.get(0));
+		}
+		// Previous One Month
+		Date[] uldates1 = DateUtils.getPreviousOneMonth();
+		List<Float> upreviousOneMonth = reportRepository.getUlogisticsInvoiceAmount( uldates1[0], uldates1[1]);
+		if(upreviousOneMonth!=null){
+			ulogisticsInvoiceAmount.getBilled().add(upreviousOneMonth.get(0));
+		}
+		// Previous Second Month
+		Date[] uldates2 = DateUtils.getPreviousSecondMonth();
+		List<Float> upreviousSecondMonth = reportRepository.getUlogisticsInvoiceAmount( uldates2[0], uldates2[1]);
+		if(upreviousSecondMonth!=null){
+			ulogisticsInvoiceAmount.getBilled().add(upreviousSecondMonth.get(0));
+		}
+		// Previous Third Month
+		Date[] uldates3 = DateUtils.getPreviousThirdMonth();
+		List<Float> upreviousThirdMonth = reportRepository.getUlogisticsInvoiceAmount( uldates3[0], uldates3[1]);
+		if(upreviousThirdMonth!=null){
+			ulogisticsInvoiceAmount.getBilled().add(upreviousThirdMonth.get(0));
+		}
+		// Previous Fourth Month
+		Date[] uldates4 = DateUtils.getPreviousFourthMonth();
+		List<Float> upreviousFourthMonth = reportRepository.getUlogisticsInvoiceAmount( uldates4[0], uldates4[1]);
+		if(upreviousFourthMonth!=null){
+			ulogisticsInvoiceAmount.getBilled().add(upreviousFourthMonth.get(0));
+		}
+		// Previous Fifth Month
+		Date[] uldates5 = DateUtils.getPreviousFifthMonth();
+		List<Float> upreviousFifthMonth = reportRepository.getUlogisticsInvoiceAmount( uldates5[0], uldates5[1]);
+		if(upreviousFifthMonth!=null){
+			ulogisticsInvoiceAmount.getBilled().add(upreviousFifthMonth.get(0));
+		}
+		// Previous Sixth Month
+		Date[] uldates6 = DateUtils.getPreviousSixthMonth();
+		List<Float> upreviousSixthMonth = reportRepository.getUlogisticsInvoiceAmount( uldates6[0], uldates6[1]);
+		if(upreviousSixthMonth!=null){
+			ulogisticsInvoiceAmount.getBilled().add(upreviousSixthMonth.get(0));
+		}
+		// Previous Seventh Month
+		Date[] uldates7 = DateUtils.getPreviousSeventhMonth();
+		List<Float> upreviousSeventhMonth = reportRepository.getUlogisticsInvoiceAmount( uldates7[0], uldates7[1]);
+		if(upreviousSeventhMonth!=null){
+			ulogisticsInvoiceAmount.getBilled().add(upreviousSeventhMonth.get(0));
+		}
+		// Previous Eighth Month
+		Date[] uldates8 = DateUtils.getPreviousEighthMonth();
+		List<Float> upreviousEighthMonth = reportRepository.getUlogisticsInvoiceAmount( uldates8[0], uldates8[1]);
+		if(upreviousEighthMonth!=null){
+			ulogisticsInvoiceAmount.getBilled().add(upreviousEighthMonth.get(0));
+		}
+		// Previous Nineth Month
+		Date[] uldates9 = DateUtils.getPreviousNinethMonth();
+		List<Float> upreviousNinethMonth = reportRepository.getUlogisticsInvoiceAmount( uldates9[0], uldates9[1]);
+		if(upreviousNinethMonth!=null){
+			ulogisticsInvoiceAmount.getBilled().add(upreviousNinethMonth.get(0));
+		}
+		// Previous Tenth Month
+		Date[] uldates10 = DateUtils.getPreviousTenthMonth();
+		List<Float> upreviousTenthMonth = reportRepository.getUlogisticsInvoiceAmount( uldates10[0], uldates10[1]);
+		if(upreviousTenthMonth!=null){
+			ulogisticsInvoiceAmount.getBilled().add(upreviousTenthMonth.get(0));
+		}
+		// Previous Eleventh Month
+		Date[] uldates11 = DateUtils.getPreviousEleventhMonth();
+		List<Float> upreviousEleventhMonth = reportRepository.getUlogisticsInvoiceAmount( uldates11[0], uldates11[1]);
+		if(upreviousEleventhMonth!=null){
+			ulogisticsInvoiceAmount.getBilled().add(upreviousEleventhMonth.get(0));
+		}
+
+		billedPaid.setUlogisticsBilled(ulogisticsInvoiceAmount.getBilled());
+
+//dashboard ustorage paid-------------------------------------------------------------------------
+		PaidAmount paidAmount = new PaidAmount();
+		paidAmount.setPaid(new ArrayList<>());
+		// Current Month
+		Date[] sdates = DateUtils.getCurrentMonth();
+		List<Float> scurrentMonth = reportRepository.getUstoragePaidAmount( sdates[0], sdates[1]);
+		if(scurrentMonth!=null){
+			paidAmount.getPaid().add(scurrentMonth.get(0));
+		}
+		// Previous One Month
+		Date[] sdates1 = DateUtils.getPreviousOneMonth();
+		List<Float> spreviousOneMonth = reportRepository.getUstoragePaidAmount( sdates1[0], sdates1[1]);
+		if(spreviousOneMonth!=null){
+			paidAmount.getPaid().add(spreviousOneMonth.get(0));
+		}
+		// Previous Second Month
+		Date[] sdates2 = DateUtils.getPreviousSecondMonth();
+		List<Float> spreviousSecondMonth = reportRepository.getUstoragePaidAmount( sdates2[0], sdates2[1]);
+		if(spreviousSecondMonth!=null){
+			paidAmount.getPaid().add(spreviousSecondMonth.get(0));
+		}
+		// Previous Third Month
+		Date[] sdates3 = DateUtils.getPreviousThirdMonth();
+		List<Float> spreviousThirdMonth = reportRepository.getUstoragePaidAmount( sdates3[0], sdates3[1]);
+		if(spreviousThirdMonth!=null){
+			paidAmount.getPaid().add(spreviousThirdMonth.get(0));
+		}
+		// Previous Fourth Month
+		Date[] sdates4 = DateUtils.getPreviousFourthMonth();
+		List<Float> spreviousFourthMonth = reportRepository.getUstoragePaidAmount( sdates4[0], sdates4[1]);
+		if(spreviousFourthMonth!=null){
+			paidAmount.getPaid().add(spreviousFourthMonth.get(0));
+		}
+		// Previous Fifth Month
+		Date[] sdates5 = DateUtils.getPreviousFifthMonth();
+		List<Float> spreviousFifthMonth = reportRepository.getUstoragePaidAmount( sdates5[0], sdates5[1]);
+		if(spreviousFifthMonth!=null){
+			paidAmount.getPaid().add(spreviousFifthMonth.get(0));
+		}
+		// Previous Sixth Month
+		Date[] sdates6 = DateUtils.getPreviousSixthMonth();
+		List<Float> spreviousSixthMonth = reportRepository.getUstoragePaidAmount( sdates6[0], sdates6[1]);
+		if(spreviousSixthMonth!=null){
+			paidAmount.getPaid().add(spreviousSixthMonth.get(0));
+		}
+		// Previous Seventh Month
+		Date[] sdates7 = DateUtils.getPreviousSeventhMonth();
+		List<Float> spreviousSeventhMonth = reportRepository.getUstoragePaidAmount( sdates7[0], sdates7[1]);
+		if(spreviousSeventhMonth!=null){
+			paidAmount.getPaid().add(spreviousSeventhMonth.get(0));
+		}
+		// Previous Eighth Month
+		Date[] sdates8 = DateUtils.getPreviousEighthMonth();
+		List<Float> spreviousEighthMonth = reportRepository.getUstoragePaidAmount( sdates8[0], sdates8[1]);
+		if(spreviousEighthMonth!=null){
+			paidAmount.getPaid().add(spreviousEighthMonth.get(0));
+		}
+		// Previous Nineth Month
+		Date[] sdates9 = DateUtils.getPreviousNinethMonth();
+		List<Float> spreviousNinethMonth = reportRepository.getUstoragePaidAmount( sdates9[0], sdates9[1]);
+		if(spreviousNinethMonth!=null){
+			paidAmount.getPaid().add(spreviousNinethMonth.get(0));
+		}
+		// Previous Tenth Month
+		Date[] sdates10 = DateUtils.getPreviousTenthMonth();
+		List<Float> spreviousTenthMonth = reportRepository.getUstoragePaidAmount( sdates10[0], sdates10[1]);
+		if(spreviousTenthMonth!=null){
+			paidAmount.getPaid().add(spreviousTenthMonth.get(0));
+		}
+		// Previous Eleventh Month
+		Date[] sdates11 = DateUtils.getPreviousEleventhMonth();
+		List<Float> spreviousEleventhMonth = reportRepository.getUstoragePaidAmount( sdates11[0], sdates11[1]);
+		if(spreviousEleventhMonth!=null){
+			paidAmount.getPaid().add(spreviousEleventhMonth.get(0));
+		}
+		billedPaid.setUstoragePaid(paidAmount.getPaid());
+
+//dashboard ulogistics paid-----------------------------------------------------------------------------
+		UlogisticsPaidAmount ulogisticsPaidAmount = new UlogisticsPaidAmount();
+		ulogisticsPaidAmount.setPaid(new ArrayList<>());
+		// Current Month
+		Date[] ldates = DateUtils.getCurrentMonth();
+		List<Float> lcurrentMonth = reportRepository.getUlogisticsPaidAmount( ldates[0], ldates[1]);
+		if(lcurrentMonth!=null){
+			ulogisticsPaidAmount.getPaid().add(lcurrentMonth.get(0));
+		}
+		// Previous One Month
+		Date[] ldates1 = DateUtils.getPreviousOneMonth();
+		List<Float> lpreviousOneMonth = reportRepository.getUlogisticsPaidAmount( ldates1[0], ldates1[1]);
+		if(lpreviousOneMonth!=null){
+			ulogisticsPaidAmount.getPaid().add(lpreviousOneMonth.get(0));
+		}
+		// Previous Second Month
+		Date[] ldates2 = DateUtils.getPreviousSecondMonth();
+		List<Float> lpreviousSecondMonth = reportRepository.getUlogisticsPaidAmount( ldates2[0], ldates2[1]);
+		if(lpreviousSecondMonth!=null){
+			ulogisticsPaidAmount.getPaid().add(lpreviousSecondMonth.get(0));
+		}
+		// Previous Third Month
+		Date[] ldates3 = DateUtils.getPreviousThirdMonth();
+		List<Float> lpreviousThirdMonth = reportRepository.getUlogisticsPaidAmount( ldates3[0], ldates3[1]);
+		if(lpreviousThirdMonth!=null){
+			ulogisticsPaidAmount.getPaid().add(lpreviousThirdMonth.get(0));
+		}
+		// Previous Fourth Month
+		Date[] ldates4 = DateUtils.getPreviousFourthMonth();
+		List<Float> lpreviousFourthMonth = reportRepository.getUlogisticsPaidAmount( ldates4[0], ldates4[1]);
+		if(lpreviousFourthMonth!=null){
+			ulogisticsPaidAmount.getPaid().add(lpreviousFourthMonth.get(0));
+		}
+		// Previous Fifth Month
+		Date[] ldates5 = DateUtils.getPreviousFifthMonth();
+		List<Float> lpreviousFifthMonth = reportRepository.getUlogisticsPaidAmount( ldates5[0], ldates5[1]);
+		if(lpreviousFifthMonth!=null){
+			ulogisticsPaidAmount.getPaid().add(lpreviousFifthMonth.get(0));
+		}
+		// Previous Sixth Month
+		Date[] ldates6 = DateUtils.getPreviousSixthMonth();
+		List<Float> lpreviousSixthMonth = reportRepository.getUlogisticsPaidAmount( ldates6[0], ldates6[1]);
+		if(lpreviousSixthMonth!=null){
+			ulogisticsPaidAmount.getPaid().add(lpreviousSixthMonth.get(0));
+		}
+		// Previous Seventh Month
+		Date[] ldates7 = DateUtils.getPreviousSeventhMonth();
+		List<Float> lpreviousSeventhMonth = reportRepository.getUlogisticsPaidAmount( ldates7[0], ldates7[1]);
+		if(lpreviousSeventhMonth!=null){
+			ulogisticsPaidAmount.getPaid().add(lpreviousSeventhMonth.get(0));
+		}
+		// Previous Eighth Month
+		Date[] ldates8 = DateUtils.getPreviousEighthMonth();
+		List<Float> lpreviousEighthMonth = reportRepository.getUlogisticsPaidAmount( ldates8[0], ldates8[1]);
+		if(lpreviousEighthMonth!=null){
+			ulogisticsPaidAmount.getPaid().add(lpreviousEighthMonth.get(0));
+		}
+		// Previous Nineth Month
+		Date[] ldates9 = DateUtils.getPreviousNinethMonth();
+		List<Float> lpreviousNinethMonth = reportRepository.getUlogisticsPaidAmount( ldates9[0], ldates9[1]);
+		if(lpreviousNinethMonth!=null){
+			ulogisticsPaidAmount.getPaid().add(lpreviousNinethMonth.get(0));
+		}
+		// Previous Tenth Month
+		Date[] ldates10 = DateUtils.getPreviousTenthMonth();
+		List<Float> lpreviousTenthMonth = reportRepository.getUlogisticsPaidAmount( ldates10[0], ldates10[1]);
+		if(lpreviousTenthMonth!=null){
+			ulogisticsPaidAmount.getPaid().add(lpreviousTenthMonth.get(0));
+		}
+		// Previous Eleventh Month
+		Date[] ldates11 = DateUtils.getPreviousEleventhMonth();
+		List<Float> lpreviousEleventhMonth = reportRepository.getUlogisticsPaidAmount( ldates11[0], ldates11[1]);
+		if(lpreviousEleventhMonth!=null){
+			ulogisticsPaidAmount.getPaid().add(lpreviousEleventhMonth.get(0));
+		}
+
+		billedPaid.setUlogisticsPaid(ulogisticsPaidAmount.getPaid());
+
+		return billedPaid;
+	}
+
+	public LeadAndCustomer getLeadAndCustomer () throws ParseException {
+
+		LeadAndCustomer leadAndCustomer = new LeadAndCustomer();
+		//Lead Count--------------------------------------------------------------------------------
+		LeadCount leadCount = new LeadCount();
+		leadCount.setCount(new ArrayList<>());
+		// Current Month
+		Date[] dates = DateUtils.getCurrentMonth();
+		List<Integer> currentMonth = reportRepository.getLeadCount(dates[0], dates[1]);
+		if (currentMonth != null) {
+			leadCount.getCount().add(currentMonth.get(0));
+		}
+		// Previous One Month
+		Date[] dates1 = DateUtils.getPreviousOneMonth();
+		List<Integer> previousOneMonth = reportRepository.getLeadCount(dates1[0], dates1[1]);
+		if (previousOneMonth != null) {
+			leadCount.getCount().add(previousOneMonth.get(0));
+		}
+		// Previous Second Month
+		Date[] dates2 = DateUtils.getPreviousSecondMonth();
+		List<Integer> previousSecondMonth = reportRepository.getLeadCount(dates2[0], dates2[1]);
+		if (previousSecondMonth != null) {
+			leadCount.getCount().add(previousSecondMonth.get(0));
+		}
+		// Previous Third Month
+		Date[] dates3 = DateUtils.getPreviousThirdMonth();
+		List<Integer> previousThirdMonth = reportRepository.getLeadCount(dates3[0], dates3[1]);
+		if (previousThirdMonth != null) {
+			leadCount.getCount().add(previousThirdMonth.get(0));
+		}
+		// Previous Fourth Month
+		Date[] dates4 = DateUtils.getPreviousFourthMonth();
+		List<Integer> previousFourthMonth = reportRepository.getLeadCount(dates4[0], dates4[1]);
+		if (previousFourthMonth != null) {
+			leadCount.getCount().add(previousFourthMonth.get(0));
+		}
+		// Previous Fifth Month
+		Date[] dates5 = DateUtils.getPreviousFifthMonth();
+		List<Integer> previousFifthMonth = reportRepository.getLeadCount(dates5[0], dates5[1]);
+		if (previousFifthMonth != null) {
+			leadCount.getCount().add(previousFifthMonth.get(0));
+		}
+
+		leadAndCustomer.setLead(leadCount.getCount());
+
+		//Customer Count--------------------------------------------------------------------------------
+		CustomerCount customerCount = new CustomerCount();
+		customerCount.setCount(new ArrayList<>());
+		// Current Month
+		Date[] cdates = DateUtils.getCurrentMonth();
+		List<Integer> ccurrentMonth = reportRepository.getCustomerCount(cdates[0], cdates[1]);
+		if (ccurrentMonth != null) {
+			customerCount.getCount().add(ccurrentMonth.get(0));
+		}
+		// Previous One Month
+		Date[] cdates1 = DateUtils.getPreviousOneMonth();
+		List<Integer> cpreviousOneMonth = reportRepository.getCustomerCount(cdates1[0], cdates1[1]);
+		if (cpreviousOneMonth != null) {
+			customerCount.getCount().add(cpreviousOneMonth.get(0));
+		}
+		// Previous Second Month
+		Date[] cdates2 = DateUtils.getPreviousSecondMonth();
+		List<Integer> cpreviousSecondMonth = reportRepository.getCustomerCount(cdates2[0], cdates2[1]);
+		if (cpreviousSecondMonth != null) {
+			customerCount.getCount().add(cpreviousSecondMonth.get(0));
+		}
+		// Previous Third Month
+		Date[] cdates3 = DateUtils.getPreviousThirdMonth();
+		List<Integer> cpreviousThirdMonth = reportRepository.getCustomerCount(cdates3[0], cdates3[1]);
+		if (cpreviousThirdMonth != null) {
+			customerCount.getCount().add(cpreviousThirdMonth.get(0));
+		}
+		// Previous Fourth Month
+		Date[] cdates4 = DateUtils.getPreviousFourthMonth();
+		List<Integer> cpreviousFourthMonth = reportRepository.getCustomerCount(cdates4[0], cdates4[1]);
+		if (cpreviousFourthMonth != null) {
+			customerCount.getCount().add(cpreviousFourthMonth.get(0));
+		}
+		// Previous Fifth Month
+		Date[] cdates5 = DateUtils.getPreviousFifthMonth();
+		List<Integer> cpreviousFifthMonth = reportRepository.getCustomerCount(cdates5[0], cdates5[1]);
+		if (cpreviousFifthMonth != null) {
+			customerCount.getCount().add(cpreviousFifthMonth.get(0));
+		}
+
+		leadAndCustomer.setCustomer(customerCount.getCount());
+
+		return leadAndCustomer;
+	}
 
 }

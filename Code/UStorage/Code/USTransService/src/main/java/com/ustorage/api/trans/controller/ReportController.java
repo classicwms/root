@@ -1,5 +1,6 @@
 package com.ustorage.api.trans.controller;
 
+import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
 
@@ -130,5 +131,21 @@ public class ReportController {
         return new ResponseEntity<>(createdDetails , HttpStatus.OK);
     }
 
+    //--------------------------------------------DashBoard------------------------------------------------------------------------
+    //--------------------------------------------Billed Paid------------------------------------------------------------------------
+    @ApiOperation(response = Optional.class, value = "Get Billed & Paid Amount MonthWise") // label for swagger
+    @GetMapping("/dashboard/billedAndPaidAmount")
+    public ResponseEntity<?> getBilledPaidAmount() throws ParseException {
+        BilledPaid billedPaid = reportService.getBilledPaid();
+        return new ResponseEntity<>(billedPaid, HttpStatus.OK);
+    }
+
+    //--------------------------------------------Lead And Customer------------------------------------------------------------------------
+    @ApiOperation(response = Optional.class, value = "Get Lead and Customer Count MonthWise") // label for swagger
+    @GetMapping("/dashboard/leadAndCustomer")
+    public ResponseEntity<?> getLeadAndCustomer() throws ParseException{
+        LeadAndCustomer leadAndCustomer = reportService.getLeadAndCustomer();
+        return new ResponseEntity<>(leadAndCustomer, HttpStatus.OK);
+    }
 
 }
