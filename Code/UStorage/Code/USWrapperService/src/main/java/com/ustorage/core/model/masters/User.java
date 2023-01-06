@@ -7,8 +7,6 @@ import java.util.Date;
 @Data
 public class User {
 
-    public enum Role {USER, ADMIN, USER_MANAGER}
-
     private Long id;
     private String username;
     private String email;
@@ -16,7 +14,7 @@ public class User {
     private String lastname;
     private String company;
     private String password;
-    private Role role;
+    private String role;
     private String city;
     private String state;
     private String country;

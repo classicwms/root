@@ -507,10 +507,10 @@ public class TransController {
 		return new ResponseEntity<>(workOrderList, HttpStatus.OK);
 	}
 
-	@ApiOperation(response = WorkOrder.class, value = "Get a WorkOrder") // label for swagger
+	@ApiOperation(response = GWorkOrder.class, value = "Get a WorkOrder") // label for swagger
 	@GetMapping("/operations/workorder/{workOrderId}")
 	public ResponseEntity<?> getWorkOrder(@PathVariable String workOrderId, @RequestParam String authToken) {
-		WorkOrder dbWorkOrder = transService.getWorkOrder(workOrderId, authToken);
+		GWorkOrder dbWorkOrder = transService.getWorkOrder(workOrderId, authToken);
 		return new ResponseEntity<>(dbWorkOrder, HttpStatus.OK);
 	}
 
@@ -818,7 +818,19 @@ public class TransController {
 		Dropdown createdDetails = transService.createCustomerDetail(customerDetailInput, authToken);
 		return new ResponseEntity<>(createdDetails , HttpStatus.OK);
 	}
-
-
+	//------------------------Dashboard Billed and Paid Amount-----------------------------------------------------------
+	@ApiOperation(response = Optional.class, value = "Get Billed Paid Amount MonthWise") // label for swagger
+	@GetMapping("/reports/dashboard/billedAndPaidAmount")
+	public ResponseEntity<?> getBilledPaidAmount(@RequestParam String authToken) {
+		BilledPaid billedPaid = transService.getBilledPaid(authToken);
+		return new ResponseEntity<>(billedPaid, HttpStatus.OK);
+	}
+	//------------------------Dashboard Lead And Customer-----------------------------------------------------------
+	@ApiOperation(response = Optional.class, value = "Get Lead and Customer Count MonthWise") // label for swagger
+	@GetMapping("/reports/dashboard/leadAndCustomer")
+	public ResponseEntity<?> getLeadAndCustomer(@RequestParam String authToken) {
+		LeadAndCustomer leadAndCustomer = transService.getLeadAndCustomer(authToken);
+		return new ResponseEntity<>(leadAndCustomer, HttpStatus.OK);
+	}
 
 }

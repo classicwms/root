@@ -5,12 +5,10 @@ import lombok.Data;
 @Data
 public class AddUser {
 
-    public enum Role {USER, ADMIN, USER_MANAGER}
-
     private String username;
     private String password;
     private String email;
-    private Role role;
+    private String role;
     private String firstname;
     private String lastname;
     private String company;

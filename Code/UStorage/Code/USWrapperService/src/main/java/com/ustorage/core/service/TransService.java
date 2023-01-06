@@ -1060,7 +1060,7 @@ public class TransService {
 	}
 
 	// GET
-	public WorkOrder getWorkOrder (String workOrderId, String authToken) {
+	public GWorkOrder getWorkOrder (String workOrderId, String authToken) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -1069,8 +1069,8 @@ public class TransService {
 			UriComponentsBuilder builder =
 					UriComponentsBuilder.fromHttpUrl(getTransServiceUrl() + "workOrder/" + workOrderId);
 			HttpEntity<?> entity = new HttpEntity<>(headers);
-			ResponseEntity<WorkOrder> result =
-					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, WorkOrder.class);
+			ResponseEntity<GWorkOrder> result =
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, GWorkOrder.class);
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1715,6 +1715,44 @@ public class TransService {
 				entity, Dropdown.class);
 		log.info("result : " + result.getStatusCode());
 		return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	// dashboard-invoiceAmount
+	public BilledPaid getBilledPaid (String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("UStorage-Agent", "RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransServiceUrl() + "/report/dashboard/billedAndPaidAmount");
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<BilledPaid> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET,
+					entity, BilledPaid.class);
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	// dashboard-lead and customer
+	public LeadAndCustomer getLeadAndCustomer (String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("UStorage-Agent", "RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransServiceUrl() + "/report/dashboard/leadAndCustomer");
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<LeadAndCustomer> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET,
+					entity, LeadAndCustomer.class);
+			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;

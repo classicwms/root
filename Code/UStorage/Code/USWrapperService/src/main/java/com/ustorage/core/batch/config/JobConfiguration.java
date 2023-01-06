@@ -92,7 +92,8 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 		        + ":itemsToBeStored3, :itemsToBeStored4, :itemsToBeStored5,  :itemsToBeStored6, :itemsToBeStored7, :itemsToBeStored8,:itemsToBeStored9, \r\n"
 				+ ":itemsToBeStored10, :itemsToBeStored11, :itemsToBeStored12, :status, :deletionIndicator, :referenceField1, :referenceField2,:referenceField3, \r\n"
 				+ ":referenceField4, :referenceField5,  :referenceField6, :referenceField7, :referenceField8,:referenceField9, :referenceField10, :createdBy, \r\n"
-		        + ":createdOn, :updatedBy, :updatedOn)");
+		        + ":createdOn, :updatedBy, :updatedOn)\r\n"
+				+ "SELECT NEXT VALUE FOR [dbo].[seq_agreement];");
 		itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider());
 		itemWriter.afterPropertiesSet();
 		return itemWriter;
@@ -148,7 +149,8 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 				+ ":storageType,:phase,:zone,:room,:rack,:bin,:priceMeterSquare,:weekly,:monthly,:quarterly,:halfYearly,:yearly,:length,:width,:originalDimention, \r\n"
 				+ ":roundedDimention,:availability,:occupiedFrom,:availableAfter,:linkedAgreement,:status,:storeSizeMeterSquare,:aisle,:deletionIndicator, \r\n"
 				+ ":referenceField1,:referenceField2,:referenceField3,:referenceField4,:referenceField5,:referenceField6,:referenceField7,:referenceField8,:referenceField9,:referenceField10, \r\n"
-				+ ":createdBy,:createdOn,:updatedBy,:updatedOn)");
+				+ ":createdBy,:createdOn,:updatedBy,:updatedOn)\r\n"
+				+ "SELECT NEXT VALUE FOR [dbo].[seq_storage_unit]");
 		itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider());
 		itemWriter.afterPropertiesSet();
 		return itemWriter;
