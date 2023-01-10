@@ -67,6 +67,11 @@ public class AgreementSpecification implements Specification<Agreement> {
 			predicates.add(group.in(findAgreement.getCodeId()));
 		}
 
+		if (findAgreement.getCodeId() != null && !findAgreement.getCodeId().isEmpty()) {
+			final Path<Group> group = root.<Group>get("codeId");
+			predicates.add(group.in(findAgreement.getCodeId()));
+		}
+
 		if (findAgreement.getStartDate() != null && findAgreement.getEndDate() != null) {
 			predicates.add(cb.between(root.get("createdOn"),
 					findAgreement.getStartDate(), findAgreement.getEndDate()));

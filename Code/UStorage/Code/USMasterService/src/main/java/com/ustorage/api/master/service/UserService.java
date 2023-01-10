@@ -26,7 +26,7 @@ public class UserService {
 	private PasswordEncoder passwordEncoder = new PasswordEncoder();
 	
 	public User validateUser (String username, String loginPassword) {
-		User user = userRepository.findByUsername(username).orElse(null);
+		User user = userRepository.findByUsernameAndDeletionIndicator(username,0).orElse(null);
 		if (user == null) {
     		throw new BadRequestException("Invalid Username : " + username);
     	}
@@ -68,26 +68,46 @@ public class UserService {
 
 	/**
 	 *
+	 * @param userName
+	 * @return
+	 */
+	public String getUsr (String userName) {
+
+		String user = userRepository.getUsrName(userName);
+		if (user.isEmpty()) {
+			return null;
+		}
+		return user;
+	}
+
+	/**
+	 *
 	 * @param newUser
 	 * @return
 	 */
 	public User createUser (AddUser newUser) {
 		User dbUser = new User();
-		dbUser.setUsername(newUser.getUsername());
-		dbUser.setRole(newUser.getRole());
-		dbUser.setEmail(newUser.getEmail());
-		dbUser.setCity(newUser.getCity());
-		dbUser.setState(newUser.getState());
-		dbUser.setCountry(newUser.getCountry());
-		dbUser.setFirstname(newUser.getFirstname());
-		dbUser.setLastname(newUser.getLastname());
-		dbUser.setCompany(newUser.getCompany());
-		dbUser.setPhoneNo(newUser.getPhoneNo());
-		dbUser.setUserTypeId(newUser.getUserTypeId());
-		dbUser.setStatus(newUser.getStatus());
-		dbUser.setPassword(newUser.getPassword());
+		String username = newUser.getUsername();
+		String dbUserName = getUsr(username);
+		if(dbUserName==null){
+			dbUser.setUsername(newUser.getUsername());
+			dbUser.setRole(newUser.getRole());
+			dbUser.setEmail(newUser.getEmail());
+			dbUser.setCity(newUser.getCity());
+			dbUser.setState(newUser.getState());
+			dbUser.setCountry(newUser.getCountry());
+			dbUser.setFirstname(newUser.getFirstname());
+			dbUser.setLastname(newUser.getLastname());
+			dbUser.setCompany(newUser.getCompany());
+			dbUser.setPhoneNo(newUser.getPhoneNo());
+			dbUser.setUserTypeId(newUser.getUserTypeId());
+			dbUser.setStatus(newUser.getStatus());
+			dbUser.setPassword(newUser.getPassword());
 
-		//dbUser.setPassword(PasswordEncoder.encodePassword(newUser.getPassword()));
+			//dbUser.setPassword(PasswordEncoder.encodePassword(newUser.getPassword()));
+		}else{
+			throw new BadRequestException("Username already Exist: " + username);
+		}
 		return userRepository.save(dbUser);
 	}
 

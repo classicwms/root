@@ -8,11 +8,11 @@ import java.util.List;
 public class Dropdown {
 
 	private List<KeyValuePair> customer;
-	private List<AgreementKey> agreement;
-	private List<InvoiceKey> invoice;
-	private List<PaymentKey> payment;
-	private List<WorkorderKey> workorder;
-	private List<QuoteKey> quote;
-	private List<EnquiryKey> enquiry;
+	private List<KeyValue> agreement;
+	private List<KeyValue> invoice;
+	private List<KeyValue> payment;
+	private List<KeyValue> workorder;
+	private List<KeyValue> quote;
+	private List<KeyValue> Inquiry;
 
 }

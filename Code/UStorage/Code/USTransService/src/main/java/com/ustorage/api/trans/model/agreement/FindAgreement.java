@@ -17,7 +17,6 @@ public class FindAgreement {
     private List<String> agreementType;
     private List<String> deposit;
     private List<String> status;
-
     private Date startDate;
     private Date endDate;
 }

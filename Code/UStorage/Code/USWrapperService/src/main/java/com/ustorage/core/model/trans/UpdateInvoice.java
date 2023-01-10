@@ -11,9 +11,9 @@ public class UpdateInvoice {
 	private String codeId;
 	private String customerId;
 	private String sbu;
-	private String agreementNumber;
-	private Date startDate;
-	private Date endDate;
+	private String documentNumber;
+	private Date documentStartDate;
+	private Date documentEndDate;
 	private String invoiceCurrency;
 	private String invoiceAmount;
 	private String invoiceDiscount;

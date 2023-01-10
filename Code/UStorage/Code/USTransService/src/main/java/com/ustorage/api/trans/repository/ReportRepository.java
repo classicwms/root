@@ -39,16 +39,17 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 					"tblworkorder.STATUS as status, \n"+
 					"tblworkorder.REMARKS as remarks, \n"+
 					"tblworkorder.CREATED as created, \n"+
-					"tblworkorder.PROCESSED_BY as processedBy, \n"+
+					"tblwoprocessedbyteam.PROCESSED_BY as processedBy, \n"+
 					"tblworkorder.PROCESSED_TIME as processedTime, \n"+
 					"tblworkorder.LEAD_TIME as leadTime \n"+
 					"from tblworkorder \n"+
 					"join tblleadcustomer on tblworkorder.CUSTOMER_ID=tblleadcustomer.CUSTOMER_CODE \n"+
+					"join tblwoprocessedbyteam on tblwoprocessedbyteam.WORK_ORDER_ID=tblworkorder.WORK_ORDER_ID \n"+
 					"where \n" +
 					"(COALESCE(:workOrderId,null) IS NULL OR (tblworkorder.WORK_ORDER_ID IN (:workOrderId))) and \n"+
 					"(COALESCE(:workOrderSbu,null) IS NULL OR (tblworkorder.WORK_ORDER_SBU IN (:workOrderSbu))) and \n"+
 					"(COALESCE(:startDate,null) IS NULL OR (tblworkorder.WORK_ORDER_DATE between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"+
-					"tblworkorder.is_deleted=0 and tblleadcustomer.is_deleted=0",nativeQuery = true)
+					"tblworkorder.is_deleted=0 ",nativeQuery = true)
 	public List<WorkOrderStatusReportImpl>getWorkOrderStatus(
 			@Param(value = "workOrderId") List<String> workOrderId,
 			@Param(value = "workOrderSbu") List<String> workOrderSbu,
@@ -57,7 +58,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 
 	//EfficiencyRecord Report
 	@Query(value = "select tw.ctd_on as createdOn, \n"+
-					"tw.processed_by as processedBy, \n"+
+					"tblwoprocessedbyteam.processed_by as processedBy, \n"+
 					"tw.work_order_date as workOrderDate, \n"+
 					"tw.processed_time as processedTime, \n"+
 					"tw.lead_time as leadTime, \n"+
@@ -67,11 +68,12 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 					"tw.planned_hours as plannedHours, \n"+
 					"(datediff(hour,tw.work_order_date,tw.end_date)-datediff(hour,tw.start_date,tw.end_date)) as workedHours \n"+
 					"from tblworkorder tw \n"+
+					"join tblwoprocessedbyteam on tblwoprocessedbyteam.WORK_ORDER_ID=tw.WORK_ORDER_ID \n"+
 					"where \n"+
 					"(COALESCE(:startDate,null) IS NULL OR (tw.WORK_ORDER_DATE between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"+
 					"(COALESCE(:jobCardType,null) IS NULL OR (tw.JOB_CARD_TYPE IN (:jobCardType))) and \n"+
 					"(COALESCE(:processedBy,null) IS NULL OR (tw.PROCESSED_BY IN (:processedBy))) and \n"+
-					"tw.is_deleted=0",nativeQuery = true)
+					"tw.is_deleted=0 ",nativeQuery = true)
 	public List<EfficiencyRecordImpl>getEfficiencyRecord(
 			@Param(value ="startDate") Date startDate,
 			@Param(value ="endDate") Date endDate,
@@ -97,7 +99,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 					"(COALESCE(:status,null) IS NULL OR (tblquote.STATUS IN (:status))) and \n"+
 					"(COALESCE(:requirement,null) IS NULL OR (tblquote.REQUIREMENT IN (:requirement))) and \n"+
 					"(COALESCE(:sbu,null) IS NULL OR (tblquote.SBU IN (:sbu))) and \n"+
-					"tblquote.is_deleted=0 and tblleadcustomer.is_deleted=0",nativeQuery = true)
+					"tblquote.is_deleted=0 ",nativeQuery = true)
 	public List<QuotationStatusImpl>getQuotationStatus(
 			@Param(value ="quoteId") List<String> quoteId,
 			@Param(value = "status") List<String> status,
@@ -123,7 +125,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 					"(COALESCE(:enquiryStatus,null) IS NULL OR (tblenquiry.ENQUIRY_STATUS IN (:enquiryStatus))) and \n"+
 					"(COALESCE(:requirementDetail,null) IS NULL OR (tblenquiry.REQUIREMENT_DETAIL IN (:requirementDetail))) and \n"+
 					"(COALESCE(:sbu,null) IS NULL OR (tblenquiry.SBU IN (:sbu))) and \n"+
-					"tblenquiry.is_deleted=0 and tblleadcustomer.is_deleted=0",nativeQuery = true)
+					"tblenquiry.is_deleted=0 ",nativeQuery = true)
 			public List<EnquiryStatusImpl> getEnquiryStatus(
 					@Param(value ="enquiryId") List<String> enquiryId,
 					@Param(value = "enquiryStatus") List<String> enquiryStatus,
@@ -156,8 +158,8 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 					"(COALESCE(:storeNumber,null) IS NULL OR (tblstorageunit.ITEM_CODE IN (:storeNumber))) and \n"+
 					"(COALESCE(:storageType,null) IS NULL OR (tblstorageunit.STORAGE_TYPE IN (:storageType))) and \n"+
 					"(COALESCE(:availability,null) IS NULL OR (tblstorageunit.AVAILABILITY IN (:availability))) and \n"+
-					"tblstorenumber.is_deleted=0 and tblstorageunit.is_deleted=0 and \n"+
-					"tblagreement.is_deleted=0 and tblleadcustomer.is_deleted=0",nativeQuery = true)
+					"tblstorageunit.is_deleted=0 and \n"+
+					"tblagreement.is_deleted=0 ",nativeQuery = true)
 	public List<FillrateStatusImpl> getFillrateStatus(
 			@Param(value ="phase") List<String> phase,
 			@Param(value = "storeNumber") List<String> storeNumber,
@@ -185,8 +187,8 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			"(COALESCE(:phase,null) IS NULL OR (tsu.PHASE IN (:phase))) and \n"+
 			"(COALESCE(:storeNumber,null) IS NULL OR (tsu.ITEM_CODE IN (:storeNumber))) and \n"+
 			"(COALESCE(:storageType,null) IS NULL OR (tsu.STORAGE_TYPE IN (:storageType))) and \n"+
-			"ta.agreement_type='renew' and ts.is_deleted=0 and tsu.is_deleted=0 and \n"+
-			"ta.is_deleted=0 and tl.is_deleted=0",nativeQuery = true)
+			"ta.agreement_type='renew' and \n"+
+			"ta.is_deleted=0 ",nativeQuery = true)
 	public List<ContractRenewalStatusImpl> getContractRenewalStatus(
 			@Param(value ="phase") List<String> phase,
 			@Param(value = "storeNumber") List<String> storeNumber,
@@ -233,12 +235,12 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 					"from\n"+
 					"(select distinct\n"+
 					"ta.agreement_number,tl.customer_name,tl.customer_code,ta.civil_id_number,ta.phone_number,\n"+
-					"ta.secondary_number,ta.location,ta.store_number,ta.size,\n"+
+					"ta.secondary_number,ta.location,ts.store_number,ta.size,\n"+
 					"tsu.storage_type,tsu.phase,ta.rent,ta.total_rent,\n"+
 					"ta.payment_terms,ta.agreement_discount,ta.total_after_discount,\n"+
 					"ta.rent_period,ta.start_date,ta.end_date,\n"+
-					"sum(cast(tp.voucher_amount as bigint)) as totalPaidVoucherAmount,\n"+
-					"ta.total_rent-sum(cast(tp.voucher_amount as bigint)) as totalDueAmount,\n"+
+					"COALESCE(sum(cast(tp.voucher_amount as float)),0) as totalPaidVoucherAmount,\n"+
+					"ta.total_rent-COALESCE(sum(cast(tp.voucher_amount as float)),0) as totalDueAmount,\n"+
 					"max(tp.paid_date) as lastPaidDate,\n"+
 					"(case\n"+
 					"when ta.rent_period='Monthly' then Dateadd(month,(case when (DATEDIFF(month,ta.start_date,CURRENT_TIMESTAMP))=0 then 1 else (DATEDIFF(month,ta.start_date,CURRENT_TIMESTAMP)) end),convert(datetime,ta.start_date,121))\n"+
@@ -257,10 +259,11 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 						"when ta.payment_terms='Net 15 Days' then ta.total_rent\n"+
 						"else 0 end) as nxtdueamount\n"+
 			"from tblagreement as ta\n"+
-			"join tblstorageunit as tsu on ta.store_number=tsu.item_code\n"+
-			"join tblleadcustomer tl on tl.customer_code=ta.customer_name\n"+
-			"join tblpaymentvoucher tp on tp.contract_number=ta.agreement_number\n"+
-			"join tblinvoice ti on ti.customer_id=ta.customer_name\n"+
+			"left join tblstorenumber ts on ts.agreement_number=ta.agreement_number\n"+
+			"left join tblstorageunit tsu on ts.store_number=tsu.item_code\n"+
+			"left join tblleadcustomer tl on tl.customer_code=ta.customer_name\n"+
+			"left join tblpaymentvoucher tp on tp.contract_number=ta.agreement_number\n"+
+			"left join tblinvoice ti on ti.customer_id=ta.customer_name\n"+
 			"where \n" +
 			"(COALESCE(:agreementNumber,null) IS NULL OR (ta.AGREEMENT_NUMBER IN (:agreementNumber))) and \n"+
 			"(COALESCE(:customerName,null) IS NULL OR (tl.CUSTOMER_NAME IN (:customerName))) and \n"+
@@ -269,9 +272,9 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			"(COALESCE(:secondaryNumber,null) IS NULL OR (tl.PHONE_NUMBER IN (:secondaryNumber))) and \n"+
 			"(COALESCE(:civilId,null) IS NULL OR (tl.CIVIL_ID IN (:civilId))) and \n"+
 			"(COALESCE(:startDate,null) IS NULL OR (ta.CTD_ON between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"+
-			"ta.is_deleted=0 and tsu.is_deleted=0 and tp.is_deleted=0 and ti.is_deleted=0\n"+
+			"ta.is_deleted=0 \n"+
 			"group by ta.agreement_number,tl.customer_name,tl.customer_code,ta.civil_id_number,ta.phone_number,\n"+
-			"ta.secondary_number,ta.location,ta.store_number,ta.size,tsu.storage_type,\n"+
+			"ta.secondary_number,ta.location,ts.store_number,ta.size,tsu.storage_type,\n"+
 			"tsu.phase,ta.rent,ta.total_rent,ta.payment_terms,ta.agreement_discount,\n"+
 			"ta.total_after_discount,tp.voucher_amount,ta.rent_period,\n"+
 			"ta.start_date,ta.end_date,ti.invoice_date,tp.paid_date) x) y",nativeQuery = true)
@@ -379,19 +382,20 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			+ "tw.CODE_ID as code, tw.CREATED as cgroup, \r\n"
 			+ "tw.START_DATE as startDate, \r\n"
 			+ "tw.END_DATE as endDate, \r\n"
-			+ "tw.PROCESSED_BY as location, tw.WORK_ORDER_DATE as documentDate, \r\n"
+			+ "tblwoprocessedbyteam.PROCESSED_BY as location, tw.WORK_ORDER_DATE as documentDate, \r\n"
 			+ "tw.PLANNED_HOURS as note, tl.CUSTOMER_NAME as customerName,tl.CUSTOMER_CODE as customerId, \r\n"
 			+ "tl.MOBILE_NUMBER as mobile, tl.EMAIL as email, \r\n"
 			+ "tw.STATUS as status, tw.REMARKS as remarks \r\n"
 			+ "FROM tblitemservice ti \r\n"
 			+ "JOIN tblworkorder tw on tw.WORK_ORDER_ID =ti.WORK_ORDER_ID \r\n"
 			+ "JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=tw.CUSTOMER_ID \r\n"
+			+ "join tblwoprocessedbyteam on tblwoprocessedbyteam.WORK_ORDER_ID=tw.WORK_ORDER_ID \n"
 			+ "WHERE \n"
 			+ "(COALESCE(:customerCode,null) IS NULL OR (tl.CUSTOMER_CODE IN (:customerCode))) and \n"
 			+ "(COALESCE(:startDate,null) IS NULL OR (tw.WORK_ORDER_DATE between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"
-			+ "tw.IS_DELETED = 0 \n"
+			+ "tw.IS_DELETED = 0 and tblwoprocessedbyteam.is_deleted=0 \n"
 			+ "group by tw.WORK_ORDER_ID,tw.CODE_ID,tw.CREATED,\n"
-			+ "tw.START_DATE,tw.END_DATE,tw.PROCESSED_BY,tw.WORK_ORDER_DATE,tw.PLANNED_HOURS,\n"
+			+ "tw.START_DATE,tw.END_DATE,tblwoprocessedbyteam.PROCESSED_BY,tw.WORK_ORDER_DATE,tw.PLANNED_HOURS,\n"
 			+ "tl.CUSTOMER_NAME, tl.MOBILE_NUMBER,tl.EMAIL,tw.STATUS,tw.REMARKS,tl.CUSTOMER_CODE;", nativeQuery = true)
 	public List<DocumentStatusImpl> getWorkordr (
 			@Param(value = "customerCode") List<String> customerCode,

@@ -24,6 +24,9 @@ public class User {
     private String status;
 
     private Long deletionIndicator = 0L;
+
+    private String createdBy;
+    private Date createdOn;
     private String updatedBy;
     private Date updatedOn;
 }

@@ -68,6 +68,12 @@ public class User {
     @Column(name = "IS_DELETED")
     private Long deletionIndicator = 0L;
 
+    @Column(name = "CTD_BY")
+    private String createdBy;
+
+    @Column(name = "CTD_ON")
+    private Date createdOn;
+
     @Column(name = "UTD_BY")
     private String updatedBy;
 

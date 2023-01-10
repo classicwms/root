@@ -19,6 +19,8 @@ public class FindStorageUnit {
 
     private List<String> storageType;
 
+    private List<String> storeSizeMeterSquare;
+
     private List<String> bin;
 
     private List<String> availability;

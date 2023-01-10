@@ -107,6 +107,14 @@ public class TransController {
 			throws Exception {
 		return transService.findAgreement(findAgreement, authToken);
 	}
+	//Find
+	@ApiOperation(response = GAgreement[].class, value = "Find StoreNumber") // label for swagger
+	@PostMapping("/operations/agreement/findStoreNumber")
+	public GAgreement[] findStoreNumber(@RequestBody FindStoreNumber findStoreNumber,
+									  @RequestParam String authToken)
+			throws Exception {
+		return transService.findStoreNumber(findStoreNumber, authToken);
+	}
 	//-----------------------------------Consumables------------------------------------------------------------
 	@ApiOperation(response = Consumables.class, value = "Get all Consumables details") // label for swagger
 	@GetMapping("/master/consumables")

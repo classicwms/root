@@ -14,13 +14,13 @@ public class FindInvoice {
 
     private List<String> customerId;
 
-    private List<String> agreementNumber;
+    private List<String> documentNumber;
 
     private List<String> status;
 
-    private Date startDate;
+    private Date documentStartDate;
 
-    private Date endDate;
+    private Date documentEndDate;
 
     //private Boolean isActive;
 }

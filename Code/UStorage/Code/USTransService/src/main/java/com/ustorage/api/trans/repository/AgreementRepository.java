@@ -18,6 +18,12 @@ public interface AgreementRepository extends JpaRepository<Agreement, Long>,
 
 	public Optional<Agreement> findByAgreementNumberAndDeletionIndicator(String agreementId, long l);
 
+	@Query(value = "SELECT * \r\n"
+			+ "FROM tblagreement \r\n"
+			+ "WHERE \r\n"
+			+ "(COALESCE(:agreementNumber,null) IS NULL OR (tblagreement.AGREEMENT_NUMBER IN (:agreementNumber))) \n"
+			+ "AND tblagreement.IS_DELETED=0", nativeQuery = true)
+	public Agreement getAgreement(@Param("agreementNumber") String agreementNumber);
 
 	@Query(value = "SELECT distinct tblleadcustomer.CUSTOMER_NAME \r\n"
 			+ "FROM tblleadcustomer \r\n"

@@ -2,18 +2,16 @@ package com.ustorage.api.trans.service;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
 
-import com.ustorage.api.trans.model.consumablepurchase.ConsumablePurchase;
 import com.ustorage.api.trans.repository.AgreementRepository;
 
+import com.ustorage.api.trans.repository.Specification.AgreementSpecification;
+import com.ustorage.api.trans.repository.Specification.StoreNumberSpecification;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -116,6 +114,34 @@ public class StoreNumberService {
 		} else {
 			throw new EntityNotFoundException("Error in deleting Id: " + storenumberModuleId);
 		}
+	}
+
+
+	//find
+	public List<GAgreement> findStoreNumber(FindStoreNumber findStoreNumber) throws ParseException {
+
+		StoreNumberSpecification spec = new StoreNumberSpecification(findStoreNumber);
+		List<StoreNumber> result = storeNumberRepository.findAll(spec);
+		result = result.stream().filter(n -> n.getDeletionIndicator() == 0).collect(Collectors.toList());
+
+		List<Agreement> results = null;
+		for (StoreNumber dbStoreNumber : result) {
+			results = new ArrayList<>();
+			results.add(agreementRepository.getAgreement(dbStoreNumber.getAgreementNumber()));
+		}
+
+
+		List<GAgreement> gAgreement = new ArrayList<>();
+		for (Agreement dbAgreement : results) {
+			GAgreement newGAgreement = new GAgreement();
+			BeanUtils.copyProperties(dbAgreement, newGAgreement, CommonUtils.getNullPropertyNames(dbAgreement));
+			newGAgreement.setStoreNumbers(new ArrayList<>());
+			for (StoreNumber newstoreNumber : dbAgreement.getStoreNumbers()) {
+				newGAgreement.getStoreNumbers().add(newstoreNumber.getStoreNumber());
+			}
+			gAgreement.add(newGAgreement);
+		}
+		return gAgreement;
 	}
 
 }

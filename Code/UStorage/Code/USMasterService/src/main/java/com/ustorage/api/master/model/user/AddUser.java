@@ -16,7 +16,6 @@ public class AddUser {
     @NotBlank(message = "Password is mandatory")
     private String password;
 
-    @Email
     private String email;
 
     private String role;

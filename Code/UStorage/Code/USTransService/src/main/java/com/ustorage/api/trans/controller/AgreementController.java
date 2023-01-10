@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.ustorage.api.trans.model.storenumber.FindStoreNumber;
+import com.ustorage.api.trans.service.StoreNumberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +43,9 @@ public class AgreementController {
 
 	@Autowired
 	AgreementService agreementService;
+
+	@Autowired
+	StoreNumberService storeNumberService;
 
 	@ApiOperation(response = Agreement.class, value = "Get all Agreement details") // label for swagger
 	@GetMapping("")
@@ -88,5 +93,12 @@ public class AgreementController {
 	public ResponseEntity<?> findAgreement(@Valid @RequestBody FindAgreement findAgreement) throws Exception {
 		List<GAgreement> createdAgreement = agreementService.findAgreement(findAgreement);
 		return new ResponseEntity<>(createdAgreement, HttpStatus.OK);
+	}
+	//Search
+	@ApiOperation(response = GAgreement.class, value = "Find StoreNumber") // label for swagger
+	@PostMapping("/findStoreNumber")
+	public ResponseEntity<?> findStoreNumber(@Valid @RequestBody FindStoreNumber findStoreNumber) throws Exception {
+		List<GAgreement> dbAgreement = storeNumberService.findStoreNumber(findStoreNumber);
+		return new ResponseEntity<>(dbAgreement, HttpStatus.OK);
 	}
 }

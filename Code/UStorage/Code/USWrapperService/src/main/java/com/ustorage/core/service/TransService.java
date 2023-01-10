@@ -155,6 +155,21 @@ public class TransService {
 		log.info("result : " + result.getStatusCode());
 		return result.getBody();
 	}
+	//SEARCH-StoreNumber
+	public GAgreement[] findStoreNumber(FindStoreNumber findStoreNumber, String authToken) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.add("User-Agent", "RestTemplate");
+		headers.add("Authorization", "Bearer " + authToken);
+
+		UriComponentsBuilder builder =
+				UriComponentsBuilder.fromHttpUrl(getTransServiceUrl() + "agreement/findStoreNumber");
+		HttpEntity<?> entity = new HttpEntity<>(findStoreNumber, headers);
+		ResponseEntity<GAgreement[]> result =
+				getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, GAgreement[].class);
+		log.info("result : " + result.getStatusCode());
+		return result.getBody();
+	}
 	//--------------------------------------------Consumables------------------------------------------------------------------------
 	// GET ALL
 	public Consumables[] getAllConsumables (String authToken) {

@@ -33,6 +33,11 @@ public class StorageUnitSpecification implements Specification<StorageUnit> {
 			predicates.add(group.in(findStorageUnit.getCodeId()));
 		}
 
+		if (findStorageUnit.getStoreSizeMeterSquare() != null && !findStorageUnit.getStoreSizeMeterSquare().isEmpty()) {
+			final Path<Group> group = root.<Group>get("storeSizeMeterSquare");
+			predicates.add(group.in(findStorageUnit.getStoreSizeMeterSquare()));
+		}
+
 		if (findStorageUnit.getItemType() != null && !findStorageUnit.getItemType().isEmpty()) {
 			final Path<Group> group = root.<Group>get("itemType");
 			predicates.add(group.in(findStorageUnit.getItemType()));

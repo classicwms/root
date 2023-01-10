@@ -14,9 +14,9 @@ public class Invoice {
 	private String customerId;
 	private String customerType;
 	private String sbu;
-	private String agreementNumber;
-	private Date startDate;
-	private Date endDate;
+	private String documentNumber;
+	private Date documentStartDate;
+	private Date documentEndDate;
 	private String invoiceCurrency;
 	private String invoiceAmount;
 	private String invoiceDiscount;
