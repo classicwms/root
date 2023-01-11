@@ -25,10 +25,4 @@ public interface AgreementRepository extends JpaRepository<Agreement, Long>,
 			+ "AND tblagreement.IS_DELETED=0", nativeQuery = true)
 	public Agreement getAgreement(@Param("agreementNumber") String agreementNumber);
 
-	@Query(value = "SELECT distinct tblleadcustomer.CUSTOMER_NAME \r\n"
-			+ "FROM tblleadcustomer \r\n"
-			+ "JOIN tblagreement ON tblleadcustomer.CUSTOMER_CODE=tblagreement.CUSTOMER_NAME \r\n"
-			+ "WHERE tblagreement.CUSTOMER_NAME=:customerName \r\n"
-			+ "AND tblleadcustomer.IS_DELETED=0 AND tblagreement.IS_DELETED=0", nativeQuery = true)
-	public String getText(@Param("customerName") String customerName);
 }

@@ -56,12 +56,6 @@ public class MastersController {
 	@Autowired
 	AuthTokenService authTokenService;
 
-	@Autowired
-	PropertiesConfig propertiesConfig;
-
-	@Autowired
-	BatchJobScheduler batchJobScheduler;
-
 	//-----------------------------------auth token------------------------------------------------------------
 	@ApiOperation(response = Optional.class, value = "OAuth Token") // label for swagger
 	@PostMapping("/auth-token")
@@ -101,6 +95,38 @@ public class MastersController {
 				.contentLength(file.length())
 				.contentType(MediaType.APPLICATION_OCTET_STREAM)
 				.body(resource);
+	}
+
+	//-----------------------------------DocumentStorage------------------------------------------------------------
+	@ApiOperation(response = DocumentStorage.class, value = "Get a DocumentStorage") // label for swagger
+	@GetMapping("/documentstorage/{documentNumber}")
+	public ResponseEntity<?> getDocumentStorage(@PathVariable String documentNumber, @RequestParam String authToken) {
+		DocumentStorage dbDocumentStorage = mastersService.getDocumentStorage(documentNumber, authToken);
+		return new ResponseEntity<>(dbDocumentStorage, HttpStatus.OK);
+	}
+
+	@ApiOperation(response = DocumentStorage.class, value = "Create DocumentStorage") // label for swagger
+	@PostMapping("/documentstorage")
+	public ResponseEntity<?> postDocumentStorage(@Valid @RequestBody AddDocumentStorage newDocumentStorage,
+												 @RequestParam String loginUserID, @RequestParam String authToken) throws Exception {
+		DocumentStorage createdDocumentStorage = mastersService.createDocumentStorage(newDocumentStorage, loginUserID, authToken);
+		return new ResponseEntity<>(createdDocumentStorage, HttpStatus.OK);
+	}
+
+	@ApiOperation(response = DocumentStorage.class, value = "Delete DocumentStorage") // label for swagger
+	@DeleteMapping("/documentstorage/{documentNumber}")
+	public ResponseEntity<?> deleteDocumentStorage(@PathVariable String documentNumber, @RequestParam String loginUserID,
+												   @RequestParam String authToken) {
+		mastersService.deleteDocumentStorage(documentNumber, loginUserID, authToken);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+	//Find
+	@ApiOperation(response = DocumentStorage[].class, value = "Find DocumentStorage") // label for swagger
+	@PostMapping("/documentstorage/find")
+	public DocumentStorage[] findDocumentStorage(@RequestBody FindDocumentStorage findDocumentStorage,
+						   @RequestParam String authToken)
+			throws Exception {
+		return mastersService.findDocumentStorage(findDocumentStorage, authToken);
 	}
 
 	//-----------------------------------AccountStatus------------------------------------------------------------
@@ -1799,7 +1825,7 @@ public class MastersController {
 	/**
 	 * This end point will be called for Web App User Login
 	 *
-	 * @param userId
+	 * @param userID
 	 * @param password
 	 * @return
 	 */

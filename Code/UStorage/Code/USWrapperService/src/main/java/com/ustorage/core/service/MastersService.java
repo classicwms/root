@@ -41,6 +41,83 @@ public class MastersService {
 		return propertiesConfig.getUstorageServiceUrl();
 	}
 
+	//--------------------------------------------DocumentStorage------------------------------------------------------------------------
+
+	// GET
+	public DocumentStorage getDocumentStorage (String documentNumber, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getUstorageServiceUrl() + "documentStorage/" + documentNumber);
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<DocumentStorage> result =
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, DocumentStorage.class);
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	// POST
+	public DocumentStorage createDocumentStorage (AddDocumentStorage newDocumentStorage, String loginUserID, String authToken) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.add("User-Agent", "RestTemplate");
+		headers.add("Authorization", "Bearer " + authToken);
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getUstorageServiceUrl() + "documentStorage")
+				.queryParam("loginUserID", loginUserID);
+
+		HttpEntity<?> entity = new HttpEntity<>(newDocumentStorage, headers);
+		ResponseEntity<DocumentStorage> result =
+				getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, DocumentStorage.class);
+		return result.getBody();
+	}
+
+
+	// DELETE
+	public boolean deleteDocumentStorage (String documentNumber, String loginUserID, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "UStorage's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getUstorageServiceUrl() + "documentStorage/" + documentNumber)
+							.queryParam("loginUserID", loginUserID);
+			ResponseEntity<String> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity, String.class);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	//SEARCH
+	public DocumentStorage[] findDocumentStorage(FindDocumentStorage findDocumentStorage, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getUstorageServiceUrl() + "documentStorage/find");
+			HttpEntity<?> entity = new HttpEntity<>(findDocumentStorage, headers);
+			ResponseEntity<DocumentStorage[]> result =
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, DocumentStorage[].class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
 	//--------------------------------------------AccountStatus------------------------------------------------------------------------
 	// GET ALL
 	public AccountStatus[] getAllAccountStatus (String authToken) {
