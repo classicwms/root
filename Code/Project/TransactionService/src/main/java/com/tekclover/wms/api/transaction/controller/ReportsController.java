@@ -2,16 +2,33 @@ package com.tekclover.wms.api.transaction.controller;
 
 import java.util.List;
 
-import com.tekclover.wms.api.transaction.model.report.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.expression.ParseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
+import com.tekclover.wms.api.transaction.model.report.Dashboard;
+import com.tekclover.wms.api.transaction.model.report.FastSlowMovingDashboard;
+import com.tekclover.wms.api.transaction.model.report.FastSlowMovingDashboardRequest;
+import com.tekclover.wms.api.transaction.model.report.InventoryReport;
+import com.tekclover.wms.api.transaction.model.report.MobileDashboard;
+import com.tekclover.wms.api.transaction.model.report.OrderStatusReport;
+import com.tekclover.wms.api.transaction.model.report.ReceiptConfimationReport;
+import com.tekclover.wms.api.transaction.model.report.SearchOrderStatusReport;
+import com.tekclover.wms.api.transaction.model.report.ShipmentDeliveryReport;
+import com.tekclover.wms.api.transaction.model.report.ShipmentDeliverySummaryReport;
+import com.tekclover.wms.api.transaction.model.report.ShipmentDispatchSummaryReport;
+import com.tekclover.wms.api.transaction.model.report.StockMovementReport;
+import com.tekclover.wms.api.transaction.model.report.StockReport;
 import com.tekclover.wms.api.transaction.service.ReportsService;
 
 import io.swagger.annotations.Api;
@@ -132,8 +149,7 @@ public class ReportsController {
 	@PostMapping("/orderStatusReport")
 	public ResponseEntity<?> getOrderStatusReport(@RequestBody SearchOrderStatusReport request)
 			throws ParseException, java.text.ParseException {
-    	List<OrderStatusReport> orderStatusReportList = 
-    			reportsService.getOrderStatusReport(request);
+    	List<OrderStatusReport> orderStatusReportList = reportsService.getOrderStatusReport(request);
 		return new ResponseEntity<>(orderStatusReportList, HttpStatus.OK);
 	}
     

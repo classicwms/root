@@ -210,7 +210,7 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 			+ "(CASE \r\n"
 			+ "	WHEN OL.STATUS_ID IS NOT NULL AND OL.STATUS_ID = 59 THEN  'DELIVERED'\r\n"
 			+ "	WHEN OL.STATUS_ID IS NOT NULL AND (OL.STATUS_ID = 42 OR OL.STATUS_ID = 43 OR \r\n"
-			+ "	OL.STATUS_ID = 48 OR OL.STATUS_ID = 50 OR OL.STATUS_ID = 55 OR OL.STATUS_ID = 57) THEN  'IN PROGRESS'\r\n"
+			+ "	OL.STATUS_ID = 48 OR OL.STATUS_ID = 50 OR OL.STATUS_ID = 55 OR OL.STATUS_ID = 57 OR OL.STATUS_ID = 39) THEN  'IN PROGRESS'\r\n"
 			+ "	WHEN OL.STATUS_ID IS NOT NULL AND (OL.STATUS_ID = 47 OR OL.STATUS_ID = 51) THEN 'NOT FULFILLED' \r\n"
 			+ "		ELSE NULL\r\n"
 			+ "	END\r\n"
@@ -222,7 +222,7 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 			+ "FROM tbloutboundline OL\r\n"
 			+ "JOIN tblbusinesspartner BP ON BP.PARTNER_CODE = OL.PARTNER_CODE\r\n"
 			+ "JOIN tbloutboundheader OH ON OH.REF_DOC_NO = OL.REF_DOC_NO\r\n"
-			+ "WHERE OL.WH_ID = :warehouseId AND (OL.DLV_CNF_ON BETWEEN :fromDeliveryDate AND :toDeliveryDate) \n"
+			+ "WHERE OL.WH_ID = :warehouseId AND (OL.DLV_CTD_ON BETWEEN :fromDeliveryDate AND :toDeliveryDate) \n"
 			+ "and ol.is_deleted = 0 and OL.REF_FIELD_2 is null ", nativeQuery = true)
 	public List<OrderStatusReportImpl> getOrderStatusReportFromOutboundLines(@Param ("warehouseId") String warehouseId,
 																			 @Param ("fromDeliveryDate") Date fromDeliveryDate,

@@ -17,7 +17,4 @@ public class ASNHeader {
 	
 	@NotBlank(message = "ASN Number is mandatory")
 	private String asnNumber;
-	
-	private List<ASNLine> asnLine;
-	
 }

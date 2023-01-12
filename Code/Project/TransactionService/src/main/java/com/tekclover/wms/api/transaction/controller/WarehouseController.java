@@ -47,7 +47,7 @@ public class WarehouseController {
 	// ASN
 	@ApiOperation(response = ASN.class, value = "ASN") // label for swagger
 	@PostMapping("/inbound/asn")
-	public ResponseEntity<?> postASN(@Valid @RequestBody ASN asn) 
+	public ResponseEntity<?> postASN (@Valid @RequestBody ASN asn) 
 			throws IllegalAccessException, InvocationTargetException {
 		try {
 			InboundOrder createdASNHeader = warehouseService.postWarehouseASN(asn);

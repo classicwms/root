@@ -11,14 +11,17 @@ import java.util.List;
 public class SearchOrderStatusReport {
 	 
 	private String warehouseId;
+	
 	@NotNull
 	@NotEmpty
 	private String fromDeliveryDate;
+	
 	@NotNull
 	@NotEmpty
 	private String toDeliveryDate;
+	
 	private List<String> customerCode;
 	private List<String> orderNumber;
 	private List<String> orderType;
 	private List<Long> statusId;
-	}
+}

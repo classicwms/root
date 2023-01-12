@@ -73,7 +73,6 @@ public class FileStorageService {
             Path targetLocation = this.fileStorageLocation.resolve(fileName);
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
             log.info("Copied : " + targetLocation );
-            
         } catch (IOException ex) {
         	ex.printStackTrace();
             throw new BadRequestException("Could not store file " + fileName + ". Please try again!");

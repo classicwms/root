@@ -886,10 +886,10 @@ public class ReportsService extends BaseService {
 			searchOutboundLine.setFromDeliveryDate(dates[0]);
 			searchOutboundLine.setToDeliveryDate(dates[1]);
 		}
-
+		
 		List<OrderStatusReportImpl> outboundLineSearchResults = outboundLineService
 				.findOutboundLineOrderStatusReport(searchOutboundLine);
-
+		
 		if (request.getCustomerCode() != null && !request.getCustomerCode().isEmpty()) {
 			outboundLineSearchResults = outboundLineSearchResults.stream().filter(data -> request.getCustomerCode().contains(data.getPartnerCode())).collect(Collectors.toList());
 		}

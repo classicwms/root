@@ -633,28 +633,6 @@ public class OutboundLineService extends BaseService {
 		return results;
 	}
 	
-//	/**
-//	 * findOutboundLineOrderStatusReport
-//	 * @param searchOrderStatusReport
-//	 * @return
-//	 * @throws ParseException
-//	 * @throws java.text.ParseException
-//	 */
-//	public List<OutboundLine> findOutboundLineOrderStatusReport (SearchOrderStatusReport searchOrderStatusReport)
-//			throws ParseException, java.text.ParseException {
-//		if (searchOrderStatusReport.getFromDeliveryDate() != null && searchOrderStatusReport.getToDeliveryDate() != null) {
-//			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOrderStatusReport.getFromDeliveryDate(),
-//					searchOrderStatusReport.getToDeliveryDate());
-//			searchOrderStatusReport.setFromDeliveryDate(dates[0]);
-//			searchOrderStatusReport.setToDeliveryDate(dates[1]);
-//		}
-//
-//		OutboundLineOrderStatusReportSpecification spec = new OutboundLineOrderStatusReportSpecification(searchOrderStatusReport);
-//		List<OutboundLine> results = outboundLineRepository.findAll(spec);
-//		log.info("results: " + results);
-//		return results;
-//	}
-
 	/**
 	 * findOutboundLineOrderStatusReport
 	 * @param searchOrderStatusReport
@@ -675,7 +653,6 @@ public class OutboundLineService extends BaseService {
 				searchOrderStatusReport.getWarehouseId(),
 				searchOrderStatusReport.getFromDeliveryDate(),
 				searchOrderStatusReport.getToDeliveryDate());
-		log.info("results: " + results);
 		return results;
 	}
 	

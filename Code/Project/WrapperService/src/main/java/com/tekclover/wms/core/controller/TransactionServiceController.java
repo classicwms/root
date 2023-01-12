@@ -1,12 +1,11 @@
 package com.tekclover.wms.core.controller;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.core.model.transaction.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.expression.ParseException;
@@ -23,8 +22,106 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.tekclover.wms.core.model.transaction.AXApiResponse;
+import com.tekclover.wms.core.model.transaction.AddGrLine;
+import com.tekclover.wms.core.model.transaction.AddPeriodicHeader;
+import com.tekclover.wms.core.model.transaction.AddPerpetualHeader;
+import com.tekclover.wms.core.model.transaction.AddPickupLine;
+import com.tekclover.wms.core.model.transaction.AddPutAwayLine;
+import com.tekclover.wms.core.model.transaction.AddQualityLine;
+import com.tekclover.wms.core.model.transaction.AssignHHTUser;
+import com.tekclover.wms.core.model.transaction.AssignHHTUserCC;
+import com.tekclover.wms.core.model.transaction.AssignPicker;
+import com.tekclover.wms.core.model.transaction.CaseConfirmation;
+import com.tekclover.wms.core.model.transaction.ContainerReceipt;
+import com.tekclover.wms.core.model.transaction.Dashboard;
+import com.tekclover.wms.core.model.transaction.FastSlowMovingDashboard;
+import com.tekclover.wms.core.model.transaction.FastSlowMovingDashboardRequest;
+import com.tekclover.wms.core.model.transaction.GrHeader;
+import com.tekclover.wms.core.model.transaction.GrLine;
+import com.tekclover.wms.core.model.transaction.InboundHeader;
+import com.tekclover.wms.core.model.transaction.InboundHeaderEntity;
+import com.tekclover.wms.core.model.transaction.InboundLine;
+import com.tekclover.wms.core.model.transaction.InboundOrder;
+import com.tekclover.wms.core.model.transaction.InhouseTransferHeader;
+import com.tekclover.wms.core.model.transaction.InhouseTransferLine;
+import com.tekclover.wms.core.model.transaction.Inventory;
+import com.tekclover.wms.core.model.transaction.InventoryMovement;
+import com.tekclover.wms.core.model.transaction.InventoryReport;
+import com.tekclover.wms.core.model.transaction.MobileDashboard;
+import com.tekclover.wms.core.model.transaction.OrderManagementLine;
+import com.tekclover.wms.core.model.transaction.OrderStatusReport;
+import com.tekclover.wms.core.model.transaction.OutboundHeader;
+import com.tekclover.wms.core.model.transaction.OutboundLine;
+import com.tekclover.wms.core.model.transaction.OutboundOrder;
+import com.tekclover.wms.core.model.transaction.OutboundReversal;
+import com.tekclover.wms.core.model.transaction.PackBarcode;
+import com.tekclover.wms.core.model.transaction.PaginatedResponse;
+import com.tekclover.wms.core.model.transaction.PeriodicHeader;
+import com.tekclover.wms.core.model.transaction.PeriodicHeaderEntity;
+import com.tekclover.wms.core.model.transaction.PeriodicLine;
+import com.tekclover.wms.core.model.transaction.PeriodicLineEntity;
+import com.tekclover.wms.core.model.transaction.PerpetualHeader;
+import com.tekclover.wms.core.model.transaction.PerpetualHeaderEntity;
+import com.tekclover.wms.core.model.transaction.PerpetualLine;
+import com.tekclover.wms.core.model.transaction.PerpetualLineEntity;
+import com.tekclover.wms.core.model.transaction.PickupHeader;
+import com.tekclover.wms.core.model.transaction.PickupLine;
+import com.tekclover.wms.core.model.transaction.PreInboundHeader;
+import com.tekclover.wms.core.model.transaction.PreInboundLine;
+import com.tekclover.wms.core.model.transaction.PreOutboundHeader;
+import com.tekclover.wms.core.model.transaction.PreOutboundLine;
+import com.tekclover.wms.core.model.transaction.PutAwayHeader;
+import com.tekclover.wms.core.model.transaction.PutAwayLine;
+import com.tekclover.wms.core.model.transaction.QualityHeader;
+import com.tekclover.wms.core.model.transaction.QualityLine;
+import com.tekclover.wms.core.model.transaction.ReceiptConfimationReport;
+import com.tekclover.wms.core.model.transaction.RunPerpetualHeader;
+import com.tekclover.wms.core.model.transaction.SearchContainerReceipt;
+import com.tekclover.wms.core.model.transaction.SearchGrHeader;
+import com.tekclover.wms.core.model.transaction.SearchGrLine;
+import com.tekclover.wms.core.model.transaction.SearchInboundHeader;
+import com.tekclover.wms.core.model.transaction.SearchInhouseTransferHeader;
+import com.tekclover.wms.core.model.transaction.SearchInhouseTransferLine;
+import com.tekclover.wms.core.model.transaction.SearchInventory;
+import com.tekclover.wms.core.model.transaction.SearchInventoryMovement;
+import com.tekclover.wms.core.model.transaction.SearchOrderManagementLine;
+import com.tekclover.wms.core.model.transaction.SearchOrderStatusReport;
+import com.tekclover.wms.core.model.transaction.SearchOutboundHeader;
+import com.tekclover.wms.core.model.transaction.SearchOutboundLine;
+import com.tekclover.wms.core.model.transaction.SearchOutboundReversal;
+import com.tekclover.wms.core.model.transaction.SearchPeriodicHeader;
+import com.tekclover.wms.core.model.transaction.SearchPerpetualHeader;
+import com.tekclover.wms.core.model.transaction.SearchPickupHeader;
+import com.tekclover.wms.core.model.transaction.SearchPickupLine;
+import com.tekclover.wms.core.model.transaction.SearchPreInboundHeader;
+import com.tekclover.wms.core.model.transaction.SearchPreOutboundHeader;
+import com.tekclover.wms.core.model.transaction.SearchPreOutboundLine;
+import com.tekclover.wms.core.model.transaction.SearchPutAwayHeader;
+import com.tekclover.wms.core.model.transaction.SearchPutAwayLine;
+import com.tekclover.wms.core.model.transaction.SearchQualityHeader;
+import com.tekclover.wms.core.model.transaction.SearchQualityLine;
+import com.tekclover.wms.core.model.transaction.SearchStagingHeader;
+import com.tekclover.wms.core.model.transaction.SearchStagingLine;
+import com.tekclover.wms.core.model.transaction.ShipmentDeliveryReport;
+import com.tekclover.wms.core.model.transaction.ShipmentDeliverySummaryReport;
+import com.tekclover.wms.core.model.transaction.ShipmentDispatchSummaryReport;
+import com.tekclover.wms.core.model.transaction.ShipmentOrder;
+import com.tekclover.wms.core.model.transaction.StagingHeader;
+import com.tekclover.wms.core.model.transaction.StagingLine;
+import com.tekclover.wms.core.model.transaction.StagingLineEntity;
+import com.tekclover.wms.core.model.transaction.StockMovementReport;
+import com.tekclover.wms.core.model.transaction.StockReport;
+import com.tekclover.wms.core.model.transaction.UpdatePeriodicHeader;
+import com.tekclover.wms.core.model.transaction.UpdatePeriodicLine;
+import com.tekclover.wms.core.model.transaction.UpdatePerpetualHeader;
+import com.tekclover.wms.core.model.transaction.UpdatePerpetualLine;
+import com.tekclover.wms.core.model.transaction.UpdatePickupHeader;
+import com.tekclover.wms.core.model.warehouse.inbound.ASN;
 import com.tekclover.wms.core.model.warehouse.inbound.WarehouseApiResponse;
+import com.tekclover.wms.core.service.FileStorageService;
 import com.tekclover.wms.core.service.ReportService;
 import com.tekclover.wms.core.service.TransactionService;
 
@@ -47,6 +144,9 @@ public class TransactionServiceController {
 	
 	@Autowired
 	ReportService reportService;
+	
+	@Autowired
+    FileStorageService fileStorageService; 
 	
 	/*
      * Process the ASN Integraion data
@@ -1729,27 +1829,44 @@ public class TransactionServiceController {
     	transactionService.getInventoryReport (authToken);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
-    
-//    @ApiOperation(response = InventoryReport[].class, value = "Get Stock Report") // label for swagger 
-//   	@GetMapping("reports/inventoryReport/all")
-//   	public ResponseEntity<?> getInventoryReportAll(@RequestParam String authToken) throws Exception {
-//    	InventoryReport[] inventoryReportList = transactionService.generateInventoryReport(authToken);
-//   		return new ResponseEntity<>(inventoryReportList, HttpStatus.OK);
-//   	}
 
-//	@ApiOperation(response = Optional.class,value = "Send Pdf through Email") // label for swagger
-//	@PostMapping("/sendmail/attachment")
-//	public ResponseEntity<?> sendReportThroughEmail(@RequestParam("file") MultipartFile file, @RequestParam String authToken)
-//			throws Exception {
-//		transactionService.sendEmail(file,authToken);
-//		return new ResponseEntity<>(HttpStatus.OK);
-//	}
+	@ApiOperation(response = Dashboard.class, value = "Get Dashboard Counts") // label for swagger
+	@GetMapping("/reports/dashboard/get-count")
+	public ResponseEntity<?> getDashboardCount(@RequestParam String warehouseId, @RequestParam String authToken) throws Exception {
+		Dashboard dashboard = transactionService.getDashboardCount(warehouseId,authToken);
+		return new ResponseEntity<>(dashboard, HttpStatus.OK);
+	}
 
+	@ApiOperation(response = Dashboard.class, value = "Get Dashboard Fast Slow moving Dashboard") // label for swagger
+	@PostMapping("/reports/dashboard/get-fast-slow-moving")
+	public ResponseEntity<?> getFastSlowMovingDashboard(@RequestBody FastSlowMovingDashboardRequest fastSlowMovingDashboardRequest,
+														@RequestParam String authToken) throws Exception {
+		FastSlowMovingDashboard[] dashboard = transactionService.getFastSlowMovingDashboard(fastSlowMovingDashboardRequest,authToken);
+		return new ResponseEntity<>(dashboard, HttpStatus.OK);
+	}
+	
+	//----------------------Orders------------------------------------------------------------------
 	@ApiOperation(response = ShipmentOrder.class, value = "Create Shipment Order") // label for swagger
 	@PostMapping("/warehouse/outbound/so")
-	public ResponseEntity<?> postShipmenOrder(@Valid @RequestBody ShipmentOrder shipmenOrder,@RequestParam String authToken)
+	public ResponseEntity<?> postShipmenOrder(@Valid @RequestBody ShipmentOrder shipmenOrder, @RequestParam String authToken)
 			throws IllegalAccessException, InvocationTargetException {
 		WarehouseApiResponse createdSO = transactionService.postSO(shipmenOrder, authToken);
+		return new ResponseEntity<>(createdSO, HttpStatus.OK);
+	}
+	
+	// File Upload - Orders
+	@ApiOperation(response = ShipmentOrder.class, value = "Create Shipment Order") // label for swagger
+    @PostMapping("/warehouse/outbound/so/upload")
+    public ResponseEntity<?> postShipmenOrderUpload (@RequestParam("file") MultipartFile file) throws Exception {
+        Map<String, String> response = fileStorageService.storeFile(file);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+	
+	@ApiOperation(response = ASN.class, value = "Create ASN Order") // label for swagger
+	@PostMapping("/warehouse/inbound/asn")
+	public ResponseEntity<?> postASN(@Valid @RequestBody ASN asn, @RequestParam String authToken)
+			throws IllegalAccessException, InvocationTargetException {
+		WarehouseApiResponse createdSO = transactionService.postASN(asn, authToken);
 		return new ResponseEntity<>(createdSO, HttpStatus.OK);
 	}
 
@@ -1765,20 +1882,5 @@ public class TransactionServiceController {
 	public ResponseEntity<?> getOutboundOrdersById(@PathVariable String orderId,@RequestParam String authToken) {
 		OutboundOrder orders = transactionService.getOutboundOrdersById(orderId,authToken);
 		return new ResponseEntity<>(orders, HttpStatus.OK);
-	}
-
-	@ApiOperation(response = Dashboard.class, value = "Get Dashboard Counts") // label for swagger
-	@GetMapping("/reports/dashboard/get-count")
-	public ResponseEntity<?> getDashboardCount(@RequestParam String warehouseId, @RequestParam String authToken) throws Exception {
-		Dashboard dashboard = transactionService.getDashboardCount(warehouseId,authToken);
-		return new ResponseEntity<>(dashboard, HttpStatus.OK);
-	}
-
-	@ApiOperation(response = Dashboard.class, value = "Get Dashboard Fast Slow moving Dashboard") // label for swagger
-	@PostMapping("/reports/dashboard/get-fast-slow-moving")
-	public ResponseEntity<?> getFastSlowMovingDashboard(@RequestBody FastSlowMovingDashboardRequest fastSlowMovingDashboardRequest,
-														@RequestParam String authToken) throws Exception {
-		FastSlowMovingDashboard[] dashboard = transactionService.getFastSlowMovingDashboard(fastSlowMovingDashboardRequest,authToken);
-		return new ResponseEntity<>(dashboard, HttpStatus.OK);
 	}
 }
