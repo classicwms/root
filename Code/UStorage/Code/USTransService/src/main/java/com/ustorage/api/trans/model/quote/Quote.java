@@ -73,6 +73,18 @@ public class Quote {
 	@Column(name = "STATUS")
 	private String status;
 
+	@Column(name = "ADDRESS_FROM", columnDefinition = "nvarchar(1000)")
+	private String addressFrom;
+	@Column(name = "ADDRESS_TO", columnDefinition = "nvarchar(1000)")
+	private String addressTo;
+
+	@Column(name = "NUMBER_OF_TRIPS")
+	private String numberOfTrips;
+	@Column(name = "PACKING_COST")
+	private Float packingCost;
+	@Column(name = "JOBCARD_TYPE")
+	private String jobcardType;
+
 	@Column(name = "IS_DELETED")
 	private Long deletionIndicator = 0L;
 

@@ -33,6 +33,11 @@ public class AddEnquiry {
 	private String requirementType;
 
 	private String rentType;
+	private String addressFrom;
+	private String addressTo;
+	private String numberOfTrips;
+	private Float packingCost;
+	private String jobcardType;
 
 		
 	private Long deletionIndicator;

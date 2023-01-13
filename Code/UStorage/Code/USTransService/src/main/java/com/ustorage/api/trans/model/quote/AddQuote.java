@@ -37,6 +37,11 @@ public class AddQuote {
 	private String customerCode;
 
 	private String status;
+	private String addressFrom;
+	private String addressTo;
+	private String numberOfTrips;
+	private Float packingCost;
+	private String jobcardType;
 		
 	private Long deletionIndicator;
 

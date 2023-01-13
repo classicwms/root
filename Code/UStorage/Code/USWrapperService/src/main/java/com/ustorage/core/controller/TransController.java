@@ -2,6 +2,7 @@ package com.ustorage.core.controller;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
+import java.time.Year;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -828,16 +829,16 @@ public class TransController {
 	}
 	//------------------------Dashboard Billed and Paid Amount-----------------------------------------------------------
 	@ApiOperation(response = Optional.class, value = "Get Billed Paid Amount MonthWise") // label for swagger
-	@GetMapping("/reports/dashboard/billedAndPaidAmount")
-	public ResponseEntity<?> getBilledPaidAmount(@RequestParam String authToken) {
-		BilledPaid billedPaid = transService.getBilledPaid(authToken);
+	@GetMapping("/reports/dashboard/billedAndPaidAmount/{year}")
+	public ResponseEntity<?> getBilledPaidAmount(@PathVariable Year year,@RequestParam String authToken) {
+		BilledPaid billedPaid = transService.getBilledPaid(year,authToken);
 		return new ResponseEntity<>(billedPaid, HttpStatus.OK);
 	}
 	//------------------------Dashboard Lead And Customer-----------------------------------------------------------
 	@ApiOperation(response = Optional.class, value = "Get Lead and Customer Count MonthWise") // label for swagger
-	@GetMapping("/reports/dashboard/leadAndCustomer")
-	public ResponseEntity<?> getLeadAndCustomer(@RequestParam String authToken) {
-		LeadAndCustomer leadAndCustomer = transService.getLeadAndCustomer(authToken);
+	@GetMapping("/reports/dashboard/leadAndCustomer/{year}")
+	public ResponseEntity<?> getLeadAndCustomer(@PathVariable Year year,@RequestParam String authToken) {
+		LeadAndCustomer leadAndCustomer = transService.getLeadAndCustomer(year,authToken);
 		return new ResponseEntity<>(leadAndCustomer, HttpStatus.OK);
 	}
 

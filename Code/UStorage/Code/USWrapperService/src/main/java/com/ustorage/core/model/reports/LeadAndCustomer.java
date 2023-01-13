@@ -8,6 +8,9 @@ import java.util.List;
 public class LeadAndCustomer {
 
 	private List<Integer> lead;
-	private List<Integer> Customer;
+	private List<Integer> customer;
+
+	private List<Integer> ullead;
+	private List<Integer> ulCustomer;
 
 }

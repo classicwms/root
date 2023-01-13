@@ -13,11 +13,13 @@ public class FillrateStatusReport {
     String Bin;
     String StoreNumber;
     String PriceMeterSquare;
+    String StoreSizeMeterSquare;
     String Status;
     String CustomerCode;
     String CustomerName;
     String MobileNumber;
     String PhoneNumber;
     String Notes;
+
 
 }

@@ -1,6 +1,7 @@
 package com.ustorage.core.service;
 
 import java.text.ParseException;
+import java.time.Year;
 import java.util.Collections;
 import java.util.List;
 
@@ -1502,15 +1503,6 @@ public class TransService {
 	// WorkOrderStatus SEARCH
 	public WorkOrderStatusReport[] getWorkOrderStatus (WorkOrderStatusModel workOrderStatusModel, String authToken) throws ParseException {
 		try {
-			/*WorkOrderStatusModel requestDataForService = new WorkOrderStatusModel();
-			BeanUtils.copyProperties(requestData, requestDataForService,
-					com.ustorage.core.util.CommonUtils.getNullPropertyNames(requestData));
-			if (requestData.getStartDate() != null) {
-				requestDataForService.setStartDate(requestData.getStartDate());
-			}
-			if (requestData.getEndDate() != null) {
-				requestDataForService.setEndDate(requestData.getEndDate());
-			}*/
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 			headers.add("User-Agent", "RestTemplate");
@@ -1530,15 +1522,6 @@ public class TransService {
 	// EfficeiencyRecord SEARCH
 	public EfficiencyRecordReport[] getEfficiencyRecord (EfficiencyRecord efficiencyRecord, String authToken) throws ParseException {
 		try {
-			/*EfficiencyRecord requestDataForService = new EfficiencyRecord();
-			BeanUtils.copyProperties(requestData, requestDataForService,
-					com.ustorage.core.util.CommonUtils.getNullPropertyNames(requestData));
-			if (requestData.getStartDate() != null) {
-				requestDataForService.setStartDate(requestData.getStartDate());
-			}
-			if (requestData.getEndDate() != null) {
-				requestDataForService.setEndDate(requestData.getEndDate());
-			}*/
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 			headers.add("User-Agent", "RestTemplate");
@@ -1737,14 +1720,14 @@ public class TransService {
 	}
 
 	// dashboard-invoiceAmount
-	public BilledPaid getBilledPaid (String authToken) {
+	public BilledPaid getBilledPaid (Year year, String authToken) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 			headers.add("UStorage-Agent", "RestTemplate");
 			headers.add("Authorization", "Bearer " + authToken);
 			UriComponentsBuilder builder = UriComponentsBuilder
-					.fromHttpUrl(getTransServiceUrl() + "/report/dashboard/billedAndPaidAmount");
+					.fromHttpUrl(getTransServiceUrl() + "/report/dashboard/billedAndPaidAmount/"+year);
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			ResponseEntity<BilledPaid> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET,
 					entity, BilledPaid.class);
@@ -1756,14 +1739,14 @@ public class TransService {
 	}
 
 	// dashboard-lead and customer
-	public LeadAndCustomer getLeadAndCustomer (String authToken) {
+	public LeadAndCustomer getLeadAndCustomer (Year year, String authToken) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 			headers.add("UStorage-Agent", "RestTemplate");
 			headers.add("Authorization", "Bearer " + authToken);
 			UriComponentsBuilder builder = UriComponentsBuilder
-					.fromHttpUrl(getTransServiceUrl() + "/report/dashboard/leadAndCustomer");
+					.fromHttpUrl(getTransServiceUrl() + "/report/dashboard/leadAndCustomer/"+year);
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			ResponseEntity<LeadAndCustomer> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET,
 					entity, LeadAndCustomer.class);

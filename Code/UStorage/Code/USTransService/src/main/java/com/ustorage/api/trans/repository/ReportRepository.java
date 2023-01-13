@@ -43,8 +43,8 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 					"tblworkorder.PROCESSED_TIME as processedTime, \n"+
 					"tblworkorder.LEAD_TIME as leadTime \n"+
 					"from tblworkorder \n"+
-					"join tblleadcustomer on tblworkorder.CUSTOMER_ID=tblleadcustomer.CUSTOMER_CODE \n"+
-					"join tblwoprocessedbyteam on tblwoprocessedbyteam.WORK_ORDER_ID=tblworkorder.WORK_ORDER_ID \n"+
+					"left join tblleadcustomer on tblworkorder.CUSTOMER_ID=tblleadcustomer.CUSTOMER_CODE \n"+
+					"left join tblwoprocessedbyteam on tblwoprocessedbyteam.WORK_ORDER_ID=tblworkorder.WORK_ORDER_ID \n"+
 					"where \n" +
 					"(COALESCE(:workOrderId,null) IS NULL OR (tblworkorder.WORK_ORDER_ID IN (:workOrderId))) and \n"+
 					"(COALESCE(:workOrderSbu,null) IS NULL OR (tblworkorder.WORK_ORDER_SBU IN (:workOrderSbu))) and \n"+
@@ -68,7 +68,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 					"tw.planned_hours as plannedHours, \n"+
 					"(datediff(hour,tw.work_order_date,tw.end_date)-datediff(hour,tw.start_date,tw.end_date)) as workedHours \n"+
 					"from tblworkorder tw \n"+
-					"join tblwoprocessedbyteam on tblwoprocessedbyteam.WORK_ORDER_ID=tw.WORK_ORDER_ID \n"+
+					"left join tblwoprocessedbyteam on tblwoprocessedbyteam.WORK_ORDER_ID=tw.WORK_ORDER_ID \n"+
 					"where \n"+
 					"(COALESCE(:startDate,null) IS NULL OR (tw.WORK_ORDER_DATE between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"+
 					"(COALESCE(:jobCardType,null) IS NULL OR (tw.JOB_CARD_TYPE IN (:jobCardType))) and \n"+
@@ -93,7 +93,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 					"tblquote.STATUS as status, \n"+
 					"tblquote.NOTES as notes\n"+
 					"from tblquote \n"+
-					"join tblleadcustomer on tblquote.customer_name=tblleadcustomer.customer_code \n"+
+					"left join tblleadcustomer on tblquote.customer_name=tblleadcustomer.customer_code \n"+
 					"where \n" +
 					"(COALESCE(:quoteId,null) IS NULL OR (tblquote.QUOTE_ID IN (:quoteId))) and \n"+
 					"(COALESCE(:status,null) IS NULL OR (tblquote.STATUS IN (:status))) and \n"+
@@ -111,15 +111,15 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 					"tblenquiry.REQUIREMENT_DETAIL as requirementType, \n"+
 					"tblenquiry.ENQUIRY_ID as enquiryId, \n"+
 					"tblleadcustomer.CUSTOMER_CODE as customerCode, \n"+
-					"tblleadcustomer.CUSTOMER_NAME as customerName, \n"+
-					"tblleadcustomer.MOBILE_NUMBER as mobileNumber, \n"+
+					"tblenquiry.enquiry_name as customerName, \n"+
+					"tblenquiry.enquiry_mobile_number as mobileNumber, \n"+
 					"tblenquiry.ENQUIRY_STORE_SIZE as enquiryStoreSize, \n"+
 					"tblenquiry.ENQUIRY_NAME as enquiryName, \n"+
 					"tblenquiry.ENQUIRY_STATUS as enquiryStatus, \n"+
 					"tblenquiry.SBU as sbu, \n"+
 					"tblenquiry.ENQUIRY_REMARKS as enquiryRemarks \n"+
 					"from tblenquiry \n"+
-					"join tblleadcustomer on tblenquiry.ENQUIRY_NAME=tblleadcustomer.CUSTOMER_NAME \n"+
+					"left join tblleadcustomer on tblenquiry.ENQUIRY_NAME=tblleadcustomer.CUSTOMER_NAME \n"+
 					"where \n" +
 					"(COALESCE(:enquiryId,null) IS NULL OR (tblenquiry.ENQUIRY_ID IN (:enquiryId))) and \n"+
 					"(COALESCE(:enquiryStatus,null) IS NULL OR (tblenquiry.ENQUIRY_STATUS IN (:enquiryStatus))) and \n"+
@@ -144,22 +144,22 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 					"tblstorageunit.ITEM_CODE as storeNumber, \n"+
 					"tblstorageunit.PRICE_METER_SQAURE as priceMeterSquare, \n"+
 					"tblstorageunit.AVAILABILITY as status, \n"+
+					"tblstorageunit.store_size_meter_sqaure as storeSizeMeterSquare, \n"+
 					"tblleadcustomer.CUSTOMER_CODE as customerCode, \n"+
 					"tblleadcustomer.CUSTOMER_NAME as customerName, \n"+
 					"tblleadcustomer.MOBILE_NUMBER as mobileNumber, \n"+
 					"tblleadcustomer.PHONE_NUMBER as phoneNumber, \n"+
 					"tblstorageunit.REF_FIELD_2 as notes \n"+
 					"from tblstorenumber \n"+
-					"join tblagreement on tblagreement.AGREEMENT_NUMBER=tblstorenumber.AGREEMENT_NUMBER \n"+
-					"join tblstorageunit on tblstorageunit.ITEM_CODE=tblstorenumber.STORE_NUMBER \n"+
-					"join tblleadcustomer on tblleadcustomer.CUSTOMER_CODE=tblagreement.CUSTOMER_NAME \n"+
+					"left join tblagreement on tblagreement.AGREEMENT_NUMBER=tblstorenumber.AGREEMENT_NUMBER \n"+
+					"left join tblstorageunit on tblstorageunit.ITEM_CODE=tblstorenumber.STORE_NUMBER \n"+
+					"left join tblleadcustomer on tblleadcustomer.CUSTOMER_CODE=tblagreement.CUSTOMER_NAME \n"+
 					"where \n" +
 					"(COALESCE(:phase,null) IS NULL OR (tblstorageunit.PHASE IN (:phase))) and \n"+
 					"(COALESCE(:storeNumber,null) IS NULL OR (tblstorageunit.ITEM_CODE IN (:storeNumber))) and \n"+
 					"(COALESCE(:storageType,null) IS NULL OR (tblstorageunit.STORAGE_TYPE IN (:storageType))) and \n"+
 					"(COALESCE(:availability,null) IS NULL OR (tblstorageunit.AVAILABILITY IN (:availability))) and \n"+
-					"tblstorageunit.is_deleted=0 and \n"+
-					"tblagreement.is_deleted=0 ",nativeQuery = true)
+					"tblstorageunit.is_deleted=0 ",nativeQuery = true)
 	public List<FillrateStatusImpl> getFillrateStatus(
 			@Param(value ="phase") List<String> phase,
 			@Param(value = "storeNumber") List<String> storeNumber,
@@ -180,9 +180,9 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			"ta.total_rent as totalRent, \n"+
 			"datediff(DAY,ta.start_date,(select end_date from tblagreement ta1 where agreement_number=ta.ref_field_4)) as fillrateStatus \n"+
 			"from tblstorenumber ts \n"+
-			"join tblagreement ta on ta.agreement_number=ts.agreement_number \n"+
-			"join tblstorageunit tsu on tsu.item_code=ts.store_number \n"+
-			"join tblleadcustomer tl on tl.customer_code=ta.customer_name \n"+
+			"left join tblagreement ta on ta.agreement_number=ts.agreement_number \n"+
+			"left join tblstorageunit tsu on tsu.item_code=ts.store_number \n"+
+			"left join tblleadcustomer tl on tl.customer_code=ta.customer_name \n"+
 			"where \n" +
 			"(COALESCE(:phase,null) IS NULL OR (tsu.PHASE IN (:phase))) and \n"+
 			"(COALESCE(:storeNumber,null) IS NULL OR (tsu.ITEM_CODE IN (:storeNumber))) and \n"+
@@ -567,23 +567,43 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			@Param(value ="startDate") Date startDate,
 			@Param(value ="endDate") Date endDate);
 
-	//Dashboard-Lead Count
-	@Query (value = "SELECT count(customer_code) as count \r\n"
+	//Dashboard-Lead Count-Ustorage
+	@Query (value = "SELECT COALESCE(count(customer_code),0) as count \r\n"
 			+ "FROM tblleadcustomer tl \r\n"
 			+ "WHERE \n"
 			+ "(COALESCE(:startDate,null) IS NULL OR (tl.ctd_on between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"
-			+ "tl.type='LEAD' and tl.IS_DELETED = 0", nativeQuery = true)
+			+ "tl.type='LEAD' and tl.sbu='Ustorage' and tl.IS_DELETED = 0", nativeQuery = true)
 	public List<Integer> getLeadCount (
 			@Param(value ="startDate") Date startDate,
 			@Param(value ="endDate") Date endDate);
 
-	//Dashboard-Customer Count
-	@Query (value = "SELECT count(customer_code) as count \r\n"
+	//Dashboard-Lead Count-Ulogistics
+	@Query (value = "SELECT COALESCE(count(customer_code),0) as count \r\n"
 			+ "FROM tblleadcustomer tl \r\n"
 			+ "WHERE \n"
 			+ "(COALESCE(:startDate,null) IS NULL OR (tl.ctd_on between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"
-			+ "tl.type='CUSTOMER' and tl.IS_DELETED = 0", nativeQuery = true)
+			+ "tl.type='LEAD' and tl.sbu='Ulogistics' and tl.IS_DELETED = 0", nativeQuery = true)
+	public List<Integer> getULeadCount (
+			@Param(value ="startDate") Date startDate,
+			@Param(value ="endDate") Date endDate);
+
+	//Dashboard-Customer Count-Ustorage
+	@Query (value = "SELECT COALESCE(count(customer_code),0) as count \r\n"
+			+ "FROM tblleadcustomer tl \r\n"
+			+ "WHERE \n"
+			+ "(COALESCE(:startDate,null) IS NULL OR (tl.ctd_on between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"
+			+ "tl.type='CUSTOMER' and tl.sbu='Ustorage' and tl.IS_DELETED = 0", nativeQuery = true)
 	public List<Integer> getCustomerCount (
+			@Param(value ="startDate") Date startDate,
+			@Param(value ="endDate") Date endDate);
+
+	//Dashboard-Customer Count-Ulogistics
+	@Query (value = "SELECT COALESCE(count(customer_code),0) as count \r\n"
+			+ "FROM tblleadcustomer tl \r\n"
+			+ "WHERE \n"
+			+ "(COALESCE(:startDate,null) IS NULL OR (tl.ctd_on between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"
+			+ "tl.type='CUSTOMER' and tl.sbu='Ulogistics' and tl.IS_DELETED = 0", nativeQuery = true)
+	public List<Integer> getUCustomerCount (
 			@Param(value ="startDate") Date startDate,
 			@Param(value ="endDate") Date endDate);
 

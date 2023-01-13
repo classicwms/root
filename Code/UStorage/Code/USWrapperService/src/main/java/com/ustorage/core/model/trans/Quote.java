@@ -24,8 +24,13 @@ public class Quote {
 	private String requirementType;
 	private String status;
 	private String customerCode;
+	private String addressFrom;
+	private String addressTo;
+	private String numberOfTrips;
+	private Float packingCost;
+	private String jobcardType;
 
-	private Long deletionIndicator = 0L;
+	private Long deletionIndicator;
 	private String referenceField1;
 	private String referenceField2;
 	private String referenceField3;

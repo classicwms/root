@@ -12,6 +12,7 @@ public interface FillrateStatusImpl {
     String getBin();
     String getStoreNumber();
     String getPriceMeterSquare();
+    String getStoreSizeMeterSquare();
     String getStatus();
     String getCustomerCode();
     String getCustomerName();
