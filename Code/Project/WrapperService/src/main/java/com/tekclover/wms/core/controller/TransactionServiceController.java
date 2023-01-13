@@ -1858,7 +1858,7 @@ public class TransactionServiceController {
 	@ApiOperation(response = ShipmentOrder.class, value = "Create Shipment Order") // label for swagger
     @PostMapping("/warehouse/outbound/so/upload")
     public ResponseEntity<?> postShipmenOrderUpload (@RequestParam("file") MultipartFile file) throws Exception {
-        Map<String, String> response = fileStorageService.storeFile(file);
+        Map<String, String> response = fileStorageService.processSOOrders(file);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 	

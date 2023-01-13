@@ -11,8 +11,8 @@ public class ASNLine {
 	@NotBlank(message = "Line Reference is mandatory")
 	private String lineReference;							// IB_LINE_NO
 	
-	@NotBlank(message = "SKU Code is mandatory")
-	private String skuCode; 								// ITM_CODE
+	@NotBlank(message = "SKU is mandatory")
+	private String sku; 								// ITM_CODE
 
 	@NotBlank(message = "SKU Description is mandatory")
 	private String skuDescription; 							// ITEM_TEXT
