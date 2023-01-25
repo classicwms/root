@@ -448,7 +448,7 @@ public class ReportService {
 			documentStatusKey.setPhone(idocumentStatus.getPhone());
 			documentStatusKey.setCivilId(idocumentStatus.getCivilId());
 			documentStatusKey.setCustomerId(idocumentStatus.getCustomerId());
-			documentStatusKey.setDocumentType("Enquiry");
+			documentStatusKey.setDocumentType("Inquiry");
 
 			enquiryList.add(documentStatusKey);
 		}
@@ -492,7 +492,7 @@ public class ReportService {
 				if(documentType.equalsIgnoreCase("quotation")){
 					documentStatus.setQuote(quoteList);
 				}
-				if(documentType.equalsIgnoreCase("enquiry")){
+				if(documentType.equalsIgnoreCase("inquiry")){
 					documentStatus.setEnquiry(enquiryList);
 				}
 			}

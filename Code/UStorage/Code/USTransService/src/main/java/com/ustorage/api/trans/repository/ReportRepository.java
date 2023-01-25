@@ -196,75 +196,95 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 
 	//PaymentDueStatus Report
 	@Query(value = "select \n"+
-					"y.agreement_number as agreementNumber,\n" +
-					"y.customer_name as customerName,\n" +
-					"y.customer_code as customerCode,\n" +
-					"y.civil_id_number as civilIdNumber,\n" +
-					"y.phone_number as phoneNumber,\n" +
-					"y.secondary_number as secondaryNumber,\n" +
-					"y.location as location,\n" +
-					"y.store_number as storeNumber,\n" +
-					"y.size as size,\n" +
-					"y.storage_type as storeType,\n" +
-					"y.phase as phase,\n" +
-					"y.rent as rent,\n" +
-					"y.payment_terms as paymentTerms,\n" +
-					"y.agreement_discount as agreementDiscount,\n" +
-					"y.total_after_discount as totalAfterDiscount,\n" +
-					"y.start_date as startDate,\n" +
-					"y.end_date as endDate,\n" +
-					"y.lastPaidDate as lastPaidDate,\n" +
-					"y.dueDate as dueDate,\n" +
-					"y.rent_period as rentPeriod,\n" +
-					"y.total_rent as totalRent,\n" +
-					"DATEDIFF(day,CURRENT_TIMESTAMP,y.dueDate) as dueDays,\n" +
-					"y.totalPaidVoucherAmount as totalPaidVoucherAmount,\n" +
-					"y.totalDueAmount as totalDueAmount,\n" +
-					"y.nxtDAmount as nextDueAmount\n" +
-					"from\n"+
-					"(select *,\n"+
-					"(case when x.totalDueAmount < x.nxtdueamount then x.totalDueAmount else x.nxtdueamount end) as nxtDAmount,\n"+
-					"(case when x.dDate<=Current_timestamp then \n"+
-					"case\n"+
-						"when x.rent_period='Monthly' then Dateadd(month,1,x.dDate)\n"+
-						"when x.rent_period='Weekly' then Dateadd(week,1,x.dDate)\n"+
-						"when x.rent_period='Yearly' then Dateadd(YEAR,1,x.dDate)\n"+
-						"when x.rent_period='Quarterly' then Dateadd(QUARTER,1,x.dDate)\n"+
-						"when x.rent_period='Half yearly' then Dateadd(month,6,x.dDate)\n"+
-						"else x.dDate end else x.dDate end) as dueDate\n"+
-					"from\n"+
-					"(select distinct\n"+
-					"ta.agreement_number,tl.customer_name,tl.customer_code,ta.civil_id_number,ta.phone_number,\n"+
-					"ta.secondary_number,ta.location,ts.store_number,ta.size,\n"+
-					"tsu.storage_type,tsu.phase,ta.rent,ta.total_rent,\n"+
-					"ta.payment_terms,ta.agreement_discount,ta.total_after_discount,\n"+
-					"ta.rent_period,ta.start_date,ta.end_date,\n"+
-					"COALESCE(sum(cast(tp.voucher_amount as float)),0) as totalPaidVoucherAmount,\n"+
-					"ta.total_rent-COALESCE(sum(cast(tp.voucher_amount as float)),0) as totalDueAmount,\n"+
-					"max(tp.paid_date) as lastPaidDate,\n"+
-					"(case\n"+
-					"when ta.rent_period='Monthly' then Dateadd(month,(case when (DATEDIFF(month,ta.start_date,CURRENT_TIMESTAMP))=0 then 1 else (DATEDIFF(month,ta.start_date,CURRENT_TIMESTAMP)) end),convert(datetime,ta.start_date,121))\n"+
-					"when ta.rent_period='Weekly' then Dateadd(WEEK,(DATEDIFF(week,ta.start_date,CURRENT_TIMESTAMP)),convert(datetime,ta.start_date,121))\n"+
-					"when ta.rent_period='Yearly' then Dateadd(YEAR,(DATEDIFF(YEAR,ta.start_date,CURRENT_TIMESTAMP)),convert(datetime,ta.start_date,121))\n"+
-					"when ta.rent_period='Quarterly' then Dateadd(QUARTER,(DATEDIFF(QUARTER,ta.start_date,CURRENT_TIMESTAMP)),convert(datetime,ta.start_date,121))\n"+
-					"when ta.rent_period='Half yearly' then Dateadd(MONTH,(DATEDIFF(month,ta.start_date,CURRENT_TIMESTAMP))+6,convert(datetime,ta.start_date,121))\n"+
-					"when ta.payment_terms='Net 15 Days' then Dateadd(day,15,convert(datetime,ti.invoice_date,121))\n"+
-					"else 0 end) as dDate,\n"+
-						"(case\n"+
-						"when ta.rent_period='Monthly' then ta.total_rent/12\n"+
-						"when ta.rent_period='Weekly' then ta.total_rent/52\n"+
-						"when ta.rent_period='Yearly' then ta.total_rent/1\n"+
-						"when ta.rent_period='Quarterly' then ta.total_rent/3\n"+
-						"when ta.rent_period='Half yearly' then ta.total_rent/6\n"+
-						"when ta.payment_terms='Net 15 Days' then ta.total_rent\n"+
-						"else 0 end) as nxtdueamount\n"+
+			"b.agreement_number as agreementNumber,\n"+
+			"b.customer_name as customerName,\n"+
+			"b.customer_code as customerCode,\n"+
+			"b.civil_id_number as civilIdNumber,\n"+
+			"b.phone_number as phoneNumber,\n"+
+			"b.secondary_number as secondaryNumber,\n"+
+			"b.location as location,\n"+
+			"b.store_number as storeNumber,b.description,\n"+
+			"b.size as size,\n"+
+			"b.storage_type as storeType,\n"+
+			"b.phase as phase,\n"+
+			"b.rent as rent,\n"+
+			"b.payment_terms as paymentTerms,\n"+
+			"b.agreement_discount as agreementDiscount,\n"+
+			"b.total_after_discount as totalAfterDiscount,\n"+
+			"b.start_date as startDate,\n"+
+			"b.end_date as endDate,\n"+
+			"b.lastPaidDate as lastPaidDate,\n"+
+			"b.duDate as dueDate,\n"+
+			"b.rent_period as rentPeriod,\n"+
+			"b.total_rent as totalRent,\n"+
+			"b.totalPaidVoucherAmount as totalPaidVoucherAmount,\n"+
+			"b.totalDueAmount as totalDueAmount,\n"+
+			"b.deDays as dueDays,\n"+
+			"b.nxtDueAmount as nextDueAmount,\n"+
+			"case when b.paidAmount>=b.nxtDueAmount then 'No Dues' else 'Pending Due' end as status \n"+
+			"from\n"+
+			"(select *, \n"+
+			"case when a.duDate<=a.end_date then \n"+
+			"case when a.totalPaidVoucherAmount>a.total_rent then 0 else \n"+
+			"case when a.totalDueAmount<a.curentDue then a.totalDueAmount else \n"+
+			"case when a.totalDueAmount>a.curentDue then a.totalDueAmount else \n"+
+			"a.curentDue end end end else \n"+
+			"case when a.duDate>a.end_date then a.totalDueAmount \n"+
+			"when totalDueAmount<0 then 0 else totalDueAmount end end as nxtDueAmount \n"+
+			"from \n"+
+			"(select *,\n"+
+			"(select COALESCE(sum(cast(tp1.voucher_amount as float)),0) from tblpaymentvoucher tp1 where tp1.contract_number = z.agreement_number and tp1.voucher_date between '2001-01-01 00:00:00.0000000' and z.duDate) as paidAmount, \n"+
+			"case \n"+
+			"when z.rent_period='Monthly' then (z.total_rent/12)*(DATEDIFF(month,z.start_date,duDate)) \n"+
+			"when z.rent_period='Weekly' then (z.total_rent/52)*(DATEDIFF(week,z.start_date,duDate)) \n"+
+			"when z.rent_period='Yearly' then (z.total_rent/1)*(DATEDIFF(Year,z.start_date,duDate)) \n"+
+			"when z.rent_period='Quarterly' then (z.total_rent/4)*(DATEDIFF(QUARTER,z.start_date,duDate)) \n"+
+			"when z.rent_period='Half Yearly' then (z.total_rent/2)*((DATEDIFF(month,z.start_date,duDate))/6) \n"+
+			"when z.payment_terms='Net 15 Days' then z.total_rent \n"+
+			"else 0 end as curentDue, \n"+
+			"(case \n"+
+			"when DATEDIFF(day,CURRENT_TIMESTAMP,z.duDate)<=0 then 0 \n"+
+			"when z.total_rent<=z.totalPaidVoucherAmount then 0 \n"+
+			"else DATEDIFF(day,CURRENT_TIMESTAMP,z.duDate) \n"+
+			"end) as deDays \n"+
+			"from \n"+
+			"(select *, \n"+
+			"(case when y.dueDate<y.end_date then y.dueDate else y.end_date end) as duDate \n"+
+			"from \n"+
+			"(select *, \n"+
+			"(case when x.dDate<=Current_timestamp then \n"+
+			"case \n"+
+			"when x.rent_period='Monthly' then Dateadd(month,1,x.dDate)\n"+
+			"when x.rent_period='Weekly' then Dateadd(week,1,x.dDate)\n"+
+			"when x.rent_period='Yearly' then Dateadd(YEAR,1,x.dDate)\n"+
+			"when x.rent_period='Quarterly' then Dateadd(QUARTER,1,x.dDate)\n"+
+			"when x.rent_period='Half Yearly' then Dateadd(month,6,x.dDate)\n"+
+			"else x.dDate end else x.dDate end) as dueDate\n"+
+			"from\n"+
+			"(select distinct\n"+
+			"ta.agreement_number,tl.customer_name,tl.customer_code,ta.civil_id_number,ta.phone_number,\n"+
+			"ta.secondary_number,ta.location,ts.store_number,ta.size,ts.description,\n"+
+			"tsu.storage_type,tsu.phase,ta.rent,ta.total_rent,\n"+
+			"ta.payment_terms,ta.agreement_discount,ta.total_after_discount,\n"+
+			"ta.rent_period,ta.start_date,ta.end_date,\n"+
+			"COALESCE(sum(cast(tp.voucher_amount as float)),0) as totalPaidVoucherAmount,\n"+
+			"ta.total_rent-COALESCE(sum(cast(tp.voucher_amount as float)),0) as totalDueAmount,\n"+
+			"max(tp.paid_date) as lastPaidDate,\n"+
+			"(case\n"+
+			"when ta.rent_period='Monthly' then Dateadd(month,(case when (DATEDIFF(month,ta.start_date,CURRENT_TIMESTAMP))=0 then 1 else (DATEDIFF(month,ta.start_date,CURRENT_TIMESTAMP)) end),convert(datetime,ta.start_date,121))\n"+
+			"when ta.rent_period='Weekly' then Dateadd(WEEK,(DATEDIFF(week,ta.start_date,CURRENT_TIMESTAMP)),convert(datetime,ta.start_date,121))\n"+
+			"when ta.rent_period='Yearly' then Dateadd(YEAR,(DATEDIFF(YEAR,ta.start_date,CURRENT_TIMESTAMP)),convert(datetime,ta.start_date,121))\n"+
+			"when ta.rent_period='Quarterly' then Dateadd(QUARTER,(DATEDIFF(QUARTER,ta.start_date,CURRENT_TIMESTAMP)),convert(datetime,ta.start_date,121))\n"+
+			"when ta.rent_period='Half yearly' then Dateadd(MONTH,(DATEDIFF(month,ta.start_date,CURRENT_TIMESTAMP))+6,convert(datetime,ta.start_date,121))\n"+
+			"when ta.payment_terms='Net 15 Days' then Dateadd(day,15,convert(datetime,ti.invoice_date,121))\n"+
+			"else 0 end) as dDate\n"+
 			"from tblagreement as ta\n"+
 			"left join tblstorenumber ts on ts.agreement_number=ta.agreement_number\n"+
 			"left join tblstorageunit tsu on ts.store_number=tsu.item_code\n"+
 			"left join tblleadcustomer tl on tl.customer_code=ta.customer_name\n"+
 			"left join tblpaymentvoucher tp on tp.contract_number=ta.agreement_number\n"+
 			"left join tblinvoice ti on ti.customer_id=ta.customer_name\n"+
-			"where \n" +
+			"where \n"+
 			"(COALESCE(:agreementNumber,null) IS NULL OR (ta.AGREEMENT_NUMBER IN (:agreementNumber))) and \n"+
 			"(COALESCE(:customerName,null) IS NULL OR (tl.CUSTOMER_NAME IN (:customerName))) and \n"+
 			"(COALESCE(:customerCode,null) IS NULL OR (tl.CUSTOMER_CODE IN (:customerCode))) and \n"+
@@ -272,12 +292,12 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			"(COALESCE(:secondaryNumber,null) IS NULL OR (tl.PHONE_NUMBER IN (:secondaryNumber))) and \n"+
 			"(COALESCE(:civilId,null) IS NULL OR (tl.CIVIL_ID IN (:civilId))) and \n"+
 			"(COALESCE(:startDate,null) IS NULL OR (ta.CTD_ON between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"+
-			"ta.is_deleted=0 \n"+
-			"group by ta.agreement_number,tl.customer_name,tl.customer_code,ta.civil_id_number,ta.phone_number,\n"+
-			"ta.secondary_number,ta.location,ts.store_number,ta.size,tsu.storage_type,\n"+
-			"tsu.phase,ta.rent,ta.total_rent,ta.payment_terms,ta.agreement_discount,\n"+
-			"ta.total_after_discount,tp.voucher_amount,ta.rent_period,\n"+
-			"ta.start_date,ta.end_date,ti.invoice_date,tp.paid_date) x) y",nativeQuery = true)
+			"ta.is_deleted=0 and ts.is_deleted=0 \n"+
+			"group by \n"+
+			"ta.total_rent,ta.secondary_number,ta.location,ta.size,ta.agreement_number,ta.civil_id_number,\n"+
+			"ta.phone_number,ta.total_rent,ta.payment_terms,ta.agreement_discount,ta.total_after_discount,ta.rent, \n"+
+			"ta.rent_period,ta.start_date,ta.end_date, \n"+
+			"tl.customer_name,tl.customer_code,tsu.storage_type,tsu.phase,ts.store_number,ti.invoice_date,ts.description) x) y) z) a) b",nativeQuery = true)
 	public List<PaymentDueStatusReportImpl> getPaymentDueStatus(
 			@Param(value ="agreementNumber") List<String> agreementNumber,
 			@Param(value = "customerName") List<String> customerName,
@@ -318,7 +338,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 													 @Param(value ="endDate") Date endDate);
 
 	//Document status-agreement
-	@Query (value = "SELECT ta.AGREEMENT_NUMBER AS documentNumber, ta.TOTAL_RENT AS amount,\r\n"
+	@Query (value = "SELECT distinct ta.AGREEMENT_NUMBER AS documentNumber, ta.TOTAL_RENT AS amount,\r\n"
 			+ "ta.AGREEMENT_TYPE as type, tl.CUSTOMER_NAME as customerName,tl.CUSTOMER_CODE as customerId, \r\n"
 			+ "ta.LOCATION as location, ta.QUOTE_NUMBER as code, \r\n"
 			+ "ta.RENT_PERIOD as Note, ta.END_DATE as endDate, \r\n"
@@ -327,19 +347,19 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			+ "ta.SECONDARY_NUMBER as phone, ta.CIVIL_ID_NUMBER as civilId, \r\n"
 			+ "ta.STATUS as status, ta.NOTES as remark,ts.store_number as storeNumber \r\n"
 			+ "FROM tblstorenumber ts \r\n"
-			+ "JOIN tblagreement ta ON ta.AGREEMENT_NUMBER=ts.AGREEMENT_NUMBER \r\n"
-			+ "JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=ta.CUSTOMER_NAME \r\n"
+			+ "left JOIN tblagreement ta ON ta.AGREEMENT_NUMBER=ts.AGREEMENT_NUMBER \r\n"
+			+ "left JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=ta.CUSTOMER_NAME \r\n"
 			+ "WHERE \n"
 			+ "(COALESCE(:customerCode,null) IS NULL OR (tl.CUSTOMER_CODE IN (:customerCode))) and \n"
 			+ "(COALESCE(:startDate,null) IS NULL OR (ta.CTD_ON between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"
-			+ "ta.IS_DELETED = 0", nativeQuery = true)
+			+ "ta.IS_DELETED = 0 and ts.IS_DELETED = 0", nativeQuery = true)
 	public List<DocumentStatusImpl> getAgreemnt (
 			@Param(value = "customerCode") List<String> customerCode,
 			@Param(value ="startDate") Date startDate,
 			@Param(value ="endDate") Date endDate);
 
 	//Document status-invoice
-	@Query (value = "SELECT ti.INVOICE_NUMBER AS documentNumber, ti.INVOICE_AMOUNT AS amount,\r\n"
+	@Query (value = "SELECT distinct ti.INVOICE_NUMBER AS documentNumber, ti.INVOICE_AMOUNT AS amount,\r\n"
 			+ "tl.CUSTOMER_NAME as customerName,tl.CUSTOMER_CODE as customerId, ti.DOCUMENT_NUMBER as code, \r\n"
 			+ "ti.INVOICE_DATE as documentDate, ti.DOCUMENT_START_DATE as startDate, \r\n"
 			+ "ti.DOCUMENT_END_DATE as endDate, ti.REF_FIELD_3 as location,ti.REF_FIELD_4 as storeNumber, \r\n"
@@ -347,7 +367,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			+ "tl.MOBILE_NUMBER as mobile, tl.PHONE_NUMBER as phone, \r\n"
 			+ "ti.INVOICE_DOCUMENT_STATUS as status, ti.REMARKS as remarks \r\n"
 			+ "FROM tblinvoice ti \r\n"
-			+ "JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=ti.CUSTOMER_ID \r\n"
+			+ "left JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=ti.CUSTOMER_ID \r\n"
 			+ "WHERE \n"
 			+ "(COALESCE(:customerCode,null) IS NULL OR (tl.CUSTOMER_CODE IN (:customerCode))) and \n"
 			+ "(COALESCE(:startDate,null) IS NULL OR (ti.INVOICE_DATE between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"
@@ -358,7 +378,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			@Param(value ="endDate") Date endDate);
 
 	//Document status-payment voucher
-	@Query (value = "SELECT tp.VOUCHER_ID AS documentNumber, tp.VOUCHER_AMOUNT AS amount,\r\n"
+	@Query (value = "SELECT distinct tp.VOUCHER_ID AS documentNumber, tp.VOUCHER_AMOUNT AS amount,\r\n"
 			+ "tl.CUSTOMER_NAME as customerName,tl.CUSTOMER_CODE as customerId, tp.CONTRACT_NUMBER as code, \r\n"
 			+ "tp.VOUCHER_DATE as documentDate, \r\n"
 			+ "tp.PAID_DATE as note, tp.START_DATE as startDate, \r\n"
@@ -367,7 +387,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			+ "tl.MOBILE_NUMBER as mobile, tl.EMAIL as email, \r\n"
 			+ "tp.VOUCHER_STATUS as status, tp.REMARKS as remarks \r\n"
 			+ "FROM tblpaymentvoucher tp \r\n"
-			+ "JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=tp.CUSTOMER_NAME \r\n"
+			+ "left JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=tp.CUSTOMER_NAME \r\n"
 			+ "WHERE \n"
 			+ "(COALESCE(:customerCode,null) IS NULL OR (tl.CUSTOMER_CODE IN (:customerCode))) and \n"
 			+ "(COALESCE(:startDate,null) IS NULL OR (tp.VOUCHER_DATE between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"
@@ -378,7 +398,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			@Param(value ="endDate") Date endDate);
 
 	//Document status-work order
-	@Query (value = "SELECT tw.WORK_ORDER_ID AS documentNumber, sum(ti.ITEM_SERVICE_TOTAL) AS amount,\r\n"
+	@Query (value = "SELECT distinct tw.WORK_ORDER_ID AS documentNumber, sum(ti.ITEM_SERVICE_TOTAL) AS amount,\r\n"
 			+ "tw.CODE_ID as code, tw.CREATED as cgroup, \r\n"
 			+ "tw.START_DATE as startDate, \r\n"
 			+ "tw.END_DATE as endDate, \r\n"
@@ -386,10 +406,10 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			+ "tw.PLANNED_HOURS as note, tl.CUSTOMER_NAME as customerName,tl.CUSTOMER_CODE as customerId, \r\n"
 			+ "tl.MOBILE_NUMBER as mobile, tl.EMAIL as email, \r\n"
 			+ "tw.STATUS as status, tw.REMARKS as remarks \r\n"
-			+ "FROM tblitemservice ti \r\n"
-			+ "JOIN tblworkorder tw on tw.WORK_ORDER_ID =ti.WORK_ORDER_ID \r\n"
-			+ "JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=tw.CUSTOMER_ID \r\n"
-			+ "join tblwoprocessedbyteam on tblwoprocessedbyteam.WORK_ORDER_ID=tw.WORK_ORDER_ID \n"
+			+ "FROM tblworkorder tw \r\n"
+			+ "left JOIN tblitemservice ti on tw.WORK_ORDER_ID =ti.WORK_ORDER_ID \r\n"
+			+ "left JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=tw.CUSTOMER_ID \r\n"
+			+ "left join tblwoprocessedbyteam on tblwoprocessedbyteam.WORK_ORDER_ID=tw.WORK_ORDER_ID \n"
 			+ "WHERE \n"
 			+ "(COALESCE(:customerCode,null) IS NULL OR (tl.CUSTOMER_CODE IN (:customerCode))) and \n"
 			+ "(COALESCE(:startDate,null) IS NULL OR (tw.WORK_ORDER_DATE between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"
@@ -403,7 +423,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			@Param(value ="endDate") Date endDate);
 
 	//Document status-Quotation
-	@Query (value = "SELECT tq.QUOTE_ID AS documentNumber, tq.RENT AS amount,\r\n"
+	@Query (value = "SELECT distinct tq.QUOTE_ID AS documentNumber, tq.RENT AS amount,\r\n"
 			+ "tq.CTD_ON as documentDate, tq.CUSTOMER_GROUP as cgroup, \r\n"
 			+ "tq.ENQUIRY_REFERENCE_NUMBER as code, tq.REF_FIELD_1 as type, \r\n"
 			+ "tq.REQUIREMENT as serviceType, tq.SBU as location, \r\n"
@@ -411,7 +431,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			+ "tl.MOBILE_NUMBER as mobile, tl.EMAIL as email, \r\n"
 			+ "tq.NOTES as remarks \r\n"
 			+ "FROM tblquote tq \r\n"
-			+ "JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=tq.CUSTOMER_CODE \r\n"
+			+ "left JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=tq.CUSTOMER_CODE \r\n"
 			+ "WHERE \n"
 			+"(COALESCE(:customerCode,null) IS NULL OR (tl.CUSTOMER_CODE IN (:customerCode))) and \n"
 			+ "(COALESCE(:startDate,null) IS NULL OR (tq.CTD_ON between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"
@@ -422,16 +442,15 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			@Param(value ="endDate") Date endDate);
 
 	//Document status-Enquiry
-	@Query (value = "SELECT te.ENQUIRY_ID AS documentNumber, te.ENQUIRY_STORE_SIZE AS amount,\r\n"
+	@Query (value = "SELECT distinct te.ENQUIRY_ID AS documentNumber, te.ENQUIRY_STORE_SIZE AS amount,\r\n"
 			+ "te.CTD_ON as documentDate, te.CUSTOMER_GROUP as cgroup, \r\n"
 			+ "te.EMAIL as email, te.ENQUIRY_MOBILE_NUMBER as mobile, \r\n"
-			+ "tl.CUSTOMER_NAME as customerName,tl.CUSTOMER_CODE as customerId, \r\n"
+			+ "te.ENQUIRY_NAME as customerName,tl.CUSTOMER_CODE as customerId, \r\n"
 			+ "te.REF_FIELD_1 as type, te.SBU as location, \r\n"
 			+ "te.REQUIREMENT_DETAIL as serviceType, \r\n"
 			+ "te.ENQUIRY_STATUS as status, te.ENQUIRY_REMARKS as remarks \r\n"
 			+ "FROM tblenquiry te \r\n"
-			+ "JOIN tblquote tq on tq.ENQUIRY_REFERENCE_NUMBER=te.ENQUIRY_ID \r\n"
-			+ "JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=tq.CUSTOMER_CODE \r\n"
+			+ "left JOIN tblleadcustomer tl ON tl.CUSTOMER_NAME=te.ENQUIRY_NAME \r\n"
 			+ "WHERE \n"
 			+"(COALESCE(:customerCode,null) IS NULL OR (tl.CUSTOMER_CODE IN (:customerCode))) and \n"
 			+ "(COALESCE(:startDate,null) IS NULL OR (te.CTD_ON between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"
@@ -462,7 +481,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 	@Query (value = "SELECT ta.AGREEMENT_NUMBER AS documentNumber, ta.TOTAL_RENT AS total,\r\n"
 			+ "ta.STATUS as status, ta.NOTES as notes, ta.CTD_ON as documentDate \r\n"
 			+ "FROM tblagreement ta \r\n"
-			+ "JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=ta.CUSTOMER_NAME \r\n"
+			+ "left JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=ta.CUSTOMER_NAME \r\n"
 			+ "WHERE \n"
 			+ "(COALESCE(:customerCode,null) IS NULL OR (tl.CUSTOMER_CODE IN (:customerCode))) and \n"
 			+ "ta.IS_DELETED = 0", nativeQuery = true)
@@ -473,7 +492,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 	@Query (value = "SELECT ti.INVOICE_NUMBER AS documentNumber, ti.INVOICE_AMOUNT AS total,\r\n"
 			+ "ti.INVOICE_DOCUMENT_STATUS as status, ti.REMARKS as notes, ti.INVOICE_DATE as documentDate \r\n"
 			+ "FROM tblinvoice ti \r\n"
-			+ "JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=ti.CUSTOMER_ID \r\n"
+			+ "left JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=ti.CUSTOMER_ID \r\n"
 			+ "WHERE \n"
 			+ "(COALESCE(:customerCode,null) IS NULL OR (tl.CUSTOMER_CODE IN (:customerCode))) and \n"
 			+ "ti.IS_DELETED = 0", nativeQuery = true)
@@ -484,7 +503,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 	@Query (value = "SELECT tp.VOUCHER_ID AS documentNumber, tp.VOUCHER_AMOUNT AS total,\r\n"
 			+ "tp.VOUCHER_STATUS as status, tp.REMARKS as notes, tp.VOUCHER_DATE as documentDate \r\n"
 			+ "FROM tblpaymentvoucher tp \r\n"
-			+ "JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=tp.CUSTOMER_NAME \r\n"
+			+ "left JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=tp.CUSTOMER_NAME \r\n"
 			+ "WHERE \n"
 			+ "(COALESCE(:customerCode,null) IS NULL OR (tl.CUSTOMER_CODE IN (:customerCode))) and \n"
 			+ "tp.IS_DELETED = 0", nativeQuery = true)
@@ -496,7 +515,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			+ "tw.STATUS as status, tw.REMARKS as notes, tw.WORK_ORDER_DATE as documentDate \r\n"
 			+ "FROM tblitemservice ti \r\n"
 			+ "JOIN tblworkorder tw on tw.WORK_ORDER_ID =ti.WORK_ORDER_ID \r\n"
-			+ "JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=tw.CUSTOMER_ID \r\n"
+			+ "left JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=tw.CUSTOMER_ID \r\n"
 			+ "WHERE \n"
 			+ "(COALESCE(:customerCode,null) IS NULL OR (tl.CUSTOMER_CODE IN (:customerCode))) and \n"
 			+ "tw.IS_DELETED = 0"
@@ -508,7 +527,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 		@Query (value = "SELECT tq.QUOTE_ID AS documentNumber, tq.RENT AS total,\r\n"
 			+ "tq.STATUS as status, tq.NOTES as notes, tq.CTD_ON as documentDate \r\n"
 			+ "FROM tblquote tq \r\n"
-			+ "JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=tq.CUSTOMER_CODE \r\n"
+			+ "left JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=tq.CUSTOMER_CODE \r\n"
 			+ "WHERE \n"
 			+"(COALESCE(:customerCode,null) IS NULL OR (tl.CUSTOMER_CODE IN (:customerCode))) and \n"
 			+ "tq.IS_DELETED = 0", nativeQuery = true)
@@ -520,7 +539,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			+ "te.ENQUIRY_STATUS as status, te.ENQUIRY_REMARKS as notes, te.CTD_ON as documentDate \r\n"
 			+ "FROM tblenquiry te \r\n"
 			+ "JOIN tblquote tq on tq.ENQUIRY_REFERENCE_NUMBER=te.ENQUIRY_ID \r\n"
-			+ "JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=tq.CUSTOMER_CODE \r\n"
+			+ "left JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=tq.CUSTOMER_CODE \r\n"
 			+ "WHERE \n"
 			+"(COALESCE(:customerCode,null) IS NULL OR (tl.CUSTOMER_CODE IN (:customerCode))) and \n"
 			+ "te.IS_DELETED = 0", nativeQuery = true)

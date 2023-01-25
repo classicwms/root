@@ -49,10 +49,10 @@ public class PaymentVoucherController {
 		return new ResponseEntity<>(paymentVoucherList, HttpStatus.OK);
 	}
 
-	@ApiOperation(response = PaymentVoucher.class, value = "Get a PaymentVoucher") // label for swagger
+	@ApiOperation(response = GPaymentVoucher.class, value = "Get a PaymentVoucher") // label for swagger
 	@GetMapping("/{paymentVoucherId}")
 	public ResponseEntity<?> getPaymentVoucher(@PathVariable String paymentVoucherId) {
-		PaymentVoucher dbPaymentVoucher = paymentVoucherService.getPaymentVoucher(paymentVoucherId);
+		GPaymentVoucher dbPaymentVoucher = paymentVoucherService.getPaymentVoucher(paymentVoucherId);
 		log.info("PaymentVoucher : " + dbPaymentVoucher);
 		return new ResponseEntity<>(dbPaymentVoucher, HttpStatus.OK);
 	}
@@ -83,10 +83,10 @@ public class PaymentVoucherController {
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	//Search
-	@ApiOperation(response = PaymentVoucher.class, value = "Find PaymentVoucher") // label for swagger
+	@ApiOperation(response = GPaymentVoucher.class, value = "Find PaymentVoucher") // label for swagger
 	@PostMapping("/find")
 	public ResponseEntity<?> findPaymentVoucher(@Valid @RequestBody FindPaymentVoucher findPaymentVoucher) throws Exception {
-		List<PaymentVoucher> createdPaymentVoucher = paymentVoucherService.findPaymentVoucher(findPaymentVoucher);
+		List<GPaymentVoucher> createdPaymentVoucher = paymentVoucherService.findPaymentVoucher(findPaymentVoucher);
 		return new ResponseEntity<>(createdPaymentVoucher, HttpStatus.OK);
 	}
 }

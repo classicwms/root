@@ -1,6 +1,7 @@
 package com.ustorage.api.trans.model.paymentvoucher;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.Data;
 
@@ -48,7 +49,7 @@ public class UpdatePaymentVoucher {
 
 	private String referenceField2;
 
-	private String referenceField3;
+	private List<String> referenceField3;
 
 	private String referenceField4;
 

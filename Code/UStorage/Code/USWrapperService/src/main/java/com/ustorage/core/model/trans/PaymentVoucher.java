@@ -3,6 +3,8 @@ package com.ustorage.core.model.trans;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 @Data
 public class PaymentVoucher {
@@ -28,10 +30,10 @@ public class PaymentVoucher {
 	private String bank;
 	private String status;
 
-	private Long deletionIndicator = 0L;
+	private Long deletionIndicator;
 	private String referenceField1;
 	private String referenceField2;
-	private String referenceField3;
+	private Set<ReferenceField3> referenceField3;
 	private String referenceField4;
 	private String referenceField5;
 	private String referenceField6;

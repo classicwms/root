@@ -11,6 +11,7 @@ public interface PaymentDueStatusReportImpl {
     String getSecondaryNumber();
     String getLocation();
     String getStoreNumber();
+    String getDescription();
     String getSize();
     String getStoreType();
     String getPhase();
@@ -28,4 +29,5 @@ public interface PaymentDueStatusReportImpl {
     String getTotalPaidVoucherAmount();
     String getTotalDueAmount();
     String getNextDueAmount();
+    String getStatus();
 }

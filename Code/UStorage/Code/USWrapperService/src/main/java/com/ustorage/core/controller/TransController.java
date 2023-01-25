@@ -366,10 +366,10 @@ public class TransController {
 		return new ResponseEntity<>(paymentVoucherList, HttpStatus.OK);
 	}
 
-	@ApiOperation(response = PaymentVoucher.class, value = "Get a PaymentVoucher") // label for swagger
+	@ApiOperation(response = GPaymentVoucher.class, value = "Get a PaymentVoucher") // label for swagger
 	@GetMapping("/operations/paymentvoucher/{paymentVoucherId}")
 	public ResponseEntity<?> getPaymentVoucher(@PathVariable String paymentVoucherId, @RequestParam String authToken) {
-		PaymentVoucher dbPaymentVoucher = transService.getPaymentVoucher(paymentVoucherId, authToken);
+		GPaymentVoucher dbPaymentVoucher = transService.getPaymentVoucher(paymentVoucherId, authToken);
 		return new ResponseEntity<>(dbPaymentVoucher, HttpStatus.OK);
 	}
 
@@ -401,9 +401,9 @@ public class TransController {
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	//Find
-	@ApiOperation(response = PaymentVoucher[].class, value = "Find PaymentVoucher") // label for swagger
+	@ApiOperation(response = GPaymentVoucher[].class, value = "Find PaymentVoucher") // label for swagger
 	@PostMapping("/operations/paymentvoucher/find")
-	public PaymentVoucher[] findPaymentVoucher(@RequestBody FindPaymentVoucher findPaymentVoucher,
+	public GPaymentVoucher[] findPaymentVoucher(@RequestBody FindPaymentVoucher findPaymentVoucher,
 											   @RequestParam String authToken)
 			throws Exception {
 		return transService.findPaymentVoucher(findPaymentVoucher, authToken);

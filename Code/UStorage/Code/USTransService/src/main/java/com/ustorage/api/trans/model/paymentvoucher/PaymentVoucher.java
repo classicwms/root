@@ -1,9 +1,11 @@
 package com.ustorage.api.trans.model.paymentvoucher;
 
 import java.util.Date;
+import java.util.Set;
 
 import javax.persistence.*;
 
+import com.ustorage.api.trans.model.workorder.WoProcessedBy;
 import com.ustorage.api.trans.sequence.BaseSequence;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -92,9 +94,8 @@ public class PaymentVoucher {
 
 	@Column(name = "REF_FIELD_2")
 	private String referenceField2;
-
-	@Column(name = "REF_FIELD_3")
-	private String referenceField3;
+	@OneToMany(cascade = CascadeType.ALL,mappedBy = "voucherId",fetch = FetchType.EAGER)
+	private Set<ReferenceField3> referenceField3;
 
 	@Column(name = "REF_FIELD_4")
 	private String referenceField4;

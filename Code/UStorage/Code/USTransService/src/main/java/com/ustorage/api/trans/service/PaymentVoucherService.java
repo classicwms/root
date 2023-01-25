@@ -2,13 +2,16 @@ package com.ustorage.api.trans.service;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
+import com.ustorage.api.trans.model.itemservice.ItemService;
+import com.ustorage.api.trans.model.workorder.GWorkOrder;
+import com.ustorage.api.trans.model.workorder.WoProcessedBy;
+import com.ustorage.api.trans.model.workorder.WorkOrder;
+import com.ustorage.api.trans.repository.ReferenceField3Repository;
 import com.ustorage.api.trans.repository.Specification.PaymentVoucherSpecification;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +30,10 @@ public class PaymentVoucherService {
 	
 	@Autowired
 	private PaymentVoucherRepository paymentVoucherRepository;
+	@Autowired
+	private ReferenceField3Repository referenceField3Repository;
+	@Autowired
+	private ReferenceField3Service referenceField3Service;
 	
 	public List<PaymentVoucher> getPaymentVoucher () {
 		List<PaymentVoucher> paymentVoucherList =  paymentVoucherRepository.findAll();
@@ -39,7 +46,21 @@ public class PaymentVoucherService {
 	 * @param paymentVoucherId
 	 * @return
 	 */
-	public PaymentVoucher getPaymentVoucher (String paymentVoucherId) {
+	public GPaymentVoucher getPaymentVoucher (String paymentVoucherId) {
+		Optional<PaymentVoucher> paymentVoucher = paymentVoucherRepository.findByVoucherIdAndDeletionIndicator(paymentVoucherId, 0L);
+		if (paymentVoucher.isEmpty()) {
+			return null;
+		}
+		GPaymentVoucher dbPaymentVoucher = new GPaymentVoucher();
+		BeanUtils.copyProperties(paymentVoucher.get(),dbPaymentVoucher,CommonUtils.getNullPropertyNames(paymentVoucher.get()));
+		dbPaymentVoucher.setReferenceField3(new ArrayList<>());
+		for(ReferenceField3 dbReferenceField3 : paymentVoucher.get().getReferenceField3()){
+			dbPaymentVoucher.getReferenceField3().add(dbReferenceField3.getProcessedBy());
+		}
+		return dbPaymentVoucher;
+	}
+
+	public PaymentVoucher getPaymntVoucher (String paymentVoucherId) {
 		Optional<PaymentVoucher> paymentVoucher = paymentVoucherRepository.findByVoucherIdAndDeletionIndicator(paymentVoucherId, 0L);
 		if (paymentVoucher.isEmpty()) {
 			return null;
@@ -63,7 +84,27 @@ public class PaymentVoucherService {
 		dbPaymentVoucher.setUpdatedBy(loginUserId);
 		dbPaymentVoucher.setCreatedOn(new Date());
 		dbPaymentVoucher.setUpdatedOn(new Date());
-		return paymentVoucherRepository.save(dbPaymentVoucher);
+		//return paymentVoucherRepository.save(dbPaymentVoucher);
+
+		PaymentVoucher savedPaymentVoucher = paymentVoucherRepository.save(dbPaymentVoucher);
+
+		savedPaymentVoucher.setReferenceField3(new HashSet<>());
+		if(newPaymentVoucher.getReferenceField3()!=null){
+			for(String newReferenceField3 : newPaymentVoucher.getReferenceField3()){
+				ReferenceField3 dbReferenceField3 = new ReferenceField3();
+				BeanUtils.copyProperties(newReferenceField3, dbReferenceField3, CommonUtils.getNullPropertyNames(newReferenceField3));
+				dbReferenceField3.setDeletionIndicator(0L);
+				dbReferenceField3.setCreatedBy(loginUserId);
+				dbReferenceField3.setUpdatedBy(loginUserId);
+				dbReferenceField3.setCreatedOn(new Date());
+				dbReferenceField3.setUpdatedOn(new Date());
+				dbReferenceField3.setVoucherId(savedPaymentVoucher.getVoucherId());
+				dbReferenceField3.setProcessedBy(newReferenceField3);
+				ReferenceField3 savedReferenceField3 = referenceField3Repository.save(dbReferenceField3);
+				savedPaymentVoucher.getReferenceField3().add(savedReferenceField3);
+			}
+		}
+		return savedPaymentVoucher;
 	}
 	
 	/**
@@ -77,38 +118,75 @@ public class PaymentVoucherService {
 	 */
 	public PaymentVoucher updatePaymentVoucher (String voucherId, String loginUserId, UpdatePaymentVoucher updatePaymentVoucher)
 			throws IllegalAccessException, InvocationTargetException {
-		PaymentVoucher dbPaymentVoucher = getPaymentVoucher(voucherId);
+		PaymentVoucher dbPaymentVoucher = getPaymntVoucher(voucherId);
 		BeanUtils.copyProperties(updatePaymentVoucher, dbPaymentVoucher, CommonUtils.getNullPropertyNames(updatePaymentVoucher));
 		dbPaymentVoucher.setUpdatedBy(loginUserId);
 		dbPaymentVoucher.setUpdatedOn(new Date());
-		return paymentVoucherRepository.save(dbPaymentVoucher);
+		//return paymentVoucherRepository.save(dbPaymentVoucher);
+
+		PaymentVoucher savedPaymentVoucher = paymentVoucherRepository.save(dbPaymentVoucher);
+
+		if(updatePaymentVoucher.getReferenceField3()!=null&&!updatePaymentVoucher.getReferenceField3().isEmpty()){
+				if(referenceField3Service.getReferenceField3(voucherId)!=null){
+					referenceField3Service.deleteReferenceField3(voucherId,loginUserId);
+				}
+			for (String newReferenceField3 : updatePaymentVoucher.getReferenceField3()) {
+				ReferenceField3 dbReferenceField3 = new ReferenceField3();
+				BeanUtils.copyProperties(newReferenceField3, dbReferenceField3, CommonUtils.getNullPropertyNames(newReferenceField3));
+				dbReferenceField3.setDeletionIndicator(0L);
+				dbReferenceField3.setCreatedBy(loginUserId);
+				dbReferenceField3.setCreatedOn(new Date());
+				dbReferenceField3.setUpdatedBy(loginUserId);
+				dbReferenceField3.setUpdatedOn(new Date());
+				dbReferenceField3.setVoucherId(savedPaymentVoucher.getVoucherId());
+				dbReferenceField3.setProcessedBy(newReferenceField3);
+				ReferenceField3 savedReferenceField3 = referenceField3Repository.save(dbReferenceField3);
+				savedPaymentVoucher.getReferenceField3().add(savedReferenceField3);
+			}
+		}
+		return savedPaymentVoucher;
 	}
 	
 	/**
 	 * deletePaymentVoucher
 	 * @param loginUserID 
-	 * @param paymentvoucherModuleId
+	 * @param voucherId
 	 */
-	public void deletePaymentVoucher (String paymentvoucherModuleId, String loginUserID) {
-		PaymentVoucher paymentvoucher = getPaymentVoucher(paymentvoucherModuleId);
+	public void deletePaymentVoucher (String voucherId, String loginUserID) {
+		PaymentVoucher paymentvoucher = getPaymntVoucher(voucherId);
 		if (paymentvoucher != null) {
 			paymentvoucher.setDeletionIndicator(1L);
 			paymentvoucher.setUpdatedBy(loginUserID);
 			paymentvoucher.setUpdatedOn(new Date());
 			paymentVoucherRepository.save(paymentvoucher);
+			if(referenceField3Service.getReferenceField3(voucherId)!=null){
+				referenceField3Service.deleteReferenceField3(voucherId,loginUserID);
+			}
 		} else {
-			throw new EntityNotFoundException("Error in deleting Id: " + paymentvoucherModuleId);
+			throw new EntityNotFoundException("Error in deleting Id: " + voucherId);
 		}
 	}
 
 	//Find PaymentVoucher
 
-	public List<PaymentVoucher> findPaymentVoucher(FindPaymentVoucher findPaymentVoucher) throws ParseException {
+	public List<GPaymentVoucher> findPaymentVoucher(FindPaymentVoucher findPaymentVoucher) throws ParseException {
 
 		PaymentVoucherSpecification spec = new PaymentVoucherSpecification(findPaymentVoucher);
 		List<PaymentVoucher> results = paymentVoucherRepository.findAll(spec);
 		results = results.stream().filter(n -> n.getDeletionIndicator() == 0).collect(Collectors.toList());
 		log.info("results: " + results);
-		return results;
+		//return results;
+
+		List<GPaymentVoucher> gPaymentVoucher = new ArrayList<>();
+		for (PaymentVoucher dbPaymentVoucher : results) {
+			GPaymentVoucher newGPaymentVoucher = new GPaymentVoucher();
+			BeanUtils.copyProperties(dbPaymentVoucher, newGPaymentVoucher, CommonUtils.getNullPropertyNames(dbPaymentVoucher));
+			newGPaymentVoucher.setReferenceField3(new ArrayList<>());
+			for (ReferenceField3 newReferenceField3 : dbPaymentVoucher.getReferenceField3()) {
+				newGPaymentVoucher.getReferenceField3().add(newReferenceField3.getProcessedBy());
+			}
+			gPaymentVoucher.add(newGPaymentVoucher);
+		}
+		return gPaymentVoucher;
 	}
 }

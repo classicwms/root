@@ -150,9 +150,9 @@ public class WorkOrderService {
 		WorkOrder savedWorkOrder = workOrderRepository.save(dbWorkOrder);
 
 		if(updateWorkOrder.getItemServices()!=null){
-
-			itemServiceService.deleteItemService(workOrderId,loginUserId);
-
+			if(itemServiceService.getItemService(workOrderId)!=null) {
+				itemServiceService.deleteItemService(workOrderId, loginUserId);
+			}
 			for (ItemService newItemService : updateWorkOrder.getItemServices()) {
 				ItemService dbItemService = new ItemService();
 				BeanUtils.copyProperties(newItemService, dbItemService, CommonUtils.getNullPropertyNames(newItemService));
@@ -179,15 +179,15 @@ public class WorkOrderService {
 		}
 
 		if(updateWorkOrder.getWoProcessedBy()!=null){
-
-			woProcessedByService.deleteWoProcessedBy(workOrderId,loginUserId);
-
+			if(woProcessedByService.getWoProcessedBy(workOrderId)!=null) {
+				woProcessedByService.deleteWoProcessedBy(workOrderId, loginUserId);
+			}
 			for (String newWoProcessedBy : updateWorkOrder.getWoProcessedBy()) {
 				WoProcessedBy dbWoProcessedBy = new WoProcessedBy();
 				BeanUtils.copyProperties(newWoProcessedBy, dbWoProcessedBy, CommonUtils.getNullPropertyNames(newWoProcessedBy));
 				dbWoProcessedBy.setDeletionIndicator(0L);
 				dbWoProcessedBy.setCreatedOn(new Date());
-				dbWoProcessedBy.setUpdatedBy(loginUserId);
+				dbWoProcessedBy.setCreatedBy(loginUserId);
 				dbWoProcessedBy.setUpdatedBy(loginUserId);
 				dbWoProcessedBy.setUpdatedOn(new Date());
 				dbWoProcessedBy.setWorkOrderId(savedWorkOrder.getWorkOrderId());
@@ -211,13 +211,10 @@ public class WorkOrderService {
 			workorder.setUpdatedBy(loginUserID);
 			workorder.setUpdatedOn(new Date());
 			workOrderRepository.save(workorder);
-			if(workorder.getItemServices().isEmpty()) {
-
-			}else{
+			if(itemServiceService.getItemService(workOrderId)!=null) {
 				itemServiceService.deleteItemService(workOrderId,loginUserID);
 			}
-			if(workorder.getWoProcessedBy().isEmpty()) {
-			}else{
+			if(woProcessedByService.getWoProcessedBy(workOrderId)!=null) {
 				woProcessedByService.deleteWoProcessedBy(workOrderId,loginUserID);
 			}
 		} else {
@@ -225,7 +222,6 @@ public class WorkOrderService {
 		}
 	}
 	//Find WorkOrder
-
 	public List<GWorkOrder> findWorkOrder(FindWorkOrder findWorkOrder) throws ParseException {
 
 		WorkOrderSpecification spec = new WorkOrderSpecification(findWorkOrder);

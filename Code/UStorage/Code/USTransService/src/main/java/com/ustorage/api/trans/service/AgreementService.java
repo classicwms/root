@@ -129,8 +129,9 @@ public class AgreementService {
 		Agreement savedAgreement = agreementRepository.save(dbAgreement);
 
 		if(updateAgreement.getStoreNumbers()!=null){
-
-			storeNumberService.deleteStoreNumber(agreementNumber,loginUserId);
+			if(storeNumberService.getStoreNumber(agreementNumber)!=null) {
+				storeNumberService.deleteStoreNumber(agreementNumber, loginUserId);
+			}
 
 			for (String newStoreNumber : updateAgreement.getStoreNumbers()) {
 				StoreNumber dbStoreNumber = new StoreNumber();
@@ -154,21 +155,20 @@ public class AgreementService {
 	 * deleteAgreement
 	 *
 	 * @param loginUserID
-	 * @param agreementModuleId
+	 * @param agreementNumber
 	 */
-	public void deleteAgreement(String agreementModuleId, String loginUserID) {
-		Agreement agreement = getAgreemnt(agreementModuleId);
+	public void deleteAgreement(String agreementNumber, String loginUserID) {
+		Agreement agreement = getAgreemnt(agreementNumber);
 		if (agreement != null) {
 			agreement.setDeletionIndicator(1L);
 			agreement.setUpdatedBy(loginUserID);
 			agreement.setUpdatedOn(new Date());
 			agreementRepository.save(agreement);
-			if(agreement.getStoreNumbers().isEmpty()) {
-			}else{
-				storeNumberService.deleteStoreNumber(agreementModuleId,loginUserID);
+			if(storeNumberService.getStoreNumber(agreementNumber)!=null) {
+				storeNumberService.deleteStoreNumber(agreementNumber,loginUserID);
 			}
 		} else {
-			throw new EntityNotFoundException("Error in deleting Id: " + agreementModuleId);
+			throw new EntityNotFoundException("Error in deleting Id: " + agreementNumber);
 		}
 	}
 

@@ -741,7 +741,7 @@ public class TransService {
 	}
 
 	// GET
-	public PaymentVoucher getPaymentVoucher (String paymentVoucherId, String authToken) {
+	public GPaymentVoucher getPaymentVoucher (String paymentVoucherId, String authToken) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -750,8 +750,8 @@ public class TransService {
 			UriComponentsBuilder builder =
 					UriComponentsBuilder.fromHttpUrl(getTransServiceUrl() + "paymentVoucher/" + paymentVoucherId);
 			HttpEntity<?> entity = new HttpEntity<>(headers);
-			ResponseEntity<PaymentVoucher> result =
-					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, PaymentVoucher.class);
+			ResponseEntity<GPaymentVoucher> result =
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, GPaymentVoucher.class);
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -816,7 +816,7 @@ public class TransService {
 		}
 	}
 	//SEARCH
-	public PaymentVoucher[] findPaymentVoucher(FindPaymentVoucher findPaymentVoucher, String authToken) {
+	public GPaymentVoucher[] findPaymentVoucher(FindPaymentVoucher findPaymentVoucher, String authToken) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 		headers.add("User-Agent", "RestTemplate");
@@ -825,8 +825,8 @@ public class TransService {
 		UriComponentsBuilder builder =
 				UriComponentsBuilder.fromHttpUrl(getTransServiceUrl() + "paymentVoucher/find");
 		HttpEntity<?> entity = new HttpEntity<>(findPaymentVoucher, headers);
-		ResponseEntity<PaymentVoucher[]> result =
-				getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PaymentVoucher[].class);
+		ResponseEntity<GPaymentVoucher[]> result =
+				getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, GPaymentVoucher[].class);
 		log.info("result : " + result.getStatusCode());
 		return result.getBody();
 	}

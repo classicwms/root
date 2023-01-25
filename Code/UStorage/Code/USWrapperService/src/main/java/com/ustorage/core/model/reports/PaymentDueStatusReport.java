@@ -31,4 +31,6 @@ public class PaymentDueStatusReport {
     String TotalPaidVoucherAmount;
     String TotalDueAmount;
     String NextDueAmount;
+    String Description;
+    String Status;
 }
