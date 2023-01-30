@@ -13,6 +13,9 @@ public class AddPerpetualLine {
 	private String cycleCountNo;
 	private String storageBin;
 	private String itemCode;
+	private String itemDesc;
+	private String manufacturerPartNo;
+	private String storageSectionId;
 	private String packBarcodes;
 	private Long variantCode;
 	private String variantSubCode;
@@ -50,5 +53,4 @@ public class AddPerpetualLine {
 	private Date confirmedOn = new Date();
 	private String countedBy;
 	private Date countedOn = new Date();
-
 }

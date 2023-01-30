@@ -23,16 +23,16 @@ public class OutboundOrder {
 	private String orderId;
 	
 	private String warehouseID; 			// WH_ID
-	private String refDocumentNo; 			// REF_DOC_NO
+	private String refDocumentNo; 			// REF_DOCument_NO
 	private String refDocumentType; 		// REF_DOC_TYPE
 	private String partnerCode; 			// PARTNER_CODE
 	private String partnerName; 			// PARTNER_NM
 	private Date requiredDeliveryDate;		// REQ_DEL_DATE
 
 	// Additional Fields
-	private Date orderReceivedOn;
+	private Date orderReceivedOn; 			// order_received_on
 	private Date orderProcessedOn;
-	private Long processedStatusId;
+	private Long processedStatusId;			// processed_status_id
 	private Long outboundOrderTypeID;
 	@OneToMany(cascade = CascadeType.ALL,mappedBy = "orderId",fetch = FetchType.EAGER)
     private Set<OutboundOrderLine> lines;

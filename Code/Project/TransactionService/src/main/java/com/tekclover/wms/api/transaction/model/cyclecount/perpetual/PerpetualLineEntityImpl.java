@@ -15,5 +15,4 @@ public interface PerpetualLineEntityImpl {
 	String getItemDesc();
 	String getManufacturerPartNo();
 	String getStorageSectionId();
-
 }

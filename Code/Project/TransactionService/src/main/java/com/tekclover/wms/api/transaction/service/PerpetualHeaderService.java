@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +19,17 @@ import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
-import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
-import com.tekclover.wms.api.transaction.model.dto.StorageBin;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.AddPerpetualHeader;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.AddPerpetualLine;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualHeader;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualHeaderEntity;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualLine;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualLineEntity;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualLineEntityImpl;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.RunPerpetualHeader;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.SearchPerpetualHeader;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.SearchPerpetualLine;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.UpdatePerpetualHeader;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
 import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
@@ -340,38 +348,19 @@ public class PerpetualHeaderService extends BaseService {
 		for (AddPerpetualLine newPerpetualLine : newPerpetualHeader.getAddPerpetualLine()) {
 			PerpetualLine dbPerpetualLine = new PerpetualLine();
 			BeanUtils.copyProperties(newPerpetualLine, dbPerpetualLine, CommonUtils.getNullPropertyNames(newPerpetualLine));
-			
 			dbPerpetualLine.setLanguageId(getLanguageId());
 			dbPerpetualLine.setCompanyCodeId(getCompanyCode());
 			dbPerpetualLine.setPlantId(getPlantId());
-			
-			// WH_ID
 			dbPerpetualLine.setWarehouseId(createdPerpetualHeader.getWarehouseId());
-			
-			// CC_NO
 			dbPerpetualLine.setCycleCountNo(createdPerpetualHeader.getCycleCountNo());
-			
 			dbPerpetualLine.setStatusId(70L);
 			dbPerpetualLine.setDeletionIndicator(0L);
 			dbPerpetualLine.setCreatedBy(loginUserID);
 			dbPerpetualLine.setCreatedOn(new Date());
-			PerpetualLine createdPerpetualLine = perpetualLineRepository.save(dbPerpetualLine);
-			log.info("createdPerpetualLine : " + createdPerpetualLine);
-			perpetualLines.add(createdPerpetualLine);
-			
-			//----------Discussed to Remove this update on 06-07-2022------------------------------------------------
-			/*
-			 * On Successful Cycle count creation, fetch ST_BIN from PERPETUALLINE for the selected WH_ID/CC_NO and
-			 * Pass WH_ID/ ST_BIN in STORAGEBIN table and update PUTAWAY_BLOCK,PICK_BLOCK values with "TRUE"
-			 */
-//			StorageBin modifiedStorageBin = new StorageBin();
-//			modifiedStorageBin.setPutawayBlock(1);
-//			modifiedStorageBin.setPickingBlock(1);
-//			StorageBin updatedStorageBin = mastersService.updateStorageBin(createdPerpetualLine.getStorageBin(), 
-//					modifiedStorageBin, loginUserID, authTokenForMastersService.getAccess_token());
-//			log.info("updatedStorageBin : " + updatedStorageBin);
-			//----------Discussed to Remove this update on 06-07-2022------------------------------------------------
+			perpetualLines.add(dbPerpetualLine);
 		}
+		List<PerpetualLine> createdPerpetualLines = perpetualLineRepository.saveAll(perpetualLines);
+		log.info("createdPerpetualLine : " + createdPerpetualLines);
 		return createdPerpetualHeader;
 	}
 	

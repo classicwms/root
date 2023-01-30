@@ -4,10 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualHeader;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualLineEntity;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualLineEntityImpl;
-import com.tekclover.wms.api.transaction.model.impl.StockReportImpl;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -16,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualLineEntityImpl;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
 
 @Repository
@@ -53,31 +50,33 @@ public interface InventoryMovementRepository extends JpaRepository<InventoryMove
 	public List<InventoryMovement> findByMovementTypeInAndSubmovementTypeInAndCreatedOnBetween(List<Long> movementType, 
 			List<Long> submovementType, Date dateFrom, Date dateTo);
 	
-	/*
-	 * SearchInventoryMovement searchInventoryMovement = new SearchInventoryMovement();
-		searchInventoryMovement.setWarehouseId(Arrays.asList(warehouseId));
-		searchInventoryMovement.setItemCode(Arrays.asList(itemCode));
-		searchInventoryMovement.setFromCreatedOn(fromDate);
-		searchInventoryMovement.setToCreatedOn(toDate);
-//		searchInventoryMovement.setSubmovementType(Arrays.asList(2L, 3L));
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param itemCode
+	 * @param startDate
+	 * @param endDate
+	 * @param movementType
+	 * @param submovementType
+	 * @return
 	 */
 	public List<InventoryMovement> findByWarehouseIdAndItemCodeAndCreatedOnBetweenAndMovementTypeAndSubmovementTypeInOrderByCreatedOnAsc (
 			String warehouseId, String itemCode, Date startDate, Date endDate, Long movementType, List<Long> submovementType);
 
-	@Query(value = " select \n" +
-			"im.lang_id as languageId,im.c_id as companyCodeId,im.plant_id as plantId,im.wh_id as warehouseId,im.itm_code as itemCode,im.st_bin as storageBin,\n" +
-			"im.stck_typ_id as stockTypeId,im.sp_st_ind_id as specialStockIndicator,im.pack_barcode as packBarcodes,\n" +
-			"(COALESCE(i.inv_qty,0) + COALESCE(i.alloc_qty,0)) as inventoryQuantity,i.inv_uom as inventoryUom ,i.ref_field_8 as itemDesc,i.ref_field_9 as manufacturerPartNo,i.ref_field_10 as storageSectionId\n" +
-			"from tblinventorymovement as im\n" +
-			"join tblinventory as i on \n" +
-			"im.c_id = i.c_id and im.lang_id = i.lang_id and im.plant_id = i.plant_id and i.is_deleted = 0\n" +
-			"and im.wh_id = i.wh_id and im.pack_barcode = i.pack_barcode and im.st_bin = i.st_bin and im.itm_code = i.itm_code\n" +
-			"where \n" +
-			"im.MVT_TYP_ID in :movementTypeId \n" +
-			"and im.SUB_MVT_TYP_ID in :subMovementTypeId \n" +
-			"and im.IM_CTD_ON between :fromDate and :toDate \n" +
-			"group by im.lang_id,im.c_id,im.plant_id,im.wh_id,im.itm_code,im.st_bin,im.stck_typ_id,im.sp_st_ind_id,im.pack_barcode,\n" +
-			"i.inv_uom ,i.ref_field_8,i.ref_field_9,i.ref_field_10,(COALESCE(i.inv_qty,0) + COALESCE(i.alloc_qty,0))", nativeQuery = true)
+	@Query(value = "Select \n" +
+			" im.lang_id as languageId,im.c_id as companyCodeId, im.plant_id as plantId, im.wh_id as warehouseId, im.itm_code as itemCode, \n " +
+			" im.st_bin as storageBin, im.stck_typ_id as stockTypeId,im.sp_st_ind_id as specialStockIndicator, im.pack_barcode as packBarcodes,\n" +
+			" (COALESCE(i.inv_qty,0) + COALESCE(i.alloc_qty,0)) as inventoryQuantity, i.inv_uom as inventoryUom, \n" + 
+			" i.ref_field_8 as itemDesc,i.ref_field_9 as manufacturerPartNo,i.ref_field_10 as storageSectionId\n" +
+			" from tblinventorymovement as im join tblinventory as i on \n" +
+			" im.c_id = i.c_id and im.lang_id = i.lang_id and im.plant_id = i.plant_id and i.is_deleted = 0\n" +
+			" and im.wh_id = i.wh_id and im.pack_barcode = i.pack_barcode and im.st_bin = i.st_bin and im.itm_code = i.itm_code \n" +
+			" where \n" +
+			" im.MVT_TYP_ID in :movementTypeId \n" +
+			" and im.SUB_MVT_TYP_ID in :subMovementTypeId \n" +
+			" and im.IM_CTD_ON between :fromDate and :toDate \n" +
+			" group by im.lang_id,im.c_id,im.plant_id,im.wh_id,im.itm_code,im.st_bin,im.stck_typ_id,im.sp_st_ind_id,im.pack_barcode,\n" +
+			" i.inv_uom ,i.ref_field_8,i.ref_field_9,i.ref_field_10,(COALESCE(i.inv_qty,0) + COALESCE(i.alloc_qty,0))", nativeQuery = true)
 	public List<PerpetualLineEntityImpl> getRecordsForRunPerpetualCount (
 			@Param(value = "movementTypeId") List<Long> movementTypeId,
 			@Param(value = "subMovementTypeId") List<Long> subMovementTypeId,

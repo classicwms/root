@@ -1,6 +1,8 @@
 package com.tekclover.wms.api.transaction.controller;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.validation.Valid;
 
@@ -164,6 +166,32 @@ public class WarehouseController {
 			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
 		}
 		return null;
+	}
+    
+    //----------------------------Bulk Orders---------------------------------------------------------------------
+    @ApiOperation(response = ShipmentOrder.class, value = "Create Bulk Shipment Orders") // label for swagger
+	@PostMapping("/outbound/so/bulk")
+	public ResponseEntity<?> postShipmenOrders(@Valid @RequestBody List<ShipmentOrder> shipmenOrders) 
+			throws IllegalAccessException, InvocationTargetException {
+    	try {
+    		List<WarehouseApiResponse> responseList = new ArrayList<>();
+    		for (ShipmentOrder shipmentOrder : shipmenOrders) {
+				ShipmentOrder createdSO = warehouseService.postSO(shipmentOrder, false);
+				if (createdSO != null) {
+					WarehouseApiResponse response = new WarehouseApiResponse();
+					response.setStatusCode("200");
+					response.setMessage("Success");
+					responseList.add(response);
+				}
+    		}
+    		return new ResponseEntity<>(responseList, HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			WarehouseApiResponse response = new WarehouseApiResponse();
+			response.setStatusCode("1400");
+			response.setMessage("Not Success: " + e.getLocalizedMessage());
+			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
+		}
 	}
     
     /*----------------------------Sale order True Express-------------------------------------------------------*/

@@ -163,7 +163,7 @@ public class PreOutboundHeaderService extends BaseService {
 		PreOutboundHeaderSpecification spec = new PreOutboundHeaderSpecification(searchPreOutboundHeader);
 		List<PreOutboundHeader> results = preOutboundHeaderRepository.findAll(spec);
 		
-//		log.info("results: " + results);
+		log.info("results: " + results);
 		return results;
 	}
 	

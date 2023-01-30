@@ -64,6 +64,9 @@ public class PerpetualLine {
 	@Column(name = "PACK_BARCODE") 
 	private String packBarcodes;
 	
+	@Column(name = "ITM_DESC") 
+	private String itemDesc;
+	
 	@Column(name = "MFR_PART") 
 	private String manufacturerPartNo;
 	
