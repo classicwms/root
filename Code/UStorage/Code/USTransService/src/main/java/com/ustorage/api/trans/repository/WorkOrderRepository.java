@@ -19,7 +19,7 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>,
 
 	public Optional<WorkOrder> findByWorkOrderIdAndDeletionIndicator(String workOrderId, long l);
 
-	@Query(value = "SELECT tblleadcustomer.CUSTOMER_NAME \r\n"
+	@Query(value = "SELECT distinct tblleadcustomer.CUSTOMER_NAME \r\n"
 			+ "FROM tblleadcustomer \r\n"
 			+ "JOIN tblworkorder ON tblworkorder.CUSTOMER_ID=tblleadcustomer.CUSTOMER_CODE and \r\n"
 			+ "(COALESCE(:workOrderId,null) IS NULL OR (tblworkorder.WORK_ORDER_ID IN (:workOrderId))) and \r\n"

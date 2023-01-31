@@ -53,6 +53,7 @@ public class AgreementService {
 		}
 		GAgreement gAgreement = new GAgreement();
 		BeanUtils.copyProperties(agreement.get(),gAgreement, CommonUtils.getNullPropertyNames(agreement));
+		gAgreement.setReferenceField4(agreementRepository.getStoreNumber(gAgreement.getAgreementNumber()));
 		gAgreement.setStoreNumbers(new ArrayList<>());
 		for(StoreNumber tmpStoreNumber : agreement.get().getStoreNumbers()){
 			gAgreement.getStoreNumbers().add(tmpStoreNumber.getStoreNumber());
@@ -184,6 +185,7 @@ public class AgreementService {
 		for (Agreement dbAgreement : results) {
 			GAgreement newGAgreement = new GAgreement();
 			BeanUtils.copyProperties(dbAgreement, newGAgreement, CommonUtils.getNullPropertyNames(dbAgreement));
+			newGAgreement.setReferenceField4(agreementRepository.getStoreNumber(newGAgreement.getAgreementNumber()));
 			newGAgreement.setStoreNumbers(new ArrayList<>());
 			for (StoreNumber newstoreNumber : dbAgreement.getStoreNumbers()) {
 				newGAgreement.getStoreNumbers().add(newstoreNumber.getStoreNumber());

@@ -12,6 +12,7 @@ import com.ustorage.api.trans.model.agreement.GAgreement;
 import com.ustorage.api.trans.model.itemservice.*;
 import com.ustorage.api.trans.model.storenumber.StoreNumber;
 import com.ustorage.api.trans.repository.ItemServiceRepository;
+import com.ustorage.api.trans.repository.ReportRepository;
 import com.ustorage.api.trans.repository.Specification.WorkOrderSpecification;
 import com.ustorage.api.trans.repository.WoProcessedByRepository;
 import org.springframework.beans.BeanUtils;
@@ -28,7 +29,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class WorkOrderService {
-	
+	@Autowired
+	private ReportRepository reportRepository;
+
 	@Autowired
 	private WorkOrderRepository workOrderRepository;
 	@Autowired

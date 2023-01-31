@@ -24,41 +24,65 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 
 	@Query(value = "SELECT distinct tblleadcustomer.CUSTOMER_NAME \r\n"
 			+ "FROM tblleadcustomer \r\n"
-			+ "JOIN tblagreement ON tblleadcustomer.CUSTOMER_CODE=tblagreement.CUSTOMER_NAME \r\n"
-			+ "WHERE tblagreement.CUSTOMER_NAME=:customerName \r\n"
-			+ "AND tblleadcustomer.IS_DELETED=0 AND tblagreement.IS_DELETED=0", nativeQuery = true)
-	public String getText(@Param("customerName") String customerName);
+			+ "WHERE tblleadcustomer.CUSTOMER_CODE=:customerCode \r\n"
+			+ "AND tblleadcustomer.IS_DELETED=0", nativeQuery = true)
+	public String getName(@Param("customerCode") String customerCode);
 
 	//WorkOrderStatus Report
-	@Query(value = "select tblworkorder.CTD_ON as createdOn, \n"+
+	@Query(value = "select distinct tblworkorder.CTD_ON as createdOn, \n"+
 					"tblworkorder.work_order_date as workOrderDate, \n"+
 					"tblworkorder.WORK_ORDER_ID as workOrderId, \n"+
 					"tblworkorder.WORK_ORDER_SBU as workOrderSbu, \n"+
+					"(select STRING_AGG(processed_by,',') from tblwoprocessedbyteam where tblwoprocessedbyteam.work_order_id = tblworkorder.work_order_id and is_deleted=0) as processedBy,\n"+
 					"tblworkorder.CUSTOMER_ID as customerId, \n"+
 					"tblleadcustomer.CUSTOMER_NAME as customerName, \n"+
 					"tblworkorder.STATUS as status, \n"+
 					"tblworkorder.REMARKS as remarks, \n"+
 					"tblworkorder.CREATED as created, \n"+
-					"tblwoprocessedbyteam.PROCESSED_BY as processedBy, \n"+
 					"tblworkorder.PROCESSED_TIME as processedTime, \n"+
 					"tblworkorder.LEAD_TIME as leadTime \n"+
 					"from tblworkorder \n"+
 					"left join tblleadcustomer on tblworkorder.CUSTOMER_ID=tblleadcustomer.CUSTOMER_CODE \n"+
-					"left join tblwoprocessedbyteam on tblwoprocessedbyteam.WORK_ORDER_ID=tblworkorder.WORK_ORDER_ID \n"+
 					"where \n" +
 					"(COALESCE(:workOrderId,null) IS NULL OR (tblworkorder.WORK_ORDER_ID IN (:workOrderId))) and \n"+
 					"(COALESCE(:workOrderSbu,null) IS NULL OR (tblworkorder.WORK_ORDER_SBU IN (:workOrderSbu))) and \n"+
 					"(COALESCE(:startDate,null) IS NULL OR (tblworkorder.WORK_ORDER_DATE between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"+
-					"tblworkorder.is_deleted=0 ",nativeQuery = true)
+					"tblworkorder.is_deleted=0",nativeQuery = true)
 	public List<WorkOrderStatusReportImpl>getWorkOrderStatus(
 			@Param(value = "workOrderId") List<String> workOrderId,
 			@Param(value = "workOrderSbu") List<String> workOrderSbu,
 			@Param(value = "startDate") Date startDate,
 			@Param(value = "endDate") Date endDate);
 
+	//WorkOrderStatus Report-processed by
+	@Query(value = "select distinct  \n"+
+			"tblwoprocessedbyteam.PROCESSED_BY as processedBy \n"+
+			"from tblwoprocessedbyteam \n"+
+			"left join tblworkorder on tblwoprocessedbyteam.WORK_ORDER_ID=tblworkorder.WORK_ORDER_ID \n"+
+			"where \n" +
+			"(COALESCE(:workOrderId,null) IS NULL OR (tblworkorder.WORK_ORDER_ID IN (:workOrderId))) and \n"+
+			"tblwoprocessedbyteam.is_deleted=0 ",nativeQuery = true)
+	public List<String>getWorkOrderProcessedBy(
+			@Param(value = "workOrderId") String workOrderId);
+
+	//EfficiencyRecord Report-find workorder
+	@Query(value = "select  \n"+
+			"(datediff(hour,tw.work_order_date,tw.end_date)-datediff(hour,tw.start_date,tw.end_date)) as workedHours \n"+
+			"from tblworkorder tw \n"+
+			"where \n"+
+			"(COALESCE(:workOrderId,null) IS NULL OR (tw.WORK_ORDER_ID IN (:workOrderId))) and \n"+
+			"tw.is_deleted=0",nativeQuery = true)
+	public String getEfficiencyRecordReport(
+			@Param(value = "workOrderId") String workOrderId);
+
 	//EfficiencyRecord Report
-	@Query(value = "select tw.ctd_on as createdOn, \n"+
-					"tblwoprocessedbyteam.processed_by as processedBy, \n"+
+	@Query(value = "select * from \n"+
+					"(select distinct tw.ctd_on as createdOn, \n"+
+					"tw.WORK_ORDER_ID as workOrderId, \n"+
+					"(select STRING_AGG(processed_by,',') from tblwoprocessedbyteam \n" +
+					"where tblwoprocessedbyteam.work_order_id = tw.work_order_id and \n" +
+					"(COALESCE(:processedBy,null) IS NULL OR (tblwoprocessedbyteam.PROCESSED_BY IN (:processedBy))) and \n"+
+					"is_deleted=0) as processedBy,\n"+
 					"tw.work_order_date as workOrderDate, \n"+
 					"tw.processed_time as processedTime, \n"+
 					"tw.lead_time as leadTime, \n"+
@@ -68,12 +92,10 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 					"tw.planned_hours as plannedHours, \n"+
 					"(datediff(hour,tw.work_order_date,tw.end_date)-datediff(hour,tw.start_date,tw.end_date)) as workedHours \n"+
 					"from tblworkorder tw \n"+
-					"left join tblwoprocessedbyteam on tblwoprocessedbyteam.WORK_ORDER_ID=tw.WORK_ORDER_ID \n"+
 					"where \n"+
 					"(COALESCE(:startDate,null) IS NULL OR (tw.WORK_ORDER_DATE between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"+
 					"(COALESCE(:jobCardType,null) IS NULL OR (tw.JOB_CARD_TYPE IN (:jobCardType))) and \n"+
-					"(COALESCE(:processedBy,null) IS NULL OR (tw.PROCESSED_BY IN (:processedBy))) and \n"+
-					"tw.is_deleted=0 ",nativeQuery = true)
+					"tw.is_deleted=0) x where x.processedBy is not null",nativeQuery = true)
 	public List<EfficiencyRecordImpl>getEfficiencyRecord(
 			@Param(value ="startDate") Date startDate,
 			@Param(value ="endDate") Date endDate,
@@ -133,8 +155,9 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 					@Param(value = "sbu") List<String> sbu);
 
 	//FillrateStatus Report
-	@Query(value = "select \n"+
+	@Query(value = "select distinct\n"+
 					"tblagreement.AGREEMENT_NUMBER as agreementNumber, \n"+
+					"tblstorageunit.code_id as storeId, \n"+
 					"tblstorageunit.PHASE as phase, \n"+
 					"tblstorageunit.ZONE as zone, \n"+
 					"tblstorageunit.ROOM as room, \n"+
@@ -150,9 +173,9 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 					"tblleadcustomer.MOBILE_NUMBER as mobileNumber, \n"+
 					"tblleadcustomer.PHONE_NUMBER as phoneNumber, \n"+
 					"tblstorageunit.REF_FIELD_2 as notes \n"+
-					"from tblstorenumber \n"+
+					"from tblstorageunit  \n"+
+					"left join tblstorenumber on tblstorenumber.STORE_NUMBER=tblstorageunit.ITEM_CODE \n"+
 					"left join tblagreement on tblagreement.AGREEMENT_NUMBER=tblstorenumber.AGREEMENT_NUMBER \n"+
-					"left join tblstorageunit on tblstorageunit.ITEM_CODE=tblstorenumber.STORE_NUMBER \n"+
 					"left join tblleadcustomer on tblleadcustomer.CUSTOMER_CODE=tblagreement.CUSTOMER_NAME \n"+
 					"where \n" +
 					"(COALESCE(:phase,null) IS NULL OR (tblstorageunit.PHASE IN (:phase))) and \n"+
@@ -167,7 +190,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			@Param(value = "availability") List<String> status);
 
 	//ContractRenewalStatus Report
-	@Query(value = "select \n"+
+	@Query(value = "select distinct\n"+
 			"ta.start_date as agreementRenewalDate, \n"+
 			"ta.agreement_number as agreementNumber, \n"+
 			"tl.customer_name as customerName, \n"+
@@ -318,7 +341,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 	public List<ICustomerDropDown> getCustomerDropDownList ();
 
 	//Document status-customer
-	@Query (value = "SELECT tl.CUSTOMER_CODE as id, \r\n"
+	@Query (value = "SELECT distinct tl.CUSTOMER_CODE as id, \r\n"
 			+ "tl.CUSTOMER_NAME as name, \r\n"
 			+ "tl.CUSTOMER_GROUP as cgroup, \r\n"
 			+ "tl.EMAIL as email, \r\n"
@@ -402,21 +425,20 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			+ "tw.CODE_ID as code, tw.CREATED as cgroup, \r\n"
 			+ "tw.START_DATE as startDate, \r\n"
 			+ "tw.END_DATE as endDate, \r\n"
-			+ "tblwoprocessedbyteam.PROCESSED_BY as location, tw.WORK_ORDER_DATE as documentDate, \r\n"
+			+ "tw.WORK_ORDER_DATE as documentDate, \r\n"
 			+ "tw.PLANNED_HOURS as note, tl.CUSTOMER_NAME as customerName,tl.CUSTOMER_CODE as customerId, \r\n"
 			+ "tl.MOBILE_NUMBER as mobile, tl.EMAIL as email, \r\n"
 			+ "tw.STATUS as status, tw.REMARKS as remarks \r\n"
 			+ "FROM tblworkorder tw \r\n"
 			+ "left JOIN tblitemservice ti on tw.WORK_ORDER_ID =ti.WORK_ORDER_ID \r\n"
 			+ "left JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=tw.CUSTOMER_ID \r\n"
-			+ "left join tblwoprocessedbyteam on tblwoprocessedbyteam.WORK_ORDER_ID=tw.WORK_ORDER_ID \n"
 			+ "WHERE \n"
 			+ "(COALESCE(:customerCode,null) IS NULL OR (tl.CUSTOMER_CODE IN (:customerCode))) and \n"
 			+ "(COALESCE(:startDate,null) IS NULL OR (tw.WORK_ORDER_DATE between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"
-			+ "tw.IS_DELETED = 0 and tblwoprocessedbyteam.is_deleted=0 \n"
-			+ "group by tw.WORK_ORDER_ID,tw.CODE_ID,tw.CREATED,\n"
-			+ "tw.START_DATE,tw.END_DATE,tblwoprocessedbyteam.PROCESSED_BY,tw.WORK_ORDER_DATE,tw.PLANNED_HOURS,\n"
-			+ "tl.CUSTOMER_NAME, tl.MOBILE_NUMBER,tl.EMAIL,tw.STATUS,tw.REMARKS,tl.CUSTOMER_CODE;", nativeQuery = true)
+			+ "tw.IS_DELETED = 0 \n"
+			+ "group by tw.CODE_ID,tw.CREATED,\n"
+			+ "tw.START_DATE,tw.END_DATE,tw.WORK_ORDER_DATE,tw.PLANNED_HOURS,\n"
+			+ "tl.CUSTOMER_NAME, tl.MOBILE_NUMBER,tl.EMAIL,tw.STATUS,tw.REMARKS,tl.CUSTOMER_CODE,tw.WORK_ORDER_ID", nativeQuery = true)
 	public List<DocumentStatusImpl> getWorkordr (
 			@Param(value = "customerCode") List<String> customerCode,
 			@Param(value ="startDate") Date startDate,
@@ -469,7 +491,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 	public List<IStorageDropDown> getStorageDropDownList ();
 
 	//Customer Detail-Customer Id and Name
-	@Query (value = "SELECT tl.CUSTOMER_CODE AS documentNumber, tl.CUSTOMER_NAME AS notes\r\n"
+	@Query (value = "SELECT distinct tl.CUSTOMER_CODE AS documentNumber, tl.CUSTOMER_NAME AS notes\r\n"
 			+ "FROM tblleadcustomer tl \r\n "
 			+ "WHERE \n"
 			+ "(COALESCE(:customerCode,null) IS NULL OR (tl.CUSTOMER_CODE IN (:customerCode))) and \n"
@@ -478,7 +500,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			@Param(value = "customerCode") String customerCode);
 
 	//Customer Detail-Agreement
-	@Query (value = "SELECT ta.AGREEMENT_NUMBER AS documentNumber, ta.TOTAL_RENT AS total,\r\n"
+	@Query (value = "SELECT distinct ta.AGREEMENT_NUMBER AS documentNumber, ta.TOTAL_RENT AS total,\r\n"
 			+ "ta.STATUS as status, ta.NOTES as notes, ta.CTD_ON as documentDate \r\n"
 			+ "FROM tblagreement ta \r\n"
 			+ "left JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=ta.CUSTOMER_NAME \r\n"
@@ -489,7 +511,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			@Param(value = "customerCode") String customerCode);
 
 	//Customer Detail-Invoice
-	@Query (value = "SELECT ti.INVOICE_NUMBER AS documentNumber, ti.INVOICE_AMOUNT AS total,\r\n"
+	@Query (value = "SELECT distinct ti.INVOICE_NUMBER AS documentNumber, ti.INVOICE_AMOUNT AS total,\r\n"
 			+ "ti.INVOICE_DOCUMENT_STATUS as status, ti.REMARKS as notes, ti.INVOICE_DATE as documentDate \r\n"
 			+ "FROM tblinvoice ti \r\n"
 			+ "left JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=ti.CUSTOMER_ID \r\n"
@@ -500,7 +522,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			@Param(value = "customerCode") String customerCode);
 
 	//Customer Detail-Payment Voucher
-	@Query (value = "SELECT tp.VOUCHER_ID AS documentNumber, tp.VOUCHER_AMOUNT AS total,\r\n"
+	@Query (value = "SELECT distinct tp.VOUCHER_ID AS documentNumber, tp.VOUCHER_AMOUNT AS total,\r\n"
 			+ "tp.VOUCHER_STATUS as status, tp.REMARKS as notes, tp.VOUCHER_DATE as documentDate \r\n"
 			+ "FROM tblpaymentvoucher tp \r\n"
 			+ "left JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=tp.CUSTOMER_NAME \r\n"
@@ -511,20 +533,20 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			@Param(value = "customerCode") String customerCode);
 
 	//Customer Detail-Work Order
-	@Query (value = "SELECT tw.WORK_ORDER_ID AS documentNumber, sum(ti.ITEM_SERVICE_TOTAL) AS total,\r\n"
+	@Query (value = "SELECT distinct tw.WORK_ORDER_ID AS documentNumber, sum(ti.ITEM_SERVICE_TOTAL) AS total,\r\n"
 			+ "tw.STATUS as status, tw.REMARKS as notes, tw.WORK_ORDER_DATE as documentDate \r\n"
 			+ "FROM tblitemservice ti \r\n"
 			+ "JOIN tblworkorder tw on tw.WORK_ORDER_ID =ti.WORK_ORDER_ID \r\n"
 			+ "left JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=tw.CUSTOMER_ID \r\n"
 			+ "WHERE \n"
 			+ "(COALESCE(:customerCode,null) IS NULL OR (tl.CUSTOMER_CODE IN (:customerCode))) and \n"
-			+ "tw.IS_DELETED = 0"
+			+ "tw.IS_DELETED = 0 and ti.is_deleted=0\n"
 			+ "group by tw.WORK_ORDER_ID,tw.STATUS,tw.REMARKS,tw.WORK_ORDER_DATE", nativeQuery = true)
 	public List<IKeyValuePair> getWorkorder (
 			@Param(value = "customerCode") String customerCode);
 
 	//Customer Detail-Quotation
-		@Query (value = "SELECT tq.QUOTE_ID AS documentNumber, tq.RENT AS total,\r\n"
+		@Query (value = "SELECT distinct tq.QUOTE_ID AS documentNumber, tq.RENT AS total,\r\n"
 			+ "tq.STATUS as status, tq.NOTES as notes, tq.CTD_ON as documentDate \r\n"
 			+ "FROM tblquote tq \r\n"
 			+ "left JOIN tblleadcustomer tl ON tl.CUSTOMER_CODE=tq.CUSTOMER_CODE \r\n"
@@ -535,7 +557,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			@Param(value = "customerCode") String customerCode);
 
 	//Customer Detail-Enquiry
-	@Query (value = "SELECT te.ENQUIRY_ID AS documentNumber, te.ENQUIRY_STORE_SIZE AS total,\r\n"
+	@Query (value = "SELECT distinct te.ENQUIRY_ID AS documentNumber, te.ENQUIRY_STORE_SIZE AS total,\r\n"
 			+ "te.ENQUIRY_STATUS as status, te.ENQUIRY_REMARKS as notes, te.CTD_ON as documentDate \r\n"
 			+ "FROM tblenquiry te \r\n"
 			+ "JOIN tblquote tq on tq.ENQUIRY_REFERENCE_NUMBER=te.ENQUIRY_ID \r\n"

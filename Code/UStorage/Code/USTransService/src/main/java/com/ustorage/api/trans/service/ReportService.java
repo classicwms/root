@@ -1,7 +1,5 @@
 package com.ustorage.api.trans.service;
 
-import com.ustorage.api.trans.model.agreement.Agreement;
-import com.ustorage.api.trans.model.leadcustomer.LeadCustomer;
 import com.ustorage.api.trans.repository.AgreementRepository;
 import com.ustorage.api.trans.repository.LeadCustomerRepository;
 import com.ustorage.api.trans.repository.ReportRepository;

@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class FillrateStatusReport {
     String AgreementNumber;
+    String StoreId;
     String Phase;
     String Zone;
     String Room;

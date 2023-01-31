@@ -1501,7 +1501,7 @@ public class TransService {
 //--------------------------------------------Reports------------------------------------------------------------------------
 
 	// WorkOrderStatus SEARCH
-	public WorkOrderStatusReport[] getWorkOrderStatus (WorkOrderStatusModel workOrderStatusModel, String authToken) throws ParseException {
+	public WorkOrderStatusReport[] getWorkOrderStatus (WorkOrderStatusInput workOrderStatusInput, String authToken) throws ParseException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -1509,7 +1509,7 @@ public class TransService {
 			headers.add("Authorization", "Bearer " + authToken);
 
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getTransServiceUrl() + "/report/work-order-status-report");
-			HttpEntity<?> entity = new HttpEntity<>(workOrderStatusModel, headers);
+			HttpEntity<?> entity = new HttpEntity<>(workOrderStatusInput, headers);
 			ResponseEntity<WorkOrderStatusReport[]> result =
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WorkOrderStatusReport[].class);
 			log.info("result : " + result.getStatusCode());

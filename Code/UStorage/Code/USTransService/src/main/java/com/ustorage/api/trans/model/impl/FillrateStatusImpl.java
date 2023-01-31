@@ -4,6 +4,7 @@ public interface FillrateStatusImpl {
 
 
     String getAgreementNumber();
+    String getStoreId();
     String getPhase();
     String getZone();
     String getRoom();

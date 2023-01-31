@@ -713,7 +713,7 @@ public class TransController {
 	//workOrderStatusReport
 	@ApiOperation(response = Optional.class, value = "Report_Work_Order_Status") // label for swagger
 	@PostMapping("/reports/workOrderStatusReport")
-	public ResponseEntity<?> getWorkOrderStatus (@RequestBody WorkOrderStatusModel workOrderStatus, @RequestParam String authToken) throws ParseException {
+	public ResponseEntity<?> getWorkOrderStatus (@RequestBody WorkOrderStatusInput workOrderStatus, @RequestParam String authToken) throws ParseException {
 		WorkOrderStatusReport[] workOrderStatusData = transService.getWorkOrderStatus(workOrderStatus, authToken);
 		return new ResponseEntity<>(workOrderStatusData, HttpStatus.OK);
 	}
