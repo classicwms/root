@@ -326,7 +326,7 @@ public class QualityLineService extends BaseService {
 		try {
 			log.info("-------createQualityLine--------called-------> " + new Date());
 
-			List<QualityLine> qualityLineList = new ArrayList<>();
+//			List<QualityLine> qualityLineList = new ArrayList<>();
 			/*
 			 * The below flag helps to avoid duplicate request and updating of outboundline
 			 * table
@@ -363,7 +363,7 @@ public class QualityLineService extends BaseService {
 				if (existingQualityLine == null) {
 					QualityLine createdQualityLine = qualityLineRepository.save(dbQualityLine);
 					log.info("createdQualityLine: " + createdQualityLine);
-					qualityLineList.add(dbQualityLine);
+//					qualityLineList.add(createdQualityLine);
 				}
 			}
 
@@ -371,7 +371,7 @@ public class QualityLineService extends BaseService {
 			 * Collecting created QualityLine List
 			 */
 			List<QualityLine> createdQualityLineList = new ArrayList<>();
-			for (QualityLine qualityLine : qualityLineList) {
+			for (AddQualityLine qualityLine : newQualityLines) {
 				QualityLine createdQualityLine = findQualityLine(qualityLine.getWarehouseId(),
 						qualityLine.getPreOutboundNo(), qualityLine.getRefDocNumber(), qualityLine.getPartnerCode(),
 						qualityLine.getLineNumber(), qualityLine.getQualityInspectionNo(), qualityLine.getItemCode());
@@ -382,9 +382,8 @@ public class QualityLineService extends BaseService {
 			/*
 			 * Based on created QualityLine List, updating respective tables
 			 */
-			for (QualityLine dbQualityLine : createdQualityLineList) {
+			for (AddQualityLine dbQualityLine : newQualityLines) {
 				/*-----------------STATUS updates in QualityHeader-----------------------*/
-//			try {
 				UpdateQualityHeader updateQualityHeader = new UpdateQualityHeader();
 				updateQualityHeader.setStatusId(55L);
 				QualityHeader qualityHeader = qualityHeaderService.updateQualityHeader(dbQualityLine.getWarehouseId(),
@@ -392,12 +391,6 @@ public class QualityLineService extends BaseService {
 						dbQualityLine.getQualityInspectionNo(), dbQualityLine.getActualHeNo(), loginUserID,
 						updateQualityHeader);
 				log.info("qualityHeader updated : " + qualityHeader);
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//				log.error("UpdateQualityHeader Error: Passed args::" + dbQualityLine.getWarehouseId() + "," + 
-//						dbQualityLine.getPreOutboundNo() + "," + dbQualityLine.getRefDocNumber() + "," + dbQualityLine.getQualityInspectionNo(), 
-//						dbQualityLine.getActualHeNo()) ;
-//			}
 
 				/*-------------OTUBOUNDHEADER/OUTBOUNDLINE table updates------------------------------*/
 				/*
@@ -418,7 +411,6 @@ public class QualityLineService extends BaseService {
 				 * 
 				 * Pass Unique keys in OUTBOUNDLINE table and update STATUS_ID as "57"
 				 */
-//			try {
 				OutboundLine outboundLine = outboundLineService.getOutboundLine(dbQualityLine.getWarehouseId(),
 						dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(),
 						dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(), dbQualityLine.getItemCode());
@@ -438,12 +430,6 @@ public class QualityLineService extends BaseService {
 					outboundLine = outboundLineRepository.save(outboundLine);
 					log.info("outboundLine updated : " + outboundLine);
 				}
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//				log.error("OutboundLine Error: Passed args::" + dbQualityLine.getWarehouseId() + "," + 
-//						dbQualityLine.getPreOutboundNo() + "," + dbQualityLine.getRefDocNumber() + "," + dbQualityLine.getPartnerCode(), 
-//						dbQualityLine.getLineNumber() + "," + dbQualityLine.getItemCode()) ;
-//			}
 
 				boolean isStatus57 = false;
 				List<OutboundLine> outboundLines = outboundLineService.getOutboundLine(dbQualityLine.getWarehouseId(),
@@ -455,7 +441,6 @@ public class QualityLineService extends BaseService {
 				}
 
 				/*-------------------OUTBOUNDHEADER------Update---------------------------*/
-//			try {
 				UpdateOutboundHeader updateOutboundHeader = new UpdateOutboundHeader();
 				updateOutboundHeader.setDeliveryOrderNo(DLV_ORD_NO);
 				if (isStatus57) { // If Status if 57 then update OutboundHeader with Status 57.
@@ -467,11 +452,6 @@ public class QualityLineService extends BaseService {
 						dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode(), updateOutboundHeader,
 						loginUserID);
 				log.info("outboundHeader updated : " + outboundHeader);
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//				log.error("UpdateOutboundHeader Error: Passed args::" + dbQualityLine.getWarehouseId() + "," + 
-//						dbQualityLine.getPreOutboundNo() + "," + dbQualityLine.getRefDocNumber() + "," + dbQualityLine.getPartnerCode()) ;
-//			}
 
 				/*-----------------Inventory Updates--------------------------------------*/
 				// Pass WH_ID/ITM_CODE/ST_BIN/PACK_BARCODE in INVENTORY table
@@ -486,10 +466,7 @@ public class QualityLineService extends BaseService {
 				log.info("inventory---BIN_CLASS_ID-4----> : " + inventory);
 
 				if (inventory != null) {
-//				try {
-					Double INV_QTY = inventory.getInventoryQuantity() - dbQualityLine.getQualityQty(); // INV_QTY (of
-																										// Inventory) -
-																										// QC_QTY
+					Double INV_QTY = inventory.getInventoryQuantity() - dbQualityLine.getQualityQty(); 
 					log.info("Calculated inventory INV_QTY: " + INV_QTY);
 					inventory.setInventoryQuantity(INV_QTY);
 
@@ -498,15 +475,8 @@ public class QualityLineService extends BaseService {
 					log.info("inventory updated : " + inventory);
 
 					if (INV_QTY == 0) {
-//					[Prod Fix: 28-06] - Discussed to comment delete Inventory operation to avoid unwanted delete of Inventory
-//					inventoryRepository.delete(inventory);
-//						log.info("inventory record is deleted...");
 						log.info("inventory INV_QTY: " + INV_QTY);
 					}
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//					log.error("Inventory Update Error: " + inventory );
-//				}
 				}
 
 				/*-------------------Inserting record in InventoryMovement-------------------------------------*/
@@ -514,7 +484,12 @@ public class QualityLineService extends BaseService {
 				String movementDocumentNo = dbQualityLine.getQualityInspectionNo();
 				String stBin = storageBin.getStorageBin();
 				String movementQtyValue = "N";
-				InventoryMovement inventoryMovement = createInventoryMovement(dbQualityLine, subMvtTypeId,
+				
+				QualityLine qualityLine = findQualityLine(dbQualityLine.getWarehouseId(),
+						dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode(),
+						dbQualityLine.getLineNumber(), dbQualityLine.getQualityInspectionNo(), dbQualityLine.getItemCode());
+				
+				InventoryMovement inventoryMovement = createInventoryMovement(qualityLine, subMvtTypeId,
 						movementDocumentNo, stBin, movementQtyValue, loginUserID);
 				log.info("InventoryMovement created : " + inventoryMovement);
 
@@ -548,9 +523,7 @@ public class QualityLineService extends BaseService {
 						e.printStackTrace();
 						log.info("updatedInventory error----------> : " + e.toString());
 					}
-
 				} else {
-//				try {
 					log.info("AddInventory========>");
 					AddInventory newInventory = new AddInventory();
 					newInventory.setLanguageId(warehouse.getLanguageId());
@@ -580,10 +553,6 @@ public class QualityLineService extends BaseService {
 
 					Inventory createdInventory = inventoryService.createInventory(newInventory, loginUserID);
 					log.info("newInventory created : " + createdInventory);
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//					log.info("NewInventory create Error: " + e.toString());
-//				}
 				}
 
 				/*-----------------------InventoryMovement----------------------------------*/
@@ -592,7 +561,7 @@ public class QualityLineService extends BaseService {
 				movementDocumentNo = DLV_ORD_NO;
 				stBin = storageBin.getStorageBin();
 				movementQtyValue = "P";
-				inventoryMovement = createInventoryMovement(dbQualityLine, subMvtTypeId, movementDocumentNo, stBin,
+				inventoryMovement = createInventoryMovement(qualityLine, subMvtTypeId, movementDocumentNo, stBin,
 						movementQtyValue, loginUserID);
 				log.info("InventoryMovement created for update2: " + inventoryMovement);
 			}

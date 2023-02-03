@@ -1141,9 +1141,9 @@ public class ReportsService extends BaseService {
 
 			// --------------------------------------------------------------------------------------------------------------------------------
 			/*
-			 * Partner Code : 101, 102, 103, 107, 109, 111 - Normal
+			 * Partner Code : 101, 102, 103, 107, 109, 111, 113 - Normal
 			 */
-			List<String> partnerCodes = Arrays.asList("101", "102", "103", "107", "109", "111");
+			List<String> partnerCodes = Arrays.asList("101", "102", "103", "107", "109", "111","113");
 			List<SummaryMetrics> summaryMetricsList = new ArrayList<>();
 			for (String pCode : partnerCodes) {
 				SummaryMetrics partnerCode_N = getMetricsDetails("N", warehouseId, pCode, "N", fromDeliveryDate_d,
@@ -1675,7 +1675,8 @@ public class ReportsService extends BaseService {
 				fromDeliveryDate_d, toDeliveryDate_d);
 
 		if (!outboundLineLineItems.isEmpty()) {
-			double line_item_N = outboundLineLineItems.stream().count();
+			//double line_item_N = outboundLineLineItems.stream().count();
+			double line_item_N = outboundLineLineItems.stream().mapToLong(Long::longValue).sum();
 			log.info("line_item_N : " + line_item_N);
 
 			/*
@@ -1686,7 +1687,7 @@ public class ReportsService extends BaseService {
 			 */
 			List<Long> shipped_lines_NList = outboundLineService.getShippedLines(refDocNoList, fromDeliveryDate_d,
 					toDeliveryDate_d);
-			double shipped_lines_N = shipped_lines_NList.stream().count();
+			double shipped_lines_N = shipped_lines_NList.stream().mapToLong(Long::longValue).sum();
 			double percShipped_N = Math.round((shipped_lines_N / line_item_N) * 100);
 
 			// Populate Metrics
