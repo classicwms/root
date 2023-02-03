@@ -1094,6 +1094,7 @@ public class ReportsService extends BaseService {
 		List<ShipmentDeliverySummary> shipmentDeliverySummaryList = new ArrayList<>();
 		String warehouseId = null;
 		try {
+			double sumOfLineItems = 0.0;
 			for (OutboundHeader outboundHeader : outboundHeaderList) {
 				// Report Preparation
 				ShipmentDeliverySummary shipmentDeliverySummary = new ShipmentDeliverySummary();
@@ -1126,6 +1127,7 @@ public class ReportsService extends BaseService {
 				double sumOfOrderedQtyValue = sumOfOrderedQty.stream().mapToLong(Long::longValue).sum();
 				double sumOfDeliveryQty = sumOfDeliveryQtyList.stream().mapToLong(Long::longValue).sum();
 
+				sumOfLineItems += countOfOrderedLinesvalue;
 				shipmentDeliverySummary.setLineOrdered(countOfOrderedLinesvalue);
 				shipmentDeliverySummary.setLineShipped(deliveryLinesCount);
 				shipmentDeliverySummary.setOrderedQty(sumOfOrderedQtyValue);
@@ -1138,6 +1140,8 @@ public class ReportsService extends BaseService {
 
 				shipmentDeliverySummaryList.add(shipmentDeliverySummary);
 			}
+			
+			
 
 			// --------------------------------------------------------------------------------------------------------------------------------
 			/*
@@ -1655,6 +1659,10 @@ public class ReportsService extends BaseService {
 		List<OutboundHeader> outboundHeaderList = outboundHeaderRepository
 				.findByStatusIdAndPartnerCodeAndDeliveryConfirmedOnBetween(59L, partnerCode, fromDeliveryDate_d,
 						toDeliveryDate_d);
+		log.info( "partnerCode--->: " + partnerCode + " refField1:----> : " + refField1 + "--:fromDeliveryDate_d:---> : " + fromDeliveryDate_d
+				+ " --> toDeliveryDate_d;  "+ toDeliveryDate_d);
+		log.info("---------------------->outboundHeaderList : " + outboundHeaderList);
+		
 		List<String> refDocNoList = outboundHeaderList.stream()
 				.filter(a -> a.getReferenceField1().equalsIgnoreCase(refField1)).map(OutboundHeader::getRefDocNumber)
 				.collect(Collectors.toList());
@@ -1671,8 +1679,7 @@ public class ReportsService extends BaseService {
 		 * OUTBOUNDLINE table and fetch the COUNT of Lines for OB_LINE_NO where
 		 * REF_FIELD_2 = Null and display (Ordered Lines)
 		 */
-		List<Long> outboundLineLineItems = outboundLineService.getLineItem_NByRefDocNoAndRefField2IsNull(refDocNoList,
-				fromDeliveryDate_d, toDeliveryDate_d);
+		List<Long> outboundLineLineItems = outboundLineService.getLineItem_NByRefDocNoAndRefField2IsNull(refDocNoList);
 
 		if (!outboundLineLineItems.isEmpty()) {
 			//double line_item_N = outboundLineLineItems.stream().count();

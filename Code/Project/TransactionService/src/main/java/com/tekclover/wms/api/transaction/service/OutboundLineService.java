@@ -398,6 +398,12 @@ public class OutboundLineService extends BaseService {
 				outboundLineRepository.findLineItem_NByRefDocNoAndRefField2IsNull (refDocNo, startDate, endDate);
 		return lineItems;
 	}
+	
+	public List<Long> getLineItem_NByRefDocNoAndRefField2IsNull (List<String> refDocNo) {
+		List<Long> lineItems = 
+				outboundLineRepository.findLineItem_NByRefDocNoAndRefField2IsNull (refDocNo);
+		return lineItems;
+	}
 
 	/**
 	 * 

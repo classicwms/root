@@ -99,6 +99,12 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 			@Param(value = "refDocNo") List<String> refDocNo,
 			@Param ("startDate") Date startDate,
 			@Param ("endDate") Date endDate);
+	
+	@Query (value = "SELECT COUNT(OB_LINE_NO) FROM tbloutboundline \r\n"
+			+ " WHERE REF_DOC_NO IN :refDocNo AND REF_FIELD_2 IS NULL \r\n"
+			+ " GROUP BY OB_LINE_NO", nativeQuery = true)
+	public List<Long> findLineItem_NByRefDocNoAndRefField2IsNull (
+			@Param(value = "refDocNo") List<String> refDocNo);
 
 	@Query (value = "SELECT COUNT(OB_LINE_NO) FROM tbloutboundline \r\n"
 			+ " WHERE REF_DOC_NO IN :refDocNo AND DLV_QTY > 0 AND REF_FIELD_2 IS NULL \r\n"
