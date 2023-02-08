@@ -1657,8 +1657,10 @@ public class ReportsService extends BaseService {
 	private SummaryMetrics getMetricsDetails(String type, String warehouseId, String partnerCode, String refField1,
 			Date fromDeliveryDate_d, Date toDeliveryDate_d) throws ParseException, java.text.ParseException {
 		List<OutboundHeader> outboundHeaderList = outboundHeaderRepository
-				.findByStatusIdAndPartnerCodeAndDeliveryConfirmedOnBetween(59L, partnerCode, fromDeliveryDate_d,
+				.findByWarehouseIdAndStatusIdAndPartnerCodeAndDeliveryConfirmedOnBetween(warehouseId, 59L, partnerCode, fromDeliveryDate_d,
 						toDeliveryDate_d);
+//				.findByStatusIdAndPartnerCodeAndDeliveryConfirmedOnBetween(59L, partnerCode, fromDeliveryDate_d,
+//						toDeliveryDate_d);
 		log.info( "partnerCode--->: " + partnerCode + " refField1:----> : " + refField1 + "--:fromDeliveryDate_d:---> : " + fromDeliveryDate_d
 				+ " --> toDeliveryDate_d;  "+ toDeliveryDate_d);
 		log.info("---------------------->outboundHeaderList : " + outboundHeaderList);

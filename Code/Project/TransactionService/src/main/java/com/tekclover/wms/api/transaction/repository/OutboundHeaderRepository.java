@@ -99,4 +99,7 @@ public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader,L
 			@Param ("refDocNumber") String refDocNumber, 
 			@Param ("statusId") Long statusId,
 			@Param ("deliveryConfirmedOn") Date deliveryConfirmedOn);
+
+	public List<OutboundHeader> findByWarehouseIdAndStatusIdAndPartnerCodeAndDeliveryConfirmedOnBetween(
+			String warehouseId, long l, String partnerCode, Date fromDeliveryDate_d, Date toDeliveryDate_d);
 }

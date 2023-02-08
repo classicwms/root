@@ -43,6 +43,7 @@ import com.tekclover.wms.core.model.transaction.GrHeader;
 import com.tekclover.wms.core.model.transaction.GrLine;
 import com.tekclover.wms.core.model.transaction.InboundHeader;
 import com.tekclover.wms.core.model.transaction.InboundHeaderEntity;
+import com.tekclover.wms.core.model.transaction.InboundIntegrationLog;
 import com.tekclover.wms.core.model.transaction.InboundLine;
 import com.tekclover.wms.core.model.transaction.InboundOrder;
 import com.tekclover.wms.core.model.transaction.InhouseTransferHeader;
@@ -54,6 +55,7 @@ import com.tekclover.wms.core.model.transaction.MobileDashboard;
 import com.tekclover.wms.core.model.transaction.OrderManagementLine;
 import com.tekclover.wms.core.model.transaction.OrderStatusReport;
 import com.tekclover.wms.core.model.transaction.OutboundHeader;
+import com.tekclover.wms.core.model.transaction.OutboundIntegrationLog;
 import com.tekclover.wms.core.model.transaction.OutboundLine;
 import com.tekclover.wms.core.model.transaction.OutboundOrder;
 import com.tekclover.wms.core.model.transaction.OutboundReversal;
@@ -1883,4 +1885,19 @@ public class TransactionServiceController {
 		OutboundOrder orders = transactionService.getOutboundOrdersById(orderId,authToken);
 		return new ResponseEntity<>(orders, HttpStatus.OK);
 	}
+	
+	//-----------------------------------------ORDER APIs---------------------------------------------------------
+	@ApiOperation(response = InboundIntegrationLog.class, value = "Get Failed Orders") // label for swagger 
+   	@GetMapping("/orders/inbound/failed")
+   	public ResponseEntity<?> getFailedInbounOrders(@RequestParam String authToken) throws Exception {
+       	InboundIntegrationLog[] orders = transactionService.getFailedInboundOrders(authToken);
+   		return new ResponseEntity<>(orders, HttpStatus.OK);
+   	}
+
+	@ApiOperation(response = OutboundIntegrationLog.class, value = "Get Failed OutboundOrders") // label for swagger 
+   	@GetMapping("/orders/outbound/failed")
+   	public ResponseEntity<?> getFailedOutboundOrders(@RequestParam String authToken) throws Exception {
+       	OutboundIntegrationLog[] orders = transactionService.getFailedOutboundOrders(authToken);
+   		return new ResponseEntity<>(orders, HttpStatus.OK);
+   	}
 }

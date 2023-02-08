@@ -4585,4 +4585,42 @@ public class TransactionService {
 			throw e;
 		}
 	}
+	
+	// GET - FAILED
+	public InboundIntegrationLog[] getFailedInboundOrders(String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "orders/inbound/orders/failed");
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<InboundIntegrationLog[]> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, InboundIntegrationLog[].class);
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	// GET - FAILED
+	public OutboundIntegrationLog[] getFailedOutboundOrders(String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "orders/outbound/orders/failed");
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<OutboundIntegrationLog[]> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, OutboundIntegrationLog[].class);
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
 }	
