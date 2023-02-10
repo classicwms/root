@@ -22,6 +22,7 @@ import com.tekclover.wms.api.transaction.model.dto.BomHeader;
 import com.tekclover.wms.api.transaction.model.dto.BomLine;
 import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
 import com.tekclover.wms.api.transaction.model.dto.Warehouse;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.OrderManagementHeader;
@@ -694,6 +695,12 @@ public class PreOutboundHeaderService extends BaseService {
 	 */
 	private OrderManagementLine createOrderManagement (List<String> storageSectionIds, OrderManagementLine orderManagementLine,
 	String warehouseId, String itemCode, Double ORD_QTY) {
+//		List<Inventory> stBinInventoryList = inventoryService.getInventory(warehouseId, itemCode);
+		List<Inventory> stockType1InventoryList = inventoryService.getInventoryForOrderManagement (warehouseId, itemCode, 1L);
+		log.info("---Global---stockType1InventoryList-------> : " + stockType1InventoryList);
+		if (stockType1InventoryList.isEmpty()) {
+			return createEMPTYOrderManagementLine(orderManagementLine);
+		}
 		return orderManagementLineService.updateAllocation(orderManagementLine, storageSectionIds, ORD_QTY, warehouseId, itemCode, "ORDER_PLACED");
 	}
 	

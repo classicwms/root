@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tekclover.wms.api.transaction.model.inbound.gr.GrHeader;
+import com.tekclover.wms.api.transaction.model.inbound.preinbound.InboundIntegrationLog;
 import com.tekclover.wms.api.transaction.model.integration.IntegrationApiResponse;
+import com.tekclover.wms.api.transaction.model.outbound.preoutbound.OutboundIntegrationLog;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.InboundOrder;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.OutboundOrder;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.ShipmentOrder;
@@ -61,6 +63,13 @@ public class OrderController {
 		return new ResponseEntity<>(orders, HttpStatus.OK);
 	}
     
+    @ApiOperation(response = InboundIntegrationLog.class, value = "Get Failed Orders") // label for swagger 
+   	@GetMapping("/inbound/orders/failed")
+   	public ResponseEntity<?> getFailedInbounOrders() throws Exception {
+       	List<InboundIntegrationLog> orders = orderService.getFailedInboundOrders();
+   		return new ResponseEntity<>(orders, HttpStatus.OK);
+   	}
+    
     @ApiOperation(response = InboundOrder.class, value = "Create InboundOrder") // label for swagger
 	@PostMapping("/inbound")
 	public ResponseEntity<?> postOrders(@RequestBody InboundOrder newInboundOrder) 
@@ -88,6 +97,13 @@ public class OrderController {
    	@GetMapping("/outbound/orders/{orderDate}/date")
    	public ResponseEntity<?> getOBOrdersByDate(@PathVariable String orderDate) throws ParseException {
        	List<OutboundOrder> orders = orderService.getOBOrderByDate(orderDate);
+   		return new ResponseEntity<>(orders, HttpStatus.OK);
+   	}
+    
+    @ApiOperation(response = OutboundIntegrationLog.class, value = "Get Failed Orders") // label for swagger 
+   	@GetMapping("/outbound/orders/failed")
+   	public ResponseEntity<?> getFailedOutbounOrders() throws Exception {
+       	List<OutboundIntegrationLog> orders = orderService.getFailedOutboundOrders();
    		return new ResponseEntity<>(orders, HttpStatus.OK);
    	}
        

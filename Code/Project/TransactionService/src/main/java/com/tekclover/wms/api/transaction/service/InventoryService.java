@@ -159,6 +159,28 @@ public class InventoryService extends BaseService {
 	/**
 	 * 
 	 * @param warehouseId
+	 * @param packBarcodes
+	 * @param itemCode
+	 * @param binClassId
+	 * @return
+	 */
+	public List<Inventory> getInventoryForOrderManagement(String warehouseId, String itemCode, Long stockTypeId) {
+		List<Inventory> inventory = 
+				inventoryRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndAndStockTypeIdAndDeletionIndicator(
+						getLanguageId(),
+						getCompanyCode(),
+						getPlantId(),
+						warehouseId, 
+						itemCode, 
+						stockTypeId,
+						0L
+						);
+		return inventory;
+	}
+	
+	/**
+	 * 
+	 * @param warehouseId
 	 * @param caseCode
 	 * @param packBarcodes
 	 * @param itemCode
@@ -381,34 +403,6 @@ public class InventoryService extends BaseService {
 	}
 	
 	/**
-	 * Pass the selected WH_ID/ITM_CODE/ALLOC_QTY=0 for OB_ORD_TYP_ID = 0,1,3 
-	 * @param warehouseId
-	 * @param itemCode
-	 * @param allocatedQty
-	 * @return
-	 */
-//	public List<Inventory> getInventoryForAdditionalBins (String warehouseId, String itemCode, String storageBin) {
-//		Warehouse warehouse = getWarehouse(warehouseId);
-//		log.info("InventoryForAdditionalBins ID : warehouseId: " + warehouseId
-//				+ ", itemCode: " + itemCode
-//				+ ", storageBin: " + storageBin
-//				);
-//		List<Inventory> inventory = 
-//				inventoryRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndStorageBinAndStockTypeIdAndBinClassIdAndDeletionIndicator(
-//						warehouse.getLanguageId(),
-//						warehouse.getCompanyCode(),
-//						warehouse.getPlantId(),
-//						warehouseId, 
-//						itemCode, 
-//						storageBin,
-//						1L,
-//						1L,
-//						0L
-//						);
-//		return inventory;
-//	}
-	
-	/**
 	 * 
 	 * @param warehouseId
 	 * @param itemCode
@@ -436,31 +430,10 @@ public class InventoryService extends BaseService {
 	 * 
 	 * @param warehouseId
 	 * @param itemCode
-	 * @param storageBin
-	 * @param allocatedQty
+	 * @param storageSectionIds
 	 * @param stockTypeId
-	 * @param specialStockIndicatorId
 	 * @return
 	 */
-//	public List<Inventory> getInventoryForAdditionalBinsForOB2 (String warehouseId, String itemCode, String storageBin, 
-//			Long stockTypeId) {
-//		Warehouse warehouse = getWarehouse(warehouseId);
-//		List<Inventory> inventory = 
-//				inventoryRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndStorageBinAndStockTypeIdAndBinClassIdAndDeletionIndicator(
-//						warehouse.getLanguageId(),
-//						warehouse.getCompanyCode(),
-//						warehouse.getPlantId(),
-//						warehouseId, 
-//						itemCode, 
-//						storageBin,
-//						stockTypeId,
-//						1L,
-//						0L
-//						);
-// 
-//		return inventory;
-//	}
-	
 	public List<Inventory> getInventoryForAdditionalBinsForOB2 (String warehouseId, String itemCode, List<String> storageSectionIds, Long stockTypeId) {
 		Warehouse warehouse = getWarehouse(warehouseId);
 		List<Inventory> inventory = 

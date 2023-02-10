@@ -589,16 +589,11 @@ public class OrderManagementLineService extends BaseService {
 	 */
 	public OrderManagementLine updateAllocation (OrderManagementLine orderManagementLine, List<String> storageSectionIds, Double ORD_QTY,
 			String warehouseId, String itemCode, String loginUserID) {
-		log.info("---updateAllocation----has been called---");
-//		List<Inventory> stBinInventoryList = inventoryService.getInventory(warehouseId, itemCode);
-//		log.info("---Global---stBinInventoryList-------> : " + stBinInventoryList);
-//		
-//		/*
-//		 * If the Inventory doesn't exists in the Table then inserting 0th record in Ordermanagementline table
-//		 */
-//		if (stBinInventoryList.isEmpty()) {
-//			return updateOrderManagementLine(orderManagementLine);
-//		}
+		List<Inventory> stockType1InventoryList = inventoryService.getInventoryForOrderManagement (warehouseId, itemCode, 1L);
+		log.info("---updateAllocation---stockType1InventoryList-------> : " + stockType1InventoryList);
+		if (stockType1InventoryList.isEmpty()) {
+			return updateOrderManagementLine(orderManagementLine);
+		}
 //		
 //		/* To obtain the SumOfInvQty */
 //		List<String> stBins = stBinInventoryList.stream().map(Inventory::getStorageBin).collect(Collectors.toList());

@@ -10,15 +10,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
+import com.tekclover.wms.api.transaction.model.inbound.preinbound.InboundIntegrationLog;
 import com.tekclover.wms.api.transaction.model.integration.IntegrationApiResponse;
+import com.tekclover.wms.api.transaction.model.outbound.preoutbound.OutboundIntegrationLog;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.InboundOrder;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.OutboundOrder;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.OutboundOrderLine;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.SOHeader;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.SOLine;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.ShipmentOrder;
+import com.tekclover.wms.api.transaction.repository.InboundIntegrationLogRepository;
 import com.tekclover.wms.api.transaction.repository.InboundOrderRepository;
 import com.tekclover.wms.api.transaction.repository.IntegrationApiResponseRepository;
+import com.tekclover.wms.api.transaction.repository.OutboundIntegrationLogRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundOrderLinesRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundOrderRepository;
 import com.tekclover.wms.api.transaction.util.DateUtils;
@@ -42,6 +46,12 @@ public class OrderService {
 	IntegrationApiResponseRepository integrationApiResponseRepository;
 	
 	@Autowired
+	InboundIntegrationLogRepository inboundIntegrationLogRepository;
+
+	@Autowired
+	OutboundIntegrationLogRepository outboundIntegrationLogRepository;
+	
+	@Autowired
 	WarehouseService warehouseService;
 	
 	/**
@@ -59,6 +69,14 @@ public class OrderService {
 	 */
 	public InboundOrder getOrderById(String orderId) {
 		return inboundOrderRepository.findByRefDocumentNo (orderId);
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public List<InboundIntegrationLog> getFailedInboundOrders() {
+		return inboundIntegrationLogRepository.findByIntegrationStatus("FAILED");
 	}
 	
 	/**
@@ -119,6 +137,14 @@ public class OrderService {
 	public OutboundOrder getOBOrderById(String orderId) {
 //		return outboundOrderRepository.findByOrderId(orderId);
 		return outboundOrderRepository.findByRefDocumentNo (orderId);
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public List<OutboundIntegrationLog> getFailedOutboundOrders() {
+		return outboundIntegrationLogRepository.findByIntegrationStatus("FAILED");
 	}
 	
 	/**

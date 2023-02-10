@@ -18,4 +18,5 @@ public interface InboundIntegrationLogRepository extends JpaRepository<InboundIn
 	public Optional<InboundIntegrationLog> 
 		findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndIntegrationLogNumberAndRefDocNumberAndDeletionIndicator(
 				String languageId, String companyCodeId, String plantId, String warehouseId, String integrationLogNumber, String refDocNumber, Long deletionIndicator);
+	public List<InboundIntegrationLog> findByIntegrationStatus(String string);
 }

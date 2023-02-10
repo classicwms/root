@@ -1096,6 +1096,8 @@ public class ReportsService extends BaseService {
 		try {
 			double sumOfLineItems = 0.0;
 			for (OutboundHeader outboundHeader : outboundHeaderList) {
+				warehouseId = outboundHeader.getWarehouseId();
+				
 				// Report Preparation
 				ShipmentDeliverySummary shipmentDeliverySummary = new ShipmentDeliverySummary();
 

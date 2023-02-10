@@ -19,4 +19,5 @@ public interface OutboundIntegrationLogRepository extends JpaRepository<Outbound
 	public Optional<OutboundIntegrationLog> 
 		findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndIntegrationLogNumberAndRefDocNumberAndDeletionIndicator(
 				String languageId, String companyCodeId, String plantId, String warehouseId, String integrationLogNumber, String refDocNumber, Long deletionIndicator);
+	public List<OutboundIntegrationLog> findByIntegrationStatus(String string);
 }
