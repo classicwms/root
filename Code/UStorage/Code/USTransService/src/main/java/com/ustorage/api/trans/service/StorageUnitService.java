@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
+import com.ustorage.api.trans.controller.exception.BadRequestException;
 import com.ustorage.api.trans.repository.Specification.StorageUnitSpecification;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,12 +58,20 @@ public class StorageUnitService {
 	public StorageUnit createStorageUnit (AddStorageUnit newStorageUnit, String loginUserId) 
 			throws IllegalAccessException, InvocationTargetException, Exception {
 		StorageUnit dbStorageUnit = new StorageUnit();
-		BeanUtils.copyProperties(newStorageUnit, dbStorageUnit, CommonUtils.getNullPropertyNames(newStorageUnit));
-		dbStorageUnit.setDeletionIndicator(0L);
-		dbStorageUnit.setCreatedBy(loginUserId);
-		dbStorageUnit.setUpdatedBy(loginUserId);
-		dbStorageUnit.setCreatedOn(new Date());
-		dbStorageUnit.setUpdatedOn(new Date());
+		Optional<StorageUnit> codeIdExist = storageUnitRepository.findByCodeIdAndDeletionIndicator(newStorageUnit.getCodeId(),0);
+		if(codeIdExist!=null && !codeIdExist.isEmpty()){
+			throw new BadRequestException("The given Code ID : " + newStorageUnit.getCodeId() + " already exists.");
+		}
+		else{
+			BeanUtils.copyProperties(newStorageUnit, dbStorageUnit, CommonUtils.getNullPropertyNames(newStorageUnit));
+			dbStorageUnit.setDeletionIndicator(0L);
+			dbStorageUnit.setCreatedBy(loginUserId);
+			dbStorageUnit.setUpdatedBy(loginUserId);
+			dbStorageUnit.setCreatedOn(new Date());
+			dbStorageUnit.setUpdatedOn(new Date());
+
+		}
+
 		return storageUnitRepository.save(dbStorageUnit);
 	}
 	
@@ -78,9 +87,10 @@ public class StorageUnitService {
 	public StorageUnit updateStorageUnit (String itemCode, String loginUserId, UpdateStorageUnit updateStorageUnit)
 			throws IllegalAccessException, InvocationTargetException {
 		StorageUnit dbStorageUnit = getStorageUnit(itemCode);
-		BeanUtils.copyProperties(updateStorageUnit, dbStorageUnit, CommonUtils.getNullPropertyNames(updateStorageUnit));
-		dbStorageUnit.setUpdatedBy(loginUserId);
-		dbStorageUnit.setUpdatedOn(new Date());
+
+			BeanUtils.copyProperties(updateStorageUnit, dbStorageUnit, CommonUtils.getNullPropertyNames(updateStorageUnit));
+			dbStorageUnit.setUpdatedBy(loginUserId);
+			dbStorageUnit.setUpdatedOn(new Date());
 		return storageUnitRepository.save(dbStorageUnit);
 	}
 	

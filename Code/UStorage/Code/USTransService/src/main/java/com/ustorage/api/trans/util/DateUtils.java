@@ -30,7 +30,11 @@ public class DateUtils {
         }
         return null;
     }
-
+    //default zone date initialization
+    public static LocalDate convertDateToLocalDateTime(Date date) {
+        LocalDate sLocalDate = LocalDate.ofInstant(date.toInstant(), ZoneId.systemDefault());
+        return sLocalDate;
+    }
     /**
      *
      * @param input

@@ -22,9 +22,9 @@ public class AddAgreement {
 	private Date startDate;
 	private Date endDate;
 	private String location;
-	private List<String> StoreNumbers;
+	private List<StoreNumber> StoreNumbers;
 	//private String StoreNumbers;
-	private String size;
+	//private List<String> size;
 	private String insurance;
 	private String rent;
 	private String rentPeriod;

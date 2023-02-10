@@ -33,6 +33,13 @@ public class StoreNumber {
     @Column(name = "Description")
     private String description;
 
+    @Column(name = "SIZE")
+    private String size;
+    @Column(name = "LOCATION")
+    private String location;
+    @Column(name = "RENT")
+    private String rent;
+
     @Column(name = "IS_DELETED")
     private Long deletionIndicator = 0L;
 

@@ -1,5 +1,6 @@
 package com.ustorage.api.trans.model.agreement;
 
+import com.ustorage.api.trans.model.storenumber.StoreNumber;
 import lombok.Data;
 
 import java.util.Date;
@@ -39,9 +40,9 @@ public class GAgreement {
 
 	private String location;
 
-	private List<String> storeNumbers;
+	private List<StoreNumber> storeNumbers;
 
-	private String size;
+	//private List<String> size;
 
 	private String insurance;
 

@@ -30,6 +30,7 @@ public class GWorkOrder {
 	private String fromAddress;
 	private String toAddress;
 	private List<ItemService> itemServices;
+	private String workOrderProcessedBy;
 	private Long deletionIndicator = 0L;
 	private String referenceField1;
 	private String referenceField2;

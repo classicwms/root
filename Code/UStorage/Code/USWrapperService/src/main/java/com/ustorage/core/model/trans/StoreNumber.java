@@ -14,7 +14,9 @@ public class StoreNumber {
     //private String id;
     private String storeNumber;
     //private String agreementNumber;
-    //private String description;
+    private String size;
+    private String location;
+    private String rent;
     //private Long deletionIndicator = 0L;
     //private String createdBy;
     //private Date createdOn;

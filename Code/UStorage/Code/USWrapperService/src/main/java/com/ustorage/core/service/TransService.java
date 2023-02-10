@@ -1757,4 +1757,18 @@ public class TransService {
 		}
 	}
 
+	//Rent Calculation
+	public Rent createRentCalutation (RentCalculationInput newRentCalculationInput, String authToken) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.add("User-Agent", "RestTemplate");
+		headers.add("Authorization", "Bearer " + authToken);
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getTransServiceUrl() + "rentCalculation");
+
+		HttpEntity<?> entity = new HttpEntity<>(newRentCalculationInput, headers);
+		ResponseEntity<Rent> result =
+				getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, Rent.class);
+		return result.getBody();
+	}
+
 }

@@ -7,9 +7,5 @@ import java.util.Date;
 public class UpdateStoreNumber {
 
     private String storeNumber;
-    private String agreementNumber;
-    //private String description;
-    private Long deletionIndicator = 0L;
-    private String updatedBy;
-    private Date updatedOn;
+    private String size;
 }

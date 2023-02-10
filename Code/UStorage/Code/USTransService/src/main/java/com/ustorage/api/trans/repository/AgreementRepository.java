@@ -25,12 +25,28 @@ public interface AgreementRepository extends JpaRepository<Agreement, Long>,
 			+ "AND tblagreement.IS_DELETED=0", nativeQuery = true)
 	public Agreement getAgreement(@Param("agreementNumber") String agreementNumber);
 
-	@Query(value = "select STRING_AGG(code_id,',') \n" +
+	@Query(value = "select STRING_AGG(code_id,', ') \n" +
 					"from tblstorageunit tsu \n" +
 					"join tblstorenumber ts on ts.store_number=tsu.item_code\n"+
 					" where \n" +
 					"(COALESCE(:agreementNumber,null) IS NULL OR (ts.AGREEMENT_NUMBER IN (:agreementNumber))) and\n"+
 					"ts.is_deleted=0 ",nativeQuery = true)
 	public String getStoreNumber(@Param("agreementNumber") String agreementNumber);
+
+	@Query(value = "select STRING_AGG(ts.size,', ') \n" +
+			"from tblstorenumber ts \n" +
+			"join tblagreement ta on ta.agreement_number=ts.agreement_number\n"+
+			" where \n" +
+			"(COALESCE(:agreementNumber,null) IS NULL OR (ts.AGREEMENT_NUMBER IN (:agreementNumber))) and\n"+
+			"ts.is_deleted=0 ",nativeQuery = true)
+	public String getStoreSize(@Param("agreementNumber") String agreementNumber);
+
+	@Query(value = "select STRING_AGG(ts.location,', ') \n" +
+			"from tblstorenumber ts \n" +
+			"join tblagreement ta on ta.agreement_number=ts.agreement_number\n"+
+			" where \n" +
+			"(COALESCE(:agreementNumber,null) IS NULL OR (ts.AGREEMENT_NUMBER IN (:agreementNumber))) and\n"+
+			"ts.is_deleted=0 ",nativeQuery = true)
+	public String getStoreLocation(@Param("agreementNumber") String agreementNumber);
 
 }

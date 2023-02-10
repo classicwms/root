@@ -51,7 +51,7 @@ public class StoreNumberService {
 		if (storeNumber.isEmpty()) {
 			return null;
 		}
-		storeNumber = storeNumber.stream().filter(n -> n.getDeletionIndicator() == 0).collect(Collectors.toList());
+		//storeNumber = storeNumber.stream().filter(n -> n.getDeletionIndicator() == 0).collect(Collectors.toList());
 		return storeNumber;
 	}
 
@@ -122,11 +122,10 @@ public class StoreNumberService {
 
 		StoreNumberSpecification spec = new StoreNumberSpecification(findStoreNumber);
 		List<StoreNumber> result = storeNumberRepository.findAll(spec);
-		result = result.stream().filter(n -> n.getDeletionIndicator() == 0).collect(Collectors.toList());
+		//result = result.stream().filter(n -> n.getDeletionIndicator() == 0).collect(Collectors.toList());
 
-		List<Agreement> results = null;
+		List<Agreement> results = new ArrayList<>();
 		for (StoreNumber dbStoreNumber : result) {
-			results = new ArrayList<>();
 			results.add(agreementRepository.getAgreement(dbStoreNumber.getAgreementNumber()));
 		}
 
@@ -137,7 +136,7 @@ public class StoreNumberService {
 			BeanUtils.copyProperties(dbAgreement, newGAgreement, CommonUtils.getNullPropertyNames(dbAgreement));
 			newGAgreement.setStoreNumbers(new ArrayList<>());
 			for (StoreNumber newstoreNumber : dbAgreement.getStoreNumbers()) {
-				newGAgreement.getStoreNumbers().add(newstoreNumber.getStoreNumber());
+				newGAgreement.getStoreNumbers().add(newstoreNumber);
 			}
 			gAgreement.add(newGAgreement);
 		}

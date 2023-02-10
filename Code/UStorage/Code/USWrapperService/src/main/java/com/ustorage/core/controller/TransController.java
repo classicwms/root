@@ -842,4 +842,13 @@ public class TransController {
 		return new ResponseEntity<>(leadAndCustomer, HttpStatus.OK);
 	}
 
+	//Rent Calculation
+	@ApiOperation(response = Optional.class, value = "Rent_Calculation") // label for swagger
+	@PostMapping("/rentCalculation")
+	public ResponseEntity<?> getRentCalculation (@RequestBody RentCalculationInput rentCalculationInput, @RequestParam String authToken)
+			throws Exception {
+		Rent data = transService.createRentCalutation(rentCalculationInput,authToken);
+		return new ResponseEntity<>(data, HttpStatus.OK);
+	}
+
 }

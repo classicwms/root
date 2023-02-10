@@ -61,6 +61,7 @@ public class WorkOrderService {
 		}
 		GWorkOrder dbWorkOrder = new GWorkOrder();
 		BeanUtils.copyProperties(workOrder.get(),dbWorkOrder,CommonUtils.getNullPropertyNames(workOrder));
+		dbWorkOrder.setWorkOrderProcessedBy(workOrderRepository.getProcessedBy(dbWorkOrder.getWorkOrderId()));
 		dbWorkOrder.setWoProcessedBy(new ArrayList<>());
 		for(WoProcessedBy dbWoProcessedBy : workOrder.get().getWoProcessedBy()){
 			dbWorkOrder.getWoProcessedBy().add(dbWoProcessedBy.getProcessedBy());
@@ -236,6 +237,7 @@ public class WorkOrderService {
 		for (WorkOrder dbWorkOrder : results) {
 			GWorkOrder newGWorkOrder = new GWorkOrder();
 			BeanUtils.copyProperties(dbWorkOrder, newGWorkOrder, CommonUtils.getNullPropertyNames(dbWorkOrder));
+			newGWorkOrder.setWorkOrderProcessedBy(workOrderRepository.getProcessedBy(dbWorkOrder.getWorkOrderId()));
 			newGWorkOrder.setCustomerName(workOrderRepository.getCustomerName(newGWorkOrder.getWorkOrderId()));
 			newGWorkOrder.setWoProcessedBy(new ArrayList<>());
 			for (WoProcessedBy newWoProcessedBy : dbWorkOrder.getWoProcessedBy()) {

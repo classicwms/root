@@ -54,9 +54,11 @@ public class AgreementService {
 		GAgreement gAgreement = new GAgreement();
 		BeanUtils.copyProperties(agreement.get(),gAgreement, CommonUtils.getNullPropertyNames(agreement));
 		gAgreement.setReferenceField4(agreementRepository.getStoreNumber(gAgreement.getAgreementNumber()));
+		gAgreement.setReferenceField5(agreementRepository.getStoreSize(gAgreement.getAgreementNumber()));
+		gAgreement.setReferenceField6(agreementRepository.getStoreLocation(gAgreement.getAgreementNumber()));
 		gAgreement.setStoreNumbers(new ArrayList<>());
-		for(StoreNumber tmpStoreNumber : agreement.get().getStoreNumbers()){
-			gAgreement.getStoreNumbers().add(tmpStoreNumber.getStoreNumber());
+		for(StoreNumber newStoreNumber : agreement.get().getStoreNumbers()){
+			gAgreement.getStoreNumbers().add(newStoreNumber);
 		}
 		return gAgreement;
 	}
@@ -91,7 +93,7 @@ public class AgreementService {
 
 		savedAgreement.setStoreNumbers(new HashSet<>());
 			if(newAgreement.getStoreNumbers()!=null) {
-				for (String newStoreNumber : newAgreement.getStoreNumbers()) {
+				for (StoreNumber newStoreNumber : newAgreement.getStoreNumbers()) {
 					StoreNumber dbStoreNumber = new StoreNumber();
 					BeanUtils.copyProperties(newStoreNumber, dbStoreNumber, CommonUtils.getNullPropertyNames(newStoreNumber));
 					dbStoreNumber.setDeletionIndicator(0L);
@@ -100,7 +102,7 @@ public class AgreementService {
 					dbStoreNumber.setCreatedOn(new Date());
 					dbStoreNumber.setUpdatedOn(new Date());
 					dbStoreNumber.setAgreementNumber(savedAgreement.getAgreementNumber());
-					dbStoreNumber.setStoreNumber(newStoreNumber);
+					//dbStoreNumber.setStoreNumber(newStoreNumber);
 					StoreNumber savedStoreNumber = storeNumberRepository.save(dbStoreNumber);
 					savedAgreement.getStoreNumbers().add(savedStoreNumber);
 				}
@@ -134,16 +136,16 @@ public class AgreementService {
 				storeNumberService.deleteStoreNumber(agreementNumber, loginUserId);
 			}
 
-			for (String newStoreNumber : updateAgreement.getStoreNumbers()) {
+			for (StoreNumber newStoreNumber : updateAgreement.getStoreNumbers()) {
 				StoreNumber dbStoreNumber = new StoreNumber();
 				BeanUtils.copyProperties(newStoreNumber, dbStoreNumber, CommonUtils.getNullPropertyNames(newStoreNumber));
 				dbStoreNumber.setDeletionIndicator(0L);
 				dbStoreNumber.setCreatedOn(new Date());
-				dbStoreNumber.setUpdatedBy(loginUserId);
+				dbStoreNumber.setCreatedBy(loginUserId);
 				dbStoreNumber.setUpdatedBy(loginUserId);
 				dbStoreNumber.setUpdatedOn(new Date());
 				dbStoreNumber.setAgreementNumber(savedAgreement.getAgreementNumber());
-				dbStoreNumber.setStoreNumber(newStoreNumber);
+				//dbStoreNumber.setStoreNumber(newStoreNumber);
 				StoreNumber savedStoreNumber = storeNumberRepository.save(dbStoreNumber);
 				savedAgreement.getStoreNumbers().add(savedStoreNumber);
 			}
@@ -186,9 +188,12 @@ public class AgreementService {
 			GAgreement newGAgreement = new GAgreement();
 			BeanUtils.copyProperties(dbAgreement, newGAgreement, CommonUtils.getNullPropertyNames(dbAgreement));
 			newGAgreement.setReferenceField4(agreementRepository.getStoreNumber(newGAgreement.getAgreementNumber()));
+			newGAgreement.setReferenceField5(agreementRepository.getStoreSize(newGAgreement.getAgreementNumber()));
+			newGAgreement.setReferenceField6(agreementRepository.getStoreLocation(newGAgreement.getAgreementNumber()));
 			newGAgreement.setStoreNumbers(new ArrayList<>());
 			for (StoreNumber newstoreNumber : dbAgreement.getStoreNumbers()) {
-				newGAgreement.getStoreNumbers().add(newstoreNumber.getStoreNumber());
+				//newGAgreement.getStoreNumbers().add(newstoreNumber.getStoreNumber());
+				newGAgreement.getStoreNumbers().add(newstoreNumber);
 			}
 			gAgreement.add(newGAgreement);
 		}

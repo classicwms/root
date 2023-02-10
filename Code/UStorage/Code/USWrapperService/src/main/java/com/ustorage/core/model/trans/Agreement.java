@@ -25,7 +25,7 @@ public class Agreement {
 	private String location;
 	private List<StoreNumber> storeNumbers;
 	//private String StoreNumbers;
-	private String size;
+	//private List<StoreNumber> size;
 	private String insurance;
 	private String rent;
 	private String rentPeriod;

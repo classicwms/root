@@ -37,9 +37,9 @@ public class GAgreement {
 
 	private String location;
 
-	private List<String> storeNumbers;
+	private List<StoreNumber> storeNumbers;
 
-	private String size;
+	//private List<String> size;
 
 	private String insurance;
 

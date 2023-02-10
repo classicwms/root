@@ -8,7 +8,6 @@ import java.util.Date;
 public class AddStoreNumber {
 
     private String storeNumber;
-    private String agreementNumber;
-    //private String description;
-    //private Long deletionIndicator = 0L;
+    private String size;
+
 }

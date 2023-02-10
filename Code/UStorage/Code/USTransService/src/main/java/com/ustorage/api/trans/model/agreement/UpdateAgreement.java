@@ -42,7 +42,7 @@ public class UpdateAgreement {
 	private String location;
 
 
-	private String size;
+	//private List<String> size;
 
 	private String insurance;
 
@@ -60,7 +60,7 @@ public class UpdateAgreement {
 
 	private String notes;
 
-	private List<String> storeNumbers;
+	private List<StoreNumber> storeNumbers;
 	//private String StoreNumbers;
 
 	private String email;

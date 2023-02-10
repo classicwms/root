@@ -73,8 +73,10 @@ public class Agreement {
 	@Column(name = "LOCATION")
 	private String location;
 
-	@Column(name = "SIZE")
-	private String size;
+	//@Column(name = "SIZE")
+	//private String size;
+	@OneToMany(cascade = CascadeType.ALL,mappedBy = "agreementNumber",fetch = FetchType.EAGER)
+	private Set<StoreNumber> size;
 	
 	@Column(name = "INSURANCE")
 	private String insurance;

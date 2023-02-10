@@ -20,5 +20,4 @@ public interface StoreNumberRepository extends JpaRepository<StoreNumber, Long>,
 
 
     List<StoreNumber> findByAgreementNumberAndDeletionIndicator(String agreementNumber, long l);
-
 }

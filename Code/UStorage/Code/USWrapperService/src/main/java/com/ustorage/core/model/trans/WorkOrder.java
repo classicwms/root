@@ -35,7 +35,7 @@ public class WorkOrder {
 	private String fromAddress;
 	private String toAddress;
 	private Set<ItemService> itemServices;
-
+	private String workOrderProcessedBy;
 	private Long deletionIndicator = 0L;
 	private String referenceField1;
 	private String referenceField2;

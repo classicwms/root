@@ -25,4 +25,12 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>,
 			+ "(COALESCE(:workOrderId,null) IS NULL OR (tblworkorder.WORK_ORDER_ID IN (:workOrderId))) and \r\n"
 			+ "tblleadcustomer.IS_DELETED=0 AND tblworkorder.IS_DELETED=0", nativeQuery = true)
 	public String getCustomerName(@Param("workOrderId") String workOrderId);
+
+	@Query(value = "select STRING_AGG(twp.processed_by,', ') \n" +
+			"from tblwoprocessedbyteam twp \n" +
+			"join tblworkorder tw on tw.work_order_id=twp.work_order_id\n"+
+			" where \n" +
+			"(COALESCE(:workOrderId,null) IS NULL OR (tw.work_order_id IN (:workOrderId))) and\n"+
+			"twp.is_deleted=0 ",nativeQuery = true)
+	public String getProcessedBy(@Param("workOrderId") String workOrderId);
 }

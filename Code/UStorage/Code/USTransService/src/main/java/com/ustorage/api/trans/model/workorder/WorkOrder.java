@@ -93,6 +93,8 @@ public class WorkOrder {
 	@OneToMany(cascade = CascadeType.ALL,mappedBy = "workOrderId",fetch = FetchType.EAGER)
 	private Set<ItemService> itemServices;
 
+	private String workOrderProcessedBy;
+
 	@Column(name = "IS_DELETED")
 	private Long deletionIndicator = 0L;
 

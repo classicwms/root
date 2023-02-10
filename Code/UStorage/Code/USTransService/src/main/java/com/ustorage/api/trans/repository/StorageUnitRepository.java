@@ -17,4 +17,6 @@ public interface StorageUnitRepository extends JpaRepository<StorageUnit, Long>,
 	public List<StorageUnit> findAll();
 
 	public Optional<StorageUnit> findByItemCodeAndDeletionIndicator(String itemCode, long l);
+
+	public Optional<StorageUnit> findByCodeIdAndDeletionIndicator(String codeId, long l);
 }

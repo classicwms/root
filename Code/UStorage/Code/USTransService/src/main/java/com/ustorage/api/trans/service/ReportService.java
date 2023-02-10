@@ -39,8 +39,9 @@ public class ReportService {
 
 		if (workOrderStatus.getStartDate() != null &&
 				workOrderStatus.getEndDate() != null) {
-			Date[] dates = DateUtils.addTimeToDatesForSearch(workOrderStatus.getStartDate(),
-					workOrderStatus.getEndDate());
+
+			Date[] dates = DateUtils.addTimeToDatesForSearch(workOrderStatus.getStartDate(), workOrderStatus.getEndDate());
+			log.info("dates------>: " + dates[0] + "----" + dates[1]);
 			workOrderStatus.setStartDate(dates[0]);
 			workOrderStatus.setEndDate(dates[1]);
 		}
@@ -198,6 +199,13 @@ public class ReportService {
 			if (paymentDueStatus.getCivilId() == null||paymentDueStatus.getCivilId().isEmpty()) {
 				paymentDueStatus.setCivilId(null);
 			}
+			if (paymentDueStatus.getStartDate() != null &&
+					paymentDueStatus.getEndDate() != null) {
+				Date[] dates = DateUtils.addTimeToDatesForSearch(paymentDueStatus.getStartDate(),
+						paymentDueStatus.getEndDate());
+				paymentDueStatus.setStartDate(dates[0]);
+				paymentDueStatus.setEndDate(dates[1]);
+			}
 		}
 		List<PaymentDueStatusReportImpl> data = reportRepository.getPaymentDueStatus(paymentDueStatus.getAgreementNumber(),
 				paymentDueStatus.getCustomerName(),
@@ -216,6 +224,14 @@ public class ReportService {
 		DocumentStatus documentStatus = new DocumentStatus();
 
 		if(documentStatus!=null) {
+			if (documentStatusInput.getStartDate() != null &&
+					documentStatusInput.getEndDate() != null) {
+				Date[] dates = DateUtils.addTimeToDatesForSearch(documentStatusInput.getStartDate(),
+						documentStatusInput.getEndDate());
+				documentStatusInput.setStartDate(dates[0]);
+				documentStatusInput.setEndDate(dates[1]);
+			}
+
 			if (documentStatusInput.getCustomerCode() == null || documentStatusInput.getCustomerCode().isEmpty()) {
 				documentStatusInput.setCustomerCode(null);
 			}

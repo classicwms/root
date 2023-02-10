@@ -11,6 +11,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import com.ustorage.api.trans.model.storenumber.AddStoreNumber;
+import com.ustorage.api.trans.model.storenumber.StoreNumber;
 import lombok.Data;
 
 @Data
@@ -44,10 +45,10 @@ public class AddAgreement {
 
 	private String location;
 
-	private List<String> storeNumbers;
+	private List<StoreNumber> storeNumbers;
 	//private String StoreNumbers;
 
-	private String size;
+	//private List<String> size;
 
 	private String insurance;
 

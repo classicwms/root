@@ -26,6 +26,8 @@ public class StoreNumberSpecification implements Specification<StoreNumber> {
 			final Path<Group> group = root.<Group>get("storeNumber");
 			predicates.add(group.in(findStoreNumber.getStoreNumber()));
 		}
+		// Deletion Indicator
+		predicates.add(cb.equal(root.get("deletionIndicator"), 0L));
 
 		return cb.and(predicates.toArray(new Predicate[] {}));
 

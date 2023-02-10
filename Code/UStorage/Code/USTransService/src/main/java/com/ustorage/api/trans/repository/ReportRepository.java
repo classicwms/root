@@ -182,7 +182,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 					"(COALESCE(:storeNumber,null) IS NULL OR (tblstorageunit.ITEM_CODE IN (:storeNumber))) and \n"+
 					"(COALESCE(:storageType,null) IS NULL OR (tblstorageunit.STORAGE_TYPE IN (:storageType))) and \n"+
 					"(COALESCE(:availability,null) IS NULL OR (tblstorageunit.AVAILABILITY IN (:availability))) and \n"+
-					"tblstorageunit.is_deleted=0 ",nativeQuery = true)
+					"tblstorageunit.is_deleted=0 and tblagreement.is_deleted is null or tblagreement.is_deleted=0",nativeQuery = true)
 	public List<FillrateStatusImpl> getFillrateStatus(
 			@Param(value ="phase") List<String> phase,
 			@Param(value = "storeNumber") List<String> storeNumber,
