@@ -422,12 +422,7 @@ public class PutAwayLineService extends BaseService {
 								addedAcceptQty = createdPutAwayLine.getPutawayConfirmedQty();
 							}
 							
-							if (addedAcceptQty == createdPutAwayLine.getPutawayConfirmedQty() && 
-									createdPutAwayLine.getStatusId() == 20L){
-								inboundLine.setAcceptedQty(addedAcceptQty);
-							} else {
-								inboundLine.setAcceptedQty(createdPutAwayLine.getPutawayConfirmedQty());
-							}
+							inboundLine.setAcceptedQty(addedAcceptQty);
 						}
 						
 						// if QTY_TYPE = D, add PA_CNF_QTY with existing value in DAMAGE_QTY field
@@ -438,12 +433,7 @@ public class PutAwayLineService extends BaseService {
 								addedDamageQty = createdPutAwayLine.getPutawayConfirmedQty();
 							}
 							
-							if (addedDamageQty == createdPutAwayLine.getPutawayConfirmedQty() && 
-									createdPutAwayLine.getStatusId() == 20L){
-								inboundLine.setDamageQty(addedDamageQty);
-							} else {
-								inboundLine.setDamageQty(createdPutAwayLine.getPutawayConfirmedQty());
-							}
+							inboundLine.setDamageQty(addedDamageQty);
 						}
 						
 						inboundLine.setStatusId(20L);
