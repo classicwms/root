@@ -12,6 +12,9 @@ public class UpdatePaymentVoucher {
 	private String codeId;
 
 	private String storeNumber;
+	private String storeName;
+	private String phase;
+
 
 	private String customerName;
 

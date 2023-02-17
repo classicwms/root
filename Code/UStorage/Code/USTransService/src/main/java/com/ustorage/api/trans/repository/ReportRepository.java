@@ -155,34 +155,31 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 					@Param(value = "sbu") List<String> sbu);
 
 	//FillrateStatus Report
-	@Query(value = "select distinct\n"+
-			"tblagreement.AGREEMENT_NUMBER as agreementNumber, \n"+
-			"tblstorageunit.code_id as storeId, \n"+
-			"tblstorageunit.PHASE as phase, \n"+
-			"tblstorageunit.ZONE as zone, \n"+
-			"tblstorageunit.ROOM as room, \n"+
-			"tblstorageunit.RACK as rack, \n"+
-			"tblstorageunit.STORAGE_TYPE  as storageType, \n"+
-			"tblstorageunit.BIN as bin, \n"+
-			"tblstorageunit.ITEM_CODE as storeNumber, \n"+
-			"tblstorageunit.PRICE_METER_SQAURE as priceMeterSquare, \n"+
-			"tblstorageunit.AVAILABILITY as status, \n"+
-			"tblstorageunit.store_size_meter_sqaure as storeSizeMeterSquare, \n"+
-			"tblleadcustomer.CUSTOMER_CODE as customerCode, \n"+
-			"tblleadcustomer.CUSTOMER_NAME as customerName, \n"+
-			"tblleadcustomer.MOBILE_NUMBER as mobileNumber, \n"+
-			"tblleadcustomer.PHONE_NUMBER as phoneNumber, \n"+
-			"tblstorageunit.REF_FIELD_2 as notes \n"+
-			"from tblstorageunit  \n"+
-			"left join tblstorenumber on tblstorenumber.STORE_NUMBER=tblstorageunit.ITEM_CODE \n"+
-			"left join tblagreement on tblagreement.AGREEMENT_NUMBER=tblstorenumber.AGREEMENT_NUMBER \n"+
-			"left join tblleadcustomer on tblleadcustomer.CUSTOMER_CODE=tblagreement.CUSTOMER_NAME \n"+
-			"where \n" +
-			"(COALESCE(:phase,null) IS NULL OR (tblstorageunit.PHASE IN (:phase))) and \n"+
-			"(COALESCE(:storeNumber,null) IS NULL OR (tblstorageunit.ITEM_CODE IN (:storeNumber))) and \n"+
-			"(COALESCE(:storageType,null) IS NULL OR (tblstorageunit.STORAGE_TYPE IN (:storageType))) and \n"+
-			"(COALESCE(:availability,null) IS NULL OR (tblstorageunit.AVAILABILITY IN (:availability))) and \n"+
-			"tblstorageunit.is_deleted=0 ",nativeQuery = true)
+	@Query(value = "select distinct \n"+
+			"(select string_agg(x5.agreement_number,', ') from (select distinct ta.agreement_number from tblstorenumber ts1 left join tblagreement ta on ta.agreement_number=ts1.agreement_number where ta.is_deleted=0 and ts1.is_deleted=0 and ta.status!='Closed' and ts1.store_number=tsu.item_code) x5) agreementNumber,\n"+
+			"tsu.code_id storeNumber,tsu.item_code storeId, \n"+
+			"tsu.PHASE as phase, \n"+
+			"tsu.ZONE as zone, \n"+
+			"tsu.ROOM as room, \n"+
+			"tsu.RACK as rack, \n"+
+			"tsu.STORAGE_TYPE as storageType, \n"+
+			"tsu.BIN as bin, \n"+
+			"tsu.PRICE_METER_SQAURE as priceMeterSquare, \n"+
+			"tsu.AVAILABILITY as status, \n"+
+			"tsu.store_size_meter_sqaure as storeSizeMeterSquare, \n"+
+			"tsu.REF_FIELD_2 as notes, \n"+
+			"(select string_agg(x.customer_code,', ') from (select distinct tl.customer_code from tblleadcustomer tl join tblagreement ta on ta.customer_name=tl.customer_code join tblstorenumber ts2 on ta.agreement_number=ts2.agreement_number where ta.is_deleted=0 and ts2.is_deleted=0 and ta.status!='Closed' and ts2.store_number=tsu.item_code) x) customerCode, \n"+
+			"(select string_agg(x1.customer_name,', ') from (select distinct tl.customer_name from tblleadcustomer tl join tblagreement ta on ta.customer_name=tl.customer_code join tblstorenumber ts2 on ta.agreement_number=ts2.agreement_number where ta.is_deleted=0 and ts2.is_deleted=0 and ta.status!='Closed' and ts2.store_number=tsu.item_code) x1) customerName, \n"+
+			"(select string_agg(x2.mobile_number,', ') from (select distinct tl.mobile_number from tblleadcustomer tl join tblagreement ta on ta.customer_name=tl.customer_code join tblstorenumber ts2 on ta.agreement_number=ts2.agreement_number where ta.is_deleted=0 and ts2.is_deleted=0 and ta.status!='Closed' and ts2.store_number=tsu.item_code) x2) mobileNumber, \n"+
+			"(select string_agg(x3.phone_number,', ') from (select distinct tl.phone_number from tblleadcustomer tl join tblagreement ta on ta.customer_name=tl.customer_code join tblstorenumber ts2 on ta.agreement_number=ts2.agreement_number where ta.is_deleted=0 and ts2.is_deleted=0 and ta.status!='Closed' and ts2.store_number=tsu.item_code) x3) phoneNumber \n"+
+			"from tblstorageunit tsu \n"+
+			"left join tblstorenumber ts on ts.store_number=tsu.item_code \n"+
+			"where \n"+
+			"(COALESCE(:phase,null) IS NULL OR (tsu.PHASE IN (:phase))) and \n"+
+			"(COALESCE(:storeNumber,null) IS NULL OR (tsu.ITEM_CODE IN (:storeNumber))) and \n"+
+			"(COALESCE(:storageType,null) IS NULL OR (tsu.STORAGE_TYPE IN (:storageType))) and \n"+
+			"(COALESCE(:availability,null) IS NULL OR (tsu.AVAILABILITY IN (:availability))) and \n"+
+			"tsu.is_deleted=0",nativeQuery = true)
 	public List<FillrateStatusImpl> getFillrateStatus(
 			@Param(value ="phase") List<String> phase,
 			@Param(value = "storeNumber") List<String> storeNumber,

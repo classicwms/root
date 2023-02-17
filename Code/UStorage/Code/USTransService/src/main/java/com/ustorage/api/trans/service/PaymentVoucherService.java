@@ -53,6 +53,9 @@ public class PaymentVoucherService {
 		}
 		GPaymentVoucher dbPaymentVoucher = new GPaymentVoucher();
 		BeanUtils.copyProperties(paymentVoucher.get(),dbPaymentVoucher,CommonUtils.getNullPropertyNames(paymentVoucher.get()));
+		if(dbPaymentVoucher.getStoreNumber()!=null){
+			dbPaymentVoucher.setStoreName(paymentVoucherRepository.getStoreNumber(dbPaymentVoucher.getStoreNumber()));
+		}
 		dbPaymentVoucher.setReferenceField3(new ArrayList<>());
 		for(ReferenceField3 dbReferenceField3 : paymentVoucher.get().getReferenceField3()){
 			dbPaymentVoucher.getReferenceField3().add(dbReferenceField3.getProcessedBy());
@@ -181,6 +184,9 @@ public class PaymentVoucherService {
 		for (PaymentVoucher dbPaymentVoucher : results) {
 			GPaymentVoucher newGPaymentVoucher = new GPaymentVoucher();
 			BeanUtils.copyProperties(dbPaymentVoucher, newGPaymentVoucher, CommonUtils.getNullPropertyNames(dbPaymentVoucher));
+			if(newGPaymentVoucher.getStoreNumber()!=null){
+				newGPaymentVoucher.setStoreName(paymentVoucherRepository.getStoreNumber(newGPaymentVoucher.getStoreNumber()));
+			}
 			newGPaymentVoucher.setReferenceField3(new ArrayList<>());
 			for (ReferenceField3 newReferenceField3 : dbPaymentVoucher.getReferenceField3()) {
 				newGPaymentVoucher.getReferenceField3().add(newReferenceField3.getProcessedBy());

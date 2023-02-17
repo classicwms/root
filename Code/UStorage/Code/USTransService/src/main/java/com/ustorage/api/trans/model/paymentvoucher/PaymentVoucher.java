@@ -36,6 +36,12 @@ public class PaymentVoucher {
 			
 	@Column(name = "STORE_NUMBER")
 	private String storeNumber;
+
+	@Column(name = "STORE_NAME")
+	private String storeName;
+
+	@Column(name = "PHASE")
+	private String phase;
 	
 	@Column(name = "CUSTOMER_NAME")
 	private String customerName;

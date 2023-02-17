@@ -21,6 +21,8 @@ public class AddPaymentVoucher {
 	private String customerName;
 
 	private String contractNumber;
+	private String storeName;
+	private String phase;
 
 	private String sbu;
 
