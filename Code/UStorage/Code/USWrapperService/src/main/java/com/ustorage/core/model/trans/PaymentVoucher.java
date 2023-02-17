@@ -14,6 +14,8 @@ public class PaymentVoucher {
 	private String serviceType;
 	private String sbu;
 	private String storeNumber;
+	private String storeName;
+	private String phase;
 	private String customerName;
 	private String contractNumber;
 	private String period;
