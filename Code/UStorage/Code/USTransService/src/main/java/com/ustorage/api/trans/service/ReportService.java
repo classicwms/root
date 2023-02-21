@@ -178,45 +178,47 @@ public class ReportService {
 	}
 
 	//--------------------------------------------Payment Due Status------------------------------------------------------------------------
-	public List<PaymentDueStatusReportImpl> getPaymentDueStatus(PaymentDueStatus paymentDueStatus) throws ParseException {
-
-		if(paymentDueStatus!=null) {
-			if (paymentDueStatus.getAgreementNumber() == null||paymentDueStatus.getAgreementNumber().isEmpty()) {
-				paymentDueStatus.setAgreementNumber(null);
-			}
-			if (paymentDueStatus.getCustomerName() == null||paymentDueStatus.getCustomerName().isEmpty()) {
-				paymentDueStatus.setCustomerName(null);
-			}
-			if (paymentDueStatus.getCustomerCode() == null||paymentDueStatus.getCustomerCode().isEmpty()) {
-				paymentDueStatus.setCustomerCode(null);
-			}
-			if (paymentDueStatus.getPhoneNumber() == null||paymentDueStatus.getPhoneNumber().isEmpty()) {
-				paymentDueStatus.setPhoneNumber(null);
-			}
-			if (paymentDueStatus.getSecondaryNumber() == null||paymentDueStatus.getSecondaryNumber().isEmpty()) {
-				paymentDueStatus.setSecondaryNumber(null);
-			}
-			if (paymentDueStatus.getCivilId() == null||paymentDueStatus.getCivilId().isEmpty()) {
-				paymentDueStatus.setCivilId(null);
-			}
-			if (paymentDueStatus.getStartDate() != null &&
-					paymentDueStatus.getEndDate() != null) {
-				Date[] dates = DateUtils.addTimeToDatesForSearch(paymentDueStatus.getStartDate(),
-						paymentDueStatus.getEndDate());
-				paymentDueStatus.setStartDate(dates[0]);
-				paymentDueStatus.setEndDate(dates[1]);
-			}
-		}
-		List<PaymentDueStatusReportImpl> data = reportRepository.getPaymentDueStatus(paymentDueStatus.getAgreementNumber(),
-				paymentDueStatus.getCustomerName(),
-				paymentDueStatus.getCustomerCode(),
-				paymentDueStatus.getPhoneNumber(),
-				paymentDueStatus.getSecondaryNumber(),
-				paymentDueStatus.getCivilId(),
-				paymentDueStatus.getStartDate(),
-				paymentDueStatus.getEndDate());
-		return data;
-	}
+//	public List<PaymentDueStatusReportImpl> getPaymentDueStatus(PaymentDueStatus paymentDueStatus) throws ParseException {
+//
+//		if(paymentDueStatus!=null) {
+//			if (paymentDueStatus.getAgreementNumber() == null||paymentDueStatus.getAgreementNumber().isEmpty()) {
+//				paymentDueStatus.setAgreementNumber(null);
+//			}
+//			if (paymentDueStatus.getCustomerName() == null||paymentDueStatus.getCustomerName().isEmpty()) {
+//				paymentDueStatus.setCustomerName(null);
+//			}
+//			if (paymentDueStatus.getCustomerCode() == null||paymentDueStatus.getCustomerCode().isEmpty()) {
+//				paymentDueStatus.setCustomerCode(null);
+//			}
+//			if (paymentDueStatus.getPhoneNumber() == null||paymentDueStatus.getPhoneNumber().isEmpty()) {
+//				paymentDueStatus.setPhoneNumber(null);
+//			}
+//			if (paymentDueStatus.getSecondaryNumber() == null||paymentDueStatus.getSecondaryNumber().isEmpty()) {
+//				paymentDueStatus.setSecondaryNumber(null);
+//			}
+//			if (paymentDueStatus.getCivilId() == null||paymentDueStatus.getCivilId().isEmpty()) {
+//				paymentDueStatus.setCivilId(null);
+//			}
+//			if (paymentDueStatus.getStartDate() != null &&
+//					paymentDueStatus.getEndDate() != null) {
+//				Date[] dates = DateUtils.addTimeToDatesForSearch(paymentDueStatus.getStartDate(),
+//						paymentDueStatus.getEndDate());
+//				paymentDueStatus.setStartDate(dates[0]);
+//				paymentDueStatus.setEndDate(dates[1]);
+//			}
+//		}
+//		List<PaymentDueStatusReportImpl> data = reportRepository.getPaymentDueStatus(paymentDueStatus.getAgreementNumber(),
+//				paymentDueStatus.getCustomerName(),
+//				paymentDueStatus.getCustomerCode(),
+//				paymentDueStatus.getPhoneNumber(),
+//				paymentDueStatus.getSecondaryNumber(),
+//				paymentDueStatus.getCivilId(),
+//				paymentDueStatus.getStartDate(),
+//				paymentDueStatus.getEndDate());
+//
+//
+//		return data;
+//	}
 
 	//--------------------------------------------Document Status Report------------------------------------------------------------------------
 	public DocumentStatus getDocumentStatus(DocumentStatusInput documentStatusInput) throws ParseException {
@@ -1096,6 +1098,125 @@ public class ReportService {
 		leadAndCustomer.setUlCustomer(ucustomerCount.getCount());
 
 		return leadAndCustomer;
+	}
+
+
+	//--------------------------------------------Payment Due Status------------------------------------------------------------------------
+	public PaymentDueStatusReport getPaymentDue(PaymentDueStatus paymentDueStatus) throws ParseException {
+
+		if (paymentDueStatus != null) {
+
+			if (paymentDueStatus.getCustomerName() == null || paymentDueStatus.getCustomerName().isEmpty()) {
+				paymentDueStatus.setCustomerName(null);
+			}
+			if (paymentDueStatus.getCustomerCode() == null || paymentDueStatus.getCustomerCode().isEmpty()) {
+				paymentDueStatus.setCustomerCode(null);
+			}
+			if (paymentDueStatus.getPhoneNumber() == null || paymentDueStatus.getPhoneNumber().isEmpty()) {
+				paymentDueStatus.setPhoneNumber(null);
+			}
+			if (paymentDueStatus.getSecondaryNumber() == null || paymentDueStatus.getSecondaryNumber().isEmpty()) {
+				paymentDueStatus.setSecondaryNumber(null);
+			}
+			if (paymentDueStatus.getCivilId() == null || paymentDueStatus.getCivilId().isEmpty()) {
+				paymentDueStatus.setCivilId(null);
+			}
+			if (paymentDueStatus.getAgreementNumber() == null || paymentDueStatus.getAgreementNumber().isEmpty()) {
+				paymentDueStatus.setAgreementNumber(null);
+			}
+			if (paymentDueStatus.getStoreNumber() == null || paymentDueStatus.getStoreNumber().isEmpty()) {
+				paymentDueStatus.setStoreNumber(null);
+			}
+		}
+		PaymentDueStatusReport paymentDueStatusReport = new PaymentDueStatusReport();
+
+		List<ICustomerDropDown> customerName = reportRepository.getClientList(paymentDueStatus.getCustomerCode(),
+				paymentDueStatus.getCustomerName(),
+				paymentDueStatus.getCivilId(),
+				paymentDueStatus.getPhoneNumber(),
+				paymentDueStatus.getSecondaryNumber());
+
+//		List<CustomerDetailReport> customerDetailReports = new ArrayList<>();
+
+		List<AgreementDetail> agreementDetailList = new ArrayList<>();
+		for (ICustomerDropDown iCustomerDropDown : customerName) {
+//			CustomerDetailReport customerDetailReport = new CustomerDetailReport();
+
+//			customerDetailReport.setCustomerCode(iCustomerDropDown.getCustomerCode());
+//			customerDetailReport.setCustomerName(iCustomerDropDown.getCustomerName());
+//			customerDetailReport.setCivilId(iCustomerDropDown.getCivilId());
+//			customerDetailReport.setMobileNumber(iCustomerDropDown.getMobileNumber());
+//			customerDetailReport.setPhoneNumber(iCustomerDropDown.getPhoneNumber());
+
+			List<IKeyValuePair> agmtNo = reportRepository.getAgreementList(iCustomerDropDown.getCustomerCode());
+
+			AgreementDetail agreementDetail = null;
+			if (agmtNo != null && !agmtNo.isEmpty()) {
+				for (IKeyValuePair iKeyValuePair : agmtNo) {
+					List<IStorageValuePair> lastPaidDate = reportRepository.getLastPaidDate(iKeyValuePair.getDocumentNumber());
+					for (IStorageValuePair tmp : lastPaidDate) {
+						agreementDetail = new AgreementDetail();
+						agreementDetail.setAgreementNumber(iKeyValuePair.getDocumentNumber());
+						agreementDetail.setAgreementStatus("Agreement Open");
+
+						IStorageValuePair iStorageValuePair = reportRepository.getStorageUnitList(iKeyValuePair.getDocumentNumber(), tmp.getStoreNumber(), tmp.getLastPaidDate());
+						IPaymentDue iPaymentDue = reportRepository.getPaymentDueList(iKeyValuePair.getDocumentNumber(), tmp.getStoreNumber(), tmp.getLastPaidDate(), paymentDueStatus.getDueStatus());
+
+						if (iStorageValuePair != null) {
+							agreementDetail.setStoreNumber(iStorageValuePair.getStoreNumber());
+							agreementDetail.setSize(iStorageValuePair.getSize());
+							agreementDetail.setStorageType(iStorageValuePair.getStorageType());
+							agreementDetail.setPhase(iStorageValuePair.getPhase());
+							agreementDetail.setDueAmount(iPaymentDue.getDueAmount());
+							agreementDetail.setDueDate(iPaymentDue.getDueDate());
+							agreementDetail.setDueDays(iPaymentDue.getDueDays());
+							agreementDetail.setDueStatus(iPaymentDue.getDueStatus());
+							agreementDetail.setModeOfPayment(iPaymentDue.getModeOfPayment());
+							agreementDetail.setLastPaidDate(iPaymentDue.getLastPaidDate());
+							agreementDetail.setRentPeriod(iPaymentDue.getRentPeriod());
+							agreementDetail.setStartDate(iPaymentDue.getStartDate());
+							agreementDetail.setEndDate(iPaymentDue.getEndDate());
+							agreementDetail.setLastPaidVoucherAmount(iPaymentDue.getLastPaidVoucherAmount());
+							agreementDetail.setCustomerCode(iCustomerDropDown.getCustomerCode());
+							agreementDetail.setCustomerName(iCustomerDropDown.getCustomerName());
+							agreementDetail.setCivilId(iCustomerDropDown.getCivilId());
+							agreementDetail.setMobileNumber(iCustomerDropDown.getMobileNumber());
+							agreementDetail.setPhoneNumber(iCustomerDropDown.getPhoneNumber());
+						} else {
+							agreementDetail.setStoreNumber(null);
+							agreementDetail.setSize(null);
+							agreementDetail.setStorageType(null);
+							agreementDetail.setPhase(null);
+							agreementDetail.setCustomerCode(iCustomerDropDown.getCustomerCode());
+							agreementDetail.setCustomerName(iCustomerDropDown.getCustomerName());
+							agreementDetail.setCivilId(iCustomerDropDown.getCivilId());
+							agreementDetail.setMobileNumber(iCustomerDropDown.getMobileNumber());
+							agreementDetail.setPhoneNumber(iCustomerDropDown.getPhoneNumber());
+						}
+						agreementDetailList.add(agreementDetail);
+					}
+				}
+			}
+//			else {
+//				agreementDetail = new AgreementDetail();
+//				agreementDetail.setAgreementNumber(null);
+//				agreementDetail.setAgreementStatus("No Active Agreement Present");
+//				agreementDetail.setCustomerCode(iCustomerDropDown.getCustomerCode());
+//				agreementDetail.setCustomerName(iCustomerDropDown.getCustomerName());
+//				agreementDetail.setCivilId(iCustomerDropDown.getCivilId());
+//				agreementDetail.setMobileNumber(iCustomerDropDown.getMobileNumber());
+//				agreementDetail.setPhoneNumber(iCustomerDropDown.getPhoneNumber());
+//				agreementDetailList.add(agreementDetail);
+//			}
+
+
+//			customerDetailReport.setAgreementDetails(agreementDetails);
+//			customerDetailReports.add(customerDetailReport);
+		}
+//		paymentDueStatusReport.setCustomerDetails(customerDetailReports);
+		paymentDueStatusReport.setAgreementDetails(agreementDetailList);
+
+		return paymentDueStatusReport;
 	}
 
 }

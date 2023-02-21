@@ -758,11 +758,19 @@ public class TransController {
 		return new ResponseEntity<>(data, HttpStatus.OK);
 	}
 	//Payment Due Status report
-	@ApiOperation(response = Optional.class, value = "Report_Payment_Due_Status") // label for swagger
+//	@ApiOperation(response = Optional.class, value = "Report_Payment_Due_Status") // label for swagger
+//	@PostMapping("/reports/paymentDueStatusReport")
+//	public ResponseEntity<?> getPaymentDueStatus (@RequestBody PaymentDueStatus paymentDueStatus, @RequestParam String authToken)
+//			throws Exception {
+//		PaymentDueStatusReport[] data = transService.getPaymentDueStatus(paymentDueStatus,authToken);
+//		return new ResponseEntity<>(data, HttpStatus.OK);
+//	}
+	//Payment Due Status report-new
+	@ApiOperation(response = Optional.class, value = "Report_Payment_Due_Status_Report") // label for swagger
 	@PostMapping("/reports/paymentDueStatusReport")
-	public ResponseEntity<?> getPaymentDueStatus (@RequestBody PaymentDueStatus paymentDueStatus, @RequestParam String authToken)
+	public ResponseEntity<?> getPaymentDueStatusReport (@RequestBody PaymentDueStatus paymentDueStatus, @RequestParam String authToken)
 			throws Exception {
-		PaymentDueStatusReport[] data = transService.getPaymentDueStatus(paymentDueStatus,authToken);
+		PaymentDueStatusReportOutput data = transService.getPaymentDueStatusReport(paymentDueStatus,authToken);
 		return new ResponseEntity<>(data, HttpStatus.OK);
 	}
 

@@ -3,9 +3,7 @@ package com.ustorage.api.trans.repository;
 import com.ustorage.api.trans.model.agreement.Agreement;
 import com.ustorage.api.trans.model.impl.*;
 import com.ustorage.api.trans.model.leadcustomer.LeadCustomer;
-import com.ustorage.api.trans.model.reports.ICustomerDropDown;
-import com.ustorage.api.trans.model.reports.IKeyValuePair;
-import com.ustorage.api.trans.model.reports.IStorageDropDown;
+import com.ustorage.api.trans.model.reports.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -645,4 +643,112 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			@Param(value ="startDate") Date startDate,
 			@Param(value ="endDate") Date endDate);
 
+
+	//Payment Due Status Report-Part1
+	@Query (value = "SELECT distinct tl.CUSTOMER_CODE customerCode, \r\n"
+			+ "tl.CIVIL_ID as civilId, \r\n"
+			+ "tl.MOBILE_NUMBER as mobileNumber, \r\n"
+			+ "tl.PHONE_NUMBER as phoneNumber, \r\n"
+			+ "tl.CUSTOMER_NAME customerName \r\n"
+			+ "FROM tblleadcustomer tl \r\n "
+			+ "WHERE \n"
+			+ "(COALESCE(:customerCode,null) IS NULL OR (tl.CUSTOMER_CODE IN (:customerCode))) and \n"
+			+ "(COALESCE(:customerName,null) IS NULL OR (tl.CUSTOMER_NAME IN (:customerName))) and \n"
+			+ "(COALESCE(:civilId,null) IS NULL OR (tl.CIVIL_ID IN (:civilId))) and \n"
+			+ "(COALESCE(:phoneNumber,null) IS NULL OR (tl.MOBILE_NUMBER IN (:phoneNumber))) and \n"
+			+ "(COALESCE(:secondaryNumber,null) IS NULL OR (tl.PHONE_NUMBER IN (:secondaryNumber))) and \n"
+			+ "tl.IS_DELETED = 0", nativeQuery = true)
+	public List<ICustomerDropDown> getClientList (
+			@Param(value = "customerCode") List<String> customerCode,
+			@Param(value = "customerName") List<String> customerName,
+			@Param(value = "civilId") List<String> civilId,
+			@Param(value = "phoneNumber") List<String> phoneNumber,
+			@Param(value = "secondaryNumber") List<String> secondaryNumber);
+
+	@Query (value = "Select distinct ta.agreement_number as documentNumber \n"
+			+ "from tblagreement ta\n"
+			+ "where \n"
+			+ "(COALESCE(:customerCode,null) IS NULL OR (ta.CUSTOMER_NAME IN (:customerCode))) and \n"
+			+ "ta.status='Open' and ta.is_deleted = 0", nativeQuery = true)
+	public List<IKeyValuePair> getAgreementList(
+			@Param(value = "customerCode") String customerCode);
+
+	@Query (value = "select max(tp.voucher_date) lastPaidDate,tp.store_number storeNumber from \n"
+			+ "tblpaymentvoucher tp\n"
+			+ "where \n"
+			+ "(COALESCE(:contractNumber,null) IS NULL OR (tp.CONTRACT_NUMBER IN (:contractNumber))) and \n"
+			+ "tp.is_deleted = 0 group by tp.store_number", nativeQuery = true)
+	public List<IStorageValuePair> getLastPaidDate(
+			@Param(value = "contractNumber") String contractNumber);
+
+//	@Query (value = "Select distinct tsu.code_id storeNumber, tsu.store_size_meter_sqaure size, \n"
+//			+ "tsu.storage_type storageType, tsu.phase phase \n"
+//			+ "from tblstorageunit tsu\n"
+//			+ "left join tblpaymentvoucher tp on tp.store_number=tsu.item_code \n"
+//			+ "where \n"
+//			+ "(COALESCE(:contractNumber,null) IS NULL OR (tp.CONTRACT_NUMBER IN (:contractNumber))) and \n"
+//			+ "tp.voucher_date = (select max(tp1.voucher_date) from tblpaymentvoucher tp1 where \n"
+//			+ "(COALESCE(:contractNumber,null) IS NULL OR (tp1.CONTRACT_NUMBER IN (:contractNumber)))) and \n"
+//			+ "tp.is_deleted = 0", nativeQuery = true)
+//	public IStorageValuePair getStorageUnitList(
+//			@Param(value = "contractNumber") String contractNumber);
+
+	@Query (value = "Select distinct tsu.code_id storeNumber, tsu.store_size_meter_sqaure size, \n"
+			+ "tsu.storage_type storageType, tsu.phase phase \n"
+			+ "from tblstorageunit tsu\n"
+			+ "left join tblpaymentvoucher tp on tp.store_number=tsu.item_code \n"
+			+ "where \n"
+			+ "(COALESCE(:contractNumber,null) IS NULL OR (tp.CONTRACT_NUMBER IN (:contractNumber))) and \n"
+			+ "(COALESCE(:storeNumber,null) IS NULL OR (tp.Store_number IN (:storeNumber))) and \n"
+			+ "(COALESCE(:voucherDate,null) IS NULL OR (tp.voucher_date IN (:voucherDate))) and \n"
+			+ "tp.is_deleted = 0", nativeQuery = true)
+	public IStorageValuePair getStorageUnitList(
+			@Param(value = "contractNumber") String contractNumber,
+			@Param(value = "storeNumber") String storeNumber,
+			@Param(value = "voucherDate") Date voucherDate);
+
+	@Query(value = "select * from (select \n"
+			+ "(case \n"
+			+ "when x3.dueAmount > 0 then 'Pending Due' else 'No Dues' end) dueStatus, \n"
+			+ "dueAmount, \n"
+			+ "dueDate, \n"
+			+ "days dueDays, \n"
+			+ "mode_of_payment modeOfPayment, \n"
+			+ "start_date startDate, \n"
+			+ "end_date endDate, \n"
+			+ "voucher_date lastPaidDate, \n"
+			+ "period rentPeriod, \n"
+			+ "voucher_amount lastPaidVoucherAmount \n"
+			+ "from \n"
+			+ "(select \n"
+			+ "case \n"
+			+ "when x2.months > 0 then cast((x2.months*cast(x2.voucher_amount as float)) as float) \n"
+			+ "when x2.days > 0 then x2.voucher_amount \n"
+			+ "else 0 end dueAmount,* \n"
+			+ "from \n"
+			+ "(select DATEDIFF(month,x1.dueDate,CURRENT_TIMESTAMP) months, \n"
+			+ "DATEDIFF(day,x1.dueDate,current_timestamp) days,* \n"
+			+ "from \n"
+			+ "(select (case when x.duDate<x.voucher_date then \n"
+			+ "dateadd(month,DATEDIFF(month,x.duDate,x.voucher_date),duDate)else x.duDate end) dueDate,* \n"
+			+ "from \n"
+			+ "(select distinct mode_of_payment, \n"
+			+ "start_date, \n"
+			+ "end_date, \n"
+			+ "voucher_date, \n"
+			+ "period, \n"
+			+ "voucher_amount, \n"
+			+ "Dateadd(day,1,end_date) duDate \n"
+			+ "from tblpaymentvoucher tp \n"
+			+ "where \n"
+			+ "(COALESCE(:contractNumber,null) IS NULL OR (tp.CONTRACT_NUMBER IN (:contractNumber))) and \n"
+			+ "(COALESCE(:storeNumber,null) IS NULL OR (tp.Store_number IN (:storeNumber))) and \n"
+			+ "(COALESCE(:voucherDate,null) IS NULL OR (tp.voucher_date IN (:voucherDate))) and \n"
+			+ "tp.is_deleted = 0) x) x1) x2) x3) x4 where \n"
+			+ "(COALESCE(:dueStatus,null) IS NULL OR (x4.dueStatus IN (:dueStatus)))", nativeQuery = true)
+			public IPaymentDue getPaymentDueList(
+			@Param(value = "contractNumber") String contractNumber,
+			@Param(value = "storeNumber") String storeNumber,
+			@Param(value = "voucherDate") Date voucherDate,
+			@Param(value = "dueStatus") String dueStatus);
 }

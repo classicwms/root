@@ -6,5 +6,7 @@ public interface ICustomerDropDown {
 	public String getCustomerName();
 
 	public String getCivilId();
+	public String getMobileNumber();
+	public String getPhoneNumber();
 
 }

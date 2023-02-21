@@ -1620,18 +1620,37 @@ public class TransService {
 	}
 
 	// PaymentDueStatus SEARCH
-	public PaymentDueStatusReport[] getPaymentDueStatus (PaymentDueStatus paymentDueStatus, String authToken) throws ParseException {
+//	public PaymentDueStatusReport[] getPaymentDueStatus (PaymentDueStatus paymentDueStatus, String authToken) throws ParseException {
+//		try {
+//			HttpHeaders headers = new HttpHeaders();
+//			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+//			headers.add("User-Agent", "RestTemplate");
+//			headers.add("Authorization", "Bearer " + authToken);
+//
+//			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getTransServiceUrl() + "/report/payment-due-status-report");
+//			HttpEntity<?> entity = new HttpEntity<>(paymentDueStatus, headers);
+//			ResponseEntity<PaymentDueStatusReport[]> result =
+//					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PaymentDueStatusReport[].class);
+//			log.info("result : " + result.getStatusCode());
+//			return result.getBody();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			throw e;
+//		}
+//	}
+
+	// PaymentDueStatus New
+	public PaymentDueStatusReportOutput getPaymentDueStatusReport (PaymentDueStatus paymentDueStatus, String authToken) throws ParseException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 			headers.add("User-Agent", "RestTemplate");
 			headers.add("Authorization", "Bearer " + authToken);
 
-			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getTransServiceUrl() + "/report/payment-due-status-report");
+			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getTransServiceUrl() + "/report/payment-due-report");
 			HttpEntity<?> entity = new HttpEntity<>(paymentDueStatus, headers);
-			ResponseEntity<PaymentDueStatusReport[]> result =
-					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PaymentDueStatusReport[].class);
-			log.info("result : " + result.getStatusCode());
+			ResponseEntity<PaymentDueStatusReportOutput> result =
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PaymentDueStatusReportOutput.class);
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();

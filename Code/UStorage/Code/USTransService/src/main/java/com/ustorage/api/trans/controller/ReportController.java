@@ -91,12 +91,21 @@ public class ReportController {
     }
 
     //--------------------------------------------Payment Due Status------------------------------------------------------------------------
-    @ApiOperation(response = Optional.class, value = "Report-Payment_Due_Status") // label for swagger
-    @PostMapping("/payment-due-status-report")
-    public ResponseEntity<List<PaymentDueStatusReportImpl>> getPaymentDueStatus (@RequestBody PaymentDueStatus paymentDueStatus)
+//    @ApiOperation(response = Optional.class, value = "Report-Payment_Due_Status") // label for swagger
+//    @PostMapping("/payment-due-status-report")
+//    public ResponseEntity<List<PaymentDueStatusReportImpl>> getPaymentDueStatus (@RequestBody PaymentDueStatus paymentDueStatus)
+//            throws Exception {
+//        List<PaymentDueStatusReportImpl> data = reportService.getPaymentDueStatus(paymentDueStatus);
+//        return new ResponseEntity<List<PaymentDueStatusReportImpl>>(data, HttpStatus.OK);
+//    }
+
+    //--------------------------------------------Payment Due ------------------------------------------------------------------------
+    @ApiOperation(response = Optional.class, value = "Report-Payment_Due") // label for swagger
+    @PostMapping("/payment-due-report")
+    public ResponseEntity<?> getPaymentDue (@RequestBody PaymentDueStatus paymentDueStatus)
             throws Exception {
-        List<PaymentDueStatusReportImpl> data = reportService.getPaymentDueStatus(paymentDueStatus);
-        return new ResponseEntity<List<PaymentDueStatusReportImpl>>(data, HttpStatus.OK);
+        PaymentDueStatusReport data = reportService.getPaymentDue(paymentDueStatus);
+        return new ResponseEntity<>(data, HttpStatus.OK);
     }
 
     //--------------------------------------------Document Status Report------------------------------------------------------------------------
