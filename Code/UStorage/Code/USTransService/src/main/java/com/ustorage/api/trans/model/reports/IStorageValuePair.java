@@ -9,6 +9,6 @@ public interface IStorageValuePair {
 	String getStorageType();
 	String getPhase();
 
-	Date getLastPaidDate();
+	String getLastPaidVoucherId();
 
 }

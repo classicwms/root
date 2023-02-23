@@ -665,33 +665,21 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			@Param(value = "phoneNumber") List<String> phoneNumber,
 			@Param(value = "secondaryNumber") List<String> secondaryNumber);
 
-	@Query (value = "Select distinct ta.agreement_number as documentNumber \n"
+	@Query (value = "Select distinct ta.agreement_number agreementNumber \n"
 			+ "from tblagreement ta\n"
 			+ "where \n"
 			+ "(COALESCE(:customerCode,null) IS NULL OR (ta.CUSTOMER_NAME IN (:customerCode))) and \n"
 			+ "ta.status='Open' and ta.is_deleted = 0", nativeQuery = true)
-	public List<IKeyValuePair> getAgreementList(
+	public List<String> getAgreementList(
 			@Param(value = "customerCode") String customerCode);
 
-	@Query (value = "select max(tp.voucher_date) lastPaidDate,tp.store_number storeNumber from \n"
+	@Query (value = "select max(tp.voucher_id) lastPaidVoucherId,tp.store_number storeNumber from \n"
 			+ "tblpaymentvoucher tp\n"
 			+ "where \n"
 			+ "(COALESCE(:contractNumber,null) IS NULL OR (tp.CONTRACT_NUMBER IN (:contractNumber))) and \n"
 			+ "tp.is_deleted = 0 group by tp.store_number", nativeQuery = true)
-	public List<IStorageValuePair> getLastPaidDate(
+	public List<IStorageValuePair> getLastPaidVoucherId(
 			@Param(value = "contractNumber") String contractNumber);
-
-//	@Query (value = "Select distinct tsu.code_id storeNumber, tsu.store_size_meter_sqaure size, \n"
-//			+ "tsu.storage_type storageType, tsu.phase phase \n"
-//			+ "from tblstorageunit tsu\n"
-//			+ "left join tblpaymentvoucher tp on tp.store_number=tsu.item_code \n"
-//			+ "where \n"
-//			+ "(COALESCE(:contractNumber,null) IS NULL OR (tp.CONTRACT_NUMBER IN (:contractNumber))) and \n"
-//			+ "tp.voucher_date = (select max(tp1.voucher_date) from tblpaymentvoucher tp1 where \n"
-//			+ "(COALESCE(:contractNumber,null) IS NULL OR (tp1.CONTRACT_NUMBER IN (:contractNumber)))) and \n"
-//			+ "tp.is_deleted = 0", nativeQuery = true)
-//	public IStorageValuePair getStorageUnitList(
-//			@Param(value = "contractNumber") String contractNumber);
 
 	@Query (value = "Select distinct tsu.code_id storeNumber, tsu.store_size_meter_sqaure size, \n"
 			+ "tsu.storage_type storageType, tsu.phase phase \n"
@@ -700,14 +688,14 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			+ "where \n"
 			+ "(COALESCE(:contractNumber,null) IS NULL OR (tp.CONTRACT_NUMBER IN (:contractNumber))) and \n"
 			+ "(COALESCE(:storeNumber,null) IS NULL OR (tp.Store_number IN (:storeNumber))) and \n"
-			+ "(COALESCE(:voucherDate,null) IS NULL OR (tp.voucher_date IN (:voucherDate))) and \n"
+			+ "(COALESCE(:voucherId,null) IS NULL OR (tp.voucher_id IN (:voucherId))) and \n"
 			+ "tp.is_deleted = 0", nativeQuery = true)
 	public IStorageValuePair getStorageUnitList(
 			@Param(value = "contractNumber") String contractNumber,
 			@Param(value = "storeNumber") String storeNumber,
-			@Param(value = "voucherDate") Date voucherDate);
+			@Param(value = "voucherId") String voucherId);
 
-	@Query(value = "select * from (select \n"
+	@Query(value = "select \n"
 			+ "(case \n"
 			+ "when x3.dueAmount > 0 then 'Pending Due' else 'No Dues' end) dueStatus, \n"
 			+ "dueAmount, \n"
@@ -743,12 +731,10 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			+ "where \n"
 			+ "(COALESCE(:contractNumber,null) IS NULL OR (tp.CONTRACT_NUMBER IN (:contractNumber))) and \n"
 			+ "(COALESCE(:storeNumber,null) IS NULL OR (tp.Store_number IN (:storeNumber))) and \n"
-			+ "(COALESCE(:voucherDate,null) IS NULL OR (tp.voucher_date IN (:voucherDate))) and \n"
-			+ "tp.is_deleted = 0) x) x1) x2) x3) x4 where \n"
-			+ "(COALESCE(:dueStatus,null) IS NULL OR (x4.dueStatus IN (:dueStatus)))", nativeQuery = true)
+			+ "(COALESCE(:voucherId,null) IS NULL OR (tp.voucher_id IN (:voucherId))) and \n"
+			+ "tp.is_deleted = 0) x) x1) x2) x3 ", nativeQuery = true)
 			public IPaymentDue getPaymentDueList(
 			@Param(value = "contractNumber") String contractNumber,
 			@Param(value = "storeNumber") String storeNumber,
-			@Param(value = "voucherDate") Date voucherDate,
-			@Param(value = "dueStatus") String dueStatus);
+			@Param(value = "voucherId") String voucherId);
 }
