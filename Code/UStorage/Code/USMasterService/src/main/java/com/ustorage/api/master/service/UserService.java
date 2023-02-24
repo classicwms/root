@@ -74,7 +74,7 @@ public class UserService {
 	public String getUsr (String userName) {
 
 		String user = userRepository.getUsrName(userName);
-		if (user.isEmpty()) {
+		if (user==null || user.isEmpty()) {
 			return null;
 		}
 		return user;

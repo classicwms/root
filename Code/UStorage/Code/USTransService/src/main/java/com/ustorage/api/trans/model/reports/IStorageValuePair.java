@@ -10,5 +10,7 @@ public interface IStorageValuePair {
 	String getPhase();
 
 	String getLastPaidVoucherId();
+	String getAgreementNumber();
+	String getCustomerCode();
 
 }

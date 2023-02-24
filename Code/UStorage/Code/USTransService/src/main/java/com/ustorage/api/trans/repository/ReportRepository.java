@@ -568,7 +568,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			+ "FROM tblinvoice ti \r\n"
 			+ "WHERE \n"
 			+ "(COALESCE(:startDate,null) IS NULL OR (ti.invoice_date between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"
-			+ "ti.sbu='Ustorage' and ti.IS_DELETED = 0 ", nativeQuery = true)
+			+ "ti.sbu='2000001' and ti.IS_DELETED = 0 ", nativeQuery = true)
 	public List<Float> getUstorageInvoiceAmount (
 			@Param(value ="startDate") Date startDate,
 			@Param(value ="endDate") Date endDate);
@@ -578,7 +578,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			+ "FROM tblinvoice ti \r\n"
 			+ "WHERE \n"
 			+ "(COALESCE(:startDate,null) IS NULL OR (ti.invoice_date between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"
-			+ "ti.sbu='Ulogistics' and ti.IS_DELETED = 0 ", nativeQuery = true)
+			+ "ti.sbu='2000002' and ti.IS_DELETED = 0 ", nativeQuery = true)
 	public List<Float> getUlogisticsInvoiceAmount (
 			@Param(value ="startDate") Date startDate,
 			@Param(value ="endDate") Date endDate);
@@ -588,7 +588,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			+ "FROM tblpaymentvoucher tp \r\n"
 			+ "WHERE \n"
 			+ "(COALESCE(:startDate,null) IS NULL OR (tp.voucher_date between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"
-			+ "tp.sbu='Ustorage' and tp.IS_DELETED = 0", nativeQuery = true)
+			+ "tp.sbu='2000001' and tp.IS_DELETED = 0", nativeQuery = true)
 	public List<Float> getUstoragePaidAmount (
 			@Param(value ="startDate") Date startDate,
 			@Param(value ="endDate") Date endDate);
@@ -598,7 +598,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			+ "FROM tblpaymentvoucher tp \r\n"
 			+ "WHERE \n"
 			+ "(COALESCE(:startDate,null) IS NULL OR (tp.voucher_date between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"
-			+ "tp.sbu='Ulogistics' and tp.IS_DELETED = 0", nativeQuery = true)
+			+ "tp.sbu='2000002' and tp.IS_DELETED = 0", nativeQuery = true)
 	public List<Float> getUlogisticsPaidAmount (
 			@Param(value ="startDate") Date startDate,
 			@Param(value ="endDate") Date endDate);
@@ -608,7 +608,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			+ "FROM tblleadcustomer tl \r\n"
 			+ "WHERE \n"
 			+ "(COALESCE(:startDate,null) IS NULL OR (tl.ctd_on between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"
-			+ "tl.type='LEAD' and tl.sbu='Ustorage' and tl.IS_DELETED = 0", nativeQuery = true)
+			+ "tl.type='LEAD' and tl.sbu='2000001' and tl.IS_DELETED = 0", nativeQuery = true)
 	public List<Integer> getLeadCount (
 			@Param(value ="startDate") Date startDate,
 			@Param(value ="endDate") Date endDate);
@@ -618,7 +618,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			+ "FROM tblleadcustomer tl \r\n"
 			+ "WHERE \n"
 			+ "(COALESCE(:startDate,null) IS NULL OR (tl.ctd_on between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"
-			+ "tl.type='LEAD' and tl.sbu='Ulogistics' and tl.IS_DELETED = 0", nativeQuery = true)
+			+ "tl.type='LEAD' and tl.sbu='2000002' and tl.IS_DELETED = 0", nativeQuery = true)
 	public List<Integer> getULeadCount (
 			@Param(value ="startDate") Date startDate,
 			@Param(value ="endDate") Date endDate);
@@ -628,7 +628,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			+ "FROM tblleadcustomer tl \r\n"
 			+ "WHERE \n"
 			+ "(COALESCE(:startDate,null) IS NULL OR (tl.ctd_on between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"
-			+ "tl.type='CUSTOMER' and tl.sbu='Ustorage' and tl.IS_DELETED = 0", nativeQuery = true)
+			+ "tl.type='CUSTOMER' and tl.sbu='2000001' and tl.IS_DELETED = 0", nativeQuery = true)
 	public List<Integer> getCustomerCount (
 			@Param(value ="startDate") Date startDate,
 			@Param(value ="endDate") Date endDate);
@@ -638,7 +638,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			+ "FROM tblleadcustomer tl \r\n"
 			+ "WHERE \n"
 			+ "(COALESCE(:startDate,null) IS NULL OR (tl.ctd_on between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) and \n"
-			+ "tl.type='CUSTOMER' and tl.sbu='Ulogistics' and tl.IS_DELETED = 0", nativeQuery = true)
+			+ "tl.type='CUSTOMER' and tl.sbu='2000002' and tl.IS_DELETED = 0", nativeQuery = true)
 	public List<Integer> getUCustomerCount (
 			@Param(value ="startDate") Date startDate,
 			@Param(value ="endDate") Date endDate);
@@ -671,7 +671,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			+ "(COALESCE(:customerCode,null) IS NULL OR (ta.CUSTOMER_NAME IN (:customerCode))) and \n"
 			+ "ta.status='Open' and ta.is_deleted = 0", nativeQuery = true)
 	public List<String> getAgreementList(
-			@Param(value = "customerCode") String customerCode);
+			@Param(value = "customerCode") List<String> customerCode);
 
 	@Query (value = "select max(tp.voucher_id) lastPaidVoucherId,tp.store_number storeNumber from \n"
 			+ "tblpaymentvoucher tp\n"
@@ -710,11 +710,23 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			+ "from \n"
 			+ "(select \n"
 			+ "case \n"
-			+ "when x2.months > 0 then cast((x2.months*cast(x2.voucher_amount as float)) as float) \n"
+			+ "when x2.months > 0 then \n"
+			+ "(case\n"
+			+ "when x2.period='Monthly' then cast((x2.months*cast(x2.voucher_amount as float)) as float)\n"
+			+ "when x2.period='QUARTERLY' then cast((x2.quarterly*cast(x2.voucher_amount as float)) as float)\n"
+			+ "when x2.period='Half Yearly' then cast((x2.months/2*cast(x2.voucher_amount as float)) as float)\n"
+			+ "when x2.period='Yearly' then cast((x2.yearly*cast(x2.voucher_amount as float)) as float)\n"
+			+ "when x2.period='Weekly' then cast((x2.weekly*cast(x2.voucher_amount as float)) as float) \n"
+			+ "when x2.period='7 Months' then cast(((x2.months/7)*cast(x2.voucher_amount as float)) as float)\n"
+			+ "when x2.period='14 Months' then cast(((x2.months/14)*cast(x2.voucher_amount as float)) as float)\n"
+			+ "else 0 end)\n"
 			+ "when x2.days > 0 then x2.voucher_amount \n"
 			+ "else 0 end dueAmount,* \n"
 			+ "from \n"
 			+ "(select DATEDIFF(month,x1.dueDate,CURRENT_TIMESTAMP) months, \n"
+			+ "DATEDIFF(QUARTER,x1.dueDate,current_timestamp) quarterly,\n"
+			+ "DATEDIFF(year,x1.dueDate,CURRENT_TIMESTAMP) yearly,\n"
+			+ "DATEDIFF(week,x1.dueDate,CURRENT_TIMESTAMP) weekly,\n"
 			+ "DATEDIFF(day,x1.dueDate,current_timestamp) days,* \n"
 			+ "from \n"
 			+ "(select (case when x.duDate<x.voucher_date then \n"
@@ -737,4 +749,99 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			@Param(value = "contractNumber") String contractNumber,
 			@Param(value = "storeNumber") String storeNumber,
 			@Param(value = "voucherId") String voucherId);
+
+	@Query (value = "SELECT distinct lc.CUSTOMER_CODE as customerCode, \r\n"
+			+ "lc.CUSTOMER_NAME as customerName, \r\n"
+			+ "lc.Mobile_number as mobileNumber, \r\n"
+			+ "lc.phone_number as phoneNumber, \r\n"
+			+ "lc.CIVIL_ID as civilId \r\n"
+			+ "FROM tblleadcustomer lc \r\n"
+			+ "where \n"
+			+ "(COALESCE(:customerCode,null) IS NULL OR (lc.CUSTOMER_CODE IN (:customerCode))) and \n"
+			+ "lc.IS_DELETED = 0", nativeQuery = true)
+	public ICustomerDropDown getCustomerDetail (@Param(value = "customerCode") String customerCode);
+
+	@Query (value = "SELECT distinct ta.CUSTOMER_NAME as customerCode \r\n"
+			+ "FROM tblagreement ta \r\n"
+			+ "where \n"
+			+ "(COALESCE(:agreementNumber,null) IS NULL OR (ta.agreement_number IN (:agreementNumber))) and \n"
+			+ "ta.status='Open' and ta.IS_DELETED = 0", nativeQuery = true)
+	public String getCustomerCode (@Param(value = "agreementNumber") String agreementNumber);
+
+	@Query (value = "select max(tp.voucher_id) lastPaidVoucherId from \n"
+			+ "tblpaymentvoucher tp\n"
+			+ "where \n"
+			+ "(COALESCE(:storeNumber,null) IS NULL OR (tp.STORE_NUMBER IN (:storeNumber))) and \n"
+			+ "tp.is_deleted = 0", nativeQuery = true)
+	public String getLastPaidVoucher(
+			@Param(value = "storeNumber") String storeNumber);
+
+	@Query (value = "select distinct tp.contract_number agreementNumber from \n"
+			+ "tblpaymentvoucher tp\n"
+			+ "where \n"
+			+ "(COALESCE(:storeNumber,null) IS NULL OR (tp.STORE_NUMBER IN (:storeNumber))) and \n"
+			+ "tp.is_deleted = 0", nativeQuery = true)
+	public String getContractNumber(
+			@Param(value = "storeNumber") String storeNumber);
+
+	//PDSR
+
+	@Query (value = "select distinct tl.customer_code customerCode from \n"
+			+ "tblleadcustomer tl\n"
+			+ "where \n"
+			+ "tl.is_deleted = 0", nativeQuery = true)
+	public List<String> getAllCustomerCode();
+
+	@Query (value = "Select distinct ta.customer_name customerCode \n"
+			+ "from tblagreement ta\n"
+			+ "where \n"
+			+ "(COALESCE(:customerCode,null) IS NULL OR (ta.CUSTOMER_NAME IN (:customerCode))) and \n"
+			+ "ta.status='Open' and ta.is_deleted = 0", nativeQuery = true)
+	public List<String> getAgreementOpenCustomerList(
+			@Param(value = "customerCode") List<String> customerCode);
+
+	@Query (value = "Select distinct ta.agreement_number agreementNumber \n"
+			+ "from tblagreement ta\n"
+			+ "where \n"
+			+ "(COALESCE(:customerCode,null) IS NULL OR (ta.CUSTOMER_NAME IN (:customerCode))) and \n"
+			+ "(COALESCE(:agreementNumber,null) IS NULL OR (ta.agreement_Number IN (:agreementNumber))) and \n"
+			+ "ta.status='Open' and ta.is_deleted = 0", nativeQuery = true)
+	public List<String> getOpenAgreementList(
+			@Param(value = "customerCode") List<String> customerCode,
+			@Param(value = "agreementNumber") List<String> agreementNumber);
+
+	@Query (value = "Select distinct tp.store_number as storeNumber, \n"
+			+ "tp.contract_number as agreementNumber, \r\n"
+			+ "max(tp.voucher_id) as lastPaidVoucherId, \r\n"
+			+ "tp.customer_name as customerCode \r\n"
+			+ "from tblpaymentvoucher tp\n"
+			+ "where \n"
+			+ "(COALESCE(:storeNumber,null) IS NULL OR (tp.store_number IN (:storeNumber))) and \n"
+			+ "(COALESCE(:agreementNumber,null) IS NULL OR (tp.contract_Number IN (:agreementNumber))) and \n"
+			+ "tp.is_deleted = 0 group by tp.store_number,tp.contract_number,tp.customer_name", nativeQuery = true)
+	public List<IStorageValuePair> getOpenStoreNumber(
+			@Param(value = "storeNumber") List<String> storeNumber,
+			@Param(value = "agreementNumber") List<String> agreementNumber);
+
+	@Query (value = "Select distinct tp.store_number storeNumber, \n"
+			+ "tp.contract_number as agreementNumber, \r\n"
+			+ "max(tp.voucher_id) as lastPaidVoucherId, \r\n"
+			+ "tp.customer_name as customerCode \r\n"
+			+ "from tblpaymentvoucher tp\n"
+			+ "where \n"
+			+ "(COALESCE(:agreementNumber,null) IS NULL OR (tp.contract_Number IN (:agreementNumber))) and \n"
+			+ "tp.is_deleted = 0 group by tp.store_number,tp.contract_number,tp.customer_name", nativeQuery = true)
+	public List<IStorageValuePair> getStoreNumber(
+			@Param(value = "agreementNumber") List<String> agreementNumber);
+
+	@Query (value = "select max(tp.voucher_id) lastPaidVoucherId from \n"
+			+ "tblpaymentvoucher tp\n"
+			+ "where \n"
+			+ "(COALESCE(:contractNumber,null) IS NULL OR (tp.CONTRACT_NUMBER IN (:contractNumber))) and \n"
+			+ "(COALESCE(:storeNumber,null) IS NULL OR (tp.STORE_NUMBER IN (:storeNumber))) and \n"
+			+ "tp.is_deleted = 0", nativeQuery = true)
+	public String getLastPaidVoucherId(
+			@Param(value = "contractNumber") String contractNumber,
+			@Param(value = "storeNumber") String storeNumber);
+
 }
