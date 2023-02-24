@@ -550,8 +550,7 @@ public class PickupLineService extends BaseService {
 			}
 
 			/*
-			 * ---------------------Update
-			 * OUTBOUNDLINE----------------------------------------------------
+			 * ---------------------Update-OUTBOUNDLINE----------------------------------------------------
 			 */
 			try {
 				UpdateOutboundLine updateOutboundLine = new UpdateOutboundLine();
@@ -566,8 +565,8 @@ public class PickupLineService extends BaseService {
 			}
 
 			/*
-			 * ------------------Record insertion in QUALITYHEADER
-			 * table----------------------------------- Allow to create QualityHeader only
+			 * ------------------Record insertion in QUALITYHEADER table----------------------------------- 
+			 * Allow to create QualityHeader only
 			 * for STATUS_ID = 50
 			 */
 			if (dbPickupLine.getStatusId() == 50L) {
@@ -633,8 +632,7 @@ public class PickupLineService extends BaseService {
 		}
 
 		/*---------------------------------------------PickupHeader Updates---------------------------------------*/
-		// -----------------logic for checking all records as 51 then only it should go
-		// to update header-----------*/
+		// -----------------logic for checking all records as 51 then only it should go o update header-----------*/
 		try {
 			boolean isStatus51 = false;
 			List<Long> statusList = createdPickupLineList.stream().map(PickupLine::getStatusId)
