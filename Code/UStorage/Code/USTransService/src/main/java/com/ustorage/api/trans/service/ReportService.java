@@ -1,5 +1,6 @@
 package com.ustorage.api.trans.service;
 
+import com.ustorage.api.trans.controller.exception.BadRequestException;
 import com.ustorage.api.trans.repository.AgreementRepository;
 import com.ustorage.api.trans.repository.LeadCustomerRepository;
 import com.ustorage.api.trans.repository.ReportRepository;
@@ -1134,8 +1135,10 @@ public class ReportService {
 		List<AgreementDetail> agreementDetailList = new ArrayList<>();
 		List<AgreementDetail> filteredAgreementDetailList = new ArrayList<>();
 		List<String> customerCode;
+		List<String> checkOpenAgreementCustomerCode;
 		List<String> openAgreementCustomerCode;
 		List<String> agreementNumber;
+		List<String> checkOpenAgreementNumber;
 		List<String> openAgreementNumber;
 		List<String> storeNumber;
 		List<String> dueStatus;
@@ -1144,7 +1147,13 @@ public class ReportService {
 
 		if(paymentDueStatus.getCustomerCode()!=null && !paymentDueStatus.getCustomerCode().isEmpty()){
 			customerCode = paymentDueStatus.getCustomerCode();
-			openAgreementCustomerCode = reportRepository.getAgreementOpenCustomerList(customerCode);
+			checkOpenAgreementCustomerCode = reportRepository.getAgreementOpenCustomerList(customerCode);
+			if(checkOpenAgreementCustomerCode.size()==0){
+				throw new BadRequestException("No Open Agreement Found");
+			}else{
+				openAgreementCustomerCode = checkOpenAgreementCustomerCode;
+
+			}
 
 		}else{
 			//Get Customer List
@@ -1153,7 +1162,12 @@ public class ReportService {
 		}
 		if(paymentDueStatus.getAgreementNumber()!=null && !paymentDueStatus.getAgreementNumber().isEmpty()){
 			agreementNumber = paymentDueStatus.getAgreementNumber();
-			openAgreementNumber = reportRepository.getOpenAgreementList(openAgreementCustomerCode,agreementNumber);
+			checkOpenAgreementNumber = reportRepository.getOpenAgreementList(openAgreementCustomerCode,agreementNumber);
+			if(checkOpenAgreementNumber.size()==0){
+				throw new BadRequestException("No Open Agreement Found");
+			}else{
+				openAgreementNumber = checkOpenAgreementNumber;
+			}
 
 		}else{
 			openAgreementNumber = reportRepository.getAgreementList(openAgreementCustomerCode);
