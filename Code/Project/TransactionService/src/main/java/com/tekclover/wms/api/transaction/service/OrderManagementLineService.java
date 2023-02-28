@@ -589,7 +589,7 @@ public class OrderManagementLineService extends BaseService {
 	 */
 	public OrderManagementLine updateAllocation (OrderManagementLine orderManagementLine, List<String> storageSectionIds, Double ORD_QTY,
 			String warehouseId, String itemCode, String loginUserID) {
-		List<Inventory> stockType1InventoryList = inventoryService.getInventoryForOrderManagement (warehouseId, itemCode, 1L);
+		List<Inventory> stockType1InventoryList = inventoryService.getInventoryForOrderManagement (warehouseId, itemCode, 1L, 1L);
 		log.info("---updateAllocation---stockType1InventoryList-------> : " + stockType1InventoryList);
 		if (stockType1InventoryList.isEmpty()) {
 			return updateOrderManagementLine(orderManagementLine);

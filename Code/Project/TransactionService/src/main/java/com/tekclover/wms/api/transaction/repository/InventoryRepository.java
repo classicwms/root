@@ -223,4 +223,8 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 
 	public Optional<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndStorageBinAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId, String storageBin, long l);
+
+	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndAndStockTypeIdAndBinClassIdAndDeletionIndicator(
+			String languageId, String companyCode, String plantId, String warehouseId, String itemCode,
+			Long stockTypeId, long l, long m);
 }

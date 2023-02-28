@@ -164,15 +164,16 @@ public class InventoryService extends BaseService {
 	 * @param binClassId
 	 * @return
 	 */
-	public List<Inventory> getInventoryForOrderManagement(String warehouseId, String itemCode, Long stockTypeId) {
+	public List<Inventory> getInventoryForOrderManagement(String warehouseId, String itemCode, Long stockTypeId, Long binClassId) {
 		List<Inventory> inventory = 
-				inventoryRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndAndStockTypeIdAndDeletionIndicator(
+				inventoryRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndAndStockTypeIdAndBinClassIdAndDeletionIndicator(
 						getLanguageId(),
 						getCompanyCode(),
 						getPlantId(),
 						warehouseId, 
 						itemCode, 
 						stockTypeId,
+						binClassId,
 						0L
 						);
 		return inventory;
