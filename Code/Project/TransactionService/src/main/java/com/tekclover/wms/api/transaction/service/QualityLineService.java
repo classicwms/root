@@ -2,8 +2,10 @@ package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
@@ -311,7 +313,28 @@ public class QualityLineService extends BaseService {
 		List<QualityLine> results = qualityLineRepository.findAll(spec);
 		return results;
 	}
+	
+	/**
+	 * 
+	 * @param personList
+	 * @return
+	 */
+	public static List<AddQualityLine> getDuplicates(List<AddQualityLine> personList) {
+		return getDuplicatesMap(personList).values().stream()
+	      .filter(duplicates -> duplicates.size() > 1)
+	      .flatMap(Collection::stream)
+	      .collect(Collectors.toList());
+	}
 
+	/**
+	 * 
+	 * @param personList
+	 * @return
+	 */
+	private static Map<String, List<AddQualityLine>> getDuplicatesMap(List<AddQualityLine> personList) {
+	  return personList.stream().collect(Collectors.groupingBy(AddQualityLine::uniqueAttributes));
+	}
+	
 	/**
 	 * createQualityLine
 	 * 
@@ -325,8 +348,15 @@ public class QualityLineService extends BaseService {
 			throws IllegalAccessException, InvocationTargetException {
 		try {
 			log.info("-------createQualityLine--------called-------> " + new Date());
-
-//			List<QualityLine> qualityLineList = new ArrayList<>();
+			
+			List<AddQualityLine> dupQualityLines = getDuplicates (newQualityLines);
+			log.info("-------dupQualityLines--------> " + dupQualityLines);
+			if (dupQualityLines != null && !dupQualityLines.isEmpty()) {
+				newQualityLines.removeAll(dupQualityLines);
+				newQualityLines.add(dupQualityLines.get(0));
+				log.info("-------newQualityLines---removed-dupQualityLines-----> " + newQualityLines);
+			}
+			
 			/*
 			 * The below flag helps to avoid duplicate request and updating of outboundline
 			 * table
@@ -363,7 +393,6 @@ public class QualityLineService extends BaseService {
 				if (existingQualityLine == null) {
 					QualityLine createdQualityLine = qualityLineRepository.save(dbQualityLine);
 					log.info("createdQualityLine: " + createdQualityLine);
-//					qualityLineList.add(createdQualityLine);
 				}
 			}
 
@@ -382,7 +411,7 @@ public class QualityLineService extends BaseService {
 			/*
 			 * Based on created QualityLine List, updating respective tables
 			 */
-			for (AddQualityLine dbQualityLine : newQualityLines) {
+			for (QualityLine dbQualityLine : createdQualityLineList) {
 				/*-----------------STATUS updates in QualityHeader-----------------------*/
 				UpdateQualityHeader updateQualityHeader = new UpdateQualityHeader();
 				updateQualityHeader.setStatusId(55L);

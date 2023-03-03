@@ -553,7 +553,7 @@ public class InboundHeaderService extends BaseService {
 			inboundLineRepository.updateInboundLineStatus (warehouseId, refDocNumber, 24L);
 			log.info("InboundLine updated");
 			
-			inboundHeaderRepository.updateInboundHeaderStatus (warehouseId, refDocNumber, 24L);
+			inboundHeaderRepository.updateInboundHeaderStatus (warehouseId, refDocNumber, 24L, loginUserID, new Date());
 			log.info("InboundHeader updated");
 			
 			preInboundHeaderRepository.updatePreInboundHeaderEntityStatus (warehouseId, refDocNumber, 24L);

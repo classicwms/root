@@ -53,4 +53,13 @@ public class AddQualityLine {
 	private Date qualityUpdatedOn;
 	private String qualityReversedBy;
 	private Date qualityReversedOn;
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String uniqueAttributes () {
+		return languageId + companyCodeId + plantId + warehouseId + preOutboundNo + refDocNumber + 
+				partnerCode + lineNumber + qualityInspectionNo + itemCode;
+	}
 }
