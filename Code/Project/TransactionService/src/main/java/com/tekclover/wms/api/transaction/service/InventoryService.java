@@ -174,7 +174,7 @@ public class InventoryService extends BaseService {
 						itemCode, 
 						stockTypeId,
 						binClassId,
-						0L,
+						0D,
 						0L
 						);
 		return inventory;
