@@ -361,6 +361,7 @@ public class QualityLineService extends BaseService {
 			 * The below flag helps to avoid duplicate request and updating of outboundline
 			 * table
 			 */
+			List<QualityLine> createdQualityLineList = new ArrayList<>();
 			for (AddQualityLine newQualityLine : newQualityLines) {
 				log.info("Input from UI:  " + newQualityLine);
 
@@ -393,20 +394,21 @@ public class QualityLineService extends BaseService {
 				if (existingQualityLine == null) {
 					QualityLine createdQualityLine = qualityLineRepository.save(dbQualityLine);
 					log.info("createdQualityLine: " + createdQualityLine);
+					createdQualityLineList.add(createdQualityLine);
 				}
 			}
 
 			/*
 			 * Collecting created QualityLine List
 			 */
-			List<QualityLine> createdQualityLineList = new ArrayList<>();
-			for (AddQualityLine qualityLine : newQualityLines) {
-				QualityLine createdQualityLine = findQualityLine(qualityLine.getWarehouseId(),
-						qualityLine.getPreOutboundNo(), qualityLine.getRefDocNumber(), qualityLine.getPartnerCode(),
-						qualityLine.getLineNumber(), qualityLine.getQualityInspectionNo(), qualityLine.getItemCode());
-				log.info("Querying QualityLine record after creating: " + createdQualityLine);
-				createdQualityLineList.add(createdQualityLine);
-			}
+//			List<QualityLine> createdQualityLineList = new ArrayList<>();
+//			for (AddQualityLine qualityLine : newQualityLines) {
+//				QualityLine createdQualityLine = findQualityLine(qualityLine.getWarehouseId(),
+//						qualityLine.getPreOutboundNo(), qualityLine.getRefDocNumber(), qualityLine.getPartnerCode(),
+//						qualityLine.getLineNumber(), qualityLine.getQualityInspectionNo(), qualityLine.getItemCode());
+//				log.info("Querying QualityLine record after creating: " + createdQualityLine);
+//				createdQualityLineList.add(createdQualityLine);
+//			}
 
 			/*
 			 * Based on created QualityLine List, updating respective tables
@@ -425,7 +427,7 @@ public class QualityLineService extends BaseService {
 				/*
 				 * DLV_ORD_NO
 				 * -----------------------------------------------------------------------------
-				 * ------- Pass WH_ID - User logged in WH_ID and NUM_RAN_CODE = 12 in
+				 * Pass WH_ID - User logged in WH_ID and NUM_RAN_CODE = 12 in
 				 * NUMBERRANGE table and fetch NUM_RAN_CURRENT value of FISCALYEAR=CURRENT YEAR
 				 * and add +1 and insert
 				 */
