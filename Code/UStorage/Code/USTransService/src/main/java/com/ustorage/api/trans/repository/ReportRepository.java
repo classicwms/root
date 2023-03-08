@@ -710,27 +710,24 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			+ "from \n"
 			+ "(select \n"
 			+ "case \n"
-			+ "when x2.months > 0 then \n"
+			+ "when x2.days > 0 then \n"
 			+ "(case\n"
-			+ "when x2.period='Monthly' then cast((CEILING(x2.days/cast(30 as float))*cast(x2.voucher_amount as float)) as float)\n"
-			+ "when x2.period='QUARTERLY' then cast((CEILING(x2.days/cast(91 as float))*cast(x2.voucher_amount as float)) as float)\n"
-			+ "when x2.period='Half Yearly' then cast((CEILING(x2.days/cast(182 as float))*cast(x2.voucher_amount as float)) as float)\n"
-			+ "when x2.period='Yearly' then cast((CEILING(x2.days/cast(365 as float))*cast(x2.voucher_amount as float)) as float)\n"
-			+ "when x2.period='Weekly' then cast((CEILING(x2.days/cast(7 as float))*cast(x2.voucher_amount as float)) as float) \n"
-			+ "when x2.period='7 Months' then cast((CEILING(x2.days/cast(210 as float))*cast(x2.voucher_amount as float)) as float)\n"
-			+ "when x2.period='14 Months' then cast((CEILING(x2.days/cast(420 as float))*cast(x2.voucher_amount as float)) as float)\n"
+			+ "when x2.period='Monthly' then cast((CEILING(x2.days/cast(30 as float))*cast(:voucherAmount as float)) as float)\n"
+			+ "when x2.period='QUARTERLY' then cast((CEILING(x2.days/cast(91 as float))*cast(:voucherAmount as float)) as float)\n"
+			+ "when x2.period='Half Yearly' then cast((CEILING(x2.days/cast(182 as float))*cast(:voucherAmount as float)) as float)\n"
+			+ "when x2.period='Yearly' then cast((CEILING(x2.days/cast(365 as float))*cast(:voucherAmount as float)) as float)\n"
+			+ "when x2.period='Weekly' then cast((CEILING(x2.days/cast(7 as float))*cast(:voucherAmount as float)) as float) \n"
+			+ "when x2.period='7 Months' then cast((CEILING(x2.days/cast(210 as float))*cast(:voucherAmount as float)) as float)\n"
+			+ "when x2.period='14 Months' then cast((CEILING(x2.days/cast(420 as float))*cast(:voucherAmount as float)) as float)\n"
 			+ "else 0 end)\n"
 			+ "when x2.days > 0 then x2.voucher_amount \n"
 			+ "else 0 end dueAmount,* \n"
 			+ "from \n"
-			+ "(select DATEDIFF(month,x1.dueDate,CURRENT_TIMESTAMP) months, \n"
-			+ "DATEDIFF(QUARTER,x1.dueDate,current_timestamp) quarterly,\n"
-			+ "DATEDIFF(year,x1.dueDate,CURRENT_TIMESTAMP) yearly,\n"
-			+ "DATEDIFF(week,x1.dueDate,CURRENT_TIMESTAMP) weekly,\n"
+			+ "(select  \n"
 			+ "DATEDIFF(day,x1.dueDate,current_timestamp) days,* \n"
 			+ "from \n"
-			+ "(select (case when x.duDate<x.voucher_date then \n"
-			+ "dateadd(month,DATEDIFF(month,x.duDate,x.voucher_date),duDate)else x.duDate end) dueDate,* \n"
+			+ "(select (case when x.duDate<Dateadd(day,1,x.end_date) then \n"
+			+ "dateadd(month,DATEDIFF(month,x.duDate,dateadd(day,1,x.end_date)),duDate)else x.duDate end) dueDate,* \n"
 			+ "from \n"
 			+ "(select distinct mode_of_payment, \n"
 			+ "start_date, \n"
@@ -748,7 +745,8 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			public IPaymentDue getPaymentDueList(
 			@Param(value = "contractNumber") String contractNumber,
 			@Param(value = "storeNumber") String storeNumber,
-			@Param(value = "voucherId") String voucherId);
+			@Param(value = "voucherId") String voucherId,
+			@Param(value = "voucherAmount") String voucherAmount);
 
 	@Query (value = "SELECT distinct lc.CUSTOMER_CODE as customerCode, \r\n"
 			+ "lc.CUSTOMER_NAME as customerName, \r\n"
@@ -843,5 +841,12 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 	public String getLastPaidVoucherId(
 			@Param(value = "contractNumber") String contractNumber,
 			@Param(value = "storeNumber") String storeNumber);
+
+	@Query (value = "SELECT distinct ta.rent as rent \r\n"
+			+ "FROM tblagreement ta \r\n"
+			+ "where \n"
+			+ "(COALESCE(:agreementNumber,null) IS NULL OR (ta.agreement_number IN (:agreementNumber))) and \n"
+			+ "ta.status='Open' and ta.IS_DELETED = 0", nativeQuery = true)
+	public String getRentPerPeriod (@Param(value = "agreementNumber") String agreementNumber);
 
 }
