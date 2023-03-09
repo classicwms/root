@@ -17,6 +17,7 @@ public class UserManagement {
 	private String userName;
 	private String firstName;
 	private String lastName;
+	private String password;
 	private Long statusId;
 	private Long dateFormatId;
 	private Long currencyDecimal;

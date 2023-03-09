@@ -2,6 +2,7 @@ package com.tekclover.wms.core.service;
 
 import java.util.Collections;
 
+import com.tekclover.wms.core.model.masters.*;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,27 +19,6 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.tekclover.wms.core.config.PropertiesConfig;
-import com.tekclover.wms.core.model.masters.AuditLog;
-import com.tekclover.wms.core.model.masters.BomHeader;
-import com.tekclover.wms.core.model.masters.BusinessPartner;
-import com.tekclover.wms.core.model.masters.HandlingEquipment;
-import com.tekclover.wms.core.model.masters.HandlingUnit;
-import com.tekclover.wms.core.model.masters.ImAlternateUom;
-import com.tekclover.wms.core.model.masters.ImBasicData1;
-import com.tekclover.wms.core.model.masters.ImBasicData2;
-import com.tekclover.wms.core.model.masters.ImPacking;
-import com.tekclover.wms.core.model.masters.ImPartner;
-import com.tekclover.wms.core.model.masters.ImStrategies;
-import com.tekclover.wms.core.model.masters.ItemCodeDesc;
-import com.tekclover.wms.core.model.masters.PackingMaterial;
-import com.tekclover.wms.core.model.masters.SearchBomHeader;
-import com.tekclover.wms.core.model.masters.SearchBusinessPartner;
-import com.tekclover.wms.core.model.masters.SearchHandlingEquipment;
-import com.tekclover.wms.core.model.masters.SearchHandlingUnit;
-import com.tekclover.wms.core.model.masters.SearchImBasicData1;
-import com.tekclover.wms.core.model.masters.SearchPackingMaterial;
-import com.tekclover.wms.core.model.masters.SearchStorageBin;
-import com.tekclover.wms.core.model.masters.StorageBin;
 import com.tekclover.wms.core.model.transaction.PaginatedResponse;
 
 import lombok.extern.slf4j.Slf4j;
@@ -1657,7 +1637,25 @@ public class MastersService {
 			throw e;
 		}
 	}
-	
+	// POST - findImBasicData1LikeSearch
+	public StorageBinDesc[] findStorageBinLikeSearch(String likeSearchByStorageBinNDesc, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponents builder =
+					UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "storagebin/findStorageBinByLike")
+							.queryParam("likeSearchByStorageBinNDesc", likeSearchByStorageBinNDesc).build();
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<StorageBinDesc[]> result =
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, StorageBinDesc[].class);
+			return result.getBody();
+		} catch (Exception e) {
+			throw e;
+		}
+	}
 	// POST StorageBin
 	public StorageBin addStorageBin (StorageBin storagebin, String loginUserID, String authToken) {
 		try {

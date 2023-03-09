@@ -21,9 +21,9 @@ import lombok.NoArgsConstructor;
 	private Long itemTypeId;
 	private Long itemGroupId;
 	private String itemGroup;
-	private Long deletionIndicator = 0L;
+	private Long deletionIndicator;
 	private String createdBy;
-	private Date createdOn = new Date();
+	private Date createdOn;
 	private String updatedBy;
-	private Date updatedOn = new Date();
+	private Date updatedOn;
 }

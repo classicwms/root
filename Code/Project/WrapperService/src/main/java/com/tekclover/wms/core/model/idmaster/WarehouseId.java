@@ -18,7 +18,7 @@ public class WarehouseId {
 	private String warehouseId;
 	private String languageId;
 	private String plantId;
-	private String description;
+	private String warehouseDesc;
 	private Long deletionIndicator = 0L;
 	private String createdBy;
 	private Date createdOn = new Date();

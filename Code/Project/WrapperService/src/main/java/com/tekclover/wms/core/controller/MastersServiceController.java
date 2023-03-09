@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import javax.validation.Valid;
 
+import com.tekclover.wms.core.model.masters.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,27 +21,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tekclover.wms.core.model.masters.AuditLog;
-import com.tekclover.wms.core.model.masters.BomHeader;
-import com.tekclover.wms.core.model.masters.BusinessPartner;
-import com.tekclover.wms.core.model.masters.HandlingEquipment;
-import com.tekclover.wms.core.model.masters.HandlingUnit;
-import com.tekclover.wms.core.model.masters.ImAlternateUom;
-import com.tekclover.wms.core.model.masters.ImBasicData1;
-import com.tekclover.wms.core.model.masters.ImBasicData2;
-import com.tekclover.wms.core.model.masters.ImPacking;
-import com.tekclover.wms.core.model.masters.ImPartner;
-import com.tekclover.wms.core.model.masters.ImStrategies;
-import com.tekclover.wms.core.model.masters.ItemCodeDesc;
-import com.tekclover.wms.core.model.masters.PackingMaterial;
-import com.tekclover.wms.core.model.masters.SearchBomHeader;
-import com.tekclover.wms.core.model.masters.SearchBusinessPartner;
-import com.tekclover.wms.core.model.masters.SearchHandlingEquipment;
-import com.tekclover.wms.core.model.masters.SearchHandlingUnit;
-import com.tekclover.wms.core.model.masters.SearchImBasicData1;
-import com.tekclover.wms.core.model.masters.SearchPackingMaterial;
-import com.tekclover.wms.core.model.masters.SearchStorageBin;
-import com.tekclover.wms.core.model.masters.StorageBin;
 import com.tekclover.wms.core.model.transaction.PaginatedResponse;
 import com.tekclover.wms.core.service.MastersService;
 import com.tekclover.wms.core.service.RegisterService;
@@ -635,6 +615,12 @@ public class MastersServiceController {
 	public StorageBin[] findStorageBin(@RequestBody SearchStorageBin searchStorageBin,
 			@RequestParam String authToken) throws Exception {
 		return mastersService.findStorageBin(searchStorageBin, authToken);
+	}
+	@ApiOperation(response = StorageBin.class, value = "Like Search StorageBin") // label for swagger
+	@GetMapping("/storagebin/findStorageBinByLike")
+	public StorageBinDesc[] getStorageBinLikeSearch(@RequestParam String likeSearchByStorageBinNDesc,
+													@RequestParam String authToken) throws Exception {
+		return mastersService.findStorageBinLikeSearch(likeSearchByStorageBinNDesc, authToken);
 	}
     
     @ApiOperation(response = Optional.class, value = "Create StorageBin") // label for swagger

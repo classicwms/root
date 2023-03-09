@@ -1872,27 +1872,43 @@ public class TransactionServiceController {
 		return new ResponseEntity<>(createdSO, HttpStatus.OK);
 	}
 
+	//-----------------------------------------ORDER APIs---------------------------------------------------------
+	@ApiOperation(response = InboundOrder.class, value = "Get all InboundOrder Sucess Orders") // label for swagger
+	@GetMapping("/orders/inbound/success")
+	public ResponseEntity<?> getAll(@RequestParam String authToken) {
+		InboundOrder[] inboundOrderList = transactionService.getInboundOrders(authToken);
+		return new ResponseEntity<>(inboundOrderList, HttpStatus.OK);
+	}
+	
 	@ApiOperation(response = InboundOrder.class, value = "Get inbound Order by id ") // label for swagger
-	@GetMapping("/orders/inbound/orders/{orderId}")
+	@GetMapping("/orders/inbound/{orderId}")
 	public ResponseEntity<?> getInboundOrdersById(@PathVariable String orderId,@RequestParam String authToken) {
 		InboundOrder orders = transactionService.getInboundOrderById(orderId,authToken);
 		return new ResponseEntity<>(orders, HttpStatus.OK);
 	}
-
-	@ApiOperation(response = OutboundOrder.class, value = "Get outbound Order by id ") // label for swagger
-	@GetMapping("/orders/outbound/orders/{orderId}")
-	public ResponseEntity<?> getOutboundOrdersById(@PathVariable String orderId,@RequestParam String authToken) {
-		OutboundOrder orders = transactionService.getOutboundOrdersById(orderId,authToken);
-		return new ResponseEntity<>(orders, HttpStatus.OK);
-	}
 	
-	//-----------------------------------------ORDER APIs---------------------------------------------------------
 	@ApiOperation(response = InboundIntegrationLog.class, value = "Get Failed Orders") // label for swagger 
    	@GetMapping("/orders/inbound/failed")
    	public ResponseEntity<?> getFailedInbounOrders(@RequestParam String authToken) throws Exception {
        	InboundIntegrationLog[] orders = transactionService.getFailedInboundOrders(authToken);
    		return new ResponseEntity<>(orders, HttpStatus.OK);
    	}
+	
+	//-----------------------------------------------------------------------------------------------------------
+
+	@ApiOperation(response = OutboundOrder.class, value = "Get all Outbound Success Orders") // label for swagger
+   	@GetMapping("/orders/outbound/success")
+   	public ResponseEntity<?> getOBAllOrders(@RequestParam String authToken) {
+   		OutboundOrder[] outboundOrderList = transactionService.getOBOrders(authToken);
+   		return new ResponseEntity<>(outboundOrderList, HttpStatus.OK);
+   	}
+	
+	@ApiOperation(response = OutboundOrder.class, value = "Get outbound Order by id ") // label for swagger
+	@GetMapping("/orders/outbound/{orderId}")
+	public ResponseEntity<?> getOutboundOrdersById(@PathVariable String orderId,@RequestParam String authToken) {
+		OutboundOrder orders = transactionService.getOutboundOrdersById(orderId,authToken);
+		return new ResponseEntity<>(orders, HttpStatus.OK);
+	}
 
 	@ApiOperation(response = OutboundIntegrationLog.class, value = "Get Failed OutboundOrders") // label for swagger 
    	@GetMapping("/orders/outbound/failed")

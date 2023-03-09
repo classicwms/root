@@ -61,6 +61,8 @@ public class GrLine {
 	private Date expiryDate;
 	private Double storageQty;
 	private String remarks;
+	private String cbm;
+	private String cbmUnit;
 	private String referenceField1;
 	private String referenceField2;
 	private String referenceField3;

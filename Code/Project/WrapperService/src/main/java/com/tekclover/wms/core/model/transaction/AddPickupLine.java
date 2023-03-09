@@ -35,6 +35,8 @@ public class AddPickupLine {
 	private String pickPalletCode;
 	private String pickCaseCode;
 	private Long statusId;
+	private String cbm;
+	private String cbmUnit;
 	private String referenceField1;
 	private String referenceField2;
 	private String referenceField3;

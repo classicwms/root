@@ -4623,4 +4623,40 @@ public class TransactionService {
 			throw e;
 		}
 	}
+
+	public InboundOrder[] getInboundOrders(String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "orders/inbound");
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<InboundOrder[]> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, InboundOrder[].class);
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	public OutboundOrder[] getOBOrders(String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "orders/outbound");
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<OutboundOrder[]> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, OutboundOrder[].class);
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
 }	
