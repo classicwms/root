@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
+import com.tekclover.wms.api.masters.model.impl.ItemListImpl;
+import com.tekclover.wms.api.masters.model.impl.StorageBinListImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -109,6 +111,21 @@ public class StorageBinService {
 			return storagebin;
 		} else {
 			throw new BadRequestException("The given StorageBinByStatusNotEqual : " + warehouseId + ", statusId: " + statusId + " doesn't exist.");
+		}
+	}
+
+	/**
+	 *
+	 * @param likeSearchByStorageBinNDesc
+	 * @return
+	 */
+	public List<StorageBinListImpl> findStorageBinLikeSearch(String likeSearchByStorageBinNDesc) {
+		if(likeSearchByStorageBinNDesc != null && !likeSearchByStorageBinNDesc.trim().isEmpty()) {
+			List<StorageBinListImpl> data = storagebinRepository.getStorageBinListBySearch(likeSearchByStorageBinNDesc.trim(),
+					likeSearchByStorageBinNDesc.trim());
+			return data;
+		} else {
+			throw new BadRequestException("Search string must not be empty");
 		}
 	}
 	

@@ -5,6 +5,9 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.masters.model.imbasicdata1.ImBasicData1;
+import com.tekclover.wms.api.masters.model.impl.ItemListImpl;
+import com.tekclover.wms.api.masters.model.impl.StorageBinListImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -82,6 +85,13 @@ public class StorageBinController {
        	log.info("StorageBin : " + storagebin);
    		return new ResponseEntity<>(storagebin, HttpStatus.OK);
    	}
+
+	@ApiOperation(response = StorageBin.class, value = "Like Search StorageBin") // label for swagger
+	@GetMapping("/findStorageBinByLike")
+	public List<StorageBinListImpl> getStorageBinLikeSearch(@RequestParam String likeSearchByStorageBinNDesc)
+			throws Exception {
+		return storagebinService.findStorageBinLikeSearch(likeSearchByStorageBinNDesc);
+	}
     
     @ApiOperation(response = StorageBin.class, value = "Get a StorageBin") // label for swagger 
    	@PostMapping("/putaway")

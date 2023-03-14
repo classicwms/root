@@ -3,8 +3,12 @@ package com.tekclover.wms.api.masters.repository;
 import java.util.List;
 import java.util.Optional;
 
+import com.tekclover.wms.api.masters.model.impl.ItemListImpl;
+import com.tekclover.wms.api.masters.model.impl.StorageBinListImpl;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +40,12 @@ public interface StorageBinRepository extends JpaRepository<StorageBin,Long>, Jp
 			String warehouseId, List<String> storageBin, List<String> storageSectionIds, int i, int j, long l);
 
 	public List<StorageBin> findByWarehouseIdAndStorageSectionIdIn(String warehouseId, List<String> stSectionIds);
+
+	@Query(value = "select TOP 50 st_bin as storageBin from tblstoragebin\n" +
+					"where ( st_bin like :searchText1% or st_bin like %:searchText2 ) \n" +
+					"group by st_bin ", nativeQuery = true)
+	List<StorageBinListImpl> getStorageBinListBySearch(@Param("searchText1") String searchText1,
+													   @Param("searchText2") String searchText2);
 }
 
 
