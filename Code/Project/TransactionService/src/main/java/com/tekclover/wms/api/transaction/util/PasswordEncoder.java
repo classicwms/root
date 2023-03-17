@@ -24,7 +24,7 @@ public class PasswordEncoder {
 	}
 	
 	public static void main(String[] args) {
-		String password = "!wYemVeePee@123";
+		String password = "wms";
 		BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		String hashedPassword = passwordEncoder.encode(password);
 		

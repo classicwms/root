@@ -780,11 +780,6 @@ public class OrderManagementLineService extends BaseService {
 				List<Inventory> listInventoryForAlloc = inventoryService.getInventoryForOrderMgmt (warehouseId, itemCode, 1L, stBinWiseInventory.getStorageBin(), 1L);
 				log.info("\nlistInventoryForAlloc Inventory ---->: " + listInventoryForAlloc + "\n");
 				
-				// Prod Fix: If the queried Inventory is empty then EMPTY orderManagementLine is created.
-				if (listInventoryForAlloc != null && listInventoryForAlloc.isEmpty()) {
-					return updateOrderManagementLine(orderManagementLine);
-				}
-				
 				for (Inventory stBinInventory : listInventoryForAlloc) {
 					log.info("\nBin-wise Inventory : " + stBinInventory + "\n");
 					

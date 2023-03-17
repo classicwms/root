@@ -158,7 +158,7 @@ public class QualityHeaderService {
 	 */
 	public List<QualityHeader> getQualityHeaderCount (String warehouseId) {
 		List<QualityHeader> qualityHeaderList = 
-				qualityHeaderRepository.findByWarehouseIdAndStatusIdAndDeletionIndicator(warehouseId, 54L,0L);
+				qualityHeaderRepository.findByWarehouseIdAndStatusId(warehouseId, 54L);
 		return qualityHeaderList;
 	}
 	

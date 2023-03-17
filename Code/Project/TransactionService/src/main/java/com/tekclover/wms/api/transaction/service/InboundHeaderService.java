@@ -550,7 +550,7 @@ public class InboundHeaderService extends BaseService {
 		
 		if (axapiResponse != null && axapiResponse.getStatusCode() != null && 
 				axapiResponse.getStatusCode().equalsIgnoreCase("200")) {
-			inboundLineRepository.updateInboundLineStatus (warehouseId, refDocNumber, 24L, loginUserID, new Date());
+			inboundLineRepository.updateInboundLineStatus (warehouseId, refDocNumber, 24L);
 			log.info("InboundLine updated");
 			
 			inboundHeaderRepository.updateInboundHeaderStatus (warehouseId, refDocNumber, 24L, loginUserID, new Date());

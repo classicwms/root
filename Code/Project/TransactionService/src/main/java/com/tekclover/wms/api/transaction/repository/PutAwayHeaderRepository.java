@@ -124,6 +124,6 @@ public interface PutAwayHeaderRepository extends JpaRepository<PutAwayHeader,Lon
 	 * @param orderTypeId
 	 * @return
 	 */
-	public List<PutAwayHeader> findByWarehouseIdAndStatusIdAndInboundOrderTypeIdInAndDeletionIndicator (String warehouseId, Long statusId,
-			List<Long> orderTypeId, Long deletionIndicator);
+	public List<PutAwayHeader> findByWarehouseIdAndStatusIdAndInboundOrderTypeIdIn (String warehouseId, Long statusId,
+			List<Long> orderTypeId);
 }

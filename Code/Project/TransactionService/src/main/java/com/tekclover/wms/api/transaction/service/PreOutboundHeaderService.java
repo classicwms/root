@@ -136,22 +136,6 @@ public class PreOutboundHeaderService extends BaseService {
 	
 	/**
 	 * 
-	 * @param warehouseId
-	 * @param refDocNumber
-	 * @return
-	 */
-	public PreOutboundHeader getPreOutboundHeader (String warehouseId, String refDocNumber) {
-		Optional<PreOutboundHeader> preOutboundHeader = 
-				preOutboundHeaderRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
-						getLanguageId(), getCompanyCode(), getPlantId(), warehouseId, refDocNumber, 0L);
-		if (!preOutboundHeader.isEmpty()) {
-			return preOutboundHeader.get();
-		} 
-		return null;
-	}
-	
-	/**
-	 * 
 	 * @param searchPreOutboundHeader
 	 * @return
 	 * @throws Exception
@@ -608,10 +592,8 @@ public class PreOutboundHeaderService extends BaseService {
 						outboundIntegrationHeader.getWarehouseID(),
 						authTokenForMastersService.getAccess_token());
 		log.info("imBasicData1 : " + imBasicData1);
-		if (imBasicData1 != null && imBasicData1.getDescription() != null) {
+		if (imBasicData1.getDescription() != null) {
 			preOutboundLine.setDescription(imBasicData1.getDescription());
-		} else {
-			preOutboundLine.setDescription(outboundIntegrationLine.getItemText());
 		}
 		
 		// ORD_QTY
