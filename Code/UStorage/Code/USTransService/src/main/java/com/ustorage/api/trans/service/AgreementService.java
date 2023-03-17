@@ -96,6 +96,7 @@ public class AgreementService {
 				for (StoreNumber newStoreNumber : newAgreement.getStoreNumbers()) {
 					StoreNumber dbStoreNumber = new StoreNumber();
 					BeanUtils.copyProperties(newStoreNumber, dbStoreNumber, CommonUtils.getNullPropertyNames(newStoreNumber));
+					if(dbStoreNumber.getRent()==null){ dbStoreNumber.setRent("0");}
 					dbStoreNumber.setDeletionIndicator(0L);
 					dbStoreNumber.setCreatedBy(loginUserId);
 					dbStoreNumber.setUpdatedBy(loginUserId);
@@ -139,6 +140,7 @@ public class AgreementService {
 			for (StoreNumber newStoreNumber : updateAgreement.getStoreNumbers()) {
 				StoreNumber dbStoreNumber = new StoreNumber();
 				BeanUtils.copyProperties(newStoreNumber, dbStoreNumber, CommonUtils.getNullPropertyNames(newStoreNumber));
+				if(dbStoreNumber.getRent()==null){ dbStoreNumber.setRent("0");}
 				dbStoreNumber.setDeletionIndicator(0L);
 				dbStoreNumber.setCreatedOn(new Date());
 				dbStoreNumber.setCreatedBy(loginUserId);

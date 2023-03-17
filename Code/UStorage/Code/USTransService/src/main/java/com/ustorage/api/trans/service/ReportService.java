@@ -1196,6 +1196,7 @@ public class ReportService {
 			}
 			String agreementRentPerPeriod = reportRepository.getRentPerPeriodStoreNumber(newStoreNumber.getAgreementNumber(), newStoreNumber.getStoreNumber());
 			if(lastPaidVoucherId!=null) {
+				if(agreementRentPerPeriod==null){agreementRentPerPeriod="0";}
 				//Get paymentDetails by passing contractNumber,storeNumber & VoucherId
 				iPaymentDue = reportRepository.getPaymentDueList(newStoreNumber.getAgreementNumber(), newStoreNumber.getStoreNumber(), lastPaidVoucherId, agreementRentPerPeriod);
 			}else{
