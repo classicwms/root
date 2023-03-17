@@ -185,8 +185,8 @@ public class PickupHeaderService {
 	 */
 	public List<PickupHeader> getPickupHeaderCount (String warehouseId, List<Long> orderTypeId) {
 		List<PickupHeader> header = 
-				pickupHeaderRepository.findByWarehouseIdAndStatusIdAndOutboundOrderTypeIdIn (
-						warehouseId, 48L, orderTypeId);
+				pickupHeaderRepository.findByWarehouseIdAndStatusIdAndOutboundOrderTypeIdInAndDeletionIndicator (
+						warehouseId, 48L, orderTypeId, 0L);
 		return header;
 	}
 	

@@ -95,8 +95,11 @@ public interface InboundLineRepository extends JpaRepository<InboundLine,Long>, 
 	 * @param isRead
 	 */
 	@Modifying(clearAutomatically = true)
-	@Query("UPDATE InboundLine ib SET ib.statusId = :statusId WHERE ib.warehouseId = :warehouseId AND ib.refDocNumber = :refDocNumber")
+	@Query("UPDATE InboundLine ib SET ib.statusId = :statusId, ib.confirmedBy = :confirmedBy, ib.confirmedOn = :confirmedOn WHERE ib.warehouseId = :warehouseId AND ib.refDocNumber = :refDocNumber")
 	void updateInboundLineStatus(@Param ("warehouseId") String warehouseId,
-			@Param ("refDocNumber") String refDocNumber, @Param ("statusId") Long statusId);
+			@Param ("refDocNumber") String refDocNumber, 
+			@Param ("statusId") Long statusId,
+			@Param ("confirmedBy") String confirmedBy,
+			@Param ("confirmedOn") Date confirmedOn);
 }
 
