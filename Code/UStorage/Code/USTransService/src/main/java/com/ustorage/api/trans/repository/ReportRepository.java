@@ -695,6 +695,18 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			@Param(value = "storeNumber") String storeNumber,
 			@Param(value = "voucherId") String voucherId);
 
+	@Query (value = "Select distinct tsu.code_id storeNumber, tsu.store_size_meter_sqaure size, \n"
+			+ "tsu.storage_type storageType, tsu.phase phase \n"
+			+ "from tblstorageunit tsu\n"
+			+ "left join tblstorenumber ts on ts.store_number=tsu.item_code \n"
+			+ "where \n"
+			+ "(COALESCE(:agreementNumber,null) IS NULL OR (ts.AGREEMENT_NUMBER IN (:agreementNumber))) and \n"
+			+ "(COALESCE(:storeNumber,null) IS NULL OR (ts.Store_number IN (:storeNumber))) and \n"
+			+ "ts.is_deleted = 0", nativeQuery = true)
+	public IStorageValuePair getStorageUnitListwithoutPayment(
+			@Param(value = "agreementNumber") String agreementNumber,
+			@Param(value = "storeNumber") String storeNumber);
+
 	@Query(value = "select \n"
 			+ "(case \n"
 			+ "when x3.dueAmount > 0 then 'Pending Due' else 'No Dues' end) dueStatus, \n"
@@ -720,7 +732,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			+ "when x2.period='7 Months' then cast((CEILING(x2.days/cast(210 as float))*cast(:voucherAmount as float)) as float)\n"
 			+ "when x2.period='14 Months' then cast((CEILING(x2.days/cast(420 as float))*cast(:voucherAmount as float)) as float)\n"
 			+ "else 0 end)\n"
-			+ "when x2.days > 0 then x2.voucher_amount \n"
+//			+ "when x2.days > 0 then x2.voucher_amount \n"
 			+ "else 0 end dueAmount,* \n"
 			+ "from \n"
 			+ "(select  \n"
@@ -747,6 +759,52 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			@Param(value = "storeNumber") String storeNumber,
 			@Param(value = "voucherId") String voucherId,
 			@Param(value = "voucherAmount") String voucherAmount);
+
+	//without payment
+	@Query(value = "select \n"
+			+ "(case \n"
+			+ "when x3.dueAmount > 0 then 'Pending Due' else 'No Dues' end) dueStatus, \n"
+			+ "dueAmount, \n"
+			+ "dueDate, \n"
+			+ "days dueDays, \n"
+//			+ "start_date startDate, \n"
+//			+ "end_date endDate, \n"
+			+ "rent_period rentPeriod \n"
+			+ "from \n"
+			+ "(select \n"
+			+ "case \n"
+			+ "when x2.days > 0 then \n"
+			+ "(case \n"
+			+ "when x2.rent_period='Monthly' then cast((CEILING(x2.days/cast(30 as float))*cast(x2.rent as float)) as float) \n"
+			+ "when x2.rent_period='QUARTERLY' then cast((CEILING(x2.days/cast(91 as float))*cast(x2.rent as float)) as float) \n"
+			+ "when x2.rent_period='Half Yearly' then cast((CEILING(x2.days/cast(182 as float))*cast(x2.rent as float)) as float) \n"
+			+ "when x2.rent_period='Yearly' then cast((CEILING(x2.days/cast(365 as float))*cast(x2.rent as float)) as float)\n"
+			+ "when x2.rent_period='Weekly' then cast((CEILING(x2.days/cast(7 as float))*cast(x2.rent as float)) as float) \n"
+			+ "when x2.rent_period='7 Months' then cast((CEILING(x2.days/cast(210 as float))*cast(x2.rent as float)) as float)\n"
+			+ "when x2.rent_period='14 Months' then cast((CEILING(x2.days/cast(420 as float))*cast(x2.rent as float)) as float)\n"
+			+ "else 0 end)\n"
+//			+ "when x2.days > 0 then x2.rent \n"
+			+ "else 0 end dueAmount,* \n"
+			+ "from \n"
+			+ "(select \n"
+			+ "DATEDIFF(day,x.dueDate,current_timestamp) days,* \n"
+			+ "from \n"
+			+ "(select distinct payment_terms,ta.agreement_number,\n"
+			+ "start_date,\n"
+			+ "end_date,\n"
+			+ "ta.ctd_on,\n"
+			+ "rent_period,\n"
+			+ "ts.rent,\n"
+			+ "Dateadd(day,1,start_date) dueDate\n"
+			+ "from tblagreement ta \n"
+			+ "join tblstorenumber ts on ts.agreement_number=ta.agreement_number \n"
+			+ "where \n"
+			+ "(COALESCE(:agreementNumber,null) IS NULL OR (ta.AGREEMENT_NUMBER IN (:agreementNumber))) and \n"
+			+ "(COALESCE(:storeNumber,null) IS NULL OR (ts.Store_number IN (:storeNumber))) and \n"
+			+ "ta.is_deleted=0 and ts.is_deleted=0 and ta.status='Open') x) x2) x3 ", nativeQuery = true)
+	public IPaymentDue getPaymentDueListwithoutPayment(
+			@Param(value = "agreementNumber") String agreementNumber,
+			@Param(value = "storeNumber") String storeNumber);
 
 	@Query (value = "SELECT distinct lc.CUSTOMER_CODE as customerCode, \r\n"
 			+ "lc.CUSTOMER_NAME as customerName, \r\n"
@@ -820,6 +878,31 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 	public List<IStorageValuePair> getOpenStoreNumber(
 			@Param(value = "storeNumber") List<String> storeNumber,
 			@Param(value = "agreementNumber") List<String> agreementNumber);
+//without payment
+	@Query (value = "select distinct ts.store_number storeNumber,\n"
+			+ "ts.agreement_number agreementNumber,\n"
+			+ "ta.customer_name customerCode from tblstorenumber ts\n"
+			+ "join tblagreement ta on ta.agreement_number=ts.agreement_number\n"
+			+ "where \n"
+			+ "(COALESCE(:storeNumber,null) IS NULL OR (ts.store_number IN (:storeNumber))) and \n"
+			+ "(COALESCE(:agreementNumber,null) IS NULL OR (ta.agreement_number IN (:agreementNumber))) and \n"
+			+ "ts.is_deleted=0 and ta.is_deleted=0 and ta.status='Open' ",nativeQuery = true)
+	public List<IStorageValuePair> getOpenStoreNumberWithoutPaymentWithStoreNumberInput(
+			@Param(value = "storeNumber") List<String> storeNumber,
+			@Param(value = "agreementNumber") List<String> agreementNumber);
+
+	//without payment
+	@Query (value = "select distinct ts.store_number storeNumber,\n"
+			+ "ts.agreement_number agreementNumber,\n"
+			+ "ta.customer_name customerCode from tblstorenumber ts\n"
+			+ "join tblagreement ta on ta.agreement_number=ts.agreement_number\n"
+			+ "where \n"
+
+			+ "(COALESCE(:agreementNumber,null) IS NULL OR (ta.agreement_Number IN (:agreementNumber))) and \n"
+			+ "ts.is_deleted=0 and ta.is_deleted=0 and ta.status='Open' ",nativeQuery = true)
+	public List<IStorageValuePair> getOpenStoreNumberWithoutPayment(
+
+			@Param(value = "agreementNumber") List<String> agreementNumber);
 
 	@Query (value = "Select distinct tp.store_number storeNumber, \n"
 			+ "tp.contract_number as agreementNumber, \r\n"
@@ -849,4 +932,15 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			+ "ta.status='Open' and ta.IS_DELETED = 0", nativeQuery = true)
 	public String getRentPerPeriod (@Param(value = "agreementNumber") String agreementNumber);
 
+	@Query (value = "SELECT distinct ts.rent as rent \r\n"
+			+ "FROM tblstorenumber ts \r\n"
+			+ "join tblagreement ta on ta.agreement_number=ts.agreement_number \r\n"
+			+ "where \n"
+			+ "(COALESCE(:agreementNumber,null) IS NULL OR (ts.agreement_number IN (:agreementNumber))) and \n"
+			+ "(COALESCE(:storeNumber,null) IS NULL OR (ts.store_number IN (:storeNumber))) and \n"
+//			+ "ta.status='Open' and ta.IS_DELETED = 0 and ts.IS_DELETED = 0 ", nativeQuery = true)
+			+ "ta.IS_DELETED = 0 and ts.IS_DELETED = 0 ", nativeQuery = true)
+	public String getRentPerPeriodStoreNumber (
+			@Param(value = "agreementNumber") String agreementNumber,
+			@Param(value = "storeNumber") String storeNumber);
 }

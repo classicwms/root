@@ -49,4 +49,12 @@ public interface AgreementRepository extends JpaRepository<Agreement, Long>,
 			"ts.is_deleted=0 ",nativeQuery = true)
 	public String getStoreLocation(@Param("agreementNumber") String agreementNumber);
 
+	@Query(value = "select STRING_AGG(tsu.code_id,', '),STRING_AGG(ts.size,', '),STRING_AGG(ts.location,', ') \n" +
+			"from tblstorageunit tsu \n" +
+			"join tblstorenumber ts on ts.store_number=tsu.item_code\n"+
+			" where \n" +
+			"(COALESCE(:agreementNumber,null) IS NULL OR (ts.AGREEMENT_NUMBER IN (:agreementNumber))) and\n"+
+			"ts.is_deleted=0 ",nativeQuery = true)
+	public String[] getStoreNumberSizeLocation(@Param("agreementNumber") String agreementNumber);
+
 }

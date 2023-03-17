@@ -58,15 +58,15 @@ public class LoginController {
 
 	@ApiOperation(response = Optional.class, value = "Create User") // label for swagger
 	@PostMapping("/user")
-	public ResponseEntity<?> postUser(@Valid @RequestBody AddUser newUser) {
-		User createdUser = userService.createUser(newUser);
+	public ResponseEntity<?> postUser(@Valid @RequestBody AddUser newUser,@RequestParam String loginUserID) {
+		User createdUser = userService.createUser(newUser,loginUserID);
 		return new ResponseEntity<>(createdUser , HttpStatus.OK);
 	}
 
 	@ApiOperation(response = Optional.class, value = "Patch User") // label for swagger
 	@PatchMapping("/user/{id}")
-	public ResponseEntity<?> patchUser(@PathVariable Long id, @Valid @RequestBody User modifiedUser) {
-		User updatedUser = userService.patchUser(id, modifiedUser);
+	public ResponseEntity<?> patchUser(@PathVariable Long id, @Valid @RequestBody User modifiedUser,@RequestParam String loginUserID) {
+		User updatedUser = userService.patchUser(id, modifiedUser,loginUserID);
 		return new ResponseEntity<>(updatedUser, HttpStatus.OK);
 	}
 

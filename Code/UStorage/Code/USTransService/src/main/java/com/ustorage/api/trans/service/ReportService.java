@@ -1172,24 +1172,35 @@ public class ReportService {
 		}else{
 			openAgreementNumber = reportRepository.getAgreementList(openAgreementCustomerCode);
 		}
+
+		ICustomerDropDown iCustomerDropDown = null;
+		IStorageValuePair iStorageValuePair = null;
+		IPaymentDue iPaymentDue = null;
+
 		if(paymentDueStatus.getStoreNumber()!=null && !paymentDueStatus.getStoreNumber().isEmpty()){
 			storeNumber = paymentDueStatus.getStoreNumber();
-			openStoreNumber = reportRepository.getOpenStoreNumber(storeNumber, openAgreementNumber);
-
+			openStoreNumber = reportRepository.getOpenStoreNumberWithoutPaymentWithStoreNumberInput(storeNumber, openAgreementNumber);
 		}else{
-			openStoreNumber = reportRepository.getStoreNumber(openAgreementNumber);
+			openStoreNumber = reportRepository.getOpenStoreNumberWithoutPayment(openAgreementNumber);
 		}
-
 		for(IStorageValuePair newStoreNumber : openStoreNumber){
 			agreementDetail = new AgreementDetail();
 
 			String lastPaidVoucherId = reportRepository.getLastPaidVoucherId(newStoreNumber.getAgreementNumber(), newStoreNumber.getStoreNumber());
-			ICustomerDropDown iCustomerDropDown = reportRepository.getCustomerDetail(newStoreNumber.getCustomerCode());
+			iCustomerDropDown = reportRepository.getCustomerDetail(newStoreNumber.getCustomerCode());
 			//Get storeNumber,size,type,phase by passing contractNumber,storeNumber & VoucherId
-			IStorageValuePair iStorageValuePair = reportRepository.getStorageUnitList(newStoreNumber.getAgreementNumber(), newStoreNumber.getStoreNumber(), lastPaidVoucherId);
-			String agreementRentPerPeriod = reportRepository.getRentPerPeriod(newStoreNumber.getAgreementNumber());
-			//Get paymentDetails by passing contractNumber,storeNumber & VoucherId
-			IPaymentDue iPaymentDue = reportRepository.getPaymentDueList(newStoreNumber.getAgreementNumber(), newStoreNumber.getStoreNumber(), lastPaidVoucherId,agreementRentPerPeriod);
+			if(lastPaidVoucherId!=null) {
+				iStorageValuePair = reportRepository.getStorageUnitList(newStoreNumber.getAgreementNumber(), newStoreNumber.getStoreNumber(), lastPaidVoucherId);
+			}else{
+				iStorageValuePair = reportRepository.getStorageUnitListwithoutPayment(newStoreNumber.getAgreementNumber(), newStoreNumber.getStoreNumber());
+			}
+			String agreementRentPerPeriod = reportRepository.getRentPerPeriodStoreNumber(newStoreNumber.getAgreementNumber(), newStoreNumber.getStoreNumber());
+			if(lastPaidVoucherId!=null) {
+				//Get paymentDetails by passing contractNumber,storeNumber & VoucherId
+				iPaymentDue = reportRepository.getPaymentDueList(newStoreNumber.getAgreementNumber(), newStoreNumber.getStoreNumber(), lastPaidVoucherId, agreementRentPerPeriod);
+			}else{
+				iPaymentDue = reportRepository.getPaymentDueListwithoutPayment(newStoreNumber.getAgreementNumber(), newStoreNumber.getStoreNumber());
+			}
 			agreementDetail.setAgreementNumber(newStoreNumber.getAgreementNumber());
 			agreementDetail.setAgreementStatus("Agreement Open");
 			agreementDetail.setStoreNumber(iStorageValuePair.getStoreNumber());
