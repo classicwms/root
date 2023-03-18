@@ -794,7 +794,7 @@ public interface ReportRepository extends JpaRepository<Agreement, Long>,
 			+ "end_date,\n"
 			+ "ta.ctd_on,\n"
 			+ "rent_period,\n"
-			+ "COALESCE(ts.rent,0) rent,\n"
+			+ "ISNULL(ts.rent,0) rent,\n"
 			+ "Dateadd(day,1,start_date) dueDate\n"
 			+ "from tblagreement ta \n"
 			+ "join tblstorenumber ts on ts.agreement_number=ta.agreement_number \n"
