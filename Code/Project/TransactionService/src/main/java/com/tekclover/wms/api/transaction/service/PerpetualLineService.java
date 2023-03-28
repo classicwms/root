@@ -16,6 +16,7 @@ import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.AddPerpetual
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.AddPerpetualLine;
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.AssignHHTUserCC;
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualHeader;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualHeaderEntity;
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualLine;
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.UpdatePerpetualLine;
 import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
@@ -352,6 +353,8 @@ public class PerpetualLineService extends BaseService {
 				 * If ACTION = RECOUNT, update ACTION field in PERPETUALLINE as SKIP by passing unique fields 
 				 * and update in STATUS_ID field as "75 "
 				 */
+				log.info("---------->updatePerpetualLine data : " + updatePerpetualLine);
+				log.info("---------->RECOUNT : " + RECOUNT);
 				if (updatePerpetualLine.getCycleCountAction().equalsIgnoreCase(RECOUNT)) {
 					dbPerpetualLine.setStatusId(75L);
 					dbPerpetualLine.setCycleCountAction(RECOUNT);
@@ -366,7 +369,7 @@ public class PerpetualLineService extends BaseService {
 					PerpetualHeader perpetualHeader = perpetualHeaderService.getPerpetualHeader(updatedPerpetualLine.getCycleCountNo());
 					BeanUtils.copyProperties(perpetualHeader, newPerpetualHeader, CommonUtils.getNullPropertyNames(perpetualHeader));
 					newPerpetualHeader.setReferenceField1(updatedPerpetualLine.getCycleCountNo());
-					PerpetualHeader createdPerpetualHeader = 
+					PerpetualHeaderEntity createdPerpetualHeader = 
 							perpetualHeaderService.createPerpetualHeader(newPerpetualHeader, loginUserID);
 					log.info("createdPerpetualHeader : " + createdPerpetualHeader);
 				}

@@ -75,6 +75,9 @@ public class PreOutboundHeaderService extends BaseService {
 	private InventoryService inventoryService;
 	
 	@Autowired
+	private OutboundLineService outboundLineService;
+	
+	@Autowired
 	InventoryRepository inventoryRepository;
 	
 	@Autowired
@@ -132,6 +135,22 @@ public class PreOutboundHeaderService extends BaseService {
 		} else {
 			throw new BadRequestException("The given PreOutboundHeader ID : " + preOutboundNo + " doesn't exist.");
 		}
+	}
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param refDocNumber
+	 * @return
+	 */
+	public PreOutboundHeader getPreOutboundHeader (String warehouseId, String refDocNumber) {
+		Optional<PreOutboundHeader> preOutboundHeader = 
+				preOutboundHeaderRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+						getLanguageId(), getCompanyCode(), getPlantId(), warehouseId, refDocNumber, 0L);
+		if (!preOutboundHeader.isEmpty()) {
+			return preOutboundHeader.get();
+		} 
+		return null;
 	}
 	
 	/**
@@ -345,9 +364,34 @@ public class PreOutboundHeaderService extends BaseService {
 		
 		/*------------------Record Insertion in OUTBOUNDHEADER/OUTBOUNDLINE tables-----------*/		
 		OutboundHeader outboundHeader = createOutboundHeader (createdPreOutboundHeader, createdOrderManagementHeader.getStatusId());
+		
+		/*------------------------------------------------------------------------------------*/
+		updateStatusAs47ForOBHeader(warehouseId, preOutboundNo, outboundHeader.getRefDocNumber());
 		return outboundHeader;
 	}
 	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 */
+	private void updateStatusAs47ForOBHeader(String warehouseId, String preOutboundNo, String refDocNumber) {
+		List<OutboundLine> outboundLineList = outboundLineService.getOutboundLine(warehouseId, preOutboundNo, refDocNumber);
+		long matchedCount = outboundLineList.stream().filter(a->a.getStatusId() == 47L).count();
+		boolean isConditionMet = (matchedCount == outboundLineList.size());
+		Long STATUS_ID_47 = 47L;
+		if (isConditionMet) {
+			//----------------Outbound Header update----------------------------------------------------------------------------------------
+			outboundHeaderRepository.updateOutboundHeaderStatusAs47 (warehouseId, refDocNumber, STATUS_ID_47);
+			log.info("OutboundHeader status updated as 47. ");
+			
+			//----------------Preoutbound Header--------------------------------------------------------------------------------------------
+			preOutboundHeaderRepository.updatePreOutboundHeaderStatus(warehouseId, refDocNumber, STATUS_ID_47);
+			log.info("PreOutbound Header status updated as 47.");
+		}
+	}
+
 	/**
 	 * 
 	 * @param createdPreOutboundLine
@@ -592,8 +636,10 @@ public class PreOutboundHeaderService extends BaseService {
 						outboundIntegrationHeader.getWarehouseID(),
 						authTokenForMastersService.getAccess_token());
 		log.info("imBasicData1 : " + imBasicData1);
-		if (imBasicData1.getDescription() != null) {
+		if (imBasicData1 != null && imBasicData1.getDescription() != null) {
 			preOutboundLine.setDescription(imBasicData1.getDescription());
+		} else {
+			preOutboundLine.setDescription(outboundIntegrationLine.getItemText());
 		}
 		
 		// ORD_QTY

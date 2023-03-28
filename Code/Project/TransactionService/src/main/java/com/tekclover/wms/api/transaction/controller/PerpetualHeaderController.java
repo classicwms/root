@@ -6,7 +6,6 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +20,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.AddPerpetualHeader;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualHeader;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualHeaderEntity;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualLineEntity;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualLineEntityImpl;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.RunPerpetualHeader;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.SearchPerpetualHeader;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.UpdatePerpetualHeader;
 import com.tekclover.wms.api.transaction.service.PerpetualHeaderService;
 
 import io.swagger.annotations.Api;
@@ -68,7 +75,7 @@ public class PerpetualHeaderController {
 	@PostMapping("")
 	public ResponseEntity<?> postPerpetualHeader(@Valid @RequestBody AddPerpetualHeader newPerpetualHeader, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
-		PerpetualHeader createdPerpetualHeader = 
+		PerpetualHeaderEntity createdPerpetualHeader = 
 				perpetualheaderService.createPerpetualHeader(newPerpetualHeader, loginUserID);
 		return new ResponseEntity<>(createdPerpetualHeader, HttpStatus.OK);
 	}

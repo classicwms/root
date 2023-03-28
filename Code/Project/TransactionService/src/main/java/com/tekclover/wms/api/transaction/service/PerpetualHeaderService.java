@@ -308,7 +308,7 @@ public class PerpetualHeaderService extends BaseService {
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	public PerpetualHeader createPerpetualHeader (AddPerpetualHeader newPerpetualHeader, String loginUserID) 
+	public PerpetualHeaderEntity createPerpetualHeader (AddPerpetualHeader newPerpetualHeader, String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
 		PerpetualHeader dbPerpetualHeader = new PerpetualHeader();
 		dbPerpetualHeader.setLanguageId(getLanguageId());
@@ -346,6 +346,10 @@ public class PerpetualHeaderService extends BaseService {
 		// Lines Creation
 		List<PerpetualLine> perpetualLines = new ArrayList<>();
 		for (AddPerpetualLine newPerpetualLine : newPerpetualHeader.getAddPerpetualLine()) {
+			log.info("Manu Part No : " + newPerpetualLine.getManufacturerPartNo());
+			log.info("itemDex : " + newPerpetualLine.getItemDesc());
+			log.info("storage secIds : " + newPerpetualLine.getStorageSectionId());
+			
 			PerpetualLine dbPerpetualLine = new PerpetualLine();
 			BeanUtils.copyProperties(newPerpetualLine, dbPerpetualLine, CommonUtils.getNullPropertyNames(newPerpetualLine));
 			dbPerpetualLine.setLanguageId(getLanguageId());
@@ -361,7 +365,20 @@ public class PerpetualHeaderService extends BaseService {
 		}
 		List<PerpetualLine> createdPerpetualLines = perpetualLineRepository.saveAll(perpetualLines);
 		log.info("createdPerpetualLine : " + createdPerpetualLines);
-		return createdPerpetualHeader;
+		
+		// Return Response
+		List<PerpetualLineEntity> listPerpetualLineEntity = new ArrayList<>();
+		for (PerpetualLine perpetualLine : createdPerpetualLines) {
+			PerpetualLineEntity perpetualLineEntity = new PerpetualLineEntity();
+			BeanUtils.copyProperties(perpetualLine, perpetualLineEntity, CommonUtils.getNullPropertyNames(perpetualLine));
+			listPerpetualLineEntity.add(perpetualLineEntity);
+		}
+		
+		PerpetualHeaderEntity perpetualHeaderEntity = new PerpetualHeaderEntity();
+		BeanUtils.copyProperties(createdPerpetualHeader, perpetualHeaderEntity, CommonUtils.getNullPropertyNames(createdPerpetualHeader));
+		perpetualHeaderEntity.setPerpetualLine(listPerpetualLineEntity);
+		
+		return perpetualHeaderEntity;
 	}
 	
 	/**
@@ -512,7 +529,7 @@ public class PerpetualHeaderService extends BaseService {
 	 */
 	private PerpetualHeader convertToEntity (PerpetualHeader perpetualHeader) {
 		List<PerpetualLine> perpetualLineList = perpetualLineService.getPerpetualLine(perpetualHeader.getCycleCountNo());
-		log.info("perpetualLineList found: " + perpetualLineList);
+//		log.info("perpetualLineList found: " + perpetualLineList);
 		perpetualHeader.setPerpetualLine(perpetualLineList);
 		return perpetualHeader;
 	}

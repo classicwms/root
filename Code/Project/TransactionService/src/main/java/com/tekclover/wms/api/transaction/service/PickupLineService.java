@@ -25,6 +25,7 @@ import com.tekclover.wms.api.transaction.model.inbound.inventory.AddInventoryMov
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.UpdateInventory;
+import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.AddPickupLine;
@@ -32,12 +33,15 @@ import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupHeader;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupLine;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.SearchPickupLine;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.UpdatePickupLine;
+import com.tekclover.wms.api.transaction.model.outbound.preoutbound.PreOutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.quality.AddQualityHeader;
 import com.tekclover.wms.api.transaction.model.outbound.quality.QualityHeader;
 import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
 import com.tekclover.wms.api.transaction.repository.InventoryRepository;
+import com.tekclover.wms.api.transaction.repository.OutboundHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.PickupHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.PickupLineRepository;
+import com.tekclover.wms.api.transaction.repository.PreOutboundHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.specification.PickupLineSpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
@@ -68,6 +72,18 @@ public class PickupLineService extends BaseService {
 
 	@Autowired
 	private OutboundLineService outboundLineService;
+	
+	@Autowired
+	private OutboundHeaderService outboundHeaderService;
+	
+	@Autowired
+	private PreOutboundHeaderService preOutboundHeaderService;
+	
+	@Autowired
+	private OutboundHeaderRepository outboundHeaderRepository;
+	
+	@Autowired
+	private PreOutboundHeaderRepository preOutboundHeaderRepository;
 
 	@Autowired
 	private QualityHeaderService qualityHeaderService;
@@ -446,9 +462,17 @@ public class PickupLineService extends BaseService {
 						inventory.setInventoryQuantity(INV_QTY);
 						inventory = inventoryRepository.save(inventory);
 						log.info("inventory updated : " + inventory);
-
-						if (INV_QTY == 0) {
+						
+						//-------------------------------------------------------------------
+						// PASS PickedConfirmedStBin, WH_ID to inventory
+						// 	If inv_qty && alloc_qty is zero or null then do the below logic.
+						//-------------------------------------------------------------------
+						Inventory inventoryBySTBIN = inventoryService.getInventoryByStorageBin(warehouseId, dbPickupLine.getPickedStorageBin());
+						//if (INV_QTY == 0) {
+						if (inventoryBySTBIN != null && (inventoryBySTBIN.getAllocatedQuantity() == null || inventoryBySTBIN.getAllocatedQuantity() == 0D) 
+								&& (inventoryBySTBIN.getInventoryQuantity() == null || inventoryBySTBIN.getInventoryQuantity() == 0D)) {
 							try {
+								
 								// Setting up statusId = 0
 								StorageBin dbStorageBin = mastersService.getStorageBin(inventory.getStorageBin(),
 										dbPickupLine.getWarehouseId(), authTokenForMastersService.getAccess_token());
@@ -629,6 +653,31 @@ public class PickupLineService extends BaseService {
 			refDocNumber = dbPickupLine.getRefDocNumber();
 			partnerCode = dbPickupLine.getPartnerCode();
 			pickupNumber = dbPickupLine.getPickupNumber();
+		}
+		
+		/*
+		 * Update OutboundHeader & Preoutbound Header STATUS_ID as 47 only if all OutboundLines are STATUS_ID is 51
+		 */
+		List<OutboundLine> outboundLineList = outboundLineService.getOutboundLine(warehouseId, preOutboundNo, refDocNumber);
+		boolean hasStatus51 = false;
+		List<Long> status51List = outboundLineList.stream().map(OutboundLine::getStatusId).collect(Collectors.toList());
+		long status51IdCount = status51List.stream().filter(a -> a == 51L || a == 47L ).count();
+		log.info("status count : " + (status51IdCount == status51List.size()));
+		hasStatus51 = (status51IdCount == status51List.size());
+		if (!status51List.isEmpty() && hasStatus51) {
+			OutboundHeader outboundHeader = outboundHeaderService.getOutboundHeader(refDocNumber, warehouseId);
+			outboundHeader.setStatusId(51L);
+			outboundHeader.setUpdatedBy(loginUserID);
+			outboundHeader.setUpdatedOn(new Date());			
+			outboundHeaderRepository.save(outboundHeader);
+			log.info("outboundHeader updated as 51.");
+			
+			PreOutboundHeader preOutboundHeader = preOutboundHeaderService.getPreOutboundHeader(warehouseId, refDocNumber);
+			preOutboundHeader.setStatusId(51L);
+			preOutboundHeader.setUpdatedBy(loginUserID);
+			preOutboundHeader.setUpdatedOn(new Date());			
+			preOutboundHeaderRepository.save(preOutboundHeader);
+			log.info("PreOutboundHeader updated as 51.");
 		}
 
 		/*---------------------------------------------PickupHeader Updates---------------------------------------*/

@@ -153,9 +153,9 @@ public class OrderService {
 	 * @return
 	 * @throws ParseException
 	 */
-	public List<OutboundOrder> getOBOrderByDate(String sdate) throws ParseException {
-		Date date1 = DateUtils.convertStringToDate_start(sdate);
-		Date date2 = DateUtils.convertStringToDate_end(sdate);
+	public List<OutboundOrder> getOBOrderByDate(String startDate, String endDate) throws ParseException {
+		Date date1 = DateUtils.convertStringToDate_start(startDate);
+		Date date2 = DateUtils.convertStringToDate_end(endDate);
 		return outboundOrderRepository.findByOrderReceivedOnBetween(date1, date2);
 	}
 	

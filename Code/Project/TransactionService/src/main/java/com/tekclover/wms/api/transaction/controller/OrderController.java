@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tekclover.wms.api.transaction.model.inbound.gr.GrHeader;
@@ -79,7 +80,7 @@ public class OrderController {
 	}
     
     //--------------------------------Outbound--------------------------------------------
-    @ApiOperation(response = InboundOrder.class, value = "Get all InboundOrder details") // label for swagger
+    @ApiOperation(response = OutboundOrder.class, value = "Get all InboundOrder details") // label for swagger
    	@GetMapping("/outbound")
    	public ResponseEntity<?> getOBAllOrders() {
    		List<OutboundOrder> outboundOrderList = orderService.getOBOrders();
@@ -94,9 +95,9 @@ public class OrderController {
    	}
        
     @ApiOperation(response = OutboundOrder.class, value = "Get a Orders") // label for swagger 
-   	@GetMapping("/outbound/orders/{orderDate}/date")
-   	public ResponseEntity<?> getOBOrdersByDate(@PathVariable String orderDate) throws ParseException {
-       	List<OutboundOrder> orders = orderService.getOBOrderByDate(orderDate);
+   	@GetMapping("/outbound/orders/byDate")
+   	public ResponseEntity<?> getOBOrdersByDate(@RequestParam String orderStartDate, @RequestParam String orderEndDate) throws ParseException {
+       	List<OutboundOrder> orders = orderService.getOBOrderByDate(orderStartDate, orderEndDate);
    		return new ResponseEntity<>(orders, HttpStatus.OK);
    	}
     

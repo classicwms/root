@@ -13,19 +13,20 @@ import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupHeader;
 
 @Repository
 @Transactional
-public interface PickupHeaderRepository extends JpaRepository<PickupHeader,Long>, JpaSpecificationExecutor<PickupHeader> {
-	
-	@QueryHints(@javax.persistence.QueryHint(name="org.hibernate.fetchSize", value="500"))
+public interface PickupHeaderRepository
+		extends JpaRepository<PickupHeader, Long>, JpaSpecificationExecutor<PickupHeader> {
+
+	@QueryHints(@javax.persistence.QueryHint(name = "org.hibernate.fetchSize", value = "500"))
 	public List<PickupHeader> findAll();
-	
+
 	public Optional<PickupHeader> findByPickupNumber(String pickupNumber);
-	
+
 	public PickupHeader findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndPickupNumberAndLineNumberAndItemCodeAndDeletionIndicator(
 			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, String pickupNumber,
 			Long lineNumber, String itemCode, Long deletionIndicator);
-	
-	public List<PickupHeader> findByWarehouseIdAndStatusIdAndOutboundOrderTypeIdIn (String warehouseId, Long statusId,
-			List<Long> outboundOrderTypeId);
+
+	public List<PickupHeader> findByWarehouseIdAndStatusIdAndOutboundOrderTypeIdInAndDeletionIndicator(
+			String warehouseId, Long statusId, List<Long> outboundOrderTypeId, Long deletionIndicator);
 
 	public PickupHeader findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndPickupNumberAndDeletionIndicator(
 			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, String pickupNumber,
@@ -34,4 +35,8 @@ public interface PickupHeaderRepository extends JpaRepository<PickupHeader,Long>
 	public List<PickupHeader> findAllByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndPickupNumberAndLineNumberAndItemCodeAndDeletionIndicator(
 			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, String pickupNumber,
 			Long lineNumber, String itemCode, Long deletionIndicator);
+
+	public PickupHeader findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndProposedStorageBinAndProposedPackBarCodeAndDeletionIndicator(
+			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
+			String itemCode, String proposedStorageBin, String proposedPackCode, Long deletionIndicator);
 }

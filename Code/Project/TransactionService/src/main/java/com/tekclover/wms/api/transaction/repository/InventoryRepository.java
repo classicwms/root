@@ -215,7 +215,9 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 	@Query (value = "SELECT ST_BIN AS storageBin, SUM(INV_QTY) AS inventoryQty FROM tblinventory \r\n"
 			+ "WHERE WH_ID = :warehouseId and ITM_CODE = :itemCode AND BIN_CL_ID = 1 AND STCK_TYP_ID = 1 \r\n"
 			+ "AND REF_FIELD_10 IN :storageSecIds AND IS_DELETED = 0 \r\n"
-			+ "GROUP BY ST_BIN ORDER BY SUM(INV_QTY)", nativeQuery = true)
+			+ "GROUP BY ST_BIN \r\n"
+			+ "HAVING SUM(INV_QTY) > 0 \r\n"
+			+ "ORDER BY SUM(INV_QTY)", nativeQuery = true)
 	public List<IInventory> findInventoryGroupByStorageBin (
 			@Param(value = "warehouseId") String warehouseId,
 			@Param(value = "itemCode") String itemCode,

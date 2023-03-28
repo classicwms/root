@@ -99,6 +99,19 @@ public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader,L
 			@Param ("refDocNumber") String refDocNumber, 
 			@Param ("statusId") Long statusId,
 			@Param ("deliveryConfirmedOn") Date deliveryConfirmedOn);
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param refDocNumber
+	 * @param statusId
+	 */
+	@Modifying(clearAutomatically = true)
+	@Query("Update OutboundHeader ob SET ob.statusId = :statusId \r\n "
+			+ " WHERE ob.warehouseId = :warehouseId AND ob.refDocNumber = :refDocNumber")
+	public void updateOutboundHeaderStatusAs47(@Param ("warehouseId") String warehouseId, 
+			@Param ("refDocNumber") String refDocNumber, 
+			@Param ("statusId") Long statusId);
 
 	public List<OutboundHeader> findByWarehouseIdAndStatusIdAndPartnerCodeAndDeliveryConfirmedOnBetween(
 			String warehouseId, long l, String partnerCode, Date fromDeliveryDate_d, Date toDeliveryDate_d);

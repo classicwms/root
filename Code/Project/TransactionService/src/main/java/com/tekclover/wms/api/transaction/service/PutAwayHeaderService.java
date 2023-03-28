@@ -243,8 +243,8 @@ public class PutAwayHeaderService extends BaseService {
 	 */
 	public List<PutAwayHeader> getPutAwayHeaderCount (String warehouseId, List<Long> orderTypeId) {
 		List<PutAwayHeader> header = 
-				putAwayHeaderRepository.findByWarehouseIdAndStatusIdAndInboundOrderTypeIdIn (
-						warehouseId, 19L, orderTypeId);
+				putAwayHeaderRepository.findByWarehouseIdAndStatusIdAndInboundOrderTypeIdInAndDeletionIndicator (
+						warehouseId, 19L, orderTypeId, 0L);
 		return header;
 	}
 	
@@ -252,7 +252,7 @@ public class PutAwayHeaderService extends BaseService {
 	 * 
 	 * @param searchPutAwayHeader
 	 * @return
-	 * @throws ParseException
+	 * @throws Exception
 	 */
 	public List<PutAwayHeader> findPutAwayHeader(SearchPutAwayHeader searchPutAwayHeader) 
 			throws Exception {
@@ -334,7 +334,6 @@ public class PutAwayHeaderService extends BaseService {
 	 * @param warehouseId
 	 * @param preInboundNo
 	 * @param refDocNumber
-	 * @param updatePutAwayHeader
 	 * @param loginUserID
 	 * @return
 	 * @throws IllegalAccessException
@@ -476,7 +475,7 @@ public class PutAwayHeaderService extends BaseService {
 	
 	/**
 	 * 
-	 * @param putAwayLine
+	 * @param grLine
 	 * @param caseCode 
 	 * @param storageBin 
 	 */
