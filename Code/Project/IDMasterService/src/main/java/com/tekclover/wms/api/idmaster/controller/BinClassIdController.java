@@ -56,6 +56,14 @@ public class BinClassIdController {
 		return new ResponseEntity<>(inhousetransferline, HttpStatus.OK);
 	}
     
+    @ApiOperation(response = BinClassId.class, value = "Get a BinClassId") // label for swagger 
+   	@GetMapping("/{warehouseId}")
+   	public ResponseEntity<?> getBinClassId(@PathVariable String warehouseId) {
+       	BinClassId inhousetransferline = binClassIdService.getBinClassId(warehouseId);
+       	log.info("BinClassId : " + inhousetransferline);
+   		return new ResponseEntity<>(inhousetransferline, HttpStatus.OK);
+   	}
+    
     @ApiOperation(response = BinClassId.class, value = "Create BinClassId") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postBinClassId(@Valid @RequestBody AddBinClassId newBinClassId, @RequestParam String loginUserID) 

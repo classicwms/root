@@ -43,19 +43,21 @@ public class ItemTypeIdService extends BaseService {
 	 * @param itemTypeId
 	 * @return
 	 */
-	public ItemTypeId getItemTypeId (String warehouseId, Long itemTypeId) {
+	public ItemTypeId getItemTypeId (String warehouseId, Long itemTypeId, String itemType) {
 		Optional<ItemTypeId> dbItemTypeId = 
-				itemTypeIdRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemTypeIdAndDeletionIndicator(
+				itemTypeIdRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemTypeIdAndItemTypeAndDeletionIndicator(
 								getCompanyCode(),
 								getPlantId(),
 								warehouseId,
 								itemTypeId,
+								itemType,
 								0L
 								);
 		if (dbItemTypeId.isEmpty()) {
 			throw new BadRequestException("The given values : " + 
 						"warehouseId - " + warehouseId +
 						"itemTypeId - " + itemTypeId +
+						"itemType - " + itemType +
 						" doesn't exist.");
 			
 		} 
@@ -108,10 +110,10 @@ public class ItemTypeIdService extends BaseService {
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	public ItemTypeId updateItemTypeId (String warehouseId, Long itemTypeId, String loginUserID,
+	public ItemTypeId updateItemTypeId (String warehouseId, Long itemTypeId, String itemType, String loginUserID, 
 			UpdateItemTypeId updateItemTypeId) 
 			throws IllegalAccessException, InvocationTargetException {
-		ItemTypeId dbItemTypeId = getItemTypeId(warehouseId, itemTypeId);
+		ItemTypeId dbItemTypeId = getItemTypeId(warehouseId, itemTypeId, itemType);
 		BeanUtils.copyProperties(updateItemTypeId, dbItemTypeId, CommonUtils.getNullPropertyNames(updateItemTypeId));
 		dbItemTypeId.setUpdatedBy(loginUserID);
 		dbItemTypeId.setUpdatedOn(new Date());
@@ -123,9 +125,9 @@ public class ItemTypeIdService extends BaseService {
 	 * @param loginUserID 
 	 * @param itemTypeId
 	 */
-	public void deleteItemTypeId (String warehouseId, Long itemTypeId,  String loginUserID) {
-		ItemTypeId dbItemTypeId = getItemTypeId(warehouseId, itemTypeId);
-		if ( dbItemTypeId != null) {
+	public void deleteItemTypeId (String warehouseId, Long itemTypeId, String itemType, String loginUserID) {
+		ItemTypeId dbItemTypeId = getItemTypeId(warehouseId, itemTypeId, itemType);
+		if ( itemTypeId != null) {
 			dbItemTypeId.setDeletionIndicator(1L);
 			dbItemTypeId.setUpdatedBy(loginUserID);
 			itemTypeIdRepository.save(dbItemTypeId);

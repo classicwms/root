@@ -51,7 +51,7 @@ public class RowIdController {
     @ApiOperation(response = RowId.class, value = "Get a RowId") // label for swagger 
 	@GetMapping("/{rowId}")
 	public ResponseEntity<?> getRowId(@PathVariable String rowId, 
-			@RequestParam String warehouseId, @RequestParam Long floorId, @RequestParam String storageSectionId) {
+			@RequestParam String warehouseId, @RequestParam Long floorId, @RequestParam Long storageSectionId) {
     	RowId rowid = 
     			rowidService.getRowId(warehouseId, floorId, storageSectionId, rowId);
     	log.info("RowId : " + rowid);
@@ -76,7 +76,7 @@ public class RowIdController {
     @ApiOperation(response = RowId.class, value = "Update RowId") // label for swagger
     @PatchMapping("/{rowId}")
 	public ResponseEntity<?> patchRowId(@PathVariable String rowId, 
-			@RequestParam String warehouseId, @RequestParam Long floorId, @RequestParam String storageSectionId,
+			@RequestParam String warehouseId, @RequestParam Long floorId, @RequestParam Long storageSectionId, 
 			@Valid @RequestBody UpdateRowId updateRowId, @RequestParam String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
 		RowId createdRowId = 
@@ -87,7 +87,7 @@ public class RowIdController {
     @ApiOperation(response = RowId.class, value = "Delete RowId") // label for swagger
 	@DeleteMapping("/{rowId}")
 	public ResponseEntity<?> deleteRowId(@PathVariable String rowId, 
-			@RequestParam String warehouseId, @RequestParam Long floorId, @RequestParam String storageSectionId, @RequestParam String loginUserID) {
+			@RequestParam String warehouseId, @RequestParam Long floorId, @RequestParam Long storageSectionId, @RequestParam String loginUserID) {
     	rowidService.deleteRowId(warehouseId, floorId, storageSectionId, rowId, loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}

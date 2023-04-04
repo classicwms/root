@@ -1,7 +1,6 @@
 package com.tekclover.wms.api.idmaster.service;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityNotFoundException;
@@ -59,9 +58,7 @@ public class StateService {
 			throws IllegalAccessException, InvocationTargetException {
 		State dbState = new State();
 		BeanUtils.copyProperties(newState, dbState, CommonUtils.getNullPropertyNames(newState));
-		dbState.setDeletionIndicator(0L);
-		dbState.setCreatedOn(new Date());
-		dbState.setUpdatedOn(new Date());
+		log.info("dbState : " + dbState);
 		return stateRepository.save(dbState);
 	}
 	
@@ -82,7 +79,7 @@ public class StateService {
 	
 	/**
 	 * deleteState
-	 * @param stateId
+	 * @param stateCode
 	 */
 	public void deleteState (String stateId) {
 		State state = getState(stateId);

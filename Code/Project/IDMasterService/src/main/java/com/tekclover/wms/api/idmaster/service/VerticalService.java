@@ -58,7 +58,6 @@ public class VerticalService {
 			throws IllegalAccessException, InvocationTargetException {
 		Vertical dbVertical = new Vertical();
 		BeanUtils.copyProperties(newVertical, dbVertical, CommonUtils.getNullPropertyNames(newVertical));
-		dbVertical.setDeletionIndicator(0L);
 		return verticalRepository.save(dbVertical);
 	}
 	

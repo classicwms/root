@@ -1,24 +1,26 @@
 package com.tekclover.wms.core.controller;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-import javax.mail.MessagingException;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.tekclover.wms.core.exception.BadRequestException;
 import com.tekclover.wms.core.exception.CustomErrorResponse;
@@ -48,6 +50,7 @@ import com.tekclover.wms.core.model.idmaster.StrategyId;
 import com.tekclover.wms.core.model.idmaster.StroageTypeId;
 import com.tekclover.wms.core.model.idmaster.SubItemGroupId;
 import com.tekclover.wms.core.model.idmaster.UomId;
+import com.tekclover.wms.core.model.idmaster.User;
 import com.tekclover.wms.core.model.idmaster.UserTypeId;
 import com.tekclover.wms.core.model.idmaster.VariantId;
 import com.tekclover.wms.core.model.idmaster.Vertical;
@@ -57,14 +60,14 @@ import com.tekclover.wms.core.model.user.AddUserManagement;
 import com.tekclover.wms.core.model.user.UpdateUserManagement;
 import com.tekclover.wms.core.model.user.UserManagement;
 import com.tekclover.wms.core.service.IDMasterService;
-import com.tekclover.wms.core.service.*;
+import com.tekclover.wms.core.service.RegisterService;
+import com.tekclover.wms.core.util.CommonUtils;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @CrossOrigin(origins = "*")
@@ -79,12 +82,6 @@ public class IDMasterServiceController {
 	
 	@Autowired
 	RegisterService registerService;
-
-	@Autowired
-	FileStorageService fileStorageService;
-
-	@Autowired
-	DocStorageService docStorageService;
 	
 	/* --------------------------------LOGIN-------------------------------------------------------------------------------------*/
 	
@@ -2990,121 +2987,4 @@ public class IDMasterServiceController {
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
-	//-----------------------------------Document Upload------------------------------------------------------------
-	@ApiOperation(response = UploadFileResponse.class, value = "Document Storage Upload") // label for swagger
-	@PostMapping("/doc-storage/upload")
-	public ResponseEntity<?> docStorageUpload(@RequestParam String location, @RequestParam("file") MultipartFile file)
-			throws Exception {
-		if (location == null) {
-			throw new BadRequestException("Location can't be blank. Please provide 'document' as Location");
-		}
-		Map<String, String> response = fileStorageService.storingFile(location, file);
-		return new ResponseEntity<>(response,HttpStatus.OK);
-	}
-
-	//-----------------------------------Document Download------------------------------------------------------------
-	@ApiOperation(response = Optional.class, value = "Document Storage Download") // label for swagger
-	@GetMapping("/doc-storage/download")
-	public ResponseEntity<?> docStorageDownload(@RequestParam String location, @RequestParam String fileName)
-			throws Exception {
-		String filePath = docStorageService.getQualifiedFilePath (location, fileName);
-		File file = new File (filePath);
-		Path path = Paths.get(file.getAbsolutePath());
-		ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
-
-		HttpHeaders header = new HttpHeaders();
-		header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getName());
-		header.add("Cache-Control", "no-cache, no-store, must-revalidate");
-		header.add("Pragma", "no-cache");
-		header.add("Expires", "0");
-		return ResponseEntity.ok()
-				.headers(header)
-				.contentLength(file.length())
-				.contentType(MediaType.APPLICATION_OCTET_STREAM)
-				.body(resource);
-	}
-	/*
-	 * --------------------------------EMail---------------------------------
-	 */
-	@ApiOperation(response = EMailDetails[].class, value = "Get all EMail details") // label for swagger
-	@GetMapping("/email")
-	public ResponseEntity<?> getEMails(@RequestParam String authToken) {
-		EMailDetails[] userEMail= idmasterService.getEMailDetailsList(authToken);
-		return new ResponseEntity<>(userEMail, HttpStatus.OK);
-	}
-	@ApiOperation(response = EMailDetails.class, value = "Get a EMail") // label for swagger
-	@GetMapping("/email/{id}")
-	public ResponseEntity<?>  getEMail(@PathVariable Long id,
-									   @RequestParam String authToken) {
-		EMailDetails dbEMail= idmasterService.getEMail(id,authToken);
-		return new ResponseEntity<>(dbEMail, HttpStatus.OK);
-	}
-	@ApiOperation(response = EMailDetails.class, value = "Create a EMail") // label for swagger
-	@PostMapping("/email")
-	public ResponseEntity<?> PostEMail(@Valid @RequestBody AddEMailDetails newEMail,
-									   @RequestParam String authToken)
-			throws IllegalAccessException, InvocationTargetException {
-		EMailDetails CreateEMail = idmasterService.createEMail(newEMail, authToken);
-		return new ResponseEntity<>(CreateEMail, HttpStatus.OK);
-	}
-	@ApiOperation(response = EMailDetails.class, value = "Update EMail") // label for swagger
-	@RequestMapping(value = "/email/{id}", method = RequestMethod.PATCH)
-	public ResponseEntity<?>updateEMail(@PathVariable Long id,
-										@Valid @RequestBody AddEMailDetails updateEMail, @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
-		EMailDetails UpdateEMail =
-				idmasterService.updateEMail(id, updateEMail,authToken);
-		return new ResponseEntity<>(UpdateEMail, HttpStatus.OK);
-	}
-	@ApiOperation(response = EMailDetails.class, value = "Delete EMail") // label for swagger
-	@DeleteMapping("/email/{id}")
-	public ResponseEntity<?> deleteEMail(@PathVariable Long id,
-										 @RequestParam String authToken) {
-		idmasterService.deleteEMail(id,authToken);
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-	}
-	@ApiOperation(response = EMailDetails.class, value = "Un_Delete_EMail") // label for swagger
-	@DeleteMapping("/email/undelete/{id}")
-	public ResponseEntity<?> undeleteEMail(@PathVariable Long id,
-										 @RequestParam String authToken) {
-		EMailDetails dbEMail = idmasterService.undeleteEMail(id,authToken);
-		return new ResponseEntity<>(dbEMail, HttpStatus.OK);
-	}
-	/*
-	 * --------------------------------FileNameForEmail---------------------------------
-	 */
-	@ApiOperation(response = FileNameForEmail[].class, value = "Get all FileNameForEmail details") // label for swagger
-	@GetMapping("/filenameforemail")
-	public ResponseEntity<?> getFileNameForEmailList(@RequestParam String authToken) {
-		FileNameForEmail[] userFileNameForEmail= idmasterService.getFileNameForEmailList(authToken);
-		return new ResponseEntity<>(userFileNameForEmail, HttpStatus.OK);
-	}
-	@ApiOperation(response = FileNameForEmail.class, value = "Get a FileNameForEmail") // label for swagger
-	@GetMapping("/filenameforemail/{fileNameId}")
-	public ResponseEntity<?>  getFileNameForEmail(@PathVariable Long fileNameId,
-									   @RequestParam String authToken) {
-		FileNameForEmail dbFileNameForEmail = idmasterService.getFileNameForEmail(fileNameId,authToken);
-		return new ResponseEntity<>(dbFileNameForEmail, HttpStatus.OK);
-	}
-//	@ApiOperation(response = FileNameForEmail.class, value = "Create a FileNameForEmail") // label for swagger
-//	@PostMapping("/filenameforemail")
-//	public ResponseEntity<?> PostFileNameForEmail(@Valid @RequestBody FileNameForEmail newFileNameForEmail,
-//									   @RequestParam String authToken)
-//			throws IllegalAccessException, InvocationTargetException {
-//		FileNameForEmail CreateFileNameForEmail = idmasterService.createFileNameForEmail(newFileNameForEmail, authToken);
-//		return new ResponseEntity<>(CreateFileNameForEmail, HttpStatus.OK);
-//	}
-	@ApiOperation(response = FileNameForEmail.class, value = "Delete FileNameForEmail") // label for swagger
-	@DeleteMapping("/filenameforemail/{fileNameId}")
-	public ResponseEntity<?> deleteFileNameForEmail(@PathVariable Long fileNameId,
-										 @RequestParam String authToken) {
-		idmasterService.deleteFileNameForEmail(fileNameId,authToken);
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-	}
-	@ApiOperation(response = Optional.class, value = "Send Email") // label for swagger
-	@GetMapping("/email/sendmail")
-	public ResponseEntity<?> sendEmail(@RequestParam String authToken)
-						throws MessagingException, IOException {
-		idmasterService.sendMail(authToken);
-		return new ResponseEntity<>("Mail Sent Successfully",HttpStatus.OK);
-	}
 }

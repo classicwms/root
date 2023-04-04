@@ -35,9 +35,9 @@ public class LoginController {
 	
     @ApiOperation(response = UserManagement.class, value = "Validate Login User") // label for swagger
 	@GetMapping("")
-	public ResponseEntity<?> validateUserID(@RequestParam String userID, @RequestParam String password, @RequestParam String version) {
-    	log.info("UserID:" + userID + " - " + "Password: " + password + " - " + "Version: " + version);
-    	UserManagement validatedUser = userManagementService.validateUser(userID, password, version);
+	public ResponseEntity<?> validateUserID(@RequestParam String userID, @RequestParam String password) {
+    	log.info("UserID:" + userID + " - " + "Password: " + password);
+    	UserManagement validatedUser = userManagementService.validateUser(userID, password);
     	log.info("Login : " + validatedUser);
 		return new ResponseEntity<>(validatedUser, HttpStatus.OK);
 	}

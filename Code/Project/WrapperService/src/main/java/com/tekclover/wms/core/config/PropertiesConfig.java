@@ -110,17 +110,5 @@ public class PropertiesConfig {
 	
 	@Value("${report.path.download.inventory}")
 	private String inventoryCsvDownloadPath;
-
-	/*-----------------Document Upload------------------------*/
-
-	@Value("${doc.storage.base.path}")
-	private String docStorageBasePath;
-	@Value("${doc.storage.document.path}")
-	private String docStorageDocumentPath;
-
-//--------------EMAIL-------------------------------------------------------------
-
-	@Value("${email.from.address}")
-	private String emailFromAddress;
 	
 }

@@ -128,7 +128,7 @@ public class LevelIdService extends BaseService {
 	 */
 	public void deleteLevelId (String warehouseId, Long levelId, String level, String loginUserID) {
 		LevelId dbLevelId = getLevelId(warehouseId, levelId, level);
-		if ( dbLevelId != null) {
+		if ( levelId != null) {
 			dbLevelId.setDeletionIndicator(1L);
 			dbLevelId.setUpdatedBy(loginUserID);
 			levelIdRepository.save(dbLevelId);

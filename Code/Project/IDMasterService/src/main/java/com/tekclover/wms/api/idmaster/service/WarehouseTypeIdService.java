@@ -102,7 +102,7 @@ public class WarehouseTypeIdService extends BaseService {
 	
 	/**
 	 * updateWarehouseTypeId
-	 * @param loginUserID
+	 * @param loginUserId 
 	 * @param warehouseTypeId
 	 * @param updateWarehouseTypeId
 	 * @return
@@ -126,7 +126,7 @@ public class WarehouseTypeIdService extends BaseService {
 	 */
 	public void deleteWarehouseTypeId (String warehouseId, Long warehouseTypeId, String loginUserID) {
 		WarehouseTypeId dbWarehouseTypeId = getWarehouseTypeId(warehouseId, warehouseTypeId);
-		if ( dbWarehouseTypeId != null) {
+		if ( warehouseTypeId != null) {
 			dbWarehouseTypeId.setDeletionIndicator(1L);
 			dbWarehouseTypeId.setUpdatedBy(loginUserID);
 			warehouseTypeIdRepository.save(dbWarehouseTypeId);

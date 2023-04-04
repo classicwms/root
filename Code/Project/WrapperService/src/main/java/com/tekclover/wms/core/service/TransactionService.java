@@ -20,7 +20,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -4587,27 +4586,6 @@ public class TransactionService {
 		}
 	}
 	
-	// GET - OutboundOrder - OrderByDate
-	public OutboundOrder[] getOBOrderByDate(String orderStartDate, String orderEndDate, String authToken) {
-		try {
-			HttpHeaders headers = new HttpHeaders();
-			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-			headers.add("User-Agent", "ClassicWMS RestTemplate");
-			headers.add("Authorization", "Bearer " + authToken);
-			UriComponentsBuilder builder =
-					UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "orders/outbound/orders/byDate")
-					.queryParam("orderStartDate", orderStartDate)
-					.queryParam("orderEndDate", orderEndDate);
-			HttpEntity<?> entity = new HttpEntity<>(headers);
-			ResponseEntity<OutboundOrder[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, OutboundOrder[].class);
-			log.info("result : " + result.getBody());
-			return result.getBody();
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
-	}
-	
 	// GET - FAILED
 	public InboundIntegrationLog[] getFailedInboundOrders(String authToken) {
 		try {
@@ -4664,7 +4642,6 @@ public class TransactionService {
 		}
 	}
 
-	// GET
 	public OutboundOrder[] getOBOrders(String authToken) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
@@ -4676,7 +4653,6 @@ public class TransactionService {
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			ResponseEntity<OutboundOrder[]> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, OutboundOrder[].class);
-			log.info("result : " + result.getBody());
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();

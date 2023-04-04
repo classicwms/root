@@ -43,7 +43,7 @@ public class StorageSectionIdService extends BaseService {
 	 * @param storageSectionId
 	 * @return
 	 */
-	public StorageSectionId getStorageSectionId (String warehouseId, Long floorId, String storageSectionId, String storageSection) {
+	public StorageSectionId getStorageSectionId (String warehouseId, Long floorId, Long storageSectionId, String storageSection) {
 		Optional<StorageSectionId> dbStorageSectionId = 
 				storageSectionIdRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndFloorIdAndStorageSectionIdAndStorageSectionAndLanguageIdAndDeletionIndicator(
 								getCompanyCode(),
@@ -113,7 +113,7 @@ public class StorageSectionIdService extends BaseService {
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	public StorageSectionId updateStorageSectionId (String warehouseId, Long floorId, String storageSectionId, String storageSection, String loginUserID,
+	public StorageSectionId updateStorageSectionId (String warehouseId, Long floorId, Long storageSectionId, String storageSection, String loginUserID, 
 			UpdateStorageSectionId updateStorageSectionId) 
 			throws IllegalAccessException, InvocationTargetException {
 		StorageSectionId dbStorageSectionId = getStorageSectionId(warehouseId, floorId, storageSectionId, storageSection);
@@ -128,9 +128,9 @@ public class StorageSectionIdService extends BaseService {
 	 * @param loginUserID 
 	 * @param storageSectionId
 	 */
-	public void deleteStorageSectionId (String warehouseId, Long floorId, String storageSectionId, String storageSection, String loginUserID) {
+	public void deleteStorageSectionId (String warehouseId, Long floorId, Long storageSectionId, String storageSection, String loginUserID) {
 		StorageSectionId dbStorageSectionId = getStorageSectionId(warehouseId, floorId, storageSectionId, storageSection);
-		if ( dbStorageSectionId != null) {
+		if ( storageSectionId != null) {
 			dbStorageSectionId.setDeletionIndicator(1L);
 			dbStorageSectionId.setUpdatedBy(loginUserID);
 			storageSectionIdRepository.save(dbStorageSectionId);

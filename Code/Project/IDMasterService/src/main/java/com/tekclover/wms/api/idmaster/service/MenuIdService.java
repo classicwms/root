@@ -154,7 +154,7 @@ public class MenuIdService extends BaseService {
 	public void deleteMenuId (String warehouseId, Long menuId, Long subMenuId, Long authorizationObjectId, 
 			String authorizationObjectValue, String loginUserID) {
 		MenuId dbMenuId = getMenuId(warehouseId, menuId, subMenuId, authorizationObjectId, authorizationObjectValue);
-		if ( dbMenuId != null) {
+		if ( menuId != null) {
 			dbMenuId.setDeletionIndicator(1L);
 			dbMenuId.setUpdatedBy(loginUserID);
 			menuIdRepository.save(dbMenuId);

@@ -126,7 +126,7 @@ public class StorageClassIdService extends BaseService {
 	 */
 	public void deleteStorageClassId (String warehouseId, Long storageClassId, String loginUserID) {
 		StorageClassId dbStorageClassId = getStorageClassId(warehouseId, storageClassId);
-		if ( dbStorageClassId != null) {
+		if ( storageClassId != null) {
 			dbStorageClassId.setDeletionIndicator(1L);
 			dbStorageClassId.setUpdatedBy(loginUserID);
 			storageClassIdRepository.save(dbStorageClassId);

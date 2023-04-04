@@ -51,9 +51,9 @@ public class ItemGroupIdController {
     @ApiOperation(response = ItemGroupId.class, value = "Get a ItemGroupId") // label for swagger 
 	@GetMapping("/{itemGroupId}")
 	public ResponseEntity<?> getItemGroupId(@PathVariable Long itemGroupId, 
-			@RequestParam String warehouseId, @RequestParam Long itemTypeId) {
+			@RequestParam String warehouseId, @RequestParam Long itemTypeId, @RequestParam String itemGroup) {
     	ItemGroupId itemgroupid = 
-    			itemgroupidService.getItemGroupId(warehouseId, itemTypeId, itemGroupId);
+    			itemgroupidService.getItemGroupId(warehouseId, itemTypeId, itemGroupId, itemGroup);
     	log.info("ItemGroupId : " + itemgroupid);
 		return new ResponseEntity<>(itemgroupid, HttpStatus.OK);
 	}
@@ -76,19 +76,19 @@ public class ItemGroupIdController {
     @ApiOperation(response = ItemGroupId.class, value = "Update ItemGroupId") // label for swagger
     @PatchMapping("/{itemGroupId}")
 	public ResponseEntity<?> patchItemGroupId(@PathVariable Long itemGroupId, 
-			@RequestParam String warehouseId, @RequestParam Long itemTypeId,
+			@RequestParam String warehouseId, @RequestParam Long itemTypeId, @RequestParam String itemGroup, 
 			@Valid @RequestBody UpdateItemGroupId updateItemGroupId, @RequestParam String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
 		ItemGroupId createdItemGroupId = 
-				itemgroupidService.updateItemGroupId(warehouseId, itemTypeId, itemGroupId, loginUserID, updateItemGroupId);
+				itemgroupidService.updateItemGroupId(warehouseId, itemTypeId, itemGroupId, itemGroup, loginUserID, updateItemGroupId);
 		return new ResponseEntity<>(createdItemGroupId , HttpStatus.OK);
 	}
     
     @ApiOperation(response = ItemGroupId.class, value = "Delete ItemGroupId") // label for swagger
 	@DeleteMapping("/{itemGroupId}")
 	public ResponseEntity<?> deleteItemGroupId(@PathVariable Long itemGroupId, 
-			@RequestParam String warehouseId, @RequestParam Long itemTypeId, @RequestParam String loginUserID) {
-    	itemgroupidService.deleteItemGroupId(warehouseId, itemTypeId, itemGroupId, loginUserID);
+			@RequestParam String warehouseId, @RequestParam Long itemTypeId, @RequestParam String itemGroup, @RequestParam String loginUserID) {
+    	itemgroupidService.deleteItemGroupId(warehouseId, itemTypeId, itemGroupId, itemGroup, loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 }

@@ -15,9 +15,8 @@ public interface NumberRangeRepository extends JpaRepository<NumberRange, Long> 
 	List<NumberRange> findAll();
 	Optional<NumberRange> findById(Long id);
 	
-	public Optional<NumberRange> findByNumberRangeCodeAndFiscalYearAndWarehouseId(Long numberRangeCode, Long fiscalYear, String warehouseId);
-	
-	public Optional<NumberRange> findByNumberRangeCodeAndWarehouseId(Long numberRangeCode, String warehouseId);
+	public Optional<NumberRange> 
+		findByNumberRangeCodeAndFiscalYearAndWarehouseId(Long numberRangeCode, Long fiscalYear, String warehouseId);
 	
 	//`LANG_ID`, `C_ID`, `NUM_RAN_CODE`, `NUM_RAN_OBJ`, `IS_DELETED`
 	public Optional<NumberRange> 

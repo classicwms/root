@@ -19,7 +19,4 @@ public interface ProcessSequenceIdRepository extends JpaRepository<ProcessSequen
 	public Optional<ProcessSequenceId> 
 		findByCompanyCodeIdAndPlantIdAndWarehouseIdAndProcessIdAndSubLevelIdAndLanguageIdAndProcessDescriptionAndSubProcessDescriptionAndDeletionIndicator(
 				String companyCodeId, String plantId, String warehouseId, Long processId, Long subLevelId, String languageId, String processDescription, String subProcessDescription, Long deletionIndicator);
-
-    Optional<ProcessSequenceId> findByCompanyCodeIdAndPlantIdAndWarehouseIdAndProcessIdAndSubLevelIdAndLanguageIdAndDeletionIndicator(
-			String companyCode, String plantId, String warehouseId, Long processId, Long subLevelId, String languageId, Long deletionIndicator);
 }

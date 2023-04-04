@@ -22,7 +22,6 @@ public class PerpetualLine {
 	private String cycleCountNo;
 	private String storageBin;
 	private String itemCode;
-	private String itemDesc;
 	private String packBarcodes;
 	private String manufacturerPartNo;
 	private Long variantCode;

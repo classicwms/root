@@ -62,13 +62,9 @@ public class NumberRangeService {
 		log.info("getNextNumberRange---2----> " + optNumberRange);
 		
 		if (optNumberRange.isEmpty()) {
-			optNumberRange = numberRangeRepository.findByNumberRangeCodeAndWarehouseId (numberRangeCode, warehouseId);
-			if (optNumberRange.isEmpty()) {
-				throw new BadRequestException("The given numberRangeCode : " + numberRangeCode 
-						+ ", warehouseId: " + warehouseId + " doesn't exist.");
-			}
-		} 
-		
+			throw new BadRequestException("The given numberRangeCode : " + numberRangeCode 
+												+ ", warehouseId: " + warehouseId + " doesn't exist.");
+		}
 		NumberRange numberRange = optNumberRange.get();
 		String strCurrentValue = numberRange.getNumberRangeCurrent();
 		log.info("New currentValue generated : " + strCurrentValue);

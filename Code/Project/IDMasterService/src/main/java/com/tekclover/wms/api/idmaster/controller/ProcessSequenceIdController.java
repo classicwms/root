@@ -51,9 +51,9 @@ public class ProcessSequenceIdController {
     @ApiOperation(response = ProcessSequenceId.class, value = "Get a ProcessSequenceId") // label for swagger 
 	@GetMapping("/{processId}")
 	public ResponseEntity<?> getProcessSequenceId(@PathVariable Long processId, 
-			@RequestParam String warehouseId, @RequestParam Long subLevelId) {
+			@RequestParam String warehouseId, @RequestParam Long subLevelId, @RequestParam String processDescription, @RequestParam String subProcessDescription) {
     	ProcessSequenceId processsequenceid = 
-    			processsequenceidService.getProcessSequenceId(warehouseId, processId, subLevelId);
+    			processsequenceidService.getProcessSequenceId(warehouseId, processId, subLevelId, processDescription, subProcessDescription);
     	log.info("ProcessSequenceId : " + processsequenceid);
 		return new ResponseEntity<>(processsequenceid, HttpStatus.OK);
 	}
@@ -76,19 +76,19 @@ public class ProcessSequenceIdController {
     @ApiOperation(response = ProcessSequenceId.class, value = "Update ProcessSequenceId") // label for swagger
     @PatchMapping("/{processId}")
 	public ResponseEntity<?> patchProcessSequenceId(@PathVariable Long processId, 
-			@RequestParam String warehouseId, @RequestParam Long subLevelId,
+			@RequestParam String warehouseId, @RequestParam Long subLevelId, @RequestParam String processDescription, @RequestParam String subProcessDescription, 
 			@Valid @RequestBody UpdateProcessSequenceId updateProcessSequenceId, @RequestParam String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
 		ProcessSequenceId createdProcessSequenceId = 
-				processsequenceidService.updateProcessSequenceId(warehouseId, processId, subLevelId, loginUserID, updateProcessSequenceId);
+				processsequenceidService.updateProcessSequenceId(warehouseId, processId, subLevelId, processDescription, subProcessDescription, loginUserID, updateProcessSequenceId);
 		return new ResponseEntity<>(createdProcessSequenceId , HttpStatus.OK);
 	}
     
     @ApiOperation(response = ProcessSequenceId.class, value = "Delete ProcessSequenceId") // label for swagger
 	@DeleteMapping("/{processId}")
 	public ResponseEntity<?> deleteProcessSequenceId(@PathVariable Long processId, 
-			@RequestParam String warehouseId, @RequestParam Long subLevelId, @RequestParam String loginUserID) {
-    	processsequenceidService.deleteProcessSequenceId(warehouseId, processId, subLevelId, loginUserID);
+			@RequestParam String warehouseId, @RequestParam Long subLevelId, @RequestParam String processDescription, @RequestParam String subProcessDescription, @RequestParam String loginUserID) {
+    	processsequenceidService.deleteProcessSequenceId(warehouseId, processId, subLevelId, processDescription, subProcessDescription, loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 }

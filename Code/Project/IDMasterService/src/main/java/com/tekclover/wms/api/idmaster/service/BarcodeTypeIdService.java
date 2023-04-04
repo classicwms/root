@@ -127,7 +127,7 @@ public class BarcodeTypeIdService extends BaseService {
 	 */
 	public void deleteBarcodeTypeId (String warehouseId, Long barcodeTypeId, String loginUserID) {
 		BarcodeTypeId dbBarcodeTypeId = getBarcodeTypeId(warehouseId, barcodeTypeId);
-		if ( dbBarcodeTypeId != null) {
+		if ( barcodeTypeId != null) {
 			dbBarcodeTypeId.setDeletionIndicator(1L);
 			dbBarcodeTypeId.setUpdatedBy(loginUserID);
 			barcodeTypeIdRepository.save(dbBarcodeTypeId);

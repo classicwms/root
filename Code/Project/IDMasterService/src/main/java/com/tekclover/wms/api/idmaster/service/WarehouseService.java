@@ -86,7 +86,7 @@ public class WarehouseService extends BaseService {
 	
 	/**
 	 * updateWarehouse
-	 * @param loginUserID
+	 * @param loginUserId 
 	 * @param warehouseId
 	 * @param updateWarehouse
 	 * @return
@@ -110,7 +110,7 @@ public class WarehouseService extends BaseService {
 	 */
 	public void deleteWarehouse (String warehouseId, String loginUserID) {
 		Warehouse dbWarehouse = getWarehouse(warehouseId);
-		if ( dbWarehouse != null) {
+		if ( warehouseId != null) {
 			dbWarehouse.setDeletionIndicator(1L);
 			dbWarehouse.setUpdatedBy(loginUserID);
 			warehouseRepository.save(dbWarehouse);

@@ -119,7 +119,7 @@ public class PlantIdService extends BaseService {
 	 */
 	public void deletePlantId (String plantId, String loginUserID) {
 		PlantId dbPlantId = getPlantId(plantId);
-		if ( dbPlantId != null) {
+		if ( plantId != null) {
 			dbPlantId.setDeletionIndicator(1L);
 			dbPlantId.setUpdatedBy(loginUserID);
 			plantIdRepository.save(dbPlantId);

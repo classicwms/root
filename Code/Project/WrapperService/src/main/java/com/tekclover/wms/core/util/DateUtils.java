@@ -46,23 +46,7 @@ public class DateUtils {
 		String currentDatetime = datetime.format(newPattern);
 		return currentDatetime;
 	}
-	public static String getCurrentDateWithoutTimestamp () {
-		DateTimeFormatter newPattern = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-		LocalDateTime datetime = LocalDateTime.now();
-		Date date = DateUtils.convertStringToDateFormat(datetime.format(newPattern)) ;
-		LocalDate sLocalDate = LocalDate.ofInstant(date.toInstant(), ZoneId.systemDefault());
-		String currentDate = sLocalDate.format(newPattern);
-		return currentDate;
-	}
-	public static Date convertStringToDateFormat(String strDate) {
-//		String str = "01-08-2022";
-		strDate += " 00:00:00";
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-		LocalDateTime dateTime = LocalDateTime.parse(strDate, formatter);
-		Date out = Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());
-		log.info("dbMatterGenAcc--PriorityDate-------> : " + out);
-		return out;
-	}
+	
 	/**
 	 * getCurrentMonthFirstAndLastDates - Using by Dashboard
 	 * @return
@@ -90,7 +74,7 @@ public class DateUtils {
 	/**
 	 * 
 	 * @param date
-	 * @param
+	 * @param time
 	 * @return
 	 */
 	public static LocalDateTime convertDateToLocalDateTime(Date date, String timeFlag) {

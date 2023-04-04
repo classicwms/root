@@ -126,7 +126,7 @@ public class UserTypeIdService extends BaseService {
 	 */
 	public void deleteUserTypeId ( String warehouseId, Long userTypeId, String loginUserID) {
 		UserTypeId dbUserTypeId = getUserTypeId(warehouseId, userTypeId);
-		if ( dbUserTypeId != null) {
+		if ( userTypeId != null) {
 			dbUserTypeId.setDeletionIndicator(1L);
 			dbUserTypeId.setUpdatedBy(loginUserID);
 			userTypeIdRepository.save(dbUserTypeId);
