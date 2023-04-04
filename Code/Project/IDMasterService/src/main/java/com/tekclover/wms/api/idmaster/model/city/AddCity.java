@@ -7,23 +7,23 @@ import lombok.Data;
 
 @Data
 public class AddCity {
-	
-	@NotBlank(message = "City Id is mandatory")
-	private String cityId;
-	
-	private String cityName;
-	
-	@NotBlank(message = "State Id is mandatory")
-	private String stateId;
-	
-	@NotBlank(message = "Country Id is mandatory")
-	private String countryId;
-	
-	@NotNull(message = "Zip code is mandatory")
-	private Long zipCode;
 
-	@NotBlank(message = "Language is mandatory")
+	private String cityId;
+	@NotBlank(message = "City Name is mandatory")
+	private String cityName;
+	private String stateId;
+	private String countryId;
+	private Long zipCode;
 	private String languageId;
-    
-	private String createdBy;
+	private Long deletionIndicator;
+	private String referenceField1;
+	private String referenceField2;
+	private String referenceField3;
+	private String referenceField4;
+	private String referenceField5;
+	private String referenceField6;
+	private String referenceField7;
+	private String referenceField8;
+	private String referenceField9;
+	private String referenceField10;
 }

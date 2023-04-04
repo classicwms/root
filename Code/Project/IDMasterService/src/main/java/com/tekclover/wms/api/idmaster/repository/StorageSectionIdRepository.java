@@ -18,5 +18,5 @@ public interface StorageSectionIdRepository extends JpaRepository<StorageSection
 	public List<StorageSectionId> findAll();
 	public Optional<StorageSectionId> 
 		findByCompanyCodeIdAndPlantIdAndWarehouseIdAndFloorIdAndStorageSectionIdAndStorageSectionAndLanguageIdAndDeletionIndicator(
-				String companyCodeId, String plantId, String warehouseId, Long floorId, Long storageSectionId, String storageSection, String languageId, Long deletionIndicator);
+				String companyCodeId, String plantId, String warehouseId, Long floorId, String storageSectionId, String storageSection, String languageId, Long deletionIndicator);
 }

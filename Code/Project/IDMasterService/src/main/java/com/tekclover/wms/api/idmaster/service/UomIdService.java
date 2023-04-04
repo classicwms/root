@@ -122,7 +122,7 @@ public class UomIdService extends BaseService {
 	 */
 	public void deleteUomId (String uomId, String loginUserID) {
 		UomId dbUomId = getUomId(uomId);
-		if ( uomId != null) {
+		if ( dbUomId != null) {
 			dbUomId.setDeletionIndicator(1L);
 			dbUomId.setUpdatedBy(loginUserID);
 			uomIdRepository.save(dbUomId);

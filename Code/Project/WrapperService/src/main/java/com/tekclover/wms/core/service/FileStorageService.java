@@ -1,19 +1,16 @@
 package com.tekclover.wms.core.service;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import com.tekclover.wms.core.config.PropertiesConfig;
+import com.tekclover.wms.core.exception.BadRequestException;
+import com.tekclover.wms.core.model.auth.AuthToken;
+import com.tekclover.wms.core.model.idmaster.EMailDetails;
+import com.tekclover.wms.core.model.idmaster.FileNameForEmail;
+import com.tekclover.wms.core.model.transaction.SOHeader;
+import com.tekclover.wms.core.model.transaction.SOLine;
+import com.tekclover.wms.core.model.transaction.ShipmentOrder;
 
+import com.tekclover.wms.core.util.DateUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
@@ -22,17 +19,22 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import com.tekclover.wms.core.config.PropertiesConfig;
-import com.tekclover.wms.core.exception.BadRequestException;
-import com.tekclover.wms.core.model.transaction.SOHeader;
-import com.tekclover.wms.core.model.transaction.SOLine;
-import com.tekclover.wms.core.model.transaction.ShipmentOrder;
-
-import lombok.extern.slf4j.Slf4j;
+import javax.mail.MessagingException;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -43,16 +45,28 @@ public class FileStorageService {
 
 	@Autowired
 	AuthTokenService authTokenService;
+	@Autowired
+	IDMasterService idMasterService;
+
+	@Autowired
+	DocStorageService docStorageService;
 
 	private Path fileStorageLocation = null;
 
+	private RestTemplate getRestTemplate() {
+		RestTemplate restTemplate = new RestTemplate();
+		return restTemplate;
+	}
+
+	private String getIDMasterServiceApiUrl () {
+		return propertiesConfig.getIdmasterServiceUrl();
+	}
+
 	/**
-	 * 
-	 * @param location
+	 *
 	 * @param file
 	 * @return
-	 * @throws DbxException
-	 * @throws UploadErrorException
+	 * @throws Exception
 	 */
 	public Map<String, String> storeFile(MultipartFile file) throws Exception {
 		this.fileStorageLocation = Paths.get(propertiesConfig.getFileUploadDir()).toAbsolutePath().normalize();
@@ -90,7 +104,7 @@ public class FileStorageService {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param file
 	 * @return
 	 * @throws Exception
@@ -135,7 +149,176 @@ public class FileStorageService {
 	}
 
 	/**
-	 * 
+	 *
+	 * @param location
+	 * @param file
+	 * @return
+	 * @throws Exception
+	 * @throws BadRequestException
+	 */
+	public Map<String, String> storingFile(String location, MultipartFile file) throws Exception {
+
+		// Normalize file name
+		String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+		log.info("filename before: " + fileName);
+		fileName = fileName.replace(" ", "_");
+		log.info("filename after: " + fileName);
+
+		String locationPath = null;
+		try {
+			// Check if the file's name contains invalid characters
+			if (fileName.contains("..")) {
+				throw new BadRequestException("Sorry! Filename contains invalid path sequence " + fileName);
+			}
+
+			if (location != null && location.toLowerCase().startsWith("document")) {
+				if (location.indexOf('/') > 0) {
+					locationPath = propertiesConfig.getDocStorageBasePath() + "/" + location;
+				} else {
+					// Document template
+					locationPath = propertiesConfig.getDocStorageBasePath() + propertiesConfig.getDocStorageDocumentPath();
+				}
+			}
+
+			log.info("locationPath : " + locationPath);
+
+			this.fileStorageLocation = Paths.get(locationPath).toAbsolutePath().normalize();
+			log.info("fileStorageLocation--------> " + fileStorageLocation);
+
+			if (!Files.exists(fileStorageLocation)) {
+				try {
+					Files.createDirectories(this.fileStorageLocation);
+				} catch (Exception ex) {
+					ex.printStackTrace();
+					throw new BadRequestException("Could not create the directory where the uploaded files will be stored.");
+				}
+			}
+
+			// Copy file to the target location (Replacing existing file with the same name)
+			Path targetLocation = this.fileStorageLocation.resolve(fileName);
+			Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+			if(fileName.toLowerCase().startsWith("110")){
+				if(fileName.toLowerCase().contains("delivery")){
+					AuthToken authTokenForSetupService = authTokenService.getIDMasterServiceAuthToken();
+					FileNameForEmail dbFileNameForEmail = new FileNameForEmail();
+					dbFileNameForEmail.setDelivery110(fileName);
+					dbFileNameForEmail.setReportDate(DateUtils.getCurrentDateWithoutTimestamp());
+					dbFileNameForEmail.setDeletionIndicator(0L);
+					FileNameForEmail fileNameForEmail = idMasterService.updateFileNameForEmail(dbFileNameForEmail, authTokenForSetupService.getAccess_token());
+				}else if(fileName.toLowerCase().contains("dispatch")){
+					AuthToken authTokenForSetupService = authTokenService.getIDMasterServiceAuthToken();
+					FileNameForEmail dbFileNameForEmail = new FileNameForEmail();
+					dbFileNameForEmail.setDispatch110(fileName);
+					dbFileNameForEmail.setReportDate(DateUtils.getCurrentDateWithoutTimestamp());
+					dbFileNameForEmail.setDeletionIndicator(0L);
+					FileNameForEmail fileNameForEmail = idMasterService.updateFileNameForEmail(dbFileNameForEmail, authTokenForSetupService.getAccess_token());
+				}
+			}
+			if(fileName.toLowerCase().startsWith("111")){
+				if(fileName.toLowerCase().contains("delivery")){
+					AuthToken authTokenForSetupService = authTokenService.getIDMasterServiceAuthToken();
+					FileNameForEmail dbFileNameForEmail = new FileNameForEmail();
+					dbFileNameForEmail.setDelivery111(fileName);
+					dbFileNameForEmail.setReportDate(DateUtils.getCurrentDateWithoutTimestamp());
+					dbFileNameForEmail.setDeletionIndicator(0L);
+					FileNameForEmail fileNameForEmail = idMasterService.updateFileNameForEmail(dbFileNameForEmail, authTokenForSetupService.getAccess_token());
+				}else if(fileName.toLowerCase().contains("dispatch")){
+					AuthToken authTokenForSetupService = authTokenService.getIDMasterServiceAuthToken();
+					FileNameForEmail dbFileNameForEmail = new FileNameForEmail();
+					dbFileNameForEmail.setDispatch111(fileName);
+					dbFileNameForEmail.setReportDate(DateUtils.getCurrentDateWithoutTimestamp());
+					dbFileNameForEmail.setDeletionIndicator(0L);
+					FileNameForEmail fileNameForEmail = idMasterService.updateFileNameForEmail(dbFileNameForEmail, authTokenForSetupService.getAccess_token());
+				}
+			}
+			Map<String, String> mapFileProps = new HashMap<>();
+			mapFileProps.put("file", fileName);
+			mapFileProps.put("location", location);
+			mapFileProps.put("status", "UPLOADED");
+			return mapFileProps;
+		} catch (IOException ex) {
+			ex.printStackTrace();
+			throw new BadRequestException("Could not store file " + fileName + ". Please try again!");
+		}
+	}
+
+	public void sendMail() throws MessagingException, IOException {
+		//Send Email
+		AuthToken authTokenForSetupService = authTokenService.getIDMasterServiceAuthToken();
+		EMailDetails[] userEMail = idMasterService.getEMailDetailsList(authTokenForSetupService.getAccess_token());
+		String toAddress = "";
+		String ccAddress = "";
+		for(EMailDetails eMailDetails: userEMail){
+			toAddress = eMailDetails.getToAddress()+","+toAddress;
+			ccAddress = eMailDetails.getCcAddress()+","+ccAddress;
+		}
+		String localDate = DateUtils.getCurrentDateWithoutTimestamp();
+		FileNameForEmail fileNameForEmail = idMasterService.getFileNameForEmailByDate(localDate, authTokenForSetupService.getAccess_token());
+		EMailDetails email = new EMailDetails();
+
+		email.setSenderName("IWE Express-Support");
+		email.setSubject("GRC - Amghara - Daily Shipment Delivery Report - "+localDate);
+		email.setBodyText("Dear GRC Team,<br><br>"+"\t Please find the attached shipment delivery report for your reference<br><br>Regards<br>Operations Team - InnerWorks");
+		email.setToAddress(toAddress);
+		email.setCcAddress(ccAddress);
+		docStorageService.sendMail(email,fileNameForEmail);
+	}
+
+//	public Map<String, String> storingFile(String location, MultipartFile file) throws Exception {
+//
+//		// Normalize file name
+//		String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+//		log.info("filename before: " + fileName);
+//		fileName = fileName.replace(" ", "_");
+//		log.info("filename after: " + fileName);
+//
+//		String locationPath = null;
+//		try {
+//			// Check if the file's name contains invalid characters
+//			if (fileName.contains("..")) {
+//				throw new BadRequestException("Sorry! Filename contains invalid path sequence " + fileName);
+//			}
+//
+//			if (location != null && location.toLowerCase().startsWith("document")) {
+//				if (location.indexOf('/') > 0) {
+//					locationPath = propertiesConfig.getDocStorageBasePath() + "/" + location;
+//				} else {
+//					// Document template
+//					locationPath = propertiesConfig.getDocStorageBasePath() + propertiesConfig.getDocStorageDocumentPath();
+//				}
+//			}
+//
+//			log.info("locationPath : " + locationPath);
+//
+//			this.fileStorageLocation = Paths.get(locationPath).toAbsolutePath().normalize();
+//			log.info("fileStorageLocation--------> " + fileStorageLocation);
+//
+//			if (!Files.exists(fileStorageLocation)) {
+//				try {
+//					Files.createDirectories(this.fileStorageLocation);
+//				} catch (Exception ex) {
+//					ex.printStackTrace();
+//					throw new BadRequestException("Could not create the directory where the uploaded files will be stored.");
+//				}
+//			}
+//
+//			// Copy file to the target location (Replacing existing file with the same name)
+//			Path targetLocation = this.fileStorageLocation.resolve(fileName);
+//			Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+//
+//			Map<String, String> mapFileProps = new HashMap<>();
+//			mapFileProps.put("file", fileName);
+//			mapFileProps.put("location", location);
+//			mapFileProps.put("status", "UPLOADED");
+//			return mapFileProps;
+//		} catch (IOException ex) {
+//			ex.printStackTrace();
+//			throw new BadRequestException("Could not store file " + fileName + ". Please try again!");
+//		}
+//	}
+
+	/**
+	 *
 	 * @param file
 	 * @return
 	 */
@@ -180,29 +363,29 @@ public class FileStorageService {
 		}
 		return null;
 	}
-	
+
 	/**
-	 * 0 - requiredDeliveryDate	
-	 * 1 - storeID	
-	 * 2 - storeName	
-	 * 3 - transferOrderNumber	
-	 * 4 - wareHouseId	
-	 * 5 - lineReference	
-	 * 6 - orderType	
-	 * 7 - orderedQty	
-	 * 8 - sku	
-	 * 9 - skuDescription	
+	 * 0 - requiredDeliveryDate
+	 * 1 - storeID
+	 * 2 - storeName
+	 * 3 - transferOrderNumber
+	 * 4 - wareHouseId
+	 * 5 - lineReference
+	 * 6 - orderType
+	 * 7 - orderedQty
+	 * 8 - sku
+	 * 9 - skuDescription
 	 * 10 - uom
 	 * @param allRowsList
 	 * @return
 	 */
 	private List<ShipmentOrder> prepSOData (List<List<String>> allRowsList) {
 		List<ShipmentOrder> shipmentOrderList = new ArrayList<>();
-		
+
 		for (List<String> listUploadedData : allRowsList) {
 			Set<SOHeader> setSOHeader = new HashSet<>();
 			List<SOLine> soLines = new ArrayList<>();
-			
+
 			// Header
 			SOHeader soHeader = null;
 			boolean oneTimeAllow = true;
@@ -217,7 +400,7 @@ public class FileStorageService {
 					setSOHeader.add(soHeader);
 				}
 				oneTimeAllow = false;
-				
+
 				// Line
 				SOLine soLine = new SOLine();
 				soLine.setLineReference(Long.valueOf(listUploadedData.get(5)));
@@ -228,7 +411,7 @@ public class FileStorageService {
 				soLine.setUom(listUploadedData.get(10));
 				soLines.add(soLine);
 			}
-			
+
 			ShipmentOrder shipmentOrder = new ShipmentOrder();
 			shipmentOrder.setSoHeader(soHeader);
 			shipmentOrder.setSoLine(soLines);
@@ -239,7 +422,7 @@ public class FileStorageService {
 
 	/**
 	 * loadFileAsResource
-	 * 
+	 *
 	 * @param fileName
 	 * @return
 	 */

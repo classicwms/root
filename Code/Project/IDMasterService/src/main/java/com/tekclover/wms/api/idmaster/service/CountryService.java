@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.idmaster.service;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityNotFoundException;
@@ -58,6 +59,9 @@ public class CountryService {
 			throws IllegalAccessException, InvocationTargetException {
 		Country dbCountry = new Country();
 		BeanUtils.copyProperties(newCountry, dbCountry, CommonUtils.getNullPropertyNames(newCountry));
+		dbCountry.setDeletionIndicator(0L);
+		dbCountry.setCreatedOn(new Date());
+		dbCountry.setUpdatedOn(new Date());
 		return countryRepository.save(dbCountry);
 	}
 	
@@ -73,12 +77,14 @@ public class CountryService {
 			throws IllegalAccessException, InvocationTargetException {
 		Country dbCountry = getCountry(countryId);
 		BeanUtils.copyProperties(updateCountry, dbCountry, CommonUtils.getNullPropertyNames(updateCountry));
+		dbCountry.setDeletionIndicator(0L);
+		dbCountry.setUpdatedOn(new Date());
 		return countryRepository.save(dbCountry);
 	}
 	
 	/**
 	 * deleteCountry
-	 * @param countryCode
+	 * @param countryId
 	 */
 	public void deleteCountry (String countryId) {
 		Country country = getCountry(countryId);

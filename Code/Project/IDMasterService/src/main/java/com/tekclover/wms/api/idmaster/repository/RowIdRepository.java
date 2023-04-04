@@ -18,5 +18,5 @@ public interface RowIdRepository extends JpaRepository<RowId,Long>, JpaSpecifica
 	public List<RowId> findAll();
 	public Optional<RowId> 
 		findByCompanyCodeIdAndPlantIdAndWarehouseIdAndFloorIdAndStorageSectionIdAndRowIdAndLanguageIdAndDeletionIndicator(
-				String companyCodeId, String plantId, String warehouseId, Long floorId, Long storageSectionId, String rowId, String languageId, Long deletionIndicator);
+				String companyCodeId, String plantId, String warehouseId, Long floorId, String storageSectionId, String rowId, String languageId, Long deletionIndicator);
 }

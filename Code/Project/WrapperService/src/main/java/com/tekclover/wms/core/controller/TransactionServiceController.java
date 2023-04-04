@@ -1903,6 +1903,14 @@ public class TransactionServiceController {
    		return new ResponseEntity<>(outboundOrderList, HttpStatus.OK);
    	}
 	
+	@ApiOperation(response = OutboundOrder.class, value = "Get a Orders") // label for swagger 
+   	@GetMapping("/orders/outbound/byDate")
+   	public ResponseEntity<?> getOBOrdersByDate(@RequestParam String orderStartDate, 
+   			@RequestParam String orderEndDate, @RequestParam String authToken) throws Exception {
+       	OutboundOrder[] orders = transactionService.getOBOrderByDate(orderStartDate, orderEndDate, authToken);
+   		return new ResponseEntity<>(orders, HttpStatus.OK);
+   	}
+	
 	@ApiOperation(response = OutboundOrder.class, value = "Get outbound Order by id ") // label for swagger
 	@GetMapping("/orders/outbound/{orderId}")
 	public ResponseEntity<?> getOutboundOrdersById(@PathVariable String orderId,@RequestParam String authToken) {

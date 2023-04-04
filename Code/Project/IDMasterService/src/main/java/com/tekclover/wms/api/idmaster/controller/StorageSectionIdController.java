@@ -50,7 +50,7 @@ public class StorageSectionIdController {
     
     @ApiOperation(response = StorageSectionId.class, value = "Get a StorageSectionId") // label for swagger 
 	@GetMapping("/{storageSectionId}")
-	public ResponseEntity<?> getStorageSectionId(@PathVariable Long storageSectionId, 
+	public ResponseEntity<?> getStorageSectionId(@PathVariable String storageSectionId,
 			@RequestParam String warehouseId, @RequestParam Long floorId, @RequestParam String storageSection) {
     	StorageSectionId storagesectionid = 
     			storagesectionidService.getStorageSectionId(warehouseId, floorId, storageSectionId, storageSection);
@@ -75,7 +75,7 @@ public class StorageSectionIdController {
     
     @ApiOperation(response = StorageSectionId.class, value = "Update StorageSectionId") // label for swagger
     @PatchMapping("/{storageSectionId}")
-	public ResponseEntity<?> patchStorageSectionId(@PathVariable Long storageSectionId, 
+	public ResponseEntity<?> patchStorageSectionId(@PathVariable String storageSectionId,
 			@RequestParam String warehouseId, @RequestParam Long floorId, @RequestParam String storageSection, 
 			@Valid @RequestBody UpdateStorageSectionId updateStorageSectionId, @RequestParam String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
@@ -86,7 +86,7 @@ public class StorageSectionIdController {
     
     @ApiOperation(response = StorageSectionId.class, value = "Delete StorageSectionId") // label for swagger
 	@DeleteMapping("/{storageSectionId}")
-	public ResponseEntity<?> deleteStorageSectionId(@PathVariable Long storageSectionId, 
+	public ResponseEntity<?> deleteStorageSectionId(@PathVariable String storageSectionId,
 			@RequestParam String warehouseId, @RequestParam Long floorId, @RequestParam String storageSection, @RequestParam String loginUserID) {
     	storagesectionidService.deleteStorageSectionId(warehouseId, floorId, storageSectionId, storageSection, loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);

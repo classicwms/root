@@ -60,6 +60,9 @@ public class PerpetualLineService extends BaseService {
 	
 	@Autowired
 	PerpetualHeaderService perpetualHeaderService;
+	
+	@Autowired
+	PerpetualLineService perpetualLineService;
 
 	@Autowired
 	ImBasicData1Repository imbasicdata1Repository;
@@ -372,6 +375,16 @@ public class PerpetualLineService extends BaseService {
 					PerpetualHeaderEntity createdPerpetualHeader = 
 							perpetualHeaderService.createPerpetualHeader(newPerpetualHeader, loginUserID);
 					log.info("createdPerpetualHeader : " + createdPerpetualHeader);
+					
+					/*
+					 * PerpetualLine Create
+					 */
+					AddPerpetualLine newPerpetualLine = new AddPerpetualLine();
+					BeanUtils.copyProperties(dbPerpetualLine, newPerpetualLine, CommonUtils.getNullPropertyNames(dbPerpetualLine));
+					newPerpetualLine.setCycleCountNo (createdPerpetualHeader.getCycleCountNo());
+					newPerpetualLine.setStatusId(70L);
+					PerpetualLine createdPerpetualLine = perpetualLineService.createPerpetualLine(newPerpetualLine, loginUserID);
+					log.info("createdPerpetualLine : " + createdPerpetualLine);
 				}
 			}
 		} catch (Exception e) {

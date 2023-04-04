@@ -1080,9 +1080,9 @@ public class ReportsService extends BaseService {
 		Date toDeliveryDate_d = null;
 		try {
 			fromDeliveryDate_d = DateUtils.convertStringToDate(fromDeliveryDate);
-			fromDeliveryDate_d = DateUtils.addTimeToDate(fromDeliveryDate_d);
+			fromDeliveryDate_d = DateUtils.addTimeToStartDate(fromDeliveryDate_d, 8, 0, 0);
 			toDeliveryDate_d = DateUtils.convertStringToDate(toDeliveryDate);
-			toDeliveryDate_d = DateUtils.addDayEndTimeToDate(toDeliveryDate_d);
+			toDeliveryDate_d = DateUtils.addTimeToEndDate(toDeliveryDate_d, 7, 59, 59);
 			log.info("Date: " + fromDeliveryDate_d + "," + toDeliveryDate_d);
 		} catch (Exception e) {
 			throw new BadRequestException("Date shoud be in MM-dd-yyyy format.");
@@ -1142,8 +1142,6 @@ public class ReportsService extends BaseService {
 
 				shipmentDeliverySummaryList.add(shipmentDeliverySummary);
 			}
-			
-			
 
 			// --------------------------------------------------------------------------------------------------------------------------------
 			/*
@@ -1403,12 +1401,14 @@ public class ReportsService extends BaseService {
 		Date toDate = null;
 		try {
 			fromDate = DateUtils.convertStringToDate(fromDeliveryDate);
-			fromDate = DateUtils.addTimeToDate(fromDate);
-			log.info("Date---f----->: " + fromDate);
+//			fromDate = DateUtils.addTimeToDate(fromDate);
+			fromDate = DateUtils.addTimeToStartDate(fromDate, 8, 0, 0);
+			log.info("Date---fromDate----->: " + fromDate);
 
 			toDate = DateUtils.convertStringToDate(toDeliveryDate);
-			toDate = DateUtils.addDayEndTimeToDate(toDate);
-			log.info("Date---t----->: " + toDate);
+//			toDate = DateUtils.addDayEndTimeToDate(toDate);
+			toDate = DateUtils.addTimeToEndDate(toDate, 7, 59, 59);
+			log.info("Date---toDate----->: " + toDate);
 		} catch (Exception e) {
 			throw new BadRequestException("Date shoud be in MM-dd-yyyy format.");
 		}

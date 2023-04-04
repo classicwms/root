@@ -193,6 +193,40 @@ public class DateUtils {
 	/**
 	 * 
 	 * @param startDate
+	 * @return
+	 * @throws ParseException
+	 */
+	public static Date addTimeToStartDate (Date startDate, int hour, int min, int sec) throws ParseException {
+		LocalDate sLocalDate =  LocalDate.ofInstant(startDate.toInstant(), ZoneId.systemDefault());
+		LocalDateTime sLocalDateTime = sLocalDate.atTime(hour, min, sec);
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+		String sConvertedDateTime = formatter.format(sLocalDateTime);
+		
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");  
+		Date sDate = dateFormatter.parse(sConvertedDateTime);
+		return sDate;
+	}
+	
+	/**
+	 * 
+	 * @param startDate
+	 * @return
+	 * @throws ParseException
+	 */
+	public static Date addTimeToEndDate (Date startDate, int hour, int min, int sec) throws ParseException {
+		LocalDate sLocalDate =  LocalDate.ofInstant(startDate.toInstant(), ZoneId.systemDefault());
+		LocalDateTime sLocalDateTime = sLocalDate.atTime(hour, min, sec);
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+		String sConvertedDateTime = formatter.format(sLocalDateTime);
+		
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");  
+		Date sDate = dateFormatter.parse(sConvertedDateTime);
+		return sDate;
+	}
+	
+	/**
+	 * 
+	 * @param startDate
 	 * @param endDate
 	 * @return
 	 * @throws ParseException

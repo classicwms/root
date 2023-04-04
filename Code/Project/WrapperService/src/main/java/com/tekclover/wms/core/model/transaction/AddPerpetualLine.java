@@ -15,6 +15,9 @@ public class AddPerpetualLine {
 	private String itemCode;
 	private String packBarcodes;
 	private Long variantCode;
+	private String itemDesc;
+	private String manufacturerPartNo;
+	private String storageSectionId;
 	private String variantSubCode;
 	private String batchSerialNumber;
 	private Long stockTypeId;

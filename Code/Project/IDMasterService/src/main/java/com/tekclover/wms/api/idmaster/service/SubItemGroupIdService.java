@@ -136,7 +136,7 @@ public class SubItemGroupIdService extends BaseService {
 	public void deleteSubItemGroupId (String warehouseId, Long itemTypeId, Long itemGroupId, Long subItemGroupId, 
 			String subItemGroup, String loginUserID) {
 		SubItemGroupId dbSubItemGroupId = getSubItemGroupId(warehouseId, itemTypeId, itemGroupId, subItemGroupId, subItemGroup);
-		if ( subItemGroupId != null) {
+		if ( dbSubItemGroupId != null) {
 			dbSubItemGroupId.setDeletionIndicator(1L);
 			dbSubItemGroupId.setUpdatedBy(loginUserID);
 			subItemGroupIdRepository.save(dbSubItemGroupId);
