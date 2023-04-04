@@ -43,17 +43,15 @@ public class ProcessSequenceIdService extends BaseService {
 	 * @param processId
 	 * @return
 	 */
-	public ProcessSequenceId getProcessSequenceId (String warehouseId, Long processId, Long subLevelId, String processDescription, String subProcessDescription) {
+	public ProcessSequenceId getProcessSequenceId (String warehouseId, Long processId, Long subLevelId) {
 		Optional<ProcessSequenceId> dbProcessSequenceId = 
-				processSequenceIdRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndProcessIdAndSubLevelIdAndLanguageIdAndProcessDescriptionAndSubProcessDescriptionAndDeletionIndicator(
+				processSequenceIdRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndProcessIdAndSubLevelIdAndLanguageIdAndDeletionIndicator(
 								getCompanyCode(),
 								getPlantId(),
 								warehouseId,
 								processId,
 								subLevelId,
 								getLanguageId(),
-								processDescription,
-								subProcessDescription,
 								0L
 								);
 		if (dbProcessSequenceId.isEmpty()) {
@@ -61,8 +59,6 @@ public class ProcessSequenceIdService extends BaseService {
 						"warehouseId - " + warehouseId +
 						"processId - " + processId +
 						"subLevelId - " + subLevelId +
-						"processDescription - " + processDescription +
-						"subProcessDescription - " + subProcessDescription +
 						" doesn't exist.");
 			
 		} 
@@ -115,10 +111,10 @@ public class ProcessSequenceIdService extends BaseService {
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	public ProcessSequenceId updateProcessSequenceId (String warehouseId, Long processId, Long subLevelId, String processDescription, String subProcessDescription, String loginUserID, 
+	public ProcessSequenceId updateProcessSequenceId (String warehouseId, Long processId, Long subLevelId, String loginUserID,
 			UpdateProcessSequenceId updateProcessSequenceId) 
 			throws IllegalAccessException, InvocationTargetException {
-		ProcessSequenceId dbProcessSequenceId = getProcessSequenceId(warehouseId, processId, subLevelId, processDescription, subProcessDescription);
+		ProcessSequenceId dbProcessSequenceId = getProcessSequenceId(warehouseId, processId, subLevelId);
 		BeanUtils.copyProperties(updateProcessSequenceId, dbProcessSequenceId, CommonUtils.getNullPropertyNames(updateProcessSequenceId));
 		dbProcessSequenceId.setUpdatedBy(loginUserID);
 		dbProcessSequenceId.setUpdatedOn(new Date());
@@ -130,8 +126,8 @@ public class ProcessSequenceIdService extends BaseService {
 	 * @param loginUserID 
 	 * @param processId
 	 */
-	public void deleteProcessSequenceId (String warehouseId, Long processId, Long subLevelId, String processDescription, String subProcessDescription, String loginUserID) {
-		ProcessSequenceId dbProcessSequenceId = getProcessSequenceId(warehouseId, processId, subLevelId, processDescription, subProcessDescription);
+	public void deleteProcessSequenceId (String warehouseId, Long processId, Long subLevelId, String loginUserID) {
+		ProcessSequenceId dbProcessSequenceId = getProcessSequenceId(warehouseId, processId, subLevelId);
 		if ( dbProcessSequenceId != null) {
 			dbProcessSequenceId.setDeletionIndicator(1L);
 			dbProcessSequenceId.setUpdatedBy(loginUserID);

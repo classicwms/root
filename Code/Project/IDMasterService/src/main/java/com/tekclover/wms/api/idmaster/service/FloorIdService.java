@@ -126,7 +126,7 @@ public class FloorIdService extends BaseService {
 	 */
 	public void deleteFloorId (String warehouseId, Long floorId, String loginUserID) {
 		FloorId dbFloorId = getFloorId( warehouseId, floorId);
-		if ( floorId != null) {
+		if ( dbFloorId != null) {
 			dbFloorId.setDeletionIndicator(1L);
 			dbFloorId.setUpdatedBy(loginUserID);
 			floorIdRepository.save(dbFloorId);

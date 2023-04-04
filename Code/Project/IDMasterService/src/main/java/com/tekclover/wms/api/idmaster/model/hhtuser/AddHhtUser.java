@@ -7,7 +7,6 @@ import lombok.Data;
 
 @Data
 public class AddHhtUser {
-
 	private String languageId;
 	private String companyCodeId;
 	private String plantId;
@@ -36,10 +35,5 @@ public class AddHhtUser {
 	private String referenceField9;
 	private String referenceField10;
 	private Long deletionIndicator;
-	private String createdBy;
-	private Date createdOn = new Date();
-	private String updatedBy;
-	private Date updatedOn = new Date();
-
 	private List<AddHhtUser> addHhtUser;
 }

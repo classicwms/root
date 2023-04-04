@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.idmaster.service;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityNotFoundException;
@@ -58,6 +59,9 @@ public class CurrencyService {
 			throws IllegalAccessException, InvocationTargetException {
 		Currency dbCurrency = new Currency();
 		BeanUtils.copyProperties(newCurrency, dbCurrency, CommonUtils.getNullPropertyNames(newCurrency));
+		dbCurrency.setDeletionIndicator(0L);
+		dbCurrency.setCreatedOn(new Date());
+		dbCurrency.setUpdatedOn(new Date());
 		return currencyRepository.save(dbCurrency);
 	}
 	
@@ -73,6 +77,8 @@ public class CurrencyService {
 			throws IllegalAccessException, InvocationTargetException {
 		Currency dbCurrency = getCurrency(currencyId);
 		BeanUtils.copyProperties(updateCurrency, dbCurrency, CommonUtils.getNullPropertyNames(updateCurrency));
+		dbCurrency.setDeletionIndicator(0L);
+		dbCurrency.setUpdatedOn(new Date());
 		return currencyRepository.save(dbCurrency);
 	}
 	

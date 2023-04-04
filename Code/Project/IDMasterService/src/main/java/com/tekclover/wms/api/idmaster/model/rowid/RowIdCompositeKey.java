@@ -16,7 +16,7 @@ public class RowIdCompositeKey implements Serializable {
 	private String plantId;
 	private String warehouseId;
 	private Long floorId;
-	private Long storageSectionId;
+	private String storageSectionId;
 	private String rowId;
 	private String languageId;
 }

@@ -64,7 +64,7 @@ public class UserManagement {
 	@Column(name = "USR_TYP_ID")
 	private Long userTypeId;
 	
-	@JsonIgnore
+	//@JsonIgnore
     @Column(name = "PASSWORD")
     private String password;
 	

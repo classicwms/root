@@ -130,7 +130,7 @@ public class StorageBinTypeIdService extends BaseService {
 	 */
 	public void deleteStorageBinTypeId (String warehouseId, Long storageClassId, Long storageTypeId, Long storageBinTypeId, String loginUserID) {
 		StorageBinTypeId dbStorageBinTypeId = getStorageBinTypeId(warehouseId, storageClassId, storageTypeId, storageBinTypeId);
-		if ( storageBinTypeId != null) {
+		if ( dbStorageBinTypeId != null) {
 			dbStorageBinTypeId.setDeletionIndicator(1L);
 			dbStorageBinTypeId.setUpdatedBy(loginUserID);
 			storageBinTypeIdRepository.save(dbStorageBinTypeId);

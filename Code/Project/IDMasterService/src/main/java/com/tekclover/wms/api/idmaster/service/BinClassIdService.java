@@ -39,12 +39,9 @@ public class BinClassIdService extends BaseService {
 	}
 	
 	/**
-	 * 
-	 * @param companyCode
-	 * @param plantId
+	 *
 	 * @param warehouseId
 	 * @param binClassId
-	 * @param languageId
 	 * @return
 	 */
 	public BinClassId getBinClassId (String warehouseId, Long binClassId) {
@@ -55,19 +52,6 @@ public class BinClassIdService extends BaseService {
 			throw new BadRequestException("The given values: warehouseId:" + warehouseId + 
 					",binClassId: " + binClassId + 
 					" doesn't exist.");
-		} 
-		return objBinClassId.get();
-	}
-	
-	/**
-	 * 
-	 * @param warehouseId
-	 * @return
-	 */
-	public BinClassId getBinClassId (String warehouseId) {
-		Optional<BinClassId> objBinClassId = binClassIdRepository.findByWarehouseIdAndDeletionIndicator( warehouseId, 0L);
-		if (objBinClassId.isEmpty()) {
-			throw new BadRequestException("The given values: warehouseId:" + warehouseId + " doesn't exist.");
 		} 
 		return objBinClassId.get();
 	}
@@ -106,7 +90,7 @@ public class BinClassIdService extends BaseService {
 	
 	/**
 	 * updateBinClassId
-	 * @param loginUserId 
+	 * @param loginUserID
 	 * @param binClassId
 	 * @param updateBinClassId
 	 * @return

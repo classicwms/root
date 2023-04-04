@@ -12,10 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.idmaster.controller.exception.BadRequestException;
+import com.tekclover.wms.api.idmaster.model.enterprise.WarehouseEnterprise;
 import com.tekclover.wms.api.idmaster.model.user.AddUserManagement;
 import com.tekclover.wms.api.idmaster.model.user.UpdateUserManagement;
 import com.tekclover.wms.api.idmaster.model.user.UserManagement;
 import com.tekclover.wms.api.idmaster.repository.UserManagementRepository;
+import com.tekclover.wms.api.idmaster.repository.enterprise.WarehouseEnterpriseRepository;
 import com.tekclover.wms.api.idmaster.util.CommonUtils;
 import com.tekclover.wms.api.idmaster.util.PasswordEncoder;
 
@@ -27,6 +29,10 @@ public class UserManagementService {
 	
 	@Autowired
 	private UserManagementRepository userManagementRepository;
+	
+	@Autowired
+	private WarehouseEnterpriseRepository warehouseRepository;
+;	
 	private PasswordEncoder passwordEncoder = new PasswordEncoder();
 	
 	/**
@@ -42,7 +48,7 @@ public class UserManagementService {
 	
 	/**
 	 * 
-	 * @param emailID
+	 * @param userId
 	 * @return
 	 */
 	public UserManagement getUserManagement (String warehouseId, String userId) {
@@ -56,7 +62,7 @@ public class UserManagementService {
 	/**
 	 * 
 	 * @param userId
-	 * @param warehouseId
+	 * @param
 	 * @return
 	 */
 	public List<UserManagement> getUserManagement(String userId) {
@@ -70,11 +76,12 @@ public class UserManagementService {
 	
 	/**
 	 * 
-	 * @param emailID
+	 * @param userId
 	 * @param loginPassword
+	 * @param version 
 	 * @return
 	 */
-	public UserManagement validateUser (String userId, String loginPassword) {
+	public UserManagement validateUser (String userId, String loginPassword, String version) {
 		List<UserManagement> userManagementList = 
 				userManagementRepository.findByUserIdAndDeletionIndicator(userId, 0L);
 		if (userManagementList.isEmpty()) {
@@ -84,7 +91,15 @@ public class UserManagementService {
 		boolean isSuccess = false;
 		for (UserManagement userManagement : userManagementList) {
 			isSuccess = passwordEncoder.matches(loginPassword, userManagement.getPassword());
+			log.info("version :" + version);
 			if (isSuccess) {
+				if (version != null && version.length() > 0) { // If the value is passed from Mobile
+					List<WarehouseEnterprise> optWarehouse = warehouseRepository.findByZone(version);
+					log.info("optWarehouse :" + optWarehouse);
+					if (optWarehouse.isEmpty()) {
+						throw new BadRequestException("You are not using the current version. Please install updated latest version.");
+					}
+				}
 				return userManagement;
 			}
 		}
@@ -126,7 +141,7 @@ public class UserManagementService {
 	
 	/**
 	 * 
-	 * @param userID
+	 * @param userId
 	 * @param updateUserManagement
 	 * @param loginUserID
 	 * @return
@@ -150,7 +165,7 @@ public class UserManagementService {
 	
 	/**
 	 * deleteUserManagement
-	 * @param warehouseCode
+	 * @param warehouseId
 	 */
 	public void deleteUserManagement (String userId, String warehouseId, String loginUserID) {
 		UserManagement dbUserManagement = getUserManagement(warehouseId, userId);

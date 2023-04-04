@@ -43,7 +43,7 @@ public class RowIdService extends BaseService {
 	 * @param rowId
 	 * @return
 	 */
-	public RowId getRowId (String warehouseId, Long floorId, Long storageSectionId, String rowId) {
+	public RowId getRowId (String warehouseId, Long floorId, String storageSectionId, String rowId) {
 		Optional<RowId> dbRowId = 
 				rowIdRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndFloorIdAndStorageSectionIdAndRowIdAndLanguageIdAndDeletionIndicator(
 								getCompanyCode(),
@@ -113,7 +113,7 @@ public class RowIdService extends BaseService {
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	public RowId updateRowId (String warehouseId, Long floorId, Long storageSectionId, String rowId, String loginUserID, 
+	public RowId updateRowId (String warehouseId, Long floorId, String storageSectionId, String rowId, String loginUserID,
 			UpdateRowId updateRowId) throws IllegalAccessException, InvocationTargetException {
 		RowId dbRowId = getRowId(warehouseId, floorId, storageSectionId, rowId);
 		BeanUtils.copyProperties(updateRowId, dbRowId, CommonUtils.getNullPropertyNames(updateRowId));
@@ -127,7 +127,7 @@ public class RowIdService extends BaseService {
 	 * @param loginUserID 
 	 * @param rowId
 	 */
-	public void deleteRowId (String warehouseId, Long floorId, Long storageSectionId, String rowId, String loginUserID) {
+	public void deleteRowId (String warehouseId, Long floorId, String storageSectionId, String rowId, String loginUserID) {
 		RowId dbRowId = getRowId(warehouseId, floorId, storageSectionId, rowId);
 		if ( dbRowId != null) {
 			dbRowId.setDeletionIndicator(1L);

@@ -51,9 +51,9 @@ public class ItemTypeIdController {
     @ApiOperation(response = ItemTypeId.class, value = "Get a ItemTypeId") // label for swagger 
 	@GetMapping("/{itemTypeId}")
 	public ResponseEntity<?> getItemTypeId(@PathVariable Long itemTypeId, 
-			@RequestParam String warehouseId, @RequestParam String itemType) {
+			@RequestParam String warehouseId) {
     	ItemTypeId itemtypeid = 
-    			itemtypeidService.getItemTypeId(warehouseId, itemTypeId, itemType);
+    			itemtypeidService.getItemTypeId(warehouseId, itemTypeId);
     	log.info("ItemTypeId : " + itemtypeid);
 		return new ResponseEntity<>(itemtypeid, HttpStatus.OK);
 	}
@@ -76,19 +76,19 @@ public class ItemTypeIdController {
     @ApiOperation(response = ItemTypeId.class, value = "Update ItemTypeId") // label for swagger
     @PatchMapping("/{itemTypeId}")
 	public ResponseEntity<?> patchItemTypeId(@PathVariable Long itemTypeId, 
-			@RequestParam String warehouseId, @RequestParam String itemType, 
+			@RequestParam String warehouseId,
 			@Valid @RequestBody UpdateItemTypeId updateItemTypeId, @RequestParam String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
 		ItemTypeId createdItemTypeId = 
-				itemtypeidService.updateItemTypeId(warehouseId, itemTypeId, itemType, loginUserID, updateItemTypeId);
+				itemtypeidService.updateItemTypeId(warehouseId, itemTypeId, loginUserID, updateItemTypeId);
 		return new ResponseEntity<>(createdItemTypeId , HttpStatus.OK);
 	}
     
     @ApiOperation(response = ItemTypeId.class, value = "Delete ItemTypeId") // label for swagger
 	@DeleteMapping("/{itemTypeId}")
 	public ResponseEntity<?> deleteItemTypeId(@PathVariable Long itemTypeId, 
-			@RequestParam String warehouseId, @RequestParam String itemType, @RequestParam String loginUserID) {
-    	itemtypeidService.deleteItemTypeId(warehouseId, itemTypeId, itemType, loginUserID);
+			@RequestParam String warehouseId, @RequestParam String loginUserID) {
+    	itemtypeidService.deleteItemTypeId(warehouseId, itemTypeId, loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 }

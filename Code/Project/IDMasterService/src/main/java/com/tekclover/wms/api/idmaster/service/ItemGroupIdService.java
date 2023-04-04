@@ -43,15 +43,14 @@ public class ItemGroupIdService extends BaseService {
 	 * @param itemGroupId
 	 * @return
 	 */
-	public ItemGroupId getItemGroupId (String warehouseId, Long itemTypeId, Long itemGroupId, String itemGroup) {
+	public ItemGroupId getItemGroupId (String warehouseId, Long itemTypeId, Long itemGroupId) {
 		Optional<ItemGroupId> dbItemGroupId = 
-				itemGroupIdRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemTypeIdAndItemGroupIdAndItemGroupAndDeletionIndicator(
+				itemGroupIdRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemTypeIdAndItemGroupIdAndDeletionIndicator(
 								getCompanyCode(),
 								getPlantId(),
 								warehouseId,
 								itemTypeId,
 								itemGroupId,
-								itemGroup,
 								0L
 								);
 		if (dbItemGroupId.isEmpty()) {
@@ -59,7 +58,6 @@ public class ItemGroupIdService extends BaseService {
 						"warehouseId - " + warehouseId +
 						"itemTypeId - " + itemTypeId +
 						"itemGroupId - " + itemGroupId +
-						"itemGroup - " + itemGroup +
 						" doesn't exist.");						
 			
 		} 
@@ -112,10 +110,10 @@ public class ItemGroupIdService extends BaseService {
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	public ItemGroupId updateItemGroupId (String warehouseId, Long itemTypeId, Long itemGroupId, String itemGroup, String loginUserID, 
+	public ItemGroupId updateItemGroupId (String warehouseId, Long itemTypeId, Long itemGroupId, String loginUserID,
 			UpdateItemGroupId updateItemGroupId) 
 			throws IllegalAccessException, InvocationTargetException {
-		ItemGroupId dbItemGroupId = getItemGroupId(warehouseId, itemTypeId, itemGroupId, itemGroup);
+		ItemGroupId dbItemGroupId = getItemGroupId(warehouseId, itemTypeId, itemGroupId);
 		BeanUtils.copyProperties(updateItemGroupId, dbItemGroupId, CommonUtils.getNullPropertyNames(updateItemGroupId));
 		dbItemGroupId.setUpdatedBy(loginUserID);
 		dbItemGroupId.setUpdatedOn(new Date());
@@ -127,9 +125,9 @@ public class ItemGroupIdService extends BaseService {
 	 * @param loginUserID 
 	 * @param itemGroupId
 	 */
-	public void deleteItemGroupId (String warehouseId, Long itemTypeId, Long itemGroupId, String itemGroup, String loginUserID) {
-		ItemGroupId dbItemGroupId = getItemGroupId(warehouseId, itemTypeId, itemGroupId, itemGroup);
-		if ( itemGroupId != null) {
+	public void deleteItemGroupId (String warehouseId, Long itemTypeId, Long itemGroupId, String loginUserID) {
+		ItemGroupId dbItemGroupId = getItemGroupId(warehouseId, itemTypeId, itemGroupId);
+		if ( dbItemGroupId != null) {
 			dbItemGroupId.setDeletionIndicator(1L);
 			dbItemGroupId.setUpdatedBy(loginUserID);
 			itemGroupIdRepository.save(dbItemGroupId);

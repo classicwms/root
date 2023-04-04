@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.idmaster.service;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityNotFoundException;
@@ -58,6 +59,9 @@ public class CityService {
 			throws IllegalAccessException, InvocationTargetException {
 		City dbCity = new City();
 		BeanUtils.copyProperties(newCity, dbCity, CommonUtils.getNullPropertyNames(newCity));
+		dbCity.setDeletionIndicator(0L);
+		dbCity.setCreatedOn(new Date());
+		dbCity.setUpdatedOn(new Date());
 		return cityRepository.save(dbCity);
 	}
 	
@@ -73,6 +77,8 @@ public class CityService {
 			throws IllegalAccessException, InvocationTargetException {
 		City dbCity = getCity(cityId);
 		BeanUtils.copyProperties(updateCity, dbCity, CommonUtils.getNullPropertyNames(updateCity));
+		dbCity.setDeletionIndicator(0L);
+		dbCity.setUpdatedOn(new Date());
 		return cityRepository.save(dbCity);
 	}
 	

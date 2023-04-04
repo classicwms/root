@@ -17,6 +17,6 @@ public interface ItemGroupIdRepository extends JpaRepository<ItemGroupId,Long>, 
 	
 	public List<ItemGroupId> findAll();
 	public Optional<ItemGroupId> 
-		findByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemTypeIdAndItemGroupIdAndItemGroupAndDeletionIndicator(
-				String companyCodeId, String plantId, String warehouseId, Long itemTypeId, Long itemGroupId, String itemGroup, Long deletionIndicator);
+		findByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemTypeIdAndItemGroupIdAndDeletionIndicator(
+				String companyCodeId, String plantId, String warehouseId, Long itemTypeId, Long itemGroupId, Long deletionIndicator);
 }

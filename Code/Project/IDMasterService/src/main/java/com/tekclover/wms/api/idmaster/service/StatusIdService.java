@@ -126,7 +126,7 @@ public class StatusIdService extends BaseService {
 	 */
 	public void deleteStatusId ( String warehouseId, Long statusId, String loginUserID) {
 		StatusId dbStatusId = getStatusId(warehouseId, statusId);
-		if ( statusId != null) {
+		if ( dbStatusId != null) {
 			dbStatusId.setDeletionIndicator(1L);
 			dbStatusId.setUpdatedBy(loginUserID);
 			statusIdRepository.save(dbStatusId);
