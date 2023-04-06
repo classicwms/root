@@ -2,6 +2,7 @@ package com.tekclover.wms.api.idmaster.controller;
 
 import com.tekclover.wms.api.idmaster.model.email.*;
 import com.tekclover.wms.api.idmaster.service.EMailDetailsService;
+import com.tekclover.wms.api.idmaster.service.SendMailService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import java.io.IOException;
@@ -29,7 +31,8 @@ public class EMailController {
 	
 	@Autowired
 	EMailDetailsService eMailDetailsService;
-	
+	@Autowired
+	SendMailService sendMailService;
 
 	@ApiOperation(response = EMailDetails.class, value = "Add Email") // label for swagger
 	@PostMapping("")
@@ -65,6 +68,14 @@ public class EMailController {
 			throws IllegalAccessException, InvocationTargetException, IOException {
 		eMailDetailsService.deleteEMailDetails(id);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+	//send Mail
+	@ApiOperation(response = EMailDetails.class, value = "Send Email") // label for swagger
+	@GetMapping("/sendMail")
+	public ResponseEntity<?> sendEmail()
+			throws IOException, MessagingException {
+		sendMailService.sendMail();
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	@ApiOperation(response = EMailDetails.class, value = "Un Delete Email") // label for swagger
 	@GetMapping("/undelete/{id}")
