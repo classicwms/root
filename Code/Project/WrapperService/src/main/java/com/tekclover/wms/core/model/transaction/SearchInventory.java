@@ -19,6 +19,7 @@ public class SearchInventory {
 	private List<String> packBarcodes;
 	private List<String> itemCode;
 	private List<String> storageBin;
+	private List<String> storageSectionId;
 	private List<Long> stockTypeId;
 	private List<Long> specialStockIndicatorId;
 	private List<Long> binClassId;

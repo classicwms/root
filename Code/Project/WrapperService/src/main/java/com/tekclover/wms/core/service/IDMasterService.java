@@ -1,8 +1,9 @@
 package com.tekclover.wms.core.service;
 
-import java.util.Collections;
-import java.util.List;
+import java.io.IOException;
+import java.util.*;
 
+import javax.mail.MessagingException;
 import javax.validation.Valid;
 
 import org.apache.http.client.HttpClient;
@@ -63,6 +64,8 @@ public class IDMasterService {
 	
 	@Autowired
 	PropertiesConfig propertiesConfig;
+	@Autowired
+	FileStorageService fileStorageService;
 	
 	private RestTemplate getRestTemplate() {
 		RestTemplate restTemplate = new RestTemplate();
@@ -7133,5 +7136,237 @@ public class IDMasterService {
 			throw e;
 		}
 	}
-
+	//--------------------------------------------EMail ------------------------------------------------------------------------
+	//GET ALL
+	public EMailDetails[] getEMailDetailsList(String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "email");
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<EMailDetails[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, EMailDetails[].class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	// GET
+	public EMailDetails getEMail(Long id, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "email/" + id);
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<EMailDetails> result =
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, EMailDetails.class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	//CREATE
+	public EMailDetails createEMail(AddEMailDetails newEMail, String authToken) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.add("User-Agent", "RestTemplate");
+		headers.add("Authorization", "Bearer " + authToken);
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "email");
+		HttpEntity<?> entity = new HttpEntity<>(newEMail, headers);
+		ResponseEntity<EMailDetails> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, EMailDetails.class);
+		//		log.info("result : " + result.getStatusCode());
+		return result.getBody();
+	}
+	//PATCH
+	public EMailDetails updateEMail(Long id,
+							 AddEMailDetails updateEMail, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			HttpEntity<?> entity = new HttpEntity<>(updateEMail, headers);
+			HttpClient client = HttpClients.createDefault();
+			RestTemplate restTemplate = getRestTemplate();
+			restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "email/" + id);
+			ResponseEntity<EMailDetails> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, EMailDetails.class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	//DELETE
+	public boolean deleteEMail(Long id,String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "email/" + id);
+			ResponseEntity<String> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity, String.class);
+			log.info("result : " + result);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	//UN DELETE
+	public EMailDetails undeleteEMail(Long id,String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "email/undelete/" + id);
+			ResponseEntity<EMailDetails> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, EMailDetails.class);
+			log.info("result : " + result);
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	//--------------------------------------------Report File Name ------------------------------------------------------------------------
+	//CREATE
+	public FileNameForEmail createFileNameForEmail(FileNameForEmail newFileNameForEmail, String authToken) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.add("User-Agent", "RestTemplate");
+		headers.add("Authorization", "Bearer " + authToken);
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "filenameforemail");
+		HttpEntity<?> entity = new HttpEntity<>(newFileNameForEmail, headers);
+		ResponseEntity<FileNameForEmail> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, FileNameForEmail.class);
+		//		log.info("result : " + result.getStatusCode());
+		return result.getBody();
+	}
+	//PATCH
+	public FileNameForEmail updateFileNameForEmail(FileNameForEmail updateFileNameForEmail, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			HttpEntity<?> entity = new HttpEntity<>(updateFileNameForEmail, headers);
+			HttpClient client = HttpClients.createDefault();
+			RestTemplate restTemplate = getRestTemplate();
+			restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "filenameforemail" );
+			ResponseEntity<FileNameForEmail> result = restTemplate.exchange(builder.toUriString(), HttpMethod.POST, entity, FileNameForEmail.class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	//GET ALL
+	public FileNameForEmail[] getFileNameForEmailList(String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "filenameforemail");
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<FileNameForEmail[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, FileNameForEmail[].class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	// GET
+	public FileNameForEmail getFileNameForEmail(Long fileNameId, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "filenameforemail/" + fileNameId);
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<FileNameForEmail> result =
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, FileNameForEmail.class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	// GET by Date
+	public FileNameForEmail getFileNameForEmailByDate(String fileNameDate, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "filenameforemail/fileNameByDate/" + fileNameDate);
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<FileNameForEmail> result =
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, FileNameForEmail.class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	//DELETE
+	public boolean deleteFileNameForEmail(Long fileNameId,String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "filenameforemail/" + fileNameId);
+			ResponseEntity<String> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity, String.class);
+			log.info("result : " + result);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	// Send Mail
+	public void sendMail(String authToken) throws MessagingException, IOException {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "email/sendMail" );
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<EMailDetails> result =
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, EMailDetails.class);
+			log.info("result : " + result.getStatusCode());
+//			return null;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
 }

@@ -69,6 +69,7 @@ import com.tekclover.wms.core.model.transaction.PerpetualHeader;
 import com.tekclover.wms.core.model.transaction.PerpetualHeaderEntity;
 import com.tekclover.wms.core.model.transaction.PerpetualLine;
 import com.tekclover.wms.core.model.transaction.PerpetualLineEntity;
+import com.tekclover.wms.core.model.transaction.PerpetualUpdateResponse;
 import com.tekclover.wms.core.model.transaction.PickupHeader;
 import com.tekclover.wms.core.model.transaction.PickupLine;
 import com.tekclover.wms.core.model.transaction.PreInboundHeader;
@@ -1723,7 +1724,7 @@ public class TransactionServiceController {
 	public ResponseEntity<?> patchAssingHHTUser (@PathVariable String cycleCountNo, 
 			@RequestBody List<UpdatePerpetualLine> updatePerpetualLine, @RequestParam String loginUserID,
 			@RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
-		PerpetualLine[] createdPerpetualLine = 
+		PerpetualUpdateResponse createdPerpetualLine = 
 				transactionService.updatePerpetualLine (cycleCountNo, updatePerpetualLine, loginUserID, authToken);
 		return new ResponseEntity<>(createdPerpetualLine , HttpStatus.OK);
 	}
@@ -1901,6 +1902,14 @@ public class TransactionServiceController {
    	public ResponseEntity<?> getOBAllOrders(@RequestParam String authToken) {
    		OutboundOrder[] outboundOrderList = transactionService.getOBOrders(authToken);
    		return new ResponseEntity<>(outboundOrderList, HttpStatus.OK);
+   	}
+	
+	@ApiOperation(response = OutboundOrder.class, value = "Get a Orders") // label for swagger 
+   	@GetMapping("/orders/outbound/byDate")
+   	public ResponseEntity<?> getOBOrdersByDate(@RequestParam String orderStartDate, 
+   			@RequestParam String orderEndDate, @RequestParam String authToken) throws Exception {
+       	OutboundOrder[] orders = transactionService.getOBOrderByDate(orderStartDate, orderEndDate, authToken);
+   		return new ResponseEntity<>(orders, HttpStatus.OK);
    	}
 	
 	@ApiOperation(response = OutboundOrder.class, value = "Get outbound Order by id ") // label for swagger
