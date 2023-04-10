@@ -92,7 +92,7 @@ public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader,L
 	 * @param refDocNumber
 	 * @param statusId
 	 */
-	@Modifying(clearAutomatically = true)
+	@Modifying(clearAutomatically = true, flushAutomatically = true)
 	@Query("Update OutboundHeader ob SET ob.statusId = :statusId, ob.deliveryConfirmedOn = :deliveryConfirmedOn \r\n "
 			+ " WHERE ob.warehouseId = :warehouseId AND ob.refDocNumber = :refDocNumber")
 	public void updateOutboundHeaderStatus(@Param ("warehouseId") String warehouseId, 

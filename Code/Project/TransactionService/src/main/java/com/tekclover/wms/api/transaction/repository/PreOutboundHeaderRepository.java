@@ -46,7 +46,7 @@ public interface PreOutboundHeaderRepository extends JpaRepository<PreOutboundHe
 	 * @param refDocNumber
 	 * @param statusId
 	 */
-	@Modifying(clearAutomatically = true)
+	@Modifying(clearAutomatically = true, flushAutomatically = true)
 	@Query("UPDATE PreOutboundHeader ib SET ib.statusId = :statusId WHERE ib.warehouseId = :warehouseId AND ib.refDocNumber = :refDocNumber")
 	void updatePreOutboundHeaderStatus(@Param ("warehouseId") String warehouseId,
 			@Param ("refDocNumber") String refDocNumber, @Param ("statusId") Long statusId);

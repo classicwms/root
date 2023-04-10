@@ -329,7 +329,7 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 	 * @param refDocNumber
 	 * @param statusId
 	 */
-	@Modifying(clearAutomatically = true)
+	@Modifying(clearAutomatically = true, flushAutomatically = true)
 	@Query("UPDATE OutboundLine ob SET ob.statusId = :statusId \r\n"
 			+ " WHERE ob.warehouseId = :warehouseId AND \r\n "
 			+ " ob.refDocNumber = :refDocNumber AND ob.lineNumber in :lineNumber")
