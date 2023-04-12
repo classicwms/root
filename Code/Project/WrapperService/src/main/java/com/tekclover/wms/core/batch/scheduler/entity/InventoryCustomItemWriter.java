@@ -12,7 +12,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import com.tekclover.wms.core.batch.config.singleton.AccountService;
 import com.tekclover.wms.core.batch.config.singleton.AppConfig;
 
-public class InventoryCustomItemWriter implements ItemWriter<InventoryMovement2>, Closeable {
+public class InventoryCustomItemWriter implements ItemWriter<InventoryMovement>, Closeable {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
 		AccountService service1 = null;
 		
@@ -21,13 +21,13 @@ public class InventoryCustomItemWriter implements ItemWriter<InventoryMovement2>
 	    }
 
 	    @Override
-	    public void write(final List<? extends InventoryMovement2> items) throws Exception {
+	    public void write(final List<? extends InventoryMovement> items) throws Exception {
 	    	service1.getInventoryHolder().addAll(items);
 	    }
 
 	    @PreDestroy
 	    @Override
 	    public void close() throws IOException {
-//	        writer.close();
+	        this.close();
 	    }
 	}

@@ -2211,7 +2211,7 @@ public class ReportsService extends BaseService {
 		fromCreatedOn = dates[0];
 		toCreatedOn = dates[1];
 		List<FastSlowMovingDashboard.FastSlowMovingDashboardImpl> itemData = outboundLineRepository.getFastSlowMovingDashboardData(warehouseId,fromCreatedOn,toCreatedOn);
-		log.info("FastSlowMovingDashboard itemData : " + itemData);
+//		log.info("FastSlowMovingDashboard itemData : " + itemData);
 		if(itemData != null && !itemData.isEmpty()) {
 			int splitSize = itemData.size() / 3;
 			for (FastSlowMovingDashboard.FastSlowMovingDashboardImpl item : itemData) {

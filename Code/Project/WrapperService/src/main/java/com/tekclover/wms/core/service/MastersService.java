@@ -1608,7 +1608,8 @@ public class MastersService {
 			headers.add("User-Agent", "Classic WMS's RestTemplate");
 			headers.add("Authorization", "Bearer " + authToken);
 			HttpEntity<?> entity = new HttpEntity<>(headers);
-			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "storagebin/" + storageBin + "/warehouseId");
+			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "storagebin/" + storageBin + "/warehouseId")
+					.queryParam("warehouseId", warehouseId);
 			ResponseEntity<StorageBin> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, StorageBin.class);
 			return result.getBody();
 		} catch (Exception e) {

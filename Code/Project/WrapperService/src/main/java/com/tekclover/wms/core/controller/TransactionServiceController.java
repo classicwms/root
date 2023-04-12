@@ -3,6 +3,7 @@ package com.tekclover.wms.core.controller;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import javax.validation.Valid;
 
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.expression.ParseException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,105 +25,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import com.tekclover.wms.core.model.transaction.AXApiResponse;
-import com.tekclover.wms.core.model.transaction.AddGrLine;
-import com.tekclover.wms.core.model.transaction.AddPeriodicHeader;
-import com.tekclover.wms.core.model.transaction.AddPerpetualHeader;
-import com.tekclover.wms.core.model.transaction.AddPickupLine;
-import com.tekclover.wms.core.model.transaction.AddPutAwayLine;
-import com.tekclover.wms.core.model.transaction.AddQualityLine;
-import com.tekclover.wms.core.model.transaction.AssignHHTUser;
-import com.tekclover.wms.core.model.transaction.AssignHHTUserCC;
-import com.tekclover.wms.core.model.transaction.AssignPicker;
-import com.tekclover.wms.core.model.transaction.CaseConfirmation;
-import com.tekclover.wms.core.model.transaction.ContainerReceipt;
-import com.tekclover.wms.core.model.transaction.Dashboard;
-import com.tekclover.wms.core.model.transaction.FastSlowMovingDashboard;
-import com.tekclover.wms.core.model.transaction.FastSlowMovingDashboardRequest;
-import com.tekclover.wms.core.model.transaction.GrHeader;
-import com.tekclover.wms.core.model.transaction.GrLine;
-import com.tekclover.wms.core.model.transaction.InboundHeader;
-import com.tekclover.wms.core.model.transaction.InboundHeaderEntity;
-import com.tekclover.wms.core.model.transaction.InboundIntegrationLog;
-import com.tekclover.wms.core.model.transaction.InboundLine;
-import com.tekclover.wms.core.model.transaction.InboundOrder;
-import com.tekclover.wms.core.model.transaction.InhouseTransferHeader;
-import com.tekclover.wms.core.model.transaction.InhouseTransferLine;
-import com.tekclover.wms.core.model.transaction.Inventory;
-import com.tekclover.wms.core.model.transaction.InventoryMovement;
-import com.tekclover.wms.core.model.transaction.InventoryReport;
-import com.tekclover.wms.core.model.transaction.MobileDashboard;
-import com.tekclover.wms.core.model.transaction.OrderManagementLine;
-import com.tekclover.wms.core.model.transaction.OrderStatusReport;
-import com.tekclover.wms.core.model.transaction.OutboundHeader;
-import com.tekclover.wms.core.model.transaction.OutboundIntegrationLog;
-import com.tekclover.wms.core.model.transaction.OutboundLine;
-import com.tekclover.wms.core.model.transaction.OutboundOrder;
-import com.tekclover.wms.core.model.transaction.OutboundReversal;
-import com.tekclover.wms.core.model.transaction.PackBarcode;
-import com.tekclover.wms.core.model.transaction.PaginatedResponse;
-import com.tekclover.wms.core.model.transaction.PeriodicHeader;
-import com.tekclover.wms.core.model.transaction.PeriodicHeaderEntity;
-import com.tekclover.wms.core.model.transaction.PeriodicLine;
-import com.tekclover.wms.core.model.transaction.PeriodicLineEntity;
-import com.tekclover.wms.core.model.transaction.PerpetualHeader;
-import com.tekclover.wms.core.model.transaction.PerpetualHeaderEntity;
-import com.tekclover.wms.core.model.transaction.PerpetualLine;
-import com.tekclover.wms.core.model.transaction.PerpetualLineEntity;
-import com.tekclover.wms.core.model.transaction.PerpetualUpdateResponse;
-import com.tekclover.wms.core.model.transaction.PickupHeader;
-import com.tekclover.wms.core.model.transaction.PickupLine;
-import com.tekclover.wms.core.model.transaction.PreInboundHeader;
-import com.tekclover.wms.core.model.transaction.PreInboundLine;
-import com.tekclover.wms.core.model.transaction.PreOutboundHeader;
-import com.tekclover.wms.core.model.transaction.PreOutboundLine;
-import com.tekclover.wms.core.model.transaction.PutAwayHeader;
-import com.tekclover.wms.core.model.transaction.PutAwayLine;
-import com.tekclover.wms.core.model.transaction.QualityHeader;
-import com.tekclover.wms.core.model.transaction.QualityLine;
-import com.tekclover.wms.core.model.transaction.ReceiptConfimationReport;
-import com.tekclover.wms.core.model.transaction.RunPerpetualHeader;
-import com.tekclover.wms.core.model.transaction.SearchContainerReceipt;
-import com.tekclover.wms.core.model.transaction.SearchGrHeader;
-import com.tekclover.wms.core.model.transaction.SearchGrLine;
-import com.tekclover.wms.core.model.transaction.SearchInboundHeader;
-import com.tekclover.wms.core.model.transaction.SearchInhouseTransferHeader;
-import com.tekclover.wms.core.model.transaction.SearchInhouseTransferLine;
-import com.tekclover.wms.core.model.transaction.SearchInventory;
-import com.tekclover.wms.core.model.transaction.SearchInventoryMovement;
-import com.tekclover.wms.core.model.transaction.SearchOrderManagementLine;
-import com.tekclover.wms.core.model.transaction.SearchOrderStatusReport;
-import com.tekclover.wms.core.model.transaction.SearchOutboundHeader;
-import com.tekclover.wms.core.model.transaction.SearchOutboundLine;
-import com.tekclover.wms.core.model.transaction.SearchOutboundReversal;
-import com.tekclover.wms.core.model.transaction.SearchPeriodicHeader;
-import com.tekclover.wms.core.model.transaction.SearchPerpetualHeader;
-import com.tekclover.wms.core.model.transaction.SearchPickupHeader;
-import com.tekclover.wms.core.model.transaction.SearchPickupLine;
-import com.tekclover.wms.core.model.transaction.SearchPreInboundHeader;
-import com.tekclover.wms.core.model.transaction.SearchPreOutboundHeader;
-import com.tekclover.wms.core.model.transaction.SearchPreOutboundLine;
-import com.tekclover.wms.core.model.transaction.SearchPutAwayHeader;
-import com.tekclover.wms.core.model.transaction.SearchPutAwayLine;
-import com.tekclover.wms.core.model.transaction.SearchQualityHeader;
-import com.tekclover.wms.core.model.transaction.SearchQualityLine;
-import com.tekclover.wms.core.model.transaction.SearchStagingHeader;
-import com.tekclover.wms.core.model.transaction.SearchStagingLine;
-import com.tekclover.wms.core.model.transaction.ShipmentDeliveryReport;
-import com.tekclover.wms.core.model.transaction.ShipmentDeliverySummaryReport;
-import com.tekclover.wms.core.model.transaction.ShipmentDispatchSummaryReport;
-import com.tekclover.wms.core.model.transaction.ShipmentOrder;
-import com.tekclover.wms.core.model.transaction.StagingHeader;
-import com.tekclover.wms.core.model.transaction.StagingLine;
-import com.tekclover.wms.core.model.transaction.StagingLineEntity;
-import com.tekclover.wms.core.model.transaction.StockMovementReport;
-import com.tekclover.wms.core.model.transaction.StockReport;
-import com.tekclover.wms.core.model.transaction.UpdatePeriodicHeader;
-import com.tekclover.wms.core.model.transaction.UpdatePeriodicLine;
-import com.tekclover.wms.core.model.transaction.UpdatePerpetualHeader;
-import com.tekclover.wms.core.model.transaction.UpdatePerpetualLine;
-import com.tekclover.wms.core.model.transaction.UpdatePickupHeader;
+import com.tekclover.wms.core.model.transaction.*;
 import com.tekclover.wms.core.model.warehouse.inbound.ASN;
 import com.tekclover.wms.core.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.core.service.FileStorageService;
@@ -891,11 +797,10 @@ public class TransactionServiceController {
 	@ApiOperation(response = InventoryMovement.class, value = "Get a InventoryMovement") // label for swagger
 	@GetMapping("/inventorymovement/{movementType}")
 	public ResponseEntity<?> getInventoryMovement(@PathVariable Long movementType, @RequestParam String warehouseId, @RequestParam Long submovementType, 
-			@RequestParam String palletCode, @RequestParam String caseCode, @RequestParam String packBarcodes, @RequestParam String itemCode, 
-			@RequestParam Long variantCode, @RequestParam String variantSubCode, @RequestParam String batchSerialNumber, @RequestParam String movementDocumentNo, 
+			@RequestParam String packBarcodes, @RequestParam String itemCode, @RequestParam String batchSerialNumber, @RequestParam String movementDocumentNo, 
 			@RequestParam String authToken) {
-		InventoryMovement dbInventoryMovement = transactionService.getInventoryMovement(warehouseId, movementType, submovementType, palletCode, caseCode, 
-				packBarcodes, itemCode, variantCode, variantSubCode, batchSerialNumber, movementDocumentNo, authToken);
+		InventoryMovement dbInventoryMovement = transactionService.getInventoryMovement(warehouseId, movementType, submovementType, 
+				packBarcodes, itemCode, batchSerialNumber, movementDocumentNo, authToken);
 		log.info("InventoryMovement : " + dbInventoryMovement);
 		return new ResponseEntity<>(dbInventoryMovement, HttpStatus.OK);
 	}
@@ -917,12 +822,13 @@ public class TransactionServiceController {
 
 	@ApiOperation(response = InventoryMovement.class, value = "Update InventoryMovement") // label for swagger
 	@RequestMapping(value = "/inventorymovement", method = RequestMethod.PATCH)
-	public ResponseEntity<?> patchInventoryMovement(@PathVariable Long movementType, @RequestParam String languageId, @RequestParam String companyCodeId, @RequestParam String plantId, @RequestParam String warehouseId, @RequestParam Long submovementType, @RequestParam String palletCode, @RequestParam String caseCode, @RequestParam String packBarcodes, @RequestParam String itemCode, @RequestParam Long variantCode, @RequestParam String variantSubCode, @RequestParam String batchSerialNumber, @RequestParam String movementDocumentNo, 
+	public ResponseEntity<?> patchInventoryMovement(@PathVariable Long movementType, @RequestParam String languageId, 
+			@RequestParam String companyCodeId, @RequestParam String plantId, @RequestParam String warehouseId, @RequestParam Long submovementType, 
+			@RequestParam String packBarcodes, @RequestParam String itemCode,@RequestParam String batchSerialNumber, @RequestParam String movementDocumentNo, 
 			@RequestParam String loginUserID, @RequestParam String authToken, @Valid @RequestBody InventoryMovement updateInventoryMovement)
 			throws IllegalAccessException, InvocationTargetException {
 		InventoryMovement updatedInventoryMovement = 
-				transactionService.updateInventoryMovement(warehouseId, movementType, submovementType, palletCode, 
-						caseCode, packBarcodes, itemCode, variantCode, variantSubCode, batchSerialNumber, movementDocumentNo, updateInventoryMovement, 
+				transactionService.updateInventoryMovement(warehouseId, movementType, submovementType, packBarcodes, itemCode, batchSerialNumber, movementDocumentNo, updateInventoryMovement, 
 						loginUserID, authToken);
 		return new ResponseEntity<>(updatedInventoryMovement, HttpStatus.OK);
 	}
@@ -930,11 +836,18 @@ public class TransactionServiceController {
 	@ApiOperation(response = InventoryMovement.class, value = "Delete InventoryMovement") // label for swagger
 	@DeleteMapping("/inventorymovement/{movementType}")
 	public ResponseEntity<?> deleteInventoryMovement(@PathVariable Long movementType, @RequestParam String warehouseId, @RequestParam Long submovementType, 
-			@RequestParam String palletCode, @RequestParam String caseCode, @RequestParam String packBarcodes, @RequestParam String itemCode, 
-			@RequestParam Long variantCode, @RequestParam String variantSubCode, @RequestParam String batchSerialNumber, @RequestParam String movementDocumentNo, 
+			@RequestParam String packBarcodes, @RequestParam String itemCode, @RequestParam String batchSerialNumber, @RequestParam String movementDocumentNo, 
 			@RequestParam String loginUserID, @RequestParam String authToken) {
-		transactionService.deleteInventoryMovement(warehouseId, movementType, submovementType, palletCode, caseCode, packBarcodes, itemCode, variantCode, variantSubCode, batchSerialNumber, movementDocumentNo, loginUserID, authToken);
+		transactionService.deleteInventoryMovement(warehouseId, movementType, submovementType, packBarcodes, itemCode, batchSerialNumber, movementDocumentNo, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+	
+	//===================================STREAMING=================================================
+	
+	@GetMapping(value = "/streaming/inventoryMovement")
+	public ResponseEntity<StreamingResponseBody> findInventoryMovement() throws ExecutionException, InterruptedException {
+		StreamingResponseBody responseBody = transactionService.findInventoryMovementByStreaming();
+		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(responseBody);
 	}
 	
 	/*
@@ -1710,6 +1623,15 @@ public class TransactionServiceController {
 	}
     
     //-------------------------------PerpetualLine---------------------------------------------------------------------
+    
+    //-------------------------------PerpetualLine---------------------------------------------------------------------
+    @ApiOperation(response = PerpetualHeaderEntity.class, value = "SearchPerpetualLine") // label for swagger
+	@PostMapping("/findPerpetualLine")
+	public PerpetualLine[] findPerpetualHeader(@RequestBody SearchPerpetualLine searchPerpetualLine,
+			@RequestParam String authToken) throws Exception {
+		return transactionService.findPerpetualLine(searchPerpetualLine, authToken);
+	}
+    
     @ApiOperation(response = PerpetualLine[].class, value = "Update AssignHHTUser") // label for swagger
     @PatchMapping("/perpetualline/assigingHHTUser")
 	public ResponseEntity<?> patchAssingHHTUser (@RequestBody List<AssignHHTUserCC> assignHHTUser, 

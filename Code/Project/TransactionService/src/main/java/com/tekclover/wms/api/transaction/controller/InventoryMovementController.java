@@ -52,13 +52,10 @@ public class InventoryMovementController {
     @ApiOperation(response = InventoryMovement.class, value = "Get a InventoryMovement") // label for swagger 
 	@GetMapping("/{movementType}")
 	public ResponseEntity<?> getInventoryMovement(@PathVariable Long movementType, @RequestParam String warehouseId, 
-			@RequestParam Long submovementType, @RequestParam String palletCode, @RequestParam String caseCode, 
-			@RequestParam String packBarcodes, @RequestParam String itemCode, @RequestParam Long variantCode, 
-			@RequestParam String variantSubCode, @RequestParam String batchSerialNumber, @RequestParam String movementDocumentNo) {
+			@RequestParam Long submovementType, @RequestParam String packBarcodes, @RequestParam String itemCode, @RequestParam String batchSerialNumber, @RequestParam String movementDocumentNo) {
     	InventoryMovement inventorymovement = 
-    			inventorymovementService.getInventoryMovement(warehouseId, movementType, submovementType, palletCode, caseCode, 
-    					packBarcodes, itemCode, variantCode, variantSubCode, batchSerialNumber, movementDocumentNo);
-//    	log.info("InventoryMovement : " + inventorymovement);
+    			inventorymovementService.getInventoryMovement(warehouseId, movementType, submovementType, packBarcodes, itemCode, 
+						batchSerialNumber, movementDocumentNo);
 		return new ResponseEntity<>(inventorymovement, HttpStatus.OK);
 	}
     
@@ -80,24 +77,22 @@ public class InventoryMovementController {
     @ApiOperation(response = InventoryMovement.class, value = "Update InventoryMovement") // label for swagger
     @PatchMapping("/{movementType}")
 	public ResponseEntity<?> patchInventoryMovement(@PathVariable Long movementType, @RequestParam String warehouseId, 
-			@RequestParam Long submovementType, @RequestParam String palletCode, @RequestParam String caseCode, 
-			@RequestParam String packBarcodes, @RequestParam String itemCode, @RequestParam Long variantCode, 
-			@RequestParam String variantSubCode, @RequestParam String batchSerialNumber, @RequestParam String movementDocumentNo,
+			@RequestParam Long submovementType, @RequestParam String packBarcodes, @RequestParam String itemCode, @RequestParam String batchSerialNumber, @RequestParam String movementDocumentNo,
 			@Valid @RequestBody UpdateInventoryMovement updateInventoryMovement, @RequestParam String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
 		InventoryMovement createdInventoryMovement = 
-				inventorymovementService.updateInventoryMovement(warehouseId, movementType, submovementType, palletCode, caseCode, 
-						packBarcodes, itemCode, variantCode, variantSubCode, batchSerialNumber, movementDocumentNo, updateInventoryMovement);
+				inventorymovementService.updateInventoryMovement(warehouseId, movementType, submovementType, packBarcodes, itemCode, 
+						batchSerialNumber, movementDocumentNo, updateInventoryMovement);
 		return new ResponseEntity<>(createdInventoryMovement , HttpStatus.OK);
 	}
     
     @ApiOperation(response = InventoryMovement.class, value = "Delete InventoryMovement") // label for swagger
 	@DeleteMapping("/{movementType}")
 	public ResponseEntity<?> deleteInventoryMovement(@PathVariable Long movementType, @RequestParam String warehouseId, 
-			@RequestParam Long submovementType, @RequestParam String palletCode, @RequestParam String caseCode, 
-			@RequestParam String packBarcodes, @RequestParam String itemCode, @RequestParam Long variantCode, @RequestParam String variantSubCode, @RequestParam String batchSerialNumber, @RequestParam String movementDocumentNo, @RequestParam String loginUserID) {
-    	inventorymovementService.deleteInventoryMovement(warehouseId, movementType, submovementType, palletCode, caseCode, 
-    			packBarcodes, itemCode, variantCode, variantSubCode, batchSerialNumber, movementDocumentNo, loginUserID);
+			@RequestParam Long submovementType, @RequestParam String packBarcodes, @RequestParam String itemCode, 
+			@RequestParam String batchSerialNumber, @RequestParam String movementDocumentNo, @RequestParam String loginUserID) {
+    	inventorymovementService.deleteInventoryMovement(warehouseId, movementType, submovementType, packBarcodes, itemCode, 
+				batchSerialNumber, movementDocumentNo, loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 }

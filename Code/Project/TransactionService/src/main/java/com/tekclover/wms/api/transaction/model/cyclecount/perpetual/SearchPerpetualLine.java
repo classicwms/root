@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.transaction.model.cyclecount.perpetual;
 
+import java.util.Date;
 import java.util.List;
 
 import lombok.Data;
@@ -7,7 +8,10 @@ import lombok.Data;
 @Data
 public class SearchPerpetualLine {
 	
-	private String cycleCountNo;
+	private List<String> cycleCountNo;
 	private List<Long> lineStatusId;
-	private List<String> cycleCounterId;
+	private String cycleCounterId;
+	private String warehouseId;
+	private Date startCreatedOn;
+	private Date endCreatedOn;
 }

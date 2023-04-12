@@ -82,4 +82,9 @@ public interface InventoryMovementRepository extends JpaRepository<InventoryMove
 			@Param(value = "subMovementTypeId") List<Long> subMovementTypeId,
 			@Param(value = "fromDate") Date fromDate,
 			@Param(value = "toDate") Date toDate);
+
+	public Optional<InventoryMovement> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndMovementTypeAndSubmovementTypeAndPackBarcodesAndItemCodeAndBatchSerialNumberAndMovementDocumentNoAndDeletionIndicator(
+			String languageId, String companyCode, String plantId, String warehouseId, Long movementType,
+			Long submovementType, String packBarcodes, String itemCode, String batchSerialNumber,
+			String movementDocumentNo, long l);
 }

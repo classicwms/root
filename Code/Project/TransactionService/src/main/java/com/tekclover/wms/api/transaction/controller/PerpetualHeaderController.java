@@ -3,6 +3,7 @@ package com.tekclover.wms.api.transaction.controller;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.List;
+import java.util.Set;
 
 import javax.validation.Valid;
 
@@ -88,7 +89,7 @@ public class PerpetualHeaderController {
    	@PostMapping("/run")
    	public ResponseEntity<?> postRunPerpetualHeader(@Valid @RequestBody RunPerpetualHeader runPerpetualHeader) 
    			throws IllegalAccessException, InvocationTargetException, ParseException {
-   		List<PerpetualLineEntityImpl> inventoryMovements = perpetualheaderService.runPerpetualHeaderNew(runPerpetualHeader);
+   		Set<PerpetualLineEntityImpl> inventoryMovements = perpetualheaderService.runPerpetualHeaderNew(runPerpetualHeader);
    		return new ResponseEntity<>(inventoryMovements , HttpStatus.OK);
    	}
     

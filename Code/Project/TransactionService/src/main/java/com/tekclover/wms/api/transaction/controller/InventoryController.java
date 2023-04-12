@@ -111,7 +111,7 @@ public class InventoryController {
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
 		Inventory createdInventory = 
 				inventoryService.updateInventory(warehouseId, packBarcodes, itemCode, storageBin, stockTypeId, 
-						specialStockIndicatorId, updateInventory);
+						specialStockIndicatorId, updateInventory, loginUserID);
 		return new ResponseEntity<>(createdInventory , HttpStatus.OK);
 	}
     

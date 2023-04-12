@@ -70,7 +70,6 @@ public class BatchJobScheduler {
 //	}
 	
 	//=======================================SQL-Processing==========================================================================
-	
 	@Scheduled(fixedDelay = 50000)
 	public void processInboundOrder() throws IllegalAccessException, InvocationTargetException {
 		if (inboundList == null || inboundList.isEmpty()) {

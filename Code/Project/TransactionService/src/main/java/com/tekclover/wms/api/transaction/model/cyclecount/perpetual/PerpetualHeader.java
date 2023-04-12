@@ -4,7 +4,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,8 +28,7 @@ import lombok.NoArgsConstructor;
 		uniqueConstraints = { 
 				@UniqueConstraint (
 						name = "unique_key_perpetualheader", 
-						columnNames = {"LANG_ID", "C_ID", "PLANT_ID", "WH_ID", "CC_TYP_ID", "CC_NO", 
-								"MVT_TYP_ID", "SUB_MVT_TYP_ID"})
+						columnNames = {"LANG_ID", "C_ID", "PLANT_ID", "WH_ID", "CC_TYP_ID", "CC_NO", "MVT_TYP_ID", "SUB_MVT_TYP_ID"})
 				}
 		)
 @IdClass(PerpetualHeaderCompositeKey.class)

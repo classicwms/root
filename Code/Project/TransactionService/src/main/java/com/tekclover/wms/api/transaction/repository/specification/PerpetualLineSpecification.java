@@ -28,17 +28,31 @@ public class PerpetualLineSpecification implements Specification<PerpetualLine> 
     public Predicate toPredicate(Root<PerpetualLine> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
 
          List<Predicate> predicates = new ArrayList<Predicate>();
-		
+         
+         if (searchPerpetualLine.getCycleCountNo() != null && !searchPerpetualLine.getCycleCountNo().isEmpty()) {
+        	 final Path<Group> group = root.<Group> get("cycleCountNo");
+        	 predicates.add(group.in(searchPerpetualLine.getCycleCountNo()));
+         }
+         
          if (searchPerpetualLine.getCycleCounterId() != null && !searchPerpetualLine.getCycleCounterId().isEmpty()) {
-        	 final Path<Group> group = root.<Group> get("cycleCounterId");
-        	 predicates.add(group.in(searchPerpetualLine.getCycleCounterId()));
+        	 predicates.add(cb.equal(root.get("cycleCounterId"), searchPerpetualLine.getCycleCounterId()));
          }
 		   
 		 if (searchPerpetualLine.getLineStatusId() != null && !searchPerpetualLine.getLineStatusId().isEmpty()) {	
         	 final Path<Group> group = root.<Group> get("statusId");
         	 predicates.add(group.in(searchPerpetualLine.getLineStatusId()));
          }
-			
+		 
+		 if (searchPerpetualLine.getWarehouseId() != null && !searchPerpetualLine.getWarehouseId().isEmpty()) {	
+        	 predicates.add(cb.equal(root.get("warehouseId"), searchPerpetualLine.getWarehouseId()));
+         }
+		 
+		 if (searchPerpetualLine.getStartCreatedOn() != null && searchPerpetualLine.getEndCreatedOn() != null) {
+        	 predicates.add(cb.between(root.get("createdOn"), searchPerpetualLine.getStartCreatedOn(), 
+        			 searchPerpetualLine.getEndCreatedOn()));
+         }
+		 
+		 predicates.add(cb.equal(root.get("deletionIndicator"), 0L)); 
          return cb.and(predicates.toArray(new Predicate[] {}));
      }
 }

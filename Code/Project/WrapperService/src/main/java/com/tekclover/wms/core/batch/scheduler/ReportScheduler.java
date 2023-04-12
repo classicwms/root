@@ -17,7 +17,7 @@ public class ReportScheduler {
 	private static final String GET_URL = "https://dev.classicwms.com/webportal/";
 	private static final String USER_AGENT = "Mozilla/5.0";
 	
-	@Scheduled(fixedDelay = 10000)
+//	@Scheduled(fixedDelay = 10000)
 	public void sendGET() {
 		try {
 			URL obj = new URL(GET_URL);

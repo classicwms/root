@@ -22,13 +22,9 @@ public interface PerpetualLineRepository extends JpaRepository<PerpetualLine,Lon
 				String companyCodeId, String plantId, String warehouseId, String cycleCountNo, 
 				String storageBin, String itemCode, String packBarcodes, Long deletionIndicator);
 	
-	/*
-	 * dbPerpetualLine.setCycleCounterId(assignHHTUser.getCycleCounterId());
-			dbPerpetualLine.setCycleCounterName(assignHHTUser.getCycleCounterName());
-			dbPerpetualLine.setStatusId(72L);
-			dbPerpetualLine.setCountedBy(loginUserID);
-			dbPerpetualLine.setCountedOn(new Date());
-	 */
+	public List<PerpetualLine> findByWarehouseIdAndStorageBinAndItemCodeAndPackBarcodesAndDeletionIndicator(
+			String warehouseId, String storageBin, String itemCode, String packBarcodes, Long deletionIndicator);
+	
 	@Modifying(clearAutomatically = true)
 	@Query("UPDATE PerpetualLine pl \r\n"
 			+ " SET pl.cycleCounterId = :cycleCounterId, pl.cycleCounterName = :cycleCounterName, pl.statusId = :statusId,  \r\n"

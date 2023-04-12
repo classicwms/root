@@ -124,7 +124,7 @@ public class WrapperServiceController {
     public ResponseEntity<?> jobInventoryQuery2() throws Exception {
     	AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
     	 
-        batchJobScheduler.runJobdbToCsvJob2();
+        batchJobScheduler.runJobInventoryMovement();
        
 		AccountService service2 = context.getBean("accountService", AccountService.class);
 		log.info("inventoryMovement size: " + service2.getInventoryHolder().size());

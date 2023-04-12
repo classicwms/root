@@ -58,6 +58,11 @@ public class InventorySpecification implements Specification<Inventory> {
         	 final Path<Group> group = root.<Group> get("specialStockIndicatorId");
         	 predicates.add(group.in(searchInventory.getSpecialStockIndicatorId()));
          }
+
+		 if (searchInventory.getStorageSectionId() != null && !searchInventory.getStorageSectionId().isEmpty()) {
+        	 final Path<Group> group = root.<Group> get("referenceField10");
+        	 predicates.add(group.in(searchInventory.getStorageSectionId()));
+         }
 		  
 		 if (searchInventory.getBinClassId() != null && !searchInventory.getBinClassId().isEmpty()) {
         	 final Path<Group> group = root.<Group> get("binClassId");

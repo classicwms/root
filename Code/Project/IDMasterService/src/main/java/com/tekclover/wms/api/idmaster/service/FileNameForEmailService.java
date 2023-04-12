@@ -55,10 +55,14 @@ public class FileNameForEmailService {
 				dbFileNameForEmail.setDispatch111(updateFileNameForEmail.getDispatch111());
 				dbFileNameForEmail.setDeletionIndicator(0L);
 			}
+			dbFileNameForEmail.setMailSentFailed("0");
+			dbFileNameForEmail.setMailSent("0");
 			fileNameForEmail = fileNameForEmailRepository.save(dbFileNameForEmail);
 		}else{
 			FileNameForEmail dbFileNameForEmail = new FileNameForEmail();
 			BeanUtils.copyProperties(updateFileNameForEmail, dbFileNameForEmail, CommonUtils.getNullPropertyNames(updateFileNameForEmail));
+			dbFileNameForEmail.setMailSentFailed("0");
+			dbFileNameForEmail.setMailSent("0");
 			fileNameForEmail =fileNameForEmailRepository.save(dbFileNameForEmail);
 		}
 		return fileNameForEmail;

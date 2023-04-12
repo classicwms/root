@@ -46,6 +46,7 @@ public class DateUtils {
 		String currentDatetime = datetime.format(newPattern);
 		return currentDatetime;
 	}
+	
 	public static String getCurrentDateWithoutTimestamp () {
 		DateTimeFormatter newPattern = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 		LocalDateTime datetime = LocalDateTime.now();
@@ -54,6 +55,7 @@ public class DateUtils {
 		String currentDate = sLocalDate.format(newPattern);
 		return currentDate;
 	}
+	
 	public static Date convertStringToDateFormat(String strDate) {
 //		String str = "01-08-2022";
 		strDate += " 00:00:00";

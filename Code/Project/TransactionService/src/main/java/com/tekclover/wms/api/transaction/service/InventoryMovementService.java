@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
-import com.tekclover.wms.api.transaction.util.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -22,6 +21,7 @@ import com.tekclover.wms.api.transaction.model.inbound.inventory.UpdateInventory
 import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
 import com.tekclover.wms.api.transaction.repository.specification.InventoryMovementSpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
+import com.tekclover.wms.api.transaction.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,39 +48,34 @@ public class InventoryMovementService extends BaseService {
 	 * @param movementType
 	 * @return
 	 */
-	public InventoryMovement getInventoryMovement (String warehouseId, Long movementType, Long submovementType, String palletCode, 
-			String caseCode, String packBarcodes, String itemCode, Long variantCode, String variantSubCode, 
-			String batchSerialNumber, String movementDocumentNo) {
+	public InventoryMovement getInventoryMovement (String warehouseId, Long movementType, Long submovementType, String packBarcodes, 
+			String itemCode, String batchSerialNumber, String movementDocumentNo) {
+		/*
+		 * LANG_ID, C_ID, PLANT_ID, WH_ID, MVT_TYP_ID, SUB_MVT_TYP_ID, PACK_BARCODE, ITM_CODE, STR_NO, MVT_DOC_NO
+		 */
 		Optional<InventoryMovement> inventoryMovement = 
-				inventoryMovementRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndMovementTypeAndSubmovementTypeAndPalletCodeAndCaseCodeAndPackBarcodesAndItemCodeAndVariantCodeAndVariantSubCodeAndBatchSerialNumberAndMovementDocumentNoAndDeletionIndicator(
+				inventoryMovementRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndMovementTypeAndSubmovementTypeAndPackBarcodesAndItemCodeAndBatchSerialNumberAndMovementDocumentNoAndDeletionIndicator(
 						getLanguageId(),
 						getCompanyCode(),
 						getPlantId(),
 						warehouseId, 
 						movementType, 
 						submovementType, 
-						palletCode, 
-						caseCode, 
 						packBarcodes, 
 						itemCode, 
-						variantCode, 
-						variantSubCode, 
 						batchSerialNumber, 
 						movementDocumentNo,
 						0L
 						);
 		if (inventoryMovement.isEmpty()) {
-			throw new BadRequestException("The given PreInboundHeader ID : " +
+			throw new BadRequestException("The given InventoryMovement ID : " +
 										", warehouseId: " + warehouseId + 
 										", movementType: " + movementType + 
 										", submovementType: " + submovementType + 
-										", palletCode: " + palletCode + 	
-										", caseCode: " + caseCode +
 										", packBarcodes: " + packBarcodes + 
 										", itemCode: " + itemCode + 
-										", variantCode: " + variantCode + 
-										", variantSubCode: " + variantSubCode + 
 										", batchSerialNumber: " + batchSerialNumber + 
+										", movementDocumentNo: " + movementDocumentNo + 
 										" doesn't exist.");
 		} 
 		return inventoryMovement.get();
@@ -93,8 +88,6 @@ public class InventoryMovementService extends BaseService {
 	 */
 	public List<InventoryMovement> findInventoryMovement(SearchInventoryMovement searchInventoryMovement)
 			throws ParseException, java.text.ParseException {
-
-
 		if (searchInventoryMovement.getFromCreatedOn() != null && searchInventoryMovement.getToCreatedOn() != null) {
 			Date[] dates = DateUtils.addTimeToDatesForSearch(searchInventoryMovement.getFromCreatedOn(), searchInventoryMovement.getToCreatedOn());
 			searchInventoryMovement.setFromCreatedOn(dates[0]);
@@ -103,7 +96,6 @@ public class InventoryMovementService extends BaseService {
 
 		InventoryMovementSpecification spec = new InventoryMovementSpecification(searchInventoryMovement);
 		List<InventoryMovement> results = inventoryMovementRepository.findAll(spec);
-		log.info("results: " + results);
 		return results;
 	}
 	
@@ -145,15 +137,12 @@ public class InventoryMovementService extends BaseService {
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	public InventoryMovement updateInventoryMovement (String warehouseId, Long movementType, Long submovementType, String palletCode, 
-			String caseCode, String packBarcodes, String itemCode, Long variantCode, String variantSubCode, String batchSerialNumber,
-			String movementDocumentNo, UpdateInventoryMovement updateInventoryMovement) 
+	public InventoryMovement updateInventoryMovement (String warehouseId, Long movementType, Long submovementType, String packBarcodes, 
+			String itemCode, String batchSerialNumber, String movementDocumentNo, UpdateInventoryMovement updateInventoryMovement) 
 			throws IllegalAccessException, InvocationTargetException {
 		InventoryMovement dbInventoryMovement = 
-				getInventoryMovement(warehouseId, movementType, submovementType, palletCode, caseCode, packBarcodes, itemCode, 
-						variantCode, variantSubCode, batchSerialNumber, movementDocumentNo);
-		BeanUtils.copyProperties(updateInventoryMovement, dbInventoryMovement, 
-				CommonUtils.getNullPropertyNames(updateInventoryMovement));
+				getInventoryMovement(warehouseId, movementType, submovementType, packBarcodes, itemCode, batchSerialNumber, movementDocumentNo);
+		BeanUtils.copyProperties(updateInventoryMovement, dbInventoryMovement, CommonUtils.getNullPropertyNames(updateInventoryMovement));
 		return inventoryMovementRepository.save(dbInventoryMovement);
 	}
 	
@@ -162,12 +151,10 @@ public class InventoryMovementService extends BaseService {
 	 * @param loginUserID 
 	 * @param movementType
 	 */
-	public void deleteInventoryMovement (String warehouseId, Long movementType, Long submovementType, String palletCode, 
-			String caseCode, String packBarcodes, String itemCode, Long variantCode, String variantSubCode, String batchSerialNumber, 
-			String movementDocumentNo, String loginUserID) {
-		InventoryMovement inventoryMovement = getInventoryMovement(warehouseId, movementType, submovementType, palletCode, 
-				caseCode, packBarcodes, itemCode, 
-				variantCode, variantSubCode, batchSerialNumber, movementDocumentNo);
+	public void deleteInventoryMovement (String warehouseId, Long movementType, Long submovementType, String packBarcodes, 
+			String itemCode, String batchSerialNumber, String movementDocumentNo, String loginUserID) {
+		InventoryMovement inventoryMovement = 
+				getInventoryMovement(warehouseId, movementType, submovementType, packBarcodes, itemCode, batchSerialNumber, movementDocumentNo);
 		if ( inventoryMovement != null) {
 			inventoryMovement.setDeletionIndicator(1L);
 			inventoryMovementRepository.save(inventoryMovement);

@@ -35,6 +35,19 @@ public class DateUtils {
 		String currentDatetime = datetime.format(newPattern);
 		return currentDatetime;
 	}
+
+	/**
+	 *
+	 * @return
+	 */
+//	public static String getCurrentLocalDateTime() {
+////		DateTimeFormatter newPattern = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+//		LocalDateTime datetime = LocalDateTime.now();
+//		Date date = DateUtils.convertStringToDateFormat(datetime.format(newPattern));
+//		LocalDate sLocalDate = LocalDate.ofInstant(date.toInstant(), ZoneId.systemDefault());
+//		String currentDatetime = sLocalDate.format(newPattern);
+//		return currentDatetime;
+//	}
 	
 	/**
 	 * 
@@ -49,7 +62,7 @@ public class DateUtils {
 	public static String getCurrentDateWithoutTimestamp () {
 		DateTimeFormatter newPattern = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 		LocalDateTime datetime = LocalDateTime.now();
-		Date date = DateUtils.convertStringToDateFormat(datetime.format(newPattern)) ;
+		Date date = DateUtils.convertStringToDateFormat(datetime.format(newPattern));
 		LocalDate sLocalDate = LocalDate.ofInstant(date.toInstant(), ZoneId.systemDefault());
 		String currentDate = sLocalDate.format(newPattern);
 		return currentDate;

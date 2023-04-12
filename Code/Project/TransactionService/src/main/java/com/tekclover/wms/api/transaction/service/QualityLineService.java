@@ -548,7 +548,7 @@ public class QualityLineService extends BaseService {
 					try {
 						Inventory updatedInventory = inventoryService.updateInventory(dbQualityLine.getWarehouseId(),
 								dbQualityLine.getPickPackBarCode(), dbQualityLine.getItemCode(),
-								storageBin.getStorageBin(), 1L, 1L, updateInventory);
+								storageBin.getStorageBin(), 1L, 1L, updateInventory, loginUserID);
 						log.info("updatedInventory----------> : " + updatedInventory);
 					} catch (Exception e) {
 						e.printStackTrace();

@@ -62,7 +62,7 @@ public interface PreOutboundLineRepository extends JpaRepository<PreOutboundLine
 	 * @param refDocNumber
 	 * @param statusId
 	 */
-	@Modifying(clearAutomatically = true, flushAutomatically = true)
+	@Modifying(clearAutomatically = true)
 	@Query("UPDATE PreOutboundLine ob SET ob.statusId = :statusId WHERE ob.warehouseId = :warehouseId AND ob.refDocNumber = :refDocNumber")
 	void updatePreOutboundLineStatus(@Param ("warehouseId") String warehouseId,
 			@Param ("refDocNumber") String refDocNumber, @Param ("statusId") Long statusId);

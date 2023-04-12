@@ -9,13 +9,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.AssignHHTUserCC;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualHeaderEntity;
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualLine;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualUpdateResponse;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.SearchPerpetualLine;
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.UpdatePerpetualLine;
 import com.tekclover.wms.api.transaction.service.PerpetualLineService;
 
@@ -34,22 +38,30 @@ import lombok.extern.slf4j.Slf4j;
 public class PerpetualLineController {
 	
 	@Autowired
-	PerpetualLineService perpetuallineService;
+	PerpetualLineService perpetualLineService;
+	
+	@ApiOperation(response = PerpetualHeaderEntity.class, value = "SearchPerpetualLine") // label for swagger
+	@PostMapping("/findPerpetualLine")
+	public List<PerpetualLine> findPerpetualHeader(@RequestBody SearchPerpetualLine searchPerpetualLine)
+			throws Exception {
+		return perpetualLineService.findPerpetualLine(searchPerpetualLine);
+	}
 	
     @ApiOperation(response = PerpetualLine[].class, value = "AssignHHTUser") // label for swagger
     @PatchMapping("/assigingHHTUser")
 	public ResponseEntity<?> patchAssingHHTUser (@RequestBody List<AssignHHTUserCC> assignHHTUser, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
-		List<PerpetualLine> createdPerpetualLine = perpetuallineService.updateAssingHHTUser (assignHHTUser, loginUserID);
+		List<PerpetualLine> createdPerpetualLine = perpetualLineService.updateAssingHHTUser (assignHHTUser, loginUserID);
 		return new ResponseEntity<>(createdPerpetualLine , HttpStatus.OK);
 	}
     
     @ApiOperation(response = PerpetualLine.class, value = "Update PerpetualLine") // label for swagger
     @PatchMapping("/{cycleCountNo}")
 	public ResponseEntity<?> patchPerpetualLine (@PathVariable String cycleCountNo, 
-			@RequestBody List<UpdatePerpetualLine> updatePerpetualLine, @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
-		List<PerpetualLine> createdPerpetualLine = 
-				perpetuallineService.updatePerpetualLine (cycleCountNo, updatePerpetualLine, loginUserID);
+			@RequestBody List<UpdatePerpetualLine> updatePerpetualLine, @RequestParam String loginUserID)
+					throws IllegalAccessException, InvocationTargetException {
+		PerpetualUpdateResponse createdPerpetualLine = 
+				perpetualLineService.updatePerpetualLine (cycleCountNo, updatePerpetualLine, loginUserID);
 		return new ResponseEntity<>(createdPerpetualLine , HttpStatus.OK);
 	}
 }

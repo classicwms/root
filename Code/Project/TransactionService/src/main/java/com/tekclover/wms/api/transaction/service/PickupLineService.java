@@ -529,7 +529,7 @@ public class PickupLineService extends BaseService {
 					updateInventory.setInventoryQuantity(INV_QTY);
 					Inventory updatedInventory = inventoryService.updateInventory(dbPickupLine.getWarehouseId(),
 							dbPickupLine.getPickedPackCode(), dbPickupLine.getItemCode(), storageBin.getStorageBin(),
-							dbPickupLine.getStockTypeId(), dbPickupLine.getSpecialStockIndicatorId(), updateInventory);
+							dbPickupLine.getStockTypeId(), dbPickupLine.getSpecialStockIndicatorId(), updateInventory, loginUserID);
 					log.info("Inventory is Updated : " + updatedInventory);
 				} catch (Exception e) {
 					log.error("Inventory update Error :" + e.toString());

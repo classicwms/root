@@ -8,8 +8,6 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
-import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
-import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,10 +21,12 @@ import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicHeade
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicLine;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.UpdatePeriodicLine;
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.AssignHHTUserCC;
+import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
 import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
 import com.tekclover.wms.api.transaction.model.dto.StorageBin;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
+import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
 import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
 import com.tekclover.wms.api.transaction.repository.InventoryRepository;
 import com.tekclover.wms.api.transaction.repository.PeriodicLineRepository;
@@ -235,10 +235,10 @@ public class PeriodicLineService extends BaseService {
 				/*
 				 * 1. Action = WRITEOFF 
 				 * If ACTION = WRITEOFF , update ACTION field in PERPETUALLINE as WRITEOFF by passing unique fields and 
-				 * update in STATUS_ID field as "76"
+				 * update in STATUS_ID field as "78"
 				 */
 				if (updatePeriodicLine.getCycleCountAction().equalsIgnoreCase(WRITEOFF)) {
-					dbPeriodicLine.setStatusId(76L);
+					dbPeriodicLine.setStatusId(78L);
 					dbPeriodicLine.setCycleCountAction(WRITEOFF);
 					PeriodicLine updatedPeriodicLine = periodicLineRepository.save(dbPeriodicLine);
 					log.info("updatedPeriodicLine : " + updatedPeriodicLine);
@@ -258,10 +258,10 @@ public class PeriodicLineService extends BaseService {
 				/*
 				 * 2. Action = SKIP
 				 * if ACTION = SKIP in UI,  update ACTION field in PERPETUALLINE as SKIP by passing unique fields 
-				 * and update in STATUS_ID field as "77"
+				 * and update in STATUS_ID field as "78"
 				 */
 				if (updatePeriodicLine.getCycleCountAction().equalsIgnoreCase(SKIP)) {
-					dbPeriodicLine.setStatusId(77L);
+					dbPeriodicLine.setStatusId(78L);
 					dbPeriodicLine.setCycleCountAction(SKIP);
 					PeriodicLine updatedPeriodicLine = periodicLineRepository.save(dbPeriodicLine);
 					log.info("updatedPeriodicLine : " + updatedPeriodicLine);
@@ -281,10 +281,10 @@ public class PeriodicLineService extends BaseService {
 				/*
 				 * 3. Action = RECOUNT (default Action Value)
 				 * If ACTION = RECOUNT, update ACTION field in PERPETUALLINE as SKIP by passing unique fields 
-				 * and update in STATUS_ID field as "75 "
+				 * and update in STATUS_ID field as "78"
 				 */
 				if (updatePeriodicLine.getCycleCountAction().equalsIgnoreCase(RECOUNT)) {
-					dbPeriodicLine.setStatusId(75L);
+					dbPeriodicLine.setStatusId(78L);
 					dbPeriodicLine.setCycleCountAction(RECOUNT);
 					PeriodicLine updatedPeriodicLine = periodicLineRepository.save(dbPeriodicLine);
 					log.info("updatedPeriodicLine : " + updatedPeriodicLine);
@@ -308,6 +308,8 @@ public class PeriodicLineService extends BaseService {
 					PeriodicHeaderEntity createdPeriodicHeader = 
 							periodicHeaderService.createPeriodicHeader(newPeriodicHeader, loginUserID);
 					log.info("createdPeriodicHeader : " + createdPeriodicHeader);
+					
+					// Update 
 				}
 			}
 		} catch (Exception e) {

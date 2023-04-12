@@ -54,16 +54,16 @@ public class InventoryBatchFetchConfig2 {
 	}
 
 	@Bean
-	public Step getDbToCsvStep2() {
+	public Step getInventoryMovement() {
 		StepBuilder stepBuilder = stepBuilderFactory.get("getDbToCsvStep2");
 		SimpleStepBuilder<InventoryMovement, InventoryMovement> simpleStepBuilder = stepBuilder.chunk(10000);
 		return simpleStepBuilder.reader(getJpaPagingItemReader2()).processor(processor2()).writer(writer2()).build();
 	}
 
 	@Bean
-	public Job dbToCsvJob2() {
-		JobBuilder jobBuilder = jobBuilderFactory.get("dbToCsvJob2");
-		FlowJobBuilder flowJobBuilder = jobBuilder.flow(getDbToCsvStep2()).end();
+	public Job jobInventoryMovement() {
+		JobBuilder jobBuilder = jobBuilderFactory.get("jobInventoryMovement");
+		FlowJobBuilder flowJobBuilder = jobBuilder.flow(getInventoryMovement()).end();
 		Job job = flowJobBuilder.build();
 		return job;
 	}

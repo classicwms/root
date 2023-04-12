@@ -38,6 +38,12 @@ public class FileNameForEmail {
 	@Column(name = "IS_DELETED")
 	private Long deletionIndicator;
 
+	@Column(name = "MAIL_SENT")
+	private String mailSent;
+
+	@Column(name = "MAIL_SENT_FAILED")
+	private String mailSentFailed;
+
 	@Column(name = "REPORT_DATE", columnDefinition = "nvarchar(50)")
 	private String reportDate;
 }

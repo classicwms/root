@@ -13,6 +13,7 @@ import java.util.TimeZone;
 @SpringBootApplication
 @EnableSwagger2
 @EnableScheduling
+@org.springframework.scheduling.annotation.EnableAsync
 public class WrapperServiceApplication extends SpringBootServletInitializer {
 
 	public static void main(String[] args) {

@@ -573,11 +573,12 @@ public class InventoryService extends BaseService {
 	 * @throws InvocationTargetException
 	 */
 	public Inventory updateInventory (String warehouseId, String packBarcodes, String itemCode, String storageBin, 
-			Long stockTypeId, Long specialStockIndicatorId, 
-			UpdateInventory updateInventory) 
+			Long stockTypeId, Long specialStockIndicatorId, UpdateInventory updateInventory, String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
 		Inventory dbInventory = getInventory(warehouseId, packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId);
 		BeanUtils.copyProperties(updateInventory, dbInventory, CommonUtils.getNullPropertyNames(updateInventory));
+		dbInventory.setUpdatedBy(loginUserID);
+		dbInventory.setUpdatedOn(new Date());
 		return inventoryRepository.save(dbInventory);
 	}
 	

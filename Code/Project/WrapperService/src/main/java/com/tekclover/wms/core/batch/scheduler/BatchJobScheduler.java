@@ -53,7 +53,7 @@ public class BatchJobScheduler {
 	private Job dbToCsvJob;
 	
 	@Autowired
-	private Job dbToCsvJob2;
+	private Job jobInventoryMovement;
 	
 	@Autowired
 	private Job periodicJob;
@@ -206,11 +206,11 @@ public class BatchJobScheduler {
 		}
 	}
 	
-	public void runJobdbToCsvJob2() throws Exception {
+	public void runJobInventoryMovement() throws Exception {
 		JobParameters params = new JobParametersBuilder().addLong("jobId", System.currentTimeMillis())
 				.toJobParameters();
 		try {
-			jobLauncher.run(dbToCsvJob2, params);
+			jobLauncher.run(jobInventoryMovement, params);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;

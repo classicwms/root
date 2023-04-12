@@ -25,12 +25,12 @@ public class EMailDetails {
 	@Column(name = "FROM_ADDRESS", columnDefinition = "nvarchar(50)")
 	private String fromAddress;
 	
-	@NotEmpty (message = "EMail cannot be blank.")
+//	@NotEmpty (message = "EMail cannot be blank.")
 	@Column(name = "TO_ADDRESS", columnDefinition = "nvarchar(50)")
 	private String toAddress;
 	
 //	@Email (message = "Please correct EMail address.")
-	@NotEmpty (message = "EMail cannot be blank.")
+//	@NotEmpty (message = "EMail cannot be blank.")
 	@Column(name = "CC_ADDRESS", columnDefinition = "nvarchar(50)")
 	private String ccAddress;
 	
@@ -43,6 +43,7 @@ public class EMailDetails {
 	private String bodyText;
 	@Column(name = "GROUP_BY")
 	private String groupBy;
+
 
 	@Column(name = "IS_DELETED")
 	private Long deletionIndicator;

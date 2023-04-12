@@ -13,6 +13,9 @@ public class UpdatePerpetualLine {
 	private String cycleCountNo;
 	private String storageBin;
 	private String itemCode;
+	private String itemDesc;
+	private String manufacturerPartNo;
+	private String storageSectionId;
 	private String packBarcodes;
 	private Long variantCode;
 	private String variantSubCode;
@@ -33,8 +36,6 @@ public class UpdatePerpetualLine {
 	private String approverCode;
 	private String approvalStatus;
 	private String remarks;
-	private String manufacturerPartNo;
-	private String storageSectionId;
 	private String referenceField1;
 	private String referenceField2;
 	private String referenceField3;

@@ -147,4 +147,10 @@ public class Inventory {
 	
 	@Column(name = "IU_CTD_ON") 
 	private Date createdOn = new Date();
+	
+	@Column(name = "UTD_BY") 
+	private String updatedBy;
+	
+	@Column(name = "UTD_ON") 
+	private Date updatedOn;
 }

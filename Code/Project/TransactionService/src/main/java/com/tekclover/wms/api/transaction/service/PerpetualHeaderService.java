@@ -4,15 +4,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,6 @@ import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualLin
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualLineEntityImpl;
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.RunPerpetualHeader;
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.SearchPerpetualHeader;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.SearchPerpetualLine;
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.UpdatePerpetualHeader;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
@@ -36,7 +36,6 @@ import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
 import com.tekclover.wms.api.transaction.repository.PerpetualHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.PerpetualLineRepository;
 import com.tekclover.wms.api.transaction.repository.specification.PerpetualHeaderSpecification;
-import com.tekclover.wms.api.transaction.repository.specification.PerpetualLineSpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 
@@ -184,9 +183,6 @@ public class PerpetualHeaderService extends BaseService {
 		
 		PerpetualHeaderSpecification spec = new PerpetualHeaderSpecification(searchPerpetualHeader);
 		List<PerpetualHeader> perpetualHeaderResults = perpetualHeaderRepository.findAll(spec);
-//		log.info("perpetualHeaderResults: " + perpetualHeaderResults);
-//		return convertToEntity (perpetualHeaderResults,
-//				searchPerpetualHeader.getCycleCounterId(), searchPerpetualHeader.getLineStatusId());
 		return perpetualHeaderResults;
 	}
 	
@@ -287,17 +283,36 @@ public class PerpetualHeaderService extends BaseService {
 	}
 
 	//Performance enhanced
-	public List<PerpetualLineEntityImpl> runPerpetualHeaderNew(@Valid RunPerpetualHeader runPerpetualHeader) throws java.text.ParseException {
+	public Set<PerpetualLineEntityImpl> runPerpetualHeaderNew(@Valid RunPerpetualHeader runPerpetualHeader) throws java.text.ParseException {
 		if (runPerpetualHeader.getDateFrom() != null && runPerpetualHeader.getDateFrom() != null) {
 			Date[] dates = DateUtils.addTimeToDatesForSearch(runPerpetualHeader.getDateFrom(), 	runPerpetualHeader.getDateTo());
 			runPerpetualHeader.setDateFrom(dates[0]);
 			runPerpetualHeader.setDateTo(dates[1]);
 		}
 
-		return inventoryMovementRepository.getRecordsForRunPerpetualCount (
+		List<PerpetualLineEntityImpl> runResponseList = inventoryMovementRepository.getRecordsForRunPerpetualCount (
 				runPerpetualHeader.getMovementTypeId(), runPerpetualHeader.getSubMovementTypeId(),
 				runPerpetualHeader.getDateFrom(), runPerpetualHeader.getDateTo());
-
+		
+		Set<PerpetualLineEntityImpl> responseList = new HashSet<>();
+		for (PerpetualLineEntityImpl line : runResponseList) {
+			List<PerpetualLine> dbPerpetualLines = perpetualLineRepository.findByWarehouseIdAndStorageBinAndItemCodeAndPackBarcodesAndDeletionIndicator (
+					line.getWarehouseId(), line.getStorageBin(), line.getItemCode(), line.getPackBarcodes(), 0L);
+			log.info ("dbPerpetualLines---queried---> : " + dbPerpetualLines);
+			
+			long count_78 = dbPerpetualLines.stream().filter(a->a.getStatusId() == 78L).count();
+			if (dbPerpetualLines.size() == count_78) {
+				log.info ("---#1--78----condi-----> : " + line);
+				responseList.add(line);
+			}
+			
+			if (dbPerpetualLines != null && dbPerpetualLines.isEmpty()) {
+				log.info ("---#2--78----condi-----> : " + line);
+				responseList.add(line);
+			}
+		}
+		log.info ("runResponseList---trimmed---> : " + responseList);
+		return responseList;
 	}
 	
 	/**
@@ -430,6 +445,39 @@ public class PerpetualHeaderService extends BaseService {
 	}
 	
 	/**
+	 * 
+	 * @param warehouseId
+	 * @param cycleCountTypeId
+	 * @param cycleCountNo
+	 * @param movementTypeId
+	 * @param subMovementTypeId
+	 * @param loginUserID
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
+	public PerpetualHeader updatePerpetualHeader (String warehouseId, Long cycleCountTypeId, String cycleCountNo, Long movementTypeId, 
+			Long subMovementTypeId, String loginUserID) throws IllegalAccessException, InvocationTargetException {
+		PerpetualHeader dbPerpetualHeader = getPerpetualHeaderRecord(warehouseId, cycleCountTypeId, cycleCountNo, movementTypeId, subMovementTypeId);
+		
+		List<PerpetualLine> perpetualLines = perpetualLineService.getPerpetualLine (cycleCountNo);
+		long count_78 = perpetualLines.stream().filter(a->a.getStatusId() == 78L).count();
+		long count_74 = perpetualLines.stream().filter(a->a.getStatusId() == 74L).count();
+		
+		if (perpetualLines.size() == count_78) {
+			dbPerpetualHeader.setStatusId(78L);
+		} else if (perpetualLines.size() == count_74) {
+			dbPerpetualHeader.setStatusId(74L);
+		} else {
+			dbPerpetualHeader.setStatusId(73L);
+		}
+		
+		dbPerpetualHeader.setCountedBy(loginUserID);
+		dbPerpetualHeader.setCountedOn(new Date());
+		return perpetualHeaderRepository.save(dbPerpetualHeader);
+	}
+	
+	/**
 	 * deletePerpetualHeader
 	 * @param loginUserID 
 	 * @param cycleCountNo
@@ -455,46 +503,46 @@ public class PerpetualHeaderService extends BaseService {
 	 * @param list 
 	 * @return
 	 */
-	private List<PerpetualHeaderEntity> convertToEntity (List<PerpetualHeader> perpetualHeaderList, 
-			List<String> cycleCounterId, List<Long> lineStatusId) {
-		try {
-			List<PerpetualHeaderEntity> listPerpetualHeaderEntity = new ArrayList<>();
-			for (PerpetualHeader perpetualHeader : perpetualHeaderList) {
-				SearchPerpetualLine searchPerpetualLine = new SearchPerpetualLine(); 
-				searchPerpetualLine.setCycleCountNo(perpetualHeader.getCycleCountNo());
-				
-				if (cycleCounterId != null) {
-					searchPerpetualLine.setCycleCounterId(cycleCounterId);
-				}
-				
-				if (lineStatusId != null) {
-					searchPerpetualLine.setLineStatusId(lineStatusId);
-				}
-				
-				PerpetualLineSpecification spec = new PerpetualLineSpecification (searchPerpetualLine);
-				List<PerpetualLine> perpetualLineList = perpetualLineRepository.findAll(spec);
-//				log.info("perpetualLineList: " + perpetualLineList);
-				
-				List<PerpetualLineEntity> listPerpetualLineEntity = new ArrayList<>();
-				for (PerpetualLine perpetualLine : perpetualLineList) {
-					if (perpetualHeader.getCycleCountNo().equalsIgnoreCase(perpetualLine.getCycleCountNo())) {
-						PerpetualLineEntity perpetualLineEntity = new PerpetualLineEntity();
-						BeanUtils.copyProperties(perpetualLine, perpetualLineEntity, CommonUtils.getNullPropertyNames(perpetualLine));
-						listPerpetualLineEntity.add(perpetualLineEntity);
-					}
-				}
-				
-				PerpetualHeaderEntity perpetualHeaderEntity = new PerpetualHeaderEntity();
-				BeanUtils.copyProperties(perpetualHeader, perpetualHeaderEntity, CommonUtils.getNullPropertyNames(perpetualHeader));
-				perpetualHeaderEntity.setPerpetualLine(listPerpetualLineEntity);
-				listPerpetualHeaderEntity.add(perpetualHeaderEntity);
-			}
-			return listPerpetualHeaderEntity;
-		} catch (BeansException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+//	private List<PerpetualHeaderEntity> convertToEntity (List<PerpetualHeader> perpetualHeaderList, 
+//			List<String> cycleCounterId, List<Long> lineStatusId) {
+//		try {
+//			List<PerpetualHeaderEntity> listPerpetualHeaderEntity = new ArrayList<>();
+//			for (PerpetualHeader perpetualHeader : perpetualHeaderList) {
+//				SearchPerpetualLine searchPerpetualLine = new SearchPerpetualLine(); 
+//				searchPerpetualLine.setCycleCountNo(Arrays.asList(perpetualHeader.getCycleCountNo()));
+//				
+//				if (cycleCounterId != null && !cycleCounterId.isEmpty()) {
+//					searchPerpetualLine.setCycleCounterId(cycleCounterId.get(0));
+//				}
+//				
+//				if (lineStatusId != null) {
+//					searchPerpetualLine.setLineStatusId(lineStatusId);
+//				}
+//				
+//				PerpetualLineSpecification spec = new PerpetualLineSpecification (searchPerpetualLine);
+//				List<PerpetualLine> perpetualLineList = perpetualLineRepository.findAll(spec);
+////				log.info("perpetualLineList: " + perpetualLineList);
+//				
+//				List<PerpetualLineEntity> listPerpetualLineEntity = new ArrayList<>();
+//				for (PerpetualLine perpetualLine : perpetualLineList) {
+//					if (perpetualHeader.getCycleCountNo().equalsIgnoreCase(perpetualLine.getCycleCountNo())) {
+//						PerpetualLineEntity perpetualLineEntity = new PerpetualLineEntity();
+//						BeanUtils.copyProperties(perpetualLine, perpetualLineEntity, CommonUtils.getNullPropertyNames(perpetualLine));
+//						listPerpetualLineEntity.add(perpetualLineEntity);
+//					}
+//				}
+//				
+//				PerpetualHeaderEntity perpetualHeaderEntity = new PerpetualHeaderEntity();
+//				BeanUtils.copyProperties(perpetualHeader, perpetualHeaderEntity, CommonUtils.getNullPropertyNames(perpetualHeader));
+//				perpetualHeaderEntity.setPerpetualLine(listPerpetualLineEntity);
+//				listPerpetualHeaderEntity.add(perpetualHeaderEntity);
+//			}
+//			return listPerpetualHeaderEntity;
+//		} catch (BeansException e) {
+//			e.printStackTrace();
+//		}
+//		return null;
+//	}
 	
 	/**
 	 * 
@@ -529,7 +577,6 @@ public class PerpetualHeaderService extends BaseService {
 	 */
 	private PerpetualHeader convertToEntity (PerpetualHeader perpetualHeader) {
 		List<PerpetualLine> perpetualLineList = perpetualLineService.getPerpetualLine(perpetualHeader.getCycleCountNo());
-//		log.info("perpetualLineList found: " + perpetualLineList);
 		perpetualHeader.setPerpetualLine(perpetualLineList);
 		return perpetualHeader;
 	}
