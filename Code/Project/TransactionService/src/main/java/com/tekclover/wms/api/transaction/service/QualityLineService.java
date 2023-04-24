@@ -132,6 +132,16 @@ public class QualityLineService extends BaseService {
 				+ lineNumber + ",itemCode:" + itemCode + " doesn't exist.");
 	}
 
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @param lineNumber
+	 * @param itemCode
+	 * @return
+	 */
 	public QualityLine getQualityLineValidated(String warehouseId, String preOutboundNo, String refDocNumber,
 			String partnerCode, Long lineNumber, String itemCode) {
 		QualityLine qualityLine = qualityLineRepository
@@ -143,6 +153,16 @@ public class QualityLineService extends BaseService {
 		return null;
 	}
 
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @param lineNumber
+	 * @param itemCode
+	 * @return
+	 */
 	public List<QualityLine> getQualityLineForReversal(String warehouseId, String preOutboundNo, String refDocNumber,
 			String partnerCode, Long lineNumber, String itemCode) {
 		List<QualityLine> qualityLine = qualityLineRepository
@@ -151,14 +171,6 @@ public class QualityLineService extends BaseService {
 		if (qualityLine != null) {
 			return qualityLine;
 		}
-//		throw new BadRequestException ("The given QualityLine ID : " +
-//				"warehouseId:" + warehouseId +
-//				",preOutboundNo:" + preOutboundNo +
-//				",refDocNumber:" + refDocNumber +
-//				",partnerCode:" + partnerCode +
-//				",lineNumber:" + lineNumber +
-//				",itemCode:" + itemCode +
-//				" doesn't exist.");
 		return null;
 	}
 
@@ -319,8 +331,8 @@ public class QualityLineService extends BaseService {
 	 * @param personList
 	 * @return
 	 */
-	public static List<AddQualityLine> getDuplicates(List<AddQualityLine> personList) {
-		return getDuplicatesMap(personList).values().stream()
+	public static List<AddQualityLine> getDuplicates(List<AddQualityLine> qualityLineList) {
+		return getDuplicatesMap(qualityLineList).values().stream()
 	      .filter(duplicates -> duplicates.size() > 1)
 	      .flatMap(Collection::stream)
 	      .collect(Collectors.toList());
@@ -331,8 +343,8 @@ public class QualityLineService extends BaseService {
 	 * @param personList
 	 * @return
 	 */
-	private static Map<String, List<AddQualityLine>> getDuplicatesMap(List<AddQualityLine> personList) {
-	  return personList.stream().collect(Collectors.groupingBy(AddQualityLine::uniqueAttributes));
+	private static Map<String, List<AddQualityLine>> getDuplicatesMap(List<AddQualityLine> addQualityLineList) {
+	  return addQualityLineList.stream().collect(Collectors.groupingBy(AddQualityLine::uniqueAttributes));
 	}
 	
 	/**
@@ -397,18 +409,6 @@ public class QualityLineService extends BaseService {
 					createdQualityLineList.add(createdQualityLine);
 				}
 			}
-
-			/*
-			 * Collecting created QualityLine List
-			 */
-//			List<QualityLine> createdQualityLineList = new ArrayList<>();
-//			for (AddQualityLine qualityLine : newQualityLines) {
-//				QualityLine createdQualityLine = findQualityLine(qualityLine.getWarehouseId(),
-//						qualityLine.getPreOutboundNo(), qualityLine.getRefDocNumber(), qualityLine.getPartnerCode(),
-//						qualityLine.getLineNumber(), qualityLine.getQualityInspectionNo(), qualityLine.getItemCode());
-//				log.info("Querying QualityLine record after creating: " + createdQualityLine);
-//				createdQualityLineList.add(createdQualityLine);
-//			}
 
 			/*
 			 * Based on created QualityLine List, updating respective tables

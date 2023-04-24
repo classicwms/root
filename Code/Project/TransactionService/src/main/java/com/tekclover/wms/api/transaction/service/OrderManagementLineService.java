@@ -776,9 +776,13 @@ public class OrderManagementLineService extends BaseService {
 		List<IInventory> finalInventoryList = inventoryService.getInventoryGroupByStorageBin(warehouseId, itemCode,
 				storageSectionIds);
 		log.info("finalInventoryList Inventory ---->: " + finalInventoryList + "\n");
-
+		
+		// If the finalInventoryList is EMPTY then we set STATUS_ID as 47 and return from the processing
+		if (finalInventoryList != null && finalInventoryList.isEmpty()) {
+			return updateOrderManagementLine(orderManagementLine);
+		}
+		
 		OrderManagementLine newOrderManagementLine = null;
-
 		outerloop: for (IInventory stBinWiseInventory : finalInventoryList) {
 			log.info("\nstBinWiseInventory---->: " + stBinWiseInventory.getStorageBin() + "::"
 					+ stBinWiseInventory.getInventoryQty());

@@ -261,7 +261,6 @@ public class PutAwayLineService extends BaseService {
 
 		PutAwayLineSpecification spec = new PutAwayLineSpecification(searchPutAwayLine);
 		List<PutAwayLine> results = putAwayLineRepository.findAll(spec);
-//		log.info("results: " + results);
 		return results;
 	}
 	
@@ -318,12 +317,6 @@ public class PutAwayLineService extends BaseService {
 				dbPutAwayLine.setUpdatedBy(loginUserID);
 				dbPutAwayLine.setCreatedOn(new Date());
 				dbPutAwayLine.setUpdatedOn(new Date());
-				
-//				LANG_ID", "C_ID", "PLANT_ID", "WH_ID", "GR_NO", "PRE_IB_NO", "REF_DOC_NO", "PA_NO", "IB_LINE_NO", "ITM_CODE", "PROP_ST_BIN", "CNF_ST_BIN""
-				//HAREESH - 25-08-2022 Added to restrict duplicate qty creation in inbound
-//				PutAwayLine existingPutAwayLine = putAwayLineRepository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndGoodsReceiptNoAndPreInboundNoAndRefDocNumberAndPutAwayNumberAndLineNoAndItemCodeAndProposedStorageBinAndConfirmedStorageBinInAndDeletionIndicator(
-//						newPutAwayLine.getLanguageId(), newPutAwayLine.getCompanyCode(), newPutAwayLine.getPlantId(), newPutAwayLine.getWarehouseId(), newPutAwayLine.getGoodsReceiptNo(), newPutAwayLine.getPreInboundNo(), newPutAwayLine.getRefDocNumber(), newPutAwayLine.getPutAwayNumber(), newPutAwayLine.getLineNo(), newPutAwayLine.getItemCode(),
-//						newPutAwayLine.getProposedStorageBin(), Arrays.asList(newPutAwayLine.getConfirmedStorageBin()), newPutAwayLine.getDeletionIndicator()).orElse(null);
 				
 				Optional<PutAwayLine> existingPutAwayLine = putAwayLineRepository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndGoodsReceiptNoAndPreInboundNoAndRefDocNumberAndPutAwayNumberAndLineNoAndItemCodeAndProposedStorageBinAndConfirmedStorageBinInAndDeletionIndicator(
 						newPutAwayLine.getLanguageId(), newPutAwayLine.getCompanyCode(), newPutAwayLine.getPlantId(), newPutAwayLine.getWarehouseId(), newPutAwayLine.getGoodsReceiptNo(), newPutAwayLine.getPreInboundNo(), newPutAwayLine.getRefDocNumber(), newPutAwayLine.getPutAwayNumber(), newPutAwayLine.getLineNo(), newPutAwayLine.getItemCode(),
@@ -462,54 +455,6 @@ public class PutAwayLineService extends BaseService {
 				}
 			}
 			
-			/*---------------STATUS updates----Update PUTAWAYHEADER table ------------------------
-			 * Update PUTAWAYHEADER table with STATUS_ID = 20 by passing WH_ID/PRE_IB_NO/REF_DOC_NO/PA_NO
-			 */
-//			for (PutAwayLine putAwayLine : createdPutAwayLines) {
-//				List<PutAwayHeader> headers = putAwayHeaderService.getPutAwayHeader(putAwayLine.getWarehouseId(), 
-//						putAwayLine.getPreInboundNo(), putAwayLine.getRefDocNumber(), putAwayLine.getPutAwayNumber());
-//				for (PutAwayHeader putAwayHeader : headers) {
-//					putAwayHeader.setStatusId(20L);
-//					putAwayHeader = putAwayHeaderRepository.save(putAwayHeader);
-//					log.info("putAwayHeader updated: " + putAwayHeader);
-//				}
-//				
-//				/*--------------------- INBOUNDTABLE Updates ------------------------------------------*/
-//				// Pass WH_ID/PRE_IB_NO/REF_DOC_NO/IB_LINE_NO/ITM_CODE values in PUTAWAYLINE table and 
-//				// fetch PA_CNF_QTY values and QTY_TYPE values and updated STATUS_ID as 20
-//				
-//				double addedAcceptQty = 0.0;
-//				double addedDamageQty = 0.0;
-//				
-//				InboundLine inboundLine = inboundLineService.getInboundLine(putAwayLine.getWarehouseId(), 
-//						putAwayLine.getRefDocNumber(), putAwayLine.getPreInboundNo(), putAwayLine.getLineNo(), 
-//						putAwayLine.getItemCode());
-//				log.info("inboundLine-------------> " + inboundLine);
-//				
-//				// If QTY_TYPE = A, add PA_CNF_QTY with existing value in ACCEPT_QTY field
-//				if (putAwayLine.getQuantityType().equalsIgnoreCase("A")) {
-//					if (inboundLine.getAcceptedQty() != null) {
-//						addedAcceptQty = inboundLine.getAcceptedQty() + putAwayLine.getPutawayConfirmedQty();
-//					} else {
-//						addedAcceptQty = putAwayLine.getPutawayConfirmedQty();
-//					}
-//					inboundLine.setAcceptedQty(addedAcceptQty);
-//				}
-//				
-//				// if QTY_TYPE = D, add PA_CNF_QTY with existing value in DAMAGE_QTY field
-//				if (putAwayLine.getQuantityType().equalsIgnoreCase("D")) {
-//					if (inboundLine.getDamageQty() != null) {
-//						addedDamageQty = inboundLine.getDamageQty() + putAwayLine.getPutawayConfirmedQty();
-//					} else {
-//						addedDamageQty = putAwayLine.getPutawayConfirmedQty();
-//					}
-//					inboundLine.setDamageQty(addedDamageQty);
-//				}
-//				
-//				inboundLine.setStatusId(20L);
-//				inboundLine = inboundLineRepository.save(inboundLine);
-//				log.info("inboundLine updated : " + inboundLine);
-//			}
 			return createdPutAwayLines;
 		} catch (Exception e) {
 			e.printStackTrace();

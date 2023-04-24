@@ -3,8 +3,10 @@ package com.tekclover.wms.api.transaction.service;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -87,8 +89,6 @@ public class GrLineService extends BaseService {
 
 	@Autowired
 	private ImBasicData1Repository imbasicdata1Repository;
-	
-	private static final String WAREHOUSEID_111 = "111";
 	
 	/**
 	 * getGrLines
@@ -292,13 +292,9 @@ public class GrLineService extends BaseService {
 	 */
 	public List<PackBarcode> generatePackBarcode(Long acceptQty, Long damageQty, String warehouseId, String loginUserID) {
 		AuthToken authTokenForIDMasterService = authTokenService.getIDMasterServiceAuthToken();
-//		UserManagement userManagement = 
-//				idmasterService.getUserManagement(loginUserID, authTokenForIDMasterService.getAccess_token());
-		
 		long NUM_RAN_ID = 6;
-//		String warehouseId = userManagement.getWarehouseId();
-		
 		List<PackBarcode> packBarcodes = new ArrayList<>();
+		
 		// Accept Qty
 		if (acceptQty != 0) {
 			String nextRangeNumber = getNextRangeNumber(NUM_RAN_ID, warehouseId, authTokenForIDMasterService.getAccess_token());
@@ -331,9 +327,16 @@ public class GrLineService extends BaseService {
 			throws IllegalAccessException, InvocationTargetException {
 		List<GrLine> createdGRLines = new ArrayList<>();
 		try {
+			List<AddGrLine> dupGrLines = getDuplicates (newGrLines);
+			log.info("-------dupGrLines--------> " + dupGrLines);
+			if (dupGrLines != null && !dupGrLines.isEmpty()) {
+				newGrLines.removeAll(dupGrLines);
+				newGrLines.add(dupGrLines.get(0));
+				log.info("-------GrLines---removed-dupPickupLines-----> " + newGrLines);
+			}
+			
 			// Inserting multiple records
 			for (AddGrLine newGrLine : newGrLines) {
-				
 				/*------------Inserting based on the PackBarcodes -----------*/
 				for (PackBarcode packBarcode : newGrLine.getPackBarcodes()) {
 					GrLine dbGrLine = new GrLine();
@@ -445,6 +448,27 @@ public class GrLineService extends BaseService {
 			e.printStackTrace();
 			throw e;
 		}
+	}
+	
+	/**
+	 * 
+	 * @param personList
+	 * @return
+	 */
+	public static List<AddGrLine> getDuplicates(List<AddGrLine> grLineList) {
+		return getDuplicatesMap(grLineList).values().stream()
+	      .filter(duplicates -> duplicates.size() > 1)
+	      .flatMap(Collection::stream)
+	      .collect(Collectors.toList());
+	}
+
+	/**
+	 * 
+	 * @param personList
+	 * @return
+	 */
+	private static Map<String, List<AddGrLine>> getDuplicatesMap(List<AddGrLine> addGrLineList) {
+	  return addGrLineList.stream().collect(Collectors.groupingBy(AddGrLine::uniqueAttributes));
 	}
 	
 	/**
@@ -637,7 +661,6 @@ public class GrLineService extends BaseService {
 	 */
 	private StorageBin[] getStorageBin (List<String> storageSectionIds, List<String> stBins, String warehouseId, String authToken ) {
 		StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
-//		storageSectionIds = Arrays.asList("ZB","ZG","ZC","ZT"); // Removing ZD
 		storageBinPutAway.setStorageBin(stBins);
 		storageBinPutAway.setStorageSectionIds(storageSectionIds);
 		storageBinPutAway.setWarehouseId(warehouseId);

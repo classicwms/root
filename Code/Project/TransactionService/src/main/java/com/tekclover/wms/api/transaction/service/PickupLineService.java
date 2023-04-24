@@ -3,8 +3,10 @@ package com.tekclover.wms.api.transaction.service;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
@@ -132,6 +134,16 @@ public class PickupLineService extends BaseService {
 				+ ",lineNumber:" + lineNumber + ",itemCode:" + itemCode + " doesn't exist.");
 	}
 
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @param lineNumber
+	 * @param itemCode
+	 * @return
+	 */
 	public List<PickupLine> getPickupLineForReversal(String warehouseId, String preOutboundNo, String refDocNumber,
 			String partnerCode, Long lineNumber, String itemCode) {
 		List<PickupLine> pickupLine = pickupLineRepository
@@ -267,48 +279,13 @@ public class PickupLineService extends BaseService {
 
 	/**
 	 * 
-	 * Pass the selected WH_ID/ITM_CODE/ALLOC_QTY=0 for OB_ORD_TYP_ID =0 ,1,3 and
-	 * fetch ST_BIN/PACK_BARCODE/INV_QTY values and display
-	 * 
-	 * @param proposedStorageBin
+	 * @param warehouseId
+	 * @param itemCode
+	 * @param OB_ORD_TYP_ID
 	 * @param proposedPackBarCode
+	 * @param proposedStorageBin
 	 * @return
 	 */
-//	public List<Inventory> getAdditionalBins (String warehouseId, String itemCode, Long OB_ORD_TYP_ID, 
-//			String proposedPackBarCode, String proposedStorageBin) {
-//		/*
-//		 *  1.Pass  WH_ID/ITM_CODE in INVENTORY table and fetch ST_BIN. 
-//		 *  Pass ST_BIN into STORAGEBIN table and filter ST_BIN values by  ST_SEC_ID values of ZB,ZC,ZG,ZT and 
-//		 *  PUTAWAY_BLOCK and PICK_BLOCK are false(Null).
-//		 */
-//		List<Inventory> stBinInventoryList = inventoryService.getInventory(warehouseId, itemCode);
-//		List<String> stBins = stBinInventoryList.stream().map(Inventory::getStorageBin).collect(Collectors.toList());
-//		log.info("stBins ---2--------> : " + stBins);
-//		log.info("stBins ---OB_ORD_TYP_ID--------> : " + OB_ORD_TYP_ID);
-//		
-//		/*
-//		 * Pass the selected WH_ID/ITM_CODE/ALLOC_QTY=0 for OB_ORD_TYP_ID =0 ,1,3 and fetch ST_BIN / PACK_BARCODE/INV_QTY values and display
-//		 */
-//		if (OB_ORD_TYP_ID == 0L || OB_ORD_TYP_ID == 1L || OB_ORD_TYP_ID == 3L) {
-//			List<String> storageSectionIds = Arrays.asList("ZB","ZC","ZG","ZT"); //ZB,ZC,ZG,ZT
-//			List<Inventory> inventoryAdditionalBins = 
-//					fetchAdditionalBins (stBins, storageSectionIds, warehouseId, itemCode, proposedPackBarCode, proposedStorageBin);
-//			return inventoryAdditionalBins;
-//		}
-//		
-//		/*
-//		 * Pass the selected ST_BIN/WH_ID/ITM_CODE/ALLOC_QTY=0/STCK_TYP_ID=2/SP_ST_IND_ID=2 for OB_ORD_TYP_ID = 2 and 
-//		 * fetch ST_BIN / PACK_BARCODE / INV_QTY  values and display
-//		 */
-//		if (OB_ORD_TYP_ID == 2L) {
-//			List<String> storageSectionIds = Arrays.asList("ZD"); //ZD
-//			List<Inventory> inventoryAdditionalBins = 
-//					fetchAdditionalBinsForOB2 (stBins, storageSectionIds, warehouseId, itemCode, proposedPackBarCode, proposedStorageBin);
-//			return inventoryAdditionalBins;
-//		}
-//		return null;
-//	}
-
 	public List<Inventory> getAdditionalBins(String warehouseId, String itemCode, Long OB_ORD_TYP_ID,
 			String proposedPackBarCode, String proposedStorageBin) {
 		log.info("---OB_ORD_TYP_ID--------> : " + OB_ORD_TYP_ID);
@@ -354,6 +331,14 @@ public class PickupLineService extends BaseService {
 		String partnerCode = null;
 		String pickupNumber = null;
 		boolean isQtyAvail = false;
+		
+		List<AddPickupLine> dupPickupLines = getDuplicates (newPickupLines);
+		log.info("-------dupPickupLines--------> " + dupPickupLines);
+		if (dupPickupLines != null && !dupPickupLines.isEmpty()) {
+			newPickupLines.removeAll(dupPickupLines);
+			newPickupLines.add(dupPickupLines.get(0));
+			log.info("-------PickupLines---removed-dupPickupLines-----> " + newPickupLines);
+		}
 
 		// Create PickUpLine
 		List<PickupLine> createdPickupLineList = new ArrayList<>();
@@ -707,6 +692,27 @@ public class PickupLineService extends BaseService {
 			log.info("PickupHeader update error: " + e.toString());
 		}
 		return createdPickupLineList;
+	}
+	
+	/**
+	 * 
+	 * @param personList
+	 * @return
+	 */
+	public static List<AddPickupLine> getDuplicates(@Valid List<AddPickupLine> newPickupLines) {
+		return getDuplicatesMap(newPickupLines).values().stream()
+	      .filter(duplicates -> duplicates.size() > 1)
+	      .flatMap(Collection::stream)
+	      .collect(Collectors.toList());
+	}
+	
+	/**
+	 * 
+	 * @param personList
+	 * @return
+	 */
+	private static Map<String, List<AddPickupLine>> getDuplicatesMap(@Valid List<AddPickupLine> newPickupLines) {
+	  return newPickupLines.stream().collect(Collectors.groupingBy(AddPickupLine::uniqueAttributes));
 	}
 
 	/**

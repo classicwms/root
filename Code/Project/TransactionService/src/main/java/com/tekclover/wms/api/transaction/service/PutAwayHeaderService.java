@@ -265,7 +265,6 @@ public class PutAwayHeaderService extends BaseService {
 		
 		PutAwayHeaderSpecification spec = new PutAwayHeaderSpecification(searchPutAwayHeader);
 		List<PutAwayHeader> results = putAwayHeaderRepository.findAll(spec);
-//		log.info("results: " + results);
 		return results;
 	}
 	

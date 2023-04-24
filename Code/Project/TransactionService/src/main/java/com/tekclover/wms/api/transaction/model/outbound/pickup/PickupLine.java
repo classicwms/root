@@ -63,9 +63,6 @@ public class PickupLine {
 	@Column(name = "OB_LINE_NO")
 	private Long lineNumber;
 	
-	@Column(name = "OB_ORD_TYP_ID")
-	private Long outboundOrderTypeId;
-	
 	@Id
 	@Column(name = "PU_NO")
 	private String pickupNumber;
@@ -85,6 +82,9 @@ public class PickupLine {
 	@Id
 	@Column(name = "PICK_PACK_BARCODE")
 	private String pickedPackCode;
+	
+	@Column(name = "OB_ORD_TYP_ID")
+	private Long outboundOrderTypeId;
 	
 	@Column(name = "VAR_ID") 
 	private Long variantCode;

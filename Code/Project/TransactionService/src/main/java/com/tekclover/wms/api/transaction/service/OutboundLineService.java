@@ -572,29 +572,6 @@ public class OutboundLineService extends BaseService {
 	}
 	
 	/**
-	 * 
-	 * @param searchOutboundLine
-	 * @return
-	 * @throws ParseException
-	 * @throws java.text.ParseException
-	 */
-//	public List<OutboundLine> findOutboundLineShipmentReport(SearchOutboundLine searchOutboundLine)
-//			throws ParseException, java.text.ParseException {
-//
-//		if (searchOutboundLine.getFromDeliveryDate() != null && searchOutboundLine.getToDeliveryDate() != null) {
-//			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundLine.getFromDeliveryDate(),
-//					searchOutboundLine.getToDeliveryDate());
-//			searchOutboundLine.setFromDeliveryDate(dates[0]);
-//			searchOutboundLine.setToDeliveryDate(dates[1]);
-//		}
-//
-//		OutboundLineSpecification spec = new OutboundLineSpecification(searchOutboundLine);
-//		List<OutboundLine> outboundLineSearchResults = outboundLineRepository.findAll(spec);
-////		log.info("search results: " + outboundLineSearchResults);
-//		return outboundLineSearchResults;
-//	}
-
-	/**
 	 *
 	 * @param searchOutboundLine
 	 * @return

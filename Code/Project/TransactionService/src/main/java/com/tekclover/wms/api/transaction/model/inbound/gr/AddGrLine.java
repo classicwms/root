@@ -72,4 +72,14 @@ public class AddGrLine {
 	private Date updatedOn = new Date();
 	private String confirmedBy;
 	private Date confirmedOn = new Date();
+	
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String uniqueAttributes () {
+		return languageId + companyCode + plantId + warehouseId + preInboundNo + refDocNumber + goodsReceiptNo +
+				palletCode + caseCode + packBarcodes + lineNo + itemCode;
+	}
 }

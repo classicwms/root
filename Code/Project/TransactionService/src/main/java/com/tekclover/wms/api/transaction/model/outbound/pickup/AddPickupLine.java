@@ -34,6 +34,7 @@ public class AddPickupLine {
 	private String assignedPickerId;
 	private String pickPalletCode;
 	private String pickCaseCode;
+	private Long outboundOrderTypeId;
 	private Long statusId;
 	private String referenceField1;
 	private String referenceField2;
@@ -54,4 +55,13 @@ public class AddPickupLine {
 	private Date pickupupdatedOn = new Date();
 	private String pickupReversedBy;
 	private Date pickupReversedOn = new Date();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String uniqueAttributes () {
+		return languageId + companyCodeId + plantId + warehouseId + preOutboundNo + refDocNumber + partnerCode + lineNumber + 
+				pickupNumber + itemCode + actualHeNo + pickedStorageBin + pickedPackCode;
+	}
 }
