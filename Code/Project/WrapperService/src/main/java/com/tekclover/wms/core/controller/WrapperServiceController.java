@@ -2,10 +2,14 @@ package com.tekclover.wms.core.controller;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -29,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.opencsv.CSVWriter;
 import com.tekclover.wms.core.batch.config.singleton.AccountService;
 import com.tekclover.wms.core.batch.config.singleton.AppConfig;
 import com.tekclover.wms.core.batch.scheduler.BatchJobScheduler;
@@ -41,6 +46,8 @@ import com.tekclover.wms.core.service.CommonService;
 import com.tekclover.wms.core.service.FileStorageService;
 import com.tekclover.wms.core.service.RegisterService;
 import com.tekclover.wms.core.service.ReportService;
+import com.tekclover.wms.core.util.DateUtils;
+import com.tekclover.wms.core.util.User1;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -122,15 +129,54 @@ public class WrapperServiceController {
     @ApiOperation(response = Optional.class, value = "Batch Fetch") // label for swagger
     @GetMapping("/batch-fetch/jobInventoryMovementQuery")
     public ResponseEntity<?> jobInventoryQuery2() throws Exception {
-    	AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
-    	 
-        batchJobScheduler.runJobInventoryMovement();
-       
-		AccountService service2 = context.getBean("accountService", AccountService.class);
-		log.info("inventoryMovement size: " + service2.getInventoryHolder().size());
-		context.close();
-        return new ResponseEntity<>(service2.getInventoryHolder(), HttpStatus.OK);
+//    	AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+//    	 
+//        batchJobScheduler.runJobInventoryMovement();
+//       
+//		AccountService service2 = context.getBean("accountService", AccountService.class);
+//		log.info("inventoryMovement size: " + service2.getInventoryHolder().size());
+//		context.close();
+    	
+    	List<User1> list = new ArrayList<User1>();
+    	String strDate = "2023-04-12";
+    	Date d = DateUtils.convertStringToYYYYMMDD(strDate);
+    	
+		User1 emp1 = new User1("3", "Reenta", d);
+		User1 emp2 = new User1("4", "DEffea", d);
+		list.add(emp1);
+		list.add(emp2);
+		
+    	try (
+				Writer writer = Files.newBufferedWriter(Paths.get("data.csv"));
+				CSVWriter csvWriter = new CSVWriter(writer, 
+					CSVWriter.DEFAULT_SEPARATOR, 
+					CSVWriter.NO_QUOTE_CHARACTER,
+					CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+					CSVWriter.DEFAULT_LINE_END);
+			) {
+			String[] headerRecord = { "id", "name", "dob"};
+			csvWriter.writeNext(headerRecord);
+			
+			List<String[]> listArr = new ArrayList<>();
+			for (User1 user : list) {
+				String[] sarr = toArray(user);
+				listArr.add(sarr);
+			}
+			csvWriter.writeAll(listArr);
+		}
+
+		batchJobScheduler.runJobInventoryMovement();
+        return new ResponseEntity<>(HttpStatus.OK);
     }
+    
+    private String[] toArray(User1 user) {
+		String[] strarr = new String[] {
+				user.getId(),
+				user.getName(),
+				String.valueOf(user.getDob())
+		};
+		return strarr;
+	}
     
     @ApiOperation(response = Optional.class, value = "Batch Fetch") // label for swagger
     @GetMapping("/batch-upload/jobInventoryQuery")

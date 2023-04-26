@@ -4,12 +4,12 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.stream.Stream;
 
 import javax.validation.Valid;
@@ -28,7 +28,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -36,6 +35,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.opencsv.CSVWriter;
 //import com.google.gson.Gson;
 import com.tekclover.wms.core.config.PropertiesConfig;
 import com.tekclover.wms.core.model.transaction.*;
@@ -44,6 +44,7 @@ import com.tekclover.wms.core.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.core.repository.MongoTransactionRepository;
 import com.tekclover.wms.core.util.CommonUtils;
 import com.tekclover.wms.core.util.DateUtils;
+import com.tekclover.wms.core.util.User1;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -3210,12 +3211,24 @@ public class TransactionService {
 			SearchOutboundHeaderModel requestDataForService = new SearchOutboundHeaderModel();
 			BeanUtils.copyProperties(requestData, requestDataForService, CommonUtils.getNullPropertyNames(requestData));
 			if (requestData.getStartDeliveryConfirmedOn() != null) {
-				requestDataForService.setStartDeliveryConfirmedOn(
-						DateUtils.convertStringToYYYYMMDD(requestData.getStartDeliveryConfirmedOn()));
+				if (requestData.getStartDeliveryConfirmedOn().length() < 11) {
+					requestDataForService.setStartDeliveryConfirmedOn(
+							DateUtils.convertStringToYYYYMMDD(requestData.getStartDeliveryConfirmedOn()));
+				} else {
+					requestDataForService.setStartDeliveryConfirmedOn(
+							DateUtils.convertStringToDateWithTime(requestData.getStartDeliveryConfirmedOn()));
+				}
 			}
+			Integer flag = 0;
 			if (requestData.getEndDeliveryConfirmedOn() != null) {
-				requestDataForService.setEndDeliveryConfirmedOn(
-						DateUtils.convertStringToYYYYMMDD(requestData.getEndDeliveryConfirmedOn()));
+				if (requestData.getEndDeliveryConfirmedOn().length() < 11) {
+					requestDataForService.setEndDeliveryConfirmedOn(
+							DateUtils.convertStringToYYYYMMDD(requestData.getEndDeliveryConfirmedOn()));
+				} else {
+					requestDataForService.setEndDeliveryConfirmedOn(
+							DateUtils.convertStringToDateWithTime(requestData.getEndDeliveryConfirmedOn()));
+					flag = 1;
+				}
 			}
 			if (requestData.getStartOrderDate() != null) {
 				requestDataForService
@@ -3238,7 +3251,8 @@ public class TransactionService {
 			headers.add("Authorization", "Bearer " + authToken);
 
 			UriComponentsBuilder builder = UriComponentsBuilder
-					.fromHttpUrl(getTransactionServiceApiUrl() + "outboundheader/findOutboundHeader");
+					.fromHttpUrl(getTransactionServiceApiUrl() + "outboundheader/findOutboundHeader")
+					.queryParam("flag", flag);
 			HttpEntity<?> entity = new HttpEntity<>(requestDataForService, headers);
 			ResponseEntity<OutboundHeader[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
 					entity, OutboundHeader[].class);
@@ -4158,21 +4172,17 @@ public class TransactionService {
 	}
 
 	// FIND ALL - findPeriodicHeader
-	public Page<?> findPeriodicHeader(SearchPeriodicHeader searchPeriodicHeader, Integer pageNo, Integer pageSize,
-			String sortBy, String authToken) {
+	public PeriodicHeaderEntity[] findPeriodicHeader(SearchPeriodicHeader searchPeriodicHeader, String authToken) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 			headers.add("User-Agent", "ClassicWMS RestTemplate");
 			headers.add("Authorization", "Bearer " + authToken);
 			UriComponentsBuilder builder = UriComponentsBuilder
-					.fromHttpUrl(getTransactionServiceApiUrl() + "periodicheader/findPeriodicHeader")
-					.queryParam("pageNo", pageNo).queryParam("pageSize", pageSize).queryParam("sortBy", sortBy);
+					.fromHttpUrl(getTransactionServiceApiUrl() + "periodicheader/findPeriodicHeader");
 			HttpEntity<?> entity = new HttpEntity<>(searchPeriodicHeader, headers);
-			ParameterizedTypeReference<PaginatedResponse<PeriodicHeaderEntity>> responseType = new ParameterizedTypeReference<PaginatedResponse<PeriodicHeaderEntity>>() {
-			};
-			ResponseEntity<PaginatedResponse<PeriodicHeaderEntity>> result = getRestTemplate()
-					.exchange(builder.toUriString(), HttpMethod.POST, entity, responseType);
+			ResponseEntity<PeriodicHeaderEntity[]> result = getRestTemplate()
+					.exchange(builder.toUriString(), HttpMethod.POST, entity, PeriodicHeaderEntity[].class);
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -4708,26 +4718,94 @@ public class TransactionService {
 			log.info("finished streaming records");
 		};
 		return responseBody;
-		
-//		Stream<InventoryMovement2> inventoryMovement2 = streamInventoryMovement();
-//		StreamingResponseBody responseBody = httpResponseOutputStream -> {
-//			try (Writer writer = new BufferedWriter(new OutputStreamWriter(httpResponseOutputStream))) {
-//				inventoryMovement2.forEach(im -> {
-//					try {
-//						list.add (im);
-//						writer.write(gson.toJson(im));
-////						log.info("streamed record");
-//						writer.flush();
-//					} catch (IOException exception) {
-//						log.error("exception occurred while writing object to stream", exception);
-//					}
-//				});
-//			} catch (Exception e) {
-//				log.info("Exception occurred while publishing data", e);
-//				e.printStackTrace();
-//			}
-//			log.info("finished streaming records");
-//		};
-//		return responseBody;
+	}
+	
+	//---------------Periodic-CSV-Writer----------------------------------------
+	/**
+	 * 
+	 * @param newPeriodicLines
+	 * @throws IOException
+	 */
+	public void createCSV (List<PeriodicLine> newPeriodicLines) throws IOException {
+		try (
+				Writer writer = Files.newBufferedWriter(Paths.get("periodicLine.csv"));
+				CSVWriter csvWriter = new CSVWriter(writer, 
+					CSVWriter.DEFAULT_SEPARATOR, 
+					CSVWriter.NO_QUOTE_CHARACTER,
+					CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+					CSVWriter.DEFAULT_LINE_END);
+			) {
+			String[] headerRecord = { "languageId","companyCode","plantId","warehouseId","cycleCountNo","storageBin",
+	  				"itemCode","packBarcodes","variantCode","variantSubCode","batchSerialNumber","stockTypeId","specialStockIndicator",
+	  				"inventoryQuantity","inventoryUom","countedQty","varianceQty","cycleCounterId","cycleCounterName","statusId",
+	  				"cycleCountAction","referenceNo","approvalProcessId","approvalLevel","approverCode","approvalStatus","remarks",
+	  				"referenceField1","referenceField2","referenceField3","referenceField4","referenceField5","referenceField6",
+	  				"referenceField7","referenceField8","referenceField9","referenceField10","deletionIndicator","createdBy","createdOn",
+	  				"confirmedBy","confirmedOn","countedBy","countedOn"};
+			csvWriter.writeNext(headerRecord);
+			
+			List<String[]> listArr = new ArrayList<>();
+			newPeriodicLines.stream().forEach(pl -> {
+					String[] sarr = toArray(pl);
+					listArr.add(sarr);
+				});
+			
+			csvWriter.writeAll(listArr);
+		}
+	}
+	
+	/**
+	 * 
+	 * @param periodicLine
+	 * @return
+	 */
+	private String[] toArray(PeriodicLine periodicLine) {
+		String[] strarr = new String[] {
+				periodicLine.getLanguageId(),
+				periodicLine.getCompanyCode(),
+				periodicLine.getPlantId(),
+				periodicLine.getWarehouseId(),
+				periodicLine.getCycleCountNo(),
+				periodicLine.getStorageBin(),
+				periodicLine.getItemCode(),
+				periodicLine.getPackBarcodes(),
+				String.valueOf(periodicLine.getVariantCode()),
+				periodicLine.getVariantSubCode(),
+				periodicLine.getBatchSerialNumber(),
+				String.valueOf(periodicLine.getStockTypeId()),
+				periodicLine.getSpecialStockIndicator(),
+				String.valueOf(periodicLine.getInventoryQuantity()),
+				periodicLine.getInventoryUom(),
+				String.valueOf(periodicLine.getCountedQty()),
+				String.valueOf(periodicLine.getVarianceQty()),
+				periodicLine.getCycleCounterId(),
+				periodicLine.getCycleCounterName(),
+				String.valueOf(periodicLine.getStatusId()),
+				periodicLine.getCycleCountAction(),
+				periodicLine.getReferenceNo(),
+				String.valueOf(periodicLine.getApprovalProcessId()),
+				periodicLine.getApprovalLevel(),
+				periodicLine.getApproverCode(),
+				periodicLine.getApprovalStatus(),
+				periodicLine.getRemarks(),
+				periodicLine.getReferenceField1(),
+				periodicLine.getReferenceField2(),
+				periodicLine.getReferenceField3(),
+				periodicLine.getReferenceField4(),
+				periodicLine.getReferenceField5(),
+				periodicLine.getReferenceField6(),
+				periodicLine.getReferenceField7(),
+				periodicLine.getReferenceField8(),
+				periodicLine.getReferenceField9(),
+				periodicLine.getReferenceField10(),
+				String.valueOf(periodicLine.getDeletionIndicator()),
+				periodicLine.getCreatedBy(),
+				String.valueOf(periodicLine.getCreatedOn()),
+				periodicLine.getConfirmedBy(),
+				String.valueOf(periodicLine.getConfirmedOn()),
+				periodicLine.getCountedBy(),
+				String.valueOf(periodicLine.getCountedOn())
+		};
+		return strarr;
 	}
 }

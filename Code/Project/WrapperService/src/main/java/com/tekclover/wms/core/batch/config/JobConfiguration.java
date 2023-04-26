@@ -16,7 +16,6 @@ import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
@@ -28,8 +27,6 @@ import com.tekclover.wms.core.batch.dto.HandlingEquipment;
 import com.tekclover.wms.core.batch.dto.IMPartner;
 import com.tekclover.wms.core.batch.dto.ImBasicData1;
 import com.tekclover.wms.core.batch.dto.Inventory;
-import com.tekclover.wms.core.batch.dto.Person;
-import com.tekclover.wms.core.batch.dto.Student;
 import com.tekclover.wms.core.batch.mapper.BinLocationFieldSetMapper;
 import com.tekclover.wms.core.batch.mapper.BomHeaderFieldSetMapper;
 import com.tekclover.wms.core.batch.mapper.BomLineFieldSetMapper;
@@ -38,8 +35,6 @@ import com.tekclover.wms.core.batch.mapper.HandlingEquipmentFieldSetMapper;
 import com.tekclover.wms.core.batch.mapper.IMPartnerFieldSetMapper;
 import com.tekclover.wms.core.batch.mapper.ImBasicData1FieldSetMapper;
 import com.tekclover.wms.core.batch.mapper.InventoryFieldSetMapper;
-import com.tekclover.wms.core.batch.mapper.PersonFieldSetMapper;
-import com.tekclover.wms.core.batch.mapper.StudentFieldSetMapper;
 import com.tekclover.wms.core.config.PropertiesConfig;
 
 @Configuration
@@ -555,89 +550,4 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 				.start(step9())
 				.build();
 	}
-	
-	/*-----------------------------------------------------------------------------------------*/
-
-//	@Bean
-//	public FlatFileItemReader<Person> personItemReader() {
-//		FlatFileItemReader<Person> reader = new FlatFileItemReader<>();
-//		reader.setLinesToSkip(1);
-//		reader.setResource(new ClassPathResource("/Book1.csv"));
-//		DefaultLineMapper<Person> customerLineMapper = new DefaultLineMapper<>();
-//
-//		DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-//		tokenizer.setNames(new String[] { "id", "firstName", "lastName" });
-//
-//		customerLineMapper.setLineTokenizer(tokenizer);
-//		customerLineMapper.setFieldSetMapper(new PersonFieldSetMapper());
-//		customerLineMapper.afterPropertiesSet();
-//		reader.setLineMapper(customerLineMapper);
-//		return reader;
-//	}
-//
-//	@SuppressWarnings({ "rawtypes", "unchecked" })
-//	@Bean
-//	public JdbcBatchItemWriter<Person> personItemWriter() {
-//		JdbcBatchItemWriter<Person> itemWriter = new JdbcBatchItemWriter<>();
-//
-//		itemWriter.setDataSource(this.dataSource);
-//		itemWriter.setSql("INSERT INTO PERSON VALUES (:id, :firstName, :lastName)");
-//		itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider());
-//		itemWriter.afterPropertiesSet();
-//		return itemWriter;
-//	}
-//
-//	@Bean
-//	public Step step1() {
-//		return stepBuilderFactory.get("step1").<Person, Person>chunk(10).reader(personItemReader())
-//				.writer(personItemWriter()).build();
-//	}
-//	
-//	//------------------------------Student-------------------------------------------
-//	@Bean
-//	public FlatFileItemReader<Student> studentItemReader() {
-//		FlatFileItemReader<Student> reader = new FlatFileItemReader<>();
-//		reader.setLinesToSkip(1);
-//		reader.setResource(new ClassPathResource("/Student.csv"));
-//
-//		DefaultLineMapper<Student> customerLineMapper = new DefaultLineMapper<>();
-//		DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-//		tokenizer.setNames(new String[] { "id", "firstName", "lastName" });
-//
-//		customerLineMapper.setLineTokenizer(tokenizer);
-//		customerLineMapper.setFieldSetMapper(new StudentFieldSetMapper());
-//		customerLineMapper.afterPropertiesSet();
-//		reader.setLineMapper(customerLineMapper);
-//		return reader;
-//	}
-//
-//	@SuppressWarnings({ "rawtypes", "unchecked" })
-//	@Bean
-//	public JdbcBatchItemWriter<Student> studentItemWriter() {
-//		JdbcBatchItemWriter<Student> itemWriter = new JdbcBatchItemWriter<>();
-//
-//		itemWriter.setDataSource(this.dataSource);
-//		itemWriter.setSql("INSERT INTO Student VALUES (:id, :firstName, :lastName)");
-//		itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider());
-//		itemWriter.afterPropertiesSet();
-//		return itemWriter;
-//	}
-//
-//	@Bean
-//	public Step step2() {
-//		return stepBuilderFactory.get("step2").<Student, Student>chunk(10).reader(studentItemReader())
-//				.writer(studentItemWriter()).build();
-//	}
-	
-	/*----------------------------------------------------------------------------------------*/
-	
-//	@Bean
-//	public Job job1() {
-//		return jobBuilderFactory.get("job1")
-////				.listener(wmsListener())
-//				.start(step1())
-//				.next(step2())
-////				.next(step3())
-//				.build();
-//	}
 }

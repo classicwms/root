@@ -192,8 +192,9 @@ public class BatchJobScheduler {
 		}
 	}
 	
-	/*
+	/**
 	 * 
+	 * @throws Exception
 	 */
 	public void runJobdbToCsvJob() throws Exception {
 		JobParameters params = new JobParametersBuilder().addLong("jobId", System.currentTimeMillis())
@@ -206,6 +207,10 @@ public class BatchJobScheduler {
 		}
 	}
 	
+	/**
+	 * 
+	 * @throws Exception
+	 */
 	public void runJobInventoryMovement() throws Exception {
 		JobParameters params = new JobParametersBuilder().addLong("jobId", System.currentTimeMillis())
 				.toJobParameters();
@@ -217,6 +222,10 @@ public class BatchJobScheduler {
 		}
 	}
 	
+	/**
+	 * 
+	 * @throws Exception
+	 */
 	public void runJobPeriodic() throws Exception {
 		JobParameters params = new JobParametersBuilder().addLong("jobId", System.currentTimeMillis())
 				.toJobParameters();

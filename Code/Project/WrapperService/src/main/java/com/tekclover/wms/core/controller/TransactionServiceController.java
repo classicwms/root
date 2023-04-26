@@ -1,5 +1,6 @@
 package com.tekclover.wms.core.controller;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import com.tekclover.wms.core.batch.scheduler.BatchJobScheduler;
 import com.tekclover.wms.core.model.transaction.*;
 import com.tekclover.wms.core.model.warehouse.inbound.ASN;
 import com.tekclover.wms.core.model.warehouse.inbound.WarehouseApiResponse;
@@ -56,6 +58,9 @@ public class TransactionServiceController {
 	
 	@Autowired
     FileStorageService fileStorageService; 
+	
+	@Autowired
+	BatchJobScheduler batchJobScheduler;
 	
 	/*
      * Process the ASN Integraion data
@@ -1675,21 +1680,21 @@ public class TransactionServiceController {
 	@ApiOperation(response = PeriodicHeader[].class, value = "Search PeriodicHeader") // label for swagger
 	@PostMapping("/periodicheader/findPeriodicHeader")
 	public ResponseEntity<?> findPeriodicHeader(@RequestBody SearchPeriodicHeader searchPeriodicHeader,
-			@RequestParam(defaultValue = "0") Integer pageNo,
-			@RequestParam(defaultValue = "100") Integer pageSize,
-			@RequestParam(defaultValue = "cycleCountNo") String sortBy,
 			@RequestParam String authToken) throws Exception {
-		Page<?> page = transactionService.findPeriodicHeader(searchPeriodicHeader, pageNo, pageSize, sortBy,
-				authToken);
-		return new ResponseEntity<>(page, HttpStatus.OK);
+		PeriodicHeaderEntity[] results = transactionService.findPeriodicHeader(searchPeriodicHeader, authToken);
+		return new ResponseEntity<>(results, HttpStatus.OK);
 	}
     
     @ApiOperation(response = PeriodicHeader.class, value = "Create PeriodicHeader") // label for swagger
 	@PostMapping("/periodicheader")
 	public ResponseEntity<?> postPeriodicHeader(@Valid @RequestBody AddPeriodicHeader newPeriodicHeader, 
-			@RequestParam String loginUserID, @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
-		PeriodicHeaderEntity createdPeriodicHeader = 
-				transactionService.createPeriodicHeader(newPeriodicHeader, loginUserID, authToken);
+			@RequestParam String loginUserID, @RequestParam String authToken) throws Exception {
+		PeriodicHeaderEntity createdPeriodicHeader = transactionService.createPeriodicHeader(newPeriodicHeader, loginUserID, authToken);
+		log.info("createdPeriodicHeader:" + createdPeriodicHeader);		
+		
+		/* Call Batch */
+		transactionService.createCSV(newPeriodicHeader.getPeriodicLine());
+		batchJobScheduler.runJobPeriodic();
 		return new ResponseEntity<>(createdPeriodicHeader, HttpStatus.OK);
 	}
     
