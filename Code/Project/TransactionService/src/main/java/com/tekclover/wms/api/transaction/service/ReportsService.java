@@ -1401,12 +1401,10 @@ public class ReportsService extends BaseService {
 		Date toDate = null;
 		try {
 			fromDate = DateUtils.convertStringToDate(fromDeliveryDate);
-//			fromDate = DateUtils.addTimeToDate(fromDate);
 			fromDate = DateUtils.addTimeToStartDate(fromDate, 8, 0, 0);
 			log.info("Date---fromDate----->: " + fromDate);
 
 			toDate = DateUtils.convertStringToDate(toDeliveryDate);
-//			toDate = DateUtils.addDayEndTimeToDate(toDate);
 			toDate = DateUtils.addTimeToEndDate(toDate, 7, 59, 59);
 			log.info("Date---toDate----->: " + toDate);
 		} catch (Exception e) {

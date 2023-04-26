@@ -287,9 +287,9 @@ public class PutAwayLineService extends BaseService {
 	
 	/**
 	 * 
-	 * @param newPutAwayLine
+	 * @param newPutAwayLines
 	 * @param loginUserID
-	 * @param loginUserID2 
+	 * @param loginUserID
 	 * @return
 	 * @throws InvocationTargetException 
 	 * @throws IllegalAccessException 
@@ -465,7 +465,6 @@ public class PutAwayLineService extends BaseService {
 	/**
 	 * 
 	 * @param dbPutAwayLine
-	 * @param createdinventory
 	 * @return 
 	 */
 	private InventoryMovement createInventoryMovement(PutAwayLine dbPutAwayLine) {
@@ -534,7 +533,7 @@ public class PutAwayLineService extends BaseService {
 	
 	/**
 	 * updatePutAwayLine
-	 * @param loginUserId 
+	 * @param loginUserID
 	 * @param confirmedStorageBin
 	 * @param updatePutAwayLine
 	 * @return

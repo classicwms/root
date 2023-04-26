@@ -175,7 +175,8 @@ public class ReportsController {
     @ApiOperation(response = ShipmentDeliverySummaryReport.class, value = "Get ShipmentDeliverySummary Report") // label for swagger 
    	@GetMapping("/shipmentDeliverySummary")
    	public ResponseEntity<?> getShipmentDeliveryReport(@RequestParam String fromDeliveryDate, 
-   			@RequestParam String toDeliveryDate, @RequestParam(required = false) List<String> customerCode,@RequestParam(required = true) String warehouseId)
+   			@RequestParam String toDeliveryDate, @RequestParam(required = false) List<String> customerCode,
+   			@RequestParam(required = true) String warehouseId)
    					throws ParseException, java.text.ParseException {
     	ShipmentDeliverySummaryReport shipmentDeliverySummaryReport = 
     			reportsService.getShipmentDeliverySummaryReport(fromDeliveryDate, toDeliveryDate, customerCode,warehouseId);

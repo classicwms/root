@@ -79,6 +79,11 @@ public class PutAwayLineSpecification implements Specification<PutAwayLine> {
                     searchPutAwayLine.getFromConfirmedDate(), searchPutAwayLine.getToConfirmedDate()));
         }
 
+        if (searchPutAwayLine.getFromCreatedDate() != null && searchPutAwayLine.getToCreatedDate() != null) {
+            predicates.add(cb.between(root.get("createdOn"),
+                    searchPutAwayLine.getFromCreatedDate(), searchPutAwayLine.getToCreatedDate()));
+        }
+
         if (searchPutAwayLine.getPackBarCodes() != null && !searchPutAwayLine.getPackBarCodes().isEmpty()) {
             final Path<Group> group = root.<Group>get("packBarcodes");
             predicates.add(group.in(searchPutAwayLine.getPackBarCodes()));

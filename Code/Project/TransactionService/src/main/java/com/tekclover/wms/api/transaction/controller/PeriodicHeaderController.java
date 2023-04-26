@@ -64,14 +64,9 @@ public class PeriodicHeaderController {
     
 	@ApiOperation(response = PeriodicHeader.class, value = "Search PeriodicHeader") // label for swagger
 	@PostMapping("/findPeriodicHeader")
-	public ResponseEntity<?> findPeriodicHeader(
-			@RequestBody SearchPeriodicHeader searchPeriodicHeader,
-			@RequestParam(defaultValue = "0") Integer pageNo,
-			@RequestParam(defaultValue = "100") Integer pageSize,
-			@RequestParam(defaultValue = "cycleCountNo") String sortBy)
+	public ResponseEntity<?> findPeriodicHeader(@RequestBody SearchPeriodicHeader searchPeriodicHeader)
 			throws Exception {
-		Page<PeriodicHeaderEntity> page = 
-				periodicheaderService.findPeriodicHeader(searchPeriodicHeader, pageNo, pageSize, sortBy);
+		List<PeriodicHeaderEntity> page = periodicheaderService.findPeriodicHeader(searchPeriodicHeader);
 		return new ResponseEntity<>(page , HttpStatus.OK);
 	}
 	

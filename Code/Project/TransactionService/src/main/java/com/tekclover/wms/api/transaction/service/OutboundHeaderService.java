@@ -140,12 +140,12 @@ public class OutboundHeaderService {
 	 * @throws ParseException
 	 * @throws java.text.ParseException 
 	 */
-	public List<OutboundHeader> findOutboundHeader(SearchOutboundHeader searchOutboundHeader) 
+	public List<OutboundHeader> findOutboundHeader(SearchOutboundHeader searchOutboundHeader, Integer flag)
 			throws ParseException, java.text.ParseException {
 		
 		log.info("DeliveryConfirmedOn: " + searchOutboundHeader.getStartDeliveryConfirmedOn());
 		
-		if (searchOutboundHeader.getStartRequiredDeliveryDate() != null && searchOutboundHeader.getStartRequiredDeliveryDate() != null) {
+		if (searchOutboundHeader.getStartRequiredDeliveryDate() != null && searchOutboundHeader.getEndRequiredDeliveryDate() != null) {
 			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartRequiredDeliveryDate(), searchOutboundHeader.getEndRequiredDeliveryDate());
 			searchOutboundHeader.setStartRequiredDeliveryDate(dates[0]);
 			searchOutboundHeader.setEndRequiredDeliveryDate(dates[1]);
@@ -154,16 +154,18 @@ public class OutboundHeaderService {
 			searchOutboundHeader.setEndRequiredDeliveryDate(null);
 		}
 		
-		if (searchOutboundHeader.getStartDeliveryConfirmedOn() != null && searchOutboundHeader.getStartDeliveryConfirmedOn() != null) {
-			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartDeliveryConfirmedOn(), searchOutboundHeader.getEndDeliveryConfirmedOn());
-			searchOutboundHeader.setStartDeliveryConfirmedOn(dates[0]);
-			searchOutboundHeader.setEndDeliveryConfirmedOn(dates[1]);
+		if (searchOutboundHeader.getStartDeliveryConfirmedOn() != null && searchOutboundHeader.getEndDeliveryConfirmedOn() != null) {
+			if(flag != 1 ) {
+				Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartDeliveryConfirmedOn(), searchOutboundHeader.getEndDeliveryConfirmedOn());
+				searchOutboundHeader.setStartDeliveryConfirmedOn(dates[0]);
+				searchOutboundHeader.setEndDeliveryConfirmedOn(dates[1]);
+			}
 		} else {
 			searchOutboundHeader.setStartDeliveryConfirmedOn(null);
 			searchOutboundHeader.setEndDeliveryConfirmedOn(null);
 		}
 		
-		if (searchOutboundHeader.getStartOrderDate() != null && searchOutboundHeader.getStartOrderDate() != null) {
+		if (searchOutboundHeader.getStartOrderDate() != null && searchOutboundHeader.getEndOrderDate() != null) {
 			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartOrderDate(), searchOutboundHeader.getEndOrderDate());
 			searchOutboundHeader.setStartOrderDate(dates[0]);
 			searchOutboundHeader.setEndOrderDate(dates[1]);

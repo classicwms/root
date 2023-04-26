@@ -32,4 +32,7 @@ public class SearchPutAwayLine {
 	private List<String> packBarCodes;
 	private Date fromConfirmedDate;
 	private Date toConfirmedDate;
+
+	private Date fromCreatedDate;
+	private Date toCreatedDate;
 }

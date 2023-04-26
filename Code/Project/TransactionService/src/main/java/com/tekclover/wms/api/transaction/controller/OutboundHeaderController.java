@@ -61,9 +61,9 @@ public class OutboundHeaderController {
     
 	@ApiOperation(response = OutboundHeader.class, value = "Search OutboundHeader") // label for swagger
 	@PostMapping("/findOutboundHeader")
-	public List<OutboundHeader> findOutboundHeader(@RequestBody SearchOutboundHeader searchOutboundHeader)
+	public List<OutboundHeader> findOutboundHeader(@RequestBody SearchOutboundHeader searchOutboundHeader,@RequestParam Integer flag)
 			throws Exception {
-		return outboundheaderService.findOutboundHeader(searchOutboundHeader);
+		return outboundheaderService.findOutboundHeader(searchOutboundHeader, flag);
 	}
     
     @ApiOperation(response = OutboundHeader.class, value = "Create OutboundHeader") // label for swagger

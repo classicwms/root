@@ -111,9 +111,8 @@ public class PeriodicHeaderService extends BaseService {
 	 * @throws ParseException
 	 * @throws java.text.ParseException 
 	 */
-	public Page<PeriodicHeaderEntity> findPeriodicHeader(SearchPeriodicHeader searchPeriodicHeader, 
-			Integer pageNo, Integer pageSize, String sortBy) 
-			throws ParseException, java.text.ParseException {
+	public List<PeriodicHeaderEntity> findPeriodicHeader(SearchPeriodicHeader searchPeriodicHeader) 
+			throws Exception {
 		if (searchPeriodicHeader.getStartCreatedOn() != null && searchPeriodicHeader.getStartCreatedOn() != null) {
 			Date[] dates = DateUtils.addTimeToDatesForSearch(searchPeriodicHeader.getStartCreatedOn(),
 					searchPeriodicHeader.getEndCreatedOn());
@@ -121,14 +120,9 @@ public class PeriodicHeaderService extends BaseService {
 			searchPeriodicHeader.setEndCreatedOn(dates[1]);
 		}
 		PeriodicHeaderSpecification spec = new PeriodicHeaderSpecification(searchPeriodicHeader);
-		
-		Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
-		Page<PeriodicHeader> periodicHeaderResults = periodicHeaderRepository.findAll(spec, pageable);
-		List<PeriodicHeaderEntity> periodicHeaderEntityList = 
-				convertToEntity (periodicHeaderResults.getContent(), searchPeriodicHeader);
-		final Page<PeriodicHeaderEntity> page = 
-				new PageImpl<>(periodicHeaderEntityList, pageable, periodicHeaderResults.getTotalElements());
-		return page;
+		List<PeriodicHeader> periodicHeaderResults = periodicHeaderRepository.findAll(spec);
+		List<PeriodicHeaderEntity> periodicHeaderEntityList = convertToEntity (periodicHeaderResults, searchPeriodicHeader);
+		return periodicHeaderEntityList;
 	}
 	
 	/**
