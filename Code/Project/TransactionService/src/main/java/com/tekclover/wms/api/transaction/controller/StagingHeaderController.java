@@ -2,11 +2,13 @@ package com.tekclover.wms.api.transaction.controller;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,6 +32,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 @Slf4j
 @Validated
@@ -63,7 +66,15 @@ public class StagingHeaderController {
 			throws Exception {
 		return stagingheaderService.findStagingHeader(searchStagingHeader);
 	}
-    
+
+	//===================================STREAMING=================================================
+
+	@GetMapping(value = "/streaming/findStagingHeader")
+	public ResponseEntity<StreamingResponseBody> findStreamStagingHeader() throws ExecutionException, InterruptedException {
+		StreamingResponseBody responseBody = stagingheaderService.findStreamStagingHeader();
+		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(responseBody);
+	}
+
     @ApiOperation(response = StagingHeader.class, value = "Create StagingHeader") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postStagingHeader(@Valid @RequestBody AddStagingHeader newStagingHeader, @RequestParam String loginUserID) 

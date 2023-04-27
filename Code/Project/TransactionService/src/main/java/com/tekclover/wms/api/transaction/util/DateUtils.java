@@ -301,6 +301,17 @@ public class DateUtils {
 //		log.info("convertStringToDate-------> : " + date);
 		return date;
 	}
+
+	/**
+	 *
+	 * @param strDate
+	 * @return
+	 * @throws ParseException
+	 */
+	public static Date convertStringToDateWithTime(String strDate) throws ParseException {
+		Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(strDate);
+		return date;
+	}
 	
 	/**
 	 * 

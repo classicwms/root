@@ -370,6 +370,13 @@ public class TransactionServiceController {
 			throws Exception {
 		return transactionService.findStagingHeader(searchStagingHeader, authToken);
 	}
+
+	@ApiOperation(response = StagingHeader.class, value = "Search Streaming StagingHeader") // label for swagger
+	@GetMapping("/stagingheader/findStreamStagingHeader")
+	public StagingHeader[] findStreamStagingHeader(@RequestParam String authToken)
+			throws Exception {
+		return transactionService.findStreamStagingHeader(authToken);
+	}
     
     @ApiOperation(response = StagingHeader.class, value = "Create StagingHeader") // label for swagger
 	@PostMapping("/stagingheader")

@@ -389,7 +389,6 @@ public class WarehouseService extends BaseService {
 			apiHeader.setWarehouseID(asnHeader.getWareHouseId());
 			apiHeader.setInboundOrderTypeId(1L);
 			apiHeader.setOrderReceivedOn(new Date());
-			apiHeader.setProcessedStatusId(0L);
 			
 			Set<InboundOrderLines> orderLines = new HashSet<>();
 			for (ASNLine asnLine : asnLines) {
@@ -420,14 +419,24 @@ public class WarehouseService extends BaseService {
 			}
 			apiHeader.setLines(orderLines);
 			apiHeader.setOrderProcessedOn(new Date());
-			apiHeader.setProcessedStatusId(0L);
-			log.info("apiHeader : " + apiHeader);
-			InboundOrder createdOrder = orderService.createInboundOrders(apiHeader);
-			log.info("ASN - createdOrder in SQL: " + createdOrder);
-			return createdOrder;
+			if (asn.getAsnLine() != null && !asn.getAsnLine().isEmpty()) {
+				apiHeader.setProcessedStatusId(0L);
+				log.info("apiHeader : " + apiHeader);
+				InboundOrder createdOrder = orderService.createInboundOrders(apiHeader);
+				log.info("ASN Order Success : " + createdOrder);
+				return createdOrder;
+			} else if (asn.getAsnLine() == null || asn.getAsnLine().isEmpty()) {
+				// throw the error as Lines are Empty and set the Indicator as '100'
+				apiHeader.setProcessedStatusId(100L);
+				log.info("apiHeader : " + apiHeader);
+				InboundOrder createdOrder = orderService.createInboundOrders(apiHeader);
+				log.info("ASN Order Failed : " + createdOrder);
+				throw new BadRequestException("ASN Order doesn't contain any Lines.");
+			}
 		} catch (Exception e) {
 			throw e;
 		}
+		return null;
 	}
 	
 	// STORE RETURN
@@ -452,7 +461,6 @@ public class WarehouseService extends BaseService {
 			apiHeader.setRefDocumentType("RETURN");			
 			apiHeader.setInboundOrderTypeId(2L);
 			apiHeader.setOrderReceivedOn(new Date());
-			apiHeader.setProcessedStatusId(0L);
 			
 			Set<InboundOrderLines> orderLines = new HashSet<>();
 			for (StoreReturnLine storeReturnLine : storeReturnLines) {
@@ -483,15 +491,25 @@ public class WarehouseService extends BaseService {
 			}
 			apiHeader.setLines(orderLines);
 			apiHeader.setOrderProcessedOn(new Date());
-			apiHeader.setProcessedStatusId(0L);
-			log.info("apiHeader : " + apiHeader);
 			
-			InboundOrder createdOrder = orderService.createInboundOrders(apiHeader);
-			log.info("StoreReturn - createdOrder in SQL: " + createdOrder);
-			return createdOrder;
+			if (storeReturn.getStoreReturnLine() != null && !storeReturn.getStoreReturnLine().isEmpty()) {
+				apiHeader.setProcessedStatusId(0L);
+				log.info("apiHeader : " + apiHeader);
+				InboundOrder createdOrder = orderService.createInboundOrders(apiHeader);
+				log.info("StoreReturn Order Success: " + createdOrder);
+				return createdOrder;
+			} else if (storeReturn.getStoreReturnLine() == null || storeReturn.getStoreReturnLine().isEmpty()) {
+				// throw the error as Lines are Empty and set the Indicator as '100'
+				apiHeader.setProcessedStatusId(100L);
+				log.info("apiHeader : " + apiHeader);
+				InboundOrder createdOrder = orderService.createInboundOrders(apiHeader);
+				log.info("StoreReturn Order Failed : " + createdOrder);
+				throw new BadRequestException("StoreReturn Order doesn't contain any Lines.");
+			}
 		} catch (Exception e) {
 			throw e;
 		}
+		return null;
 	}
 	
 	// SOReturn
@@ -516,7 +534,6 @@ public class WarehouseService extends BaseService {
 			apiHeader.setRefDocumentType("RETURN");	
 			apiHeader.setInboundOrderTypeId(4L);										// Hardcoded Value 4
 			apiHeader.setOrderReceivedOn(new Date());
-			apiHeader.setProcessedStatusId(0L);
 			
 			Set<InboundOrderLines> orderLines = new HashSet<>();
 			for (SOReturnLine soReturnLine : storeReturnLines) {
@@ -548,15 +565,25 @@ public class WarehouseService extends BaseService {
 			}
 			apiHeader.setLines(orderLines);
 			apiHeader.setOrderProcessedOn(new Date());
-			apiHeader.setProcessedStatusId(0L);
-			log.info("apiHeader : " + apiHeader);
 			
-			InboundOrder createdOrder = orderService.createInboundOrders(apiHeader);
-			log.info("Return Order Reference - createdOrder in SQL: " + createdOrder);
-			return createdOrder;
+			if (soReturn.getSoReturnLine() != null && !soReturn.getSoReturnLine().isEmpty()) {
+				apiHeader.setProcessedStatusId(0L);
+				log.info("apiHeader : " + apiHeader);
+				InboundOrder createdOrder = orderService.createInboundOrders(apiHeader);
+				log.info("Return Order Reference Order Success: " + createdOrder);
+				return createdOrder;
+			} else if (soReturn.getSoReturnLine() == null || soReturn.getSoReturnLine().isEmpty()) {
+				// throw the error as Lines are Empty and set the Indicator as '100'
+				apiHeader.setProcessedStatusId(100L);
+				log.info("apiHeader : " + apiHeader);
+				InboundOrder createdOrder = orderService.createInboundOrders(apiHeader);
+				log.info("Return Order Reference Order Failed : " + createdOrder);
+				throw new BadRequestException("Return Order Reference Order doesn't contain any Lines.");
+			}
 		} catch (Exception e) {
 			throw e;
 		}
+		return null;
 	}
 	
 	// InterWarehouseTransfer
@@ -580,7 +607,6 @@ public class WarehouseService extends BaseService {
 			apiHeader.setRefDocumentType("WH2WH");				// Hardcoded Value "WH to WH"
 			apiHeader.setInboundOrderTypeId(3L);				// Hardcoded Value 3
 			apiHeader.setOrderReceivedOn(new Date());
-			apiHeader.setProcessedStatusId(0L);
 			
 			Set<InboundOrderLines> orderLines = new HashSet<>();
 			for (InterWarehouseTransferInLine iwhTransferLine : interWarehouseTransferInLines) {
@@ -611,15 +637,26 @@ public class WarehouseService extends BaseService {
 			}
 			apiHeader.setLines(orderLines);
 			apiHeader.setOrderProcessedOn(new Date());
-			apiHeader.setProcessedStatusId(0L);
-			log.info("apiHeader : " + apiHeader);
-			
-			InboundOrder createdOrder = orderService.createInboundOrders(apiHeader);
-			log.info("InterWarehouseTransfer - createdOrder in SQL: " + createdOrder);
-			return createdOrder;
+			if (interWarehouseTransferIn.getInterWarehouseTransferInLine() != null && 
+					!interWarehouseTransferIn.getInterWarehouseTransferInLine().isEmpty()) {
+				apiHeader.setProcessedStatusId(0L);
+				log.info("apiHeader : " + apiHeader);
+				InboundOrder createdOrder = orderService.createInboundOrders(apiHeader);
+				log.info("InterWarehouseTransfer Order Success: " + createdOrder);
+				return createdOrder;
+			} else if (interWarehouseTransferIn.getInterWarehouseTransferInLine() == null || 
+					interWarehouseTransferIn.getInterWarehouseTransferInLine().isEmpty()) {
+				// throw the error as Lines are Empty and set the Indicator as '100'
+				apiHeader.setProcessedStatusId(100L);
+				log.info("apiHeader : " + apiHeader);
+				InboundOrder createdOrder = orderService.createInboundOrders(apiHeader);
+				log.info("InterWarehouseTransfer Order Failed : " + createdOrder);
+				throw new BadRequestException("InterWarehouseTransfer Order doesn't contain any Lines.");
+			}
 		} catch (Exception e) {
 			throw e;
 		}
+		return null;
 	}
 	
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~OUTBOUND~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -651,7 +688,6 @@ public class WarehouseService extends BaseService {
 			apiHeader.setRefDocumentType("SO");						// Hardcoded value "SO"
 			apiHeader.setOrderProcessedOn(new Date());
 			apiHeader.setOrderReceivedOn(new Date());
-			apiHeader.setProcessedStatusId(0L);
 			
 			try {
 				Date reqDelDate = DateUtils.convertStringToDate(soHeader.getRequiredDeliveryDate());
@@ -675,15 +711,25 @@ public class WarehouseService extends BaseService {
 			
 			apiHeader.setLines(orderLines);
 			apiHeader.setOrderProcessedOn(new Date());
-			apiHeader.setProcessedStatusId(0L);
-			log.info("apiHeader : " + apiHeader);
 			
-			OutboundOrder createdOrder = orderService.createOutboundOrders(apiHeader);
-			log.info("ShipmentOrder - createdOrder in SQL: " + createdOrder);
-			return apiHeader;
+			if (shipmenOrder.getSoLine() != null && !shipmenOrder.getSoLine().isEmpty()) {
+				apiHeader.setProcessedStatusId(0L);
+				log.info("apiHeader : " + apiHeader);
+				OutboundOrder createdOrder = orderService.createOutboundOrders(apiHeader);
+				log.info("ShipmentOrder Order Success: " + createdOrder);
+				return apiHeader;
+			} else if (shipmenOrder.getSoLine() == null || shipmenOrder.getSoLine().isEmpty()) {
+				// throw the error as Lines are Empty and set the Indicator as '100'
+				apiHeader.setProcessedStatusId(100L);
+				log.info("apiHeader : " + apiHeader);
+				OutboundOrder createdOrder = orderService.createOutboundOrders(apiHeader);
+				log.info("ShipmentOrder Order Failed: " + createdOrder);
+				throw new BadRequestException("ShipmentOrder Order doesn't contain any Lines.");
+			}
 		} catch (Exception e) {
 			throw e;
 		}
+		return null;
 	}
 	
 	// POST 
@@ -712,7 +758,6 @@ public class WarehouseService extends BaseService {
 			apiHeader.setRefDocumentType("SaleOrder");						// Hardcoded value "SaleOrder"
 			apiHeader.setOrderProcessedOn(new Date());
 			apiHeader.setOrderReceivedOn(new Date());
-			apiHeader.setProcessedStatusId(0L);
 			
 			try {
 				Date reqDelDate = DateUtils.convertStringToDate(salesOrderHeader.getRequiredDeliveryDate());
@@ -720,6 +765,7 @@ public class WarehouseService extends BaseService {
 			} catch (Exception e) {
 				throw new OutboundOrderRequestException("Date format should be MM-dd-yyyy");
 			}
+			
 			Set<OutboundOrderLine> orderLines = new HashSet<>();
 			for (SalesOrderLine soLine : salesOrderLines) {
 				OutboundOrderLine apiLine = new OutboundOrderLine();
@@ -734,15 +780,25 @@ public class WarehouseService extends BaseService {
 			}
 			apiHeader.setLines(orderLines);
 			apiHeader.setOrderProcessedOn(new Date());
-			apiHeader.setProcessedStatusId(0L);
-			log.info("apiHeader : " + apiHeader);
 			
-			OutboundOrder createdOrder = orderService.createOutboundOrders(apiHeader);
-			log.info("ShipmentOrder - createdOrder in SQL: " + createdOrder);
-			return apiHeader;
+			if (salesOrder.getSalesOrderLine() != null && !salesOrder.getSalesOrderLine().isEmpty()) {
+				apiHeader.setProcessedStatusId(0L);
+				log.info("apiHeader : " + apiHeader);
+				OutboundOrder createdOrder = orderService.createOutboundOrders(apiHeader);
+				log.info("SalesOrder Order Success: " + createdOrder);
+				return apiHeader;
+			} else if (salesOrder.getSalesOrderLine() == null || salesOrder.getSalesOrderLine().isEmpty()) {
+				// throw the error as Lines are Empty and set the Indicator as '100'
+				apiHeader.setProcessedStatusId(100L);
+				log.info("apiHeader : " + apiHeader);
+				OutboundOrder createdOrder = orderService.createOutboundOrders(apiHeader);
+				log.info("SalesOrder Order Failed: " + createdOrder);
+				throw new BadRequestException("SalesOrder Order doesn't contain any Lines.");
+			}
 		} catch (Exception e) {
 			throw e;
 		}
+		return null;
 	}
 	
 	/**
@@ -777,7 +833,6 @@ public class WarehouseService extends BaseService {
 			apiHeader.setRefDocumentType("RETURNPO");						// Hardcoded value "RETURNPO"
 			apiHeader.setOrderProcessedOn(new Date());
 			apiHeader.setOrderReceivedOn(new Date());
-			apiHeader.setProcessedStatusId(0L);
 			
 			try {
 				Date reqDelDate = DateUtils.convertStringToDate(returnPOHeader.getRequiredDeliveryDate());
@@ -800,15 +855,25 @@ public class WarehouseService extends BaseService {
 			}
 			apiHeader.setLines(orderLines);
 			apiHeader.setOrderProcessedOn(new Date());
-			apiHeader.setProcessedStatusId(0L);
-			log.info("apiHeader : " + apiHeader);
 			
-			OutboundOrder createdOrder = orderService.createOutboundOrders(apiHeader);
-			log.info("ShipmentOrder - createdOrder in SQL: " + createdOrder);
-			return apiHeader;
+			if (returnPO.getReturnPOLine() != null && !returnPO.getReturnPOLine().isEmpty()) {
+				apiHeader.setProcessedStatusId(0L);
+				log.info("apiHeader : " + apiHeader);
+				OutboundOrder createdOrder = orderService.createOutboundOrders(apiHeader);
+				log.info("ReturnPO Order Success: " + createdOrder);
+				return apiHeader;
+			} else if (returnPO.getReturnPOLine() == null || returnPO.getReturnPOLine().isEmpty()) {
+				// throw the error as Lines are Empty and set the Indicator as '100'
+				apiHeader.setProcessedStatusId(100L);
+				log.info("apiHeader : " + apiHeader);
+				OutboundOrder createdOrder = orderService.createOutboundOrders(apiHeader);
+				log.info("ReturnPO Order Failed: " + createdOrder);
+				throw new BadRequestException("ReturnPO Order doesn't contain any Lines.");
+			}
 		} catch (Exception e) {
 			throw e;
 		}
+		return null;
 	}
 	
 	/**
@@ -844,7 +909,6 @@ public class WarehouseService extends BaseService {
 			apiHeader.setRefDocumentType("WH2WH");							// Hardcoded value "WH to WH"
 			apiHeader.setOrderProcessedOn(new Date());
 			apiHeader.setOrderReceivedOn(new Date());
-			apiHeader.setProcessedStatusId(0L);
 			
 			try {
 				Date reqDelDate = DateUtils.convertStringToDate(interWarehouseTransferOutHeader.getRequiredDeliveryDate());
@@ -867,14 +931,26 @@ public class WarehouseService extends BaseService {
 			}
 			apiHeader.setLines(orderLines);
 			apiHeader.setOrderProcessedOn(new Date());
-			apiHeader.setProcessedStatusId(0L);
-			log.info("apiHeader : " + apiHeader);
 			
-			OutboundOrder createdOrder = orderService.createOutboundOrders(apiHeader);
-			log.info("ShipmentOrder - createdOrder in SQL: " + createdOrder);
-			return apiHeader;
+			if (interWarehouseTransfer.getInterWarehouseTransferOutLine() != null && 
+					!interWarehouseTransfer.getInterWarehouseTransferOutLine().isEmpty()) {
+				apiHeader.setProcessedStatusId(0L);
+				log.info("apiHeader : " + apiHeader);
+				OutboundOrder createdOrder = orderService.createOutboundOrders(apiHeader);
+				log.info("InterWarehouseTransferOut Order Success: " + createdOrder);
+				return apiHeader;
+			} else if (interWarehouseTransfer.getInterWarehouseTransferOutLine() == null || 
+					interWarehouseTransfer.getInterWarehouseTransferOutLine().isEmpty()) {
+				// throw the error as Lines are Empty and set the Indicator as '100'
+				apiHeader.setProcessedStatusId(100L);
+				log.info("apiHeader : " + apiHeader);
+				OutboundOrder createdOrder = orderService.createOutboundOrders(apiHeader);
+				log.info("InterWarehouseTransferOut Order Failed: " + createdOrder);
+				throw new BadRequestException("InterWarehouseTransferOut Order doesn't contain any Lines.");
+			}
 		} catch (Exception e) {
 			throw e;
 		}
+		return null;
 	}
 }

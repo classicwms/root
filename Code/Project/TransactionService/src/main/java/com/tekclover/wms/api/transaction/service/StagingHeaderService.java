@@ -1,25 +1,30 @@
 package com.tekclover.wms.api.transaction.service;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.persistence.EntityNotFoundException;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tekclover.wms.api.transaction.model.inbound.staging.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
-import com.tekclover.wms.api.transaction.model.inbound.staging.AddStagingHeader;
-import com.tekclover.wms.api.transaction.model.inbound.staging.SearchStagingHeader;
-import com.tekclover.wms.api.transaction.model.inbound.staging.StagingHeader;
-import com.tekclover.wms.api.transaction.model.inbound.staging.StagingLineEntity;
-import com.tekclover.wms.api.transaction.model.inbound.staging.UpdateStagingHeader;
 import com.tekclover.wms.api.transaction.repository.StagingHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.StagingLineRepository;
 import com.tekclover.wms.api.transaction.repository.specification.StagingHeaderSpecification;
@@ -27,6 +32,7 @@ import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 @Slf4j
 @Service
@@ -43,6 +49,9 @@ public class StagingHeaderService extends BaseService {
 	
 	@Autowired
 	private AuthTokenService authTokenService;
+
+	@Autowired
+	JdbcTemplate jdbcTemplate;
 	
 	/**
 	 * getStagingHeaders
@@ -58,7 +67,7 @@ public class StagingHeaderService extends BaseService {
 	
 	/**
 	 * getStagingHeader
-	 * @param stagingHeaderNo
+	 * @param stagingNo
 	 * @return
 	 */
 	public StagingHeader getStagingHeader (String warehouseId, String preInboundNo, String refDocNumber, String stagingNo) {
@@ -142,7 +151,6 @@ public class StagingHeaderService extends BaseService {
 	 * 
 	 * @param searchStagingHeader
 	 * @return
-	 * @throws ParseException
 	 */
 	public List<StagingHeader> findStagingHeader(SearchStagingHeader searchStagingHeader) 
 			throws Exception {
@@ -181,8 +189,8 @@ public class StagingHeaderService extends BaseService {
 	
 	/**
 	 * updateStagingHeader
-	 * @param loginUserId 
-	 * @param stagingHeaderNo
+	 * @param loginUserID
+	 * @param stagingNo
 	 * @param updateStagingHeader
 	 * @return
 	 * @throws IllegalAccessException
@@ -247,7 +255,7 @@ public class StagingHeaderService extends BaseService {
 	/**
 	 * deleteStagingHeader
 	 * @param loginUserID 
-	 * @param stagingHeaderNo
+	 * @param stagingNo
 	 */
 	public void deleteStagingHeader (String warehouseId, String preInboundNo, String refDocNumber, String stagingNo, String loginUserID) {
 		StagingHeader stagingHeader = getStagingHeader(warehouseId, preInboundNo, refDocNumber, stagingNo);
@@ -261,5 +269,77 @@ public class StagingHeaderService extends BaseService {
 					",preInboundNo: " + preInboundNo + "," +
 					",stagingNo: " + stagingNo + " doesn't exist.");
 		}
+	}
+	//-------------------------------------------Streaming-------------------------------------------------------
+	/**
+	 *
+	 * @return
+	 */
+	public StreamingResponseBody findStreamStagingHeader() {
+		Stream<StagingHeaderStream> stagingHeaderStream = streamStagingHeader();
+		StreamingResponseBody responseBody = httpResponseOutputStream -> {
+			try (Writer writer = new BufferedWriter(new OutputStreamWriter(httpResponseOutputStream))) {
+				JsonGenerator jsonGenerator = new JsonFactory().createGenerator(writer);
+				jsonGenerator.writeStartArray();
+				jsonGenerator.setCodec(new ObjectMapper());
+				stagingHeaderStream.forEach(im -> {
+					try {
+						jsonGenerator.writeObject(im);
+					} catch (IOException exception) {
+						log.error("exception occurred while writing object to stream", exception);
+					}
+				});
+				jsonGenerator.writeEndArray();
+				jsonGenerator.close();
+			} catch (Exception e) {
+				log.info("Exception occurred while publishing data", e);
+				e.printStackTrace();
+			}
+			log.info("finished streaming records");
+		};
+		return responseBody;
+	}
+	// =======================================JDBCTemplate=======================================================
+
+//	private final Gson gson = new Gson();
+
+	/**
+	 * preInboundNo
+	 * refDocNumber
+	 * stagingNo
+	 * inboundOrderTypeId
+	 * statusId
+	 * createdBy
+	 * createdOn
+	 * @return
+	 */
+	public Stream<StagingHeaderStream> streamStagingHeader() {
+		jdbcTemplate.setFetchSize(50);
+		/*
+
+		 * ----------------
+		 * 	String preInboundNo;
+			String refDocNumber;
+			String stagingNo;
+			Long inboundOrderTypeId;
+			Long statusId;
+			String createdBy;
+			Date createdOn;
+		 */
+		Stream<StagingHeaderStream> stagingHeaderStream = jdbcTemplate.queryForStream(
+				"Select PRE_IB_NO, REF_DOC_NO, STG_NO, IB_ORD_TYP_ID, STATUS_ID, ST_CTD_BY, "
+						+ "ST_CTD_ON "
+						+ "from tblstagingheader "
+						+ "where IS_DELETED = 0 ",
+				(resultSet, rowNum) -> new StagingHeaderStream (
+						resultSet.getString("PRE_IB_NO"),
+						resultSet.getString("REF_DOC_NO"),
+						resultSet.getString("STG_NO"),
+						resultSet.getLong("IB_ORD_TYP_ID"),
+						resultSet.getLong("STATUS_ID"),
+						resultSet.getString("ST_CTD_BY"),
+						resultSet.getDate("ST_CTD_ON")
+				));
+		return stagingHeaderStream;
 	}
 }

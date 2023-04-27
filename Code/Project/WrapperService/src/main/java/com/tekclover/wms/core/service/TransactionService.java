@@ -970,6 +970,22 @@ public class TransactionService {
 		return result.getBody();
 	}
 
+	// GET ALL - Stream
+	public StagingHeader[] findStreamStagingHeader(String authToken) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.add("User-Agent", "ClassicWMS RestTemplate");
+		headers.add("Authorization", "Bearer " + authToken);
+
+		UriComponentsBuilder builder = UriComponentsBuilder
+				.fromHttpUrl(getTransactionServiceApiUrl() + "stagingheader/streaming/findStagingHeader");
+		HttpEntity<?> entity = new HttpEntity<>(headers);
+		ResponseEntity<StagingHeader[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET,
+				entity, StagingHeader[].class);
+		log.info("result : " + result.getStatusCode());
+		return result.getBody();
+	}
+
 	// POST
 	public StagingHeader createStagingHeader(StagingHeader newStagingHeader, String loginUserID, String authToken) {
 		HttpHeaders headers = new HttpHeaders();

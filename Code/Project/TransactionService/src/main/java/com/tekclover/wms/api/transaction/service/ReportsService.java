@@ -1079,13 +1079,30 @@ public class ReportsService extends BaseService {
 		Date fromDeliveryDate_d = null;
 		Date toDeliveryDate_d = null;
 		try {
-			fromDeliveryDate_d = DateUtils.convertStringToDate(fromDeliveryDate);
-			fromDeliveryDate_d = DateUtils.addTimeToStartDate(fromDeliveryDate_d, 8, 0, 0);
-			toDeliveryDate_d = DateUtils.convertStringToDate(toDeliveryDate);
-			toDeliveryDate_d = DateUtils.addTimeToEndDate(toDeliveryDate_d, 7, 59, 59);
+//			if(fromDeliveryDate.length() < 11) {
+
+				fromDeliveryDate_d = DateUtils.convertStringToDate(fromDeliveryDate);
+				fromDeliveryDate_d = DateUtils.addTimeToStartDate(fromDeliveryDate_d, 8, 0, 0);
+
+//			} else {
+//
+//				fromDeliveryDate_d = DateUtils.convertStringToDateWithTime(fromDeliveryDate);
+//
+//			}
+//			if(toDeliveryDate.length() < 11) {
+
+				toDeliveryDate_d = DateUtils.convertStringToDate(toDeliveryDate);
+				toDeliveryDate_d = DateUtils.addTimeToEndDate(toDeliveryDate_d, 7, 59, 59);
+
+//			} else {
+//
+//				toDeliveryDate_d = DateUtils.convertStringToDateWithTime(toDeliveryDate);
+//			}
+
 			log.info("Date: " + fromDeliveryDate_d + "," + toDeliveryDate_d);
+
 		} catch (Exception e) {
-			throw new BadRequestException("Date shoud be in MM-dd-yyyy format.");
+			throw new BadRequestException("Date should be in yyyy-MM-dd format.");
 		}
 
 		List<OutboundHeader> outboundHeaderList = outboundHeaderRepository
@@ -1400,15 +1417,32 @@ public class ReportsService extends BaseService {
 		Date fromDate = null;
 		Date toDate = null;
 		try {
-			fromDate = DateUtils.convertStringToDate(fromDeliveryDate);
-			fromDate = DateUtils.addTimeToStartDate(fromDate, 8, 0, 0);
+//			if(fromDeliveryDate.length() < 11) {
+
+				fromDate = DateUtils.convertStringToDate(fromDeliveryDate);
+				fromDate = DateUtils.addTimeToStartDate(fromDate, 8, 0, 0);
+
+//			} else {
+//
+//				fromDate = DateUtils.convertStringToDateWithTime(fromDeliveryDate);
+//			}
+
 			log.info("Date---fromDate----->: " + fromDate);
 
-			toDate = DateUtils.convertStringToDate(toDeliveryDate);
-			toDate = DateUtils.addTimeToEndDate(toDate, 7, 59, 59);
+//			if(toDeliveryDate.length() < 11) {
+
+				toDate = DateUtils.convertStringToDate(toDeliveryDate);
+				toDate = DateUtils.addTimeToEndDate(toDate, 7, 59, 59);
+
+//			} else {
+//
+//				toDate = DateUtils.convertStringToDateWithTime(toDeliveryDate);
+//			}
+
 			log.info("Date---toDate----->: " + toDate);
+
 		} catch (Exception e) {
-			throw new BadRequestException("Date shoud be in MM-dd-yyyy format.");
+			throw new BadRequestException("Date should be in yyyy-MM-dd format.");
 		}
 
 		SearchOutboundLine searchOutboundLine = new SearchOutboundLine();
