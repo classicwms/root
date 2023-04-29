@@ -3214,40 +3214,26 @@ public class TransactionService {
 		try {
 			SearchOutboundHeaderModel requestDataForService = new SearchOutboundHeaderModel();
 			BeanUtils.copyProperties(requestData, requestDataForService, CommonUtils.getNullPropertyNames(requestData));
-
 			if (requestData.getStartDeliveryConfirmedOn() != null) {
-
-				requestDataForService.setStartDeliveryConfirmedOn(
+				if (requestData.getStartDeliveryConfirmedOn().length() < 11) {
+					requestDataForService.setStartDeliveryConfirmedOn(
 							DateUtils.convertStringToYYYYMMDD(requestData.getStartDeliveryConfirmedOn()));
-
+				} else {
+					requestDataForService.setStartDeliveryConfirmedOn(
+							DateUtils.convertStringToDateWithTime(requestData.getStartDeliveryConfirmedOn()));
+				}
 			}
+			Integer flag = 0;
 			if (requestData.getEndDeliveryConfirmedOn() != null) {
-
-				requestDataForService.setEndDeliveryConfirmedOn(
-						DateUtils.convertStringToYYYYMMDD(requestData.getEndDeliveryConfirmedOn()));
-
+				if (requestData.getEndDeliveryConfirmedOn().length() < 11) {
+					requestDataForService.setEndDeliveryConfirmedOn(
+							DateUtils.convertStringToYYYYMMDD(requestData.getEndDeliveryConfirmedOn()));
+				} else {
+					requestDataForService.setEndDeliveryConfirmedOn(
+							DateUtils.convertStringToDateWithTime(requestData.getEndDeliveryConfirmedOn()));
+					flag = 1;
+				}
 			}
-//			if (requestData.getStartDeliveryConfirmedOn() != null) {
-//				if (requestData.getStartDeliveryConfirmedOn().length() < 11) {
-//					requestDataForService.setStartDeliveryConfirmedOn(
-//							DateUtils.convertStringToYYYYMMDD(requestData.getStartDeliveryConfirmedOn()));
-//				} else {
-//					requestDataForService.setStartDeliveryConfirmedOn(
-//							DateUtils.convertStringToDateWithTime(requestData.getStartDeliveryConfirmedOn()));
-//				}
-//			}
-//			Integer flag = 0;
-//			if (requestData.getEndDeliveryConfirmedOn() != null) {
-//				if (requestData.getEndDeliveryConfirmedOn().length() < 11) {
-//					requestDataForService.setEndDeliveryConfirmedOn(
-//							DateUtils.convertStringToYYYYMMDD(requestData.getEndDeliveryConfirmedOn()));
-//				} else {
-//					requestDataForService.setEndDeliveryConfirmedOn(
-//							DateUtils.convertStringToDateWithTime(requestData.getEndDeliveryConfirmedOn()));
-//					flag = 1;
-//				}
-//			}
-
 			if (requestData.getStartOrderDate() != null) {
 				requestDataForService
 						.setStartOrderDate(DateUtils.convertStringToYYYYMMDD(requestData.getStartOrderDate()));
@@ -3269,8 +3255,8 @@ public class TransactionService {
 			headers.add("Authorization", "Bearer " + authToken);
 
 			UriComponentsBuilder builder = UriComponentsBuilder
-					.fromHttpUrl(getTransactionServiceApiUrl() + "outboundheader/findOutboundHeader");
-//					.queryParam("flag", flag);
+					.fromHttpUrl(getTransactionServiceApiUrl() + "outboundheader/findOutboundHeader")
+					.queryParam("flag", flag);
 			HttpEntity<?> entity = new HttpEntity<>(requestDataForService, headers);
 			ResponseEntity<OutboundHeader[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
 					entity, OutboundHeader[].class);
