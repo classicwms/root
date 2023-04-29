@@ -61,6 +61,9 @@ public class TransactionService {
 	@Autowired
 	MongoTransactionRepository mongoTransactionRepository;
 
+	@Autowired
+	JdbcTemplate jdbcTemplate;
+
 	/**
 	 * 
 	 * @return
@@ -970,22 +973,6 @@ public class TransactionService {
 		return result.getBody();
 	}
 
-	// GET ALL - Stream
-	public StagingHeader[] findStreamStagingHeader(String authToken) {
-		HttpHeaders headers = new HttpHeaders();
-		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-		headers.add("User-Agent", "ClassicWMS RestTemplate");
-		headers.add("Authorization", "Bearer " + authToken);
-
-		UriComponentsBuilder builder = UriComponentsBuilder
-				.fromHttpUrl(getTransactionServiceApiUrl() + "stagingheader/streaming/findStagingHeader");
-		HttpEntity<?> entity = new HttpEntity<>(headers);
-		ResponseEntity<StagingHeader[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET,
-				entity, StagingHeader[].class);
-		log.info("result : " + result.getStatusCode());
-		return result.getBody();
-	}
-
 	// POST
 	public StagingHeader createStagingHeader(StagingHeader newStagingHeader, String loginUserID, String authToken) {
 		HttpHeaders headers = new HttpHeaders();
@@ -1362,6 +1349,7 @@ public class TransactionService {
 		log.info("result : " + result.getStatusCode());
 		return result.getBody();
 	}
+
 
 	// POST
 	public GrHeader createGrHeader(GrHeader newGrHeader, String loginUserID, String authToken) {
@@ -4645,97 +4633,6 @@ public class TransactionService {
 		}
 	}
 
-	// =======================================JDBCTemplate=======================================================
-
-	@Autowired
-	JdbcTemplate jdbcTemplate;
-
-//	private final Gson gson = new Gson();
-
-	/**
-	 * warehouseId
-	 * itemCode
-	 * description
-	 * packBarcodes
-	 * storageBin
-	 * movementType
-	 * submovementType
-	 * refDocNumber
-	 * movementQty
-	 * inventoryUom
-	 * createdOn
-	 * @return
-	 */
-	public Stream<InventoryMovement2> streamInventoryMovement() {
-		jdbcTemplate.setFetchSize(50);
-		/*
-		 * "MVT_DOC_NO"
-		 * ----------------
-		 * String warehouseId,
-			Long movementType,
-			Long submovementType,
-			String palletCode,
-			String packBarcodes,
-			String itemCode,
-			String storageBin,
-			String description,
-			Double movementQty,
-			String inventoryUom,
-			String refDocNumber,
-			Date createdOn
-		 */
-		Stream<InventoryMovement2> inventoryMovement2 = jdbcTemplate.queryForStream(
-				"Select WH_ID, MVT_TYP_ID, SUB_MVT_TYP_ID, PAL_CODE, PACK_BARCODE, ITM_CODE, "
-				+ "ST_BIN, TEXT, MVT_QTY, MVT_UOM, REF_DOC_NO, IM_CTD_ON, MVT_DOC_NO "
-				+ "from tblinventorymovement "
-				+ "where is_deleted = 0 ",
-				(resultSet, rowNum) -> new InventoryMovement2 (
-						resultSet.getString("WH_ID"),
-						resultSet.getLong("MVT_TYP_ID"), 
-						resultSet.getLong("SUB_MVT_TYP_ID"),
-						resultSet.getString("PAL_CODE"),
-						resultSet.getString("PACK_BARCODE"),
-						resultSet.getString("ITM_CODE"),
-						resultSet.getString("ST_BIN"),
-						resultSet.getString("TEXT"),
-						resultSet.getDouble("MVT_QTY"),
-						resultSet.getString("MVT_UOM"),
-						resultSet.getString("REF_DOC_NO"),
-						resultSet.getDate("IM_CTD_ON"),
-						resultSet.getString("MVT_DOC_NO")
-						));
-		return inventoryMovement2;
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public StreamingResponseBody findInventoryMovementByStreaming() {
-		Stream<InventoryMovement2> inventoryMovement2 = streamInventoryMovement();
-		StreamingResponseBody responseBody = httpResponseOutputStream -> {
-			try (Writer writer = new BufferedWriter(new OutputStreamWriter(httpResponseOutputStream))) {
-				JsonGenerator jsonGenerator = new JsonFactory().createGenerator(writer);
-	            jsonGenerator.writeStartArray();
-	            jsonGenerator.setCodec(new ObjectMapper());
-				inventoryMovement2.forEach(im -> {
-					try {
-						jsonGenerator.writeObject(im);
-					} catch (IOException exception) {
-						log.error("exception occurred while writing object to stream", exception);
-					}
-				});
-				jsonGenerator.writeEndArray();
-	            jsonGenerator.close();
-			} catch (Exception e) {
-				log.info("Exception occurred while publishing data", e);
-				e.printStackTrace();
-			}
-			log.info("finished streaming records");
-		};
-		return responseBody;
-	}
-	
 	//---------------Periodic-CSV-Writer----------------------------------------
 	/**
 	 * 
@@ -4823,5 +4720,701 @@ public class TransactionService {
 				String.valueOf(periodicLine.getCountedOn())
 		};
 		return strarr;
+	}
+
+	//=================================================STREAMING===============================================================
+
+	//	private final Gson gson = new Gson();
+	//-------------------------------------------findInventoryMovementByStreaming-------------------------------------------------------
+	/**
+	 *
+	 * @return
+	 */
+	public StreamingResponseBody findInventoryMovementByStreaming() {
+		Stream<InventoryMovement2> inventoryMovement2 = streamInventoryMovement();
+		StreamingResponseBody responseBody = httpResponseOutputStream -> {
+			try (Writer writer = new BufferedWriter(new OutputStreamWriter(httpResponseOutputStream))) {
+				JsonGenerator jsonGenerator = new JsonFactory().createGenerator(writer);
+				jsonGenerator.writeStartArray();
+				jsonGenerator.setCodec(new ObjectMapper());
+				inventoryMovement2.forEach(im -> {
+					try {
+						jsonGenerator.writeObject(im);
+					} catch (IOException exception) {
+						log.error("exception occurred while writing object to stream", exception);
+					}
+				});
+				jsonGenerator.writeEndArray();
+				jsonGenerator.close();
+			} catch (Exception e) {
+				log.info("Exception occurred while publishing data", e);
+				e.printStackTrace();
+			}
+			log.info("finished streaming records");
+		};
+		return responseBody;
+	}
+
+	/**
+	 * warehouseId
+	 * itemCode
+	 * description
+	 * packBarcodes
+	 * storageBin
+	 * movementType
+	 * submovementType
+	 * refDocNumber
+	 * movementQty
+	 * inventoryUom
+	 * createdOn
+	 * @return
+	 */
+	public Stream<InventoryMovement2> streamInventoryMovement() {
+		jdbcTemplate.setFetchSize(50);
+		/*
+		 * "MVT_DOC_NO"
+		 * ----------------
+		 * String warehouseId,
+			Long movementType,
+			Long submovementType,
+			String palletCode,
+			String packBarcodes,
+			String itemCode,
+			String storageBin,
+			String description,
+			Double movementQty,
+			String inventoryUom,
+			String refDocNumber,
+			Date createdOn
+		 */
+		Stream<InventoryMovement2> inventoryMovement2 = jdbcTemplate.queryForStream(
+				"Select WH_ID, MVT_TYP_ID, SUB_MVT_TYP_ID, PAL_CODE, PACK_BARCODE, ITM_CODE, "
+						+ "ST_BIN, TEXT, MVT_QTY, MVT_UOM, REF_DOC_NO, IM_CTD_ON, MVT_DOC_NO "
+						+ "from tblinventorymovement "
+						+ "where is_deleted = 0 ",
+				(resultSet, rowNum) -> new InventoryMovement2 (
+						resultSet.getString("WH_ID"),
+						resultSet.getLong("MVT_TYP_ID"),
+						resultSet.getLong("SUB_MVT_TYP_ID"),
+						resultSet.getString("PAL_CODE"),
+						resultSet.getString("PACK_BARCODE"),
+						resultSet.getString("ITM_CODE"),
+						resultSet.getString("ST_BIN"),
+						resultSet.getString("TEXT"),
+						resultSet.getDouble("MVT_QTY"),
+						resultSet.getString("MVT_UOM"),
+						resultSet.getString("REF_DOC_NO"),
+						resultSet.getDate("IM_CTD_ON"),
+						resultSet.getString("MVT_DOC_NO")
+				));
+		return inventoryMovement2;
+	}
+
+	//-------------------------------------------findStreamInboundHeader-------------------------------------------------------
+	/**
+	 *
+	 * @return
+	 */
+	public StreamingResponseBody findStreamInboundHeader() {
+		Stream<InboundHeaderStream> inboundHeaderStream = streamInboundHeader();
+		StreamingResponseBody responseBody = httpResponseOutputStream -> {
+			try (Writer writer = new BufferedWriter(new OutputStreamWriter(httpResponseOutputStream))) {
+				JsonGenerator jsonGenerator = new JsonFactory().createGenerator(writer);
+				jsonGenerator.writeStartArray();
+				jsonGenerator.setCodec(new ObjectMapper());
+				inboundHeaderStream.forEach(im -> {
+					try {
+						jsonGenerator.writeObject(im);
+					} catch (IOException exception) {
+						log.error("exception occurred while writing object to stream", exception);
+					}
+				});
+				jsonGenerator.writeEndArray();
+				jsonGenerator.close();
+			} catch (Exception e) {
+				log.info("Exception occurred while publishing data", e);
+				e.printStackTrace();
+			}
+			log.info("finished streaming records");
+		};
+		return responseBody;
+	}
+	//	private final Gson gson = new Gson();
+
+	/**
+	 * Inbound Header
+	 * refDocNumber
+	 * statusId
+	 * inboundOrderTypeId
+	 * containerNo
+	 * createdOn
+	 * confirmedBy
+	 * confirmedOn
+	 * @return
+	 */
+	public Stream<InboundHeaderStream> streamInboundHeader() {
+		jdbcTemplate.setFetchSize(50);
+		/**
+		 * Inbound Header
+		 * String refDocNumber
+		 * Long statusId
+		 * Long inboundOrderTypeId
+		 * String containerNo
+		 * Date createdOn
+		 * String confirmedBy
+		 * Date confirmedOn
+		 */
+		Stream<InboundHeaderStream> inboundHeaderStream = jdbcTemplate.queryForStream(
+				"Select REF_DOC_NO, STATUS_ID, IB_ORD_TYP_ID, CONT_NO, CTD_ON, IB_CNF_BY, "
+						+ "IB_CNF_ON "
+						+ "from tblinboundheader "
+						+ "where IS_DELETED = 0 ",
+				(resultSet, rowNum) -> new InboundHeaderStream (
+						resultSet.getString("REF_DOC_NO"),
+						resultSet.getLong("STATUS_ID"),
+						resultSet.getLong("IB_ORD_TYP_ID"),
+						resultSet.getString("CONT_NO"),
+						resultSet.getDate("CTD_ON"),
+						resultSet.getString("IB_CNF_BY"),
+						resultSet.getDate("IB_CNF_ON")
+				));
+		return inboundHeaderStream;
+	}
+	//-------------------------------------------findStreamStagingHeader-------------------------------------------------------
+	/**
+	 *
+	 * @return
+	 */
+	public StreamingResponseBody findStreamStagingHeader() {
+		Stream<StagingHeaderStream> stagingHeaderStream = streamStagingHeader();
+		StreamingResponseBody responseBody = httpResponseOutputStream -> {
+			try (Writer writer = new BufferedWriter(new OutputStreamWriter(httpResponseOutputStream))) {
+				JsonGenerator jsonGenerator = new JsonFactory().createGenerator(writer);
+				jsonGenerator.writeStartArray();
+				jsonGenerator.setCodec(new ObjectMapper());
+				stagingHeaderStream.forEach(im -> {
+					try {
+						jsonGenerator.writeObject(im);
+					} catch (IOException exception) {
+						log.error("exception occurred while writing object to stream", exception);
+					}
+				});
+				jsonGenerator.writeEndArray();
+				jsonGenerator.close();
+			} catch (Exception e) {
+				log.info("Exception occurred while publishing data", e);
+				e.printStackTrace();
+			}
+			log.info("finished streaming records");
+		};
+		return responseBody;
+	}
+
+	/**
+	 * preInboundNo
+	 * refDocNumber
+	 * stagingNo
+	 * inboundOrderTypeId
+	 * statusId
+	 * createdBy
+	 * createdOn
+	 * @return
+	 */
+	public Stream<StagingHeaderStream> streamStagingHeader() {
+		jdbcTemplate.setFetchSize(50);
+		/*
+
+		 * ----------------
+		 * 	String preInboundNo;
+			String refDocNumber;
+			String stagingNo;
+			Long inboundOrderTypeId;
+			Long statusId;
+			String createdBy;
+			Date createdOn;
+		 */
+		Stream<StagingHeaderStream> stagingHeaderStream = jdbcTemplate.queryForStream(
+				"Select PRE_IB_NO, REF_DOC_NO, STG_NO, IB_ORD_TYP_ID, STATUS_ID, ST_CTD_BY, "
+						+ "ST_CTD_ON "
+						+ "from tblstagingheader "
+						+ "where IS_DELETED = 0 ",
+				(resultSet, rowNum) -> new StagingHeaderStream (
+						resultSet.getString("PRE_IB_NO"),
+						resultSet.getString("REF_DOC_NO"),
+						resultSet.getString("STG_NO"),
+						resultSet.getLong("IB_ORD_TYP_ID"),
+						resultSet.getLong("STATUS_ID"),
+						resultSet.getString("ST_CTD_BY"),
+						resultSet.getDate("ST_CTD_ON")
+				));
+		return stagingHeaderStream;
+	}
+	//-------------------------------------------findStreamOutboundHeader-------------------------------------------------------
+	/**
+	 *
+	 * @return
+	 */
+	public StreamingResponseBody findStreamOutboundHeader() {
+		Stream<OutboundHeaderStream> outboundHeaderStream = streamOutboundHeader();
+		StreamingResponseBody responseBody = httpResponseOutputStream -> {
+			try (Writer writer = new BufferedWriter(new OutputStreamWriter(httpResponseOutputStream))) {
+				JsonGenerator jsonGenerator = new JsonFactory().createGenerator(writer);
+				jsonGenerator.writeStartArray();
+				jsonGenerator.setCodec(new ObjectMapper());
+				outboundHeaderStream.forEach(im -> {
+					try {
+						jsonGenerator.writeObject(im);
+					} catch (IOException exception) {
+						log.error("exception occurred while writing object to stream", exception);
+					}
+				});
+				jsonGenerator.writeEndArray();
+				jsonGenerator.close();
+			} catch (Exception e) {
+				log.info("Exception occurred while publishing data", e);
+				e.printStackTrace();
+			}
+			log.info("finished streaming records");
+		};
+		return responseBody;
+	}
+	//	private final Gson gson = new Gson();
+
+	/**
+	 * Outbound Header
+	 * refDocNumber
+	 * partnerCode
+	 * referenceDocumentType
+	 * statusId
+	 * refDocDate
+	 * requiredDeliveryDate
+	 * referenceField1
+	 * referenceField7
+	 * referenceField8
+	 * referenceField9
+	 * referenceField10
+	 * deliveryConfirmedOn
+	 * @return
+	 */
+	public Stream<OutboundHeaderStream> streamOutboundHeader() {
+		jdbcTemplate.setFetchSize(50);
+		/**
+		 * Outbound Header
+		 * String refDocNumber
+		 * String partnerCode
+		 * String referenceDocumentType
+		 * Long statusId
+		 * Date refDocDate
+		 * Date requiredDeliveryDate
+		 * String referenceField1
+		 * String referenceField7
+		 * String referenceField8
+		 * String referenceField9
+		 * String referenceField10
+		 * Date deliveryConfirmedOn
+		 */
+		Stream<OutboundHeaderStream> outboundHeaderStream = jdbcTemplate.queryForStream(
+				"Select REF_DOC_NO, PARTNER_CODE, REF_DOC_TYP, STATUS_ID, REF_DOC_DATE, REQ_DEL_DATE, REF_FIELD_1, "
+						+ "REF_FIELD_7, REF_FIELD_8, REF_FIELD_9, REF_FIELD_10, DLV_CNF_ON "
+						+ "from tbloutboundheader "
+						+ "where IS_DELETED = 0 ",
+				(resultSet, rowNum) -> new OutboundHeaderStream (
+						resultSet.getString("REF_DOC_NO"),
+						resultSet.getString("PARTNER_CODE"),
+						resultSet.getString("REF_DOC_TYP"),
+						resultSet.getLong("STATUS_ID"),
+						resultSet.getDate("REF_DOC_DATE"),
+						resultSet.getDate("REQ_DEL_DATE"),
+						resultSet.getString("REF_FIELD_1"),
+						resultSet.getString("REF_FIELD_7"),
+						resultSet.getString("REF_FIELD_8"),
+						resultSet.getString("REF_FIELD_9"),
+						resultSet.getString("REF_FIELD_10"),
+						resultSet.getDate("DLV_CNF_ON")
+				));
+		return outboundHeaderStream;
+	}
+	//-------------------------------------------findStreamGrHeader-------------------------------------------------------
+	/**
+	 *
+	 * @return
+	 */
+	public StreamingResponseBody findStreamGrHeader() {
+		Stream<GrHeaderStream> outboundHeaderStream = streamGrHeader();
+		StreamingResponseBody responseBody = httpResponseOutputStream -> {
+			try (Writer writer = new BufferedWriter(new OutputStreamWriter(httpResponseOutputStream))) {
+				JsonGenerator jsonGenerator = new JsonFactory().createGenerator(writer);
+				jsonGenerator.writeStartArray();
+				jsonGenerator.setCodec(new ObjectMapper());
+				outboundHeaderStream.forEach(im -> {
+					try {
+						jsonGenerator.writeObject(im);
+					} catch (IOException exception) {
+						log.error("exception occurred while writing object to stream", exception);
+					}
+				});
+				jsonGenerator.writeEndArray();
+				jsonGenerator.close();
+			} catch (Exception e) {
+				log.info("Exception occurred while publishing data", e);
+				e.printStackTrace();
+			}
+			log.info("finished streaming records");
+		};
+		return responseBody;
+	}
+	//	private final Gson gson = new Gson();
+
+	/**
+	 * Gr Header
+	 * preInboundNo
+	 * refDocNumber
+	 * caseCode
+	 * statusId
+	 * createdBy
+	 * createdOn
+	 * @return
+	 */
+	public Stream<GrHeaderStream> streamGrHeader() {
+		jdbcTemplate.setFetchSize(50);
+		/**
+		 * Gr Header
+		 * String preInboundNo
+		 * String refDocNumber
+		 * String caseCode
+		 * Long statusId
+		 * String createdBy
+		 * Date createdOn
+		 */
+		Stream<GrHeaderStream> grHeaderStream = jdbcTemplate.queryForStream(
+				"Select PRE_IB_NO, REF_DOC_NO, CASE_CODE, STATUS_ID, GR_CTD_BY, GR_CTD_ON "
+						+ "from tblgrheader "
+						+ "where IS_DELETED = 0 ",
+				(resultSet, rowNum) -> new GrHeaderStream (
+						resultSet.getString("PRE_IB_NO"),
+						resultSet.getString("REF_DOC_NO"),
+						resultSet.getString("CASE_CODE"),
+						resultSet.getLong("STATUS_ID"),
+						resultSet.getString("GR_CTD_BY"),
+						resultSet.getDate("GR_CTD_ON")
+				));
+		return grHeaderStream;
+	}
+
+	//-------------------------------------------findStreamPutAwayHeader-------------------------------------------------------
+	/**
+	 *
+	 * @return
+	 */
+	public StreamingResponseBody findStreamPutAwayHeader() {
+		Stream<PutAwayHeaderStream> putAwayHeaderStream = streamPutAwayHeader();
+		StreamingResponseBody responseBody = httpResponseOutputStream -> {
+			try (Writer writer = new BufferedWriter(new OutputStreamWriter(httpResponseOutputStream))) {
+				JsonGenerator jsonGenerator = new JsonFactory().createGenerator(writer);
+				jsonGenerator.writeStartArray();
+				jsonGenerator.setCodec(new ObjectMapper());
+				putAwayHeaderStream.forEach(im -> {
+					try {
+						jsonGenerator.writeObject(im);
+					} catch (IOException exception) {
+						log.error("exception occurred while writing object to stream", exception);
+					}
+				});
+				jsonGenerator.writeEndArray();
+				jsonGenerator.close();
+			} catch (Exception e) {
+				log.info("Exception occurred while publishing data", e);
+				e.printStackTrace();
+			}
+			log.info("finished streaming records");
+		};
+		return responseBody;
+	}
+	//	private final Gson gson = new Gson();
+
+	/**
+	 * PutAway Header
+	 * refDocNumber
+	 * packBarcodes
+	 * putAwayNumber
+	 * proposedStorageBin
+	 * putAwayQuantity
+	 * proposedHandlingEquipment
+	 * statusId
+	 * referenceField5
+	 * createdBy
+	 * createdOn
+	 * @return
+	 */
+	public Stream<PutAwayHeaderStream> streamPutAwayHeader() {
+		jdbcTemplate.setFetchSize(50);
+		/**
+		 * PutAway Header
+		 * String refDocNumber
+		 * String packBarcodes
+		 * String putAwayNumber
+		 * String proposedStorageBin
+		 * Double putAwayQuantity
+		 * String proposedHandlingEquipment
+		 * Long statusId
+		 * String referenceField5
+		 * String createdBy
+		 * Date createdOn
+		 */
+		Stream<PutAwayHeaderStream> putAwayHeaderStream = jdbcTemplate.queryForStream(
+				"Select REF_DOC_NO, PACK_BARCODE, PA_NO, PROP_ST_BIN, PA_QTY, PROP_HE_NO, "
+						+ "STATUS_ID, REF_FIELD_5, PA_CTD_BY, PA_CTD_ON "
+						+ "from tblputawayheader "
+						+ "where IS_DELETED = 0 ",
+				(resultSet, rowNum) -> new PutAwayHeaderStream (
+						resultSet.getString("REF_DOC_NO"),
+						resultSet.getString("PACK_BARCODE"),
+						resultSet.getString("PA_NO"),
+						resultSet.getString("PROP_ST_BIN"),
+						resultSet.getDouble("PA_QTY"),
+						resultSet.getString("PROP_HE_NO"),
+						resultSet.getLong("STATUS_ID"),
+						resultSet.getString("REF_FIELD_5"),
+						resultSet.getString("PA_CTD_BY"),
+						resultSet.getDate("PA_CTD_ON")
+				));
+		return putAwayHeaderStream;
+	}
+	//-------------------------------------------findStreamPreInboundHeader-------------------------------------------------------
+	/**
+	 *
+	 * @return
+	 */
+	public StreamingResponseBody findStreamPreInboundHeader() {
+		Stream<PreInboundHeaderStream> preInboundHeaderStream = streamPreInboundHeader();
+		StreamingResponseBody responseBody = httpResponseOutputStream -> {
+			try (Writer writer = new BufferedWriter(new OutputStreamWriter(httpResponseOutputStream))) {
+				JsonGenerator jsonGenerator = new JsonFactory().createGenerator(writer);
+				jsonGenerator.writeStartArray();
+				jsonGenerator.setCodec(new ObjectMapper());
+				preInboundHeaderStream.forEach(im -> {
+					try {
+						jsonGenerator.writeObject(im);
+					} catch (IOException exception) {
+						log.error("exception occurred while writing object to stream", exception);
+					}
+				});
+				jsonGenerator.writeEndArray();
+				jsonGenerator.close();
+			} catch (Exception e) {
+				log.info("Exception occurred while publishing data", e);
+				e.printStackTrace();
+			}
+			log.info("finished streaming records");
+		};
+		return responseBody;
+	}
+	//	private final Gson gson = new Gson();
+
+	/**
+	 * PreInbound Header
+	 * preInboundNo
+	 * refDocNumber
+	 * inboundOrderTypeId
+	 * statusId
+	 * containerNo
+	 * refDocDate
+	 * createdBy
+	 * @return
+	 */
+	public Stream<PreInboundHeaderStream> streamPreInboundHeader() {
+		jdbcTemplate.setFetchSize(50);
+		/**
+		 * PreInbound Header
+		 * String preInboundNo
+		 * String refDocNumber
+		 * Long inboundOrderTypeId
+		 * Long statusId
+		 * String containerNo
+		 * Date refDocDate
+		 * String createdBy
+		 */
+		Stream<PreInboundHeaderStream> preInboundHeaderStream = jdbcTemplate.queryForStream(
+				"Select PRE_IB_NO, REF_DOC_NO, IB_ORD_TYP_ID, STATUS_ID, CONT_NO, REF_DOC_DATE, "
+						+ "CTD_BY "
+						+ "from tblpreinboundheader "
+						+ "where IS_DELETED = 0 ",
+				(resultSet, rowNum) -> new PreInboundHeaderStream (
+						resultSet.getString("PRE_IB_NO"),
+						resultSet.getString("REF_DOC_NO"),
+						resultSet.getLong("IB_ORD_TYP_ID"),
+						resultSet.getLong("STATUS_ID"),
+						resultSet.getString("CONT_NO"),
+						resultSet.getDate("REF_DOC_DATE"),
+						resultSet.getString("CTD_BY")
+				));
+		return preInboundHeaderStream;
+	}
+
+	//-------------------------------------------findStreamPreOutboundHeader-------------------------------------------------------
+	/**
+	 *
+	 * @return
+	 */
+	public StreamingResponseBody findStreamPreOutboundHeader() {
+		Stream<PreOutboundHeaderStream> preOutboundHeaderStream = streamPreOutboundHeader();
+		StreamingResponseBody responseBody = httpResponseOutputStream -> {
+			try (Writer writer = new BufferedWriter(new OutputStreamWriter(httpResponseOutputStream))) {
+				JsonGenerator jsonGenerator = new JsonFactory().createGenerator(writer);
+				jsonGenerator.writeStartArray();
+				jsonGenerator.setCodec(new ObjectMapper());
+				preOutboundHeaderStream.forEach(im -> {
+					try {
+						jsonGenerator.writeObject(im);
+					} catch (IOException exception) {
+						log.error("exception occurred while writing object to stream", exception);
+					}
+				});
+				jsonGenerator.writeEndArray();
+				jsonGenerator.close();
+			} catch (Exception e) {
+				log.info("Exception occurred while publishing data", e);
+				e.printStackTrace();
+			}
+			log.info("finished streaming records");
+		};
+		return responseBody;
+	}
+	//	private final Gson gson = new Gson();
+
+	/**
+	 * PreOutbound Header
+	 * refDocNumber
+	 * preOutboundNo
+	 * partnerCode
+	 * referenceDocumentType
+	 * statusId
+	 * refDocDate
+	 * requiredDeliveryDate
+	 * referenceField1
+	 * @return
+	 */
+	public Stream<PreOutboundHeaderStream> streamPreOutboundHeader() {
+		jdbcTemplate.setFetchSize(50);
+		/**
+		 * PreOutbound Header
+		 * String refDocNumber
+		 * String preOutboundNo
+		 * String partnerCode
+		 * String referenceDocumentType
+		 * Long statusId
+		 * Date refDocDate
+		 * Date requiredDeliveryDate
+		 * String referenceField1
+		 */
+		Stream<PreOutboundHeaderStream> preOutboundHeaderStream = jdbcTemplate.queryForStream(
+				"Select REF_DOC_NO, PRE_OB_NO, PARTNER_CODE, REF_DOC_TYP, STATUS_ID, REF_DOC_DATE, "
+						+ "REQ_DEL_DATE, REF_FIELD_1 "
+						+ "from tblpreoutboundheader "
+						+ "where IS_DELETED = 0 ",
+				(resultSet, rowNum) -> new PreOutboundHeaderStream (
+						resultSet.getString("REF_DOC_NO"),
+						resultSet.getString("PRE_OB_NO"),
+						resultSet.getString("PARTNER_CODE"),
+						resultSet.getString("REF_DOC_TYP"),
+						resultSet.getLong("STATUS_ID"),
+						resultSet.getDate("REF_DOC_DATE"),
+						resultSet.getDate("REQ_DEL_DATE"),
+						resultSet.getString("REF_FIELD_1")
+				));
+		return preOutboundHeaderStream;
+	}
+
+	//-------------------------------------------findStreamOrderManagementLine-------------------------------------------------------
+	/**
+	 *
+	 * @return
+	 */
+	public StreamingResponseBody findStreamOrderManagementLine() {
+		Stream<OrderManagementLineStream> orderManagementLineStream = streamOrderManagementLine();
+		StreamingResponseBody responseBody = httpResponseOutputStream -> {
+			try (Writer writer = new BufferedWriter(new OutputStreamWriter(httpResponseOutputStream))) {
+				JsonGenerator jsonGenerator = new JsonFactory().createGenerator(writer);
+				jsonGenerator.writeStartArray();
+				jsonGenerator.setCodec(new ObjectMapper());
+				orderManagementLineStream.forEach(im -> {
+					try {
+						jsonGenerator.writeObject(im);
+					} catch (IOException exception) {
+						log.error("exception occurred while writing object to stream", exception);
+					}
+				});
+				jsonGenerator.writeEndArray();
+				jsonGenerator.close();
+			} catch (Exception e) {
+				log.info("Exception occurred while publishing data", e);
+				e.printStackTrace();
+			}
+			log.info("finished streaming records");
+		};
+		return responseBody;
+	}
+	//	private final Gson gson = new Gson();
+
+	/**
+	 * OrderManagementLine
+	 * String preOutboundNo
+	 * String refDocNumber
+	 * String partnerCode
+	 * Long lineNumber
+	 * String itemCode
+	 * String proposedStorageBin
+	 * String proposedPackBarCode
+	 * Long outboundOrderTypeId
+	 * Long statusId
+	 * String description
+	 * Double orderQty
+	 * Double inventoryQty
+	 * Double allocatedQty
+	 * Date requiredDeliveryDate
+	 * @return
+	 */
+	public Stream<OrderManagementLineStream> streamOrderManagementLine() {
+		jdbcTemplate.setFetchSize(50);
+		/**
+		 * Order Management Line
+		 * String preOutboundNo
+		 * String refDocNumber
+		 * String partnerCode
+		 * Long lineNumber
+		 * String itemCode
+		 * String proposedStorageBin
+		 * String proposedPackBarCode
+		 * Long outboundOrderTypeId
+		 * Long statusId
+		 * String description
+		 * Double orderQty
+		 * Double inventoryQty
+		 * Double allocatedQty
+		 * Date requiredDeliveryDate
+		 */
+		Stream<OrderManagementLineStream> orderManagementLineStream = jdbcTemplate.queryForStream(
+				"Select PRE_OB_NO, REF_DOC_NO, PARTNER_CODE, OB_LINE_NO, ITM_CODE, PROP_ST_BIN, "
+						+ "PROP_PACK_BARCODE, OB_ORD_TYP_ID, STATUS_ID, ITEM_TEXT, ORD_QTY, INV_QTY, "
+						+ "ALLOC_QTY, REQ_DEL_DATE "
+						+ "from tblordermangementline "
+						+ "where IS_DELETED = 0 ",
+				(resultSet, rowNum) -> new OrderManagementLineStream (
+						resultSet.getString("PRE_OB_NO"),
+						resultSet.getString("REF_DOC_NO"),
+						resultSet.getString("PARTNER_CODE"),
+						resultSet.getLong("OB_LINE_NO"),
+						resultSet.getString("ITM_CODE"),
+						resultSet.getString("PROP_ST_BIN"),
+						resultSet.getString("PROP_PACK_BARCODE"),
+						resultSet.getLong("OB_ORD_TYP_ID"),
+						resultSet.getLong("STATUS_ID"),
+						resultSet.getString("ITEM_TEXT"),
+						resultSet.getDouble("ORD_QTY"),
+						resultSet.getDouble("INV_QTY"),
+						resultSet.getDouble("ALLOC_QTY"),
+						resultSet.getDate("REQ_DEL_DATE")
+				));
+		return orderManagementLineStream;
 	}
 }

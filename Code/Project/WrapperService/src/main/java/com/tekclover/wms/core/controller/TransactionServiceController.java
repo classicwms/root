@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import javax.validation.Valid;
@@ -371,13 +372,6 @@ public class TransactionServiceController {
 		return transactionService.findStagingHeader(searchStagingHeader, authToken);
 	}
 
-	@ApiOperation(response = StagingHeader.class, value = "Search Streaming StagingHeader") // label for swagger
-	@GetMapping("/stagingheader/findStreamStagingHeader")
-	public StagingHeader[] findStreamStagingHeader(@RequestParam String authToken)
-			throws Exception {
-		return transactionService.findStreamStagingHeader(authToken);
-	}
-    
     @ApiOperation(response = StagingHeader.class, value = "Create StagingHeader") // label for swagger
 	@PostMapping("/stagingheader")
 	public ResponseEntity<?> postStagingHeader(@Valid @RequestBody StagingHeader newStagingHeader, 
@@ -854,14 +848,6 @@ public class TransactionServiceController {
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	
-	//===================================STREAMING=================================================
-	
-	@GetMapping(value = "/streaming/inventoryMovement")
-	public ResponseEntity<StreamingResponseBody> findInventoryMovement() throws ExecutionException, InterruptedException {
-		StreamingResponseBody responseBody = transactionService.findInventoryMovementByStreaming();
-		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(responseBody);
-	}
-	
 	/*
 	 * --------------------------------Inventory---------------------------------
 	 */
@@ -1323,7 +1309,7 @@ public class TransactionServiceController {
 			@RequestParam String authToken) throws Exception {
 		return transactionService.findOutboundHeader(searchOutboundHeader, authToken);
 	}
-	
+
 	@ApiOperation(response = OutboundHeader.class, value = "Update OutboundHeader") // label for swagger
     @PatchMapping("/outboundheader/{preOutboundNo}")
 	public ResponseEntity<?> patchOutboundHeader(@PathVariable String preOutboundNo, 
@@ -1859,4 +1845,59 @@ public class TransactionServiceController {
        	OutboundIntegrationLog[] orders = transactionService.getFailedOutboundOrders(authToken);
    		return new ResponseEntity<>(orders, HttpStatus.OK);
    	}
+
+	//============================================STREAMING==========================================================
+
+	@GetMapping(value = "/streaming/inventoryMovement")
+	public ResponseEntity<StreamingResponseBody> findInventoryMovement() throws ExecutionException, InterruptedException {
+		StreamingResponseBody responseBody = transactionService.findInventoryMovementByStreaming();
+		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(responseBody);
+	}
+
+	@GetMapping(value = "/streaming/findStreamOutboundHeader")
+	public ResponseEntity<StreamingResponseBody> findStreamOutboundHeader() throws ExecutionException, InterruptedException {
+		StreamingResponseBody responseBody = transactionService.findStreamOutboundHeader();
+		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(responseBody);
+	}
+	@GetMapping(value = "/streaming/findStreamGrHeader")
+	public ResponseEntity<StreamingResponseBody> findStreamgrheader() throws ExecutionException, InterruptedException {
+		StreamingResponseBody responseBody = transactionService.findStreamGrHeader();
+		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(responseBody);
+	}
+
+	@GetMapping(value = "/streaming/findStreamStagingHeader")
+	public ResponseEntity<StreamingResponseBody> findStreamStagingHeader() throws ExecutionException, InterruptedException {
+		StreamingResponseBody responseBody = transactionService.findStreamStagingHeader();
+		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(responseBody);
+	}
+
+	@GetMapping(value = "/streaming/findStreamPutAwayHeader")
+	public ResponseEntity<StreamingResponseBody> findStreamPutAwayheader() throws ExecutionException, InterruptedException {
+		StreamingResponseBody responseBody = transactionService.findStreamPutAwayHeader();
+		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(responseBody);
+	}
+
+	@GetMapping(value = "/streaming/findStreamInboundHeader")
+	public ResponseEntity<StreamingResponseBody> findStreamInboundheader() throws ExecutionException, InterruptedException {
+		StreamingResponseBody responseBody = transactionService.findStreamInboundHeader();
+		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(responseBody);
+	}
+
+	@GetMapping(value = "/streaming/findStreamPreInboundHeader")
+	public ResponseEntity<StreamingResponseBody> findStreamPreInboundheader() throws ExecutionException, InterruptedException {
+		StreamingResponseBody responseBody = transactionService.findStreamPreInboundHeader();
+		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(responseBody);
+	}
+
+	@GetMapping(value = "/streaming/findStreamPreOutboundHeader")
+	public ResponseEntity<StreamingResponseBody> findStreamPreOutboundheader() throws ExecutionException, InterruptedException {
+		StreamingResponseBody responseBody = transactionService.findStreamPreOutboundHeader();
+		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(responseBody);
+	}
+
+	@GetMapping(value = "/streaming/findStreamOrderManagementLine")
+	public ResponseEntity<StreamingResponseBody> findStreamOrderManagementLine() throws ExecutionException, InterruptedException {
+		StreamingResponseBody responseBody = transactionService.findStreamOrderManagementLine();
+		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(responseBody);
+	}
 }
