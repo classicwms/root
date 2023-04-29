@@ -1,27 +1,35 @@
 package com.tekclover.wms.api.transaction.service;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.persistence.EntityNotFoundException;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tekclover.wms.api.transaction.model.inbound.staging.StagingHeaderStream;
+import com.tekclover.wms.api.transaction.model.outbound.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
-import com.tekclover.wms.api.transaction.model.outbound.AddOutboundHeader;
-import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
-import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundHeader;
-import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundHeader;
 import com.tekclover.wms.api.transaction.repository.OutboundHeaderRepository;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 @Slf4j
 @Service
@@ -32,7 +40,10 @@ public class OutboundHeaderService {
 	
 	@Autowired
 	OutboundLineService outboundLineService;
-	
+
+	@Autowired
+	JdbcTemplate jdbcTemplate;
+
 	/**
 	 * getOutboundHeaders
 	 * @return
@@ -140,7 +151,8 @@ public class OutboundHeaderService {
 	 * @throws ParseException
 	 * @throws java.text.ParseException 
 	 */
-	public List<OutboundHeader> findOutboundHeader(SearchOutboundHeader searchOutboundHeader, Integer flag)
+//	public List<OutboundHeader> findOutboundHeader(SearchOutboundHeader searchOutboundHeader, Integer flag)
+	public List<OutboundHeader> findOutboundHeader(SearchOutboundHeader searchOutboundHeader)
 			throws ParseException, java.text.ParseException {
 		
 		log.info("DeliveryConfirmedOn: " + searchOutboundHeader.getStartDeliveryConfirmedOn());
@@ -155,15 +167,27 @@ public class OutboundHeaderService {
 		}
 		
 		if (searchOutboundHeader.getStartDeliveryConfirmedOn() != null && searchOutboundHeader.getEndDeliveryConfirmedOn() != null) {
-			if(flag != 1 ) {
+
 				Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartDeliveryConfirmedOn(), searchOutboundHeader.getEndDeliveryConfirmedOn());
 				searchOutboundHeader.setStartDeliveryConfirmedOn(dates[0]);
 				searchOutboundHeader.setEndDeliveryConfirmedOn(dates[1]);
-			}
+
 		} else {
+
 			searchOutboundHeader.setStartDeliveryConfirmedOn(null);
 			searchOutboundHeader.setEndDeliveryConfirmedOn(null);
+
 		}
+//		if (searchOutboundHeader.getStartDeliveryConfirmedOn() != null && searchOutboundHeader.getEndDeliveryConfirmedOn() != null) {
+//			if(flag != 1 ) {
+//				Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartDeliveryConfirmedOn(), searchOutboundHeader.getEndDeliveryConfirmedOn());
+//				searchOutboundHeader.setStartDeliveryConfirmedOn(dates[0]);
+//				searchOutboundHeader.setEndDeliveryConfirmedOn(dates[1]);
+//			}
+//		} else {
+//			searchOutboundHeader.setStartDeliveryConfirmedOn(null);
+//			searchOutboundHeader.setEndDeliveryConfirmedOn(null);
+//		}
 		
 		if (searchOutboundHeader.getStartOrderDate() != null && searchOutboundHeader.getEndOrderDate() != null) {
 			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartOrderDate(), searchOutboundHeader.getEndOrderDate());
@@ -265,5 +289,92 @@ public class OutboundHeaderService {
 		} else {
 			throw new EntityNotFoundException("Error in deleting Id: " + preOutboundNo);
 		}
+	}
+	//-------------------------------------------Streaming-------------------------------------------------------
+	/**
+	 *
+	 * @return
+	 */
+	public StreamingResponseBody findStreamOutboundHeader() {
+		Stream<OutboundHeaderStream> outboundHeaderStream = streamOutboundHeader();
+		StreamingResponseBody responseBody = httpResponseOutputStream -> {
+			try (Writer writer = new BufferedWriter(new OutputStreamWriter(httpResponseOutputStream))) {
+				JsonGenerator jsonGenerator = new JsonFactory().createGenerator(writer);
+				jsonGenerator.writeStartArray();
+				jsonGenerator.setCodec(new ObjectMapper());
+				outboundHeaderStream.forEach(im -> {
+					try {
+						jsonGenerator.writeObject(im);
+					} catch (IOException exception) {
+						log.error("exception occurred while writing object to stream", exception);
+					}
+				});
+				jsonGenerator.writeEndArray();
+				jsonGenerator.close();
+			} catch (Exception e) {
+				log.info("Exception occurred while publishing data", e);
+				e.printStackTrace();
+			}
+			log.info("finished streaming records");
+		};
+		return responseBody;
+	}
+	// =======================================JDBCTemplate=======================================================
+
+//	private final Gson gson = new Gson();
+
+	/**
+	 * Outbound Header
+	 * refDocNumber
+	 * partnerCode
+	 * referenceDocumentType
+	 * statusId
+	 * refDocDate
+	 * requiredDeliveryDate
+	 * referenceField1
+	 * referenceField7
+	 * referenceField8
+	 * referenceField9
+	 * referenceField10
+	 * deliveryConfirmedOn
+	 * @return
+	 */
+	public Stream<OutboundHeaderStream> streamOutboundHeader() {
+		jdbcTemplate.setFetchSize(50);
+		/**
+		 * Outbound Header
+		 * String refDocNumber
+		 * String partnerCode
+		 * String referenceDocumentType
+		 * Long statusId
+		 * Date refDocDate
+		 * Date requiredDeliveryDate
+		 * String referenceField1
+		 * String referenceField7
+		 * String referenceField8
+		 * String referenceField9
+		 * String referenceField10
+		 * Date deliveryConfirmedOn
+		 */
+		Stream<OutboundHeaderStream> outboundHeaderStream = jdbcTemplate.queryForStream(
+				"Select REF_DOC_NO, PARTNER_CODE, REF_DOC_TYP, STATUS_ID, REF_DOC_DATE, REQ_DEL_DATE, REF_FIELD_1, "
+						+ "REF_FIELD_7, REF_FIELD_8, REF_FIELD_9, REF_FIELD_10, DLV_CNF_ON "
+						+ "from tbloutboundheader "
+						+ "where IS_DELETED = 0 ",
+				(resultSet, rowNum) -> new OutboundHeaderStream (
+						resultSet.getString("REF_DOC_NO"),
+						resultSet.getString("PARTNER_CODE"),
+						resultSet.getString("REF_DOC_TYP"),
+						resultSet.getLong("STATUS_ID"),
+						resultSet.getDate("REF_DOC_DATE"),
+						resultSet.getDate("REQ_DEL_DATE"),
+						resultSet.getString("REF_FIELD_1"),
+						resultSet.getString("REF_FIELD_7"),
+						resultSet.getString("REF_FIELD_8"),
+						resultSet.getString("REF_FIELD_9"),
+						resultSet.getString("REF_FIELD_10"),
+						resultSet.getDate("DLV_CNF_ON")
+				));
+		return outboundHeaderStream;
 	}
 }

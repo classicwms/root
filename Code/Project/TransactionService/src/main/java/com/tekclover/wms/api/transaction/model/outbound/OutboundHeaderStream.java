@@ -7,37 +7,57 @@ import java.util.Date;
 @Data
 public class OutboundHeaderStream {
 
-	private String preInboundNo;
 	private String refDocNumber;
-	private String stagingNo;
-	private Long inboundOrderTypeId;
+	private String partnerCode;
+	private String referenceDocumentType;
 	private Long statusId;
-	private String createdBy;
-	private Date createdOn;
+	private Date refDocDate;
+	private Date requiredDeliveryDate;
+	private String referenceField1;
+	private String referenceField7;
+	private String referenceField8;
+	private String referenceField9;
+	private String referenceField10;
+	private Date deliveryConfirmedOn;
 
 	/**
-	 * StagingHeader
-	 * @param preInboundNo
+	 * Outbound Header
 	 * @param refDocNumber
-	 * @param stagingNo
-	 * @param inboundOrderTypeId
+	 * @param partnerCode
+	 * @param referenceDocumentType
 	 * @param statusId
-	 * @param createdBy
-	 * @param createdOn
+	 * @param refDocDate
+	 * @param requiredDeliveryDate
+	 * @param referenceField1
+	 * @param referenceField7
+	 * @param referenceField8
+	 * @param referenceField9
+	 * @param referenceField10
+	 * @param deliveryConfirmedOn
 	 */
-	public OutboundHeaderStream(String preInboundNo,
-                                String refDocNumber,
-                                String stagingNo,
-                                Long inboundOrderTypeId,
+	public OutboundHeaderStream(String refDocNumber,
+                                String partnerCode,
+                                String referenceDocumentType,
                                 Long statusId,
-                                String createdBy,
-                                Date createdOn) {
-		this.preInboundNo = preInboundNo;
+                                Date refDocDate,
+                                Date requiredDeliveryDate,
+								String referenceField1,
+								String referenceField7,
+								String referenceField8,
+								String referenceField9,
+								String referenceField10,
+								Date deliveryConfirmedOn) {
 		this.refDocNumber = refDocNumber;
-		this.stagingNo = stagingNo;
-		this.inboundOrderTypeId = inboundOrderTypeId;
+		this.partnerCode = partnerCode;
+		this.referenceDocumentType = referenceDocumentType;
 		this.statusId = statusId;
-		this.createdBy = createdBy;
-		this.createdOn = createdOn;
+		this.refDocDate = refDocDate;
+		this.requiredDeliveryDate = requiredDeliveryDate;
+		this.referenceField1 = referenceField1;
+		this.referenceField7 = referenceField7;
+		this.referenceField8 = referenceField8;
+		this.referenceField9 = referenceField9;
+		this.referenceField10 = referenceField10;
+		this.deliveryConfirmedOn = deliveryConfirmedOn;
 	}
 }
