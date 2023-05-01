@@ -2548,7 +2548,7 @@ public class TransactionService {
 	 */
 	// POST - findPreOutboundHeader
 	public PreOutboundHeader[] findPreOutboundHeader(SearchPreOutboundHeader searchPreOutboundHeader,
-			String authToken) {
+			String authToken) throws Exception {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -2560,8 +2560,18 @@ public class TransactionService {
 			HttpEntity<?> entity = new HttpEntity<>(searchPreOutboundHeader, headers);
 			ResponseEntity<PreOutboundHeader[]> result = getRestTemplate().exchange(builder.toUriString(),
 					HttpMethod.POST, entity, PreOutboundHeader[].class);
-			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+			log.info("result : " + result.getBody());
+			
+			List<PreOutboundHeader> obList = new ArrayList<>();
+			for (PreOutboundHeader obHeader : result.getBody()) {
+				log.info("Result RefDocDate :" + obHeader.getRefDocDate());
+				obHeader.setRefDocDate(DateUtils.addTimeToDate(obHeader.getRefDocDate(), 3));
+				obHeader.setRequiredDeliveryDate(DateUtils.addTimeToDate(obHeader.getRequiredDeliveryDate(), 3));
+				obHeader.setCreatedOn(DateUtils.addTimeToDate(obHeader.getCreatedOn(), 3));
+				obHeader.setUpdatedOn(DateUtils.addTimeToDate(obHeader.getUpdatedOn(), 3));
+				obList.add(obHeader);
+			}
+			return obList.toArray(new PreOutboundHeader[obList.size()]);
 		} catch (Exception e) {
 			throw e;
 		}
@@ -3260,12 +3270,16 @@ public class TransactionService {
 			HttpEntity<?> entity = new HttpEntity<>(requestDataForService, headers);
 			ResponseEntity<OutboundHeader[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
 					entity, OutboundHeader[].class);
-			log.info("result : " + result.getStatusCode());
+//			log.info("result : " + result.getBody());
 
 			List<OutboundHeader> obList = new ArrayList<>();
 			for (OutboundHeader obHeader : result.getBody()) {
-				log.info("Result Conf Date :" + obHeader.getDeliveryConfirmedOn());
+				log.info("Result getDeliveryConfirmedOn :" + obHeader.getDeliveryConfirmedOn());
+				obHeader.setRefDocDate(DateUtils.addTimeToDate(obHeader.getRefDocDate(), 3));
+				obHeader.setRequiredDeliveryDate(DateUtils.addTimeToDate(obHeader.getRequiredDeliveryDate(), 3));
 				obHeader.setDeliveryConfirmedOn(DateUtils.addTimeToDate(obHeader.getDeliveryConfirmedOn(), 3));
+				obHeader.setCreatedOn(DateUtils.addTimeToDate(obHeader.getCreatedOn(), 3));
+				obHeader.setUpdatedOn(DateUtils.addTimeToDate(obHeader.getUpdatedOn(), 3));
 				obList.add(obHeader);
 			}
 			return obList.toArray(new OutboundHeader[obList.size()]);
