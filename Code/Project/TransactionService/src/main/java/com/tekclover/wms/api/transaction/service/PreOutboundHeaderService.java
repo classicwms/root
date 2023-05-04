@@ -405,6 +405,7 @@ public class PreOutboundHeaderService extends BaseService {
 			for (OrderManagementLine dbOrderManagementLine : orderManagementLine) {
 				OutboundLine outboundLine = new OutboundLine();
 				BeanUtils.copyProperties(preOutboundLine, outboundLine, CommonUtils.getNullPropertyNames(preOutboundLine));
+				outboundLine.setDeliveryQty(0D);
 				outboundLine.setStatusId(dbOrderManagementLine.getStatusId());
 				outboundLine.setCreatedBy(preOutboundLine.getCreatedBy());
 				outboundLine.setCreatedOn(preOutboundLine.getCreatedOn());
