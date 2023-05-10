@@ -415,7 +415,7 @@ public class QualityLineService extends BaseService {
 			 */
 			for (QualityLine dbQualityLine : createdQualityLineList) {
 				/*-----------------STATUS updates in QualityHeader-----------------------*/
-				synchronized (dbQualityLine) {
+//				synchronized (dbQualityLine) {
 					try {
 						UpdateQualityHeader updateQualityHeader = new UpdateQualityHeader();
 						updateQualityHeader.setStatusId(55L);
@@ -428,7 +428,7 @@ public class QualityLineService extends BaseService {
 						e1.printStackTrace();
 						log.info("qualityHeader updated Error : " + e1.toString());
 					}
-				}
+//				}
 				
 				/*-------------OTUBOUNDHEADER/OUTBOUNDLINE table updates------------------------------*/
 				/*
@@ -441,7 +441,7 @@ public class QualityLineService extends BaseService {
 				Long NUM_RAN_CODE = 12L;
 				String DLV_ORD_NO = getNextRangeNumber(NUM_RAN_CODE, dbQualityLine.getWarehouseId());
 
-				synchronized (dbQualityLine) {
+//				synchronized (dbQualityLine) {
 					/*-------------------OUTBOUNDLINE------Update---------------------------*/
 					/*
 					 * Pass WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE /OB_LINE_NO/_ITM_CODE values in
@@ -477,9 +477,9 @@ public class QualityLineService extends BaseService {
 						e1.printStackTrace();
 						log.info("outboundLine updated error: " + e1.toString());
 					}
-				}
+//				}
 				
-				synchronized (dbQualityLine) {
+//				synchronized (dbQualityLine) {
 					try {
 						/*-------------------OUTBOUNDHEADER------Update---------------------------*/
 						boolean isStatus57 = false;
@@ -507,7 +507,7 @@ public class QualityLineService extends BaseService {
 						e1.printStackTrace();
 						log.info("outboundHeader updated error: " + e1.toString());
 					}
-				}
+//				}
 				
 				/*-----------------Inventory Updates--------------------------------------*/
 				// Pass WH_ID/ITM_CODE/ST_BIN/PACK_BARCODE in INVENTORY table
@@ -517,7 +517,7 @@ public class QualityLineService extends BaseService {
 						authTokenForMastersService.getAccess_token());
 				Warehouse warehouse = getWarehouse(dbQualityLine.getWarehouseId());
 				Inventory inventory = null;
-				synchronized (dbQualityLine) {
+//				synchronized (dbQualityLine) {
 					try {
 						inventory = inventoryService.getInventory(dbQualityLine.getWarehouseId(),
 								dbQualityLine.getPickPackBarCode(), dbQualityLine.getItemCode(),
@@ -540,7 +540,7 @@ public class QualityLineService extends BaseService {
 					} catch (Exception e1) {
 						e1.printStackTrace();
 					}
-				}
+//				}
 				
 				/*-------------------Inserting record in InventoryMovement-------------------------------------*/
 				Long subMvtTypeId = 2L;
@@ -570,7 +570,7 @@ public class QualityLineService extends BaseService {
 				 * Checking Inventory table before creating new record inventory
 				 */
 				// Pass WH_ID/ITM_CODE/ST_BIN = (ST_BIN value of BIN_CLASS_ID=5 /PACK_BARCODE
-				synchronized(dbQualityLine) {
+//				synchronized(dbQualityLine) {
 					Inventory existingInventory = inventoryService.getInventory(dbQualityLine.getWarehouseId(),
 							dbQualityLine.getPickPackBarCode(), dbQualityLine.getItemCode(), storageBin.getStorageBin());
 					log.info("existingInventory : " + existingInventory);
@@ -618,7 +618,7 @@ public class QualityLineService extends BaseService {
 						Inventory createdInventory = inventoryService.createInventory(newInventory, loginUserID);
 						log.info("newInventory created : " + createdInventory);
 					}
-				} 
+//				} 
 				
 				/*-----------------------InventoryMovement----------------------------------*/
 				// Inserting record in InventoryMovement
