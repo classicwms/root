@@ -2,6 +2,7 @@ package com.tekclover.wms.api.transaction.controller;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
@@ -65,6 +66,13 @@ public class GrHeaderController {
 	public List<GrHeader> findGrHeader(@RequestBody SearchGrHeader searchGrHeader)
 			throws Exception {
 		return grheaderService.findGrHeader(searchGrHeader);
+	}
+	//Stream
+	@ApiOperation(response = GrHeader.class, value = "Search GrHeader") // label for swagger
+	@PostMapping("/findGrHeaderNew")
+	public Stream<GrHeader> findGrHeaderNew(@RequestBody SearchGrHeader searchGrHeader)
+			throws Exception {
+		return grheaderService.findGrHeaderNew(searchGrHeader);
 	}
     
     @ApiOperation(response = GrHeader.class, value = "Create GrHeader") // label for swagger

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
@@ -79,14 +80,15 @@ public class TransactionServiceController {
 	 */
 	@ApiOperation(response = ContainerReceipt.class, value = "Get all ContainerReceipt details") // label for swagger
 	@GetMapping("/containerreceipt")
-	public ResponseEntity<?> getContainerReceipts(@RequestParam String authToken) {
+	public ResponseEntity<?> getContainerReceipts(@RequestParam String authToken) throws Exception {
 		ContainerReceipt[] containerReceiptNoList = transactionService.getContainerReceipts(authToken);
 		return new ResponseEntity<>(containerReceiptNoList, HttpStatus.OK);
 	}
 
 	@ApiOperation(response = ContainerReceipt.class, value = "Get a ContainerReceipt") // label for swagger 
 	@GetMapping("/containerreceipt/{containerReceiptNo}")
-	public ResponseEntity<?> getContainerReceipt(@PathVariable String containerReceiptNo, @RequestParam String authToken) {
+	public ResponseEntity<?> getContainerReceipt(@PathVariable String containerReceiptNo,
+												 @RequestParam String authToken) throws Exception{
     	ContainerReceipt containerreceipt = 
     			transactionService.getContainerReceipt(containerReceiptNo, authToken);
     	log.info("ContainerReceipt : " + containerreceipt);
@@ -132,7 +134,7 @@ public class TransactionServiceController {
 	 */
 	@ApiOperation(response = PreInboundHeader.class, value = "Get all PreInboundHeader details") // label for swagger
 	@GetMapping("/preinboundheader")
-	public ResponseEntity<?> getPreInboundHeaders(@RequestParam String authToken) {
+	public ResponseEntity<?> getPreInboundHeaders(@RequestParam String authToken) throws Exception{
 		PreInboundHeader[] preinboundheaderList = transactionService.getPreInboundHeaders(authToken);
 		return new ResponseEntity<>(preinboundheaderList, HttpStatus.OK); 
 	}
@@ -140,7 +142,7 @@ public class TransactionServiceController {
     @ApiOperation(response = PreInboundHeader.class, value = "Get a PreInboundHeader") // label for swagger 
 	@GetMapping("/preinboundheader/{preInboundNo}")
 	public ResponseEntity<?> getPreInboundHeader(@PathVariable String preInboundNo, @RequestParam String warehouseId,
-			@RequestParam String authToken) {
+			@RequestParam String authToken) throws Exception {
     	PreInboundHeader preinboundheader = transactionService.getPreInboundHeader(preInboundNo, warehouseId, authToken);
     	log.info("PreInboundHeader : " + preinboundheader);
 		return new ResponseEntity<>(preinboundheader, HttpStatus.OK);
@@ -155,13 +157,14 @@ public class TransactionServiceController {
 	
 	@ApiOperation(response = PreInboundHeader.class, value = "Get a PreInboundHeader With Status=24") // label for swagger 
    	@GetMapping("/preinboundheader/{warehouseId}/inboundconfirm")
-   	public ResponseEntity<?> getPreInboundHeader(@PathVariable String warehouseId, @RequestParam String authToken) {
+   	public ResponseEntity<?> getPreInboundHeader(@PathVariable String warehouseId,
+													@RequestParam String authToken) throws Exception{
        	PreInboundHeader[] preinboundheader = 
        			transactionService.getPreInboundHeaderWithStatusId(warehouseId, authToken);
        	log.info("PreInboundHeader : " + preinboundheader);
    		return new ResponseEntity<>(preinboundheader, HttpStatus.OK);
    	}
-    
+
     @ApiOperation(response = PreInboundHeader.class, value = "Create PreInboundHeader") // label for swagger
 	@PostMapping("/preinboundheader")
 	public ResponseEntity<?> postPreInboundHeader(@Valid @RequestBody PreInboundHeader newPreInboundHeader, @RequestParam String loginUserID,
@@ -214,7 +217,7 @@ public class TransactionServiceController {
     
     @ApiOperation(response = PreInboundLine.class, value = "Get a PreInboundLine") // label for swagger 
 	@GetMapping("/preinboundline/{preInboundNo}")
-	public ResponseEntity<?> getPreInboundLine(@PathVariable String preInboundNo, @RequestParam String authToken) {
+	public ResponseEntity<?> getPreInboundLine(@PathVariable String preInboundNo, @RequestParam String authToken) throws Exception{
     	PreInboundLine[] preinboundline = transactionService.getPreInboundLine(preInboundNo, authToken);
     	log.info("PreInboundLine : " + preinboundline);
 		return new ResponseEntity<>(preinboundline, HttpStatus.OK);
@@ -225,7 +228,7 @@ public class TransactionServiceController {
 	 */
 	@ApiOperation(response = InboundHeader.class, value = "Get all InboundHeader details") // label for swagger
 	@GetMapping("/inboundheader")
-	public ResponseEntity<?> getInboundHeaders(@RequestParam String authToken) {
+	public ResponseEntity<?> getInboundHeaders(@RequestParam String authToken) throws Exception{
 		InboundHeader[] refDocNumberList = transactionService.getInboundHeaders(authToken);
 		return new ResponseEntity<>(refDocNumberList, HttpStatus.OK);
 	}
@@ -233,7 +236,7 @@ public class TransactionServiceController {
 	@ApiOperation(response = InboundHeader.class, value = "Get a InboundHeader") // label for swagger
 	@GetMapping("/inboundheader/{refDocNumber}")
 	public ResponseEntity<?> getInboundHeader(@PathVariable String refDocNumber, @RequestParam String warehouseId, 
-			@RequestParam String preInboundNo, @RequestParam String authToken) {
+			@RequestParam String preInboundNo, @RequestParam String authToken) throws Exception{
 		InboundHeader dbInboundHeader = transactionService.getInboundHeader(warehouseId, refDocNumber, preInboundNo, authToken);
 		log.info("InboundHeader : " + dbInboundHeader);
 		return new ResponseEntity<>(dbInboundHeader, HttpStatus.OK);
@@ -248,7 +251,7 @@ public class TransactionServiceController {
 	
 	@ApiOperation(response = InboundHeader.class, value = "Get a InboundHeader") // label for swagger 
    	@GetMapping("/inboundheader/inboundconfirm")
-   	public ResponseEntity<?> getInboundHeader(@RequestParam String warehouseId, @RequestParam String authToken) {
+   	public ResponseEntity<?> getInboundHeader(@RequestParam String warehouseId, @RequestParam String authToken) throws Exception{
        	InboundHeaderEntity[] inboundheaderEntity = transactionService.getInboundHeaderWithStatusId(warehouseId, authToken);
        	log.info("PreInboundHeader : " + inboundheaderEntity);
    		return new ResponseEntity<>(inboundheaderEntity, HttpStatus.OK);
@@ -305,14 +308,17 @@ public class TransactionServiceController {
 	 */
 	@ApiOperation(response = InboundLine.class, value = "Get all InboundLine details") // label for swagger
 	@GetMapping("/inboundline")
-	public ResponseEntity<?> getInboundLines(@RequestParam String authToken) {
+	public ResponseEntity<?> getInboundLines(@RequestParam String authToken) throws Exception{
 		InboundLine[] lineNoList = transactionService.getInboundLines(authToken);
 		return new ResponseEntity<>(lineNoList, HttpStatus.OK);
 	}
 
 	@ApiOperation(response = InboundLine.class, value = "Get a InboundLine") // label for swagger
 	@GetMapping("/inboundline/{lineNo}")
-	public ResponseEntity<?> getInboundLine(@PathVariable Long lineNo, @RequestParam String languageId, @RequestParam String companyCodeId, @RequestParam String plantId, @RequestParam String warehouseId, @RequestParam String refDocNumber, @RequestParam String preInboundNo, @RequestParam String itemCode, @RequestParam String authToken) {
+	public ResponseEntity<?> getInboundLine(@PathVariable Long lineNo, @RequestParam String languageId, @RequestParam String companyCodeId,
+											@RequestParam String plantId, @RequestParam String warehouseId, @RequestParam String refDocNumber,
+											@RequestParam String preInboundNo, @RequestParam String itemCode,
+											@RequestParam String authToken) throws Exception{
 		InboundLine dbInboundLine = 
 				transactionService.getInboundLine(warehouseId, refDocNumber, preInboundNo, lineNo, itemCode, authToken);
 		log.info("InboundLine : " + dbInboundLine);
@@ -350,7 +356,7 @@ public class TransactionServiceController {
 	// -------------------StagingHeader----------------------------------------------------------------------------------------------
 	@ApiOperation(response = StagingHeader.class, value = "Get all StagingHeader details") // label for swagger
 	@GetMapping("/stagingheader")
-	public ResponseEntity<?> getStagingHeaders(@RequestParam String authToken) {
+	public ResponseEntity<?> getStagingHeaders(@RequestParam String authToken) throws Exception{
 		StagingHeader[] stagingheaderList = transactionService.getStagingHeaders(authToken);
 		return new ResponseEntity<>(stagingheaderList, HttpStatus.OK); 
 	}
@@ -359,7 +365,7 @@ public class TransactionServiceController {
 	@GetMapping("/stagingheader/{stagingNo}")
 	public ResponseEntity<?> getStagingHeader(@PathVariable String stagingNo, @RequestParam String languageId, 
 			@RequestParam String companyCodeId, @RequestParam String plantId, @RequestParam String warehouseId, 
-			@RequestParam String preInboundNo, @RequestParam String refDocNumber, @RequestParam String authToken) {
+			@RequestParam String preInboundNo, @RequestParam String refDocNumber, @RequestParam String authToken) throws Exception{
     	StagingHeader stagingheader = transactionService.getStagingHeader(warehouseId, preInboundNo, refDocNumber, stagingNo, authToken);
     	log.info("StagingHeader : " + stagingheader);
 		return new ResponseEntity<>(stagingheader, HttpStatus.OK);
@@ -420,7 +426,7 @@ public class TransactionServiceController {
 	 */
 	@ApiOperation(response = StagingLine.class, value = "Get all StagingLine details") // label for swagger
 	@GetMapping("/stagingline")
-	public ResponseEntity<?> getStagingLines(@RequestParam String authToken) {
+	public ResponseEntity<?> getStagingLines(@RequestParam String authToken) throws Exception{
 		StagingLineEntity[] palletCodeList = transactionService.getStagingLines(authToken);
 		return new ResponseEntity<>(palletCodeList, HttpStatus.OK);
 	}
@@ -429,7 +435,8 @@ public class TransactionServiceController {
 	@GetMapping("/stagingline/{lineNo}")
 	public ResponseEntity<?> getStagingLine(@PathVariable Long lineNo, @RequestParam String warehouseId, 
 			@RequestParam String preInboundNo, @RequestParam String refDocNumber, @RequestParam String stagingNo, 
-			@RequestParam String caseCode, @RequestParam String palletCode, @RequestParam String itemCode, @RequestParam String authToken) {
+			@RequestParam String caseCode, @RequestParam String palletCode, @RequestParam String itemCode,
+											@RequestParam String authToken) throws Exception{
 		StagingLineEntity dbStagingLine = 
 				transactionService.getStagingLine(warehouseId, preInboundNo, refDocNumber, stagingNo, palletCode, caseCode, lineNo, itemCode, authToken);
 		log.info("StagingLine : " + dbStagingLine);
@@ -511,7 +518,7 @@ public class TransactionServiceController {
 	 */
 	@ApiOperation(response = GrHeader.class, value = "Get all GrHeader details") // label for swagger
 	@GetMapping("/grheader")
-	public ResponseEntity<?> getGrHeaders(@RequestParam String authToken) {
+	public ResponseEntity<?> getGrHeaders(@RequestParam String authToken) throws Exception{
 		GrHeader[] goodsReceiptNoList = transactionService.getGrHeaders(authToken);
 		return new ResponseEntity<>(goodsReceiptNoList, HttpStatus.OK);
 	}
@@ -520,7 +527,7 @@ public class TransactionServiceController {
 	@GetMapping("/grheader/{goodsReceiptNo}")
 	public ResponseEntity<?> getGrHeader(@PathVariable String goodsReceiptNo, @RequestParam String warehouseId, 
 			@RequestParam String preInboundNo, @RequestParam String refDocNumber, @RequestParam String stagingNo, 
-			@RequestParam String palletCode, @RequestParam String caseCode, @RequestParam String authToken) {
+			@RequestParam String palletCode, @RequestParam String caseCode, @RequestParam String authToken) throws Exception{
 		GrHeader dbGrHeader = 
 				transactionService.getGrHeader(warehouseId, preInboundNo, refDocNumber, stagingNo, goodsReceiptNo, palletCode, 
 						caseCode, authToken);
@@ -533,6 +540,13 @@ public class TransactionServiceController {
 	public GrHeader[] findGrHeader(@RequestBody SearchGrHeader searchGrHeader, @RequestParam String authToken)
 			throws Exception {
 		return transactionService.findGrHeader(searchGrHeader, authToken);
+	}
+	//Stream - JPA
+	@ApiOperation(response = GrHeader.class, value = "Search GrHeader New") // label for swagger
+	@PostMapping("/grheader/findGrHeaderNew")
+	public GrHeader[] findGrHeaderNew(@RequestBody SearchGrHeader searchGrHeader, @RequestParam String authToken)
+			throws Exception {
+		return transactionService.findGrHeaderNew(searchGrHeader, authToken);
 	}
 
 	@ApiOperation(response = GrHeader.class, value = "Create GrHeader") // label for swagger
@@ -571,7 +585,7 @@ public class TransactionServiceController {
 	 */
 	@ApiOperation(response = GrLine.class, value = "Get all GrLine details") // label for swagger
 	@GetMapping("/grline")
-	public ResponseEntity<?> getGrLines(@RequestParam String authToken) {
+	public ResponseEntity<?> getGrLines(@RequestParam String authToken) throws Exception{
 		GrLine[] itemCodeList = transactionService.getGrLines(authToken);
 		return new ResponseEntity<>(itemCodeList, HttpStatus.OK);
 	}
@@ -581,7 +595,7 @@ public class TransactionServiceController {
 	public ResponseEntity<?> getGrLine(@PathVariable Long lineNo, @RequestParam String warehouseId, 
 			@RequestParam String preInboundNo, @RequestParam String refDocNumber, @RequestParam String goodsReceiptNo, 
 			@RequestParam String palletCode, @RequestParam String caseCode, @RequestParam String packBarcodes, 
-			@RequestParam String itemCode, @RequestParam String authToken) {
+			@RequestParam String itemCode, @RequestParam String authToken) throws Exception{
 		GrLine dbGrLine = 
 				transactionService.getGrLine(warehouseId, preInboundNo, refDocNumber, goodsReceiptNo, palletCode, caseCode, 
 						packBarcodes, lineNo, itemCode, authToken);
@@ -594,7 +608,7 @@ public class TransactionServiceController {
 	@GetMapping("/grline/{lineNo}/putawayline")
 	public ResponseEntity<?> getGrLine(@PathVariable Long lineNo, @RequestParam String preInboundNo, 
 			@RequestParam String refDocNumber, @RequestParam String packBarcodes, @RequestParam String itemCode,
-			@RequestParam String authToken) {
+			@RequestParam String authToken) throws Exception{
     	GrLine[] grline = transactionService.getGrLine(preInboundNo, refDocNumber, packBarcodes, lineNo, itemCode, authToken);
     	log.info("GrLine : " + grline);
 		return new ResponseEntity<>(grline, HttpStatus.OK);
@@ -642,7 +656,7 @@ public class TransactionServiceController {
     @ApiOperation(response = GrLine.class, value = "Get PackBarcodes") // label for swagger 
 	@GetMapping("/grline/packBarcode")
 	public ResponseEntity<?> getPackBarcode(@RequestParam Long acceptQty, @RequestParam Long damageQty, 
-			@RequestParam String warehouseId, @RequestParam String loginUserID, @RequestParam String authToken) {
+			@RequestParam String warehouseId, @RequestParam String loginUserID, @RequestParam String authToken) throws Exception{
     	PackBarcode[] packBarcodes = 
     			transactionService.generatePackBarcode (acceptQty, damageQty, warehouseId, loginUserID, authToken);
     	log.info("packBarcodes : " + packBarcodes);
@@ -654,7 +668,7 @@ public class TransactionServiceController {
 	 */
 	@ApiOperation(response = PutAwayHeader.class, value = "Get all PutAwayHeader details") // label for swagger
 	@GetMapping("/putawayheader")
-	public ResponseEntity<?> getPutAwayHeaders(@RequestParam String authToken) {
+	public ResponseEntity<?> getPutAwayHeaders(@RequestParam String authToken) throws Exception{
 		PutAwayHeader[] putAwayNumberList = transactionService.getPutAwayHeaders(authToken);
 		return new ResponseEntity<>(putAwayNumberList, HttpStatus.OK);
 	}
@@ -663,7 +677,7 @@ public class TransactionServiceController {
 	@GetMapping("/putawayheader/{putAwayNumber}")
 	public ResponseEntity<?> getPutAwayHeader(@PathVariable String putAwayNumber, @RequestParam String warehouseId, @RequestParam String preInboundNo, 
 			@RequestParam String refDocNumber, @RequestParam String goodsReceiptNo, @RequestParam String palletCode, @RequestParam String caseCode, 
-			@RequestParam String packBarcodes, @RequestParam String proposedStorageBin, @RequestParam String authToken) {
+			@RequestParam String packBarcodes, @RequestParam String proposedStorageBin, @RequestParam String authToken) throws Exception{
 		PutAwayHeader dbPutAwayHeader = transactionService.getPutAwayHeader(warehouseId, preInboundNo, refDocNumber, goodsReceiptNo, palletCode, caseCode, packBarcodes, putAwayNumber, proposedStorageBin, authToken);
 		log.info("PutAwayHeader : " + dbPutAwayHeader);
 		return new ResponseEntity<>(dbPutAwayHeader, HttpStatus.OK);
@@ -671,7 +685,7 @@ public class TransactionServiceController {
 	
 	@ApiOperation(response = PutAwayHeader.class, value = "Get a PutAwayHeader") // label for swagger 
 	@GetMapping("/putawayheader/{refDocNumber}/inboundreversal/asn")
-	public ResponseEntity<?> getPutAwayHeaderForASN(@PathVariable String refDocNumber, @RequestParam String authToken) {
+	public ResponseEntity<?> getPutAwayHeaderForASN(@PathVariable String refDocNumber, @RequestParam String authToken) throws Exception{
     	PutAwayHeader[] putawayheader = transactionService.getPutAwayHeader(refDocNumber, authToken);
     	log.info("PutAwayHeader : " + putawayheader);
 		return new ResponseEntity<>(putawayheader, HttpStatus.OK);
@@ -728,7 +742,7 @@ public class TransactionServiceController {
 	 */
 	@ApiOperation(response = PutAwayLine.class, value = "Get all PutAwayLine details") // label for swagger
 	@GetMapping("/putawayline/confirmedStorageBin")
-	public ResponseEntity<?> getPutAwayLines(@RequestParam String authToken) {
+	public ResponseEntity<?> getPutAwayLines(@RequestParam String authToken) throws Exception{
 		PutAwayLine[] confirmedStorageBinList = transactionService.getPutAwayLines(authToken);
 		return new ResponseEntity<>(confirmedStorageBinList, HttpStatus.OK);
 	}
@@ -737,7 +751,7 @@ public class TransactionServiceController {
 	@GetMapping("/putawayline/{confirmedStorageBin}")
 	public ResponseEntity<?> getPutAwayLine(@PathVariable String confirmedStorageBin, @RequestParam String warehouseId, @RequestParam String goodsReceiptNo, 
 			@RequestParam String preInboundNo, @RequestParam String refDocNumber, @RequestParam String putAwayNumber, @RequestParam Long lineNo, 
-			@RequestParam String itemCode, @RequestParam String proposedStorageBin, @RequestParam String authToken) {
+			@RequestParam String itemCode, @RequestParam String proposedStorageBin, @RequestParam String authToken) throws Exception{
 		PutAwayLine dbPutAwayLine = transactionService.getPutAwayLine(warehouseId, goodsReceiptNo, preInboundNo, refDocNumber, putAwayNumber, lineNo, itemCode, 
 				proposedStorageBin, confirmedStorageBin, authToken);
 		log.info("PutAwayLine : " + dbPutAwayLine);
@@ -746,7 +760,8 @@ public class TransactionServiceController {
 	
 	@ApiOperation(response = PutAwayLine.class, value = "Get a PutAwayLine") // label for swagger 
 	@GetMapping("/putawayline/{refDocNumber}/inboundreversal/palletId")
-	public ResponseEntity<?> getPutAwayLineForInboundLine(@PathVariable String refDocNumber, @RequestParam String authToken) {
+	public ResponseEntity<?> getPutAwayLineForInboundLine(@PathVariable String refDocNumber,
+														  @RequestParam String authToken) throws Exception{
     	PutAwayLine[] putawayline = transactionService.getPutAwayLine(refDocNumber, authToken);
     	log.info("PutAwayLine : " + putawayline);
 		return new ResponseEntity<>(putawayline, HttpStatus.OK);
@@ -795,7 +810,7 @@ public class TransactionServiceController {
 	 */
 	@ApiOperation(response = InventoryMovement.class, value = "Get all InventoryMovement details") // label for swagger
 	@GetMapping("/inventorymovement")
-	public ResponseEntity<?> getInventoryMovements(@RequestParam String authToken) {
+	public ResponseEntity<?> getInventoryMovements(@RequestParam String authToken) throws Exception{
 		InventoryMovement[] movementTypeList = transactionService.getInventoryMovements(authToken);
 		return new ResponseEntity<>(movementTypeList, HttpStatus.OK);
 	}
@@ -804,7 +819,7 @@ public class TransactionServiceController {
 	@GetMapping("/inventorymovement/{movementType}")
 	public ResponseEntity<?> getInventoryMovement(@PathVariable Long movementType, @RequestParam String warehouseId, @RequestParam Long submovementType, 
 			@RequestParam String packBarcodes, @RequestParam String itemCode, @RequestParam String batchSerialNumber, @RequestParam String movementDocumentNo, 
-			@RequestParam String authToken) {
+			@RequestParam String authToken) throws Exception{
 		InventoryMovement dbInventoryMovement = transactionService.getInventoryMovement(warehouseId, movementType, submovementType, 
 				packBarcodes, itemCode, batchSerialNumber, movementDocumentNo, authToken);
 		log.info("InventoryMovement : " + dbInventoryMovement);
@@ -853,7 +868,7 @@ public class TransactionServiceController {
 	 */
 	@ApiOperation(response = Inventory.class, value = "Get all Inventory details") // label for swagger
 	@GetMapping("/inventory")
-	public ResponseEntity<?> getInventorys(@RequestParam String authToken) {
+	public ResponseEntity<?> getInventorys(@RequestParam String authToken) throws Exception{
 		Inventory[] stockTypeIdList = transactionService.getInventorys(authToken);
 		return new ResponseEntity<>(stockTypeIdList, HttpStatus.OK);
 	}
@@ -862,7 +877,7 @@ public class TransactionServiceController {
 	@GetMapping("/inventory/{stockTypeId}")
 	public ResponseEntity<?> getInventory(@PathVariable Long stockTypeId, @RequestParam String warehouseId, 
 			@RequestParam String packBarcodes, @RequestParam String itemCode, @RequestParam String storageBin, 
-			@RequestParam Long specialStockIndicatorId, @RequestParam String authToken) {
+			@RequestParam Long specialStockIndicatorId, @RequestParam String authToken) throws Exception{
 		Inventory dbInventory = 
 				transactionService.getInventory(warehouseId, packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId, authToken);
 		log.info("Inventory : " + dbInventory);
@@ -872,7 +887,7 @@ public class TransactionServiceController {
 	@ApiOperation(response = Inventory.class, value = "Get a Inventory For Transfer") // label for swagger 
 	@GetMapping("/inventory/transfer")
 	public ResponseEntity<?> getInventory(@RequestParam String warehouseId, @RequestParam String packBarcodes, 
-			@RequestParam String itemCode, @RequestParam String storageBin, @RequestParam String authToken) {
+			@RequestParam String itemCode, @RequestParam String storageBin, @RequestParam String authToken) throws Exception{
     	Inventory inventory = 
     			transactionService.getInventory(warehouseId, packBarcodes, itemCode, storageBin, authToken);
     	log.info("Inventory : " + inventory);
@@ -939,7 +954,7 @@ public class TransactionServiceController {
 	 */
 	@ApiOperation(response = InhouseTransferHeader.class, value = "Get all InHouseTransferHeader details") // label for swagger
 	@GetMapping("/inhousetransferheader")
-	public ResponseEntity<?> getInHouseTransferHeaders(@RequestParam String authToken) {
+	public ResponseEntity<?> getInHouseTransferHeaders(@RequestParam String authToken) throws Exception{
 		InhouseTransferHeader[] transferNumberList = transactionService.getInhouseTransferHeaders(authToken);
 		return new ResponseEntity<>(transferNumberList, HttpStatus.OK);
 	}
@@ -947,7 +962,7 @@ public class TransactionServiceController {
 	@ApiOperation(response = InhouseTransferHeader.class, value = "Get a InHouseTransferHeader") // label for swagger
 	@GetMapping("/inhousetransferheader/{transferNumber}")
 	public ResponseEntity<?> getInHouseTransferHeader(@PathVariable String transferNumber, @RequestParam String warehouseId, 
-			@RequestParam Long transferTypeId, @RequestParam String authToken) {
+			@RequestParam Long transferTypeId, @RequestParam String authToken) throws Exception{
 		InhouseTransferHeader dbInHouseTransferHeader = 
 				transactionService.getInhouseTransferHeader(warehouseId, transferNumber, transferTypeId, authToken);
 		log.info("InHouseTransferHeader : " + dbInHouseTransferHeader);
@@ -974,7 +989,7 @@ public class TransactionServiceController {
 	 */
 	@ApiOperation(response = InhouseTransferLine.class, value = "Get all InHouseTransferLine details") // label for swagger
 	@GetMapping("/inhousetransferline")
-	public ResponseEntity<?> getInHouseTransferLines(@RequestParam String authToken) {
+	public ResponseEntity<?> getInHouseTransferLines(@RequestParam String authToken) throws Exception{
 		InhouseTransferLine[] transferNumberList = transactionService.getInhouseTransferLines(authToken);
 		return new ResponseEntity<>(transferNumberList, HttpStatus.OK);
 	}
@@ -982,7 +997,7 @@ public class TransactionServiceController {
 	@ApiOperation(response = InhouseTransferLine.class, value = "Get a InHouseTransferLine") // label for swagger
 	@GetMapping("/inhousetransferline/{transferNumber}")
 	public ResponseEntity<?> getInHouseTransferLine(@PathVariable String transferNumber, @RequestParam String warehouseId, 
-			@RequestParam String sourceItemCode, @RequestParam String authToken) {
+			@RequestParam String sourceItemCode, @RequestParam String authToken) throws Exception{
 		InhouseTransferLine dbInHouseTransferLine = 
 				transactionService.getInhouseTransferLine(warehouseId, transferNumber, sourceItemCode, authToken);
 		log.info("InHouseTransferLine : " + dbInHouseTransferLine);
@@ -1099,7 +1114,7 @@ public class TransactionServiceController {
     
     @ApiOperation(response = OrderManagementLine.class, value = "Get a OrderManagementLine") // label for swagger 
    	@GetMapping("/ordermanagementline/updateRefFields")
-   	public ResponseEntity<?> updateRefFields(@RequestParam String authToken) {
+   	public ResponseEntity<?> updateRefFields(@RequestParam String authToken) throws Exception{
     	transactionService.updateRef9ANDRef10(authToken);
    		return new ResponseEntity<>(HttpStatus.OK);
    	}
@@ -1309,6 +1324,19 @@ public class TransactionServiceController {
 			@RequestParam String authToken) throws Exception {
 		return transactionService.findOutboundHeader(searchOutboundHeader, authToken);
 	}
+
+	@ApiOperation(response = OutboundHeader.class, value = "Search OutboundHeader New") // label for swagger
+	@PostMapping("/outboundheader/findOutboundHeaderNew")
+	public OutboundHeader[] findOutboundHeaderNew(@RequestBody SearchOutboundHeader searchOutboundHeader,
+			@RequestParam String authToken) throws Exception {
+		return transactionService.findOutboundHeaderNew(searchOutboundHeader, authToken);
+	}
+//	@ApiOperation(response = OutboundHeader.class, value = "Search OutboundHeader New") // label for swagger
+//	@PostMapping("/outboundheader/findOutboundHeaderNew")
+//	public Stream<OutboundHeader> findOutboundHeaderNew(@RequestBody SearchOutboundHeader searchOutboundHeader,
+//														@RequestParam String authToken) throws Exception {
+//		return transactionService.findOutboundHeaderNew(searchOutboundHeader, authToken);
+//	}
 
 	@ApiOperation(response = OutboundHeader.class, value = "Update OutboundHeader") // label for swagger
     @PatchMapping("/outboundheader/{preOutboundNo}")
@@ -1552,7 +1580,7 @@ public class TransactionServiceController {
      */
     @ApiOperation(response = PerpetualHeader.class, value = "Get all PerpetualHeader details") // label for swagger
 	@GetMapping("/perpetualheader")
-	public ResponseEntity<?> getPerpetualHeaders(@RequestParam String authToken) {
+	public ResponseEntity<?> getPerpetualHeaders(@RequestParam String authToken) throws Exception{
 		PerpetualHeader[] perpetualheaderList = transactionService.getPerpetualHeaders(authToken);
 		return new ResponseEntity<>(perpetualheaderList, HttpStatus.OK); 
 	}
@@ -1561,7 +1589,7 @@ public class TransactionServiceController {
 	@GetMapping("/perpetualheader/{cycleCountNo}")
 	public ResponseEntity<?> getPerpetualHeader(@PathVariable String cycleCountNo, @RequestParam String warehouseId,
 			@RequestParam Long cycleCountTypeId, @RequestParam Long movementTypeId, @RequestParam Long subMovementTypeId,
-			@RequestParam String authToken) {
+			@RequestParam String authToken) throws Exception{
     	PerpetualHeader perpetualheader =
     			transactionService.getPerpetualHeader(warehouseId, cycleCountTypeId, cycleCountNo, 
     					movementTypeId, subMovementTypeId, authToken);
@@ -1654,7 +1682,7 @@ public class TransactionServiceController {
      */
     @ApiOperation(response = PeriodicHeader.class, value = "Get all PeriodicHeader details") // label for swagger
 	@GetMapping("/periodicheader")
-	public ResponseEntity<?> getPeriodicHeaders(@RequestParam String authToken) {
+	public ResponseEntity<?> getPeriodicHeaders(@RequestParam String authToken) throws Exception{
 		PeriodicHeaderEntity[] PeriodicheaderList = transactionService.getPeriodicHeaders(authToken);
 		return new ResponseEntity<>(PeriodicheaderList, HttpStatus.OK); 
 	}
@@ -1663,7 +1691,7 @@ public class TransactionServiceController {
 	@GetMapping("/periodicheader/{cycleCountNo}")
 	public ResponseEntity<?> getPeriodicHeader(@PathVariable String cycleCountNo, @RequestParam String warehouseId,
 			@RequestParam Long cycleCountTypeId, @RequestParam Long movementTypeId, @RequestParam Long subMovementTypeId,
-			@RequestParam String authToken) {
+			@RequestParam String authToken) throws Exception{
     	PeriodicHeader[] Periodicheader = 
     			transactionService.getPeriodicHeader(warehouseId, cycleCountTypeId, cycleCountNo, 
     					movementTypeId, subMovementTypeId, authToken);
@@ -1898,6 +1926,30 @@ public class TransactionServiceController {
 	@GetMapping(value = "/streaming/findStreamOrderManagementLine")
 	public ResponseEntity<StreamingResponseBody> findStreamOrderManagementLine() throws ExecutionException, InterruptedException {
 		StreamingResponseBody responseBody = transactionService.findStreamOrderManagementLine();
+		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(responseBody);
+	}
+
+	@GetMapping(value = "/streaming/findStreamPickupHeader")
+	public ResponseEntity<StreamingResponseBody> findStreamPickupHeader() throws ExecutionException, InterruptedException {
+		StreamingResponseBody responseBody = transactionService.findStreamPickupHeader();
+		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(responseBody);
+	}
+
+	@GetMapping(value = "/streaming/findStreamQualityHeader")
+	public ResponseEntity<StreamingResponseBody> findStreamQualityHeader() throws ExecutionException, InterruptedException {
+		StreamingResponseBody responseBody = transactionService.findStreamQualityHeader();
+		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(responseBody);
+	}
+
+	@GetMapping(value = "/streaming/findStreamImBasicData1")
+	public ResponseEntity<StreamingResponseBody> findStreamImBasicData1() throws ExecutionException, InterruptedException {
+		StreamingResponseBody responseBody = transactionService.findStreamImBasicData1();
+		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(responseBody);
+	}
+
+	@GetMapping(value = "/streaming/findStreamStorageBin")
+	public ResponseEntity<StreamingResponseBody> findStreamStorageBin() throws ExecutionException, InterruptedException {
+		StreamingResponseBody responseBody = transactionService.findStreamStorageBin();
 		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(responseBody);
 	}
 }

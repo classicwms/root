@@ -57,7 +57,7 @@ import lombok.NoArgsConstructor;
 	private Long deletionIndicator = 0L;
 	private String createdBy;
 	private Date createdOn = new Date();
-	private Date confirmedBy;
+	private String confirmedBy;
 	private Date confirmedOn = new Date();
 
 }
