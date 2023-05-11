@@ -3,7 +3,6 @@ package com.tekclover.wms.api.transaction.repository;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -45,7 +44,7 @@ public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader,L
 	public List<OutboundHeader> findByWarehouseIdAndStatusIdAndDeliveryConfirmedOnBetween (String warehouseId,Long statusId, Date startDate, Date endDate);
 	public List<OutboundHeader> findByStatusIdAndPartnerCodeAndDeliveryConfirmedOnBetween (Long statusId, 
 			String partnerCode, Date startDate, Date endDate);
-
+	
 	@Query(value = "select \n" +
 			"oh.c_id , oh.lang_id, oh.partner_code, oh.plant_id, oh.pre_ob_no,oh.ref_doc_no ,oh.wh_id,oh.dlv_ctd_by,oh.dlv_ctd_on,oh.is_deleted,oh.dlv_cnf_by,oh.dlv_cnf_on,\n" +
 			"oh.dlv_ord_no, oh.ob_ord_typ_id,oh.ref_doc_date,oh.ref_doc_typ,oh.remark,oh.req_del_date,oh.dlv_rev_by,oh.dlv_rev_on,oh.status_id,oh.dlv_utd_by,oh.dlv_utd_on,\n" +

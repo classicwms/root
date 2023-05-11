@@ -60,7 +60,7 @@ public class InventorySpecification implements Specification<Inventory> {
          }
 
 		 if (searchInventory.getStorageSectionId() != null && !searchInventory.getStorageSectionId().isEmpty()) {
-        	 final Path<Group> group = root.<Group> get("referenceField10");
+        	 final Path<Group> group = root.<Group> get("storageSectionId");
         	 predicates.add(group.in(searchInventory.getStorageSectionId()));
          }
 		  

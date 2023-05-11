@@ -137,8 +137,9 @@ public class InventoryService extends BaseService {
 	/**
 	 * 
 	 * @param warehouseId
+	 * @param packBarcodes
 	 * @param itemCode
-	 * @param stockTypeId
+	 * @param binClassId
 	 * @return
 	 */
 	public List<Inventory> getInventoryForStockReport (String warehouseId, String itemCode, Long stockTypeId) {
@@ -158,7 +159,7 @@ public class InventoryService extends BaseService {
 	/**
 	 * 
 	 * @param warehouseId
-	 * @param stockTypeId
+	 * @param packBarcodes
 	 * @param itemCode
 	 * @param binClassId
 	 * @return
@@ -182,6 +183,7 @@ public class InventoryService extends BaseService {
 	/**
 	 * 
 	 * @param warehouseId
+	 * @param caseCode
 	 * @param packBarcodes
 	 * @param itemCode
 	 * @return
@@ -394,7 +396,7 @@ public class InventoryService extends BaseService {
 	 * 
 	 * @param warehouseId
 	 * @param itemCode
-	 * @param stSecIds
+	 * @param storageBin
 	 * @return
 	 */
 	public List<IInventory> getInventoryGroupByStorageBin (String warehouseId, String itemCode, List<String> stSecIds) {
@@ -493,7 +495,7 @@ public class InventoryService extends BaseService {
 	 * @param sortBy 
 	 * @param pageSize 
 	 * @param pageNo 
-	 * @param searchInventory
+	 * @param searchInventoryMovement
 	 * @return
 	 * @throws ParseException
 	 */
@@ -554,7 +556,10 @@ public class InventoryService extends BaseService {
 	}
 	
 	/**
-	 *
+	 * 
+	 * @param languageId
+	 * @param companyCodeId
+	 * @param plantId
 	 * @param warehouseId
 	 * @param packBarcodes
 	 * @param itemCode
@@ -579,7 +584,7 @@ public class InventoryService extends BaseService {
 	
 	/**
 	 * deleteInventory
-	 * @param warehouseId
+	 * @param loginUserID 
 	 * @param stockTypeId
 	 */
 	public void deleteInventory (String warehouseId, String packBarcodes, String itemCode, String storageBin, Long stockTypeId, 
@@ -596,6 +601,8 @@ public class InventoryService extends BaseService {
 	/**
 	 * 
 	 * @param warehouseId
+	 * @param palletCode
+	 * @param caseCode
 	 * @param packBarcodes
 	 * @param itemCode
 	 */ 

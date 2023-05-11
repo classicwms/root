@@ -415,18 +415,20 @@ public class QualityLineService extends BaseService {
 			 */
 			for (QualityLine dbQualityLine : createdQualityLineList) {
 				/*-----------------STATUS updates in QualityHeader-----------------------*/
-				try {
-					UpdateQualityHeader updateQualityHeader = new UpdateQualityHeader();
-					updateQualityHeader.setStatusId(55L);
-					QualityHeader qualityHeader = qualityHeaderService.updateQualityHeader(
-							dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(),
-							dbQualityLine.getRefDocNumber(), dbQualityLine.getQualityInspectionNo(),
-							dbQualityLine.getActualHeNo(), loginUserID, updateQualityHeader);
-					log.info("qualityHeader updated : " + qualityHeader);
-				} catch (Exception e1) {
-					e1.printStackTrace();
-					log.info("qualityHeader updated Error : " + e1.toString());
-				}
+//				synchronized (dbQualityLine) {
+					try {
+						UpdateQualityHeader updateQualityHeader = new UpdateQualityHeader();
+						updateQualityHeader.setStatusId(55L);
+						QualityHeader qualityHeader = qualityHeaderService.updateQualityHeader(
+								dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(),
+								dbQualityLine.getRefDocNumber(), dbQualityLine.getQualityInspectionNo(),
+								dbQualityLine.getActualHeNo(), loginUserID, updateQualityHeader);
+						log.info("qualityHeader updated : " + qualityHeader);
+					} catch (Exception e1) {
+						e1.printStackTrace();
+						log.info("qualityHeader updated Error : " + e1.toString());
+					}
+//				}
 				
 				/*-------------OTUBOUNDHEADER/OUTBOUNDLINE table updates------------------------------*/
 				/*
@@ -439,69 +441,73 @@ public class QualityLineService extends BaseService {
 				Long NUM_RAN_CODE = 12L;
 				String DLV_ORD_NO = getNextRangeNumber(NUM_RAN_CODE, dbQualityLine.getWarehouseId());
 
-				/*-------------------OUTBOUNDLINE------Update---------------------------*/
-				/*
-				 * Pass WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE /OB_LINE_NO/_ITM_CODE values in
-				 * QUALITYILINE table and fetch QC_QTY values and pass the same values in
-				 * OUTBOUNDLINE table and update DLV_QTY
-				 * 
-				 * Pass Unique keys in OUTBOUNDLINE table and update STATUS_ID as "57"
-				 */
-				try {
-					OutboundLine outboundLine = outboundLineService.getOutboundLine(dbQualityLine.getWarehouseId(),
-							dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(),
-							dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
-							dbQualityLine.getItemCode());
-					log.info("DB outboundLine : " + outboundLine);
-					if (outboundLine != null) {
-						outboundLine.setDeliveryOrderNo(DLV_ORD_NO);
-						outboundLine.setStatusId(57L);
+//				synchronized (dbQualityLine) {
+					/*-------------------OUTBOUNDLINE------Update---------------------------*/
+					/*
+					 * Pass WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE /OB_LINE_NO/_ITM_CODE values in
+					 * QUALITYILINE table and fetch QC_QTY values and pass the same values in
+					 * OUTBOUNDLINE table and update DLV_QTY
+					 * 
+					 * Pass Unique keys in OUTBOUNDLINE table and update STATUS_ID as "57"
+					 */
+					try {
+						OutboundLine outboundLine = outboundLineService.getOutboundLine(dbQualityLine.getWarehouseId(),
+								dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(),
+								dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
+								dbQualityLine.getItemCode());
+						log.info("DB outboundLine : " + outboundLine);
+						if (outboundLine != null) {
+							outboundLine.setDeliveryOrderNo(DLV_ORD_NO);
+							outboundLine.setStatusId(57L);
 
-						Double exisitingDelQty = 0D;
-						if (outboundLine.getDeliveryQty() != null) {
-							exisitingDelQty = outboundLine.getDeliveryQty();
-						} else {
-							exisitingDelQty = 0D;
+							Double exisitingDelQty = 0D;
+							if (outboundLine.getDeliveryQty() != null) {
+								exisitingDelQty = outboundLine.getDeliveryQty();
+							} else {
+								exisitingDelQty = 0D;
+							}
+							log.info("DB queried outboundLine existingDelQty : " + exisitingDelQty);
+							outboundLine.setDeliveryQty(exisitingDelQty + dbQualityLine.getQualityQty());
+							
+							log.info("DB after outboundLine existingDelQty : " + exisitingDelQty);
+							outboundLine = outboundLineRepository.save(outboundLine);
+							log.info("outboundLine updated : " + outboundLine);
 						}
-						log.info("DB queried outboundLine existingDelQty : " + exisitingDelQty);
-						outboundLine.setDeliveryQty(exisitingDelQty + dbQualityLine.getQualityQty());
-						
-						log.info("DB after outboundLine existingDelQty : " + exisitingDelQty);
-						outboundLine = outboundLineRepository.save(outboundLine);
-						log.info("outboundLine updated : " + outboundLine);
+					} catch (Exception e1) {
+						e1.printStackTrace();
+						log.info("outboundLine updated error: " + e1.toString());
 					}
-				} catch (Exception e1) {
-					e1.printStackTrace();
-					log.info("outboundLine updated error: " + e1.toString());
-				}
-					
-				try {
-					/*-------------------OUTBOUNDHEADER------Update---------------------------*/
-					boolean isStatus57 = false;
-					List<OutboundLine> outboundLines = outboundLineService.getOutboundLine(
-							dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(),
-							dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode());
-					outboundLines = outboundLines.stream().filter(o -> o.getStatusId() == 57L)
-							.collect(Collectors.toList());
-					if (outboundLines != null) {
-						isStatus57 = true;
-					}
+//				}
+				
+//				synchronized (dbQualityLine) {
+					try {
+						/*-------------------OUTBOUNDHEADER------Update---------------------------*/
+						boolean isStatus57 = false;
+						List<OutboundLine> outboundLines = outboundLineService.getOutboundLine(
+								dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(),
+								dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode());
+						outboundLines = outboundLines.stream().filter(o -> o.getStatusId() == 57L)
+								.collect(Collectors.toList());
+						if (outboundLines != null) {
+							isStatus57 = true;
+						}
 
-					UpdateOutboundHeader updateOutboundHeader = new UpdateOutboundHeader();
-					updateOutboundHeader.setDeliveryOrderNo(DLV_ORD_NO);
-					if (isStatus57) { // If Status if 57 then update OutboundHeader with Status 57.
-						updateOutboundHeader.setStatusId(57L);
-					}
+						UpdateOutboundHeader updateOutboundHeader = new UpdateOutboundHeader();
+						updateOutboundHeader.setDeliveryOrderNo(DLV_ORD_NO);
+						if (isStatus57) { // If Status if 57 then update OutboundHeader with Status 57.
+							updateOutboundHeader.setStatusId(57L);
+						}
 
-					OutboundHeader outboundHeader = outboundHeaderService.updateOutboundHeader(
-							dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(),
-							dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode(), updateOutboundHeader,
-							loginUserID);
-					log.info("outboundHeader updated : " + outboundHeader);
-				} catch (Exception e1) {
-					e1.printStackTrace();
-					log.info("outboundHeader updated error: " + e1.toString());
-				}
+						OutboundHeader outboundHeader = outboundHeaderService.updateOutboundHeader(
+								dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(),
+								dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode(), updateOutboundHeader,
+								loginUserID);
+						log.info("outboundHeader updated : " + outboundHeader);
+					} catch (Exception e1) {
+						e1.printStackTrace();
+						log.info("outboundHeader updated error: " + e1.toString());
+					}
+//				}
 				
 				/*-----------------Inventory Updates--------------------------------------*/
 				// Pass WH_ID/ITM_CODE/ST_BIN/PACK_BARCODE in INVENTORY table
@@ -511,28 +517,30 @@ public class QualityLineService extends BaseService {
 						authTokenForMastersService.getAccess_token());
 				Warehouse warehouse = getWarehouse(dbQualityLine.getWarehouseId());
 				Inventory inventory = null;
-				try {
-					inventory = inventoryService.getInventory(dbQualityLine.getWarehouseId(),
-							dbQualityLine.getPickPackBarCode(), dbQualityLine.getItemCode(),
-							storageBin.getStorageBin());
-					log.info("inventory---BIN_CLASS_ID-4----> : " + inventory);
+//				synchronized (dbQualityLine) {
+					try {
+						inventory = inventoryService.getInventory(dbQualityLine.getWarehouseId(),
+								dbQualityLine.getPickPackBarCode(), dbQualityLine.getItemCode(),
+								storageBin.getStorageBin());
+						log.info("inventory---BIN_CLASS_ID-4----> : " + inventory);
 
-					if (inventory != null) {
-						Double INV_QTY = inventory.getInventoryQuantity() - dbQualityLine.getQualityQty();
-						log.info("Calculated inventory INV_QTY: " + INV_QTY);
-						inventory.setInventoryQuantity(INV_QTY);
+						if (inventory != null) {
+							Double INV_QTY = inventory.getInventoryQuantity() - dbQualityLine.getQualityQty();
+							log.info("Calculated inventory INV_QTY: " + INV_QTY);
+							inventory.setInventoryQuantity(INV_QTY);
 
-						// INV_QTY > 0 then, update Inventory Table
-						inventory = inventoryRepository.save(inventory);
-						log.info("inventory updated : " + inventory);
+							// INV_QTY > 0 then, update Inventory Table
+							inventory = inventoryRepository.save(inventory);
+							log.info("inventory updated : " + inventory);
 
-						if (INV_QTY == 0) {
-							log.info("inventory INV_QTY: " + INV_QTY);
+							if (INV_QTY == 0) {
+								log.info("inventory INV_QTY: " + INV_QTY);
+							}
 						}
+					} catch (Exception e1) {
+						e1.printStackTrace();
 					}
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
+//				}
 				
 				/*-------------------Inserting record in InventoryMovement-------------------------------------*/
 				Long subMvtTypeId = 2L;
@@ -562,53 +570,55 @@ public class QualityLineService extends BaseService {
 				 * Checking Inventory table before creating new record inventory
 				 */
 				// Pass WH_ID/ITM_CODE/ST_BIN = (ST_BIN value of BIN_CLASS_ID=5 /PACK_BARCODE
-				Inventory existingInventory = inventoryService.getInventory(dbQualityLine.getWarehouseId(),
-						dbQualityLine.getPickPackBarCode(), dbQualityLine.getItemCode(), storageBin.getStorageBin());
-				log.info("existingInventory : " + existingInventory);
-				if (existingInventory != null) {
-					Double INV_QTY = existingInventory.getInventoryQuantity() + dbQualityLine.getQualityQty();
-					UpdateInventory updateInventory = new UpdateInventory();
-					updateInventory.setInventoryQuantity(INV_QTY);
-					try {
-						Inventory updatedInventory = inventoryService.updateInventory(dbQualityLine.getWarehouseId(),
-								dbQualityLine.getPickPackBarCode(), dbQualityLine.getItemCode(),
-								storageBin.getStorageBin(), 1L, 1L, updateInventory, loginUserID);
-						log.info("updatedInventory----------> : " + updatedInventory);
-					} catch (Exception e) {
-						e.printStackTrace();
-						log.info("updatedInventory error----------> : " + e.toString());
-					}
-				} else {
-					log.info("AddInventory========>");
-					AddInventory newInventory = new AddInventory();
-					newInventory.setLanguageId(warehouse.getLanguageId());
-					newInventory.setCompanyCodeId(warehouse.getCompanyCode());
-					newInventory.setPlantId(warehouse.getPlantId());
-					newInventory.setStockTypeId(inventory.getStockTypeId());
-					newInventory.setBinClassId(BIN_CLASS_ID);
-					newInventory.setWarehouseId(dbQualityLine.getWarehouseId());
-					newInventory.setPackBarcodes(dbQualityLine.getPickPackBarCode());
-					newInventory.setItemCode(dbQualityLine.getItemCode());
-					newInventory.setStorageBin(storageBin.getStorageBin());
-					newInventory.setInventoryQuantity(dbQualityLine.getQualityQty());
-					newInventory.setSpecialStockIndicatorId(1L);
+//				synchronized(dbQualityLine) {
+					Inventory existingInventory = inventoryService.getInventory(dbQualityLine.getWarehouseId(),
+							dbQualityLine.getPickPackBarCode(), dbQualityLine.getItemCode(), storageBin.getStorageBin());
+					log.info("existingInventory : " + existingInventory);
+					if (existingInventory != null) {
+						Double INV_QTY = existingInventory.getInventoryQuantity() + dbQualityLine.getQualityQty();
+						UpdateInventory updateInventory = new UpdateInventory();
+						updateInventory.setInventoryQuantity(INV_QTY);
+						try {
+							Inventory updatedInventory = inventoryService.updateInventory(dbQualityLine.getWarehouseId(),
+									dbQualityLine.getPickPackBarCode(), dbQualityLine.getItemCode(),
+									storageBin.getStorageBin(), 1L, 1L, updateInventory, loginUserID);
+							log.info("updatedInventory----------> : " + updatedInventory);
+						} catch (Exception e) {
+							e.printStackTrace();
+							log.info("updatedInventory error----------> : " + e.toString());
+						}
+					} else {
+						log.info("AddInventory========>");
+						AddInventory newInventory = new AddInventory();
+						newInventory.setLanguageId(warehouse.getLanguageId());
+						newInventory.setCompanyCodeId(warehouse.getCompanyCode());
+						newInventory.setPlantId(warehouse.getPlantId());
+						newInventory.setStockTypeId(inventory.getStockTypeId());
+						newInventory.setBinClassId(BIN_CLASS_ID);
+						newInventory.setWarehouseId(dbQualityLine.getWarehouseId());
+						newInventory.setPackBarcodes(dbQualityLine.getPickPackBarCode());
+						newInventory.setItemCode(dbQualityLine.getItemCode());
+						newInventory.setStorageBin(storageBin.getStorageBin());
+						newInventory.setInventoryQuantity(dbQualityLine.getQualityQty());
+						newInventory.setSpecialStockIndicatorId(1L);
 
-					List<IImbasicData1> imbasicdata1 = imbasicdata1Repository
-							.findByItemCode(newInventory.getItemCode());
-					if (imbasicdata1 != null && !imbasicdata1.isEmpty()) {
-						newInventory.setReferenceField8(imbasicdata1.get(0).getDescription());
-						newInventory.setReferenceField9(imbasicdata1.get(0).getManufacturePart());
-					}
-					if (storageBin != null) {
-						newInventory.setReferenceField10(storageBin.getStorageSectionId());
-						newInventory.setReferenceField5(storageBin.getAisleNumber());
-						newInventory.setReferenceField6(storageBin.getShelfId());
-						newInventory.setReferenceField7(storageBin.getRowId());
-					}
+						List<IImbasicData1> imbasicdata1 = imbasicdata1Repository
+								.findByItemCode(newInventory.getItemCode());
+						if (imbasicdata1 != null && !imbasicdata1.isEmpty()) {
+							newInventory.setReferenceField8(imbasicdata1.get(0).getDescription());
+							newInventory.setReferenceField9(imbasicdata1.get(0).getManufacturePart());
+						}
+						if (storageBin != null) {
+							newInventory.setReferenceField10(storageBin.getStorageSectionId());
+							newInventory.setReferenceField5(storageBin.getAisleNumber());
+							newInventory.setReferenceField6(storageBin.getShelfId());
+							newInventory.setReferenceField7(storageBin.getRowId());
+						}
 
-					Inventory createdInventory = inventoryService.createInventory(newInventory, loginUserID);
-					log.info("newInventory created : " + createdInventory);
-				}
+						Inventory createdInventory = inventoryService.createInventory(newInventory, loginUserID);
+						log.info("newInventory created : " + createdInventory);
+					}
+//				} 
 				
 				/*-----------------------InventoryMovement----------------------------------*/
 				// Inserting record in InventoryMovement

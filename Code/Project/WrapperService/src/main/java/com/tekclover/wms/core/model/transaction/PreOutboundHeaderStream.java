@@ -12,11 +12,9 @@ public class PreOutboundHeaderStream {
 	private String partnerCode;
 	private String referenceDocumentType;
 	private Long statusId;
-	private String referenceField4;
 	private Date refDocDate;
 	private Date requiredDeliveryDate;
 	private String referenceField1;
-	private Long outboundOrderTypeId;
 
 	/**
 	 * PreOutbound Header
@@ -33,21 +31,17 @@ public class PreOutboundHeaderStream {
                                    String preOutboundNo,
                                    String partnerCode,
                                    String referenceDocumentType,
-                                   String referenceField4,
-								   Long statusId,
+                                   Long statusId,
                                    Date refDocDate,
                                    Date requiredDeliveryDate,
-                                   String referenceField1,
-								   Long outboundOrderTypeId) {
+                                   String referenceField1) {
 		this.refDocNumber = refDocNumber;
 		this.preOutboundNo = preOutboundNo;
 		this.partnerCode = partnerCode;
 		this.referenceDocumentType = referenceDocumentType;
-		this.referenceField4 = referenceField4;
 		this.statusId = statusId;
 		this.refDocDate = refDocDate;
 		this.requiredDeliveryDate = requiredDeliveryDate;
 		this.referenceField1 = referenceField1;
-		this.outboundOrderTypeId = outboundOrderTypeId;
 	}
 }

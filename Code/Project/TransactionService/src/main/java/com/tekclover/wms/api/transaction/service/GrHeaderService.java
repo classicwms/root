@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -117,6 +116,7 @@ public class GrHeaderService extends BaseService {
 	/**
 	 * 
 	 * @param refDocNumber
+	 * @param packBarcodes
 	 * @param warehouseId
 	 * @param preInboundNo
 	 * @param caseCode
@@ -173,7 +173,7 @@ public class GrHeaderService extends BaseService {
 	 * 
 	 * @param searchGrHeader
 	 * @return
-	 * @throws Exception
+	 * @throws ParseException
 	 */
 	public List<GrHeader> findGrHeader(SearchGrHeader searchGrHeader) throws Exception {
 		searchGrHeader.setDeletionIndicator(0L);
@@ -184,25 +184,6 @@ public class GrHeaderService extends BaseService {
 		}
 		GrHeaderSpecification spec = new GrHeaderSpecification(searchGrHeader);
 		List<GrHeader> results = grHeaderRepository.findAll(spec);
-//		log.info("results: " + results);
-		return results;
-	}
-	/**
-	 *
-	 * @param searchGrHeader
-	 * @return
-	 * @throws Exception
-	 */
-	public Stream<GrHeader> findGrHeaderNew(SearchGrHeader searchGrHeader) throws Exception {
-		searchGrHeader.setDeletionIndicator(0L);
-		if (searchGrHeader.getStartCreatedOn() != null && searchGrHeader.getStartCreatedOn() != null) {
-			Date[] dates = DateUtils.addTimeToDatesForSearch(searchGrHeader.getStartCreatedOn(), searchGrHeader.getEndCreatedOn());
-			searchGrHeader.setStartCreatedOn(dates[0]);
-			searchGrHeader.setEndCreatedOn(dates[1]);
-		}
-		GrHeaderSpecification spec = new GrHeaderSpecification(searchGrHeader);
-		Stream<GrHeader> results = grHeaderRepository.stream(spec, GrHeader.class);
-//		List<GrHeader> results = grHeaderRepository.findAll(spec);
 //		log.info("results: " + results);
 		return results;
 	}
@@ -249,7 +230,7 @@ public class GrHeaderService extends BaseService {
 	
 	/**
 	 * updateGrHeader
-	 * @param loginUserID
+	 * @param loginUserId 
 	 * @param goodsReceiptNo
 	 * @param updateGrHeader
 	 * @return
