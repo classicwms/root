@@ -1082,7 +1082,7 @@ public class ReportsService extends BaseService {
 //			if(fromDeliveryDate.length() < 11) {
 
 				fromDeliveryDate_d = DateUtils.convertStringToDate(fromDeliveryDate);
-				fromDeliveryDate_d = DateUtils.addTimeToStartDate(fromDeliveryDate_d, 8, 0, 0);
+				fromDeliveryDate_d = DateUtils.addTimeToStartDate(fromDeliveryDate_d, 2, 0, 0);
 
 //			} else {
 //
@@ -1092,7 +1092,7 @@ public class ReportsService extends BaseService {
 //			if(toDeliveryDate.length() < 11) {
 
 				toDeliveryDate_d = DateUtils.convertStringToDate(toDeliveryDate);
-				toDeliveryDate_d = DateUtils.addTimeToEndDate(toDeliveryDate_d, 7, 59, 59);
+				toDeliveryDate_d = DateUtils.addTimeToEndDate(toDeliveryDate_d, 1, 59, 59);
 
 //			} else {
 //
@@ -1164,7 +1164,7 @@ public class ReportsService extends BaseService {
 			/*
 			 * Partner Code : 101, 102, 103, 107, 109, 111, 113 - Normal
 			 */
-			List<String> partnerCodes = Arrays.asList("101", "102", "103", "107", "109", "111","113");
+			List<String> partnerCodes = Arrays.asList("101", "102", "103", "107", "109", "111", "112", "113");
 			List<SummaryMetrics> summaryMetricsList = new ArrayList<>();
 			for (String pCode : partnerCodes) {
 				SummaryMetrics partnerCode_N = getMetricsDetails("N", warehouseId, pCode, "N", fromDeliveryDate_d,
@@ -1420,7 +1420,7 @@ public class ReportsService extends BaseService {
 //			if(fromDeliveryDate.length() < 11) {
 
 				fromDate = DateUtils.convertStringToDate(fromDeliveryDate);
-				fromDate = DateUtils.addTimeToStartDate(fromDate, 8, 0, 0);
+				fromDate = DateUtils.addTimeToStartDate(fromDate, 2, 0, 0);
 
 //			} else {
 //
@@ -1432,7 +1432,7 @@ public class ReportsService extends BaseService {
 //			if(toDeliveryDate.length() < 11) {
 
 				toDate = DateUtils.convertStringToDate(toDeliveryDate);
-				toDate = DateUtils.addTimeToEndDate(toDate, 7, 59, 59);
+				toDate = DateUtils.addTimeToEndDate(toDate, 1, 59, 59);
 
 //			} else {
 //
