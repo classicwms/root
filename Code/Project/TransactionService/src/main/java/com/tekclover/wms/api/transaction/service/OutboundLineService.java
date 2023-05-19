@@ -203,14 +203,14 @@ public class OutboundLineService extends BaseService {
 		long outboundLineCount = 
 				outboundLineRepository.getOutboudLineByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndStatusIdInAndDeletionIndicator(
 						warehouseId, preOutboundNo, refDocNumber, partnerCode, statusIds, 0);
-		if (outboundLineCount == 0) {
-			throw new BadRequestException("The given OutboundLine ID : " 
-					+ "warehouseId : " + warehouseId
-					+ ", preOutboundNo : " + preOutboundNo
-					+ ", refDocNumber : " + refDocNumber
-					+ ", partnerCode : " + partnerCode
-					+ " doesn't exist.");
-		}
+//		if (outboundLineCount == 0) {
+//			throw new BadRequestException("The given OutboundLine ID : " 
+//					+ "warehouseId : " + warehouseId
+//					+ ", preOutboundNo : " + preOutboundNo
+//					+ ", refDocNumber : " + refDocNumber
+//					+ ", partnerCode : " + partnerCode
+//					+ " doesn't exist.");
+//		}
 		return outboundLineCount;
 	}
 	
@@ -673,24 +673,34 @@ public class OutboundLineService extends BaseService {
 	 */
 	public List<OutboundLine> deliveryConfirmation (String warehouseId, String preOutboundNo, String refDocNumber, 
 			String partnerCode, String loginUserID) throws IllegalAccessException, InvocationTargetException {
-//		List<OutboundLine> outboundLineList = getOutboundLine(warehouseId, preOutboundNo, refDocNumber, partnerCode);
-//		log.info("outboundLine outboundLineList : " + outboundLineList);
-//		
-//		long matchedCount = outboundLineList.stream().filter(a->a.getStatusId() == 57L || a.getStatusId() == 47L || 
-//				a.getStatusId() == 51L || a.getStatusId() == 41L).count();
-//		boolean isConditionMet = (matchedCount == outboundLineList.size());
-//		log.info("isConditionMet : " + isConditionMet);
+		// PickupHeader checking for STATUS_ID - 48
+		long pickupHeaderCount = pickupHeaderService.getPickupHeaderCountForDeliveryConfirmation(warehouseId, refDocNumber, 48L);
+		boolean isConditionMet = (pickupHeaderCount > 0 ? true : false);
+		log.info("pickupHeaderCount ---- isConditionMet : " + isConditionMet);
+		if (isConditionMet) {
+			throw new BadRequestException("Pickup is not completely Processed.");
+		}
+		
+		// QualityHeader checking for STATUS_ID - 54
+		long qualityHeaderCount = qualityHeaderService.getQualityHeaderCountForDeliveryConfirmation(warehouseId, refDocNumber, 54L);
+		isConditionMet = (qualityHeaderCount > 0 ? true : false);
+		log.info("qualityHeaderCount ---- isConditionMet : " + isConditionMet);
+		if (isConditionMet) {
+			throw new BadRequestException("Quality check is not completely Processed.");
+		}
+		
+		//----------------------------------------------------------------------------------------------------------
 		
 		List<Long> statusIds = Arrays.asList(57L, 47L, 51L, 41L);
 		long outboundLineListCount = getOutboundLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, statusIds);
 		log.info("outboundLineListCount : " + outboundLineListCount);
 		
-		boolean isConditionMet = (outboundLineListCount > 0 ? true : false);
+		isConditionMet = (outboundLineListCount > 0 ? true : false);
 		log.info("isConditionMet : " + isConditionMet);
 		
 		AXApiResponse axapiResponse = null;
 		if (!isConditionMet) {
-			throw new BadRequestException("Order is not completely Processed.");
+			throw new BadRequestException("OutboundLine: Order is not completely Processed.");
 		} else {
 			log.info("Order can be Processed.");
 			/*
@@ -745,6 +755,15 @@ public class OutboundLineService extends BaseService {
 				//----------------Outbound Header update----------------------------------------------------------------------------------------
 				outboundHeaderRepository.updateOutboundHeaderStatus (warehouseId, refDocNumber, STATUS_ID_59, new Date());
 				log.info("OutboundHeader updated : ");
+				OutboundHeader isOrderConfirmedOutboundHeader = outboundHeaderService.getOutboundHeader(warehouseId, preOutboundNo, refDocNumber);
+				if (isOrderConfirmedOutboundHeader.getStatusId() != 59L) {
+					log.info("OutboundHeader is still updated not updated.");
+					log.info("Updating again OutboundHeader.");
+					isOrderConfirmedOutboundHeader.setStatusId(STATUS_ID_59);
+					isOrderConfirmedOutboundHeader.setUpdatedBy(loginUserID);
+					isOrderConfirmedOutboundHeader.setUpdatedOn(new Date());	
+					outboundHeaderRepository.saveAndFlush(isOrderConfirmedOutboundHeader);
+				}
 				
 				//----------------Preoutbound Line----------------------------------------------------------------------------------------------
 				preOutboundLineRepository.updatePreOutboundLineStatus(warehouseId, refDocNumber, STATUS_ID_59);	

@@ -61,9 +61,18 @@ public class QualityHeaderService {
 		log.info("The given QualityHeader ID : " + qualityInspectionNo + " doesn't exist.");
 		return null;
 	}
-
-
-
+	
+	/**
+	 * @param warehouseId
+	 * @param refDocNumber
+	 * @param statusId
+	 * @return
+	 */
+	public long getQualityHeaderCountForDeliveryConfirmation (String warehouseId, String refDocNumber, Long statusId) {
+		long qualityHeaderCount = qualityHeaderRepository.getQualityHeaderByWarehouseIdAndRefDocNumberAndStatusIdInAndDeletionIndicator(
+						warehouseId, refDocNumber, statusId, 0L);
+		return qualityHeaderCount;
+	}
 
 	/**
 	 * 

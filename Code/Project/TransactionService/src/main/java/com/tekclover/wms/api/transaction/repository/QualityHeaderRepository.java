@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,4 +40,10 @@ public interface QualityHeaderRepository extends JpaRepository<QualityHeader,Lon
 	public List<QualityHeader> findAllByWarehouseIdAndPreOutboundNoAndRefDocNumberAndQualityInspectionNoAndActualHeNoAndDeletionIndicator(
 			String warehouseId, String preOutboundNo, String refDocNumber, String qualityInspectionNo, String actualHeNo,
 			Long l);
+	
+	@Query("Select count(ob) from QualityHeader ob where ob.warehouseId=:warehouseId and ob.refDocNumber=:refDocNumber and \r\n"
+			+ " ob.statusId = :statusId and ob.deletionIndicator=:deletionIndicator")
+	public long getQualityHeaderByWarehouseIdAndRefDocNumberAndStatusIdInAndDeletionIndicator(
+			 @Param ("warehouseId") String warehouseId, @Param ("refDocNumber") String refDocNumber, @Param ("statusId") Long statusId, 
+			 @Param ("deletionIndicator") long deletionIndicator);
 }

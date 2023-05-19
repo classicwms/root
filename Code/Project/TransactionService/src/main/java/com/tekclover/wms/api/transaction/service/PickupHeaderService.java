@@ -62,7 +62,8 @@ public class PickupHeaderService {
     					lineNumber, itemCode, 0L);
 		if (pickupHeader != null && pickupHeader.getDeletionIndicator() == 0) {
 			return pickupHeader;
-		} 
+		}
+		
 		throw new BadRequestException("The given PickupHeader ID : " + 
 					"warehouseId : " + warehouseId + 
 					",preOutboundNo : " + preOutboundNo +
@@ -73,7 +74,31 @@ public class PickupHeaderService {
 					",itemCode : " + itemCode +
 					" doesn't exist.");
 	}
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param refDocNumber
+	 * @param statusId
+	 * @return
+	 */
+	public long getPickupHeaderCountForDeliveryConfirmation (String warehouseId, String refDocNumber, Long statusId) {
+		long pickupHeaderCount = pickupHeaderRepository.getPickupHeaderByWarehouseIdAndRefDocNumberAndStatusIdInAndDeletionIndicator (
+						warehouseId, refDocNumber, statusId, 0L);
+		return pickupHeaderCount;
+	}
 
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @param pickupNumber
+	 * @param lineNumber
+	 * @param itemCode
+	 * @return
+	 */
 	public List<PickupHeader> getPickupHeaderForReversal (String warehouseId, String preOutboundNo, String refDocNumber,
 										 String partnerCode, String pickupNumber, Long lineNumber, String itemCode) {
 		List<PickupHeader> pickupHeader =
@@ -132,7 +157,8 @@ public class PickupHeaderService {
     					lineNumber, itemCode, 0L);
 		if (pickupHeader != null) {
 			return pickupHeader;
-		} 
+		}
+		
 		throw new BadRequestException ("The given PickupHeader ID : " + 
 					"warehouseId : " + warehouseId + 
 					",preOutboundNo : " + preOutboundNo +
@@ -144,6 +170,17 @@ public class PickupHeaderService {
 					" doesn't exist.");
 	}
 
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @param pickupNumber
+	 * @param lineNumber
+	 * @param itemCode
+	 * @return
+	 */
 	public List<PickupHeader> getPickupHeaderForUpdateConfirmation (String warehouseId, String preOutboundNo, String refDocNumber,
 																	String partnerCode, String pickupNumber, Long lineNumber, String itemCode) {
 		List<PickupHeader> pickupHeader =

@@ -5,7 +5,9 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,4 +41,10 @@ public interface PickupHeaderRepository
 	public PickupHeader findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndProposedStorageBinAndProposedPackBarCodeAndDeletionIndicator(
 			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
 			String itemCode, String proposedStorageBin, String proposedPackCode, Long deletionIndicator);
+
+	@Query("Select count(ob) from PickupHeader ob where ob.warehouseId=:warehouseId and ob.refDocNumber=:refDocNumber and \r\n"
+			+ " ob.statusId = :statusId and ob.deletionIndicator=:deletionIndicator")
+	public long getPickupHeaderByWarehouseIdAndRefDocNumberAndStatusIdInAndDeletionIndicator(
+			 @Param ("warehouseId") String warehouseId, @Param ("refDocNumber") String refDocNumber, @Param ("statusId") Long statusId, 
+			 @Param ("deletionIndicator") long deletionIndicator);
 }
