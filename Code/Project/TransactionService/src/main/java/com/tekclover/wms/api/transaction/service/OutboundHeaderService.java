@@ -12,24 +12,27 @@ import java.util.stream.Stream;
 
 import javax.persistence.EntityNotFoundException;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tekclover.wms.api.transaction.model.inbound.staging.StagingHeaderStream;
-import com.tekclover.wms.api.transaction.model.outbound.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
+import com.tekclover.wms.api.transaction.model.outbound.AddOutboundHeader;
+import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
+import com.tekclover.wms.api.transaction.model.outbound.OutboundHeaderStream;
+import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundHeader;
+import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundHeader;
 import com.tekclover.wms.api.transaction.repository.OutboundHeaderRepository;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 @Slf4j
 @Service
@@ -224,9 +227,9 @@ public class OutboundHeaderService {
 				searchOutboundHeader.getStartDeliveryConfirmedOn(),searchOutboundHeader.getEndDeliveryConfirmedOn(),
 				searchOutboundHeader.getStartOrderDate(),searchOutboundHeader.getEndOrderDate());
 		
-		for (OutboundHeader ob : headerSearchResults) {
-			log.info("Result Conf Date :" + ob.getDeliveryConfirmedOn());
-		}
+//		for (OutboundHeader ob : headerSearchResults) {
+//			log.info("Result Conf Date :" + ob.getDeliveryConfirmedOn());
+//		}
 		return headerSearchResults;
 	}
 	
