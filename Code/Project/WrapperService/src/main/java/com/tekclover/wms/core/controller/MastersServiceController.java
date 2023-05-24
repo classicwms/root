@@ -94,6 +94,16 @@ public class MastersServiceController {
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	
+	@ApiOperation(response = BomLine.class, value = "Delete BomLine") // label for swagger
+	@DeleteMapping("/bomline/{bomNumber}")
+	public ResponseEntity<?> deleteBomLine(@PathVariable Long bomNumber,@RequestParam String warehouseId,@RequestParam String languageId,
+										   @RequestParam String companyCode,@RequestParam String plantId,@RequestParam String childItemCode,
+										   @RequestParam String loginUserID, @RequestParam String authToken) {
+
+		mastersService.deleteBomLine(bomNumber, warehouseId, languageId, companyCode, plantId, childItemCode, loginUserID, authToken);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+	
     /* -----------------------------MASTERS---BUSINESSPARTNER---------------------------------------------------------------*/
 	@ApiOperation(response = BusinessPartner.class, value = "Get all BusinessPartners") // label for swagger
 	@RequestMapping(value = "/businesspartner", method = RequestMethod.GET)

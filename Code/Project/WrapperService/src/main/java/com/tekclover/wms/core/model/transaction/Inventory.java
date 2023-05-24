@@ -51,5 +51,7 @@ public class Inventory {
 	private String referenceField9;
 	private String referenceField10;
 	private String createdBy;
-	private Date createdOn = new Date();
+	private Date createdOn;
+	private String updatedBy;
+	private Date updatedOn;
 }

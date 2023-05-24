@@ -864,7 +864,8 @@ public class TransactionServiceController {
 			@RequestParam String packBarcodes, @RequestParam String itemCode, @RequestParam String storageBin, 
 			@RequestParam Long specialStockIndicatorId, @RequestParam String authToken) {
 		Inventory dbInventory = 
-				transactionService.getInventory(warehouseId, packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId, authToken);
+				transactionService.getInventory(warehouseId, packBarcodes, itemCode, storageBin, stockTypeId, 
+						specialStockIndicatorId, authToken);
 		log.info("Inventory : " + dbInventory);
 		return new ResponseEntity<>(dbInventory, HttpStatus.OK);
 	}
@@ -893,8 +894,6 @@ public class TransactionServiceController {
 		return transactionService.getQuantityValidatedInventory(searchInventory, authToken);
 	}
 
-	
-	
 	@ApiOperation(response = Inventory.class, value = "Search Inventory") // label for swagger
 	@PostMapping("/inventory/findInventory/pagination")
 	public Page<Inventory> findInventory(@RequestBody SearchInventory searchInventory,

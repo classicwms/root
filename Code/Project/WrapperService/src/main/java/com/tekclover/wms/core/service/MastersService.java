@@ -282,30 +282,32 @@ public class MastersService {
 //		}
 //	}
 //	
-//	// DELETE
-//	public boolean deleteBomLine (String warehouseId, Long bomNumber, String childItemCode, String loginUserID, String authToken) {
-//		try {
-//			HttpHeaders headers = new HttpHeaders();
-//			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-//			headers.add("User-Agent", "MNRClara's RestTemplate");
-//			headers.add("Authorization", "Bearer " + authToken);
-//			
-//			HttpEntity<?> entity = new HttpEntity<>(headers);
-//			UriComponentsBuilder builder = 
-//					UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "bomline/" + bomNumber)
-//					.queryParam("warehouseId", warehouseId)
-//					.queryParam("bomNumber", bomNumber)
-//					.queryParam("childItemCode", childItemCode)
-//					.queryParam("loginUserID", loginUserID);
-//			ResponseEntity<String> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity, String.class);
-//			log.info("result : " + result);
-//			return true;
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			throw e;
-//		}
-//	}
-		
+	// DELETE
+	public boolean deleteBomLine (Long bomNumber, String warehouseId, String languageId, String companyCode,
+								  String plantId, String childItemCode,   String loginUserID, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "bomline/" + bomNumber)
+							.queryParam("warehouseId", warehouseId)
+							.queryParam("languageId", languageId)
+							.queryParam("companyCode", companyCode)
+							.queryParam("plantId", plantId)
+							.queryParam("childItemCode", childItemCode)
+							.queryParam("loginUserID", loginUserID);
+			ResponseEntity<String> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity, String.class);
+			log.info("result : " + result);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
 		
 /* -----------------------------MASTERS---BUSINESSPARTNER---------------------------------------------------------------*/
  // Get ALL
