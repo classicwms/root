@@ -1,8 +1,12 @@
 package com.tekclover.wms.core.service;
 
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import com.tekclover.wms.core.model.masters.*;
+import com.tekclover.wms.core.util.DateUtils;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +66,7 @@ public class MastersService {
 
 	/* -----------------------------MASTERS---BomHeader---------------------------------------------------------------*/
 	// GET ALL
-	public BomHeader[] getBomHeaders (String authToken) {
+	public BomHeader[] getBomHeaders (String authToken) throws ParseException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -74,15 +78,36 @@ public class MastersService {
 			ResponseEntity<BomHeader[]> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, BomHeader[].class);
 			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+//			return result.getBody();
+
+			List<BomHeader> obList = new ArrayList<>();
+			for (BomHeader bomHeader : result.getBody()) {
+
+				obList.add(addingTimeWithDateBomHeader(bomHeader));
+
+			}
+			return obList.toArray(new BomHeader[obList.size()]);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
 		}
 	}
-	
+	//Add Time to Date plus 3 Hours
+	public BomHeader addingTimeWithDateBomHeader(BomHeader bomHeader) throws ParseException {
+
+		if (bomHeader.getCreatedOn() != null) {
+			bomHeader.setCreatedOn(DateUtils.addTimeToDate(bomHeader.getCreatedOn(), 3));
+		}
+
+		if (bomHeader.getUpdatedOn() != null) {
+			bomHeader.setUpdatedOn(DateUtils.addTimeToDate(bomHeader.getUpdatedOn(), 3));
+		}
+
+		return bomHeader;
+	}
 	// GET
-	public BomHeader getBomHeader (String warehouseId, String parentItemCode, String authToken) {
+	public BomHeader getBomHeader (String warehouseId, String parentItemCode, String authToken) throws ParseException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -97,7 +122,10 @@ public class MastersService {
 			ResponseEntity<BomHeader> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, BomHeader.class);
 			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+//			return result.getBody();
+
+			return addingTimeWithDateBomHeader(result.getBody());
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -105,7 +133,7 @@ public class MastersService {
 	}
 	
 	// POST - findBomHeader
-	public BomHeader[] findBomHeader(SearchBomHeader searchBomHeader, String authToken) {
+	public BomHeader[] findBomHeader(SearchBomHeader searchBomHeader, String authToken) throws ParseException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -118,7 +146,16 @@ public class MastersService {
 			ResponseEntity<BomHeader[]> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, BomHeader[].class);
 			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+//			return result.getBody();
+
+			List<BomHeader> obList = new ArrayList<>();
+			for (BomHeader bomHeader : result.getBody()) {
+
+				obList.add(addingTimeWithDateBomHeader(bomHeader));
+
+			}
+			return obList.toArray(new BomHeader[obList.size()]);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -192,58 +229,62 @@ public class MastersService {
 			throw e;
 		}
 	}
-	
-/* -----------------------------MASTERS---BomLine-----------------------------------------------------------------------------*/
- 
-//	// GET ALL
-//	public BomLine[] getBomLines (String authToken) {
-//		try {
-//			HttpHeaders headers = new HttpHeaders();
-//			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-//			headers.add("User-Agent", "MNRClara RestTemplate");
-//			headers.add("Authorization", "Bearer " + authToken);
-//			
-//			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "bomline");
-//			HttpEntity<?> entity = new HttpEntity<>(headers);
-//			ResponseEntity<BomLine[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, BomLine[].class);
-//			log.info("result : " + result.getStatusCode());
-//			return result.getBody();
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			throw e;
-//		}
-//	}
-//	
-//	// GET
-//	public BomLine getBomLine ( String warehouseId, Long bomNumber, String childItemCode, String authToken) {
-//		try {
-//			HttpHeaders headers = new HttpHeaders();
-//			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-//			headers.add("User-Agent", "MNRClara RestTemplate");
-//			headers.add("Authorization", "Bearer " + authToken);
-//			
-//			UriComponentsBuilder builder = 
-//					UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "bomline/" + bomNumber)
-//					.queryParam("warehouseId", warehouseId)
-//					.queryParam("bomNumber", bomNumber)
-//					.queryParam("childItemCode", childItemCode);
-//			HttpEntity<?> entity = new HttpEntity<>(headers);	
-//			ResponseEntity<BomLine> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, BomLine.class);
-//			log.info("result : " + result.getStatusCode());
-//			return result.getBody();
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			throw e;
-//		}
-//	}
-//	
+
+
+	/* -----------------------------MASTERS---BomLine-----------------------------------------------------------------------------*/
+
+	// GET ALL
+	public BomLine[] getBomLines (String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "bomline");
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<BomLine[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, BomLine[].class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	// GET
+	public BomLine getBomLine ( Long bomNumber, String warehouseId, String childItemCode, String languageId,
+								String companycode, String plantId, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "bomline/" + bomNumber)
+							.queryParam("warehouseId", warehouseId)
+							.queryParam("languageId", languageId)
+							.queryParam("companycode", companycode)
+							.queryParam("plantId", plantId)
+							.queryParam("childItemCode", childItemCode);
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<BomLine> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, BomLine.class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
 //	// POST
 //	public BomLine createBomLine (BomLine newBomLine, String loginUserID, String authToken) {
 //		HttpHeaders headers = new HttpHeaders();
 //		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 //		headers.add("User-Agent", "MNRClara RestTemplate");
 //		headers.add("Authorization", "Bearer " + authToken);
-//		
+//
 //		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "bomline")
 //				.queryParam("loginUserID", loginUserID);
 //		HttpEntity<?> entity = new HttpEntity<>(newBomLine, headers);
@@ -251,28 +292,28 @@ public class MastersService {
 //		log.info("result : " + result.getStatusCode());
 //		return result.getBody();
 //	}
-//	
+//
 //	// PATCH
-//	public BomLine updateBomLine (String warehouseId, Long bomNumber, String childItemCode, 
+//	public BomLine updateBomLine (String warehouseId, Long bomNumber, String childItemCode,
 //			String loginUserID, BomLine modifiedBomLine, String authToken) {
 //		try {
 //			HttpHeaders headers = new HttpHeaders();
 //			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 //			headers.add("User-Agent", "MNRClara's RestTemplate");
 //			headers.add("Authorization", "Bearer " + authToken);
-//			
+//
 //			HttpEntity<?> entity = new HttpEntity<>(modifiedBomLine, headers);
-//			
+//
 //			HttpClient client = HttpClients.createDefault();
 //			RestTemplate restTemplate = getRestTemplate();
-//			restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client)); 
-//			
+//			restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+//
 //			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "bomline/" + bomNumber)
 //					.queryParam("warehouseId", warehouseId)
 //					.queryParam("bomNumber", bomNumber)
 //					.queryParam("childItemCode", childItemCode)
 //					.queryParam("loginUserID", loginUserID);
-//			
+//
 //			ResponseEntity<BomLine> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, BomLine.class);
 //			log.info("result : " + result.getStatusCode());
 //			return result.getBody();
@@ -281,7 +322,7 @@ public class MastersService {
 //			throw e;
 //		}
 //	}
-//	
+//
 	// DELETE
 	public boolean deleteBomLine (Long bomNumber, String warehouseId, String languageId, String companyCode,
 								  String plantId, String childItemCode,   String loginUserID, String authToken) {
@@ -309,9 +350,10 @@ public class MastersService {
 		}
 	}
 		
+		
 /* -----------------------------MASTERS---BUSINESSPARTNER---------------------------------------------------------------*/
  // Get ALL
-	public BusinessPartner[] getBusinessPartners (String authToken) {
+	public BusinessPartner[] getBusinessPartners (String authToken) throws ParseException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -322,15 +364,38 @@ public class MastersService {
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "businesspartner");
 			ResponseEntity<BusinessPartner[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, BusinessPartner[].class);
 			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+//			return result.getBody();
+
+			List<BusinessPartner> obList = new ArrayList<>();
+			for (BusinessPartner businessPartner : result.getBody()) {
+
+				obList.add(addingTimeWithDateBusinessPartner(businessPartner));
+
+			}
+			return obList.toArray(new BusinessPartner[obList.size()]);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
 		}
 	}
-	
+
+	//Add Time to Date plus 3 Hours
+	public BusinessPartner addingTimeWithDateBusinessPartner(BusinessPartner businessPartner) throws ParseException {
+
+		if (businessPartner.getCreatedon() != null) {
+			businessPartner.setCreatedon(DateUtils.addTimeToDate(businessPartner.getCreatedon(), 3));
+		}
+
+		if (businessPartner.getUpdatedon() != null) {
+			businessPartner.setUpdatedon(DateUtils.addTimeToDate(businessPartner.getUpdatedon(), 3));
+		}
+
+		return businessPartner;
+	}
+
 	// GET BusinessPartner
-	public BusinessPartner getBusinessPartner(String partnerCode, String authToken) {
+	public BusinessPartner getBusinessPartner(String partnerCode, String authToken) throws ParseException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -341,7 +406,10 @@ public class MastersService {
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "businesspartner/" + partnerCode);
 			ResponseEntity<BusinessPartner> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, BusinessPartner.class);
 			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+//			return result.getBody();
+
+			return addingTimeWithDateBusinessPartner(result.getBody());
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -349,7 +417,7 @@ public class MastersService {
 	}
 	
 	// POST - findBusinessPartner
-	public BusinessPartner[] findBusinessPartner(SearchBusinessPartner searchBusinessPartner, String authToken) {
+	public BusinessPartner[] findBusinessPartner(SearchBusinessPartner searchBusinessPartner, String authToken) throws ParseException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -362,7 +430,16 @@ public class MastersService {
 			ResponseEntity<BusinessPartner[]> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, BusinessPartner[].class);
 			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+//			return result.getBody();
+
+			List<BusinessPartner> obList = new ArrayList<>();
+			for (BusinessPartner businessPartner : result.getBody()) {
+
+				obList.add(addingTimeWithDateBusinessPartner(businessPartner));
+
+			}
+			return obList.toArray(new BusinessPartner[obList.size()]);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -441,7 +518,7 @@ public class MastersService {
 
 	/* -----------------------------MASTERS---HANDLINGEQUIPMENT---------------------------------------------------------------*/
 	// Get ALL
-	public HandlingEquipment[] getHandlingEquipments (String authToken) {
+	public HandlingEquipment[] getHandlingEquipments (String authToken) throws ParseException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -452,15 +529,42 @@ public class MastersService {
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "handlingequipment");
 			ResponseEntity<HandlingEquipment[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, HandlingEquipment[].class);
 			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+//			return result.getBody();
+
+			List<HandlingEquipment> obList = new ArrayList<>();
+			for (HandlingEquipment handlingEquipment : result.getBody()) {
+
+				obList.add(addingTimeWithDateHandlingEquipment(handlingEquipment));
+
+			}
+			return obList.toArray(new HandlingEquipment[obList.size()]);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
 		}
 	}
-	
+
+	//Add Time to Date plus 3 Hours
+	public HandlingEquipment addingTimeWithDateHandlingEquipment(HandlingEquipment handlingEquipment) throws ParseException {
+
+		if (handlingEquipment.getAcquistionDate() != null) {
+			handlingEquipment.setAcquistionDate(DateUtils.addTimeToDate(handlingEquipment.getAcquistionDate(), 3));
+		}
+
+		if (handlingEquipment.getCreatedon() != null) {
+			handlingEquipment.setCreatedon(DateUtils.addTimeToDate(handlingEquipment.getCreatedon(), 3));
+		}
+
+		if (handlingEquipment.getUpdatedon() != null) {
+			handlingEquipment.setUpdatedon(DateUtils.addTimeToDate(handlingEquipment.getUpdatedon(), 3));
+		}
+
+		return handlingEquipment;
+	}
+
 	// GET HandlingEquipment
-	public HandlingEquipment getHandlingEquipment(String handlingEquipmentId, String authToken) {
+	public HandlingEquipment getHandlingEquipment(String handlingEquipmentId, String authToken) throws ParseException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -471,7 +575,10 @@ public class MastersService {
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "handlingequipment/" + handlingEquipmentId);
 			ResponseEntity<HandlingEquipment> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, HandlingEquipment.class);
 			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+//			return result.getBody();
+
+			return addingTimeWithDateHandlingEquipment(result.getBody());
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -479,7 +586,7 @@ public class MastersService {
 	}
 	
 	// GET
-	public HandlingEquipment getHandlingEquipment(String warehouseId, String heId, String authToken) {
+	public HandlingEquipment getHandlingEquipment(String warehouseId, String heId, String authToken) throws ParseException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -493,7 +600,10 @@ public class MastersService {
 			ResponseEntity<HandlingEquipment> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, HandlingEquipment.class);
 			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+//			return result.getBody();
+
+			return addingTimeWithDateHandlingEquipment(result.getBody());
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -501,7 +611,7 @@ public class MastersService {
 	}
 	
 	// POST - findHandlingEquipment
-	public HandlingEquipment[] findHandlingEquipment(SearchHandlingEquipment searchHandlingEquipment, String authToken) {
+	public HandlingEquipment[] findHandlingEquipment(SearchHandlingEquipment searchHandlingEquipment, String authToken) throws ParseException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -514,7 +624,16 @@ public class MastersService {
 			ResponseEntity<HandlingEquipment[]> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, HandlingEquipment[].class);
 			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+//			return result.getBody();
+
+			List<HandlingEquipment> obList = new ArrayList<>();
+			for (HandlingEquipment handlingEquipment : result.getBody()) {
+
+				obList.add(addingTimeWithDateHandlingEquipment(handlingEquipment));
+
+			}
+			return obList.toArray(new HandlingEquipment[obList.size()]);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -590,7 +709,7 @@ public class MastersService {
 
 	/* -----------------------------MASTERS---HANDLINGUNIT---------------------------------------------------------------*/
 	// Get ALL
-	public HandlingUnit[] getHandlingUnits (String authToken) {
+	public HandlingUnit[] getHandlingUnits (String authToken) throws ParseException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -601,15 +720,38 @@ public class MastersService {
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "handlingunit");
 			ResponseEntity<HandlingUnit[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, HandlingUnit[].class);
 			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+//			return result.getBody();
+
+			List<HandlingUnit> obList = new ArrayList<>();
+			for (HandlingUnit handlingUnit : result.getBody()) {
+
+				obList.add(addingTimeWithDateHandlingUnit(handlingUnit));
+
+			}
+			return obList.toArray(new HandlingUnit[obList.size()]);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
 		}
 	}
+
+	//Add Time to Date plus 3 Hours
+	public HandlingUnit addingTimeWithDateHandlingUnit(HandlingUnit handlingUnit) throws ParseException {
+
+		if (handlingUnit.getCreatedon() != null) {
+			handlingUnit.setCreatedon(DateUtils.addTimeToDate(handlingUnit.getCreatedon(), 3));
+		}
+
+		if (handlingUnit.getUpdatedon() != null) {
+			handlingUnit.setUpdatedon(DateUtils.addTimeToDate(handlingUnit.getUpdatedon(), 3));
+		}
+
+		return handlingUnit;
+	}
 	
 	// GET HandlingUnit
-	public HandlingUnit getHandlingUnit(String handlingUnit, String authToken) {
+	public HandlingUnit getHandlingUnit(String handlingUnit, String authToken) throws ParseException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -620,7 +762,10 @@ public class MastersService {
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "handlingunit/" + handlingUnit);
 			ResponseEntity<HandlingUnit> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, HandlingUnit.class);
 			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+//			return result.getBody();
+
+			return addingTimeWithDateHandlingUnit(result.getBody());
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -628,7 +773,7 @@ public class MastersService {
 	}
 	
 	// POST - findHandlingUnit
-	public HandlingUnit[] findHandlingUnit(SearchHandlingUnit searchHandlingUnit, String authToken) {
+	public HandlingUnit[] findHandlingUnit(SearchHandlingUnit searchHandlingUnit, String authToken) throws ParseException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -641,7 +786,16 @@ public class MastersService {
 			ResponseEntity<HandlingUnit[]> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, HandlingUnit[].class);
 			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+//			return result.getBody();
+
+			List<HandlingUnit> obList = new ArrayList<>();
+			for (HandlingUnit handlingUnit : result.getBody()) {
+
+				obList.add(addingTimeWithDateHandlingUnit(handlingUnit));
+
+			}
+			return obList.toArray(new HandlingUnit[obList.size()]);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -828,7 +982,7 @@ public class MastersService {
 
 	/* -----------------------------MASTERS---IMBASICDATA1---------------------------------------------------------------*/
 	// Get ALL
-	public ImBasicData1[] getImBasicData1s (String authToken) {
+	public ImBasicData1[] getImBasicData1s (String authToken) throws ParseException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -839,15 +993,38 @@ public class MastersService {
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "imbasicdata1");
 			ResponseEntity<ImBasicData1[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, ImBasicData1[].class);
 			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+//			return result.getBody();
+
+			List<ImBasicData1> obList = new ArrayList<>();
+			for (ImBasicData1 imBasicData1 : result.getBody()) {
+
+				obList.add(addingTimeWithDateImBasicData1(imBasicData1));
+
+			}
+			return obList.toArray(new ImBasicData1[obList.size()]);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
 		}
 	}
-	
+
+	//Add Time to Date plus 3 Hours
+	public ImBasicData1 addingTimeWithDateImBasicData1(ImBasicData1 imBasicData1) throws ParseException {
+
+		if (imBasicData1.getCreatedOn() != null) {
+			imBasicData1.setCreatedOn(DateUtils.addTimeToDate(imBasicData1.getCreatedOn(), 3));
+		}
+
+		if (imBasicData1.getUpdatedOn() != null) {
+			imBasicData1.setUpdatedOn(DateUtils.addTimeToDate(imBasicData1.getUpdatedOn(), 3));
+		}
+
+		return imBasicData1;
+	}
+
 	// GET ImBasicData1
-	public ImBasicData1 getImBasicData1(String itemCode, String warehouseId, String authToken) {
+	public ImBasicData1 getImBasicData1(String itemCode, String warehouseId, String authToken) throws ParseException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -860,7 +1037,10 @@ public class MastersService {
 					.queryParam("warehouseId", warehouseId);
 			ResponseEntity<ImBasicData1> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, ImBasicData1.class);
 			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+//			return result.getBody();
+
+			return addingTimeWithDateImBasicData1(result.getBody());
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -896,7 +1076,7 @@ public class MastersService {
 	}
 	
 	// POST - findImBasicData1
-	public ImBasicData1[] findImBasicData1(SearchImBasicData1 searchImBasicData1, String authToken) {
+	public ImBasicData1[] findImBasicData1(SearchImBasicData1 searchImBasicData1, String authToken) throws ParseException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -909,7 +1089,16 @@ public class MastersService {
 			ResponseEntity<ImBasicData1[]> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, ImBasicData1[].class);
 			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+//			return result.getBody();
+
+			List<ImBasicData1> obList = new ArrayList<>();
+			for (ImBasicData1 imBasicData1 : result.getBody()) {
+
+				obList.add(addingTimeWithDateImBasicData1(imBasicData1));
+
+			}
+			return obList.toArray(new ImBasicData1[obList.size()]);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -1118,7 +1307,7 @@ public class MastersService {
 		
 	/* -----------------------------MASTERS---IMPACKING---------------------------------------------------------------*/
 	// Get ALL
-	public ImPacking[] getImPackings (String authToken) {
+	public ImPacking[] getImPackings (String authToken) throws ParseException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -1129,15 +1318,38 @@ public class MastersService {
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "impacking");
 			ResponseEntity<ImPacking[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, ImPacking[].class);
 			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+//			return result.getBody();
+
+			List<ImPacking> obList = new ArrayList<>();
+			for (ImPacking imPacking : result.getBody()) {
+
+				obList.add(addingTimeWithDateImPacking(imPacking));
+
+			}
+			return obList.toArray(new ImPacking[obList.size()]);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
 		}
 	}
-	
+
+	//Add Time to Date plus 3 Hours
+	public ImPacking addingTimeWithDateImPacking(ImPacking imPacking) throws ParseException {
+
+		if (imPacking.getCreatedon() != null) {
+			imPacking.setCreatedon(DateUtils.addTimeToDate(imPacking.getCreatedon(), 3));
+		}
+
+		if (imPacking.getUpdatedon() != null) {
+			imPacking.setUpdatedon(DateUtils.addTimeToDate(imPacking.getUpdatedon(), 3));
+		}
+
+		return imPacking;
+	}
+
 	// GET ImPacking
-	public ImPacking getImPacking(String packingMaterialNo, String authToken) {
+	public ImPacking getImPacking(String packingMaterialNo, String authToken) throws ParseException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -1148,7 +1360,10 @@ public class MastersService {
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "impacking/" + packingMaterialNo);
 			ResponseEntity<ImPacking> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, ImPacking.class);
 			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+//			return result.getBody();
+
+			return addingTimeWithDateImPacking(result.getBody());
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -1444,7 +1659,7 @@ public class MastersService {
 
 	/* -----------------------------MASTERS---PACKINGMATERIAL---------------------------------------------------------------*/
 	// Get ALL
-	public PackingMaterial[] getPackingMaterials (String authToken) {
+	public PackingMaterial[] getPackingMaterials (String authToken) throws ParseException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -1455,15 +1670,38 @@ public class MastersService {
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "packingmaterial");
 			ResponseEntity<PackingMaterial[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, PackingMaterial[].class);
 			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+//			return result.getBody();
+
+			List<PackingMaterial> obList = new ArrayList<>();
+			for (PackingMaterial packingMaterial : result.getBody()) {
+
+				obList.add(addingTimeWithDatePackingMaterial(packingMaterial));
+
+			}
+			return obList.toArray(new PackingMaterial[obList.size()]);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
 		}
 	}
-	
+
+	//Add Time to Date plus 3 Hours
+	public PackingMaterial addingTimeWithDatePackingMaterial(PackingMaterial packingMaterial) throws ParseException {
+
+		if (packingMaterial.getCreatedOn() != null) {
+			packingMaterial.setCreatedOn(DateUtils.addTimeToDate(packingMaterial.getCreatedOn(), 3));
+		}
+
+		if (packingMaterial.getUpdatedOn() != null) {
+			packingMaterial.setUpdatedOn(DateUtils.addTimeToDate(packingMaterial.getUpdatedOn(), 3));
+		}
+
+		return packingMaterial;
+	}
+
 	// GET PackingMaterial
-	public PackingMaterial getPackingMaterial(String packingMaterialNo, String authToken) {
+	public PackingMaterial getPackingMaterial(String packingMaterialNo, String authToken) throws ParseException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -1474,7 +1712,10 @@ public class MastersService {
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "packingmaterial/" + packingMaterialNo);
 			ResponseEntity<PackingMaterial> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, PackingMaterial.class);
 			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+//			return result.getBody();
+
+			return addingTimeWithDatePackingMaterial(result.getBody());
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -1482,7 +1723,7 @@ public class MastersService {
 	}
 	
 	// POST - findPackingMaterial
-	public PackingMaterial[] findPackingMaterial(SearchPackingMaterial searchPackingMaterial, String authToken) {
+	public PackingMaterial[] findPackingMaterial(SearchPackingMaterial searchPackingMaterial, String authToken) throws ParseException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -1495,7 +1736,16 @@ public class MastersService {
 			ResponseEntity<PackingMaterial[]> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PackingMaterial[].class);
 			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+//			return result.getBody();
+
+			List<PackingMaterial> obList = new ArrayList<>();
+			for (PackingMaterial packingMaterial : result.getBody()) {
+
+				obList.add(addingTimeWithDatePackingMaterial(packingMaterial));
+
+			}
+			return obList.toArray(new PackingMaterial[obList.size()]);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -1568,7 +1818,7 @@ public class MastersService {
 		
 	/* -----------------------------MASTERS---STORAGEBIN---------------------------------------------------------------*/
 	// Get ALL
-	public StorageBin[] getStorageBins (String authToken) {
+	public StorageBin[] getStorageBins (String authToken) throws ParseException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -1578,15 +1828,37 @@ public class MastersService {
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "storagebin");
 			ResponseEntity<StorageBin[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, StorageBin[].class);
-			return result.getBody();
+//			return result.getBody();
+
+			List<StorageBin> obList = new ArrayList<>();
+			for (StorageBin storageBin : result.getBody()) {
+
+				obList.add(addingTimeWithDateStorageBin(storageBin));
+
+			}
+			return obList.toArray(new StorageBin[obList.size()]);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
 		}
 	}
-	
+
+	//Add Time to Date plus 3 Hours
+	public StorageBin addingTimeWithDateStorageBin(StorageBin storageBin) throws ParseException {
+
+		if (storageBin.getCreatedOn() != null) {
+			storageBin.setCreatedOn(DateUtils.addTimeToDate(storageBin.getCreatedOn(), 3));
+		}
+
+		if (storageBin.getUpdatedOn() != null) {
+			storageBin.setUpdatedOn(DateUtils.addTimeToDate(storageBin.getUpdatedOn(), 3));
+		}
+
+		return storageBin;
+	}
 	// GET StorageBin
-	public StorageBin getStorageBin(String storageBin, String authToken) {
+	public StorageBin getStorageBin(String storageBin, String authToken) throws ParseException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -1595,7 +1867,10 @@ public class MastersService {
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "storagebin/" + storageBin);
 			ResponseEntity<StorageBin> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, StorageBin.class);
-			return result.getBody();
+//			return result.getBody();
+
+			return addingTimeWithDateStorageBin(result.getBody());
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -1603,7 +1878,7 @@ public class MastersService {
 	}
 	
 	// GET StorageBin
-	public StorageBin getStorageBin(String warehouseId, String storageBin, String authToken) {
+	public StorageBin getStorageBin(String warehouseId, String storageBin, String authToken) throws ParseException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -1613,7 +1888,10 @@ public class MastersService {
 			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "storagebin/" + storageBin + "/warehouseId")
 					.queryParam("warehouseId", warehouseId);
 			ResponseEntity<StorageBin> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, StorageBin.class);
-			return result.getBody();
+//			return result.getBody();
+
+			return addingTimeWithDateStorageBin(result.getBody());
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -1621,7 +1899,7 @@ public class MastersService {
 	}
 	
 	// POST - findStorageBin
-	public StorageBin[] findStorageBin(SearchStorageBin searchStorageBin, String authToken) {
+	public StorageBin[] findStorageBin(SearchStorageBin searchStorageBin, String authToken) throws ParseException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -1634,7 +1912,16 @@ public class MastersService {
 			ResponseEntity<StorageBin[]> result = 
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, StorageBin[].class);
 			log.info("result : " + result.getStatusCode());
-			return result.getBody();
+//			return result.getBody();
+
+			List<StorageBin> obList = new ArrayList<>();
+			for (StorageBin storageBin : result.getBody()) {
+
+				obList.add(addingTimeWithDateStorageBin(storageBin));
+
+			}
+			return obList.toArray(new StorageBin[obList.size()]);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;

@@ -18,5 +18,6 @@ public class ShipmentDeliverySummary {
 	private Long lineShipped;				// Line Shipped
 	private Double orderedQty;				// Ordered Qty
 	private Double shippedQty;				// Shipped Qty
+	private Double pickedQty;				// Picked Qty
 	private Double percentageShipped;		// % Shipped
 }

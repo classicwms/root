@@ -93,7 +93,6 @@ public class ReportsService extends BaseService {
 	@Autowired
 	InventoryService inventoryService;
 
-
 	@Autowired
 	PreInboundHeaderService preInboundHeaderService;
 
@@ -123,6 +122,9 @@ public class ReportsService extends BaseService {
 
 	@Autowired
 	PickupHeaderService pickupHeaderService;
+	
+	@Autowired
+	PickupLineService pickupLineService;
 
 	@Autowired
 	QualityHeaderService qualityHeaderService;
@@ -1079,41 +1081,37 @@ public class ReportsService extends BaseService {
 		Date fromDeliveryDate_d = null;
 		Date toDeliveryDate_d = null;
 		try {
-//			if(fromDeliveryDate.length() < 11) {
-
-				fromDeliveryDate_d = DateUtils.convertStringToDate(fromDeliveryDate);
-				fromDeliveryDate_d = DateUtils.addTimeToStartDate(fromDeliveryDate_d, 2, 0, 0);
-
-//			} else {
-//
-//				fromDeliveryDate_d = DateUtils.convertStringToDateWithTime(fromDeliveryDate);
-//
-//			}
-//			if(toDeliveryDate.length() < 11) {
-
-				toDeliveryDate_d = DateUtils.convertStringToDate(toDeliveryDate);
-				toDeliveryDate_d = DateUtils.addTimeToEndDate(toDeliveryDate_d, 1, 59, 59);
-
-//			} else {
-//
-//				toDeliveryDate_d = DateUtils.convertStringToDateWithTime(toDeliveryDate);
-//			}
-
+			log.info("Input Date: " + fromDeliveryDate + "," + toDeliveryDate);
+			if (fromDeliveryDate.indexOf("T") > 0 ) {
+				fromDeliveryDate_d = DateUtils.convertStringToDateWithT(fromDeliveryDate);
+				toDeliveryDate_d = DateUtils.convertStringToDateWithT(toDeliveryDate);
+			} else {
+				fromDeliveryDate_d = DateUtils.addTimeToDate (fromDeliveryDate, 14, 0, 0);
+				toDeliveryDate_d = DateUtils.addTimeToDate(toDeliveryDate, 13, 59, 59);
+			}
 			log.info("Date: " + fromDeliveryDate_d + "," + toDeliveryDate_d);
-
 		} catch (Exception e) {
 			throw new BadRequestException("Date should be in yyyy-MM-dd format.");
 		}
 
 		List<OutboundHeader> outboundHeaderList = outboundHeaderRepository
-				.findByWarehouseIdAndStatusIdAndDeliveryConfirmedOnBetween(warehouseIds,59L, fromDeliveryDate_d, toDeliveryDate_d);
+				.findByWarehouseIdAndStatusIdAndDeliveryConfirmedOnBetween(warehouseIds, 59L, fromDeliveryDate_d, toDeliveryDate_d);
 		ShipmentDeliverySummaryReport shipmentDeliverySummaryReport = new ShipmentDeliverySummaryReport();
 		List<ShipmentDeliverySummary> shipmentDeliverySummaryList = new ArrayList<>();
+		String languageId = null;
+		String companyCode = null;
+		String plantId = null;
 		String warehouseId = null;
+		
 		try {
 			double sumOfLineItems = 0.0;
+			Set<String> partnerCodes = new HashSet<>();
 			for (OutboundHeader outboundHeader : outboundHeaderList) {
+				languageId = outboundHeader.getLanguageId();
+				companyCode = outboundHeader.getCompanyCodeId();
+				plantId = outboundHeader.getPlantId();
 				warehouseId = outboundHeader.getWarehouseId();
+				partnerCodes.add(outboundHeader.getPartnerCode());
 				
 				// Report Preparation
 				ShipmentDeliverySummary shipmentDeliverySummary = new ShipmentDeliverySummary();
@@ -1140,7 +1138,9 @@ public class ReportsService extends BaseService {
 				// Shipped Qty
 				List<Long> sumOfDeliveryQtyList = outboundLineService.getDeliveryQty(outboundHeader.getWarehouseId(),
 						outboundHeader.getPreOutboundNo(), outboundHeader.getRefDocNumber());
-
+				
+				double pickupLineCount = pickupLineService.getPickupLineCount(outboundHeader.getWarehouseId(), outboundHeader.getPreOutboundNo(), 
+						Arrays.asList(outboundHeader.getRefDocNumber()));
 				double countOfOrderedLinesvalue = countOfOrderedLines.stream().mapToLong(Long::longValue).sum();
 				double deliveryLinesCount = deliveryLines.stream().mapToLong(Long::longValue).sum();
 				double sumOfOrderedQtyValue = sumOfOrderedQty.stream().mapToLong(Long::longValue).sum();
@@ -1151,7 +1151,8 @@ public class ReportsService extends BaseService {
 				shipmentDeliverySummary.setLineShipped(deliveryLinesCount);
 				shipmentDeliverySummary.setOrderedQty(sumOfOrderedQtyValue);
 				shipmentDeliverySummary.setShippedQty(sumOfDeliveryQty);
-
+				shipmentDeliverySummary.setPickedQty(pickupLineCount);
+				
 				// % Shipped - Divide (Shipped lines/Ordered Lines)*100
 				double percShipped = Math.round((deliveryLinesCount / countOfOrderedLinesvalue) * 100);
 				shipmentDeliverySummary.setPercentageShipped(percShipped);
@@ -1164,12 +1165,12 @@ public class ReportsService extends BaseService {
 			/*
 			 * Partner Code : 101, 102, 103, 107, 109, 111, 113 - Normal
 			 */
-			List<String> partnerCodes = Arrays.asList("101", "102", "103", "107", "109", "111", "112", "113");
+			//List<String> partnerCodes = Arrays.asList("101", "102", "103", "107", "109", "111", "112", "113");
 			List<SummaryMetrics> summaryMetricsList = new ArrayList<>();
 			for (String pCode : partnerCodes) {
-				SummaryMetrics partnerCode_N = getMetricsDetails("N", warehouseId, pCode, "N", fromDeliveryDate_d,
+				SummaryMetrics partnerCode_N = getMetricsDetails(languageId, companyCode, plantId, "N", warehouseId, pCode, "N", fromDeliveryDate_d,
 						toDeliveryDate_d);
-				SummaryMetrics partnerCode_S = getMetricsDetails("S", warehouseId, pCode, "S", fromDeliveryDate_d,
+				SummaryMetrics partnerCode_S = getMetricsDetails(languageId, companyCode, plantId, "S", warehouseId, pCode, "S", fromDeliveryDate_d,
 						toDeliveryDate_d);
 
 				if (partnerCode_N != null) {
@@ -1189,7 +1190,7 @@ public class ReportsService extends BaseService {
 
 		return shipmentDeliverySummaryReport;
 	}
-
+	
 //	/**
 //	 * ShipmentDeliverySummary Report
 //	 *
@@ -1402,7 +1403,7 @@ public class ReportsService extends BaseService {
 	 * @throws ParseException
 	 */
 	public ShipmentDispatchSummaryReport getShipmentDispatchSummaryReport(String fromDeliveryDate,
-			String toDeliveryDate, List<String> customerCode,String warehouseId) throws ParseException, java.text.ParseException {
+			String toDeliveryDate, List<String> customerCode, String warehouseId) throws ParseException, Exception {
 		// Date range
 		if (fromDeliveryDate == null || toDeliveryDate == null) {
 			throw new BadRequestException("DeliveryDate can't be blank.");
@@ -1417,30 +1418,16 @@ public class ReportsService extends BaseService {
 		Date fromDate = null;
 		Date toDate = null;
 		try {
-//			if(fromDeliveryDate.length() < 11) {
-
-				fromDate = DateUtils.convertStringToDate(fromDeliveryDate);
-				fromDate = DateUtils.addTimeToStartDate(fromDate, 2, 0, 0);
-
-//			} else {
-//
-//				fromDate = DateUtils.convertStringToDateWithTime(fromDeliveryDate);
-//			}
-
-			log.info("Date---fromDate----->: " + fromDate);
-
-//			if(toDeliveryDate.length() < 11) {
-
-				toDate = DateUtils.convertStringToDate(toDeliveryDate);
-				toDate = DateUtils.addTimeToEndDate(toDate, 1, 59, 59);
-
-//			} else {
-//
-//				toDate = DateUtils.convertStringToDateWithTime(toDeliveryDate);
-//			}
-
-			log.info("Date---toDate----->: " + toDate);
-
+			log.info("Input Date: " + fromDeliveryDate + "," + toDeliveryDate);
+			if (fromDeliveryDate.indexOf("T") > 0 ) {
+				fromDate = DateUtils.convertStringToDateWithT(fromDeliveryDate);
+				toDate = DateUtils.convertStringToDateWithT(toDeliveryDate);
+			} else {
+				fromDate = DateUtils.addTimeToDate (fromDeliveryDate, 14, 0, 0);
+				toDate = DateUtils.addTimeToDate(toDeliveryDate, 13, 59, 59);
+			}
+			log.info("Date: " + fromDate + "," + toDate);
+			
 		} catch (Exception e) {
 			throw new BadRequestException("Date should be in yyyy-MM-dd format.");
 		}
@@ -1450,7 +1437,6 @@ public class ReportsService extends BaseService {
 		searchOutboundLine.setToDeliveryDate(toDate);
 		searchOutboundLine.setWarehouseId(new ArrayList<>());
 		searchOutboundLine.getWarehouseId().add(warehouseId);
-
 		List<ShipmentDispatchSummaryReportImpl> outboundLineSearchResults = outboundLineService
 				.findOutboundLineShipmentReport(searchOutboundLine);
 		log.info("outboundLineSearchResults----->: " + outboundLineSearchResults);
@@ -1459,6 +1445,11 @@ public class ReportsService extends BaseService {
 			outboundLineSearchResults = outboundLineSearchResults.stream().filter(data->customerCode.contains(data.getPartnerCode())).collect(Collectors.toList());
 		}
 
+		List<OutboundHeader> outboundHeaderList = outboundHeaderRepository
+				.findByWarehouseIdAndStatusIdAndDeliveryConfirmedOnBetween(warehouseId, 59L, fromDate, toDate);
+		List<String> refDocNoList = outboundHeaderList.stream().map(OutboundHeader::getRefDocNumber).collect(Collectors.toList());
+		log.info("refDocNoList : " + refDocNoList);
+		
 		ShipmentDispatchSummaryReport shipmentDispatchSummary = new ShipmentDispatchSummaryReport();
 
 		// Printed on
@@ -1472,25 +1463,27 @@ public class ReportsService extends BaseService {
 
 			// Header
 			ShipmentDispatchHeader header = new ShipmentDispatchHeader();
-			header.setPartnerCode(partnerCode);
-
+			
+			// Obtain Partner Name
+			AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+			BusinessPartner partner = mastersService.getBusinessPartner(partnerCode, authTokenForMastersService.getAccess_token());
+			header.setPartnerCode(partnerCode + "-" + partner.getPartnerName());
+			
 			// Obtaining Child
 			List<ShipmentDispatchSummaryReportImpl> partnerOBLines = outboundLineSearchResults.stream()
 					.filter(a -> a.getPartnerCode().equalsIgnoreCase(partnerCode)).collect(Collectors.toList());
+			
 			// List
 			List<ShipmentDispatchList> shipmentDispatchList = new ArrayList<>();
 			double totalLinesOrdered = 0.0;
 			double totalLinesShipped = 0.0;
 			double totalOrderedQty = 0.0;
 			double totalShippedQty = 0.0;
-
+			double totalPickedQty = 0.0;
 			for (ShipmentDispatchSummaryReportImpl outboundLine : partnerOBLines) {
-
 				ShipmentDispatchList list = new ShipmentDispatchList();
-
 				list.setSoNumber(outboundLine.getSoNumber()); // REF_DOC_NO
   				list.setOrderReceiptTime(outboundLine.getOrderReceiptTime());
-
 				list.setLinesOrdered(outboundLine.getLinesOrdered());
 
 				totalLinesOrdered += outboundLine.getLinesOrdered();
@@ -1515,6 +1508,21 @@ public class ReportsService extends BaseService {
 
 				list.setPerentageShipped(outboundLine.getPercentageShipped());
                 log.info("percentage Shipped : " + outboundLine.getPercentageShipped());
+                
+                // PickupLine Count
+                //-------------------PickupLine-Count-----------------------------------------------------
+    			List<String> preOutboundNoList = outboundHeaderList.stream()
+    					.filter(o->o.getRefDocNumber().equalsIgnoreCase(outboundLine.getSoNumber()) && 
+    								o.getPartnerCode().equalsIgnoreCase(partnerCode))
+    					.map(OutboundHeader::getPreOutboundNo).collect(Collectors.toList());
+    			
+    			log.info("preOutboundNoList : " + preOutboundNoList);    			
+    			double pickupLineCount = pickupLineService.getPickupLineCount(getLanguageId(), getCompanyCode(), getPlantId(), 
+    					warehouseId, Arrays.asList(preOutboundNoList.get(0)), Arrays.asList(outboundLine.getSoNumber()), partnerCode);
+    			log.info("pickupLineCount Picked : " + pickupLineCount);
+    			
+    			list.setPickedQty(pickupLineCount);
+    			totalPickedQty += pickupLineCount;
 				shipmentDispatchList.add(list);
 			}
 
@@ -1525,6 +1533,8 @@ public class ReportsService extends BaseService {
 			header.setTotalLinesShipped(totalLinesShipped);
 			header.setTotalOrderedQty(totalOrderedQty);
 			header.setTotalShippedQty(totalShippedQty);
+			header.setTotalPickedQty(totalPickedQty);
+			
 			double averagePercentage = Math.round((totalShippedQty / totalOrderedQty) * 100);
 			header.setAveragePercentage(averagePercentage);
 			log.info("header : " + header);
@@ -1688,13 +1698,11 @@ public class ReportsService extends BaseService {
 	 * @throws java.text.ParseException
 	 * @throws ParseException
 	 */
-	private SummaryMetrics getMetricsDetails(String type, String warehouseId, String partnerCode, String refField1,
-			Date fromDeliveryDate_d, Date toDeliveryDate_d) throws ParseException, java.text.ParseException {
+	private SummaryMetrics getMetricsDetails(String languageId, String companyCode, String plantId, String type, 
+			String warehouseId, String partnerCode, String refField1, Date fromDeliveryDate_d, Date toDeliveryDate_d) throws ParseException, Exception {
 		List<OutboundHeader> outboundHeaderList = outboundHeaderRepository
 				.findByWarehouseIdAndStatusIdAndPartnerCodeAndDeliveryConfirmedOnBetween(warehouseId, 59L, partnerCode, fromDeliveryDate_d,
 						toDeliveryDate_d);
-//				.findByStatusIdAndPartnerCodeAndDeliveryConfirmedOnBetween(59L, partnerCode, fromDeliveryDate_d,
-//						toDeliveryDate_d);
 		log.info( "partnerCode--->: " + partnerCode + " refField1:----> : " + refField1 + "--:fromDeliveryDate_d:---> : " + fromDeliveryDate_d
 				+ " --> toDeliveryDate_d;  "+ toDeliveryDate_d);
 		log.info("---------------------->outboundHeaderList : " + outboundHeaderList);
@@ -1703,6 +1711,13 @@ public class ReportsService extends BaseService {
 				.filter(a -> a.getReferenceField1().equalsIgnoreCase(refField1)).map(OutboundHeader::getRefDocNumber)
 				.collect(Collectors.toList());
 		log.info("refDocNoList : " + refDocNoList);
+		
+		List<String> preOutboundNoList = outboundHeaderList.stream()
+				.filter(a -> a.getReferenceField1().equalsIgnoreCase(refField1) && 
+						a.getPartnerCode().equalsIgnoreCase(partnerCode))
+				.map(OutboundHeader::getPreOutboundNo)
+				.collect(Collectors.toList());
+		log.info("preOutboundNoList : " + preOutboundNoList);
 
 		List<String> refField1List = outboundHeaderList.stream().map(OutboundHeader::getReferenceField1)
 				.collect(Collectors.toList());
@@ -1732,15 +1747,26 @@ public class ReportsService extends BaseService {
 					toDeliveryDate_d);
 			double shipped_lines_N = shipped_lines_NList.stream().mapToLong(Long::longValue).sum();
 			double percShipped_N = Math.round((shipped_lines_N / line_item_N) * 100);
-
+			
+			// PickupLine Count
+			log.info("---getMetricsDetails--1---pickupLineCount--------> : " + preOutboundNoList + "," + refDocNoList + "," + partnerCode);	
+			double pickupLineCount = pickupLineService.getPickupLineCount(languageId, companyCode, plantId, warehouseId, 
+					preOutboundNoList, refDocNoList, partnerCode);
+			log.info("---getMetricsDetails--2--pickupLineCount--------> : " + pickupLineCount);		
+			
 			// Populate Metrics
 			MetricsSummary metricsSummary = new MetricsSummary();
 			metricsSummary.setTotalOrder(totalOrdeCount);
 			metricsSummary.setLineItems(line_item_N);
 			metricsSummary.setPercentageShipped(percShipped_N);
-
+			metricsSummary.setLineItemPicked(pickupLineCount);
+			
+			// Obtain Partner Name
+			AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+			BusinessPartner partner = mastersService.getBusinessPartner(partnerCode, authTokenForMastersService.getAccess_token());
+			
 			SummaryMetrics summaryMetrics = new SummaryMetrics();
-			summaryMetrics.setPartnerCode(partnerCode);
+			summaryMetrics.setPartnerCode(partnerCode + "-" + partner.getPartnerName());
 			summaryMetrics.setType(type);
 			summaryMetrics.setMetricsSummary(metricsSummary);
 			return summaryMetrics;

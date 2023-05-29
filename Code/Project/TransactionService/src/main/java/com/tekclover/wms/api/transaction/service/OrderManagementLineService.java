@@ -108,9 +108,9 @@ public class OrderManagementLineService extends BaseService {
 	 * @param companyCodeId
 	 * @return
 	 * 
-	 *         Pass the Selected
-	 *         WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/OB_LINE_NO/ITM_CODE/PROP_ST_BIN/PROP_PACK_BARCODE
-	 *         in ORDERMANAGEMENTLINE table
+	 * Pass the Selected
+	 * WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/OB_LINE_NO/ITM_CODE/PROP_ST_BIN/PROP_PACK_BARCODE
+	 * in ORDERMANAGEMENTLINE table
 	 */
 	public OrderManagementLine getOrderManagementLine(String warehouseId, String preOutboundNo, String refDocNumber,
 			String partnerCode, Long lineNumber, String itemCode, String proposedStorageBin, String proposedPackCode) {
@@ -215,10 +215,22 @@ public class OrderManagementLineService extends BaseService {
 						0L);
 		if (orderManagementHeader != null) {
 			return orderManagementHeader;
-		} else {
-			throw new BadRequestException("The given OrderManagementLine ID : " + "preOutboundNo" + preOutboundNo
+		} 
+		throw new BadRequestException("The given OrderManagementLine ID : " + "preOutboundNo" + preOutboundNo
 					+ ",lineNumber" + lineNumber + ",itemCode" + itemCode + " doesn't exist.");
-		}
+	}
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param refDocNumber
+	 * @param statusId
+	 * @return
+	 */
+	public long getOrderManagementLine (String warehouseId, String refDocNumber, String preOutboundNo, List<Long> statusId) {
+		long orderManagementLineCount = orderManagementLineRepository
+				.getByWarehouseIdAndAndRefDocNumberAndPreOutboundNoAndStatusIdInAndDeletionIndicator(warehouseId, refDocNumber, preOutboundNo, statusId, 0L);
+		return orderManagementLineCount;
 	}
 
 	/**
@@ -248,35 +260,12 @@ public class OrderManagementLineService extends BaseService {
 		}
 		OrderManagementLineSpecification spec = new OrderManagementLineSpecification(searchOrderManagementLine);
 		List<OrderManagementLine> searchResults = orderManagementLineRepository.findAll(spec);
-
-//		/*
-//		 * Getting StorageBin and SpanID from Masters-StorageBin table
-//		 */
-//		try {
-//			AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-//			for (OrderManagementLine orderManagementLine : searchResults) {
-//				if (orderManagementLine.getProposedStorageBin() != null && 
-//						orderManagementLine.getProposedStorageBin().trim().length() > 0) {
-//					// Getting StorageBin by WarehouseId
-//					StorageBin storageBin =
-//							mastersService.getStorageBin(orderManagementLine.getProposedStorageBin(), 
-//									orderManagementLine.getWarehouseId(),
-//									authTokenForMastersService.getAccess_token());
-//			
-//					// Ref_Field_9 for storing ST_SEC_ID
-//					orderManagementLine.setReferenceField9(storageBin.getStorageSectionId());
-//					
-//					// Ref_Field_10 for storing SPAN_ID
-//					orderManagementLine.setReferenceField10(storageBin.getSpanId());
-//				}
-//			}
-//		} catch (Exception e) {
-//			log.error("Error on : " + e.toString());
-//			throw new BadRequestException(e.toString());
-//		}
 		return searchResults;
 	}
 
+	/**
+	 * 
+	 */
 	public void updateRef9ANDRef10() {
 		List<OrderManagementLine> searchResults = orderManagementLineRepository
 				.findByWarehouseIdAndStatusIdIn(WAREHOUSE_ID_110, Arrays.asList(42L, 43L, 47L));

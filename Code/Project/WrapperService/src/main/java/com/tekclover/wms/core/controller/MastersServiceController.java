@@ -1,6 +1,7 @@
 package com.tekclover.wms.core.controller;
 
 import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,14 +49,15 @@ public class MastersServiceController {
 	/* -----------------------------MASTERS---BomHeader---------------------------------------------------------------*/
 	@ApiOperation(response = BomHeader.class, value = "Get all BomHeaders") // label for swagger
 	@GetMapping("/bomheader")
-	public ResponseEntity<?> getBomHeaders(@RequestParam String authToken) {
+	public ResponseEntity<?> getBomHeaders(@RequestParam String authToken) throws ParseException {
 		BomHeader[] parentItemCodeList = mastersService.getBomHeaders(authToken);
 		return new ResponseEntity<>(parentItemCodeList, HttpStatus.OK);
 	}
 
 	@ApiOperation(response = BomHeader.class, value = "Get a BomHeader") // label for swagger
 	@GetMapping("/bomheader/{parentItemCode}")
-	public ResponseEntity<?> getBomHeader(@PathVariable String parentItemCode, @RequestParam String warehouseId, @RequestParam String authToken) {
+	public ResponseEntity<?> getBomHeader(@PathVariable String parentItemCode, @RequestParam String warehouseId,
+										  @RequestParam String authToken) throws ParseException {
 		BomHeader dbBomHeader = mastersService.getBomHeader(warehouseId, parentItemCode, authToken);
 		log.info("BomHeader : " + dbBomHeader);
 		return new ResponseEntity<>(dbBomHeader, HttpStatus.OK);
@@ -93,7 +95,57 @@ public class MastersServiceController {
 		mastersService.deleteBomHeader(warehouseId, parentItemCode, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
+	/* -----------------------------MASTERS---Bom Line---------------------------------------------------------------*/
+
+	@ApiOperation(response = BomLine.class, value = "Get all BomLines") // label for swagger
+	@GetMapping("/bomline")
+	public ResponseEntity<?> getBomLines(@RequestParam String authToken) {
+		BomLine[] bomLineList = mastersService.getBomLines(authToken);
+		return new ResponseEntity<>(bomLineList, HttpStatus.OK);
+	}
+
+	@ApiOperation(response = BomLine.class, value = "Get a BomLine") // label for swagger
+	@GetMapping("/bomline/{bomNumber}")
+	public ResponseEntity<?> getBomLine(@PathVariable Long bomNumber,@RequestParam String companyCode,
+										@RequestParam String languageId,@RequestParam String plantId,
+										@RequestParam String warehouseId, @RequestParam String childItemCode,
+										@RequestParam String authToken) {
+
+		BomLine dbBomLine = mastersService.getBomLine(bomNumber, warehouseId, childItemCode,languageId,companyCode,plantId,authToken);
+		log.info("bomline : " + dbBomLine);
+		return new ResponseEntity<>(dbBomLine, HttpStatus.OK);
+	}
+
+	/*@ApiOperation(response = BomLine.class, value = "Search BomLine") // label for swagger
+	@PostMapping("/bomline/findBomHeader")
+	public BomHeader[] findBomLine(@RequestBody SearchBomLine searchBomLine,
+			@RequestParam String authToken) throws Exception {
+
+		return mastersService.findBomHeader(searchBomHeader, authToken);
+	}
+
+	@ApiOperation(response = BomLine.class, value = "Create BomLine") // label for swagger
+	@PostMapping("/bomline")
+	public ResponseEntity<?> postBomLine(@Valid @RequestBody BomLine newBomLine, @RequestParam String loginUserID,
+			@RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+
+		BomHeader createdBomHeader = mastersService.createBomLine(newBomHeader, loginUserID, authToken);
+		return new ResponseEntity<>(createdBomHeader, HttpStatus.OK);
+	}
+
+	@ApiOperation(response = BomLine.class, value = "Update BomLine") // label for swagger
+	@RequestMapping(value = "/bomline", method = RequestMethod.PATCH)
+	public ResponseEntity<?> patchBomLine(@RequestParam String parentItemCode,@RequestParam String warehouseId,@RequestParam String languageId,
+											@RequestParam String companyCode,@RequestParam String plantId,
+											@RequestParam String loginUserID, @RequestParam String authToken, @Valid @RequestBody BomHeader updateBomHeader)
+			throws IllegalAccessException, InvocationTargetException {
+
+		BomHeader updatedBomHeader = mastersService.updateBomLine(warehouseId, parentItemCode,languageId,companyCode,plantId,
+				loginUserID,updateBomHeader, authToken);
+		return new ResponseEntity<>(updatedBomHeader, HttpStatus.OK);
+	}
+*/
 	@ApiOperation(response = BomLine.class, value = "Delete BomLine") // label for swagger
 	@DeleteMapping("/bomline/{bomNumber}")
 	public ResponseEntity<?> deleteBomLine(@PathVariable Long bomNumber,@RequestParam String warehouseId,@RequestParam String languageId,
@@ -103,11 +155,11 @@ public class MastersServiceController {
 		mastersService.deleteBomLine(bomNumber, warehouseId, languageId, companyCode, plantId, childItemCode, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
     /* -----------------------------MASTERS---BUSINESSPARTNER---------------------------------------------------------------*/
 	@ApiOperation(response = BusinessPartner.class, value = "Get all BusinessPartners") // label for swagger
 	@RequestMapping(value = "/businesspartner", method = RequestMethod.GET)
-   	public ResponseEntity<?> getBusinessPartners(@RequestParam String authToken) {
+   	public ResponseEntity<?> getBusinessPartners(@RequestParam String authToken) throws ParseException {
 		BusinessPartner[] businesspartner = mastersService.getBusinessPartners(authToken);
     	log.info("BusinessPartner : " + businesspartner);
 		return new ResponseEntity<>(businesspartner, HttpStatus.OK); 
@@ -115,7 +167,7 @@ public class MastersServiceController {
     
     @ApiOperation(response = BusinessPartner.class, value = "Get a BusinessPartner") // label for swagger 
 	@RequestMapping(value = "/businesspartner/{partnerCode}", method = RequestMethod.GET)
-	public ResponseEntity<?> getBusinessPartner(@PathVariable String partnerCode, @RequestParam String authToken) {
+	public ResponseEntity<?> getBusinessPartner(@PathVariable String partnerCode, @RequestParam String authToken) throws ParseException {
     	BusinessPartner businesspartner = mastersService.getBusinessPartner(partnerCode, authToken);
     	log.info("BusinessPartner : " + businesspartner);
 		return new ResponseEntity<>(businesspartner, HttpStatus.OK);
@@ -157,7 +209,7 @@ public class MastersServiceController {
     /* -----------------------------MASTERS---HANDLINGEQUIPMENT---------------------------------------------------------------*/
 	@ApiOperation(response = HandlingEquipment.class, value = "Get all HandlingEquipment") // label for swagger
 	@RequestMapping(value = "/handlingequipment", method = RequestMethod.GET)
-   	public ResponseEntity<?> getHandlingEquipments(@RequestParam String authToken) {
+   	public ResponseEntity<?> getHandlingEquipments(@RequestParam String authToken) throws ParseException {
 		HandlingEquipment[] handlingequipment = mastersService.getHandlingEquipments(authToken);
     	log.info("HandlingEquipment : " + handlingequipment);
 		return new ResponseEntity<>(handlingequipment, HttpStatus.OK); 
@@ -165,7 +217,7 @@ public class MastersServiceController {
     
     @ApiOperation(response = HandlingEquipment.class, value = "Get a HandlingEquipment") // label for swagger 
 	@RequestMapping(value = "/handlingequipment/{handlingEquipmentId}", method = RequestMethod.GET)
-	public ResponseEntity<?> getHandlingEquipment(@PathVariable String handlingEquipmentId, @RequestParam String authToken) {
+	public ResponseEntity<?> getHandlingEquipment(@PathVariable String handlingEquipmentId, @RequestParam String authToken) throws ParseException {
     	HandlingEquipment handlingequipment = mastersService.getHandlingEquipment(handlingEquipmentId, authToken);
     	log.info("HandlingEquipment : " + handlingequipment);
 		return new ResponseEntity<>(handlingequipment, HttpStatus.OK);
@@ -174,7 +226,7 @@ public class MastersServiceController {
     @ApiOperation(response = HandlingEquipment.class, value = "Get HandlingEquipment by Barcode") // label for swagger 
    	@GetMapping("/handlingequipment/{heBarcode}/barCode")
    	public ResponseEntity<?> getHandlingEquipment(@PathVariable String heBarcode, @RequestParam String warehouseId,
-   			@RequestParam String authToken) {
+   			@RequestParam String authToken) throws ParseException {
        	HandlingEquipment handlingequipment = mastersService.getHandlingEquipment(warehouseId, heBarcode, authToken);
        	log.info("HandlingEquipment : " + handlingequipment);
    		return new ResponseEntity<>(handlingequipment, HttpStatus.OK);
@@ -217,7 +269,7 @@ public class MastersServiceController {
     /* -----------------------------MASTERS---HANDLINGUNIT---------------------------------------------------------------*/
 	@ApiOperation(response = HandlingUnit.class, value = "Get all HandlingUnit") // label for swagger
 	@RequestMapping(value = "/handlingunit", method = RequestMethod.GET)
-   	public ResponseEntity<?> getHandlingUnits(@RequestParam String authToken) {
+   	public ResponseEntity<?> getHandlingUnits(@RequestParam String authToken) throws ParseException {
 		HandlingUnit[] handlingunit = mastersService.getHandlingUnits(authToken);
     	log.info("HandlingUnit : " + handlingunit);
 		return new ResponseEntity<>(handlingunit, HttpStatus.OK); 
@@ -225,7 +277,7 @@ public class MastersServiceController {
     
     @ApiOperation(response = HandlingUnit.class, value = "Get a HandlingUnit") // label for swagger 
 	@RequestMapping(value = "/handlingunit/{handlingUnit}", method = RequestMethod.GET)
-	public ResponseEntity<?> getHandlingUnit(@PathVariable String handlingUnit, @RequestParam String authToken) {
+	public ResponseEntity<?> getHandlingUnit(@PathVariable String handlingUnit, @RequestParam String authToken) throws ParseException {
     	HandlingUnit handlingunit = mastersService.getHandlingUnit (handlingUnit, authToken);
     	log.info("HandlingUnit : " + handlingunit);
 		return new ResponseEntity<>(handlingunit, HttpStatus.OK);
@@ -333,7 +385,7 @@ public class MastersServiceController {
     /* -----------------------------MASTERS---IMBASICDATA1---------------------------------------------------------------*/
 	@ApiOperation(response = ImBasicData1.class, value = "Get all ImBasicData1") // label for swagger
 	@RequestMapping(value = "/imbasicdata1", method = RequestMethod.GET)
-   	public ResponseEntity<?> getImBasicData1s(@RequestParam String authToken) {
+   	public ResponseEntity<?> getImBasicData1s(@RequestParam String authToken) throws ParseException {
 		ImBasicData1[] imbasicdata1 = mastersService.getImBasicData1s(authToken);
     	log.info("ImBasicData1 : " + imbasicdata1);
 		return new ResponseEntity<>(imbasicdata1, HttpStatus.OK); 
@@ -342,7 +394,7 @@ public class MastersServiceController {
     @ApiOperation(response = ImBasicData1.class, value = "Get a ImBasicData1") // label for swagger 
 	@RequestMapping(value = "/imbasicdata1/{itemCode}", method = RequestMethod.GET)
 	public ResponseEntity<?> getImBasicData1(@PathVariable String itemCode, @RequestParam String warehouseId, 
-			@RequestParam String authToken) {
+			@RequestParam String authToken) throws ParseException {
     	ImBasicData1 imbasicdata1 = mastersService.getImBasicData1(itemCode, warehouseId, authToken);
     	log.info("ImBasicData1 : " + imbasicdata1);
 		return new ResponseEntity<>(imbasicdata1, HttpStatus.OK);
@@ -420,7 +472,7 @@ public class MastersServiceController {
     /* -----------------------------MASTERS---IMPACKING---------------------------------------------------------------*/
 	@ApiOperation(response = ImPacking.class, value = "Get all ImPacking") // label for swagger
 	@RequestMapping(value = "/impacking", method = RequestMethod.GET)
-   	public ResponseEntity<?> getImPackings(@RequestParam String authToken) {
+   	public ResponseEntity<?> getImPackings(@RequestParam String authToken) throws ParseException {
 		ImPacking[] impacking = mastersService.getImPackings(authToken);
     	log.info("ImPacking : " + impacking);
 		return new ResponseEntity<>(impacking, HttpStatus.OK); 
@@ -428,7 +480,7 @@ public class MastersServiceController {
     
     @ApiOperation(response = ImPacking.class, value = "Get a ImPacking") // label for swagger 
 	@RequestMapping(value = "/impacking/{packingMaterialNo}", method = RequestMethod.GET)
-	public ResponseEntity<?> getImPacking(@PathVariable String packingMaterialNo, @RequestParam String authToken) {
+	public ResponseEntity<?> getImPacking(@PathVariable String packingMaterialNo, @RequestParam String authToken) throws ParseException {
     	ImPacking impacking = mastersService.getImPacking(packingMaterialNo, authToken);
     	log.info("ImPacking : " + impacking);
 		return new ResponseEntity<>(impacking, HttpStatus.OK);
@@ -546,7 +598,7 @@ public class MastersServiceController {
     /* -----------------------------MASTERS---PACKINGMATERIAL---------------------------------------------------------------*/
 	@ApiOperation(response = PackingMaterial.class, value = "Get all PackingMaterial") // label for swagger
 	@RequestMapping(value = "/packingmaterial", method = RequestMethod.GET)
-   	public ResponseEntity<?> getPackingMaterials(@RequestParam String authToken) {
+   	public ResponseEntity<?> getPackingMaterials(@RequestParam String authToken) throws ParseException {
 		PackingMaterial[] packingmaterial = mastersService.getPackingMaterials(authToken);
     	log.info("PackingMaterial : " + packingmaterial);
 		return new ResponseEntity<>(packingmaterial, HttpStatus.OK); 
@@ -554,7 +606,7 @@ public class MastersServiceController {
     
     @ApiOperation(response = PackingMaterial.class, value = "Get a PackingMaterial") // label for swagger 
 	@RequestMapping(value = "/packingmaterial/{packingMaterialNo}", method = RequestMethod.GET)
-	public ResponseEntity<?> getPackingMaterial(@PathVariable String packingMaterialNo, @RequestParam String authToken) {
+	public ResponseEntity<?> getPackingMaterial(@PathVariable String packingMaterialNo, @RequestParam String authToken) throws ParseException {
     	PackingMaterial packingmaterial = mastersService.getPackingMaterial(packingMaterialNo, authToken);
     	log.info("PackingMaterial : " + packingmaterial);
 		return new ResponseEntity<>(packingmaterial, HttpStatus.OK);
@@ -597,7 +649,7 @@ public class MastersServiceController {
     /* -----------------------------MASTERS---STORAGEBIN---------------------------------------------------------------*/
 	@ApiOperation(response = StorageBin.class, value = "Get all StorageBin") // label for swagger
 	@RequestMapping(value = "/storagebin", method = RequestMethod.GET)
-   	public ResponseEntity<?> getStorageBins(@RequestParam String authToken) {
+   	public ResponseEntity<?> getStorageBins(@RequestParam String authToken) throws ParseException {
 		StorageBin[] storagebin = mastersService.getStorageBins(authToken);
     	log.info("StorageBin : " + storagebin);
 		return new ResponseEntity<>(storagebin, HttpStatus.OK);
@@ -605,7 +657,7 @@ public class MastersServiceController {
 	
     @ApiOperation(response = StorageBin.class, value = "Get a StorageBin") // label for swagger 
 	@RequestMapping(value = "/storagebin/{storageBin}", method = RequestMethod.GET)
-	public ResponseEntity<?> getStorageBin(@PathVariable String storageBin, @RequestParam String authToken) {
+	public ResponseEntity<?> getStorageBin(@PathVariable String storageBin, @RequestParam String authToken) throws ParseException {
     	StorageBin storagebin = mastersService.getStorageBin (storageBin, authToken);
     	log.info("StorageBin : " + storagebin);
 		return new ResponseEntity<>(storagebin, HttpStatus.OK);
@@ -614,7 +666,7 @@ public class MastersServiceController {
     @ApiOperation(response = StorageBin.class, value = "Get a StorageBin") // label for swagger 
    	@GetMapping("/storagebin/{storageBin}/warehouseId")
    	public ResponseEntity<?> getStorageBinbyWarehouseId(@PathVariable String storageBin, 
-   			@RequestParam String warehouseId, @RequestParam String authToken) {
+   			@RequestParam String warehouseId, @RequestParam String authToken) throws ParseException {
        	StorageBin storagebin = mastersService.getStorageBin (warehouseId, storageBin, authToken);
        	log.info("StorageBin : " + storagebin);
    		return new ResponseEntity<>(storagebin, HttpStatus.OK);

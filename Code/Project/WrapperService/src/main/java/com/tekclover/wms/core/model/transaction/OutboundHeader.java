@@ -19,7 +19,7 @@ public class OutboundHeader {
 	private String referenceDocumentType;
 	private Long outboundOrderTypeId;
 	private Long statusId;
-	private Date refDocDate = new Date();
+	private Date refDocDate;
 	private Date requiredDeliveryDate;
 	private String referenceField1;
 	private String referenceField2;
@@ -34,11 +34,12 @@ public class OutboundHeader {
 	private Long deletionIndicator;
 	private String remarks;
 	private String createdBy;
-	private Date createdOn = new Date();
+	private Date createdOn;
 	private String deliveryConfirmedBy;
 	private Date deliveryConfirmedOn;
 	private String updatedBy;
-	private Date updatedOn = new Date();
+	private Date updatedOn;
 	private String reversedBy;
-	private Date reversedOn = new Date();
+	private Date reversedOn;
+	private String statusDescription;
 }

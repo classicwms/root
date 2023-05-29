@@ -13,5 +13,6 @@ public class ShipmentDispatchList {
 	private Double linesShipped;
 	private Double orderedQty;
 	private Double shippedQty;
+	private Double pickedQty;
 	private Double perentageShipped;
 }

@@ -4,10 +4,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.LockModeType;
+import javax.persistence.QueryHint;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +28,7 @@ import com.tekclover.wms.api.transaction.model.report.FastSlowMovingDashboard;
 @Transactional
 public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>, JpaSpecificationExecutor<OutboundLine> {
 
+	String UPGRADE_SKIPLOCKED = "-2";
 	public List<OutboundLine> findAll();
 
 	public Optional<OutboundLine>
@@ -32,6 +38,8 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 
 	public Optional<OutboundLine> findByLineNumber(Long lineNumber);
 
+	@Lock(value = LockModeType.PESSIMISTIC_WRITE) // adds 'FOR UPDATE' statement
+	@QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = UPGRADE_SKIPLOCKED)})
 	public OutboundLine findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndDeletionIndicator(
 			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
 			String itemCode, Long deletionIndicator);
@@ -142,48 +150,6 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 
 	public List<OutboundLine> findByDeliveryConfirmedOnBetween(Date startDate, Date endDate);
 
-//	@Query(value="select\n" +
-//			"  ol.ref_doc_no soNumber,\n" +
-//			"  ol.partner_code partnerCode,\n" +
-//			"  case\n" +
-//			"    when sum(ol.dlv_qty) is not null then sum(ol.dlv_qty)\n" +
-//			"    else 0\n" +
-//			"  end shippedQty,\n" +
-//			"  sum(ol.ord_qty) orderedQty,\n" +
-//			"  count(ol.ord_qty) linesOrdered,\n" +
-//			"  count(case\n" +
-//			"    when (\n" +
-//			"      ol.dlv_qty is not null\n" +
-//			"      and ol.dlv_qty > 0\n" +
-//			"    ) then ol.dlv_qty\n" +
-//			"    else null\n" +
-//			"  end) linesShipped,\n" +
-//			"  round(\n" +
-//			"    ((case\n" +
-//			"      when sum(ol.dlv_qty) is not null then sum(ol.dlv_qty)\n" +
-//			"      else 0\n" +
-//			"    end / sum(ol.ord_qty)) * 100),\n" +
-//			"    2\n" +
-//			"  ) percentageShipped,\n" +
-//			"  oh.ref_doc_date orderReceiptTime\n" +
-//			"from tbloutboundline ol\n" +
-//			"  join tbloutboundheader oh\n" +
-//			"    on oh.ref_doc_no = ol.ref_doc_no\n" +
-//			"where (\n" +
-//			"  ol.dlv_cnf_on between :fromDeliveryDate and :toDeliveryDate\n" +
-//			"  and ol.ref_field_2 is null\n" +
-//			"  and oh.status_id = 59\n" +
-//			"  and (\n" +
-//			"    coalesce(:partnerCode) is null\n" +
-//			"    or ol.partner_code in (:partnerCode)\n" +
-//			"  )\n" +
-//			")\n" +
-//			"group by ol.ref_doc_no, ol.partner_code, oh.ref_doc_date\n" +
-//			"order by ol.ref_doc_no", nativeQuery=true)
-//	public List<ShipmentDispatchSummaryReportImpl> getOrderLinesForShipmentDispatchReport(@Param ("partnerCode") List<String> partnerCode,
-//																						  @Param ("fromDeliveryDate") Date fromDeliveryDate,
-//																						  @Param ("toDeliveryDate") Date toDeliveryDate);
-
 	@Query(value="select ol.ref_doc_no as soNumber, ol.partner_code as partnerCode,\r\n"
 			+ "(CASE WHEN sum(ol.dlv_qty) is not null THEN sum(ol.dlv_qty) ELSE 0 END) as shippedQty,\r\n"
 			+ "sum(ol.ord_qty) as orderedQty,\r\n"
@@ -201,7 +167,6 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 	public List<ShipmentDispatchSummaryReportImpl> getOrderLinesForShipmentDispatchReport(@Param ("fromDeliveryDate") Date fromDeliveryDate,
 																						  @Param ("toDeliveryDate") Date toDeliveryDate,
 																						  @Param ("warehouseId") String warehouseId);
-
 
 	@Query(value="SELECT \r\n"
 			+ "OL.REF_DOC_NO AS sonumber, \r\n"

@@ -68,9 +68,9 @@ public class QualityHeaderService {
 	 * @param statusId
 	 * @return
 	 */
-	public long getQualityHeaderCountForDeliveryConfirmation (String warehouseId, String refDocNumber, Long statusId) {
-		long qualityHeaderCount = qualityHeaderRepository.getQualityHeaderByWarehouseIdAndRefDocNumberAndStatusIdInAndDeletionIndicator(
-						warehouseId, refDocNumber, statusId, 0L);
+	public long getQualityHeaderCountForDeliveryConfirmation (String warehouseId, String refDocNumber, String preOutboundNo, Long statusId) {
+		long qualityHeaderCount = qualityHeaderRepository.getQualityHeaderByWarehouseIdAndRefDocNumberAndPreOutboundNoAndStatusIdInAndDeletionIndicator(
+						warehouseId, refDocNumber, preOutboundNo, statusId, 0L);
 		return qualityHeaderCount;
 	}
 

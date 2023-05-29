@@ -3,6 +3,7 @@ package com.tekclover.wms.api.transaction.util;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -365,7 +366,53 @@ public class DateUtils {
 		return kwtDate;
 	}
 	
-	public static void main(String[] args) throws ParseException {
+	/**
+	 * 
+	 * @param date
+	 * @param hh
+	 * @param mi
+	 * @param ss
+	 * @return
+	 * @throws Exception
+	 */
+	public static Date addTimeToDate(String date, int hh, int mi, int ss) throws Exception {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy");
+        LocalDate localDate = LocalDate.parse(date, formatter);
+        LocalDateTime sLocalDateTime = localDate.atTime(hh, mi, ss);
+		log.info("LocalDate1---##----> " + sLocalDateTime);
+		
+		DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+		String sConvertedDateTime = formatter1.format(sLocalDateTime);
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		Date sDate = dateFormatter.parse(sConvertedDateTime);
+		log.info("sDate---##----> " + sLocalDateTime);
+		
+		Instant instant = sDate.toInstant();
+		ZoneId defaultZoneId = ZoneId.systemDefault();
+		ZonedDateTime zonedDateTime = instant.atZone(defaultZoneId);
+        System.out.println("zonedDateTime : " + zonedDateTime);
+        Date dateC = Date.from(zonedDateTime.toInstant());
+        System.out.println("dateC : " + dateC);
+		return dateC;
+	}
+	
+	/**
+	 * 
+	 * @param fromDeliveryDate
+	 * @return
+	 * @throws NumberFormatException
+	 * @throws Exception
+	 */
+	public static Date convertStringToDateWithT(String fromDeliveryDate) throws NumberFormatException, Exception {
+		// String fromDeliveryDate = "01-08-2022T03:12:12"; --> with "T"
+		String dateAlone = fromDeliveryDate.substring(0, fromDeliveryDate.indexOf('T'));
+		String[] time = fromDeliveryDate.substring(fromDeliveryDate.indexOf('T')+1).split(":");
+		log.info("time: " + time[0] + "," + time[1] + "," + time[2]);
+		
+		return addTimeToDate (dateAlone, Integer.valueOf(time[0]), Integer.valueOf(time[1]), Integer.valueOf(time[2]));
+	}
+	
+	public static void main(String[] args) throws Exception {
 //		String str = "01-08-2022"; 
 //		str += " 00:00:00";
 //		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy HH:mm:ss"); 
@@ -386,15 +433,23 @@ public class DateUtils {
 //		System.out.println("---------> " + date);
 //		date2String_MMDDYYYY (new Date());
 		
-		ZonedDateTime zdt = ZonedDateTime.now(ZoneId.of("Asia/Kuwait")) ;
-		LocalDateTime kwtLocalDateTime = zdt.toLocalDateTime();
-		System.out.println(kwtLocalDateTime);
+//		ZonedDateTime zdt = ZonedDateTime.now(ZoneId.of("Asia/Kuwait")) ;
+//		LocalDateTime kwtLocalDateTime = zdt.toLocalDateTime();
+//		System.out.println(kwtLocalDateTime);
+//		
+//		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+//		String sConvertedDateTime = formatter.format(kwtLocalDateTime);
+//		SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");  
+//		Date kwtDate = dateFormatter.parse(sConvertedDateTime);
+//		System.out.println(kwtDate);
 		
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-		String sConvertedDateTime = formatter.format(kwtLocalDateTime);
-		SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");  
-		Date kwtDate = dateFormatter.parse(sConvertedDateTime);
-		System.out.println(kwtDate);
+		String fromDeliveryDate = "01-08-2022T03:12:12"; 
+		String dateAlone = fromDeliveryDate.substring(0, fromDeliveryDate.indexOf('T'));
+		String[] time = fromDeliveryDate.substring(fromDeliveryDate.indexOf('T')+1).split(":");
+		log.info("time: " + time[0] + "," + time[1] + "," + time[2]);
+		
+		addTimeToDate (dateAlone, Integer.valueOf(time[0]), Integer.valueOf(time[1]), Integer.valueOf(time[2]));
+//		addTimeToDate (fromDeliveryDate, 13, 59, 59);
 	}
 
 	public static Date dateSubtract (int noOfDays) {

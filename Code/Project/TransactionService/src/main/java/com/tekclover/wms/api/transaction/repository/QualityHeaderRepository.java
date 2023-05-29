@@ -42,8 +42,8 @@ public interface QualityHeaderRepository extends JpaRepository<QualityHeader,Lon
 			Long l);
 	
 	@Query("Select count(ob) from QualityHeader ob where ob.warehouseId=:warehouseId and ob.refDocNumber=:refDocNumber and \r\n"
-			+ " ob.statusId = :statusId and ob.deletionIndicator=:deletionIndicator")
-	public long getQualityHeaderByWarehouseIdAndRefDocNumberAndStatusIdInAndDeletionIndicator(
-			 @Param ("warehouseId") String warehouseId, @Param ("refDocNumber") String refDocNumber, @Param ("statusId") Long statusId, 
-			 @Param ("deletionIndicator") long deletionIndicator);
+			+ " ob.preOutboundNo=:preOutboundNo and ob.statusId = :statusId and ob.deletionIndicator=:deletionIndicator")
+	public long getQualityHeaderByWarehouseIdAndRefDocNumberAndPreOutboundNoAndStatusIdInAndDeletionIndicator(
+			 @Param ("warehouseId") String warehouseId, @Param ("refDocNumber") String refDocNumber, @Param ("preOutboundNo") String preOutboundNo, 
+			 @Param ("statusId") Long statusId, @Param ("deletionIndicator") long deletionIndicator);
 }

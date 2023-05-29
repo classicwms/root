@@ -203,14 +203,6 @@ public class OutboundLineService extends BaseService {
 		long outboundLineCount = 
 				outboundLineRepository.getOutboudLineByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndStatusIdInAndDeletionIndicator(
 						warehouseId, preOutboundNo, refDocNumber, partnerCode, statusIds, 0);
-//		if (outboundLineCount == 0) {
-//			throw new BadRequestException("The given OutboundLine ID : " 
-//					+ "warehouseId : " + warehouseId
-//					+ ", preOutboundNo : " + preOutboundNo
-//					+ ", refDocNumber : " + refDocNumber
-//					+ ", partnerCode : " + partnerCode
-//					+ " doesn't exist.");
-//		}
 		return outboundLineCount;
 	}
 	
@@ -673,6 +665,7 @@ public class OutboundLineService extends BaseService {
 	 */
 	public List<OutboundLine> deliveryConfirmation (String warehouseId, String preOutboundNo, String refDocNumber, 
 			String partnerCode, String loginUserID) throws IllegalAccessException, InvocationTargetException {
+		/*--------------------OutboundLine-Check---------------------------------------------------------------------------*/
 		List<Long> statusIds = Arrays.asList(59L);
 		long outboundLineProcessedCount = getOutboundLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, statusIds);
 		log.info("outboundLineProcessedCount : " + outboundLineProcessedCount);
@@ -682,16 +675,26 @@ public class OutboundLineService extends BaseService {
 			throw new BadRequestException("Order is already processed.");
 		}
 		
+		/*--------------------OrderManagementLine-Check---------------------------------------------------------------------*/
+		// OrderManagementLine checking for STATUS_ID - 42L, 43L
+		long orderManagementLineCount = orderManagementLineService.getOrderManagementLine(warehouseId, refDocNumber, preOutboundNo, Arrays.asList(42L, 43L));
+		boolean isConditionMet = (orderManagementLineCount > 0 ? true : false);
+		log.info("orderManagementLineCount ---- isConditionMet : " + isConditionMet);
+		if (isConditionMet) {
+			throw new BadRequestException("OrderManagementLine is not completely Processed.");
+		}
+		
+		/*--------------------PickupHeader-Check---------------------------------------------------------------------*/
 		// PickupHeader checking for STATUS_ID - 48
-		long pickupHeaderCount = pickupHeaderService.getPickupHeaderCountForDeliveryConfirmation(warehouseId, refDocNumber, 48L);
-		boolean isConditionMet = (pickupHeaderCount > 0 ? true : false);
+		long pickupHeaderCount = pickupHeaderService.getPickupHeaderCountForDeliveryConfirmation(warehouseId, refDocNumber, preOutboundNo, 48L);
+		isConditionMet = (pickupHeaderCount > 0 ? true : false);
 		log.info("pickupHeaderCount ---- isConditionMet : " + isConditionMet);
 		if (isConditionMet) {
 			throw new BadRequestException("Pickup is not completely Processed.");
 		}
 		
 		// QualityHeader checking for STATUS_ID - 54
-		long qualityHeaderCount = qualityHeaderService.getQualityHeaderCountForDeliveryConfirmation(warehouseId, refDocNumber, 54L);
+		long qualityHeaderCount = qualityHeaderService.getQualityHeaderCountForDeliveryConfirmation(warehouseId, refDocNumber, preOutboundNo, 54L);
 		isConditionMet = (qualityHeaderCount > 0 ? true : false);
 		log.info("qualityHeaderCount ---- isConditionMet : " + isConditionMet);
 		if (isConditionMet) {
@@ -699,11 +702,9 @@ public class OutboundLineService extends BaseService {
 		}
 		
 		//----------------------------------------------------------------------------------------------------------
-		
 		List<Long> statusIdsToBeChecked = Arrays.asList(57L, 47L, 51L, 41L);
 		long outboundLineListCount = getOutboundLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, statusIdsToBeChecked);
 		log.info("outboundLineListCount : " + outboundLineListCount);
-		
 		isConditionMet = (outboundLineListCount > 0 ? true : false);
 		log.info("isConditionMet : " + isConditionMet);
 		
@@ -788,6 +789,7 @@ public class OutboundLineService extends BaseService {
 				List<QualityLine> dbQualityLine = qualityLineService.getQualityLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumbers, itemCodes);
 				Long BIN_CL_ID = 5L;
 				for(QualityLine qualityLine : dbQualityLine) {
+					//------------Update Lock applied---------------------------------------------------------------------------------
 					List<Inventory> inventoryList = inventoryService.getInventoryForDeliveryConfirmtion (qualityLine.getWarehouseId(),
 							qualityLine.getItemCode(), qualityLine.getPickPackBarCode(), BIN_CL_ID); 
 					for(Inventory inventory : inventoryList) {

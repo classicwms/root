@@ -82,9 +82,9 @@ public class PickupHeaderService {
 	 * @param statusId
 	 * @return
 	 */
-	public long getPickupHeaderCountForDeliveryConfirmation (String warehouseId, String refDocNumber, Long statusId) {
-		long pickupHeaderCount = pickupHeaderRepository.getPickupHeaderByWarehouseIdAndRefDocNumberAndStatusIdInAndDeletionIndicator (
-						warehouseId, refDocNumber, statusId, 0L);
+	public long getPickupHeaderCountForDeliveryConfirmation (String warehouseId, String refDocNumber, String preOutboundNo, Long statusId) {
+		long pickupHeaderCount = pickupHeaderRepository.getPickupHeaderByWarehouseIdAndRefDocNumberAndPreOutboundNoAndStatusIdInAndDeletionIndicator (
+						warehouseId, refDocNumber, preOutboundNo, statusId, 0L);
 		return pickupHeaderCount;
 	}
 

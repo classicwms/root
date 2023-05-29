@@ -7,4 +7,5 @@ public class MetricsSummary {
 	private Long totalOrder;
 	private Double lineItems;
 	private Double percentageShipped;
+	private Double lineItemPicked;
 }

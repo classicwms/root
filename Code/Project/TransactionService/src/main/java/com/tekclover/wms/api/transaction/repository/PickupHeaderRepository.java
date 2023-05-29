@@ -3,8 +3,12 @@ package com.tekclover.wms.api.transaction.repository;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.LockModeType;
+import javax.persistence.QueryHint;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
@@ -17,7 +21,8 @@ import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupHeader;
 @Transactional
 public interface PickupHeaderRepository
 		extends JpaRepository<PickupHeader, Long>, JpaSpecificationExecutor<PickupHeader> {
-
+	String UPGRADE_SKIPLOCKED = "-2";
+	
 	@QueryHints(@javax.persistence.QueryHint(name = "org.hibernate.fetchSize", value = "500"))
 	public List<PickupHeader> findAll();
 
@@ -30,6 +35,8 @@ public interface PickupHeaderRepository
 	public List<PickupHeader> findByWarehouseIdAndStatusIdAndOutboundOrderTypeIdInAndDeletionIndicator(
 			String warehouseId, Long statusId, List<Long> outboundOrderTypeId, Long deletionIndicator);
 
+	@Lock(value = LockModeType.PESSIMISTIC_WRITE) // adds 'FOR UPDATE' statement
+	@QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = UPGRADE_SKIPLOCKED)})
 	public PickupHeader findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndPickupNumberAndDeletionIndicator(
 			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, String pickupNumber,
 			Long deletionIndicator);
@@ -43,8 +50,8 @@ public interface PickupHeaderRepository
 			String itemCode, String proposedStorageBin, String proposedPackCode, Long deletionIndicator);
 
 	@Query("Select count(ob) from PickupHeader ob where ob.warehouseId=:warehouseId and ob.refDocNumber=:refDocNumber and \r\n"
-			+ " ob.statusId = :statusId and ob.deletionIndicator=:deletionIndicator")
-	public long getPickupHeaderByWarehouseIdAndRefDocNumberAndStatusIdInAndDeletionIndicator(
-			 @Param ("warehouseId") String warehouseId, @Param ("refDocNumber") String refDocNumber, @Param ("statusId") Long statusId, 
-			 @Param ("deletionIndicator") long deletionIndicator);
+			+ " ob.preOutboundNo=:preOutboundNo and ob.statusId = :statusId and ob.deletionIndicator=:deletionIndicator")
+	public long getPickupHeaderByWarehouseIdAndRefDocNumberAndPreOutboundNoAndStatusIdInAndDeletionIndicator(
+			 @Param ("warehouseId") String warehouseId, @Param ("refDocNumber") String refDocNumber, @Param ("preOutboundNo") String preOutboundNo, 
+			 @Param ("statusId") Long statusId, @Param ("deletionIndicator") long deletionIndicator);
 }

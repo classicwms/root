@@ -134,6 +134,8 @@ public class ReportService {
 			e.printStackTrace();
 		} catch (JRException e) {
 			e.printStackTrace();
+		} catch (ParseException e) {
+			throw new RuntimeException(e);
 		}
 		return reportFormat;
 	}

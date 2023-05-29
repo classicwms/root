@@ -17,7 +17,7 @@ public class PreOutboundHeader {
 	private Long outboundOrderTypeId;
 	private String referenceDocumentType;
 	private Long statusId;
-	private Date refDocDate = new Date();
+	private Date refDocDate;
 	private Date requiredDeliveryDate;
 	private String referenceField1;
 	private String referenceField2;
@@ -32,7 +32,8 @@ public class PreOutboundHeader {
 	private Long deletionIndicator;
 	private String remarks;
 	private String createdBy;
-	private Date createdOn = new Date();
+	private Date createdOn;
 	private String updatedBy;
-	private Date updatedOn = new Date();
+	private Date updatedOn;
+	private String statusDescription;
 }

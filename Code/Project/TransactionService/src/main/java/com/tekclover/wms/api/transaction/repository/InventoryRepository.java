@@ -3,9 +3,13 @@ package com.tekclover.wms.api.transaction.repository;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.LockModeType;
+import javax.persistence.QueryHint;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -20,6 +24,8 @@ import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 @Repository
 @Transactional
 public interface InventoryRepository extends PagingAndSortingRepository<Inventory,Long>, JpaSpecificationExecutor<Inventory> {
+	
+	String UPGRADE_SKIPLOCKED = "-2";
 	
 	public List<Inventory> findAll();
 	
@@ -74,7 +80,6 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 			String caseCode, String packBarcodes, String itemCode, Long deletionIndicator);
 
 	// SQL Query for getting Inventory
-	// select inv_qty, INV_UOM from tblinventory where WH_ID=110 and PACK_BARCODE=202201200892 and ITM_CODE=0203011053 and ST_BIN='GG1GL09C02'
 	@Query (value = "SELECT INV_QTY AS inventoryQty, INV_UOM AS inventoryUom FROM tblinventory "
 			+ "WHERE WH_ID = :warehouseId AND PACK_BARCODE = :packbarCode AND "
 			+ "ITM_CODE = :itemCode AND ST_BIN = :storageBin", nativeQuery = true)
@@ -84,6 +89,8 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 			@Param(value = "storageBin") String storageBin,
 			@Param(value = "packbarCode") String packbarCode);
 	
+	@Lock(value = LockModeType.PESSIMISTIC_WRITE) // adds 'FOR UPDATE' statement
+	@QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = UPGRADE_SKIPLOCKED)})
 	public Optional<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPackBarcodesAndItemCodeAndStorageBinAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId, String packBarcodes,
 			String itemCode, String storageBin, Long deletionIndicator);
@@ -156,6 +163,8 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 			@Param(value = "storageBin") List<String> storageBin,
 			@Param(value = "stockTypeId") Long stockTypeId);
 
+	@Lock(value = LockModeType.PESSIMISTIC_WRITE) // adds 'FOR UPDATE' statement
+	@QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = UPGRADE_SKIPLOCKED)})
 	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndPackBarcodesAndBinClassIdAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId, String itemCode,
 			String packBarcodes, Long binClassId, long l);

@@ -189,10 +189,10 @@ public class ReportsController {
     @ApiOperation(response = ShipmentDispatchSummaryReport.class, value = "Get ShipmentDispatchSummary Report") // label for swagger 
    	@GetMapping("/shipmentDispatchSummary")
    	public ResponseEntity<?> getShipmentDispatchSummaryReport(@RequestParam String fromDeliveryDate, 
-   			@RequestParam String toDeliveryDate, @RequestParam(required = false) List<String> customerCode,@RequestParam(required = true) String warehouseId)
-   					throws ParseException, java.text.ParseException {
+   			@RequestParam String toDeliveryDate, @RequestParam(required = false) List<String> customerCode, @RequestParam(required = true) String warehouseId)
+   					throws Exception {
     	ShipmentDispatchSummaryReport shipmentDeliverySummaryReport = 
-    			reportsService.getShipmentDispatchSummaryReport(fromDeliveryDate, toDeliveryDate, customerCode,warehouseId);
+    			reportsService.getShipmentDispatchSummaryReport(fromDeliveryDate, toDeliveryDate, customerCode, warehouseId);
    		return new ResponseEntity<>(shipmentDeliverySummaryReport, HttpStatus.OK);
    	}
     

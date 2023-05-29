@@ -20,5 +20,6 @@ public class ShipmentDispatchHeader {
 	private Double totalOrderedQty;
 	private Double totalShippedQty;
 	private Double averagePercentage;
+	private Double totalPickedQty;
 	
 }

@@ -4,10 +4,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.LockModeType;
+import javax.persistence.QueryHint;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +22,7 @@ import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
 @Repository
 @Transactional
 public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader,Long>, JpaSpecificationExecutor<OutboundHeader> {
-	
+	String UPGRADE_SKIPLOCKED = "-2";
 	public List<OutboundHeader> findAll();
 	
 	public Optional<OutboundHeader> 
@@ -83,8 +88,9 @@ public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader,L
 	        @Param(value = "startOrderDate") Date startOrderDate,
 			@Param(value = "endOrderDate") Date endOrderDate);
 
-	public OutboundHeader findByRefDocNumberAndWarehouseIdAndDeletionIndicator(String refDocNumber, String warehouseId,
-			long l);
+	@Lock(value = LockModeType.PESSIMISTIC_WRITE) // adds 'FOR UPDATE' statement
+	@QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = UPGRADE_SKIPLOCKED)})
+	public OutboundHeader findByRefDocNumberAndWarehouseIdAndDeletionIndicator(String refDocNumber, String warehouseId, long l);
 	
 	/**
 	 * 
@@ -92,6 +98,8 @@ public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader,L
 	 * @param refDocNumber
 	 * @param statusId
 	 */
+	@Lock(value = LockModeType.PESSIMISTIC_WRITE) // adds 'FOR UPDATE' statement
+	@QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = UPGRADE_SKIPLOCKED)})
 	@Modifying(clearAutomatically = true, flushAutomatically = true)
 	@Query("Update OutboundHeader ob SET ob.statusId = :statusId, ob.deliveryConfirmedOn = :deliveryConfirmedOn \r\n "
 			+ " WHERE ob.warehouseId = :warehouseId AND ob.refDocNumber = :refDocNumber")

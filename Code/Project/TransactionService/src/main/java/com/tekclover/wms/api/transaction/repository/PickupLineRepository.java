@@ -50,5 +50,17 @@ public interface PickupLineRepository extends JpaRepository<PickupLine,Long>, Jp
 
 	public List<PickupLine> findAllByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberInAndItemCodeInAndDeletionIndicator(
 			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, List<Long> lineNumbers,
-			List<String> itemCodes, long l); 
+			List<String> itemCodes, long l);
+
+	@Query(value="SELECT COUNT(OB_LINE_NO) AS lineCount FROM tblpickupline \r\n"
+			+ "	WHERE WH_ID = :warehouseId AND REF_DOC_NO IN :refDocNumber AND PRE_OB_NO = :preOutboundNo\r\n"
+			+ "	AND STATUS_ID=50 AND IS_DELETED = 0 GROUP BY REF_DOC_NO", nativeQuery=true)
+	public Double getCountByWarehouseIdAndPreOutboundNoAndRefDocNumberAndDeletionIndicator(
+			@Param ("warehouseId") String warehouseId,			
+			@Param ("preOutboundNo") String preOutboundNo,
+			@Param ("refDocNumber") List<String> refDocNumber);
+
+	public List<PickupLine> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPreOutboundNoInAndRefDocNumberInAndPartnerCodeAndStatusIdAndDeletionIndicator(
+			String languageId, String companyCode, String plantId, String warehouseId, List<String> preOutboundNo,
+			List<String> refDocNumber, String partnerCode, Long statusId, long l); 
 }

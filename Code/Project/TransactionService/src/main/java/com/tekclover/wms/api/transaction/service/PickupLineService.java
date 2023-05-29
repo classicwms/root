@@ -256,7 +256,48 @@ public class PickupLineService extends BaseService {
 		}
 		return null;
 	}
-
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @return
+	 */
+	public Double getPickupLineCount (String warehouseId, String preOutboundNo, List<String> refDocNumber) {
+		Double pickupLineCount = pickupLineRepository.getCountByWarehouseIdAndPreOutboundNoAndRefDocNumberAndDeletionIndicator(
+						warehouseId, preOutboundNo, refDocNumber);
+		if (pickupLineCount != null) {
+			return pickupLineCount;
+		}
+		return 0D;
+	}
+	
+	/**
+	 * 
+	 * @param languageId
+	 * @param companyCode
+	 * @param plantId
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @return
+	 */
+	public double getPickupLineCount (String languageId, String companyCode, String plantId, String warehouseId, 
+			List<String> preOutboundNo, List<String> refDocNumber, String partnerCode) {
+		List<PickupLine> pickupLineList = pickupLineRepository
+				.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPreOutboundNoInAndRefDocNumberInAndPartnerCodeAndStatusIdAndDeletionIndicator(
+						languageId, companyCode, plantId, warehouseId, preOutboundNo, refDocNumber, partnerCode, 50L, 0L);
+		if (pickupLineList != null && !pickupLineList.isEmpty()) {
+			return pickupLineList.size();
+		}
+		return 0;
+		
+//		throw new BadRequestException("The given PickupLine ID : " + "warehouseId:" + warehouseId
+//				+ ",preOutboundNo:" + preOutboundNo + ",refDocNumber:" + refDocNumber + ",partnerCode:" + partnerCode + " doesn't exist.");
+	}
+	
 	/**
 	 * 
 	 * @param searchPickupLine
@@ -378,7 +419,8 @@ public class PickupLineService extends BaseService {
 		/*---------------------------------------------Inventory Updates-------------------------------------------*/
 		// Updating respective tables
 		for (PickupLine dbPickupLine : createdPickupLineList) {
-			Inventory inventory = inventoryService.getInventory(dbPickupLine.getWarehouseId(),
+			//------------------------UpdateLock-Applied------------------------------------------------------------
+			Inventory inventory = inventoryService.getInventory (dbPickupLine.getWarehouseId(),
 					dbPickupLine.getPickedPackCode(), dbPickupLine.getItemCode(), dbPickupLine.getPickedStorageBin());
 			log.info("inventory record queried: " + inventory);
 			if (inventory != null) {
@@ -650,6 +692,7 @@ public class PickupLineService extends BaseService {
 		log.info("status count : " + (status51IdCount == status51List.size()));
 		hasStatus51 = (status51IdCount == status51List.size());
 		if (!status51List.isEmpty() && hasStatus51) {
+			//------------------------UpdateLock-Applied------------------------------------------------------------
 			OutboundHeader outboundHeader = outboundHeaderService.getOutboundHeader(refDocNumber, warehouseId);
 			outboundHeader.setStatusId(51L);
 			outboundHeader.setUpdatedBy(loginUserID);
@@ -657,6 +700,7 @@ public class PickupLineService extends BaseService {
 			outboundHeaderRepository.save(outboundHeader);
 			log.info("outboundHeader updated as 51.");
 			
+			//------------------------UpdateLock-Applied------------------------------------------------------------
 			PreOutboundHeader preOutboundHeader = preOutboundHeaderService.getPreOutboundHeader(warehouseId, refDocNumber);
 			preOutboundHeader.setStatusId(51L);
 			preOutboundHeader.setUpdatedBy(loginUserID);
@@ -680,6 +724,7 @@ public class PickupLineService extends BaseService {
 				STATUS_ID = 50L;
 			}
 
+			//------------------------UpdateLock-Applied------------------------------------------------------------
 			PickupHeader pickupHeader = pickupHeaderService.getPickupHeader(warehouseId, preOutboundNo, refDocNumber,
 					partnerCode, pickupNumber);
 			pickupHeader.setStatusId(STATUS_ID);
