@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -232,7 +233,81 @@ public class OutboundHeaderService {
 //		}
 		return headerSearchResults;
 	}
-	
+	@Transactional(readOnly = true)
+	public List<OutboundHeaderStream> findOutboundHeadernew(SearchOutboundHeader searchOutboundHeader, Integer flag)		//Streaming
+			throws ParseException, java.text.ParseException {
+
+		if (searchOutboundHeader.getStartRequiredDeliveryDate() != null && searchOutboundHeader.getEndRequiredDeliveryDate() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartRequiredDeliveryDate(), searchOutboundHeader.getEndRequiredDeliveryDate());
+			searchOutboundHeader.setStartRequiredDeliveryDate(dates[0]);
+			searchOutboundHeader.setEndRequiredDeliveryDate(dates[1]);
+		} else {
+			searchOutboundHeader.setStartRequiredDeliveryDate(null);
+			searchOutboundHeader.setEndRequiredDeliveryDate(null);
+		}
+
+		if (searchOutboundHeader.getStartDeliveryConfirmedOn() != null && searchOutboundHeader.getEndDeliveryConfirmedOn() != null) {
+
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartDeliveryConfirmedOn(), searchOutboundHeader.getEndDeliveryConfirmedOn());
+			searchOutboundHeader.setStartDeliveryConfirmedOn(dates[0]);
+			searchOutboundHeader.setEndDeliveryConfirmedOn(dates[1]);
+
+		} else {
+
+			searchOutboundHeader.setStartDeliveryConfirmedOn(null);
+			searchOutboundHeader.setEndDeliveryConfirmedOn(null);
+
+		}
+		if (searchOutboundHeader.getStartDeliveryConfirmedOn() != null && searchOutboundHeader.getEndDeliveryConfirmedOn() != null) {
+			if (flag != 1) {
+				Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartDeliveryConfirmedOn(), searchOutboundHeader.getEndDeliveryConfirmedOn());
+				searchOutboundHeader.setStartDeliveryConfirmedOn(dates[0]);
+				searchOutboundHeader.setEndDeliveryConfirmedOn(dates[1]);
+			}
+		} else {
+			searchOutboundHeader.setStartDeliveryConfirmedOn(null);
+			searchOutboundHeader.setEndDeliveryConfirmedOn(null);
+		}
+
+		if (searchOutboundHeader.getStartOrderDate() != null && searchOutboundHeader.getEndOrderDate() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartOrderDate(), searchOutboundHeader.getEndOrderDate());
+			searchOutboundHeader.setStartOrderDate(dates[0]);
+			searchOutboundHeader.setEndOrderDate(dates[1]);
+		} else {
+			searchOutboundHeader.setStartOrderDate(null);
+			searchOutboundHeader.setEndOrderDate(null);
+		}
+
+		if (searchOutboundHeader.getWarehouseId() == null || searchOutboundHeader.getWarehouseId().isEmpty()) {
+			searchOutboundHeader.setWarehouseId(null);
+		}
+		if (searchOutboundHeader.getRefDocNumber() == null || searchOutboundHeader.getRefDocNumber().isEmpty()) {
+			searchOutboundHeader.setRefDocNumber(null);
+		}
+		if (searchOutboundHeader.getPartnerCode() == null || searchOutboundHeader.getPartnerCode().isEmpty()) {
+			searchOutboundHeader.setPartnerCode(null);
+		}
+		if (searchOutboundHeader.getOutboundOrderTypeId() == null || searchOutboundHeader.getOutboundOrderTypeId().isEmpty()) {
+			searchOutboundHeader.setOutboundOrderTypeId(null);
+		}
+		if (searchOutboundHeader.getSoType() == null || searchOutboundHeader.getSoType().isEmpty()) {
+			searchOutboundHeader.setSoType(null);
+		}
+		if (searchOutboundHeader.getStatusId() == null || searchOutboundHeader.getStatusId().isEmpty()) {
+			searchOutboundHeader.setStatusId(null);
+		}
+
+		Stream<OutboundHeaderStream> spec = outboundHeaderRepository.findAllOutBoundHeader(searchOutboundHeader.getWarehouseId(),
+				searchOutboundHeader.getRefDocNumber(), searchOutboundHeader.getPartnerCode(), searchOutboundHeader.getOutboundOrderTypeId(),
+				searchOutboundHeader.getStatusId(), searchOutboundHeader.getSoType(),
+				searchOutboundHeader.getStartRequiredDeliveryDate(), searchOutboundHeader.getEndRequiredDeliveryDate(),
+				searchOutboundHeader.getStartDeliveryConfirmedOn(), searchOutboundHeader.getEndDeliveryConfirmedOn(),
+				searchOutboundHeader.getStartOrderDate(), searchOutboundHeader.getEndOrderDate());
+
+		List<OutboundHeaderStream> outboundHeaderList = spec.parallel().collect(Collectors.toList());
+
+		return outboundHeaderList;
+	}
 	/**
 	 * createOutboundHeader
 	 * @param newOutboundHeader
@@ -298,7 +373,7 @@ public class OutboundHeaderService {
 	 *
 	 * @return
 	 */
-	public StreamingResponseBody findStreamOutboundHeader() {
+	/*public StreamingResponseBody findStreamOutboundHeader() {
 		Stream<OutboundHeaderStream> outboundHeaderStream = streamOutboundHeader();
 		StreamingResponseBody responseBody = httpResponseOutputStream -> {
 			try (Writer writer = new BufferedWriter(new OutputStreamWriter(httpResponseOutputStream))) {
@@ -321,7 +396,7 @@ public class OutboundHeaderService {
 			log.info("finished streaming records");
 		};
 		return responseBody;
-	}
+	}*/
 	// =======================================JDBCTemplate=======================================================
 
 //	private final Gson gson = new Gson();
@@ -342,8 +417,8 @@ public class OutboundHeaderService {
 	 * deliveryConfirmedOn
 	 * @return
 	 */
-	public Stream<OutboundHeaderStream> streamOutboundHeader() {
-		jdbcTemplate.setFetchSize(50);
+//	public Stream<OutboundHeaderStream> streamOutboundHeader() {
+//		jdbcTemplate.setFetchSize(50);
 		/**
 		 * Outbound Header
 		 * String refDocNumber
@@ -359,7 +434,7 @@ public class OutboundHeaderService {
 		 * String referenceField10
 		 * Date deliveryConfirmedOn
 		 */
-		Stream<OutboundHeaderStream> outboundHeaderStream = jdbcTemplate.queryForStream(
+	/*	Stream<OutboundHeaderStream> outboundHeaderStream = jdbcTemplate.queryForStream(
 				"Select REF_DOC_NO, PARTNER_CODE, REF_DOC_TYP, STATUS_ID, REF_DOC_DATE, REQ_DEL_DATE, REF_FIELD_1, "
 						+ "REF_FIELD_7, REF_FIELD_8, REF_FIELD_9, REF_FIELD_10, DLV_CNF_ON "
 						+ "from tbloutboundheader "
@@ -379,5 +454,5 @@ public class OutboundHeaderService {
 						resultSet.getDate("DLV_CNF_ON")
 				));
 		return outboundHeaderStream;
-	}
+	}*/
 }

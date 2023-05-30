@@ -2175,6 +2175,10 @@ public class ReportsService extends BaseService {
 
 		//Shipping Day
 		Dashboard.Day.Shipping dayShipping = day.new Shipping();
+		
+//		Date fromDate = DateUtils.dateSubtract(1, 14, 0, 0); // From Yesterday 14:00 to Today 15:00
+//		Date endDate = DateUtils.dateSubtract(0, 13, 59, 59);
+//		long shippedLineCount = getShippedLineCount(warehouseId, fromDate, endDate);
 		long shippedLineCount = getShippedLineCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1));
 		dayShipping.setShippedLine(shippedLineCount);
 
@@ -2208,18 +2212,22 @@ public class ReportsService extends BaseService {
 		itemReceivedCount = getItemReceivedCount(warehouseId, beginningOfMonth, new Date());
 		monthReceipts.setItemReceived(itemReceivedCount);
 
-
 		//Shipping Month
 		Dashboard.Month.Shipping monthShipping = month.new Shipping();
-
+		
+		LocalDate currentDay = LocalDate.now();
+		LocalDate beginDayOfMonth = today.withDayOfMonth(1);
+//		fromDate = DateUtils.addTimeToDate(beginDayOfMonth, 14, 0, 0);
+//		endDate = DateUtils.addTimeToDate(currentDay, 13, 59, 59);
+//		shippedLineCount = getShippedLineCount(warehouseId, fromDate, endDate);
 		shippedLineCount = getShippedLineCount(warehouseId, beginningOfMonth, new Date());
+		
 		monthShipping.setShippedLine(shippedLineCount);
 
 		normalCount = getNormalNSpecialCount(warehouseId, beginningOfMonth, new Date(), "N");
 		monthShipping.setNormal(normalCount);
 
 		specialCount = getNormalNSpecialCount(warehouseId, beginningOfMonth, new Date(), "S");
-		monthShipping.setSpecial(specialCount);
 
 		//Bin Status
 		Dashboard.BinStatus binStatus = dashboard.new BinStatus();

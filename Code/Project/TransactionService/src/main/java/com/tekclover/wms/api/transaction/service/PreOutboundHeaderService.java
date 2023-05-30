@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -21,6 +22,7 @@ import com.tekclover.wms.api.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.transaction.model.dto.BomHeader;
 import com.tekclover.wms.api.transaction.model.dto.BomLine;
 import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
+import com.tekclover.wms.api.transaction.model.dto.StatusId;
 import com.tekclover.wms.api.transaction.model.dto.Warehouse;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
@@ -90,13 +92,10 @@ public class PreOutboundHeaderService extends BaseService {
 	private OutboundIntegrationLogRepository outboundIntegrationLogRepository;
 	
 	@Autowired
-	private AuthTokenService authTokenService;
-	
-	@Autowired
 	private MastersService mastersService;
 	
 	@Autowired
-	OrderService orderService;
+	private OrderService orderService;
 	
 	/**
 	 * getPreOutboundHeaders
@@ -182,9 +181,39 @@ public class PreOutboundHeaderService extends BaseService {
 		
 		PreOutboundHeaderSpecification spec = new PreOutboundHeaderSpecification(searchPreOutboundHeader);
 		List<PreOutboundHeader> results = preOutboundHeaderRepository.findAll(spec);
-		
-//		log.info("results: " + results);
 		return results;
+	}
+	
+	/**
+	 * 
+	 * @param searchPreOutboundHeader
+	 * @return
+	 * @throws Exception
+	 */
+	public Stream<PreOutboundHeader> findPreOutboundHeaderNew(SearchPreOutboundHeader searchPreOutboundHeader)
+			throws Exception {
+
+		if (searchPreOutboundHeader.getStartRequiredDeliveryDate() != null && searchPreOutboundHeader.getEndRequiredDeliveryDate() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchPreOutboundHeader.getStartRequiredDeliveryDate(), searchPreOutboundHeader.getEndRequiredDeliveryDate());
+			searchPreOutboundHeader.setStartRequiredDeliveryDate(dates[0]);
+			searchPreOutboundHeader.setEndRequiredDeliveryDate(dates[1]);
+		}
+
+		if (searchPreOutboundHeader.getStartOrderDate() != null && searchPreOutboundHeader.getStartOrderDate() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchPreOutboundHeader.getStartOrderDate(), searchPreOutboundHeader.getEndOrderDate());
+			searchPreOutboundHeader.setStartOrderDate(dates[0]);
+			searchPreOutboundHeader.setEndOrderDate(dates[1]);
+		}
+
+		if (searchPreOutboundHeader.getStartCreatedOn() != null && searchPreOutboundHeader.getStartCreatedOn() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchPreOutboundHeader.getStartCreatedOn(), searchPreOutboundHeader.getEndCreatedOn());
+			searchPreOutboundHeader.setStartCreatedOn(dates[0]);
+			searchPreOutboundHeader.setEndCreatedOn(dates[1]);
+		}
+
+		PreOutboundHeaderSpecification spec = new PreOutboundHeaderSpecification(searchPreOutboundHeader);
+		Stream<PreOutboundHeader> preOutboundHeaderList = preOutboundHeaderRepository.stream(spec, PreOutboundHeader.class).parallel();
+		return preOutboundHeaderList;
 	}
 	
 	/**
@@ -387,7 +416,9 @@ public class PreOutboundHeaderService extends BaseService {
 			log.info("OutboundHeader status updated as 47. ");
 			
 			//----------------Preoutbound Header--------------------------------------------------------------------------------------------
-			preOutboundHeaderRepository.updatePreOutboundHeaderStatus(warehouseId, refDocNumber, STATUS_ID_47);
+			AuthToken authTokenForIDService = authTokenService.getIDMasterServiceAuthToken();
+			StatusId idStatus = idmasterService.getStatus(STATUS_ID_47, warehouseId, authTokenForIDService.getAccess_token());
+			preOutboundHeaderRepository.updatePreOutboundHeaderStatus(warehouseId, refDocNumber, STATUS_ID_47, idStatus.getStatus());
 			log.info("PreOutbound Header status updated as 47.");
 		}
 	}
@@ -469,6 +500,7 @@ public class PreOutboundHeaderService extends BaseService {
 	 */
 	private PreOutboundHeader createPreOutboundHeader(String companyCodeId, String plantId, String preOutboundNo,
 			OutboundIntegrationHeader outboundIntegrationHeader, String refField1ForOrderType) throws ParseException {
+		AuthToken authTokenForIDService = authTokenService.getIDMasterServiceAuthToken();
 		PreOutboundHeader preOutboundHeader = new PreOutboundHeader();
 		preOutboundHeader.setLanguageId("EN");											
 		preOutboundHeader.setCompanyCodeId(companyCodeId);
@@ -489,7 +521,14 @@ public class PreOutboundHeaderService extends BaseService {
 		preOutboundHeader.setRequiredDeliveryDate(outboundIntegrationHeader.getRequiredDeliveryDate());
 		
 		// REF_FIELD_1
-		preOutboundHeader.setReferenceField1(refField1ForOrderType);
+		preOutboundHeader.setReferenceField1(refField1ForOrderType); 
+		
+		// Status Description
+		StatusId idStatus = idmasterService.getStatus(39L, outboundIntegrationHeader.getWarehouseID(), authTokenForIDService.getAccess_token());
+		
+		// REF_FIELD_10
+		preOutboundHeader.setReferenceField10(idStatus.getStatus()); 
+				
 		preOutboundHeader.setDeletionIndicator(0L);
 		preOutboundHeader.setCreatedBy("MSD_INT");
 		preOutboundHeader.setCreatedOn(kwtDate);	

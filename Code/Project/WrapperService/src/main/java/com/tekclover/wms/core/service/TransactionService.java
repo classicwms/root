@@ -1724,27 +1724,6 @@ public class TransactionService {
 		return grHeaderList.toArray(new GrHeader[grHeaderList.size()]);
 	}
 
-	// POST - Finder GrHeader -Stream JPA
-	public GrHeader[] findGrHeaderNewStreamQuery(SearchGrHeader searchGrHeader, String authToken) throws Exception {
-		HttpHeaders headers = new HttpHeaders();
-		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-		headers.add("User-Agent", "ClassicWMS RestTemplate");
-		headers.add("Authorization", "Bearer " + authToken);
-
-		UriComponentsBuilder builder = UriComponentsBuilder
-				.fromHttpUrl(getTransactionServiceApiUrl() + "grheader/streaming/findStreamOutboundHeaderNewTrans");
-		HttpEntity<?> entity = new HttpEntity<>(searchGrHeader, headers);
-		ResponseEntity<GrHeader[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity,
-				GrHeader[].class);
-
-		List<GrHeader> grHeaderList = new ArrayList<>();
-		for (GrHeader grHeader : result.getBody()) {
-
-			grHeaderList.add(addingTimeWithDateGrHeader(grHeader));
-		}
-		return grHeaderList.toArray(new GrHeader[grHeaderList.size()]);
-	}
-
 
 	// POST
 	public GrHeader createGrHeader(GrHeader newGrHeader, String loginUserID, String authToken) {
@@ -3213,7 +3192,7 @@ public class TransactionService {
 
 	// POST - findPreOutboundHeader - Stream
 	public PreOutboundHeader[] findPreOutboundHeaderNew(SearchPreOutboundHeader searchPreOutboundHeader,
-			String authToken) throws Exception {
+														String authToken) throws Exception {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -3245,44 +3224,6 @@ public class TransactionService {
 				obList.add(obHeader);
 			}
 			return obList.toArray(new PreOutboundHeader[obList.size()]);
-		} catch (Exception e) {
-			throw e;
-		}
-	}
-	// POST - findPreOutboundHeader SQL - Stream
-	public PreOutboundHeader[] findPreOutboundHeaderSql(SearchPreOutboundHeader searchPreOutboundHeader,
-			String authToken) throws Exception {
-		try {
-			HttpHeaders headers = new HttpHeaders();
-			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-			headers.add("User-Agent", "ClassicWMS RestTemplate");
-			headers.add("Authorization", "Bearer " + authToken);
-
-			UriComponentsBuilder builder = UriComponentsBuilder
-					.fromHttpUrl(getTransactionServiceApiUrl() + "preoutboundheader/findPreOutboundHeaderSql");
-			HttpEntity<?> entity = new HttpEntity<>(searchPreOutboundHeader, headers);
-			ResponseEntity<PreOutboundHeader[]> result = getRestTemplate().exchange(builder.toUriString(),
-					HttpMethod.POST, entity, PreOutboundHeader[].class);
-			log.info("result : " + result.getBody());
-			return result.getBody();
-//			List<PreOutboundHeader> obList = new ArrayList<>();
-//			for (PreOutboundHeader obHeader : result.getBody()) {
-//				log.info("Result RefDocDate :" + obHeader.getRefDocDate());
-//				if(obHeader.getRefDocDate() != null) {
-//					obHeader.setRefDocDate(DateUtils.addTimeToDate(obHeader.getRefDocDate(), 3));
-//				}
-//				if(obHeader.getRequiredDeliveryDate() != null) {
-//					obHeader.setRequiredDeliveryDate(DateUtils.addTimeToDate(obHeader.getRequiredDeliveryDate(), 3));
-//				}
-//				if(obHeader.getCreatedOn() != null) {
-//					obHeader.setCreatedOn(DateUtils.addTimeToDate(obHeader.getCreatedOn(), 3));
-//				}
-//				if(obHeader.getUpdatedOn() != null) {
-//					obHeader.setUpdatedOn(DateUtils.addTimeToDate(obHeader.getUpdatedOn(), 3));
-//				}
-//				obList.add(obHeader);
-//			}
-//			return obList.toArray(new PreOutboundHeader[obList.size()]);
 		} catch (Exception e) {
 			throw e;
 		}

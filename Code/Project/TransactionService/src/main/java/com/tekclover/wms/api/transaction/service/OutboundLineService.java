@@ -20,6 +20,7 @@ import com.tekclover.wms.api.transaction.config.PropertiesConfig;
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AXAuthToken;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
+import com.tekclover.wms.api.transaction.model.dto.StatusId;
 import com.tekclover.wms.api.transaction.model.dto.StorageBin;
 import com.tekclover.wms.api.transaction.model.dto.Warehouse;
 import com.tekclover.wms.api.transaction.model.impl.OrderStatusReportImpl;
@@ -753,6 +754,7 @@ public class OutboundLineService extends BaseService {
 			try {
 				Long STATUS_ID_59 = 59L;
 				List<Long> statusId57 = Arrays.asList(57L);
+				AuthToken authTokenForIDService = authTokenService.getIDMasterServiceAuthToken();
 				List<OutboundLine> outboundLineByStatus57List = findOutboundLineByStatus(warehouseId, preOutboundNo, refDocNumber, partnerCode, statusId57);
 				
 				// ----------------OoutboundLine update-----------------------------------------------------------------------------------------
@@ -782,7 +784,8 @@ public class OutboundLineService extends BaseService {
 				log.info("PreOutbound Line updated");
 				
 				//----------------Preoutbound Header--------------------------------------------------------------------------------------------
-				preOutboundHeaderRepository.updatePreOutboundHeaderStatus(warehouseId, refDocNumber, STATUS_ID_59);
+				StatusId idStatus = idmasterService.getStatus(STATUS_ID_59, warehouseId, authTokenForIDService.getAccess_token());
+				preOutboundHeaderRepository.updatePreOutboundHeaderStatus(warehouseId, refDocNumber, STATUS_ID_59, idStatus.getStatus());
 				log.info("PreOutbound Header updated");
 				
 				/*-----------------Inventory Updates---------------------------*/

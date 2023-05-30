@@ -2,6 +2,7 @@ package com.tekclover.wms.api.transaction.controller;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
@@ -62,7 +63,13 @@ public class PreOutboundHeaderController {
 			throws Exception {
 		return preoutboundheaderService.findPreOutboundHeader(searchPreOutboundHeader);
 	}
-    
+	//Stream - JPA
+	@ApiOperation(response = PreOutboundHeader.class, value = "Search PreOutboundHeader New") // label for swagger
+	@PostMapping("/findPreOutboundHeaderNew")
+	public Stream<PreOutboundHeader> findPreOutboundHeaderNew(@RequestBody SearchPreOutboundHeader searchPreOutboundHeader)
+			throws Exception {
+		return preoutboundheaderService.findPreOutboundHeaderNew(searchPreOutboundHeader);
+	}
     @ApiOperation(response = PreOutboundHeader.class, value = "Create PreOutboundHeader") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postPreOutboundHeader(@Valid @RequestBody AddPreOutboundHeader newPreOutboundHeader, @RequestParam String loginUserID) 

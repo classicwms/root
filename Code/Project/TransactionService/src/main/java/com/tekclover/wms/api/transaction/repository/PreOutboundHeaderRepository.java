@@ -17,10 +17,12 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.PreOutboundHeader;
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 
 @Repository
 @Transactional
-public interface PreOutboundHeaderRepository extends JpaRepository<PreOutboundHeader,Long>, JpaSpecificationExecutor<PreOutboundHeader> {
+public interface PreOutboundHeaderRepository extends JpaRepository<PreOutboundHeader,Long>, JpaSpecificationExecutor<PreOutboundHeader>,
+																StreamableJpaSpecificationRepository<PreOutboundHeader> {
 	String UPGRADE_SKIPLOCKED = "-2";
 	public List<PreOutboundHeader> findAll();
 	
@@ -52,9 +54,9 @@ public interface PreOutboundHeaderRepository extends JpaRepository<PreOutboundHe
 	 * @param statusId
 	 */
 	@Modifying(clearAutomatically = true)
-	@Query("UPDATE PreOutboundHeader ib SET ib.statusId = :statusId WHERE ib.warehouseId = :warehouseId AND ib.refDocNumber = :refDocNumber")
+	@Query("UPDATE PreOutboundHeader ib SET ib.statusId = :statusId, REF_FIELD_10 = :refField10 WHERE ib.warehouseId = :warehouseId AND ib.refDocNumber = :refDocNumber")
 	void updatePreOutboundHeaderStatus(@Param ("warehouseId") String warehouseId,
-			@Param ("refDocNumber") String refDocNumber, @Param ("statusId") Long statusId);
+			@Param ("refDocNumber") String refDocNumber, @Param ("statusId") Long statusId, @Param ("refField10") String refField10);
 
 	@Lock(value = LockModeType.PESSIMISTIC_WRITE) // adds 'FOR UPDATE' statement
 	@QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = UPGRADE_SKIPLOCKED)})

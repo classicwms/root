@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import javax.transaction.Transactional;
 
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -16,7 +17,8 @@ import com.tekclover.wms.api.transaction.model.inbound.gr.GrHeader;
 
 @Repository
 @Transactional
-public interface GrHeaderRepository extends JpaRepository<GrHeader,Long>, JpaSpecificationExecutor<GrHeader> {
+public interface GrHeaderRepository extends JpaRepository<GrHeader,Long>, JpaSpecificationExecutor<GrHeader>,
+									StreamableJpaSpecificationRepository<GrHeader> {
 	
 	public List<GrHeader> findAll();
 	

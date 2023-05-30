@@ -14,10 +14,10 @@ public class BaseService {
 	protected static final String WAREHOUSE_ID_111 = "111";
 	
 	@Autowired
-	private IDMasterService idmasterService;
+	protected IDMasterService idmasterService;
 	
 	@Autowired
-	private AuthTokenService authTokenService;
+	protected AuthTokenService authTokenService;
 	
 	/**
 	 * 

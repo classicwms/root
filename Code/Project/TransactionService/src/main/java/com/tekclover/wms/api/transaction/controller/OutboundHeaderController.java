@@ -68,7 +68,13 @@ public class OutboundHeaderController {
 		return outboundheaderService.findOutboundHeader(searchOutboundHeader, flag);
 //		return outboundheaderService.findOutboundHeader(searchOutboundHeader);
 	}
-
+	//Stream
+	@ApiOperation(response = OutboundHeader.class, value = "Search OutboundHeader New") // label for swagger
+	@PostMapping("/findOutboundHeaderNew")
+	public List<OutboundHeaderStream> findOutboundHeaderNew(@RequestBody SearchOutboundHeader searchOutboundHeader,@RequestParam Integer flag)
+			throws Exception {
+		return outboundheaderService.findOutboundHeadernew(searchOutboundHeader, flag);
+	}
 	//===================================STREAMING=================================================
 
 //	@GetMapping(value = "/streaming/findOutboundHeader")

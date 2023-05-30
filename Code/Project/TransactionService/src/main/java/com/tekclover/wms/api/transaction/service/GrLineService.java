@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
+import com.tekclover.wms.api.transaction.model.dto.StatusId;
 import com.tekclover.wms.api.transaction.model.dto.StorageBin;
 import com.tekclover.wms.api.transaction.model.inbound.InboundLine;
 import com.tekclover.wms.api.transaction.model.inbound.gr.AddGrLine;
@@ -86,7 +87,7 @@ public class GrLineService extends BaseService {
 	
 	@Autowired
 	private MastersService mastersService;
-
+	
 	@Autowired
 	private ImBasicData1Repository imbasicdata1Repository;
 	
@@ -327,6 +328,7 @@ public class GrLineService extends BaseService {
 			throws IllegalAccessException, InvocationTargetException {
 		List<GrLine> createdGRLines = new ArrayList<>();
 		try {
+			String warehouseId = null;
 			List<AddGrLine> dupGrLines = getDuplicates (newGrLines);
 			log.info("-------dupGrLines--------> " + dupGrLines);
 			if (dupGrLines != null && !dupGrLines.isEmpty()) {
@@ -337,6 +339,8 @@ public class GrLineService extends BaseService {
 			
 			// Inserting multiple records
 			for (AddGrLine newGrLine : newGrLines) {
+				warehouseId = newGrLine.getWarehouseId();
+				
 				/*------------Inserting based on the PackBarcodes -----------*/
 				for (PackBarcode packBarcode : newGrLine.getPackBarcodes()) {
 					GrLine dbGrLine = new GrLine();
@@ -401,6 +405,8 @@ public class GrLineService extends BaseService {
 			 * Pass WH_ID/PRE_IB_NO/REF_DOC_NO/GR_NO/IB_LINE_NO/ITM_CODE in GRLINE table and 
 			 * validate STATUS_ID of the all the filtered line items = 17 , if yes
 			 */
+			AuthToken authTokenForIDService = authTokenService.getIDMasterServiceAuthToken();
+			StatusId idStatus = idmasterService.getStatus(17L, warehouseId, authTokenForIDService.getAccess_token());
 			for (GrLine grLine : createdGRLines) {
 				/*
 				 * 1. Update GRHEADER table with STATUS_ID=17 by Passing WH_ID/GR_NO/CASE_CODE/REF_DOC_NO and 
@@ -413,6 +419,7 @@ public class GrLineService extends BaseService {
 						grHeader.setCompanyCode(getCompanyCode());
 					} 
 					grHeader.setStatusId(17L);
+					grHeader.setReferenceField10(idStatus.getStatus());
 					grHeader.setCreatedBy(loginUserID);	
 					grHeader.setCreatedOn(new Date());
 					grHeader = grHeaderRepository.save(grHeader);

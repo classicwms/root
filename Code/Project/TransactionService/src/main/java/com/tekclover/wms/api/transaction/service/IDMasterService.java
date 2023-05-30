@@ -19,6 +19,7 @@ import com.tekclover.wms.api.transaction.controller.exception.BadRequestExceptio
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.transaction.model.dto.AuditLog;
 import com.tekclover.wms.api.transaction.model.dto.BinClassId;
+import com.tekclover.wms.api.transaction.model.dto.StatusId;
 import com.tekclover.wms.api.transaction.model.dto.UserManagement;
 import com.tekclover.wms.api.transaction.model.dto.Warehouse;
 
@@ -116,26 +117,26 @@ public class IDMasterService {
 	
 	//-----------------------------------------------------------------------------------------------------------
 	// GET - /binclassid
-		public BinClassId getBinClassId(String warehouseId, String authToken) {
-			try {
-				HttpHeaders headers = new HttpHeaders();
-				headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-				headers.add("User-Agent", "Classic WMS's RestTemplate");
-				headers.add("Authorization", "Bearer " + authToken);
-				
-				UriComponentsBuilder builder = 
-						UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "binclassid/" + warehouseId);
+	public BinClassId getBinClassId(String warehouseId, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "Classic WMS's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			
+			UriComponentsBuilder builder = 
+					UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "binclassid/" + warehouseId);
 
-				HttpEntity<?> entity = new HttpEntity<>(headers);
-				ResponseEntity<BinClassId> result = 
-						getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, BinClassId.class);
-				log.info("result : " + result.getBody());
-				return result.getBody();
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw new BadRequestException(e.getLocalizedMessage());
-			}
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<BinClassId> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, BinClassId.class);
+			log.info("result : " + result.getBody());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new BadRequestException(e.getLocalizedMessage());
 		}
+	}
 	
 	/**
 	 * createAuditLog
@@ -231,8 +232,27 @@ public class IDMasterService {
 		createAuditLog(auditLog, loginUserID, authTokenForIdmasterService.getAccess_token());
 	}
 
-	public void getHHTUser(String warehouseId, String access_token) {
-		// TODO Auto-generated method stub
-		
+	/**
+	 * 
+	 * @param statusId
+	 * @param warehouseId
+	 * @param access_token
+	 */
+	public StatusId getStatus(Long statusId, String warehouseId, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "Classic WMS's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "statusid/" + statusId)
+					.queryParam("warehouseId", warehouseId);
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<StatusId> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, StatusId.class);
+			log.info("result : " + result.getBody());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new BadRequestException(e.getLocalizedMessage());
+		}
 	}
 }

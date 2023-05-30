@@ -1071,13 +1071,7 @@ public class TransactionServiceController {
 			@RequestParam String authToken) throws Exception {
 		return transactionService.findPreOutboundHeaderNew(searchPreOutboundHeader, authToken);
 	}
-	//Stream - SQL
-	@ApiOperation(response = PreOutboundHeader.class, value = "Search PreOutboundHeader Sql") // label for swagger
-	@PostMapping("/preoutboundheader/findPreOutboundHeaderSql")
-	public PreOutboundHeader[] findPreOutboundHeaderSql(@RequestBody SearchPreOutboundHeader searchPreOutboundHeader,
-			@RequestParam String authToken) throws Exception {
-		return transactionService.findPreOutboundHeaderSql(searchPreOutboundHeader, authToken);
-	}
+
 	/*
 	 * -------------------PreOutboundLine---------------------------------------------------
 	 */

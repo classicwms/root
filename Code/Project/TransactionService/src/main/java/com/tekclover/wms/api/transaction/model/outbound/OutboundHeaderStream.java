@@ -4,10 +4,10 @@ import lombok.Data;
 
 import java.util.Date;
 
-@Data
-public class OutboundHeaderStream {
+//@Data
+public interface OutboundHeaderStream {
 
-	private String refDocNumber;
+	/*private String refDocNumber;
 	private String partnerCode;
 	private String referenceDocumentType;
 	private Long statusId;
@@ -20,21 +20,21 @@ public class OutboundHeaderStream {
 	private String referenceField10;
 	private Date deliveryConfirmedOn;
 
-	/**
-	 * Outbound Header
-	 * @param refDocNumber
-	 * @param partnerCode
-	 * @param referenceDocumentType
-	 * @param statusId
-	 * @param refDocDate
-	 * @param requiredDeliveryDate
-	 * @param referenceField1
-	 * @param referenceField7
-	 * @param referenceField8
-	 * @param referenceField9
-	 * @param referenceField10
-	 * @param deliveryConfirmedOn
-	 */
+	*//**
+//	 * Outbound Header
+//	 * @param refDocNumber
+//	 * @param partnerCode
+//	 * @param referenceDocumentType
+//	 * @param statusId
+//	 * @param refDocDate
+//	 * @param requiredDeliveryDate
+//	 * @param referenceField1
+//	 * @param referenceField7
+//	 * @param referenceField8
+//	 * @param referenceField9
+//	 * @param referenceField10
+//	 * @param deliveryConfirmedOn
+	 *//*
 	public OutboundHeaderStream(String refDocNumber,
                                 String partnerCode,
                                 String referenceDocumentType,
@@ -59,5 +59,40 @@ public class OutboundHeaderStream {
 		this.referenceField9 = referenceField9;
 		this.referenceField10 = referenceField10;
 		this.deliveryConfirmedOn = deliveryConfirmedOn;
-	}
+	}*/
+
+	public String getLanguageId();
+	public String getCompanyCodeId();
+	public String getPlantId();
+	public String getWarehouseId();
+	public String getPreOutboundNo();
+	public String getRefDocNumber();
+	public String getPartnerCode();
+	public String getDeliveryOrderNo();
+	public String getReferenceDocumentType();
+	public Long getOutboundOrderTypeId();
+	public Long getStatusId();
+	public Date getRefDocDate();
+	public Date getRequiredDeliveryDate();
+	public String getReferenceField1();
+	public String getReferenceField2();
+	public String getReferenceField3();
+	public String getReferenceField4();
+	public String getReferenceField5();
+	public String getReferenceField6();
+	public String getReferenceField7();
+	public String getReferenceField8();
+	public String getReferenceField9();
+	public String getReferenceField10();
+	public Long getDeletionIndicator();
+	public String getRemarks();
+	public String getCreatedBy();
+	public Date getCreatedOn();
+	public String getDeliveryConfirmedBy();
+	public Date getDeliveryConfirmedOn();
+	public String getUpdatedBy();
+	public Date getUpdatedOn();
+	public String getReversedBy();
+	public Date getReversedOn();
+	public String getStatusDescription();
 }

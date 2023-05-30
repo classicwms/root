@@ -398,6 +398,34 @@ public class DateUtils {
 	
 	/**
 	 * 
+	 * @param localDate
+	 * @param hh
+	 * @param mi
+	 * @param ss
+	 * @return
+	 * @throws Exception
+	 */
+	public static Date addTimeToDate(LocalDate localDate, int hh, int mi, int ss) throws Exception {
+        LocalDateTime sLocalDateTime = localDate.atTime(hh, mi, ss);
+		log.info("LocalDate1---##----> " + sLocalDateTime);
+		
+		DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+		String sConvertedDateTime = formatter1.format(sLocalDateTime);
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		Date sDate = dateFormatter.parse(sConvertedDateTime);
+		log.info("sDate---##----> " + sLocalDateTime);
+		
+		Instant instant = sDate.toInstant();
+		ZoneId defaultZoneId = ZoneId.systemDefault();
+		ZonedDateTime zonedDateTime = instant.atZone(defaultZoneId);
+        System.out.println("zonedDateTime : " + zonedDateTime);
+        Date dateC = Date.from(zonedDateTime.toInstant());
+        System.out.println("dateC : " + dateC);
+		return dateC;
+	}
+	
+	/**
+	 * 
 	 * @param fromDeliveryDate
 	 * @return
 	 * @throws NumberFormatException
@@ -443,18 +471,57 @@ public class DateUtils {
 //		Date kwtDate = dateFormatter.parse(sConvertedDateTime);
 //		System.out.println(kwtDate);
 		
-		String fromDeliveryDate = "01-08-2022T03:12:12"; 
-		String dateAlone = fromDeliveryDate.substring(0, fromDeliveryDate.indexOf('T'));
-		String[] time = fromDeliveryDate.substring(fromDeliveryDate.indexOf('T')+1).split(":");
-		log.info("time: " + time[0] + "," + time[1] + "," + time[2]);
-		
-		addTimeToDate (dateAlone, Integer.valueOf(time[0]), Integer.valueOf(time[1]), Integer.valueOf(time[2]));
+//		String fromDeliveryDate = "01-08-2022T03:12:12"; 
+//		String dateAlone = fromDeliveryDate.substring(0, fromDeliveryDate.indexOf('T'));
+//		String[] time = fromDeliveryDate.substring(fromDeliveryDate.indexOf('T')+1).split(":");
+//		log.info("time: " + time[0] + "," + time[1] + "," + time[2]);
+//		
+//		addTimeToDate (dateAlone, Integer.valueOf(time[0]), Integer.valueOf(time[1]), Integer.valueOf(time[2]));
 //		addTimeToDate (fromDeliveryDate, 13, 59, 59);
+		
+		dateSubtract(1, 14, 0, 0);
+		dateSubtract(0, 13, 59, 59);
+		
+		LocalDate today = LocalDate.now();
+		LocalDate beginDayOfMonth = today.withDayOfMonth(1);
+		addTimeToDate(beginDayOfMonth, 14, 0, 0);
+		addTimeToDate(today, 13, 59, 59);
 	}
 
+	/**
+	 * 
+	 * @param noOfDays
+	 * @return
+	 */
 	public static Date dateSubtract (int noOfDays) {
-		LocalDate today = LocalDate.now().minusDays(noOfDays);
-//		today = today.withDayOfMonth(1);
-		return Date.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant());
+//		fromDeliveryDate_d = DateUtils.addTimeToDate (fromDeliveryDate, 14, 0, 0);
+//		toDeliveryDate_d = DateUtils.addTimeToDate(toDeliveryDate, 13, 59, 59);
+		try {
+			LocalDate today = LocalDate.now().minusDays(noOfDays);
+			return addTimeToDate(today, 14, 0, 0);
+			
+//			return Date.from(fromDeliveryDate_d.atStartOfDay(ZoneId.systemDefault()).toInstant());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	/**
+	 * 
+	 * @param noOfDays
+	 * @param hh
+	 * @param mi
+	 * @param ss
+	 * @return
+	 */
+	public static Date dateSubtract (int noOfDays, int hh, int mi, int ss) {
+		try {
+			LocalDate today = LocalDate.now().minusDays(noOfDays);
+			return addTimeToDate(today, hh, mi, ss);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

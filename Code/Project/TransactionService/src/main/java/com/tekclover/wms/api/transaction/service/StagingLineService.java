@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
+import com.tekclover.wms.api.transaction.model.dto.StatusId;
 import com.tekclover.wms.api.transaction.model.dto.Warehouse;
 import com.tekclover.wms.api.transaction.model.inbound.InboundLine;
 import com.tekclover.wms.api.transaction.model.inbound.UpdateInboundLine;
@@ -451,7 +452,11 @@ public class StagingLineService extends BaseService {
 			addGrHeader.setGoodsReceiptNo(nextGRHeaderNumber);
 			
 			// STATUS_ID
-			addGrHeader.setStatusId(16L);			
+			addGrHeader.setStatusId(16L);
+			
+			AuthToken authTokenForIDService = authTokenService.getIDMasterServiceAuthToken();
+			StatusId idStatus = idmasterService.getStatus(16L, updatedStagingLineEntity.getWarehouseId(), authTokenForIDService.getAccess_token());
+			addGrHeader.setReferenceField10(idStatus.getStatus());
 			GrHeader createdGrHeader = grHeaderService.createGrHeader(addGrHeader, loginUserID);
 			log.info("createdGrHeader : " + createdGrHeader);
 		}
