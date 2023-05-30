@@ -1974,9 +1974,12 @@ public class ReportsService extends BaseService {
 		 * Current date as DLV_CNF_ON in OUTBOUNDLINE table and fetch Count of
 		 * OB_LINE_NO values where REF_FIELD_2=Null and DLV_QTY > 0
 		 */
-		Date[] dates = DateUtils.addTimeToDatesForSearch(fromDeliveryDate,toDeliveryDate);
-		fromDeliveryDate = dates[0];
-		toDeliveryDate = dates[1];
+//		Date[] dates = DateUtils.addTimeToDatesForSearch(fromDeliveryDate,toDeliveryDate);
+//		fromDeliveryDate = dates[0];
+//		toDeliveryDate = dates[1];
+		
+		log.info("---getShippedLineCount>>>>fromDeliveryDate-----> : " + fromDeliveryDate);
+		log.info("---getShippedLineCount>>>>toDeliveryDate-----> : " + toDeliveryDate);
 		long shippedLineCount =
 				outboundLineRepository.countByWarehouseIdAndDeliveryConfirmedOnBetweenAndStatusIdAndDeletionIndicatorAndReferenceField2IsNullAndDeliveryQtyIsNotNullAndDeliveryQtyGreaterThan(
 				warehouseId, fromDeliveryDate,toDeliveryDate,59L,0L,Double.valueOf(0));
@@ -2176,10 +2179,10 @@ public class ReportsService extends BaseService {
 		//Shipping Day
 		Dashboard.Day.Shipping dayShipping = day.new Shipping();
 		
-//		Date fromDate = DateUtils.dateSubtract(1, 14, 0, 0); // From Yesterday 14:00 to Today 15:00
-//		Date endDate = DateUtils.dateSubtract(0, 13, 59, 59);
-//		long shippedLineCount = getShippedLineCount(warehouseId, fromDate, endDate);
-		long shippedLineCount = getShippedLineCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1));
+		Date fromDate = DateUtils.dateSubtract(1, 14, 0, 0); // From Yesterday 14:00 to Today 15:00
+		Date endDate = DateUtils.dateSubtract(0, 13, 59, 59);
+		long shippedLineCount = getShippedLineCount(warehouseId, fromDate, endDate);
+//		long shippedLineCount = getShippedLineCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1));
 		dayShipping.setShippedLine(shippedLineCount);
 
 		long normalCount = getNormalNSpecialCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1), "N");
@@ -2217,10 +2220,10 @@ public class ReportsService extends BaseService {
 		
 		LocalDate currentDay = LocalDate.now();
 		LocalDate beginDayOfMonth = today.withDayOfMonth(1);
-//		fromDate = DateUtils.addTimeToDate(beginDayOfMonth, 14, 0, 0);
-//		endDate = DateUtils.addTimeToDate(currentDay, 13, 59, 59);
-//		shippedLineCount = getShippedLineCount(warehouseId, fromDate, endDate);
-		shippedLineCount = getShippedLineCount(warehouseId, beginningOfMonth, new Date());
+		fromDate = DateUtils.addTimeToDate(beginDayOfMonth, 14, 0, 0);
+		endDate = DateUtils.addTimeToDate(currentDay, 13, 59, 59);
+		shippedLineCount = getShippedLineCount(warehouseId, fromDate, endDate);
+//		shippedLineCount = getShippedLineCount(warehouseId, beginningOfMonth, new Date());
 		
 		monthShipping.setShippedLine(shippedLineCount);
 

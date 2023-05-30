@@ -1092,7 +1092,7 @@ public class TransactionServiceController {
 		return transactionService.findOrderManagementLine(searchOrderMangementLine, authToken);
 	}
 
-	//Stream
+	//Streaming
 	@ApiOperation(response = OrderManagementLine.class, value = "Search OrderMangementLine New") // label for swagger
 	@PostMapping("/ordermanagementline/findOrderManagementLineNew")
 	public OrderManagementLine[] findOrderManagementLineNew(@RequestBody SearchOrderManagementLine searchOrderMangementLine,

@@ -2,6 +2,7 @@ package com.tekclover.wms.api.transaction.controller;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
@@ -68,7 +69,14 @@ public class OrderManagementLineController {
 			throws Exception {
 		return ordermangementlineService.findOrderManagementLine(searchOrderManagementLine);
 	}
-    
+	//Streaming
+	@ApiOperation(response = OrderManagementLine.class, value = "Search OrderManagementLine New") // label for swagger
+	@PostMapping("/findOrderManagementLineNew")
+	public Stream<OrderManagementLine> findOrderManagementLineNew(@RequestBody SearchOrderManagementLine searchOrderManagementLine)
+			throws Exception {
+		return ordermangementlineService.findOrderManagementLineNew(searchOrderManagementLine);
+	}
+
     @ApiOperation(response = OrderManagementLine.class, value = "Create OrderManagementLine") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postOrderManagementLine(@Valid @RequestBody AddOrderManagementLine newOrderManagementLine, @RequestParam String loginUserID) 

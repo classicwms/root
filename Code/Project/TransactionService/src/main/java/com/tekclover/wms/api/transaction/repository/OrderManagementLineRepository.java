@@ -3,6 +3,7 @@ package com.tekclover.wms.api.transaction.repository;
 import java.util.List;
 import java.util.Optional;
 
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -14,7 +15,8 @@ import com.tekclover.wms.api.transaction.model.outbound.ordermangement.OrderMana
 
 @Repository
 @Transactional
-public interface OrderManagementLineRepository extends JpaRepository<OrderManagementLine,Long>, JpaSpecificationExecutor<OrderManagementLine> {
+public interface OrderManagementLineRepository extends JpaRepository<OrderManagementLine,Long>,
+		JpaSpecificationExecutor<OrderManagementLine>, StreamableJpaSpecificationRepository<OrderManagementLine> {
 	
 	public List<OrderManagementLine> findAll();
 	

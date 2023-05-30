@@ -483,7 +483,11 @@ public class PreOutboundHeaderService extends BaseService {
 	private OrderManagementHeader createOrderManagementHeader(PreOutboundHeader createdPreOutboundHeader) {
 		OrderManagementHeader newOrderManagementHeader = new OrderManagementHeader();
 		BeanUtils.copyProperties(createdPreOutboundHeader, newOrderManagementHeader, CommonUtils.getNullPropertyNames(createdPreOutboundHeader));
+		
+		AuthToken authTokenForIDService = authTokenService.getIDMasterServiceAuthToken();
+		StatusId idStatus = idmasterService.getStatus(41L, createdPreOutboundHeader.getWarehouseId(), authTokenForIDService.getAccess_token());
 		newOrderManagementHeader.setStatusId(41L);	// Hard Coded Value "41"
+		newOrderManagementHeader.setReferenceField7(idStatus.getStatus());	
 		OrderManagementHeader createdOrderMangementHeader = orderManagementHeaderRepository.save(newOrderManagementHeader);
 		return createdOrderMangementHeader;
 	}

@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.transaction.model.dto.IInventory;
+import com.tekclover.wms.api.transaction.model.dto.StatusId;
 import com.tekclover.wms.api.transaction.model.dto.StorageBin;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
@@ -74,9 +76,6 @@ public class OrderManagementLineService extends BaseService {
 
 	@Autowired
 	OutboundLineService outboundLineService;
-
-	@Autowired
-	AuthTokenService authTokenService;
 
 	@Autowired
 	MastersService mastersService;
@@ -263,6 +262,30 @@ public class OrderManagementLineService extends BaseService {
 		return searchResults;
 	}
 
+	//Streaming
+	public Stream<OrderManagementLine> findOrderManagementLineNew(SearchOrderManagementLine searchOrderManagementLine)
+			throws ParseException, java.text.ParseException {
+
+		if (searchOrderManagementLine.getStartRequiredDeliveryDate() != null
+				&& searchOrderManagementLine.getEndRequiredDeliveryDate() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOrderManagementLine.getStartRequiredDeliveryDate(),
+					searchOrderManagementLine.getEndRequiredDeliveryDate());
+			searchOrderManagementLine.setStartRequiredDeliveryDate(dates[0]);
+			searchOrderManagementLine.setEndRequiredDeliveryDate(dates[1]);
+		}
+
+		if (searchOrderManagementLine.getStartOrderDate() != null
+				&& searchOrderManagementLine.getEndOrderDate() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOrderManagementLine.getStartOrderDate(),
+					searchOrderManagementLine.getEndOrderDate());
+			searchOrderManagementLine.setStartOrderDate(dates[0]);
+			searchOrderManagementLine.setEndOrderDate(dates[1]);
+		}
+		OrderManagementLineSpecification spec = new OrderManagementLineSpecification(searchOrderManagementLine);
+		Stream<OrderManagementLine> searchResults = orderManagementLineRepository.stream(spec, OrderManagementLine.class).parallel();
+
+		return searchResults;
+	}
 	/**
 	 * 
 	 */
@@ -330,6 +353,9 @@ public class OrderManagementLineService extends BaseService {
 		 * 0
 		 */
 		int i = 0;
+		AuthToken idmasterAuthToken = authTokenService.getIDMasterServiceAuthToken();
+		StatusId idStatus = idmasterService.getStatus(47L, warehouseId, idmasterAuthToken.getAccess_token());
+		
 		for (OrderManagementLine dbOrderManagementLine : orderManagementLineList) {
 			String packBarcodes = dbOrderManagementLine.getProposedPackBarCode();
 			String storageBin = dbOrderManagementLine.getProposedStorageBin();
@@ -363,6 +389,7 @@ public class OrderManagementLineService extends BaseService {
 			 */
 			dbOrderManagementLine.setAllocatedQty(0D);
 			dbOrderManagementLine.setStatusId(47L);
+			dbOrderManagementLine.setReferenceField7(idStatus.getStatus());
 			dbOrderManagementLine.setPickupUpdatedBy(loginUserID);
 			dbOrderManagementLine.setPickupUpdatedOn(new Date());
 			if (i != 0) {
@@ -486,9 +513,13 @@ public class OrderManagementLineService extends BaseService {
 				OrderManagementLine dbOrderManagementLine = getOrderManagementLine(warehouseId, preOutboundNo, refDocNumber,
 						partnerCode, lineNumber, itemCode, proposedStorageBin, proposedPackCode);
 	
+				AuthToken idmasterAuthToken = authTokenService.getIDMasterServiceAuthToken();
+				StatusId idStatus = idmasterService.getStatus(48L, warehouseId, idmasterAuthToken.getAccess_token());
+				
 				dbOrderManagementLine.setAssignedPickerId(assignedPickerId);
-				dbOrderManagementLine.setStatusId(48L); // 2. Update STATUS_ID = 48
-				dbOrderManagementLine.setPickupUpdatedBy(loginUserID);
+				dbOrderManagementLine.setStatusId(48L); 						// 2. Update STATUS_ID = 48
+				dbOrderManagementLine.setReferenceField7(idStatus.getStatus());
+				dbOrderManagementLine.setPickupUpdatedBy(loginUserID);			// Ref_field_7 
 				dbOrderManagementLine.setPickupUpdatedOn(new Date());
 				dbOrderManagementLine = orderManagementLineRepository.save(dbOrderManagementLine);
 				log.info("dbOrderManagementLine updated : " + dbOrderManagementLine);
@@ -571,23 +602,6 @@ public class OrderManagementLineService extends BaseService {
 		return orderManagementLineList;
 	}
 
-	/**
-	 * 
-	 * @param dbOrderManagementLine
-	 * @param storageSectionIds
-	 * @param ORD_QTY
-	 * @param warehouseId
-	 * @param itemCode
-	 * @return
-	 */
-	public OrderManagementLine updateAllocation(OrderManagementLine orderManagementLine, List<String> storageSectionIds,
-			Double ORD_QTY, String warehouseId, String itemCode, String loginUserID) {
-		List<Inventory> stockType1InventoryList = inventoryService.getInventoryForOrderManagement(warehouseId, itemCode,
-				1L, 1L);
-		log.info("---updateAllocation---stockType1InventoryList-------> : " + stockType1InventoryList);
-		if (stockType1InventoryList.isEmpty()) {
-			return updateOrderManagementLine(orderManagementLine);
-		}
 //		
 //		/* To obtain the SumOfInvQty */
 //		List<String> stBins = stBinInventoryList.stream().map(Inventory::getStorageBin).collect(Collectors.toList());
@@ -759,7 +773,25 @@ public class OrderManagementLineService extends BaseService {
 //			return createdOrderManagementLine;
 //		} else {
 //		for (Inventory stBinInventory : finalInventoryList) {
-
+	
+	/**
+	 * 
+	 * @param dbOrderManagementLine
+	 * @param storageSectionIds
+	 * @param ORD_QTY
+	 * @param warehouseId
+	 * @param itemCode
+	 * @return
+	 */
+	public OrderManagementLine updateAllocation(OrderManagementLine orderManagementLine, List<String> storageSectionIds,
+			Double ORD_QTY, String warehouseId, String itemCode, String loginUserID) {
+		List<Inventory> stockType1InventoryList = inventoryService.getInventoryForOrderManagement(warehouseId, itemCode,
+				1L, 1L);
+		log.info("---updateAllocation---stockType1InventoryList-------> : " + stockType1InventoryList);
+		if (stockType1InventoryList.isEmpty()) {
+			return updateOrderManagementLine(orderManagementLine);
+		}
+		
 		// -----------------------------------------------------------------------------------------------------------------------------------------
 		// Getting Inventory GroupBy ST_BIN wise
 		List<IInventory> finalInventoryList = inventoryService.getInventoryGroupByStorageBin(warehouseId, itemCode,
@@ -772,6 +804,7 @@ public class OrderManagementLineService extends BaseService {
 		}
 		
 		OrderManagementLine newOrderManagementLine = null;
+		AuthToken idmasterAuthToken = authTokenService.getIDMasterServiceAuthToken();
 		outerloop: for (IInventory stBinWiseInventory : finalInventoryList) {
 			log.info("\nstBinWiseInventory---->: " + stBinWiseInventory.getStorageBin() + "::"
 					+ stBinWiseInventory.getInventoryQty());
@@ -836,7 +869,9 @@ public class OrderManagementLineService extends BaseService {
 					STATUS_ID = 43L;
 				}
 
+				StatusId idStatus = idmasterService.getStatus(STATUS_ID, orderManagementLine.getWarehouseId(), idmasterAuthToken.getAccess_token());
 				orderManagementLine.setStatusId(STATUS_ID);
+				orderManagementLine.setReferenceField7(idStatus.getStatus());
 				orderManagementLine.setPickupUpdatedBy(loginUserID);
 				orderManagementLine.setPickupUpdatedOn(new Date());
 
@@ -910,7 +945,11 @@ public class OrderManagementLineService extends BaseService {
 	 * @return
 	 */
 	private OrderManagementLine updateOrderManagementLine(OrderManagementLine orderManagementLine) {
+		AuthToken idmasterAuthToken = authTokenService.getIDMasterServiceAuthToken();
+		StatusId idStatus = idmasterService.getStatus(47L, orderManagementLine.getWarehouseId(), idmasterAuthToken.getAccess_token());
+		
 		orderManagementLine.setStatusId(47L);
+		orderManagementLine.setReferenceField7(idStatus.getStatus());
 		orderManagementLine.setProposedStorageBin("");
 		orderManagementLine.setProposedPackBarCode("");
 		orderManagementLine.setInventoryQty(0D);
