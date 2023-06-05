@@ -39,6 +39,10 @@ public interface PickupLineRepository extends JpaRepository<PickupLine,Long>, Jp
 			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
 			String itemCode,String pickedPackCode, Long deletionIndicator);
 	
+	public PickupLine findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndPickupNumberAndItemCodeAndActualHeNoAndPickedStorageBinAndPickedPackCodeAndDeletionIndicator(
+			String languageId, String companyCodeId, String plantId, String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
+			String pickupNumber, String itemCode, String actualHeNo, String pickedStorageBin, String pickedPackCode, Long deletionIndicator);
+	
 	@Query(value="SELECT SUM(PICK_CNF_QTY) FROM tblpickupline WHERE WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND\r\n"
 			+ "PRE_OB_NO = :preOutboundNo AND OB_LINE_NO = :obLineNumber AND ITM_CODE = :itemCode AND IS_DELETED = 0 \r\n"
 			+ "GROUP BY REF_DOC_NO", nativeQuery=true)

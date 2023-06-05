@@ -309,6 +309,19 @@ public class OutboundLineService extends BaseService {
 	 * @param warehouseId
 	 * @param preOutboundNo
 	 * @param refDocNumber
+	 * @param partnerCode
+	 * @return
+	 */
+	public Long getSumOfOrderedQtyByPartnerCode (String warehouseId, List<String> preOutboundNo, List<String> refDocNumber, String partnerCode) {
+		Long sumOfOrderedQty = outboundLineRepository.getSumOfOrderedQtyByPartnerCode(warehouseId, preOutboundNo, refDocNumber, partnerCode);
+		return sumOfOrderedQty;
+	}
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
 	 * @return
 	 */
 	public List<Long> getDeliveryLines(String warehouseId, String preOutboundNo, String refDocNumber) {
@@ -326,6 +339,19 @@ public class OutboundLineService extends BaseService {
 	public List<Long> getDeliveryQty (String warehouseId, String preOutboundNo, String refDocNumber) {
 		List<Long> deliveryQtyList = outboundLineRepository.getDeliveryQty(warehouseId, preOutboundNo, refDocNumber);
 		return deliveryQtyList;
+	}
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @return
+	 */
+	public Long getDeliveryQtyByPartnerCode (String warehouseId, List<String> preOutboundNo, List<String> refDocNumber, String partnerCode) {
+		Long deliveryQty = outboundLineRepository.getDeliveryQtyByPartnerCode(warehouseId, preOutboundNo, refDocNumber, partnerCode);
+		return deliveryQty;
 	}
 	
 	/**
@@ -392,6 +418,11 @@ public class OutboundLineService extends BaseService {
 		return lineItems;
 	}
 	
+	/**
+	 * 
+	 * @param refDocNo
+	 * @return
+	 */
 	public List<Long> getLineItem_NByRefDocNoAndRefField2IsNull (List<String> refDocNo) {
 		List<Long> lineItems = 
 				outboundLineRepository.findLineItem_NByRefDocNoAndRefField2IsNull (refDocNo);

@@ -25,7 +25,8 @@ import lombok.NoArgsConstructor;
 		uniqueConstraints = { 
 				@UniqueConstraint (
 						name = "unique_key_pickupline", 
-						columnNames = {"LANG_ID", "C_ID", "PLANT_ID", "WH_ID", "PRE_OB_NO", "REF_DOC_NO", "PARTNER_CODE", "OB_LINE_NO", "PU_NO", "ITM_CODE", "PICK_HE_NO", "PICK_ST_BIN", "PICK_PACK_BARCODE"})
+						columnNames = {"LANG_ID", "C_ID", "PLANT_ID", "WH_ID", "PRE_OB_NO", "REF_DOC_NO", "PARTNER_CODE", "OB_LINE_NO", 
+								"PU_NO", "ITM_CODE", "PICK_HE_NO", "PICK_ST_BIN", "PICK_PACK_BARCODE"})
 				}
 		)
 @IdClass(PickupLineCompositeKey.class)

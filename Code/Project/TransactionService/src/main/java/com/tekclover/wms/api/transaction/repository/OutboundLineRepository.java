@@ -67,6 +67,16 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
     public List<Long> getSumOfOrderedQty(@Param ("warehouseId") String warehouseId,
     									@Param ("preOutboundNo") String preOutboundNo,
     									@Param ("refDocNumber") String refDocNumber);
+	
+	@Query(value="SELECT SUM(ORD_QTY) AS ordQtyTotal \r\n"
+			+ "FROM tbloutboundline \r\n"
+			+ "WHERE WH_ID = :warehouseId AND PRE_OB_NO IN :preOutboundNo "
+			+ "AND REF_DOC_NO IN :refDocNumber AND REF_FIELD_2 IS NULL AND PARTNER_CODE = :partnerCode \r\n"
+			+ "GROUP BY PARTNER_CODE;", nativeQuery=true)
+    public Long getSumOfOrderedQtyByPartnerCode (@Param ("warehouseId") String warehouseId,
+    									@Param ("preOutboundNo") List<String> preOutboundNo,
+    									@Param ("refDocNumber") List<String> refDocNumber,
+    									@Param ("partnerCode") String partnerCode);
 
 	@Query(value="SELECT COUNT(OB_LINE_NO) AS deliveryLines \r\n"
 			+ "FROM tbloutboundline \r\n"
@@ -76,7 +86,7 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
     public List<Long> getDeliveryLines(@Param ("warehouseId") String warehouseId,
     									@Param ("preOutboundNo") String preOutboundNo,
     									@Param ("refDocNumber") String refDocNumber);
-
+	
 	@Query(value="SELECT SUM(DLV_QTY) AS deliveryQty \r\n"
 			+ "FROM tbloutboundline \r\n"
 			+ "WHERE WH_ID = :warehouseId AND PRE_OB_NO = :preOutboundNo "
@@ -85,6 +95,16 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
     public List<Long> getDeliveryQty(@Param ("warehouseId") String warehouseId,
     									@Param ("preOutboundNo") String preOutboundNo,
     									@Param ("refDocNumber") String refDocNumber);
+	
+	@Query(value="SELECT SUM(DLV_QTY) AS deliveryQty \r\n"
+			+ "FROM tbloutboundline \r\n"
+			+ "WHERE WH_ID = :warehouseId AND PRE_OB_NO IN :preOutboundNo "
+			+ "AND REF_DOC_NO IN :refDocNumber AND REF_FIELD_2 IS NULL AND DLV_QTY > 0 \r\n"
+			+ "AND PARTNER_CODE = :partnerCode GROUP BY PARTNER_CODE;", nativeQuery=true)
+    public Long getDeliveryQtyByPartnerCode(@Param ("warehouseId") String warehouseId,
+    									@Param ("preOutboundNo") List<String> preOutboundNo,
+    									@Param ("refDocNumber") List<String> refDocNumber,
+    									@Param ("partnerCode") String partnerCode);
 
 	public List<OutboundLine> findByRefDocNumberAndItemCodeAndDeletionIndicator(String refDocNumber, String itemCode,
 			Long deletionIndicator);

@@ -410,10 +410,31 @@ public class PickupLineService extends BaseService {
 			dbPickupLine.setPickupCreatedOn(new Date());
 			dbPickupLine.setPickupUpdatedBy(loginUserID);
 			dbPickupLine.setPickupUpdatedOn(new Date());
-
-			PickupLine createdPickupLine = pickupLineRepository.save(dbPickupLine);
-			log.info("dbPickupLine created: " + createdPickupLine);
-			createdPickupLineList.add(createdPickupLine);
+			
+			// Checking for Duplicates
+			PickupLine existingPickupLine = pickupLineRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndPickupNumberAndItemCodeAndActualHeNoAndPickedStorageBinAndPickedPackCodeAndDeletionIndicator (
+					dbPickupLine.getLanguageId(),
+					dbPickupLine.getCompanyCodeId(),
+					dbPickupLine.getPlantId(),
+					dbPickupLine.getWarehouseId(),
+					dbPickupLine.getPreOutboundNo(),
+					dbPickupLine.getRefDocNumber(),
+					dbPickupLine.getPartnerCode(),
+					dbPickupLine.getLineNumber(),
+					dbPickupLine.getPickupNumber(),
+					dbPickupLine.getItemCode(),
+					dbPickupLine.getActualHeNo(),
+					dbPickupLine.getPickedStorageBin(),
+					dbPickupLine.getPickedPackCode(),
+					0L);
+			log.info("existingPickupLine : " + existingPickupLine);
+			if (existingPickupLine == null) {
+				PickupLine createdPickupLine = pickupLineRepository.save(dbPickupLine);
+				log.info("dbPickupLine created: " + createdPickupLine);
+				createdPickupLineList.add(createdPickupLine);
+			} else {
+				throw new BadRequestException("PickupLine Record is getting duplicated. Given data already exists in the Database. : " + existingPickupLine);
+			}
 		}
 
 		/*---------------------------------------------Inventory Updates-------------------------------------------*/

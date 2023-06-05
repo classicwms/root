@@ -1752,7 +1752,15 @@ public class ReportsService extends BaseService {
 			log.info("---getMetricsDetails--1---pickupLineCount--------> : " + preOutboundNoList + "," + refDocNoList + "," + partnerCode);	
 			double pickupLineCount = pickupLineService.getPickupLineCount(languageId, companyCode, plantId, warehouseId, 
 					preOutboundNoList, refDocNoList, partnerCode);
-			log.info("---getMetricsDetails--2--pickupLineCount--------> : " + pickupLineCount);		
+			log.info("---getMetricsDetails--2--pickupLineCount--------> : " + pickupLineCount);
+			
+			// SumOfOrderQty by PartnerCode
+			Long sumOfOrderQty = 
+					outboundLineService.getSumOfOrderedQtyByPartnerCode(warehouseId, preOutboundNoList, refDocNoList, partnerCode);
+			
+			// SunOfDeliveryQty by PartnerCode
+			Long sumOfDeliveryQty = 
+					outboundLineService.getDeliveryQtyByPartnerCode(warehouseId, preOutboundNoList, refDocNoList, partnerCode);
 			
 			// Populate Metrics
 			MetricsSummary metricsSummary = new MetricsSummary();
@@ -1760,6 +1768,8 @@ public class ReportsService extends BaseService {
 			metricsSummary.setLineItems(line_item_N);
 			metricsSummary.setPercentageShipped(percShipped_N);
 			metricsSummary.setLineItemPicked(pickupLineCount);
+			metricsSummary.setOrderedQty(sumOfOrderQty);
+			metricsSummary.setDeliveryQty(sumOfDeliveryQty);
 			
 			// Obtain Partner Name
 			AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
@@ -2002,9 +2012,9 @@ public class ReportsService extends BaseService {
 		 * DLV_CNF_ON in OUTBOUNDLINE table and fetch Count of OB_LINE_NO values where
 		 * REF_FIELD_1=N, REF_FIELD_2=Null and DLV_QTY>0 (Shipped Lines)
 		 */
-		Date[] dates = DateUtils.addTimeToDatesForSearch(fromDeliveryDate,toDeliveryDate);
-		fromDeliveryDate = dates[0];
-		toDeliveryDate = dates[1];
+//		Date[] dates = DateUtils.addTimeToDatesForSearch(fromDeliveryDate,toDeliveryDate);
+//		fromDeliveryDate = dates[0];
+//		toDeliveryDate = dates[1];
 		long normalCount =
 				outboundLineRepository.countByWarehouseIdAndDeliveryConfirmedOnBetweenAndStatusIdAndDeletionIndicatorAndReferenceField1AndReferenceField2IsNullAndDeliveryQtyIsNotNullAndDeliveryQtyGreaterThan(
 						warehouseId, fromDeliveryDate,toDeliveryDate,59L,0L,type,Double.valueOf(0));
@@ -2185,10 +2195,12 @@ public class ReportsService extends BaseService {
 //		long shippedLineCount = getShippedLineCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1));
 		dayShipping.setShippedLine(shippedLineCount);
 
-		long normalCount = getNormalNSpecialCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1), "N");
+//		long normalCount = getNormalNSpecialCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1), "N");
+		long normalCount = getNormalNSpecialCount(warehouseId, fromDate, endDate, "N");
 		dayShipping.setNormal(normalCount);
 
-		long specialCount = getNormalNSpecialCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1), "S");
+//		long specialCount = getNormalNSpecialCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1), "S");
+		long specialCount = getNormalNSpecialCount(warehouseId, fromDate, endDate, "S");
 		dayShipping.setSpecial(specialCount);
 
 		day.setReceipts(dayReceipts);
@@ -2222,15 +2234,18 @@ public class ReportsService extends BaseService {
 		LocalDate beginDayOfMonth = today.withDayOfMonth(1);
 		fromDate = DateUtils.addTimeToDate(beginDayOfMonth, 14, 0, 0);
 		endDate = DateUtils.addTimeToDate(currentDay, 13, 59, 59);
-		shippedLineCount = getShippedLineCount(warehouseId, fromDate, endDate);
-//		shippedLineCount = getShippedLineCount(warehouseId, beginningOfMonth, new Date());
 		
+//		shippedLineCount = getShippedLineCount(warehouseId, beginningOfMonth, new Date());
+		shippedLineCount = getShippedLineCount(warehouseId, fromDate, endDate);
 		monthShipping.setShippedLine(shippedLineCount);
 
-		normalCount = getNormalNSpecialCount(warehouseId, beginningOfMonth, new Date(), "N");
+//		normalCount = getNormalNSpecialCount(warehouseId, beginningOfMonth, new Date(), "N");
+		normalCount = getNormalNSpecialCount(warehouseId, fromDate, endDate, "N");
 		monthShipping.setNormal(normalCount);
 
-		specialCount = getNormalNSpecialCount(warehouseId, beginningOfMonth, new Date(), "S");
+//		specialCount = getNormalNSpecialCount(warehouseId, beginningOfMonth, new Date(), "S");
+		specialCount = getNormalNSpecialCount(warehouseId, fromDate, endDate, "S");
+		monthShipping.setSpecial(specialCount);
 
 		//Bin Status
 		Dashboard.BinStatus binStatus = dashboard.new BinStatus();
