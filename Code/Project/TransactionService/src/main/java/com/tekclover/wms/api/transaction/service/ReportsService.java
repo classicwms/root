@@ -1106,6 +1106,7 @@ public class ReportsService extends BaseService {
 		try {
 			double sumOfLineItems = 0.0;
 			Set<String> partnerCodes = new HashSet<>();
+			AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();			
 			for (OutboundHeader outboundHeader : outboundHeaderList) {
 				languageId = outboundHeader.getLanguageId();
 				companyCode = outboundHeader.getCompanyCodeId();
@@ -1116,10 +1117,14 @@ public class ReportsService extends BaseService {
 				// Report Preparation
 				ShipmentDeliverySummary shipmentDeliverySummary = new ShipmentDeliverySummary();
 
-				shipmentDeliverySummary.setSo(outboundHeader.getRefDocNumber()); // SO
-				shipmentDeliverySummary.setExpectedDeliveryDate(outboundHeader.getRequiredDeliveryDate()); // DEL_DATE
-				shipmentDeliverySummary.setDeliveryDateTime(outboundHeader.getDeliveryConfirmedOn()); // DLV_CNF_ON
-				shipmentDeliverySummary.setBranchCode(outboundHeader.getPartnerCode()); // PARTNER_CODE/PARTNER_NM
+				shipmentDeliverySummary.setSo(outboundHeader.getRefDocNumber()); 							// SO
+				shipmentDeliverySummary.setExpectedDeliveryDate(outboundHeader.getRequiredDeliveryDate()); 	// DEL_DATE
+				shipmentDeliverySummary.setDeliveryDateTime(outboundHeader.getDeliveryConfirmedOn()); 		// DLV_CNF_ON
+				shipmentDeliverySummary.setBranchCode(outboundHeader.getPartnerCode()); 					// PARTNER_CODE/PARTNER_NM
+				BusinessPartner dbBusinessPartner = mastersService.getBusinessPartner(outboundHeader.getPartnerCode(), 
+						authTokenForMastersService.getAccess_token());
+				shipmentDeliverySummary.setBranchDesc(dbBusinessPartner.getPartnerName());		
+				
 				shipmentDeliverySummary.setOrderType(outboundHeader.getReferenceField1());
 
 				// Line Ordered

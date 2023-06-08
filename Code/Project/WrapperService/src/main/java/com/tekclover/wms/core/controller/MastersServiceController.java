@@ -349,6 +349,14 @@ public class MastersServiceController {
 			@RequestParam String authToken) throws Exception {
 		return mastersService.findImBasicData1(searchImBasicData1, authToken);
 	}
+
+	//Streaming
+	@ApiOperation(response = ImBasicData1.class, value = "Search ImBasicData1 Stream") // label for swagger
+	@PostMapping("/imbasicdata1/findImBasicData1New")
+	public ImBasicData1[] findImBasicData1New(@RequestBody SearchImBasicData1 searchImBasicData1,
+											  @RequestParam String authToken) throws Exception {
+		return mastersService.findImBasicData1New(searchImBasicData1, authToken);
+	}
     
 	@ApiOperation(response = ImBasicData1.class, value = "Like Search ImBasicData1") // label for swagger
 	@GetMapping("/imbasicdata1/findItemCodeByLike")
@@ -678,6 +686,15 @@ public class MastersServiceController {
 			@RequestParam String authToken) throws Exception {
 		return mastersService.findStorageBin(searchStorageBin, authToken);
 	}
+
+	//Streaming
+	@ApiOperation(response = StorageBin.class, value = "Search StorageBin Stream") // label for swagger
+	@PostMapping("/storagebin/findStorageBinNew")
+	public StorageBin[] findStorageBinNew(@RequestBody SearchStorageBin searchStorageBin,
+										  @RequestParam String authToken) throws Exception {
+		return mastersService.findStorageBinNew(searchStorageBin, authToken);
+	}
+
 	@ApiOperation(response = StorageBin.class, value = "Like Search StorageBin") // label for swagger
 	@GetMapping("/storagebin/findStorageBinByLike")
 	public StorageBinDesc[] getStorageBinLikeSearch(@RequestParam String likeSearchByStorageBinNDesc,

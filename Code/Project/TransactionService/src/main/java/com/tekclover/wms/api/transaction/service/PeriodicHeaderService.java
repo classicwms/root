@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.AddPeriodicHeader;
-import com.tekclover.wms.api.transaction.model.cyclecount.periodic.AddPeriodicLine;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicHeader;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicHeaderEntity;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicLine;
@@ -304,74 +303,81 @@ public class PeriodicHeaderService extends BaseService {
 	 */
 	public PeriodicHeaderEntity createPeriodicHeader(AddPeriodicHeader newPeriodicHeader, String loginUserID)
 			throws IllegalAccessException, InvocationTargetException {
-		PeriodicHeader dbPeriodicHeader = new PeriodicHeader();
-		BeanUtils.copyProperties(newPeriodicHeader, dbPeriodicHeader, CommonUtils.getNullPropertyNames(newPeriodicHeader));
-		dbPeriodicHeader.setLanguageId(getLanguageId());
-		dbPeriodicHeader.setCompanyCode(getCompanyCode());
-		dbPeriodicHeader.setPlantId(getPlantId());
-		
-		/*
-		 * Cycle Count No
-		 * --------------------
-		 * Pass WH_ID - User logged in WH_ID and NUM_RAN_ID=15 values in NUMBERRANGE table and fetch NUM_RAN_CURRENT value 
-		 * and add +1 and then update in PERIODICHEADER table during Save
-		 */
-		AuthToken authTokenForIDMasterService = authTokenService.getIDMasterServiceAuthToken();
-		long NUM_RAN_ID = 15;
-		String nextRangeNumber = getNextRangeNumber(NUM_RAN_ID, newPeriodicHeader.getWarehouseId(),
-				authTokenForIDMasterService.getAccess_token());
-		dbPeriodicHeader.setCycleCountNo(nextRangeNumber);
-		
-		// CC_TYP_ID - HardCoded Value "01"
-		dbPeriodicHeader.setCycleCountTypeId(1L);
-		
-		// STATUS_ID - HardCoded Value "70"
-		dbPeriodicHeader.setStatusId(70L);
-		dbPeriodicHeader.setDeletionIndicator(0L);
-		dbPeriodicHeader.setCreatedBy(loginUserID);
-		dbPeriodicHeader.setCreatedOn(new Date());
-		dbPeriodicHeader.setConfirmedBy(loginUserID);
-		dbPeriodicHeader.setConfirmedOn(new Date());
-		PeriodicHeader createdPeriodicHeader = periodicHeaderRepository.save(dbPeriodicHeader);
-		List<PeriodicLine> periodicLineList = new ArrayList<>();
-		for (AddPeriodicLine newPeriodicLine : newPeriodicHeader.getAddPeriodicLine()) {
-			PeriodicLine dbPeriodicLine = new PeriodicLine();
-			BeanUtils.copyProperties(newPeriodicLine, dbPeriodicLine, CommonUtils.getNullPropertyNames(newPeriodicLine));
+		try {
+			PeriodicHeader dbPeriodicHeader = new PeriodicHeader();
+			BeanUtils.copyProperties(newPeriodicHeader, dbPeriodicHeader, CommonUtils.getNullPropertyNames(newPeriodicHeader));
+			dbPeriodicHeader.setLanguageId(getLanguageId());
+			dbPeriodicHeader.setCompanyCode(getCompanyCode());
+			dbPeriodicHeader.setPlantId(getPlantId());
 			
-			// LANG_ID
-			dbPeriodicLine.setLanguageId(getLanguageId());
+			/*
+			 * Cycle Count No
+			 * --------------------
+			 * Pass WH_ID - User logged in WH_ID and NUM_RAN_ID=15 values in NUMBERRANGE table and fetch NUM_RAN_CURRENT value 
+			 * and add +1 and then update in PERIODICHEADER table during Save
+			 */
+			AuthToken authTokenForIDMasterService = authTokenService.getIDMasterServiceAuthToken();
+			long NUM_RAN_ID = 15;
+			String nextRangeNumber = getNextRangeNumber(NUM_RAN_ID, newPeriodicHeader.getWarehouseId(),
+					authTokenForIDMasterService.getAccess_token());
+			dbPeriodicHeader.setCycleCountNo(nextRangeNumber);
 			
-			// WH_ID
-			dbPeriodicLine.setWarehouseId(createdPeriodicHeader.getWarehouseId());
+			// CC_TYP_ID - HardCoded Value "01"
+			dbPeriodicHeader.setCycleCountTypeId(1L);
 			
-			// C_ID
-			dbPeriodicLine.setCompanyCode(createdPeriodicHeader.getCompanyCode());
+			// STATUS_ID - HardCoded Value "70"
+			dbPeriodicHeader.setStatusId(70L);
+			dbPeriodicHeader.setDeletionIndicator(0L);
+			dbPeriodicHeader.setCreatedBy(loginUserID);
+			dbPeriodicHeader.setCreatedOn(new Date());
+			dbPeriodicHeader.setConfirmedBy(loginUserID);
+			dbPeriodicHeader.setConfirmedOn(new Date());
+			PeriodicHeader createdPeriodicHeader = periodicHeaderRepository.save(dbPeriodicHeader);
+			List<PeriodicLine> periodicLineList = new ArrayList<>();
+			log.info("newPeriodicHeader.getPeriodicLine() : " + newPeriodicHeader.getPeriodicLine());
+			;
+			for (PeriodicLine newPeriodicLine : newPeriodicHeader.getPeriodicLine()) {
+				PeriodicLine dbPeriodicLine = new PeriodicLine();
+				BeanUtils.copyProperties(newPeriodicLine, dbPeriodicLine, CommonUtils.getNullPropertyNames(newPeriodicLine));
+				
+				// LANG_ID
+				dbPeriodicLine.setLanguageId(getLanguageId());
+				
+				// WH_ID
+				dbPeriodicLine.setWarehouseId(createdPeriodicHeader.getWarehouseId());
+				
+				// C_ID
+				dbPeriodicLine.setCompanyCode(createdPeriodicHeader.getCompanyCode());
+				
+				// PLANT_ID
+				dbPeriodicLine.setPlantId(createdPeriodicHeader.getPlantId());
+				
+				// CC_NO
+				dbPeriodicLine.setCycleCountNo(createdPeriodicHeader.getCycleCountNo());
+				dbPeriodicLine.setStatusId(70L);
+				dbPeriodicLine.setDeletionIndicator(0L);
+				dbPeriodicLine.setCreatedBy(loginUserID);
+				dbPeriodicLine.setCreatedOn(new Date());
+				PeriodicLine createdPeriodicLine = periodicLineRepository.save(dbPeriodicLine);
+				log.info("createdPeriodicLine : " + createdPeriodicLine);
+				periodicLineList.add(createdPeriodicLine);
+			}
+			PeriodicHeaderEntity periodicheaderEntity = new PeriodicHeaderEntity();
+			BeanUtils.copyProperties(createdPeriodicHeader, periodicheaderEntity, CommonUtils.getNullPropertyNames(createdPeriodicHeader));
 			
-			// PLANT_ID
-			dbPeriodicLine.setPlantId(createdPeriodicHeader.getPlantId());
+			List<PeriodicLineEntity> listPeriodicLineEntity = new ArrayList<>();
+			for (PeriodicLine periodicLine : periodicLineList) {
+				PeriodicLineEntity perpetualLineEntity = new PeriodicLineEntity();
+				BeanUtils.copyProperties(periodicLine, perpetualLineEntity, CommonUtils.getNullPropertyNames(periodicLine));
+				listPeriodicLineEntity.add(perpetualLineEntity);
+			}
 			
-			// CC_NO
-			dbPeriodicLine.setCycleCountNo(createdPeriodicHeader.getCycleCountNo());
-			dbPeriodicLine.setStatusId(70L);
-			dbPeriodicLine.setDeletionIndicator(0L);
-			dbPeriodicLine.setCreatedBy(loginUserID);
-			dbPeriodicLine.setCreatedOn(new Date());
-			PeriodicLine createdPeriodicLine = periodicLineRepository.save(dbPeriodicLine);
-			log.info("createdPeriodicLine : " + createdPeriodicLine);
-			periodicLineList.add(createdPeriodicLine);
+			periodicheaderEntity.setPeriodicLine(listPeriodicLineEntity);
+			return periodicheaderEntity;
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		PeriodicHeaderEntity periodicheaderEntity = new PeriodicHeaderEntity();
-		BeanUtils.copyProperties(createdPeriodicHeader, periodicheaderEntity, CommonUtils.getNullPropertyNames(createdPeriodicHeader));
-		
-		List<PeriodicLineEntity> listPeriodicLineEntity = new ArrayList<>();
-		for (PeriodicLine periodicLine : periodicLineList) {
-			PeriodicLineEntity perpetualLineEntity = new PeriodicLineEntity();
-			BeanUtils.copyProperties(periodicLine, perpetualLineEntity, CommonUtils.getNullPropertyNames(periodicLine));
-			listPeriodicLineEntity.add(perpetualLineEntity);
-		}
-		
-		periodicheaderEntity.setPeriodicLine(listPeriodicLineEntity);
-		return periodicheaderEntity;
+		return null;
 	}
 
 	/**

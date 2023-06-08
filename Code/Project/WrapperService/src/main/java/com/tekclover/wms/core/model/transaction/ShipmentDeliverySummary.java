@@ -13,6 +13,7 @@ public class ShipmentDeliverySummary {
 	private Date expectedDeliveryDate; 		// Expected Delivery Date
 	private Date deliveryDateTime; 			// Delivery date/Time
 	private String branchCode;				// Branch Code
+	private String branchDesc;				// Branch Desc
 	private String orderType;				// Order type
 	private Long lineOrdered;				// Line Ordered
 	private Long lineShipped;				// Line Shipped

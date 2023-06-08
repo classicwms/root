@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
+import com.tekclover.wms.api.transaction.model.dto.StatusId;
 import com.tekclover.wms.api.transaction.model.dto.StorageBin;
 import com.tekclover.wms.api.transaction.model.dto.Warehouse;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.AddInventory;
@@ -365,6 +366,7 @@ public class PickupLineService extends BaseService {
 	public List<PickupLine> createPickupLine(@Valid List<AddPickupLine> newPickupLines, String loginUserID)
 			throws IllegalAccessException, InvocationTargetException {
 		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+		AuthToken authTokenForIDService = authTokenService.getIDMasterServiceAuthToken();
 		Long STATUS_ID = 0L;
 		String warehouseId = null;
 		String preOutboundNo = null;
@@ -671,6 +673,9 @@ public class PickupLineService extends BaseService {
 
 					// STATUS_ID - Hard Coded Value "54"
 					newQualityHeader.setStatusId(54L);
+					StatusId idStatus = idmasterService.getStatus(54L, dbPickupLine.getWarehouseId(), authTokenForIDService.getAccess_token());
+					newQualityHeader.setReferenceField10(idStatus.getStatus());	
+					
 					QualityHeader createdQualityHeader = qualityHeaderService.createQualityHeader(newQualityHeader,
 							loginUserID);
 					log.info("createdQualityHeader : " + createdQualityHeader);
@@ -749,6 +754,10 @@ public class PickupLineService extends BaseService {
 			PickupHeader pickupHeader = pickupHeaderService.getPickupHeader(warehouseId, preOutboundNo, refDocNumber,
 					partnerCode, pickupNumber);
 			pickupHeader.setStatusId(STATUS_ID);
+			
+			StatusId idStatus = idmasterService.getStatus(STATUS_ID, warehouseId, authTokenForIDService.getAccess_token());
+			pickupHeader.setReferenceField7(idStatus.getStatus());		// tblpickupheader REF_FIELD_7
+			
 			pickupHeader.setPickUpdatedBy(loginUserID);
 			pickupHeader.setPickUpdatedOn(new Date());
 			pickupHeader = pickupHeaderRepository.save(pickupHeader);

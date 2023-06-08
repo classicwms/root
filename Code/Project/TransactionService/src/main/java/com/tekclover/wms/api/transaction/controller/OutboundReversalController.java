@@ -2,6 +2,7 @@ package com.tekclover.wms.api.transaction.controller;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
@@ -51,7 +52,15 @@ public class OutboundReversalController {
 			throws Exception {
 		return outboundreversalService.findOutboundReversal(searchOutboundReversal);
 	}
-    
+
+	//Stream
+	@ApiOperation(response = OutboundReversal.class, value = "Search OutboundReversal New") // label for swagger
+	@PostMapping("/findOutboundReversalNew")
+	public Stream<OutboundReversal> findOutboundReversalNew(@RequestBody SearchOutboundReversal searchOutboundReversal)
+			throws Exception {
+		return outboundreversalService.findOutboundReversalNew(searchOutboundReversal);
+	}
+
     @ApiOperation(response = OutboundReversal.class, value = "Create OutboundReversal") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postOutboundReversal(@Valid @RequestBody AddOutboundReversal newOutboundReversal, @RequestParam String loginUserID) 

@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.AssignHHTUserCC;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualHeaderEntity;
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualLine;
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualUpdateResponse;
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.SearchPerpetualLine;
@@ -40,9 +39,9 @@ public class PerpetualLineController {
 	@Autowired
 	PerpetualLineService perpetualLineService;
 	
-	@ApiOperation(response = PerpetualHeaderEntity.class, value = "SearchPerpetualLine") // label for swagger
+	@ApiOperation(response = PerpetualLine.class, value = "SearchPerpetualLine") // label for swagger
 	@PostMapping("/findPerpetualLine")
-	public List<PerpetualLine> findPerpetualHeader(@RequestBody SearchPerpetualLine searchPerpetualLine)
+	public List<PerpetualLine> findPerpetualLine(@RequestBody SearchPerpetualLine searchPerpetualLine)
 			throws Exception {
 		return perpetualLineService.findPerpetualLine(searchPerpetualLine);
 	}

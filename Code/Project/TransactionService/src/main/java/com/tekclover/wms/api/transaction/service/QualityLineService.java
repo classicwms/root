@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
+import com.tekclover.wms.api.transaction.model.dto.StatusId;
 import com.tekclover.wms.api.transaction.model.dto.StorageBin;
 import com.tekclover.wms.api.transaction.model.dto.Warehouse;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.AddInventory;
@@ -413,12 +414,16 @@ public class QualityLineService extends BaseService {
 			/*
 			 * Based on created QualityLine List, updating respective tables
 			 */
+			AuthToken authTokenForIDService = authTokenService.getIDMasterServiceAuthToken();
 			for (QualityLine dbQualityLine : createdQualityLineList) {
 				/*-----------------STATUS updates in QualityHeader-----------------------*/
 				try {
 					UpdateQualityHeader updateQualityHeader = new UpdateQualityHeader();
 					updateQualityHeader.setStatusId(55L);
-					QualityHeader qualityHeader = qualityHeaderService.updateQualityHeader(
+					StatusId idStatus = idmasterService.getStatus(55L, dbQualityLine.getWarehouseId(), authTokenForIDService.getAccess_token());
+					updateQualityHeader.setReferenceField10(idStatus.getStatus());
+					
+					QualityHeader qualityHeader = qualityHeaderService.updateQualityHeader(					
 							dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(),
 							dbQualityLine.getRefDocNumber(), dbQualityLine.getQualityInspectionNo(),
 							dbQualityLine.getActualHeNo(), loginUserID, updateQualityHeader);

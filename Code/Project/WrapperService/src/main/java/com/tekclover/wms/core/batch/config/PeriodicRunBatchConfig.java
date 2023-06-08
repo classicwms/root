@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 
 import com.tekclover.wms.core.batch.mapper.PeriodicLineMapper;
-import com.tekclover.wms.core.model.transaction.PeriodicLine;
+import com.tekclover.wms.core.batch.scheduler.entity.PeriodicLine;
 
 import lombok.extern.slf4j.Slf4j;
 

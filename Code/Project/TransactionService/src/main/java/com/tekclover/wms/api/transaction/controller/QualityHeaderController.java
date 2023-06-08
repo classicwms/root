@@ -2,6 +2,7 @@ package com.tekclover.wms.api.transaction.controller;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
@@ -55,7 +56,15 @@ public class QualityHeaderController {
 			throws Exception {
 		return qualityheaderService.findQualityHeader(searchQualityHeader);
 	}
-    
+
+	//Stream
+	@ApiOperation(response = QualityHeader.class, value = "Search QualityHeader New") // label for swagger
+	@PostMapping("/findQualityHeaderNew")
+	public Stream<QualityHeader> findQualityHeaderNew(@RequestBody SearchQualityHeader searchQualityHeader)
+			throws Exception {
+		return qualityheaderService.findQualityHeaderNew(searchQualityHeader);
+	}
+
     @ApiOperation(response = QualityHeader.class, value = "Create QualityHeader") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postQualityHeader(@Valid @RequestBody AddQualityHeader newQualityHeader, @RequestParam String loginUserID) 

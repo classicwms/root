@@ -5336,11 +5336,9 @@ public class TransactionService {
 
 			List<PeriodicHeaderEntity> obList = new ArrayList<>();
 			for (PeriodicHeaderEntity obHeader : result.getBody()) {
-
 				obList.add(addingTimeWithDatePeriodicHeaderEntity(obHeader));
 			}
 			return obList.toArray(new PeriodicHeaderEntity[obList.size()]);
-
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -5439,6 +5437,26 @@ public class TransactionService {
 			throw e;
 		}
 	}
+	
+	//-------------------------------------PeriodicLine--------------------------------------------------------
+	// FIND
+	public PeriodicLine[] findPeriodicLine(SearchPeriodicLine searchPeriodicLine, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "periodicline/findPeriodicLine");
+			HttpEntity<?> entity = new HttpEntity<>(searchPeriodicLine, headers);
+			ResponseEntity<PeriodicLine[]> result = getRestTemplate()
+					.exchange(builder.toUriString(), HttpMethod.POST, entity, PeriodicLine[].class);
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
 
 	// PATCH
 	public PeriodicLine[] updatePeriodicLineAssingHHTUser(List<AssignHHTUserCC> assignHHTUser, String loginUserID,
@@ -5459,7 +5477,7 @@ public class TransactionService {
 					.queryParam("loginUserID", loginUserID);
 			ResponseEntity<PeriodicLine[]> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH,
 					entity, PeriodicLine[].class);
-			log.info("result : " + result.getStatusCode());
+			log.info("result : " + result);
 			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();

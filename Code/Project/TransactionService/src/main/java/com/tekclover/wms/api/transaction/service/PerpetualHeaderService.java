@@ -282,7 +282,14 @@ public class PerpetualHeaderService extends BaseService {
 		return uniqueArray;
 	}
 
-	//Performance enhanced
+	
+	/**
+	 * Performance enhanced
+	 * ------------------------------------
+	 * @param runPerpetualHeader
+	 * @return
+	 * @throws java.text.ParseException
+	 */
 	public Set<PerpetualLineEntityImpl> runPerpetualHeaderNew(@Valid RunPerpetualHeader runPerpetualHeader) throws java.text.ParseException {
 		if (runPerpetualHeader.getDateFrom() != null && runPerpetualHeader.getDateFrom() != null) {
 			Date[] dates = DateUtils.addTimeToDatesForSearch(runPerpetualHeader.getDateFrom(), 	runPerpetualHeader.getDateTo());

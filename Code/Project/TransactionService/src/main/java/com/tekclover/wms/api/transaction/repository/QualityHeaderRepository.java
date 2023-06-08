@@ -3,6 +3,7 @@ package com.tekclover.wms.api.transaction.repository;
 import java.util.List;
 import java.util.Optional;
 
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -15,7 +16,9 @@ import com.tekclover.wms.api.transaction.model.outbound.quality.QualityHeader;
 
 @Repository
 @Transactional
-public interface QualityHeaderRepository extends JpaRepository<QualityHeader,Long>, JpaSpecificationExecutor<QualityHeader> {
+public interface QualityHeaderRepository extends JpaRepository<QualityHeader,Long>,
+													JpaSpecificationExecutor<QualityHeader>,
+													StreamableJpaSpecificationRepository<QualityHeader> {
 	
 	@QueryHints(@javax.persistence.QueryHint(name="org.hibernate.fetchSize", value="1000"))
 	public List<QualityHeader> findAll();

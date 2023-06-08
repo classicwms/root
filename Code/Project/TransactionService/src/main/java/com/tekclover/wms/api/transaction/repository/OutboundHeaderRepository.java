@@ -135,9 +135,8 @@ public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader,L
 			"(CASE WHEN sum(dlv_qty) is not null THEN sum(dlv_qty) ELSE 0 END) as referenceField7,\n" +
 			"COUNT(CASE WHEN dlv_qty is not null and dlv_qty > 0 THEN  dlv_qty ELSE  NULL END) as referenceField8,\n" +
 			"SUM(ORD_QTY) as referenceField9,\n" +
-			"count(ord_qty) as referenceField10,ts.status_text statusDescription \n"+
+			"count(ord_qty) as referenceField10 \n"+
 			"from tbloutboundheader oh\n" +
-			"join tblstatusid ts on ts.status_id=oh.status_id and ts.lang_id=oh.lang_id \n"+
 			"join tbloutboundline ol on ol.ref_doc_no = oh.ref_doc_no\n" +
 			"where ol.ref_field_2 is null and \n" +
 			"(COALESCE(:warehouseId, null) IS NULL OR (oh.wh_id IN (:warehouseId))) and \n" +
@@ -152,7 +151,7 @@ public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader,L
 			"group by oh.c_id , oh.lang_id, oh.partner_code, oh.plant_id, oh.pre_ob_no,oh.ref_doc_no ,oh.wh_id,oh.dlv_ctd_by,oh.dlv_ctd_on,oh.is_deleted,oh.dlv_cnf_by,oh.dlv_cnf_on,\n" +
 			"oh.dlv_ord_no, oh.ob_ord_typ_id,oh.ref_doc_date,oh.ref_doc_typ,oh.remark,oh.req_del_date,oh.dlv_rev_by,oh.dlv_rev_on,oh.status_id,oh.dlv_utd_by,oh.dlv_utd_on,\n" +
 			"oh.ref_field_1,oh.ref_field_2,oh.ref_field_3,oh.ref_field_4,oh.ref_field_5,oh.ref_field_6,\n" +
-			"ol.ref_doc_no , ol.c_id , ol.lang_id, ol.plant_id, ol.wh_id, ol.pre_ob_no, ol.partner_code, ts.status_text", nativeQuery = true)
+			"ol.ref_doc_no , ol.c_id , ol.lang_id, ol.plant_id, ol.wh_id, ol.pre_ob_no, ol.partner_code", nativeQuery = true)
 	Stream<OutboundHeaderStream> findAllOutBoundHeader (
 			@Param(value = "warehouseId") List<String> warehouseId,
 			@Param(value = "refDocNo") List<String> refDocNo,
@@ -166,4 +165,7 @@ public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader,L
 			@Param(value = "endDeliveryConfirmedOn") Date endDeliveryConfirmedOn,
 			@Param(value = "startOrderDate") Date startOrderDate,
 			@Param(value = "endOrderDate") Date endOrderDate);
+
+	@Query(value = "select status_text from tblstatusid where status_id in (:statusId) and is_deleted = 0", nativeQuery = true)
+	public String findStatusDescription (@Param(value = "statusId") Long statusId);
 }

@@ -1615,7 +1615,7 @@ public class OutboundLineService extends BaseService {
                 data.setPickupUpdatedBy(loginUserID);
                 data.setPickupNumber(null);
 				data.setAllocatedQty(0D); // HAREESH 25/11/2022
-                data.setStatusId(47L);
+                data.setStatusId(47L); // ref_field_7
                 data.setPickupUpdatedOn(new Date());
                 orderManagementLineList.add(data);
             });

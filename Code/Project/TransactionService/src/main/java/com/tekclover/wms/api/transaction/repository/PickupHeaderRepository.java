@@ -6,6 +6,7 @@ import java.util.Optional;
 import javax.persistence.LockModeType;
 import javax.persistence.QueryHint;
 
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Lock;
@@ -20,7 +21,9 @@ import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupHeader;
 @Repository
 @Transactional
 public interface PickupHeaderRepository
-		extends JpaRepository<PickupHeader, Long>, JpaSpecificationExecutor<PickupHeader> {
+		extends JpaRepository<PickupHeader, Long>,
+				JpaSpecificationExecutor<PickupHeader>,
+				StreamableJpaSpecificationRepository<PickupHeader> {
 	String UPGRADE_SKIPLOCKED = "-2";
 	
 	@QueryHints(@javax.persistence.QueryHint(name = "org.hibernate.fetchSize", value = "500"))

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -213,7 +214,14 @@ public class PickupHeaderService {
 		List<PickupHeader> results = pickupHeaderRepository.findAll(spec);
 		return results;
 	}
-	
+
+	//Stream
+	public Stream<PickupHeader> findPickupHeaderNew(SearchPickupHeader searchPickupHeader)
+			throws ParseException {
+		PickupHeaderSpecification spec = new PickupHeaderSpecification(searchPickupHeader);
+		Stream<PickupHeader> results = pickupHeaderRepository.stream(spec, PickupHeader.class).parallel();
+		return results;
+	}
 	/**
 	 * 
 	 * @param warehouseId

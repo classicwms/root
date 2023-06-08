@@ -26,8 +26,8 @@ public interface BomLineRepository extends JpaRepository<BomLine,Long>, JpaSpeci
 	 * @return
 	 */
 	public List<BomLine> 
-	findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndBomNumber(String languageId, String companyCode, 
-			String plantId, String warehouseId, Long bomNumber);
+	findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndBomNumberAndDeletionIndicator(String languageId, String companyCode, 
+			String plantId, String warehouseId, Long bomNumber, Long deletionIndicator);
 	
 	/**
 	 * 

@@ -1104,6 +1104,36 @@ public class MastersService {
 			throw e;
 		}
 	}
+
+	// POST - findImBasicData1Stream
+	public ImBasicData1[] findImBasicData1New(SearchImBasicData1 searchImBasicData1, String authToken) throws ParseException {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "imbasicdata1/findImBasicData1Stream");
+			HttpEntity<?> entity = new HttpEntity<>(searchImBasicData1, headers);
+			ResponseEntity<ImBasicData1[]> result =
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, ImBasicData1[].class);
+			log.info("result : " + result.getStatusCode());
+//			return result.getBody();
+
+			List<ImBasicData1> obList = new ArrayList<>();
+			for (ImBasicData1 imBasicData1 : result.getBody()) {
+
+				obList.add(addingTimeWithDateImBasicData1(imBasicData1));
+
+			}
+			return obList.toArray(new ImBasicData1[obList.size()]);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
 	
 	// POST - findImBasicData1LikeSearch
 	public ItemCodeDesc[] findImBasicData1LikeSearch(String likeSearchByItemCodeNDesc, String authToken) {
@@ -1910,6 +1940,36 @@ public class MastersService {
 					UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "storagebin/findStorageBin");
 			HttpEntity<?> entity = new HttpEntity<>(searchStorageBin, headers);	
 			ResponseEntity<StorageBin[]> result = 
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, StorageBin[].class);
+			log.info("result : " + result.getStatusCode());
+//			return result.getBody();
+
+			List<StorageBin> obList = new ArrayList<>();
+			for (StorageBin storageBin : result.getBody()) {
+
+				obList.add(addingTimeWithDateStorageBin(storageBin));
+
+			}
+			return obList.toArray(new StorageBin[obList.size()]);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	// POST - findStorageBinStream
+	public StorageBin[] findStorageBinNew(SearchStorageBin searchStorageBin, String authToken) throws ParseException {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "storagebin/findStorageBinStream");
+			HttpEntity<?> entity = new HttpEntity<>(searchStorageBin, headers);
+			ResponseEntity<StorageBin[]> result =
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, StorageBin[].class);
 			log.info("result : " + result.getStatusCode());
 //			return result.getBody();

@@ -2,6 +2,7 @@ package com.tekclover.wms.api.transaction.controller;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
@@ -67,7 +68,14 @@ public class PickupHeaderController {
 			throws Exception {
 		return pickupheaderService.findPickupHeader(searchPickupHeader);
 	}
-    
+
+	@ApiOperation(response = PickupHeader.class, value = "Search PickupHeader New") // label for swagger
+	@PostMapping("/findPickupHeaderNew")
+	public Stream<PickupHeader> findPickupHeaderNew(@RequestBody SearchPickupHeader searchPickupHeader)
+			throws Exception {
+		return pickupheaderService.findPickupHeaderNew(searchPickupHeader);
+	}
+
     @ApiOperation(response = PickupHeader.class, value = "Create PickupHeader") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postPickupHeader(@Valid @RequestBody AddPickupHeader newPickupHeader, @RequestParam String loginUserID) 

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
@@ -182,7 +183,14 @@ public class QualityHeaderService {
 		List<QualityHeader> results = qualityHeaderRepository.findAll(spec);
 		return results;
 	}
-	
+
+	//Stream
+	public Stream<QualityHeader> findQualityHeaderNew (SearchQualityHeader searchQualityHeader) throws ParseException {
+		QualityHeaderSpecification spec = new QualityHeaderSpecification(searchQualityHeader);
+		Stream<QualityHeader> results = qualityHeaderRepository.stream(spec, QualityHeader.class).parallel();
+		return results;
+	}
+
 	/**
 	 * 
 	 * @param newQualityHeader

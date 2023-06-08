@@ -45,12 +45,13 @@ public class BomLineService extends BaseService {
 	 * @return
 	 */
 	public List<BomLine> getBomLine (String warehouseId, Long bomNumber) {
-		List<BomLine> bomLine = bomLineRepository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndBomNumber(
+		List<BomLine> bomLine = bomLineRepository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndBomNumberAndDeletionIndicator(
 						getLanguageId(),
 						getCompanyCode(),
 						getPlantId(),
 						warehouseId,
-						bomNumber);
+						bomNumber,
+						0L);
 		return bomLine;
 	}
 	

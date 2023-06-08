@@ -5,7 +5,7 @@ import java.util.Date;
 import org.springframework.batch.item.file.mapping.FieldSetMapper;
 import org.springframework.batch.item.file.transform.FieldSet;
 
-import com.tekclover.wms.core.model.transaction.PeriodicLine;
+import com.tekclover.wms.core.batch.scheduler.entity.PeriodicLine;
 import com.tekclover.wms.core.util.DateUtils;
 
 public class PeriodicLineMapper implements FieldSetMapper<PeriodicLine> {

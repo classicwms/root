@@ -212,7 +212,7 @@ public class PreOutboundHeaderService extends BaseService {
 		}
 
 		PreOutboundHeaderSpecification spec = new PreOutboundHeaderSpecification(searchPreOutboundHeader);
-		Stream<PreOutboundHeader> preOutboundHeaderList = preOutboundHeaderRepository.stream(spec, PreOutboundHeader.class).parallel();
+		Stream<PreOutboundHeader> preOutboundHeaderList = preOutboundHeaderRepository.stream(spec, PreOutboundHeader.class);
 		return preOutboundHeaderList;
 	}
 	

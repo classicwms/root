@@ -19,6 +19,7 @@ import com.tekclover.wms.api.transaction.model.cyclecount.periodic.AddPeriodicLi
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicHeader;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicHeaderEntity;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicLine;
+import com.tekclover.wms.api.transaction.model.cyclecount.periodic.SearchPeriodicLine;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.UpdatePeriodicLine;
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.AssignHHTUserCC;
 import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
@@ -30,7 +31,9 @@ import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
 import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
 import com.tekclover.wms.api.transaction.repository.InventoryRepository;
 import com.tekclover.wms.api.transaction.repository.PeriodicLineRepository;
+import com.tekclover.wms.api.transaction.repository.specification.PeriodicLineSpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
+import com.tekclover.wms.api.transaction.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -104,8 +107,27 @@ public class PeriodicLineService extends BaseService {
 	 * @return
 	 */
 	public List<PeriodicLine> getPeriodicLine(String cycleCountNo) {
-		List<PeriodicLine> perpetualLine = periodicLineRepository.findByCycleCountNoAndDeletionIndicator(cycleCountNo, 0L);
-		return perpetualLine;
+		List<PeriodicLine> PeriodicLine = periodicLineRepository.findByCycleCountNoAndDeletionIndicator(cycleCountNo, 0L);
+		return PeriodicLine;
+	}
+	
+	/**
+	 * 
+	 * @param searchPeriodicLine
+	 * @return
+	 * @throws Exception
+	 */
+	public List<PeriodicLine> findPeriodicLine(SearchPeriodicLine searchPeriodicLine) throws Exception {		
+		if (searchPeriodicLine.getStartCreatedOn() != null && searchPeriodicLine.getStartCreatedOn() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchPeriodicLine.getStartCreatedOn(), 
+					searchPeriodicLine.getEndCreatedOn());
+			searchPeriodicLine.setStartCreatedOn(dates[0]);
+			searchPeriodicLine.setEndCreatedOn(dates[1]);
+		}
+		
+		PeriodicLineSpecification spec = new PeriodicLineSpecification(searchPeriodicLine);
+		List<PeriodicLine> PeriodicLineResults = periodicLineRepository.findAll(spec);
+		return PeriodicLineResults;
 	}
 	
 	/**
@@ -136,19 +158,27 @@ public class PeriodicLineService extends BaseService {
 	 * @return
 	 */
 	public List<PeriodicLine> updateAssingHHTUser (List<AssignHHTUserCC> assignHHTUsers, String loginUserID) {
-		List<PeriodicLine> responseList = new ArrayList<>();
-		for (AssignHHTUserCC assignHHTUser : assignHHTUsers) {
-			PeriodicLine periodicLine = getPeriodicLine(assignHHTUser.getWarehouseId(), assignHHTUser.getCycleCountNo(), 
-					assignHHTUser.getStorageBin(), assignHHTUser.getItemCode(), assignHHTUser.getPackBarcodes());
-			periodicLine.setCycleCounterId(assignHHTUser.getCycleCounterId());
-			periodicLine.setCycleCounterName(assignHHTUser.getCycleCounterName());
-			periodicLine.setStatusId(72L);
-			periodicLine.setCountedBy(loginUserID);
-			periodicLine.setCountedOn(new Date());
-			PeriodicLine updatedPeriodicLine = periodicLineRepository.save(periodicLine);
-			responseList.add(updatedPeriodicLine);
+		try {
+			log.info("assignHHTUsers : " + assignHHTUsers);		
+			List<PeriodicLine> responseList = new ArrayList<>();
+			for (AssignHHTUserCC assignHHTUser : assignHHTUsers) {
+				PeriodicLine periodicLine = getPeriodicLine(assignHHTUser.getWarehouseId(), assignHHTUser.getCycleCountNo(), 
+						assignHHTUser.getStorageBin(), assignHHTUser.getItemCode(), assignHHTUser.getPackBarcodes());
+				periodicLine.setCycleCounterId(assignHHTUser.getCycleCounterId());
+				periodicLine.setCycleCounterName(assignHHTUser.getCycleCounterName());
+				periodicLine.setStatusId(72L);
+				periodicLine.setCountedBy(loginUserID);
+				periodicLine.setCountedOn(new Date());
+				PeriodicLine updatedPeriodicLine = periodicLineRepository.save(periodicLine);
+				log.info("updatedPeriodicLine : " + updatedPeriodicLine);
+				
+				responseList.add(updatedPeriodicLine);
+			}
+			return responseList;
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		return responseList;
+		return null;
 	}
 	
 	/**
@@ -234,7 +264,7 @@ public class PeriodicLineService extends BaseService {
 				
 				/*
 				 * 1. Action = WRITEOFF 
-				 * If ACTION = WRITEOFF , update ACTION field in PERPETUALLINE as WRITEOFF by passing unique fields and 
+				 * If ACTION = WRITEOFF , update ACTION field in PeriodicLine as WRITEOFF by passing unique fields and 
 				 * update in STATUS_ID field as "78"
 				 */
 				if (updatePeriodicLine.getCycleCountAction().equalsIgnoreCase(WRITEOFF)) {
@@ -257,7 +287,7 @@ public class PeriodicLineService extends BaseService {
 				
 				/*
 				 * 2. Action = SKIP
-				 * if ACTION = SKIP in UI,  update ACTION field in PERPETUALLINE as SKIP by passing unique fields 
+				 * if ACTION = SKIP in UI,  update ACTION field in PeriodicLine as SKIP by passing unique fields 
 				 * and update in STATUS_ID field as "78"
 				 */
 				if (updatePeriodicLine.getCycleCountAction().equalsIgnoreCase(SKIP)) {
@@ -280,7 +310,7 @@ public class PeriodicLineService extends BaseService {
 				
 				/*
 				 * 3. Action = RECOUNT (default Action Value)
-				 * If ACTION = RECOUNT, update ACTION field in PERPETUALLINE as SKIP by passing unique fields 
+				 * If ACTION = RECOUNT, update ACTION field in PeriodicLine as SKIP by passing unique fields 
 				 * and update in STATUS_ID field as "78"
 				 */
 				if (updatePeriodicLine.getCycleCountAction().equalsIgnoreCase(RECOUNT)) {
@@ -299,11 +329,11 @@ public class PeriodicLineService extends BaseService {
 					newPeriodicHeader.setReferenceField1(updatedPeriodicLine.getCycleCountNo());
 					
 					// Adding Lines
-					List<AddPeriodicLine> addPeriodicLineList = new ArrayList<>();
-					AddPeriodicLine newPeriodicLine = new AddPeriodicLine();
+					List<PeriodicLine> addPeriodicLineList = new ArrayList<>();
+					PeriodicLine newPeriodicLine = new PeriodicLine();
 					BeanUtils.copyProperties(updatedPeriodicLine, newPeriodicLine, CommonUtils.getNullPropertyNames(updatedPeriodicLine));
 					addPeriodicLineList.add(newPeriodicLine);
-					newPeriodicHeader.setAddPeriodicLine(addPeriodicLineList);
+					newPeriodicHeader.setPeriodicLine(addPeriodicLineList);
 					
 					PeriodicHeaderEntity createdPeriodicHeader = 
 							periodicHeaderService.createPeriodicHeader(newPeriodicHeader, loginUserID);

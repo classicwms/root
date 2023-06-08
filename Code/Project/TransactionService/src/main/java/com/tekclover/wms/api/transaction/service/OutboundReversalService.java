@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +69,20 @@ public class OutboundReversalService {
 		OutboundReversalSpecification spec = new OutboundReversalSpecification(searchOutboundReversal);
 		List<OutboundReversal> results = outboundReversalRepository.findAll(spec);
 		log.info("results: " + results);
+		return results;
+	}
+
+	//Stream
+	public Stream<OutboundReversal> findOutboundReversalNew(SearchOutboundReversal searchOutboundReversal)
+			throws ParseException, java.text.ParseException {
+		if (searchOutboundReversal.getStartReversedOn() != null && searchOutboundReversal.getStartReversedOn() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundReversal.getStartReversedOn(), searchOutboundReversal.getEndReversedOn());
+			searchOutboundReversal.setStartReversedOn(dates[0]);
+			searchOutboundReversal.setEndReversedOn(dates[1]);
+		}
+		OutboundReversalSpecification spec = new OutboundReversalSpecification(searchOutboundReversal);
+		Stream<OutboundReversal> results = outboundReversalRepository.stream(spec, OutboundReversal.class);
+
 		return results;
 	}
 	

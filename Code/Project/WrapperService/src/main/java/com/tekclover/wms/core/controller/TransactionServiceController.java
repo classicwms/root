@@ -1,13 +1,10 @@
 package com.tekclover.wms.core.controller;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-
 import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.expression.ParseException;
@@ -57,7 +54,7 @@ public class TransactionServiceController {
 	ReportService reportService;
 	
 	@Autowired
-    FileStorageService fileStorageService; 
+    FileStorageService fileStorageService;
 	
 	@Autowired
 	BatchJobScheduler batchJobScheduler;
@@ -1785,8 +1782,8 @@ public class TransactionServiceController {
 		log.info("createdPeriodicHeader:" + createdPeriodicHeader);		
 		
 		/* Call Batch */
-		transactionService.createCSV(newPeriodicHeader.getPeriodicLine());
-		batchJobScheduler.runJobPeriodic();
+//		transactionService.createCSV(newPeriodicHeader.getPeriodicLine());
+//		batchJobScheduler.runJobPeriodic();
 		return new ResponseEntity<>(createdPeriodicHeader, HttpStatus.OK);
 	}
     
@@ -1823,6 +1820,13 @@ public class TransactionServiceController {
 	}
     
     //-------------------------------PeriodicLine---------------------------------------------------------------------
+    @ApiOperation(response = PeriodicLine.class, value = "SearchPeriodicLine") // label for swagger
+	@PostMapping("/periodicline/findPeriodicLine")
+	public com.tekclover.wms.core.model.transaction.PeriodicLine[] findPeriodicLine (@RequestBody SearchPeriodicLine searchPeriodicLine, 
+			@RequestParam String authToken) throws Exception {
+		return transactionService.findPeriodicLine (searchPeriodicLine, authToken);
+	}
+    
     @ApiOperation(response = PeriodicLine[].class, value = "Update AssignHHTUser") // label for swagger
     @PatchMapping("/periodicline/assigingHHTUser")
 	public ResponseEntity<?> assigingHHTUser (@RequestBody List<AssignHHTUserCC> assignHHTUser, 

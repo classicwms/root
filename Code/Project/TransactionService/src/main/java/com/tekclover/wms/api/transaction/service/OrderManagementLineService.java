@@ -282,7 +282,7 @@ public class OrderManagementLineService extends BaseService {
 			searchOrderManagementLine.setEndOrderDate(dates[1]);
 		}
 		OrderManagementLineSpecification spec = new OrderManagementLineSpecification(searchOrderManagementLine);
-		Stream<OrderManagementLine> searchResults = orderManagementLineRepository.stream(spec, OrderManagementLine.class).parallel();
+		Stream<OrderManagementLine> searchResults = orderManagementLineRepository.stream(spec, OrderManagementLine.class);
 
 		return searchResults;
 	}
@@ -579,6 +579,7 @@ public class OrderManagementLineService extends BaseService {
 	
 					// STATUS_ID
 					pickupHeader.setStatusId(48L);
+					pickupHeader.setReferenceField7(idStatus.getStatus());
 	
 					// ProposedPackbarcode
 					pickupHeader.setProposedPackBarCode(dbOrderManagementLine.getProposedPackBarCode());
@@ -936,7 +937,6 @@ public class OrderManagementLineService extends BaseService {
 		}
 		log.info("newOrderManagementLine updated ---#--->" + newOrderManagementLine);
 		return newOrderManagementLine;
-//		}
 	}
 
 	/**
