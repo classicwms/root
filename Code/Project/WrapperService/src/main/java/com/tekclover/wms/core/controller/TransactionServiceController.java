@@ -1842,9 +1842,9 @@ public class TransactionServiceController {
 	public ResponseEntity<?> patchPeriodicLine (@PathVariable String cycleCountNo, 
 			@RequestBody List<UpdatePeriodicLine> updatePeriodicLine, @RequestParam String loginUserID,
 			@RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
-		PeriodicLine[] createdPeriodicLine = 
+		PeriodicUpdateResponse updatedPeriodicLine = 
 				transactionService.updatePeriodicLine (cycleCountNo, updatePeriodicLine, loginUserID, authToken);
-		return new ResponseEntity<>(createdPeriodicLine , HttpStatus.OK);
+		return new ResponseEntity<>(updatedPeriodicLine , HttpStatus.OK);
 	}
     
     //--------------------------Schedule-Report------------------------------------------------------

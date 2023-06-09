@@ -122,7 +122,7 @@ public class Inventory {
 	private String referenceField3;
 	
 	@Column(name = "REF_FIELD_4")
-	private String referenceField4;
+	private Double referenceField4;
 	
 	@Column(name = "REF_FIELD_5") 
 	private String referenceField5;

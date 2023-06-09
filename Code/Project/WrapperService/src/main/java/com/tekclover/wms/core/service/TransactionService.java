@@ -5486,7 +5486,7 @@ public class TransactionService {
 	}
 
 	// PATCH
-	public PeriodicLine[] updatePeriodicLine(String cycleCountNo, List<UpdatePeriodicLine> updatePeriodicLine,
+	public PeriodicUpdateResponse updatePeriodicLine(String cycleCountNo, List<UpdatePeriodicLine> updatePeriodicLine,
 			String loginUserID, String authToken) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
@@ -5502,8 +5502,8 @@ public class TransactionService {
 			UriComponentsBuilder builder = UriComponentsBuilder
 					.fromHttpUrl(getTransactionServiceApiUrl() + "periodicline/" + cycleCountNo)
 					.queryParam("loginUserID", loginUserID);
-			ResponseEntity<PeriodicLine[]> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH,
-					entity, PeriodicLine[].class);
+			ResponseEntity<PeriodicUpdateResponse> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH,
+					entity, PeriodicUpdateResponse.class);
 			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {

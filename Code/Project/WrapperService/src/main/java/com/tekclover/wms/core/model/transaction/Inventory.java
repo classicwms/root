@@ -43,7 +43,7 @@ public class Inventory {
 	private String referenceField1;
 	private String referenceField2;
 	private String referenceField3;
-	private String referenceField4;
+	private Double referenceField4;
 	private String referenceField5;
 	private String referenceField6;
 	private String referenceField7;

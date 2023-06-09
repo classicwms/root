@@ -513,10 +513,22 @@ public class InventoryService extends BaseService {
 	 * @return
 	 * @throws ParseException
 	 */
-	public List<Inventory> findInventory(SearchInventory searchInventory) 
+//	public List<Inventory> findInventory(SearchInventory searchInventory)
+//			throws ParseException {
+//		InventorySpecification spec = new InventorySpecification(searchInventory);
+//		List<Inventory> results = inventoryRepository.findAll(spec);
+//		return results;
+//	}
+
+	public List<Inventory> findInventory(SearchInventory searchInventory)
 			throws ParseException {
 		InventorySpecification spec = new InventorySpecification(searchInventory);
 		List<Inventory> results = inventoryRepository.findAll(spec);
+		results.stream().forEach(n -> {
+			if (n.getInventoryQuantity() != null && n.getAllocatedQuantity() != null){
+				n.setReferenceField4(n.getInventoryQuantity() + n.getAllocatedQuantity());
+			}
+		});
 		return results;
 	}
 
