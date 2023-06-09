@@ -335,7 +335,6 @@ public class PeriodicHeaderService extends BaseService {
 			PeriodicHeader createdPeriodicHeader = periodicHeaderRepository.save(dbPeriodicHeader);
 			List<PeriodicLine> periodicLineList = new ArrayList<>();
 			log.info("newPeriodicHeader.getPeriodicLine() : " + newPeriodicHeader.getPeriodicLine());
-			;
 			for (PeriodicLine newPeriodicLine : newPeriodicHeader.getPeriodicLine()) {
 				PeriodicLine dbPeriodicLine = new PeriodicLine();
 				BeanUtils.copyProperties(newPeriodicLine, dbPeriodicLine, CommonUtils.getNullPropertyNames(newPeriodicLine));
@@ -389,15 +388,56 @@ public class PeriodicHeaderService extends BaseService {
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	public PeriodicHeader updatePeriodicHeader (String warehouseId, Long cycleCountTypeId, String cycleCountNo, 
-			String loginUserID, UpdatePeriodicHeader updatePeriodicHeader) 
-			throws IllegalAccessException, InvocationTargetException {
+	public PeriodicHeader updatePeriodicHeader (String warehouseId, Long cycleCountTypeId, String cycleCountNo, String loginUserID,
+			UpdatePeriodicHeader updatePeriodicHeader) throws IllegalAccessException, InvocationTargetException {
 		// Update Line Details
 		List<PeriodicLine> lines = periodicLineService.updatePeriodicLineForMobileCount (updatePeriodicHeader.getUpdatePeriodicLine(), loginUserID);
 		log.info("Lines Updated : " + lines);
 		
 		PeriodicHeader dbPeriodicHeader = getPeriodicHeader(warehouseId, cycleCountTypeId, cycleCountNo);
 		BeanUtils.copyProperties(updatePeriodicHeader, dbPeriodicHeader, CommonUtils.getNullPropertyNames(updatePeriodicHeader));
+		
+		/*
+		 * Pass CC_NO in PERPETUALLINE table and validate STATUS_ID of the selected records. 
+		 * 1. If STATUS_ID=78 for all the selected records, update STATUS_ID of periodicheader table as "78" by passing CC_NO
+		 * 2. If STATUS_ID=74 for all the selected records, Update STATUS_ID of periodicheader table as "74" by passing CC_NO
+		 * Else Update STATUS_ID as "73"
+		 */
+		List<PeriodicLine> PeriodicLines = periodicLineService.getPeriodicLine (cycleCountNo);
+		long count_78 = PeriodicLines.stream().filter(a->a.getStatusId() == 78L).count();
+		long count_74 = PeriodicLines.stream().filter(a->a.getStatusId() == 74L).count();
+		
+		if (PeriodicLines.size() == count_78) {
+			dbPeriodicHeader.setStatusId(78L);
+		} else if (PeriodicLines.size() == count_74) {
+			dbPeriodicHeader.setStatusId(74L);
+		} else {
+			dbPeriodicHeader.setStatusId(73L);
+		}
+		
+		dbPeriodicHeader.setCountedBy(loginUserID);
+		dbPeriodicHeader.setCountedOn(new Date());
+		return periodicHeaderRepository.save(dbPeriodicHeader);
+	}
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param cycleCountTypeId
+	 * @param cycleCountNo
+	 * @param loginUserID
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
+	public PeriodicHeader updatePeriodicHeaderFromPeriodicLine (String warehouseId, Long cycleCountTypeId, String cycleCountNo, String loginUserID) 
+			throws IllegalAccessException, InvocationTargetException {
+		// Update Line Details
+//		List<PeriodicLine> lines = periodicLineService.updatePeriodicLineForMobileCount (updatePeriodicHeader.getUpdatePeriodicLine(), loginUserID);
+//		log.info("Lines Updated : " + lines);
+		
+		PeriodicHeader dbPeriodicHeader = getPeriodicHeader(warehouseId, cycleCountTypeId, cycleCountNo);
+//		BeanUtils.copyProperties(updatePeriodicHeader, dbPeriodicHeader, CommonUtils.getNullPropertyNames(updatePeriodicHeader));
 		
 		/*
 		 * Pass CC_NO in PERPETUALLINE table and validate STATUS_ID of the selected records. 

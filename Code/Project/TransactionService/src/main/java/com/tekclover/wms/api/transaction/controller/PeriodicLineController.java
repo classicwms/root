@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicLine;
+import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicUpdateResponse;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.SearchPeriodicLine;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.UpdatePeriodicLine;
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.AssignHHTUserCC;
@@ -58,7 +59,7 @@ public class PeriodicLineController {
 	public ResponseEntity<?> patchPeriodicLine (@PathVariable String cycleCountNo, 
 			@RequestBody List<UpdatePeriodicLine> updatePeriodicLine, @RequestParam String loginUserID) 
 					throws IllegalAccessException, InvocationTargetException {
-		List<PeriodicLine> createdPeriodicLine = 
+		PeriodicUpdateResponse createdPeriodicLine = 
 				periodicLineService.updatePeriodicLine (cycleCountNo, updatePeriodicLine, loginUserID);
 		return new ResponseEntity<>(createdPeriodicLine , HttpStatus.OK);
 	}

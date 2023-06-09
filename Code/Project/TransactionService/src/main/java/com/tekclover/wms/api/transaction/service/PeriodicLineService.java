@@ -19,7 +19,9 @@ import com.tekclover.wms.api.transaction.model.cyclecount.periodic.AddPeriodicLi
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicHeader;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicHeaderEntity;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicLine;
+import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicUpdateResponse;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.SearchPeriodicLine;
+import com.tekclover.wms.api.transaction.model.cyclecount.periodic.UpdatePeriodicHeader;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.UpdatePeriodicLine;
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.AssignHHTUserCC;
 import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
@@ -248,10 +250,11 @@ public class PeriodicLineService extends BaseService {
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	public List<PeriodicLine> updatePeriodicLine(String cycleCountNo, List<UpdatePeriodicLine> updatePeriodicLines,
+	public PeriodicUpdateResponse updatePeriodicLine(String cycleCountNo, List<UpdatePeriodicLine> updatePeriodicLines,
 			String loginUserID) throws IllegalAccessException, InvocationTargetException {
 		List<PeriodicLine> responsePeriodicLines = new ArrayList<>();
 		try {
+			List<PeriodicLine> newPeriodicLines = new ArrayList<>();
 			for (UpdatePeriodicLine updatePeriodicLine : updatePeriodicLines) {
 				PeriodicLine dbPeriodicLine = getPeriodicLine(updatePeriodicLine.getWarehouseId(), 
 						updatePeriodicLine.getCycleCountNo(), 
@@ -283,7 +286,6 @@ public class PeriodicLineService extends BaseService {
 					updateInventory (updatedPeriodicLine);
 					createInventoryMovement (updatedPeriodicLine) ;
 				}
-				
 				
 				/*
 				 * 2. Action = SKIP
@@ -321,32 +323,69 @@ public class PeriodicLineService extends BaseService {
 					responsePeriodicLines.add(updatedPeriodicLine);
 					
 					/*
-					 * Also create New CC_NO record as below
+					 * Preparation of new PerpetualLines
 					 */
-					AddPeriodicHeader newPeriodicHeader = new AddPeriodicHeader();
-					PeriodicHeader perpetualHeader = periodicHeaderService.getPeriodicHeader(updatedPeriodicLine.getCycleCountNo());
-					BeanUtils.copyProperties(perpetualHeader, newPeriodicHeader, CommonUtils.getNullPropertyNames(perpetualHeader));
-					newPeriodicHeader.setReferenceField1(updatedPeriodicLine.getCycleCountNo());
-					
-					// Adding Lines
-					List<PeriodicLine> addPeriodicLineList = new ArrayList<>();
 					PeriodicLine newPeriodicLine = new PeriodicLine();
 					BeanUtils.copyProperties(updatedPeriodicLine, newPeriodicLine, CommonUtils.getNullPropertyNames(updatedPeriodicLine));
-					addPeriodicLineList.add(newPeriodicLine);
-					newPeriodicHeader.setPeriodicLine(addPeriodicLineList);
-					
-					PeriodicHeaderEntity createdPeriodicHeader = 
-							periodicHeaderService.createPeriodicHeader(newPeriodicHeader, loginUserID);
-					log.info("createdPeriodicHeader : " + createdPeriodicHeader);
-					
-					// Update 
+					newPeriodicLine.setStatusId(78L);
+					newPeriodicLines.add(newPeriodicLine);
 				}
 			}
+			
+			/*
+			 * Create New CC_NO record as below
+			 */
+			PeriodicHeader newlyCreatedPeriodicHeader = new PeriodicHeader();
+			if (!newPeriodicLines.isEmpty()) {
+				log.info("newPeriodicLines : " + newPeriodicLines);
+				
+				// Create new PeriodicHeader and Lines
+				PeriodicHeaderEntity createdPeriodicHeader = createNewHeaderNLines(cycleCountNo, newPeriodicLines, loginUserID);
+				log.info("createdPeriodicHeader : " + createdPeriodicHeader);
+				BeanUtils.copyProperties(createdPeriodicHeader, newlyCreatedPeriodicHeader, CommonUtils.getNullPropertyNames(createdPeriodicHeader));
+			}
+			
+			// Update new PeriodicHeader
+			PeriodicHeader dbPeriodicHeader = periodicHeaderService.getPeriodicHeader(cycleCountNo);
+			UpdatePeriodicHeader updatePeriodicHeader = new UpdatePeriodicHeader();
+			BeanUtils.copyProperties(dbPeriodicHeader, updatePeriodicHeader, CommonUtils.getNullPropertyNames(dbPeriodicHeader));
+			PeriodicHeader updatedPeriodicHeader = periodicHeaderService.updatePeriodicHeaderFromPeriodicLine(dbPeriodicHeader.getWarehouseId(), 
+					dbPeriodicHeader.getCycleCountTypeId(), dbPeriodicHeader.getCycleCountNo(), loginUserID);
+			log.info("updatedPeriodicHeader : " + updatedPeriodicHeader);
+			
+			PeriodicUpdateResponse response = new PeriodicUpdateResponse();
+			response.setPeriodicHeader(newlyCreatedPeriodicHeader);
+			response.setPeriodicLines(responsePeriodicLines);
+			log.info("PeriodicUpdateResponse------> : " + response);
+			return response;
 		} catch (Exception e) {
 			e.printStackTrace();
+			throw e;
 		} 
-		
-		return responsePeriodicLines;
+	}
+	
+	/**
+	 * 
+	 * @param cycleCountNo
+	 * @param newPeriodicLines
+	 * @param loginUserID
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
+	private PeriodicHeaderEntity createNewHeaderNLines(String cycleCountNo, List<PeriodicLine> newPeriodicLines, String loginUserID) 
+			throws IllegalAccessException, InvocationTargetException {
+		log.info("newPeriodicLines : " + newPeriodicLines);
+		if (newPeriodicLines != null) {
+			PeriodicHeader dbPeriodicHeader = periodicHeaderService.getPeriodicHeader(cycleCountNo);
+			AddPeriodicHeader newPeriodicHeader = new AddPeriodicHeader();
+			BeanUtils.copyProperties(dbPeriodicHeader, newPeriodicHeader, CommonUtils.getNullPropertyNames(dbPeriodicHeader));
+			newPeriodicHeader.setPeriodicLine(newPeriodicLines);
+			PeriodicHeaderEntity createdPeriodicHeader = periodicHeaderService.createPeriodicHeader(newPeriodicHeader, loginUserID);
+			log.info("createdPeritodicHeader : " + createdPeriodicHeader);
+			return createdPeriodicHeader;
+		}
+		return null;
 	}
 	
 	/**

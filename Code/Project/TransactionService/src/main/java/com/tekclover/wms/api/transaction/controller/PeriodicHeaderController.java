@@ -97,8 +97,7 @@ public class PeriodicHeaderController {
 			@RequestParam Long cycleCountTypeId, @Valid @RequestBody UpdatePeriodicHeader updatePeriodicHeader, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
 		PeriodicHeader createdPeriodicHeader = 
-				periodicheaderService.updatePeriodicHeader(warehouseId, cycleCountTypeId, 
-						cycleCountNo, loginUserID, updatePeriodicHeader);
+				periodicheaderService.updatePeriodicHeader(warehouseId, cycleCountTypeId, cycleCountNo, loginUserID, updatePeriodicHeader);
 		return new ResponseEntity<>(createdPeriodicHeader , HttpStatus.OK);
 	}
     
