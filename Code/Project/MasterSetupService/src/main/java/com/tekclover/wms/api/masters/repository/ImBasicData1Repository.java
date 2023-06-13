@@ -3,7 +3,9 @@ package com.tekclover.wms.api.masters.repository;
 import java.util.List;
 import java.util.Optional;
 
+import com.tekclover.wms.api.masters.model.dto.Inventory;
 import com.tekclover.wms.api.masters.model.impl.ItemListImpl;
+import com.tekclover.wms.api.masters.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -16,7 +18,7 @@ import com.tekclover.wms.api.masters.model.imbasicdata1.ImBasicData1;
 @Repository
 @Transactional
 public interface ImBasicData1Repository extends PagingAndSortingRepository<ImBasicData1,Long>, 
-JpaSpecificationExecutor<ImBasicData1> {
+JpaSpecificationExecutor<ImBasicData1>, StreamableJpaSpecificationRepository<ImBasicData1> {
 
 	public Optional<ImBasicData1> findByItemCodeAndWarehouseIdAndDeletionIndicator(String itemCode, String warehouseId, Long deletionIndicator);
 	public List<ImBasicData1> findByItemCodeLikeAndDescriptionLike(String itemCode, String itemDesc);

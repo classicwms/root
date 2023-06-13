@@ -799,7 +799,11 @@ public class PreOutboundHeaderService extends BaseService {
 	 * @return
 	 */
 	private OrderManagementLine createEMPTYOrderManagementLine(OrderManagementLine orderManagementLine) {
+		AuthToken idmasterAuthToken = authTokenService.getIDMasterServiceAuthToken();
+		StatusId idStatus = idmasterService.getStatus(47L, orderManagementLine.getWarehouseId(), idmasterAuthToken.getAccess_token());
+		
 		orderManagementLine.setStatusId(47L);
+		orderManagementLine.setReferenceField7(idStatus.getStatus());
 		orderManagementLine.setProposedStorageBin("");
 		orderManagementLine.setProposedPackBarCode("");
 		orderManagementLine.setInventoryQty(0D);

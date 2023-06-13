@@ -5,11 +5,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import javax.persistence.EntityNotFoundException;
 
 import com.tekclover.wms.api.masters.exception.BadRequestException;
+import com.tekclover.wms.api.masters.model.dto.Inventory;
 import com.tekclover.wms.api.masters.model.impl.ItemListImpl;
+import com.tekclover.wms.api.masters.repository.InventoryRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -36,6 +39,9 @@ public class ImBasicData1Service {
 	
 	@Autowired
 	private ImBasicData1Repository imbasicdata1Repository;
+
+	@Autowired
+	private InventoryRepository inventoryRepository;
 	
 	/**
 	 * getImBasicData1s
@@ -121,6 +127,27 @@ public class ImBasicData1Service {
 		log.info("results: " + results);
 		return results;
 	}
+
+	//Streaming
+	public Stream<ImBasicData1> findImBasicData1Stream(SearchImBasicData1 searchImBasicData1)
+			throws Exception {
+		if (searchImBasicData1.getStartCreatedOn() != null && searchImBasicData1.getEndCreatedOn() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchImBasicData1.getStartCreatedOn(), searchImBasicData1.getEndCreatedOn());
+			searchImBasicData1.setStartCreatedOn(dates[0]);
+			searchImBasicData1.setEndCreatedOn(dates[1]);
+		}
+
+		if (searchImBasicData1.getStartUpdatedOn() != null && searchImBasicData1.getEndUpdatedOn() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchImBasicData1.getStartUpdatedOn(), searchImBasicData1.getEndUpdatedOn());
+			searchImBasicData1.setStartUpdatedOn(dates[0]);
+			searchImBasicData1.setEndUpdatedOn(dates[1]);
+		}
+
+		ImBasicData1Specification spec = new ImBasicData1Specification(searchImBasicData1);
+		Stream<ImBasicData1> results = imbasicdata1Repository.stream(spec, ImBasicData1.class);
+//		log.info("results: " + results);
+		return results;
+	}
 	
 	/**
 	 * 
@@ -158,7 +185,7 @@ public class ImBasicData1Service {
 	
 	/**
 	 * updateImBasicData1
-	 * @param imbasicdata1
+	 * @param itemCode
 	 * @param updateImBasicData1
 	 * @return
 	 * @throws IllegalAccessException
@@ -170,12 +197,15 @@ public class ImBasicData1Service {
 		BeanUtils.copyProperties(updateImBasicData1, dbImBasicData1, CommonUtils.getNullPropertyNames(updateImBasicData1));
 		dbImBasicData1.setUpdatedBy(loginUserID);
 		dbImBasicData1.setUpdatedOn(new Date());
+
+		updateInventoryFields(itemCode, warehouseId, updateImBasicData1);					//Update Inventory
+
 		return imbasicdata1Repository.save(dbImBasicData1);
 	}
 	
 	/**
 	 * deleteImBasicData1
-	 * @param imbasicdata1
+	 * @param itemCode
 	 */
 	public void deleteImBasicData1 (String itemCode, String warehouseId, String loginUserID) {
 		ImBasicData1 imbasicdata1 = getImBasicData1(itemCode, warehouseId);
@@ -186,6 +216,23 @@ public class ImBasicData1Service {
 			imbasicdata1Repository.save(imbasicdata1);
 		} else {
 			throw new EntityNotFoundException("Error in deleting itemCode Id:" + itemCode);
+		}
+	}
+
+	//Update Inventory while ImBasicData1 Got Updated
+	public void updateInventoryFields(String itemCode, String warehouseId, UpdateImBasicData1 updateImBasicData1) {
+		List<Inventory> updateInventoryList = inventoryRepository.updateInventory(
+				itemCode,
+				warehouseId,
+				updateImBasicData1.getLanguageId(),
+				updateImBasicData1.getCompanyCodeId(),
+				updateImBasicData1.getPlantId());
+		if(updateInventoryList != null) {
+			for (Inventory updateInventory : updateInventoryList) {
+				updateInventory.setReferenceField8(updateImBasicData1.getDescription());
+				updateInventory.setReferenceField9(updateImBasicData1.getManufacturerPartNo());
+				inventoryRepository.save(updateInventory);
+			}
 		}
 	}
 }

@@ -3,8 +3,10 @@ package com.tekclover.wms.api.masters.repository;
 import java.util.List;
 import java.util.Optional;
 
+import com.tekclover.wms.api.masters.model.dto.Inventory;
 import com.tekclover.wms.api.masters.model.impl.ItemListImpl;
 import com.tekclover.wms.api.masters.model.impl.StorageBinListImpl;
+import com.tekclover.wms.api.masters.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -16,7 +18,8 @@ import com.tekclover.wms.api.masters.model.storagebin.StorageBin;
 
 @Repository
 @Transactional
-public interface StorageBinRepository extends JpaRepository<StorageBin,Long>, JpaSpecificationExecutor<StorageBin> {
+public interface StorageBinRepository extends JpaRepository<StorageBin,Long>,
+		JpaSpecificationExecutor<StorageBin>, StreamableJpaSpecificationRepository<StorageBin> {
 
 	Optional<StorageBin> findByStorageBin(String storageBin);
 	
@@ -46,6 +49,7 @@ public interface StorageBinRepository extends JpaRepository<StorageBin,Long>, Jp
 					"group by st_bin ", nativeQuery = true)
 	List<StorageBinListImpl> getStorageBinListBySearch(@Param("searchText1") String searchText1,
 													   @Param("searchText2") String searchText2);
+
 }
 
 

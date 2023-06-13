@@ -4,11 +4,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.persistence.EntityNotFoundException;
 
+import com.tekclover.wms.api.masters.model.dto.Inventory;
 import com.tekclover.wms.api.masters.model.impl.ItemListImpl;
 import com.tekclover.wms.api.masters.model.impl.StorageBinListImpl;
+import com.tekclover.wms.api.masters.repository.InventoryRepository;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,6 +35,9 @@ public class StorageBinService {
 	
 	@Autowired
 	private StorageBinRepository storagebinRepository;
+
+	@Autowired
+	private InventoryRepository inventoryRepository;
 	
 	/**
 	 * getStorageBins
@@ -63,8 +69,7 @@ public class StorageBinService {
 	
 	/**
 	 * 
-	 * @param storageBins
-	 * @param storageSectionIds
+	 * @param storageBinPutAway
 	 * @return
 	 */
 	public List<StorageBin> getStorageBin (StorageBinPutAway storageBinPutAway) {
@@ -204,6 +209,25 @@ public class StorageBinService {
 		log.info("results: " + results);
 		return results;
 	}
+
+	//Streaming
+	public Stream<StorageBin> findStorageBinStream(SearchStorageBin searchStorageBin) throws Exception {
+		if (searchStorageBin.getStartCreatedOn() != null && searchStorageBin.getEndCreatedOn() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchStorageBin.getStartCreatedOn(), searchStorageBin.getEndCreatedOn());
+			searchStorageBin.setStartCreatedOn(dates[0]);
+			searchStorageBin.setEndCreatedOn(dates[1]);
+		}
+
+		if (searchStorageBin.getStartUpdatedOn() != null && searchStorageBin.getEndUpdatedOn() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchStorageBin.getStartUpdatedOn(), searchStorageBin.getEndUpdatedOn());
+			searchStorageBin.setStartUpdatedOn(dates[0]);
+			searchStorageBin.setEndUpdatedOn(dates[1]);
+		}
+
+		StorageBinSpecification spec = new StorageBinSpecification(searchStorageBin);
+		Stream<StorageBin> results = storagebinRepository.stream(spec, StorageBin.class);
+		return results;
+	}
 	
 	/**
 	 * createStorageBin
@@ -226,7 +250,7 @@ public class StorageBinService {
 	
 	/**
 	 * updateStorageBin
-	 * @param storagebin
+	 * @param storageBin
 	 * @param updateStorageBin
 	 * @return
 	 * @throws IllegalAccessException
@@ -238,12 +262,15 @@ public class StorageBinService {
 		BeanUtils.copyProperties(updateStorageBin, dbStorageBin, CommonUtils.getNullPropertyNames(updateStorageBin));
 		dbStorageBin.setUpdatedBy(loginUserID);
 		dbStorageBin.setUpdatedOn(new Date());
+
+		updateInventoryFields(storageBin, updateStorageBin);				//Update Inventory
+
 		return storagebinRepository.save(dbStorageBin);
 	}
 	
 	/**
 	 * deleteStorageBin
-	 * @param storagebin
+	 * @param storageBin
 	 */
 	public void deleteStorageBin (String storageBin, String loginUserID) {
 		StorageBin storagebin = getStorageBin(storageBin);
@@ -254,6 +281,22 @@ public class StorageBinService {
 			storagebinRepository.save(storagebin);
 		} else {
 			throw new EntityNotFoundException("Error in deleting Id:" + storageBin);
+		}
+	}
+
+	//Update Inventory while StorageBin Got Updated
+	public void updateInventoryFields(String storageBin, UpdateStorageBin updateStorageBin) {
+		List<Inventory> updateInventoryList = inventoryRepository.updateInventoryBin(
+				storageBin,
+				updateStorageBin.getWarehouseId(),
+				updateStorageBin.getLanguageId(),
+				updateStorageBin.getCompanyCodeId(),
+				updateStorageBin.getPlantId());
+		if(updateInventoryList != null) {
+			for (Inventory updateInventory : updateInventoryList) {
+				updateInventory.setReferenceField10(updateStorageBin.getStorageSectionId());
+				inventoryRepository.save(updateInventory);
+			}
 		}
 	}
 }

@@ -2,6 +2,7 @@ package com.tekclover.wms.api.masters.controller;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
@@ -76,6 +77,14 @@ public class ImBasicData1Controller {
 	public List<ImBasicData1> findImBasicData1(@RequestBody SearchImBasicData1 searchImBasicData1)
 			throws Exception {
 		return imbasicdata1Service.findImBasicData1(searchImBasicData1);
+	}
+
+	//Streaming
+	@ApiOperation(response = ImBasicData1.class, value = "Search ImBasicData1 Stream") // label for swagger
+	@PostMapping("/findImBasicData1Stream")
+	public Stream<ImBasicData1> findImBasicData1Stream(@RequestBody SearchImBasicData1 searchImBasicData1)
+			throws Exception {
+		return imbasicdata1Service.findImBasicData1Stream(searchImBasicData1);
 	}
 	
 	@ApiOperation(response = ImBasicData1.class, value = "Like Search ImBasicData1") // label for swagger

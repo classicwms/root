@@ -2,6 +2,7 @@ package com.tekclover.wms.api.masters.controller;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
@@ -122,6 +123,14 @@ public class StorageBinController {
 	public List<StorageBin> findStorageBin(@RequestBody SearchStorageBin searchStorageBin)
 			throws Exception {
 		return storagebinService.findStorageBin(searchStorageBin);
+	}
+
+	//Streaming
+	@ApiOperation(response = StorageBin.class, value = "Search StorageBin") // label for swagger
+	@PostMapping("/findStorageBinStream")
+	public Stream<StorageBin> findStorageBinStream(@RequestBody SearchStorageBin searchStorageBin)
+			throws Exception {
+		return storagebinService.findStorageBinStream(searchStorageBin);
 	}
     
     @ApiOperation(response = StorageBin.class, value = "Create StorageBin") // label for swagger
