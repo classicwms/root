@@ -163,6 +163,26 @@ public class ImBasicData1Service {
 			throw new BadRequestException("Search string must not be empty");
 		}
 	}
+	/**
+	 * Like Search filter based on ItemCode, Description, Company Code, Plant, Language and warehouse
+	 * @param likeSearchByItemCodeNDesc
+	 * @return
+	 */
+	public List<ItemListImpl> findImBasicData1LikeSearchNew(String likeSearchByItemCodeNDesc, String companyCodeId,
+															String plantId,String languageId,String warehouseId) {
+		if(likeSearchByItemCodeNDesc != null && !likeSearchByItemCodeNDesc.trim().isEmpty()) {
+			List<ItemListImpl> data = imbasicdata1Repository.getItemListBySearchNew(likeSearchByItemCodeNDesc.trim(),
+					likeSearchByItemCodeNDesc.trim(),
+					likeSearchByItemCodeNDesc.trim(),
+					companyCodeId,
+					plantId,
+					languageId,
+					warehouseId	);
+			return data;
+		} else {
+			throw new BadRequestException("Search string must not be empty");
+		}
+	}
 	
 	/**
 	 * createImBasicData1

@@ -93,7 +93,18 @@ public class ImBasicData1Controller {
 			throws Exception {
 		return imbasicdata1Service.findImBasicData1LikeSearch(likeSearchByItemCodeNDesc);
 	}
-	
+
+	//Like Search filter ItemCode, Description, Company Code, Plant, Language and warehouse
+	@ApiOperation(response = ImBasicData1.class, value = "Like Search ImBasicData1 New") // label for swagger
+	@GetMapping("/findItemCodeByLikeNew")
+	public List<ItemListImpl> getImBasicData1LikeSearchNew(@RequestParam String likeSearchByItemCodeNDesc,
+														   @RequestParam String companyCodeId,
+														   @RequestParam String plantId,
+														   @RequestParam String languageId,
+														   @RequestParam String warehouseId)
+			throws Exception {
+		return imbasicdata1Service.findImBasicData1LikeSearchNew(likeSearchByItemCodeNDesc,companyCodeId,plantId,languageId,warehouseId);
+	}
     @ApiOperation(response = ImBasicData1.class, value = "Create ImBasicData1") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postImBasicData1(@Valid @RequestBody AddImBasicData1 newImBasicData1, @RequestParam String loginUserID) 

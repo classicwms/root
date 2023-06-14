@@ -34,4 +34,21 @@ JpaSpecificationExecutor<ImBasicData1>, StreamableJpaSpecificationRepository<ImB
 	List<ItemListImpl> getItemListBySearch(@Param("searchText1") String searchText1,
 										   @Param("searchText2") String searchText2,
 										   @Param("searchText3") String searchText3);
+
+	@Query(
+			value = "select TOP 50 itm_code as itemCode, \n" +
+					"text as description from tblimbasicdata1 \n" +
+					"where ( itm_code like :searchText1% or itm_code like %:searchText2 \n" +
+					"or text like %:searchText3% ) and \n" +
+					"c_id in (:companyCodeId) and plant_id in (:plantId) and lang_id in (:languageId) and wh_id in (:warehouseId)\n" +
+					"group by itm_code,text ",
+			nativeQuery = true
+	)
+	List<ItemListImpl> getItemListBySearchNew(	@Param("searchText1") String searchText1,
+												  @Param("searchText2") String searchText2,
+												  @Param("searchText3") String searchText3,
+												  @Param("companyCodeId") String companyCodeId,
+												  @Param("plantId") String plantId,
+												  @Param("languageId") String languageId,
+												  @Param("warehouseId") String warehouseId  );
 }
