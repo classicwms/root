@@ -90,39 +90,40 @@ public class SendMailService {
 		String filePath = propertiesConfig.getDocStorageBasePath()+propertiesConfig.getDocStorageDocumentPath()+"/";
 
 		if(fileNameForEmail.getDelivery110()  != null &&
-				fileNameForEmail.getDispatch110() != null &&
-				fileNameForEmail.getDelivery111() != null &&
-				fileNameForEmail.getDispatch111()!= null) {
+//				fileNameForEmail.getDispatch110() != null &&
+				fileNameForEmail.getDelivery111() != null
+//				fileNameForEmail.getDispatch111()!= null
+		) {
 
 			filePath1 = filePath + fileNameForEmail.getDelivery110();
-			filePath2 = filePath + fileNameForEmail.getDispatch110();
+//			filePath2 = filePath + fileNameForEmail.getDispatch110();
 			filePath3 = filePath + fileNameForEmail.getDelivery111();
-			filePath4 = filePath + fileNameForEmail.getDispatch111();
+//			filePath4 = filePath + fileNameForEmail.getDispatch111();
 
 			log.info("110 Delivery file Name: " + fileNameForEmail.getDelivery110());
-			log.info("110 Dispatch file Name: " + fileNameForEmail.getDispatch110());
+//			log.info("110 Dispatch file Name: " + fileNameForEmail.getDispatch110());
 			log.info("111 Delivery file Name: " + fileNameForEmail.getDelivery111());
-			log.info("111 Dispatch file Name: " + fileNameForEmail.getDispatch111());
+//			log.info("111 Dispatch file Name: " + fileNameForEmail.getDispatch111());
 
 			File file = new File(filePath1);
-			File file2 = new File(filePath2);
+//			File file2 = new File(filePath2);
 			File file3 = new File(filePath3);
-			File file4 = new File(filePath4);
+//			File file4 = new File(filePath4);
 
 			Path path = Paths.get(file.getAbsolutePath());
-			Path path2 = Paths.get(file2.getAbsolutePath());
+//			Path path2 = Paths.get(file2.getAbsolutePath());
 			Path path3 = Paths.get(file3.getAbsolutePath());
-			Path path4 = Paths.get(file4.getAbsolutePath());
+//			Path path4 = Paths.get(file4.getAbsolutePath());
 
 			ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
-			ByteArrayResource resource2 = new ByteArrayResource(Files.readAllBytes(path2));
+//			ByteArrayResource resource2 = new ByteArrayResource(Files.readAllBytes(path2));
 			ByteArrayResource resource3 = new ByteArrayResource(Files.readAllBytes(path3));
-			ByteArrayResource resource4 = new ByteArrayResource(Files.readAllBytes(path4));
+//			ByteArrayResource resource4 = new ByteArrayResource(Files.readAllBytes(path4));
 
 			helper.addAttachment(fileNameForEmail.getDelivery110(), resource);
-			helper.addAttachment(fileNameForEmail.getDispatch110(), resource2);
+//			helper.addAttachment(fileNameForEmail.getDispatch110(), resource2);
 			helper.addAttachment(fileNameForEmail.getDelivery111(), resource3);
-			helper.addAttachment(fileNameForEmail.getDispatch111(), resource4);
+//			helper.addAttachment(fileNameForEmail.getDispatch111(), resource4);
 
 
 			log.info("helper (From Address): " + email.getFromAddress());
@@ -153,29 +154,35 @@ public class SendMailService {
 
 			// true = text/html
 			helper.setText(email.getBodyText(), true);
-//			Long flag = Long.valueOf(fileNameForEmail.getMailSent());
+//			Long flag = 0L;
+//			if(fileNameForEmail.getMailSent() != null) {
+//				flag = Long.valueOf(fileNameForEmail.getMailSent());
+//			}
 //			if(flag == 1) {
-//				throw new BadRequestException("Today's Attachment Mail Has been sent already");
+//				throw new BadRequestException("Today's Report Mail has been sent already");
 //			}else{
 				javaMailSender.send(msg);
 			log.info("Scheduled Mail sent successful");
 //				fileNameForEmail.setMailSent("1");
-//				fileNameForEmailRepository.save(fileNameForEmail);
+				fileNameForEmailRepository.save(fileNameForEmail);
 //			}
-		}else{
+		}else {
 			helper.setFrom(propertiesConfig.getEmailFromAddress());
 			helper.setTo("raj@tekclover.com");
 			helper.setCc("senthil.v@tekclover.com");
 			helper.setSubject("Sending Report Through eMail Failed");
 			helper.setText("Attachment not found, Sending Report Through eMail Failed", true);
-//			Long flag = Long.valueOf(fileNameForEmail.getMailSentFailed());
-//			if(flag == 1) {
-//				throw new BadRequestException("Today's Attachment Mail Failed Message Has been sent already");
-//			}else{
+//			Long flag = 0L;
+//			if (fileNameForEmail.getMailSentFailed() != null) {
+//				flag = Long.valueOf(fileNameForEmail.getMailSentFailed());
+//			}
+//			if (flag == 1) {
+//				throw new BadRequestException("Today's Report Mail Failed Message Has been sent already");
+//			} else {
 				javaMailSender.send(msg);
 				log.info("Scheduled Mail sent Unsuccessful");
 //				fileNameForEmail.setMailSentFailed("1");
-//				fileNameForEmailRepository.save(fileNameForEmail);
+				fileNameForEmailRepository.save(fileNameForEmail);
 //			}
 			throw new MessagingException("Attachment not found, Sending email failed");
 		}

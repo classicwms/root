@@ -50,6 +50,20 @@ public interface StorageBinRepository extends JpaRepository<StorageBin,Long>,
 	List<StorageBinListImpl> getStorageBinListBySearch(@Param("searchText1") String searchText1,
 													   @Param("searchText2") String searchText2);
 
+
+	@Query(	value = "select TOP 50 st_bin as storageBin from tblstoragebin \n" +
+			"where ( st_bin like :searchText1% or st_bin like %:searchText2 \n" +
+			"or st_bin like %:searchText3% ) and \n" +
+			"c_id in (:companyCodeId) and plant_id in (:plantId) and lang_id in (:languageId) and wh_id in (:warehouseId)\n" +
+			"group by st_bin ",	nativeQuery = true)
+	List<StorageBinListImpl> getStorageBinListBySearchNew(	@Param("searchText1") String searchText1,
+															  @Param("searchText2") String searchText2,
+															  @Param("searchText3") String searchText3,
+															  @Param("companyCodeId") String companyCodeId,
+															  @Param("plantId") String plantId,
+															  @Param("languageId") String languageId,
+															  @Param("warehouseId") String warehouseId  );
+
 }
 
 

@@ -364,7 +364,19 @@ public class MastersServiceController {
 			@RequestParam String authToken) throws Exception {
 		return mastersService.findImBasicData1LikeSearch(likeSearchByItemCodeNDesc, authToken);
 	}
-	
+	//Input Parameters added
+	@ApiOperation(response = ImBasicData1.class, value = "Like Search ImBasicData1 New") // label for swagger
+	@GetMapping("/imbasicdata1/findItemCodeByLikeNew")
+	public ItemCodeDesc[] getImBasicData1LikeSearchNew(@RequestParam String likeSearchByItemCodeNDesc,
+													   @RequestParam String companyCodeId,
+													   @RequestParam String plantId,
+													   @RequestParam String languageId,
+													   @RequestParam String warehouseId,
+													   @RequestParam String authToken) throws Exception {
+
+		return mastersService.findImBasicData1LikeSearchNew(likeSearchByItemCodeNDesc,companyCodeId,plantId,
+				languageId,warehouseId, authToken);
+	}
     @ApiOperation(response = Optional.class, value = "Create ImAlternateUom") // label for swagger
     @RequestMapping(value = "/imalternateuom", method = RequestMethod.POST)
 	public ResponseEntity<?> createImAlternateUom(@RequestBody ImAlternateUom newImAlternateUom, 
@@ -701,7 +713,19 @@ public class MastersServiceController {
 													@RequestParam String authToken) throws Exception {
 		return mastersService.findStorageBinLikeSearch(likeSearchByStorageBinNDesc, authToken);
 	}
-    
+	//Input Parameters added
+	@ApiOperation(response = StorageBin.class, value = "Like Search StorageBin New") // label for swagger
+	@GetMapping("/storagebin/findStorageBinByLikeNew")
+	public StorageBinDesc[] getStorageBinLikeSearchNew(@RequestParam String likeSearchByStorageBinNDesc,
+													   @RequestParam String companyCodeId,
+													   @RequestParam String plantId,
+													   @RequestParam String languageId,
+													   @RequestParam String warehouseId,
+													   @RequestParam String authToken) throws Exception {
+
+		return mastersService.findStorageBinLikeSearchNew(likeSearchByStorageBinNDesc,companyCodeId,plantId,
+				languageId,warehouseId, authToken);
+	}
     @ApiOperation(response = Optional.class, value = "Create StorageBin") // label for swagger
     @RequestMapping(value = "/storagebin", method = RequestMethod.POST)
 	public ResponseEntity<?> createStorageBin(@RequestBody StorageBin newStorageBin, @RequestParam String loginUserID, 

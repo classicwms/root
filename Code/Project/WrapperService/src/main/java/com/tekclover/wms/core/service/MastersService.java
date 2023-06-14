@@ -1154,6 +1154,35 @@ public class MastersService {
 			throw e;
 		}
 	}
+
+	// POST - findImBasicData1LikeSearchNew
+	public ItemCodeDesc[] findImBasicData1LikeSearchNew(String likeSearchByItemCodeNDesc,
+														String companyCodeId,
+														String plantId,
+														String languageId,
+														String warehouseId,
+														String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "MNRClara RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponents builder =
+					UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "imbasicdata1/findItemCodeByLikeNew")
+							.queryParam("likeSearchByItemCodeNDesc", likeSearchByItemCodeNDesc)
+							.queryParam("companyCodeId",companyCodeId)
+							.queryParam("plantId",plantId)
+							.queryParam("languageId",languageId)
+							.queryParam("warehouseId",warehouseId).build();
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<ItemCodeDesc[]> result =
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, ItemCodeDesc[].class);
+			return result.getBody();
+		} catch (Exception e) {
+			throw e;
+		}
+	}
 	
 	// POST ImBasicData1
 	public ImBasicData1 addImBasicData1 (ImBasicData1 imbasicdata1, String loginUserID, String authToken) {
@@ -1992,12 +2021,40 @@ public class MastersService {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-			headers.add("User-Agent", "MNRClara RestTemplate");
+			headers.add("User-Agent", "WMS RestTemplate");
 			headers.add("Authorization", "Bearer " + authToken);
 
 			UriComponents builder =
 					UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "storagebin/findStorageBinByLike")
 							.queryParam("likeSearchByStorageBinNDesc", likeSearchByStorageBinNDesc).build();
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<StorageBinDesc[]> result =
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, StorageBinDesc[].class);
+			return result.getBody();
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+	// POST - findImBasicData1LikeSearchNew
+	public StorageBinDesc[] findStorageBinLikeSearchNew(String likeSearchByStorageBinNDesc,
+														String companyCodeId,
+														String plantId,
+														String languageId,
+														String warehouseId,
+														String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "WMS RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponents builder =
+					UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "storagebin/findStorageBinByLikeNew")
+							.queryParam("likeSearchByStorageBinNDesc", likeSearchByStorageBinNDesc)
+							.queryParam("companyCodeId",companyCodeId)
+							.queryParam("plantId",plantId)
+							.queryParam("languageId",languageId)
+							.queryParam("warehouseId",warehouseId).build();
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			ResponseEntity<StorageBinDesc[]> result =
 					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, StorageBinDesc[].class);

@@ -133,6 +133,27 @@ public class StorageBinService {
 			throw new BadRequestException("Search string must not be empty");
 		}
 	}
+
+	/**
+	 * Like Search filter based on ItemCode, Description, Company Code, Plant, Language and warehouse
+	 * @param likeSearchByStorageBinNDesc
+	 * @return
+	 */
+	public List<StorageBinListImpl> findStorageBinLikeSearchNew(String likeSearchByStorageBinNDesc, String companyCodeId,
+																String plantId,String languageId,String warehouseId) {
+		if(likeSearchByStorageBinNDesc != null && !likeSearchByStorageBinNDesc.trim().isEmpty()) {
+			List<StorageBinListImpl> data = storagebinRepository.getStorageBinListBySearchNew(likeSearchByStorageBinNDesc.trim(),
+					likeSearchByStorageBinNDesc.trim(),
+					likeSearchByStorageBinNDesc.trim(),
+					companyCodeId,
+					plantId,
+					languageId,
+					warehouseId	);
+			return data;
+		} else {
+			throw new BadRequestException("Search string must not be empty");
+		}
+	}
 	
 	/**
 	 * getStorageBin

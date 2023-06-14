@@ -93,7 +93,18 @@ public class StorageBinController {
 			throws Exception {
 		return storagebinService.findStorageBinLikeSearch(likeSearchByStorageBinNDesc);
 	}
-    
+
+	//Like Search filter ItemCode, Description, Company Code, Plant, Language and warehouse
+	@ApiOperation(response = StorageBin.class, value = "Like Search StorageBin New") // label for swagger
+	@GetMapping("/findStorageBinByLikeNew")
+	public List<StorageBinListImpl> getStorageBinLikeSearchNew(@RequestParam String likeSearchByStorageBinNDesc,
+															   @RequestParam String companyCodeId,
+															   @RequestParam String plantId,
+															   @RequestParam String languageId,
+															   @RequestParam String warehouseId)
+			throws Exception {
+		return storagebinService.findStorageBinLikeSearchNew(likeSearchByStorageBinNDesc,companyCodeId,plantId,languageId,warehouseId);
+	}
     @ApiOperation(response = StorageBin.class, value = "Get a StorageBin") // label for swagger 
    	@PostMapping("/putaway")
    	public ResponseEntity<?> getStorageBin(@RequestBody StorageBinPutAway storageBinPutAway) {
