@@ -1,6 +1,9 @@
 package com.tekclover.wms.core.model.transaction;
 
+import java.text.ParseException;
 import java.util.Date;
+
+import com.tekclover.wms.core.util.DateUtils;
 
 import lombok.Data;
 
@@ -35,6 +38,7 @@ public class InventoryMovement2 {
 	 * @param inventoryUom
 	 * @param refDocNumber
 	 * @param createdOn
+	 * @throws ParseException 
 	 */
 	public InventoryMovement2(String warehouseId,
 			Long movementType,

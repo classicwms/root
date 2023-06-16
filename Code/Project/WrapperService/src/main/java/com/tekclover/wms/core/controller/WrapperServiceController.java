@@ -298,6 +298,16 @@ public class WrapperServiceController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     
+    /*--------------------------------Inventory-Stock---------------------------------------------------*/
+    @ApiOperation(response = Optional.class, value = "Inventory") // label for swagger
+    @PostMapping("/batch-upload/inventoryStock")
+    public ResponseEntity<?> inventoryStockUpload (@RequestParam("file") MultipartFile file) 
+    		throws Exception {
+        Map<String, String> response = fileStorageService.storeFile(file);
+        batchJobScheduler.runJobInventoryStock();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+    
     /*--------------------------------------------------------------------------------------------------*/
     
     @ApiOperation(response = Optional.class, value = "Generate BOM Report") // label for swagger

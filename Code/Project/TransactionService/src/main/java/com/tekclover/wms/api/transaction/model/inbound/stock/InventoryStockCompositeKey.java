@@ -1,11 +1,11 @@
-package com.tekclover.wms.api.transaction.model.inbound.inventory;
+package com.tekclover.wms.api.transaction.model.inbound.stock;
 
 import java.io.Serializable;
 
 import lombok.Data;
 
 @Data
-public class InventoryCompositeKey implements Serializable {
+public class InventoryStockCompositeKey implements Serializable {
 
 	private static final long serialVersionUID = -7617672247680004647L;
 	

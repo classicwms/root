@@ -10,4 +10,5 @@ public class MetricsSummary {
 	private Double lineItemPicked;
 	private Long orderedQty;
 	private Long deliveryQty;
+	private Double shippedLines;
 }

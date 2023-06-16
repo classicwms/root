@@ -299,7 +299,7 @@ public class PutAwayLineService extends BaseService {
 		List<PutAwayLine> createdPutAwayLines = new ArrayList<>();
 		log.info("newPutAwayLines to confirm : " + newPutAwayLines);
 		try {
-			for ( AddPutAwayLine newPutAwayLine : newPutAwayLines) {
+			for (AddPutAwayLine newPutAwayLine : newPutAwayLines) {
 				PutAwayLine dbPutAwayLine = new PutAwayLine();
 				Warehouse warehouse = getWarehouse(newPutAwayLine.getWarehouseId());
 				
@@ -319,8 +319,10 @@ public class PutAwayLineService extends BaseService {
 				dbPutAwayLine.setUpdatedOn(new Date());
 				
 				Optional<PutAwayLine> existingPutAwayLine = putAwayLineRepository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndGoodsReceiptNoAndPreInboundNoAndRefDocNumberAndPutAwayNumberAndLineNoAndItemCodeAndProposedStorageBinAndConfirmedStorageBinInAndDeletionIndicator(
-						newPutAwayLine.getLanguageId(), newPutAwayLine.getCompanyCode(), newPutAwayLine.getPlantId(), newPutAwayLine.getWarehouseId(), newPutAwayLine.getGoodsReceiptNo(), newPutAwayLine.getPreInboundNo(), newPutAwayLine.getRefDocNumber(), newPutAwayLine.getPutAwayNumber(), newPutAwayLine.getLineNo(), newPutAwayLine.getItemCode(),
-						newPutAwayLine.getProposedStorageBin(), Arrays.asList(newPutAwayLine.getConfirmedStorageBin()), newPutAwayLine.getDeletionIndicator());
+						getLanguageId(), getCompanyCode(), getPlantId(), newPutAwayLine.getWarehouseId(), newPutAwayLine.getGoodsReceiptNo(), 
+						newPutAwayLine.getPreInboundNo(), newPutAwayLine.getRefDocNumber(), newPutAwayLine.getPutAwayNumber(), newPutAwayLine.getLineNo(), 
+						newPutAwayLine.getItemCode(), newPutAwayLine.getProposedStorageBin(), Arrays.asList(newPutAwayLine.getConfirmedStorageBin()), 
+						newPutAwayLine.getDeletionIndicator());
 				log.info("Existing putawayline already created : " + existingPutAwayLine);
 				if(existingPutAwayLine.isEmpty()) {
 					PutAwayLine createdPutAwayLine = putAwayLineRepository.save(dbPutAwayLine);

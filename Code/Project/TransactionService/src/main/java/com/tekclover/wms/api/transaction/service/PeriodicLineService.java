@@ -501,12 +501,11 @@ public class PeriodicLineService extends BaseService {
 		
 		inventoryMovement.setBatchSerialNumber("1");
 		inventoryMovement.setMovementDocumentNo(updatedPeriodicLine.getCycleCountNo());
-		
-		// IM_CTD_BY
+		inventoryMovement.setMovementQty(updatedPeriodicLine.getVarianceQty());		
 		inventoryMovement.setCreatedBy(updatedPeriodicLine.getCreatedBy());
 		
 		// IM_CTD_ON
-		inventoryMovement.setCreatedOn(updatedPeriodicLine.getCreatedOn());
+		inventoryMovement.setCreatedOn(new Date());
 		inventoryMovement = inventoryMovementRepository.save(inventoryMovement);
 		log.info("created InventoryMovement : " + inventoryMovement);
 		return inventoryMovement;

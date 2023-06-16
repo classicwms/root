@@ -36,6 +36,7 @@ import com.tekclover.wms.core.batch.mapper.IMPartnerFieldSetMapper;
 import com.tekclover.wms.core.batch.mapper.ImBasicData1FieldSetMapper;
 import com.tekclover.wms.core.batch.mapper.InventoryFieldSetMapper;
 import com.tekclover.wms.core.config.PropertiesConfig;
+import com.tekclover.wms.core.model.transaction.InventoryStock;
 
 @Configuration
 @EnableBatchProcessing
@@ -464,6 +465,46 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 				.writer(imPartnerWhId111ItemWriter()).build();
 	}
 	
+	//---------------------------Inventory--------------------------------------------------------------------//
+	@Bean
+	public FlatFileItemReader<Inventory> inventoryStockItemReader() {
+		FlatFileItemReader<Inventory> reader = new FlatFileItemReader<>();
+		reader.setLinesToSkip(1);
+		reader.setResource(new FileSystemResource(propertiesConfig.getFileUploadDir() + propertiesConfig.getInventoryFileName()));
+		
+		DefaultLineMapper<Inventory> customerLineMapper = new DefaultLineMapper<>();
+		DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
+		tokenizer.setNames(new String[] { "languageId", "companyCodeId", "plantId", "warehouseId", "itemCode", "packBarcode", "storageBin", 
+										  "stockTypeId", "specialStockIndicatorId", "binClassId", "description", "inventoryQuantity", 
+										  "inventoryUom", "deletionIndicator", "createdBy"});
+		customerLineMapper.setLineTokenizer(tokenizer);
+		customerLineMapper.setFieldSetMapper(new InventoryFieldSetMapper());
+		customerLineMapper.afterPropertiesSet();
+		reader.setLineMapper(customerLineMapper);
+		return reader;
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Bean
+	public JdbcBatchItemWriter<Inventory> inventoryStockItemWriter() {
+		JdbcBatchItemWriter<Inventory> itemWriter = new JdbcBatchItemWriter<>();
+		itemWriter.setDataSource(this.dataSource);
+		itemWriter.setSql("INSERT INTO tblinventorystock (LANG_ID, C_ID, PLANT_ID, WH_ID, ITM_CODE, PACK_BARCODE, ST_BIN, STCK_TYP_ID, "
+				+ "SP_ST_IND_ID, BIN_CL_ID, TEXT, INV_QTY, INV_UOM, IS_DELETED, IU_CTD_BY, IU_CTD_ON) "
+				+ "VALUES (:languageId, :companyCodeId, :plantId, :warehouseId, :itemCode, :packBarcode, :storageBin, :stockTypeId,"
+				+ ":specialStockIndicatorId, :binClassId, :description, :inventoryQuantity, :inventoryUom,\r\n"
+				+ ":deletionIndicator, :createdBy, GETDATE())");
+		itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider());
+		itemWriter.afterPropertiesSet();
+		return itemWriter;
+	}
+
+	@Bean
+	public Step step11() {
+		return stepBuilderFactory.get("step11").<Inventory, Inventory>chunk(10).reader(inventoryStockItemReader())
+				.writer(inventoryStockItemWriter()).build();
+	}
+	
 	/*-----------------------------------------------------------------------------------------*/
 	@Bean
 	public JobListener wmsListener() throws Exception {
@@ -516,6 +557,14 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 		return jobBuilderFactory.get("jobInventory")
 				.listener(wmsListener())
 				.start(step6())
+				.build();
+	}
+	
+	@Bean
+	public Job jobInventoryStock() throws Exception {
+		return jobBuilderFactory.get("jobInventoryStock")
+				.listener(wmsListener())
+				.start(step11())
 				.build();
 	}
 	

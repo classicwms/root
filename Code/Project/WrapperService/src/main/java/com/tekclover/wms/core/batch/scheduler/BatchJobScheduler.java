@@ -35,6 +35,9 @@ public class BatchJobScheduler {
 	private Job jobInventory;
 	
 	@Autowired
+	private Job jobInventoryStock;
+	
+	@Autowired
 	private Job jobImBasicData1;
 	
 	@Autowired
@@ -135,6 +138,19 @@ public class BatchJobScheduler {
 				.toJobParameters();
 		try {
 			jobLauncher.run(jobInventory, params);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * jobInventory
+	 */
+	public void runJobInventoryStock() {
+		JobParameters params = new JobParametersBuilder().addLong("jobId", System.currentTimeMillis())
+				.toJobParameters();
+		try {
+			jobLauncher.run(jobInventoryStock, params);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

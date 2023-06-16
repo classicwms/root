@@ -5256,7 +5256,6 @@ public class TransactionService {
 
 			List<PeriodicHeaderEntity> obList = new ArrayList<>();
 			for (PeriodicHeaderEntity obHeader : result.getBody()) {
-
 				obList.add(addingTimeWithDatePeriodicHeaderEntity(obHeader));
 			}
 			return obList.toArray(new PeriodicHeaderEntity[obList.size()]);
@@ -5266,6 +5265,7 @@ public class TransactionService {
 			throw e;
 		}
 	}
+	
 	//Add Time to Date plus 3 Hours
 	public PeriodicHeaderEntity addingTimeWithDatePeriodicHeaderEntity(PeriodicHeaderEntity obHeader) throws ParseException {
 
@@ -5281,6 +5281,7 @@ public class TransactionService {
 
 		return obHeader;
 	}
+	
 	// GET
 	public PeriodicHeader[] getPeriodicHeader(String warehouseId, Long cycleCountTypeId, String cycleCountNo,
 			Long movementTypeId, Long subMovementTypeId, String authToken) throws ParseException {
@@ -5374,7 +5375,8 @@ public class TransactionService {
 					.queryParam("pageNo", pageNo).queryParam("pageSize", pageSize).queryParam("sortBy", sortBy)
 					.queryParam("warehouseId", warehouseId);
 			HttpEntity<?> entity = new HttpEntity<>(headers);
-			ParameterizedTypeReference<PaginatedResponse<PeriodicLineEntity>> responseType = new ParameterizedTypeReference<PaginatedResponse<PeriodicLineEntity>>() {
+			ParameterizedTypeReference<PaginatedResponse<PeriodicLineEntity>> responseType = 
+					new ParameterizedTypeReference<PaginatedResponse<PeriodicLineEntity>>() {
 			};
 			ResponseEntity<PaginatedResponse<PeriodicLineEntity>> result = getRestTemplate()
 					.exchange(builder.toUriString(), HttpMethod.POST, entity, responseType);
@@ -5440,7 +5442,7 @@ public class TransactionService {
 	
 	//-------------------------------------PeriodicLine--------------------------------------------------------
 	// FIND
-	public PeriodicLine[] findPeriodicLine(SearchPeriodicLine searchPeriodicLine, String authToken) {
+	public PeriodicLine[] findPeriodicLine(SearchPeriodicLine searchPeriodicLine, String authToken) throws Exception {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -5451,7 +5453,12 @@ public class TransactionService {
 			HttpEntity<?> entity = new HttpEntity<>(searchPeriodicLine, headers);
 			ResponseEntity<PeriodicLine[]> result = getRestTemplate()
 					.exchange(builder.toUriString(), HttpMethod.POST, entity, PeriodicLine[].class);
-			return result.getBody();
+			List<PeriodicLine> periodicLineList = new ArrayList<>();
+			for (PeriodicLine periodicLine : result.getBody()) {
+				periodicLine.setCreatedOn(DateUtils.addTimeToDate(periodicLine.getCreatedOn(), 3));
+				periodicLineList.add(periodicLine);
+			}
+			return periodicLineList.toArray(new PeriodicLine[periodicLineList.size()]);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -5941,7 +5948,7 @@ public class TransactionService {
 	 * @return
 	 */
 	public Stream<InventoryMovement2> streamInventoryMovement() {
-		jdbcTemplate.setFetchSize(50);
+		jdbcTemplate.setFetchSize(1000);
 		/*
 		 * "MVT_DOC_NO"
 		 * ----------------
@@ -5958,26 +5965,30 @@ public class TransactionService {
 			String refDocNumber,
 			Date createdOn
 		 */
-		Stream<InventoryMovement2> inventoryMovement2 = jdbcTemplate.queryForStream(
+		Stream<InventoryMovement2> inventoryMovement2 = jdbcTemplate.queryForStream (
 				"Select WH_ID, MVT_TYP_ID, SUB_MVT_TYP_ID, PAL_CODE, PACK_BARCODE, ITM_CODE, "
-						+ "ST_BIN, TEXT, MVT_QTY, MVT_UOM, REF_DOC_NO, IM_CTD_ON, MVT_DOC_NO "
+						+ "ST_BIN, TEXT, MVT_QTY, MVT_UOM, REF_DOC_NO, DATEADD(hour, 3, IM_CTD_ON) AS IM_CTD_ON, MVT_DOC_NO "
 						+ "from tblinventorymovement "
 						+ "where is_deleted = 0 ",
-				(resultSet, rowNum) -> new InventoryMovement2 (
-						resultSet.getString("WH_ID"),
-						resultSet.getLong("MVT_TYP_ID"),
-						resultSet.getLong("SUB_MVT_TYP_ID"),
-						resultSet.getString("PAL_CODE"),
-						resultSet.getString("PACK_BARCODE"),
-						resultSet.getString("ITM_CODE"),
-						resultSet.getString("ST_BIN"),
-						resultSet.getString("TEXT"),
-						resultSet.getDouble("MVT_QTY"),
-						resultSet.getString("MVT_UOM"),
-						resultSet.getString("REF_DOC_NO"),
-						resultSet.getDate("IM_CTD_ON"),
-						resultSet.getString("MVT_DOC_NO")
-				));
+				(resultSet, rowNum) -> {
+						return new InventoryMovement2 (
+							resultSet.getString("WH_ID"),
+							resultSet.getLong("MVT_TYP_ID"),
+							resultSet.getLong("SUB_MVT_TYP_ID"),
+							resultSet.getString("PAL_CODE"),
+							resultSet.getString("PACK_BARCODE"),
+							resultSet.getString("ITM_CODE"),
+							resultSet.getString("ST_BIN"),
+							resultSet.getString("TEXT"),
+							resultSet.getDouble("MVT_QTY"),
+							resultSet.getString("MVT_UOM"),
+							resultSet.getString("REF_DOC_NO"),
+							resultSet.getDate("IM_CTD_ON"),
+							resultSet.getString("MVT_DOC_NO")
+						);
+				});
+//		this.createdOn = DateUtils.addTimeToDate(createdOn, 3);	
+		
 		return inventoryMovement2;
 	}
 

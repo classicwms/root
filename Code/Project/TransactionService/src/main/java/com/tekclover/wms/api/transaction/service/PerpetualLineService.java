@@ -432,10 +432,14 @@ public class PerpetualLineService extends BaseService {
 		Inventory inventory = inventoryService.getInventory(updatePerpetualLine.getWarehouseId(), 
 				updatePerpetualLine.getPackBarcodes(), updatePerpetualLine.getItemCode(), 
 				updatePerpetualLine.getStorageBin());
-		inventory.setInventoryQuantity(updatePerpetualLine.getCountedQty());
-		Inventory updatedInventory = inventoryRepository.save(inventory);
-		log.info("updatedInventory : " + updatedInventory);
-		return updatedInventory;
+		if (inventory != null) {
+			inventory.setInventoryQuantity(updatePerpetualLine.getCountedQty());
+			Inventory updatedInventory = inventoryRepository.save(inventory);
+			log.info("updatedInventory : " + updatedInventory);
+			return updatedInventory;
+		} else {
+			return createInventory (updatePerpetualLine);
+		}
 	}
 	
 	/**
@@ -534,6 +538,7 @@ public class PerpetualLineService extends BaseService {
 			inventoryMovement.setMovementQtyValue("N");
 		} 
 		
+		inventoryMovement.setMovementQty(updatedPerpetualLine.getVarianceQty());		
 		inventoryMovement.setBatchSerialNumber("1");
 		inventoryMovement.setMovementDocumentNo(updatedPerpetualLine.getCycleCountNo());
 		
@@ -541,7 +546,7 @@ public class PerpetualLineService extends BaseService {
 		inventoryMovement.setCreatedBy(updatedPerpetualLine.getCreatedBy());
 		
 		// IM_CTD_ON
-		inventoryMovement.setCreatedOn(updatedPerpetualLine.getCreatedOn());
+		inventoryMovement.setCreatedOn(new Date());
 		inventoryMovement = inventoryMovementRepository.save(inventoryMovement);
 		log.info("created InventoryMovement : " + inventoryMovement);
 		return inventoryMovement;

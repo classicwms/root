@@ -34,6 +34,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
+import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicLine;
+import com.tekclover.wms.api.transaction.model.cyclecount.periodic.SearchPeriodicLine;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualLine;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.SearchPerpetualLine;
 import com.tekclover.wms.api.transaction.model.dto.BusinessPartner;
 import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
 import com.tekclover.wms.api.transaction.model.dto.StorageBin;
@@ -158,6 +162,12 @@ public class ReportsService extends BaseService {
 
 	@Autowired
 	InboundLineRepository inboundLineRepository;
+	
+	@Autowired
+	PerpetualLineService perpetualLineService;
+	
+	@Autowired
+	PeriodicLineService periodicLineService;	
 
 	/**
 	 * Stock Report ---------------------
@@ -1775,6 +1785,7 @@ public class ReportsService extends BaseService {
 			metricsSummary.setLineItemPicked(pickupLineCount);
 			metricsSummary.setOrderedQty(sumOfOrderQty);
 			metricsSummary.setDeliveryQty(sumOfDeliveryQty);
+			metricsSummary.setShippedLines(shipped_lines_N);	
 			
 			// Obtain Partner Name
 			AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
@@ -1875,7 +1886,7 @@ public class ReportsService extends BaseService {
 		/*--------------Outbound--------------------------------*/
 		MobileDashboard.OutboundCount outboundCount = mobileDashboard.new OutboundCount();
 
-		// --------------Picking----------------------------------
+		// --------------Picking---------------------------------------------------------------------------
 		// Pass Login WH_ID into PICKUPHEADER table and fetch the count of records where
 		// STATUS_ID=48 and
 		// OB_ORD_TYP_ID= 0,1 and 3
@@ -1884,7 +1895,7 @@ public class ReportsService extends BaseService {
 		long picking = pickupHeaderList.stream().count();
 		outboundCount.setPicking(picking);
 
-		// -------------Reversals--------------------------------
+		// -------------Reversals-------------------------------------------------------------------------
 		// Pass Login WH_ID into PICKUPHEADER table and fetch the count of records where
 		// STATUS_ID=48 and
 		// OB_ORD_TYP_ID= 2
@@ -1893,13 +1904,39 @@ public class ReportsService extends BaseService {
 		reversals = pickupHeaderList.stream().count();
 		outboundCount.setReversals(reversals);
 
-		// -----------Quality-----------------------------------
+		// -----------Quality-----------------------------------------------------------------------------
 		// Pass Login WH_ID into QUALITYHEADER table and fetch the count of records
 		// where STATUS_ID=54
 		List<QualityHeader> qualityHeader = qualityHeaderService.getQualityHeaderCount(warehouseId);
 		long quality = qualityHeader.stream().count();
 		outboundCount.setQuality(quality);
-
+		
+		/*--------------StockCount--------------------------------*/
+		MobileDashboard.StockCount stockCount = mobileDashboard.new StockCount();
+		
+		//------------PERPETUAL & PERIODIC COUNT----------------------------------------------------------
+		// Pass Login WH_ID into PERPETUAL & PERIODIC LINE table and fetch the count of records
+		// where STATUS_ID = 72
+		try {
+			SearchPerpetualLine searchPerpetualLine = new SearchPerpetualLine();	
+			searchPerpetualLine.setWarehouseId(warehouseId);
+			searchPerpetualLine.setLineStatusId(Arrays.asList(72L));			
+			List<PerpetualLine> perpetualLines = perpetualLineService.findPerpetualLine(searchPerpetualLine);
+			long perpetualCount = perpetualLines.stream().count();
+			
+			SearchPeriodicLine searchPeriodicLine = new SearchPeriodicLine();
+			searchPeriodicLine.setWarehouseId(warehouseId);
+			searchPeriodicLine.setLineStatusId(Arrays.asList(72L));
+			List<PeriodicLine> periodicLines = periodicLineService.findPeriodicLine(searchPeriodicLine);
+			long periodicLineCount = periodicLines.stream().count();
+			
+			stockCount.setPerpertual(perpetualCount);	
+			stockCount.setPeriodic(periodicLineCount);	
+			log.info("stockCount : " + stockCount);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		mobileDashboard.setInboundCount(inboundCount);
 		mobileDashboard.setOutboundCount(outboundCount);
 		return mobileDashboard;
@@ -1989,10 +2026,6 @@ public class ReportsService extends BaseService {
 		 * Current date as DLV_CNF_ON in OUTBOUNDLINE table and fetch Count of
 		 * OB_LINE_NO values where REF_FIELD_2=Null and DLV_QTY > 0
 		 */
-//		Date[] dates = DateUtils.addTimeToDatesForSearch(fromDeliveryDate,toDeliveryDate);
-//		fromDeliveryDate = dates[0];
-//		toDeliveryDate = dates[1];
-		
 		log.info("---getShippedLineCount>>>>fromDeliveryDate-----> : " + fromDeliveryDate);
 		log.info("---getShippedLineCount>>>>toDeliveryDate-----> : " + toDeliveryDate);
 		long shippedLineCount =
@@ -2017,9 +2050,6 @@ public class ReportsService extends BaseService {
 		 * DLV_CNF_ON in OUTBOUNDLINE table and fetch Count of OB_LINE_NO values where
 		 * REF_FIELD_1=N, REF_FIELD_2=Null and DLV_QTY>0 (Shipped Lines)
 		 */
-//		Date[] dates = DateUtils.addTimeToDatesForSearch(fromDeliveryDate,toDeliveryDate);
-//		fromDeliveryDate = dates[0];
-//		toDeliveryDate = dates[1];
 		long normalCount =
 				outboundLineRepository.countByWarehouseIdAndDeliveryConfirmedOnBetweenAndStatusIdAndDeletionIndicatorAndReferenceField1AndReferenceField2IsNullAndDeliveryQtyIsNotNullAndDeliveryQtyGreaterThan(
 						warehouseId, fromDeliveryDate,toDeliveryDate,59L,0L,type,Double.valueOf(0));
@@ -2146,6 +2176,12 @@ public class ReportsService extends BaseService {
 //		return null;
 //	}
 
+	/**
+	 * 
+	 * @param os
+	 * @return
+	 * @throws IOException
+	 */
 	public ByteArrayOutputStream getOutputStreamToByteArray(OutputStream os) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         bos.write(bos.toByteArray());
@@ -2171,9 +2207,14 @@ public class ReportsService extends BaseService {
 		}
 	}
 
+	/**
+	 * 
+	 * @param warehouseId
+	 * @return
+	 * @throws Exception
+	 */
 	@Transactional
 	public Dashboard getDashboardCount(String warehouseId) throws Exception {
-
 		Dashboard dashboard = new Dashboard();
 
 		/*--------------------------DAY-----------------------------------------------*/
@@ -2197,14 +2238,11 @@ public class ReportsService extends BaseService {
 		Date fromDate = DateUtils.dateSubtract(1, 14, 0, 0); // From Yesterday 14:00 to Today 15:00
 		Date endDate = DateUtils.dateSubtract(0, 13, 59, 59);
 		long shippedLineCount = getShippedLineCount(warehouseId, fromDate, endDate);
-//		long shippedLineCount = getShippedLineCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1));
 		dayShipping.setShippedLine(shippedLineCount);
 
-//		long normalCount = getNormalNSpecialCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1), "N");
 		long normalCount = getNormalNSpecialCount(warehouseId, fromDate, endDate, "N");
 		dayShipping.setNormal(normalCount);
 
-//		long specialCount = getNormalNSpecialCount(warehouseId, DateUtils.dateSubtract(1), DateUtils.dateSubtract(1), "S");
 		long specialCount = getNormalNSpecialCount(warehouseId, fromDate, endDate, "S");
 		dayShipping.setSpecial(specialCount);
 
@@ -2269,6 +2307,12 @@ public class ReportsService extends BaseService {
 		return dashboard;
 	}
 
+	/**
+	 * 
+	 * @param fastSlowMovingDashboardRequest
+	 * @return
+	 * @throws Exception
+	 */
 	@Transactional
 	public List<FastSlowMovingDashboard> getFastSlowMovingDashboard(FastSlowMovingDashboardRequest fastSlowMovingDashboardRequest) throws Exception {
 
@@ -2283,6 +2327,14 @@ public class ReportsService extends BaseService {
 				fastSlowMovingDashboardRequest.getFromDate(), fastSlowMovingDashboardRequest.getToDate());
 	}
 
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param fromCreatedOn
+	 * @param toCreatedOn
+	 * @return
+	 * @throws java.text.ParseException
+	 */
 	@Transactional
 	private List<FastSlowMovingDashboard> getFastSlowMovingDashboardData(String warehouseId, Date fromCreatedOn, Date toCreatedOn)
 			throws java.text.ParseException {
@@ -2327,6 +2379,12 @@ public class ReportsService extends BaseService {
 		return itemDataList;
 	}
 
+	/**
+	 * 
+	 * @param <T>
+	 * @param n
+	 * @return
+	 */
 	public static <T> Collector<T, ?, List<T>> lastN(int n) {
 		return Collector.<T, Deque<T>, List<T>>of(ArrayDeque::new, (acc, t) -> {
 			if(acc.size() == n)

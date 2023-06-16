@@ -1779,8 +1779,6 @@ public class TransactionServiceController {
 	public ResponseEntity<?> postPeriodicHeader(@Valid @RequestBody AddPeriodicHeader newPeriodicHeader, 
 			@RequestParam String loginUserID, @RequestParam String authToken) throws Exception {
 		PeriodicHeaderEntity createdPeriodicHeader = transactionService.createPeriodicHeader(newPeriodicHeader, loginUserID, authToken);
-		log.info("createdPeriodicHeader:" + createdPeriodicHeader);		
-		
 		/* Call Batch */
 //		transactionService.createCSV(newPeriodicHeader.getPeriodicLine());
 //		batchJobScheduler.runJobPeriodic();

@@ -357,19 +357,26 @@ public class PeriodicHeaderService extends BaseService {
 				dbPeriodicLine.setDeletionIndicator(0L);
 				dbPeriodicLine.setCreatedBy(loginUserID);
 				dbPeriodicLine.setCreatedOn(new Date());
-				PeriodicLine createdPeriodicLine = periodicLineRepository.save(dbPeriodicLine);
-				log.info("createdPeriodicLine : " + createdPeriodicLine);
-				periodicLineList.add(createdPeriodicLine);
+//				PeriodicLine createdPeriodicLine = periodicLineRepository.save(dbPeriodicLine);
+//				log.info("createdPeriodicLine : " + createdPeriodicLine);
+				periodicLineList.add(dbPeriodicLine);
 			}
+			
+			// Batch Insert
+			List<PeriodicLine> createdPeriodicLine = periodicLineRepository.saveAll(periodicLineList);
+			log.info("createdPeriodicLines : " + createdPeriodicLine.size());
+			
 			PeriodicHeaderEntity periodicheaderEntity = new PeriodicHeaderEntity();
 			BeanUtils.copyProperties(createdPeriodicHeader, periodicheaderEntity, CommonUtils.getNullPropertyNames(createdPeriodicHeader));
 			
 			List<PeriodicLineEntity> listPeriodicLineEntity = new ArrayList<>();
-			for (PeriodicLine periodicLine : periodicLineList) {
-				PeriodicLineEntity perpetualLineEntity = new PeriodicLineEntity();
-				BeanUtils.copyProperties(periodicLine, perpetualLineEntity, CommonUtils.getNullPropertyNames(periodicLine));
-				listPeriodicLineEntity.add(perpetualLineEntity);
-			}
+//			for (PeriodicLine periodicLine : periodicLineList) {
+			periodicLineList.stream().forEach( periodicLine -> {			
+			PeriodicLineEntity perpetualLineEntity = new PeriodicLineEntity();
+					BeanUtils.copyProperties(periodicLine, perpetualLineEntity, CommonUtils.getNullPropertyNames(periodicLine));
+					listPeriodicLineEntity.add(perpetualLineEntity);
+				}
+			);
 			
 			periodicheaderEntity.setPeriodicLine(listPeriodicLineEntity);
 			return periodicheaderEntity;
