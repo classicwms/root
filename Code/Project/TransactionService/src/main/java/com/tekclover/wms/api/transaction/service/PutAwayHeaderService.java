@@ -386,10 +386,17 @@ public class PutAwayHeaderService extends BaseService {
 			caseCode = dbPutAwayHeader.getCaseCode();
 			storageBin = dbPutAwayHeader.getProposedStorageBin();
 			
-			log.info("dbPutAwayHeader---------> : " + dbPutAwayHeader.getWarehouseId() + "," + 
-					refDocNumber + "," + dbPutAwayHeader.getPutAwayNumber());	
-			
+			log.info("dbPutAwayHeader---------> : " + dbPutAwayHeader.getWarehouseId() + "," + refDocNumber + "," + dbPutAwayHeader.getPutAwayNumber());	
 			if (dbPutAwayHeader.getStatusId() == 20L) {
+				/*
+				 * Checking whether Line Items have updated with STATUS_ID = 22.
+				 */
+				long STATUS_ID_22_COUNT = putAwayLineService.getPutAwayLineByStatusId(warehouseId, dbPutAwayHeader.getPutAwayNumber(), refDocNumber, 22L);
+				log.info("putAwayLine---STATUS_ID_22_COUNT---> : " + STATUS_ID_22_COUNT);
+				if (STATUS_ID_22_COUNT > 0) {
+					throw new BadRequestException("Pallet_ID : " + dbPutAwayHeader.getPalletCode() + " is already reversed.");
+				}
+				
 				/*
 				 * Pass WH_ID/REF_DOC_NO/PA_NO values in PUTAWAYLINE table and fetch PA_CNF_QTY values and QTY_TYPE values and 
 				 * update Status ID as 22, PA_UTD_BY = USR_ID and PA_UTD_ON=Server time 

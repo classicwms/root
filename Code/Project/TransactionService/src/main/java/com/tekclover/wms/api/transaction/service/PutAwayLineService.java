@@ -135,6 +135,20 @@ public class PutAwayLineService extends BaseService {
 	/**
 	 * 
 	 * @param warehouseId
+	 * @param putAwayNumber
+	 * @param refDocNumber
+	 * @param statusId
+	 * @return
+	 */
+	public long getPutAwayLineByStatusId (String warehouseId, String putAwayNumber, String refDocNumber, Long statusId) {
+		long putAwayLineStatusIdCount = 
+				putAwayLineRepository.getPutawayLineCountByStatusId(getCompanyCode(), getPlantId(), warehouseId, putAwayNumber, refDocNumber, statusId);
+		return putAwayLineStatusIdCount;
+	}
+	
+	/**
+	 * 
+	 * @param warehouseId
 	 * @param refDocNumber
 	 * @param putAwayNumber
 	 * @return

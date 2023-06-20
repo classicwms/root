@@ -80,7 +80,27 @@ public interface PutAwayLineRepository extends JpaRepository<PutAwayLine,Long>, 
 			@Param ("plantId") String plantId,
 			@Param ("warehouseId") String warehouseId,
 			@Param ("preInboundNo") String preInboundNo,
-			@Param ("refDocNumber") String refDocNumber); 		
+			@Param ("refDocNumber") String refDocNumber); 	
+	
+	/**
+	 * 
+	 * @param companyId
+	 * @param plantId
+	 * @param warehouseId
+	 * @param putAwayNumber
+	 * @param refDocNumber
+	 * @param statusId
+	 * @return
+	 */
+	@Query(value="SELECT COUNT(*) FROM tblputawayline WHERE LANG_ID ='EN' AND C_ID = :companyId AND PLANT_ID = :plantId AND WH_ID = :warehouseId \r\n"
+			+ "AND PA_NO = :putAwayNumber AND REF_DOC_NO = :refDocNumber AND STATUS_ID = :statusId AND IS_DELETED = 0", nativeQuery=true)
+    public long getPutawayLineCountByStatusId(
+    		@Param ("companyId") String companyId,
+			@Param ("plantId") String plantId,
+			@Param ("warehouseId") String warehouseId,
+			@Param ("putAwayNumber") String putAwayNumber,
+			@Param ("refDocNumber") String refDocNumber,
+			@Param ("statusId") Long statusId); 	
 	
 	/**
 	 * 
