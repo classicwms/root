@@ -1187,7 +1187,7 @@ public class OutboundLineService extends BaseService {
 							Double reversedQty = qualityLineData.getQualityQty();
 							OutboundReversal createdOutboundReversal = createOutboundReversal (warehouse, reversalType, refDocNumber,
 									outboundLine.getPartnerCode(), itemCode, qualityLineData.getPickPackBarCode(), reversedQty,
-									outboundLine.getStatusId(), loginUserID);
+									60L, loginUserID);
 							outboundReversalList.add(createdOutboundReversal);
 
 							/////////RECORD-2/////////////////////////////////////////////////////////////////////////////////
@@ -1511,6 +1511,8 @@ public class OutboundLineService extends BaseService {
 	private OutboundReversal createOutboundReversal(Warehouse warehouse, String reversalType, String refDocNumber,
 			String partnerCode, String itemCode, String packBarcode, Double reversedQty, Long statusId,
 			String loginUserID) throws IllegalAccessException, InvocationTargetException {
+		AuthToken idmasterAuthToken = authTokenService.getIDMasterServiceAuthToken();
+		StatusId idStatus = idmasterService.getStatus(47L, warehouse.getWarehouseId(), idmasterAuthToken.getAccess_token());
 		AddOutboundReversal newOutboundReversal = new AddOutboundReversal();
 		
 		// LANG_ID
@@ -1554,6 +1556,7 @@ public class OutboundLineService extends BaseService {
 		
 		// STATUS_ID
 		newOutboundReversal.setStatusId(statusId);
+		newOutboundReversal.setReferenceField10(idStatus.getStatus());
 		
 		OutboundReversal outboundReversal = 
 				outboundReversalService.createOutboundReversal(newOutboundReversal, loginUserID);
@@ -1609,16 +1612,20 @@ public class OutboundLineService extends BaseService {
         List<OrderManagementLine> dbOrderManagementLine = orderManagementLineService.getListOrderManagementLine(pickupHeader.getWarehouseId(), pickupHeader.getPreOutboundNo(),
                 pickupHeader.getRefDocNumber(), pickupHeader.getPartnerCode(), pickupHeader.getLineNumber(),
                 pickupHeader.getItemCode());
+        AuthToken idmasterAuthToken = authTokenService.getIDMasterServiceAuthToken();
+		StatusId idStatus = idmasterService.getStatus(47L, pickupHeader.getWarehouseId(), idmasterAuthToken.getAccess_token());
         if (dbOrderManagementLine != null && !dbOrderManagementLine.isEmpty()) {
             List<OrderManagementLine> orderManagementLineList = new ArrayList<>();
             dbOrderManagementLine.forEach(data->{
                 data.setPickupUpdatedBy(loginUserID);
                 data.setPickupNumber(null);
-				data.setAllocatedQty(0D); // HAREESH 25/11/2022
-                data.setStatusId(47L); // ref_field_7
+				data.setAllocatedQty(0D); 						// HAREESH 25/11/2022
+                data.setStatusId(47L);
+                data.setReferenceField7(idStatus.getStatus());	// ref_field_7
                 data.setPickupUpdatedOn(new Date());
                 orderManagementLineList.add(data);
             });
+            
             List<OrderManagementLine> orderManagementLine = orderManagementLineRepository.saveAll(orderManagementLineList);
             log.info("OrderManagementLine updated : " + orderManagementLine);
 			if(orderManagementLine.size() > 1) {

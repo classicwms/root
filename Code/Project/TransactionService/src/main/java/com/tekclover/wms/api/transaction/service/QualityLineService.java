@@ -460,21 +460,37 @@ public class QualityLineService extends BaseService {
 							dbQualityLine.getItemCode());
 					log.info("DB outboundLine : " + outboundLine);
 					if (outboundLine != null) {
-						outboundLine.setDeliveryOrderNo(DLV_ORD_NO);
-						outboundLine.setStatusId(57L);
-
+						/*---------------- The below still throws Lock Error so, giving alternate fix ------------------*/
+//						outboundLine.setDeliveryOrderNo(DLV_ORD_NO);
+//						outboundLine.setStatusId(57L);
+//
+//						Double exisitingDelQty = 0D;
+//						if (outboundLine.getDeliveryQty() != null) {
+//							exisitingDelQty = outboundLine.getDeliveryQty();
+//						} else {
+//							exisitingDelQty = 0D;
+//						}
+//						log.info("DB queried outboundLine existingDelQty : " + exisitingDelQty);
+//						outboundLine.setDeliveryQty(exisitingDelQty + dbQualityLine.getQualityQty());
+//						
+//						log.info("DB after outboundLine existingDelQty : " + exisitingDelQty);
+//						outboundLine = outboundLineRepository.save(outboundLine);
+//						log.info("outboundLine updated : " + outboundLine);
+						/* ---------------------------------------------------------------------------------------------*/
+						
 						Double exisitingDelQty = 0D;
 						if (outboundLine.getDeliveryQty() != null) {
 							exisitingDelQty = outboundLine.getDeliveryQty();
 						} else {
 							exisitingDelQty = 0D;
 						}
-						log.info("DB queried outboundLine existingDelQty : " + exisitingDelQty);
-						outboundLine.setDeliveryQty(exisitingDelQty + dbQualityLine.getQualityQty());
-						
+						exisitingDelQty = exisitingDelQty + dbQualityLine.getQualityQty();
 						log.info("DB after outboundLine existingDelQty : " + exisitingDelQty);
-						outboundLine = outboundLineRepository.save(outboundLine);
-						log.info("outboundLine updated : " + outboundLine);
+						
+						outboundLineRepository.updateOutboundLine(dbQualityLine.getWarehouseId(), dbQualityLine.getRefDocNumber(),
+								dbQualityLine.getPreOutboundNo(), dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
+								dbQualityLine.getItemCode(), DLV_ORD_NO, 57L, exisitingDelQty);
+						log.info("outboundLine updated.");
 					}
 				} catch (Exception e1) {
 					e1.printStackTrace();
@@ -487,6 +503,8 @@ public class QualityLineService extends BaseService {
 					List<OutboundLine> outboundLines = outboundLineService.getOutboundLine(
 							dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(),
 							dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode());
+					log.info("outboundLine re-queried-----> : " + outboundLines);
+					
 					outboundLines = outboundLines.stream().filter(o -> o.getStatusId() == 57L)
 							.collect(Collectors.toList());
 					if (outboundLines != null) {

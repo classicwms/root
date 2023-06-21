@@ -3,7 +3,9 @@ package com.tekclover.wms.api.transaction.model.outbound.pickup;
 import java.util.Date;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Data
 public class AddPickupLine {
 
@@ -61,7 +63,9 @@ public class AddPickupLine {
 	 * @return
 	 */
 	public String uniqueAttributes () {
-		return languageId + companyCodeId + plantId + warehouseId + preOutboundNo + refDocNumber + partnerCode + lineNumber + 
-				pickupNumber + itemCode + actualHeNo + pickedStorageBin + pickedPackCode;
+		String uk = languageId + companyCodeId + plantId + warehouseId + preOutboundNo + refDocNumber + partnerCode + lineNumber + 
+				pickupNumber + itemCode + pickedStorageBin + pickedPackCode;
+		log.info("---------PickupLine---------UNIQUE-KEY----------> : " + uk);
+		return uk;
 	}
 }

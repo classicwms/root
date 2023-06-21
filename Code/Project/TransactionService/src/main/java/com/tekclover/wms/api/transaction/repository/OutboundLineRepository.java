@@ -322,5 +322,31 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 			@Param ("refDocNumber") String refDocNumber, 
 			@Param ("statusId") Long statusId, 
 			@Param ("lineNumber") List<Long> lineNumber);
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param refDocNumber
+	 * @param statusId
+	 * @param lineNumber
+	 */
+	@Modifying(clearAutomatically = true, flushAutomatically = true)
+	@Query("UPDATE OutboundLine ob SET ob.deliveryOrderNo = :deliveryOrderNo,\r\n"
+			+ "			ob.statusId = :statusId, ob.deliveryQty = :deliveryQty \r\n"
+			+ "			WHERE ob.warehouseId = :warehouseId AND\r\n"
+			+ "			ob.refDocNumber = :refDocNumber AND \r\n"
+			+ "			ob.preOutboundNo in :preOutboundNo AND\r\n"
+			+ "			ob.partnerCode in :partnerCode AND\r\n"
+			+ "			ob.lineNumber in :lineNumber AND\r\n"
+			+ "			ob.itemCode in :itemCode")
+	public void updateOutboundLine(@Param ("warehouseId") String warehouseId,
+			@Param ("refDocNumber") String refDocNumber, 
+			@Param ("preOutboundNo") String preOutboundNo, 
+			@Param ("partnerCode") String partnerCode, 
+			@Param ("lineNumber") Long lineNumber, 
+			@Param ("itemCode") String itemCode, 
+			@Param ("deliveryOrderNo") String deliveryOrderNo,
+			@Param ("statusId") Long statusId, 
+			@Param ("deliveryQty") Double deliveryQty);
 
 }
