@@ -2,7 +2,6 @@ package com.tekclover.wms.api.transaction.controller;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
@@ -62,15 +61,6 @@ public class InhouseTransferHeaderController {
 			throws Exception {
 		log.info("called...");
 		List<InhouseTransferHeader> results = inHouseTransferHeaderService.findInHouseTransferHeader(searchInHouseTransferHeader);
-		return new ResponseEntity<>(results, HttpStatus.OK);
-	}
-
-	//Stream
-	@ApiOperation(response = InhouseTransferHeader.class, value = "Search InHouseTransferHeader New") // label for swagger
-	@PostMapping("/findInHouseTransferHeaderNew")
-	public ResponseEntity<?> findInHouseTransferHeaderNew(@RequestBody SearchInhouseTransferHeader searchInHouseTransferHeader)
-			throws Exception {
-		Stream<InhouseTransferHeader> results = inHouseTransferHeaderService.findInHouseTransferHeaderNew(searchInHouseTransferHeader);
 		return new ResponseEntity<>(results, HttpStatus.OK);
 	}
     

@@ -1,7 +1,6 @@
 package com.tekclover.wms.api.transaction.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,9 +19,7 @@ import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.model.report.Dashboard;
 import com.tekclover.wms.api.transaction.model.report.FastSlowMovingDashboard;
 import com.tekclover.wms.api.transaction.model.report.FastSlowMovingDashboardRequest;
-import com.tekclover.wms.api.transaction.model.report.FindImBasicData1;
 import com.tekclover.wms.api.transaction.model.report.InventoryReport;
-import com.tekclover.wms.api.transaction.model.report.InventoryStock;
 import com.tekclover.wms.api.transaction.model.report.MobileDashboard;
 import com.tekclover.wms.api.transaction.model.report.OrderStatusReport;
 import com.tekclover.wms.api.transaction.model.report.ReceiptConfimationReport;
@@ -208,16 +205,5 @@ public class ReportsController {
    					throws Exception {
     	ReceiptConfimationReport receiptConfimationReport = reportsService.getReceiptConfimationReport(asnNumber);
    		return new ResponseEntity<>(receiptConfimationReport, HttpStatus.OK);
-   	}
-    
-    /*
-   	 * Inventory Stock movement report
-   	 */
-    @ApiOperation(response = Optional.class, value = "Get StockMovement Report") // label for swagger 
-   	@PostMapping("/inventoryStock")
-   	public ResponseEntity<?> getInventoryStockReport(@RequestBody FindImBasicData1 searchImBasicData1) throws java.text.ParseException {
-       	List<InventoryStock> inventoryStockReportList = 
-       			reportsService.getInventoryStockReport(searchImBasicData1);
-   		return new ResponseEntity<>(inventoryStockReportList, HttpStatus.OK);
    	}
 }

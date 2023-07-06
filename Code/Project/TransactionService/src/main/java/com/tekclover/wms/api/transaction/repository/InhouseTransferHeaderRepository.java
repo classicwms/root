@@ -3,7 +3,6 @@ package com.tekclover.wms.api.transaction.repository;
 import java.util.List;
 import java.util.Optional;
 
-import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
@@ -13,8 +12,7 @@ import com.tekclover.wms.api.transaction.model.mnc.InhouseTransferHeader;
 
 @Repository
 @Transactional
-public interface InhouseTransferHeaderRepository extends JpaRepository<InhouseTransferHeader,Long>,
-		JpaSpecificationExecutor<InhouseTransferHeader>, StreamableJpaSpecificationRepository<InhouseTransferHeader> {
+public interface InhouseTransferHeaderRepository extends JpaRepository<InhouseTransferHeader,Long>, JpaSpecificationExecutor<InhouseTransferHeader> {
 
 	public List<InhouseTransferHeader> findAll();
 	

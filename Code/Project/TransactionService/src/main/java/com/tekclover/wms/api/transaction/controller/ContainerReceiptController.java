@@ -2,7 +2,6 @@ package com.tekclover.wms.api.transaction.controller;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
@@ -65,15 +64,7 @@ public class ContainerReceiptController {
 			throws Exception {
 		return containerreceiptService.findContainerReceipt(searchContainerReceipt);
 	}
-
-	//Stream
-	@ApiOperation(response = ContainerReceipt.class, value = "Search ContainerReceipt New") // label for swagger
-	@PostMapping("/findContainerReceiptNew")
-	public List<ContainerReceipt> findContainerReceiptNew(@RequestBody SearchContainerReceipt searchContainerReceipt)
-			throws Exception {
-		return containerreceiptService.findContainerReceiptNew(searchContainerReceipt);
-	}
-
+    
     @ApiOperation(response = ContainerReceipt.class, value = "Create ContainerReceipt") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postContainerReceipt(@Valid @RequestBody AddContainerReceipt newContainerReceipt, 

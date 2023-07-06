@@ -2,7 +2,6 @@ package com.tekclover.wms.api.transaction.controller;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
@@ -84,15 +83,7 @@ public class PutAwayHeaderController {
 			throws Exception {
 		return putawayheaderService.findPutAwayHeader(searchPutAwayHeader);
 	}
-
-	//Stream
-	@ApiOperation(response = PutAwayHeader.class, value = "Search PutAwayHeader New") // label for swagger
-	@PostMapping("/findPutAwayHeaderNew")
-	public Stream<PutAwayHeader> findPutAwayHeaderNew(@RequestBody SearchPutAwayHeader searchPutAwayHeader)
-			throws Exception {
-		return putawayheaderService.findPutAwayHeaderNew(searchPutAwayHeader);
-	}
-
+    
     @ApiOperation(response = PutAwayHeader.class, value = "Create PutAwayHeader") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postPutAwayHeader(@Valid @RequestBody AddPutAwayHeader newPutAwayHeader, @RequestParam String loginUserID) 

@@ -2,7 +2,6 @@
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
@@ -90,15 +89,7 @@ public class PreInboundHeaderController {
 			throws Exception {
 		return preinboundheaderService.findPreInboundHeader(searchPreInboundHeader);
 	}
-
-	//Streaming
-	@ApiOperation(response = PreInboundHeaderEntity.class, value = "Search PreInboundHeader New") // label for swagger
-	@PostMapping("/findPreInboundHeaderNew")
-	public Stream<PreInboundHeaderEntity> findPreInboundHeaderNew(@RequestBody SearchPreInboundHeader searchPreInboundHeader)
-			throws Exception {
-		return preinboundheaderService.findPreInboundHeaderNew(searchPreInboundHeader);
-	}
-
+    
     @ApiOperation(response = PreInboundHeaderEntity.class, value = "Create PreInboundHeader") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postPreInboundHeader(@Valid @RequestBody AddPreInboundHeader newPreInboundHeader, @RequestParam String loginUserID) 

@@ -57,38 +57,7 @@ public class PeriodicLineSpecification implements Specification<PeriodicLine> {
 			predicates.add(cb.between(root.get("createdOn"), searchPeriodicLine.getStartCreatedOn(), 
 					searchPeriodicLine.getEndCreatedOn()));
         }
-
-		if (searchPeriodicLine.getItemCode() != null && !searchPeriodicLine.getItemCode().isEmpty()) {
-			final Path<Group> group = root.<Group> get("itemCode");
-			predicates.add(group.in(searchPeriodicLine.getItemCode()));
-		}
-
-		if (searchPeriodicLine.getPackBarcodes() != null && !searchPeriodicLine.getPackBarcodes().isEmpty()) {
-			final Path<Group> group = root.<Group> get("packBarcodes");
-			predicates.add(group.in(searchPeriodicLine.getPackBarcodes()));
-		}
-
-		if (searchPeriodicLine.getStorageBin() != null && !searchPeriodicLine.getStorageBin().isEmpty()) {
-			final Path<Group> group = root.<Group> get("storageBin");
-			predicates.add(group.in(searchPeriodicLine.getStorageBin()));
-		}
-
-		if (searchPeriodicLine.getStockTypeId() != null && !searchPeriodicLine.getStockTypeId().isEmpty()) {
-			final Path<Group> group = root.<Group> get("stockTypeId");
-			predicates.add(group.in(searchPeriodicLine.getStockTypeId()));
-		}
-
-		if (searchPeriodicLine.getReferenceField9() != null && !searchPeriodicLine.getReferenceField9().isEmpty()) {
-			final Path<Group> group = root.<Group> get("referenceField9");
-			predicates.add(group.in(searchPeriodicLine.getReferenceField9()));
-		}
-
-		if (searchPeriodicLine.getReferenceField10() != null && !searchPeriodicLine.getReferenceField10().isEmpty()) {
-			final Path<Group> group = root.<Group> get("referenceField10");
-			predicates.add(group.in(searchPeriodicLine.getReferenceField10()));
-		}
-
-		predicates.add(cb.equal(root.get("deletionIndicator"), 0L));
+		
         return cb.and(predicates.toArray(new Predicate[] {}));
      }
 }

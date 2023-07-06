@@ -59,9 +59,7 @@ import com.tekclover.wms.api.transaction.model.outbound.quality.QualityHeader;
 import com.tekclover.wms.api.transaction.model.report.Dashboard;
 import com.tekclover.wms.api.transaction.model.report.FastSlowMovingDashboard;
 import com.tekclover.wms.api.transaction.model.report.FastSlowMovingDashboardRequest;
-import com.tekclover.wms.api.transaction.model.report.FindImBasicData1;
 import com.tekclover.wms.api.transaction.model.report.InventoryReport;
-import com.tekclover.wms.api.transaction.model.report.InventoryStock;
 import com.tekclover.wms.api.transaction.model.report.MetricsSummary;
 import com.tekclover.wms.api.transaction.model.report.MobileDashboard;
 import com.tekclover.wms.api.transaction.model.report.OrderStatusReport;
@@ -85,13 +83,9 @@ import com.tekclover.wms.api.transaction.repository.InboundHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.InboundLineRepository;
 import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
 import com.tekclover.wms.api.transaction.repository.InventoryRepository;
-import com.tekclover.wms.api.transaction.repository.InventoryStockRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundLineRepository;
-import com.tekclover.wms.api.transaction.repository.PickupLineRepository;
-import com.tekclover.wms.api.transaction.repository.PutAwayLineRepository;
 import com.tekclover.wms.api.transaction.repository.StorageBinRepository;
-import com.tekclover.wms.api.transaction.repository.specification.ImBasicData1Specification;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -174,15 +168,6 @@ public class ReportsService extends BaseService {
 	
 	@Autowired
 	PeriodicLineService periodicLineService;	
-	
-	@Autowired
-	InventoryStockRepository inventoryStockRepository;
-	
-	@Autowired
-	PutAwayLineRepository putAwayLineRepository;
-	
-	@Autowired
-	PickupLineRepository pickupLineRepository;
 
 	/**
 	 * Stock Report ---------------------
@@ -2341,133 +2326,6 @@ public class ReportsService extends BaseService {
 		return getFastSlowMovingDashboardData(fastSlowMovingDashboardRequest.getWarehouseId(),
 				fastSlowMovingDashboardRequest.getFromDate(), fastSlowMovingDashboardRequest.getToDate());
 	}
-	
-	/**
-	 * 
-	 * @param warehouseId
-	 * @param itemCode
-	 * @param fromCreatedOn
-	 * @param toCreatedOn
-	 * @return
-	 */
-	public List<InventoryStock> getInventoryStockReport(FindImBasicData1 searchImBasicData1) {
-		try {
-			
-			if (searchImBasicData1.getFromCreatedOn() != null && searchImBasicData1.getFromCreatedOn() != null) {
-				Date[] dates = DateUtils.addTimeToDatesForSearch(searchImBasicData1.getFromCreatedOn(), 
-						searchImBasicData1.getToCreatedOn());
-				searchImBasicData1.setFromCreatedOn(dates[0]);
-				searchImBasicData1.setToCreatedOn(dates[1]);
-			}
-			
-			ImBasicData1Specification spec = new ImBasicData1Specification(searchImBasicData1);
-			List<ImBasicData1> resultsImBasicData1 = imbasicdata1Repository.findAll(spec);
-			log.info("resultsImBasicData1 : " + resultsImBasicData1);
-			List<InventoryStock> inventoryStockList = new ArrayList<>();
-			
-			// 3. Pass WH_ID in IMBASICDATA1 table and fetch the ITM_CODES	
-			Set<String> itemCodeSet = resultsImBasicData1.parallelStream().map(ImBasicData1::getItemCode).collect(Collectors.toSet());
-			log.info("itemCodeSet : " + itemCodeSet);
-			
-			itemCodeSet.parallelStream().forEach(i -> {
-				InventoryStock inventoryStock = new InventoryStock();
-				inventoryStock.setWarehouseId(searchImBasicData1.getWarehouseId());
-				inventoryStock.setItemCode(i);			
-				
-				/*
-				 * Pass ITM_CODE values into INVENTORY_STOCK table and fetch sum of INV_QTY+ ALLOC_QTY where BIN_CL_ID=1 and Sum by ITM_CODE
-				 * This is stock for 20-06-2022 (A)
-				 */
-				Double sumOfInvQty_AllocQty = inventoryStockRepository.findSumOfInventoryQtyAndAllocQty(searchImBasicData1.getItemCode());			
-				
-				sumOfInvQty_AllocQty = (sumOfInvQty_AllocQty != null) ? sumOfInvQty_AllocQty : 0D;
-				log.info("INVENTORY_STOCK : " + sumOfInvQty_AllocQty);
-				
-				/*
-				 * Pass ITM_CODE values and From date 20-06-2022 and to date as From date of selection parameters
-				 * into PUTAWAYLINE table where status_ID = 20 and IS_DELETED = 0
-				 * Fetch SUM of PA_CNF_QTY and group by ITM_CODE(B)
-				 */
-				Date dateFrom = null;
-				Date dateTo = null;
-				try {
-					dateFrom = DateUtils.convertStringToDateByYYYYMMDD ("2022-06-20");
-					Date[] dates = DateUtils.addTimeToDatesForSearch(dateFrom, searchImBasicData1.getFromCreatedOn());
-					dateFrom = dates[0];
-					dateTo = dates[1];
-				} catch (java.text.ParseException e) {
-					e.printStackTrace();
-				}
-				
-				Double sumOfPAConfirmQty = putAwayLineRepository.findSumOfPAConfirmQty (searchImBasicData1.getItemCode(), dateFrom, dateTo);
-				sumOfPAConfirmQty = (sumOfPAConfirmQty != null) ? sumOfPAConfirmQty : 0D;
-				log.info("PUTAWAYLINE : " + sumOfPAConfirmQty);
-				
-				/*
-				 * Pass ITM_CODE values and From date 20-06-2022 and to date as From date of selection parameters into PICKUPLINE table 
-				 * where status_ID=50 and IS_DELETED=0
-				 * Fetch SUM of PU_QTY and group by ITM_CODE{C}
-				 */
-				Double sumOfPickupLineQty = pickupLineRepository.findSumOfPickupLineQty (searchImBasicData1.getItemCode(), dateFrom, dateTo);
-				sumOfPickupLineQty = (sumOfPickupLineQty != null) ? sumOfPickupLineQty : 0D;
-				log.info("PICKUPLINE : " + sumOfPickupLineQty);
-				
-				/*
-				 * Pass ITM_CODE values and From date 20-06-2022 and to date as From date of selection parameters into INVENTORYMOVEMENT table 
-				 * where MVT_TYP_ID=4, SUB_MVT_TYP_ID=1 and IS_DELETED=0
-				 * Fetch SUM of MVT_QTY and group by ITM_CODE(D)
-				 */
-				Double sumOfMvtQty = inventoryMovementRepository.findSumOfMvtQty (searchImBasicData1.getItemCode(), dateFrom, dateTo);
-				sumOfMvtQty = (sumOfMvtQty != null) ? sumOfMvtQty : 0D;
-				log.info("INVENTORYMOVEMENT : " + sumOfMvtQty);
-				
-				// Opening stock - 3 column - E
-				Double openingStock = ((sumOfInvQty_AllocQty + sumOfPAConfirmQty + sumOfPickupLineQty) - sumOfMvtQty);
-				log.info("openingStock : " + openingStock);
-				inventoryStock.setOpeningStock(openingStock);
-				
-				try {
-					Date[] dates = DateUtils.addTimeToDatesForSearch(searchImBasicData1.getFromCreatedOn(), 
-							searchImBasicData1.getToCreatedOn());
-					dateFrom = dates[0];
-					dateTo = dates[1];
-					log.info("----SecII----> dateFrom & dateTo---> : " + dateFrom + "," + dateTo);
-				} catch (java.text.ParseException e) {
-					e.printStackTrace();
-				}
-				
-				// Output Column - 4 - PUTAWAYLINE
-				Double sumOfPAConfirmQty_4 = putAwayLineRepository.findSumOfPAConfirmQty (searchImBasicData1.getItemCode(), dateFrom, dateTo);
-				sumOfPAConfirmQty_4 = (sumOfPAConfirmQty_4 != null) ? sumOfPAConfirmQty_4 : 0D;
-				log.info("PUTAWAYLINE_4 : " + sumOfPAConfirmQty_4);
-				inventoryStock.setInboundQty(sumOfPAConfirmQty_4);
-				
-				// Output Column - 5 - PICKUPLINE
-				Double sumOfPickupLineQty_5 = pickupLineRepository.findSumOfPickupLineQty (searchImBasicData1.getItemCode(), dateFrom, dateTo);
-				sumOfPickupLineQty_5 = (sumOfPickupLineQty_5 != null) ? sumOfPickupLineQty_5 : 0D;
-				log.info("PICKUPLINE_5 : " + sumOfPickupLineQty_5);
-				inventoryStock.setOutboundQty(sumOfPickupLineQty_5);
-				
-				// Output Column - 6 -INVENTORYMOVEMENT
-				Double sumOfMvtQty_6 = inventoryMovementRepository.findSumOfMvtQty (searchImBasicData1.getItemCode(), dateFrom, dateTo);
-				sumOfMvtQty_6 = (sumOfMvtQty_6 != null) ? sumOfMvtQty_6 : 0D;
-				log.info("INVENTORYMOVEMENT_6 : " + sumOfMvtQty_6);
-				inventoryStock.setStockAdjustmentQty(sumOfMvtQty_6);
-				
-				// Output Column - 7 - (E+F+H) - G
-				Double closingStock = ((openingStock + sumOfPAConfirmQty_4 + sumOfMvtQty_6) - sumOfPickupLineQty_5);
-				log.info("closingStock : " + closingStock);
-				inventoryStock.setClosingStock(closingStock);
-				
-				inventoryStockList.add(inventoryStock);		
-			});
-			return inventoryStockList;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
 
 	/**
 	 * 

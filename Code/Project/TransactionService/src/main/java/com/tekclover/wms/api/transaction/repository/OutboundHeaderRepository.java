@@ -129,23 +129,9 @@ public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader,L
 
 	@QueryHints(@javax.persistence.QueryHint(name="org.hibernate.fetchSize",value="100"))
 	@Query(value = "select \n" +
-			"oh.c_id companyCodeId, oh.lang_id languageId, oh.partner_code partnerCode, \n" +
-			"oh.plant_id plantId, oh.pre_ob_no preOutboundNo,oh.ref_doc_no refDocNumber,oh.wh_id warehouseId, \n" +
-			"oh.dlv_ctd_by createdBy, \n" +
-			"DATEADD(HOUR,3,oh.dlv_ctd_on) createdOn, \n" +
-			"oh.is_deleted deletionIndicator, \n" +
-			"oh.dlv_cnf_by deliveryConfirmedBy, \n" +
-			"DATEADD(HOUR,3,oh.dlv_cnf_on) deliveryConfirmedOn, \n" +
-			"oh.dlv_ord_no deliveryOrderNo, oh.ob_ord_typ_id outboundOrderTypeId, \n" +
-			"DATEADD(HOUR,3,oh.ref_doc_date) refDocDate, \n" +
-			"oh.ref_doc_typ referenceDocumentType,oh.remark remarks, \n" +
-			"DATEADD(HOUR,3,oh.req_del_date) requiredDeliveryDate,\n" +
-			"oh.dlv_rev_by reversedBy, \n" +
-			"DATEADD(HOUR,3,oh.dlv_rev_on) reversedOn, \n" +
-			"oh.status_id statusId,oh.dlv_utd_by updatedBy, \n" +
-			"DATEADD(HOUR,3,oh.dlv_utd_on) updatedOn,\n" +
-			"oh.ref_field_1 referenceField1,oh.ref_field_2 referenceField2,oh.ref_field_3 referenceField3, \n" +
-			"oh.ref_field_4 referenceField4,oh.ref_field_5 referenceField5,oh.ref_field_6 referenceField6,\n" +
+			"oh.c_id companyCodeId, oh.lang_id languageId, oh.partner_code partnerCode, oh.plant_id plantId, oh.pre_ob_no preOutboundNo,oh.ref_doc_no refDocNumber,oh.wh_id warehouseId,oh.dlv_ctd_by createdBy,oh.dlv_ctd_on createdOn,oh.is_deleted deletionIndicator,oh.dlv_cnf_by deliveryConfirmedBy,oh.dlv_cnf_on deliveryConfirmedOn,\n" +
+			"oh.dlv_ord_no deliveryOrderNo, oh.ob_ord_typ_id outboundOrderTypeId,oh.ref_doc_date refDocDate,oh.ref_doc_typ referenceDocumentType,oh.remark remarks,oh.req_del_date requiredDeliveryDate,oh.dlv_rev_by reversedBy,oh.dlv_rev_on reversedOn,oh.status_id statusId,oh.dlv_utd_by updatedBy,oh.dlv_utd_on updatedOn,\n" +
+			"oh.ref_field_1 referenceField1,oh.ref_field_2 referenceField2,oh.ref_field_3 referenceField3,oh.ref_field_4 referenceField4,oh.ref_field_5 referenceField5,oh.ref_field_6 referenceField6,\n" +
 			"(CASE WHEN sum(dlv_qty) is not null THEN sum(dlv_qty) ELSE 0 END) as referenceField7,\n" +
 			"COUNT(CASE WHEN dlv_qty is not null and dlv_qty > 0 THEN  dlv_qty ELSE  NULL END) as referenceField8,\n" +
 			"SUM(ORD_QTY) as referenceField9,\n" +
@@ -180,11 +166,6 @@ public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader,L
 			@Param(value = "startOrderDate") Date startOrderDate,
 			@Param(value = "endOrderDate") Date endOrderDate);
 
-	@Query(value = "select status_text from tblstatusid where \n" +
-			"status_id in (:statusId) and wh_id in (:warehouseId) and \n" +
-			"lang_id in (:languageId) and c_id in (:companyCodeId) and is_deleted = 0", nativeQuery = true)
-	public String findStatusDescription (@Param(value = "statusId") Long statusId,
-										 @Param(value = "warehouseId") String warehouseId,
-										 @Param(value = "languageId") String languageId,
-										 @Param(value = "companyCodeId") String companyCodeId);
+	@Query(value = "select status_text from tblstatusid where status_id in (:statusId) and is_deleted = 0", nativeQuery = true)
+	public String findStatusDescription (@Param(value = "statusId") Long statusId);
 }

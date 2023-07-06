@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.transaction.model.inbound.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +19,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tekclover.wms.api.transaction.model.inbound.AddInboundLine;
+import com.tekclover.wms.api.transaction.model.inbound.InboundLine;
+import com.tekclover.wms.api.transaction.model.inbound.UpdateInboundLine;
 import com.tekclover.wms.api.transaction.service.InboundLineService;
 
 import io.swagger.annotations.Api;
@@ -54,14 +56,7 @@ public class InboundLineController {
     	log.info("InboundLine : " + inboundline);
 		return new ResponseEntity<>(inboundline, HttpStatus.OK);
 	}
-
-	@ApiOperation(response = InboundHeader.class, value = "Search InboundHeader") // label for swagger
-	@PostMapping("/findInboundLine")
-	public List<InboundLine> findInboundLine(@RequestBody SearchInboundLine searchInboundLine)
-			throws Exception {
-		return inboundlineService.findInboundLine(searchInboundLine);
-	}
-
+    
     @ApiOperation(response = InboundLine.class, value = "Create InboundLine") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postInboundLine(@Valid @RequestBody AddInboundLine newInboundLine, @RequestParam String loginUserID) 

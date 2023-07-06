@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import javax.transaction.Transactional;
 
-import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -16,8 +15,7 @@ import com.tekclover.wms.api.transaction.model.inbound.putaway.PutAwayHeader;
 
 @Repository
 @Transactional
-public interface PutAwayHeaderRepository extends JpaRepository<PutAwayHeader,Long>, JpaSpecificationExecutor<PutAwayHeader>,
-		StreamableJpaSpecificationRepository<PutAwayHeader> {
+public interface PutAwayHeaderRepository extends JpaRepository<PutAwayHeader,Long>, JpaSpecificationExecutor<PutAwayHeader> {
 	
 	public List<PutAwayHeader> findAll();
 	

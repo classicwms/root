@@ -336,19 +336,4 @@ public class DateUtils {
 		}
 		return null;
 	}
-	public static String addTimeToDate2 (Date inputDate, int numberOfDays) throws ParseException {
-		try {
-
-			LocalDateTime localDateTime = LocalDateTime.ofInstant(inputDate.toInstant(), ZoneId.systemDefault());
-//			localDateTime = localDateTime.plusHours(numberOfDays);
-
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-			String sConvertedDateTime = formatter.format(localDateTime);
-			return sConvertedDateTime;
-		} catch (Exception e) {
-			log.info("Exception in DateUtils: " + e);
-			e.printStackTrace();
-		}
-		return null;
-	}
 }

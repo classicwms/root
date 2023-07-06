@@ -490,7 +490,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 		JdbcBatchItemWriter<Inventory> itemWriter = new JdbcBatchItemWriter<>();
 		itemWriter.setDataSource(this.dataSource);
 		itemWriter.setSql("INSERT INTO tblinventorystock (LANG_ID, C_ID, PLANT_ID, WH_ID, ITM_CODE, PACK_BARCODE, ST_BIN, STCK_TYP_ID, "
-				+ "SP_ST_IND_ID, BIN_CL_ID, TEXT, INV_QTY, INV_UOM, IS_DELETED, CTD_BY, CTD_ON) "
+				+ "SP_ST_IND_ID, BIN_CL_ID, TEXT, INV_QTY, INV_UOM, IS_DELETED, IU_CTD_BY, IU_CTD_ON) "
 				+ "VALUES (:languageId, :companyCodeId, :plantId, :warehouseId, :itemCode, :packBarcode, :storageBin, :stockTypeId,"
 				+ ":specialStockIndicatorId, :binClassId, :description, :inventoryQuantity, :inventoryUom,\r\n"
 				+ ":deletionIndicator, :createdBy, GETDATE())");

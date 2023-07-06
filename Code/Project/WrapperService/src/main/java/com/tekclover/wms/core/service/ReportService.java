@@ -2,8 +2,6 @@ package com.tekclover.wms.core.service;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,32 +10,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
-import com.lowagie.text.Document;
-import com.lowagie.text.DocumentException;
-import com.lowagie.text.Element;
-import com.lowagie.text.Font;
-import com.lowagie.text.FontFactory;
-import com.lowagie.text.Image;
-import com.lowagie.text.PageSize;
-import com.lowagie.text.Paragraph;
-import com.lowagie.text.Phrase;
-import com.lowagie.text.pdf.ColumnText;
-import com.lowagie.text.pdf.PdfPCell;
-import com.lowagie.text.pdf.PdfPTable;
-import com.lowagie.text.pdf.PdfReader;
-import com.lowagie.text.pdf.PdfStamper;
-import com.lowagie.text.pdf.PdfWriter;
 import com.tekclover.wms.core.config.PropertiesConfig;
 import com.tekclover.wms.core.exception.BadRequestException;
 import com.tekclover.wms.core.model.auth.AuthToken;
 import com.tekclover.wms.core.model.transaction.InboundIntegrationHeader;
 import com.tekclover.wms.core.model.transaction.ReceiptConfimationReport;
+import com.tekclover.wms.core.model.transaction.ShipmentDeliveryReport;
 import com.tekclover.wms.core.model.transaction.ShipmentDeliveryReport;
 import com.tekclover.wms.core.model.transaction.ShipmentDeliverySummaryReport;
 import com.tekclover.wms.core.model.transaction.ShipmentDispatchSummaryReport;
@@ -60,6 +42,9 @@ public class ReportService {
 	@Autowired
 	MongoTransactionRepository mongoInboundRepository;
 	
+//	@Autowired
+//	MongoOutboundRepository mongoOutboundRepository;
+	
 	@Autowired
 	private MastersService mastersService;
 	
@@ -73,7 +58,7 @@ public class ReportService {
 	 * 
 	 * @param warehouseID
 	 * @param statusId
-	 * @param orderDate
+	 * @param date
 	 * @return
 	 * @throws ParseException 
 	 */

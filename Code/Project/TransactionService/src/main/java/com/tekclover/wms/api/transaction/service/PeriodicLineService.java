@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -130,25 +129,6 @@ public class PeriodicLineService extends BaseService {
 		
 		PeriodicLineSpecification spec = new PeriodicLineSpecification(searchPeriodicLine);
 		List<PeriodicLine> PeriodicLineResults = periodicLineRepository.findAll(spec);
-		return PeriodicLineResults;
-	}
-
-	/**
-	 * Stream
-	 * @param searchPeriodicLine
-	 * @return
-	 * @throws Exception
-	 */
-	public Stream<PeriodicLine> findPeriodicLineStream(SearchPeriodicLine searchPeriodicLine) throws Exception {
-		if (searchPeriodicLine.getStartCreatedOn() != null && searchPeriodicLine.getStartCreatedOn() != null) {
-			Date[] dates = DateUtils.addTimeToDatesForSearch(searchPeriodicLine.getStartCreatedOn(),
-					searchPeriodicLine.getEndCreatedOn());
-			searchPeriodicLine.setStartCreatedOn(dates[0]);
-			searchPeriodicLine.setEndCreatedOn(dates[1]);
-		}
-
-		PeriodicLineSpecification spec = new PeriodicLineSpecification(searchPeriodicLine);
-		Stream<PeriodicLine> PeriodicLineResults = periodicLineRepository.stream(spec, PeriodicLine.class);
 		return PeriodicLineResults;
 	}
 	

@@ -2,7 +2,6 @@ package com.tekclover.wms.api.transaction.controller;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
@@ -70,15 +69,7 @@ public class PeriodicHeaderController {
 		List<PeriodicHeaderEntity> page = periodicheaderService.findPeriodicHeader(searchPeriodicHeader);
 		return new ResponseEntity<>(page , HttpStatus.OK);
 	}
-	//Stream
-	@ApiOperation(response = PeriodicHeader.class, value = "Search PeriodicHeader New") // label for swagger
-	@PostMapping("/findPeriodicHeaderStream")
-	public ResponseEntity<?> findPeriodicHeaderStream(@RequestBody SearchPeriodicHeader searchPeriodicHeader)
-			throws Exception {
-		Stream<PeriodicHeader> response = periodicheaderService.findPeriodicHeaderStream(searchPeriodicHeader);
-		return new ResponseEntity<>(response , HttpStatus.OK);
-	}
-
+	
 	@ApiOperation(response = Inventory.class, value = "Search Inventory") // label for swagger
 	@PostMapping("/run/pagination")
 	public ResponseEntity<?> findInventory(@RequestParam String warehouseId, 

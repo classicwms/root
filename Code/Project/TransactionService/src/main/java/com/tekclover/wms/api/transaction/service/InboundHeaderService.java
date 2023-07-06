@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -279,33 +278,7 @@ public class InboundHeaderService extends BaseService {
 //		log.info("results: " + results);
 		return results;
 	}
-
-	/**
-	 *
-	 * @param searchInboundHeader
-	 * @return
-	 * @throws Exception
-	 */
-	//Stream
-	public Stream<InboundHeader> findInboundHeaderNew(SearchInboundHeader searchInboundHeader) throws Exception {
-		if (searchInboundHeader.getStartCreatedOn() != null && searchInboundHeader.getStartCreatedOn() != null) {
-			Date[] dates = DateUtils.addTimeToDatesForSearch(searchInboundHeader.getStartCreatedOn(), searchInboundHeader.getEndCreatedOn());
-			searchInboundHeader.setStartCreatedOn(dates[0]);
-			searchInboundHeader.setEndCreatedOn(dates[1]);
-		}
-
-		if (searchInboundHeader.getStartConfirmedOn() != null && searchInboundHeader.getStartConfirmedOn() != null) {
-			Date[] dates = DateUtils.addTimeToDatesForSearch(searchInboundHeader.getStartConfirmedOn(), searchInboundHeader.getEndConfirmedOn());
-			searchInboundHeader.setStartConfirmedOn(dates[0]);
-			searchInboundHeader.setEndConfirmedOn(dates[1]);
-		}
-
-		InboundHeaderSpecification spec = new InboundHeaderSpecification(searchInboundHeader);
-		Stream<InboundHeader> results = inboundHeaderRepository.stream(spec, InboundHeader.class);
-
-		return results;
-	}
-
+	
 	/**
 	 * createInboundHeader
 	 * @param newInboundHeader

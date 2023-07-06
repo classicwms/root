@@ -444,42 +444,43 @@ public class QualityLineService extends BaseService {
 				Long NUM_RAN_CODE = 12L;
 				String DLV_ORD_NO = getNextRangeNumber(NUM_RAN_CODE, dbQualityLine.getWarehouseId());
 
-				synchronized (dbQualityLine) {
-					/*-------------------OUTBOUNDLINE------Update---------------------------*/
-					/*
-					 * Pass WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE /OB_LINE_NO/_ITM_CODE values in
-					 * QUALITYILINE table and fetch QC_QTY values and pass the same values in
-					 * OUTBOUNDLINE table and update DLV_QTY
-					 * 
-					 * Pass Unique keys in OUTBOUNDLINE table and update STATUS_ID as "57"
-					 */
-					try {
-						//---------------Update-Lock-Applied---------------------------------------------------------
-						OutboundLine outboundLine = outboundLineService.getOutboundLine(dbQualityLine.getWarehouseId(),
-								dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(),
-								dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
-								dbQualityLine.getItemCode());
-						log.info("DB outboundLine : " + outboundLine);
-						if (outboundLine != null) {
-							Double exisitingDelQty = 0D;
-							if (outboundLine.getDeliveryQty() != null) {
-								exisitingDelQty = outboundLine.getDeliveryQty();
-							} else {
-								exisitingDelQty = 0D;
-							}
-							exisitingDelQty = exisitingDelQty + dbQualityLine.getQualityQty();
-							log.info("DB after outboundLine existingDelQty : " + exisitingDelQty);
+				/*-------------------OUTBOUNDLINE------Update---------------------------*/
+				/*
+				 * Pass WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE /OB_LINE_NO/_ITM_CODE values in
+				 * QUALITYILINE table and fetch QC_QTY values and pass the same values in
+				 * OUTBOUNDLINE table and update DLV_QTY
+				 * 
+				 * Pass Unique keys in OUTBOUNDLINE table and update STATUS_ID as "57"
+				 */
+				try {
+					//---------------Update-Lock-Applied---------------------------------------------------------
+					OutboundLine outboundLine = outboundLineService.getOutboundLine(dbQualityLine.getWarehouseId(),
+							dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(),
+							dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
+							dbQualityLine.getItemCode());
+					log.info("DB outboundLine : " + outboundLine);
+					if (outboundLine != null) {
+						Double exisitingDelQty = 0D;
+						if (outboundLine.getDeliveryQty() != null) {
+							exisitingDelQty = outboundLine.getDeliveryQty();
+						} else {
+							exisitingDelQty = 0D;
+						}
+						exisitingDelQty = exisitingDelQty + dbQualityLine.getQualityQty();
+						log.info("DB after outboundLine existingDelQty : " + exisitingDelQty);
+						synchronized (outboundLine) {
 							outboundLineRepository.updateOutboundLine(dbQualityLine.getWarehouseId(),
 									dbQualityLine.getRefDocNumber(), dbQualityLine.getPreOutboundNo(),
 									dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
 									dbQualityLine.getItemCode(), DLV_ORD_NO, 57L, exisitingDelQty);
 							log.info("outboundLine updated.");
 						}
-					} catch (Exception e1) {
-						e1.printStackTrace();
-						log.info("outboundLine updated error: " + e1.toString());
 					}
+				} catch (Exception e1) {
+					e1.printStackTrace();
+					log.info("outboundLine updated error: " + e1.toString());
 				}
+					
 				try {
 					/*-------------------OUTBOUNDHEADER------Update---------------------------*/
 					boolean isStatus57 = false;

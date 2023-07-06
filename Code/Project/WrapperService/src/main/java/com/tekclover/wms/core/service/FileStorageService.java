@@ -2,16 +2,12 @@ package com.tekclover.wms.core.service;
 
 import com.tekclover.wms.core.config.PropertiesConfig;
 import com.tekclover.wms.core.exception.BadRequestException;
-import com.tekclover.wms.core.exception.CustomErrorResponse;
-import com.tekclover.wms.core.exception.RestResponseEntityExceptionHandler;
 import com.tekclover.wms.core.model.auth.AuthToken;
 import com.tekclover.wms.core.model.idmaster.FileNameForEmail;
-import com.tekclover.wms.core.model.idmaster.MailingReport;
 import com.tekclover.wms.core.model.transaction.SOHeader;
 import com.tekclover.wms.core.model.transaction.SOLine;
 import com.tekclover.wms.core.model.transaction.ShipmentOrder;
 
-import com.tekclover.wms.core.repository.MailingReportRepository;
 import com.tekclover.wms.core.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
@@ -47,9 +43,6 @@ public class FileStorageService {
 	AuthTokenService authTokenService;
 	@Autowired
 	IDMasterService idMasterService;
-
-	@Autowired
-	MailingReportRepository mailingReportRepository;
 
 	private Path fileStorageLocation = null;
 
@@ -240,124 +233,6 @@ public class FileStorageService {
 			ex.printStackTrace();
 			throw new BadRequestException("Could not store file " + fileName + ". Please try again!");
 		}
-	}
-
-	/**
-	 *
-	 * @param location
-	 * @param file
-	 * @return
-	 * @throws Exception
-	 * @throws BadRequestException
-	 */
-	public Map<String, String> storingFileMailingReport(String location, MultipartFile file)
-			throws Exception {
-
-		// Normalize file name
-		String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-		log.info("filename before: " + fileName);
-		fileName = fileName.replace(" ", "_");
-		log.info("filename after: " + fileName);
-
-		String locationPath = null;
-		try {
-			// Check if the file's name contains invalid characters
-			if (fileName.contains("..")) {
-				throw new BadRequestException("Sorry! Filename contains invalid path sequence " + fileName);
-			}
-
-			if (location != null && location.toLowerCase().startsWith("document")) {
-				if (location.indexOf('/') > 0) {
-					locationPath = propertiesConfig.getDocStorageBasePath() + "/" + location;
-				} else {
-					// Document template
-					locationPath = propertiesConfig.getDocStorageBasePath() + propertiesConfig.getDocStorageDocumentPath();
-				}
-			}
-
-			log.info("locationPath : " + locationPath);
-
-			this.fileStorageLocation = Paths.get(locationPath).toAbsolutePath().normalize();
-			log.info("fileStorageLocation--------> " + fileStorageLocation);
-
-			if (!Files.exists(fileStorageLocation)) {
-				try {
-					Files.createDirectories(this.fileStorageLocation);
-				} catch (Exception ex) {
-					ex.printStackTrace();
-					throw new BadRequestException("Could not create the directory where the uploaded files will be stored.");
-				}
-			}
-
-			AuthToken authTokenForSetupService = authTokenService.getIDMasterServiceAuthToken();
-
-			MailingReport newMailingReport = new MailingReport();
-
-			newMailingReport.setReportDate(DateUtils.getCurrentDateWithoutTimestamp());
-			newMailingReport.setDeletionIndicator(0L);
-			newMailingReport.setCompanyCodeId("1000");		//HardCode
-			newMailingReport.setPlantId("1001");			//HardCode
-			newMailingReport.setLanguageId("EN");			//HardCode
-			newMailingReport.setMailSent("0");				//HardCode
-			newMailingReport.setMailSentFailed("0");		//HardCode
-
-			if(fileName.toLowerCase().startsWith("110")){
-
-				newMailingReport.setWarehouseId("110");
-
-			}
-			if(fileName.toLowerCase().startsWith("111")){
-
-				newMailingReport.setWarehouseId("111");
-
-			}
-
-			Optional<MailingReport> dbMailingReport = mailingReportRepository
-														.findBycompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndFileNameAndDeletionIndicator(
-																"1000",			//HardCode
-																"1001", 						//HardCode
-																newMailingReport.getWarehouseId(),
-																"EN",					//HardCode
-																fileName, 0L );
-
-			Long countMailingReportByDate = mailingReportRepository.countByReportDateAndWarehouseId(
-					DateUtils.getCurrentDateWithoutTimestamp(),
-					newMailingReport.getWarehouseId());
-
-			if(countMailingReportByDate == null) {
-				countMailingReportByDate = 0L;
-			}
-
-			if(dbMailingReport.isEmpty()) {
-				if (countMailingReportByDate != 1) {
-
-					// Copy file to the target location (Replacing existing file with the same name)
-					Path targetLocation = this.fileStorageLocation.resolve(fileName);
-					Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-
-					newMailingReport.setFileName(fileName);
-					newMailingReport.setUploaded(true);
-
-					Boolean uploadedMailingReport = idMasterService.createMailingReport(newMailingReport, authTokenForSetupService.getAccess_token());
-
-					if (uploadedMailingReport) {
-
-						Map<String, String> mapFileProps = new HashMap<>();
-						mapFileProps.put("file", fileName);
-						mapFileProps.put("location", location);
-						mapFileProps.put("status", "UPLOADED");
-						return mapFileProps;
-
-					} else {
-						throw new BadRequestException("Could not store file " + fileName + ". Please try again!");
-					}
-				}
-			}
-		} catch (IOException ex) {
-			ex.printStackTrace();
-			throw new BadRequestException("Could not store file " + fileName + ". Please try again!");
-		}
-		return null;
 	}
 	/**
 	 *
