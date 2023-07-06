@@ -1,11 +1,13 @@
 package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-
+import java.util.stream.Stream;
 import javax.persistence.EntityNotFoundException;
 
 import org.springframework.beans.BeanUtils;
@@ -16,6 +18,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.expression.ParseException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
 import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
@@ -74,6 +78,9 @@ public class PeriodicHeaderService extends BaseService {
 	@Autowired
 	private ImBasicData1Repository imbasicdata1Repository;
 
+	@Autowired
+	JdbcTemplate jdbcTemplate;
+
 	/**
 	 * getPeriodicHeaders
 	 * @return
@@ -101,14 +108,10 @@ public class PeriodicHeaderService extends BaseService {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param searchPeriodicHeader
-	 * @param sortBy 
-	 * @param pageSize 
-	 * @param pageNo 
 	 * @return
-	 * @throws ParseException
-	 * @throws java.text.ParseException 
+	 * @throws Exception
 	 */
 	public List<PeriodicHeaderEntity> findPeriodicHeader(SearchPeriodicHeader searchPeriodicHeader) 
 			throws Exception {
@@ -122,6 +125,25 @@ public class PeriodicHeaderService extends BaseService {
 		List<PeriodicHeader> periodicHeaderResults = periodicHeaderRepository.findAll(spec);
 		List<PeriodicHeaderEntity> periodicHeaderEntityList = convertToEntity (periodicHeaderResults, searchPeriodicHeader);
 		return periodicHeaderEntityList;
+	}
+	/**
+	 *
+	 * @param searchPeriodicHeader - Stream
+	 * @return
+	 * @throws ParseException
+	 * @throws java.text.ParseException
+	 */
+	public Stream<PeriodicHeader> findPeriodicHeaderStream(SearchPeriodicHeader searchPeriodicHeader)
+			throws Exception {
+		if (searchPeriodicHeader.getStartCreatedOn() != null && searchPeriodicHeader.getStartCreatedOn() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchPeriodicHeader.getStartCreatedOn(),
+					searchPeriodicHeader.getEndCreatedOn());
+			searchPeriodicHeader.setStartCreatedOn(dates[0]);
+			searchPeriodicHeader.setEndCreatedOn(dates[1]);
+		}
+		PeriodicHeaderSpecification spec = new PeriodicHeaderSpecification(searchPeriodicHeader);
+		Stream<PeriodicHeader> periodicHeaderResults = periodicHeaderRepository.stream(spec, PeriodicHeader.class);
+		return periodicHeaderResults;
 	}
 	
 	/**
@@ -205,12 +227,13 @@ public class PeriodicHeaderService extends BaseService {
 		periodicheaderEntity.setPeriodicLine(listPeriodicLineEntity);
 		return periodicheaderEntity;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param warehouseId
-	 * @param stbinList
-	 * @param authTokenForMastersService
+	 * @param pageNo
+	 * @param pageSize
+	 * @param sortBy
 	 * @return
 	 */
 	public Page<PeriodicLineEntity> runPeriodicHeader(String warehouseId, Integer pageNo, 
@@ -359,26 +382,28 @@ public class PeriodicHeaderService extends BaseService {
 				dbPeriodicLine.setCreatedOn(new Date());
 //				PeriodicLine createdPeriodicLine = periodicLineRepository.save(dbPeriodicLine);
 //				log.info("createdPeriodicLine : " + createdPeriodicLine);
+//				periodicLineList.add(createdPeriodicLine);
 				periodicLineList.add(dbPeriodicLine);
 			}
-			
+
 			// Batch Insert
-			List<PeriodicLine> createdPeriodicLine = periodicLineRepository.saveAll(periodicLineList);
-			log.info("createdPeriodicLines : " + createdPeriodicLine.size());
-			
+//			List<PeriodicLine> createdPeriodicLine = periodicLineRepository.saveAll(periodicLineList);
+			batchInsert(periodicLineList);
+
+//			log.info("createdPeriodicLines : " + createdPeriodicLine.size());
+			log.info("createdPeriodicLines : " + periodicLineList.size());
+
 			PeriodicHeaderEntity periodicheaderEntity = new PeriodicHeaderEntity();
 			BeanUtils.copyProperties(createdPeriodicHeader, periodicheaderEntity, CommonUtils.getNullPropertyNames(createdPeriodicHeader));
-			
-			List<PeriodicLineEntity> listPeriodicLineEntity = new ArrayList<>();
+//
+//			List<PeriodicLineEntity> listPeriodicLineEntity = new ArrayList<>();
 //			for (PeriodicLine periodicLine : periodicLineList) {
-			periodicLineList.stream().forEach( periodicLine -> {			
-			PeriodicLineEntity perpetualLineEntity = new PeriodicLineEntity();
-					BeanUtils.copyProperties(periodicLine, perpetualLineEntity, CommonUtils.getNullPropertyNames(periodicLine));
-					listPeriodicLineEntity.add(perpetualLineEntity);
-				}
-			);
-			
-			periodicheaderEntity.setPeriodicLine(listPeriodicLineEntity);
+//				PeriodicLineEntity perpetualLineEntity = new PeriodicLineEntity();
+//				BeanUtils.copyProperties(periodicLine, perpetualLineEntity, CommonUtils.getNullPropertyNames(periodicLine));
+//				listPeriodicLineEntity.add(perpetualLineEntity);
+//			}
+//
+//			periodicheaderEntity.setPeriodicLine(listPeriodicLineEntity);
 			return periodicheaderEntity;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -387,9 +412,11 @@ public class PeriodicHeaderService extends BaseService {
 	}
 
 	/**
-	 * updatePeriodicHeader
-	 * @param loginUserId
+	 *
+	 * @param warehouseId
 	 * @param cycleCountTypeId
+	 * @param cycleCountNo
+	 * @param loginUserID
 	 * @param updatePeriodicHeader
 	 * @return
 	 * @throws IllegalAccessException
@@ -495,5 +522,135 @@ public class PeriodicHeaderService extends BaseService {
 	public PeriodicHeader getPeriodicHeader(String cycleCountNo) {
 		PeriodicHeader periodicHeader = periodicHeaderRepository.findByCycleCountNo(cycleCountNo);
 		return periodicHeader;
+	}
+
+	public int[][] batchInsert(List<PeriodicLine> periodicLineList) {
+
+//		JdbcTemplate jdbcTemplate = new JdbcTemplate();
+		int batchSize=500;
+
+		int[][] updateCounts = jdbcTemplate.batchUpdate(
+				"insert into tblperiodicline (LANG_ID, C_ID, PLANT_ID, WH_ID,\n" +
+						"CC_NO, ST_BIN, ITM_CODE, PACK_BARCODE, \n" +
+						"VAR_ID, VAR_SUB_ID, \n" +
+						"STR_NO, STCK_TYP_ID, SP_ST_IND_ID, \n" +
+						"INV_QTY, INV_UOM, CTD_QTY, VAR_QTY, \n" +
+						"COUNTER_ID, COUNTER_NM, STATUS_ID, ACTION, \n" +
+						"REF_NO, APP_PROCESS_ID, APP_LVL, APP_CODE, \n" +
+						"APP_STATUS, REMARK, REF_FIELD_1, REF_FIELD_2, \n" +
+						"REF_FIELD_3, REF_FIELD_4, REF_FIELD_5, REF_FIELD_6, \n" +
+						"REF_FIELD_7, REF_FIELD_8, REF_FIELD_9, REF_FIELD_10, \n" +
+						"IS_DELETED, CC_CTD_BY, CC_CTD_ON, CC_CNF_BY, \n" +
+						"CC_CNF_ON, CC_CNT_BY, CC_CNT_ON) \n" +
+						"values(?,?,?,?, \n" +
+						"?,?,?,?, \n"+
+						"?,?, \n"+
+						"?,?,?, \n"+
+						"?,?,?,?, \n"+
+						"?,?,?,?, \n"+
+						"?,?,?,?, \n"+
+						"?,?,?,?, \n"+
+						"?,?,?,?, \n"+
+						"?,?,?,?, \n"+
+						"?,?,?,?, \n"+
+						"?,?,?)", periodicLineList, batchSize,
+//				new BatchPreparedStatementSetter() {
+				new ParameterizedPreparedStatementSetter<PeriodicLine>() {
+
+					public void setValues(PreparedStatement ps, PeriodicLine periodicLine) throws SQLException {
+						ps.setString(1, periodicLine.getLanguageId());
+						ps.setString(2, periodicLine.getCompanyCode());
+						ps.setString(3, periodicLine.getPlantId());
+						ps.setString(4, periodicLine.getWarehouseId());
+						ps.setString(5, periodicLine.getCycleCountNo());
+						ps.setString(6, periodicLine.getStorageBin());
+						ps.setString(7, periodicLine.getItemCode());
+						ps.setString(8, periodicLine.getPackBarcodes());
+
+						if(periodicLine.getVariantCode() != null) {
+							ps.setLong(9, periodicLine.getVariantCode());
+						} else {
+							ps.setLong(9, 0L);
+						}
+
+						ps.setString(10, periodicLine.getVariantSubCode());
+						ps.setString(11, periodicLine.getBatchSerialNumber());
+
+						if(periodicLine.getStockTypeId() != null) {
+							ps.setLong(12, periodicLine.getStockTypeId());
+						} else {
+							ps.setLong(12, 0L);
+						}
+
+						ps.setString(13, periodicLine.getSpecialStockIndicator());
+
+						if(periodicLine.getInventoryQuantity() != null) {
+							ps.setDouble(14, periodicLine.getInventoryQuantity());
+						} else {
+							ps.setDouble(12, 0D);
+						}
+
+						ps.setString(15, periodicLine.getInventoryUom());
+
+						if(periodicLine.getCountedQty() != null) {
+							ps.setDouble(16, periodicLine.getCountedQty());
+						} else {
+							ps.setDouble(16, 0D);
+						}
+
+						if(periodicLine.getVarianceQty() != null) {
+							ps.setDouble(17, periodicLine.getVarianceQty());
+						} else {
+							ps.setDouble(17, 0D);
+						}
+
+						ps.setString(18, periodicLine.getCycleCounterId());
+						ps.setString(19, periodicLine.getCycleCounterName());
+						if(periodicLine.getStatusId() != null) {
+							ps.setLong(20, periodicLine.getStatusId());
+						} else {
+							ps.setLong(20, 0L);
+						}
+
+						ps.setString(21, periodicLine.getCycleCountAction());
+						ps.setString(22, periodicLine.getReferenceNo());
+						if(periodicLine.getApprovalProcessId() != null) {
+							ps.setLong(23, periodicLine.getApprovalProcessId());
+						} else {
+							ps.setLong(23, 0L);
+						}
+
+						ps.setString(24, periodicLine.getApprovalLevel());
+						ps.setString(25, periodicLine.getApproverCode());
+						ps.setString(26, periodicLine.getApprovalStatus());
+						ps.setString(27, periodicLine.getRemarks());
+						ps.setString(28, periodicLine.getReferenceField1());
+						ps.setString(29, periodicLine.getReferenceField2());
+						ps.setString(30, periodicLine.getReferenceField3());
+						ps.setString(31, periodicLine.getReferenceField4());
+						ps.setString(32, periodicLine.getReferenceField5());
+						ps.setString(33, periodicLine.getReferenceField6());
+						ps.setString(34, periodicLine.getReferenceField7());
+						ps.setString(35, periodicLine.getReferenceField8());
+						ps.setString(36, periodicLine.getReferenceField9());
+						ps.setString(37, periodicLine.getReferenceField10());
+						ps.setLong(38, periodicLine.getDeletionIndicator());
+						ps.setString(39, periodicLine.getCreatedBy());
+						ps.setDate(40,  new java.sql.Date(periodicLine.getCreatedOn().getTime()));
+						ps.setString(41, periodicLine.getConfirmedBy());
+
+						ps.setDate(42, new java.sql.Date(periodicLine.getConfirmedOn().getTime()));
+
+						ps.setString(43, periodicLine.getCountedBy());
+
+						ps.setDate(44, new java.sql.Date(periodicLine.getCountedOn().getTime()));
+
+					}
+//					public int getBatchSize() {
+//						return periodicLineList.size();
+//					}
+
+				});
+		return updateCounts;
 	}
 }

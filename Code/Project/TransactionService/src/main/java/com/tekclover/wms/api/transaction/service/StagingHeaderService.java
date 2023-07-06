@@ -165,7 +165,28 @@ public class StagingHeaderService extends BaseService {
 //		log.info("results: " + results);
 		return results;
 	}
-	
+
+	/**
+	 *
+	 * @param searchStagingHeader
+	 * @return
+	 * @throws Exception
+	 */
+	//Streaming
+	public Stream<StagingHeader> findStagingHeaderNew(SearchStagingHeader searchStagingHeader)
+			throws Exception {
+		if (searchStagingHeader.getStartCreatedOn() != null && searchStagingHeader.getStartCreatedOn() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchStagingHeader.getStartCreatedOn(), searchStagingHeader.getEndCreatedOn());
+			searchStagingHeader.setStartCreatedOn(dates[0]);
+			searchStagingHeader.setEndCreatedOn(dates[1]);
+		}
+
+		StagingHeaderSpecification spec = new StagingHeaderSpecification(searchStagingHeader);
+		Stream<StagingHeader> results = stagingHeaderRepository.stream(spec, StagingHeader.class);
+
+		return results;
+	}
+
 	/**
 	 * createStagingHeader
 	 * @param newStagingHeader

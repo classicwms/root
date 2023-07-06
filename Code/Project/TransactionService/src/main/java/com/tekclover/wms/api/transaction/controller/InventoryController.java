@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.model.impl.InventoryImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -86,6 +87,12 @@ public class InventoryController {
    	public List<Inventory> findInventory(@RequestBody SearchInventory searchInventory) 
    			throws Exception {
    		return inventoryService.findInventory(searchInventory);
+   	}
+	@ApiOperation(response = InventoryImpl.class, value = "Search Inventory New") // label for swagger
+   	@PostMapping("/findInventoryNew")
+   	public List<InventoryImpl> findInventoryNew(@RequestBody SearchInventory searchInventory)
+   			throws Exception {
+   		return inventoryService.findInventoryNew(searchInventory);
    	}
 
 	@ApiOperation(response = Inventory.class, value = "Search Inventory by quantity validation") // label for swagger

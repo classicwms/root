@@ -2,10 +2,12 @@ package com.tekclover.wms.api.transaction.repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import javax.persistence.LockModeType;
 import javax.persistence.QueryHint;
 
+import com.tekclover.wms.api.transaction.model.impl.InventoryImpl;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -72,7 +74,7 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 	 * @param caseCode
 	 * @param packBarcodes
 	 * @param itemCode
-	 * @param l
+	 * @param deletionIndicator
 	 * @return
 	 */
 	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPalletCodeAndCaseCodeAndPackBarcodesAndItemCodeAndDeletionIndicator(
@@ -238,4 +240,78 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndAndStockTypeIdAndBinClassIdAndInventoryQuantityGreaterThanAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId, String itemCode,
 			Long stockTypeId, Long binClassId, Double invQty, Long deletionIndicator);
+	@Transactional
+//	@QueryHints(@javax.persistence.QueryHint(name="org.hibernate.fetchSize",value="100"))
+	@Query(value = "select \n" +
+			"pl.ref_doc_no asnNumber, \n" +
+			"iv.LANG_ID languageId, \n" +
+			"iv.C_ID companyCodeId, \n" +
+			"iv.PLANT_ID plantId, \n" +
+			"iv.WH_ID warehouseId, \n" +
+			"iv.PAL_CODE palletCode, \n" +
+			"iv.CASE_CODE caseCode, \n" +
+			"iv.PACK_BARCODE packBarcodes, \n" +
+			"iv.ITM_CODE itemCode, \n" +
+			"iv.VAR_ID variantCode, \n" +
+			"iv.VAR_SUB_ID variantSubCode, \n" +
+			"iv.STR_NO batchSerialNumber, \n" +
+			"iv.ST_BIN storageBin, \n" +
+			"iv.STCK_TYP_ID stockTypeId, \n" +
+			"iv.SP_ST_IND_ID specialStockIndicatorId, \n" +
+			"iv.REF_ORD_NO referenceOrderNo, \n" +
+			"iv.STR_MTD storageMethod, \n" +
+			"iv.BIN_CL_ID binClassId, \n" +
+			"iv.TEXT description, \n" +
+			"iv.INV_QTY inventoryQuantity, \n" +
+			"iv.ALLOC_QTY allocatedQuantity, \n" +
+			"iv.INV_UOM inventoryUom, \n" +
+			"DATEADD(HOUR,3,iv.MFR_DATE) manufacturerDate, \n" +
+			"DATEADD(HOUR,3,iv.EXP_DATE) expiryDate, \n" +
+			"iv.IS_DELETED deletionIndicator, \n" +
+			"iv.REF_FIELD_1 referenceField1, \n" +
+			"iv.REF_FIELD_2 referenceField2, \n" +
+			"iv.REF_FIELD_3 referenceField3, \n" +
+			"COALESCE(iv.INV_QTY,0)+COALESCE(iv.ALLOC_QTY,0) referenceField4, \n" +
+			"iv.REF_FIELD_5 referenceField5, \n" +
+			"iv.REF_FIELD_6 referenceField6, \n" +
+			"iv.REF_FIELD_7 referenceField7, \n" +
+			"iv.REF_FIELD_8 referenceField8, \n" +
+			"iv.REF_FIELD_9 referenceField9, \n" +
+			"iv.REF_FIELD_10 referenceField10, \n" +
+			"iv.IU_CTD_BY createdBy, \n" +
+			"DATEADD(HOUR,3,iv.IU_CTD_ON) createdOn, \n" +
+			"iv.UTD_BY updatedBy, \n" +
+			"iv.UTD_ON updatedOn \n" +
+			"from \n" +
+			"tblinventory iv \n" +
+			"left join tblputawayline pl on pl.pack_barcode = iv.pack_barcode and pl.itm_code = iv.itm_code and pl.prop_st_bin = iv.st_bin \n" +
+			"where \n" +
+			"(COALESCE(:warehouseId, null) IS NULL OR (iv.wh_id IN (:warehouseId))) and \n" +
+			"(COALESCE(:packBarcodes, null) IS NULL OR (iv.pack_barcode IN (:packBarcodes))) and \n" +
+			"(COALESCE(:itemCode, null) IS NULL OR (iv.itm_code IN (:itemCode))) and \n" +
+			"(COALESCE(:storageBin, null) IS NULL OR (iv.st_bin IN (:storageBin))) and \n" +
+			"(COALESCE(:storageSectionId, null) IS NULL OR (iv.ref_field_10 IN (:storageSectionId))) and \n" +
+			"(COALESCE(:stockTypeId, null) IS NULL OR (iv.stck_typ_id IN (:stockTypeId))) and \n" +
+			"(COALESCE(:specialStockIndicatorId, null) IS NULL OR (iv.sp_st_ind_id IN (:specialStockIndicatorId))) and\n" +
+			"(COALESCE(:binClassId, null) IS NULL OR (iv.bin_cl_id IN (:binClassId))) and\n" +
+			"(COALESCE(:description, null) IS NULL OR (iv.text IN (:description))) and iv.is_deleted = 0", nativeQuery = true)
+	List<InventoryImpl> findInventory (
+//	Stream<InventoryImpl> findInventory (
+			@Param(value = "warehouseId") List<String> warehouseId,
+			@Param(value = "packBarcodes") List<String> packBarcodes,
+			@Param(value = "itemCode") List<String> itemCode,
+			@Param(value = "storageBin") List<String> storageBin,
+			@Param(value = "storageSectionId") List<String> storageSectionId,
+			@Param(value = "stockTypeId") List<Long> stockTypeId,
+			@Param(value = "specialStockIndicatorId") List<Long> specialStockIndicatorId,
+			@Param(value = "binClassId") List<Long> binClassId,
+			@Param(value = "description") String description);
+
+	@Query(value = "select \n" +
+			"cast(max(mvt_doc_no) as numeric)+1 movementDocumentNo \n" +
+			"from \n" +
+			"tblinventorymovement iv \n" +
+			"where \n" +
+			"iv.MVT_TYP_ID = 4 and iv.SUB_MVT_TYP_ID = 1 and STR_NO = 1  and iv.is_deleted = 0", nativeQuery = true)
+	String findMovementDocumentNo();
 }

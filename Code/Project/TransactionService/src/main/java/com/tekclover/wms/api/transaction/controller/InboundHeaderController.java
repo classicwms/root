@@ -2,6 +2,7 @@ package com.tekclover.wms.api.transaction.controller;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
@@ -75,7 +76,15 @@ public class InboundHeaderController {
 			throws Exception {
 		return inboundheaderService.findInboundHeader(searchInboundHeader);
 	}
-    
+
+	//Stream
+	@ApiOperation(response = InboundHeader.class, value = "Search InboundHeader New") // label for swagger
+	@PostMapping("/findInboundHeaderNew")
+	public Stream<InboundHeader> findInboundHeaderNew(@RequestBody SearchInboundHeader searchInboundHeader)
+			throws Exception {
+		return inboundheaderService.findInboundHeaderNew(searchInboundHeader);
+	}
+
     @ApiOperation(response = InboundHeader.class, value = "Create InboundHeader") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postInboundHeader(@Valid @RequestBody AddInboundHeader newInboundHeader, 

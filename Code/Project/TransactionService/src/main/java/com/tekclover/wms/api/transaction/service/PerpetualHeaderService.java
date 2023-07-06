@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
@@ -40,6 +41,7 @@ import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -319,6 +321,54 @@ public class PerpetualHeaderService extends BaseService {
 			}
 		}
 		log.info ("runResponseList---trimmed---> : " + responseList);
+		return responseList;
+	}
+	/**
+	 * Performance enhanced - Streaming
+	 * ------------------------------------
+	 * @param runPerpetualHeader
+	 * @return
+	 * @throws java.text.ParseException
+	 */
+	@Transactional
+	public Set<PerpetualLineEntityImpl> runPerpetualHeaderStream(@Valid RunPerpetualHeader runPerpetualHeader) throws java.text.ParseException {
+		if (runPerpetualHeader.getDateFrom() != null && runPerpetualHeader.getDateFrom() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(runPerpetualHeader.getDateFrom(), 	runPerpetualHeader.getDateTo());
+			runPerpetualHeader.setDateFrom(dates[0]);
+			runPerpetualHeader.setDateTo(dates[1]);
+		}
+
+		Stream<PerpetualLineEntityImpl> runResponseList = inventoryMovementRepository.getRecordsForRunPerpetualCountStream (
+				runPerpetualHeader.getMovementTypeId(), runPerpetualHeader.getSubMovementTypeId(),
+				runPerpetualHeader.getDateFrom(), runPerpetualHeader.getDateTo());
+
+		Set<PerpetualLineEntityImpl> responseList = new HashSet<>();
+
+		runResponseList.forEach(n -> {
+
+				List<PerpetualLine> dbPerpetualLines = perpetualLineRepository
+						.findByWarehouseIdAndStorageBinAndItemCodeAndPackBarcodesAndDeletionIndicator (
+								n.getWarehouseId(),
+								n.getStorageBin(),
+								n.getItemCode(),
+								n.getPackBarcodes(), 0L);
+				log.info ("dbPerpetualLines---queried---> : " + dbPerpetualLines);
+
+				long count_78 = dbPerpetualLines.stream().filter(a->a.getStatusId() == 78L).count();
+				if (dbPerpetualLines.size() == count_78) {
+					log.info ("---#1--78----condi-----> : " + n);
+					responseList.add(n);
+				}
+
+				if (dbPerpetualLines != null && dbPerpetualLines.isEmpty()) {
+					log.info ("---#2--78----condi-----> : " + n);
+					responseList.add(n);
+				}
+				}
+		);
+
+		log.info ("runResponseList---trimmed---> : " + responseList);
+
 		return responseList;
 	}
 	

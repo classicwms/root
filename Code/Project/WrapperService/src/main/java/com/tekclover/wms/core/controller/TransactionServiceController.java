@@ -3,8 +3,13 @@ package com.tekclover.wms.core.controller;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+
 import javax.validation.Valid;
+
+import com.tekclover.wms.core.model.masters.ImBasicData1;
+import com.tekclover.wms.core.model.masters.SearchImBasicData1;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.expression.ParseException;
@@ -341,6 +346,13 @@ public class TransactionServiceController {
 				transactionService.getInboundLine(warehouseId, refDocNumber, preInboundNo, lineNo, itemCode, authToken);
 		log.info("InboundLine : " + dbInboundLine);
 		return new ResponseEntity<>(dbInboundLine, HttpStatus.OK);
+	}
+
+	@ApiOperation(response = InboundLine.class, value = "Search InboundLine") // label for swagger
+	@PostMapping("/inboundline/findInboundLine")
+	public InboundLine[] findInboundLine(@RequestBody SearchInboundLine searchInboundLine,
+											 @RequestParam String authToken) throws Exception {
+		return transactionService.findInboundLine(searchInboundLine, authToken);
 	}
 
 	@ApiOperation(response = InboundLine.class, value = "Create InboundLine") // label for swagger
@@ -933,6 +945,13 @@ public class TransactionServiceController {
 			@RequestParam String authToken) throws Exception {
 		return transactionService.findInventory(searchInventory, authToken);
 	}
+	//SQL Query - New
+	@ApiOperation(response = Inventory.class, value = "Search Inventory New") // label for swagger
+	@PostMapping("/inventory/findInventoryNew")
+	public Inventory[] findInventoryNew(@RequestBody SearchInventory searchInventory,
+			@RequestParam String authToken) throws Exception {
+		return transactionService.findInventoryNew(searchInventory, authToken);
+	}
 
 	@ApiOperation(response = Inventory.class, value = "Search Inventory by quantity validation") // label for swagger
 	@PostMapping("/get-all-validated-inventory")
@@ -1007,6 +1026,14 @@ public class TransactionServiceController {
 	public InhouseTransferHeader[] findInHouseTransferHeader(@RequestBody SearchInhouseTransferHeader searchInHouseTransferHeader,
 			@RequestParam String authToken) throws Exception {
 		return transactionService.findInHouseTransferHeader(searchInHouseTransferHeader, authToken);
+	}
+
+	//Stream
+	@ApiOperation(response = InhouseTransferHeader.class, value = "Search InHouseTransferHeader New") // label for swagger
+	@PostMapping("/inhousetransferheader/findInHouseTransferHeaderNew")
+	public InhouseTransferHeader[] findInHouseTransferHeaderNew(@RequestBody SearchInhouseTransferHeader searchInHouseTransferHeader,
+			@RequestParam String authToken) throws Exception {
+		return transactionService.findInHouseTransferHeaderNew(searchInHouseTransferHeader, authToken);
 	}
 
 	@ApiOperation(response = InhouseTransferHeader.class, value = "Create InHouseTransferHeader") // label for swagger
@@ -1609,6 +1636,19 @@ public class TransactionServiceController {
    	}
     
     /*
+   	 * Inventory Stock movement report
+   	 */
+    @ApiOperation(response = Optional.class, value = "Get Opening Stock Report")  
+   	@PostMapping("/reports/openingStockReport")
+   	public ResponseEntity<?> getInventoryStockReport(@RequestBody FindImBasicData1 findImBasicData1,
+   			@RequestParam String authToken) throws java.text.ParseException {
+       	InventoryStock[] inventoryReportList = transactionService.getInventoryStockReport(findImBasicData1, authToken);
+   		return new ResponseEntity<>(inventoryReportList, HttpStatus.OK);
+   	}
+    
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    /*
    	 * Shipment Dispatch Summary
    	 */
     @ApiOperation(response = ShipmentDispatchSummaryReport.class, value = "Get ShipmentDispatchSummary Report") // label for swagger 
@@ -1693,7 +1733,16 @@ public class TransactionServiceController {
    				transactionService.runPerpetualHeader(runPerpetualHeader, authToken);
    		return new ResponseEntity<>(perpetualLineEntity , HttpStatus.OK);
    	}
-    
+
+	@ApiOperation(response = PerpetualLineEntity[].class, value = "Create PerpetualHeader Stream") // label for swagger
+   	@PostMapping("/perpetualheader/runNew")
+   	public ResponseEntity<?> postRunPerpetualHeaderStream(@Valid @RequestBody RunPerpetualHeader runPerpetualHeader,
+   			@RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+    	PerpetualLineEntity[] perpetualLineEntity =
+   				transactionService.runPerpetualHeaderNew(runPerpetualHeader, authToken);
+   		return new ResponseEntity<>(perpetualLineEntity , HttpStatus.OK);
+   	}
+
     @ApiOperation(response = PerpetualHeader.class, value = "Update PerpetualHeader") // label for swagger
     @PatchMapping("/perpetualheader/{cycleCountNo}")
 	public ResponseEntity<?> patchPerpetualHeader(@PathVariable String cycleCountNo, @RequestParam String warehouseId, 
@@ -1773,12 +1822,22 @@ public class TransactionServiceController {
 		PeriodicHeaderEntity[] results = transactionService.findPeriodicHeader(searchPeriodicHeader, authToken);
 		return new ResponseEntity<>(results, HttpStatus.OK);
 	}
-    
+	//Stream
+	@ApiOperation(response = PeriodicHeader[].class, value = "Search PeriodicHeader Stream") // label for swagger
+	@PostMapping("/periodicheader/findPeriodicHeaderNew")
+	public ResponseEntity<?> findPeriodicHeaderNew(@RequestBody SearchPeriodicHeader searchPeriodicHeader,
+			@RequestParam String authToken) throws Exception {
+		PeriodicHeader[] results = transactionService.findPeriodicHeaderStream(searchPeriodicHeader, authToken);
+		return new ResponseEntity<>(results, HttpStatus.OK);
+	}
+
     @ApiOperation(response = PeriodicHeader.class, value = "Create PeriodicHeader") // label for swagger
 	@PostMapping("/periodicheader")
 	public ResponseEntity<?> postPeriodicHeader(@Valid @RequestBody AddPeriodicHeader newPeriodicHeader, 
 			@RequestParam String loginUserID, @RequestParam String authToken) throws Exception {
 		PeriodicHeaderEntity createdPeriodicHeader = transactionService.createPeriodicHeader(newPeriodicHeader, loginUserID, authToken);
+		log.info("createdPeriodicHeader:" + createdPeriodicHeader);
+
 		/* Call Batch */
 //		transactionService.createCSV(newPeriodicHeader.getPeriodicLine());
 //		batchJobScheduler.runJobPeriodic();
@@ -1823,6 +1882,14 @@ public class TransactionServiceController {
 	public com.tekclover.wms.core.model.transaction.PeriodicLine[] findPeriodicLine (@RequestBody SearchPeriodicLine searchPeriodicLine, 
 			@RequestParam String authToken) throws Exception {
 		return transactionService.findPeriodicLine (searchPeriodicLine, authToken);
+	}
+
+	//Stream
+	@ApiOperation(response = PeriodicLine.class, value = "SearchPeriodicLine Stream") // label for swagger
+	@PostMapping("/periodicline/findPeriodicLineNew")
+	public com.tekclover.wms.core.model.transaction.PeriodicLine[] findPeriodicLineNew (@RequestBody SearchPeriodicLine searchPeriodicLine,
+																						@RequestParam String authToken) throws Exception {
+		return transactionService.findPeriodicLineNew (searchPeriodicLine, authToken);
 	}
     
     @ApiOperation(response = PeriodicLine[].class, value = "Update AssignHHTUser") // label for swagger
@@ -2020,6 +2087,14 @@ public class TransactionServiceController {
 	public ResponseEntity<StreamingResponseBody> findStreamImBasicData1() throws ExecutionException, InterruptedException {
 		StreamingResponseBody responseBody = transactionService.findStreamImBasicData1();
 		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(responseBody);
+	}
+
+	//Filter
+	@PostMapping(value = "/streaming/findStreamImBasicData1New")
+	public ResponseEntity<?> findStreamImBasicData1New(@RequestBody SearchImBasicData1 searchImBasicData1) throws ExecutionException, InterruptedException {
+		List<ImBasicData1> responseBody = transactionService.getAllImBasicData1(searchImBasicData1);
+		return new ResponseEntity<>(responseBody, HttpStatus.OK);
+//		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(responseBody);
 	}
 
 	@GetMapping(value = "/streaming/findStreamStorageBin")

@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -267,7 +268,28 @@ public class PutAwayHeaderService extends BaseService {
 		List<PutAwayHeader> results = putAwayHeaderRepository.findAll(spec);
 		return results;
 	}
-	
+
+	/**
+	 *
+	 * @param searchPutAwayHeader
+	 * @return
+	 * @throws Exception
+	 */
+	//Stream
+	public Stream<PutAwayHeader> findPutAwayHeaderNew(SearchPutAwayHeader searchPutAwayHeader)
+			throws Exception {
+		if (searchPutAwayHeader.getStartCreatedOn() != null && searchPutAwayHeader.getStartCreatedOn() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchPutAwayHeader.getStartCreatedOn(),
+					searchPutAwayHeader.getEndCreatedOn());
+			searchPutAwayHeader.setStartCreatedOn(dates[0]);
+			searchPutAwayHeader.setEndCreatedOn(dates[1]);
+		}
+
+		PutAwayHeaderSpecification spec = new PutAwayHeaderSpecification(searchPutAwayHeader);
+		Stream<PutAwayHeader> results = putAwayHeaderRepository.stream(spec, PutAwayHeader.class).parallel();
+		return results;
+	}
+
 	/**
 	 * createPutAwayHeader
 	 * @param newPutAwayHeader

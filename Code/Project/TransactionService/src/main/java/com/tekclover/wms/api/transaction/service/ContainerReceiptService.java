@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -120,7 +121,38 @@ public class ContainerReceiptService extends BaseService {
 		}
 		return results;
 	}
-	
+
+	/**
+	 *
+	 * @param searchContainerReceipt
+	 * @return
+	 * @throws ParseException
+	 */
+	//Streaming
+	public List<ContainerReceipt> findContainerReceiptNew(SearchContainerReceipt searchContainerReceipt) throws ParseException {
+
+		if (searchContainerReceipt.getStartContainerReceivedDate() != null && searchContainerReceipt.getEndContainerReceivedDate() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchContainerReceipt.getStartContainerReceivedDate(), searchContainerReceipt.getEndContainerReceivedDate());
+			searchContainerReceipt.setStartContainerReceivedDate(dates[0]);
+			searchContainerReceipt.setEndContainerReceivedDate(dates[1]);
+		}
+
+		ContainerReceiptSpecification spec = new ContainerReceiptSpecification(searchContainerReceipt);
+		List<ContainerReceipt> results = containerReceiptRepository.stream(spec, ContainerReceipt.class).collect(Collectors.toList());
+
+//		List<ContainerReceipt> containerReceiptList = results.collect(Collectors.toList());
+
+		for(ContainerReceipt containerReceipt : results){
+			List<InboundHeader> inboundHeaderData = this.inboundHeaderRepository.findByRefDocNumberAndDeletionIndicator(containerReceipt.getRefDocNumber(),0L);
+			if(inboundHeaderData != null && !inboundHeaderData.isEmpty() && inboundHeaderData.get(0).getConfirmedOn() != null){
+				containerReceipt.setReferenceField5(inboundHeaderData.get(0).getConfirmedOn().toString());
+			} else {
+				containerReceipt.setReferenceField5(null);
+			}
+		}
+		return results;
+	}
+
 	/**
 	 * createContainerReceipt
 	 * @param newContainerReceipt

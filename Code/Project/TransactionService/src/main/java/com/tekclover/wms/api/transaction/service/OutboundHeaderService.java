@@ -5,15 +5,15 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.persistence.EntityNotFoundException;
 
 import com.tekclover.wms.api.transaction.model.outbound.*;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeMap;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -54,17 +54,15 @@ public class OutboundHeaderService {
 		outboundHeaderList = outboundHeaderList.stream().filter(n -> n.getDeletionIndicator() == 0).collect(Collectors.toList());
 		return outboundHeaderList;
 	}
-	
+
 	/**
-	 * getOutboundHeader
-	 * @param partnerCode 
-	 * @param refDocNumber 
-	 * @param preOutboundNo2 
-	 * @param warehouseId 
-	 * @param plantId 
-	 * @param companyCodeId 
+	 *
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
 	 * @return
-	 *  pass WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE 
+	 * pass WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE
 	 */
 	public OutboundHeader getOutboundHeader (String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode) {
 		OutboundHeader outboundHeader = 
@@ -230,81 +228,6 @@ public class OutboundHeaderService {
 //		}
 		return headerSearchResults;
 	}
-//	@Transactional(readOnly = true)
-//	public List<OutboundHeaderStream> findOutboundHeadernew(SearchOutboundHeader searchOutboundHeader, Integer flag)		//Streaming
-//			throws ParseException, java.text.ParseException {
-//
-//		if (searchOutboundHeader.getStartRequiredDeliveryDate() != null && searchOutboundHeader.getEndRequiredDeliveryDate() != null) {
-//			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartRequiredDeliveryDate(), searchOutboundHeader.getEndRequiredDeliveryDate());
-//			searchOutboundHeader.setStartRequiredDeliveryDate(dates[0]);
-//			searchOutboundHeader.setEndRequiredDeliveryDate(dates[1]);
-//		} else {
-//			searchOutboundHeader.setStartRequiredDeliveryDate(null);
-//			searchOutboundHeader.setEndRequiredDeliveryDate(null);
-//		}
-//
-//		if (searchOutboundHeader.getStartDeliveryConfirmedOn() != null && searchOutboundHeader.getEndDeliveryConfirmedOn() != null) {
-//
-//			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartDeliveryConfirmedOn(), searchOutboundHeader.getEndDeliveryConfirmedOn());
-//			searchOutboundHeader.setStartDeliveryConfirmedOn(dates[0]);
-//			searchOutboundHeader.setEndDeliveryConfirmedOn(dates[1]);
-//
-//		} else {
-//
-//			searchOutboundHeader.setStartDeliveryConfirmedOn(null);
-//			searchOutboundHeader.setEndDeliveryConfirmedOn(null);
-//
-//		}
-//		if (searchOutboundHeader.getStartDeliveryConfirmedOn() != null && searchOutboundHeader.getEndDeliveryConfirmedOn() != null) {
-//			if (flag != 1) {
-//				Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartDeliveryConfirmedOn(), searchOutboundHeader.getEndDeliveryConfirmedOn());
-//				searchOutboundHeader.setStartDeliveryConfirmedOn(dates[0]);
-//				searchOutboundHeader.setEndDeliveryConfirmedOn(dates[1]);
-//			}
-//		} else {
-//			searchOutboundHeader.setStartDeliveryConfirmedOn(null);
-//			searchOutboundHeader.setEndDeliveryConfirmedOn(null);
-//		}
-//
-//		if (searchOutboundHeader.getStartOrderDate() != null && searchOutboundHeader.getEndOrderDate() != null) {
-//			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartOrderDate(), searchOutboundHeader.getEndOrderDate());
-//			searchOutboundHeader.setStartOrderDate(dates[0]);
-//			searchOutboundHeader.setEndOrderDate(dates[1]);
-//		} else {
-//			searchOutboundHeader.setStartOrderDate(null);
-//			searchOutboundHeader.setEndOrderDate(null);
-//		}
-//
-//		if (searchOutboundHeader.getWarehouseId() == null || searchOutboundHeader.getWarehouseId().isEmpty()) {
-//			searchOutboundHeader.setWarehouseId(null);
-//		}
-//		if (searchOutboundHeader.getRefDocNumber() == null || searchOutboundHeader.getRefDocNumber().isEmpty()) {
-//			searchOutboundHeader.setRefDocNumber(null);
-//		}
-//		if (searchOutboundHeader.getPartnerCode() == null || searchOutboundHeader.getPartnerCode().isEmpty()) {
-//			searchOutboundHeader.setPartnerCode(null);
-//		}
-//		if (searchOutboundHeader.getOutboundOrderTypeId() == null || searchOutboundHeader.getOutboundOrderTypeId().isEmpty()) {
-//			searchOutboundHeader.setOutboundOrderTypeId(null);
-//		}
-//		if (searchOutboundHeader.getSoType() == null || searchOutboundHeader.getSoType().isEmpty()) {
-//			searchOutboundHeader.setSoType(null);
-//		}
-//		if (searchOutboundHeader.getStatusId() == null || searchOutboundHeader.getStatusId().isEmpty()) {
-//			searchOutboundHeader.setStatusId(null);
-//		}
-//
-//		Stream<OutboundHeaderStream> spec = outboundHeaderRepository.findAllOutBoundHeader(searchOutboundHeader.getWarehouseId(),
-//				searchOutboundHeader.getRefDocNumber(), searchOutboundHeader.getPartnerCode(), searchOutboundHeader.getOutboundOrderTypeId(),
-//				searchOutboundHeader.getStatusId(), searchOutboundHeader.getSoType(),
-//				searchOutboundHeader.getStartRequiredDeliveryDate(), searchOutboundHeader.getEndRequiredDeliveryDate(),
-//				searchOutboundHeader.getStartDeliveryConfirmedOn(), searchOutboundHeader.getEndDeliveryConfirmedOn(),
-//				searchOutboundHeader.getStartOrderDate(), searchOutboundHeader.getEndOrderDate());
-//
-//		List<OutboundHeaderStream> outboundHeaderList = spec.collect(Collectors.toList());
-//
-//		return outboundHeaderList;
-//	}
 
 	@Transactional(readOnly = true)
 	public List<OutboundHeaderOutput> findOutboundHeadernew(SearchOutboundHeader searchOutboundHeader, Integer flag)		//Streaming
@@ -379,64 +302,72 @@ public class OutboundHeaderService {
 
 		List<OutboundHeaderStream> outboundHeaderList = spec.collect(Collectors.toList());
 
-		List<OutboundHeaderOutput> outboundHeaderOutputList = new ArrayList<>();
-		for(OutboundHeaderStream newOutboundHeaderStream : outboundHeaderList){
-			OutboundHeaderOutput newOutboundHeaderOutput = new OutboundHeaderOutput();
-			newOutboundHeaderOutput.setLanguageId(newOutboundHeaderStream.getLanguageId());
-			newOutboundHeaderOutput.setCompanyCodeId(newOutboundHeaderStream.getCompanyCodeId());
-			newOutboundHeaderOutput.setPlantId(newOutboundHeaderStream.getPlantId());
-			newOutboundHeaderOutput.setWarehouseId(newOutboundHeaderStream.getWarehouseId());
-			newOutboundHeaderOutput.setPreOutboundNo(newOutboundHeaderStream.getPreOutboundNo());
-			newOutboundHeaderOutput.setRefDocNumber(newOutboundHeaderStream.getRefDocNumber());
-			newOutboundHeaderOutput.setPartnerCode(newOutboundHeaderStream.getPartnerCode());
-			newOutboundHeaderOutput.setDeliveryOrderNo(newOutboundHeaderStream.getDeliveryOrderNo());
-			newOutboundHeaderOutput.setReferenceDocumentType(newOutboundHeaderStream.getReferenceDocumentType());
-			newOutboundHeaderOutput.setOutboundOrderTypeId(newOutboundHeaderStream.getOutboundOrderTypeId());
-			newOutboundHeaderOutput.setStatusId(newOutboundHeaderStream.getStatusId());
-			newOutboundHeaderOutput.setReferenceField1(newOutboundHeaderStream.getReferenceField1());
-			newOutboundHeaderOutput.setReferenceField2(newOutboundHeaderStream.getReferenceField2());
-			newOutboundHeaderOutput.setReferenceField3(newOutboundHeaderStream.getReferenceField3());
-			newOutboundHeaderOutput.setReferenceField4(newOutboundHeaderStream.getReferenceField4());
-			newOutboundHeaderOutput.setReferenceField5(newOutboundHeaderStream.getReferenceField5());
-			newOutboundHeaderOutput.setReferenceField6(newOutboundHeaderStream.getReferenceField6());
-			newOutboundHeaderOutput.setReferenceField7(newOutboundHeaderStream.getReferenceField7());
-			newOutboundHeaderOutput.setReferenceField8(newOutboundHeaderStream.getReferenceField8());
-			newOutboundHeaderOutput.setReferenceField9(newOutboundHeaderStream.getReferenceField9());
-			newOutboundHeaderOutput.setReferenceField10(newOutboundHeaderStream.getReferenceField10());
-			newOutboundHeaderOutput.setDeletionIndicator(newOutboundHeaderStream.getDeletionIndicator());
-			newOutboundHeaderOutput.setRemarks(newOutboundHeaderStream.getRemarks());
-			newOutboundHeaderOutput.setCreatedBy(newOutboundHeaderStream.getCreatedBy());
+		ModelMapper modelMapper = new ModelMapper();
+		List<OutboundHeaderOutput> outboundHeaderOutputList = outboundHeaderList
+				.stream()
+				.map(outboundHeaderStream -> modelMapper.map(outboundHeaderStream,OutboundHeaderOutput.class))
+				.collect(Collectors.toList());
 
-			if(newOutboundHeaderStream.getRefDocDate() != null) {
-				newOutboundHeaderOutput.setRefDocDate(DateUtils.addTimeToDate(newOutboundHeaderStream.getRefDocDate(), 3));
-			}
+//		List<OutboundHeaderOutput> outboundHeaderOutputList = Arrays.asList(modelMapper.map(outboundHeaderList,OutboundHeaderOutput[].class));
 
-			if(newOutboundHeaderStream.getRequiredDeliveryDate() != null) {
-				newOutboundHeaderOutput.setRequiredDeliveryDate(DateUtils.addTimeToDate(newOutboundHeaderStream.getRequiredDeliveryDate(),3));
-			}
+//		outboundHeaderOutputList.stream().forEach(n -> {
+//							//Status Description
+//							n.setStatusDescription(outboundHeaderRepository.findStatusDescription(
+//							n.getStatusId(),
+//							n.getWarehouseId(),
+//							n.getLanguageId(),
+//							n.getCompanyCodeId()));
+//							});
 
-			if(newOutboundHeaderStream.getDeliveryConfirmedOn() != null) {
-				newOutboundHeaderOutput.setDeliveryConfirmedOn(DateUtils.addTimeToDate(newOutboundHeaderStream.getDeliveryConfirmedOn(), 3));
-			}
-
-			if(newOutboundHeaderStream.getCreatedOn() != null) {
-				newOutboundHeaderOutput.setCreatedOn(DateUtils.addTimeToDate(newOutboundHeaderStream.getCreatedOn(), 3));
-			}
-
-			if(newOutboundHeaderStream.getUpdatedOn() != null) {
-				newOutboundHeaderOutput.setUpdatedOn(DateUtils.addTimeToDate(newOutboundHeaderStream.getUpdatedOn(), 3));
-			}
-
-			newOutboundHeaderOutput.setDeliveryConfirmedBy(newOutboundHeaderStream.getDeliveryConfirmedBy());
-			newOutboundHeaderOutput.setUpdatedBy(newOutboundHeaderStream.getUpdatedBy());
-			newOutboundHeaderOutput.setReversedBy(newOutboundHeaderStream.getReversedBy());
-			newOutboundHeaderOutput.setReversedOn(newOutboundHeaderStream.getReversedOn());
-			//Status Description
-			String statusDescription = outboundHeaderRepository.findStatusDescription(newOutboundHeaderStream.getStatusId());
-			newOutboundHeaderOutput.setStatusDescription(statusDescription);
-
-			outboundHeaderOutputList.add(newOutboundHeaderOutput);
-		}
+//		List<OutboundHeaderOutput> outboundHeaderOutputList = new ArrayList<>();
+//		for(OutboundHeaderStream newOutboundHeaderStream : outboundHeaderList){
+//			OutboundHeaderOutput newOutboundHeaderOutput = new OutboundHeaderOutput();
+//			newOutboundHeaderOutput.setLanguageId(newOutboundHeaderStream.getLanguageId());
+//			newOutboundHeaderOutput.setCompanyCodeId(newOutboundHeaderStream.getCompanyCodeId());
+//			newOutboundHeaderOutput.setPlantId(newOutboundHeaderStream.getPlantId());
+//			newOutboundHeaderOutput.setWarehouseId(newOutboundHeaderStream.getWarehouseId());
+//			newOutboundHeaderOutput.setPreOutboundNo(newOutboundHeaderStream.getPreOutboundNo());
+//			newOutboundHeaderOutput.setRefDocNumber(newOutboundHeaderStream.getRefDocNumber());
+//			newOutboundHeaderOutput.setPartnerCode(newOutboundHeaderStream.getPartnerCode());
+//			newOutboundHeaderOutput.setDeliveryOrderNo(newOutboundHeaderStream.getDeliveryOrderNo());
+//			newOutboundHeaderOutput.setReferenceDocumentType(newOutboundHeaderStream.getReferenceDocumentType());
+//			newOutboundHeaderOutput.setOutboundOrderTypeId(newOutboundHeaderStream.getOutboundOrderTypeId());
+//			newOutboundHeaderOutput.setStatusId(newOutboundHeaderStream.getStatusId());
+//			newOutboundHeaderOutput.setReferenceField1(newOutboundHeaderStream.getReferenceField1());
+//			newOutboundHeaderOutput.setReferenceField2(newOutboundHeaderStream.getReferenceField2());
+//			newOutboundHeaderOutput.setReferenceField3(newOutboundHeaderStream.getReferenceField3());
+//			newOutboundHeaderOutput.setReferenceField4(newOutboundHeaderStream.getReferenceField4());
+//			newOutboundHeaderOutput.setReferenceField5(newOutboundHeaderStream.getReferenceField5());
+//			newOutboundHeaderOutput.setReferenceField6(newOutboundHeaderStream.getReferenceField6());
+//			newOutboundHeaderOutput.setReferenceField7(newOutboundHeaderStream.getReferenceField7());
+//			newOutboundHeaderOutput.setReferenceField8(newOutboundHeaderStream.getReferenceField8());
+//			newOutboundHeaderOutput.setReferenceField9(newOutboundHeaderStream.getReferenceField9());
+//			newOutboundHeaderOutput.setReferenceField10(newOutboundHeaderStream.getReferenceField10());
+//			newOutboundHeaderOutput.setDeletionIndicator(newOutboundHeaderStream.getDeletionIndicator());
+//			newOutboundHeaderOutput.setRemarks(newOutboundHeaderStream.getRemarks());
+//
+//			newOutboundHeaderOutput.setRefDocDate(newOutboundHeaderStream.getRefDocDate());
+//			newOutboundHeaderOutput.setRequiredDeliveryDate(newOutboundHeaderStream.getRequiredDeliveryDate());
+//			newOutboundHeaderOutput.setDeliveryConfirmedOn(newOutboundHeaderStream.getDeliveryConfirmedOn());
+//			newOutboundHeaderOutput.setCreatedOn(newOutboundHeaderStream.getCreatedOn());
+//			newOutboundHeaderOutput.setUpdatedOn(newOutboundHeaderStream.getUpdatedOn());
+//			newOutboundHeaderOutput.setReversedOn(newOutboundHeaderStream.getReversedOn());
+//
+//			newOutboundHeaderOutput.setCreatedBy(newOutboundHeaderStream.getCreatedBy());
+//			newOutboundHeaderOutput.setDeliveryConfirmedBy(newOutboundHeaderStream.getDeliveryConfirmedBy());
+//			newOutboundHeaderOutput.setUpdatedBy(newOutboundHeaderStream.getUpdatedBy());
+//			newOutboundHeaderOutput.setReversedBy(newOutboundHeaderStream.getReversedBy());
+//
+//			//Status Description
+//			String statusDescription = outboundHeaderRepository.findStatusDescription(
+//					newOutboundHeaderStream.getStatusId(),
+//					newOutboundHeaderStream.getWarehouseId(),
+//					newOutboundHeaderStream.getLanguageId(),
+//					newOutboundHeaderStream.getCompanyCodeId());
+//			newOutboundHeaderOutput.setStatusDescription(statusDescription);
+//
+//			outboundHeaderOutputList.add(newOutboundHeaderOutput);
+//		}
 
 		return outboundHeaderOutputList;
 	}
@@ -461,12 +392,15 @@ public class OutboundHeaderService {
 		dbOutboundHeader.setUpdatedOn(new Date());
 		return outboundHeaderRepository.save(dbOutboundHeader);
 	}
-	
+
 	/**
-	 * updateOutboundHeader
-	 * @param loginUserId 
+	 *
+	 * @param warehouseId
 	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
 	 * @param updateOutboundHeader
+	 * @param loginUserID
 	 * @return
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException

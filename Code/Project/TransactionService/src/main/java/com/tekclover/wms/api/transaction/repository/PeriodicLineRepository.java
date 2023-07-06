@@ -2,6 +2,7 @@ package com.tekclover.wms.api.transaction.repository;
 
 import java.util.List;
 
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
@@ -11,7 +12,8 @@ import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicLine;
 
 @Repository
 @Transactional
-public interface PeriodicLineRepository extends JpaRepository<PeriodicLine,Long>, JpaSpecificationExecutor<PeriodicLine> {
+public interface PeriodicLineRepository extends JpaRepository<PeriodicLine,Long>,
+		JpaSpecificationExecutor<PeriodicLine>, StreamableJpaSpecificationRepository<PeriodicLine> {
 	
 	public List<PeriodicLine> findAll();
 	
