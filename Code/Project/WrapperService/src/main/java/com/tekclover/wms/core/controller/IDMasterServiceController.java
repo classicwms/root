@@ -6,12 +6,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.*;
 
 import javax.mail.MessagingException;
 import javax.validation.Valid;
 
+import com.tekclover.wms.core.exception.RestResponseEntityExceptionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
@@ -20,7 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.tekclover.wms.core.exception.BadRequestException;
+import com.tekclover.wms.core.exception.*;
 import com.tekclover.wms.core.exception.CustomErrorResponse;
 import com.tekclover.wms.core.model.idmaster.AddRoleAccess;
 import com.tekclover.wms.core.model.idmaster.BarcodeSubTypeId;
@@ -72,11 +74,11 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/wms-idmaster-service")
 @Api(tags = {"IDMaster Service"}, value = "IDMaster Service Operations") // label for swagger
 @SwaggerDefinition(tags = {@Tag(name = "User",description = "Operations related to IDMaster Service")})
-public class IDMasterServiceController { 
-	
+public class IDMasterServiceController {
+
 	@Autowired
 	IDMasterService idmasterService;
-	
+
 	@Autowired
 	RegisterService registerService;
 
@@ -85,13 +87,13 @@ public class IDMasterServiceController {
 
 	@Autowired
 	DocStorageService docStorageService;
-	
+
 	/* --------------------------------LOGIN-------------------------------------------------------------------------------------*/
-	
-    @ApiOperation(response = Optional.class, value = "Login User") // label for swagger
-    @RequestMapping(value = "/login", method = RequestMethod.GET, produces = "application/json")
-	public ResponseEntity<?> loginUser(@RequestParam String name, @RequestParam String password, 
-			@RequestParam String authToken, @RequestParam(required = false) String version) {
+
+	@ApiOperation(response = Optional.class, value = "Login User") // label for swagger
+	@RequestMapping(value = "/login", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<?> loginUser(@RequestParam String name, @RequestParam String password,
+									   @RequestParam String authToken, @RequestParam(required = false) String version) {
 		try {
 			UserManagement loggedUser = idmasterService.validateUserID(name, password, authToken, version);
 			log.info("LoginUser::: " + loggedUser);
@@ -101,24 +103,24 @@ public class IDMasterServiceController {
 			log.error("Invalid user");
 			String str = "Either UserId is invalid or Password does not match.";
 			CustomErrorResponse error = new CustomErrorResponse();
-	        error.setTimestamp(LocalDateTime.now());
-	        error.setError(str);
-	        error.setStatus(HttpStatus.BAD_REQUEST.value());
+			error.setTimestamp(LocalDateTime.now());
+			error.setError(str);
+			error.setStatus(HttpStatus.BAD_REQUEST.value());
 			return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
 		}
 	}
-    
-    @ApiOperation(response = UserManagement.class, value = "Get all UserManagement details") // label for swagger
+
+	@ApiOperation(response = UserManagement.class, value = "Get all UserManagement details") // label for swagger
 	@GetMapping("/usermanagement")
 	public ResponseEntity<?> getAll(@RequestParam String authToken) {
 		UserManagement[] userManagementList = idmasterService.getUserManagements(authToken);
 		return new ResponseEntity<>(userManagementList, HttpStatus.OK);
 	}
-    
-    @ApiOperation(response = UserManagement.class, value = "Get a UserManagement") // label for swagger
+
+	@ApiOperation(response = UserManagement.class, value = "Get a UserManagement") // label for swagger
 	@GetMapping("/usermanagement/{userId}")
-	public ResponseEntity<?> getUserManagement(@PathVariable String userId, @RequestParam String warehouseId, 
-			@RequestParam String authToken) {
+	public ResponseEntity<?> getUserManagement(@PathVariable String userId, @RequestParam String warehouseId,
+											   @RequestParam String authToken) {
 		UserManagement dbUserManagement = idmasterService.getUserManagement(userId, warehouseId, authToken);
 		log.info("UserManagement : " + dbUserManagement);
 		return new ResponseEntity<>(dbUserManagement, HttpStatus.OK);
@@ -126,33 +128,33 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = UserManagement.class, value = "Create UserManagement") // label for swagger
 	@PostMapping("/usermanagement")
-	public ResponseEntity<?> postUserManagement(@Valid @RequestBody AddUserManagement newUserManagement, 
-			@RequestParam String loginUserID, @RequestParam String authToken) 
-					throws IllegalAccessException, InvocationTargetException {
+	public ResponseEntity<?> postUserManagement(@Valid @RequestBody AddUserManagement newUserManagement,
+												@RequestParam String loginUserID, @RequestParam String authToken)
+			throws IllegalAccessException, InvocationTargetException {
 		UserManagement createdUserManagement = idmasterService.createUserManagement(newUserManagement, loginUserID, authToken);
 		return new ResponseEntity<>(createdUserManagement, HttpStatus.OK);
 	}
 
 	@ApiOperation(response = UserManagement.class, value = "Update UserManagement") // label for swagger
 	@RequestMapping(value = "/usermanagement/{userId}", method = RequestMethod.PATCH)
-	public ResponseEntity<?> patchUserManagement(@PathVariable String userId, @RequestParam String warehouseId, 
-			@RequestParam String loginUserID, @RequestParam String authToken, @Valid @RequestBody UpdateUserManagement updateUserManagement)
+	public ResponseEntity<?> patchUserManagement(@PathVariable String userId, @RequestParam String warehouseId,
+												 @RequestParam String loginUserID, @RequestParam String authToken, @Valid @RequestBody UpdateUserManagement updateUserManagement)
 			throws IllegalAccessException, InvocationTargetException {
-		UserManagement updatedUserManagement = 
+		UserManagement updatedUserManagement =
 				idmasterService.updateUserManagement(userId, warehouseId, loginUserID, updateUserManagement, authToken);
 		return new ResponseEntity<>(updatedUserManagement, HttpStatus.OK);
 	}
 
 	@ApiOperation(response = UserManagement.class, value = "Delete UserManagement") // label for swagger
 	@DeleteMapping("/usermanagement/{userId}")
-	public ResponseEntity<?> deleteUserManagement(@PathVariable String userId, @RequestParam String warehouseId, 
-			@RequestParam String loginUserID, @RequestParam String authToken) {
+	public ResponseEntity<?> deleteUserManagement(@PathVariable String userId, @RequestParam String warehouseId,
+												  @RequestParam String loginUserID, @RequestParam String authToken) {
 		idmasterService.deleteUserManagement(userId, warehouseId, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
     /* --------------------------------City-------------------------------------------------------------------------*/
-	
+
     @ApiOperation(response = Optional.class, value = "Get All Cities") // label for swagger
     @RequestMapping(value = "/city", method = RequestMethod.GET)
 	public ResponseEntity<?> getCities(@RequestParam String authToken) {
@@ -160,7 +162,7 @@ public class IDMasterServiceController {
 		log.info("getCities::: " + city);
 		return new ResponseEntity<>(city, HttpStatus.OK);
 	}
-    
+
     @ApiOperation(response = Optional.class, value = "Get City") // label for swagger
     @RequestMapping(value = "/city/{cityId}", method = RequestMethod.GET)
 	public ResponseEntity<?> getCity(@RequestParam String cityId, @RequestParam String authToken) {
@@ -168,7 +170,7 @@ public class IDMasterServiceController {
 		log.info("getCity::: " + city);
 		return new ResponseEntity<>(city, HttpStatus.OK);
 	}
-    
+
     @ApiOperation(response = Optional.class, value = "Create new city") // label for swagger
     @RequestMapping(value = "/city", method = RequestMethod.POST)
 	public ResponseEntity<?> createCity(@RequestParam String authToken, @RequestBody City newCity) {
@@ -176,7 +178,7 @@ public class IDMasterServiceController {
 		log.info("createCity::: " + city);
 		return new ResponseEntity<>(city, HttpStatus.OK);
 	}
-    
+
     @ApiOperation(response = Optional.class, value = "Update City") // label for swagger
     @RequestMapping(value = "/city", method = RequestMethod.PATCH)
 	public ResponseEntity<?> updateCity(@RequestParam String authToken, @RequestParam String cityId, @RequestBody City updatedCity) {
@@ -184,7 +186,7 @@ public class IDMasterServiceController {
 		log.info("updateCity::: " + city);
 		return new ResponseEntity<>(city, HttpStatus.OK);
 	}
-    
+
     @ApiOperation(response = Optional.class, value = "Get City") // label for swagger
     @RequestMapping(value = "/city/{cityId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> deleteCity(@RequestParam String cityId, @RequestParam String authToken) {
@@ -192,9 +194,9 @@ public class IDMasterServiceController {
 		log.info("isCityDeleted::: " + isCityDeleted);
 		return new ResponseEntity<>(isCityDeleted, HttpStatus.OK);
 	}
-    
+
     /* --------------------------------Country-------------------------------------------------------------------------*/
-	
+
     @ApiOperation(response = Optional.class, value = "Get All Country") // label for swagger
     @RequestMapping(value = "/country", method = RequestMethod.GET)
 	public ResponseEntity<?> getCountries(@RequestParam String authToken) {
@@ -202,7 +204,7 @@ public class IDMasterServiceController {
 		log.info("getCities::: " + country);
 		return new ResponseEntity<>(country, HttpStatus.OK);
 	}
-    
+
     @ApiOperation(response = Optional.class, value = "Get Country") // label for swagger
     @RequestMapping(value = "/country/{countryId}", method = RequestMethod.GET)
 	public ResponseEntity<?> getCountry(@RequestParam String countryId, @RequestParam String authToken) {
@@ -210,7 +212,7 @@ public class IDMasterServiceController {
 		log.info("getCountry::: " + country);
 		return new ResponseEntity<>(country, HttpStatus.OK);
 	}
-    
+
     @ApiOperation(response = Optional.class, value = "Create new Country") // label for swagger
     @RequestMapping(value = "/country", method = RequestMethod.POST)
 	public ResponseEntity<?> createCountry(@RequestParam String authToken, @RequestBody Country newCountry) {
@@ -218,7 +220,7 @@ public class IDMasterServiceController {
 		log.info("createCountry::: " + country);
 		return new ResponseEntity<>(country, HttpStatus.OK);
 	}
-    
+
     @ApiOperation(response = Optional.class, value = "Update Country") // label for swagger
     @RequestMapping(value = "/country", method = RequestMethod.PATCH)
 	public ResponseEntity<?> updateCountry(@RequestParam String authToken, @RequestParam String countryId, @RequestBody Country updatedCountry) {
@@ -226,7 +228,7 @@ public class IDMasterServiceController {
 		log.info("updateCountry::: " + country);
 		return new ResponseEntity<>(country, HttpStatus.OK);
 	}
-    
+
     @ApiOperation(response = Optional.class, value = "Get Country") // label for swagger
     @RequestMapping(value = "/country/{countryId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> deleteCountry(@RequestParam String countryId, @RequestParam String authToken) {
@@ -234,9 +236,9 @@ public class IDMasterServiceController {
 		log.info("isCountryDeleted::: " + isCountryDeleted);
 		return new ResponseEntity<>(isCountryDeleted, HttpStatus.OK);
 	}
-    
+
     /* --------------------------------State-------------------------------------------------------------------------*/
-	
+
     @ApiOperation(response = Optional.class, value = "Get All States") // label for swagger
     @RequestMapping(value = "/state", method = RequestMethod.GET)
 	public ResponseEntity<?> getStates(@RequestParam String authToken) {
@@ -244,7 +246,7 @@ public class IDMasterServiceController {
 		log.info("getStates::: " + state);
 		return new ResponseEntity<>(state, HttpStatus.OK);
 	}
-    
+
     @ApiOperation(response = Optional.class, value = "Get State") // label for swagger
     @RequestMapping(value = "/state/{stateId}", method = RequestMethod.GET)
 	public ResponseEntity<?> getState(@RequestParam String stateId, @RequestParam String authToken) {
@@ -252,7 +254,7 @@ public class IDMasterServiceController {
 		log.info("getState::: " + state);
 		return new ResponseEntity<>(state, HttpStatus.OK);
 	}
-    
+
 	@ApiOperation(response = Optional.class, value = "Create new State") // label for swagger
     @RequestMapping(value = "/state", method = RequestMethod.POST)
 	public ResponseEntity<?> createState(@RequestParam String authToken, @RequestBody State newState) {
@@ -260,7 +262,7 @@ public class IDMasterServiceController {
 		log.info("createState::: " + state);
 		return new ResponseEntity<>(state, HttpStatus.OK);
 	}
-    
+
     @ApiOperation(response = Optional.class, value = "Update State") // label for swagger
     @RequestMapping(value = "/state", method = RequestMethod.PATCH)
 	public ResponseEntity<?> updateState(@RequestParam String authToken, @RequestParam String stateId, @RequestBody State updatedState) {
@@ -268,7 +270,7 @@ public class IDMasterServiceController {
 		log.info("updateState::: " + state);
 		return new ResponseEntity<>(state, HttpStatus.OK);
 	}
-    
+
     @ApiOperation(response = Optional.class, value = "Get State") // label for swagger
     @RequestMapping(value = "/state/{stateId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> deleteState(@RequestParam String stateId, @RequestParam String authToken) {
@@ -276,9 +278,9 @@ public class IDMasterServiceController {
 		log.info("isStateDeleted::: " + isStateDeleted);
 		return new ResponseEntity<>(isStateDeleted, HttpStatus.OK);
 	}
-    
+
     /* --------------------------------Currency-------------------------------------------------------------------------*/
-	
+
     @ApiOperation(response = Optional.class, value = "Get All Currency") // label for swagger
     @RequestMapping(value = "/currency", method = RequestMethod.GET)
 	public ResponseEntity<?> getCurrencies(@RequestParam String authToken) {
@@ -286,7 +288,7 @@ public class IDMasterServiceController {
 		log.info("getCities::: " + currency);
 		return new ResponseEntity<>(currency, HttpStatus.OK);
 	}
-    
+
     @ApiOperation(response = Optional.class, value = "Get Currency") // label for swagger
     @RequestMapping(value = "/currency/{currencyId}", method = RequestMethod.GET)
 	public ResponseEntity<?> getCurrency(@RequestParam String currencyId, @RequestParam String authToken) {
@@ -294,7 +296,7 @@ public class IDMasterServiceController {
 		log.info("getCurrency::: " + currency);
 		return new ResponseEntity<>(currency, HttpStatus.OK);
 	}
-    
+
 	@ApiOperation(response = Optional.class, value = "Create new Currency") // label for swagger
     @RequestMapping(value = "/currency", method = RequestMethod.POST)
 	public ResponseEntity<?> createCurrency(@RequestParam String authToken, @RequestBody Currency newCurrency) {
@@ -302,7 +304,7 @@ public class IDMasterServiceController {
 		log.info("createCurrency::: " + currency);
 		return new ResponseEntity<>(currency, HttpStatus.OK);
 	}
-    
+
     @ApiOperation(response = Optional.class, value = "Update Currency") // label for swagger
     @RequestMapping(value = "/currency", method = RequestMethod.PATCH)
 	public ResponseEntity<?> updateCurrency(@RequestParam String authToken, @RequestParam String currencyId, @RequestBody Currency updatedCurrency) {
@@ -310,7 +312,7 @@ public class IDMasterServiceController {
 		log.info("updateCurrency::: " + currency);
 		return new ResponseEntity<>(currency, HttpStatus.OK);
 	}
-    
+
     @ApiOperation(response = Optional.class, value = "Get Currency") // label for swagger
     @RequestMapping(value = "/currency/{currencyId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> deleteCurrency(@RequestParam String currencyId, @RequestParam String authToken) {
@@ -318,9 +320,9 @@ public class IDMasterServiceController {
 		log.info("isCurrencyDeleted::: " + isCurrencyDeleted);
 		return new ResponseEntity<>(isCurrencyDeleted, HttpStatus.OK);
 	}
-    
+
     /* --------------------------------Vertical-------------------------------------------------------------------------*/
-	
+
     @ApiOperation(response = Optional.class, value = "Get All Verticals") // label for swagger
     @RequestMapping(value = "/vetical", method = RequestMethod.GET)
 	public ResponseEntity<?> getVeticals(@RequestParam String authToken) {
@@ -328,7 +330,7 @@ public class IDMasterServiceController {
 		log.info("getVeticals::: " + veticals);
 		return new ResponseEntity<>(veticals, HttpStatus.OK);
 	}
-    
+
     @ApiOperation(response = Optional.class, value = "Get Vertical") // label for swagger
     @RequestMapping(value = "/vetical/{verticalId}", method = RequestMethod.GET)
 	public ResponseEntity<?> getVetical(@RequestParam String verticalId, @RequestParam String authToken) {
@@ -336,7 +338,7 @@ public class IDMasterServiceController {
 		log.info("getVetical::: " + vertical);
 		return new ResponseEntity<>(vertical, HttpStatus.OK);
 	}
-    
+
 	@ApiOperation(response = Optional.class, value = "Create new Vertical") // label for swagger
     @RequestMapping(value = "/vertical", method = RequestMethod.POST)
 	public ResponseEntity<?> createVertical(@RequestParam String authToken, @RequestBody Vertical newVertical) {
@@ -344,7 +346,7 @@ public class IDMasterServiceController {
 		log.info("createVertical::: " + vertical);
 		return new ResponseEntity<>(vertical, HttpStatus.OK);
 	}
-    
+
     @ApiOperation(response = Optional.class, value = "Update Vertical") // label for swagger
     @RequestMapping(value = "/vertical", method = RequestMethod.PATCH)
 	public ResponseEntity<?> updateVertical(@RequestParam String authToken, @RequestParam String verticalId, @RequestBody Vertical updatedVertical) {
@@ -352,7 +354,7 @@ public class IDMasterServiceController {
 		log.info("updateVertical::: " + vertical);
 		return new ResponseEntity<>(vertical, HttpStatus.OK);
 	}
-    
+
     @ApiOperation(response = Optional.class, value = "Get Vertical") // label for swagger
     @RequestMapping(value = "/vertical/{verticalId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> deleteVertical(@RequestParam String verticalId, @RequestParam String authToken) {
@@ -360,7 +362,7 @@ public class IDMasterServiceController {
 		log.info("isVerticalDeleted::: " + isVerticalDeleted);
 		return new ResponseEntity<>(isVerticalDeleted, HttpStatus.OK);
 	}
-    
+
     /*
 	 * --------------------------------BarcodeSubTypeId---------------------------------
 	 */
@@ -373,9 +375,9 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = BarcodeSubTypeId.class, value = "Get a BarcodeSubTypeId") // label for swagger
 	@GetMapping("/barcodesubtypeid/{barcodeSubTypeId}")
-	public ResponseEntity<?> getBarcodeSubTypeId(@PathVariable Long barcodeSubTypeId, 
+	public ResponseEntity<?> getBarcodeSubTypeId(@PathVariable Long barcodeSubTypeId,
 			@RequestParam String warehouseId, @RequestParam Long barcodeTypeId,  @RequestParam String authToken) {
-		BarcodeSubTypeId dbBarcodeSubTypeId = 
+		BarcodeSubTypeId dbBarcodeSubTypeId =
 				idmasterService.getBarcodeSubTypeId(warehouseId, barcodeTypeId, barcodeSubTypeId, authToken);
 		log.info("BarcodeSubTypeId : " + dbBarcodeSubTypeId);
 		return new ResponseEntity<>(dbBarcodeSubTypeId, HttpStatus.OK);
@@ -391,22 +393,22 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = BarcodeSubTypeId.class, value = "Update BarcodeSubTypeId") // label for swagger
 	@RequestMapping(value = "/barcodesubtypeid/{barcodeSubTypeId}", method = RequestMethod.PATCH)
-	public ResponseEntity<?> patchBarcodeSubTypeId(@PathVariable Long barcodeSubTypeId, @RequestParam String warehouseId, 
-			@RequestParam Long barcodeTypeId, @RequestParam String loginUserID, @RequestParam String authToken, 
+	public ResponseEntity<?> patchBarcodeSubTypeId(@PathVariable Long barcodeSubTypeId, @RequestParam String warehouseId,
+			@RequestParam Long barcodeTypeId, @RequestParam String loginUserID, @RequestParam String authToken,
 			@Valid @RequestBody BarcodeSubTypeId updateBarcodeSubTypeId) throws IllegalAccessException, InvocationTargetException {
-		BarcodeSubTypeId updatedBarcodeSubTypeId = 
+		BarcodeSubTypeId updatedBarcodeSubTypeId =
 				idmasterService.updateBarcodeSubTypeId(warehouseId, barcodeTypeId, barcodeSubTypeId, loginUserID, updateBarcodeSubTypeId, authToken);
 		return new ResponseEntity<>(updatedBarcodeSubTypeId, HttpStatus.OK);
 	}
 
 	@ApiOperation(response = BarcodeSubTypeId.class, value = "Delete BarcodeSubTypeId") // label for swagger
 	@DeleteMapping("/barcodesubtypeid/{barcodeSubTypeId}")
-	public ResponseEntity<?> deleteBarcodeSubTypeId(@PathVariable Long barcodeSubTypeId, @RequestParam String warehouseId, @RequestParam Long barcodeTypeId,  
+	public ResponseEntity<?> deleteBarcodeSubTypeId(@PathVariable Long barcodeSubTypeId, @RequestParam String warehouseId, @RequestParam Long barcodeTypeId,
 			@RequestParam String loginUserID, @RequestParam String authToken) {
 		idmasterService.deleteBarcodeSubTypeId(warehouseId, barcodeTypeId, barcodeSubTypeId, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
 	/*
 	 * --------------------------------BarcodeTypeId---------------------------------
 	 */
@@ -435,22 +437,22 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = BarcodeTypeId.class, value = "Update BarcodeTypeId") // label for swagger
 	@RequestMapping(value = "/barcodetypeid/{barcodeTypeId}", method = RequestMethod.PATCH)
-	public ResponseEntity<?> patchBarcodeTypeId(@PathVariable Long barcodeTypeId, @RequestParam String warehouseId,  
+	public ResponseEntity<?> patchBarcodeTypeId(@PathVariable Long barcodeTypeId, @RequestParam String warehouseId,
 			@RequestParam String loginUserID, @RequestParam String authToken, @Valid @RequestBody BarcodeTypeId updateBarcodeTypeId)
 			throws IllegalAccessException, InvocationTargetException {
-		BarcodeTypeId updatedBarcodeTypeId = 
+		BarcodeTypeId updatedBarcodeTypeId =
 				idmasterService.updateBarcodeTypeId(warehouseId, barcodeTypeId, loginUserID, updateBarcodeTypeId, authToken);
 		return new ResponseEntity<>(updatedBarcodeTypeId, HttpStatus.OK);
 	}
 
 	@ApiOperation(response = BarcodeTypeId.class, value = "Delete BarcodeTypeId") // label for swagger
 	@DeleteMapping("/barcodetypeid/{barcodeTypeId}")
-	public ResponseEntity<?> deleteBarcodeTypeId(@PathVariable Long barcodeTypeId, @RequestParam String warehouseId,  
+	public ResponseEntity<?> deleteBarcodeTypeId(@PathVariable Long barcodeTypeId, @RequestParam String warehouseId,
 			@RequestParam String loginUserID, @RequestParam String authToken) {
 		idmasterService.deleteBarcodeTypeId(warehouseId, barcodeTypeId, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
 	/*
 	 * --------------------------------CompanyId---------------------------------
 	 */
@@ -479,17 +481,17 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = CompanyId.class, value = "Update CompanyId") // label for swagger
 	@RequestMapping(value = "/companyid/{companyCodeId}", method = RequestMethod.PATCH)
-	public ResponseEntity<?> patchCompanyId(@PathVariable String companyCodeId,  
+	public ResponseEntity<?> patchCompanyId(@PathVariable String companyCodeId,
 			@RequestParam String loginUserID, @RequestParam String authToken, @Valid @RequestBody UpdateCompanyId updateCompanyId)
 			throws IllegalAccessException, InvocationTargetException {
-		CompanyId updatedCompanyId = 
+		CompanyId updatedCompanyId =
 				idmasterService.updateCompanyId(companyCodeId, loginUserID, updateCompanyId, authToken);
 		return new ResponseEntity<>(updatedCompanyId, HttpStatus.OK);
 	}
 
 	@ApiOperation(response = CompanyId.class, value = "Delete CompanyId") // label for swagger
 	@DeleteMapping("/companyid/{companyCodeId}")
-	public ResponseEntity<?> deleteCompanyId(@PathVariable String companyCodeId,  
+	public ResponseEntity<?> deleteCompanyId(@PathVariable String companyCodeId,
 			@RequestParam String loginUserID, @RequestParam String authToken) {
 		idmasterService.deleteCompanyId(companyCodeId, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -523,22 +525,22 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = FloorId.class, value = "Update FloorId") // label for swagger
 	@RequestMapping(value = "/floorid/{floorId}", method = RequestMethod.PATCH)
-	public ResponseEntity<?> patchFloorId(@PathVariable Long floorId, @RequestParam String warehouseId,  
+	public ResponseEntity<?> patchFloorId(@PathVariable Long floorId, @RequestParam String warehouseId,
 			@RequestParam String loginUserID, @RequestParam String authToken, @Valid @RequestBody FloorId updateFloorId)
 			throws IllegalAccessException, InvocationTargetException {
-		FloorId updatedFloorId = 
+		FloorId updatedFloorId =
 				idmasterService.updateFloorId(warehouseId, floorId, loginUserID, updateFloorId, authToken);
 		return new ResponseEntity<>(updatedFloorId, HttpStatus.OK);
 	}
 
 	@ApiOperation(response = FloorId.class, value = "Delete FloorId") // label for swagger
 	@DeleteMapping("/floorid/{floorId}")
-	public ResponseEntity<?> deleteFloorId(@PathVariable Long floorId, @RequestParam String warehouseId,  
+	public ResponseEntity<?> deleteFloorId(@PathVariable Long floorId, @RequestParam String warehouseId,
 			@RequestParam String loginUserID, @RequestParam String authToken) {
 		idmasterService.deleteFloorId(warehouseId, floorId, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
 	/*
 	 * --------------------------------ItemGroupId---------------------------------
 	 */
@@ -570,7 +572,7 @@ public class IDMasterServiceController {
 	public ResponseEntity<?> patchItemGroupId(@PathVariable Long itemGroupId, @RequestParam String warehouseId, @RequestParam Long itemTypeId,
 			@RequestParam String loginUserID, @RequestParam String authToken, @Valid @RequestBody ItemGroupId updateItemGroupId)
 			throws IllegalAccessException, InvocationTargetException {
-		ItemGroupId updatedItemGroupId = 
+		ItemGroupId updatedItemGroupId =
 				idmasterService.updateItemGroupId(warehouseId, itemTypeId, itemGroupId, loginUserID, updateItemGroupId, authToken);
 		return new ResponseEntity<>(updatedItemGroupId, HttpStatus.OK);
 	}
@@ -595,7 +597,7 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = ItemTypeId.class, value = "Get a ItemTypeId") // label for swagger
 	@GetMapping("/itemtypeid/{itemTypeId}")
-	public ResponseEntity<?> getItemTypeId(@PathVariable Long itemTypeId, @RequestParam String warehouseId, 
+	public ResponseEntity<?> getItemTypeId(@PathVariable Long itemTypeId, @RequestParam String warehouseId,
 			@RequestParam String authToken) {
 		ItemTypeId dbItemTypeId = idmasterService.getItemTypeId(warehouseId, itemTypeId, authToken);
 		log.info("ItemTypeId : " + dbItemTypeId);
@@ -615,7 +617,7 @@ public class IDMasterServiceController {
 	public ResponseEntity<?> patchItemTypeId(@PathVariable Long itemTypeId, @RequestParam String warehouseId,
 			@RequestParam String loginUserID, @RequestParam String authToken, @Valid @RequestBody ItemTypeId updateItemTypeId)
 			throws IllegalAccessException, InvocationTargetException {
-		ItemTypeId updatedItemTypeId = 
+		ItemTypeId updatedItemTypeId =
 				idmasterService.updateItemTypeId(warehouseId, itemTypeId, loginUserID, updateItemTypeId, authToken);
 		return new ResponseEntity<>(updatedItemTypeId, HttpStatus.OK);
 	}
@@ -627,7 +629,7 @@ public class IDMasterServiceController {
 		idmasterService.deleteItemTypeId(warehouseId, itemTypeId, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
 	/*
 	 * --------------------------------LevelId---------------------------------
 	 */
@@ -640,7 +642,7 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = LevelId.class, value = "Get a LevelId") // label for swagger
 	@GetMapping("/levelid/{levelId}")
-	public ResponseEntity<?> getLevelId(@PathVariable Long levelId, @RequestParam String warehouseId,  @RequestParam String level, 
+	public ResponseEntity<?> getLevelId(@PathVariable Long levelId, @RequestParam String warehouseId,  @RequestParam String level,
 			@RequestParam String authToken) {
 		LevelId dbLevelId = idmasterService.getLevelId(warehouseId, levelId, level, authToken);
 		log.info("LevelId : " + dbLevelId);
@@ -657,22 +659,22 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = LevelId.class, value = "Update LevelId") // label for swagger
 	@RequestMapping(value = "/levelid/{levelId}", method = RequestMethod.PATCH)
-	public ResponseEntity<?> patchLevelId(@PathVariable Long levelId, @RequestParam String warehouseId,  @RequestParam String level, 
+	public ResponseEntity<?> patchLevelId(@PathVariable Long levelId, @RequestParam String warehouseId,  @RequestParam String level,
 			@RequestParam String loginUserID, @RequestParam String authToken, @Valid @RequestBody LevelId updateLevelId)
 			throws IllegalAccessException, InvocationTargetException {
-		LevelId updatedLevelId = 
+		LevelId updatedLevelId =
 				idmasterService.updateLevelId(warehouseId, levelId, level, loginUserID, updateLevelId, authToken);
 		return new ResponseEntity<>(updatedLevelId, HttpStatus.OK);
 	}
 
 	@ApiOperation(response = LevelId.class, value = "Delete LevelId") // label for swagger
 	@DeleteMapping("/levelid/{levelId}")
-	public ResponseEntity<?> deleteLevelId(@PathVariable Long levelId, @RequestParam String warehouseId,  @RequestParam String level, 
+	public ResponseEntity<?> deleteLevelId(@PathVariable Long levelId, @RequestParam String warehouseId,  @RequestParam String level,
 			@RequestParam String loginUserID, @RequestParam String authToken) {
 		idmasterService.deleteLevelId(warehouseId, levelId, level, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
 	/*
 	 * --------------------------------MenuId-----------------------------------------------------------------------------------
 	 */
@@ -685,8 +687,8 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = MenuId.class, value = "Get a MenuId") // label for swagger
 	@GetMapping("/menuid/{menuId}")
-	public ResponseEntity<?> getMenuId(@PathVariable Long menuId, @RequestParam String warehouseId, @RequestParam Long subMenuId, 
-			@RequestParam Long authorizationObjectId, @RequestParam String authorizationObjectValue,  @RequestParam String authToken) {
+	public ResponseEntity<?> getMenuId(@PathVariable Long menuId, @RequestParam String warehouseId, @RequestParam Long subMenuId,
+									   @RequestParam Long authorizationObjectId, @RequestParam String authorizationObjectValue,  @RequestParam String authToken) {
 		MenuId dbMenuId = idmasterService.getMenuId(warehouseId, menuId, subMenuId, authorizationObjectId, authorizationObjectValue, authToken);
 		log.info("MenuId : " + dbMenuId);
 		return new ResponseEntity<>(dbMenuId, HttpStatus.OK);
@@ -695,25 +697,25 @@ public class IDMasterServiceController {
 	@ApiOperation(response = MenuId.class, value = "Create MenuId") // label for swagger
 	@PostMapping("/menuid")
 	public ResponseEntity<?> postMenuId(@Valid @RequestBody MenuId newMenuId, @RequestParam String loginUserID,
-			@RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+										@RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
 		MenuId createdMenuId = idmasterService.createMenuId(newMenuId, loginUserID, authToken);
 		return new ResponseEntity<>(createdMenuId, HttpStatus.OK);
 	}
 
 	@ApiOperation(response = MenuId.class, value = "Update MenuId") // label for swagger
 	@RequestMapping(value = "/menuid/{menuId}", method = RequestMethod.PATCH)
-	public ResponseEntity<?> patchMenuId(@PathVariable Long menuId, @RequestParam String warehouseId, @RequestParam Long subMenuId, @RequestParam Long authorizationObjectId, @RequestParam String menuName,  
-			@RequestParam String loginUserID, @RequestParam String authToken, @Valid @RequestBody MenuId updateMenuId)
+	public ResponseEntity<?> patchMenuId(@PathVariable Long menuId, @RequestParam String warehouseId, @RequestParam Long subMenuId, @RequestParam Long authorizationObjectId, @RequestParam String menuName,
+										 @RequestParam String loginUserID, @RequestParam String authToken, @Valid @RequestBody MenuId updateMenuId)
 			throws IllegalAccessException, InvocationTargetException {
-		MenuId updatedMenuId = 
+		MenuId updatedMenuId =
 				idmasterService.updateMenuId(warehouseId, menuId, subMenuId, authorizationObjectId, menuName, loginUserID, updateMenuId, authToken);
 		return new ResponseEntity<>(updatedMenuId, HttpStatus.OK);
 	}
 
 	@ApiOperation(response = MenuId.class, value = "Delete MenuId") // label for swagger
 	@DeleteMapping("/menuid/{menuId}")
-	public ResponseEntity<?> deleteMenuId(@PathVariable Long menuId, @RequestParam String warehouseId, @RequestParam Long subMenuId, @RequestParam Long authorizationObjectId, @RequestParam String menuName,  
-			@RequestParam String loginUserID, @RequestParam String authToken) {
+	public ResponseEntity<?> deleteMenuId(@PathVariable Long menuId, @RequestParam String warehouseId, @RequestParam Long subMenuId, @RequestParam Long authorizationObjectId, @RequestParam String menuName,
+										  @RequestParam String loginUserID, @RequestParam String authToken) {
 		idmasterService.deleteMenuId(warehouseId, menuId, subMenuId, authorizationObjectId, menuName, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
@@ -746,7 +748,7 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = PlantId.class, value = "Update PlantId") // label for swagger
 	@RequestMapping(value = "/plantid/{plantId}", method = RequestMethod.PATCH)
-	public ResponseEntity<?> patchPlantId(@PathVariable String plantId, @RequestParam String companyCodeId,  
+	public ResponseEntity<?> patchPlantId(@PathVariable String plantId, @RequestParam String companyCodeId,
 			@RequestParam String loginUserID, @RequestParam String authToken, @Valid @RequestBody PlantId updatePlantId)
 			throws IllegalAccessException, InvocationTargetException {
 		PlantId updatedPlantId = idmasterService.updatePlantId(plantId, loginUserID, updatePlantId, authToken);
@@ -772,9 +774,9 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = ProcessSequenceId.class, value = "Get a ProcessSequenceId") // label for swagger
 	@GetMapping("/processsequenceid/{processId}")
-	public ResponseEntity<?> getProcessSequenceId(@PathVariable Long processId, @RequestParam String warehouseId, 
+	public ResponseEntity<?> getProcessSequenceId(@PathVariable Long processId, @RequestParam String warehouseId,
 			@RequestParam Long subLevelId, @RequestParam String authToken) {
-		ProcessSequenceId dbProcessSequenceId = 
+		ProcessSequenceId dbProcessSequenceId =
 				idmasterService.getProcessSequenceId(warehouseId, processId, subLevelId, authToken);
 		log.info("ProcessSequenceId : " + dbProcessSequenceId);
 		return new ResponseEntity<>(dbProcessSequenceId, HttpStatus.OK);
@@ -790,10 +792,10 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = ProcessSequenceId.class, value = "Update ProcessSequenceId") // label for swagger
 	@RequestMapping(value = "/processsequenceid/{processId}", method = RequestMethod.PATCH)
-	public ResponseEntity<?> patchProcessSequenceId(@PathVariable Long processId, @RequestParam String warehouseId, @RequestParam Long subLevelId,  
+	public ResponseEntity<?> patchProcessSequenceId(@PathVariable Long processId, @RequestParam String warehouseId, @RequestParam Long subLevelId,
 			@RequestParam String loginUserID,@RequestParam String authToken, @Valid @RequestBody ProcessSequenceId updateProcessSequenceId)
 			throws IllegalAccessException, InvocationTargetException {
-		ProcessSequenceId updatedProcessSequenceId = 
+		ProcessSequenceId updatedProcessSequenceId =
 				idmasterService.updateProcessSequenceId(warehouseId, processId, subLevelId,
 						loginUserID, updateProcessSequenceId, authToken);
 		return new ResponseEntity<>(updatedProcessSequenceId, HttpStatus.OK);
@@ -806,7 +808,7 @@ public class IDMasterServiceController {
 		idmasterService.deleteProcessSequenceId(warehouseId, processId, subLevelId, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
 	/*
 	 * --------------------------------RowId---------------------------------
 	 */
@@ -819,7 +821,7 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = RowId.class, value = "Get a RowId") // label for swagger
 	@GetMapping("/rowid/{rowId}")
-	public ResponseEntity<?> getRowId(@PathVariable String rowId, @RequestParam String warehouseId, @RequestParam Long floorId, 
+	public ResponseEntity<?> getRowId(@PathVariable String rowId, @RequestParam String warehouseId, @RequestParam Long floorId,
 			@RequestParam Long storageSectionId,  @RequestParam String authToken) {
 		RowId dbRowId = idmasterService.getRowId(warehouseId, floorId, storageSectionId, rowId, authToken);
 		log.info("RowId : " + dbRowId);
@@ -836,23 +838,23 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = RowId.class, value = "Update RowId") // label for swagger
 	@RequestMapping(value = "/rowid/{rowId}", method = RequestMethod.PATCH)
-	public ResponseEntity<?> patchRowId(@PathVariable String rowId, @RequestParam String warehouseId, @RequestParam Long floorId, 
-			@RequestParam Long storageSectionId, @RequestParam String loginUserID, @RequestParam String authToken, 
+	public ResponseEntity<?> patchRowId(@PathVariable String rowId, @RequestParam String warehouseId, @RequestParam Long floorId,
+			@RequestParam Long storageSectionId, @RequestParam String loginUserID, @RequestParam String authToken,
 			@Valid @RequestBody RowId updateRowId)
 			throws IllegalAccessException, InvocationTargetException {
-		RowId updatedRowId = 
+		RowId updatedRowId =
 				idmasterService.updateRowId(warehouseId, floorId, storageSectionId, rowId, loginUserID, updateRowId, authToken);
 		return new ResponseEntity<>(updatedRowId, HttpStatus.OK);
 	}
 
 	@ApiOperation(response = RowId.class, value = "Delete RowId") // label for swagger
 	@DeleteMapping("/rowid/{rowId}")
-	public ResponseEntity<?> deleteRowId(@PathVariable String rowId, @RequestParam String warehouseId, @RequestParam Long floorId, 
+	public ResponseEntity<?> deleteRowId(@PathVariable String rowId, @RequestParam String warehouseId, @RequestParam Long floorId,
 			@RequestParam Long storageSectionId, @RequestParam String loginUserID, @RequestParam String authToken) {
 		idmasterService.deleteRowId(warehouseId, floorId, storageSectionId, rowId, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
 	/*
 	 * --------------------------------StatusId----------------------------------------------------------------------------
 	 */
@@ -881,22 +883,22 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = StatusId.class, value = "Update StatusId") // label for swagger
 	@RequestMapping(value = "/statusid/{statusId}", method = RequestMethod.PATCH)
-	public ResponseEntity<?> patchStatusId(@PathVariable Long statusId,  @RequestParam String warehouseId, 
+	public ResponseEntity<?> patchStatusId(@PathVariable Long statusId,  @RequestParam String warehouseId,
 			@RequestParam String loginUserID, @RequestParam String authToken, @Valid @RequestBody UpdateStatusId updateStatusId)
 			throws IllegalAccessException, InvocationTargetException {
-		StatusId updatedStatusId = 
+		StatusId updatedStatusId =
 				idmasterService.updateStatusId(warehouseId, statusId, loginUserID, updateStatusId, authToken);
 		return new ResponseEntity<>(updatedStatusId, HttpStatus.OK);
 	}
 
 	@ApiOperation(response = StatusId.class, value = "Delete StatusId") // label for swagger
 	@DeleteMapping("/statusid/{statusId}")
-	public ResponseEntity<?> deleteStatusId(@PathVariable Long statusId,  @RequestParam String warehouseId, 
+	public ResponseEntity<?> deleteStatusId(@PathVariable Long statusId,  @RequestParam String warehouseId,
 			@RequestParam String loginUserID, @RequestParam String authToken) {
 		idmasterService.deleteStatusId(warehouseId, statusId, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
 	/*
 	 * --------------------------------StorageBinTypeId---------------------------------
 	 */
@@ -909,9 +911,9 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = StorageBinTypeId.class, value = "Get a StorageBinTypeId") // label for swagger
 	@GetMapping("/storagebintypeid/{storageBinTypeId}")
-	public ResponseEntity<?> getStorageBinTypeId(@PathVariable Long storageBinTypeId, @RequestParam String warehouseId, 
+	public ResponseEntity<?> getStorageBinTypeId(@PathVariable Long storageBinTypeId, @RequestParam String warehouseId,
 			@RequestParam Long storageClassId, @RequestParam Long storageTypeId,  @RequestParam String authToken) {
-		StorageBinTypeId dbStorageBinTypeId = 
+		StorageBinTypeId dbStorageBinTypeId =
 				idmasterService.getStorageBinTypeId(warehouseId, storageClassId, storageTypeId, storageBinTypeId, authToken);
 		log.info("StorageBinTypeId : " + dbStorageBinTypeId);
 		return new ResponseEntity<>(dbStorageBinTypeId, HttpStatus.OK);
@@ -927,22 +929,22 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = StorageBinTypeId.class, value = "Update StorageBinTypeId") // label for swagger
 	@RequestMapping(value = "/storagebintypeid/{storageBinTypeId}", method = RequestMethod.PATCH)
-	public ResponseEntity<?> patchStorageBinTypeId(@PathVariable Long storageBinTypeId, @RequestParam String warehouseId, @RequestParam Long storageClassId, @RequestParam Long storageTypeId,  
+	public ResponseEntity<?> patchStorageBinTypeId(@PathVariable Long storageBinTypeId, @RequestParam String warehouseId, @RequestParam Long storageClassId, @RequestParam Long storageTypeId,
 			@RequestParam String loginUserID, @RequestParam String authToken, @Valid @RequestBody StorageBinTypeId updateStorageBinTypeId)
 			throws IllegalAccessException, InvocationTargetException {
-		StorageBinTypeId updatedStorageBinTypeId = 
+		StorageBinTypeId updatedStorageBinTypeId =
 				idmasterService.updateStorageBinTypeId(warehouseId, storageClassId, storageTypeId, storageBinTypeId, loginUserID, updateStorageBinTypeId, authToken);
 		return new ResponseEntity<>(updatedStorageBinTypeId, HttpStatus.OK);
 	}
 
 	@ApiOperation(response = StorageBinTypeId.class, value = "Delete StorageBinTypeId") // label for swagger
 	@DeleteMapping("/storagebintypeid/{storageBinTypeId}")
-	public ResponseEntity<?> deleteStorageBinTypeId(@PathVariable Long storageBinTypeId, @RequestParam String warehouseId, @RequestParam Long storageClassId, @RequestParam Long storageTypeId,  
+	public ResponseEntity<?> deleteStorageBinTypeId(@PathVariable Long storageBinTypeId, @RequestParam String warehouseId, @RequestParam Long storageClassId, @RequestParam Long storageTypeId,
 			@RequestParam String loginUserID, @RequestParam String authToken) {
 		idmasterService.deleteStorageBinTypeId(warehouseId, storageClassId, storageTypeId, storageBinTypeId, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
 	/*
 	 * --------------------------------StorageClassId---------------------------------
 	 */
@@ -955,7 +957,7 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = StorageClassId.class, value = "Get a StorageClassId") // label for swagger
 	@GetMapping("/storageclassid/{storageClassId}")
-	public ResponseEntity<?> getStorageClassId(@PathVariable Long storageClassId, @RequestParam String warehouseId,  
+	public ResponseEntity<?> getStorageClassId(@PathVariable Long storageClassId, @RequestParam String warehouseId,
 			@RequestParam String authToken) {
 		StorageClassId dbStorageClassId = idmasterService.getStorageClassId(warehouseId, storageClassId, authToken);
 		log.info("StorageClassId : " + dbStorageClassId);
@@ -972,22 +974,22 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = StorageClassId.class, value = "Update StorageClassId") // label for swagger
 	@RequestMapping(value = "/storageclassid/{storageClassId}", method = RequestMethod.PATCH)
-	public ResponseEntity<?> patchStorageClassId(@PathVariable Long storageClassId, @RequestParam String warehouseId,  
+	public ResponseEntity<?> patchStorageClassId(@PathVariable Long storageClassId, @RequestParam String warehouseId,
 			@RequestParam String loginUserID, @RequestParam String authToken, @Valid @RequestBody StorageClassId updateStorageClassId)
 			throws IllegalAccessException, InvocationTargetException {
-		StorageClassId updatedStorageClassId = 
+		StorageClassId updatedStorageClassId =
 				idmasterService.updateStorageClassId(warehouseId, storageClassId, loginUserID, updateStorageClassId, authToken);
 		return new ResponseEntity<>(updatedStorageClassId, HttpStatus.OK);
 	}
 
 	@ApiOperation(response = StorageClassId.class, value = "Delete StorageClassId") // label for swagger
 	@DeleteMapping("/storageclassid/{storageClassId}")
-	public ResponseEntity<?> deleteStorageClassId(@PathVariable Long storageClassId, @RequestParam String warehouseId,  
+	public ResponseEntity<?> deleteStorageClassId(@PathVariable Long storageClassId, @RequestParam String warehouseId,
 			@RequestParam String loginUserID, @RequestParam String authToken) {
 		idmasterService.deleteStorageClassId(warehouseId, storageClassId, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
 	/*
 	 * --------------------------------StorageSectionId----------------------------------------------------------------
 	 */
@@ -1020,8 +1022,8 @@ public class IDMasterServiceController {
 	public ResponseEntity<?> patchStorageSectionId(@PathVariable String storageSectionId, @RequestParam String warehouseId, @RequestParam Long floorId, @RequestParam String storageSection,
 			@RequestParam String loginUserID, @RequestParam String authToken, @Valid @RequestBody StorageSectionId updateStorageSectionId)
 			throws IllegalAccessException, InvocationTargetException {
-		StorageSectionId updatedStorageSectionId = 
-				idmasterService.updateStorageSectionId(warehouseId, floorId, storageSectionId, storageSection, loginUserID, 
+		StorageSectionId updatedStorageSectionId =
+				idmasterService.updateStorageSectionId(warehouseId, floorId, storageSectionId, storageSection, loginUserID,
 						updateStorageSectionId, authToken);
 		return new ResponseEntity<>(updatedStorageSectionId, HttpStatus.OK);
 	}
@@ -1033,7 +1035,7 @@ public class IDMasterServiceController {
 		idmasterService.deleteStorageSectionId(warehouseId, floorId, storageSectionId, storageSection, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
 	/*
 	 * --------------------------------StrategyId---------------------------------------------------------------------------
 	 */
@@ -1046,7 +1048,7 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = StrategyId.class, value = "Get a StrategyId") // label for swagger
 	@GetMapping("/strategyid/{strategyNo}")
-	public ResponseEntity<?> getStrategyId(@PathVariable String strategyNo, @RequestParam String warehouseId, 
+	public ResponseEntity<?> getStrategyId(@PathVariable String strategyNo, @RequestParam String warehouseId,
 			@RequestParam Long strategyTypeId,  @RequestParam String authToken) {
 		StrategyId dbStrategyId = idmasterService.getStrategyId(warehouseId, strategyTypeId, strategyNo, authToken);
 		log.info("StrategyId : " + dbStrategyId);
@@ -1063,23 +1065,23 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = StrategyId.class, value = "Update StrategyId") // label for swagger
 	@RequestMapping(value = "/strategyid/{strategyNo}", method = RequestMethod.PATCH)
-	public ResponseEntity<?> patchStrategyId(@PathVariable String strategyNo, @RequestParam String warehouseId, 
-			@RequestParam Long strategyTypeId, @RequestParam String loginUserID, @RequestParam String authToken, 
+	public ResponseEntity<?> patchStrategyId(@PathVariable String strategyNo, @RequestParam String warehouseId,
+			@RequestParam Long strategyTypeId, @RequestParam String loginUserID, @RequestParam String authToken,
 			@Valid @RequestBody StrategyId updateStrategyId)
 			throws IllegalAccessException, InvocationTargetException {
-		StrategyId updatedStrategyId = 
+		StrategyId updatedStrategyId =
 				idmasterService.updateStrategyId(warehouseId, strategyTypeId, strategyNo, loginUserID, updateStrategyId, authToken);
 		return new ResponseEntity<>(updatedStrategyId, HttpStatus.OK);
 	}
 
 	@ApiOperation(response = StrategyId.class, value = "Delete StrategyId") // label for swagger
 	@DeleteMapping("/strategyid/{strategyNo}")
-	public ResponseEntity<?> deleteStrategyId(@PathVariable String strategyNo, @RequestParam String warehouseId, @RequestParam Long strategyTypeId,  
+	public ResponseEntity<?> deleteStrategyId(@PathVariable String strategyNo, @RequestParam String warehouseId, @RequestParam Long strategyTypeId,
 			@RequestParam String loginUserID, @RequestParam String authToken) {
 		idmasterService.deleteStrategyId(warehouseId, strategyTypeId, strategyNo, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
 	/*
 	 * --------------------------------StroageTypeId---------------------------------
 	 */
@@ -1108,22 +1110,22 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = StroageTypeId.class, value = "Update StroageTypeId") // label for swagger
 	@RequestMapping(value = "/stroagetypeid/{storageTypeId}", method = RequestMethod.PATCH)
-	public ResponseEntity<?> patchStroageTypeId(@PathVariable Long storageTypeId, @RequestParam String warehouseId, @RequestParam Long storageClassId,  
+	public ResponseEntity<?> patchStroageTypeId(@PathVariable Long storageTypeId, @RequestParam String warehouseId, @RequestParam Long storageClassId,
 			@RequestParam String loginUserID, @RequestParam String authToken, @Valid @RequestBody StroageTypeId updateStroageTypeId)
 			throws IllegalAccessException, InvocationTargetException {
-		StroageTypeId updatedStroageTypeId = 
+		StroageTypeId updatedStroageTypeId =
 				idmasterService.updateStroageTypeId(warehouseId, storageClassId, storageTypeId, loginUserID, updateStroageTypeId, authToken);
 		return new ResponseEntity<>(updatedStroageTypeId, HttpStatus.OK);
 	}
 
 	@ApiOperation(response = StroageTypeId.class, value = "Delete StroageTypeId") // label for swagger
 	@DeleteMapping("/stroagetypeid/{storageTypeId}")
-	public ResponseEntity<?> deleteStroageTypeId(@PathVariable Long storageTypeId, @RequestParam String warehouseId, @RequestParam Long storageClassId,  
+	public ResponseEntity<?> deleteStroageTypeId(@PathVariable Long storageTypeId, @RequestParam String warehouseId, @RequestParam Long storageClassId,
 			@RequestParam String loginUserID, @RequestParam String authToken) {
 		idmasterService.deleteStroageTypeId(warehouseId, storageClassId, storageTypeId, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
 	/*
 	 * --------------------------------SubItemGroupId---------------------------------
 	 */
@@ -1136,10 +1138,10 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = SubItemGroupId.class, value = "Get a SubItemGroupId") // label for swagger
 	@GetMapping("/subitemgroupid/{subItemGroupId}")
-	public ResponseEntity<?> getSubItemGroupId(@PathVariable Long subItemGroupId, @RequestParam String warehouseId, 
-			@RequestParam Long itemTypeId, @RequestParam Long itemGroupId, @RequestParam String subItemGroup, 
+	public ResponseEntity<?> getSubItemGroupId(@PathVariable Long subItemGroupId, @RequestParam String warehouseId,
+			@RequestParam Long itemTypeId, @RequestParam Long itemGroupId, @RequestParam String subItemGroup,
 			@RequestParam String authToken) {
-		SubItemGroupId dbSubItemGroupId = 
+		SubItemGroupId dbSubItemGroupId =
 				idmasterService.getSubItemGroupId(warehouseId, itemTypeId, itemGroupId, subItemGroupId, subItemGroup, authToken);
 		log.info("SubItemGroupId : " + dbSubItemGroupId);
 		return new ResponseEntity<>(dbSubItemGroupId, HttpStatus.OK);
@@ -1155,11 +1157,11 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = SubItemGroupId.class, value = "Update SubItemGroupId") // label for swagger
 	@RequestMapping(value = "/subitemgroupid/{subItemGroupId}", method = RequestMethod.PATCH)
-	public ResponseEntity<?> patchSubItemGroupId(@PathVariable Long subItemGroupId, @RequestParam String warehouseId, 
-			@RequestParam Long itemTypeId, @RequestParam Long itemGroupId, @RequestParam String subItemGroup,  
+	public ResponseEntity<?> patchSubItemGroupId(@PathVariable Long subItemGroupId, @RequestParam String warehouseId,
+			@RequestParam Long itemTypeId, @RequestParam Long itemGroupId, @RequestParam String subItemGroup,
 			@RequestParam String loginUserID, @RequestParam String authToken, @Valid @RequestBody SubItemGroupId updateSubItemGroupId)
 			throws IllegalAccessException, InvocationTargetException {
-		SubItemGroupId updatedSubItemGroupId = 
+		SubItemGroupId updatedSubItemGroupId =
 				idmasterService.updateSubItemGroupId(warehouseId, itemTypeId, itemGroupId, subItemGroupId, subItemGroup, loginUserID,
 						updateSubItemGroupId, authToken);
 		return new ResponseEntity<>(updatedSubItemGroupId, HttpStatus.OK);
@@ -1167,12 +1169,12 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = SubItemGroupId.class, value = "Delete SubItemGroupId") // label for swagger
 	@DeleteMapping("/subitemgroupid/{subItemGroupId}")
-	public ResponseEntity<?> deleteSubItemGroupId(@PathVariable Long subItemGroupId, @RequestParam String warehouseId, @RequestParam Long itemTypeId, @RequestParam Long itemGroupId, @RequestParam String subItemGroup,  
+	public ResponseEntity<?> deleteSubItemGroupId(@PathVariable Long subItemGroupId, @RequestParam String warehouseId, @RequestParam Long itemTypeId, @RequestParam Long itemGroupId, @RequestParam String subItemGroup,
 			@RequestParam String loginUserID, @RequestParam String authToken) {
 		idmasterService.deleteSubItemGroupId(warehouseId, itemTypeId, itemGroupId, subItemGroupId, subItemGroup, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
 	/*
 	 * --------------------------------UomId---------------------------------
 	 */
@@ -1201,7 +1203,7 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = UomId.class, value = "Update UomId") // label for swagger
 	@RequestMapping(value = "/uomid/{uomId}", method = RequestMethod.PATCH)
-	public ResponseEntity<?> patchUomId(@PathVariable String uomId, @RequestParam String loginUserID, @RequestParam String authToken, 
+	public ResponseEntity<?> patchUomId(@PathVariable String uomId, @RequestParam String loginUserID, @RequestParam String authToken,
 			@Valid @RequestBody UomId updateUomId)
 			throws IllegalAccessException, InvocationTargetException {
 		UomId updatedUomId = idmasterService.updateUomId(uomId, loginUserID, updateUomId, authToken);
@@ -1214,7 +1216,7 @@ public class IDMasterServiceController {
 		idmasterService.deleteUomId(uomId, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
 	/*
 	 * --------------------------------UserTypeId-----------------------------------------------------------------------
 	 */
@@ -1227,7 +1229,7 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = UserTypeId.class, value = "Get a UserTypeId") // label for swagger
 	@GetMapping("/usertypeid/{userTypeId}")
-	public ResponseEntity<?> getUserTypeId(@PathVariable Long userTypeId, @RequestParam String warehouseId, 
+	public ResponseEntity<?> getUserTypeId(@PathVariable Long userTypeId, @RequestParam String warehouseId,
 			@RequestParam String authToken) {
 		UserTypeId dbUserTypeId = idmasterService.getUserTypeId(warehouseId, userTypeId, authToken);
 		log.info("UserTypeId : " + dbUserTypeId);
@@ -1244,22 +1246,22 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = UserTypeId.class, value = "Update UserTypeId") // label for swagger
 	@RequestMapping(value = "/usertypeid/{userTypeId}", method = RequestMethod.PATCH)
-	public ResponseEntity<?> patchUserTypeId(@PathVariable Long userTypeId, @RequestParam String warehouseId,  
+	public ResponseEntity<?> patchUserTypeId(@PathVariable Long userTypeId, @RequestParam String warehouseId,
 			@RequestParam String loginUserID, @RequestParam String authToken, @Valid @RequestBody UserTypeId updateUserTypeId)
 			throws IllegalAccessException, InvocationTargetException {
-		UserTypeId updatedUserTypeId = 
+		UserTypeId updatedUserTypeId =
 				idmasterService.updateUserTypeId(warehouseId, userTypeId, loginUserID, updateUserTypeId, authToken);
 		return new ResponseEntity<>(updatedUserTypeId, HttpStatus.OK);
 	}
 
 	@ApiOperation(response = UserTypeId.class, value = "Delete UserTypeId") // label for swagger
 	@DeleteMapping("/usertypeid/{userTypeId}")
-	public ResponseEntity<?> deleteUserTypeId(@PathVariable Long userTypeId, @RequestParam String warehouseId,  
+	public ResponseEntity<?> deleteUserTypeId(@PathVariable Long userTypeId, @RequestParam String warehouseId,
 			@RequestParam String loginUserID, @RequestParam String authToken) {
 		idmasterService.deleteUserTypeId(warehouseId, userTypeId, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
 	/*
 	 * --------------------------------VariantId---------------------------------
 	 */
@@ -1272,7 +1274,7 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = VariantId.class, value = "Get a VariantId") // label for swagger
 	@GetMapping("/variantid/{variantCode}")
-	public ResponseEntity<?> getVariantId(@PathVariable String variantCode, @RequestParam String warehouseId, 
+	public ResponseEntity<?> getVariantId(@PathVariable String variantCode, @RequestParam String warehouseId,
 			@RequestParam String variantType, @RequestParam String variantSubCode, @RequestParam String authToken) {
 		VariantId dbVariantId = idmasterService.getVariantId(warehouseId, variantCode, variantType, variantSubCode, authToken);
 		log.info("VariantId : " + dbVariantId);
@@ -1289,22 +1291,22 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = VariantId.class, value = "Update VariantId") // label for swagger
 	@RequestMapping(value = "/variantid/{variantCode}", method = RequestMethod.PATCH)
-	public ResponseEntity<?> patchVariantId(@PathVariable String variantCode, @RequestParam String warehouseId, @RequestParam String variantType, @RequestParam String variantSubCode, 
+	public ResponseEntity<?> patchVariantId(@PathVariable String variantCode, @RequestParam String warehouseId, @RequestParam String variantType, @RequestParam String variantSubCode,
 			@RequestParam String loginUserID, @RequestParam String authToken, @Valid @RequestBody VariantId updateVariantId)
 			throws IllegalAccessException, InvocationTargetException {
-		VariantId updatedVariantId = 
+		VariantId updatedVariantId =
 				idmasterService.updateVariantId(warehouseId, variantCode, variantType, variantSubCode, loginUserID, updateVariantId, authToken);
 		return new ResponseEntity<>(updatedVariantId, HttpStatus.OK);
 	}
 
 	@ApiOperation(response = VariantId.class, value = "Delete VariantId") // label for swagger
 	@DeleteMapping("/variantid/{variantCode}")
-	public ResponseEntity<?> deleteVariantId(@PathVariable String variantCode, @RequestParam String warehouseId, @RequestParam String variantType, @RequestParam String variantSubCode, 
+	public ResponseEntity<?> deleteVariantId(@PathVariable String variantCode, @RequestParam String warehouseId, @RequestParam String variantType, @RequestParam String variantSubCode,
 			@RequestParam String loginUserID, @RequestParam String authToken) {
 		idmasterService.deleteVariantId(warehouseId, variantCode, variantType, variantSubCode, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
 	/*
 	 * --------------------------------WarehouseId---------------------------------
 	 */
@@ -1317,7 +1319,7 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = WarehouseId.class, value = "Get a WarehouseId") // label for swagger
 	@GetMapping("/warehouseid/{warehouseId}")
-	public ResponseEntity<?> getWarehouseId(@PathVariable String warehouseId, @RequestParam String plantId, 
+	public ResponseEntity<?> getWarehouseId(@PathVariable String warehouseId, @RequestParam String plantId,
 			@RequestParam String authToken) {
 		WarehouseId dbWarehouseId = idmasterService.getWarehouseId(warehouseId, authToken);
 		log.info("WarehouseId : " + dbWarehouseId);
@@ -1336,7 +1338,7 @@ public class IDMasterServiceController {
 	@RequestMapping(value = "/warehouseid/{warehouseId}", method = RequestMethod.PATCH)
 	public ResponseEntity<?> patchWarehouseId(@PathVariable String warehouseId, @RequestParam String loginUserID, @RequestParam String authToken, @Valid @RequestBody WarehouseId updateWarehouseId)
 			throws IllegalAccessException, InvocationTargetException {
-		WarehouseId updatedWarehouseId = 
+		WarehouseId updatedWarehouseId =
 				idmasterService.updateWarehouseId(warehouseId, loginUserID, updateWarehouseId, authToken);
 		return new ResponseEntity<>(updatedWarehouseId, HttpStatus.OK);
 	}
@@ -1347,7 +1349,7 @@ public class IDMasterServiceController {
 		idmasterService.deleteWarehouseId(warehouseId, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
 	/*
 	 * --------------------------------WarehouseTypeId---------------------------------
 	 */
@@ -1360,7 +1362,7 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = WarehouseTypeId.class, value = "Get a WarehouseTypeId") // label for swagger
 	@GetMapping("/warehousetypeid/{warehouseTypeId}")
-	public ResponseEntity<?> getWarehouseTypeId(@PathVariable Long warehouseTypeId, @RequestParam String warehouseId, 
+	public ResponseEntity<?> getWarehouseTypeId(@PathVariable Long warehouseTypeId, @RequestParam String warehouseId,
 			@RequestParam String authToken) {
 		WarehouseTypeId dbWarehouseTypeId = idmasterService.getWarehouseTypeId(warehouseId, warehouseTypeId, authToken);
 		log.info("WarehouseTypeId : " + dbWarehouseTypeId);
@@ -1377,22 +1379,22 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = WarehouseTypeId.class, value = "Update WarehouseTypeId") // label for swagger
 	@RequestMapping(value = "/warehousetypeid/{warehouseTypeId}", method = RequestMethod.PATCH)
-	public ResponseEntity<?> patchWarehouseTypeId(@PathVariable Long warehouseTypeId, @RequestParam String warehouseId,  
+	public ResponseEntity<?> patchWarehouseTypeId(@PathVariable Long warehouseTypeId, @RequestParam String warehouseId,
 			@RequestParam String loginUserID, @RequestParam String authToken, @Valid @RequestBody WarehouseTypeId updateWarehouseTypeId)
 			throws IllegalAccessException, InvocationTargetException {
-		WarehouseTypeId updatedWarehouseTypeId = 
+		WarehouseTypeId updatedWarehouseTypeId =
 				idmasterService.updateWarehouseTypeId(warehouseId, warehouseTypeId, loginUserID, updateWarehouseTypeId, authToken);
 		return new ResponseEntity<>(updatedWarehouseTypeId, HttpStatus.OK);
 	}
 
 	@ApiOperation(response = WarehouseTypeId.class, value = "Delete WarehouseTypeId") // label for swagger
 	@DeleteMapping("/warehousetypeid/{warehouseTypeId}")
-	public ResponseEntity<?> deleteWarehouseTypeId(@PathVariable Long warehouseTypeId, @RequestParam String warehouseId,  
+	public ResponseEntity<?> deleteWarehouseTypeId(@PathVariable Long warehouseTypeId, @RequestParam String warehouseId,
 			@RequestParam String loginUserID, @RequestParam String authToken) {
 		idmasterService.deleteWarehouseTypeId(warehouseId, warehouseTypeId, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
 	/*
 	 * --------------------------------HhtUser---------------------------------
 	 */
@@ -1405,92 +1407,104 @@ public class IDMasterServiceController {
 
 	@ApiOperation(response = HhtUser.class, value = "Get a HhtUser") // label for swagger
 	@GetMapping("/hhtuser/{userId}")
-	public ResponseEntity<?> getHhtUser(@PathVariable String userId, @RequestParam String warehouseId, 
-			@RequestParam String authToken) {
+	public ResponseEntity<?> getHhtUser(@PathVariable String userId, @RequestParam String warehouseId,
+										@RequestParam String authToken) {
 		HhtUser dbHhtUser = idmasterService.getHhtUser(userId, warehouseId, authToken);
 		log.info("HhtUser : " + dbHhtUser);
 		return new ResponseEntity<>(dbHhtUser, HttpStatus.OK);
 	}
-	
-	@ApiOperation(response = HhtUser.class, value = "Get HhtUsers") // label for swagger 
-   	@GetMapping("/hhtuser/{warehouseId}/hhtUser")
-   	public ResponseEntity<?> getHhtUser(@PathVariable String warehouseId, @RequestParam String authToken) {
-       	HhtUser[] hhtuser = idmasterService.getHhtUserByWarehouseId(warehouseId, authToken);
-       	log.info("HhtUser : " + hhtuser);
-   		return new ResponseEntity<>(hhtuser, HttpStatus.OK);
-   	}
+
+	@ApiOperation(response = HhtUser.class, value = "Get HhtUsers") // label for swagger
+	@GetMapping("/hhtuser/{warehouseId}/hhtUser")
+	public ResponseEntity<?> getHhtUser(@PathVariable String warehouseId, @RequestParam String authToken) {
+		HhtUser[] hhtuser = idmasterService.getHhtUserByWarehouseId(warehouseId, authToken);
+		log.info("HhtUser : " + hhtuser);
+		return new ResponseEntity<>(hhtuser, HttpStatus.OK);
+	}
 
 	@ApiOperation(response = HhtUser.class, value = "Create HhtUser") // label for swagger
 	@PostMapping("/hhtuser")
 	public ResponseEntity<?> postHhtUser(@Valid @RequestBody HhtUser newHhtUser, @RequestParam String loginUserID,
-			@RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+										 @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
 		HhtUser createdHhtUser = idmasterService.createHhtUser(newHhtUser, loginUserID, authToken);
 		return new ResponseEntity<>(createdHhtUser, HttpStatus.OK);
 	}
 
 	@ApiOperation(response = HhtUser.class, value = "Update HhtUser") // label for swagger
 	@RequestMapping(value = "/hhtuser/{userId}", method = RequestMethod.PATCH)
-	public ResponseEntity<?> patchHhtUser(@PathVariable String userId, @RequestParam String warehouseId, 
-			@RequestParam String loginUserID, @RequestParam String authToken, 
-			@Valid @RequestBody HhtUser updateHhtUser) throws IllegalAccessException, InvocationTargetException {
-		HhtUser updatedHhtUser = 
+	public ResponseEntity<?> patchHhtUser(@PathVariable String userId, @RequestParam String warehouseId,
+										  @RequestParam String loginUserID, @RequestParam String authToken,
+										  @Valid @RequestBody HhtUser updateHhtUser) throws IllegalAccessException, InvocationTargetException {
+		HhtUser updatedHhtUser =
 				idmasterService.updateHhtUser(userId, warehouseId, updateHhtUser, loginUserID, authToken);
 		return new ResponseEntity<>(updatedHhtUser, HttpStatus.OK);
 	}
 
 	@ApiOperation(response = HhtUser.class, value = "Delete HhtUser") // label for swagger
 	@DeleteMapping("/hhtuser/{userId}")
-	public ResponseEntity<?> deleteHhtUser(@PathVariable String userId, @RequestParam String warehouseId, 
-			@RequestParam String loginUserID, @RequestParam String authToken) {
+	public ResponseEntity<?> deleteHhtUser(@PathVariable String userId, @RequestParam String warehouseId,
+										   @RequestParam String loginUserID, @RequestParam String authToken) {
 		idmasterService.deleteHhtUser(warehouseId, userId, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
+
 	/*
 	 * --------------------------------RoleAccess---------------------------------
 	 */
 	@ApiOperation(response = RoleAccess.class, value = "Get all RoleAccess details") // label for swagger
-	@GetMapping("/roleaccess/userRoleId")
+	@GetMapping("/roleaccess")
 	public ResponseEntity<?> getRoleAccesss(@RequestParam String authToken) {
 		RoleAccess[] userRoleIdList = idmasterService.getRoleAccesss(authToken);
 		return new ResponseEntity<>(userRoleIdList, HttpStatus.OK);
 	}
 
-	@ApiOperation(response = RoleAccess[].class, value = "Get a RoleAccess") // label for swagger
-	@GetMapping("/roleaccess/{userRoleId}")
-	public ResponseEntity<?> getRoleAccess(@PathVariable Long userRoleId, 
-			@RequestParam String warehouseId, @RequestParam String authToken) {
-		RoleAccess[] dbRoleAccess = idmasterService.getRoleAccess(warehouseId, userRoleId, authToken);
+	@ApiOperation(response = RoleAccess.class, value = "Get a RoleAccess") // label for swagger
+	@GetMapping("/roleaccess/{roleId}")
+	public ResponseEntity<?> getRoleAccess(@PathVariable Long roleId, @RequestParam String companyCodeId,
+										   @RequestParam String languageId, @RequestParam String plantId,
+										   @RequestParam String warehouseId, @RequestParam String authToken) {
+		RoleAccess[] dbRoleAccess = idmasterService.getRoleAccess(warehouseId, roleId,companyCodeId,plantId,languageId,authToken);
 		log.info("RoleAccess : " + dbRoleAccess);
 		return new ResponseEntity<>(dbRoleAccess, HttpStatus.OK);
 	}
 
 	@ApiOperation(response = RoleAccess[].class, value = "Create RoleAccess") // label for swagger
 	@PostMapping("/roleaccess")
-	public ResponseEntity<?> postRoleAccess(@Valid @RequestBody List<AddRoleAccess> newRoleAccess, 
-			@RequestParam String loginUserID, @RequestParam String authToken) 
-					throws IllegalAccessException, InvocationTargetException {
+	public ResponseEntity<?> postRoleAccess(@Valid @RequestBody List<AddRoleAccess> newRoleAccess,
+											@RequestParam String loginUserID, @RequestParam String authToken)
+			throws IllegalAccessException, InvocationTargetException {
 		RoleAccess[] createdRoleAccess = idmasterService.createRoleAccess(newRoleAccess, loginUserID, authToken);
 		return new ResponseEntity<>(createdRoleAccess, HttpStatus.OK);
 	}
 
 	@ApiOperation(response = RoleAccess[].class, value = "Update RoleAccess") // label for swagger
-	@RequestMapping(value = "/roleaccess", method = RequestMethod.PATCH)
-	public ResponseEntity<?> patchRoleAccess(@PathVariable Long userRoleId, 
-			@RequestParam String warehouseId, @RequestParam String loginUserID, @RequestParam String authToken, 
-			@Valid @RequestBody List<RoleAccess> updateRoleAccess) throws IllegalAccessException, InvocationTargetException {
-		RoleAccess[] updatedRoleAccess = 
-				idmasterService.updateRoleAccess(warehouseId, userRoleId, loginUserID, updateRoleAccess, authToken);
+	@RequestMapping(value = "/roleaccess/{roleId}", method = RequestMethod.PATCH)
+	public ResponseEntity<?> patchRoleAccess(@PathVariable Long roleId, @RequestParam String companyCodeId,
+											 @RequestParam String languageId, @RequestParam String plantId,
+											 @RequestParam String warehouseId, @RequestParam String loginUserID,
+											 @RequestParam String authToken, @Valid @RequestBody List<AddRoleAccess> updateRoleAccess)
+			throws IllegalAccessException, InvocationTargetException {
+		RoleAccess[] updatedRoleAccess =
+				idmasterService.updateRoleAccess(warehouseId, roleId,companyCodeId,languageId,
+						plantId,loginUserID,updateRoleAccess, authToken);
 		return new ResponseEntity<>(updatedRoleAccess, HttpStatus.OK);
 	}
 
 	@ApiOperation(response = RoleAccess.class, value = "Delete RoleAccess") // label for swagger
-	@DeleteMapping("/roleaccess/{userRoleId}")
-	public ResponseEntity<?> deleteRoleAccess(@PathVariable Long userRoleId, 
-			@RequestParam String warehouseId, @RequestParam Long menuId, @RequestParam Long subMenuId, 
-			@RequestParam String loginUserID, @RequestParam String authToken) {
-		idmasterService.deleteRoleAccess(warehouseId, userRoleId, menuId, subMenuId, loginUserID, authToken);
+	@DeleteMapping("/roleaccess/{roleId}")
+	public ResponseEntity<?> deleteRoleAccess(@PathVariable Long roleId, @RequestParam String warehouseId,
+											  @RequestParam String companyCodeId, @RequestParam String languageId,
+											  @RequestParam String plantId, @RequestParam String loginUserID,
+											  @RequestParam String authToken) {
+		idmasterService.deleteRoleAccess(warehouseId, roleId,companyCodeId,languageId,plantId,loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+	//FIND
+	@ApiOperation(response = RoleAccess[].class, value = "Find RoleAccess")//label for swagger
+	@PostMapping("/roleaccess/findRoleAccess")
+	public RoleAccess[] findRoleAccess(@RequestBody FindRoleId findRoleId,
+									   @RequestParam String authToken)throws Exception{
+		return idmasterService.findRoleAccess(findRoleId,authToken);
 	}
 	// --------------------------------DoorId---------------------------------
 
@@ -3001,6 +3015,17 @@ public class IDMasterServiceController {
 		Map<String, String> response = fileStorageService.storingFile(location, file);
 		return new ResponseEntity<>(response,HttpStatus.OK);
 	}
+	//Upload - Report Single Upload per Day per Warehouse
+//	@ApiOperation(response = UploadFileResponse.class, value = "Document Storage Upload") // label for swagger
+//	@PostMapping("/doc-storage/upload")
+//	public ResponseEntity<?> docStorageUpload(@RequestParam String location, @RequestParam("file") MultipartFile file)
+//			throws Exception {
+//		if (location == null) {
+//			throw new BadRequestException("Location can't be blank. Please provide 'document' as Location");
+//		}
+//		Map<String, String> response = fileStorageService.storingFileMailingReport(location, file);
+//		return new ResponseEntity<>(response,HttpStatus.OK);
+//	}
 
 	//-----------------------------------Document Download------------------------------------------------------------
 	@ApiOperation(response = Optional.class, value = "Document Storage Download") // label for swagger
@@ -3084,6 +3109,13 @@ public class IDMasterServiceController {
 									   @RequestParam String authToken) {
 		FileNameForEmail dbFileNameForEmail = idmasterService.getFileNameForEmail(fileNameId,authToken);
 		return new ResponseEntity<>(dbFileNameForEmail, HttpStatus.OK);
+	}
+
+	@ApiOperation(response = Optional.class, value = "Get DateTime in desired Format") // label for swagger
+	@GetMapping("/filenameforemail/dateTimeNew")
+	public ResponseEntity<?>  getDateTimeNew() throws ParseException {
+		String dateTime = idmasterService.getDateTime();
+		return new ResponseEntity<>(dateTime, HttpStatus.OK);
 	}
 //	@ApiOperation(response = FileNameForEmail.class, value = "Create a FileNameForEmail") // label for swagger
 //	@PostMapping("/filenameforemail")

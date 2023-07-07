@@ -12,7 +12,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-public class HhtUser { 
+public class HhtUser {
 
 	private String languageId;
 	private String companyCodeId;

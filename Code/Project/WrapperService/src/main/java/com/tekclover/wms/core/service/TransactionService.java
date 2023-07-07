@@ -6,16 +6,20 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javax.persistence.PersistenceContext;
 import javax.validation.Valid;
 
+import com.tekclover.wms.core.model.masters.ImBasicData1;
 import com.tekclover.wms.core.model.masters.ImBasicData1Stream;
+import com.tekclover.wms.core.model.masters.SearchImBasicData1;
 import com.tekclover.wms.core.model.masters.StorageBinStream;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -30,6 +34,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -62,6 +69,9 @@ public class TransactionService {
 
 	@Autowired
 	JdbcTemplate jdbcTemplate;
+
+	@Autowired
+	private NamedParameterJdbcTemplate jdbcParamTemplate;
 
 	/**
 	 * 
@@ -1073,6 +1083,29 @@ public class TransactionService {
 			e.printStackTrace();
 			throw e;
 		}
+	}
+
+	// GET - Finder
+	public InboundLine[] findInboundLine(SearchInboundLine searchInboundLine, String authToken)
+			throws Exception {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.add("User-Agent", "ClassicWMS RestTemplate");
+		headers.add("Authorization", "Bearer " + authToken);
+
+		UriComponentsBuilder builder = UriComponentsBuilder
+				.fromHttpUrl(getTransactionServiceApiUrl() + "inboundline/findInboundLine");
+		HttpEntity<?> entity = new HttpEntity<>(searchInboundLine, headers);
+		ResponseEntity<InboundLine[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
+				entity, InboundLine[].class);
+
+		List<InboundLine> obList = new ArrayList<>();
+		for (InboundLine inboundLine : result.getBody()) {
+
+			obList.add(addingTimeWithDateInboundLine(inboundLine));
+
+		}
+		return obList.toArray(new InboundLine[obList.size()]);
 	}
 
 	// POST
@@ -2805,6 +2838,34 @@ public class TransactionService {
 			throw e;
 		}
 	}
+	// POST - FinderQueryNew - SQL Query
+	public Inventory[] findInventoryNew(SearchInventory searchInventory, String authToken) throws ParseException {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "inventory/findInventoryNew");
+			HttpEntity<?> entity = new HttpEntity<>(searchInventory, headers);
+			ResponseEntity<Inventory[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
+					entity, Inventory[].class);
+			return result.getBody();
+//			log.info("result : " + result.getStatusCode());
+
+//			List<Inventory> inventoryList = new ArrayList<>();
+//			for (Inventory inventory : result.getBody()) {
+//
+//				inventoryList.add(addingTimeWithDateInventory(inventory));
+//			}
+//			return inventoryList.toArray(new Inventory[inventoryList.size()]);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
 
 	// POST - FinderQuery
 	public Inventory[] getQuantityValidatedInventory(SearchInventory searchInventory, String authToken) throws ParseException {
@@ -3011,6 +3072,28 @@ public class TransactionService {
 
 		UriComponentsBuilder builder = UriComponentsBuilder
 				.fromHttpUrl(getTransactionServiceApiUrl() + "inhousetransferheader/findInHouseTransferHeader");
+		HttpEntity<?> entity = new HttpEntity<>(searchInHouseTransferHeader, headers);
+		ResponseEntity<InhouseTransferHeader[]> result = getRestTemplate().exchange(builder.toUriString(),
+				HttpMethod.POST, entity, InhouseTransferHeader[].class);
+
+		List<InhouseTransferHeader> inhouseTransferHeaderList = new ArrayList<>();
+		for (InhouseTransferHeader inhouseTransferHeader : result.getBody()) {
+
+			inhouseTransferHeaderList.add(addingTimeWithDateInhouseTransferHeader(inhouseTransferHeader));
+		}
+		return inhouseTransferHeaderList.toArray(new InhouseTransferHeader[inhouseTransferHeaderList.size()]);
+	}
+
+	// POST - Find - Stream
+	public InhouseTransferHeader[] findInHouseTransferHeaderNew(SearchInhouseTransferHeader searchInHouseTransferHeader,
+			String authToken) throws ParseException {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.add("User-Agent", "ClassicWMS RestTemplate");
+		headers.add("Authorization", "Bearer " + authToken);
+
+		UriComponentsBuilder builder = UriComponentsBuilder
+				.fromHttpUrl(getTransactionServiceApiUrl() + "inhousetransferheader/findInHouseTransferHeaderNew");
 		HttpEntity<?> entity = new HttpEntity<>(searchInHouseTransferHeader, headers);
 		ResponseEntity<InhouseTransferHeader[]> result = getRestTemplate().exchange(builder.toUriString(),
 				HttpMethod.POST, entity, InhouseTransferHeader[].class);
@@ -4217,29 +4300,29 @@ public class TransactionService {
 			HttpEntity<?> entity = new HttpEntity<>(requestData,headers);
 			ResponseEntity<OutboundHeader[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
 					entity, OutboundHeader[].class);
-//			return result.getBody();
+			return result.getBody();
 
-			List<OutboundHeader> obList = new ArrayList<>();
-			for (OutboundHeader obHeader : result.getBody()) {
-				log.info("Result getDeliveryConfirmedOn :" + obHeader.getDeliveryConfirmedOn());
-				if(obHeader.getRefDocDate() != null) {
-					obHeader.setRefDocDate(DateUtils.addTimeToDate(obHeader.getRefDocDate(), 3));
-				}
-				if(obHeader.getRequiredDeliveryDate() != null) {
-					obHeader.setRequiredDeliveryDate(DateUtils.addTimeToDate(obHeader.getRequiredDeliveryDate(), 3));
-				}
-				if(obHeader.getDeliveryConfirmedOn() != null) {
-					obHeader.setDeliveryConfirmedOn(DateUtils.addTimeToDate(obHeader.getDeliveryConfirmedOn(), 3));
-				}
-				if(obHeader.getCreatedOn() != null) {
-					obHeader.setCreatedOn(DateUtils.addTimeToDate(obHeader.getCreatedOn(), 3));
-				}
-				if(obHeader.getUpdatedOn() != null) {
-					obHeader.setUpdatedOn(DateUtils.addTimeToDate(obHeader.getUpdatedOn(), 3));
-				}
-				obList.add(obHeader);
-			}
-			return obList.toArray(new OutboundHeader[obList.size()]);
+//			List<OutboundHeader> obList = new ArrayList<>();
+//			for (OutboundHeader obHeader : result.getBody()) {
+//				log.info("Result getDeliveryConfirmedOn :" + obHeader.getDeliveryConfirmedOn());
+//				if(obHeader.getRefDocDate() != null) {
+//					obHeader.setRefDocDate(DateUtils.addTimeToDate(obHeader.getRefDocDate(), 3));
+//				}
+//				if(obHeader.getRequiredDeliveryDate() != null) {
+//					obHeader.setRequiredDeliveryDate(DateUtils.addTimeToDate(obHeader.getRequiredDeliveryDate(), 3));
+//				}
+//				if(obHeader.getDeliveryConfirmedOn() != null) {
+//					obHeader.setDeliveryConfirmedOn(DateUtils.addTimeToDate(obHeader.getDeliveryConfirmedOn(), 3));
+//				}
+//				if(obHeader.getCreatedOn() != null) {
+//					obHeader.setCreatedOn(DateUtils.addTimeToDate(obHeader.getCreatedOn(), 3));
+//				}
+//				if(obHeader.getUpdatedOn() != null) {
+//					obHeader.setUpdatedOn(DateUtils.addTimeToDate(obHeader.getUpdatedOn(), 3));
+//				}
+//				obList.add(obHeader);
+//			}
+//			return obList.toArray(new OutboundHeader[obList.size()]);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -4959,6 +5042,28 @@ public class TransactionService {
 			throw e;
 		}
 	}
+	
+	// GET - Opening Stock Report
+	public InventoryStockReport[] getInventoryStockReport(FindImBasicData1 findImBasicData1, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "reports/inventoryStock");
+
+			HttpEntity<?> entity = new HttpEntity<>(findImBasicData1, headers);
+			ResponseEntity<InventoryStockReport[]> result = getRestTemplate().exchange(builder.toUriString(),
+					HttpMethod.POST, entity, InventoryStockReport[].class);
+			log.info("result : " + result.getBody());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
 
 	// ---------------------------------PerpetualHeader----------------------------------------------------
 	// GET ALL
@@ -5003,6 +5108,7 @@ public class TransactionService {
 
 		return obHeader;
 	}
+	
 	public PerpetualHeader getPerpetualHeader(String warehouseId, Long cycleCountTypeId, String cycleCountNo,
 			Long movementTypeId, Long subMovementTypeId, String authToken) throws ParseException {
 		try {
@@ -5088,6 +5194,20 @@ public class TransactionService {
 		headers.add("Authorization", "Bearer " + authToken);
 		UriComponentsBuilder builder = UriComponentsBuilder
 				.fromHttpUrl(getTransactionServiceApiUrl() + "perpetualheader/run");
+		HttpEntity<?> entity = new HttpEntity<>(runPerpetualHeader, headers);
+		ResponseEntity<PerpetualLineEntity[]> result = getRestTemplate().exchange(builder.toUriString(),
+				HttpMethod.POST, entity, PerpetualLineEntity[].class);
+		log.info("result : " + result.getStatusCode());
+		return result.getBody();
+	}
+	// POST - RUN - Stream
+	public PerpetualLineEntity[] runPerpetualHeaderNew(@Valid RunPerpetualHeader runPerpetualHeader, String authToken) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.add("User-Agent", "ClassicWMS RestTemplate");
+		headers.add("Authorization", "Bearer " + authToken);
+		UriComponentsBuilder builder = UriComponentsBuilder
+				.fromHttpUrl(getTransactionServiceApiUrl() + "perpetualheader/runStream");
 		HttpEntity<?> entity = new HttpEntity<>(runPerpetualHeader, headers);
 		ResponseEntity<PerpetualLineEntity[]> result = getRestTemplate().exchange(builder.toUriString(),
 				HttpMethod.POST, entity, PerpetualLineEntity[].class);
@@ -5256,6 +5376,7 @@ public class TransactionService {
 
 			List<PeriodicHeaderEntity> obList = new ArrayList<>();
 			for (PeriodicHeaderEntity obHeader : result.getBody()) {
+
 				obList.add(addingTimeWithDatePeriodicHeaderEntity(obHeader));
 			}
 			return obList.toArray(new PeriodicHeaderEntity[obList.size()]);
@@ -5265,7 +5386,6 @@ public class TransactionService {
 			throw e;
 		}
 	}
-	
 	//Add Time to Date plus 3 Hours
 	public PeriodicHeaderEntity addingTimeWithDatePeriodicHeaderEntity(PeriodicHeaderEntity obHeader) throws ParseException {
 
@@ -5281,7 +5401,6 @@ public class TransactionService {
 
 		return obHeader;
 	}
-	
 	// GET
 	public PeriodicHeader[] getPeriodicHeader(String warehouseId, Long cycleCountTypeId, String cycleCountNo,
 			Long movementTypeId, Long subMovementTypeId, String authToken) throws ParseException {
@@ -5340,6 +5459,66 @@ public class TransactionService {
 				obList.add(addingTimeWithDatePeriodicHeaderEntity(obHeader));
 			}
 			return obList.toArray(new PeriodicHeaderEntity[obList.size()]);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	// FIND ALL - findPeriodicHeader -Stream
+	public PeriodicHeader[] findPeriodicHeaderStream(SearchPeriodicHeader searchPeriodicHeader, String authToken) throws ParseException {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "periodicheader/findPeriodicHeaderStream");
+			HttpEntity<?> entity = new HttpEntity<>(searchPeriodicHeader, headers);
+			ResponseEntity<PeriodicHeader[]> result = getRestTemplate()
+					.exchange(builder.toUriString(), HttpMethod.POST, entity, PeriodicHeader[].class);
+
+			Arrays.stream(result.getBody()).forEach( n-> {
+						if (n.getConfirmedOn() != null) {
+							try {
+								n.setConfirmedOn(DateUtils.addTimeToDate(n.getConfirmedOn(), 3));
+							} catch (ParseException e) {
+								throw new RuntimeException(e);
+							}
+						}
+						if (n.getCreatedOn() != null) {
+							try {
+								n.setCreatedOn(DateUtils.addTimeToDate(n.getCreatedOn(), 3));
+							} catch (ParseException e) {
+								throw new RuntimeException(e);
+							}
+						}
+						if (n.getCountedOn() != null) {
+							try {
+								n.setCountedOn(DateUtils.addTimeToDate(n.getCountedOn(), 3));
+							} catch (ParseException e) {
+								throw new RuntimeException(e);
+							}
+						}
+					}
+			);
+//			List<PeriodicHeader> obList = new ArrayList<>();
+//			for (PeriodicHeader obHeader : result.getBody()) {
+//
+//				if(obHeader.getConfirmedOn() != null) {
+//					obHeader.setConfirmedOn(DateUtils.addTimeToDate(obHeader.getConfirmedOn(), 3));
+//				}
+//				if(obHeader.getCreatedOn() != null) {
+//					obHeader.setCreatedOn(DateUtils.addTimeToDate(obHeader.getCreatedOn(), 3));
+//				}
+//				if(obHeader.getCountedOn() != null) {
+//					obHeader.setCountedOn(DateUtils.addTimeToDate(obHeader.getCountedOn(), 3));
+//				}
+//
+//				obList.add(obHeader);
+//			}
+//			return obList.toArray(new PeriodicHeader[obList.size()]);
+			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -5450,6 +5629,30 @@ public class TransactionService {
 			headers.add("Authorization", "Bearer " + authToken);
 			UriComponentsBuilder builder = UriComponentsBuilder
 					.fromHttpUrl(getTransactionServiceApiUrl() + "periodicline/findPeriodicLine");
+			HttpEntity<?> entity = new HttpEntity<>(searchPeriodicLine, headers);
+			ResponseEntity<PeriodicLine[]> result = getRestTemplate()
+					.exchange(builder.toUriString(), HttpMethod.POST, entity, PeriodicLine[].class);
+			List<PeriodicLine> periodicLineList = new ArrayList<>();
+			for (PeriodicLine periodicLine : result.getBody()) {
+				periodicLine.setCreatedOn(DateUtils.addTimeToDate(periodicLine.getCreatedOn(), 3));
+				periodicLineList.add(periodicLine);
+			}
+			return periodicLineList.toArray(new PeriodicLine[periodicLineList.size()]);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	// FIND - Stream
+	public PeriodicLine[] findPeriodicLineNew(SearchPeriodicLine searchPeriodicLine, String authToken) throws Exception {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "periodicline/findPeriodicLineStream");
 			HttpEntity<?> entity = new HttpEntity<>(searchPeriodicLine, headers);
 			ResponseEntity<PeriodicLine[]> result = getRestTemplate()
 					.exchange(builder.toUriString(), HttpMethod.POST, entity, PeriodicLine[].class);
@@ -6863,50 +7066,101 @@ public class TransactionService {
 		};
 		return responseBody;
 	}
-	//	private final Gson gson = new Gson();
 
 	/**
 	 * imBasicData1 Stream
 	 * String uomId
+	 * String languageId
+	 * String companyCodeId
+	 * String plantId
 	 * String warehouseId
 	 * String itemCode
 	 * String description
+	 * String model
+	 * String specifications1
+	 * String specifications2
+	 * String eanUpcNo
 	 * String manufacturerPartNo
-	 * Long itemType
-	 * Long itemGroup
+	 * String hsnCode
+	 * Long   itemType
+	 * Long   itemGroup
+	 * Long   subItemGroup
+	 * String storageSectionId
+	 * Double totalStock
+	 * Double minimumStock
+	 * Double maximumStock
+	 * Double reorderLevel
+	 * Double replenishmentQty
+	 * Double safetyStock
+	 * Long   statusId
+	 * String referenceField1
+	 * String referenceField2
+	 * String referenceField3
+	 * String referenceField4
+	 * String referenceField5
+	 * String referenceField6
+	 * String referenceField7
+	 * String referenceField8
+	 * String referenceField9
+	 * String referenceField10
+	 * Long   deletionIndicator
 	 * String createdBy
-	 * Date createdOn
+	 * Date   createdOn
+	 * String updatedBy
+	 * Date   updatedOn
 	 * @return
 	 */
 	public Stream<ImBasicData1Stream> streamImBasicData1() {
-		jdbcTemplate.setFetchSize(50);
-		/**
-		 * imBasicData1 Stream
-		 * String uomId
-		 * String warehouseId
-		 * String itemCode
-		 * String description
-		 * String manufacturerPartNo
-		 * Long itemType
-		 * Long itemGroup
-		 * String createdBy
-		 * Date createdOn
-		 */
+		jdbcTemplate.setFetchSize(1000);
+
 		Stream<ImBasicData1Stream> imBasicData1Stream = jdbcTemplate.queryForStream(
-				"Select UOM_ID, WH_ID, ITM_CODE, TEXT, MFR_PART, ITM_TYP_ID, "
-						+ "ITM_GRP_ID, CTD_BY, CTD_ON "
+				"Select UOM_ID, LANG_ID, C_ID, PLANT_ID, WH_ID, ITM_CODE, "
+						+"TEXT, MODEL, SPEC_01, SPEC_02, EAN_UPC_NO, MFR_PART, HSN_CODE, ITM_TYP_ID, ITM_GRP_ID, SUB_ITM_GRP_ID, ST_SEC_ID, TOT_STK, "
+						+"MIN_STK, MAX_STK, RE_ORD_LVL, REP_QTY, SAFTY_STCK, STATUS_ID, REF_FIELD_1, REF_FIELD_2, REF_FIELD_3, REF_FIELD_4, REF_FIELD_5, REF_FIELD_6, "
+						+"REF_FIELD_7, REF_FIELD_8, REF_FIELD_9, REF_FIELD_10, IS_DELETED, CTD_BY,"
+						+ "CTD_ON, UTD_BY, UTD_ON "
 						+ "from tblimbasicdata1 "
 						+ "where IS_DELETED = 0 ",
 				(resultSet, rowNum) -> new ImBasicData1Stream (
-						resultSet.getString("UOM_ID"),
-						resultSet.getString("WH_ID"),
-						resultSet.getString("ITM_CODE"),
-						resultSet.getString("TEXT"),
-						resultSet.getString("MFR_PART"),
-						resultSet.getLong("ITM_TYP_ID"),
-						resultSet.getLong("ITM_GRP_ID"),
-						resultSet.getString("CTD_BY"),
-						resultSet.getDate("CTD_ON")
+						resultSet.getString	("UOM_ID"),
+						resultSet.getString	("LANG_ID"),
+						resultSet.getString	("C_ID"),
+						resultSet.getString	("PLANT_ID"),
+						resultSet.getString	("WH_ID"),
+						resultSet.getString	("ITM_CODE"),
+						resultSet.getString	("TEXT"),
+						resultSet.getString	("MODEL"),
+						resultSet.getString	("SPEC_01"),
+						resultSet.getString	("SPEC_02"),
+						resultSet.getString	("EAN_UPC_NO"),
+						resultSet.getString	("MFR_PART"),
+						resultSet.getString	("HSN_CODE"),
+						resultSet.getLong  	("ITM_TYP_ID"),
+						resultSet.getLong  	("ITM_GRP_ID"),
+						resultSet.getLong  	("SUB_ITM_GRP_ID"),
+						resultSet.getString	("ST_SEC_ID"),
+						resultSet.getDouble	("TOT_STK"),
+						resultSet.getDouble	("MIN_STK"),
+						resultSet.getDouble	("MAX_STK"),
+						resultSet.getDouble	("RE_ORD_LVL"),
+						resultSet.getDouble	("REP_QTY"),
+						resultSet.getDouble	("SAFTY_STCK"),
+						resultSet.getLong  	("STATUS_ID"),
+						resultSet.getString	("REF_FIELD_1"),
+						resultSet.getString	("REF_FIELD_2"),
+						resultSet.getString	("REF_FIELD_3"),
+						resultSet.getString	("REF_FIELD_4"),
+						resultSet.getString	("REF_FIELD_5"),
+						resultSet.getString	("REF_FIELD_6"),
+						resultSet.getString	("REF_FIELD_7"),
+						resultSet.getString	("REF_FIELD_8"),
+						resultSet.getString	("REF_FIELD_9"),
+						resultSet.getString	("REF_FIELD_10"),
+						resultSet.getLong  	("IS_DELETED"),
+						resultSet.getString	("CTD_BY"),
+						resultSet.getDate  	("CTD_ON"),
+						resultSet.getString	("UTD_BY"),
+						resultSet.getDate  	("UTD_ON")
 				));
 		return imBasicData1Stream;
 	}
@@ -6983,5 +7237,73 @@ public class TransactionService {
 						resultSet.getDate("CTD_ON")
 				));
 		return storageBinStream;
+	}
+
+	public List<ImBasicData1> getAllImBasicData1(SearchImBasicData1 searchImBasicData1){
+
+	String sql = "Select UOM_ID, LANG_ID, C_ID, PLANT_ID, WH_ID, ITM_CODE, "
+		+"TEXT, MODEL, SPEC_01, SPEC_02, EAN_UPC_NO, MFR_PART, HSN_CODE, ITM_TYP_ID, ITM_GRP_ID, SUB_ITM_GRP_ID, ST_SEC_ID, TOT_STK, "
+		+"MIN_STK, MAX_STK, RE_ORD_LVL, REP_QTY, SAFTY_STCK, STATUS_ID, REF_FIELD_1, REF_FIELD_2, REF_FIELD_3, REF_FIELD_4, REF_FIELD_5, REF_FIELD_6, "
+		+"REF_FIELD_7, REF_FIELD_8, REF_FIELD_9, REF_FIELD_10, IS_DELETED, CTD_BY,"
+		+ "CTD_ON, UTD_BY, UTD_ON "
+		+ "from tblimbasicdata1 "
+		+ "where IS_DELETED = 0 and wh_id in (:warehouseId) ";
+
+		SqlParameterSource param = new MapSqlParameterSource("warehouseId", searchImBasicData1.getWarehouseId());
+		jdbcParamTemplate.setCacheLimit(10000);
+		List<ImBasicData1> imBasicData1List = jdbcParamTemplate.query(sql,
+																	param,
+																	(resultSet, i) -> {
+																		return toImBasicData1(resultSet);
+																	});
+
+//		List<ImBasicData1> imBasicData1List = jdbcParamTemplate.query(sql,
+//												param,
+//												BeanPropertyRowMapper.newInstance(ImBasicData1.class));
+		return imBasicData1List;
+	}
+	private ImBasicData1 toImBasicData1(ResultSet resultSet) throws SQLException {
+		ImBasicData1 imBasicData1 = new ImBasicData1();
+		imBasicData1.setUomId			(resultSet.getString	("UOM_ID"));
+		imBasicData1.setLanguageId		(resultSet.getString	("LANG_ID"));
+		imBasicData1.setCompanyCodeId	(resultSet.getString	("C_ID"));
+		imBasicData1.setPlantId			(resultSet.getString	("PLANT_ID"));
+		imBasicData1.setWarehouseId		(resultSet.getString	("WH_ID"));
+		imBasicData1.setItemCode		(resultSet.getString	("ITM_CODE"));
+		imBasicData1.setDescription		(resultSet.getString	("TEXT"));
+		imBasicData1.setModel			(resultSet.getString	("MODEL"));
+		imBasicData1.setSpecifications1	(resultSet.getString	("SPEC_01"));
+		imBasicData1.setSpecifications2	(resultSet.getString	("SPEC_02"));
+		imBasicData1.setEanUpcNo		(resultSet.getString	("EAN_UPC_NO"));
+		imBasicData1.setManufacturerPartNo(resultSet.getString	("MFR_PART"));
+		imBasicData1.setHsnCode			(resultSet.getString	("HSN_CODE"));
+		imBasicData1.setItemType		(resultSet.getLong  	("ITM_TYP_ID"));
+		imBasicData1.setItemGroup		(resultSet.getLong  	("ITM_GRP_ID"));
+		imBasicData1.setSubItemGroup	(resultSet.getLong  	("SUB_ITM_GRP_ID"));
+		imBasicData1.setStorageSectionId(resultSet.getString	("ST_SEC_ID"));
+		imBasicData1.setTotalStock		(resultSet.getDouble	("TOT_STK"));
+		imBasicData1.setMinimumStock	(resultSet.getDouble	("MIN_STK"));
+		imBasicData1.setMaximumStock	(resultSet.getDouble	("MAX_STK"));
+		imBasicData1.setReorderLevel	(resultSet.getDouble	("RE_ORD_LVL"));
+		imBasicData1.setReplenishmentQty(resultSet.getDouble	("REP_QTY"));
+		imBasicData1.setSafetyStock		(resultSet.getDouble	("SAFTY_STCK"));
+		imBasicData1.setStatusId		(resultSet.getLong  	("STATUS_ID"));
+		imBasicData1.setReferenceField1	(resultSet.getString	("REF_FIELD_1"));
+		imBasicData1.setReferenceField2	(resultSet.getString	("REF_FIELD_2"));
+		imBasicData1.setReferenceField3	(resultSet.getString	("REF_FIELD_3"));
+		imBasicData1.setReferenceField4	(resultSet.getString	("REF_FIELD_4"));
+		imBasicData1.setReferenceField5	(resultSet.getString	("REF_FIELD_5"));
+		imBasicData1.setReferenceField6	(resultSet.getString	("REF_FIELD_6"));
+		imBasicData1.setReferenceField7	(resultSet.getString	("REF_FIELD_7"));
+		imBasicData1.setReferenceField8	(resultSet.getString	("REF_FIELD_8"));
+		imBasicData1.setReferenceField9	(resultSet.getString	("REF_FIELD_9"));
+		imBasicData1.setReferenceField10(resultSet.getString	("REF_FIELD_10"));
+		imBasicData1.setDeletionIndicator(resultSet.getLong  	("IS_DELETED"));
+		imBasicData1.setCreatedBy		(resultSet.getString	("CTD_BY"));
+		imBasicData1.setCreatedOn		(resultSet.getDate  	("CTD_ON"));
+		imBasicData1.setUpdatedBy		(resultSet.getString	("UTD_BY"));
+		imBasicData1.setUpdatedOn		(resultSet.getDate  	("UTD_ON"));
+
+		return imBasicData1;
 	}
 }
