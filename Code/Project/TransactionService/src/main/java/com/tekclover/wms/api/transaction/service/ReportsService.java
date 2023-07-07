@@ -756,14 +756,14 @@ public class ReportsService extends BaseService {
 			List<InventoryMovement> inventoryMovementSearchResults_123 = inventoryMovementRepository
 					.findByWarehouseIdAndItemCodeAndCreatedOnBetweenAndMovementTypeAndSubmovementTypeInOrderByCreatedOnAsc(warehouseId,
 							itemCode, fromDate, toDate, 1L, Arrays.asList(2L, 3L));
-			List<StockMovementReport> reportStockMovementList_1 = fillData(inventoryMovementSearchResults_123);
+			List<StockMovementReport> reportStockMovementList_1 = fillDataForScheduler(inventoryMovementSearchResults_123);
 //			log.info("reportStockMovementList_1 : " + reportStockMovementList_1);
 			stockMovementReportRepository.saveAll(reportStockMovementList_1);
 			
 			List<InventoryMovement> inventoryMovementSearchResults_35 = inventoryMovementRepository
 					.findByWarehouseIdAndItemCodeAndCreatedOnBetweenAndMovementTypeAndSubmovementTypeInOrderByCreatedOnAsc(warehouseId,
 							itemCode, fromDate, toDate, 3L, Arrays.asList(5L));
-			List<StockMovementReport> reportStockMovementList_2 = fillData(inventoryMovementSearchResults_35);
+			List<StockMovementReport> reportStockMovementList_2 = fillDataForScheduler(inventoryMovementSearchResults_35);
 //			log.info("reportStockMovementList_2 : " + reportStockMovementList_2);
 			stockMovementReportRepository.saveAll(reportStockMovementList_2);
 		});
@@ -782,7 +782,7 @@ public class ReportsService extends BaseService {
 		List<String> list9 = itemCodeList.subList(90000, 99999);
 		List<String> list10 = itemCodeList.subList(100000, 109999);
 		List<String> list11 = itemCodeList.subList(110000, 119999);
-		List<String> list12 = itemCodeList.subList(120000, 129999);
+		List<String> list12 = itemCodeList.subList(120000, itemCodeList.size());
 		
 		// create a callable for each method
 		Callable<Void> callable1 = new Callable<Void>() {
@@ -912,6 +912,84 @@ public class ReportsService extends BaseService {
 			executor.invokeAll(taskList);
 		} catch (InterruptedException ie) {
 		}
+	}
+	
+	private List<StockMovementReport> fillDataForScheduler (List<InventoryMovement> inventoryMovementSearchResults) {
+		List<StockMovementReport> reportStockMovementList = new ArrayList<>();
+		inventoryMovementSearchResults.stream().forEach(inventoryMovement -> {
+		
+		StockMovementReport stockMovementReport = new StockMovementReport();
+			stockMovementReport.setStockMovementReportId(System.currentTimeMillis());
+			
+			// WH_ID
+			stockMovementReport.setWarehouseId(inventoryMovement.getWarehouseId());
+
+			// ITM_CODE
+			stockMovementReport.setItemCode(inventoryMovement.getItemCode());
+
+			if (inventoryMovement.getMovementType() == 1L && inventoryMovement.getSubmovementType() == 2L) {
+				stockMovementReport.setMovementQty(inventoryMovement.getMovementQty());
+			} else if (inventoryMovement.getMovementType() == 1L && inventoryMovement.getSubmovementType() == 3L) {
+				stockMovementReport.setMovementQty(-inventoryMovement.getMovementQty()); // Assign -ve number
+			} else if (inventoryMovement.getMovementType() == 3L && inventoryMovement.getSubmovementType() == 5L) {
+				stockMovementReport.setMovementQty(inventoryMovement.getMovementQty());
+			}
+
+			if (inventoryMovement.getMovementType() == 1L) {
+				stockMovementReport.setDocumentType("Inbound");
+			} else if (inventoryMovement.getMovementType() == 3L) {
+				stockMovementReport.setDocumentType("Outbound");
+			}
+
+			// Document Number
+			stockMovementReport.setDocumentNumber(inventoryMovement.getRefDocNumber());
+
+			if (inventoryMovement.getMovementType() == 1L) {
+				List<InboundLine> inboundLine = inboundLineService.getInboundLine(inventoryMovement.getRefDocNumber(), inventoryMovement.getWarehouseId());
+				if (!inboundLine.isEmpty()) {
+					stockMovementReport.setCustomerCode(inboundLine.get(0).getVendorCode());
+				}
+			} else if (inventoryMovement.getMovementType() == 3L) {
+				OutboundHeader outboundHeader = outboundHeaderService.getOutboundHeader(inventoryMovement.getRefDocNumber(), inventoryMovement.getWarehouseId());
+				if (outboundHeader != null) {
+					stockMovementReport.setCustomerCode(outboundHeader.getPartnerCode());
+				}
+			}
+
+			// Date & Time
+			Date date = inventoryMovement.getCreatedOn();
+			LocalDateTime datetime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+			DateTimeFormatter newPattern = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+			String currentDate = datetime.format(newPattern);
+
+			DateTimeFormatter newTimePattern = DateTimeFormatter.ofPattern("HH:mm:ss");
+			String currentTime = datetime.format(newTimePattern);
+			stockMovementReport.setCreatedOn(currentDate);
+			stockMovementReport.setCreatedTime(currentTime);
+
+			Double balanceOHQty = 0D;
+			Double movementQty = 0D;
+
+			// BAL_OH_QTY
+			if (inventoryMovement.getBalanceOHQty() != null) {
+				balanceOHQty = inventoryMovement.getBalanceOHQty();
+				stockMovementReport.setBalanceOHQty(balanceOHQty);
+			}
+
+			if (inventoryMovement.getMovementQty() != null) {
+				movementQty = inventoryMovement.getMovementQty();
+			}
+
+			if (inventoryMovement.getMovementType() == 1) {
+				Double openingStock = balanceOHQty - movementQty;
+				stockMovementReport.setOpeningStock(openingStock);
+			} else if (inventoryMovement.getMovementType() == 3) {
+				Double openingStock = balanceOHQty + movementQty;
+				stockMovementReport.setOpeningStock(openingStock);
+			}
+			reportStockMovementList.add(stockMovementReport);
+		});
+		return reportStockMovementList;
 	}
 
 	/**
