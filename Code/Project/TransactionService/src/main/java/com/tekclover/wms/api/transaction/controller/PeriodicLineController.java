@@ -2,6 +2,7 @@ package com.tekclover.wms.api.transaction.controller;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,6 +45,14 @@ public class PeriodicLineController {
 	public List<PeriodicLine> findPeriodicLine (@RequestBody SearchPeriodicLine searchPeriodicLine)
 			throws Exception {
 		return periodicLineService.findPeriodicLine (searchPeriodicLine);
+	}
+
+	//Stream
+	@ApiOperation(response = PeriodicLine.class, value = "SearchPeriodicLine Stream") // label for swagger
+	@PostMapping("/findPeriodicLineStream")
+	public Stream<PeriodicLine> findPeriodicLineStream (@RequestBody SearchPeriodicLine searchPeriodicLine)
+			throws Exception {
+		return periodicLineService.findPeriodicLineStream (searchPeriodicLine);
 	}
 	
 	@ApiOperation(response = PeriodicLine[].class, value = "AssignHHTUser") // label for swagger

@@ -3,6 +3,7 @@ package com.tekclover.wms.api.transaction.controller;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
@@ -67,6 +68,13 @@ public class StagingHeaderController {
 		return stagingheaderService.findStagingHeader(searchStagingHeader);
 	}
 
+	//Stream
+	@ApiOperation(response = StagingHeader.class, value = "Search StagingHeader New") // label for swagger
+	@PostMapping("/findStagingHeaderNew")
+	public Stream<StagingHeader> findStagingHeaderNew(@RequestBody SearchStagingHeader searchStagingHeader)
+			throws Exception {
+		return stagingheaderService.findStagingHeaderNew(searchStagingHeader);
+	}
 	//===================================STREAMING=================================================
 
 	@GetMapping(value = "/streaming/findStagingHeader")

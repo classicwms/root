@@ -92,7 +92,14 @@ public class PerpetualHeaderController {
    		Set<PerpetualLineEntityImpl> inventoryMovements = perpetualheaderService.runPerpetualHeaderNew(runPerpetualHeader);
    		return new ResponseEntity<>(inventoryMovements , HttpStatus.OK);
    	}
-    
+	@ApiOperation(response = PerpetualLineEntity.class, value = "Create PerpetualHeader Stream") // label for swagger
+   	@PostMapping("/runStream")
+   	public ResponseEntity<?> postRunPerpetualHeaderNew(@Valid @RequestBody RunPerpetualHeader runPerpetualHeader)
+   			throws IllegalAccessException, InvocationTargetException, ParseException {
+   		Set<PerpetualLineEntityImpl> inventoryMovements = perpetualheaderService.runPerpetualHeaderStream(runPerpetualHeader);
+   		return new ResponseEntity<>(inventoryMovements , HttpStatus.OK);
+   	}
+
     @ApiOperation(response = PerpetualHeader.class, value = "Update PerpetualHeader") // label for swagger
     @PatchMapping("/{cycleCountNo}")
 	public ResponseEntity<?> patchPerpetualHeader(@PathVariable String cycleCountNo, @RequestParam String warehouseId, 

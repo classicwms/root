@@ -3,6 +3,7 @@ package com.tekclover.wms.api.transaction.repository;
 import java.util.List;
 import java.util.Optional;
 
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -16,7 +17,7 @@ import com.tekclover.wms.api.transaction.model.inbound.preinbound.PreInboundHead
 @Repository
 @Transactional
 public interface PreInboundHeaderRepository extends JpaRepository<PreInboundHeaderEntity,Long>, 
-			JpaSpecificationExecutor<PreInboundHeaderEntity> {
+			JpaSpecificationExecutor<PreInboundHeaderEntity>, StreamableJpaSpecificationRepository<PreInboundHeaderEntity> {
 	
 	public List<PreInboundHeaderEntity> findAll();
 	

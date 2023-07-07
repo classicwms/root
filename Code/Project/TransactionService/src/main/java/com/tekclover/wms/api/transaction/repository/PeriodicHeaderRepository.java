@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.transaction.repository;
 
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
@@ -9,7 +10,8 @@ import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicHeade
 
 @Repository
 @Transactional
-public interface PeriodicHeaderRepository extends JpaRepository<PeriodicHeader,Long>, JpaSpecificationExecutor<PeriodicHeader> {
+public interface PeriodicHeaderRepository extends JpaRepository<PeriodicHeader,Long>,
+		JpaSpecificationExecutor<PeriodicHeader>, StreamableJpaSpecificationRepository<PeriodicHeader> {
 	
 	public PeriodicHeader findByCompanyCodeAndPlantIdAndWarehouseIdAndCycleCountTypeIdAndCycleCountNo(
 			String companyCode, String plantId, String warehouseId, Long cycleCountTypeId, String cycleCountNo);

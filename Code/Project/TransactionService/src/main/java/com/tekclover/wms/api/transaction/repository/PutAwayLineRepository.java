@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.transaction.repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -130,4 +131,13 @@ public interface PutAwayLineRepository extends JpaRepository<PutAwayLine,Long>, 
 	public List<PutAwayLine> findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPutAwayNumberAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId, String refDocNumber,
 			String putAwayNumber, Long deletionIndicator);
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	@Query (value = "SELECT SUM(PA_CNF_QTY) AS SUM_PAQTY_VALUE FROM tblputawayline \r\n"
+			+ " WHERE ITM_CODE IN :itemCode AND STATUS_ID = 20 AND IS_DELETED = 0 \r\n"
+			+ " AND PA_CTD_ON BETWEEN :dateFrom AND :dateTo GROUP BY ITM_CODE", nativeQuery = true)
+	public Double findSumOfPAConfirmQty (@Param(value = "itemCode") List<String> itemCode,
+			@Param(value = "dateFrom") Date dateFrom,
+			@Param(value = "dateTo") Date dateTo);
 }

@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.transaction.repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,4 +68,13 @@ public interface PickupLineRepository extends JpaRepository<PickupLine,Long>, Jp
 	public List<PickupLine> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPreOutboundNoInAndRefDocNumberInAndPartnerCodeAndStatusIdAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId, List<String> preOutboundNo,
 			List<String> refDocNumber, String partnerCode, Long statusId, long l); 
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	@Query (value = "SELECT SUM(PU_QTY) AS SUM_PUQTY_VALUE FROM tblpickupline \r\n"
+	+ " WHERE ITM_CODE IN :itemCode AND STATUS_ID = 50 AND IS_DELETED = 0 \r\n"
+	+ " AND PICK_CTD_ON BETWEEN :dateFrom AND :dateTo GROUP BY ITM_CODE", nativeQuery = true)
+	public Double findSumOfPickupLineQty (@Param(value = "itemCode") List<String> itemCode, 
+			@Param(value = "dateFrom") Date dateFrom,
+			@Param(value = "dateTo") Date dateTo);
 }

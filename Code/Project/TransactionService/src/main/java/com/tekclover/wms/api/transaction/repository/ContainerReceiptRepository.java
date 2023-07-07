@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import javax.transaction.Transactional;
 
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
@@ -14,7 +15,8 @@ import com.tekclover.wms.api.transaction.model.inbound.containerreceipt.Containe
 
 @Repository
 @Transactional
-public interface ContainerReceiptRepository extends JpaRepository<ContainerReceipt,Long>, JpaSpecificationExecutor<ContainerReceipt> {
+public interface ContainerReceiptRepository extends JpaRepository<ContainerReceipt,Long>,
+		JpaSpecificationExecutor<ContainerReceipt>, StreamableJpaSpecificationRepository<ContainerReceipt> {
 	
 	/**
 	 * 

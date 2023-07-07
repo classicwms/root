@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -276,6 +277,32 @@ public class PreInboundHeaderService extends BaseService {
 		
 		PreInboundHeaderSpecification spec = new PreInboundHeaderSpecification(searchPreInboundHeader);
 		List<PreInboundHeaderEntity> results = preInboundHeaderRepository.findAll(spec);
+//		log.info("results: " + results);
+		return results;
+	}
+
+	/**
+	 *
+	 * @param searchPreInboundHeader
+	 * @return
+	 * @throws ParseException
+	 */
+	//Streaming
+	public Stream<PreInboundHeaderEntity> findPreInboundHeaderNew(SearchPreInboundHeader searchPreInboundHeader) throws ParseException {
+		if (searchPreInboundHeader.getStartCreatedOn() != null && searchPreInboundHeader.getStartCreatedOn() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchPreInboundHeader.getStartCreatedOn(), searchPreInboundHeader.getEndCreatedOn());
+			searchPreInboundHeader.setStartCreatedOn(dates[0]);
+			searchPreInboundHeader.setEndCreatedOn(dates[1]);
+		}
+
+		if (searchPreInboundHeader.getStartRefDocDate() != null && searchPreInboundHeader.getStartRefDocDate() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchPreInboundHeader.getStartRefDocDate(), searchPreInboundHeader.getEndRefDocDate());
+			searchPreInboundHeader.setStartRefDocDate(dates[0]);
+			searchPreInboundHeader.setEndRefDocDate(dates[1]);
+		}
+
+		PreInboundHeaderSpecification spec = new PreInboundHeaderSpecification(searchPreInboundHeader);
+		Stream<PreInboundHeaderEntity> results = preInboundHeaderRepository.stream(spec, PreInboundHeaderEntity.class);
 //		log.info("results: " + results);
 		return results;
 	}

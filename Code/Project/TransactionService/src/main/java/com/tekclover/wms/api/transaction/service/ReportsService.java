@@ -15,6 +15,9 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -29,6 +32,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.expression.ParseException;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,7 +63,9 @@ import com.tekclover.wms.api.transaction.model.outbound.quality.QualityHeader;
 import com.tekclover.wms.api.transaction.model.report.Dashboard;
 import com.tekclover.wms.api.transaction.model.report.FastSlowMovingDashboard;
 import com.tekclover.wms.api.transaction.model.report.FastSlowMovingDashboardRequest;
+import com.tekclover.wms.api.transaction.model.report.FindImBasicData1;
 import com.tekclover.wms.api.transaction.model.report.InventoryReport;
+import com.tekclover.wms.api.transaction.model.report.InventoryStock;
 import com.tekclover.wms.api.transaction.model.report.MetricsSummary;
 import com.tekclover.wms.api.transaction.model.report.MobileDashboard;
 import com.tekclover.wms.api.transaction.model.report.OrderStatusReport;
@@ -83,9 +89,14 @@ import com.tekclover.wms.api.transaction.repository.InboundHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.InboundLineRepository;
 import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
 import com.tekclover.wms.api.transaction.repository.InventoryRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryStockRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundLineRepository;
+import com.tekclover.wms.api.transaction.repository.PickupLineRepository;
+import com.tekclover.wms.api.transaction.repository.PutAwayLineRepository;
+import com.tekclover.wms.api.transaction.repository.StockMovementReportRepository;
 import com.tekclover.wms.api.transaction.repository.StorageBinRepository;
+import com.tekclover.wms.api.transaction.repository.specification.ImBasicData1Specification;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -168,6 +179,18 @@ public class ReportsService extends BaseService {
 	
 	@Autowired
 	PeriodicLineService periodicLineService;	
+	
+	@Autowired
+	InventoryStockRepository inventoryStockRepository;
+	
+	@Autowired
+	PutAwayLineRepository putAwayLineRepository;
+	
+	@Autowired
+	PickupLineRepository pickupLineRepository;
+	
+	@Autowired
+	StockMovementReportRepository stockMovementReportRepository;
 
 	/**
 	 * Stock Report ---------------------
@@ -687,6 +710,209 @@ public class ReportsService extends BaseService {
 		}
 		return reportInventoryList;
 	}
+	
+	@Scheduled(cron = "0 0/40 14 * * *")
+	public void scheduleStockMovementReport() throws Exception {
+		log.info("scheduleStockMovementReport---STARTED-------> : " + new Date());
+		FindImBasicData1 searchImBasicData1 = new FindImBasicData1();
+		Date dateFrom = DateUtils.convertStringToDateByYYYYMMDD ("2022-06-20");
+		Date dateTo = new Date();
+		Date[] dates = DateUtils.addTimeToDatesForSearch(dateFrom, dateTo);
+		searchImBasicData1.setWarehouseId(WAREHOUSE_ID_110);
+		searchImBasicData1.setFromCreatedOn(dates[0]);
+		searchImBasicData1.setToCreatedOn(dates[1]);
+		
+		ImBasicData1Specification spec = new ImBasicData1Specification(searchImBasicData1);
+		List<ImBasicData1> resultsImBasicData1 = imbasicdata1Repository.findAll(spec);
+		log.info("resultsImBasicData1 : " + resultsImBasicData1.size());
+		
+//		Set<String> itemCodeSet = resultsImBasicData1.stream().map(ImBasicData1::getItemCode).collect(Collectors.toSet());
+		List<String> itemCodeList = resultsImBasicData1.stream().map(ImBasicData1::getItemCode).collect(Collectors.toList());
+		log.info("itemCodeList : " + itemCodeList.size());
+		
+		executeThreads (itemCodeList, dates[0], dates[1]);
+		
+//		itemCodeSet.stream().forEach(i -> {
+//			try {
+//				getStockMovementReportForSchedule (WAREHOUSE_ID_110, i, dates[0], dates[1]);
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//		});
+		log.info("scheduleStockMovementReport---COMPLETED-------> : " + new Date());
+	}
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param itemCode
+	 * @param fromDate
+	 * @param toDate
+	 * @throws java.text.ParseException
+	 */
+	public void getStockMovementReportForSchedule (String warehouseId, List<String> listItemCodes, Date fromDate, Date toDate) 
+			throws Exception {
+		listItemCodes.stream().forEach(itemCode -> {
+			List<InventoryMovement> inventoryMovementSearchResults_123 = inventoryMovementRepository
+					.findByWarehouseIdAndItemCodeAndCreatedOnBetweenAndMovementTypeAndSubmovementTypeInOrderByCreatedOnAsc(warehouseId,
+							itemCode, fromDate, toDate, 1L, Arrays.asList(2L, 3L));
+			List<StockMovementReport> reportStockMovementList_1 = fillData(inventoryMovementSearchResults_123);
+//			log.info("reportStockMovementList_1 : " + reportStockMovementList_1);
+			stockMovementReportRepository.saveAll(reportStockMovementList_1);
+			
+			List<InventoryMovement> inventoryMovementSearchResults_35 = inventoryMovementRepository
+					.findByWarehouseIdAndItemCodeAndCreatedOnBetweenAndMovementTypeAndSubmovementTypeInOrderByCreatedOnAsc(warehouseId,
+							itemCode, fromDate, toDate, 3L, Arrays.asList(5L));
+			List<StockMovementReport> reportStockMovementList_2 = fillData(inventoryMovementSearchResults_35);
+//			log.info("reportStockMovementList_2 : " + reportStockMovementList_2);
+			stockMovementReportRepository.saveAll(reportStockMovementList_2);
+		});
+	}
+	
+	public void executeThreads(List<String> itemCodeList, Date fromDate, Date toDate) {
+		List<String> list0 = itemCodeList.subList(0, 9999);
+		List<String> list1 = itemCodeList.subList(10000, 19999);
+		List<String> list2 = itemCodeList.subList(20000, 29999);
+		List<String> list3 = itemCodeList.subList(30000, 39999);
+		List<String> list4 = itemCodeList.subList(40000, 49999);
+		List<String> list5 = itemCodeList.subList(50000, 59999);
+		List<String> list6 = itemCodeList.subList(60000, 69999);
+		List<String> list7 = itemCodeList.subList(70000, 79999);
+		List<String> list8 = itemCodeList.subList(80000, 89999);
+		List<String> list9 = itemCodeList.subList(90000, 99999);
+		List<String> list10 = itemCodeList.subList(100000, 109999);
+		List<String> list11 = itemCodeList.subList(110000, 119999);
+		List<String> list12 = itemCodeList.subList(120000, 129999);
+		
+		// create a callable for each method
+		Callable<Void> callable1 = new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				getStockMovementReportForSchedule (WAREHOUSE_ID_110, list0, fromDate, toDate);
+				return null;
+			}
+		};
+
+		Callable<Void> callable2 = new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				getStockMovementReportForSchedule (WAREHOUSE_ID_110, list1, fromDate, toDate);
+				return null;
+			}
+		};
+
+		Callable<Void> callable3 = new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				getStockMovementReportForSchedule (WAREHOUSE_ID_110, list2, fromDate, toDate);
+				return null;
+			}
+		};
+		
+		Callable<Void> callable4 = new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				getStockMovementReportForSchedule (WAREHOUSE_ID_110, list3, fromDate, toDate);
+				return null;
+			}
+		};
+		
+		Callable<Void> callable5 = new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				getStockMovementReportForSchedule (WAREHOUSE_ID_110, list4, fromDate, toDate);
+				return null;
+			}
+		};
+		
+		Callable<Void> callable6 = new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				getStockMovementReportForSchedule (WAREHOUSE_ID_110, list5, fromDate, toDate);
+				return null;
+			}
+		};
+		
+		Callable<Void> callable7 = new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				getStockMovementReportForSchedule (WAREHOUSE_ID_110, list6, fromDate, toDate);
+				return null;
+			}
+		};
+		
+		Callable<Void> callable8 = new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				getStockMovementReportForSchedule (WAREHOUSE_ID_110, list7, fromDate, toDate);
+				return null;
+			}
+		};
+		
+		Callable<Void> callable9 = new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				getStockMovementReportForSchedule (WAREHOUSE_ID_110, list8, fromDate, toDate);
+				return null;
+			}
+		};
+		
+		Callable<Void> callable10 = new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				getStockMovementReportForSchedule (WAREHOUSE_ID_110, list9, fromDate, toDate);
+				return null;
+			}
+		};
+		
+		Callable<Void> callable11 = new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				getStockMovementReportForSchedule (WAREHOUSE_ID_110, list10, fromDate, toDate);
+				return null;
+			}
+		};
+		
+		Callable<Void> callable12 = new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				getStockMovementReportForSchedule (WAREHOUSE_ID_110, list11, fromDate, toDate);
+				return null;
+			}
+		};
+		
+		Callable<Void> callable13 = new Callable<Void>() {
+			@Override
+			public Void call() throws Exception {
+				getStockMovementReportForSchedule (WAREHOUSE_ID_110, list12, fromDate, toDate);
+				return null;
+			}
+		};
+
+		// add to a list
+		List<Callable<Void>> taskList = new ArrayList<Callable<Void>>();
+		taskList.add(callable1);
+		taskList.add(callable2);
+		taskList.add(callable3);
+		taskList.add(callable4);
+		taskList.add(callable5);
+		taskList.add(callable6);
+		taskList.add(callable7);
+		taskList.add(callable8);
+		taskList.add(callable9);
+		taskList.add(callable10);
+		taskList.add(callable11);
+		taskList.add(callable12);
+		taskList.add(callable13);
+
+		// create a pool executor with 3 threads
+		ExecutorService executor = Executors.newFixedThreadPool(15);
+		try {
+			// start the threads and wait for them to finish
+			executor.invokeAll(taskList);
+		} catch (InterruptedException ie) {
+		}
+	}
 
 	/**
 	 *
@@ -735,13 +961,15 @@ public class ReportsService extends BaseService {
 						itemCode, fromDate, toDate, 1L, Arrays.asList(2L, 3L));
 		List<StockMovementReport> reportStockMovementList_1 = fillData(inventoryMovementSearchResults_123);
 		log.info("reportStockMovementList_1 : " + reportStockMovementList_1);
-
+		stockMovementReportRepository.saveAll(reportStockMovementList_1);
+		
 		List<InventoryMovement> inventoryMovementSearchResults_35 = inventoryMovementRepository
 				.findByWarehouseIdAndItemCodeAndCreatedOnBetweenAndMovementTypeAndSubmovementTypeInOrderByCreatedOnAsc(warehouseId,
 						itemCode, fromDate, toDate, 3L, Arrays.asList(5L));
 		List<StockMovementReport> reportStockMovementList_2 = fillData(inventoryMovementSearchResults_35);
 		log.info("reportStockMovementList_2 : " + reportStockMovementList_2);
-
+		stockMovementReportRepository.saveAll(reportStockMovementList_2);
+		
 		reportStockMovementList_1.addAll(reportStockMovementList_2);
 		return reportStockMovementList_1;
 	}
@@ -756,7 +984,8 @@ public class ReportsService extends BaseService {
 		List<StockMovementReport> reportStockMovementList = new ArrayList<>();
 		for (InventoryMovement inventoryMovement : inventoryMovementSearchResults) {
 			StockMovementReport stockMovementReport = new StockMovementReport();
-
+			stockMovementReport.setStockMovementReportId(System.currentTimeMillis());
+			
 			// WH_ID
 			stockMovementReport.setWarehouseId(inventoryMovement.getWarehouseId());
 
@@ -2326,6 +2555,133 @@ public class ReportsService extends BaseService {
 		return getFastSlowMovingDashboardData(fastSlowMovingDashboardRequest.getWarehouseId(),
 				fastSlowMovingDashboardRequest.getFromDate(), fastSlowMovingDashboardRequest.getToDate());
 	}
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param itemCode
+	 * @param fromCreatedOn
+	 * @param toCreatedOn
+	 * @return
+	 */
+	public List<InventoryStock> getInventoryStockReport(FindImBasicData1 searchImBasicData1) {
+		try {
+			
+			if (searchImBasicData1.getFromCreatedOn() != null && searchImBasicData1.getFromCreatedOn() != null) {
+				Date[] dates = DateUtils.addTimeToDatesForSearch(searchImBasicData1.getFromCreatedOn(), 
+						searchImBasicData1.getToCreatedOn());
+				searchImBasicData1.setFromCreatedOn(dates[0]);
+				searchImBasicData1.setToCreatedOn(dates[1]);
+			}
+			
+			ImBasicData1Specification spec = new ImBasicData1Specification(searchImBasicData1);
+			List<ImBasicData1> resultsImBasicData1 = imbasicdata1Repository.findAll(spec);
+			log.info("resultsImBasicData1 : " + resultsImBasicData1);
+			List<InventoryStock> inventoryStockList = new ArrayList<>();
+			
+			// 3. Pass WH_ID in IMBASICDATA1 table and fetch the ITM_CODES	
+			Set<String> itemCodeSet = resultsImBasicData1.parallelStream().map(ImBasicData1::getItemCode).collect(Collectors.toSet());
+			log.info("itemCodeSet : " + itemCodeSet);
+			
+			itemCodeSet.parallelStream().forEach(i -> {
+				InventoryStock inventoryStock = new InventoryStock();
+				inventoryStock.setWarehouseId(searchImBasicData1.getWarehouseId());
+				inventoryStock.setItemCode(i);			
+				
+				/*
+				 * Pass ITM_CODE values into INVENTORY_STOCK table and fetch sum of INV_QTY+ ALLOC_QTY where BIN_CL_ID=1 and Sum by ITM_CODE
+				 * This is stock for 20-06-2022 (A)
+				 */
+				Double sumOfInvQty_AllocQty = inventoryStockRepository.findSumOfInventoryQtyAndAllocQty(searchImBasicData1.getItemCode());			
+				
+				sumOfInvQty_AllocQty = (sumOfInvQty_AllocQty != null) ? sumOfInvQty_AllocQty : 0D;
+				log.info("INVENTORY_STOCK : " + sumOfInvQty_AllocQty);
+				
+				/*
+				 * Pass ITM_CODE values and From date 20-06-2022 and to date as From date of selection parameters
+				 * into PUTAWAYLINE table where status_ID = 20 and IS_DELETED = 0
+				 * Fetch SUM of PA_CNF_QTY and group by ITM_CODE(B)
+				 */
+				Date dateFrom = null;
+				Date dateTo = null;
+				try {
+					dateFrom = DateUtils.convertStringToDateByYYYYMMDD ("2022-06-20");
+					Date[] dates = DateUtils.addTimeToDatesForSearch(dateFrom, searchImBasicData1.getFromCreatedOn());
+					dateFrom = dates[0];
+					dateTo = dates[1];
+				} catch (java.text.ParseException e) {
+					e.printStackTrace();
+				}
+				
+				Double sumOfPAConfirmQty = putAwayLineRepository.findSumOfPAConfirmQty (searchImBasicData1.getItemCode(), dateFrom, dateTo);
+				sumOfPAConfirmQty = (sumOfPAConfirmQty != null) ? sumOfPAConfirmQty : 0D;
+				log.info("PUTAWAYLINE : " + sumOfPAConfirmQty);
+				
+				/*
+				 * Pass ITM_CODE values and From date 20-06-2022 and to date as From date of selection parameters into PICKUPLINE table 
+				 * where status_ID=50 and IS_DELETED=0
+				 * Fetch SUM of PU_QTY and group by ITM_CODE{C}
+				 */
+				Double sumOfPickupLineQty = pickupLineRepository.findSumOfPickupLineQty (searchImBasicData1.getItemCode(), dateFrom, dateTo);
+				sumOfPickupLineQty = (sumOfPickupLineQty != null) ? sumOfPickupLineQty : 0D;
+				log.info("PICKUPLINE : " + sumOfPickupLineQty);
+				
+				/*
+				 * Pass ITM_CODE values and From date 20-06-2022 and to date as From date of selection parameters into INVENTORYMOVEMENT table 
+				 * where MVT_TYP_ID=4, SUB_MVT_TYP_ID=1 and IS_DELETED=0
+				 * Fetch SUM of MVT_QTY and group by ITM_CODE(D)
+				 */
+				Double sumOfMvtQty = inventoryMovementRepository.findSumOfMvtQty (searchImBasicData1.getItemCode(), dateFrom, dateTo);
+				sumOfMvtQty = (sumOfMvtQty != null) ? sumOfMvtQty : 0D;
+				log.info("INVENTORYMOVEMENT : " + sumOfMvtQty);
+				
+				// Opening stock - 3 column - E
+				Double openingStock = ((sumOfInvQty_AllocQty + sumOfPAConfirmQty + sumOfPickupLineQty) - sumOfMvtQty);
+				log.info("openingStock : " + openingStock);
+				inventoryStock.setOpeningStock(openingStock);
+				
+				try {
+					Date[] dates = DateUtils.addTimeToDatesForSearch(searchImBasicData1.getFromCreatedOn(), 
+							searchImBasicData1.getToCreatedOn());
+					dateFrom = dates[0];
+					dateTo = dates[1];
+					log.info("----SecII----> dateFrom & dateTo---> : " + dateFrom + "," + dateTo);
+				} catch (java.text.ParseException e) {
+					e.printStackTrace();
+				}
+				
+				// Output Column - 4 - PUTAWAYLINE
+				Double sumOfPAConfirmQty_4 = putAwayLineRepository.findSumOfPAConfirmQty (searchImBasicData1.getItemCode(), dateFrom, dateTo);
+				sumOfPAConfirmQty_4 = (sumOfPAConfirmQty_4 != null) ? sumOfPAConfirmQty_4 : 0D;
+				log.info("PUTAWAYLINE_4 : " + sumOfPAConfirmQty_4);
+				inventoryStock.setInboundQty(sumOfPAConfirmQty_4);
+				
+				// Output Column - 5 - PICKUPLINE
+				Double sumOfPickupLineQty_5 = pickupLineRepository.findSumOfPickupLineQty (searchImBasicData1.getItemCode(), dateFrom, dateTo);
+				sumOfPickupLineQty_5 = (sumOfPickupLineQty_5 != null) ? sumOfPickupLineQty_5 : 0D;
+				log.info("PICKUPLINE_5 : " + sumOfPickupLineQty_5);
+				inventoryStock.setOutboundQty(sumOfPickupLineQty_5);
+				
+				// Output Column - 6 -INVENTORYMOVEMENT
+				Double sumOfMvtQty_6 = inventoryMovementRepository.findSumOfMvtQty (searchImBasicData1.getItemCode(), dateFrom, dateTo);
+				sumOfMvtQty_6 = (sumOfMvtQty_6 != null) ? sumOfMvtQty_6 : 0D;
+				log.info("INVENTORYMOVEMENT_6 : " + sumOfMvtQty_6);
+				inventoryStock.setStockAdjustmentQty(sumOfMvtQty_6);
+				
+				// Output Column - 7 - (E+F+H) - G
+				Double closingStock = ((openingStock + sumOfPAConfirmQty_4 + sumOfMvtQty_6) - sumOfPickupLineQty_5);
+				log.info("closingStock : " + closingStock);
+				inventoryStock.setClosingStock(closingStock);
+				
+				inventoryStockList.add(inventoryStock);		
+			});
+			return inventoryStockList;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 
 	/**
 	 * 

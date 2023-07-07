@@ -549,4 +549,21 @@ public class DateUtils {
 		}
 		return null;
 	}
+	
+	public static Date convertStringToDateByYYYYMMDD(String strDate) throws ParseException {
+		strDate = strDate + " 00:00:00";
+		Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(strDate);
+		log.info("convertStringToDate-------> : " + date);
+		return date;
+	}
+	/**
+	 *
+	 * @return
+	 */
+	public static Long getCurrentYear() {
+		DateTimeFormatter newPattern = DateTimeFormatter.ofPattern("yyyy");
+		LocalDateTime datetime = LocalDateTime.now();
+		Long currentDatetime = Long.valueOf(datetime.format(newPattern));
+		return currentDatetime;
+	}
 }

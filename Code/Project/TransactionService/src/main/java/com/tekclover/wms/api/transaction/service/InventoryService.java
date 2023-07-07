@@ -5,11 +5,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.persistence.EntityNotFoundException;
 
+import com.tekclover.wms.api.transaction.model.auditlog.AuditLog;
+import com.tekclover.wms.api.transaction.model.impl.InventoryImpl;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.*;
 import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
+import com.tekclover.wms.api.transaction.util.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,6 +31,7 @@ import com.tekclover.wms.api.transaction.repository.specification.InventorySpeci
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 
 import static java.lang.Math.abs;
 
@@ -39,6 +44,9 @@ public class InventoryService extends BaseService {
 
 	@Autowired
 	private InventoryMovementRepository inventoryMovementRepository;
+
+	@Autowired
+	private AuditLogService auditLogService;
 
 	/**
 	 * getInventorys
@@ -135,10 +143,10 @@ public class InventoryService extends BaseService {
 		}
 		return null;
 	}
-
-
+	
+	
 	/**
-	 *
+	 * 
 	 * @param warehouseId
 	 * @param itemCode
 	 * @param stockTypeId
@@ -157,12 +165,11 @@ public class InventoryService extends BaseService {
 						);
 		return inventory;
 	}
-
+	
 	/**
-	 *
+	 * 
 	 * @param warehouseId
 	 * @param itemCode
-	 * @param stockTypeId
 	 * @param binClassId
 	 * @return
 	 */
@@ -181,9 +188,9 @@ public class InventoryService extends BaseService {
 						);
 		return inventory;
 	}
-
+	
 	/**
-	 *
+	 * 
 	 * @param warehouseId
 	 * @param packBarcodes
 	 * @param itemCode
@@ -392,9 +399,9 @@ public class InventoryService extends BaseService {
 						);
 		return inventory;
 	}
-
+	
 	/**
-	 *
+	 * 
 	 * @param warehouseId
 	 * @param itemCode
 	 * @param stSecIds
@@ -490,13 +497,13 @@ public class InventoryService extends BaseService {
 		List<Inventory> inventory = inventoryRepository.findByWarehouseIdAndStorageBinIn(warehouseId, stBins);
 		return inventory;
 	}
-
+	
 	/**
-	 *
+	 * 
+	 * @param sortBy 
+	 * @param pageSize 
+	 * @param pageNo 
 	 * @param searchInventory
-	 * @param pageNo
-	 * @param pageSize
-	 * @param sortBy
 	 * @return
 	 * @throws ParseException
 	 */
@@ -514,6 +521,12 @@ public class InventoryService extends BaseService {
 	 * @return
 	 * @throws ParseException
 	 */
+//	public List<Inventory> findInventory(SearchInventory searchInventory)
+//			throws ParseException {
+//		InventorySpecification spec = new InventorySpecification(searchInventory);
+//		List<Inventory> results = inventoryRepository.findAll(spec);
+//		return results;
+//	}
 	public List<Inventory> findInventory(SearchInventory searchInventory)
 			throws ParseException {
 		InventorySpecification spec = new InventorySpecification(searchInventory);
@@ -523,6 +536,24 @@ public class InventoryService extends BaseService {
 			if (n.getAllocatedQuantity() == null) { n.setAllocatedQuantity(0D);}
 			n.setReferenceField4(n.getInventoryQuantity() + n.getAllocatedQuantity());
 		});
+		return results;
+	}
+	@Transactional
+	public List<InventoryImpl> findInventoryNew(SearchInventory searchInventory)
+			throws ParseException {
+
+		List<InventoryImpl> results = inventoryRepository.findInventory(
+				searchInventory.getWarehouseId(),
+				searchInventory.getPackBarcodes(),
+				searchInventory.getItemCode(),
+				searchInventory.getStorageBin(),
+				searchInventory.getStorageSectionId(),
+				searchInventory.getStockTypeId(),
+				searchInventory.getSpecialStockIndicatorId(),
+				searchInventory.getBinClassId(),
+				searchInventory.getDescription()
+		);
+//		return results.collect(Collectors.toList());
 		return results;
 	}
 
@@ -560,7 +591,7 @@ public class InventoryService extends BaseService {
 		dbInventory.setCreatedOn(new Date());
 		return inventoryRepository.save(dbInventory);
 	}
-
+	
 	/**
 	 *
 	 * @param warehouseId
@@ -569,8 +600,8 @@ public class InventoryService extends BaseService {
 	 * @param storageBin
 	 * @param stockTypeId
 	 * @param specialStockIndicatorId
-	 * @param updateInventory
 	 * @param loginUserID
+	 * @param updateInventory
 	 * @return
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
@@ -578,10 +609,203 @@ public class InventoryService extends BaseService {
 	public Inventory updateInventory (String warehouseId, String packBarcodes, String itemCode, String storageBin, 
 			Long stockTypeId, Long specialStockIndicatorId, UpdateInventory updateInventory, String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
+
 		Inventory dbInventory = getInventory(warehouseId, packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId);
 
+		//* ------------------------------------Audit Log----------------------------------------------------------------
+		// PALLET_CODE
+		/*if (updateInventory.getPalletCode() != null && updateInventory.getPalletCode() != dbInventory.getPalletCode()) {
+//			log.info("Inserting Audit log for PALLET_CODE");
+			createAuditLogRecord(dbInventory.getCompanyCodeId(), dbInventory.getPlantId(),
+								warehouseId, loginUserID, "INVENTORY", "INVENTORY",
+					"PAL_CODE", dbInventory.getPalletCode(), updateInventory.getPalletCode(),
+					packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId,"");
+		}
+
+		// CASE_CODE
+		if (updateInventory.getCaseCode() != null && updateInventory.getCaseCode() != dbInventory.getCaseCode()) {
+//			log.info("Inserting Audit log for CASE_CODE");
+			createAuditLogRecord(dbInventory.getCompanyCodeId(), dbInventory.getPlantId(),
+								warehouseId, loginUserID, "INVENTORY", "INVENTORY",
+					"CASE_CODE", dbInventory.getCaseCode(), updateInventory.getCaseCode(),
+					packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId,"");
+		}
+
+		// VAR_ID
+		if (updateInventory.getVariantCode() != null && updateInventory.getVariantCode() != dbInventory.getVariantCode()) {
+//			log.info("Inserting Audit log for VAR_ID");
+			createAuditLogRecord(dbInventory.getCompanyCodeId(), dbInventory.getPlantId(),
+								warehouseId, loginUserID, "INVENTORY", "INVENTORY",
+					"VAR_ID", String.valueOf(dbInventory.getVariantCode()), String.valueOf(updateInventory.getVariantCode()),
+					packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId,"");
+		}
+
+		// VAR_SUB_ID
+		if (updateInventory.getVariantSubCode() != null && updateInventory.getVariantSubCode() != dbInventory.getVariantSubCode()) {
+//			log.info("Inserting Audit log for VAR_SUB_ID");
+			createAuditLogRecord(dbInventory.getCompanyCodeId(), dbInventory.getPlantId(),
+					warehouseId, loginUserID, "INVENTORY", "INVENTORY",
+					"VAR_SUB_ID", dbInventory.getVariantSubCode(), updateInventory.getVariantSubCode(),
+					packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId,"");
+		}
+
+		// STR_NO
+		if (updateInventory.getBatchSerialNumber() != null && updateInventory.getBatchSerialNumber() != dbInventory.getBatchSerialNumber()) {
+//			log.info("Inserting Audit log for STR_NO");
+			createAuditLogRecord(dbInventory.getCompanyCodeId(), dbInventory.getPlantId(),
+					warehouseId, loginUserID, "INVENTORY", "INVENTORY",
+					"STR_NO", dbInventory.getBatchSerialNumber(), updateInventory.getBatchSerialNumber(),
+					packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId,"");
+		}
+
+		// STCK_TYP_ID
+		if (updateInventory.getStockTypeId() != null && updateInventory.getStockTypeId() != dbInventory.getStockTypeId()) {
+//			log.info("Inserting Audit log for STCK_TYP_ID");
+			createAuditLogRecord(dbInventory.getCompanyCodeId(), dbInventory.getPlantId(),
+					warehouseId, loginUserID, "INVENTORY", "INVENTORY",
+					"STCK_TYP_ID", String.valueOf(dbInventory.getStockTypeId()), String.valueOf(updateInventory.getStockTypeId()),
+					packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId,"");
+		}
+
+		// REF_ORD_NO
+		if (updateInventory.getReferenceOrderNo() != null && updateInventory.getReferenceOrderNo() != dbInventory.getReferenceOrderNo()) {
+//			log.info("Inserting Audit log for REF_ORD_NO");
+			createAuditLogRecord(dbInventory.getCompanyCodeId(), dbInventory.getPlantId(),
+					warehouseId, loginUserID, "INVENTORY", "INVENTORY",
+					"REF_ORD_NO", dbInventory.getReferenceOrderNo(), updateInventory.getReferenceOrderNo(),
+					packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId,"");
+		}
+
+		// STR_MTD
+		if (updateInventory.getStorageMethod() != null && updateInventory.getStorageMethod() != dbInventory.getStorageMethod()) {
+//			log.info("Inserting Audit log for STR_MTD");
+			createAuditLogRecord(dbInventory.getCompanyCodeId(), dbInventory.getPlantId(),
+					warehouseId, loginUserID, "INVENTORY", "INVENTORY",
+					"STR_MTD", String.valueOf(dbInventory.getStorageMethod()), updateInventory.getStorageMethod(),
+					packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId,"");
+		}
+
+		// BIN_CL_ID
+		if (updateInventory.getBinClassId() != null && updateInventory.getBinClassId() != dbInventory.getBinClassId()) {
+//			log.info("Inserting Audit log for BIN_CL_ID");
+			createAuditLogRecord(dbInventory.getCompanyCodeId(), dbInventory.getPlantId(),
+					warehouseId, loginUserID, "INVENTORY", "INVENTORY",
+					"BIN_CL_ID", String.valueOf(dbInventory.getBinClassId()), String.valueOf(updateInventory.getBinClassId()),
+					packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId,"");
+		}
+
+		// TEXT
+		if (updateInventory.getDescription() != null && updateInventory.getDescription() != dbInventory.getDescription()) {
+//			log.info("Inserting Audit log for TEXT");
+			createAuditLogRecord(dbInventory.getCompanyCodeId(), dbInventory.getPlantId(),
+					warehouseId, loginUserID, "INVENTORY", "INVENTORY",
+					"TEXT", dbInventory.getDescription(), updateInventory.getDescription(),
+					packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId,"");
+		}
+
+		// INV_QTY
+		if (updateInventory.getInventoryQuantity() != null && updateInventory.getInventoryQuantity() != dbInventory.getInventoryQuantity()) {
+//			log.info("Inserting Audit log for INV_QTY");
+			createAuditLogRecord(dbInventory.getCompanyCodeId(), dbInventory.getPlantId(),
+					warehouseId, loginUserID, "INVENTORY", "INVENTORY",
+					"INV_QTY", String.valueOf(dbInventory.getInventoryQuantity()), String.valueOf(updateInventory.getInventoryQuantity()),
+					packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId,"");
+		}
+
+		// ALLOC_QTY
+		if (updateInventory.getAllocatedQuantity() != null && updateInventory.getAllocatedQuantity() != dbInventory.getAllocatedQuantity()) {
+//			log.info("Inserting Audit log for ALLOC_QTY");
+			createAuditLogRecord(dbInventory.getCompanyCodeId(), dbInventory.getPlantId(),
+					warehouseId, loginUserID, "INVENTORY", "INVENTORY",
+					"ALLOC_QTY", String.valueOf(dbInventory.getAllocatedQuantity()), String.valueOf(updateInventory.getAllocatedQuantity()),
+					packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId,"");
+		}
+
+		// INV_UOM
+		if (updateInventory.getInventoryUom() != null && updateInventory.getInventoryUom() != dbInventory.getInventoryUom()) {
+//			log.info("Inserting Audit log for INV_UOM");
+			createAuditLogRecord(dbInventory.getCompanyCodeId(), dbInventory.getPlantId(),
+					warehouseId, loginUserID, "INVENTORY", "INVENTORY",
+					"INV_UOM", dbInventory.getInventoryUom(), updateInventory.getInventoryUom(),
+					packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId,"");
+		}
+
+		// MFR_DATE
+		if (updateInventory.getManufacturerDate() != null && updateInventory.getManufacturerDate() != dbInventory.getManufacturerDate()) {
+//			log.info("Inserting Audit log for MFR_DATE");
+			createAuditLogRecord(dbInventory.getCompanyCodeId(), dbInventory.getPlantId(),
+					warehouseId, loginUserID, "INVENTORY", "INVENTORY",
+					"MFR_DATE", String.valueOf(dbInventory.getManufacturerDate()), String.valueOf(updateInventory.getManufacturerDate()),
+					packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId,"");
+		}
+
+		// EXP_DATE
+		if (updateInventory.getExpiryDate() != null && updateInventory.getExpiryDate() != dbInventory.getExpiryDate()) {
+//			log.info("Inserting Audit log for EXP_DATE");
+			createAuditLogRecord(dbInventory.getCompanyCodeId(), dbInventory.getPlantId(),
+					warehouseId, loginUserID, "INVENTORY", "INVENTORY",
+					"EXP_DATE", String.valueOf(dbInventory.getExpiryDate()), String.valueOf(updateInventory.getExpiryDate()),
+					packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId,"");
+		}
+
+		// REF_FIELD_5
+		if (updateInventory.getReferenceField5() != null && updateInventory.getReferenceField5() != dbInventory.getReferenceField5()) {
+//			log.info("Inserting Audit log for REF_FIELD_5");
+			createAuditLogRecord(dbInventory.getCompanyCodeId(), dbInventory.getPlantId(),
+					warehouseId, loginUserID, "INVENTORY", "INVENTORY",
+					"REF_FIELD_5", dbInventory.getReferenceField5(), updateInventory.getReferenceField5(),
+					packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId,"");
+		}
+
+		// REF_FIELD_6
+		if (updateInventory.getReferenceField6() != null && updateInventory.getReferenceField6() != dbInventory.getReferenceField6()) {
+//			log.info("Inserting Audit log for REF_FIELD_6");
+			createAuditLogRecord(dbInventory.getCompanyCodeId(), dbInventory.getPlantId(),
+					warehouseId, loginUserID, "INVENTORY", "INVENTORY",
+					"REF_FIELD_6", dbInventory.getReferenceField6(), updateInventory.getReferenceField6(),
+					packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId,"");
+		}
+
+		// REF_FIELD_7
+		if (updateInventory.getReferenceField7() != null && updateInventory.getReferenceField7() != dbInventory.getReferenceField7()) {
+//			log.info("Inserting Audit log for REF_FIELD_7");
+			createAuditLogRecord(dbInventory.getCompanyCodeId(), dbInventory.getPlantId(),
+					warehouseId, loginUserID, "INVENTORY", "INVENTORY",
+					"REF_FIELD_7", dbInventory.getReferenceField7(), updateInventory.getReferenceField7(),
+					packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId,"");
+		}
+
+		// REF_FIELD_8
+		if (updateInventory.getReferenceField8() != null && updateInventory.getReferenceField8() != dbInventory.getReferenceField8()) {
+//			log.info("Inserting Audit log for REF_FIELD_8");
+			createAuditLogRecord(dbInventory.getCompanyCodeId(), dbInventory.getPlantId(),
+					warehouseId, loginUserID, "INVENTORY", "INVENTORY",
+					"REF_FIELD_8", dbInventory.getReferenceField8(), updateInventory.getReferenceField8(),
+					packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId,"");
+		}
+
+		// REF_FIELD_9
+		if (updateInventory.getReferenceField9() != null && updateInventory.getReferenceField9() != dbInventory.getReferenceField9()) {
+//			log.info("Inserting Audit log for REF_FIELD_9");
+			createAuditLogRecord(dbInventory.getCompanyCodeId(), dbInventory.getPlantId(),
+					warehouseId, loginUserID, "INVENTORY", "INVENTORY",
+					"REF_FIELD_9", dbInventory.getReferenceField9(), updateInventory.getReferenceField9(),
+					packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId,"");
+		}
+
+		// REF_FIELD_10
+		if (updateInventory.getReferenceField10() != null && updateInventory.getReferenceField10() != dbInventory.getReferenceField10()) {
+//			log.info("Inserting Audit log for REF_FIELD_10");
+			createAuditLogRecord(dbInventory.getCompanyCodeId(), dbInventory.getPlantId(),
+					warehouseId, loginUserID, "INVENTORY", "INVENTORY",
+					"REF_FIELD_10", dbInventory.getReferenceField10(), updateInventory.getReferenceField10(),
+					packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId,"");
+		}*/
+	//* --------------------------------------------------------------------------------------------------------------------------------------*//
+
 		/*--------------------------------------Inventory Movement Create ---------------------------------------------------------*/
-		/* Inventory Movement will be created only when change in total quantity i.e., INV_QTY+ALLOC_QTY otherwise no record should be created */
+		/* Inventory Movement will be created only when change in total quantity
+			i.e., INV_QTY+ALLOC_QTY and binClassId == 1; otherwise no record should be created */
 
 		if(updateInventory.getInventoryQuantity() == null) {
 			updateInventory.setInventoryQuantity(0D);
@@ -599,8 +823,17 @@ public class InventoryService extends BaseService {
 		Double newTotalQuantity = updateInventory.getInventoryQuantity() + updateInventory.getAllocatedQuantity();
 		Double dbTotalQuantity = dbInventory.getInventoryQuantity() + dbInventory.getAllocatedQuantity();
 		log.info("newTotalQuantity: "+ newTotalQuantity + "dbTotalQuantity: " + dbTotalQuantity);
-		if(newTotalQuantity != dbTotalQuantity) {
+		if(newTotalQuantity != dbTotalQuantity && dbInventory.getBinClassId() == 1) {
+
 			InventoryMovement dbInventoryMovement = new InventoryMovement();
+
+			String movementDocumentNumber;
+			if(inventoryRepository.findMovementDocumentNo() != null) {
+				movementDocumentNumber = inventoryRepository.findMovementDocumentNo();
+			} else {
+				movementDocumentNumber = "1";
+			}
+
 			dbInventoryMovement.setLanguageId(dbInventory.getLanguageId());
 			dbInventoryMovement.setCompanyCodeId(dbInventory.getCompanyCodeId());
 			dbInventoryMovement.setPlantId(dbInventory.getPlantId());
@@ -614,19 +847,22 @@ public class InventoryService extends BaseService {
 			dbInventoryMovement.setVariantCode(dbInventory.getVariantCode());
 			dbInventoryMovement.setVariantSubCode(dbInventory.getVariantSubCode());
 			dbInventoryMovement.setBatchSerialNumber("1");
-			dbInventoryMovement.setMovementDocumentNo("1");
+//			dbInventoryMovement.setMovementDocumentNo("1");
+			dbInventoryMovement.setMovementDocumentNo(movementDocumentNumber);
 			dbInventoryMovement.setManufacturerPartNo(dbInventory.getReferenceField9()); //Inventory Ref_Field_9 - ManufacturePartNo
 			dbInventoryMovement.setStorageBin(dbInventory.getStorageBin());
 			dbInventoryMovement.setStorageMethod(dbInventory.getStorageMethod());
-			dbInventoryMovement.setDescription(dbInventory.getDescription());
+			dbInventoryMovement.setDescription(dbInventory.getReferenceField8());
 			dbInventoryMovement.setStockTypeId(dbInventory.getStockTypeId());
 			dbInventoryMovement.setSpecialStockIndicator(dbInventory.getSpecialStockIndicatorId());
 			if(newTotalQuantity < dbTotalQuantity) {
 				dbInventoryMovement.setMovementQtyValue("N");
+				log.info("MovementQtyValue: "+ dbInventoryMovement.getMovementQtyValue());
 			} else {
 				dbInventoryMovement.setMovementQtyValue("P");
+				log.info("MovementQtyValue: "+ dbInventoryMovement.getMovementQtyValue());
 			}
-			dbInventoryMovement.setMovementQty(abs(newTotalQuantity-dbTotalQuantity));
+			dbInventoryMovement.setMovementQty(newTotalQuantity-dbTotalQuantity);
 			dbInventoryMovement.setBalanceOHQty(newTotalQuantity);
 			dbInventoryMovement.setInventoryUom(dbInventory.getInventoryUom());
 //			dbInventoryMovement.setRefDocNumber("");
@@ -642,15 +878,10 @@ public class InventoryService extends BaseService {
 		dbInventory.setUpdatedOn(new Date());
 		return inventoryRepository.save(dbInventory);
 	}
-
+	
 	/**
-	 *
-	 * @param warehouseId
-	 * @param packBarcodes
-	 * @param itemCode
-	 * @param storageBin
+	 * deleteInventory
 	 * @param stockTypeId
-	 * @param specialStockIndicatorId
 	 */
 	public void deleteInventory (String warehouseId, String packBarcodes, String itemCode, String storageBin, Long stockTypeId, 
 			Long specialStockIndicatorId) {
@@ -664,12 +895,11 @@ public class InventoryService extends BaseService {
 	}
 
 	/**
-	 *
+	 * 
 	 * @param warehouseId
 	 * @param packBarcodes
 	 * @param itemCode
-	 * @return
-	 */
+	 */ 
 	public boolean deleteInventory(String warehouseId, String packBarcodes, String itemCode) {
 		try {
 			List<Inventory> inventoryList = getInventoryForDelete (warehouseId, packBarcodes, itemCode);
@@ -688,7 +918,58 @@ public class InventoryService extends BaseService {
 	}
 	
 	/*
-	 * -------------------------REPORTS----------------------------------------------------------------
+	 * -------------------------Audit Log----------------------------------------------------------------
 	 */
-	
+	public void createAuditLogRecord(String companyCodeId, String plantId, String warehouseId,
+									 String loginUserID, String tableName, String objectName,
+									 String modifiedField, String oldValue, String newValue,
+									 String packBarcodes, String itemCode,String storageBin,
+									 Long stockTypeId, Long specialStockIndicatorId, String refDocNumber)
+			throws InvocationTargetException, IllegalAccessException {
+
+		AuditLog auditLog = new AuditLog();
+
+		auditLog.setCompanyCode(companyCodeId);
+
+		auditLog.setPlantID(plantId);
+
+		auditLog.setWarehouseId(warehouseId);
+
+		auditLog.setFiscalYear(DateUtils.getCurrentYear());
+
+		auditLog.setObjectName(objectName);
+
+		auditLog.setTableName(tableName);
+
+		auditLog.setRefDocNumber(refDocNumber);
+
+		// MOD_FIELD
+		auditLog.setModifiedField(modifiedField);
+
+		// OLD_VL
+		auditLog.setOldValue(oldValue);
+
+		// NEW_VL
+		auditLog.setNewValue(newValue);
+
+		// CTD_BY
+		auditLog.setCreatedBy(loginUserID);
+
+		// CTD_ON
+		auditLog.setCreatedOn(new Date());
+
+		// UTD_BY
+		auditLog.setUpdatedBy(loginUserID);
+
+		// UTD_ON
+		auditLog.setUpdatedOn(new Date());
+
+		auditLog.setReferenceField1(packBarcodes);
+		auditLog.setReferenceField2(itemCode);
+		auditLog.setReferenceField3(storageBin);
+		auditLog.setReferenceField4(String.valueOf(stockTypeId));
+		auditLog.setReferenceField5(String.valueOf(specialStockIndicatorId));
+
+		auditLogService.createAuditLog(auditLog, loginUserID);
+	}
 }

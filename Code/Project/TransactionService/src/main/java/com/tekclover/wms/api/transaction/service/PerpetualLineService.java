@@ -344,8 +344,8 @@ public class PerpetualLineService extends BaseService {
 					 * from STORAGEBIN table where BIN_CL_ID=5) values in INVENTORY table and append INV_QTY as 
 					 * VAR_QTY
 					 */
-					createInventory (updatedPerpetualLine);
-					createInventoryMovement (updatedPerpetualLine);
+//					createInventory (updatedPerpetualLine);
+//					createInventoryMovement (updatedPerpetualLine);
 				}
 				
 				/*

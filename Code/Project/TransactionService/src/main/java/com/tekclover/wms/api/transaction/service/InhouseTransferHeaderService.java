@@ -6,7 +6,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.tekclover.wms.api.transaction.model.inbound.InboundHeader;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -117,6 +119,26 @@ public class InhouseTransferHeaderService extends BaseService {
 	
 		InhouseTransferHeaderSpecification spec = new InhouseTransferHeaderSpecification(searchInHouseTransferHeader);
 		List<InhouseTransferHeader> results = inhouseTransferHeaderRepository.findAll(spec);
+		return results;
+	}
+
+	/**
+	 * Streaming
+	 * @param searchInHouseTransferHeader
+	 * @return
+	 * @throws Exception
+	 */
+	public Stream<InhouseTransferHeader> findInHouseTransferHeaderNew(SearchInhouseTransferHeader searchInHouseTransferHeader) throws Exception {
+		if (searchInHouseTransferHeader.getStartCreatedOn() != null &&
+				searchInHouseTransferHeader.getStartCreatedOn() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchInHouseTransferHeader.getStartCreatedOn(),
+					searchInHouseTransferHeader.getEndCreatedOn());
+			searchInHouseTransferHeader.setStartCreatedOn(dates[0]);
+			searchInHouseTransferHeader.setEndCreatedOn(dates[1]);
+		}
+
+		InhouseTransferHeaderSpecification spec = new InhouseTransferHeaderSpecification(searchInHouseTransferHeader);
+		Stream<InhouseTransferHeader> results = inhouseTransferHeaderRepository.stream(spec, InhouseTransferHeader.class);
 		return results;
 	}
 	
