@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -146,6 +147,27 @@ public class PerpetualLineService extends BaseService {
 		
 		PerpetualLineSpecification spec = new PerpetualLineSpecification(searchPerpetualLine);
 		List<PerpetualLine> perpetualLineResults = perpetualLineRepository.findAll(spec);
+		return perpetualLineResults;
+	}
+
+	/**
+	 * Stream
+	 * @param searchPerpetualLine
+	 * @return
+	 * @throws ParseException
+	 * @throws java.text.ParseException
+	 */
+	public Stream<PerpetualLine> findPerpetualLineStream (SearchPerpetualLine searchPerpetualLine)
+			throws ParseException, java.text.ParseException {
+		if (searchPerpetualLine.getStartCreatedOn() != null && searchPerpetualLine.getStartCreatedOn() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchPerpetualLine.getStartCreatedOn(),
+					searchPerpetualLine.getEndCreatedOn());
+			searchPerpetualLine.setStartCreatedOn(dates[0]);
+			searchPerpetualLine.setEndCreatedOn(dates[1]);
+		}
+
+		PerpetualLineSpecification spec = new PerpetualLineSpecification(searchPerpetualLine);
+		Stream<PerpetualLine> perpetualLineResults = perpetualLineRepository.stream(spec, PerpetualLine.class);
 		return perpetualLineResults;
 	}
 	

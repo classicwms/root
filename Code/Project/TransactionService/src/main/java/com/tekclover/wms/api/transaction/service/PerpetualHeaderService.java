@@ -1,6 +1,8 @@
 package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -17,6 +19,8 @@ import javax.validation.Valid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
 import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
@@ -67,6 +71,9 @@ public class PerpetualHeaderService extends BaseService {
 	
 	@Autowired
 	InventoryService inventoryService;
+
+	@Autowired
+	JdbcTemplate jdbcTemplate;
 	
 	/**
 	 * getPerpetualHeaders
@@ -435,20 +442,21 @@ public class PerpetualHeaderService extends BaseService {
 			dbPerpetualLine.setCreatedOn(new Date());
 			perpetualLines.add(dbPerpetualLine);
 		}
-		List<PerpetualLine> createdPerpetualLines = perpetualLineRepository.saveAll(perpetualLines);
-		log.info("createdPerpetualLine : " + createdPerpetualLines);
-		
+//		List<PerpetualLine> createdPerpetualLines = perpetualLineRepository.saveAll(perpetualLines);
+//		log.info("createdPerpetualLine : " + createdPerpetualLines);
+		log.info("createdPerpetualLine : " + perpetualLines);
+		batchInsert(perpetualLines);
 		// Return Response
-		List<PerpetualLineEntity> listPerpetualLineEntity = new ArrayList<>();
-		for (PerpetualLine perpetualLine : createdPerpetualLines) {
-			PerpetualLineEntity perpetualLineEntity = new PerpetualLineEntity();
-			BeanUtils.copyProperties(perpetualLine, perpetualLineEntity, CommonUtils.getNullPropertyNames(perpetualLine));
-			listPerpetualLineEntity.add(perpetualLineEntity);
-		}
+//		List<PerpetualLineEntity> listPerpetualLineEntity = new ArrayList<>();
+//		for (PerpetualLine perpetualLine : createdPerpetualLines) {
+//			PerpetualLineEntity perpetualLineEntity = new PerpetualLineEntity();
+//			BeanUtils.copyProperties(perpetualLine, perpetualLineEntity, CommonUtils.getNullPropertyNames(perpetualLine));
+//			listPerpetualLineEntity.add(perpetualLineEntity);
+//		}
 		
 		PerpetualHeaderEntity perpetualHeaderEntity = new PerpetualHeaderEntity();
 		BeanUtils.copyProperties(createdPerpetualHeader, perpetualHeaderEntity, CommonUtils.getNullPropertyNames(createdPerpetualHeader));
-		perpetualHeaderEntity.setPerpetualLine(listPerpetualLineEntity);
+//		perpetualHeaderEntity.setPerpetualLine(listPerpetualLineEntity);
 		
 		return perpetualHeaderEntity;
 	}
@@ -636,5 +644,152 @@ public class PerpetualHeaderService extends BaseService {
 		List<PerpetualLine> perpetualLineList = perpetualLineService.getPerpetualLine(perpetualHeader.getCycleCountNo());
 		perpetualHeader.setPerpetualLine(perpetualLineList);
 		return perpetualHeader;
+	}
+
+	public int[][] batchInsert(List<PerpetualLine> perpetualLineList) {
+
+		int batchSize=500;
+
+		int[][] updateCounts = jdbcTemplate.batchUpdate(
+				"insert into tblperpetualline (LANG_ID, C_ID, PLANT_ID, WH_ID,\n" +
+						"CC_NO, ST_BIN, ITM_CODE, PACK_BARCODE, \n" +
+						"ITM_DESC, MFR_PART, VAR_ID, VAR_SUB_ID, \n" +
+						"STR_NO, STCK_TYP_ID, SP_ST_IND_ID, ST_SEC_ID, \n" +
+						"INV_QTY, INV_UOM, CTD_QTY, VAR_QTY, \n" +
+						"COUNTER_ID, COUNTER_NM, STATUS_ID, ACTION, \n" +
+						"REF_NO, APP_PROCESS_ID, APP_LVL, APP_CODE, \n" +
+						"APP_STATUS, REMARK, REF_FIELD_1, REF_FIELD_2, \n" +
+						"REF_FIELD_3, REF_FIELD_4, REF_FIELD_5, REF_FIELD_6, \n" +
+						"REF_FIELD_7, REF_FIELD_8, REF_FIELD_9, REF_FIELD_10, \n" +
+						"IS_DELETED, CC_CTD_BY, CC_CTD_ON, CC_CNF_BY, \n" +
+						"CC_CNF_ON, CC_CNT_BY, CC_CNT_ON) \n" +
+						"values(?,?,?,?, \n" +
+						"?,?,?,?, \n"+
+						"?,?,?,?, \n"+
+						"?,?,?,?, \n"+
+						"?,?,?,?, \n"+
+						"?,?,?,?, \n"+
+						"?,?,?,?, \n"+
+						"?,?,?,?, \n"+
+						"?,?,?,?, \n"+
+						"?,?,?,?, \n"+
+						"?,?,?,?, \n"+
+						"?,?,?)", perpetualLineList, batchSize,
+				new ParameterizedPreparedStatementSetter<PerpetualLine>() {
+					public void setValues(PreparedStatement ps, PerpetualLine perpetualLine) throws SQLException {
+						ps.setString(1, perpetualLine.getLanguageId());
+						ps.setString(2, perpetualLine.getCompanyCodeId());
+						ps.setString(3, perpetualLine.getPlantId());
+						ps.setString(4, perpetualLine.getWarehouseId());
+						ps.setString(5, perpetualLine.getCycleCountNo());
+						ps.setString(6, perpetualLine.getStorageBin());
+						ps.setString(7, perpetualLine.getItemCode());
+						ps.setString(8, perpetualLine.getPackBarcodes());
+
+						ps.setString(9, perpetualLine.getItemDesc());
+						ps.setString(10, perpetualLine.getManufacturerPartNo());
+
+						if(perpetualLine.getVariantCode() != null) {
+							ps.setLong(11, perpetualLine.getVariantCode());
+						} else {
+							ps.setLong(11, 0L);
+						}
+
+						ps.setString(12, perpetualLine.getVariantSubCode());
+						ps.setString(13, perpetualLine.getBatchSerialNumber());
+
+						if(perpetualLine.getStockTypeId() != null) {
+							ps.setLong(14, perpetualLine.getStockTypeId());
+						} else {
+							ps.setLong(14, 0L);
+						}
+
+						ps.setString(15, perpetualLine.getSpecialStockIndicator());
+						ps.setString(16, perpetualLine.getStorageSectionId());
+
+						if(perpetualLine.getInventoryQuantity() != null) {
+							ps.setDouble(17, perpetualLine.getInventoryQuantity());
+						} else {
+							ps.setDouble(17, 0D);
+						}
+
+						ps.setString(18, perpetualLine.getInventoryUom());
+
+						if(perpetualLine.getCountedQty() != null) {
+							ps.setDouble(19, perpetualLine.getCountedQty());
+						} else {
+							ps.setDouble(19, 0D);
+						}
+
+						if(perpetualLine.getVarianceQty() != null) {
+							ps.setDouble(20, perpetualLine.getVarianceQty());
+						} else {
+							ps.setDouble(20, 0D);
+						}
+
+						ps.setString(21, perpetualLine.getCycleCounterId());
+						ps.setString(22, perpetualLine.getCycleCounterName());
+						if(perpetualLine.getStatusId() != null) {
+							ps.setLong(23, perpetualLine.getStatusId());
+						} else {
+							ps.setLong(23, 0L);
+						}
+
+						ps.setString(24, perpetualLine.getCycleCountAction());
+						ps.setString(25, perpetualLine.getReferenceNo());
+						if(perpetualLine.getApprovalProcessId() != null) {
+							ps.setLong(26, perpetualLine.getApprovalProcessId());
+						} else {
+							ps.setLong(26, 0L);
+						}
+
+						ps.setString(27, perpetualLine.getApprovalLevel());
+						ps.setString(28, perpetualLine.getApproverCode());
+						ps.setString(29, perpetualLine.getApprovalStatus());
+						ps.setString(30, perpetualLine.getRemarks());
+						ps.setString(31, perpetualLine.getReferenceField1());
+						ps.setString(32, perpetualLine.getReferenceField2());
+						ps.setString(33, perpetualLine.getReferenceField3());
+						ps.setString(34, perpetualLine.getReferenceField4());
+						ps.setString(35, perpetualLine.getReferenceField5());
+						ps.setString(36, perpetualLine.getReferenceField6());
+						ps.setString(37, perpetualLine.getReferenceField7());
+						ps.setString(38, perpetualLine.getReferenceField8());
+						ps.setString(39, perpetualLine.getReferenceField9());
+						ps.setString(40, perpetualLine.getReferenceField10());
+
+						if(perpetualLine.getDeletionIndicator() != null) {
+							ps.setLong(41, perpetualLine.getDeletionIndicator());
+						} else {
+							ps.setLong(41,0L);
+						}
+
+						ps.setString(42, perpetualLine.getCreatedBy());
+
+						if(perpetualLine.getCreatedOn() != null) {
+							ps.setDate(43, new java.sql.Date(perpetualLine.getCreatedOn().getTime()));
+						} else {
+							ps.setDate(43,new java.sql.Date(new Date().getTime()));
+						}
+
+						ps.setString(44, perpetualLine.getConfirmedBy());
+
+						if(perpetualLine.getConfirmedOn() != null) {
+							ps.setDate(45, new java.sql.Date(perpetualLine.getConfirmedOn().getTime()));
+						} else {
+							ps.setDate(45, new java.sql.Date(new Date().getTime()));
+						}
+
+						ps.setString(46, perpetualLine.getCountedBy());
+
+						if(perpetualLine.getCountedOn() != null) {
+							ps.setDate(47, new java.sql.Date(perpetualLine.getCountedOn().getTime()));
+						} else {
+							ps.setDate(47, new java.sql.Date(new Date().getTime()));
+						}
+
+					}
+				});
+		return updateCounts;
 	}
 }

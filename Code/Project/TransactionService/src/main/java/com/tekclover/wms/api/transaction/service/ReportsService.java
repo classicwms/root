@@ -81,6 +81,7 @@ import com.tekclover.wms.api.transaction.model.report.ShipmentDispatchHeader;
 import com.tekclover.wms.api.transaction.model.report.ShipmentDispatchList;
 import com.tekclover.wms.api.transaction.model.report.ShipmentDispatchSummaryReport;
 import com.tekclover.wms.api.transaction.model.report.StockMovementReport;
+import com.tekclover.wms.api.transaction.model.report.StockMovementReport1;
 import com.tekclover.wms.api.transaction.model.report.StockReport;
 import com.tekclover.wms.api.transaction.model.report.SummaryMetrics;
 import com.tekclover.wms.api.transaction.repository.ContainerReceiptRepository;
@@ -94,6 +95,7 @@ import com.tekclover.wms.api.transaction.repository.OutboundHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundLineRepository;
 import com.tekclover.wms.api.transaction.repository.PickupLineRepository;
 import com.tekclover.wms.api.transaction.repository.PutAwayLineRepository;
+import com.tekclover.wms.api.transaction.repository.StockMovementReport1Repository;
 import com.tekclover.wms.api.transaction.repository.StockMovementReportRepository;
 import com.tekclover.wms.api.transaction.repository.StorageBinRepository;
 import com.tekclover.wms.api.transaction.repository.specification.ImBasicData1Specification;
@@ -188,6 +190,9 @@ public class ReportsService extends BaseService {
 	
 	@Autowired
 	PickupLineRepository pickupLineRepository;
+	
+	@Autowired
+	StockMovementReport1Repository stockMovementReport1Repository;
 	
 	@Autowired
 	StockMovementReportRepository stockMovementReportRepository;
@@ -756,33 +761,22 @@ public class ReportsService extends BaseService {
 			List<InventoryMovement> inventoryMovementSearchResults_123 = inventoryMovementRepository
 					.findByWarehouseIdAndItemCodeAndCreatedOnBetweenAndMovementTypeAndSubmovementTypeInOrderByCreatedOnAsc(warehouseId,
 							itemCode, fromDate, toDate, 1L, Arrays.asList(2L, 3L));
-			List<StockMovementReport> reportStockMovementList_1 = fillDataForScheduler(inventoryMovementSearchResults_123);
+			List<StockMovementReport1> reportStockMovementList_1 = fillDataForScheduler(inventoryMovementSearchResults_123);
 //			log.info("reportStockMovementList_1 : " + reportStockMovementList_1);
-			stockMovementReportRepository.saveAll(reportStockMovementList_1);
+			stockMovementReport1Repository.saveAll(reportStockMovementList_1);
 			
 			List<InventoryMovement> inventoryMovementSearchResults_35 = inventoryMovementRepository
 					.findByWarehouseIdAndItemCodeAndCreatedOnBetweenAndMovementTypeAndSubmovementTypeInOrderByCreatedOnAsc(warehouseId,
 							itemCode, fromDate, toDate, 3L, Arrays.asList(5L));
-			List<StockMovementReport> reportStockMovementList_2 = fillDataForScheduler(inventoryMovementSearchResults_35);
+			List<StockMovementReport1> reportStockMovementList_2 = fillDataForScheduler(inventoryMovementSearchResults_35);
 //			log.info("reportStockMovementList_2 : " + reportStockMovementList_2);
-			stockMovementReportRepository.saveAll(reportStockMovementList_2);
+			stockMovementReport1Repository.saveAll(reportStockMovementList_2);
 		});
 	}
 	
 	public void executeThreads(List<String> itemCodeList, Date fromDate, Date toDate) {
-		List<String> list0 = itemCodeList.subList(0, 9999);
-		List<String> list1 = itemCodeList.subList(10000, 19999);
-		List<String> list2 = itemCodeList.subList(20000, 29999);
-		List<String> list3 = itemCodeList.subList(30000, 39999);
-		List<String> list4 = itemCodeList.subList(40000, 49999);
-		List<String> list5 = itemCodeList.subList(50000, 59999);
-		List<String> list6 = itemCodeList.subList(60000, 69999);
-		List<String> list7 = itemCodeList.subList(70000, 79999);
-		List<String> list8 = itemCodeList.subList(80000, 89999);
-		List<String> list9 = itemCodeList.subList(90000, 99999);
-		List<String> list10 = itemCodeList.subList(100000, 109999);
-		List<String> list11 = itemCodeList.subList(110000, 119999);
-		List<String> list12 = itemCodeList.subList(120000, itemCodeList.size());
+		List<String> list0 = itemCodeList.subList(0, 59999);
+		List<String> list1 = itemCodeList.subList(60000, itemCodeList.size());
 		
 		// create a callable for each method
 		Callable<Void> callable1 = new Callable<Void>() {
@@ -801,124 +795,25 @@ public class ReportsService extends BaseService {
 			}
 		};
 
-		Callable<Void> callable3 = new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				getStockMovementReportForSchedule (WAREHOUSE_ID_110, list2, fromDate, toDate);
-				return null;
-			}
-		};
-		
-		Callable<Void> callable4 = new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				getStockMovementReportForSchedule (WAREHOUSE_ID_110, list3, fromDate, toDate);
-				return null;
-			}
-		};
-		
-		Callable<Void> callable5 = new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				getStockMovementReportForSchedule (WAREHOUSE_ID_110, list4, fromDate, toDate);
-				return null;
-			}
-		};
-		
-		Callable<Void> callable6 = new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				getStockMovementReportForSchedule (WAREHOUSE_ID_110, list5, fromDate, toDate);
-				return null;
-			}
-		};
-		
-		Callable<Void> callable7 = new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				getStockMovementReportForSchedule (WAREHOUSE_ID_110, list6, fromDate, toDate);
-				return null;
-			}
-		};
-		
-		Callable<Void> callable8 = new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				getStockMovementReportForSchedule (WAREHOUSE_ID_110, list7, fromDate, toDate);
-				return null;
-			}
-		};
-		
-		Callable<Void> callable9 = new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				getStockMovementReportForSchedule (WAREHOUSE_ID_110, list8, fromDate, toDate);
-				return null;
-			}
-		};
-		
-		Callable<Void> callable10 = new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				getStockMovementReportForSchedule (WAREHOUSE_ID_110, list9, fromDate, toDate);
-				return null;
-			}
-		};
-		
-		Callable<Void> callable11 = new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				getStockMovementReportForSchedule (WAREHOUSE_ID_110, list10, fromDate, toDate);
-				return null;
-			}
-		};
-		
-		Callable<Void> callable12 = new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				getStockMovementReportForSchedule (WAREHOUSE_ID_110, list11, fromDate, toDate);
-				return null;
-			}
-		};
-		
-		Callable<Void> callable13 = new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				getStockMovementReportForSchedule (WAREHOUSE_ID_110, list12, fromDate, toDate);
-				return null;
-			}
-		};
-
 		// add to a list
 		List<Callable<Void>> taskList = new ArrayList<Callable<Void>>();
 		taskList.add(callable1);
 		taskList.add(callable2);
-		taskList.add(callable3);
-		taskList.add(callable4);
-		taskList.add(callable5);
-		taskList.add(callable6);
-		taskList.add(callable7);
-		taskList.add(callable8);
-		taskList.add(callable9);
-		taskList.add(callable10);
-		taskList.add(callable11);
-		taskList.add(callable12);
-		taskList.add(callable13);
 
 		// create a pool executor with 3 threads
-		ExecutorService executor = Executors.newFixedThreadPool(15);
+		ExecutorService executor = Executors.newFixedThreadPool(2);
 		try {
 			// start the threads and wait for them to finish
 			executor.invokeAll(taskList);
 		} catch (InterruptedException ie) {
+			log.info("ERROR-------THREAD------->: " + ie.toString());		
 		}
 	}
 	
-	private List<StockMovementReport> fillDataForScheduler (List<InventoryMovement> inventoryMovementSearchResults) {
-		List<StockMovementReport> reportStockMovementList = new ArrayList<>();
+	private List<StockMovementReport1> fillDataForScheduler (List<InventoryMovement> inventoryMovementSearchResults) {
+		List<StockMovementReport1> reportStockMovementList = new ArrayList<>();
 		inventoryMovementSearchResults.stream().forEach(inventoryMovement -> {
-		
-		StockMovementReport stockMovementReport = new StockMovementReport();
+			StockMovementReport1 stockMovementReport = new StockMovementReport1();
 			stockMovementReport.setStockMovementReportId(System.currentTimeMillis());
 			
 			// WH_ID
@@ -2830,5 +2725,15 @@ public class ReportsService extends BaseService {
 			}
 			return acc2;
 		}, ArrayList::new);
+	}
+
+	//-------------------------------------------------Get all StockMovementReport---------------------------------
+	/**
+	 * getStockMovementReports
+	 * @return
+	 */
+	public List<StockMovementReport> getStockMovementReports () {
+		List<StockMovementReport> stockMovementReportList =  stockMovementReportRepository.findAll();
+		return stockMovementReportList;
 	}
 }

@@ -51,8 +51,38 @@ public class PerpetualLineSpecification implements Specification<PerpetualLine> 
         	 predicates.add(cb.between(root.get("createdOn"), searchPerpetualLine.getStartCreatedOn(), 
         			 searchPerpetualLine.getEndCreatedOn()));
          }
-		 
-		 predicates.add(cb.equal(root.get("deletionIndicator"), 0L)); 
-         return cb.and(predicates.toArray(new Predicate[] {}));
+
+		if (searchPerpetualLine.getItemCode() != null && !searchPerpetualLine.getItemCode().isEmpty()) {
+			final Path<Group> group = root.<Group> get("itemCode");
+			predicates.add(group.in(searchPerpetualLine.getItemCode()));
+		}
+
+		if (searchPerpetualLine.getPackBarcodes() != null && !searchPerpetualLine.getPackBarcodes().isEmpty()) {
+			final Path<Group> group = root.<Group> get("packBarcodes");
+			predicates.add(group.in(searchPerpetualLine.getPackBarcodes()));
+		}
+
+		if (searchPerpetualLine.getStorageBin() != null && !searchPerpetualLine.getStorageBin().isEmpty()) {
+			final Path<Group> group = root.<Group> get("storageBin");
+			predicates.add(group.in(searchPerpetualLine.getStorageBin()));
+		}
+
+		if (searchPerpetualLine.getStockTypeId() != null && !searchPerpetualLine.getStockTypeId().isEmpty()) {
+			final Path<Group> group = root.<Group> get("stockTypeId");
+			predicates.add(group.in(searchPerpetualLine.getStockTypeId()));
+		}
+
+		if (searchPerpetualLine.getManufacturerPartNo() != null && !searchPerpetualLine.getManufacturerPartNo().isEmpty()) {
+			final Path<Group> group = root.<Group> get("manufacturerPartNo");
+			predicates.add(group.in(searchPerpetualLine.getManufacturerPartNo()));
+		}
+
+		if (searchPerpetualLine.getStorageSectionId() != null && !searchPerpetualLine.getStorageSectionId().isEmpty()) {
+			final Path<Group> group = root.<Group> get("storageSectionId");
+			predicates.add(group.in(searchPerpetualLine.getStorageSectionId()));
+		}
+
+		predicates.add(cb.equal(root.get("deletionIndicator"), 0L));
+		return cb.and(predicates.toArray(new Predicate[] {}));
      }
 }

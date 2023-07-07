@@ -2,6 +2,7 @@ package com.tekclover.wms.api.transaction.controller;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,6 +45,14 @@ public class PerpetualLineController {
 	public List<PerpetualLine> findPerpetualLine(@RequestBody SearchPerpetualLine searchPerpetualLine)
 			throws Exception {
 		return perpetualLineService.findPerpetualLine(searchPerpetualLine);
+	}
+
+	//Stream
+	@ApiOperation(response = PerpetualLine.class, value = "SearchPerpetualLineStream") // label for swagger
+	@PostMapping("/findPerpetualLineStream")
+	public Stream<PerpetualLine> findPerpetualLineStream(@RequestBody SearchPerpetualLine searchPerpetualLine)
+			throws Exception {
+		return perpetualLineService.findPerpetualLineStream(searchPerpetualLine);
 	}
 	
     @ApiOperation(response = PerpetualLine[].class, value = "AssignHHTUser") // label for swagger

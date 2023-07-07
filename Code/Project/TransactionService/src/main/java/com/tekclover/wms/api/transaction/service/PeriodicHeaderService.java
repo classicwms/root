@@ -365,13 +365,13 @@ public class PeriodicHeaderService extends BaseService {
 			 * Checking whether PeriodicLine has Status_ID 70
 			 */
 			Set<String> setItemCodes = periodicLineList.stream().map(PeriodicLine::getItemCode).collect(Collectors.toSet());
-			List<String> listItemCodes = periodicLineRepository.findByStatusIdNotIn70(setItemCodes);
-			if (listItemCodes != null && listItemCodes.isEmpty()) {
-				throw new BadRequestException("Selected Items are already in Stock Count process.");
-			}
+//			List<String> listItemCodes = periodicLineRepository.findByStatusIdNotIn70(setItemCodes);
+//			if (listItemCodes != null && listItemCodes.isEmpty()) {
+//				throw new BadRequestException("Selected Items are already in Stock Count process.");
+//			}
 			
 			for (PeriodicLine newPeriodicLine : newPeriodicHeader.getPeriodicLine()) {
-				if (listItemCodes.contains(newPeriodicLine.getItemCode())) {
+//				if (listItemCodes.contains(newPeriodicLine.getItemCode())) {
 					PeriodicLine dbPeriodicLine = new PeriodicLine();
 					BeanUtils.copyProperties(newPeriodicLine, dbPeriodicLine, CommonUtils.getNullPropertyNames(newPeriodicLine));
 					
@@ -397,7 +397,7 @@ public class PeriodicHeaderService extends BaseService {
 	//				log.info("createdPeriodicLine : " + createdPeriodicLine);
 	//				periodicLineList.add(createdPeriodicLine);
 					periodicLineList.add(dbPeriodicLine);
-				}
+//				}
 			}
 
 			// Batch Insert
@@ -540,7 +540,6 @@ public class PeriodicHeaderService extends BaseService {
 
 	public int[][] batchInsert(List<PeriodicLine> periodicLineList) {
 
-//		JdbcTemplate jdbcTemplate = new JdbcTemplate();
 		int batchSize=500;
 
 		int[][] updateCounts = jdbcTemplate.batchUpdate(
@@ -568,7 +567,6 @@ public class PeriodicHeaderService extends BaseService {
 						"?,?,?,?, \n"+
 						"?,?,?,?, \n"+
 						"?,?,?)", periodicLineList, batchSize,
-//				new BatchPreparedStatementSetter() {
 				new ParameterizedPreparedStatementSetter<PeriodicLine>() {
 
 					public void setValues(PreparedStatement ps, PeriodicLine periodicLine) throws SQLException {
@@ -601,7 +599,7 @@ public class PeriodicHeaderService extends BaseService {
 						if(periodicLine.getInventoryQuantity() != null) {
 							ps.setDouble(14, periodicLine.getInventoryQuantity());
 						} else {
-							ps.setDouble(12, 0D);
+							ps.setDouble(14, 0D);
 						}
 
 						ps.setString(15, periodicLine.getInventoryUom());
@@ -648,22 +646,37 @@ public class PeriodicHeaderService extends BaseService {
 						ps.setString(35, periodicLine.getReferenceField8());
 						ps.setString(36, periodicLine.getReferenceField9());
 						ps.setString(37, periodicLine.getReferenceField10());
-						ps.setLong(38, periodicLine.getDeletionIndicator());
+
+						if(periodicLine.getDeletionIndicator() != null) {
+							ps.setLong(38, periodicLine.getDeletionIndicator());
+						} else {
+							ps.setLong(38,0L);
+						}
+
 						ps.setString(39, periodicLine.getCreatedBy());
-						ps.setDate(40,  new java.sql.Date(periodicLine.getCreatedOn().getTime()));
+
+						if(periodicLine.getCreatedOn() != null) {
+							ps.setDate(40,  new java.sql.Date(periodicLine.getCreatedOn().getTime()));
+						} else {
+							ps.setDate(40, new java.sql.Date(new Date().getTime()));
+						}
+
 						ps.setString(41, periodicLine.getConfirmedBy());
 
-						ps.setDate(42, new java.sql.Date(periodicLine.getConfirmedOn().getTime()));
+						if(periodicLine.getConfirmedOn() != null) {
+							ps.setDate(42, new java.sql.Date(periodicLine.getConfirmedOn().getTime()));
+						} else {
+							ps.setDate(42, new java.sql.Date(new Date().getTime()));
+						}
 
 						ps.setString(43, periodicLine.getCountedBy());
 
-						ps.setDate(44, new java.sql.Date(periodicLine.getCountedOn().getTime()));
-
+						if(periodicLine.getCountedOn() != null) {
+							ps.setDate(44, new java.sql.Date(periodicLine.getCountedOn().getTime()));
+						} else {
+							ps.setDate(44, new java.sql.Date(new Date().getTime()));
+						}
 					}
-//					public int getBatchSize() {
-//						return periodicLineList.size();
-//					}
-
 				});
 		return updateCounts;
 	}

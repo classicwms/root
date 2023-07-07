@@ -3,6 +3,7 @@ package com.tekclover.wms.api.transaction.repository;
 import java.util.Date;
 import java.util.List;
 
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -15,7 +16,8 @@ import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualLin
 
 @Repository
 @Transactional
-public interface PerpetualLineRepository extends JpaRepository<PerpetualLine,Long>, JpaSpecificationExecutor<PerpetualLine> {
+public interface PerpetualLineRepository extends JpaRepository<PerpetualLine,Long>,
+		JpaSpecificationExecutor<PerpetualLine> , StreamableJpaSpecificationRepository<PerpetualLine> {
 	
 	public PerpetualLine 
 		findByCompanyCodeIdAndPlantIdAndWarehouseIdAndCycleCountNoAndStorageBinAndItemCodeAndPackBarcodesAndDeletionIndicator(

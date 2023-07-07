@@ -220,4 +220,16 @@ public class ReportsController {
        			reportsService.getInventoryStockReport(searchImBasicData1);
    		return new ResponseEntity<>(inventoryStockReportList, HttpStatus.OK);
    	}
+
+	//-------------------------------------------------Get all StockMovementReport---------------------------------
+	/**
+	 *
+	 * @StockMovementReport
+	 */
+	@ApiOperation(response = StockMovementReport.class, value = "Get all StockMovementReport details") // label for swagger
+	@GetMapping("")
+	public ResponseEntity<?> getAll() {
+		List<StockMovementReport> stockMovementReportList = reportsService.getStockMovementReports();
+		return new ResponseEntity<>(stockMovementReportList, HttpStatus.OK);
+	}
 }
