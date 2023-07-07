@@ -716,7 +716,7 @@ public class ReportsService extends BaseService {
 		return reportInventoryList;
 	}
 	
-	@Scheduled(cron = "0 0/40 14 * * *")
+	@Scheduled(cron = "0 0/10 20 * * *")
 	public void scheduleStockMovementReport() throws Exception {
 		log.info("scheduleStockMovementReport---STARTED-------> : " + new Date());
 		FindImBasicData1 searchImBasicData1 = new FindImBasicData1();
@@ -775,30 +775,30 @@ public class ReportsService extends BaseService {
 	}
 	
 	public void executeThreads(List<String> itemCodeList, Date fromDate, Date toDate) {
-		List<String> list0 = itemCodeList.subList(0, 59999);
-		List<String> list1 = itemCodeList.subList(60000, itemCodeList.size());
+//		List<String> list0 = itemCodeList.subList(0, 59999);
+//		List<String> list1 = itemCodeList.subList(60000, itemCodeList.size());
 		
 		// create a callable for each method
 		Callable<Void> callable1 = new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
-				getStockMovementReportForSchedule (WAREHOUSE_ID_110, list0, fromDate, toDate);
+				getStockMovementReportForSchedule (WAREHOUSE_ID_110, itemCodeList, fromDate, toDate);
 				return null;
 			}
 		};
-
-		Callable<Void> callable2 = new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				getStockMovementReportForSchedule (WAREHOUSE_ID_110, list1, fromDate, toDate);
-				return null;
-			}
-		};
+//
+//		Callable<Void> callable2 = new Callable<Void>() {
+//			@Override
+//			public Void call() throws Exception {
+//				getStockMovementReportForSchedule (WAREHOUSE_ID_110, list1, fromDate, toDate);
+//				return null;
+//			}
+//		};
 
 		// add to a list
 		List<Callable<Void>> taskList = new ArrayList<Callable<Void>>();
 		taskList.add(callable1);
-		taskList.add(callable2);
+//		taskList.add(callable2);
 
 		// create a pool executor with 3 threads
 		ExecutorService executor = Executors.newFixedThreadPool(2);
