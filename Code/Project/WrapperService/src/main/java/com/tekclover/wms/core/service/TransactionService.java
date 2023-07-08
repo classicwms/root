@@ -4585,6 +4585,35 @@ public class TransactionService {
 	}
 
 	// POST - stock-movement-report-get all
+//	public StockMovementReport[] getStockMovementReports(String authToken) throws ParseException {
+//		try {
+//			HttpHeaders headers = new HttpHeaders();
+//			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+//			headers.add("User-Agent", "ClassicWMS RestTemplate");
+//			headers.add("Authorization", "Bearer " + authToken);
+//
+//			UriComponentsBuilder builder = UriComponentsBuilder
+//					.fromHttpUrl(getTransactionServiceApiUrl() + "reports/");
+//			HttpEntity<?> entity = new HttpEntity<>(headers);
+//			ResponseEntity<StockMovementReport[]> result = getRestTemplate().exchange(builder.toUriString(),
+//					HttpMethod.GET, entity, StockMovementReport[].class);
+//			log.info("result : " + result.getStatusCode());
+//
+//			List<StockMovementReport> obList = new ArrayList<>();
+//			for (StockMovementReport obHeader : result.getBody()) {
+//
+//				if(obHeader.getConfirmedOn() != null) {
+//					obHeader.setConfirmedOn(DateUtils.addTimeToDate(obHeader.getConfirmedOn(), 3));
+//				}
+//				obList.add(obHeader);
+//			}
+//			return obList.toArray(new StockMovementReport[obList.size()]);
+//
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			throw e;
+//		}
+//	}
 	public StockMovementReport[] getStockMovementReports(String authToken) throws ParseException {
 		try {
 			HttpHeaders headers = new HttpHeaders();
@@ -4593,7 +4622,7 @@ public class TransactionService {
 			headers.add("Authorization", "Bearer " + authToken);
 
 			UriComponentsBuilder builder = UriComponentsBuilder
-					.fromHttpUrl(getTransactionServiceApiUrl() + "reports/");
+					.fromHttpUrl(getTransactionServiceApiUrl() + "reports/new");
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			ResponseEntity<StockMovementReport[]> result = getRestTemplate().exchange(builder.toUriString(),
 					HttpMethod.GET, entity, StockMovementReport[].class);

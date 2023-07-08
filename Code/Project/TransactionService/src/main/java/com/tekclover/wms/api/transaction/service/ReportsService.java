@@ -20,7 +20,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.tekclover.wms.api.transaction.model.inbound.gr.GrHeader;
+import com.tekclover.wms.api.transaction.model.inbound.gr.SearchGrHeader;
+import com.tekclover.wms.api.transaction.repository.specification.GrHeaderSpecification;
+import com.tekclover.wms.api.transaction.repository.specification.StockMovementReportNewSpecification;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -2736,4 +2741,21 @@ public class ReportsService extends BaseService {
 		List<StockMovementReport> stockMovementReportList =  stockMovementReportRepository.findAll();
 		return stockMovementReportList;
 	}
+//-------------------------------------------------Get all StockMovementReport New---------------------------------
+	/**
+	 *
+	 * @return
+	 * @throws Exception
+	 */
+	public Stream<StockMovementReport1> findStockMovementReportNew() throws Exception {
+
+		StockMovementReportNewSpecification spec = new StockMovementReportNewSpecification();
+		Stream<StockMovementReport1> results = stockMovementReport1Repository.stream(spec, StockMovementReport1.class);
+		return results;
+	}
+
+//	public List<StockMovementReport1> getStockMovementReportsNew () {
+//		List<StockMovementReport1> stockMovementReportList =  stockMovementReport1Repository.findAll();
+//		return stockMovementReportList;
+//	}
 }
