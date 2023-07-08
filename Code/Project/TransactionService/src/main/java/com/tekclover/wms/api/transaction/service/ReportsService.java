@@ -15,17 +15,10 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.tekclover.wms.api.transaction.model.inbound.gr.GrHeader;
-import com.tekclover.wms.api.transaction.model.inbound.gr.SearchGrHeader;
-import com.tekclover.wms.api.transaction.repository.specification.GrHeaderSpecification;
-import com.tekclover.wms.api.transaction.repository.specification.StockMovementReportNewSpecification;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -37,7 +30,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.expression.ParseException;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -104,6 +96,7 @@ import com.tekclover.wms.api.transaction.repository.StockMovementReport1Reposito
 import com.tekclover.wms.api.transaction.repository.StockMovementReportRepository;
 import com.tekclover.wms.api.transaction.repository.StorageBinRepository;
 import com.tekclover.wms.api.transaction.repository.specification.ImBasicData1Specification;
+import com.tekclover.wms.api.transaction.repository.specification.StockMovementReportNewSpecification;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -197,10 +190,10 @@ public class ReportsService extends BaseService {
 	PickupLineRepository pickupLineRepository;
 	
 	@Autowired
-	StockMovementReport1Repository stockMovementReport1Repository;
+	StockMovementReportRepository stockMovementReportRepository;
 	
 	@Autowired
-	StockMovementReportRepository stockMovementReportRepository;
+	StockMovementReport1Repository stockMovementReport1Repository;
 
 	/**
 	 * Stock Report ---------------------
@@ -721,177 +714,6 @@ public class ReportsService extends BaseService {
 		return reportInventoryList;
 	}
 	
-	@Scheduled(cron = "0 0/10 20 * * *")
-	public void scheduleStockMovementReport() throws Exception {
-		log.info("scheduleStockMovementReport---STARTED-------> : " + new Date());
-		FindImBasicData1 searchImBasicData1 = new FindImBasicData1();
-		Date dateFrom = DateUtils.convertStringToDateByYYYYMMDD ("2022-06-20");
-		Date dateTo = new Date();
-		Date[] dates = DateUtils.addTimeToDatesForSearch(dateFrom, dateTo);
-		searchImBasicData1.setWarehouseId(WAREHOUSE_ID_110);
-		searchImBasicData1.setFromCreatedOn(dates[0]);
-		searchImBasicData1.setToCreatedOn(dates[1]);
-		
-		ImBasicData1Specification spec = new ImBasicData1Specification(searchImBasicData1);
-		List<ImBasicData1> resultsImBasicData1 = imbasicdata1Repository.findAll(spec);
-		log.info("resultsImBasicData1 : " + resultsImBasicData1.size());
-		
-//		Set<String> itemCodeSet = resultsImBasicData1.stream().map(ImBasicData1::getItemCode).collect(Collectors.toSet());
-		List<String> itemCodeList = resultsImBasicData1.stream().map(ImBasicData1::getItemCode).collect(Collectors.toList());
-		log.info("itemCodeList : " + itemCodeList.size());
-		
-		executeThreads (itemCodeList, dates[0], dates[1]);
-		
-//		itemCodeSet.stream().forEach(i -> {
-//			try {
-//				getStockMovementReportForSchedule (WAREHOUSE_ID_110, i, dates[0], dates[1]);
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
-//		});
-		log.info("scheduleStockMovementReport---COMPLETED-------> : " + new Date());
-	}
-	
-	/**
-	 * 
-	 * @param warehouseId
-	 * @param itemCode
-	 * @param fromDate
-	 * @param toDate
-	 * @throws java.text.ParseException
-	 */
-	public void getStockMovementReportForSchedule (String warehouseId, List<String> listItemCodes, Date fromDate, Date toDate) 
-			throws Exception {
-		listItemCodes.stream().forEach(itemCode -> {
-			List<InventoryMovement> inventoryMovementSearchResults_123 = inventoryMovementRepository
-					.findByWarehouseIdAndItemCodeAndCreatedOnBetweenAndMovementTypeAndSubmovementTypeInOrderByCreatedOnAsc(warehouseId,
-							itemCode, fromDate, toDate, 1L, Arrays.asList(2L, 3L));
-			List<StockMovementReport1> reportStockMovementList_1 = fillDataForScheduler(inventoryMovementSearchResults_123);
-//			log.info("reportStockMovementList_1 : " + reportStockMovementList_1);
-			stockMovementReport1Repository.saveAll(reportStockMovementList_1);
-			
-			List<InventoryMovement> inventoryMovementSearchResults_35 = inventoryMovementRepository
-					.findByWarehouseIdAndItemCodeAndCreatedOnBetweenAndMovementTypeAndSubmovementTypeInOrderByCreatedOnAsc(warehouseId,
-							itemCode, fromDate, toDate, 3L, Arrays.asList(5L));
-			List<StockMovementReport1> reportStockMovementList_2 = fillDataForScheduler(inventoryMovementSearchResults_35);
-//			log.info("reportStockMovementList_2 : " + reportStockMovementList_2);
-			stockMovementReport1Repository.saveAll(reportStockMovementList_2);
-		});
-	}
-	
-	public void executeThreads(List<String> itemCodeList, Date fromDate, Date toDate) {
-//		List<String> list0 = itemCodeList.subList(0, 59999);
-//		List<String> list1 = itemCodeList.subList(60000, itemCodeList.size());
-		
-		// create a callable for each method
-		Callable<Void> callable1 = new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				getStockMovementReportForSchedule (WAREHOUSE_ID_110, itemCodeList, fromDate, toDate);
-				return null;
-			}
-		};
-//
-//		Callable<Void> callable2 = new Callable<Void>() {
-//			@Override
-//			public Void call() throws Exception {
-//				getStockMovementReportForSchedule (WAREHOUSE_ID_110, list1, fromDate, toDate);
-//				return null;
-//			}
-//		};
-
-		// add to a list
-		List<Callable<Void>> taskList = new ArrayList<Callable<Void>>();
-		taskList.add(callable1);
-//		taskList.add(callable2);
-
-		// create a pool executor with 3 threads
-		ExecutorService executor = Executors.newFixedThreadPool(2);
-		try {
-			// start the threads and wait for them to finish
-			executor.invokeAll(taskList);
-		} catch (InterruptedException ie) {
-			log.info("ERROR-------THREAD------->: " + ie.toString());		
-		}
-	}
-	
-	private List<StockMovementReport1> fillDataForScheduler (List<InventoryMovement> inventoryMovementSearchResults) {
-		List<StockMovementReport1> reportStockMovementList = new ArrayList<>();
-		inventoryMovementSearchResults.stream().forEach(inventoryMovement -> {
-			StockMovementReport1 stockMovementReport = new StockMovementReport1();
-			stockMovementReport.setStockMovementReportId(System.currentTimeMillis());
-			
-			// WH_ID
-			stockMovementReport.setWarehouseId(inventoryMovement.getWarehouseId());
-
-			// ITM_CODE
-			stockMovementReport.setItemCode(inventoryMovement.getItemCode());
-
-			if (inventoryMovement.getMovementType() == 1L && inventoryMovement.getSubmovementType() == 2L) {
-				stockMovementReport.setMovementQty(inventoryMovement.getMovementQty());
-			} else if (inventoryMovement.getMovementType() == 1L && inventoryMovement.getSubmovementType() == 3L) {
-				stockMovementReport.setMovementQty(-inventoryMovement.getMovementQty()); // Assign -ve number
-			} else if (inventoryMovement.getMovementType() == 3L && inventoryMovement.getSubmovementType() == 5L) {
-				stockMovementReport.setMovementQty(inventoryMovement.getMovementQty());
-			}
-
-			if (inventoryMovement.getMovementType() == 1L) {
-				stockMovementReport.setDocumentType("Inbound");
-			} else if (inventoryMovement.getMovementType() == 3L) {
-				stockMovementReport.setDocumentType("Outbound");
-			}
-
-			// Document Number
-			stockMovementReport.setDocumentNumber(inventoryMovement.getRefDocNumber());
-
-			if (inventoryMovement.getMovementType() == 1L) {
-				List<InboundLine> inboundLine = inboundLineService.getInboundLine(inventoryMovement.getRefDocNumber(), inventoryMovement.getWarehouseId());
-				if (!inboundLine.isEmpty()) {
-					stockMovementReport.setCustomerCode(inboundLine.get(0).getVendorCode());
-				}
-			} else if (inventoryMovement.getMovementType() == 3L) {
-				OutboundHeader outboundHeader = outboundHeaderService.getOutboundHeader(inventoryMovement.getRefDocNumber(), inventoryMovement.getWarehouseId());
-				if (outboundHeader != null) {
-					stockMovementReport.setCustomerCode(outboundHeader.getPartnerCode());
-				}
-			}
-
-			// Date & Time
-			Date date = inventoryMovement.getCreatedOn();
-			LocalDateTime datetime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
-			DateTimeFormatter newPattern = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-			String currentDate = datetime.format(newPattern);
-
-			DateTimeFormatter newTimePattern = DateTimeFormatter.ofPattern("HH:mm:ss");
-			String currentTime = datetime.format(newTimePattern);
-			stockMovementReport.setCreatedOn(currentDate);
-			stockMovementReport.setCreatedTime(currentTime);
-
-			Double balanceOHQty = 0D;
-			Double movementQty = 0D;
-
-			// BAL_OH_QTY
-			if (inventoryMovement.getBalanceOHQty() != null) {
-				balanceOHQty = inventoryMovement.getBalanceOHQty();
-				stockMovementReport.setBalanceOHQty(balanceOHQty);
-			}
-
-			if (inventoryMovement.getMovementQty() != null) {
-				movementQty = inventoryMovement.getMovementQty();
-			}
-
-			if (inventoryMovement.getMovementType() == 1) {
-				Double openingStock = balanceOHQty - movementQty;
-				stockMovementReport.setOpeningStock(openingStock);
-			} else if (inventoryMovement.getMovementType() == 3) {
-				Double openingStock = balanceOHQty + movementQty;
-				stockMovementReport.setOpeningStock(openingStock);
-			}
-			reportStockMovementList.add(stockMovementReport);
-		});
-		return reportStockMovementList;
-	}
-
 	/**
 	 *
 	 * @param warehouseId
@@ -2741,14 +2563,14 @@ public class ReportsService extends BaseService {
 		List<StockMovementReport> stockMovementReportList =  stockMovementReportRepository.findAll();
 		return stockMovementReportList;
 	}
-//-------------------------------------------------Get all StockMovementReport New---------------------------------
+	
+	//-------------------------------------------------Get all StockMovementReport New---------------------------------
 	/**
 	 *
 	 * @return
 	 * @throws Exception
 	 */
 	public Stream<StockMovementReport1> findStockMovementReportNew() throws Exception {
-
 		StockMovementReportNewSpecification spec = new StockMovementReportNewSpecification();
 		Stream<StockMovementReport1> results = stockMovementReport1Repository.stream(spec, StockMovementReport1.class);
 		return results;

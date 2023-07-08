@@ -13,6 +13,7 @@ import javax.persistence.EntityNotFoundException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,7 @@ import com.tekclover.wms.api.transaction.config.PropertiesConfig;
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AXAuthToken;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
+import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
 import com.tekclover.wms.api.transaction.model.dto.StatusId;
 import com.tekclover.wms.api.transaction.model.dto.StorageBin;
 import com.tekclover.wms.api.transaction.model.dto.Warehouse;
@@ -45,8 +47,10 @@ import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupLine;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.UpdatePickupHeader;
 import com.tekclover.wms.api.transaction.model.outbound.quality.QualityHeader;
 import com.tekclover.wms.api.transaction.model.outbound.quality.QualityLine;
+import com.tekclover.wms.api.transaction.model.report.FindImBasicData1;
 import com.tekclover.wms.api.transaction.model.report.SearchOrderStatusReport;
 import com.tekclover.wms.api.transaction.model.report.StockMovementReport;
+import com.tekclover.wms.api.transaction.model.report.StockMovementReport1;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.confirmation.AXApiResponse;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.InterWarehouseShipment;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.InterWarehouseShipmentHeader;
@@ -60,6 +64,7 @@ import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.S
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.Shipment;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.ShipmentHeader;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.ShipmentLine;
+import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
 import com.tekclover.wms.api.transaction.repository.InboundLineRepository;
 import com.tekclover.wms.api.transaction.repository.IntegrationApiResponseRepository;
 import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
@@ -71,6 +76,8 @@ import com.tekclover.wms.api.transaction.repository.PickupLineRepository;
 import com.tekclover.wms.api.transaction.repository.PreOutboundHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.PreOutboundLineRepository;
 import com.tekclover.wms.api.transaction.repository.QualityLineRepository;
+import com.tekclover.wms.api.transaction.repository.StockMovementReport1Repository;
+import com.tekclover.wms.api.transaction.repository.specification.ImBasicData1Specification;
 import com.tekclover.wms.api.transaction.repository.specification.OutboundLineReportSpecification;
 import com.tekclover.wms.api.transaction.repository.specification.OutboundLineSpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
@@ -149,7 +156,13 @@ public class OutboundLineService extends BaseService {
 	private IntegrationApiResponseRepository integrationApiResponseRepository;
 	
 	@Autowired
-	PropertiesConfig propertiesConfig;
+	private ImBasicData1Repository imbasicdata1Repository;
+	
+	@Autowired
+	private StockMovementReport1Repository stockMovementReport1Repository;
+	
+	@Autowired
+	private PropertiesConfig propertiesConfig;
 	
 	/**
 	 * getOutboundLines
@@ -544,6 +557,70 @@ public class OutboundLineService extends BaseService {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	@Scheduled(cron = "0 0/32 11 * * *")
+	public void scheduleStockMovementReport() throws Exception {
+		log.info("scheduleStockMovementReport---STARTED-------> : " + new Date());
+		FindImBasicData1 searchImBasicData1 = new FindImBasicData1();
+		Date dateFrom = DateUtils.convertStringToDateByYYYYMMDD ("2022-06-20");
+		Date dateTo = new Date();
+		Date[] dates = DateUtils.addTimeToDatesForSearch(dateFrom, dateTo);
+		searchImBasicData1.setWarehouseId(WAREHOUSE_ID_110);
+		searchImBasicData1.setFromCreatedOn(dates[0]);
+		searchImBasicData1.setToCreatedOn(dates[1]);
+		
+		ImBasicData1Specification spec = new ImBasicData1Specification(searchImBasicData1);
+		List<ImBasicData1> resultsImBasicData1 = imbasicdata1Repository.findAll(spec);
+		log.info("resultsImBasicData1 : " + resultsImBasicData1.size());
+		
+		List<String> itemCodeList = resultsImBasicData1.stream().map(ImBasicData1::getItemCode).collect(Collectors.toList());
+		log.info("itemCodeList : " + itemCodeList.size());
+		
+		itemCodeList.stream().forEach(i -> {
+			try {
+				findLinesForStockMovementForScheduler (WAREHOUSE_ID_110, i, dates[0], dates[1]);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+		log.info("scheduleStockMovementReport---COMPLETED-------> : " + new Date());
+	}
+	
+	/**
+	 * 
+	 * @param searchOutboundLine
+	 * @return
+	 * @throws ParseException
+	 * @throws java.text.ParseException
+	 */
+	public void findLinesForStockMovementForScheduler(String warehouseId, String itemCode, Date fromDate, Date toDate)
+			throws ParseException {
+		try {
+			List<StockMovementReportImpl> allLineData = new ArrayList<>();
+			List<StockMovementReportImpl> outboundLineSearchResults = 
+					outboundLineRepository.findOutboundLineForStockMovement(Arrays.asList(itemCode), Arrays.asList(warehouseId), 59L, fromDate, toDate);
+			
+			List<StockMovementReportImpl> inboundLineSearchResults = 
+					inboundLineRepository.findInboundLineForStockMovement(Arrays.asList(itemCode), Arrays.asList(warehouseId), Arrays.asList(14L, 20L, 24L));
+			
+			allLineData.addAll(outboundLineSearchResults);
+			allLineData.addAll(inboundLineSearchResults);
+			
+			List<StockMovementReport1> stockMovementReports = new ArrayList<>();
+			allLineData.forEach(data->{
+				StockMovementReport1 stockMovementReport = new StockMovementReport1();
+				BeanUtils.copyProperties(data, stockMovementReport, CommonUtils.getNullPropertyNames(data));
+				if (data.getConfirmedOn() == null) {
+					Date date = inboundLineRepository.findDateFromPutawayLine (stockMovementReport.getDocumentNumber(), stockMovementReport.getItemCode());
+					stockMovementReport.setConfirmedOn(date);
+				}
+				stockMovementReports.add(stockMovementReport);
+			});
+			stockMovementReport1Repository.saveAll(stockMovementReports);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
