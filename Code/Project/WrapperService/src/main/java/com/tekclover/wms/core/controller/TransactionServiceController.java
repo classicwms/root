@@ -887,7 +887,7 @@ public class TransactionServiceController {
 	}
 
 	@ApiOperation(response = InventoryMovement.class, value = "Update InventoryMovement") // label for swagger
-	@RequestMapping(value = "/inventorymovement", method = RequestMethod.PATCH)
+	@RequestMapping(value = "/inventorymovement/{movementType}", method = RequestMethod.PATCH)
 	public ResponseEntity<?> patchInventoryMovement(@PathVariable Long movementType, @RequestParam String languageId, 
 			@RequestParam String companyCodeId, @RequestParam String plantId, @RequestParam String warehouseId, @RequestParam Long submovementType, 
 			@RequestParam String packBarcodes, @RequestParam String itemCode,@RequestParam String batchSerialNumber, @RequestParam String movementDocumentNo, 
@@ -1469,6 +1469,16 @@ public class TransactionServiceController {
 			throws Exception {
 		return transactionService.findOutboundLineForStockMovement(searchOutboundLine,authToken);
 	}
+
+	/*
+	 * --------------------------------Get all StockMovementReport---------------------------------------------------------------
+	 */
+	@ApiOperation(response = StockMovementReport.class, value = "Get all StockMovementReport details") // label for swagger
+	@GetMapping("/outboundline/stock-movement-report")
+	public ResponseEntity<?> getStockMovementReports(@RequestParam String authToken) throws Exception {
+		StockMovementReport[] stockMovementReportList = transactionService.getStockMovementReports(authToken);
+		return new ResponseEntity<>(stockMovementReportList, HttpStatus.OK);
+	}
     
     @ApiOperation(response = OutboundLine.class, value = "Update OutboundLine") // label for swagger
     @GetMapping("/outboundline/delivery/confirmation")
@@ -1773,6 +1783,13 @@ public class TransactionServiceController {
 	public PerpetualLine[] findPerpetualHeader(@RequestBody SearchPerpetualLine searchPerpetualLine,
 			@RequestParam String authToken) throws Exception {
 		return transactionService.findPerpetualLine(searchPerpetualLine, authToken);
+	}
+
+	@ApiOperation(response = PerpetualHeaderEntity.class, value = "SearchPerpetualLine Stream") // label for swagger
+	@PostMapping("/findPerpetualLineNew")
+	public PerpetualLine[] findPerpetualHeaderStream(@RequestBody SearchPerpetualLine searchPerpetualLine,
+			@RequestParam String authToken) throws Exception {
+		return transactionService.findPerpetualLineStream(searchPerpetualLine, authToken);
 	}
     
     @ApiOperation(response = PerpetualLine[].class, value = "Update AssignHHTUser") // label for swagger

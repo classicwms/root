@@ -4584,6 +4584,37 @@ public class TransactionService {
 		}
 	}
 
+	// POST - stock-movement-report-get all
+	public StockMovementReport[] getStockMovementReports(String authToken) throws ParseException {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "reports/");
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<StockMovementReport[]> result = getRestTemplate().exchange(builder.toUriString(),
+					HttpMethod.GET, entity, StockMovementReport[].class);
+			log.info("result : " + result.getStatusCode());
+
+			List<StockMovementReport> obList = new ArrayList<>();
+			for (StockMovementReport obHeader : result.getBody()) {
+
+				if(obHeader.getConfirmedOn() != null) {
+					obHeader.setConfirmedOn(DateUtils.addTimeToDate(obHeader.getConfirmedOn(), 3));
+				}
+				obList.add(obHeader);
+			}
+			return obList.toArray(new StockMovementReport[obList.size()]);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
 	// PATCH ----
 	public OutboundLine updateOutboundLine(String warehouseId, String preOutboundNo, String refDocNumber,
 			String partnerCode, Long lineNumber, String itemCode, String loginUserID,
@@ -5278,6 +5309,41 @@ public class TransactionService {
 			headers.add("Authorization", "Bearer " + authToken);
 			UriComponentsBuilder builder = UriComponentsBuilder
 					.fromHttpUrl(getTransactionServiceApiUrl() + "perpetualline/findPerpetualLine");
+			HttpEntity<?> entity = new HttpEntity<>(searchPerpetualLine, headers);
+			ResponseEntity<PerpetualLine[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
+					entity, PerpetualLine[].class);
+			log.info("result : " + result.getBody());
+
+			List<PerpetualLine> obList = new ArrayList<>();
+			for (PerpetualLine obHeader : result.getBody()) {
+				if(obHeader.getCountedOn() != null) {
+					obHeader.setCountedOn(DateUtils.addTimeToDate(obHeader.getCountedOn(), 3));
+				}
+				if(obHeader.getCreatedOn() != null) {
+					obHeader.setCreatedOn(DateUtils.addTimeToDate(obHeader.getCreatedOn(), 3));
+				}
+				if(obHeader.getConfirmedOn() != null) {
+					obHeader.setConfirmedOn(DateUtils.addTimeToDate(obHeader.getConfirmedOn(), 3));
+				}
+				obList.add(obHeader);
+			}
+			return obList.toArray(new PerpetualLine[obList.size()]);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	// FIND ALL - findPerpetualLineStream
+	public PerpetualLine[] findPerpetualLineStream(SearchPerpetualLine searchPerpetualLine, String authToken) throws ParseException {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "perpetualline/findPerpetualLineStream");
 			HttpEntity<?> entity = new HttpEntity<>(searchPerpetualLine, headers);
 			ResponseEntity<PerpetualLine[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
 					entity, PerpetualLine[].class);

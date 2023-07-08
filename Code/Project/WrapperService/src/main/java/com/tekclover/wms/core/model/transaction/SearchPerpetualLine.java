@@ -14,4 +14,11 @@ public class SearchPerpetualLine {
 	private String warehouseId;
 	private Date startCreatedOn;
 	private Date endCreatedOn;
+
+	private List<String> itemCode;
+	private List<String> storageBin;
+	private List<String> packBarcodes;
+	private List<Long> stockTypeId;
+	private List<String> manufacturerPartNo;
+	private List<String> storageSectionId;
 }
