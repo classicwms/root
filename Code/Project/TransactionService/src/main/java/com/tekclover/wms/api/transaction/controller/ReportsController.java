@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import com.tekclover.wms.api.transaction.model.report.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.expression.ParseException;
@@ -19,6 +18,22 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
+import com.tekclover.wms.api.transaction.model.report.Dashboard;
+import com.tekclover.wms.api.transaction.model.report.FastSlowMovingDashboard;
+import com.tekclover.wms.api.transaction.model.report.FastSlowMovingDashboardRequest;
+import com.tekclover.wms.api.transaction.model.report.FindImBasicData1;
+import com.tekclover.wms.api.transaction.model.report.InventoryReport;
+import com.tekclover.wms.api.transaction.model.report.InventoryStock;
+import com.tekclover.wms.api.transaction.model.report.MobileDashboard;
+import com.tekclover.wms.api.transaction.model.report.OrderStatusReport;
+import com.tekclover.wms.api.transaction.model.report.ReceiptConfimationReport;
+import com.tekclover.wms.api.transaction.model.report.SearchOrderStatusReport;
+import com.tekclover.wms.api.transaction.model.report.ShipmentDeliveryReport;
+import com.tekclover.wms.api.transaction.model.report.ShipmentDeliverySummaryReport;
+import com.tekclover.wms.api.transaction.model.report.ShipmentDispatchSummaryReport;
+import com.tekclover.wms.api.transaction.model.report.StockMovementReport;
+import com.tekclover.wms.api.transaction.model.report.StockMovementReport1;
+import com.tekclover.wms.api.transaction.model.report.StockReport;
 import com.tekclover.wms.api.transaction.service.ReportsService;
 
 import io.swagger.annotations.Api;
@@ -120,17 +135,17 @@ public class ReportsController {
    	}
     
     /*
-	 * Stock movement report
+	 * Stock movement report - ################-----------NOT USED-------------#########################
 	 */
-    @ApiOperation(response = StockMovementReport.class, value = "Get StockMovement Report") // label for swagger 
-	@GetMapping("/stockMovementReport")
-	public ResponseEntity<?> getStockMovementReport(@RequestParam String warehouseId, 
-			@RequestParam String itemCode, @RequestParam String fromCreatedOn, 
-			@RequestParam String toCreatedOn) throws java.text.ParseException {
-    	List<StockMovementReport> inventoryReportList = 
-    			reportsService.getStockMovementReport(warehouseId, itemCode, fromCreatedOn, toCreatedOn);
-		return new ResponseEntity<>(inventoryReportList, HttpStatus.OK);
-	}
+//    @ApiOperation(response = StockMovementReport.class, value = "Get StockMovement Report") // label for swagger 
+//	@GetMapping("/stockMovementReport")
+//	public ResponseEntity<?> getStockMovementReport(@RequestParam String warehouseId, 
+//			@RequestParam String itemCode, @RequestParam String fromCreatedOn, 
+//			@RequestParam String toCreatedOn) throws java.text.ParseException {
+//    	List<StockMovementReport> inventoryReportList = 
+//    			reportsService.getStockMovementReport(warehouseId, itemCode, fromCreatedOn, toCreatedOn);
+//		return new ResponseEntity<>(inventoryReportList, HttpStatus.OK);
+//	}
     
     /*
 	 * Order status report

@@ -204,155 +204,155 @@ public class ReportsService extends BaseService {
 	 * @param stockTypeId
 	 * @return
 	 */
-	public Page<StockReport> getStockReport(List<String> warehouseId, List<String> itemCode, String itemText,
-			String stockTypeText, Integer pageNo, Integer pageSize, String sortBy) {
-		if (warehouseId == null) {
-			throw new BadRequestException("WarehouseId can't be blank.");
-		}
-
-		if (stockTypeText == null) {
-			throw new BadRequestException("StockTypeText can't be blank.");
-		}
-
-		try {
-			SearchInventory searchInventory = new SearchInventory();
-			searchInventory.setWarehouseId(warehouseId);
-
-			if (itemCode != null) {
-				searchInventory.setItemCode(itemCode);
-			}
-
-			if (itemText != null) {
-				searchInventory.setDescription(itemText);
-			}
-
-			List<Long> stockTypeIdList = null;
-			if (stockTypeText.equalsIgnoreCase("ALL")) {
-				stockTypeIdList = Arrays.asList(1L, 7L);
-			} else if (stockTypeText.equalsIgnoreCase("ON HAND")) {
-				stockTypeIdList = Arrays.asList(1L);
-			} else if (stockTypeText.equalsIgnoreCase("DAMAGED")) {
-				stockTypeIdList = Arrays.asList(1L);
-			} else if (stockTypeText.equalsIgnoreCase("HOLD")) {
-				stockTypeIdList = Arrays.asList(7L);
-			}
-
-			searchInventory.setStockTypeId(stockTypeIdList);
-			log.info("searchInventory : " + searchInventory);
-
-			Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
-			Page<Inventory> inventoryList = inventoryService.findInventory(searchInventory, pageNo, pageSize, sortBy);
-			log.info("inventoryList : " + inventoryList);
-
-			List<StockReport> stockReportList = new ArrayList<>();
-			Set<String> uniqueItemCode = new HashSet<>();
-			for (Inventory inventory : inventoryList) {
-				if (uniqueItemCode.add(inventory.getItemCode())) {
-					StockReport stockReport = new StockReport();
-
-					// WH_ID
-					stockReport.setWarehouseId(inventory.getWarehouseId());
-
-					// ITM_CODE
-					stockReport.setItemCode(inventory.getItemCode());
-
-					/*
-					 * MFR_SKU -------------- Pass the fetched ITM_CODE values in IMBASICDATA1 table
-					 * and fetch MFR_SKU values
-					 */
-					ImBasicData1 imBasicData1 = imbasicdata1Repository.findByItemCodeAndWarehouseIdAndDeletionIndicator(
-							inventory.getItemCode(), inventory.getWarehouseId(), 0L);
-					if (imBasicData1 != null) {
-						stockReport.setManufacturerSKU(imBasicData1.getManufacturerPartNo());
-						stockReport.setItemText(imBasicData1.getDescription());
-					} else {
-						stockReport.setManufacturerSKU("");
-						stockReport.setItemText("");
-					}
-
-					if (stockTypeText.equalsIgnoreCase("ALL")) {
-						/*
-						 * For onhand, damageqty -> stock_type_id is 1 For Hold -> stok_type_id is 7
-						 */
-						// ON HAND
-						List<String> storageSectionIds = Arrays.asList("ZB", "ZG", "ZC", "ZT");
-						double ON_HAND_INVQTY = getInventoryQty(inventory.getWarehouseId(), inventory.getItemCode(), 1L,
-								storageSectionIds);
-						stockReport.setOnHandQty(ON_HAND_INVQTY);
-
-						// DAMAGED
-						storageSectionIds = Arrays.asList("ZD");
-						double DAMAGED_INVQTY = getInventoryQty(inventory.getWarehouseId(), inventory.getItemCode(), 1L,
-								storageSectionIds);
-						stockReport.setDamageQty(DAMAGED_INVQTY);
-
-						// HOLD
-						storageSectionIds = Arrays.asList("ZB", "ZG", "ZD", "ZC", "ZT");
-						double HOLD_INVQTY = getInventoryQty(inventory.getWarehouseId(), inventory.getItemCode(), 7L,
-								storageSectionIds);
-						stockReport.setHoldQty(HOLD_INVQTY);
-
-						// Available Qty
-						double AVAILABLE_QTY = ON_HAND_INVQTY + DAMAGED_INVQTY + HOLD_INVQTY;
-						stockReport.setAvailableQty(AVAILABLE_QTY);
-
-						if (AVAILABLE_QTY != 0) {
-							stockReportList.add(stockReport);
-						}
-						log.info("ALL-------stockReport:" + stockReport);
-					} else if (stockTypeText.equalsIgnoreCase("ON HAND")) {
-						// stock_type_id = 1
-						List<String> storageSectionIds = Arrays.asList("ZB", "ZG", "ZC", "ZT");
-						double INV_QTY = getInventoryQty(inventory.getWarehouseId(), inventory.getItemCode(), 1L,
-								storageSectionIds);
-						if (INV_QTY != 0) {
-							stockReport.setOnHandQty(INV_QTY);
-							stockReport.setDamageQty(0D);
-							stockReport.setHoldQty(0D);
-							stockReport.setAvailableQty(INV_QTY);
-							log.info("ON HAND-------stockReport:" + stockReport);
-							stockReportList.add(stockReport);
-						}
-					} else if (stockTypeText.equalsIgnoreCase("DAMAGED")) {
-						// stock_type_id = 1
-						List<String> storageSectionIds = Arrays.asList("ZD");
-						double INV_QTY = getInventoryQty(inventory.getWarehouseId(), inventory.getItemCode(), 1L,
-								storageSectionIds);
-
-						if (INV_QTY != 0) {
-							stockReport.setDamageQty(INV_QTY);
-							stockReport.setOnHandQty(0D);
-							stockReport.setHoldQty(0D);
-							stockReport.setAvailableQty(INV_QTY);
-
-							log.info("DAMAGED-------stockReport:" + stockReport);
-							stockReportList.add(stockReport);
-						}
-					} else if (stockTypeText.equalsIgnoreCase("HOLD")) {
-						// STCK_TYP_ID = 7
-						List<String> storageSectionIds = Arrays.asList("ZB", "ZG", "ZD", "ZC", "ZT");
-						double INV_QTY = getInventoryQty(inventory.getWarehouseId(), inventory.getItemCode(), 7L,
-								storageSectionIds);
-
-						if (INV_QTY != 0) {
-							stockReport.setHoldQty(INV_QTY);
-							stockReport.setOnHandQty(0D);
-							stockReport.setDamageQty(0D);
-							stockReport.setAvailableQty(INV_QTY);
-							log.info("HOLD-------stockReport:" + stockReport);
-							stockReportList.add(stockReport);
-						}
-					}
-				}
-			}
-			log.info("stockReportList : " + stockReportList);
-			final Page<StockReport> page = new PageImpl<>(stockReportList, pageable, inventoryList.getTotalElements());
-			return page;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+//	public Page<StockReport> getStockReport(List<String> warehouseId, List<String> itemCode, String itemText,
+//			String stockTypeText, Integer pageNo, Integer pageSize, String sortBy) {
+//		if (warehouseId == null) {
+//			throw new BadRequestException("WarehouseId can't be blank.");
+//		}
+//
+//		if (stockTypeText == null) {
+//			throw new BadRequestException("StockTypeText can't be blank.");
+//		}
+//
+//		try {
+//			SearchInventory searchInventory = new SearchInventory();
+//			searchInventory.setWarehouseId(warehouseId);
+//
+//			if (itemCode != null) {
+//				searchInventory.setItemCode(itemCode);
+//			}
+//
+//			if (itemText != null) {
+//				searchInventory.setDescription(itemText);
+//			}
+//
+//			List<Long> stockTypeIdList = null;
+//			if (stockTypeText.equalsIgnoreCase("ALL")) {
+//				stockTypeIdList = Arrays.asList(1L, 7L);
+//			} else if (stockTypeText.equalsIgnoreCase("ON HAND")) {
+//				stockTypeIdList = Arrays.asList(1L);
+//			} else if (stockTypeText.equalsIgnoreCase("DAMAGED")) {
+//				stockTypeIdList = Arrays.asList(1L);
+//			} else if (stockTypeText.equalsIgnoreCase("HOLD")) {
+//				stockTypeIdList = Arrays.asList(7L);
+//			}
+//
+//			searchInventory.setStockTypeId(stockTypeIdList);
+//			log.info("searchInventory : " + searchInventory);
+//
+//			Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending());
+//			Page<Inventory> inventoryList = inventoryService.findInventory(searchInventory, pageNo, pageSize, sortBy);
+//			log.info("inventoryList : " + inventoryList);
+//
+//			List<StockReport> stockReportList = new ArrayList<>();
+//			Set<String> uniqueItemCode = new HashSet<>();
+//			for (Inventory inventory : inventoryList) {
+//				if (uniqueItemCode.add(inventory.getItemCode())) {
+//					StockReport stockReport = new StockReport();
+//
+//					// WH_ID
+//					stockReport.setWarehouseId(inventory.getWarehouseId());
+//
+//					// ITM_CODE
+//					stockReport.setItemCode(inventory.getItemCode());
+//
+//					/*
+//					 * MFR_SKU -------------- Pass the fetched ITM_CODE values in IMBASICDATA1 table
+//					 * and fetch MFR_SKU values
+//					 */
+//					ImBasicData1 imBasicData1 = imbasicdata1Repository.findByItemCodeAndWarehouseIdAndDeletionIndicator(
+//							inventory.getItemCode(), inventory.getWarehouseId(), 0L);
+//					if (imBasicData1 != null) {
+//						stockReport.setManufacturerSKU(imBasicData1.getManufacturerPartNo());
+//						stockReport.setItemText(imBasicData1.getDescription());
+//					} else {
+//						stockReport.setManufacturerSKU("");
+//						stockReport.setItemText("");
+//					}
+//
+//					if (stockTypeText.equalsIgnoreCase("ALL")) {
+//						/*
+//						 * For onhand, damageqty -> stock_type_id is 1 For Hold -> stok_type_id is 7
+//						 */
+//						// ON HAND
+//						List<String> storageSectionIds = Arrays.asList("ZB", "ZG", "ZC", "ZT");
+//						double ON_HAND_INVQTY = getInventoryQty(inventory.getWarehouseId(), inventory.getItemCode(), 1L,
+//								storageSectionIds);
+//						stockReport.setOnHandQty(ON_HAND_INVQTY);
+//
+//						// DAMAGED
+//						storageSectionIds = Arrays.asList("ZD");
+//						double DAMAGED_INVQTY = getInventoryQty(inventory.getWarehouseId(), inventory.getItemCode(), 1L,
+//								storageSectionIds);
+//						stockReport.setDamageQty(DAMAGED_INVQTY);
+//
+//						// HOLD
+//						storageSectionIds = Arrays.asList("ZB", "ZG", "ZD", "ZC", "ZT");
+//						double HOLD_INVQTY = getInventoryQty(inventory.getWarehouseId(), inventory.getItemCode(), 7L,
+//								storageSectionIds);
+//						stockReport.setHoldQty(HOLD_INVQTY);
+//
+//						// Available Qty
+//						double AVAILABLE_QTY = ON_HAND_INVQTY + DAMAGED_INVQTY + HOLD_INVQTY;
+//						stockReport.setAvailableQty(AVAILABLE_QTY);
+//
+//						if (AVAILABLE_QTY != 0) {
+//							stockReportList.add(stockReport);
+//						}
+//						log.info("ALL-------stockReport:" + stockReport);
+//					} else if (stockTypeText.equalsIgnoreCase("ON HAND")) {
+//						// stock_type_id = 1
+//						List<String> storageSectionIds = Arrays.asList("ZB", "ZG", "ZC", "ZT");
+//						double INV_QTY = getInventoryQty(inventory.getWarehouseId(), inventory.getItemCode(), 1L,
+//								storageSectionIds);
+//						if (INV_QTY != 0) {
+//							stockReport.setOnHandQty(INV_QTY);
+//							stockReport.setDamageQty(0D);
+//							stockReport.setHoldQty(0D);
+//							stockReport.setAvailableQty(INV_QTY);
+//							log.info("ON HAND-------stockReport:" + stockReport);
+//							stockReportList.add(stockReport);
+//						}
+//					} else if (stockTypeText.equalsIgnoreCase("DAMAGED")) {
+//						// stock_type_id = 1
+//						List<String> storageSectionIds = Arrays.asList("ZD");
+//						double INV_QTY = getInventoryQty(inventory.getWarehouseId(), inventory.getItemCode(), 1L,
+//								storageSectionIds);
+//
+//						if (INV_QTY != 0) {
+//							stockReport.setDamageQty(INV_QTY);
+//							stockReport.setOnHandQty(0D);
+//							stockReport.setHoldQty(0D);
+//							stockReport.setAvailableQty(INV_QTY);
+//
+//							log.info("DAMAGED-------stockReport:" + stockReport);
+//							stockReportList.add(stockReport);
+//						}
+//					} else if (stockTypeText.equalsIgnoreCase("HOLD")) {
+//						// STCK_TYP_ID = 7
+//						List<String> storageSectionIds = Arrays.asList("ZB", "ZG", "ZD", "ZC", "ZT");
+//						double INV_QTY = getInventoryQty(inventory.getWarehouseId(), inventory.getItemCode(), 7L,
+//								storageSectionIds);
+//
+//						if (INV_QTY != 0) {
+//							stockReport.setHoldQty(INV_QTY);
+//							stockReport.setOnHandQty(0D);
+//							stockReport.setDamageQty(0D);
+//							stockReport.setAvailableQty(INV_QTY);
+//							log.info("HOLD-------stockReport:" + stockReport);
+//							stockReportList.add(stockReport);
+//						}
+//					}
+//				}
+//			}
+//			log.info("stockReportList : " + stockReportList);
+//			final Page<StockReport> page = new PageImpl<>(stockReportList, pageable, inventoryList.getTotalElements());
+//			return page;
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		return null;
+//	}
 
 	/**
 	 * 
@@ -723,56 +723,56 @@ public class ReportsService extends BaseService {
 	 * @return
 	 * @throws java.text.ParseException
 	 */
-	public List<StockMovementReport> getStockMovementReport(String warehouseId, String itemCode, String fromCreatedOn,
-			String toCreatedOn) throws java.text.ParseException {
-		// Warehouse
-		if (warehouseId == null) {
-			throw new BadRequestException("WarehouseId can't be blank.");
-		}
-
-		// Item Code
-		if (itemCode == null) {
-			throw new BadRequestException("ItemCode can't be blank.");
-		}
-
-		// Date
-		if (fromCreatedOn == null || toCreatedOn == null) {
-			throw new BadRequestException("CreatedOn can't be blank.");
-		}
-
-		/*
-		 * Pass the Search paramaters (WH_ID,ITM_CODE,IM_CTD_ON) values in
-		 * INVENOTRYMOVEMENT table for the selected date and fetch the below output
-		 * values
-		 */
-		Date fromDate = null;
-		Date toDate = null;
-		try {
-			fromDate = DateUtils.convertStringToDate(fromCreatedOn);
-			fromDate = DateUtils.addTimeToDate(fromDate);
-			toDate = DateUtils.convertStringToDate(toCreatedOn);
-			toDate = DateUtils.addDayEndTimeToDate(toDate);
-		} catch (Exception e) {
-			throw new BadRequestException("Date shoud be in MM-dd-yyyy format.");
-		}
-
-		List<InventoryMovement> inventoryMovementSearchResults_123 = inventoryMovementRepository
-				.findByWarehouseIdAndItemCodeAndCreatedOnBetweenAndMovementTypeAndSubmovementTypeInOrderByCreatedOnAsc(warehouseId,
-						itemCode, fromDate, toDate, 1L, Arrays.asList(2L, 3L));
-		List<StockMovementReport> reportStockMovementList_1 = fillData(inventoryMovementSearchResults_123);
-		log.info("reportStockMovementList_1 : " + reportStockMovementList_1);
-		stockMovementReportRepository.saveAll(reportStockMovementList_1);
-		
-		List<InventoryMovement> inventoryMovementSearchResults_35 = inventoryMovementRepository
-				.findByWarehouseIdAndItemCodeAndCreatedOnBetweenAndMovementTypeAndSubmovementTypeInOrderByCreatedOnAsc(warehouseId,
-						itemCode, fromDate, toDate, 3L, Arrays.asList(5L));
-		List<StockMovementReport> reportStockMovementList_2 = fillData(inventoryMovementSearchResults_35);
-		log.info("reportStockMovementList_2 : " + reportStockMovementList_2);
-		stockMovementReportRepository.saveAll(reportStockMovementList_2);
-		
-		reportStockMovementList_1.addAll(reportStockMovementList_2);
-		return reportStockMovementList_1;
-	}
+//	public List<StockMovementReport> getStockMovementReport(String warehouseId, String itemCode, String fromCreatedOn,
+//			String toCreatedOn) throws java.text.ParseException {
+//		// Warehouse
+//		if (warehouseId == null) {
+//			throw new BadRequestException("WarehouseId can't be blank.");
+//		}
+//
+//		// Item Code
+//		if (itemCode == null) {
+//			throw new BadRequestException("ItemCode can't be blank.");
+//		}
+//
+//		// Date
+//		if (fromCreatedOn == null || toCreatedOn == null) {
+//			throw new BadRequestException("CreatedOn can't be blank.");
+//		}
+//
+//		/*
+//		 * Pass the Search paramaters (WH_ID,ITM_CODE,IM_CTD_ON) values in
+//		 * INVENOTRYMOVEMENT table for the selected date and fetch the below output
+//		 * values
+//		 */
+//		Date fromDate = null;
+//		Date toDate = null;
+//		try {
+//			fromDate = DateUtils.convertStringToDate(fromCreatedOn);
+//			fromDate = DateUtils.addTimeToDate(fromDate);
+//			toDate = DateUtils.convertStringToDate(toCreatedOn);
+//			toDate = DateUtils.addDayEndTimeToDate(toDate);
+//		} catch (Exception e) {
+//			throw new BadRequestException("Date shoud be in MM-dd-yyyy format.");
+//		}
+//
+//		List<InventoryMovement> inventoryMovementSearchResults_123 = inventoryMovementRepository
+//				.findByWarehouseIdAndItemCodeAndCreatedOnBetweenAndMovementTypeAndSubmovementTypeInOrderByCreatedOnAsc(warehouseId,
+//						itemCode, fromDate, toDate, 1L, Arrays.asList(2L, 3L));
+//		List<StockMovementReport> reportStockMovementList_1 = fillData(inventoryMovementSearchResults_123);
+//		log.info("reportStockMovementList_1 : " + reportStockMovementList_1);
+//		stockMovementReportRepository.saveAll(reportStockMovementList_1);
+//		
+//		List<InventoryMovement> inventoryMovementSearchResults_35 = inventoryMovementRepository
+//				.findByWarehouseIdAndItemCodeAndCreatedOnBetweenAndMovementTypeAndSubmovementTypeInOrderByCreatedOnAsc(warehouseId,
+//						itemCode, fromDate, toDate, 3L, Arrays.asList(5L));
+//		List<StockMovementReport> reportStockMovementList_2 = fillData(inventoryMovementSearchResults_35);
+//		log.info("reportStockMovementList_2 : " + reportStockMovementList_2);
+//		stockMovementReportRepository.saveAll(reportStockMovementList_2);
+//		
+//		reportStockMovementList_1.addAll(reportStockMovementList_2);
+//		return reportStockMovementList_1;
+//	}
 
 	/**
 	 * 

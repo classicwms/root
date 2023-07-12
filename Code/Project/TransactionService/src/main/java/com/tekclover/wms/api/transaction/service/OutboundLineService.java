@@ -13,7 +13,6 @@ import javax.persistence.EntityNotFoundException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -558,8 +557,12 @@ public class OutboundLineService extends BaseService {
 		}
 		return null;
 	}
-	
-	@Scheduled(cron = "0 0/32 11 * * *")
+
+	/**
+	 * 
+	 * @throws Exception
+	 */
+//	@Scheduled(cron = "0 0/32 11 * * *")
 	public void scheduleStockMovementReport() throws Exception {
 		log.info("scheduleStockMovementReport---STARTED-------> : " + new Date());
 		FindImBasicData1 searchImBasicData1 = new FindImBasicData1();

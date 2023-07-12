@@ -15,6 +15,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
@@ -444,42 +446,16 @@ public class QualityLineService extends BaseService {
 				Long NUM_RAN_CODE = 12L;
 				String DLV_ORD_NO = getNextRangeNumber(NUM_RAN_CODE, dbQualityLine.getWarehouseId());
 
-				synchronized (dbQualityLine) {
-					/*-------------------OUTBOUNDLINE------Update---------------------------*/
-					/*
-					 * Pass WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE /OB_LINE_NO/_ITM_CODE values in
-					 * QUALITYILINE table and fetch QC_QTY values and pass the same values in
-					 * OUTBOUNDLINE table and update DLV_QTY
-					 * 
-					 * Pass Unique keys in OUTBOUNDLINE table and update STATUS_ID as "57"
-					 */
-					try {
-						//---------------Update-Lock-Applied---------------------------------------------------------
-						OutboundLine outboundLine = outboundLineService.getOutboundLine(dbQualityLine.getWarehouseId(),
-								dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(),
-								dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
-								dbQualityLine.getItemCode());
-						log.info("DB outboundLine : " + outboundLine);
-						if (outboundLine != null) {
-							Double exisitingDelQty = 0D;
-							if (outboundLine.getDeliveryQty() != null) {
-								exisitingDelQty = outboundLine.getDeliveryQty();
-							} else {
-								exisitingDelQty = 0D;
-							}
-							exisitingDelQty = exisitingDelQty + dbQualityLine.getQualityQty();
-							log.info("DB after outboundLine existingDelQty : " + exisitingDelQty);
-							outboundLineRepository.updateOutboundLine(dbQualityLine.getWarehouseId(),
-									dbQualityLine.getRefDocNumber(), dbQualityLine.getPreOutboundNo(),
-									dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
-									dbQualityLine.getItemCode(), DLV_ORD_NO, 57L, exisitingDelQty);
-							log.info("outboundLine updated.");
-						}
-					} catch (Exception e1) {
-						e1.printStackTrace();
-						log.info("outboundLine updated error: " + e1.toString());
-					}
-				}
+				/*-------------------OUTBOUNDLINE------Update---------------------------*/
+				/*
+				 * Pass WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE /OB_LINE_NO/_ITM_CODE values in
+				 * QUALITYILINE table and fetch QC_QTY values and pass the same values in
+				 * OUTBOUNDLINE table and update DLV_QTY
+				 * 
+				 * Pass Unique keys in OUTBOUNDLINE table and update STATUS_ID as "57"
+				 */
+				updateOutboundLine (dbQualityLine, DLV_ORD_NO);
+				
 				try {
 					/*-------------------OUTBOUNDHEADER------Update---------------------------*/
 					boolean isStatus57 = false;
@@ -631,6 +607,41 @@ public class QualityLineService extends BaseService {
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param dbQualityLine
+	 * @param DLV_ORD_NO
+	 */
+	@Transactional(isolation = Isolation.READ_COMMITTED)
+	private void updateOutboundLine (QualityLine dbQualityLine, String DLV_ORD_NO) {
+		try {
+			//---------------Update-Lock-Applied---------------------------------------------------------
+			OutboundLine outboundLine = outboundLineService.getOutboundLine(dbQualityLine.getWarehouseId(),
+					dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(),
+					dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
+					dbQualityLine.getItemCode());
+			log.info("DB outboundLine : " + outboundLine);
+			if (outboundLine != null) {
+				Double exisitingDelQty = 0D;
+				if (outboundLine.getDeliveryQty() != null) {
+					exisitingDelQty = outboundLine.getDeliveryQty();
+				} else {
+					exisitingDelQty = 0D;
+				}
+				exisitingDelQty = exisitingDelQty + dbQualityLine.getQualityQty();
+				log.info("DB after outboundLine existingDelQty : " + exisitingDelQty);
+				outboundLineRepository.updateOutboundLine(dbQualityLine.getWarehouseId(),
+						dbQualityLine.getRefDocNumber(), dbQualityLine.getPreOutboundNo(),
+						dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
+						dbQualityLine.getItemCode(), DLV_ORD_NO, 57L, exisitingDelQty);
+				log.info("outboundLine updated.");
+			}
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			log.info("outboundLine updated error: " + e1.toString());
 		}
 	}
 
