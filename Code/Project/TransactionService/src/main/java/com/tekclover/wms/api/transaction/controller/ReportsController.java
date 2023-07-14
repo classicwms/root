@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import com.tekclover.wms.api.transaction.model.report.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.expression.ParseException;
@@ -18,22 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
-import com.tekclover.wms.api.transaction.model.report.Dashboard;
-import com.tekclover.wms.api.transaction.model.report.FastSlowMovingDashboard;
-import com.tekclover.wms.api.transaction.model.report.FastSlowMovingDashboardRequest;
-import com.tekclover.wms.api.transaction.model.report.FindImBasicData1;
-import com.tekclover.wms.api.transaction.model.report.InventoryReport;
-import com.tekclover.wms.api.transaction.model.report.InventoryStock;
-import com.tekclover.wms.api.transaction.model.report.MobileDashboard;
-import com.tekclover.wms.api.transaction.model.report.OrderStatusReport;
-import com.tekclover.wms.api.transaction.model.report.ReceiptConfimationReport;
-import com.tekclover.wms.api.transaction.model.report.SearchOrderStatusReport;
-import com.tekclover.wms.api.transaction.model.report.ShipmentDeliveryReport;
-import com.tekclover.wms.api.transaction.model.report.ShipmentDeliverySummaryReport;
-import com.tekclover.wms.api.transaction.model.report.ShipmentDispatchSummaryReport;
-import com.tekclover.wms.api.transaction.model.report.StockMovementReport;
-import com.tekclover.wms.api.transaction.model.report.StockMovementReport1;
-import com.tekclover.wms.api.transaction.model.report.StockReport;
 import com.tekclover.wms.api.transaction.service.ReportsService;
 
 import io.swagger.annotations.Api;
@@ -211,17 +196,17 @@ public class ReportsController {
     	ReceiptConfimationReport receiptConfimationReport = reportsService.getReceiptConfimationReport(asnNumber);
    		return new ResponseEntity<>(receiptConfimationReport, HttpStatus.OK);
    	}
-    
-    /*
-   	 * Inventory Stock movement report
-   	 */
-    @ApiOperation(response = Optional.class, value = "Get StockMovement Report") // label for swagger 
-   	@PostMapping("/inventoryStock")
-   	public ResponseEntity<?> getInventoryStockReport(@RequestBody FindImBasicData1 searchImBasicData1) throws java.text.ParseException {
-       	List<InventoryStock> inventoryStockReportList = 
-       			reportsService.getInventoryStockReport(searchImBasicData1);
-   		return new ResponseEntity<>(inventoryStockReportList, HttpStatus.OK);
-   	}
+
+	/*
+	 * Transaction History Report renamed from open/inventory stock report
+	 */
+	@ApiOperation(response = Optional.class, value = "Get Transaction History Report") // label for swagger
+	@PostMapping("/transactionHistoryReport")
+	public ResponseEntity<?> getTransactionHistoryReport(@RequestBody FindImBasicData1 searchImBasicData1) throws java.text.ParseException {
+		List<ITransactionHistoryReport> transactionHistoryReportList =
+				reportsService.getTransactionHistoryReport(searchImBasicData1);
+		return new ResponseEntity<>(transactionHistoryReportList, HttpStatus.OK);
+	}
 
 	//-------------------------------------------------Get all StockMovementReport---------------------------------
 	/**
@@ -242,10 +227,4 @@ public class ReportsController {
 		return new ResponseEntity<>(stockMovementReportList, HttpStatus.OK);
 	}
 
-//	@ApiOperation(response = StockMovementReport1.class, value = "Get all StockMovementReportNew details") // label for swagger
-//	@GetMapping("/new")
-//	public ResponseEntity<?> getAllStockMovementReport1() throws Exception {
-//		List<StockMovementReport1> stockMovementReportList = reportsService.getStockMovementReportsNew();
-//		return new ResponseEntity<>(stockMovementReportList, HttpStatus.OK);
-//	}
 }

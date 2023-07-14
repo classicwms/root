@@ -1479,6 +1479,17 @@ public class TransactionServiceController {
 		StockMovementReport[] stockMovementReportList = transactionService.getStockMovementReports(authToken);
 		return new ResponseEntity<>(stockMovementReportList, HttpStatus.OK);
 	}
+
+	/*
+	 * Inventory Stock movement report renamed to Transaction History report
+	 */
+	@ApiOperation(response = Optional.class, value = "Get transaction History Report")
+	@PostMapping("/reports/transactionHistoryReport")
+	public ResponseEntity<?> getTransactionHistoryReport(@RequestBody FindImBasicData1 findImBasicData1,
+														 @RequestParam String authToken) throws java.text.ParseException {
+		InventoryStockReport[] inventoryReportList = transactionService.getTransactionHistoryReport(findImBasicData1, authToken);
+		return new ResponseEntity<>(inventoryReportList, HttpStatus.OK);
+	}
     
     @ApiOperation(response = OutboundLine.class, value = "Update OutboundLine") // label for swagger
     @GetMapping("/outboundline/delivery/confirmation")

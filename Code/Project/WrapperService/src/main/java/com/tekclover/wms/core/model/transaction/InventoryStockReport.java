@@ -15,6 +15,7 @@ public class InventoryStockReport {
  */
 	private String warehouseId;
 	private String itemCode;
+	private String itemDescription;
 	private Double openingStock;
 	private Double inboundQty;
 	private Double outboundQty;

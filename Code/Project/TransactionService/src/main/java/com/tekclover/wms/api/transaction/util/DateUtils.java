@@ -566,4 +566,31 @@ public class DateUtils {
 		Long currentDatetime = Long.valueOf(datetime.format(newPattern));
 		return currentDatetime;
 	}
+
+	/**
+	 *
+	 * @param inputDate
+	 * @return
+	 */
+	public static Date dateSubtract (Date inputDate) {
+		try {
+
+			LocalDate eLocalDate =  LocalDate.ofInstant(inputDate.toInstant(), ZoneId.systemDefault()).minusDays(1);
+			log.info("LocalDate2------->  " + eLocalDate.atTime(23, 59, 0));
+
+			LocalDateTime eLocalDateTime = eLocalDate.atTime(23, 59, 0);
+
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+
+			String eConvertedDateTime = formatter.format(eLocalDateTime);
+
+			SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+			Date eDate = dateFormatter.parse(eConvertedDateTime);
+
+			return eDate;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 }

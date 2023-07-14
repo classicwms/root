@@ -4644,6 +4644,28 @@ public class TransactionService {
 		}
 	}
 
+	// GET - Opening Stock Report renamed to Transaction History Report
+	public InventoryStockReport[] getTransactionHistoryReport(FindImBasicData1 findImBasicData1, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "reports/transactionHistoryReport");
+
+			HttpEntity<?> entity = new HttpEntity<>(findImBasicData1, headers);
+			ResponseEntity<InventoryStockReport[]> result = getRestTemplate().exchange(builder.toUriString(),
+					HttpMethod.POST, entity, InventoryStockReport[].class);
+			log.info("result : " + result.getBody());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
 	// PATCH ----
 	public OutboundLine updateOutboundLine(String warehouseId, String preOutboundNo, String refDocNumber,
 			String partnerCode, Long lineNumber, String itemCode, String loginUserID,
