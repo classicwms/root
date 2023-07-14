@@ -196,8 +196,10 @@ public interface TransactionHistoryResultRepository extends JpaRepository<Transa
 			" (openingStock+inboundQty+stockAdjustmentQty-outboundQty) closingStock \n"+
 			" from \n"+
 			" (select \n"+
-			" ((COALESCE(is_os_qty,0)+(COALESCE(pa_os_qty,0)-COALESCE(pa_os_re_qty,0))+COALESCE(iv_os_qty,0))-COALESCE(pi_os_qty,0)) openingStock, \n"+
-			" (COALESCE(pa_cs_qty,0)-COALESCE(pa_cs_re_qty,0)) inboundQty, \n"+
+//			" ((COALESCE(is_os_qty,0)+(COALESCE(pa_os_qty,0)-COALESCE(pa_os_re_qty,0))+COALESCE(iv_os_qty,0))-COALESCE(pi_os_qty,0)) openingStock, \n"+
+			" ((COALESCE(is_os_qty,0)+COALESCE(pa_os_qty,0)+COALESCE(iv_os_qty,0))-COALESCE(pi_os_qty,0)) openingStock, \n"+
+//			" (COALESCE(pa_cs_qty,0)-COALESCE(pa_cs_re_qty,0)) inboundQty, \n"+
+			" COALESCE(pa_cs_qty,0) inboundQty, \n"+
 			" COALESCE(pi_cs_qty,0) outboundQty, \n"+
 			" COALESCE(iv_cs_qty,0) stockAdjustmentQty, \n"+
 			" item_code itemCode, \n"+

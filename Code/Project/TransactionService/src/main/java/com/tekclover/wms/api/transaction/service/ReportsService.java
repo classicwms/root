@@ -1936,9 +1936,9 @@ public class ReportsService extends BaseService {
 
 	/**
 	 * AwaitingASN Count
-	 *
 	 * @param warehouseId
-	 * @param date
+	 * @param fromCreatedOn
+	 * @param toCreatedOn
 	 * @return
 	 * @throws java.text.ParseException
 	 */
@@ -1961,7 +1961,8 @@ public class ReportsService extends BaseService {
 	/**
 	 *
 	 * @param warehouseId
-	 * @param date
+	 * @param startConfirmedOn
+	 * @param endConfirmedOn
 	 * @return
 	 * @throws Exception
 	 */
@@ -1985,7 +1986,8 @@ public class ReportsService extends BaseService {
 	/**
 	 *
 	 * @param warehouseId
-	 * @param date
+	 * @param startConfirmedOn
+	 * @param endConfirmedOn
 	 * @return
 	 * @throws Exception
 	 */
@@ -2008,7 +2010,8 @@ public class ReportsService extends BaseService {
 	/**
 	 *
 	 * @param warehouseId
-	 * @param date
+	 * @param fromDeliveryDate
+	 * @param toDeliveryDate
 	 * @return
 	 * @throws Exception
 	 */
@@ -2031,7 +2034,9 @@ public class ReportsService extends BaseService {
 	/**
 	 *
 	 * @param warehouseId
-	 * @param date
+	 * @param fromDeliveryDate
+	 * @param toDeliveryDate
+	 * @param type
 	 * @return
 	 * @throws Exception
 	 */
@@ -2513,10 +2518,10 @@ public class ReportsService extends BaseService {
 
 			//PutAway Reversal
 
-			Long paReversalList = transactionHistoryResultRepository.
-					findSumOfPAConfirmQty_NewReversal(searchImBasicData1.getItemCode(), openingStockDateFrom,
-							openingStockDateTo, searchImBasicData1.getWarehouseId());
-			log.info("paReversalList of Rows Affected : " + paReversalList);
+//			Long paReversalList = transactionHistoryResultRepository.
+//					findSumOfPAConfirmQty_NewReversal(searchImBasicData1.getItemCode(), openingStockDateFrom,
+//							openingStockDateTo, searchImBasicData1.getWarehouseId());
+//			log.info("paReversalList of Rows Affected : " + paReversalList);
 
 			/*
 			 * Pass ITM_CODE values and From date 20-06-2022 and to date as From date of selection parameters into PICKUPLINE table
@@ -2547,9 +2552,9 @@ public class ReportsService extends BaseService {
 			log.info("paCsList of Rows Affected : " + paCSList);
 
 			//PutAway Reversal
-			Long paCSReversalList = transactionHistoryResultRepository.findSumOfPAConfirmQtyClosingStockReversal(searchImBasicData1.getItemCode(), closingStockDateFrom,
-					closingStockDateTo, searchImBasicData1.getWarehouseId());
-			log.info("paCsReversalList of Rows Affected : " + paCSReversalList);
+//			Long paCSReversalList = transactionHistoryResultRepository.findSumOfPAConfirmQtyClosingStockReversal(searchImBasicData1.getItemCode(), closingStockDateFrom,
+//					closingStockDateTo, searchImBasicData1.getWarehouseId());
+//			log.info("paCsReversalList of Rows Affected : " + paCSReversalList);
 
 			//	OutboundQty(sumOfPickupLineQty_5);
 			Long pkCSList = transactionHistoryResultRepository.findSumOfPickupLineQtyClosingStock(searchImBasicData1.getItemCode(), closingStockDateFrom,
