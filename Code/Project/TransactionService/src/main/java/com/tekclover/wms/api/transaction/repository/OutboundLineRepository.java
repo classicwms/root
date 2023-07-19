@@ -348,17 +348,5 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 			@Param ("deliveryOrderNo") String deliveryOrderNo,
 			@Param ("statusId") Long statusId, 
 			@Param ("deliveryQty") Double deliveryQty);
-	
-	@Modifying
-	@Transactional
-	@Query(value = "DELETE FROM tbloutboundlineinterim WHERE WH_ID = :warehouseId AND PRE_OB_NO = :preOutboundNo \r\n"
-			+ "AND REF_DOC_NO = :refDocNumber AND PARTNER_CODE = :partnerCode\r\n"
-			+ "AND OB_LINE_NO = :lineNumber AND ITM_CODE = :itemCode", nativeQuery = true)
-	public void deleteOutboundLine(@Param ("warehouseId") String warehouseId,			 
-			@Param ("preOutboundNo") String preOutboundNo, 
-			@Param ("refDocNumber") String refDocNumber,
-			@Param ("partnerCode") String partnerCode, 
-			@Param ("lineNumber") Long lineNumber, 
-			@Param ("itemCode") String itemCode); 
 
 }
