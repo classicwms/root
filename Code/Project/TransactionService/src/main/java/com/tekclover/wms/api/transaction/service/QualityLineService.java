@@ -15,8 +15,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
@@ -31,6 +29,7 @@ import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMoveme
 import com.tekclover.wms.api.transaction.model.inbound.inventory.UpdateInventory;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundLine;
+import com.tekclover.wms.api.transaction.model.outbound.OutboundLineInterim;
 import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.quality.AddQualityLine;
 import com.tekclover.wms.api.transaction.model.outbound.quality.QualityHeader;
@@ -40,6 +39,7 @@ import com.tekclover.wms.api.transaction.model.outbound.quality.UpdateQualityHea
 import com.tekclover.wms.api.transaction.model.outbound.quality.UpdateQualityLine;
 import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
 import com.tekclover.wms.api.transaction.repository.InventoryRepository;
+import com.tekclover.wms.api.transaction.repository.OutboundLineInterimRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundLineRepository;
 import com.tekclover.wms.api.transaction.repository.QualityLineRepository;
 import com.tekclover.wms.api.transaction.repository.specification.QualityLineSpecification;
@@ -83,6 +83,9 @@ public class QualityLineService extends BaseService {
 
 	@Autowired
 	private ImBasicData1Repository imbasicdata1Repository;
+	
+	@Autowired
+	private OutboundLineInterimRepository outboundLineInterimRepository;
 
 	/**
 	 * getQualityLines
@@ -424,45 +427,38 @@ public class QualityLineService extends BaseService {
 					updateQualityHeader.setStatusId(55L);
 					StatusId idStatus = idmasterService.getStatus(55L, dbQualityLine.getWarehouseId(), authTokenForIDService.getAccess_token());
 					updateQualityHeader.setReferenceField10(idStatus.getStatus());
-					
 					QualityHeader qualityHeader = qualityHeaderService.updateQualityHeader(					
 							dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(),
 							dbQualityLine.getRefDocNumber(), dbQualityLine.getQualityInspectionNo(),
 							dbQualityLine.getActualHeNo(), loginUserID, updateQualityHeader);
 					log.info("qualityHeader updated : " + qualityHeader);
+					
+					// createOutboundLineInterim
+					createOutboundLineInterim (dbQualityLine);
 				} catch (Exception e1) {
 					e1.printStackTrace();
 					log.info("qualityHeader updated Error : " + e1.toString());
 				}
 				
-				/*-------------OTUBOUNDHEADER/OUTBOUNDLINE table updates------------------------------*/
-				/*
-				 * DLV_ORD_NO
-				 * -----------------------------------------------------------------------------
-				 * Pass WH_ID - User logged in WH_ID and NUM_RAN_CODE = 12 in
-				 * NUMBERRANGE table and fetch NUM_RAN_CURRENT value of FISCALYEAR=CURRENT YEAR
-				 * and add +1 and insert
-				 */
+//				/*-------------------OUTBOUNDLINE------Update---------------------------*/
+//				/*
+//				 * Pass WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE /OB_LINE_NO/_ITM_CODE values in
+//				 * QUALITYILINE table and fetch QC_QTY values and pass the same values in
+//				 * OUTBOUNDLINE table and update DLV_QTY
+//				 * 
+//				 * Pass Unique keys in OUTBOUNDLINE table and update STATUS_ID as "57"
+//				 */
 				Long NUM_RAN_CODE = 12L;
 				String DLV_ORD_NO = getNextRangeNumber(NUM_RAN_CODE, dbQualityLine.getWarehouseId());
-
-				/*-------------------OUTBOUNDLINE------Update---------------------------*/
-				/*
-				 * Pass WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE /OB_LINE_NO/_ITM_CODE values in
-				 * QUALITYILINE table and fetch QC_QTY values and pass the same values in
-				 * OUTBOUNDLINE table and update DLV_QTY
-				 * 
-				 * Pass Unique keys in OUTBOUNDLINE table and update STATUS_ID as "57"
-				 */
-				updateOutboundLine (dbQualityLine, DLV_ORD_NO);
 				
+				updateOutboundLine (dbQualityLine, DLV_ORD_NO);
 				try {
 					/*-------------------OUTBOUNDHEADER------Update---------------------------*/
 					boolean isStatus57 = false;
 					List<OutboundLine> outboundLines = outboundLineService.getOutboundLine(
 							dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(),
 							dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode());
-					log.info("outboundLine re-queried-----> : " + outboundLines);
+//					log.info("outboundLine re-queried-----> : " + outboundLines);
 					
 					outboundLines = outboundLines.stream().filter(o -> o.getStatusId() == 57L)
 							.collect(Collectors.toList());
@@ -523,11 +519,11 @@ public class QualityLineService extends BaseService {
 				String stBin = storageBin.getStorageBin();
 				String movementQtyValue = "N";
 				
-				QualityLine qualityLine = findQualityLine(dbQualityLine.getWarehouseId(),
-						dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode(),
-						dbQualityLine.getLineNumber(), dbQualityLine.getQualityInspectionNo(), dbQualityLine.getItemCode());
+//				QualityLine qualityLine = findQualityLine(dbQualityLine.getWarehouseId(),
+//						dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode(),
+//						dbQualityLine.getLineNumber(), dbQualityLine.getQualityInspectionNo(), dbQualityLine.getItemCode());
 				
-				InventoryMovement inventoryMovement = createInventoryMovement(qualityLine, subMvtTypeId,
+				InventoryMovement inventoryMovement = createInventoryMovement(dbQualityLine, subMvtTypeId,
 						movementDocumentNo, stBin, movementQtyValue, loginUserID);
 				log.info("InventoryMovement created : " + inventoryMovement);
 
@@ -599,7 +595,7 @@ public class QualityLineService extends BaseService {
 				movementDocumentNo = DLV_ORD_NO;
 				stBin = storageBin.getStorageBin();
 				movementQtyValue = "P";
-				inventoryMovement = createInventoryMovement(qualityLine, subMvtTypeId, movementDocumentNo, stBin,
+				inventoryMovement = createInventoryMovement(dbQualityLine, subMvtTypeId, movementDocumentNo, stBin,
 						movementQtyValue, loginUserID);
 				log.info("InventoryMovement created for update2: " + inventoryMovement);
 			}
@@ -613,32 +609,85 @@ public class QualityLineService extends BaseService {
 	/**
 	 * 
 	 * @param dbQualityLine
+	 */
+	private void createOutboundLineInterim (QualityLine dbQualityLine) {
+		OutboundLine dbOutboundLine = outboundLineService.getOutboundLine(dbQualityLine.getWarehouseId(),
+				dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(),
+				dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
+				dbQualityLine.getItemCode());
+		log.info("##############dbOutboundLine QUERIED ----------->: " + dbOutboundLine);
+		
+		OutboundLineInterim outboundLineInterim = new OutboundLineInterim();
+		BeanUtils.copyProperties(dbOutboundLine, outboundLineInterim, CommonUtils.getNullPropertyNames(dbOutboundLine));
+		outboundLineInterim.setDeliveryQty(dbQualityLine.getQualityQty());
+		outboundLineInterim.setCreatedBy(dbQualityLine.getQualityCreatedBy());
+		outboundLineInterim.setCreatedOn(new Date());
+		
+		OutboundLineInterim createdOutboundLine = outboundLineInterimRepository.saveAndFlush(outboundLineInterim);
+		log.info("outboundLineInterim created ----------->: " + createdOutboundLine);
+	}
+	
+	/**
+	 * 
+	 * @param dbQualityLine
 	 * @param DLV_ORD_NO
 	 */
-	@Transactional(isolation = Isolation.READ_COMMITTED)
+//	@Transactional(isolation = Isolation.READ_COMMITTED)
+//	private void updateOutboundLine (QualityLine dbQualityLine, String DLV_ORD_NO) {
+//		try {
+//			//---------------Update-Lock-Applied---------------------------------------------------------
+//			OutboundLine outboundLine = outboundLineService.getOutboundLine(dbQualityLine.getWarehouseId(),
+//					dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(),
+//					dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
+//					dbQualityLine.getItemCode());
+//			log.info("DB outboundLine : " + outboundLine);
+//			if (outboundLine != null) {
+//				Double exisitingDelQty = 0D;
+//				if (outboundLine.getDeliveryQty() != null) {
+//					exisitingDelQty = outboundLine.getDeliveryQty();
+//				} else {
+//					exisitingDelQty = 0D;
+//				}
+//				exisitingDelQty = exisitingDelQty + dbQualityLine.getQualityQty();
+//				log.info("DB after outboundLine existingDelQty : " + exisitingDelQty);
+//				outboundLineRepository.updateOutboundLine(dbQualityLine.getWarehouseId(),
+//						dbQualityLine.getRefDocNumber(), dbQualityLine.getPreOutboundNo(),
+//						dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
+//						dbQualityLine.getItemCode(), DLV_ORD_NO, 57L, exisitingDelQty);
+//				log.info("outboundLine updated.");
+//			}
+//		} catch (Exception e1) {
+//			e1.printStackTrace();
+//			log.info("outboundLine updated error: " + e1.toString());
+//		}
+//	}
+	
 	private void updateOutboundLine (QualityLine dbQualityLine, String DLV_ORD_NO) {
 		try {
-			//---------------Update-Lock-Applied---------------------------------------------------------
-			OutboundLine outboundLine = outboundLineService.getOutboundLine(dbQualityLine.getWarehouseId(),
+			Double deliveryQty = outboundLineInterimRepository.getSumOfDeliveryLine (dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(),
+				dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
+				dbQualityLine.getItemCode());
+			log.info("=======updateOutboundLine==========>: " + deliveryQty);
+			
+			// Get Existing Record
+			OutboundLine existingOutboundLine = outboundLineService.getOutboundLine(dbQualityLine.getWarehouseId(),
 					dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(),
 					dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
 					dbQualityLine.getItemCode());
-			log.info("DB outboundLine : " + outboundLine);
-			if (outboundLine != null) {
-				Double exisitingDelQty = 0D;
-				if (outboundLine.getDeliveryQty() != null) {
-					exisitingDelQty = outboundLine.getDeliveryQty();
-				} else {
-					exisitingDelQty = 0D;
-				}
-				exisitingDelQty = exisitingDelQty + dbQualityLine.getQualityQty();
-				log.info("DB after outboundLine existingDelQty : " + exisitingDelQty);
-				outboundLineRepository.updateOutboundLine(dbQualityLine.getWarehouseId(),
-						dbQualityLine.getRefDocNumber(), dbQualityLine.getPreOutboundNo(),
-						dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
-						dbQualityLine.getItemCode(), DLV_ORD_NO, 57L, exisitingDelQty);
-				log.info("outboundLine updated.");
-			}
+			
+			// Delete
+			outboundLineRepository.delete(existingOutboundLine);
+			
+			// Insert
+			OutboundLine outboundLine = new OutboundLine();
+			BeanUtils.copyProperties(existingOutboundLine, outboundLine, CommonUtils.getNullPropertyNames(existingOutboundLine));
+			outboundLine.setDeliveryQty(deliveryQty);
+			outboundLine.setDeliveryOrderNo(DLV_ORD_NO);
+			outboundLine.setStatusId(57L);
+			outboundLine.setDeletionIndicator(0L);
+			
+			OutboundLine createdOutboundLineNewly = outboundLineRepository.save(outboundLine);
+			log.info("createdOutboundLineNewly created ----------->: " + createdOutboundLineNewly);
 		} catch (Exception e1) {
 			e1.printStackTrace();
 			log.info("outboundLine updated error: " + e1.toString());
