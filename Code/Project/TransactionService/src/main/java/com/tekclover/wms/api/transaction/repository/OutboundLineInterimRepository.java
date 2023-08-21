@@ -20,7 +20,7 @@ public interface OutboundLineInterimRepository extends JpaRepository<OutboundLin
 	@Query(value="SELECT SUM(DLV_QTY) FROM tbloutboundlinedup\r\n"
 			+ "WHERE WH_ID = :warehouseId AND PRE_OB_NO = :preOutboundNo \r\n"
 			+ "AND REF_DOC_NO = :refDocNumber AND PARTNER_CODE = :partnerCode\r\n"
-			+ "AND OB_LINE_NO = :lineNumber AND ITM_CODE = :itemCode\r\n"
+			+ "AND OB_LINE_NO = :lineNumber AND ITM_CODE = :itemCode AND IS_DELETED = 0 \r\n"
 			+ "GROUP BY ITM_CODE, OB_LINE_NO, PARTNER_CODE, REF_DOC_NO, PRE_OB_NO, WH_ID", nativeQuery=true)
     public Double getSumOfDeliveryLine(@Param ("warehouseId") String warehouseId,
     									@Param ("preOutboundNo") String preOutboundNo,
@@ -28,4 +28,8 @@ public interface OutboundLineInterimRepository extends JpaRepository<OutboundLin
     									@Param ("partnerCode") String partnerCode,
     									@Param ("lineNumber") Long lineNumber,
     									@Param ("itemCode") String itemCode);
+	
+	public List<OutboundLineInterim> findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndDeletionIndicator(
+			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
+			String itemCode, Long deletionIndicator);
 }

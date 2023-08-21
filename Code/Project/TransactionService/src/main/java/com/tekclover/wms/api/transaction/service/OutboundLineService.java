@@ -34,6 +34,7 @@ import com.tekclover.wms.api.transaction.model.integration.IntegrationApiRespons
 import com.tekclover.wms.api.transaction.model.outbound.AddOutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundLine;
+import com.tekclover.wms.api.transaction.model.outbound.OutboundLineInterim;
 import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundLineReport;
 import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundLine;
@@ -1191,6 +1192,11 @@ public class OutboundLineService extends BaseService {
 						outboundLine.getRefDocNumber(), outboundLine.getPartnerCode(), outboundLine.getLineNumber(), 
 						outboundLine.getItemCode(), loginUserID);
 				log.info("QualityLine----------Deleted-------> : " + qualityLine);
+				
+				List<OutboundLineInterim> outboundLineInterim = qualityLineService.deleteOutboundLineInterimForReversal(outboundLine.getWarehouseId(), outboundLine.getPreOutboundNo(),
+						outboundLine.getRefDocNumber(), outboundLine.getPartnerCode(), outboundLine.getLineNumber(), 
+						outboundLine.getItemCode(), loginUserID);
+				log.info("OutboundLineInterim----------Deleted-------> : " + outboundLineInterim);
 
 				if(qualityLine != null && qualityLine.size() > 0) {
 					for (QualityLine qualityLineData : qualityLine) {

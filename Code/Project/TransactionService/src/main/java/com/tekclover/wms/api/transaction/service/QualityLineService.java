@@ -412,6 +412,9 @@ public class QualityLineService extends BaseService {
 				if (existingQualityLine == null) {
 					QualityLine createdQualityLine = qualityLineRepository.save(dbQualityLine);
 					log.info("createdQualityLine: " + createdQualityLine);
+					
+					// createOutboundLineInterim
+					createOutboundLineInterim (createdQualityLine);
 					createdQualityLineList.add(createdQualityLine);
 				}
 			}
@@ -432,22 +435,19 @@ public class QualityLineService extends BaseService {
 							dbQualityLine.getRefDocNumber(), dbQualityLine.getQualityInspectionNo(),
 							dbQualityLine.getActualHeNo(), loginUserID, updateQualityHeader);
 					log.info("qualityHeader updated : " + qualityHeader);
-					
-					// createOutboundLineInterim
-					createOutboundLineInterim (dbQualityLine);
 				} catch (Exception e1) {
 					e1.printStackTrace();
 					log.info("qualityHeader updated Error : " + e1.toString());
 				}
 				
-//				/*-------------------OUTBOUNDLINE------Update---------------------------*/
-//				/*
-//				 * Pass WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE /OB_LINE_NO/_ITM_CODE values in
-//				 * QUALITYILINE table and fetch QC_QTY values and pass the same values in
-//				 * OUTBOUNDLINE table and update DLV_QTY
-//				 * 
-//				 * Pass Unique keys in OUTBOUNDLINE table and update STATUS_ID as "57"
-//				 */
+				/*-------------------OUTBOUNDLINE------Update---------------------------*/
+				/*
+				 * Pass WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE /OB_LINE_NO/_ITM_CODE values in
+				 * QUALITYILINE table and fetch QC_QTY values and pass the same values in
+				 * OUTBOUNDLINE table and update DLV_QTY
+				 * 
+				 * Pass Unique keys in OUTBOUNDLINE table and update STATUS_ID as "57"
+				 */
 				Long NUM_RAN_CODE = 12L;
 				String DLV_ORD_NO = getNextRangeNumber(NUM_RAN_CODE, dbQualityLine.getWarehouseId());
 				
@@ -518,11 +518,6 @@ public class QualityLineService extends BaseService {
 				String movementDocumentNo = dbQualityLine.getQualityInspectionNo();
 				String stBin = storageBin.getStorageBin();
 				String movementQtyValue = "N";
-				
-//				QualityLine qualityLine = findQualityLine(dbQualityLine.getWarehouseId(),
-//						dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode(),
-//						dbQualityLine.getLineNumber(), dbQualityLine.getQualityInspectionNo(), dbQualityLine.getItemCode());
-				
 				InventoryMovement inventoryMovement = createInventoryMovement(dbQualityLine, subMvtTypeId,
 						movementDocumentNo, stBin, movementQtyValue, loginUserID);
 				log.info("InventoryMovement created : " + inventoryMovement);
@@ -611,14 +606,15 @@ public class QualityLineService extends BaseService {
 	 * @param dbQualityLine
 	 */
 	private void createOutboundLineInterim (QualityLine dbQualityLine) {
-		OutboundLine dbOutboundLine = outboundLineService.getOutboundLine(dbQualityLine.getWarehouseId(),
-				dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(),
-				dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
-				dbQualityLine.getItemCode());
-		log.info("##############dbOutboundLine QUERIED ----------->: " + dbOutboundLine);
+//		OutboundLine dbOutboundLine = outboundLineService.getOutboundLine(dbQualityLine.getWarehouseId(),
+//				dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(),
+//				dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
+//				dbQualityLine.getItemCode());
+//		log.info("##############dbOutboundLine QUERIED ----------->: " + dbOutboundLine);
 		
 		OutboundLineInterim outboundLineInterim = new OutboundLineInterim();
-		BeanUtils.copyProperties(dbOutboundLine, outboundLineInterim, CommonUtils.getNullPropertyNames(dbOutboundLine));
+		BeanUtils.copyProperties(dbQualityLine, outboundLineInterim, CommonUtils.getNullPropertyNames(dbQualityLine));
+		outboundLineInterim.setDeletionIndicator(0L);
 		outboundLineInterim.setDeliveryQty(dbQualityLine.getQualityQty());
 		outboundLineInterim.setCreatedBy(dbQualityLine.getQualityCreatedBy());
 		outboundLineInterim.setCreatedOn(new Date());
@@ -843,11 +839,24 @@ public class QualityLineService extends BaseService {
 		}
 	}
 
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @param lineNumber
+	 * @param itemCode
+	 * @param loginUserID
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
 	public List<QualityLine> deleteQualityLineForReversal(String warehouseId, String preOutboundNo, String refDocNumber,
 			String partnerCode, Long lineNumber, String itemCode, String loginUserID)
 			throws IllegalAccessException, InvocationTargetException {
-		List<QualityLine> dbQualityLine = getQualityLineForReversal(warehouseId, preOutboundNo, refDocNumber,
-				partnerCode, lineNumber, itemCode);
+		List<QualityLine> dbQualityLine = getQualityLineForReversal(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode);
+		
 		if (dbQualityLine != null && !dbQualityLine.isEmpty()) {
 			List<QualityLine> qualityLineList = new ArrayList<>();
 			dbQualityLine.forEach(data -> {
@@ -861,7 +870,50 @@ public class QualityLineService extends BaseService {
 			return null;
 		}
 	}
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @param lineNumber
+	 * @param itemCode
+	 * @param loginUserID
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
+	public List<OutboundLineInterim> deleteOutboundLineInterimForReversal(String warehouseId, String preOutboundNo, String refDocNumber,
+			String partnerCode, Long lineNumber, String itemCode, String loginUserID)
+			throws IllegalAccessException, InvocationTargetException {
+		List<OutboundLineInterim> listOutboundLineInterim = outboundLineInterimRepository.
+				findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndDeletionIndicator(warehouseId, 
+						preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode, 0L);
+		if (listOutboundLineInterim != null && !listOutboundLineInterim.isEmpty()) {
+			listOutboundLineInterim.forEach(data -> {
+				data.setDeletionIndicator(1L);
+				data.setUpdatedBy(loginUserID);
+				data.setUpdatedOn(new Date());
+			});
+			return outboundLineInterimRepository.saveAll(listOutboundLineInterim);
+		}
+		return listOutboundLineInterim;
+	}
 
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @param lineNumber
+	 * @param itemCode
+	 * @param loginUserID
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
 	public QualityLine deleteQualityLineValidated(String warehouseId, String preOutboundNo, String refDocNumber,
 			String partnerCode, Long lineNumber, String itemCode, String loginUserID)
 			throws IllegalAccessException, InvocationTargetException {
