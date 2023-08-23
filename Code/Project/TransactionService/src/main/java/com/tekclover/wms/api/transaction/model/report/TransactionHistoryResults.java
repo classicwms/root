@@ -21,10 +21,10 @@ import javax.persistence.*;
 //@IdClass(TransactionHistoryCompositeKey.class)
 public class TransactionHistoryResults {
 
-		@Id
-		@GeneratedValue(strategy = GenerationType.IDENTITY)
-		@Column(name = "ID")
-		private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID")
+    private Long id;
 
 //		@Id
 //		@Column(name = "LANG_ID")
@@ -38,22 +38,22 @@ public class TransactionHistoryResults {
 //		@Column(name = "PLANT_ID")
 //		private String plantId;
 
-//		@Id
+    //		@Id
 //		@Column(name = "WH_ID")
-		private String warehouseId;
+    private String warehouseId;
 
-//		@Id
+    //		@Id
 //		@Column(name = "ITM_CODE")
-		private String itemCode;
+    private String itemCode;
 
-	 	private String description;
-		private Double isOsQty;
-		private Double paOsQty;
-		private Double paOsReQty;
-		private Double piOsQty;
-		private Double ivOsQty;
-	 	private Double paCsQty;
-	 	private Double paCsReQty;
-	 	private Double piCsQty;
-	 	private Double ivCsQty;
+    private String description;
+    private Double isOsQty = 0D;
+    private Double paOsQty = 0D;
+    private Double paOsReQty = 0D;
+    private Double piOsQty = 0D;
+    private Double ivOsQty = 0D;
+    private Double paCsQty = 0D;
+    private Double paCsReQty = 0D;
+    private Double piCsQty = 0D;
+    private Double ivCsQty = 0D;
 }

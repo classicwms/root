@@ -2493,6 +2493,9 @@ public class ReportsService extends BaseService {
 				e.printStackTrace();
 			}
 
+			Long truncateTable = transactionHistoryResultRepository.truncateTblTransactionHistoryResults();
+			log.info("Truncate Table Row Count : " + truncateTable);
+
 			Long tableCreated = transactionHistoryResultRepository.createTblTransactionHistoryResults(searchImBasicData1.getItemCode(),searchImBasicData1.getWarehouseId());
 			log.info("Created Result Table Row Count : " + tableCreated);
 
