@@ -658,6 +658,11 @@ public class QualityLineService extends BaseService {
 //		}
 //	}
 	
+	/**
+	 * 
+	 * @param dbQualityLine
+	 * @param DLV_ORD_NO
+	 */
 	private void updateOutboundLine (QualityLine dbQualityLine, String DLV_ORD_NO) {
 		try {
 			Double deliveryQty = outboundLineInterimRepository.getSumOfDeliveryLine (dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(),
@@ -671,9 +676,6 @@ public class QualityLineService extends BaseService {
 					dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
 					dbQualityLine.getItemCode());
 			
-			// Delete
-			outboundLineRepository.delete(existingOutboundLine);
-			
 			// Insert
 			OutboundLine outboundLine = new OutboundLine();
 			BeanUtils.copyProperties(existingOutboundLine, outboundLine, CommonUtils.getNullPropertyNames(existingOutboundLine));
@@ -681,6 +683,13 @@ public class QualityLineService extends BaseService {
 			outboundLine.setDeliveryOrderNo(DLV_ORD_NO);
 			outboundLine.setStatusId(57L);
 			outboundLine.setDeletionIndicator(0L);
+						
+			// Delete
+			outboundLineRepository.delete(existingOutboundLine);
+//			outboundLineRepository.deleteOutboundLineMain(dbQualityLine.getWarehouseId(),
+//					dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(),
+//					dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
+//					dbQualityLine.getItemCode());
 			
 			OutboundLine createdOutboundLineNewly = outboundLineRepository.save(outboundLine);
 			log.info("createdOutboundLineNewly created ----------->: " + createdOutboundLineNewly);

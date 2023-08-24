@@ -5,14 +5,12 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.LockModeType;
-import javax.persistence.QueryHint;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,8 +36,9 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 
 	public Optional<OutboundLine> findByLineNumber(Long lineNumber);
 
+	
+//	@QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = UPGRADE_SKIPLOCKED)})
 	@Lock(value = LockModeType.PESSIMISTIC_WRITE) // adds 'FOR UPDATE' statement
-	@QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = UPGRADE_SKIPLOCKED)})
 	public OutboundLine findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndDeletionIndicator(
 			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
 			String itemCode, Long deletionIndicator);
@@ -360,5 +359,16 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 			@Param ("partnerCode") String partnerCode, 
 			@Param ("lineNumber") Long lineNumber, 
 			@Param ("itemCode") String itemCode); 
-
+	
+	@Modifying
+	@Transactional
+	@Query(value = "DELETE FROM tbloutboundline WHERE WH_ID = :warehouseId AND PRE_OB_NO = :preOutboundNo \r\n"
+			+ "AND REF_DOC_NO = :refDocNumber AND PARTNER_CODE = :partnerCode\r\n"
+			+ "AND OB_LINE_NO = :lineNumber AND ITM_CODE = :itemCode", nativeQuery = true)
+	public void deleteOutboundLineMain(@Param ("warehouseId") String warehouseId,			 
+			@Param ("preOutboundNo") String preOutboundNo, 
+			@Param ("refDocNumber") String refDocNumber,
+			@Param ("partnerCode") String partnerCode, 
+			@Param ("lineNumber") Long lineNumber, 
+			@Param ("itemCode") String itemCode);
 }

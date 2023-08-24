@@ -389,8 +389,6 @@ public class OutboundLineService extends BaseService {
 		return outBoundLines;
 	}
 	
-	
-	
 	/**
 	 * Pass the Selected WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/OB_LINE_NO/ITM_CODE in OUTBOUNDLINE table and 
 	 * update SATATU_ID as 48
