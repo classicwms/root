@@ -2,12 +2,10 @@ package com.tekclover.wms.api.transaction.repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import javax.persistence.LockModeType;
 import javax.persistence.QueryHint;
 
-import com.tekclover.wms.api.transaction.model.impl.InventoryImpl;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -20,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tekclover.wms.api.transaction.model.dto.IInventory;
+import com.tekclover.wms.api.transaction.model.impl.InventoryImpl;
 import com.tekclover.wms.api.transaction.model.impl.StockReportImpl;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 
@@ -57,6 +56,10 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 	 */
 	public List<Inventory> findByWarehouseIdAndItemCodeAndBinClassIdAndDeletionIndicator(String warehouseId, 
 			String itemCode, Long binClassId, Long deletionIndicator);
+	
+	// referenceField10
+	public List<Inventory> findByWarehouseIdAndItemCodeAndBinClassIdAndReferenceField10InAndDeletionIndicator(String warehouseId, 
+			String itemCode, Long binClassId, List<String> storageSectionIds, Long deletionIndicator);
 
 	// WH_ID/PACK_BARCODE/ITM_CODE/BIN_CL_ID=3 in INVENTORY table
 	public Optional<Inventory> 

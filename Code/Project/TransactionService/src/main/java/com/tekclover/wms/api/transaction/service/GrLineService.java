@@ -515,9 +515,12 @@ public class GrLineService extends BaseService {
 //			if (createdGRLine.getWarehouseId().equalsIgnoreCase(WAREHOUSEID_111)) {
 //				storageSectionIds = Arrays.asList("ZT");
 //			} 
+//			List<Inventory> stBinInventoryList = 
+//					inventoryRepository.findByWarehouseIdAndItemCodeAndBinClassIdAndDeletionIndicator(createdGRLine.getWarehouseId(), 
+//							createdGRLine.getItemCode(), 1L, 0L);
 			List<Inventory> stBinInventoryList = 
-					inventoryRepository.findByWarehouseIdAndItemCodeAndBinClassIdAndDeletionIndicator(createdGRLine.getWarehouseId(), 
-							createdGRLine.getItemCode(), 1L, 0L);
+					inventoryRepository.findByWarehouseIdAndItemCodeAndBinClassIdAndReferenceField10InAndDeletionIndicator(createdGRLine.getWarehouseId(), 
+							createdGRLine.getItemCode(), 1L, storageSectionIds, 0L);
 			log.info("stBinInventoryList -----------> : " + stBinInventoryList);
 			
 			AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
