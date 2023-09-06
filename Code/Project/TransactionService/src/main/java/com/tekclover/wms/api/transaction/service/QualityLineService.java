@@ -536,9 +536,14 @@ public class QualityLineService extends BaseService {
 				 * Checking Inventory table before creating new record inventory
 				 */
 				// Pass WH_ID/ITM_CODE/ST_BIN = (ST_BIN value of BIN_CLASS_ID=5 /PACK_BARCODE
-				Inventory existingInventory = inventoryService.getInventory(dbQualityLine.getWarehouseId(),
-						dbQualityLine.getPickPackBarCode(), dbQualityLine.getItemCode(), storageBin.getStorageBin());
+//				Inventory existingInventory = inventoryService.getInventory(dbQualityLine.getWarehouseId(),
+//						dbQualityLine.getPickPackBarCode(), dbQualityLine.getItemCode(), storageBin.getStorageBin());
+//				log.info("existingInventory : " + existingInventory);
+				
+				Inventory existingInventory = inventoryService.getInventory(dbQualityLine.getWarehouseId(), dbQualityLine.getPickPackBarCode(), dbQualityLine.getItemCode(), 
+						storageBin.getStorageBin(), 1L, 1L);
 				log.info("existingInventory : " + existingInventory);
+				
 				if (existingInventory != null) {
 					Double INV_QTY = existingInventory.getInventoryQuantity() + dbQualityLine.getQualityQty();
 					UpdateInventory updateInventory = new UpdateInventory();
@@ -546,7 +551,7 @@ public class QualityLineService extends BaseService {
 					try {
 						Inventory updatedInventory = inventoryService.updateInventory(dbQualityLine.getWarehouseId(),
 								dbQualityLine.getPickPackBarCode(), dbQualityLine.getItemCode(),
-								storageBin.getStorageBin(), 1L, 1L, updateInventory, loginUserID);
+								storageBin.getStorageBin(), 1L, 1L, updateInventory, existingInventory, loginUserID);
 						log.info("updatedInventory----------> : " + updatedInventory);
 					} catch (Exception e) {
 						e.printStackTrace();
