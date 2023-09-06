@@ -44,7 +44,6 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 	 * @param deletionIndicator
 	 * @return
 	 */
-	@Lock(value = LockModeType.PESSIMISTIC_WRITE) // adds 'FOR UPDATE' statement
 	public Optional<Inventory> 
 		findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPackBarcodesAndItemCodeAndStorageBinAndStockTypeIdAndSpecialStockIndicatorIdAndDeletionIndicator(
 				String languageId, String companyCodeId, String plantId, 

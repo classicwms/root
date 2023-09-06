@@ -5,9 +5,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.persistence.EntityNotFoundException;
 
+import com.tekclover.wms.api.transaction.model.auditlog.AuditLog;
+import com.tekclover.wms.api.transaction.model.impl.InventoryImpl;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.*;
+import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
+import com.tekclover.wms.api.transaction.util.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -16,25 +22,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.expression.ParseException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
-import com.tekclover.wms.api.transaction.model.auditlog.AuditLog;
 import com.tekclover.wms.api.transaction.model.dto.IInventory;
 import com.tekclover.wms.api.transaction.model.dto.Warehouse;
-import com.tekclover.wms.api.transaction.model.impl.InventoryImpl;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.AddInventory;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.SearchInventory;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.UpdateInventory;
-import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
 import com.tekclover.wms.api.transaction.repository.InventoryRepository;
 import com.tekclover.wms.api.transaction.repository.specification.InventorySpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
-import com.tekclover.wms.api.transaction.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
+
+import static java.lang.Math.abs;
 
 @Slf4j
 @Service
@@ -78,7 +77,7 @@ public class InventoryService extends BaseService {
 						stockTypeId, 
 						specialStockIndicatorId,
 						0L
-						); ///XXXXXXXXXXXXXXXXXXXXX
+						);
 		if (inventory.isEmpty()) {
 			throw new BadRequestException("The given Inventory ID : " +
 										", warehouseId: " + warehouseId + 
@@ -603,16 +602,15 @@ public class InventoryService extends BaseService {
 	 * @param specialStockIndicatorId
 	 * @param loginUserID
 	 * @param updateInventory
-	 * @param dbInventory 
 	 * @return
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
 	public Inventory updateInventory (String warehouseId, String packBarcodes, String itemCode, String storageBin, 
-			Long stockTypeId, Long specialStockIndicatorId, UpdateInventory updateInventory, Inventory dbInventory, String loginUserID) 
+			Long stockTypeId, Long specialStockIndicatorId, UpdateInventory updateInventory, String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
 
-//		Inventory dbInventory = getInventory(warehouseId, packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId);
+		Inventory dbInventory = getInventory(warehouseId, packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId);
 
 		//* ------------------------------------Audit Log----------------------------------------------------------------
 		// PALLET_CODE
@@ -867,96 +865,7 @@ public class InventoryService extends BaseService {
 			dbInventoryMovement.setMovementQty(newTotalQuantity-dbTotalQuantity);
 			dbInventoryMovement.setBalanceOHQty(newTotalQuantity);
 			dbInventoryMovement.setInventoryUom(dbInventory.getInventoryUom());
-			dbInventoryMovement.setDeletionIndicator(dbInventory.getDeletionIndicator());
-			dbInventoryMovement.setCreatedBy(dbInventory.getUpdatedBy());
-			dbInventoryMovement.setCreatedOn(new Date());
-			log.info("Inventory Movement: "+ dbInventoryMovement);
-			inventoryMovementRepository.save(dbInventoryMovement);
-		}
-
-		BeanUtils.copyProperties(updateInventory, dbInventory, CommonUtils.getNullPropertyNames(updateInventory));
-		dbInventory.setUpdatedBy(loginUserID);
-		dbInventory.setUpdatedOn(new Date());
-		return inventoryRepository.save(dbInventory);
-	}
-	
-	/**
-	 * 
-	 * @param warehouseId
-	 * @param packBarcodes
-	 * @param itemCode
-	 * @param storageBin
-	 * @param stockTypeId
-	 * @param specialStockIndicatorId
-	 * @param updateInventory
-	 * @param loginUserID
-	 * @return
-	 * @throws IllegalAccessException
-	 * @throws InvocationTargetException
-	 */
-	public Inventory updateInventory (String warehouseId, String packBarcodes, String itemCode, String storageBin, 
-			Long stockTypeId, Long specialStockIndicatorId, UpdateInventory updateInventory, String loginUserID) 
-			throws IllegalAccessException, InvocationTargetException {
-		Inventory dbInventory = getInventory(warehouseId, packBarcodes, itemCode, storageBin, stockTypeId, specialStockIndicatorId);
-
-		if(updateInventory.getInventoryQuantity() == null) {
-			updateInventory.setInventoryQuantity(0D);
-		}
-		if(updateInventory.getAllocatedQuantity() == null) {
-			updateInventory.setAllocatedQuantity(0D);
-		}
-		
-		if(dbInventory.getAllocatedQuantity() == null) {
-			dbInventory.setAllocatedQuantity(0D);
-		}
-		if(dbInventory.getInventoryQuantity() == null) {
-			dbInventory.setInventoryQuantity(0D);
-		}
-
-		Double newTotalQuantity = updateInventory.getInventoryQuantity() + updateInventory.getAllocatedQuantity();
-		Double dbTotalQuantity = dbInventory.getInventoryQuantity() + dbInventory.getAllocatedQuantity();
-		log.info("newTotalQuantity: "+ newTotalQuantity + "dbTotalQuantity: " + dbTotalQuantity);
-		if(newTotalQuantity != dbTotalQuantity && dbInventory.getBinClassId() == 1) {
-
-			InventoryMovement dbInventoryMovement = new InventoryMovement();
-
-			String movementDocumentNumber;
-			if(inventoryRepository.findMovementDocumentNo() != null) {
-				movementDocumentNumber = inventoryRepository.findMovementDocumentNo();
-			} else {
-				movementDocumentNumber = "1";
-			}
-
-			dbInventoryMovement.setLanguageId(dbInventory.getLanguageId());
-			dbInventoryMovement.setCompanyCodeId(dbInventory.getCompanyCodeId());
-			dbInventoryMovement.setPlantId(dbInventory.getPlantId());
-			dbInventoryMovement.setWarehouseId(dbInventory.getWarehouseId());
-			dbInventoryMovement.setMovementType(4L);
-			dbInventoryMovement.setSubmovementType(1L);
-			dbInventoryMovement.setPalletCode(dbInventory.getPalletCode());
-			dbInventoryMovement.setCaseCode(dbInventory.getCaseCode());
-			dbInventoryMovement.setPackBarcodes(dbInventory.getPackBarcodes());
-			dbInventoryMovement.setItemCode(dbInventory.getItemCode());
-			dbInventoryMovement.setVariantCode(dbInventory.getVariantCode());
-			dbInventoryMovement.setVariantSubCode(dbInventory.getVariantSubCode());
-			dbInventoryMovement.setBatchSerialNumber("1");
-			dbInventoryMovement.setMovementDocumentNo(movementDocumentNumber);
-			dbInventoryMovement.setManufacturerPartNo(dbInventory.getReferenceField9()); //Inventory Ref_Field_9 - ManufacturePartNo
-			dbInventoryMovement.setStorageBin(dbInventory.getStorageBin());
-			dbInventoryMovement.setStorageMethod(dbInventory.getStorageMethod());
-			dbInventoryMovement.setDescription(dbInventory.getReferenceField8());
-			dbInventoryMovement.setStockTypeId(dbInventory.getStockTypeId());
-			dbInventoryMovement.setSpecialStockIndicator(dbInventory.getSpecialStockIndicatorId());
-			if(newTotalQuantity < dbTotalQuantity) {
-				dbInventoryMovement.setMovementQtyValue("N");
-				log.info("MovementQtyValue: "+ dbInventoryMovement.getMovementQtyValue());
-			} else {
-				dbInventoryMovement.setMovementQtyValue("P");
-				log.info("MovementQtyValue: "+ dbInventoryMovement.getMovementQtyValue());
-			}
-			dbInventoryMovement.setMovementQty(newTotalQuantity-dbTotalQuantity);
-			dbInventoryMovement.setBalanceOHQty(newTotalQuantity);
-			dbInventoryMovement.setInventoryUom(dbInventory.getInventoryUom());
+//			dbInventoryMovement.setRefDocNumber("");
 			dbInventoryMovement.setDeletionIndicator(dbInventory.getDeletionIndicator());
 			dbInventoryMovement.setCreatedBy(dbInventory.getUpdatedBy());
 			dbInventoryMovement.setCreatedOn(new Date());
