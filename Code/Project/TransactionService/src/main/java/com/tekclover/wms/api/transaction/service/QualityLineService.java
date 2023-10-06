@@ -676,23 +676,36 @@ public class QualityLineService extends BaseService {
 					dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
 					dbQualityLine.getItemCode());
 			
-			// Insert
-			OutboundLine outboundLine = new OutboundLine();
-			BeanUtils.copyProperties(existingOutboundLine, outboundLine, CommonUtils.getNullPropertyNames(existingOutboundLine));
-			outboundLine.setDeliveryQty(deliveryQty);
-			outboundLine.setDeliveryOrderNo(DLV_ORD_NO);
-			outboundLine.setStatusId(57L);
-			outboundLine.setDeletionIndicator(0L);
-						
-			// Delete
-			outboundLineRepository.delete(existingOutboundLine);
-//			outboundLineRepository.deleteOutboundLineMain(dbQualityLine.getWarehouseId(),
-//					dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(),
-//					dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
-//					dbQualityLine.getItemCode());
 			
-			OutboundLine createdOutboundLineNewly = outboundLineRepository.save(outboundLine);
-			log.info("createdOutboundLineNewly created ----------->: " + createdOutboundLineNewly);
+			// WarehouseId, PreOutboundNo, RefDocNumber, PartnerCode, LineNumber, ItemCode, DeliveryQty, DeliveryOrderNo, StatusId(57L);
+			outboundLineService.updateOutboundLineByQLCreateProc(dbQualityLine.getWarehouseId(), 
+					dbQualityLine.getPreOutboundNo(), 
+					dbQualityLine.getRefDocNumber(), 
+					dbQualityLine.getPartnerCode(), 
+					dbQualityLine.getLineNumber(), 
+					dbQualityLine.getItemCode(), 
+					deliveryQty,
+					DLV_ORD_NO,
+					57L);
+			log.info("----------updateOutboundLineByQLCreateProc updated as StatusID = 57----------->");
+			
+//			// Insert
+//			OutboundLine outboundLine = new OutboundLine();
+//			BeanUtils.copyProperties(existingOutboundLine, outboundLine, CommonUtils.getNullPropertyNames(existingOutboundLine));
+//			outboundLine.setDeliveryQty(deliveryQty);
+//			outboundLine.setDeliveryOrderNo(DLV_ORD_NO);
+//			outboundLine.setStatusId(57L);
+//			outboundLine.setDeletionIndicator(0L);
+//						
+//			// Delete
+//			outboundLineRepository.delete(existingOutboundLine);
+////			outboundLineRepository.deleteOutboundLineMain(dbQualityLine.getWarehouseId(),
+////					dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(),
+////					dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
+////					dbQualityLine.getItemCode());
+//			
+//			OutboundLine createdOutboundLineNewly = outboundLineRepository.save(outboundLine);
+//			log.info("createdOutboundLineNewly created ----------->: " + createdOutboundLineNewly);
 		} catch (Exception e1) {
 			e1.printStackTrace();
 			log.info("outboundLine updated error: " + e1.toString());
