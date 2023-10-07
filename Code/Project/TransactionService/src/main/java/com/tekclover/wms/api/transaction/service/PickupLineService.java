@@ -30,7 +30,6 @@ import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMoveme
 import com.tekclover.wms.api.transaction.model.inbound.inventory.UpdateInventory;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundLine;
-import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.AddPickupLine;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupHeader;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupLine;
@@ -624,17 +623,20 @@ public class PickupLineService extends BaseService {
 			}
 
 			/*
-			 * ---------------------Update-OUTBOUNDLINE----------------------------------------------------
+			 * ---------------------Update-OUTBOUNDLINE-By-StoredProc----------------------------------------------
 			 */
 			try {
-				UpdateOutboundLine updateOutboundLine = new UpdateOutboundLine();
-				updateOutboundLine.setStatusId(STATUS_ID);
-				OutboundLine outboundLine = outboundLineService.updateOutboundLine(dbPickupLine.getWarehouseId(),
-						dbPickupLine.getPreOutboundNo(), dbPickupLine.getRefDocNumber(), dbPickupLine.getPartnerCode(),
-						dbPickupLine.getLineNumber(), dbPickupLine.getItemCode(), loginUserID, updateOutboundLine);
-				log.info("outboundLine updated : " + outboundLine);
+//				UpdateOutboundLine updateOutboundLine = new UpdateOutboundLine();
+//				updateOutboundLine.setStatusId(STATUS_ID);
+//				OutboundLine outboundLine = outboundLineService.updateOutboundLine(dbPickupLine.getWarehouseId(),
+//						dbPickupLine.getPreOutboundNo(), dbPickupLine.getRefDocNumber(), dbPickupLine.getPartnerCode(),
+//						dbPickupLine.getLineNumber(), dbPickupLine.getItemCode(), loginUserID, updateOutboundLine);
+//				log.info("outboundLine updated : " + outboundLine);
+				
+				outboundLineService.updateOutboundLineByProc(dbPickupLine.getWarehouseId(), dbPickupLine.getPreOutboundNo(), dbPickupLine.getRefDocNumber(),
+						dbPickupLine.getPartnerCode(), dbPickupLine.getLineNumber(), dbPickupLine.getItemCode(), loginUserID, STATUS_ID);
 			} catch (Exception e) {
-				log.error("outboundLine update Error :" + e.toString());
+				log.error("outboundLine update By Proc Error :" + e.toString());
 				e.printStackTrace();
 			}
 

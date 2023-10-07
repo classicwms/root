@@ -871,7 +871,7 @@ public class OutboundLineService extends BaseService {
 				List<Long> lineNumbers = outboundLineByStatus57List.stream().map(OutboundLine::getLineNumber).collect(Collectors.toList());
 				List<String> itemCodes = outboundLineByStatus57List.stream().map(OutboundLine::getItemCode).collect(Collectors.toList());
 				
-				outboundLineRepository.updateOutboundLineStatus (warehouseId, refDocNumber, STATUS_ID_59, lineNumbers);
+				outboundLineRepository.updateOutboundLineStatus (warehouseId, refDocNumber, STATUS_ID_59, lineNumbers, new Date());
 				log.info("OutboundLine updated ");
 				
 				//----------------Outbound Header update----------------------------------------------------------------------------------------
@@ -1106,6 +1106,52 @@ public class OutboundLineService extends BaseService {
 		outboundLine.setUpdatedOn(new Date());
 		outboundLineRepository.save(outboundLine);
 		return outboundLine;
+	}
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @param lineNumber
+	 * @param itemCode
+	 * @param loginUserID
+	 * @param statusId
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
+	public boolean updateOutboundLineByProc (String warehouseId, String preOutboundNo, String refDocNumber, 
+			String partnerCode, Long lineNumber, String itemCode, String loginUserID, Long statusId) 
+					throws IllegalAccessException, InvocationTargetException {
+		outboundLineRepository.updateStatusIdByProcedure(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, 
+				itemCode, statusId, loginUserID);
+		log.info("------updateOutboundLineByProc-------> : " + statusId + " updated...");		
+		return true;
+	}
+	
+	/**
+	 * WarehouseId, PreOutboundNo, RefDocNumber, PartnerCode, LineNumber, ItemCode, DeliveryQty, DeliveryOrderNo, StatusId(57L);
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @param lineNumber
+	 * @param itemCode
+	 * @param loginUserID
+	 * @param statusId
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
+	public boolean updateOutboundLineByQLCreateProc (String warehouseId, String preOutboundNo, String refDocNumber, 
+			String partnerCode, Long lineNumber, String itemCode, Double deliveryQty, String deliveryOrderNo, Long statusId) 
+					throws IllegalAccessException, InvocationTargetException {
+		outboundLineRepository.updateOBlineByQLCreateProcedure(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, 
+				itemCode, deliveryQty, deliveryOrderNo, statusId);
+		log.info("------updateOutboundLineByProc-------> : " + statusId + " updated...");		
+		return true;
 	}
 	
 	/**

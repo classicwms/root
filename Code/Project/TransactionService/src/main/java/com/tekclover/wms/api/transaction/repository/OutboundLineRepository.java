@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -314,13 +315,14 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 	 * @param statusId
 	 */
 	@Modifying(clearAutomatically = true, flushAutomatically = true)
-	@Query("UPDATE OutboundLine ob SET ob.statusId = :statusId \r\n"
+	@Query("UPDATE OutboundLine ob SET ob.statusId = :statusId, ob.deliveryConfirmedOn = :deliveryConfirmedOn \r\n"
 			+ " WHERE ob.warehouseId = :warehouseId AND \r\n "
 			+ " ob.refDocNumber = :refDocNumber AND ob.lineNumber in :lineNumber")
 	public void updateOutboundLineStatus(@Param ("warehouseId") String warehouseId,
 			@Param ("refDocNumber") String refDocNumber, 
 			@Param ("statusId") Long statusId, 
-			@Param ("lineNumber") List<Long> lineNumber);
+			@Param ("lineNumber") List<Long> lineNumber,
+			@Param ("deliveryConfirmedOn") Date deliveryConfirmedOn);
 	
 	/**
 	 * 
@@ -371,4 +373,47 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 			@Param ("partnerCode") String partnerCode, 
 			@Param ("lineNumber") Long lineNumber, 
 			@Param ("itemCode") String itemCode);
+	
+	//----------------------------STORED-PROCEDURE----------------------------------------------------------
+	/*
+	 * Calling this Stored Proc during Create PickupLine
+	 */
+	@Transactional
+	@Procedure(procedureName = "obline_update_proc")
+	public void updateStatusIdByProcedure(
+			@Param("warehouseId") String warehouseId,
+			@Param("preOutboundNo") String preOutboundNo,
+			@Param("refDocNumber") String refDocNumber,
+			@Param("partnerCode") String partnerCode,
+			@Param("lineNumber") long lineNumber,
+			@Param("itmCode") String itmCode,
+			@Param("statusId") long statusId,
+			@Param("loginUserId") String loginUserId
+		);
+	
+	/*
+	 * Calling this Stored Proc during Create QualityLine
+	 * ------------------------------------------------------
+	 *  WarehouseId, PreOutboundNo, RefDocNumber, PartnerCode, LineNumber, ItemCode, DeliveryQty, DeliveryOrderNo, StatusId(57L);
+	 */
+	@Transactional
+	@Procedure(procedureName = "obline_update_qlcreate_proc")
+	public void updateOBlineByQLCreateProcedure(
+			@Param("warehouseId") String warehouseId,
+			@Param("preOutboundNo") String preOutboundNo,
+			@Param("refDocNumber") String refDocNumber,
+			@Param("partnerCode") String partnerCode,
+			@Param("lineNumber") Long lineNumber,
+			@Param("itmCode") String itmCode,			
+			@Param("deliveryQty") Double deliveryQty,
+			@Param("deliveryOrderNo") String deliveryOrderNo,
+			@Param("statusId") Long statusId
+		);
 }
+
+
+
+
+
+
+
