@@ -27,10 +27,7 @@ import com.tekclover.wms.api.transaction.model.inbound.inventory.AddInventoryMov
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.UpdateInventory;
-import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
-import com.tekclover.wms.api.transaction.model.outbound.OutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundLineInterim;
-import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.quality.AddQualityLine;
 import com.tekclover.wms.api.transaction.model.outbound.quality.QualityHeader;
 import com.tekclover.wms.api.transaction.model.outbound.quality.QualityLine;
@@ -440,43 +437,43 @@ public class QualityLineService extends BaseService {
 					log.info("qualityHeader updated Error : " + e1.toString());
 				}
 				
-				/*-------------------OUTBOUNDLINE------Update---------------------------*/
-				/*
-				 * Pass WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE /OB_LINE_NO/_ITM_CODE values in
-				 * QUALITYILINE table and fetch QC_QTY values and pass the same values in
-				 * OUTBOUNDLINE table and update DLV_QTY
-				 * 
-				 * Pass Unique keys in OUTBOUNDLINE table and update STATUS_ID as "57"
-				 */
 				Long NUM_RAN_CODE = 12L;
 				String DLV_ORD_NO = getNextRangeNumber(NUM_RAN_CODE, dbQualityLine.getWarehouseId());
 				
-				updateOutboundLine (dbQualityLine, DLV_ORD_NO);
 				try {
-					/*-------------------OUTBOUNDHEADER------Update---------------------------*/
-					boolean isStatus57 = false;
-					List<OutboundLine> outboundLines = outboundLineService.getOutboundLine(
-							dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(),
-							dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode());
-//					log.info("outboundLine re-queried-----> : " + outboundLines);
+					/*-------------------OUTBOUNDLINE------Update---------------------------*/
 					
-					outboundLines = outboundLines.stream().filter(o -> o.getStatusId() == 57L)
-							.collect(Collectors.toList());
-					if (outboundLines != null) {
-						isStatus57 = true;
-					}
-
-					UpdateOutboundHeader updateOutboundHeader = new UpdateOutboundHeader();
-					updateOutboundHeader.setDeliveryOrderNo(DLV_ORD_NO);
-					if (isStatus57) { // If Status if 57 then update OutboundHeader with Status 57.
-						updateOutboundHeader.setStatusId(57L);
-					}
-
-					OutboundHeader outboundHeader = outboundHeaderService.updateOutboundHeader(
-							dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(),
-							dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode(), updateOutboundHeader,
-							loginUserID);
-					log.info("outboundHeader updated : " + outboundHeader);
+					updateOutboundLine (dbQualityLine, DLV_ORD_NO);
+					
+					/*-------------------OUTBOUNDHEADER------Update---------------------------*/
+					
+					outboundHeaderService.updateOutboundHeaderByProcedure (dbQualityLine.getWarehouseId(), 
+							dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode(), loginUserID);
+					log.info("------outboundHeader updated as 57---------");
+					
+					/*------------------------------------------------------------------------*/
+					
+//					boolean isStatus57 = false;
+//					List<OutboundLine> outboundLines = outboundLineService.getOutboundLine(
+//							dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(),
+//							dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode());
+//					outboundLines = outboundLines.stream().filter(o -> o.getStatusId() == 57L)
+//							.collect(Collectors.toList());
+//					if (outboundLines != null) {
+//						isStatus57 = true;
+//					}
+//
+//					UpdateOutboundHeader updateOutboundHeader = new UpdateOutboundHeader();
+//					updateOutboundHeader.setDeliveryOrderNo(DLV_ORD_NO);
+//					if (isStatus57) { // If Status if 57 then update OutboundHeader with Status 57.
+//						updateOutboundHeader.setStatusId(57L);
+//					}
+//
+//					OutboundHeader outboundHeader = outboundHeaderService.updateOutboundHeader(
+//							dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(),
+//							dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode(), updateOutboundHeader,
+//							loginUserID);
+//					log.info("outboundHeader updated : " + outboundHeader);
 				} catch (Exception e1) {
 					e1.printStackTrace();
 					log.info("outboundHeader updated error: " + e1.toString());
@@ -670,13 +667,6 @@ public class QualityLineService extends BaseService {
 				dbQualityLine.getItemCode());
 			log.info("=======updateOutboundLine==========>: " + deliveryQty);
 			
-			// Get Existing Record
-			OutboundLine existingOutboundLine = outboundLineService.getOutboundLine(dbQualityLine.getWarehouseId(),
-					dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(),
-					dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
-					dbQualityLine.getItemCode());
-			
-			
 			// WarehouseId, PreOutboundNo, RefDocNumber, PartnerCode, LineNumber, ItemCode, DeliveryQty, DeliveryOrderNo, StatusId(57L);
 			outboundLineService.updateOutboundLineByQLCreateProc(dbQualityLine.getWarehouseId(), 
 					dbQualityLine.getPreOutboundNo(), 
@@ -688,6 +678,12 @@ public class QualityLineService extends BaseService {
 					DLV_ORD_NO,
 					57L);
 			log.info("----------updateOutboundLineByQLCreateProc updated as StatusID = 57----------->");
+			
+//			// Get Existing Record
+//			OutboundLine existingOutboundLine = outboundLineService.getOutboundLine(dbQualityLine.getWarehouseId(),
+//					dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(),
+//					dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
+//					dbQualityLine.getItemCode());
 			
 //			// Insert
 //			OutboundLine outboundLine = new OutboundLine();

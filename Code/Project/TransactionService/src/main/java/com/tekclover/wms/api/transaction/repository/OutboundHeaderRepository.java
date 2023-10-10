@@ -8,18 +8,19 @@ import java.util.stream.Stream;
 import javax.persistence.LockModeType;
 import javax.persistence.QueryHint;
 
-import com.tekclover.wms.api.transaction.model.outbound.OutboundHeaderStream;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
+import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
+import com.tekclover.wms.api.transaction.model.outbound.OutboundHeaderStream;
 
 @Repository
 @Transactional
@@ -187,4 +188,21 @@ public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader,L
 										 @Param(value = "warehouseId") String warehouseId,
 										 @Param(value = "languageId") String languageId,
 										 @Param(value = "companyCodeId") String companyCodeId);
+	
+	//============================================================================================================================
+	
+	/*
+	 * Calling this Stored Proc during STATUS_ID = 57
+	 * ------------------------------------------------------
+	 *  @warehouseId, @refDocNumber, @preOutboundNo, @partnerCode, @updatedBy
+	 */
+	@Transactional
+	@Procedure(procedureName = "obheader_status_57_update_proc")
+	public void updateOBHeaderByProcedure (
+			@Param("warehouseId") String warehouseId,
+			@Param("refDocNumber") String refDocNumber,
+			@Param("preOutboundNo") String preOutboundNo,
+			@Param("partnerCode") String partnerCode,
+			@Param("updatedBy") String updatedBy
+		);
 }

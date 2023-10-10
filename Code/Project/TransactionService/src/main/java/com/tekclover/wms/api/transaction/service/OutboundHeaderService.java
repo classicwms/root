@@ -1,31 +1,28 @@
 package com.tekclover.wms.api.transaction.service;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.persistence.EntityNotFoundException;
 
-import com.tekclover.wms.api.transaction.model.outbound.*;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeMap;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
+import com.tekclover.wms.api.transaction.model.outbound.AddOutboundHeader;
+import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
+import com.tekclover.wms.api.transaction.model.outbound.OutboundHeaderOutput;
+import com.tekclover.wms.api.transaction.model.outbound.OutboundHeaderStream;
+import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundHeader;
+import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundHeader;
 import com.tekclover.wms.api.transaction.repository.OutboundHeaderRepository;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
@@ -416,6 +413,23 @@ public class OutboundHeaderService {
 			return outboundHeaderRepository.save(dbOutboundHeader);
 		}
 		return null;
+	}
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param refDocNumber
+	 * @param preOutboundNo
+	 * @param partnerCode
+	 * @param updatedBy
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
+	public boolean updateOutboundHeaderByProcedure (String warehouseId, String refDocNumber, String preOutboundNo,
+			String partnerCode, String updatedBy) throws IllegalAccessException, InvocationTargetException {
+		outboundHeaderRepository.updateOBHeaderByProcedure (warehouseId, refDocNumber, preOutboundNo, partnerCode, updatedBy);
+		return true;
 	}
 	
 	/**
