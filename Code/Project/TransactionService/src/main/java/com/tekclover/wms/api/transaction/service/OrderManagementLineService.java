@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
 import org.springframework.stereotype.Service;
 
+import com.tekclover.wms.api.transaction.config.PropertiesConfig;
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.transaction.model.dto.IInventory;
@@ -79,6 +80,9 @@ public class OrderManagementLineService extends BaseService {
 
 	@Autowired
 	MastersService mastersService;
+	
+	@Autowired
+	PropertiesConfig propertiesConfig;
 
 	/**
 	 * getOrderManagementLines
@@ -786,8 +790,11 @@ public class OrderManagementLineService extends BaseService {
 	 */
 	public OrderManagementLine updateAllocation(OrderManagementLine orderManagementLine, List<String> storageSectionIds,
 			Double ORD_QTY, String warehouseId, String itemCode, String loginUserID) {
-		List<Inventory> stockType1InventoryList = inventoryService.getInventoryForOrderManagement(warehouseId, itemCode,
-				1L, 1L);
+		// Inventory Strategy Choices
+		String INV_STRATEGY = propertiesConfig.getOrderAllocationStrategyCoice();
+		
+		List<Inventory> stockType1InventoryList = 
+				inventoryService.getInventoryForOrderManagement(warehouseId, itemCode, 1L, 1L);
 		log.info("---updateAllocation---stockType1InventoryList-------> : " + stockType1InventoryList);
 		if (stockType1InventoryList.isEmpty()) {
 			return updateOrderManagementLine(orderManagementLine);
@@ -795,9 +802,16 @@ public class OrderManagementLineService extends BaseService {
 		
 		// -----------------------------------------------------------------------------------------------------------------------------------------
 		// Getting Inventory GroupBy ST_BIN wise
-		List<IInventory> finalInventoryList = inventoryService.getInventoryGroupByStorageBin(warehouseId, itemCode,
-				storageSectionIds);
-		log.info("finalInventoryList Inventory ---->: " + finalInventoryList + "\n");
+		List<IInventory> finalInventoryList = null;
+		if (INV_STRATEGY.equalsIgnoreCase("SB_STBIN")) { 		// SB_STBIN
+			finalInventoryList = inventoryService.getInventoryGroupByStorageBin(warehouseId, itemCode, storageSectionIds);
+		} else if (INV_STRATEGY.equalsIgnoreCase("SB_CTD_ON")) { // SB_CTD_ON
+			finalInventoryList = inventoryService.getInventoryGroupByCreatedOn(warehouseId, itemCode, storageSectionIds);
+		}
+		
+		for (IInventory iv : finalInventoryList) {
+			log.info("finalInventoryList Inventory ---->: " + iv.getItemCode() + "," + iv.getStorageBin() + "," + iv.getInventoryQty());
+		}
 		
 		// If the finalInventoryList is EMPTY then we set STATUS_ID as 47 and return from the processing
 		if (finalInventoryList != null && finalInventoryList.isEmpty()) {
@@ -807,22 +821,25 @@ public class OrderManagementLineService extends BaseService {
 		OrderManagementLine newOrderManagementLine = null;
 		AuthToken idmasterAuthToken = authTokenService.getIDMasterServiceAuthToken();
 		outerloop: for (IInventory stBinWiseInventory : finalInventoryList) {
-			log.info("\nstBinWiseInventory---->: " + stBinWiseInventory.getStorageBin() + "::"
-					+ stBinWiseInventory.getInventoryQty());
+			log.info("stBinWiseInventory---->: " + stBinWiseInventory.getStorageBin() + "::" + stBinWiseInventory.getInventoryQty());
+			List<Inventory> listInventoryForAlloc = null;
+			if (INV_STRATEGY.equalsIgnoreCase("SB_STBIN")) { 		// SB_STBIN
+				listInventoryForAlloc = inventoryService.getInventoryForOrderMgmt(warehouseId, itemCode, 1L,
+						stBinWiseInventory.getStorageBin(), 1L, null);
+				log.info("listInventoryForAlloc Inventory ---->: " + listInventoryForAlloc);
+			} else if (INV_STRATEGY.equalsIgnoreCase("SB_CTD_ON")) { // SB_CTD_ON
+				listInventoryForAlloc = inventoryService.getInventoryForOrderMgmt(warehouseId, itemCode, 1L,
+						stBinWiseInventory.getStorageBin(), 1L, stBinWiseInventory.getCreatedOn());
+				log.info("listInventoryForAlloc Inventory ---->: " + listInventoryForAlloc);
+			}
 
-			// Getting PackBarCode by passing ST_BIN to Inventory
-			List<Inventory> listInventoryForAlloc = inventoryService.getInventoryForOrderMgmt(warehouseId, itemCode, 1L,
-					stBinWiseInventory.getStorageBin(), 1L);
-			log.info("\nlistInventoryForAlloc Inventory ---->: " + listInventoryForAlloc + "\n");
-
-			// Prod Fix: If the queried Inventory is empty then EMPTY orderManagementLine is
-			// created.
+			// Prod Fix: If the queried Inventory is empty then EMPTY orderManagementLine is created.
 			if (listInventoryForAlloc != null && listInventoryForAlloc.isEmpty()) {
 				return updateOrderManagementLine(orderManagementLine);
 			}
 
 			for (Inventory stBinInventory : listInventoryForAlloc) {
-				log.info("\nBin-wise Inventory : " + stBinInventory + "\n");
+				log.info("Bin-wise Inventory : " + stBinInventory);
 
 				Long STATUS_ID = 0L;
 				Double ALLOC_QTY = 0D;

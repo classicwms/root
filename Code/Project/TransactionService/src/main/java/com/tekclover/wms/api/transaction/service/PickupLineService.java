@@ -599,7 +599,9 @@ public class PickupLineService extends BaseService {
 						newInventory.setStorageBin(storageBin.getStorageBin());
 						newInventory.setInventoryQuantity(dbPickupLine.getPickConfirmQty());
 						newInventory.setSpecialStockIndicatorId(dbPickupLine.getSpecialStockIndicatorId());
-
+						newInventory.setCreatedOn(new Date());			
+						newInventory.setCreatedBy(loginUserID);
+						
 						List<IImbasicData1> imbasicdata1 = imbasicdata1Repository
 								.findByItemCode(newInventory.getItemCode());
 						if (imbasicdata1 != null && !imbasicdata1.isEmpty()) {

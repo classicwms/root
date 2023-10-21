@@ -146,7 +146,7 @@ public class Inventory {
 	private String createdBy;
 	
 	@Column(name = "IU_CTD_ON") 
-	private Date createdOn = new Date();
+	private Date createdOn;
 	
 	@Column(name = "UTD_BY") 
 	private String updatedBy;

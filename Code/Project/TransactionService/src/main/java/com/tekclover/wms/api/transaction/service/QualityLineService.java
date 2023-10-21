@@ -563,7 +563,9 @@ public class QualityLineService extends BaseService {
 					newInventory.setStorageBin(storageBin.getStorageBin());
 					newInventory.setInventoryQuantity(dbQualityLine.getQualityQty());
 					newInventory.setSpecialStockIndicatorId(1L);
-
+					newInventory.setCreatedOn(new Date());			
+					newInventory.setCreatedBy(loginUserID);
+					
 					List<IImbasicData1> imbasicdata1 = imbasicdata1Repository
 							.findByItemCode(newInventory.getItemCode());
 					if (imbasicdata1 != null && !imbasicdata1.isEmpty()) {

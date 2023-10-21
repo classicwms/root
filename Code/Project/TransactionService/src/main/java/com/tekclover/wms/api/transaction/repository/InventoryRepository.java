@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.transaction.repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -155,6 +156,10 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 			String languageId, String companyCode, String plantId, String warehouseId, String itemCode,
 			Long stockTypeId, Long l);
 	
+	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndBinClassIdAndStorageBinAndStockTypeIdAndCreatedOnAndDeletionIndicatorAndInventoryQuantityGreaterThan(
+			String languageId, String companyCode, String plantId, String warehouseId, String itemCode, Long binClassId,
+			String storageBin, Long stockTypeId, Date createdOn, long l, double d);
+	
 	/*
 	 * Reports
 	 */
@@ -226,6 +231,7 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 			String languageId, String companyCode, String plantId, String warehouseId, String itemCode, Long binClassId,
 			String storageBin, Long stockTypeId, long l, double d);
 	
+	//-------------STRATEGY-APPROACH-START--------------------------------------------------------------------
 	@Query (value = "SELECT ST_BIN AS storageBin, SUM(INV_QTY) AS inventoryQty FROM tblinventory \r\n"
 			+ "WHERE WH_ID = :warehouseId and ITM_CODE = :itemCode AND BIN_CL_ID = 1 AND STCK_TYP_ID = 1 \r\n"
 			+ "AND REF_FIELD_10 IN :storageSecIds AND IS_DELETED = 0 \r\n"
@@ -236,6 +242,20 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 			@Param(value = "warehouseId") String warehouseId,
 			@Param(value = "itemCode") String itemCode,
 			@Param(value = "storageSecIds") List<String> storageSecIds);
+	
+	@Query (value = "SELECT IU_CTD_ON AS createdOn, ITM_CODE AS itemCode, SUM(INV_QTY) AS inventoryQty, ST_BIN AS storageBin\r\n"
+			+ "FROM tblinventory WHERE WH_ID = :warehouseId and ITM_CODE = :itemCode \r\n"
+			+ "AND BIN_CL_ID = 1 AND STCK_TYP_ID = 1 \r\n"
+			+ "AND REF_FIELD_10 IN :storageSecIds AND IS_DELETED = 0 \r\n"
+			+ "GROUP BY ITM_CODE, IU_CTD_ON, ST_BIN\r\n"
+			+ "HAVING SUM(INV_QTY) > 0 \r\n"
+			+ "ORDER BY IU_CTD_ON, SUM(INV_QTY)", nativeQuery = true)
+	public List<IInventory> findInventoryGroupByCreatedOn (
+			@Param(value = "warehouseId") String warehouseId,
+			@Param(value = "itemCode") String itemCode,
+			@Param(value = "storageSecIds") List<String> storageSecIds);
+	
+	//-------------STRATEGY-APPROACH-END---------------------------------------------------------------------
 
 	public Optional<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndStorageBinAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId, String storageBin, long l);

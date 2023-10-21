@@ -5,15 +5,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.persistence.EntityNotFoundException;
 
-import com.tekclover.wms.api.transaction.model.auditlog.AuditLog;
-import com.tekclover.wms.api.transaction.model.impl.InventoryImpl;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.*;
-import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
-import com.tekclover.wms.api.transaction.util.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,18 +16,25 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.expression.ParseException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
+import com.tekclover.wms.api.transaction.model.auditlog.AuditLog;
 import com.tekclover.wms.api.transaction.model.dto.IInventory;
 import com.tekclover.wms.api.transaction.model.dto.Warehouse;
+import com.tekclover.wms.api.transaction.model.impl.InventoryImpl;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.AddInventory;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.SearchInventory;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.UpdateInventory;
+import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
 import com.tekclover.wms.api.transaction.repository.InventoryRepository;
 import com.tekclover.wms.api.transaction.repository.specification.InventorySpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
+import com.tekclover.wms.api.transaction.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Transactional;
-
-import static java.lang.Math.abs;
 
 @Slf4j
 @Service
@@ -383,21 +384,39 @@ public class InventoryService extends BaseService {
 	 * @param stockTypeId
 	 * @return
 	 */
-	public List<Inventory> getInventoryForOrderMgmt (String warehouseId, String itemCode, Long binClassId, String storageBin, Long stockTypeId) {
-		List<Inventory> inventory = 
-				inventoryRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndBinClassIdAndStorageBinAndStockTypeIdAndDeletionIndicatorAndInventoryQuantityGreaterThanOrderByInventoryQuantity(
-						getLanguageId(),
-						getCompanyCode(),
-						getPlantId(),
-						warehouseId, 
-						itemCode, 
-						binClassId,
-						storageBin, 
-						stockTypeId, 
-						0L,
-						0D
-						);
-		return inventory;
+	public List<Inventory> getInventoryForOrderMgmt (String warehouseId, String itemCode, Long binClassId, String storageBin, Long stockTypeId, Date createdOn) {
+		if (createdOn != null) {
+			List<Inventory> inventory = 
+					inventoryRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndBinClassIdAndStorageBinAndStockTypeIdAndCreatedOnAndDeletionIndicatorAndInventoryQuantityGreaterThan(
+									getLanguageId(),
+							getCompanyCode(),
+							getPlantId(),
+							warehouseId, 
+							itemCode, 
+							binClassId,
+							storageBin, 
+							stockTypeId, 
+							createdOn,
+							0L,
+							0D
+							);
+			return inventory;
+		} else {
+			List<Inventory> inventory = 
+					inventoryRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndBinClassIdAndStorageBinAndStockTypeIdAndDeletionIndicatorAndInventoryQuantityGreaterThanOrderByInventoryQuantity(
+							getLanguageId(),
+							getCompanyCode(),
+							getPlantId(),
+							warehouseId, 
+							itemCode, 
+							binClassId,
+							storageBin, 
+							stockTypeId, 
+							0L,
+							0D
+							);
+			return inventory;
+		}
 	}
 	
 	/**
@@ -409,6 +428,18 @@ public class InventoryService extends BaseService {
 	 */
 	public List<IInventory> getInventoryGroupByStorageBin (String warehouseId, String itemCode, List<String> stSecIds) {
 		List<IInventory> inventory = inventoryRepository.findInventoryGroupByStorageBin(warehouseId, itemCode, stSecIds);
+		return inventory;
+	}
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param itemCode
+	 * @param stSecIds
+	 * @return
+	 */
+	public List<IInventory> getInventoryGroupByCreatedOn (String warehouseId, String itemCode, List<String> stSecIds) {
+		List<IInventory> inventory = inventoryRepository.findInventoryGroupByCreatedOn(warehouseId, itemCode, stSecIds);
 		return inventory;
 	}
 	

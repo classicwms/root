@@ -83,7 +83,7 @@ public class PropertiesConfig {
 	@Value("${axapi.service.interwarehouse.url}")
 	private String axapiServiceInterwareHouseUrl;
 	
-	//-----------------------------------------------------------------------------------
+	//---------------------------------------------------------------------------------------
 	// axapi.service.shipment.url=http://168.187.214.59:8040/api/transferorder/outshipment
 	@Value("${axapi.service.shipment.url}")
 	private String axapiServiceShipmentUrl;
@@ -99,4 +99,10 @@ public class PropertiesConfig {
 	// axapi.service.saleorder.url=http://168.187.214.59:8040/api/salesorder/packingslip
 	@Value("${axapi.service.salesorder.url}")
 	private String axapiServiceSalesOrderUrl;
+	
+	//-------------INVENTORY-STRATEGY-CONF-----------------------------------------------------
+	// #------SB_CTD_ON,SB_STBIN
+	// order.allocation.strategy.choice=SB_CTD_ON
+	@Value("${order.allocation.strategy.choice}")
+	private String orderAllocationStrategyCoice;
 }
