@@ -34,14 +34,11 @@ import com.tekclover.wms.api.transaction.model.outbound.quality.QualityLine;
 import com.tekclover.wms.api.transaction.model.outbound.quality.SearchQualityLine;
 import com.tekclover.wms.api.transaction.model.outbound.quality.UpdateQualityHeader;
 import com.tekclover.wms.api.transaction.model.outbound.quality.UpdateQualityLine;
-import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundHeader;
-import com.tekclover.wms.api.transaction.model.outbound.preoutbound.PreOutboundLine;
 import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
 import com.tekclover.wms.api.transaction.repository.InventoryRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundLineInterimRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundLineRepository;
 import com.tekclover.wms.api.transaction.repository.QualityLineRepository;
-import com.tekclover.wms.api.transaction.repository.PreOutboundLineRepository;
 import com.tekclover.wms.api.transaction.repository.specification.QualityLineSpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 
@@ -56,9 +53,6 @@ public class QualityLineService extends BaseService {
 
 	@Autowired
 	private OutboundLineRepository outboundLineRepository;
-	
-	@Autowired
-	private PreOutboundLineRepository preOutboundLineRepository;
 
 	@Autowired
 	private QualityHeaderService qualityHeaderService;
@@ -448,14 +442,15 @@ public class QualityLineService extends BaseService {
 				
 				try {
 					/*-------------------OUTBOUNDLINE------Update---------------------------*/
-//					updateOutboundLine (dbQualityLine, DLV_ORD_NO);
+					
+					updateOutboundLine (dbQualityLine, DLV_ORD_NO);
 					
 					/*-------------------OUTBOUNDHEADER------Update---------------------------*/
-					UpdateOutboundHeader updateOutboundHeader = new UpdateOutboundHeader();
-					updateOutboundHeader.setStatusId(57L);
-					outboundHeaderService.updateOutboundHeader(dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(), 
-					dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode(), updateOutboundHeader, loginUserID);
+					
+					outboundHeaderService.updateOutboundHeaderByProcedure (dbQualityLine.getWarehouseId(), 
+							dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode(), loginUserID);
 					log.info("------outboundHeader updated as 57---------");
+					
 					/*------------------------------------------------------------------------*/
 					
 //					boolean isStatus57 = false;
@@ -610,15 +605,19 @@ public class QualityLineService extends BaseService {
 	 * @param dbQualityLine
 	 */
 	private void createOutboundLineInterim (QualityLine dbQualityLine) {
-		PreOutboundLine preOutboundLine = preOutboundLineRepository.findByWarehouseIdAndRefDocNumberAndItemCodeAndLineNumberAndDeletionIndicator (dbQualityLine.getWarehouseId(),
-				dbQualityLine.getRefDocNumber(), dbQualityLine.getItemCode(), dbQualityLine.getLineNumber(), 0L);
+//		OutboundLine dbOutboundLine = outboundLineService.getOutboundLine(dbQualityLine.getWarehouseId(),
+//				dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(),
+//				dbQualityLine.getPartnerCode(), dbQualityLine.getLineNumber(),
+//				dbQualityLine.getItemCode());
+//		log.info("##############dbOutboundLine QUERIED ----------->: " + dbOutboundLine);
+		
 		OutboundLineInterim outboundLineInterim = new OutboundLineInterim();
 		BeanUtils.copyProperties(dbQualityLine, outboundLineInterim, CommonUtils.getNullPropertyNames(dbQualityLine));
 		outboundLineInterim.setDeletionIndicator(0L);
-		outboundLineInterim.setOrderQty(preOutboundLine.getOrderQty());
 		outboundLineInterim.setDeliveryQty(dbQualityLine.getQualityQty());
 		outboundLineInterim.setCreatedBy(dbQualityLine.getQualityCreatedBy());
 		outboundLineInterim.setCreatedOn(new Date());
+		
 		OutboundLineInterim createdOutboundLine = outboundLineInterimRepository.saveAndFlush(outboundLineInterim);
 		log.info("outboundLineInterim created ----------->: " + createdOutboundLine);
 	}
