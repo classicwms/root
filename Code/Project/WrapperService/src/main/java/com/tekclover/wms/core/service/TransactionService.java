@@ -17,10 +17,6 @@ import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.core.model.masters.ImBasicData1;
-import com.tekclover.wms.core.model.masters.ImBasicData1Stream;
-import com.tekclover.wms.core.model.masters.SearchImBasicData1;
-import com.tekclover.wms.core.model.masters.StorageBinStream;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.BeanUtils;
@@ -48,6 +44,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.CSVWriter;
 //import com.google.gson.Gson;
 import com.tekclover.wms.core.config.PropertiesConfig;
+import com.tekclover.wms.core.model.masters.ImBasicData1;
+import com.tekclover.wms.core.model.masters.ImBasicData1Stream;
+import com.tekclover.wms.core.model.masters.SearchImBasicData1;
+import com.tekclover.wms.core.model.masters.StorageBinStream;
 import com.tekclover.wms.core.model.transaction.*;
 import com.tekclover.wms.core.model.warehouse.inbound.ASN;
 import com.tekclover.wms.core.model.warehouse.inbound.WarehouseApiResponse;
@@ -4164,7 +4164,6 @@ public class TransactionService {
 
 	/*
 	 * ----------------------OutboundHeader-----------------------------------------
-	 * ------------------------
 	 */
 	// POST - findOutboundHeader
 	public OutboundHeader[] findOutboundHeader(SearchOutboundHeader requestData, String authToken)
@@ -4235,6 +4234,96 @@ public class TransactionService {
 				if(obHeader.getCreatedOn() != null) {
 					obHeader.setCreatedOn(DateUtils.addTimeToDate(obHeader.getCreatedOn(), 3));
 				}
+				if(obHeader.getUpdatedOn() != null) {
+					obHeader.setUpdatedOn(DateUtils.addTimeToDate(obHeader.getUpdatedOn(), 3));
+				}
+				obList.add(obHeader);
+			}
+			return obList.toArray(new OutboundHeader[obList.size()]);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	
+	// POST - findOutboundHeader
+	public OutboundHeader[] findOutboundHeaderForRFD(SearchOutboundHeader requestData, String authToken)
+			throws ParseException {
+		try {
+			SearchOutboundHeaderModel requestDataForService = new SearchOutboundHeaderModel();
+			BeanUtils.copyProperties(requestData, requestDataForService, CommonUtils.getNullPropertyNames(requestData));
+			if (requestData.getStartDeliveryConfirmedOn() != null) {
+				if (requestData.getStartDeliveryConfirmedOn().length() < 11) {
+					requestDataForService.setStartDeliveryConfirmedOn(
+							DateUtils.convertStringToYYYYMMDD(requestData.getStartDeliveryConfirmedOn()));
+				} else {
+					requestDataForService.setStartDeliveryConfirmedOn(
+							DateUtils.convertStringToDateWithTime(requestData.getStartDeliveryConfirmedOn()));
+				}
+			}
+			
+			Integer flag = 0;
+			if (requestData.getEndDeliveryConfirmedOn() != null) {
+				if (requestData.getEndDeliveryConfirmedOn().length() < 11) {
+					requestDataForService.setEndDeliveryConfirmedOn(
+							DateUtils.convertStringToYYYYMMDD(requestData.getEndDeliveryConfirmedOn()));
+				} else {
+					requestDataForService.setEndDeliveryConfirmedOn(
+							DateUtils.convertStringToDateWithTime(requestData.getEndDeliveryConfirmedOn()));
+					flag = 1;
+				}
+			}
+			
+			if (requestData.getStartOrderDate() != null) {
+				requestDataForService
+						.setStartOrderDate(DateUtils.convertStringToYYYYMMDD(requestData.getStartOrderDate()));
+			}
+			
+			if (requestData.getEndOrderDate() != null) {
+				requestDataForService.setEndOrderDate(DateUtils.convertStringToYYYYMMDD(requestData.getEndOrderDate()));
+			}
+			
+			if (requestData.getStartRequiredDeliveryDate() != null) {
+				requestDataForService.setStartRequiredDeliveryDate(
+						DateUtils.convertStringToYYYYMMDD(requestData.getStartRequiredDeliveryDate()));
+			}
+			
+			if (requestData.getEndRequiredDeliveryDate() != null) {
+				requestDataForService.setEndRequiredDeliveryDate(
+						DateUtils.convertStringToYYYYMMDD(requestData.getEndRequiredDeliveryDate()));
+			}
+			
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "outboundheader/findOutboundHeader/rfd")
+					.queryParam("flag", flag);
+			HttpEntity<?> entity = new HttpEntity<>(requestDataForService, headers);
+			ResponseEntity<OutboundHeader[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
+					entity, OutboundHeader[].class);
+
+			List<OutboundHeader> obList = new ArrayList<>();
+			for (OutboundHeader obHeader : result.getBody()) {
+				log.info("Result getDeliveryConfirmedOn :" + obHeader.getDeliveryConfirmedOn());
+				if(obHeader.getRefDocDate() != null) {
+					obHeader.setRefDocDate(DateUtils.addTimeToDate(obHeader.getRefDocDate(), 3));
+				}
+				
+				if(obHeader.getRequiredDeliveryDate() != null) {
+					obHeader.setRequiredDeliveryDate(DateUtils.addTimeToDate(obHeader.getRequiredDeliveryDate(), 3));
+				}
+				
+				if(obHeader.getDeliveryConfirmedOn() != null) {
+					obHeader.setDeliveryConfirmedOn(DateUtils.addTimeToDate(obHeader.getDeliveryConfirmedOn(), 3));
+				}
+				
+				if(obHeader.getCreatedOn() != null) {
+					obHeader.setCreatedOn(DateUtils.addTimeToDate(obHeader.getCreatedOn(), 3));
+				}
+				
 				if(obHeader.getUpdatedOn() != null) {
 					obHeader.setUpdatedOn(DateUtils.addTimeToDate(obHeader.getUpdatedOn(), 3));
 				}
@@ -4676,11 +4765,9 @@ public class TransactionService {
 			headers.add("User-Agent", "ClassicWMS's RestTemplate");
 			headers.add("Authorization", "Bearer " + authToken);
 			HttpEntity<?> entity = new HttpEntity<>(updateOutboundLine, headers);
-
 			HttpClient client = HttpClients.createDefault();
 			RestTemplate restTemplate = getRestTemplate();
 			restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
-
 			UriComponentsBuilder builder = UriComponentsBuilder
 					.fromHttpUrl(getTransactionServiceApiUrl() + "outboundline/" + lineNumber)
 					.queryParam("warehouseId", warehouseId).queryParam("preOutboundNo", preOutboundNo)
@@ -4689,6 +4776,29 @@ public class TransactionService {
 			ResponseEntity<OutboundLine> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity,
 					OutboundLine.class);
 			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+	
+	// PATCH ----
+	public com.tekclover.wms.core.model.transaction.OutboundLine[] updateOutboundLines(String loginUserID, 
+			@Valid List<UpdateOutboundLine> updateOutboundLine, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			HttpEntity<?> entity = new HttpEntity<>(updateOutboundLine, headers);
+			HttpClient client = HttpClients.createDefault();
+			RestTemplate restTemplate = getRestTemplate();
+			restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "outboundline/lineNumbers")
+					.queryParam("loginUserID", loginUserID);
+			ResponseEntity<OutboundLine[]> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, OutboundLine[].class);
+			log.info("result : " + result);
 			return result.getBody();
 		} catch (Exception e) {
 			throw e;

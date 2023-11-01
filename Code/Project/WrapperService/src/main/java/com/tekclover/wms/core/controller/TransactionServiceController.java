@@ -8,8 +8,6 @@ import java.util.concurrent.ExecutionException;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.core.model.masters.ImBasicData1;
-import com.tekclover.wms.core.model.masters.SearchImBasicData1;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.expression.ParseException;
@@ -31,6 +29,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import com.tekclover.wms.core.batch.scheduler.BatchJobScheduler;
+import com.tekclover.wms.core.model.masters.ImBasicData1;
+import com.tekclover.wms.core.model.masters.SearchImBasicData1;
 import com.tekclover.wms.core.model.transaction.*;
 import com.tekclover.wms.core.model.warehouse.inbound.ASN;
 import com.tekclover.wms.core.model.warehouse.inbound.WarehouseApiResponse;
@@ -1417,7 +1417,14 @@ public class TransactionServiceController {
 			@RequestParam String authToken) throws Exception {
 		return transactionService.findOutboundHeader(searchOutboundHeader, authToken);
 	}
-//
+	
+	@ApiOperation(response = OutboundHeader.class, value = "Search OutboundHeader") // label for swagger
+	@PostMapping("/outboundheader/findOutboundHeader/rfd")
+	public OutboundHeader[] findOutboundHeaderForRFD(@RequestBody SearchOutboundHeader searchOutboundHeader, 
+			@RequestParam String authToken) throws Exception {
+		return transactionService.findOutboundHeaderForRFD (searchOutboundHeader, authToken);
+	}
+
 	@ApiOperation(response = OutboundHeader.class, value = "Search OutboundHeader New") // label for swagger
 	@PostMapping("/outboundheader/findOutboundHeaderNew")
 	public OutboundHeader[] findOutboundHeaderNew(@RequestBody SearchOutboundHeader searchOutboundHeader,
@@ -1455,7 +1462,7 @@ public class TransactionServiceController {
 			@RequestParam String authToken) throws Exception {
 		return transactionService.findOutboundLine(searchOutboundLine, authToken);
 	}
-
+    
 	@ApiOperation(response = OutboundLine.class, value = "Search OutboundLine") // label for swagger
 	@PostMapping("/outboundline/findOutboundLine-new")
 	public OutboundLine[] findOutboundLineNew(@RequestBody SearchOutboundLine searchOutboundLine,
@@ -1513,6 +1520,16 @@ public class TransactionServiceController {
 				transactionService.updateOutboundLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, 
 						lineNumber, itemCode, loginUserID, updateOutboundLine, authToken);
 		return new ResponseEntity<>(updatedOutboundLine , HttpStatus.OK);
+	}
+    
+    @ApiOperation(response = OutboundLine.class, value = "Update OutboundLines") // label for swagger
+    @PatchMapping("/outboundline/lineNumbers")
+	public ResponseEntity<?> patchOutboundLines(@Valid @RequestBody List<UpdateOutboundLine> updateOutboundLine, 
+			@RequestParam String loginUserID, @RequestParam String authToken) 
+			throws IllegalAccessException, InvocationTargetException {
+    	com.tekclover.wms.core.model.transaction.OutboundLine[] outboundLines = 
+    			transactionService.updateOutboundLines(loginUserID, updateOutboundLine, authToken);
+		return new ResponseEntity<>(outboundLines, HttpStatus.OK);
 	}
     
     @ApiOperation(response = OutboundLine.class, value = "Delete OutboundLine") // label for swagger

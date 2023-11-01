@@ -5,9 +5,6 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.transaction.model.impl.OutBoundLineImpl;
-import com.tekclover.wms.api.transaction.model.impl.StockMovementReportImpl;
-import com.tekclover.wms.api.transaction.model.report.StockMovementReport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +25,7 @@ import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundLineReport;
 import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.outboundreversal.OutboundReversal;
+import com.tekclover.wms.api.transaction.model.report.StockMovementReport;
 import com.tekclover.wms.api.transaction.service.OutboundLineService;
 
 import io.swagger.annotations.Api;
@@ -121,6 +119,14 @@ public class OutboundLineController {
 				outboundlineService.updateOutboundLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, 
 						lineNumber, itemCode, loginUserID, updateOutboundLine);
 		return new ResponseEntity<>(updatedOutboundLine , HttpStatus.OK);
+	}
+    
+    @ApiOperation(response = OutboundLine.class, value = "Update OutboundLines") // label for swagger
+    @PatchMapping("/lineNumbers")
+	public ResponseEntity<?> patchOutboundLines(@Valid @RequestBody List<UpdateOutboundLine> updateOutboundLine, @RequestParam String loginUserID) 
+			throws IllegalAccessException, InvocationTargetException {
+    	List<OutboundLine> outboundLines = outboundlineService.updateOutboundLines(loginUserID, updateOutboundLine);
+		return new ResponseEntity<>(outboundLines, HttpStatus.OK);
 	}
     
     @ApiOperation(response = OutboundLine.class, value = "Delete OutboundLine") // label for swagger

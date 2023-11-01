@@ -1114,6 +1114,37 @@ public class OutboundLineService extends BaseService {
 	 * @param preOutboundNo
 	 * @param refDocNumber
 	 * @param partnerCode
+	 * @param lineNumbers
+	 * @param itemCode
+	 * @param loginUserID
+	 * @param updateOutboundLine
+	 * @return 
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
+	public List<OutboundLine> updateOutboundLines (String loginUserID, List<UpdateOutboundLine> updateOutboundLines) 
+					throws IllegalAccessException, InvocationTargetException {
+		List<OutboundLine> updatedOutboundLines = new ArrayList<>();
+		for (UpdateOutboundLine updateOutboundLine : updateOutboundLines) {
+			OutboundLine outboundLine = getOutboundLine(updateOutboundLine.getWarehouseId(), updateOutboundLine.getPreOutboundNo(), 
+					updateOutboundLine.getRefDocNumber(), updateOutboundLine.getPartnerCode(), updateOutboundLine.getLineNumber(), 
+					updateOutboundLine.getItemCode());
+			BeanUtils.copyProperties(updateOutboundLine, outboundLine, CommonUtils.getNullPropertyNames(updateOutboundLine));
+			outboundLine.setUpdatedBy(loginUserID);
+			outboundLine.setUpdatedOn(new Date());
+			outboundLine = outboundLineRepository.save(outboundLine);
+			updatedOutboundLines.add(outboundLine);
+		}
+		log.info("-----outboundLines-updated----> : " + updatedOutboundLines);
+		return updatedOutboundLines;
+	}
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
 	 * @param lineNumber
 	 * @param itemCode
 	 * @param loginUserID
