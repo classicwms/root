@@ -29,6 +29,24 @@ public interface OutboundLineInterimRepository extends JpaRepository<OutboundLin
     									@Param ("lineNumber") Long lineNumber,
     									@Param ("itemCode") String itemCode);
 	
+	@Query(value="SELECT SUM(DLV_QTY) FROM tbloutboundlinedup\r\n"
+			+ "WHERE WH_ID = :warehouseId AND PRE_OB_NO = :preOutboundNo \r\n"
+			+ "AND REF_DOC_NO = :refDocNumber AND PARTNER_CODE = :partnerCode \r\n"
+			+ "AND IS_DELETED = 0 GROUP BY REF_DOC_NO", nativeQuery=true)
+    public Double getSumOfDeliveryLineForOBHeader (@Param ("warehouseId") String warehouseId,
+    									@Param ("preOutboundNo") String preOutboundNo,
+    									@Param ("refDocNumber") String refDocNumber,
+    									@Param ("partnerCode") String partnerCode);
+	
+	@Query(value="SELECT COUNT(DISTINCT OB_LINE_NO) FROM tbloutboundlinedup\r\n"
+			+ "WHERE WH_ID = :warehouseId AND PRE_OB_NO = :preOutboundNo \r\n"
+			+ "AND REF_DOC_NO = :refDocNumber AND PARTNER_CODE = :partnerCode \r\n"
+			+ "AND IS_DELETED = 0 GROUP BY REF_DOC_NO", nativeQuery=true)
+    public Double getCountOfDeliveryLineForOBHeader (@Param ("warehouseId") String warehouseId,
+    									@Param ("preOutboundNo") String preOutboundNo,
+    									@Param ("refDocNumber") String refDocNumber,
+    									@Param ("partnerCode") String partnerCode);
+	
 	public List<OutboundLineInterim> findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndDeletionIndicator(
 			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
 			String itemCode, Long deletionIndicator);
