@@ -6241,6 +6241,26 @@ public class TransactionService {
 		}
 	}
 
+	// POST - findTransactionError
+	public TransactionError[] findTransactionError(String authToken) throws Exception {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "reports/transactionError");
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<TransactionError[]> result = getRestTemplate().exchange(builder.toUriString(),
+					HttpMethod.GET, entity, TransactionError[].class);
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
 	//---------------Periodic-CSV-Writer----------------------------------------
 	/**
 	 * 

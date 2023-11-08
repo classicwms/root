@@ -86,6 +86,9 @@ public class PickupLineService extends BaseService {
 	
 	@Autowired
 	private PreOutboundHeaderRepository preOutboundHeaderRepository;
+	
+	@Autowired
+	private TransactionErrorService transactionErrorService;
 
 	@Autowired
 	private QualityHeaderService qualityHeaderService;
@@ -442,6 +445,9 @@ public class PickupLineService extends BaseService {
 		// Updating respective tables
 		for (PickupLine dbPickupLine : createdPickupLineList) {
 			//------------------------UpdateLock-Applied------------------------------------------------------------
+			/*
+			 * Inventory Update 
+			 */
 			Inventory inventory = inventoryService.getInventory (dbPickupLine.getWarehouseId(),
 					dbPickupLine.getPickedPackCode(), dbPickupLine.getItemCode(), dbPickupLine.getPickedStorageBin());
 			log.info("inventory record queried: " + inventory);
@@ -491,7 +497,9 @@ public class PickupLineService extends BaseService {
 							}
 						}
 					} catch (Exception e) {
-						log.error("Inventory Update :" + e.toString());
+						String objectData = warehouseId + "|" + preOutboundNo + "|" + refDocNumber + "|" + partnerCode + "|" + pickupNumber;
+						transactionErrorService.createTransactionError("INVENTORY", "createPickupLine | Inventory Update", e.getMessage(), e.getLocalizedMessage(), objectData, loginUserID);	
+						log.error("Inventory Update Error:" + e.toString());
 						e.printStackTrace();
 					}
 				}
@@ -534,12 +542,16 @@ public class PickupLineService extends BaseService {
 							}
 						}
 					} catch (Exception e1) {
+						String objectData = warehouseId + "|" + preOutboundNo + "|" + refDocNumber + "|" + partnerCode + "|" + pickupNumber;
+						transactionErrorService.createTransactionError("INVENTORY", 
+								"createPickupLine | Inventory Update | AllocatedQty is null OR AllocatedQty is zero", 
+								e1.getMessage(), e1.getLocalizedMessage(), objectData, loginUserID);	
 						log.error("Inventory cum StorageBin update: Error :" + e1.toString());
 						e1.printStackTrace();
 					}
 				}
-			}
-
+			} // End of Inventory Update
+			
 			// Inserting record in InventoryMovement
 			Long subMvtTypeId;
 			String movementDocumentNo;
@@ -581,6 +593,10 @@ public class PickupLineService extends BaseService {
 							dbPickupLine.getStockTypeId(), dbPickupLine.getSpecialStockIndicatorId(), updateInventory, loginUserID);
 					log.info("Inventory is Updated : " + updatedInventory);
 				} catch (Exception e) {
+					String objectData = warehouseId + "|" + preOutboundNo + "|" + refDocNumber + "|" + partnerCode + "|" + pickupNumber;
+					transactionErrorService.createTransactionError("INVENTORY", 
+							"createPickupLine | Inventory Update | existingInventory is not null", 
+							e.getMessage(), e.getLocalizedMessage(), objectData, loginUserID);	
 					log.error("Inventory update Error :" + e.toString());
 					e.printStackTrace();
 				}
