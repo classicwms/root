@@ -330,21 +330,6 @@ public class InventoryService extends BaseService {
 	/**
 	 * 
 	 * @param warehouseId
-	 * @param storageBin
-	 * @return
-	 */
-	public Double[] getInventoryCountByStorageBin (String warehouseId, String storageBin) {
-		Double[] inventoryCount = inventoryRepository.findInventoryQtyByStBin(warehouseId, storageBin);
-		if (inventoryCount == null || inventoryCount.length == 0 ) {
-			log.error ("---------Inventory is null-----------");
-			return null;
-		}
-		return inventoryCount;
-	}
-	
-	/**
-	 * 
-	 * @param warehouseId
 	 * @param itemCode
 	 * @param binClassId
 	 * @return

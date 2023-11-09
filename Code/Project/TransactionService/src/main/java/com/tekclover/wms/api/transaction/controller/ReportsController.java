@@ -4,9 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import com.tekclover.wms.api.transaction.model.dto.TransactionError;
 import com.tekclover.wms.api.transaction.model.report.*;
-import com.tekclover.wms.api.transaction.service.TransactionErrorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.expression.ParseException;
@@ -36,9 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/reports")
 @RestController
 public class ReportsController {
-	@Autowired
-	private TransactionErrorService transactionErrorService;
-
+	
 	@Autowired
 	ReportsService reportsService;
     
@@ -229,15 +225,6 @@ public class ReportsController {
 	public ResponseEntity<?> getAllStockMovementReport1() throws Exception {
 		Stream<StockMovementReport1> stockMovementReportList = reportsService.findStockMovementReportNew();
 		return new ResponseEntity<>(stockMovementReportList, HttpStatus.OK);
-	}
-
-	//---------------------------------------------Error tAble Find------------------------------------------------------
-
-	@ApiOperation(response = TransactionError.class, value = "Get all TransactionError details") // label for swagger
-	@GetMapping("/transactionError")
-	public ResponseEntity<?> getAllTransactionError() throws Exception {
-		Stream<TransactionError> transactionErrorList = transactionErrorService.findTransactionError();
-		return new ResponseEntity<>(transactionErrorList, HttpStatus.OK);
 	}
 
 }

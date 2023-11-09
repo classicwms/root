@@ -2455,137 +2455,6 @@ public class ReportsService extends BaseService {
 	 * @param searchImBasicData1
 	 * @return
 	 */
-//	public List<ITransactionHistoryReport> getTransactionHistoryReport(FindImBasicData1 searchImBasicData1) {
-//		try {
-//			if (searchImBasicData1.getFromCreatedOn() != null && searchImBasicData1.getFromCreatedOn() != null) {
-//				Date[] dates = DateUtils.addTimeToDatesForSearch(searchImBasicData1.getFromCreatedOn(),
-//						searchImBasicData1.getToCreatedOn());
-//				searchImBasicData1.setFromCreatedOn(dates[0]);
-//				searchImBasicData1.setToCreatedOn(dates[1]);
-//			}
-//
-//			if(searchImBasicData1.getItemCode() == null || searchImBasicData1.getItemCode().isEmpty()) {
-//				searchImBasicData1.setItemCode(null);
-//			}
-//
-//			Date openingStockDateFrom = null;
-//			Date openingStockDateTo = null;
-//			Date closingStockDateFrom = null;
-//			Date closingStockDateTo = null;
-//
-//			try {
-//				openingStockDateFrom = DateUtils.convertStringToDateByYYYYMMDD ("2022-06-20");
-//				Date[] dates = DateUtils.addTimeToDatesForSearch(openingStockDateFrom, searchImBasicData1.getFromCreatedOn());
-//				openingStockDateFrom = dates[0];
-//				openingStockDateTo = DateUtils.dateSubtract(dates[1]);
-//				log.info("----Opening Stock----> dateFrom & dateTo---> : " + openingStockDateFrom + "," + openingStockDateTo);
-//			} catch (java.text.ParseException e) {
-//				e.printStackTrace();
-//			}
-//
-//			try {
-//				Date[] dates = DateUtils.addTimeToDatesForSearch(searchImBasicData1.getFromCreatedOn(),
-//						searchImBasicData1.getToCreatedOn());
-//				closingStockDateFrom = dates[0];
-//				closingStockDateTo = dates[1];
-//				log.info("----Closing Stock----> dateFrom & dateTo---> : " + closingStockDateFrom + "," + closingStockDateTo);
-//			} catch (java.text.ParseException e) {
-//				e.printStackTrace();
-//			}
-//
-//			Long truncateTable = transactionHistoryResultRepository.truncateTblTransactionHistoryResults();
-//			log.info("Truncate Table Row Count : " + truncateTable);
-//
-//			Long tableCreated = transactionHistoryResultRepository.createTblTransactionHistoryResults(searchImBasicData1.getItemCode(),searchImBasicData1.getWarehouseId());
-//			log.info("Created Result Table Row Count : " + tableCreated);
-//
-//			/*
-//			 * Pass ITM_CODE values into INVENTORY_STOCK table and fetch sum of INV_QTY+ ALLOC_QTY where BIN_CL_ID=1 and Sum by ITM_CODE
-//			 * This is stock for 20-06-2022 (A)
-//			 */
-//
-//			Long inventoryStocks = transactionHistoryResultRepository.
-//					findSumOfInventoryQtyAndAllocQtyList(searchImBasicData1.getItemCode(), searchImBasicData1.getWarehouseId());
-//			log.info("Opening Stock-inventoryStockTable Row Affected : " + inventoryStocks);
-//
-//			/*
-//			 * Pass ITM_CODE values and From date 20-06-2022 and to date as From date of selection parameters
-//			 * into PUTAWAYLINE table where status_ID = 20 and IS_DELETED = 0
-//			 * Fetch SUM of PA_CNF_QTY and group by ITM_CODE(B)
-//			 */
-//
-//			Long paList = transactionHistoryResultRepository.
-//					findSumOfPAConfirmQty_New(searchImBasicData1.getItemCode(),	openingStockDateFrom,
-//							openingStockDateTo, searchImBasicData1.getWarehouseId());
-//			log.info("paList of Rows Affected: " + paList);
-//
-//			//PutAway Reversal
-//
-////			Long paReversalList = transactionHistoryResultRepository.
-////					findSumOfPAConfirmQty_NewReversal(searchImBasicData1.getItemCode(), openingStockDateFrom,
-////							openingStockDateTo, searchImBasicData1.getWarehouseId());
-////			log.info("paReversalList of Rows Affected : " + paReversalList);
-//
-//			/*
-//			 * Pass ITM_CODE values and From date 20-06-2022 and to date as From date of selection parameters into PICKUPLINE table
-//			 * where status_ID=50 and IS_DELETED=0
-//			 * Fetch SUM of PU_QTY and group by ITM_CODE{C}
-//			 */
-//			Long pkList = transactionHistoryResultRepository.findSumOfPickupLineQtyNew(searchImBasicData1.getItemCode(), openingStockDateFrom,
-//					openingStockDateTo, searchImBasicData1.getWarehouseId());
-//			log.info("pkList of Rows Affected : " + pkList);
-//
-//			/*
-//			 * Pass ITM_CODE values and From date 20-06-2022 and to date as From date of selection parameters into INVENTORYMOVEMENT table
-//			 * where MVT_TYP_ID=4, SUB_MVT_TYP_ID=1 and IS_DELETED=0
-//			 * Fetch SUM of MVT_QTY and group by ITM_CODE(D)
-//			 */
-//
-//			Long ivList = transactionHistoryResultRepository.findSumOfMvtQtyNew(searchImBasicData1.getItemCode(), openingStockDateFrom,
-//					openingStockDateTo, searchImBasicData1.getWarehouseId());
-//			log.info("ivList of Rows Affected : " + ivList);
-//
-//			// Opening stock - 3 column - E [openingStock = ((sumOfInvQty_AllocQty + sumOfPAConfirmQty + sumOfMvtQty) - sumOfPickupLineQty);]
-//
-//			//--------------------------------------------------------------closing stock---------------------------------------------------------------------
-//
-//			//	InboundQty(sumOfPAConfirmQty_4); [putAway - putAwayReversal]
-//			Long paCSList = transactionHistoryResultRepository.findSumOfPAConfirmQtyClosingStock(searchImBasicData1.getItemCode(), closingStockDateFrom,
-//					closingStockDateTo, searchImBasicData1.getWarehouseId());
-//			log.info("paCsList of Rows Affected : " + paCSList);
-//
-//			//PutAway Reversal
-////			Long paCSReversalList = transactionHistoryResultRepository.findSumOfPAConfirmQtyClosingStockReversal(searchImBasicData1.getItemCode(), closingStockDateFrom,
-////					closingStockDateTo, searchImBasicData1.getWarehouseId());
-////			log.info("paCsReversalList of Rows Affected : " + paCSReversalList);
-//
-//			//	OutboundQty(sumOfPickupLineQty_5);
-//			Long pkCSList = transactionHistoryResultRepository.findSumOfPickupLineQtyClosingStock(searchImBasicData1.getItemCode(), closingStockDateFrom,
-//					closingStockDateTo, searchImBasicData1.getWarehouseId());
-//			log.info("pkCsList of Rows Affected : " + pkCSList);
-//
-//			//	StockAdjustmentQty(sumOfMvtQty_6);
-//			Long ivCSList = transactionHistoryResultRepository.findSumOfMvtQtyClosingStock(searchImBasicData1.getItemCode(), closingStockDateFrom,
-//					closingStockDateTo, searchImBasicData1.getWarehouseId());
-//			log.info("ivCsList of Rows Affected : " + ivCSList);
-//
-//			// Output Column - 7 - (E+F+H) - G [closingStock = ((openingStock + sumOfPAConfirmQty_4 + sumOfMvtQty_6) - sumOfPickupLineQty_5);]
-//
-//			List<ITransactionHistoryReport> inventoryStockList = transactionHistoryResultRepository.findTransactionHistoryReport();
-//
-//			return inventoryStockList;
-//
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		return null;
-//	}
-
-	/**
-	 *
-	 * @param searchImBasicData1
-	 * @return
-	 */
 	public List<ITransactionHistoryReport> getTransactionHistoryReport(FindImBasicData1 searchImBasicData1) {
 		try {
 			if (searchImBasicData1.getFromCreatedOn() != null && searchImBasicData1.getFromCreatedOn() != null) {
@@ -2624,17 +2493,20 @@ public class ReportsService extends BaseService {
 				e.printStackTrace();
 			}
 
-			transactionHistoryResultRepository.createTblTransactionHistoryResults(searchImBasicData1.getItemCode(),searchImBasicData1.getWarehouseId());
-			log.info("Created Temp table TransactionHistoryResults " );
+			Long truncateTable = transactionHistoryResultRepository.truncateTblTransactionHistoryResults();
+			log.info("Truncate Table Row Count : " + truncateTable);
+
+			Long tableCreated = transactionHistoryResultRepository.createTblTransactionHistoryResults(searchImBasicData1.getItemCode(),searchImBasicData1.getWarehouseId());
+			log.info("Created Result Table Row Count : " + tableCreated);
 
 			/*
 			 * Pass ITM_CODE values into INVENTORY_STOCK table and fetch sum of INV_QTY+ ALLOC_QTY where BIN_CL_ID=1 and Sum by ITM_CODE
 			 * This is stock for 20-06-2022 (A)
 			 */
 
-			transactionHistoryResultRepository.
+			Long inventoryStocks = transactionHistoryResultRepository.
 					findSumOfInventoryQtyAndAllocQtyList(searchImBasicData1.getItemCode(), searchImBasicData1.getWarehouseId());
-			log.info("Opening Stock-inventoryStockTable updated : " );
+			log.info("Opening Stock-inventoryStockTable Row Affected : " + inventoryStocks);
 
 			/*
 			 * Pass ITM_CODE values and From date 20-06-2022 and to date as From date of selection parameters
@@ -2642,19 +2514,26 @@ public class ReportsService extends BaseService {
 			 * Fetch SUM of PA_CNF_QTY and group by ITM_CODE(B)
 			 */
 
-			transactionHistoryResultRepository.
+			Long paList = transactionHistoryResultRepository.
 					findSumOfPAConfirmQty_New(searchImBasicData1.getItemCode(),	openingStockDateFrom,
 							openingStockDateTo, searchImBasicData1.getWarehouseId());
-			log.info("Opening Stock-PutAway updated: " );
+			log.info("paList of Rows Affected: " + paList);
+
+			//PutAway Reversal
+
+//			Long paReversalList = transactionHistoryResultRepository.
+//					findSumOfPAConfirmQty_NewReversal(searchImBasicData1.getItemCode(), openingStockDateFrom,
+//							openingStockDateTo, searchImBasicData1.getWarehouseId());
+//			log.info("paReversalList of Rows Affected : " + paReversalList);
 
 			/*
 			 * Pass ITM_CODE values and From date 20-06-2022 and to date as From date of selection parameters into PICKUPLINE table
 			 * where status_ID=50 and IS_DELETED=0
 			 * Fetch SUM of PU_QTY and group by ITM_CODE{C}
 			 */
-			transactionHistoryResultRepository.findSumOfPickupLineQtyNew(searchImBasicData1.getItemCode(), openingStockDateFrom,
+			Long pkList = transactionHistoryResultRepository.findSumOfPickupLineQtyNew(searchImBasicData1.getItemCode(), openingStockDateFrom,
 					openingStockDateTo, searchImBasicData1.getWarehouseId());
-			log.info("Opening Stock-pickupline List updated : " );
+			log.info("pkList of Rows Affected : " + pkList);
 
 			/*
 			 * Pass ITM_CODE values and From date 20-06-2022 and to date as From date of selection parameters into INVENTORYMOVEMENT table
@@ -2662,36 +2541,37 @@ public class ReportsService extends BaseService {
 			 * Fetch SUM of MVT_QTY and group by ITM_CODE(D)
 			 */
 
-			transactionHistoryResultRepository.findSumOfMvtQtyNew(searchImBasicData1.getItemCode(), openingStockDateFrom,
+			Long ivList = transactionHistoryResultRepository.findSumOfMvtQtyNew(searchImBasicData1.getItemCode(), openingStockDateFrom,
 					openingStockDateTo, searchImBasicData1.getWarehouseId());
-			log.info("Opening Stock-inventory mmt List updated : " );
+			log.info("ivList of Rows Affected : " + ivList);
 
 			// Opening stock - 3 column - E [openingStock = ((sumOfInvQty_AllocQty + sumOfPAConfirmQty + sumOfMvtQty) - sumOfPickupLineQty);]
 
 			//--------------------------------------------------------------closing stock---------------------------------------------------------------------
 
 			//	InboundQty(sumOfPAConfirmQty_4); [putAway - putAwayReversal]
-			transactionHistoryResultRepository.findSumOfPAConfirmQtyClosingStock(searchImBasicData1.getItemCode(), closingStockDateFrom,
+			Long paCSList = transactionHistoryResultRepository.findSumOfPAConfirmQtyClosingStock(searchImBasicData1.getItemCode(), closingStockDateFrom,
 					closingStockDateTo, searchImBasicData1.getWarehouseId());
-			log.info("closing stock-putaway List updated : " );
+			log.info("paCsList of Rows Affected : " + paCSList);
+
+			//PutAway Reversal
+//			Long paCSReversalList = transactionHistoryResultRepository.findSumOfPAConfirmQtyClosingStockReversal(searchImBasicData1.getItemCode(), closingStockDateFrom,
+//					closingStockDateTo, searchImBasicData1.getWarehouseId());
+//			log.info("paCsReversalList of Rows Affected : " + paCSReversalList);
 
 			//	OutboundQty(sumOfPickupLineQty_5);
-			transactionHistoryResultRepository.findSumOfPickupLineQtyClosingStock(searchImBasicData1.getItemCode(), closingStockDateFrom,
+			Long pkCSList = transactionHistoryResultRepository.findSumOfPickupLineQtyClosingStock(searchImBasicData1.getItemCode(), closingStockDateFrom,
 					closingStockDateTo, searchImBasicData1.getWarehouseId());
-			log.info("closing stock-pickup List updated : " );
+			log.info("pkCsList of Rows Affected : " + pkCSList);
 
 			//	StockAdjustmentQty(sumOfMvtQty_6);
-			transactionHistoryResultRepository.findSumOfMvtQtyClosingStock(searchImBasicData1.getItemCode(), closingStockDateFrom,
+			Long ivCSList = transactionHistoryResultRepository.findSumOfMvtQtyClosingStock(searchImBasicData1.getItemCode(), closingStockDateFrom,
 					closingStockDateTo, searchImBasicData1.getWarehouseId());
-			log.info("closing stock-inv mmt List updated : " );
+			log.info("ivCsList of Rows Affected : " + ivCSList);
 
 			// Output Column - 7 - (E+F+H) - G [closingStock = ((openingStock + sumOfPAConfirmQty_4 + sumOfMvtQty_6) - sumOfPickupLineQty_5);]
 
 			List<ITransactionHistoryReport> inventoryStockList = transactionHistoryResultRepository.findTransactionHistoryReport();
-			log.info("TransactionHistoryReport : " + inventoryStockList.stream().count());
-
-			transactionHistoryResultRepository.truncateTblTransactionHistoryResults();
-			log.info("temp Table Truncated successfully ");
 
 			return inventoryStockList;
 
