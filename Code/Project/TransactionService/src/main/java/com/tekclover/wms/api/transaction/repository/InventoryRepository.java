@@ -267,7 +267,7 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 	
 	@Query (value = "SELECT SUM (INV_QTY) AS INV_QTY, SUM(ALLOC_QTY) AS ALLOC_QTY\r\n"
 			+ "	  FROM tblinventory \r\n"
-			+ "	  WHERE WH_ID = :wahrehouseId AND st_bin = :stBin AND IS_DELETED = 0 \r\n"
+			+ "	  WHERE WH_ID = :warehouseId AND st_bin = :stBin AND IS_DELETED = 0 \r\n"
 			+ "	  GROUP BY st_bin", nativeQuery = true)
 	public Double[] findInventoryQtyByStBin (
 			@Param(value = "warehouseId") String warehouseId,
