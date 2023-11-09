@@ -45,7 +45,6 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 	 * @param deletionIndicator
 	 * @return
 	 */
-	@Transactional
 	@Lock(value = LockModeType.PESSIMISTIC_WRITE) // adds 'FOR UPDATE' statement
 	@QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "5000")})
 	public Optional<Inventory> 
@@ -98,7 +97,6 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 			@Param(value = "storageBin") String storageBin,
 			@Param(value = "packbarCode") String packbarCode);
 	
-	@Transactional
 	@Lock(value = LockModeType.PESSIMISTIC_WRITE) // adds 'FOR UPDATE' statement
 	@QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "5000")})
 	public Optional<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPackBarcodesAndItemCodeAndStorageBinAndDeletionIndicator(
@@ -177,7 +175,6 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 			@Param(value = "storageBin") List<String> storageBin,
 			@Param(value = "stockTypeId") Long stockTypeId);
 
-	@Transactional
 	@Lock(value = LockModeType.PESSIMISTIC_WRITE) // adds 'FOR UPDATE' statement
 	@QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "5000")})
 	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndPackBarcodesAndBinClassIdAndDeletionIndicator(
@@ -276,7 +273,7 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndAndStockTypeIdAndBinClassIdAndInventoryQuantityGreaterThanAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId, String itemCode,
 			Long stockTypeId, Long binClassId, Double invQty, Long deletionIndicator);
-	@Transactional
+
 //	@QueryHints(@javax.persistence.QueryHint(name="org.hibernate.fetchSize",value="100"))
 	@Query(value = "select \n" +
 			"pl.ref_doc_no asnNumber, \n" +
