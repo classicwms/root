@@ -264,6 +264,14 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 
 	public Optional<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndStorageBinAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId, String storageBin, long l);
+	
+	@Query (value = "SELECT SUM (INV_QTY) AS INV_QTY, SUM(ALLOC_QTY) AS ALLOC_QTY\r\n"
+			+ "	  FROM tblinventory \r\n"
+			+ "	  WHERE WH_ID = :wahrehouseId AND st_bin = :stBin AND IS_DELETED = 0 \r\n"
+			+ "	  GROUP BY st_bin", nativeQuery = true)
+	public Double[] findInventoryQtyByStBin (
+			@Param(value = "warehouseId") String warehouseId,
+			@Param(value = "stBin") String stBin);
 
 	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndAndStockTypeIdAndBinClassIdAndInventoryQuantityGreaterThanAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId, String itemCode,

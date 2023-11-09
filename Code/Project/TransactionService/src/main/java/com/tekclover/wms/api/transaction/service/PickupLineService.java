@@ -524,12 +524,10 @@ public class PickupLineService extends BaseService {
 						// PASS PickedConfirmedStBin, WH_ID to inventory
 						// 	If inv_qty && alloc_qty is zero or null then do the below logic.
 						//-------------------------------------------------------------------
-						Inventory inventoryBySTBIN = inventoryService.getInventoryByStorageBin(warehouseId, dbPickupLine.getPickedStorageBin());
-						//if (INV_QTY == 0) {
-						if (inventoryBySTBIN != null && (inventoryBySTBIN.getAllocatedQuantity() == null || inventoryBySTBIN.getAllocatedQuantity() == 0D) 
-								&& (inventoryBySTBIN.getInventoryQuantity() == null || inventoryBySTBIN.getInventoryQuantity() == 0D)) {
+						Double[] inventoryBySTBIN = inventoryService.getInventoryCountByStorageBin (warehouseId, dbPickupLine.getPickedStorageBin());
+						if (inventoryBySTBIN != null && (inventoryBySTBIN [0] == null || inventoryBySTBIN [0] == 0D) 
+								&& (inventoryBySTBIN [1] == null || inventoryBySTBIN [1] == 0D)) {
 							try {
-								
 								// Setting up statusId = 0
 								StorageBin dbStorageBin = mastersService.getStorageBin(inventory.getStorageBin(),
 										dbPickupLine.getWarehouseId(), authTokenForMastersService.getAccess_token());
