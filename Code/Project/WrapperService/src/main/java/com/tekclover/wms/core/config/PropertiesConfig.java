@@ -123,6 +123,4 @@ public class PropertiesConfig {
 	@Value("${email.from.address}")
 	private String emailFromAddress;
 
-	@Value("${api.spark.service.url}")
-	private String sparkServiceUrl;
 }
