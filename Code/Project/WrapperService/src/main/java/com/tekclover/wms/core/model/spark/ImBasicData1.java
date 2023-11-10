@@ -2,6 +2,7 @@ package com.tekclover.wms.core.model.spark;
 
 import lombok.Data;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 @Data
@@ -55,14 +56,6 @@ public class ImBasicData1 {
 
     private Double safetyStock;
 
-    private String capacityUnit;
-
-    private String capacityUom;
-
-    private String quantity;
-
-    private Double weight;
-
     private Long statusId;
 
     private Boolean shelfLifeIndicator;
@@ -91,19 +84,9 @@ public class ImBasicData1 {
 
     private String createdBy;
 
-    private Date createdOn = new Date();
+    private Timestamp createdOn;
 
     private String updatedBy;
 
-    private Date updatedOn = new Date();
-
-    private Double length;
-
-    private Double width;
-
-    private Double height;
-
-    private String dimensionUom;
-
-    private Double volume;
+    private Timestamp updatedOn ;
 }
