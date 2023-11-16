@@ -4,13 +4,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import javax.persistence.LockModeType;
-import javax.persistence.QueryHint;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -45,8 +41,6 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 	 * @param deletionIndicator
 	 * @return
 	 */
-	@Lock(value = LockModeType.PESSIMISTIC_WRITE) // adds 'FOR UPDATE' statement
-	@QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "5000")})
 	public Optional<Inventory> 
 		findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPackBarcodesAndItemCodeAndStorageBinAndStockTypeIdAndSpecialStockIndicatorIdAndDeletionIndicator(
 				String languageId, String companyCodeId, String plantId, 
@@ -97,8 +91,6 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 			@Param(value = "storageBin") String storageBin,
 			@Param(value = "packbarCode") String packbarCode);
 	
-	@Lock(value = LockModeType.PESSIMISTIC_WRITE) // adds 'FOR UPDATE' statement
-	@QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "5000")})
 	public Optional<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPackBarcodesAndItemCodeAndStorageBinAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId, String packBarcodes,
 			String itemCode, String storageBin, Long deletionIndicator);
@@ -175,8 +167,6 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 			@Param(value = "storageBin") List<String> storageBin,
 			@Param(value = "stockTypeId") Long stockTypeId);
 
-	@Lock(value = LockModeType.PESSIMISTIC_WRITE) // adds 'FOR UPDATE' statement
-	@QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "5000")})
 	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndPackBarcodesAndBinClassIdAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId, String itemCode,
 			String packBarcodes, Long binClassId, long l);
