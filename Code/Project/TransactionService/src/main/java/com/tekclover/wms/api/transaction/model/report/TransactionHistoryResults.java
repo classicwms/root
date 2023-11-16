@@ -56,4 +56,10 @@ public class TransactionHistoryResults {
     private Double paCsReQty = 0D;
     private Double piCsQty = 0D;
     private Double ivCsQty = 0D;
+
+    private Double closingStock = 0D;
+    private Double openingStock = 0D;
+    private Double inboundQty = 0D;
+    private Double outboundQty = 0D;
+    private Double stockAdjustmentQty = 0D;
 }

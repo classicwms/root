@@ -21,27 +21,27 @@ import com.tekclover.wms.api.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
 import com.tekclover.wms.api.transaction.model.dto.StatusId;
 import com.tekclover.wms.api.transaction.model.dto.StorageBin;
+import com.tekclover.wms.api.transaction.model.dto.Warehouse;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.AddInventory;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.AddInventoryMovement;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.UpdateInventory;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundLineInterim;
-import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundHeader;
-import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupLine;
-import com.tekclover.wms.api.transaction.model.outbound.preoutbound.PreOutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.quality.AddQualityLine;
 import com.tekclover.wms.api.transaction.model.outbound.quality.QualityHeader;
 import com.tekclover.wms.api.transaction.model.outbound.quality.QualityLine;
 import com.tekclover.wms.api.transaction.model.outbound.quality.SearchQualityLine;
 import com.tekclover.wms.api.transaction.model.outbound.quality.UpdateQualityHeader;
 import com.tekclover.wms.api.transaction.model.outbound.quality.UpdateQualityLine;
+import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundHeader;
+import com.tekclover.wms.api.transaction.model.outbound.preoutbound.PreOutboundLine;
 import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
 import com.tekclover.wms.api.transaction.repository.InventoryRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundLineInterimRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundLineRepository;
-import com.tekclover.wms.api.transaction.repository.PickupLineRepository;
-import com.tekclover.wms.api.transaction.repository.PreOutboundLineRepository;
 import com.tekclover.wms.api.transaction.repository.QualityLineRepository;
+import com.tekclover.wms.api.transaction.repository.PreOutboundLineRepository;
 import com.tekclover.wms.api.transaction.repository.specification.QualityLineSpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 
@@ -89,13 +89,7 @@ public class QualityLineService extends BaseService {
 	
 	@Autowired
 	private OutboundLineInterimRepository outboundLineInterimRepository;
-	
-	@Autowired
-	private TransactionErrorService transactionErrorService;
-	
-	@Autowired
-	private PickupLineRepository pickupLineRepository;
-	
+
 	/**
 	 * getQualityLines
 	 * 
@@ -389,9 +383,6 @@ public class QualityLineService extends BaseService {
 			 * table
 			 */
 			List<QualityLine> createdQualityLineList = new ArrayList<>();
-			AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-			Long BIN_CLASS_ID = 4L;
-			StorageBin storageBin = null;
 			for (AddQualityLine newQualityLine : newQualityLines) {
 				log.info("Input from UI:  " + newQualityLine);
 
@@ -428,40 +419,6 @@ public class QualityLineService extends BaseService {
 					// createOutboundLineInterim
 					createOutboundLineInterim (createdQualityLine);
 					createdQualityLineList.add(createdQualityLine);
-					
-					storageBin = mastersService.getStorageBin(dbQualityLine.getWarehouseId(), BIN_CLASS_ID, authTokenForMastersService.getAccess_token());
-					
-//					// Inventory Update
-//					Inventory inventory = null;
-//					try {
-//						storageBin = mastersService.getStorageBin(dbQualityLine.getWarehouseId(), BIN_CLASS_ID,
-//								authTokenForMastersService.getAccess_token());
-//						inventory = inventoryService.getInventory(dbQualityLine.getWarehouseId(),
-//								dbQualityLine.getPickPackBarCode(), dbQualityLine.getItemCode(), storageBin.getStorageBin());
-//						log.info("inventory---BIN_CLASS_ID-4----> : " + inventory);
-//
-//						if (inventory != null) {
-//							Double INV_QTY = inventory.getInventoryQuantity() - dbQualityLine.getQualityQty();
-//							log.info("Calculated inventory INV_QTY: " + INV_QTY);
-//							inventory.setInventoryQuantity(INV_QTY);
-//
-//							// INV_QTY > 0 then, update Inventory Table
-//							inventory = inventoryRepository.save(inventory);
-//							log.info("inventory updated : " + inventory);
-//
-//							if (INV_QTY == 0) {
-//								log.info("inventory INV_QTY: " + INV_QTY);
-//							}
-//						}
-//					} catch (Exception e1) {
-//						String objectData = (dbQualityLine.getWarehouseId() + "|" + BIN_CLASS_ID + "|" + 
-//								dbQualityLine.getPickPackBarCode() + "|" + dbQualityLine.getItemCode() + "|" + storageBin.getStorageBin());
-//						transactionErrorService.createTransactionError("INVENTORY", 
-//								"createdQualityLine | Inventory Update | existingInventory is null", 
-//								e1.getMessage(), e1.getLocalizedMessage(), objectData, loginUserID);	
-//						log.error("createdQualityLine | Inventory Update Error : " + e1.toString());;
-//						e1.printStackTrace();
-//					}
 				}
 			}
 
@@ -471,30 +428,33 @@ public class QualityLineService extends BaseService {
 			AuthToken authTokenForIDService = authTokenService.getIDMasterServiceAuthToken();
 			for (QualityLine dbQualityLine : createdQualityLineList) {
 				/*-----------------STATUS updates in QualityHeader-----------------------*/
-				UpdateQualityHeader updateQualityHeader = new UpdateQualityHeader();
-				updateQualityHeader.setStatusId(55L);
-				StatusId idStatus = idmasterService.getStatus(55L, dbQualityLine.getWarehouseId(), authTokenForIDService.getAccess_token());
-				updateQualityHeader.setReferenceField10(idStatus.getStatus());
-				QualityHeader qualityHeader = qualityHeaderService.updateQualityHeader(					
-						dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(),
-						dbQualityLine.getRefDocNumber(), dbQualityLine.getQualityInspectionNo(),
-						dbQualityLine.getActualHeNo(), loginUserID, updateQualityHeader);
-				log.info("qualityHeader updated : " + qualityHeader);
+				try {
+					UpdateQualityHeader updateQualityHeader = new UpdateQualityHeader();
+					updateQualityHeader.setStatusId(55L);
+					StatusId idStatus = idmasterService.getStatus(55L, dbQualityLine.getWarehouseId(), authTokenForIDService.getAccess_token());
+					updateQualityHeader.setReferenceField10(idStatus.getStatus());
+					QualityHeader qualityHeader = qualityHeaderService.updateQualityHeader(					
+							dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(),
+							dbQualityLine.getRefDocNumber(), dbQualityLine.getQualityInspectionNo(),
+							dbQualityLine.getActualHeNo(), loginUserID, updateQualityHeader);
+					log.info("qualityHeader updated : " + qualityHeader);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+					log.info("qualityHeader updated Error : " + e1.toString());
+				}
 				
 				Long NUM_RAN_CODE = 12L;
 				String DLV_ORD_NO = getNextRangeNumber(NUM_RAN_CODE, dbQualityLine.getWarehouseId());
 				
-//				try {
+				try {
 					/*-------------------OUTBOUNDLINE------Update---------------------------*/
 //					updateOutboundLine (dbQualityLine, DLV_ORD_NO);
 					
 					/*-------------------OUTBOUNDHEADER------Update---------------------------*/
-//					outboundHeaderService.updateOutboundHeaderByProcedure (dbQualityLine.getWarehouseId(), 
-//							dbQualityLine.getPreOutboundNo(), dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode(), loginUserID);
 					UpdateOutboundHeader updateOutboundHeader = new UpdateOutboundHeader();
 					updateOutboundHeader.setStatusId(57L);
 					outboundHeaderService.updateOutboundHeader(dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(), 
-							dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode(), updateOutboundHeader, loginUserID);
+					dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode(), updateOutboundHeader, loginUserID);
 					log.info("------outboundHeader updated as 57---------");
 					/*------------------------------------------------------------------------*/
 					
@@ -519,42 +479,41 @@ public class QualityLineService extends BaseService {
 //							dbQualityLine.getRefDocNumber(), dbQualityLine.getPartnerCode(), updateOutboundHeader,
 //							loginUserID);
 //					log.info("outboundHeader updated : " + outboundHeader);
-//				} catch (Exception e1) {
-//					e1.printStackTrace();
-//					log.info("outboundHeader updated error: " + e1.toString());
-//				}
+				} catch (Exception e1) {
+					e1.printStackTrace();
+					log.info("outboundHeader updated error: " + e1.toString());
+				}
 				
 				/*-----------------Inventory Updates--------------------------------------*/
 				// Pass WH_ID/ITM_CODE/ST_BIN/PACK_BARCODE in INVENTORY table
-//				Warehouse warehouse = getWarehouse(dbQualityLine.getWarehouseId());
-//				Inventory inventory = null;
-//				try {
-//					inventory = inventoryService.getInventory(dbQualityLine.getWarehouseId(),
-//							dbQualityLine.getPickPackBarCode(), dbQualityLine.getItemCode(),
-//							storageBin.getStorageBin());
-//					log.info("inventory---BIN_CLASS_ID-4----> : " + inventory);
-//
-//					if (inventory != null) {
-//						Double INV_QTY = inventory.getInventoryQuantity() - dbQualityLine.getQualityQty();
-//						log.info("Calculated inventory INV_QTY: " + INV_QTY);
-//						inventory.setInventoryQuantity(INV_QTY);
-//
-//						// INV_QTY > 0 then, update Inventory Table
-//						inventory = inventoryRepository.save(inventory);
-//						log.info("inventory updated : " + inventory);
-//
-//						if (INV_QTY == 0) {
-//							log.info("inventory INV_QTY: " + INV_QTY);
-//						}
-//					}
-//				} catch (Exception e1) {
-//					String objectData = (dbQualityLine.getWarehouseId() + "|" + BIN_CLASS_ID + "|" + 
-//							dbQualityLine.getPickPackBarCode() + "|" + dbQualityLine.getItemCode() + "|" + storageBin.getStorageBin());
-//					transactionErrorService.createTransactionError("INVENTORY", 
-//							"createPickupLine | Inventory Update | existingInventory is not null", 
-//							e1.getMessage(), e1.getLocalizedMessage(), objectData, loginUserID);	
-//					e1.printStackTrace();
-//				}
+				AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+				Long BIN_CLASS_ID = 4L;
+				StorageBin storageBin = mastersService.getStorageBin(dbQualityLine.getWarehouseId(), BIN_CLASS_ID,
+						authTokenForMastersService.getAccess_token());
+				Warehouse warehouse = getWarehouse(dbQualityLine.getWarehouseId());
+				Inventory inventory = null;
+				try {
+					inventory = inventoryService.getInventory(dbQualityLine.getWarehouseId(),
+							dbQualityLine.getPickPackBarCode(), dbQualityLine.getItemCode(),
+							storageBin.getStorageBin());
+					log.info("inventory---BIN_CLASS_ID-4----> : " + inventory);
+
+					if (inventory != null) {
+						Double INV_QTY = inventory.getInventoryQuantity() - dbQualityLine.getQualityQty();
+						log.info("Calculated inventory INV_QTY: " + INV_QTY);
+						inventory.setInventoryQuantity(INV_QTY);
+
+						// INV_QTY > 0 then, update Inventory Table
+						inventory = inventoryRepository.save(inventory);
+						log.info("inventory updated : " + inventory);
+
+						if (INV_QTY == 0) {
+							log.info("inventory INV_QTY: " + INV_QTY);
+						}
+					}
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
 				
 				/*-------------------Inserting record in InventoryMovement-------------------------------------*/
 				Long subMvtTypeId = 2L;
@@ -569,71 +528,65 @@ public class QualityLineService extends BaseService {
 				// 2.Insert a new record in INVENTORY table as below
 				// Fetch from QUALITYLINE table and insert WH_ID/ITM_CODE/ST_BIN= (ST_BIN value
 				// of BIN_CLASS_ID=5
-//				// from STORAGEBIN table)/PACK_BARCODE/INV_QTY = QC_QTY - INVENTORY UPDATE 2
-//				BIN_CLASS_ID = 5L;
-//				storageBin = mastersService.getStorageBin(dbQualityLine.getWarehouseId(), BIN_CLASS_ID,
-//						authTokenForMastersService.getAccess_token());
-//				Warehouse warehouse = getWarehouse(dbQualityLine.getWarehouseId());
-//
-//				/*
-//				 * Checking Inventory table before creating new record inventory
-//				 */
-//				// Pass WH_ID/ITM_CODE/ST_BIN = (ST_BIN value of BIN_CLASS_ID=5 /PACK_BARCODE
-//				Inventory existingInventory = inventoryService.getInventory(dbQualityLine.getWarehouseId(),
-//						dbQualityLine.getPickPackBarCode(), dbQualityLine.getItemCode(), storageBin.getStorageBin());
-//				log.info("existingInventory : " + existingInventory);
-//				if (existingInventory != null) {
-//					Double INV_QTY = existingInventory.getInventoryQuantity() + dbQualityLine.getQualityQty();
-//					UpdateInventory updateInventory = new UpdateInventory();
-//					updateInventory.setInventoryQuantity(INV_QTY);
-//					try {
-//						Inventory updatedInventory = inventoryService.updateInventory(dbQualityLine.getWarehouseId(),
-//								dbQualityLine.getPickPackBarCode(), dbQualityLine.getItemCode(),
-//								storageBin.getStorageBin(), 1L, 1L, updateInventory, loginUserID);
-//						log.info("updatedInventory----------> : " + updatedInventory);
-//					} catch (Exception e) {
-//						String objectData = (dbQualityLine.getWarehouseId() + "|" + BIN_CLASS_ID + "|" + 
-//								dbQualityLine.getPickPackBarCode() + "|" + dbQualityLine.getItemCode() + "|" + storageBin.getStorageBin());
-//						transactionErrorService.createTransactionError("INVENTORY", 
-//								"createdQualityLine | Inventory Update | existingInventory is not null", 
-//								e.getMessage(), e.getLocalizedMessage(), objectData, loginUserID);	
-//						e.printStackTrace();
-//						log.info("updatedInventory error----------> : " + e.toString());
-//					}
-//				} else {
-//					log.info("AddInventory========>");
-//					AddInventory newInventory = new AddInventory();
-//					newInventory.setLanguageId(warehouse.getLanguageId());
-//					newInventory.setCompanyCodeId(warehouse.getCompanyCode());
-//					newInventory.setPlantId(warehouse.getPlantId());
-////					newInventory.setStockTypeId(inventory.getStockTypeId());
-//					newInventory.setStockTypeId(1L);
-//					newInventory.setBinClassId(BIN_CLASS_ID);
-//					newInventory.setWarehouseId(dbQualityLine.getWarehouseId());
-//					newInventory.setPackBarcodes(dbQualityLine.getPickPackBarCode());
-//					newInventory.setItemCode(dbQualityLine.getItemCode());
-//					newInventory.setStorageBin(storageBin.getStorageBin());
-//					newInventory.setInventoryQuantity(dbQualityLine.getQualityQty());
-//					newInventory.setSpecialStockIndicatorId(1L);
-//					newInventory.setCreatedOn(new Date());			
-//					newInventory.setCreatedBy(loginUserID);
-//					
-//					List<IImbasicData1> imbasicdata1 = imbasicdata1Repository
-//							.findByItemCode(newInventory.getItemCode());
-//					if (imbasicdata1 != null && !imbasicdata1.isEmpty()) {
-//						newInventory.setReferenceField8(imbasicdata1.get(0).getDescription());
-//						newInventory.setReferenceField9(imbasicdata1.get(0).getManufacturePart());
-//					}
-//					if (storageBin != null) {
-//						newInventory.setReferenceField10(storageBin.getStorageSectionId());
-//						newInventory.setReferenceField5(storageBin.getAisleNumber());
-//						newInventory.setReferenceField6(storageBin.getShelfId());
-//						newInventory.setReferenceField7(storageBin.getRowId());
-//					}
-//
-//					Inventory createdInventory = inventoryService.createInventory(newInventory, loginUserID);
-//					log.info("newInventory created : " + createdInventory);
-//				}
+				// from STORAGEBIN table)/PACK_BARCODE/INV_QTY = QC_QTY - INVENTORY UPDATE 2
+				BIN_CLASS_ID = 5L;
+				storageBin = mastersService.getStorageBin(dbQualityLine.getWarehouseId(), BIN_CLASS_ID,
+						authTokenForMastersService.getAccess_token());
+				warehouse = getWarehouse(dbQualityLine.getWarehouseId());
+
+				/*
+				 * Checking Inventory table before creating new record inventory
+				 */
+				// Pass WH_ID/ITM_CODE/ST_BIN = (ST_BIN value of BIN_CLASS_ID=5 /PACK_BARCODE
+				Inventory existingInventory = inventoryService.getInventory(dbQualityLine.getWarehouseId(),
+						dbQualityLine.getPickPackBarCode(), dbQualityLine.getItemCode(), storageBin.getStorageBin());
+				log.info("existingInventory : " + existingInventory);
+				if (existingInventory != null) {
+					Double INV_QTY = existingInventory.getInventoryQuantity() + dbQualityLine.getQualityQty();
+					UpdateInventory updateInventory = new UpdateInventory();
+					updateInventory.setInventoryQuantity(INV_QTY);
+					try {
+						Inventory updatedInventory = inventoryService.updateInventory(dbQualityLine.getWarehouseId(),
+								dbQualityLine.getPickPackBarCode(), dbQualityLine.getItemCode(),
+								storageBin.getStorageBin(), 1L, 1L, updateInventory, loginUserID);
+						log.info("updatedInventory----------> : " + updatedInventory);
+					} catch (Exception e) {
+						e.printStackTrace();
+						log.info("updatedInventory error----------> : " + e.toString());
+					}
+				} else {
+					log.info("AddInventory========>");
+					AddInventory newInventory = new AddInventory();
+					newInventory.setLanguageId(warehouse.getLanguageId());
+					newInventory.setCompanyCodeId(warehouse.getCompanyCode());
+					newInventory.setPlantId(warehouse.getPlantId());
+					newInventory.setStockTypeId(inventory.getStockTypeId());
+					newInventory.setBinClassId(BIN_CLASS_ID);
+					newInventory.setWarehouseId(dbQualityLine.getWarehouseId());
+					newInventory.setPackBarcodes(dbQualityLine.getPickPackBarCode());
+					newInventory.setItemCode(dbQualityLine.getItemCode());
+					newInventory.setStorageBin(storageBin.getStorageBin());
+					newInventory.setInventoryQuantity(dbQualityLine.getQualityQty());
+					newInventory.setSpecialStockIndicatorId(1L);
+					newInventory.setCreatedOn(new Date());			
+					newInventory.setCreatedBy(loginUserID);
+					
+					List<IImbasicData1> imbasicdata1 = imbasicdata1Repository
+							.findByItemCode(newInventory.getItemCode());
+					if (imbasicdata1 != null && !imbasicdata1.isEmpty()) {
+						newInventory.setReferenceField8(imbasicdata1.get(0).getDescription());
+						newInventory.setReferenceField9(imbasicdata1.get(0).getManufacturePart());
+					}
+					if (storageBin != null) {
+						newInventory.setReferenceField10(storageBin.getStorageSectionId());
+						newInventory.setReferenceField5(storageBin.getAisleNumber());
+						newInventory.setReferenceField6(storageBin.getShelfId());
+						newInventory.setReferenceField7(storageBin.getRowId());
+					}
+
+					Inventory createdInventory = inventoryService.createInventory(newInventory, loginUserID);
+					log.info("newInventory created : " + createdInventory);
+				}
 				
 				/*-----------------------InventoryMovement----------------------------------*/
 				// Inserting record in InventoryMovement
@@ -644,78 +597,6 @@ public class QualityLineService extends BaseService {
 				inventoryMovement = createInventoryMovement(dbQualityLine, subMvtTypeId, movementDocumentNo, stBin,
 						movementQtyValue, loginUserID);
 				log.info("InventoryMovement created for update2: " + inventoryMovement);
-				PickupLine pickupLine = pickupLineRepository.findByPickupNumber (qualityHeader.getPickupNumber());
-				
-				// Creating new Inventory for Rejection of Material
-				if (dbQualityLine.getQualityQty() < dbQualityLine.getPickConfirmQty()) {
-					try {
-						AddInventory newInventory = new AddInventory();
-						newInventory.setLanguageId(getLanguageId());
-						newInventory.setCompanyCodeId(getCompanyCode());
-						newInventory.setPlantId(getPlantId());
-						newInventory.setBinClassId(BIN_CLASS_ID);
-						newInventory.setStockTypeId(1L); 				// Hardcoding as 1L for Stock Tyope ID
-						newInventory.setWarehouseId(dbQualityLine.getWarehouseId());
-						newInventory.setPackBarcodes(dbQualityLine.getPickPackBarCode());
-						newInventory.setItemCode(dbQualityLine.getItemCode());
-						newInventory.setStorageBin(storageBin.getStorageBin());
-						newInventory.setInventoryQuantity((pickupLine.getPickConfirmQty() - dbQualityLine.getQualityQty()));
-						newInventory.setSpecialStockIndicatorId(1L); 	// Hardcoding as 1L for Stock Tyope ID
-						newInventory.setCreatedOn(new Date());			
-						newInventory.setCreatedBy(loginUserID);
-						
-						List<IImbasicData1> imbasicdata1 = imbasicdata1Repository.findByItemCode(newInventory.getItemCode());
-						if (imbasicdata1 != null && !imbasicdata1.isEmpty()) {
-							newInventory.setReferenceField8(imbasicdata1.get(0).getDescription());
-							newInventory.setReferenceField9(imbasicdata1.get(0).getManufacturePart());
-						}
-						if (storageBin != null) {
-							newInventory.setReferenceField10(storageBin.getStorageSectionId());
-							newInventory.setReferenceField5(storageBin.getAisleNumber());
-							newInventory.setReferenceField6(storageBin.getShelfId());
-							newInventory.setReferenceField7(storageBin.getRowId());
-						}
-
-						Inventory createdInventory = inventoryService.createInventory(newInventory, loginUserID);
-						log.info("newInventory created : " + createdInventory);
-					} catch (Exception e) {
-						log.error("newInventory create Error :" + e.toString());
-						e.printStackTrace();
-					}
-				
-					/*
-					 * Inventory Update 
-					 */
-					Inventory inventory = inventoryService.getInventory (dbQualityLine.getWarehouseId(),
-							dbQualityLine.getPickPackBarCode(), dbQualityLine.getItemCode(), pickupLine.getPickedStorageBin());
-					log.info("inventory record queried: " + inventory);
-					if (inventory != null) {
-						if (pickupLine.getAllocatedQty() > 0D) {
-							try {
-								Double ALLOC_QTY = inventory.getAllocatedQuantity() - (pickupLine.getPickConfirmQty() - dbQualityLine.getQualityQty());
-								log.info("inventory ALLOC_QTY: " + ALLOC_QTY);
-								log.info("Inventory: inventory.getAllocatedQuantity() ---> " + inventory.getAllocatedQuantity());
-								log.info("inventory: (pickupLine.getPickConfirmQty() - dbQualityLine.getQualityQty())--->: " + 
-										(pickupLine.getPickConfirmQty() - dbQualityLine.getQualityQty()));
-								
-								if (ALLOC_QTY < 0D) {
-									ALLOC_QTY = 0D;
-								}
-		
-								inventory.setAllocatedQuantity(ALLOC_QTY);
-		
-								// INV_QTY > 0 then, update Inventory Table
-								inventory = inventoryRepository.save(inventory);
-								log.info("inventory updated : " + inventory);
-							} catch (Exception e) {
-								String objectData = dbQualityLine.getPickPackBarCode() + "|" + dbQualityLine.getItemCode() + "|" + pickupLine.getPickedStorageBin();
-								transactionErrorService.createTransactionError("INVENTORY", "createPickupLine | Inventory Update", e.getMessage(), e.getLocalizedMessage(), objectData, loginUserID);	
-								log.error("Inventory Update Error:" + e.toString());
-								e.printStackTrace();
-							}
-						}
-					} // End of Inventory Update
-				}
 			}
 			return createdQualityLineList;
 		} catch (Exception e) {

@@ -23,9 +23,9 @@ import com.tekclover.wms.api.transaction.model.outbound.OutboundHeaderOutput;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundHeaderStream;
 import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundHeader;
-import com.tekclover.wms.api.transaction.repository.PreOutboundLineRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundLineInterimRepository;
+import com.tekclover.wms.api.transaction.repository.PreOutboundLineRepository;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 
@@ -156,7 +156,9 @@ public class OutboundHeaderService {
 	 * @throws java.text.ParseException 
 	 */
 	public List<OutboundHeader> findOutboundHeader(SearchOutboundHeader searchOutboundHeader, Integer flag)
+//	public List<OutboundHeader> findOutboundHeader(SearchOutboundHeader searchOutboundHeader)
 			throws ParseException, java.text.ParseException {
+		
 		log.info("DeliveryConfirmedOn: " + searchOutboundHeader.getStartDeliveryConfirmedOn());
 		
 		if (searchOutboundHeader.getStartRequiredDeliveryDate() != null && searchOutboundHeader.getEndRequiredDeliveryDate() != null) {
@@ -203,23 +205,18 @@ public class OutboundHeaderService {
 		if(searchOutboundHeader.getWarehouseId() == null || searchOutboundHeader.getWarehouseId().isEmpty()) {
 			searchOutboundHeader.setWarehouseId(null);
 		}
-		
 		if(searchOutboundHeader.getRefDocNumber() == null || searchOutboundHeader.getRefDocNumber().isEmpty()) {
 			searchOutboundHeader.setRefDocNumber(null);
 		}
-		
 		if(searchOutboundHeader.getPartnerCode() == null || searchOutboundHeader.getPartnerCode().isEmpty()) {
 			searchOutboundHeader.setPartnerCode(null);
 		}
-		
 		if(searchOutboundHeader.getOutboundOrderTypeId() == null || searchOutboundHeader.getOutboundOrderTypeId().isEmpty()) {
 			searchOutboundHeader.setOutboundOrderTypeId(null);
 		}
-		
 		if(searchOutboundHeader.getSoType() == null || searchOutboundHeader.getSoType().isEmpty()) {
 			searchOutboundHeader.setSoType(null);
 		}
-		
 		if(searchOutboundHeader.getStatusId() == null || searchOutboundHeader.getStatusId().isEmpty()) {
 			searchOutboundHeader.setStatusId(null);
 		}
@@ -234,7 +231,7 @@ public class OutboundHeaderService {
 		return headerSearchResults;
 	}
 	
-	/**
+		/**
 	 * 
 	 * @param searchOutboundHeader
 	 * @param flag
@@ -305,6 +302,8 @@ public class OutboundHeaderService {
 				searchOutboundHeader.getStartRequiredDeliveryDate(),searchOutboundHeader.getEndRequiredDeliveryDate(),
 				searchOutboundHeader.getStartDeliveryConfirmedOn(),searchOutboundHeader.getEndDeliveryConfirmedOn(),
 				searchOutboundHeader.getStartOrderDate(),searchOutboundHeader.getEndOrderDate());
+		log.info("headerSearchResults------------> : " + headerSearchResults);
+		
 		headerSearchResults.stream().forEach(oh -> {
 			Long sumOfOrderedQty = preOutboundLineRepository.getSumofOrderedQty(oh.getRefDocNumber());
 			Long countOfOrderedQty = preOutboundLineRepository.getCountOfOrderedQty(oh.getRefDocNumber());

@@ -425,6 +425,18 @@ public interface TransactionHistoryResultRepository extends JpaRepository<Transa
             " from tbltransactionhistoryresults) x ", nativeQuery = true)
     public List<ITransactionHistoryReport> findTransactionHistoryReport();
 
+//    @Query(value = "select  \n" +
+//            " closing_stock closingStock \n" +
+//            " opening_stock openingStock, \n" +
+//            " inbound_qty inboundQty, \n" +
+//            " outbound_qty outboundQty, \n" +
+//            " stock_adjustment_qty stockAdjustmentQty, \n" +
+//            " item_code itemCode, \n" +
+//            " warehouse_id warehouseId, \n" +
+//            " description itemDescription \n" +
+//            " from tbltransactionhistoryresults ", nativeQuery = true)
+//    public List<ITransactionHistoryReport> findTransactionHistoryReport();
+
     //-------------------------------stored Procedures-----------------------------------------//
 
     //create table and update the table with itemCode and itemDescription

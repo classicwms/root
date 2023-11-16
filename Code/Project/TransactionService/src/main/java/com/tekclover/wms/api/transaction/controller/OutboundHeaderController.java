@@ -2,11 +2,15 @@ package com.tekclover.wms.api.transaction.controller;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.model.outbound.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,11 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tekclover.wms.api.transaction.model.outbound.AddOutboundHeader;
-import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
-import com.tekclover.wms.api.transaction.model.outbound.OutboundHeaderOutput;
-import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundHeader;
-import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundHeader;
 import com.tekclover.wms.api.transaction.service.OutboundHeaderService;
 
 import io.swagger.annotations.Api;
@@ -31,6 +30,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 @Slf4j
 @Validated
@@ -62,9 +62,11 @@ public class OutboundHeaderController {
     
 	@ApiOperation(response = OutboundHeader.class, value = "Search OutboundHeader") // label for swagger
 	@PostMapping("/findOutboundHeader")
-	public List<OutboundHeader> findOutboundHeader(@RequestBody SearchOutboundHeader searchOutboundHeader, @RequestParam Integer flag)
+//	public List<OutboundHeader> findOutboundHeader(@RequestBody SearchOutboundHeader searchOutboundHeader)
+	public List<OutboundHeader> findOutboundHeader(@RequestBody SearchOutboundHeader searchOutboundHeader,@RequestParam Integer flag)
 			throws Exception {
 		return outboundheaderService.findOutboundHeader(searchOutboundHeader, flag);
+//		return outboundheaderService.findOutboundHeader(searchOutboundHeader);
 	}
 	
 	@ApiOperation(response = OutboundHeader.class, value = "Search OutboundHeader") // label for swagger
