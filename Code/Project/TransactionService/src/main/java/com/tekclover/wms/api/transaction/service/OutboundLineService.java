@@ -148,6 +148,9 @@ public class OutboundLineService extends BaseService {
 	
 	@Autowired
 	private WarehouseService warehouseService;
+	
+	@Autowired
+	private TransactionErrorService transactionErrorService;
 
 	@Autowired
 	private OrderManagementLineRepository orderManagementLineRepository;
@@ -899,28 +902,36 @@ public class OutboundLineService extends BaseService {
 				log.info("PreOutbound Header updated");
 				
 				/*-----------------Inventory Updates---------------------------*/
-				List<QualityLine> dbQualityLine = qualityLineService.getQualityLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumbers, itemCodes);
-				Long BIN_CL_ID = 5L;
-				for(QualityLine qualityLine : dbQualityLine) {
-					//------------Update Lock applied---------------------------------------------------------------------------------
-					List<Inventory> inventoryList = inventoryService.getInventoryForDeliveryConfirmtion (qualityLine.getWarehouseId(),
-							qualityLine.getItemCode(), qualityLine.getPickPackBarCode(), BIN_CL_ID); 
-					for(Inventory inventory : inventoryList) {
-						Double INV_QTY = inventory.getInventoryQuantity() - qualityLine.getQualityQty();
-
-						if (INV_QTY < 0) {
-							INV_QTY = 0D;
-						}
-
-						if (INV_QTY >= 0) {
-							inventory.setInventoryQuantity(INV_QTY);
-
-							// INV_QTY > 0 then, update Inventory Table
-							inventory = inventoryRepository.save(inventory);
-						}
-					}
-					log.info("Inventory updated");
-				} 
+//				List<QualityLine> dbQualityLine = qualityLineService.getQualityLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumbers, itemCodes);
+//				Long BIN_CL_ID = 5L;
+//				for(QualityLine qualityLine : dbQualityLine) {
+//					try {
+//						//------------Update Lock applied---------------------------------------------------------------------------------
+//						List<Inventory> inventoryList = inventoryService.getInventoryForDeliveryConfirmtion (qualityLine.getWarehouseId(),
+//								qualityLine.getItemCode(), qualityLine.getPickPackBarCode(), BIN_CL_ID); 
+//						for(Inventory inventory : inventoryList) {
+//							Double INV_QTY = inventory.getInventoryQuantity() - qualityLine.getQualityQty();
+//
+//							if (INV_QTY < 0) {
+//								INV_QTY = 0D;
+//							}
+//
+//							if (INV_QTY >= 0) {
+//								inventory.setInventoryQuantity(INV_QTY);
+//
+//								// INV_QTY > 0 then, update Inventory Table
+//								inventory = inventoryRepository.save(inventory);
+//							}
+//						}
+//						log.info("Inventory updated");
+//					} catch (Exception e) {
+//						String objectData = (qualityLine.getWarehouseId() + "|" + qualityLine.getItemCode() + "|" + qualityLine.getPickPackBarCode() + "|" + BIN_CL_ID);
+//						transactionErrorService.createTransactionError("INVENTORY", "DeliveryConfirmation | Inventory Update Error", 
+//								e.getMessage(), e.getLocalizedMessage(), objectData, loginUserID);	
+//						log.error("DeliveryConfirmation | Inventory Update Error: " + e.toString());;
+//						e.printStackTrace();
+//					}
+//				} 
 							
 				/*-------------------Inserting record in InventoryMovement-------------------------------------*/
 				Long BIN_CLASS_ID = 5L;
@@ -1125,6 +1136,12 @@ public class OutboundLineService extends BaseService {
 	public List<OutboundLine> updateOutboundLines (String loginUserID, List<UpdateOutboundLine> updateOutboundLines) 
 					throws IllegalAccessException, InvocationTargetException {
 		List<OutboundLine> updatedOutboundLines = new ArrayList<>();
+		List<Long> lineNumbers = new ArrayList<>();
+		List<String> itemCodes = new ArrayList<>();
+		String warehouseId = null;
+		String preOutboundNo = null;
+		String refDocNumber = null;
+		String partnerCode = null;
 		for (UpdateOutboundLine updateOutboundLine : updateOutboundLines) {
 			OutboundLine outboundLine = getOutboundLine(updateOutboundLine.getWarehouseId(), updateOutboundLine.getPreOutboundNo(), 
 					updateOutboundLine.getRefDocNumber(), updateOutboundLine.getPartnerCode(), updateOutboundLine.getLineNumber(), 
@@ -1134,8 +1151,125 @@ public class OutboundLineService extends BaseService {
 			outboundLine.setUpdatedOn(new Date());
 			outboundLine = outboundLineRepository.save(outboundLine);
 			updatedOutboundLines.add(outboundLine);
+			
+			warehouseId = updateOutboundLine.getWarehouseId();
+			preOutboundNo = updateOutboundLine.getPreOutboundNo();
+			refDocNumber = updateOutboundLine.getRefDocNumber();
+			partnerCode = updateOutboundLine.getPartnerCode();
+			lineNumbers.add(updateOutboundLine.getLineNumber());
+			itemCodes.add(updateOutboundLine.getItemCode());
 		}
 		log.info("-----outboundLines-updated----> : " + updatedOutboundLines);
+		
+		List<PickupLine> dbPickupLines = pickupLineService.getPickupLine (warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumbers, itemCodes);
+		log.info("dbPickupLine: " + dbPickupLines.size());
+		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+		for (PickupLine dbPickupLine : dbPickupLines) {
+			/*
+			 * Inventory Update 
+			 */
+			Inventory inventory = inventoryService.getInventory (dbPickupLine.getWarehouseId(),
+					dbPickupLine.getPickedPackCode(), dbPickupLine.getItemCode(), dbPickupLine.getPickedStorageBin());
+			log.info("inventory record queried: " + inventory);
+			if (inventory != null) {
+				if (dbPickupLine.getAllocatedQty() > 0D) {
+					try {
+						Double INV_QTY = (inventory.getInventoryQuantity() + dbPickupLine.getAllocatedQty())
+								- dbPickupLine.getPickConfirmQty();
+						Double ALLOC_QTY = inventory.getAllocatedQuantity() - dbPickupLine.getAllocatedQty();
+
+						/*
+						 * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
+						 */
+						// Start
+						if (INV_QTY < 0D) {
+							INV_QTY = 0D;
+						}
+
+						if (ALLOC_QTY < 0D) {
+							ALLOC_QTY = 0D;
+						}
+						// End
+
+						inventory.setInventoryQuantity(INV_QTY);
+						inventory.setAllocatedQuantity(ALLOC_QTY);
+
+						// INV_QTY > 0 then, update Inventory Table
+						inventory = inventoryRepository.save(inventory);
+						log.info("inventory updated : " + inventory);
+
+						if (INV_QTY == 0) {
+							// Setting up statusId = 0
+							try {
+								// Check whether Inventory has record or not
+								Inventory inventoryByStBin = inventoryService.getInventoryByStorageBin(warehouseId, inventory.getStorageBin());
+								if (inventoryByStBin == null) {
+									StorageBin dbStorageBin = mastersService.getStorageBin(inventory.getStorageBin(),
+											dbPickupLine.getWarehouseId(), authTokenForMastersService.getAccess_token());
+									dbStorageBin.setStatusId(0L);
+									dbStorageBin.setWarehouseId(dbPickupLine.getWarehouseId());
+									mastersService.updateStorageBin(inventory.getStorageBin(), dbStorageBin, loginUserID,
+											authTokenForMastersService.getAccess_token());
+								}
+							} catch (Exception e) {
+								log.error("updateStorageBin Error :" + e.toString());
+								e.printStackTrace();
+							}
+						}
+					} catch (Exception e) {
+						String objectData = warehouseId + "|" + preOutboundNo + "|" + refDocNumber + "|" + partnerCode + "|" + dbPickupLine.getPickupNumber();				
+						transactionErrorService.createTransactionError("INVENTORY", "createPickupLine | Inventory Update", e.getMessage(), e.getLocalizedMessage(), objectData, loginUserID);	
+						log.error("Inventory Update Error:" + e.toString());
+						e.printStackTrace();
+					}
+				}
+
+				if (dbPickupLine.getAllocatedQty() == null || dbPickupLine.getAllocatedQty() == 0D) {
+					Double INV_QTY;
+					try {
+						INV_QTY = inventory.getInventoryQuantity() - dbPickupLine.getPickConfirmQty();
+						/*
+						 * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
+						 */
+						// Start
+						if (INV_QTY < 0D) {
+							INV_QTY = 0D;
+						}
+						// End
+						inventory.setInventoryQuantity(INV_QTY);
+						inventory = inventoryRepository.save(inventory);
+						log.info("inventory updated : " + inventory);
+						
+						//-------------------------------------------------------------------
+						// PASS PickedConfirmedStBin, WH_ID to inventory
+						// 	If inv_qty && alloc_qty is zero or null then do the below logic.
+						//-------------------------------------------------------------------
+						Double[] inventoryBySTBIN = inventoryService.getInventoryCountByStorageBin (warehouseId, dbPickupLine.getPickedStorageBin());
+						if (inventoryBySTBIN != null && (inventoryBySTBIN [0] == null || inventoryBySTBIN [0] == 0D) 
+								&& (inventoryBySTBIN [1] == null || inventoryBySTBIN [1] == 0D)) {
+							try {
+								// Setting up statusId = 0
+								StorageBin dbStorageBin = mastersService.getStorageBin(inventory.getStorageBin(),
+										dbPickupLine.getWarehouseId(), authTokenForMastersService.getAccess_token());
+								dbStorageBin.setStatusId(0L);
+								mastersService.updateStorageBin(inventory.getStorageBin(), dbStorageBin, loginUserID,
+										authTokenForMastersService.getAccess_token());
+							} catch (Exception e) {
+								log.error("updateStorageBin Error :" + e.toString());
+								e.printStackTrace();
+							}
+						}
+					} catch (Exception e1) {
+						String objectData = warehouseId + "|" + preOutboundNo + "|" + refDocNumber + "|" + partnerCode + "|" + dbPickupLine.getPickupNumber();						transactionErrorService.createTransactionError("INVENTORY", 
+								"createPickupLine | Inventory Update | AllocatedQty is null OR AllocatedQty is zero", 
+								e1.getMessage(), e1.getLocalizedMessage(), objectData, loginUserID);	
+						log.error("Inventory cum StorageBin update: Error :" + e1.toString());
+						e1.printStackTrace();
+					}
+				}
+			} // End of Inventory Update
+		}
+		
 		return updatedOutboundLines;
 	}
 	
@@ -1324,22 +1458,24 @@ public class OutboundLineService extends BaseService {
 						 * in INVENTORY table and update INV_QTY as (INV_QTY + DLV_QTY ) - (Update 2)
 						 */
 						if(inventory != null) {
-							inventory = inventoryService.getInventory(pickupLine.getWarehouseId(), pickupLine.getPickedPackCode(),
-									pickupLine.getItemCode(), pickupLine.getPickedStorageBin());
-
-							// HAREESH -28-08-2022 change to update allocated qty
-							if(inventory != null && pickupHeader != null){
-//								for (PickupHeader pickupHeaderData : pickupHeader) {
-//									Double ALLOC_QTY = (inventory.getAllocatedQuantity() != null ? inventory.getAllocatedQuantity() : 0) + (pickupHeaderData.getPickToQty() != null ? pickupHeaderData.getPickToQty() : 0);
-//									inventory.setAllocatedQuantity(ALLOC_QTY);
+							try {
+								inventory = inventoryService.getInventory(pickupLine.getWarehouseId(), pickupLine.getPickedPackCode(),
+										pickupLine.getItemCode(), pickupLine.getPickedStorageBin());
+								if(inventory != null && pickupHeader != null){
 									Double INV_QTY = inventory.getInventoryQuantity() + pickupLine.getPickConfirmQty();
 									inventory.setInventoryQuantity(INV_QTY);
 									inventory = inventoryRepository.save(inventory);
 									log.info("inventory updated : " + inventory);
-//								}
+								}
+							} catch (Exception e) {
+								String objectData = (pickupLine.getWarehouseId() + "|" + pickupLine.getPickedPackCode() + "|" +
+										pickupLine.getItemCode() + "|" + pickupLine.getPickedStorageBin());
+								transactionErrorService.createTransactionError("INVENTORY", "Reversal | Inventory Update Error | STEP 3.2", 
+										e.getMessage(), e.getLocalizedMessage(), objectData, loginUserID);
+								log.info("inventory update error: " + e.toString());
+								e.printStackTrace();
 							}
 						}
-
 
 						/*------------------------Record insertion in Outbound Reversal table----------------------------*/
 						/////////RECORD-1/////////////////////////////////////////////////////////////////////////////////
@@ -1469,14 +1605,23 @@ public class OutboundLineService extends BaseService {
 
 						if(inventory != null) {
 							// HAREESH -28-08-2022 change to update allocated qty
-							Double INV_QTY = (inventory.getInventoryQuantity() != null ? inventory.getInventoryQuantity() : 0)  + (pickupLine.getPickConfirmQty() != null ? pickupLine.getPickConfirmQty() : 0);
-							if (INV_QTY < 0) {
-								log.info("inventory qty calculated is less than 0: " + INV_QTY);
-								INV_QTY = Double.valueOf(0);
+							try {
+								Double INV_QTY = (inventory.getInventoryQuantity() != null ? inventory.getInventoryQuantity() : 0)  + (pickupLine.getPickConfirmQty() != null ? pickupLine.getPickConfirmQty() : 0);
+								if (INV_QTY < 0) {
+									log.info("inventory qty calculated is less than 0: " + INV_QTY);
+									INV_QTY = Double.valueOf(0);
+								}
+								inventory.setInventoryQuantity(INV_QTY);
+								inventory = inventoryRepository.save(inventory);
+								log.info("inventory updated : " + inventory);
+							} catch (Exception e) {
+								String objectData = (pickupLine.getWarehouseId() + "|" + pickupLine.getPickedPackCode() + "|" +
+										pickupLine.getItemCode() + "|" + pickupLine.getPickedStorageBin());
+								transactionErrorService.createTransactionError("INVENTORY", "Reversal | Inventory Update - inventory qty calculated is < 0", 
+										e.getMessage(), e.getLocalizedMessage(), objectData, loginUserID);
+								log.info("inventory update error: " + e.toString());
+								e.printStackTrace();
 							}
-							inventory.setInventoryQuantity(INV_QTY);
-							inventory = inventoryRepository.save(inventory);
-							log.info("inventory updated : " + inventory);
 						}
 
 						/*------------------------Record insertion in Outbound Reversal table----------------------------*/
@@ -1834,31 +1979,35 @@ public class OutboundLineService extends BaseService {
 	 * @param pickupLine
 	 * @param  
 	 * @return
+	 * @throws InvocationTargetException 
+	 * @throws IllegalAccessException 
 	 */
-	private Inventory updateInventory1(PickupLine pickupLine,Long statusId) {
+	private Inventory updateInventory1(PickupLine pickupLine,Long statusId) throws IllegalAccessException, InvocationTargetException {
 		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
 		Long BIN_CLASS_ID = 5L;
 		if(statusId == 50L){
 			BIN_CLASS_ID = 4L;
 		}
 		StorageBin storageBin = mastersService.getStorageBin(pickupLine.getWarehouseId(), BIN_CLASS_ID, authTokenForMastersService.getAccess_token());
-		Inventory inventory = inventoryService.getInventory(pickupLine.getWarehouseId(), pickupLine.getPickedPackCode(), 
-				pickupLine.getItemCode(), storageBin.getStorageBin());
-		if(inventory != null) {
-			Double INV_QTY = inventory.getInventoryQuantity() - pickupLine.getPickConfirmQty();
-			inventory.setInventoryQuantity(INV_QTY);
+		try {
+			Inventory inventory = inventoryService.getInventory(pickupLine.getWarehouseId(), pickupLine.getPickedPackCode(), 
+					pickupLine.getItemCode(), storageBin.getStorageBin());
+			if(inventory != null) {
+				Double INV_QTY = inventory.getInventoryQuantity() - pickupLine.getPickConfirmQty();
+				inventory.setInventoryQuantity(INV_QTY);
 
-			// INV_QTY > 0 then, update Inventory Table
-			inventory = inventoryRepository.save(inventory);
-			log.info("Inventory updated : " + inventory);
-
-			if (INV_QTY == 0) {
-//			[Prod Fix: 28-06] - Discussed to comment delete Inventory operation to avoid unwanted delete of Inventory
-//			inventoryRepository.delete(inventory);
-				log.info("inventory record is deleted...");
+				// INV_QTY > 0 then, update Inventory Table
+				inventory = inventoryRepository.save(inventory);
+				log.info("Inventory updated : " + inventory);
 			}
+			return inventory;
+		} catch (Exception e) {
+			String objectData = pickupLine.getWarehouseId() + "|" + pickupLine.getPickedPackCode() + "|" + pickupLine.getItemCode() + "|" + storageBin.getStorageBin();
+			transactionErrorService.createTransactionError("INVENTORY", "Reversal | Inventory Update | updateInventory1() ", e.getMessage(), e.getLocalizedMessage(), objectData, "Reversal");	
+			log.error("Inventory Update Error:" + e.toString());
+			e.printStackTrace();
 		}
-		return inventory;
+		return null;
 	}
 
 	/*--------------------------------------OUTBOUND---------------------------------------------*/

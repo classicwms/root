@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -425,42 +424,4 @@ public interface TransactionHistoryResultRepository extends JpaRepository<Transa
             " from tbltransactionhistoryresults) x ", nativeQuery = true)
     public List<ITransactionHistoryReport> findTransactionHistoryReport();
 
-    //-------------------------------stored Procedures-----------------------------------------//
-
-    //create table and update the table with itemCode and itemDescription
-    @Procedure
-    void SP_INSERT_THR(String warehouseId, String itemCode);
-
-    //--------------------------------------------------------------Opening Stock-------------------------------------------------------------//
-
-    //Inventory Stock Table
-
-    @Procedure
-    void SP_UPDATE_THR_INV_OS(String warehouse, String itemCode);
-
-    //PutAway
-    @Procedure
-    void SP_UPDATE_THR_PUTAWAY_OS(String warehouse, String itemCode, Date openingStockDateFrom, Date openingStockDateTo);
-
-    //PickupLine
-    @Procedure
-    void SP_UPDATE_THR_PICKUP_OS(String warehouse, String itemCode, Date openingStockDateFrom, Date openingStockDateTo);
-
-    //inventoryMovement
-    @Procedure
-    void SP_UPDATE_THR_INV_MMT_OS(String warehouse, String itemCode, Date openingStockDateFrom, Date openingStockDateTo);
-
-    //--------------------------------------------------------------Closing Stock-------------------------------------------------------------//
-
-    //PutAway
-    @Procedure
-    void SP_UPDATE_THR_PUTAWAY_CS(String warehouse, String itemCode, Date closingStockDateFrom, Date closingStockDateTo);
-
-    //PickupLine
-    @Procedure
-    void SP_UPDATE_THR_PICKUP_CS(String warehouse, String itemCode, Date closingStockDateFrom, Date closingStockDateTo);
-
-    //InventoryMovement
-    @Procedure
-    void SP_UPDATE_THR_INV_MMT_CS(String warehouse, String itemCode, Date closingStockDateFrom, Date closingStockDateTo);
 }

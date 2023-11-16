@@ -346,7 +346,7 @@ public class PerpetualHeaderService extends BaseService {
 		}
 
 		Stream<PerpetualLineEntityImpl> runResponseList = inventoryMovementRepository.getRecordsForRunPerpetualCountStream (
-				runPerpetualHeader.getMovementTypeId(), runPerpetualHeader.getWarehouseId(), runPerpetualHeader.getSubMovementTypeId(),
+				runPerpetualHeader.getMovementTypeId(), runPerpetualHeader.getSubMovementTypeId(),
 				runPerpetualHeader.getDateFrom(), runPerpetualHeader.getDateTo());
 
 		Set<PerpetualLineEntityImpl> responseList = new HashSet<>();

@@ -45,6 +45,8 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 	 * @param deletionIndicator
 	 * @return
 	 */
+	@Lock(value = LockModeType.PESSIMISTIC_WRITE) // adds 'FOR UPDATE' statement
+	@QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "5000")})
 	public Optional<Inventory> 
 		findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPackBarcodesAndItemCodeAndStorageBinAndStockTypeIdAndSpecialStockIndicatorIdAndDeletionIndicator(
 				String languageId, String companyCodeId, String plantId, 
@@ -96,7 +98,7 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 			@Param(value = "packbarCode") String packbarCode);
 	
 	@Lock(value = LockModeType.PESSIMISTIC_WRITE) // adds 'FOR UPDATE' statement
-	@QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = UPGRADE_SKIPLOCKED)})
+	@QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "5000")})
 	public Optional<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPackBarcodesAndItemCodeAndStorageBinAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId, String packBarcodes,
 			String itemCode, String storageBin, Long deletionIndicator);
@@ -174,7 +176,7 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 			@Param(value = "stockTypeId") Long stockTypeId);
 
 	@Lock(value = LockModeType.PESSIMISTIC_WRITE) // adds 'FOR UPDATE' statement
-	@QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = UPGRADE_SKIPLOCKED)})
+	@QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "5000")})
 	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndPackBarcodesAndBinClassIdAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId, String itemCode,
 			String packBarcodes, Long binClassId, long l);
@@ -259,11 +261,19 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 
 	public Optional<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndStorageBinAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId, String storageBin, long l);
+	
+	@Query (value = "SELECT SUM (INV_QTY) AS INV_QTY, SUM(ALLOC_QTY) AS ALLOC_QTY\r\n"
+			+ "	  FROM tblinventory \r\n"
+			+ "	  WHERE WH_ID = :warehouseId AND st_bin = :stBin AND IS_DELETED = 0 \r\n"
+			+ "	  GROUP BY st_bin", nativeQuery = true)
+	public Double[] findInventoryQtyByStBin (
+			@Param(value = "warehouseId") String warehouseId,
+			@Param(value = "stBin") String stBin);
 
 	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndAndStockTypeIdAndBinClassIdAndInventoryQuantityGreaterThanAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId, String itemCode,
 			Long stockTypeId, Long binClassId, Double invQty, Long deletionIndicator);
-	@Transactional
+
 //	@QueryHints(@javax.persistence.QueryHint(name="org.hibernate.fetchSize",value="100"))
 	@Query(value = "select \n" +
 			"pl.ref_doc_no asnNumber, \n" +
