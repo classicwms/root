@@ -55,7 +55,16 @@ public interface PreOutboundLineRepository extends JpaRepository<PreOutboundLine
 	public List<PreOutboundLine> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndPartnerCodeAndDeletionIndicator(
 			String languageId, String companyCodeId, String plantId, String warehouseId, String refDocNumber,
 			String preOutboundNo, String partnerCode, long l);
-			
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param refDocNumber
+	 * @param itemCode
+	 * @param iineNumber
+	 * @param deletionIndicator
+	 * @return
+	 */
 	public PreOutboundLine findByWarehouseIdAndRefDocNumberAndItemCodeAndLineNumberAndDeletionIndicator(
 			String warehouseId, String refDocNumber, String itemCode, Long iineNumber, Long deletionIndicator);
 	
@@ -69,16 +78,15 @@ public interface PreOutboundLineRepository extends JpaRepository<PreOutboundLine
 	@Query("UPDATE PreOutboundLine ob SET ob.statusId = :statusId WHERE ob.warehouseId = :warehouseId AND ob.refDocNumber = :refDocNumber")
 	void updatePreOutboundLineStatus(@Param ("warehouseId") String warehouseId,
 			@Param ("refDocNumber") String refDocNumber, @Param ("statusId") Long statusId);
-	
+			
 	@Query(value=" SELECT SUM(ORD_QTY) FROM tblpreoutboundline\r\n"
-			+ " WHERE REF_DOC_NO = :refDocNumber \r\n"
-			+ " GROUP BY REF_DOC_NO", nativeQuery=true)
+	+ " WHERE REF_DOC_NO = :refDocNumber \r\n"
+	+ " GROUP BY REF_DOC_NO", nativeQuery=true)
     public Long getSumofOrderedQty(@Param ("refDocNumber") String refDocNumber);
 
 	@Query(value=" SELECT COUNT(ORD_QTY) FROM tblpreoutboundline\r\n"
 			+ " WHERE REF_DOC_NO = :refDocNumber \r\n"
 			+ " GROUP BY REF_DOC_NO", nativeQuery=true)
     public Long getCountOfOrderedQty(@Param ("refDocNumber") String refDocNumber);
-	
 	
 }
