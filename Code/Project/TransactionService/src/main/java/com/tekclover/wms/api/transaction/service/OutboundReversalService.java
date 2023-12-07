@@ -68,7 +68,7 @@ public class OutboundReversalService {
 		}		
 		OutboundReversalSpecification spec = new OutboundReversalSpecification(searchOutboundReversal);
 		List<OutboundReversal> results = outboundReversalRepository.findAll(spec);
-		log.info("results: " + results);
+//		log.info("results: " + results);
 		return results;
 	}
 

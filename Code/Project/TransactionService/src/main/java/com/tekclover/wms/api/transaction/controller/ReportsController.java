@@ -207,8 +207,7 @@ public class ReportsController {
 	@ApiOperation(response = Optional.class, value = "Get Transaction History Report") // label for swagger
 	@PostMapping("/transactionHistoryReport")
 	public ResponseEntity<?> getTransactionHistoryReport(@RequestBody FindImBasicData1 searchImBasicData1) throws java.text.ParseException {
-		List<ITransactionHistoryReport> transactionHistoryReportList =
-				reportsService.getTransactionHistoryReport(searchImBasicData1);
+		Stream<TransactionHistoryReport> transactionHistoryReportList = reportsService.getTransactionHistoryReport(searchImBasicData1);
 		return new ResponseEntity<>(transactionHistoryReportList, HttpStatus.OK);
 	}
 

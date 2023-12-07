@@ -402,6 +402,19 @@ public class OrderManagementLineService extends BaseService {
 			OrderManagementLine updatedOrderManagementLine = orderManagementLineRepository.save(dbOrderManagementLine);
 			log.info("OrderManagementLine updated: " + updatedOrderManagementLine);
 			i++;
+			
+			/*
+			 * OutboundLine Update
+			 */
+			OutboundLine outboundLine = outboundLineService.getOutboundLine(warehouseId, 
+					updatedOrderManagementLine.getPreOutboundNo(), 
+					updatedOrderManagementLine.getRefDocNumber(),
+					updatedOrderManagementLine.getPartnerCode(), 
+					updatedOrderManagementLine.getLineNumber(), 
+					itemCode);
+			outboundLine.setStatusId(updatedOrderManagementLine.getStatusId());
+			outboundLine = outboundLineRepository.save(outboundLine);
+			log.info("outboundLine updated : " + outboundLine);
 		}
 		return !orderManagementLineList.isEmpty() ? orderManagementLineList.get(0) : null;
 	}
@@ -946,6 +959,19 @@ public class OrderManagementLineService extends BaseService {
 					log.info("inventoryForUpdate updated: " + inventoryForUpdate);
 				}
 
+				/*
+				 * OutboundLine Update
+				 */
+				OutboundLine outboundLine = outboundLineService.getOutboundLine(warehouseId, 
+						newOrderManagementLine.getPreOutboundNo(), 
+						newOrderManagementLine.getRefDocNumber(),
+						newOrderManagementLine.getPartnerCode(), 
+						newOrderManagementLine.getLineNumber(), 
+						itemCode);
+				outboundLine.setStatusId(newOrderManagementLine.getStatusId());
+				outboundLine = outboundLineRepository.save(outboundLine);
+				log.info("outboundLine updated : " + outboundLine);
+				
 				if (ORD_QTY == ALLOC_QTY) {
 					log.info("ORD_QTY fully allocated: " + ORD_QTY);
 					break outerloop; // If the Inventory satisfied the Ord_qty

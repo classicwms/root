@@ -466,6 +466,19 @@ public interface TransactionHistoryResultRepository extends JpaRepository<Transa
 
     //Transaction History Report
     @Procedure
-    void SP_THR(String warehouse, String itemCode, Date openingStockDateFrom, Date openingStockDateTo, Date closingStockDateFrom, Date closingStockDateTo);
+    void SP_THR(String warehouseId, String itemCode, Date openingStockDateFrom, Date openingStockDateTo, Date closingStockDateFrom, Date closingStockDateTo);
+
+        @Query(value = "select  \n" +
+            " closing_stock closingStock \n" +
+            " opening_stock openingStock, \n" +
+            " inbound_qty inboundQty, \n" +
+            " outbound_qty outboundQty, \n" +
+            " stock_adjustment_qty stockAdjustmentQty, \n" +
+            " item_code itemCode, \n" +
+            " system_inventory systemInventory, \n" +
+            " warehouse_id warehouseId, \n" +
+            " description itemDescription \n" +
+            " from tbltransactionhistoryresults ", nativeQuery = true)
+    public List<ITransactionHistoryReport> findNewTransactionHistoryReport();
 
 }
