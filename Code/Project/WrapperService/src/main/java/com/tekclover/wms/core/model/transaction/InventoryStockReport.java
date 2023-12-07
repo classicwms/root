@@ -21,4 +21,5 @@ public class InventoryStockReport {
 	private Double outboundQty;
 	private Double stockAdjustmentQty;
 	private Double closingStock;
+	private Double systemInventory;
 }

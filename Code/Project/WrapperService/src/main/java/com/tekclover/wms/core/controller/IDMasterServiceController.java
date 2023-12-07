@@ -153,7 +153,68 @@ public class IDMasterServiceController {
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
-    /* --------------------------------City-------------------------------------------------------------------------*/
+    /* --------------------------------Number Range-------------------------------------------------------------------------*/
+
+	@ApiOperation(response = NumberRange.class, value = "Get Number Range Current") // label for swagger
+	@GetMapping("/numberRange/nextNumberRange/{numberRangeCode}")
+	public ResponseEntity<?> getNextNumberRange(@PathVariable Long numberRangeCode, @RequestParam String authToken,
+												@RequestParam Long fiscalYear, @RequestParam String warehouseId) {
+		String nextRangeValue = idmasterService.getNextNumberRange(numberRangeCode, fiscalYear, warehouseId, authToken);
+		return new ResponseEntity<>(nextRangeValue, HttpStatus.OK);
+	}
+
+	@ApiOperation(response = NumberRange.class, value = "Get all NumberRange details") // label for swagger
+	@GetMapping("/numberRange")
+	public ResponseEntity<?> getAllNumberRange(@RequestParam String authToken) {
+		NumberRange[] numberRangeList = idmasterService.getNumberRanges(authToken);
+		return new ResponseEntity<>(numberRangeList, HttpStatus.OK);
+	}
+
+	@ApiOperation(response = NumberRange.class, value = "Get a NumberRange") // label for swagger
+	@GetMapping("/numberRange/{numberRangeCode}")
+	public ResponseEntity<?> getNumberRange(@RequestParam String warehouseId, @PathVariable Long numberRangeCode,
+											@RequestParam Long fiscalYear, @RequestParam String authToken) {
+		NumberRange numberRange =
+				idmasterService.getNumberRange(numberRangeCode, fiscalYear, warehouseId, authToken);
+		log.info("NumberRange : " + numberRangeCode);
+		return new ResponseEntity<>(numberRange, HttpStatus.OK);
+	}
+
+	@ApiOperation(response = NumberRange.class, value = "Create NumberRange") // label for swagger
+	@PostMapping("/numberRange")
+	public ResponseEntity<?> postNumberRange(@Valid @RequestBody NumberRange addNumberRange,
+											 @RequestParam String loginUserID, @RequestParam String authToken) {
+		NumberRange createdNumberRange = idmasterService.createNumberRange(addNumberRange, loginUserID, authToken);
+		return new ResponseEntity<>(createdNumberRange, HttpStatus.OK);
+	}
+
+	@ApiOperation(response = NumberRange.class, value = "Update NumberRange") // label for swagger
+	@PatchMapping("/numberRange/{numberRangeCode}")
+	public ResponseEntity<?> patchNumberRange(@RequestParam String warehouseId, @PathVariable Long numberRangeCode, @RequestParam Long fiscalYear,
+											  @Valid @RequestBody UpdateNumberRange updateNumberRange,
+											  @RequestParam String loginUserID, @RequestParam String authToken)
+			throws IllegalAccessException, InvocationTargetException {
+		NumberRange createdNumberRange =
+				idmasterService.updateNumberRange(warehouseId, numberRangeCode, fiscalYear, loginUserID, updateNumberRange, authToken);
+		return new ResponseEntity<>(createdNumberRange, HttpStatus.OK);
+	}
+
+	@ApiOperation(response = NumberRange.class, value = "Delete NumberRange") // label for swagger
+	@DeleteMapping("/numberRange/{numberRangeCode}")
+	public ResponseEntity<?> deleteNumberRange(@RequestParam String warehouseId, @PathVariable Long numberRangeCode, @RequestParam Long fiscalYear,
+											   @RequestParam String loginUserID, @RequestParam String authToken) {
+		idmasterService.deleteNumberRange(warehouseId, numberRangeCode, fiscalYear, loginUserID, authToken);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
+	//Search
+	@ApiOperation(response = NumberRange.class, value = "Find NumberRange") // label for swagger
+	@PostMapping("/numberRange/findNumberRange")
+	public ResponseEntity<?> findNumberRange(@Valid @RequestBody FindNumberRange findNumberRange, @RequestParam String authToken) throws Exception {
+		NumberRange[] createdNumberRange = idmasterService.findNumberRange(findNumberRange, authToken);
+		return new ResponseEntity<>(createdNumberRange, HttpStatus.OK);
+	}
+	/* --------------------------------City-------------------------------------------------------------------------*/
 
     @ApiOperation(response = Optional.class, value = "Get All Cities") // label for swagger
     @RequestMapping(value = "/city", method = RequestMethod.GET)

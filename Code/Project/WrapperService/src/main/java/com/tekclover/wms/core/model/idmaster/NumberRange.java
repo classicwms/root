@@ -16,11 +16,8 @@ public class NumberRange {
     private Long numberRangeTo;
     private String numberRangeCurrent;
     private Long deletionIndicator;
-    private String companyIdAndDescription;
-    private String plantIdAndDescription;
-    private String warehouseIdAndDescription;
     private String createdBy;
-    private Date createdOn = new Date();
+    private Date createdOn;
     private String updatedBy;
-    private Date updatedOn = new Date();
+    private Date updatedOn;
 }

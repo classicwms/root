@@ -1490,7 +1490,7 @@ public class TransactionServiceController {
 	/*
 	 * Inventory Stock movement report renamed to Transaction History report
 	 */
-	@ApiOperation(response = Optional.class, value = "Get transaction History Report")
+	@ApiOperation(response = InventoryStockReport.class, value = "Get transaction History Report")
 	@PostMapping("/reports/transactionHistoryReport")
 	public ResponseEntity<?> getTransactionHistoryReport(@RequestBody FindImBasicData1 findImBasicData1,
 														 @RequestParam String authToken) throws java.text.ParseException {
