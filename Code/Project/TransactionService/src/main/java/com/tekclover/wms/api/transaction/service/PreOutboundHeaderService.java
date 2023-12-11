@@ -381,7 +381,7 @@ public class PreOutboundHeaderService extends BaseService {
 		/*------------------Record Insertion in OUTBOUNDLINE tables-----------*/
 		List<OutboundLine> createOutboundLineList = createOutboundLine (createdPreOutboundLineList);
 		log.info("createOutboundLine created : " + createOutboundLineList);
-			
+		
 		/*------------------Insert into PreOutboundHeader table-----------------------------*/
 		PreOutboundHeader createdPreOutboundHeader = createPreOutboundHeader (warehouse.getCompanyCode(), 
 				warehouse.getPlantId(), preOutboundNo, outboundIntegrationHeader, refField1ForOrderType);
