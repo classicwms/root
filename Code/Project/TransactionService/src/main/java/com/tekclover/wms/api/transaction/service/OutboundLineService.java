@@ -232,6 +232,22 @@ public class OutboundLineService extends BaseService {
 	 * @param statusIds
 	 * @return
 	 */
+	public List<OutboundLine> getOutboundLines (String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, List<Long> statusIds) {
+		List<OutboundLine> outboundLines = 
+				outboundLineRepository.findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndStatusIdInAndDeletionIndicator(
+						warehouseId, preOutboundNo, refDocNumber, partnerCode, statusIds, 0);
+		return outboundLines;
+	}
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @param statusIds
+	 * @return
+	 */
 	public List<OutboundLine> findOutboundLineByStatus (String warehouseId, String preOutboundNo, 
 			String refDocNumber, String partnerCode, List<Long> statusIds) {
 		List<OutboundLine> outboundLine;
@@ -836,8 +852,9 @@ public class OutboundLineService extends BaseService {
 			log.info("OutboundOrderTypeId : " + confirmedOutboundHeader.getOutboundOrderTypeId() );
 			log.info("confirmedOutboundLines: " + confirmedOutboundLines);
 			
-			List<Long> lineNumbers = confirmedOutboundLines.stream().map(OutboundLine::getLineNumber).collect(Collectors.toList());	
-			List<String> itemCodes = confirmedOutboundLines.stream().map(OutboundLine::getItemCode).collect(Collectors.toList());	
+			List<OutboundLine> outboundLines = getOutboundLines(warehouseId, preOutboundNo, refDocNumber, partnerCode, statusIdsToBeChecked);
+			List<Long> lineNumbers = outboundLines.stream().map(OutboundLine::getLineNumber).collect(Collectors.toList());	
+			List<String> itemCodes = outboundLines.stream().map(OutboundLine::getItemCode).collect(Collectors.toList());	
 			
 			// Inventory Update
 			inventoryUpdateBeforeAXSubmit (warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumbers, itemCodes);
