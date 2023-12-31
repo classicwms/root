@@ -777,9 +777,18 @@ public class InboundHeaderService extends BaseService {
 		/*
 		 * Posting to AX_API
 		 */
-		AXAuthToken authToken = authTokenService.generateAXOAuthToken();
-		AXApiResponse apiResponse = warehouseService.postASNConfirmation(asn, authToken.getAccess_token());
-		log.info("apiResponse : " + apiResponse);
+		AXApiResponse apiResponse = null;
+		try {
+			AXAuthToken authToken = authTokenService.generateAXOAuthToken();
+			apiResponse = warehouseService.postASNConfirmation(asn, authToken.getAccess_token());
+			log.info("apiResponse : " + apiResponse);
+		} catch (Exception e) {
+			e.printStackTrace();
+			apiResponse = new AXApiResponse();
+			apiResponse.setStatusCode("400");
+			apiResponse.setMessage(e.toString());
+			log.info("ApiResponse got Error: " + apiResponse);
+		}
 		
 		// Capture the AXResponse in Table
 		IntegrationApiResponse response = new IntegrationApiResponse();
@@ -875,9 +884,18 @@ public class InboundHeaderService extends BaseService {
 		/*
 		 * Posting to AX_API
 		 */
-		AXAuthToken authToken = authTokenService.generateAXOAuthToken();
-		AXApiResponse apiResponse = warehouseService.postStoreReturnConfirmation(storeReturn, authToken.getAccess_token());
-		log.info("apiResponse : " + apiResponse);
+		AXApiResponse apiResponse = null;
+		try {
+			AXAuthToken authToken = authTokenService.generateAXOAuthToken();
+			apiResponse = warehouseService.postStoreReturnConfirmation(storeReturn, authToken.getAccess_token());
+			log.info("apiResponse : " + apiResponse);
+		} catch (Exception e) {
+			e.printStackTrace();
+			apiResponse = new AXApiResponse();
+			apiResponse.setStatusCode("400");
+			apiResponse.setMessage(e.toString());
+			log.info("ApiResponse got Error: " + apiResponse);
+		}
 		
 		// Capture the AXResponse in Table
 		IntegrationApiResponse response = new IntegrationApiResponse();
@@ -963,9 +981,18 @@ public class InboundHeaderService extends BaseService {
 		/*
 		 * Posting to AX_API
 		 */
-		AXAuthToken authToken = authTokenService.generateAXOAuthToken();
-		AXApiResponse apiResponse = warehouseService.postSOReturnConfirmation(soReturn, authToken.getAccess_token());
-		log.info("apiResponse : " + apiResponse);
+		AXApiResponse apiResponse = null;
+		try {
+			AXAuthToken authToken = authTokenService.generateAXOAuthToken();
+			apiResponse = warehouseService.postSOReturnConfirmation(soReturn, authToken.getAccess_token());
+			log.info("apiResponse : " + apiResponse);
+		} catch (Exception e) {
+			e.printStackTrace();
+			apiResponse = new AXApiResponse();
+			apiResponse.setStatusCode("400");
+			apiResponse.setMessage(e.toString());
+			log.info("ApiResponse got Error: " + apiResponse);
+		}
 		
 		// Capture the AXResponse in Table
 		IntegrationApiResponse response = new IntegrationApiResponse();
@@ -1062,9 +1089,18 @@ public class InboundHeaderService extends BaseService {
 		/*
 		 * Posting to AX_API
 		 */
-		AXAuthToken authToken = authTokenService.generateAXOAuthToken();
-		AXApiResponse apiResponse = warehouseService.postInterWarehouseTransferConfirmation(interWarehouseTransfer, authToken.getAccess_token());
-		log.info("apiResponse : " + apiResponse);
+		AXApiResponse apiResponse = null;
+		try {
+			AXAuthToken authToken = authTokenService.generateAXOAuthToken();
+			apiResponse = warehouseService.postInterWarehouseTransferConfirmation(interWarehouseTransfer, authToken.getAccess_token());
+			log.info("apiResponse : " + apiResponse);
+		} catch (Exception e) {
+			e.printStackTrace();
+			apiResponse = new AXApiResponse();
+			apiResponse.setStatusCode("400");
+			apiResponse.setMessage(e.toString());
+			log.info("ApiResponse got Error: " + apiResponse);
+		}
 		
 		// Capture the AXResponse in Table
 		IntegrationApiResponse response = new IntegrationApiResponse();

@@ -11,6 +11,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import com.tekclover.wms.api.transaction.config.PropertiesConfig;
@@ -140,22 +142,74 @@ public class AuthTokenService {
 	 * 
 	 * @return
 	 */
+//	public AXAuthToken generateAXOAuthToken() {
+//		RestTemplate restTemplate = new RestTemplate();
+//		HttpHeaders headers = new HttpHeaders();
+//		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+//		
+//		AXUserAuth axapiUserAuth = new AXUserAuth();
+//		axapiUserAuth.setUsername(propertiesConfig.getAxapiAccessTokenUsername());
+//		axapiUserAuth.setPassword(propertiesConfig.getAxapiAccessTokenPassword());
+//		
+//		HttpEntity<?> entity = new HttpEntity<>(axapiUserAuth, headers);
+//		String accessTokenUrl = propertiesConfig.getAxapiAccessTokenUrl();
+//		log.info("Access token url: " + accessTokenUrl);
+//		
+//		ResponseEntity<AXAuthToken> response = 
+//				restTemplate.exchange(accessTokenUrl, HttpMethod.POST, entity, AXAuthToken.class);
+//		log.info("Access Token Response ---------" + response.getBody());
+//		return response.getBody();
+//	}
+	
+	/*------------------AX-API----AUTH-TOKEN---------------------------*/
+	/**
+	 * axapi.service.access_token.url=http://168.187.214.59:10102/api/ax/gettoken
+	 * axapi.service.access_token.username=AxUser
+	 * axapi.service.access_token.password=Wms-@tv@ndtsc-!nt00
+	 * ---------------------------------------------------------
+	 * @return
+	 */
 	public AXAuthToken generateAXOAuthToken() {
 		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders headers = new HttpHeaders();
-		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+//		headers.add("resource", propertiesConfig.getAxapiServiceAccessTokenResource());
 		
 		AXUserAuth axapiUserAuth = new AXUserAuth();
-		axapiUserAuth.setUsername(propertiesConfig.getAxapiAccessTokenUsername());
-		axapiUserAuth.setPassword(propertiesConfig.getAxapiAccessTokenPassword());
+//		axapiUserAuth.setClient_Id("a9ef22c7-c41f-4cc5-8d83-4eb222dd7734");
+//		axapiUserAuth.setClient_secret("Bx28Q~Sjz45kSetkvgBqZjt2g-fimhs~Cat5taVt");
+//		axapiUserAuth.setGrant_type("client_credentials");
+//		axapiUserAuth.setResource("https://tvd365-dev81cbb1e734974cffdevaos.axcloud.dynamics.com");
+		axapiUserAuth.setClient_Id(propertiesConfig.getAxapiServiceAccessTokenClientId());
+		axapiUserAuth.setClient_secret(propertiesConfig.getAxapiServiceAccessTokenClientSecret());
+		axapiUserAuth.setGrant_type(propertiesConfig.getAxapiServiceAccessTokenGrantType());
+		axapiUserAuth.setResource(propertiesConfig.getAxapiServiceAccessTokenResource());
 		
-		HttpEntity<?> entity = new HttpEntity<>(axapiUserAuth, headers);
-		String accessTokenUrl = propertiesConfig.getAxapiAccessTokenUrl();
+//		HttpEntity<?> entity = new HttpEntity<>(headers);
+//		String accessTokenUrl = "https://login.microsoftonline.com/truevalue.com.kw/oauth2/token";
+		String accessTokenUrl = propertiesConfig.getAxapiServiceAccessTokenAuthUrl();
+		
+		log.info("client_Id : " + axapiUserAuth.getClient_Id());
+		log.info("grant_type : " + axapiUserAuth.getGrant_type());
+		log.info("resource : " + axapiUserAuth.getResource());
+		log.info("client_secret : " + axapiUserAuth.getClient_secret());
+		
+		MultiValueMap<String, String> map= new LinkedMultiValueMap<String, String>();
+		map.add("client_Id", axapiUserAuth.getClient_Id());
+		map.add("grant_type", axapiUserAuth.getGrant_type());
+		map.add("resource", axapiUserAuth.getResource());
+		map.add("client_secret", axapiUserAuth.getClient_secret());
+
+		HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
 		log.info("Access token url: " + accessTokenUrl);
 		
 		ResponseEntity<AXAuthToken> response = 
-				restTemplate.exchange(accessTokenUrl, HttpMethod.POST, entity, AXAuthToken.class);
+				restTemplate.exchange(accessTokenUrl, HttpMethod.POST, request, AXAuthToken.class);
 		log.info("Access Token Response ---------" + response.getBody());
 		return response.getBody();
+	}
+	
+	public static void main(String[] args) {
+//		generateAXOAuthToken();
 	}
 }

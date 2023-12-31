@@ -2,7 +2,7 @@ package com.tekclover.wms.api.transaction.service;
 
 import java.util.Collections;
 import java.util.List;
-
+import java.net.URI;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,11 +57,11 @@ public class MastersService {
 			headers.add("Authorization", "Bearer " + authToken);
 			
 			HttpEntity<?> entity = new HttpEntity<>(headers);
-			UriComponentsBuilder builder = 
-					UriComponentsBuilder.fromHttpUrl(getMastersServiceApiUrl() + "imbasicdata1/" + itemCode)
-					.queryParam("warehouseId", warehouseId);
-			ResponseEntity<ImBasicData1> result = 
-					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, ImBasicData1.class);
+			String url = getMastersServiceApiUrl() + "imbasicdata1/" + itemCode + "?warehouseId=" + warehouseId;
+			UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url);
+			URI uri = builder.build(false).toUri();
+			log.info("uri-----------> : " + uri);
+			ResponseEntity<ImBasicData1> result = getRestTemplate().exchange(uri, HttpMethod.GET, entity, ImBasicData1.class);
 			return result.getBody();
 		} catch (Exception e) {
 			return null;

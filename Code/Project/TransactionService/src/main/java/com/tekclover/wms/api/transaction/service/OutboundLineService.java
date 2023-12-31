@@ -795,6 +795,9 @@ public class OutboundLineService extends BaseService {
 	 */
 	public List<OutboundLine> deliveryConfirmation (String warehouseId, String preOutboundNo, String refDocNumber, 
 			String partnerCode, String loginUserID) throws IllegalAccessException, InvocationTargetException {
+		log.info("-----deliveryConfirmation--------called-----> : " + warehouseId + "," + 
+			preOutboundNo + "," + refDocNumber + "," + partnerCode);
+		
 		/*--------------------OutboundLine-Check---------------------------------------------------------------------------*/
 		List<Long> statusIds = Arrays.asList(59L);
 		long outboundLineProcessedCount = getOutboundLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, statusIds);
@@ -984,7 +987,8 @@ public class OutboundLineService extends BaseService {
 			}
 		} else {
 			String errorFromAXAPI = axapiResponse.getMessage();
-			throw new BadRequestException("Error from AX: " + errorFromAXAPI);
+//			throw new BadRequestException("Error from AX: " + errorFromAXAPI);
+			log.info("Error from AX:" + errorFromAXAPI);
 		}
 		return null;
 		
@@ -2228,10 +2232,18 @@ public class OutboundLineService extends BaseService {
 		/*
 		 * Posting to AX_API
 		 */
-		AXAuthToken authToken = authTokenService.generateAXOAuthToken();
-		AXApiResponse apiResponse = warehouseService.postInterWarehouseShipmentConfirmation(interWarehouseShipment, 
-						authToken.getAccess_token());
-		log.info("apiResponse : " + apiResponse);
+		AXApiResponse apiResponse = null;
+		try {
+			AXAuthToken authToken = authTokenService.generateAXOAuthToken();
+			apiResponse = warehouseService.postInterWarehouseShipmentConfirmation(interWarehouseShipment, authToken.getAccess_token());
+			log.info("apiResponse : " + apiResponse);
+		} catch (Exception e) {
+			e.printStackTrace();
+			apiResponse = new AXApiResponse();
+			apiResponse.setStatusCode("400");
+			apiResponse.setMessage(e.toString());
+			log.info("ApiResponse got Error: " + apiResponse);
+		}
 		
 		// Capture the AXResponse in Table
 		IntegrationApiResponse response = new IntegrationApiResponse();
@@ -2305,9 +2317,18 @@ public class OutboundLineService extends BaseService {
 		/*
 		 * Posting to AX_API
 		 */
-		AXAuthToken authToken = authTokenService.generateAXOAuthToken();
-		AXApiResponse apiResponse = warehouseService.postShipmentConfirmation(shipment, authToken.getAccess_token());
-		log.info("apiResponse : " + apiResponse);
+		AXApiResponse apiResponse = null;
+		try {
+			AXAuthToken authToken = authTokenService.generateAXOAuthToken();
+			apiResponse = warehouseService.postShipmentConfirmation(shipment, authToken.getAccess_token());
+			log.info("apiResponse : " + apiResponse);
+		} catch (Exception e) {
+			e.printStackTrace();
+			apiResponse = new AXApiResponse();
+			apiResponse.setStatusCode("400");
+			apiResponse.setMessage(e.toString());
+			log.info("ApiResponse got Error: " + apiResponse);
+		}
 		
 		// Capture the AXResponse in Table
 		IntegrationApiResponse response = new IntegrationApiResponse();
@@ -2373,9 +2394,18 @@ public class OutboundLineService extends BaseService {
 		/*
 		 * Posting to AX_API
 		 */
-		AXAuthToken authToken = authTokenService.generateAXOAuthToken();
-		AXApiResponse apiResponse = warehouseService.postReturnPOConfirmation(returnPO, authToken.getAccess_token());
-		log.info("apiResponse : " + apiResponse);
+		AXApiResponse apiResponse = null;
+		try {
+			AXAuthToken authToken = authTokenService.generateAXOAuthToken();
+			apiResponse = warehouseService.postReturnPOConfirmation(returnPO, authToken.getAccess_token());
+			log.info("apiResponse : " + apiResponse);
+		} catch (Exception e) {
+			e.printStackTrace();
+			apiResponse = new AXApiResponse();
+			apiResponse.setStatusCode("400");
+			apiResponse.setMessage(e.toString());
+			log.info("ApiResponse got Error: " + apiResponse);
+		}
 		
 		IntegrationApiResponse response = new IntegrationApiResponse();
 		response.setOrderNumber(poHeader.getPoNumber());
@@ -2448,9 +2478,18 @@ public class OutboundLineService extends BaseService {
 		/*
 		 * Posting to AX_API
 		 */
-		AXAuthToken authToken = authTokenService.generateAXOAuthToken();
-		AXApiResponse apiResponse = warehouseService.postSaleOrderConfirmation(salesOrder, authToken.getAccess_token());
-		log.info("apiResponse : " + apiResponse);
+		AXApiResponse apiResponse = null;
+		try {
+			AXAuthToken authToken = authTokenService.generateAXOAuthToken();
+			apiResponse = warehouseService.postSaleOrderConfirmation(salesOrder, authToken.getAccess_token());
+			log.info("apiResponse : " + apiResponse);
+		} catch (Exception e) {
+			e.printStackTrace();
+			apiResponse = new AXApiResponse();
+			apiResponse.setStatusCode("400");
+			apiResponse.setMessage(e.toString());
+			log.info("ApiResponse got Error: " + apiResponse);
+		}
 		
 		IntegrationApiResponse response = new IntegrationApiResponse();
 		response.setOrderNumber(soHeader.getSalesOrderNumber());
