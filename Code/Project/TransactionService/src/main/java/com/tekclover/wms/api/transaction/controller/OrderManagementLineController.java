@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.transaction.controller;
 
 import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -152,4 +153,25 @@ public class OrderManagementLineController {
        	ordermangementlineService.updateRef9ANDRef10();
    		return new ResponseEntity<>(HttpStatus.OK);
    	}
+
+	//===================================================Allocation - UnAllocation=======================================================
+
+	@ApiOperation(response = OrderManagementLine.class, value = "Allocate") // label for swagger
+	@PatchMapping("/allocate/patch")
+	public ResponseEntity<?> allocateOrderManagementLineV2(@Valid @RequestBody List<OrderManagementLine> orderManagementLineV2, @RequestParam String loginUserID)
+			throws IllegalAccessException, InvocationTargetException, ParseException {
+		List<OrderManagementLine> updatedOrderManagementLine =
+				ordermangementlineService.doAllocation(orderManagementLineV2, loginUserID);
+		return new ResponseEntity<>(updatedOrderManagementLine, HttpStatus.OK);
+	}
+
+	//Patch Update UnAllocation
+	@ApiOperation(response = OrderManagementLine.class, value = "UnAllocate") // label for swagger
+	@PatchMapping("/unallocate/patch")
+	public ResponseEntity<?> unallocateOrderManagementLineV2(@Valid @RequestBody List<OrderManagementLine> orderManagementLineV2,
+															 @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
+		List<OrderManagementLine> updatedOrderManagementLine =
+				ordermangementlineService.doUnAllocation(orderManagementLineV2, loginUserID);
+		return new ResponseEntity<>(updatedOrderManagementLine, HttpStatus.OK);
+	}
 }

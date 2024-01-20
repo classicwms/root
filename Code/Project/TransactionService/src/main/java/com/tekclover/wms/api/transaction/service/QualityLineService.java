@@ -673,7 +673,8 @@ public class QualityLineService extends BaseService {
 				PickupLine pickupLine = pickupLineRepository.findByPickupNumber (qualityHeader.getPickupNumber());
 				
 				// Creating new Inventory for Rejection of Material
-				if (dbQualityLine.getQualityQty() < dbQualityLine.getPickConfirmQty()) {
+				if ((dbQualityLine.getQualityQty() < dbQualityLine.getPickConfirmQty()) || 
+						(dbQualityLine.getQualityQty() > dbQualityLine.getPickConfirmQty())) {
 					try {
 						AddInventory newInventory = new AddInventory();
 						newInventory.setLanguageId(getLanguageId());
@@ -685,7 +686,7 @@ public class QualityLineService extends BaseService {
 						newInventory.setPackBarcodes(dbQualityLine.getPickPackBarCode());
 						newInventory.setItemCode(dbQualityLine.getItemCode());
 						newInventory.setStorageBin(storageBin.getStorageBin());
-						newInventory.setInventoryQuantity((pickupLine.getPickConfirmQty() - dbQualityLine.getQualityQty()));
+						newInventory.setInventoryQuantity(Math.abs(pickupLine.getPickConfirmQty() - dbQualityLine.getQualityQty()));
 						newInventory.setSpecialStockIndicatorId(1L); 	// Hardcoding as 1L for Stock Tyope ID
 						newInventory.setCreatedOn(new Date());			
 						newInventory.setCreatedBy(loginUserID);

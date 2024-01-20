@@ -1089,4 +1089,141 @@ public class OrderManagementLineService extends BaseService {
 			throw new EntityNotFoundException("Error in deleting Id: " + refDocNumber);
 		}
 	}
+
+
+	// Allocation Patch
+	public List<OrderManagementLine> doAllocation(List<OrderManagementLine> orderManagementLineV2s, String loginUserID) throws java.text.ParseException {
+
+		List<OrderManagementLine> orderManagementLineV2List = new ArrayList<>();
+
+		for (OrderManagementLine orderManagementLine : orderManagementLineV2s) {
+			List<OrderManagementLine> dbOrderManagementLines = getOrderManagementLine(orderManagementLine.getWarehouseId(), orderManagementLine.getPreOutboundNo(),
+					orderManagementLine.getRefDocNumber(), orderManagementLine.getPartnerCode(), orderManagementLine.getLineNumber(), orderManagementLine.getItemCode());
+			log.info("Processing Order management Line : " + dbOrderManagementLines);
+			OrderManagementLine dbOrderManagementLine = null;
+
+			// If results is multiple reords then keeping one record and deleting rest of
+			// them
+			if (dbOrderManagementLines != null && !dbOrderManagementLines.isEmpty()) {
+				dbOrderManagementLine = dbOrderManagementLines.get(0); // Keeping the first record
+
+				// Deleting the rest
+				for (int i = 1; i < dbOrderManagementLines.size(); i++) {
+					// warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode,
+					// proposedStorageBin, proposedPackCode
+					OrderManagementLine orderManagementLineToDelete = dbOrderManagementLines.get(i);
+					deleteOrderManagementLine(orderManagementLineToDelete.getWarehouseId(),
+							orderManagementLineToDelete.getPreOutboundNo(), orderManagementLineToDelete.getRefDocNumber(),
+							orderManagementLineToDelete.getPartnerCode(), orderManagementLineToDelete.getLineNumber(),
+							orderManagementLineToDelete.getItemCode(), orderManagementLineToDelete.getProposedStorageBin(),
+							orderManagementLineToDelete.getProposedPackBarCode(), loginUserID);
+					log.info("Deleted the other orderManagementLine : " + orderManagementLineToDelete);
+				}
+			}
+
+			Long OB_ORD_TYP_ID = dbOrderManagementLine.getOutboundOrderTypeId();
+			Double ORD_QTY = dbOrderManagementLine.getOrderQty();
+
+			if (OB_ORD_TYP_ID == 0L || OB_ORD_TYP_ID == 1L || OB_ORD_TYP_ID == 3L) {
+				List<String> storageSectionIds = Arrays.asList("ZB", "ZC", "ZG", "ZT"); // ZB,ZC,ZG,ZT
+				dbOrderManagementLine = updateAllocation(dbOrderManagementLine, storageSectionIds, ORD_QTY, orderManagementLine.getWarehouseId(),
+						orderManagementLine.getItemCode(), loginUserID);
+			}
+
+			if (OB_ORD_TYP_ID == 2L) {
+				List<String> storageSectionIds = Arrays.asList("ZD"); // ZD
+				dbOrderManagementLine = updateAllocation(dbOrderManagementLine, storageSectionIds, ORD_QTY, orderManagementLine.getWarehouseId(),
+						orderManagementLine.getItemCode(), loginUserID);
+
+			}
+			dbOrderManagementLine.setPickupUpdatedBy(loginUserID);
+			dbOrderManagementLine.setPickupUpdatedOn(new Date());
+			OrderManagementLine updatedOrderManagementLine = orderManagementLineRepository.save(dbOrderManagementLine);
+			log.info("OrderManagementLine updated: " + updatedOrderManagementLine);
+			orderManagementLineV2List.add(updatedOrderManagementLine);
+		}
+		return orderManagementLineV2List;
+	}
+
+	//Patch UnAllocation
+	public List<OrderManagementLine> doUnAllocation(List<OrderManagementLine> orderManagementLineV2, String loginUserID) throws IllegalAccessException, InvocationTargetException {
+
+		List<OrderManagementLine> orderManagementLineV2s = new ArrayList<>();
+
+		for (OrderManagementLine orderManagementLine : orderManagementLineV2) {
+			// HAREESH - 2022-10-01- Validate multiple ordermanagement lines
+			List<OrderManagementLine> orderManagementLineList = getListOrderManagementLine(orderManagementLine.getWarehouseId(), orderManagementLine.getPreOutboundNo(),
+					orderManagementLine.getRefDocNumber(), orderManagementLine.getPartnerCode(), orderManagementLine.getLineNumber(), orderManagementLine.getItemCode());
+			log.info("Processing Order management Line : " + orderManagementLineList);
+			/*
+			 * Update Inventory table -------------------------- Pass the
+			 * WH_ID/ITM_CODE/PACK_BARCODE(PROP_PACK_BARCODE)/ST_BIN(PROP_ST_BIN) values in
+			 * INVENTORY table update INV_QTY as (INV_QTY+ALLOC_QTY) and change ALLOC_QTY as
+			 * 0
+			 */
+			int i = 0;
+			AuthToken idmasterAuthToken = authTokenService.getIDMasterServiceAuthToken();
+			StatusId idStatus = idmasterService.getStatus(47L, orderManagementLine.getWarehouseId(), idmasterAuthToken.getAccess_token());
+
+			for (OrderManagementLine dbOrderManagementLine : orderManagementLineList) {
+				String packBarcodes = dbOrderManagementLine.getProposedPackBarCode();
+				String storageBin = dbOrderManagementLine.getProposedStorageBin();
+				Inventory inventory = inventoryService.getInventory(orderManagementLine.getWarehouseId(), packBarcodes, orderManagementLine.getItemCode(), storageBin);
+				Double invQty = inventory.getInventoryQuantity() + dbOrderManagementLine.getAllocatedQty();
+
+				/*
+				 * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
+				 */
+				// Start
+				if (invQty < 0D) {
+					invQty = 0D;
+				}
+				// End
+
+				inventory.setInventoryQuantity(invQty);
+				log.info("Inventory invQty: " + invQty);
+
+				Double allocQty = inventory.getAllocatedQuantity() - dbOrderManagementLine.getAllocatedQty();
+				if (allocQty < 0D) {
+					allocQty = 0D;
+				}
+				inventory.setAllocatedQuantity(allocQty);
+				log.info("Inventory allocQty: " + allocQty);
+
+				inventory = inventoryRepository.save(inventory);
+				log.info("Inventory updated: " + inventory);
+
+				/*
+				 * 1. Update ALLOC_QTY value as 0 2. Update STATUS_ID = 47
+				 */
+				dbOrderManagementLine.setAllocatedQty(0D);
+				dbOrderManagementLine.setStatusId(47L);
+				dbOrderManagementLine.setReferenceField7(idStatus.getStatus());
+				dbOrderManagementLine.setPickupUpdatedBy(loginUserID);
+				dbOrderManagementLine.setPickupUpdatedOn(new Date());
+				if (i != 0) {
+					dbOrderManagementLine.setDeletionIndicator(1L);
+				}
+				OrderManagementLine updatedOrderManagementLine = orderManagementLineRepository.save(dbOrderManagementLine);
+				log.info("OrderManagementLine updated: " + updatedOrderManagementLine);
+				i++;
+				orderManagementLineV2s.add(updatedOrderManagementLine);
+
+				/*
+				 * OutboundLine Update
+				 */
+				OutboundLine outboundLine = outboundLineService.getOutboundLine(
+						orderManagementLine.getWarehouseId(),
+						updatedOrderManagementLine.getPreOutboundNo(),
+						updatedOrderManagementLine.getRefDocNumber(),
+						updatedOrderManagementLine.getPartnerCode(),
+						updatedOrderManagementLine.getLineNumber(),
+						orderManagementLine.getItemCode());
+				outboundLine.setStatusId(updatedOrderManagementLine.getStatusId());
+				outboundLine = outboundLineRepository.save(outboundLine);
+				log.info("outboundLine updated : " + outboundLine);
+			}
+		}
+		return orderManagementLineV2s;
+	}
 }
