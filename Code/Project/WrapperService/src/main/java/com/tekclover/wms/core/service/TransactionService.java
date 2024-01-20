@@ -3489,9 +3489,10 @@ public class TransactionService {
 		}
 	}
 
+
 	// PATCH
-	public OrderManagementLine doAllocation(String warehouseId, String preOutboundNo, String refDocNumber,
-			String partnerCode, Long lineNumber, String itemCode, String loginUserID, String authToken) {
+	public OrderManagementLine allocation(String warehouseId, String preOutboundNo, String refDocNumber,
+										  String partnerCode, Long lineNumber, String itemCode, String loginUserID, String authToken) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -3510,6 +3511,56 @@ public class TransactionService {
 					.queryParam("loginUserID", loginUserID);
 			ResponseEntity<OrderManagementLine> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH,
 					entity, OrderManagementLine.class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	//Allocation List of Patch
+	public OrderManagementLine[] allocationPatchList(List<OrderManagementLine> orderManagementLineV2,
+													 String loginUserID, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS-Almailem RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			HttpEntity<?> entity = new HttpEntity<>(orderManagementLineV2, headers);
+
+			HttpClient client = HttpClients.createDefault();
+			RestTemplate restTemplate = getRestTemplate();
+			restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "ordermanagementline/allocate/patch")
+					.queryParam("loginUserID", loginUserID);
+			ResponseEntity<OrderManagementLine[]> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH,
+					entity, OrderManagementLine[].class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	// UnAllocationPatch
+	public OrderManagementLine[] unallocationPatch(List<OrderManagementLine> orderManagementLineV2, String loginUserID, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS-Almailem RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			HttpEntity<?> entity = new HttpEntity<>(orderManagementLineV2, headers);
+
+			HttpClient client = HttpClients.createDefault();
+			RestTemplate restTemplate = getRestTemplate();
+			restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "ordermanagementline/unallocate/patch")
+					.queryParam("loginUserID", loginUserID);
+			ResponseEntity<OrderManagementLine[]> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH,
+					entity, OrderManagementLine[].class);
 			log.info("result : " + result.getStatusCode());
 			return result.getBody();
 		} catch (Exception e) {

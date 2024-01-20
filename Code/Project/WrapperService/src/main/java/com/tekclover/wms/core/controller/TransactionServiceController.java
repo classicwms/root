@@ -1132,7 +1132,7 @@ public class TransactionServiceController {
 			@RequestParam String loginUserID, @RequestParam String authToken) 
 					throws IllegalAccessException, InvocationTargetException {
 		OrderManagementLine updatedOrderManagementLine = 
-				transactionService.doUnAllocation(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, 
+				transactionService.doUnAllocation(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber,
 						itemCode, proposedStorageBin, proposedPackBarCode, loginUserID, authToken);
 		return new ResponseEntity<>(updatedOrderManagementLine , HttpStatus.OK);
 	}
@@ -1144,7 +1144,7 @@ public class TransactionServiceController {
 			@RequestParam String itemCode, @RequestParam String loginUserID, @RequestParam String authToken) 
 					throws IllegalAccessException, InvocationTargetException {
 		OrderManagementLine updatedOrderManagementLine = 
-				transactionService.doAllocation(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, 
+				transactionService.allocation(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber,
 						itemCode, loginUserID, authToken);
 		return new ResponseEntity<>(updatedOrderManagementLine , HttpStatus.OK);
 	}
@@ -1158,7 +1158,27 @@ public class TransactionServiceController {
 				transactionService.doAssignPicker(assignPicker, assignedPickerId, loginUserID, authToken);
 		return new ResponseEntity<>(updatedOrderManagementLine , HttpStatus.OK);
 	}
-	
+
+	@ApiOperation(response = OrderManagementLine.class, value = "Allocate Patch") // label for swagger
+	@PatchMapping("/ordermanagementline/allocate/patch")
+	public ResponseEntity<?> patchAllocateV2(@Valid @RequestBody List<OrderManagementLine> orderManagementLineV2,
+											   @RequestParam String loginUserID, @RequestParam String authToken)
+			throws IllegalAccessException, InvocationTargetException {
+		OrderManagementLine[] updatedOrderManagementLine =
+				transactionService.allocationPatchList(orderManagementLineV2, loginUserID, authToken);
+		return new ResponseEntity<>(updatedOrderManagementLine, HttpStatus.OK);
+	}
+
+	@ApiOperation(response = OrderManagementLine.class, value = " UnAllocate Patch") // label for swagger
+	@PatchMapping("/ordermanagementline/unallocate/patch")
+	public ResponseEntity<?> patchUnallocateV2(@Valid @RequestBody List<OrderManagementLine> orderManagementLineV2,
+											   @RequestParam String loginUserID, @RequestParam String authToken)
+			throws IllegalAccessException, InvocationTargetException {
+		OrderManagementLine[] updatedOrderManagementLine =
+				transactionService.unallocationPatch(orderManagementLineV2, loginUserID, authToken);
+		return new ResponseEntity<>(updatedOrderManagementLine, HttpStatus.OK);
+	}
+
 	@ApiOperation(response = OrderManagementLine.class, value = "Update OrderMangementLine") // label for swagger
     @PatchMapping("/ordermanagementline/{refDocNumber}")
 	public ResponseEntity<?> patchOrderMangementLine(@PathVariable String refDocNumber, 
