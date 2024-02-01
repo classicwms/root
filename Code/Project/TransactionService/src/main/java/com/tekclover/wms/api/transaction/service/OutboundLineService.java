@@ -793,6 +793,7 @@ public class OutboundLineService extends BaseService {
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
+	@Transactional
 	public List<OutboundLine> deliveryConfirmation (String warehouseId, String preOutboundNo, String refDocNumber, 
 			String partnerCode, String loginUserID) throws IllegalAccessException, InvocationTargetException {
 		log.info("-----deliveryConfirmation--------called-----> : " + warehouseId + "," + 
@@ -863,29 +864,48 @@ public class OutboundLineService extends BaseService {
 			inventoryUpdateBeforeAXSubmit (warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumbers, itemCodes);
 			
 			/*---------------------AXAPI-integration----------------------------------------------------------*/
-			
 			// if OB_ORD_TYP_ID = 0 in OUTBOUNDHEADER table - call Shipment Confirmation
 			if (confirmedOutboundHeader.getOutboundOrderTypeId() == 0L && confirmedOutboundLines != null) {
-				axapiResponse = postShipment (confirmedOutboundHeader, confirmedOutboundLines);
-				log.info("AXApiResponse: " + axapiResponse);
+				try {
+					axapiResponse = postShipment (confirmedOutboundHeader, confirmedOutboundLines);
+					log.info("AXApiResponse: " + axapiResponse);
+				} catch (Exception e) {
+					e.printStackTrace();
+					throw new BadRequestException("AX API thrown Error:" + e.toString());
+				}
 			}
 			
 			// if OB_ORD_TYP_ID = 1 in OUTBOUNDHEADER table - Interwarehouse Shipment Confirmation
 			if (confirmedOutboundHeader.getOutboundOrderTypeId() == 1L && confirmedOutboundLines != null) {
-				axapiResponse = postInterwarehouseShipment (confirmedOutboundHeader, confirmedOutboundLines);
-				log.info("AXApiResponse: " + axapiResponse);
+				try {
+					axapiResponse = postInterwarehouseShipment (confirmedOutboundHeader, confirmedOutboundLines);
+					log.info("AXApiResponse: " + axapiResponse);
+				} catch (Exception e) {
+					e.printStackTrace();
+					throw new BadRequestException("AX API thrown Error:" + e.toString());
+				}
 			}
 			
 			//  if OB_ORD_TYP_ID = 2 in OUTBOUNDHEADER table - Return PO Confirmation
 			if (confirmedOutboundHeader.getOutboundOrderTypeId() == 2L && confirmedOutboundLines != null) {
-				axapiResponse = postReturnPO (confirmedOutboundHeader, confirmedOutboundLines);
-				log.info("AXApiResponse: " + axapiResponse);
+				try {
+					axapiResponse = postReturnPO (confirmedOutboundHeader, confirmedOutboundLines);
+					log.info("AXApiResponse: " + axapiResponse);
+				} catch (Exception e) {
+					e.printStackTrace();
+					throw new BadRequestException("AX API thrown Error:" + e.toString());
+				}
 			}
 			
 			// if OB_ORD_TYP_ID = 3 in OUTBOUNDHEADER table - Sale Order Confirmation - True Express
 			if (confirmedOutboundHeader.getOutboundOrderTypeId() == 3L && confirmedOutboundLines != null) {
-				axapiResponse = postSalesOrder (confirmedOutboundHeader, confirmedOutboundLines);
-				log.info("AXApiResponse: " + axapiResponse);
+				try {
+					axapiResponse = postSalesOrder (confirmedOutboundHeader, confirmedOutboundLines);
+					log.info("AXApiResponse: " + axapiResponse);
+				} catch (Exception e) {
+					e.printStackTrace();
+					throw new BadRequestException("AX API thrown Error:" + e.toString());
+				}
 			}
 		}
 		
@@ -2182,7 +2202,7 @@ public class OutboundLineService extends BaseService {
 	 * @return
 	 */
 	private AXApiResponse postInterwarehouseShipment(OutboundHeader confirmedOutboundHeader,
-			List<OutboundLine> confirmedOutboundLines) {
+			List<OutboundLine> confirmedOutboundLines) throws Exception {
 		InterWarehouseShipmentHeader toHeader = new InterWarehouseShipmentHeader();
 		toHeader.setTransferOrderNumber(confirmedOutboundHeader.getRefDocNumber());	// REF_DOC_NO
 		
@@ -2243,6 +2263,7 @@ public class OutboundLineService extends BaseService {
 			apiResponse.setStatusCode("400");
 			apiResponse.setMessage(e.toString());
 			log.info("ApiResponse got Error: " + apiResponse);
+			throw e;
 		}
 		
 		// Capture the AXResponse in Table
@@ -2265,14 +2286,14 @@ public class OutboundLineService extends BaseService {
 	 * @param confirmedOutboundLines
 	 * @return
 	 */
-	private AXApiResponse postShipment(OutboundHeader confirmedOutboundHeader, List<OutboundLine> confirmedOutboundLines) {
+	private AXApiResponse postShipment(OutboundHeader confirmedOutboundHeader, List<OutboundLine> confirmedOutboundLines)
+	throws Exception {
 		ShipmentHeader toHeader = new ShipmentHeader();
 		toHeader.setTransferOrderNumber(confirmedOutboundHeader.getRefDocNumber());	// REF_DOC_NO
 		
 		log.info("confirmedOutboundLines--------------> :  " + confirmedOutboundLines);
 		List<ShipmentLine> toLines = new ArrayList<>();
 		for (OutboundLine confirmedOutboundLine : confirmedOutboundLines) {
-			
 			log.info("DLV_QTY : " + confirmedOutboundLine.getDeliveryQty());
 			log.info("ReferenceField2 : " + confirmedOutboundLine.getReferenceField2());
 			
@@ -2328,6 +2349,7 @@ public class OutboundLineService extends BaseService {
 			apiResponse.setStatusCode("400");
 			apiResponse.setMessage(e.toString());
 			log.info("ApiResponse got Error: " + apiResponse);
+			throw e;
 		}
 		
 		// Capture the AXResponse in Table
@@ -2350,7 +2372,7 @@ public class OutboundLineService extends BaseService {
 	 * @return
 	 */
 	private AXApiResponse postReturnPO(OutboundHeader confirmedOutboundHeader,
-			List<OutboundLine> confirmedOutboundLines) {
+			List<OutboundLine> confirmedOutboundLines) throws Exception {
 		ReturnPOHeader poHeader = new ReturnPOHeader();
 		poHeader.setPoNumber(confirmedOutboundHeader.getRefDocNumber());	// REF_DOC_NO
 		poHeader.setSupplierInvoice(confirmedOutboundHeader.getRefDocNumber());	// REF_DOC_NO
@@ -2405,6 +2427,7 @@ public class OutboundLineService extends BaseService {
 			apiResponse.setStatusCode("400");
 			apiResponse.setMessage(e.toString());
 			log.info("ApiResponse got Error: " + apiResponse);
+			throw e;
 		}
 		
 		IntegrationApiResponse response = new IntegrationApiResponse();
@@ -2427,7 +2450,7 @@ public class OutboundLineService extends BaseService {
 	 * @return
 	 */
 	private AXApiResponse postSalesOrder(OutboundHeader confirmedOutboundHeader,
-			List<OutboundLine> confirmedOutboundLines) {
+			List<OutboundLine> confirmedOutboundLines) throws Exception {
 		SalesOrderHeader soHeader = new SalesOrderHeader();
 		soHeader.setSalesOrderNumber(confirmedOutboundHeader.getRefDocNumber());	// REF_DOC_NO
 		
@@ -2489,6 +2512,7 @@ public class OutboundLineService extends BaseService {
 			apiResponse.setStatusCode("400");
 			apiResponse.setMessage(e.toString());
 			log.info("ApiResponse got Error: " + apiResponse);
+			throw e;
 		}
 		
 		IntegrationApiResponse response = new IntegrationApiResponse();
