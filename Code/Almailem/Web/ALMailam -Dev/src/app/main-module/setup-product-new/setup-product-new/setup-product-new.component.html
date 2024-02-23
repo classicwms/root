@@ -1,5 +1,0 @@
-<nav mat-tab-nav-bar class="scroll2 d-flex justify-content-start ">
-    <a mat-tab-link *ngFor=" let link of link" [ngClass]="link.class" (click)="activeLink = link.url" [ngClass]="isdiabled(link.screenid) ? 'd-none' : ''"
-      [active]="activeLink == link.url" [routerLink]="link.url" >
-      {{link.title | uppercase}} <img src="./assets/img/tabactive1.png" class="pl-2" *ngIf="activeLink == link.url" alt="" srcset=""></a>
-  </nav>
