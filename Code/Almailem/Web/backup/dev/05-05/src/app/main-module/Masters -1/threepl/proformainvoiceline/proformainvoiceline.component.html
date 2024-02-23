@@ -1,0 +1,254 @@
+
+
+
+
+
+
+
+
+
+
+
+<div class="row mx-1 pl-2">
+    <div class="col-12">
+      <!--inner header-->
+  
+      <div class="row  text-secondary pr-0 mt-1">
+        <div class="col bg-white d-flex align-items-center mt-1 px-1 py-1 pathname">
+  
+  
+          <nav aria-label="breadcrumb" class="d-flex align-items-center">
+            <ol class="breadcrumb mb-0 bg-white">
+              <!-- <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">Home</li> -->
+              <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">Home</li>
+              <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto">Master Data</li>
+              <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto">3 PL</li>
+              <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto">Proforma Invoice Line</li>
+        
+            </ol>
+          </nav>
+  
+  
+          <div class="d-flex ml-auto my-auto">
+            <div [hidden]="isShowDiv"> <input (keyup)="applyFilter($event)" matInput
+                class="form-control filter_button mt-2 mt-2 mx-2 border-bottom" placeholder="Search" style="width:90%">
+            </div>
+            <div [ngClass]="showFloatingButtons == true ? 'floating-pane-active' : 'floating-pane-deactive'"
+              class="button-row d-flex align-items-center">
+              <!--
+                          <button mat-mini-fab *ngIf="showFloatingButtons == true" class="floating-buttons  d-flex align-items-center justify-content-center bg-pink text-white mx-2"
+                          matTooltip="Add">
+                          <mat-icon class="action-icon d-flex align-items-center justify-content-center">add_circle_outline</mat-icon>
+                        </button>
+                        -->
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                class=" floating-buttons  d-flex align-items-center justify-content-center text-white   yellowaction"
+                matTooltip="Display">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">search</mat-icon>
+              </button>
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                class="floating-buttons  d-flex align-items-center justify-content-center text-white  blueaction "
+                matTooltip="Edit" (click)="openDialog('Edit')" >
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">edit</mat-icon>
+              </button>
+              <button mat-mini-fab *ngIf="showFloatingButtons == true" 
+                class=" floating-buttons  d-flex align-items-center justify-content-center redaction text-white  align-middle"
+                matTooltip="Delete"  ;>
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">delete</mat-icon>
+              </button>
+              <!-- 
+                          <button  mat-mini-fab *ngIf="showFloatingButtons == true"
+                        class="floating-buttons  d-flex align-items-center justify-content-center text-white  bg-success  " matTooltip="Info">
+                        <mat-icon class="action-icon d-flex align-items-center justify-content-center">info_outline</mat-icon>
+                      </button>
+                        -->
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                class="floating-buttons  d-flex align-items-center justify-content-center text-white  darkblueaction "
+                matTooltip="Download"  >
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">download</mat-icon>
+              </button>
+  
+  
+              <button mat-mini-fab (click)="toggleFloat()" class="mx-2 text-white action-button"
+                [ngClass]="{'bg-orange' : toggle, 'purple': !toggle}">
+                <mat-icon>{{icon}}</mat-icon>Options
+              </button>
+              <button mat-mini-fab 
+                class=" floating-buttons1  d-flex align-items-center justify-content-center darkaction text-white mx-2 mr-3 align-middle"
+                matTooltip="New" (click)="openDialog('New')">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">add</mat-icon>
+              </button>
+              <button mat-mini-fab
+                class=" floating-buttons1  d-flex align-items-center justify-content-center greyaction text-white mx-2 mr-3 align-middle"
+                matTooltip="Save">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">save</mat-icon>
+              </button>
+              <button mat-mini-fab disabled class="text-white mx-2 action-button  bg-red " type="button" (click)="drawer.toggle()"
+                mat-button>
+                <mat-icon class="">tune</mat-icon> Filter
+              </button>
+            </div>
+  
+          </div>
+        </div>
+      </div>
+      <!--main-section-tabbar
+        <app-main-section-tabbar>
+        </app-main-section-tabbar>  -->
+    </div>
+  
+    <div class="pr-1 mt-2 mx-0 w-100">
+      <app-threepl></app-threepl>
+    </div>
+  
+    <mat-drawer-container class="example-container  w-100">
+      <mat-drawer #drawer class="example-sidenav " mode="over" position="end">
+        <div class="card-header whs-bg-grey text-white d-flex justify-content-between align-items-center">
+          <h6 class="my-auto mb-0">Search Parameter</h6>
+          <mat-icon (click)="drawer.toggle()">close</mat-icon>
+        </div>
+   
+          <div class="row  mt-1 mr-1 p-2 pl-3">
+           
+          </div>
+  
+        <div class="d-flex justify-content-center align-items-center py-2 bottombutton">
+          <button mat-raised-button color="warn" class="text-white mx-1 px-4">
+            <mat-icon class="">restart_alt</mat-icon> Reset
+          </button>
+          <button mat-raised-button class="bg-darkblue text-white mx-1" (click)="drawer.toggle();">
+            <mat-icon class="">done</mat-icon> Search
+          </button>
+        </div>
+      </mat-drawer>
+      <div class="example-sidenav-content">
+        <!-- <div class="row "style="padding-right: 15px !important;"> -->
+        <div class="row ">
+          <p-table #Setupproformal [globalFilterFields]="['proformabillno','partnercode','profromabillamt','billunit','billqty','priceunit','lineno','linetxt','proformabilldate','status','createdby','createdOn']" [value]="proformal"
+          styleClass="p-datatable-gridlines p-datatable-sm" [scrollable]="true"   selectionMode="single"  
+          scrollHeight="calc(100vh - 15.2rem)" [paginator]="true" [rows]="100" [showCurrentPageReport]="true"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+          [rowsPerPageOptions]="[100, 150, 200, 250]" [resizableColumns]="true" style="width: 100%;margin-left: 10px;background-color:white" >
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="max-width: 3.5rem">
+                <p-tableHeaderCheckbox [disabled]="true"></p-tableHeaderCheckbox>
+            </th>
+            <th style="max-width:17rem"  pResizableColumn>Proforma Bill No</th>
+            <th style="max-width:15rem"  pResizableColumn>Partner Code
+                 </th>
+                 <th style="max-width:20rem"  pResizableColumn>Proforma Bill Amount</th>
+                 <th style="max-width:14rem"  pResizableColumn> Bill Unit</th>
+                 <th style="max-width:17rem"  pResizableColumn> Bill Quantity</th>
+                 <th style="max-width:17rem"  pResizableColumn> Price Unit</th>
+                 <th style="max-width:17rem"  pResizableColumn> Line No</th>
+                 <th style="max-width:15rem"  pResizableColumn> Line Text</th>
+                 <th style="max-width:17rem"  pResizableColumn>Proforma Bill Date</th>
+            <th style="max-width:17rem" pResizableColumn>Created By
+              </th>
+              <th style="max-width:17rem" pResizableColumn>Created On
+            </th>
+            <th style="max-width:17rem" pResizableColumn>Status
+             </th>
+            </tr>
+             
+            <tr >
+              <th style="max-width: 3.5rem">
+                <p-tableHeaderCheckbox [disabled]="true"></p-tableHeaderCheckbox>
+            </th>
+              <th style="max-width:17rem">
+                <input pInputText  type="text" (input)="Setupproformal.filter($any($event.target)?.value, 'proformabillno', 'contains')" 
+                [value]="$any(Setupproformal.filters['proformabillno'])?.value" placeholder="Search " class=" w-100 p-column-filter">
+               <!-- <p-columnFilter type="text" placeholder="Search" field="floorId"></p-columnFilter>-->
+              </th>
+              <th style="max-width:15rem">
+                <input pInputText  type="text" (input)="Setupproformal.filter($any($event.target)?.value, 'partnercode', 'contains')" 
+                [value]="$any(Setupproformal.filters['partnercode'])?.value" placeholder="Search " class=" w-100 p-column-filter">
+               <!-- <p-columnFilter type="text" placeholder="Search" field="floorId"></p-columnFilter>-->
+              </th>
+              <th style="max-width:20rem">
+                <input pInputText  type="text" (input)="Setupproformal.filter($any($event.target)?.value, 'profromabillamt', 'contains')" 
+                [value]="$any(Setupproformal.filters['profromabillamt'])?.value" placeholder="Search " class=" w-100 p-column-filter">
+               <!-- <p-columnFilter type="text" placeholder="Search" field="floorId"></p-columnFilter>-->
+              </th>
+              <th style="max-width:14rem">
+                <input pInputText  type="text" (input)="Setupproformal.filter($any($event.target)?.value, 'billunit', 'contains')" 
+                [value]="$any(Setupproformal.filters['billunit'])?.value" placeholder="Search " class=" w-100 p-column-filter">
+               <!-- <p-columnFilter type="text" placeholder="Search" field="floorId"></p-columnFilter>-->
+              </th>
+              <th style="max-width:17rem">
+                <input pInputText  type="text" (input)="Setupproformal.filter($any($event.target)?.value, 'billqty', 'contains')" 
+                [value]="$any(Setupproformal.filters['billqty'])?.value" placeholder="Search " class=" w-100 p-column-filter">
+               <!-- <p-columnFilter type="text" placeholder="Search" field="floorId"></p-columnFilter>-->
+              </th>
+              <th style="max-width:17rem">
+                <input pInputText  type="text" (input)="Setupproformal.filter($any($event.target)?.value, 'priceunit', 'contains')" 
+                [value]="$any(Setupproformal.filters['priceunit'])?.value" placeholder="Search " class=" w-100 p-column-filter">
+               <!-- <p-columnFilter type="text" placeholder="Search" field="floorId"></p-columnFilter>-->
+              </th>
+              <th style="max-width:17rem">
+                <input pInputText  type="text" (input)="Setupproformal.filter($any($event.target)?.value, 'lineno', 'contains')" 
+                [value]="$any(Setupproformal.filters['lineno'])?.value" placeholder="Search " class=" w-100 p-column-filter">
+               <!-- <p-columnFilter type="text" placeholder="Search" field="floorId"></p-columnFilter>-->
+              </th>
+              <th style="max-width:15rem">
+                <input pInputText  type="text" (input)="Setupproformal.filter($any($event.target)?.value, 'linetxt', 'contains')" 
+                [value]="$any(Setupproformal.filters['linetxt'])?.value" placeholder="Search " class=" w-100 p-column-filter">
+               <!-- <p-columnFilter type="text" placeholder="Search" field="floorId"></p-columnFilter>-->
+              </th>
+              <th style="max-width:17rem">
+                <input pInputText  type="text" (input)="Setupproformal.filter($any($event.target)?.value, 'proformabilldate', 'contains')" 
+                [value]="$any(Setupproformal.filters['proformabilldate'])?.value" placeholder="Search " class=" w-100 p-column-filter">
+               <!-- <p-columnFilter type="text" placeholder="Search" field="floorId"></p-columnFilter>-->
+              </th>
+              <th style="max-width:17rem">
+                <input pInputText  type="text" (input)="Setupproformal.filter($any($event.target)?.value, 'createdBy', 'contains')" 
+                [value]="$any(Setupproformal.filters['createdBy'])?.value" placeholder="Search " class=" w-100 p-column-filter">
+               <!-- <p-columnFilter type="text" placeholder="Search" field="floorId"></p-columnFilter>-->
+              </th>
+              <th style="max-width:17rem">
+                <input pInputText  type="text" (input)="Setupproformal.filter($any($event.target)?.value, 'createdon', 'contains')" 
+                [value]="$any(Setupproformal.filters['createdOn'])?.value" placeholder="Search " class=" w-100 p-column-filter">
+               <!-- <p-columnFilter type="text" placeholder="Search" field="floorId"></p-columnFilter>-->
+              </th>
+              <th style="max-width:17rem">
+                <input pInputText  type="text" (input)="Setupproformal.filter($any($event.target)?.value, 'status', 'contains')" 
+                [value]="$any(Setupproformal.filters['status'])?.value" placeholder="Search " class=" w-100 p-column-filter">
+               <!-- <p-columnFilter type="text" placeholder="Search" field="floorId"></p-columnFilter>-->
+              </th>
+             
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-proformal let-rowIndex="rowIndex">
+            <tr>
+              <td style="max-width:3.5rem;">
+                <p-checkbox (onChange)="onChange()" [(ngModel)]="selectedproformal"  [value]="proformal"></p-checkbox>
+                <!--<p-tableCheckbox [value]="floors"></p-tableCheckbox>-->
+            </td>
+            <td style="max-width:17rem">{{proformal.proformabillno}}</td>
+            <td style="max-width:15rem">{{proformal.partnercode}}</td>
+            <td style="max-width:20rem">{{proformal.profromabillamt}}</td>
+            <td style="max-width:14rem">{{proformal.billunit}}</td>
+            <td style="max-width:17rem">{{proformal.billqty}}</td>
+            <td style="max-width:17rem">{{proformal.priceunit}}</td>
+            <td style="max-width:17rem">{{proformal.lineno}}</td>
+            <td style="max-width:15rem">{{proformal.linetxt}}</td>
+            <td style="max-width:17rem">{{proformal.proformabilldate}}</td>
+            <td style="max-width:17rem">{{proformal.createdby}}</td>
+            <td style="max-width:17rem">{{proformal.createdOn| date : 'dd-MM-yyyy HH:mm' :'GMT' }}</td>
+            <td style="max-width:17rem">{{proformal.status}}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+       
+       </div>
+      </div>
+    </mat-drawer-container>
+  </div>
+  
+
+  <mat-menu #menu="matMenu">
+    <ng-template matMenuContent let-aliasMenuItems="invoice">
+      <button mat-menu-item >Approve</button>
+    </ng-template>
+  </mat-menu>

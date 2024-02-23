@@ -1,0 +1,389 @@
+<div class="row mx-1 pl-2">
+  <div class="col-12">
+    <!--inner header-->
+
+    <div class="row  text-secondary pr-0 mt-1">
+      <div class="col bg-white d-flex align-items-center mt-1 px-1 py-1 pathname">
+
+
+        <nav aria-label="breadcrumb" class="d-flex align-items-center">
+          <ol class="breadcrumb mb-0 bg-white d-flex align-items-center">
+            <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">Home</li>
+            <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto">Outbound</li>
+            <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">Quality</li>
+          </ol>
+        </nav>
+
+
+        <div class="d-flex ml-auto my-auto">
+          <div [hidden]="isShowDiv"> <input  matInput  
+              class="form-control filter_button mt-2 mt-2 mx-2 border-bottom" placeholder="Search" style="width:90%">
+          </div>
+          <div [ngClass]="showFloatingButtons == true ? 'floating-pane-active' : 'floating-pane-deactive'"
+            class="button-row d-flex align-items-center">
+            <!--
+                      <button mat-mini-fab *ngIf="showFloatingButtons == true" class="floating-buttons  d-flex align-items-center justify-content-center bg-pink text-white mx-2"
+                      matTooltip="Add">
+                      <mat-icon class="action-icon d-flex align-items-center justify-content-center">add_circle_outline</mat-icon>
+                    </button>
+                    -->
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class=" floating-buttons  d-flex align-items-center justify-content-center text-white   yellowaction"
+              matTooltip="Display">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">search</mat-icon>
+            </button>
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class="floating-buttons  d-flex align-items-center justify-content-center text-white  blueaction "
+              matTooltip="Edit">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">edit</mat-icon>
+            </button>
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class=" floating-buttons  d-flex align-items-center justify-content-center redaction text-white  align-middle"
+              matTooltip="Delete">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">delete</mat-icon>
+            </button>
+            <!-- 
+                      <button  mat-mini-fab *ngIf="showFloatingButtons == true"
+                    class="floating-buttons  d-flex align-items-center justify-content-center text-white  bg-success  " matTooltip="Info">
+                    <mat-icon class="action-icon d-flex align-items-center justify-content-center">info_outline</mat-icon>
+                  </button>
+                    -->
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class="floating-buttons  d-flex align-items-center justify-content-center text-white  darkblueaction "
+              matTooltip="Download">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">download</mat-icon>
+            </button>
+
+
+            <button mat-mini-fab (click)="toggleFloat()" class="mx-2 text-white action-button"
+              [ngClass]="{'bg-orange' : toggle, 'purple': !toggle}">
+              <mat-icon>{{icon}}</mat-icon>Options
+            </button>
+            <button mat-mini-fab disabled
+              class=" floating-buttons1 disabled d-flex align-items-center justify-content-center darkaction text-white mx-2 mr-3 align-middle"
+              matTooltip="New">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">add</mat-icon>
+            </button>
+            <button mat-mini-fab
+              class=" floating-buttons1  d-flex align-items-center justify-content-center greyaction text-white mx-2 mr-3 align-middle"
+              matTooltip="Save">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">save</mat-icon>
+            </button>
+            <button disabled mat-mini-fab class=" disabled text-white mx-2 action-button  bg-red" type="button"
+              mat-button>
+              <mat-icon class="">tune</mat-icon> Filter
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--main section-->
+  <mat-drawer-container class="w-100 example-container pr-2">
+    <mat-drawer #drawer class="example-sidenav " mode="over" position="end">
+
+    </mat-drawer>
+    <div class="example-sidenav-content  mt-1 pr-1">
+      <div class="tabbar1 px-0 uatwhite my-auto col d-flex align-items-center mt-1">
+        <h5 class="my-auto mb-0 mx-4 font-weight-bold whs-text-grey">Order No - {{code.refDocNumber}}</h5>
+      </div>
+      <div class="row  mt-1 pr-1" style="height: calc(100vh - 11rem);">
+        <div class="col-md-12 px-0">
+          <div class="">
+            <mat-accordion>
+              <mat-expansion-panel #panel hideToggle>
+                <mat-expansion-panel-header class="border-bottom padding-space border-top bg-white">
+                  <mat-panel-title class="d-flex justify-content-between collapsefont align-items-center">
+                    <div> <img src="./assets/img/icons/header.png" class="header_icon mr-2" alt="" srcset=""> Header
+                    </div>
+                    <mat-icon class="collapsefont text-secondary">{{panel.expanded? 'remove' : 'add'}}</mat-icon>
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+                <div class="row mt-2 boxgrey pb-3">
+                  <!-- <div class="col-lg-4 col-md-6 mt-2">
+                    <p class="mb-0 py-0">SO No</p>
+                    <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                      <input matInput placeholder="Enter">
+                    </mat-form-field>
+                  </div> -->
+                  <div class="col-lg-4 col-md-6 mt-2">
+                    <div class="d-flex flex-column">
+                      <p class="mb-0 py-0">HE No</p>
+                      <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                        <input matInput placeholder="Enter" [(ngModel)]="code.actualHeNo" disabled>
+                      </mat-form-field>
+                    </div>
+                  </div>
+                 
+                  <!-- <div class="col-lg-4 col-md-6 mt-2">
+                    <div class="d-flex flex-column">
+                      <p class="mb-0 py-0">Part No </p>
+                      <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                        <input matInput placeholder="Enter" [(ngModel)]="code.itemCode" disabled>
+                      </mat-form-field>
+                    </div>
+                  </div> -->
+                  <!-- <div class="col-lg-4 col-md-6 mt-2">
+                    <div class="d-flex flex-column">
+                      <p class="mb-0 py-0">Description</p>
+                      <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                        <input matInput placeholder="Enter">
+                      </mat-form-field>
+                    </div>
+                  </div> -->
+                  <div class="col-lg-4 col-md-6 mt-2">
+                    <div class="d-flex flex-column">
+                      <p class="mb-0 py-0">PU No</p>
+                      <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                        <input matInput placeholder="Enter" [(ngModel)]="code.pickupNumber" disabled>
+                      </mat-form-field>
+                    </div>
+                  </div>
+                </div>
+              </mat-expansion-panel>
+              <!--
+                <mat-expansion-panel #panel1 hideToggle>
+                <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                  <mat-panel-title class="d-flex justify-content-between collapsefont align-items-center">
+                    Administrator
+                    <mat-icon class="collapsefont">{{panel1.expanded? 'remove' : 'add'}}</mat-icon>
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+                <div class="row mt-2 boxgrey">
+                  
+                </div>
+              </mat-expansion-panel>
+             -->
+              <mat-expansion-panel #panel5 [expanded]="step === 0" (opened)="setStep(0)" hideToggle>
+                <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                  <mat-panel-title class="d-flex justify-content-between collapsefont align-items-center">
+                    <div> <img src="./assets/img/icons/signal.png" class="header_icon mr-2" alt="" srcset=""> Lines
+                    </div>
+                    <mat-icon class="collapsefont">{{panel5.expanded? 'remove' : 'add'}}</mat-icon>
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+                <div class="row ">
+                  <p-table #qualityTag  [value]="quality" 
+                  styleClass="p-datatable-gridlines p-datatable-sm" [scrollable]="true" selectionMode="single"  scrollDirection="both"  
+                  scrollHeight="calc(100vh - 24.2rem)"  [sortOrder]="-1" [paginator]="true" [rows]="100" [showCurrentPageReport]="true"
+                  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [(selection)]="selectedquality"
+                     [resizableColumns]="true" style="width: 100%;margin-left: 10px;background-color:white" >
+                    <ng-template pTemplate="header">
+                      <tr>
+                        <th style="max-width: 3.5rem">
+                          <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                        </th>
+                        <th  style="width: 10rem" pSortableColumn="manufacturerName" pResizableColumn>Mfr Name<p-sortIcon field="manufacturerName"></p-sortIcon> </th> 
+                        <th style="width: 10rem"pSortableColumn="itemCode" pResizableColumn>Part No<p-sortIcon field="itemCode"></p-sortIcon>
+                         
+                        </th>
+                      
+                       
+                        <th  style="width: 10rem" pSortableColumn="itemDescription" pResizableColumn> Description<p-sortIcon field="itemDescription"></p-sortIcon>
+                       
+                        </th>
+
+                        <th  style="width: 10rem" pSortableColumn="referenceField1" pResizableColumn>Picked Storage Bin<p-sortIcon field="referenceField1"></p-sortIcon>
+                       
+                        </th>
+                        <th  style="width: 10rem" pSortableColumn="partnerItemBarcode" pResizableColumn>Barcode Id<p-sortIcon field="partnerItemBarcode"></p-sortIcon>
+                       
+                        </th>
+                      
+                       
+                        <th style="width: 5rem" pSortableColumn="qualityQty" pResizableColumn>Accepted Qty<p-sortIcon field="qualityQty"></p-sortIcon>
+                       
+                        </th>
+                        <th  style="width: 5rem"  pSortableColumn="rejectQty" pResizableColumn>Rejected Qty<p-sortIcon field="rejectQty"></p-sortIcon>
+                       
+                        </th>
+                        <th style="width: 6.5rem" pSortableColumn="qualityInspectionNo"   pResizableColumn>Qc No<p-sortIcon field="qualityInspectionNo"></p-sortIcon>
+                   
+                        </th>
+          
+                        <th style="width: 6.5rem" pSortableColumn="actualHeNo"   pResizableColumn>HE No<p-sortIcon field="actualHeNo"></p-sortIcon>
+                   
+                        </th>
+          
+                        <th style="width: 6.5rem" pSortableColumn="qualityCreatedBy"   pResizableColumn>Quality By<p-sortIcon field="qualityCreatedBy"></p-sortIcon>
+                   
+                        </th>
+                        <th style="width: 8rem" pSortableColumn="qualityCreatedOn"   pResizableColumn>Quality Date<p-sortIcon field="qualityCreatedOn"></p-sortIcon>
+                   
+                        </th>
+                        <th style="width: 6.5rem" pSortableColumn="salesOrderNumber"   pResizableColumn>Sales Order No<p-sortIcon field="salesOrderNumber"></p-sortIcon>
+                   
+                        </th>
+                      
+              
+                        
+                      </tr>
+              
+                      <tr>
+                        <th style="max-width: 3.5rem">
+                          <p-tableHeaderCheckbox [disabled]="true"></p-tableHeaderCheckbox>
+                        </th>
+                        <th style="width: 10rem">
+                          <input pInputText type="text"
+                            (input)="qualityTag.filter($any($event.target)?.value, 'manufacturerName', 'contains')"
+                            [value]="$any(qualityTag.filters['manufacturerName'])?.value" placeholder="Search "
+                            class=" w-100 p-column-filter">
+                          <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                        </th>
+                        <th style="width: 10rem">
+                          <input pInputText type="text"
+                            (input)="qualityTag.filter($any($event.target)?.value, 'itemCode', 'contains')"
+                            [value]="$any(qualityTag.filters['itemCode'])?.value" placeholder="Search "
+                            class=" w-100 p-column-filter">
+                          <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                        </th>
+                      
+                        <th style="width: 10rem">
+                          <input pInputText type="text"
+                            (input)="qualityTag.filter($any($event.target)?.value, 'itemDescription', 'contains')"
+                            [value]="$any(qualityTag.filters['itemDescription'])?.value" placeholder="Search "
+                            class=" w-100 p-column-filter">
+                          <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                        </th>
+                        <th style="width: 10rem">
+                          <input pInputText type="text"
+                            (input)="qualityTag.filter($any($event.target)?.value, 'referenceField1', 'contains')"
+                            [value]="$any(qualityTag.filters['referenceField1'])?.value" placeholder="Search "
+                            class=" w-100 p-column-filter">
+                          <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                        </th>
+                        <th style="width: 10rem">
+                          <input pInputText type="text"
+                            (input)="qualityTag.filter($any($event.target)?.value, 'partnerItemBarcode', 'contains')"
+                            [value]="$any(qualityTag.filters['partnerItemBarcode'])?.value" placeholder="Search "
+                            class=" w-100 p-column-filter">
+                          <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                        </th>
+
+                       
+                        <th style="width: 5rem">
+                          <input pInputText type="text"
+                            (input)="qualityTag.filter($any($event.target)?.value, 'qualityQty', 'contains')"
+                            [value]="$any(qualityTag.filters['qualityQty'])?.value" placeholder="Search "
+                            class=" w-100 p-column-filter">
+                          <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                        </th>
+                        <th style="width: 5rem">
+                          <input pInputText type="text"
+                            (input)="qualityTag.filter($any($event.target)?.value, 'rejectQty', 'contains')"
+                            [value]="$any(qualityTag.filters['rejectQty'])?.value" placeholder="Search "
+                            class=" w-100 p-column-filter">
+                          <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                        </th>
+                        <th style="width: 6.5rem">
+                          <input pInputText type="text"
+                            (input)="qualityTag.filter($any($event.target)?.value, 'qualityInspectionNo', 'contains')"
+                            [value]="$any(qualityTag.filters['qualityInspectionNo'])?.value" placeholder="Search "
+                            class=" w-100 p-column-filter">
+                          <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                        </th>
+                      
+                        <th style="width: 6.5rem">
+                          <input pInputText type="text"
+                            (input)="qualityTag.filter($any($event.target)?.value, 'actualHeNo', 'contains')"
+                            [value]="$any(qualityTag.filters['actualHeNo'])?.value" placeholder="Search "
+                            class=" w-100 p-column-filter">
+                          <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                        </th>
+
+                        <th style="width: 6.5rem">
+                          <input pInputText type="text"
+                            (input)="qualityTag.filter($any($event.target)?.value, 'qualityCreatedBy', 'contains')"
+                            [value]="$any(qualityTag.filters['qualityCreatedBy'])?.value" placeholder="Search "
+                            class=" w-100 p-column-filter">
+                          <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                        </th>
+                        <th style="width: 8rem">
+                          <input pInputText type="text"
+                            (input)="qualityTag.filter($any($event.target)?.value, 'qualityCreatedOn', 'contains')"
+                            [value]="$any(qualityTag.filters['qualityCreatedOn'])?.value" placeholder="Search "
+                            class=" w-100 p-column-filter">
+                          <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                        </th>
+                       
+                        <th style="width: 6.5rem">
+                          <input pInputText type="text"
+                            (input)="qualityTag.filter($any($event.target)?.value, 'salesOrderNumber', 'contains')"
+                            [value]="$any(qualityTag.filters['salesOrderNumber'])?.value" placeholder="Search "
+                            class=" w-100 p-column-filter">
+                          <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                        </th>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-quality let-rowIndex="rowIndex">
+                      <tr>
+              
+                        <td style="max-width:3.5rem;">
+                          <!-- <p-checkbox (onChange)="onChange()" [(ngModel)]="selectedquality" [value]="quality"></p-checkbox> -->
+                          <p-tableCheckbox [value]="quality"></p-tableCheckbox>
+                        </td>
+                        <td style="width: 10rem" >{{quality.manufacturerName}}</td>
+                        <td style="width: 10rem"> {{quality.itemCode}}</td>
+                        <td style="width: 10rem" >{{quality.itemDescription}}</td> 
+                        <td style="width: 10rem" >{{quality.referenceField1}}</td>
+                        <td style="width: 10rem" >{{quality.barcodeId}}</td>     
+                        <td style="width: 5rem" > <input matInput type="number" placeholder="Enter" (change)="checkQty(quality)"   [(ngModel)]="quality.qualityQty"
+                          [disabled]="pageflow == 'Display'" ></td>
+                        <td style="width: 5rem"><input matInput type="number" placeholder="Enter"   [(ngModel)]="quality.rejectQty"
+                          [disabled]="pageflow == 'Display'" ></td>
+                          <td style="width: 6.5rem">{{quality.qualityInspectionNo}}</td>
+                          <td style="width: 6.5rem">{{quality.actualHeNo}}</td>
+                          <td style="width: 6.5rem">{{quality.qualityCreatedBy}}</td>
+                          <td style="width: 8rem">{{quality.qualityCreatedOn | date : 'dd-MM-yyyy HH:mm' :'GMT'}}</td>
+                          <td style="width: 6.5rem">{{quality.salesOrderNumber}}</td>
+                      </tr>
+                    </ng-template>
+                  </p-table>
+              
+                </div>
+              </mat-expansion-panel>
+            </mat-accordion>
+            <!-- <div class="d-flex justify-content-center align-items-center py-2 bottombutton">
+              <button mat-raised-button class="text-white mx-1 px-4" color="warn"
+                routerLink="/main/outbound/quality-main">
+                <mat-icon class="">close</mat-icon>Cancel
+              </button>
+              <button mat-raised-button class="bg-darkblue px-4 text-white mx-1" (click)="assignhe();"
+                *ngIf="pageflow != 'Display'">
+                <mat-icon class="">done</mat-icon> Confirm
+              </button>
+            </div> -->
+
+            
+   <div class=" pb-1 w-100 d-flex justify-content-center fixed-bottom transparentBg">
+             <div class="py-2 mr-5 pr-5">
+              <button mat-raised-button class="text-white mx-1 px-4" color="warn"
+              routerLink="/main/outbound/quality-main">
+              <mat-icon class="">close</mat-icon>Cancel
+            </button>
+            <button mat-raised-button class="bg-darkblue px-4 text-white mx-1" (click)="assignhe();"
+              *ngIf="pageflow != 'Display'">
+              <mat-icon class="">done</mat-icon> Confirm
+            </button>
+             </div>
+           </div>
+   
+          </div>
+        </div>
+      </div>
+    </div>
+  </mat-drawer-container>
+
+
+
+
+  <!--right pane
+    <div class="col-3 pl-1 pr-1 mt-1 ">
+      <div class="whs-rightpane bg-white shadow ">
+        
+      </div>
+    </div>
+  
+    -->
+</div>

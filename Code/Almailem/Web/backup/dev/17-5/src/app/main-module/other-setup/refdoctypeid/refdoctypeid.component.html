@@ -1,0 +1,239 @@
+
+
+
+
+
+
+
+<div class="row mx-1 pl-2">
+    <div class="col-12">
+      <!--inner header-->
+  
+      <div class="row  text-secondary pr-0 mt-1">
+        <div class="col bg-white d-flex align-items-center mt-1 px-1 py-1 pathname">
+  
+  
+          <nav aria-label="breadcrumb" class="d-flex align-items-center">
+            <ol class="breadcrumb mb-0 bg-white">
+              <!-- <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">Home</li> -->
+              <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">Home</li>
+              <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto">Setup</li>
+              <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto">Warehouse</li>
+              <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto">Reference Document Type</li>
+            </ol>
+          </nav>
+  
+  
+          <div class="d-flex ml-auto my-auto">
+            <div [hidden]="isShowDiv"> <input (keyup)="applyFilter($event)" matInput
+                class="form-control filter_button mt-2 mt-2 mx-2 border-bottom" placeholder="Search" style="width:90%">
+            </div>
+            <div [ngClass]="showFloatingButtons == true ? 'floating-pane-active' : 'floating-pane-deactive'"
+              class="button-row d-flex align-items-center">
+              <!--
+                          <button mat-mini-fab *ngIf="showFloatingButtons == true" class="floating-buttons  d-flex align-items-center justify-content-center bg-pink text-white mx-2"
+                          matTooltip="Add">
+                          <mat-icon class="action-icon d-flex align-items-center justify-content-center">add_circle_outline</mat-icon>
+                        </button>
+                        -->
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                class=" floating-buttons  d-flex align-items-center justify-content-center text-white   yellowaction"
+                matTooltip="Display" (click)="openDialog('Display')">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">search</mat-icon>
+              </button>
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                class="floating-buttons  d-flex align-items-center justify-content-center text-white  blueaction "
+                matTooltip="Edit" (click)="openDialog('Edit')">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">edit</mat-icon>
+              </button>
+              <button mat-mini-fab *ngIf="showFloatingButtons == true" 
+                class=" floating-buttons  d-flex align-items-center justify-content-center redaction text-white  align-middle"
+                matTooltip="Delete"  (click)="deleteDialog()">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">delete</mat-icon>
+              </button>
+              <!-- 
+                          <button  mat-mini-fab *ngIf="showFloatingButtons == true"
+                        class="floating-buttons  d-flex align-items-center justify-content-center text-white  bg-success  " matTooltip="Info">
+                        <mat-icon class="action-icon d-flex align-items-center justify-content-center">info_outline</mat-icon>
+                      </button>
+                        -->
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                class="floating-buttons  d-flex align-items-center justify-content-center text-white  darkblueaction "
+                matTooltip="Download" (click)="downloadexcel()"  >
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">download</mat-icon>
+              </button>
+  
+  
+              <button mat-mini-fab (click)="toggleFloat()" class="mx-2 text-white action-button"
+                [ngClass]="{'bg-orange' : toggle, 'purple': !toggle}">
+                <mat-icon>{{icon}}</mat-icon>Options
+              </button>
+              <button mat-mini-fab 
+                class=" floating-buttons1  d-flex align-items-center justify-content-center darkaction text-white mx-2 mr-3 align-middle"
+                matTooltip="New" (click)="openDialog('New')">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">add</mat-icon>
+              </button>
+              <button mat-mini-fab
+                class=" floating-buttons1  d-flex align-items-center justify-content-center greyaction text-white mx-2 mr-3 align-middle"
+                matTooltip="Save">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">save</mat-icon>
+              </button>
+              <button mat-mini-fab disabled class="text-white mx-2 action-button  bg-red " type="button" (click)="drawer.toggle()"
+                mat-button>
+                <mat-icon class="">tune</mat-icon> Filter
+              </button>
+            </div>
+  
+          </div>
+        </div>
+      </div>
+      <!--main-section-tabbar
+        <app-main-section-tabbar>
+        </app-main-section-tabbar>  -->
+    </div>
+    <!--main section-->
+    <div class="pr-1 mt-2 mx-0 w-100">
+      <app-warehouse-tab></app-warehouse-tab>
+    </div>
+  
+    <mat-drawer-container class="example-container  w-100">
+      <mat-drawer #drawer class="example-sidenav " mode="over" position="end">
+        <div class="card-header whs-bg-grey text-white d-flex justify-content-between align-items-center">
+          <h6 class="my-auto mb-0">Search Parameter</h6>
+          <mat-icon (click)="drawer.toggle()">close</mat-icon>
+        </div>
+   
+          <div class="row  mt-1 mr-1 p-2 pl-3">
+           
+          </div>
+  
+        <div class="d-flex justify-content-center align-items-center py-2 bottombutton">
+          <button mat-raised-button color="warn" class="text-white mx-1 px-4">
+            <mat-icon class="">restart_alt</mat-icon> Reset
+          </button>
+          <button mat-raised-button class="bg-darkblue text-white mx-1" (click)="drawer.toggle();">
+            <mat-icon class="">done</mat-icon> Search
+          </button>
+        </div>
+      </mat-drawer>
+      <div class="example-sidenav-content">
+        <!-- <div class="row "style="padding-right: 15px !important;"> -->
+        <div class="row ">
+          <p-table #Setuprefdoctype [globalFilterFields]="['referenceDocumentTypeId','referenceDocumentText', 'createdBy','createdOn']" [value]="refdoctypes"
+          styleClass="p-datatable-gridlines p-datatable-sm" [scrollable]="true"  selectionMode="single"  
+          scrollHeight="calc(100vh - 14.8rem)" [paginator]="true" [rows]="100" [showCurrentPageReport]="true"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+          [rowsPerPageOptions]="[100, 150, 200, 250]" [resizableColumns]="true" style="width: 100%;margin-left: 10px;background-color:white" >
+          <ng-template pTemplate="header">
+            <tr>
+               <th style="max-width: 3.5rem; justify-content: center;">
+                     <p-tableHeaderCheckbox [disabled]="true"></p-tableHeaderCheckbox>
+                </th>
+                <th style="max-width: 9rem;" pSortableColumn="languageId"  pResizableColumn>Language <p-sortIcon field="languageId"></p-sortIcon>
+               
+                </th>
+                <th style="max-width: 12rem;" pSortableColumn="companyIdAndDescription"   pResizableColumn>Company <p-sortIcon field="companyIdAndDescription"></p-sortIcon>
+                 
+                </th>
+                <th style="max-width: 12rem;" pSortableColumn="plantIdAndDescription"   pResizableColumn>Plant <p-sortIcon field="plantIdAndDescription"></p-sortIcon>
+                 
+                </th>
+                <th style="max-width: 12rem;" pSortableColumn="warehouseIdAndDescription"   pResizableColumn>Warehouse <p-sortIcon field="warehouseIdAndDescription"></p-sortIcon>
+                 
+                </th>
+              <th style="max-width:14rem;" pSortableColumn="referenceDocumentTypeId"  pResizableColumn>Reference Document Type <p-sortIcon field="referenceDocumentTypeId"></p-sortIcon>
+               
+              </th>
+              <th style="max-width:17rem;" pSortableColumn="referenceDocumentText" pResizableColumn> Reference Document Type Text<p-sortIcon field="referenceDocumentText"></p-sortIcon>
+               
+              </th>
+             
+              <th style="max-width: 12rem;"pSortableColumn="createdBy"  pResizableColumn>Created By<p-sortIcon field="createdBy"></p-sortIcon>
+             
+              </th>
+            
+            
+             
+              <th pSortableColumn="createdOn" pResizableColumn>Created On<p-sortIcon field="createdOn"></p-sortIcon>
+               
+              </th>
+            </tr>
+             
+            <tr>
+            <th style="max-width: 3.5rem; justify-content: center;">
+                <p-tableHeaderCheckbox [disabled]="true"></p-tableHeaderCheckbox>
+            </th>
+            <th style="max-width: 9rem;">
+              <input pInputText  type="text" (input)="Setuprefdoctype.filter($any($event.target)?.value, 'languageId', 'contains')" 
+              [value]="$any(Setuprefdoctype.filters['languageId'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+             <!-- <p-columnFilter type="text" placeholder="Search" field="doorDescription"></p-columnFilter>-->
+            </th>
+            <th style="max-width: 12rem;">
+              <input pInputText  type="text" (input)="Setuprefdoctype.filter($any($event.target)?.value, 'companyIdAndDescription', 'contains')" 
+              [value]="$any(Setuprefdoctype.filters['companyIdAndDescription'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+             <!-- <p-columnFilter type="text" placeholder="Search" field="doorDescription"></p-columnFilter>-->
+            </th>
+            <th style="max-width: 12rem;">
+              <input pInputText  type="text" (input)="Setuprefdoctype.filter($any($event.target)?.value, 'plantIdAndDescription', 'contains')" 
+              [value]="$any(Setuprefdoctype.filters['plantIdAndDescription'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+             <!-- <p-columnFilter type="text" placeholder="Search" field="doorDescription"></p-columnFilter>-->
+            </th>
+            <th style="max-width: 12rem;">
+              <input pInputText  type="text" (input)="Setuprefdoctype.filter($any($event.target)?.value, 'warehouseIdAndDescription', 'contains')" 
+              [value]="$any(Setuprefdoctype.filters['warehouseIdAndDescription'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+             <!-- <p-columnFilter type="text" placeholder="Search" field="doorDescription"></p-columnFilter>-->
+            </th>
+              <th style="max-width:14rem">
+                <input pInputText  type="text" (input)="Setuprefdoctype.filter($any($event.target)?.value, 'referenceDocumentTypeId', 'contains')" 
+                [value]="$any(Setuprefdoctype.filters['referenceDocumentTypeId'])?.value" placeholder="Search " class=" w-100 p-column-filter">
+              <!--  <p-columnFilter type="text" placeholder="Search" field="referenceDocumentTypeId"></p-columnFilter>-->
+              </th>
+              <th style="max-width:17rem">
+                <input pInputText  type="text" (input)="Setuprefdoctype.filter($any($event.target)?.value, 'referenceDocumentText', 'contains')" 
+                [value]="$any(Setuprefdoctype.filters['referenceDocumentText'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+           <!--     <p-columnFilter type="text" placeholder="Search" field="referenceDocumentText"></p-columnFilter>-->
+              </th>
+              <th style="max-width:12rem;">
+                <input pInputText  type="text" (input)="Setuprefdoctype.filter($any($event.target)?.value, 'createdBy', 'contains')" 
+                [value]="$any(Setuprefdoctype.filters['createdBy'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+              <!--  <p-columnFilter type="text" placeholder="Search" field="createdBy"></p-columnFilter>-->
+              </th>
+              <th >
+                <input pInputText  type="text" (input)="Setuprefdoctype.filter($any($event.target)?.value, 'createdOn', 'contains')" 
+                [value]="$any(Setuprefdoctype.filters['createdOn'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+              <!--  <p-columnFilter type="text" placeholder="Search" field=""></p-columnFilter>-->
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-ref let-rowIndex="rowIndex">
+            <tr >
+            
+                <td style="max-width:3.5rem;  justify-content: center;">
+                  <p-checkbox (onChange)="onChange()" [(ngModel)]="selectrefs"   [value]="ref"></p-checkbox>
+                    <!--<p-tableCheckbox [value]="refdoctypes"></p-tableCheckbox>-->
+                </td>
+                <td style="max-width: 9rem;">{{ref.languageId}}</td>
+                <td style="max-width: 12rem;">{{ref.companyIdAndDescription}}</td>
+                <td style="max-width: 12rem;">{{ref.plantIdAndDescription}}</td>
+                <td style="max-width: 12rem;">{{ref.warehouseIdAndDescription}}</td>
+              <td style="max-width:14rem">{{ref.referenceDocumentTypeId}}</td>
+              <td style="max-width:17rem">{{ref.referenceDocumentText}}</td>
+              <td style="max-width:12rem;">{{ref.createdBy }}</td>
+              <td >{{ref.createdOn | date : 'dd-MM-yyyy HH:mm' :'GMT'}}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+          <div class="buttons  pb-1 w-100 d-flex justify-content-end uatwhite">
+            <div class="p-0 mx-1 ">
+              <mat-paginator class="" showFirstLastButtons [pageSize]="100" [pageSizeOptions]="[100, 150, 200, 250]"
+                aria-label="Select page of periodic elements">
+              </mat-paginator>
+            </div>
+          </div>
+  
+        </div>
+  
+      </div>
+    </mat-drawer-container>
+  </div>
+  

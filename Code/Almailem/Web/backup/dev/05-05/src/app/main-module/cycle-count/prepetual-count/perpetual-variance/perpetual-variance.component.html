@@ -1,0 +1,380 @@
+<div class="row mx-1 pl-2">
+    <div class="col-12">
+      <!--inner header-->
+  
+      <div class="row  text-secondary pr-0 mt-1">
+        <div class="col bg-white d-flex align-items-center mt-1 px-1 py-1 pathname">
+  
+  
+          <nav aria-label="breadcrumb" class="d-flex align-items-center">
+            <ol class="breadcrumb mb-0 bg-white">
+              <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto"><a routerLink="/main/dashboard">Home</a>
+              </li>
+              <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto">Stock Count</li>
+              <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">{{pageflow}}</li>
+            </ol>
+          </nav>
+  
+          <div class="d-flex ml-auto my-auto">
+            <div [hidden]="isShowDiv"> <input (keyup)="applyFilter($event)" matInput
+                class="form-control filter_button mt-2 mt-2 mx-2 border-bottom" placeholder="Search" style="width:90%">
+            </div>
+            <div [ngClass]="showFloatingButtons == true ? 'floating-pane-active' : 'floating-pane-deactive'"
+              class="button-row d-flex align-items-center">
+              <!--
+                          <button mat-mini-fab *ngIf="showFloatingButtons == true" class="floating-buttons  d-flex align-items-center justify-content-center bg-pink text-white mx-2"
+                          matTooltip="Add">
+                          <mat-icon class="action-icon d-flex align-items-center justify-content-center">add_circle_outline</mat-icon>
+                        </button>
+                        -->
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"    (click)="openDialog('Display')"
+                class=" floating-buttons  d-flex align-items-center justify-content-center text-white   yellowaction"
+                matTooltip="Display">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">search</mat-icon>
+              </button>
+              <button mat-mini-fab  [disabled]="this.pageflow != 'Variance Analysis'"  [ngClass]="this.pageflow != 'Variance Analysis' ? 'disabled' : ''" *ngIf="showFloatingButtons == true"
+              (click)="openDialog('Edit')" class="  floating-buttons  d-flex align-items-center justify-content-center text-white  blueaction "
+                matTooltip="Edit">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">edit</mat-icon>
+              </button>
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                class=" floating-buttons  d-flex align-items-center justify-content-center redaction text-white  align-middle"
+                matTooltip="Delete">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">delete</mat-icon>
+              </button>
+              <!-- 
+                          <button  mat-mini-fab *ngIf="showFloatingButtons == true"
+                        class="floating-buttons  d-flex align-items-center justify-content-center text-white  bg-success  " matTooltip="Info">
+                        <mat-icon class="action-icon d-flex align-items-center justify-content-center">info_outline</mat-icon>
+                      </button>
+                        -->
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                class="floating-buttons  d-flex align-items-center justify-content-center text-white  darkblueaction "
+                matTooltip="Download">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">download</mat-icon>
+              </button>
+  
+  
+              <button mat-mini-fab (click)="toggleFloat()" class="mx-2 text-white action-button"
+                [ngClass]="{'bg-orange' : toggle, 'purple': !toggle}">
+                <mat-icon>{{icon}}</mat-icon>Options
+              </button>
+              <button mat-mini-fab
+                class=" floating-buttons1  d-flex align-items-center justify-content-center darkaction text-white mx-2 mr-3 align-middle"
+                matTooltip="New">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">add</mat-icon>
+              </button>
+              <button mat-mini-fab
+                class=" floating-buttons1  d-flex align-items-center justify-content-center greyaction text-white mx-2 mr-3 align-middle"
+                matTooltip="Save">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">save</mat-icon>
+              </button>
+              <button mat-mini-fab class="text-white mx-2 action-button  bg-red" type="button" (click)="drawer.toggle()"
+                mat-button>
+                <mat-icon class="">tune</mat-icon> Filter
+              </button>
+            </div>
+  
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pr-1 mt-2 mx-0 w-100 ">
+      <app-perpetual-tab></app-perpetual-tab>
+    </div>
+    <!--main-section-tabbar
+        <app-main-section-tabbar>
+        </app-main-section-tabbar>  -->
+    <!--main section-->
+    <mat-drawer-container class="example-container  w-100">
+      <mat-drawer #drawer class="example-sidenav " mode="over" position="end">
+        <div class="card-header whs-bg-grey text-white d-flex justify-content-between align-items-center">
+          <h6 class="my-auto mb-0">Search Parameter</h6>
+          <mat-icon type="button" (click)="drawer.toggle()">close</mat-icon>
+        </div>
+        <div class="row searchscroll mt-1 mr-1 p-2 pl-3">
+          <div class="col-12 pr-0">
+            <div class="form-group mb-0">
+              <label for="inputEmail4" class="mb-0">Warehouse No</label>
+              <mat-form-field class="mb-0 w-100 " appearance="outline">
+                <input matInput placeholder="AP-Readonly">
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="col-12 pr-0">
+            <div class="form-group mb-0">
+              <label for="inputEmail4" class="mb-0">Cycle Count No</label>
+              <mat-form-field class="mb-0 w-100 " appearance="outline">
+                <input matInput placeholder="AP-Readonly">
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="col-12 pr-0">
+            <div class="form-group mb-1">
+              <label for="inputEmail4" class="mb-0">Transaction Type</label>
+              <mat-form-field class="mb-0 w-100 " appearance="outline">
+  
+                <mat-select placeholder="select">
+                  <mat-option value="option">Option</mat-option>
+                  <mat-option value="option2">Option2</mat-option>
+                  <mat-option value="option3">Option3</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+  
+          <div class="col-12 pr-0">
+            <div class="form-group mb-0">
+              <label for="inputEmail4" class="mb-0">Sub Transaction Type</label>
+              <mat-form-field class="mb-0 w-100 " appearance="outline">
+  
+                <mat-select class="mb-0" placeholder="Select">
+                  <mat-option value="option">Option</mat-option>
+                  <mat-option value="option2">Option2</mat-option>
+                  <mat-option value="option3">Option3</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="col-12 pr-0">
+            <div class="form-group mb-0">
+              <label for="inputEmail4" class="mb-0">Date From To</label>
+              <mat-form-field class="mb-0 w-100 " appearance="outline">
+                <mat-date-range-input [rangePicker]="picker">
+                  <input matStartDate placeholder="Start date">
+                  <input matEndDate placeholder="End date">
+                </mat-date-range-input>
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-date-range-picker #picker></mat-date-range-picker>
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="col-12 pr-0">
+            <div class="form-group mb-0">
+              <label for="inputEmail4" class="mb-0">Status</label>
+              <mat-form-field class="mb-0 w-100 " appearance="outline">
+                <input matInput placeholder="AP-Readonly">
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-center align-items-center py-2">
+          <button mat-raised-button color="warn" class="text-white mx-1 px-4">
+            <mat-icon class="">restart_alt</mat-icon> Reset
+          </button>
+          <button mat-raised-button class="bg-darkblue text-white mx-1">
+            <mat-icon class="">done</mat-icon> Search
+          </button>
+        </div>
+      </mat-drawer>
+      <div class="example-sidenav-content">
+        <div class="row pr-0">
+          <div class="scroll uatwhite col-12 px-0 ">
+            <table mat-table [dataSource]="dataSource" matSort  matSortActive="cycleCountNo" matSortDirection="desc" class=" w-100">
+  
+              <!-- Checkbox Column -->
+              <ng-container matColumnDef="select">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  <mat-checkbox (change)="$event ? masterToggle() : null"
+                    [checked]="selection.hasValue() && isAllSelected()" disabled
+                    [indeterminate]="selection.hasValue() && !isAllSelected()">
+                    <!-- [aria-label]="checkboxLabel()" -->
+                  </mat-checkbox>
+                </th>
+                <td mat-cell *matCellDef="let row">
+                  <mat-checkbox (click)="$event.stopPropagation()" (change)="clearselection(row)"
+                    [checked]="selection.isSelected(row)">
+                    <!-- [aria-label]="checkboxLabel(row)" -->
+                  </mat-checkbox>
+                </td>
+              </ng-container>
+  
+  
+              <!-- Symbol Column -->
+              <ng-container matColumnDef="no">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Created By </th>
+                <td mat-cell *matCellDef="let element"> {{element.createdBy}} </td>
+              </ng-container>
+              <!-- Weight Column -->
+              <ng-container matColumnDef="cycleCountNo">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Perpetual Count No</th>
+                <td mat-cell *matCellDef="let element"> {{element.cycleCountNo}} </td>
+              </ng-container>
+              <!-- Weight Column -->
+              <ng-container matColumnDef="type">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Transaction Type</th>
+                <td mat-cell *matCellDef="let element"> {{element.movementTypeId == 1 ? 'Inbound' : ''}} {{element.movementTypeId == 3 ? 'Outbound' : ''}}</td>
+              </ng-container>
+              <!-- Weight Column -->
+              <ng-container matColumnDef="refdocno">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Sub Transaction Type</th>
+                <td mat-cell *matCellDef="let element"> {{element.subMovementTypeId == 3 ? 'Reversals' : ''}}  {{element.subMovementTypeId == 2 ? 'Putaway' : ''}}  {{element.subMovementTypeId == 1 ? 'Picking' : ''}}
+                  {{element.subMovementTypeId == 4 ? 'Delivery' : ''}}{{element.subMovementTypeId == 5 ? 'Reversals' : ''}} 
+                  <!--{{element.subMovementTypeId == 1 ? 'Picking' : ''}} -->
+                </td>
+              </ng-container>
+              <!-- Weight Column -->
+              <ng-container matColumnDef="createdOn">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Created On</th>
+                <td mat-cell *matCellDef="let element"> {{element.createdOn | date : 'dd-MM-yyyy HH:mm' :'GMT'}} </td>
+              </ng-container>
+              <!-- Weight Column -->
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+                <td mat-cell *matCellDef="let element"> {{cs.getstatus_text(element.statusId)}}</td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="displayedColumns;sticky: true"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="clearselection(row)">
+              </tr>
+            </table>
+          </div>
+          <div class="buttons pb-1 w-100 d-flex justify-content-end ">
+            <div class="p-0 mx-1">
+              <mat-paginator class="" showFirstLastButtons [pageSize]="100" [pageSizeOptions]="[100, 150, 200, 250]"
+                aria-label="Select page of periodic elements">
+              </mat-paginator>
+            </div>
+          </div>
+  
+        </div>
+      </div>
+    </mat-drawer-container>
+
+  
+    <!--right pane-->
+    <div class="col-3 pl-1 pr-1 mt-1 d-none">
+      <div class="whs-rightpane bg-white shadow">
+        <div class="text-dark p-2 bg-white">
+          <div class="whs-vertical-scroll">
+            <div class="d-flex justify-content-start my-1">
+              <label for="" class="mr-5 mt-1">Variant</label>
+              <label for="" class=" mt-1 ml-4 pl-3">Prepretual Count</label>
+            </div>
+            <hr class="my-0">
+            <div class="row mt-1">
+              <div class="col-6 pr-1">
+                <div class="form-group mb-0">
+                  <label for="inputEmail4" class="mb-0">Warehouse</label>
+                  <mat-form-field class="mb-0 w-100 " appearance="outline">
+  
+                    <mat-select class="mb-0" placeholder="Select">
+                      <mat-option value="option">Option</mat-option>
+                      <mat-option value="option2">Option2</mat-option>
+                      <mat-option value="option3">Option3</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="col-6 pl-1">
+                <div class="form-group mb-0">
+                  <label for="inputEmail4" class="mb-0">Cycle Count No</label>
+                  <mat-form-field class="mb-0 w-100 " appearance="outline">
+  
+                    <mat-select placeholder="select">
+                      <mat-option value="option">Option</mat-option>
+                      <mat-option value="option2">Option2</mat-option>
+                      <mat-option value="option3">Option3</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="col-6 pr-1">
+                <div class="form-group mb-1">
+                  <label for="inputEmail4" class="mb-0">Transaction Type</label>
+                  <mat-form-field class="mb-0 w-100 " appearance="outline">
+                    <mat-label>Choose a date</mat-label>
+                    <input matInput [matDatepicker]="picker22">
+                    <mat-datepicker-toggle matSuffix [for]="picker22"></mat-datepicker-toggle>
+                    <mat-datepicker #picker22></mat-datepicker>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="col-6 pl-1">
+                <div class="form-group mb-0">
+                  <label for="inputEmail4" class="mb-0"> Sub Transaction type</label>
+                  <mat-form-field class="mb-0 w-100 " appearance="outline">
+  
+                    <mat-select class="mb-0" placeholder="Select">
+                      <mat-option value="option">Option</mat-option>
+                      <mat-option value="option2">Option2</mat-option>
+                      <mat-option value="option3">Option3</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="col-6 pr-1">
+                <div class="form-group mb-0">
+                  <label for="inputEmail4" class="mb-0">Date From</label>
+                  <mat-form-field class="mb-0 w-100 " appearance="outline">
+                    <mat-label>Choose a date</mat-label>
+                    <input matInput [matDatepicker]="picker23">
+                    <mat-datepicker-toggle matSuffix [for]="picker23"></mat-datepicker-toggle>
+                    <mat-datepicker #picker23></mat-datepicker>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="col-6 pl-1">
+                <div class="form-group mb-0">
+                  <label for="inputEmail4" class="mb-0">Date From</label>
+                  <mat-form-field class="mb-0 w-100 " appearance="outline">
+                    <mat-label>Choose a date</mat-label>
+                    <input matInput [matDatepicker]="picker2">
+                    <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+                    <mat-datepicker #picker2></mat-datepicker>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="col-6 pr-1">
+                <div class="form-group mb-0">
+                  <label for="inputEmail4" class="mb-0">Status</label>
+                  <mat-form-field class="mb-0 w-100 " appearance="outline">
+  
+                    <mat-select class="mb-0" placeholder="Select">
+                      <mat-option value="option">Option</mat-option>
+                      <mat-option value="option2">Option2</mat-option>
+                      <mat-option value="option3">Option3</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-center my-1">
+            <button mat-raised-button class="text-white mr-1" color="warn">
+              <mat-icon class="">close</mat-icon> Cancel
+            </button>
+            <button mat-raised-button class="bg-darkblue  text-white mx-1">
+              <mat-icon class="">search</mat-icon> Search
+            </button>
+          </div>
+        </div>
+        <div class="row  no-gutters">
+          <div class="col-6 pl-0 d-none">
+            <div class="whs-rightpane-box border d-flex flex-column align-items-center justify-content-center">
+              <i class="far fa-arrow-alt-circle-down fa-2x"></i>
+              <p class="mb-0 mt-1">Storage Setup</p>
+            </div>
+          </div>
+          <div class="col-6 pl-0  d-none">
+            <div class="whs-rightpane-box border d-flex flex-column align-items-center justify-content-center">
+              <i class="far fa-arrow-alt-circle-down fa-2x"></i>
+              <p class="mb-0 mt-1">Item Setup</p>
+            </div>
+          </div>
+          <div class="col-6 pl-0 d-none">
+            <div class="whs-rightpane-box border d-flex flex-column align-items-center justify-content-center">
+              <i class="far fa-arrow-alt-circle-down fa-2x"></i>
+              <p class="mb-0 mt-1">Storage Setup</p>
+            </div>
+          </div>
+          <div class="col-6 pl-0 d-none">
+            <div class="whs-rightpane-box border d-flex flex-column align-items-center justify-content-center">
+              <i class="far fa-arrow-alt-circle-down fa-2x"></i>
+              <p class="mb-0 mt-1">Item Setup</p>
+            </div>
+          </div>
+  
+        </div>
+      </div>
+    </div>
+  </div>

@@ -1,0 +1,78 @@
+<div class="card  border-0 bg-white " style="overflow: hidden;">
+    <div mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle
+      class="d-flex justify-content-between align-items-center header_colour text-white p-2">
+      <h6 class="my-auto">Assign Binner</h6>
+      <mat-icon class="text-white" mat-dialog-close>close</mat-icon>
+    </div>
+    <div class="row mx-0 py-2 d-flex justify-content-end align-items-center">
+      <div> <input matInput (keyup)="applyFilter($event)" class="form-control filter_button mt-2 mt-2 mx-2 border-bottom"
+          placeholder="Search" style="width:90%">
+      </div>
+  
+    </div>
+    <div class="scroll">
+      <table mat-table [dataSource]="dataSource" matSort class=" col-12 w-100">
+  
+        <!-- Checkbox Column -->
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            <mat-checkbox (change)="$event ? masterToggle() : null" [checked]="selection.hasValue() && isAllSelected()"
+              [indeterminate]="selection.hasValue() && !isAllSelected()" [aria-label]="checkboxLabel()">
+            </mat-checkbox>
+          </th>
+          <td mat-cell *matCellDef="let row">
+            <mat-checkbox (click)="$event.stopPropagation()" (change)="clearselection(row)"
+              [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)">
+            </mat-checkbox>
+          </td>
+        </ng-container>
+  
+  
+        <!-- Symbol Column -->
+        <ng-container matColumnDef="no">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> HHT User ID </th>
+          <td mat-cell *matCellDef="let element"> {{element.userId}} </td>
+        </ng-container>
+        <!-- Weight Column -->
+        <ng-container matColumnDef="dimensions">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>HHT User Name</th>
+          <td mat-cell *matCellDef="let element"> {{element.userName}} </td>
+        </ng-container>
+  
+        <tr mat-header-row *matHeaderRowDef="displayedColumns;sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="clearselection(row)">
+        </tr>
+      </table>
+    </div>
+    <!-- <div class="buttons border d-flex justify-content-end">
+      <div class="p-0 mx-1">
+        <mat-paginator class="" showFirstLastButtons [pageSize]="100" [pageSizeOptions]="[100, 150, 200, 250]"
+          aria-label="Select page of periodic elements">
+        </mat-paginator>
+      </div>
+    </div>
+    <div class="d-flex justify-content-center align-items-center py-2 bg-white">
+      <button mat-raised-button mat-dialog-close class="text-white mr-1 px-4" color="warn">
+        <mat-icon class="">close</mat-icon> Cancel
+      </button>
+      <button mat-raised-button (click)="confirm()" class="bg-darkblue px-4 text-white ml-1">
+        <mat-icon class="">done</mat-icon> Confirm
+      </button>
+    </div> -->
+    <div class=" pb-1 w-100 d-flex justify-content-center transparentBg">
+      <div class="d-flex justify-content-center align-items-center py-2">
+        <button mat-raised-button mat-dialog-close class="text-white mr-1 px-4" color="warn">
+          <mat-icon class="">close</mat-icon> Cancel
+        </button>
+        <button mat-raised-button (click)="confirm()" class="bg-darkblue px-4 text-white ml-1">
+          <mat-icon class="">done</mat-icon> Confirm
+        </button>
+      </div>
+     <div class="p-0 mx-1 ">
+        <mat-paginator class="" showFirstLastButtons [pageSize]="100" [pageSizeOptions]="[100, 150, 200, 250]"
+          aria-label="Select page of periodic elements">
+        </mat-paginator>
+      </div> 
+    </div>
+  
+  </div>

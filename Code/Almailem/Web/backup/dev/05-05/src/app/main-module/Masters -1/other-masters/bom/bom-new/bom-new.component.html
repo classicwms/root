@@ -1,0 +1,209 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <div class="card bg-white " style="overflow-x: hidden;">
+    <div mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle
+      class="d-flex justify-content-between align-items-center whs-bg-grey text-white p-2">
+      <h6 class="my-auto">Bill of Material - New</h6>
+      <mat-icon class="text-white" mat-dialog-close>close</mat-icon>
+    </div>
+    <mat-accordion>
+      <mat-expansion-panel #panel [expanded]="step === 0" (opened)="setStep(0)" hideToggle>
+        <mat-expansion-panel-header class="border-bottom padding-space border-top">
+          <mat-panel-title class="d-flex justify-content-between collapsefont align-items-center">
+            <div> <img src="./assets/img/icons/header.png" class="header_icon mr-2" alt="" srcset="">Header</div>
+            <mat-icon class="text-secondary">{{panel.expanded? 'remove' : 'add'}}</mat-icon>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="row p-1 mt-2 px-3">
+          <!-- <div class="col-lg-6 col-md-6 mt-1">
+              <div class="d-flex flex-column">
+                <p class="mb-0 py-0">BOM No </p>
+                <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                  <input matInput placeholder="Enter" formControlName="" formControlName="bomNumber">
+                </mat-form-field>
+              </div>
+            </div>  -->
+          <div class="col-lg-6 col-md-6 mt-1">
+            <div class="d-flex flex-column">
+              <p class="mb-0 py-0 text-black">Parent Item Code</p>
+              <!-- <mat-form-field class="mb-0 w-100 " appearance="outline">
+
+                      <mat-select placeholder="select" formControlName="parentItemCode">
+                        <mat-option *ngFor="let item of itemcodeList" [value]="item.itemCode">
+                          {{item.itemCode}}
+                        </mat-option>
+
+                      </mat-select>
+                    </mat-form-field> -->
+              <div class="form-group input_field mb-2" appearance="outline">
+                <!-- <ng-multiselect-dropdown formcontrolName="parentItemCode" [placeholder]="'Select'"
+                  [settings]="dropdownSettings" [data]="multiSelectitemcodeList" [(ngModel)]="selectedItems"
+                  (onSelect)="onItemSelect($event)" (onSelectAll)="onSelectAll($event)"
+                  [ngModelOptions]="{standalone: true}">
+                </ng-multiselect-dropdown> -->
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+                <input matInput placeholder="Enter" formControlName="parentItemCode">
+              </mat-form-field>
+              </div>
+
+            </div>
+          </div>
+          <div class="col-lg-6 col-md-6 mt-1">
+            <div class="d-flex flex-column">
+              <p class="mb-0 py-0 text-black">Quantity</p>
+              <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                <input matInput value="1" placeholder="Enter" formControlName="parentItemQuantity" required>
+                <mat-error *ngIf="form.controls.parentItemQuantity.errors?.required" class="mt-1">Field Should not be
+                  blank</mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="col-lg-6 col-md-6 mt-1">
+            <p class="mb-0 py-0">Status</p>
+            <mat-form-field class="form-group input_field mb-0" appearance="outline">
+              <mat-select value="1" class="form-group input_field mb-0" placeholder="Select" formControlName="statusId">
+                <mat-option value="1">01 - Active</mat-option>
+                <mat-option value="0">02 - Inactive</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <!-- <div class="col-lg-6 col-md-6 mt-1">
+                <div class="d-flex flex-column">
+                  <p class="mb-0 py-0">Changed By</p>
+                  <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                    <input matInput placeholder="Enter" formControlName="" formControlName="">
+                  </mat-form-field>
+                </div>
+              </div> -->
+          <!-- <div class="col-lg-6 col-md-6 mt-1">
+                <div class="d-flex flex-column">
+                  <p class="mb-0 py-0">Date</p>
+                  <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                    <input matInput placeholder="Choose Date" [matDatepicker]="picker3" formControlName="">
+                    <mat-datepicker-toggle matSuffix [for]="picker3"></mat-datepicker-toggle>
+                    <mat-datepicker #picker3></mat-datepicker>
+                  </mat-form-field>
+                </div>
+              </div> -->
+        </div>
+      </mat-expansion-panel>
+      <mat-expansion-panel #panel1 hideToggle>
+        <mat-expansion-panel-header class="border-bottom padding-space border-top">
+          <mat-panel-title class="d-flex justify-content-between collapsefont align-items-center">
+            <div> <img src="./assets/img/icons/signal.png" class="header_icon mr-2" alt="" srcset=""> Lines
+            </div>
+            <mat-icon class="text-secondary">{{panel1.expanded? 'remove' : 'add'}}</mat-icon>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="d-flex justify-content-end align-items-center">
+          <button mat-raised-button type="button" (click)="add()" class=" text-white bg-orange demo-button mt-2">
+            <mat-icon class="">add</mat-icon> Add Lines
+          </button>
+        </div>
+        <div class="row  p-1 mt-1">
+          <div class="scroll2 col-12 px-0">
+            <table mat-table [dataSource]="dataSource" formArrayName="bomLines" matSort class=" w-100">
+
+                       <!-- Symbol Column -->
+                       <ng-container matColumnDef="no">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> S No </th>
+                        <td mat-cell *matCellDef="let element;let i = index" >{{i+1}} </td>
+                      </ng-container>
+
+              <!-- Position Column -->
+              <ng-container matColumnDef="position">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>BOM No</th>
+                <td mat-cell *matCellDef="let row; let index = index" [formGroupName]="index">
+                  <input matInput placeholder="Enter" formControlName="bomNumber">
+                </td>
+              </ng-container>
+
+              <!-- Name Column -->
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header class="pl-2">Child Item No</th>
+                <td mat-cell *matCellDef="let row; let index = index" [formGroupName]="index">
+                  <!-- <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                      <mat-select placeholder="select" formControlName="childItemCode">
+                        <mat-option *ngFor="let item of itemcodeList" [value]="item.itemCode">
+                          {{item.itemCode}}
+                        </mat-option>
+
+                      </mat-select>
+                    </mat-form-field> -->
+                  <div class="d-flex">
+                    <!-- <mat-form-field class="form-group input_field mb-0 d-inline" appearance="outline">
+                      <input matInput value="1" placeholder="Enter" formControlName="childItemCode" required>
+                      <mat-error *ngIf="form.controls.parentItemQuantity.errors?.required" class="mt-1">Field Should not
+                        be blank</mat-error>
+                    </mat-form-field>
+                    <mat-icon (click)="childitem(index);" class="d-inline my-auto">add</mat-icon> -->
+
+                    <mat-form-field class="form-group input_field mb-0 d-inline" appearance="outline">
+                      <input matInput value="1" placeholder="Enter" formControlName="childItemCode" required>
+                      <mat-error *ngIf="form.controls.parentItemQuantity.errors?.required" class="mt-1">Field Should not
+                        be blank</mat-error>
+                    </mat-form-field>
+                    
+                  </div>
+                  <!-- <div class="form-group input_field mb-2" appearance="outline">
+                        <ng-multiselect-dropdown  [placeholder]="'Select'" [settings]="dropdownSettings" 
+                          [data]="multiSelectitemcodeList" [(ngModel)]="selectedItems1" (onSelect)="onItemSelect($event)"
+                          (onSelectAll)="onSelectAll($event)" [ngModelOptions]="{standalone: true}">
+                        </ng-multiselect-dropdown>
+                      </div> -->
+                </td>
+              </ng-container>
+
+              <!-- Weight Column -->
+              <ng-container matColumnDef="weight">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Quantity</th>
+                <td mat-cell *matCellDef="let row; let index = index" [formGroupName]="index">
+                  <input matInput placeholder="Enter" formControlName="childItemQuantity">
+                </td>
+              </ng-container>
+
+              <!-- Symbol Column -->
+              <!-- <ng-container matColumnDef="symbol">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Action</th>
+                  <td mat-cell *matCellDef="let element">
+                    <button mat-icon-button [matMenuTriggerFor]="menu">
+                      <mat-icon class="text-secondary">more_horiz</mat-icon>
+                    </button>
+                  </td>
+                </ng-container> -->
+              <ng-container matColumnDef="delete">
+                <th mat-header-cell *matHeaderCellDef>
+                  <mat-icon class="text-secondary">more_horiz</mat-icon>
+                </th>
+                <td mat-cell *matCellDef="let element; let i = index">
+                  <button type="button" mat-icon-button (click)="removeRow(i)">
+                    <mat-icon class="text-danger">delete_outline</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="displayedColumns;sticky: true"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+          </div>
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
+    <div class="d-flex justify-content-center align-items-center py-2">
+      <button mat-raised-button color="warn" mat-dialog-close class="mx-1"> <i
+          class="bi bi-x me-1 font-size-1_5rem"></i>Cancel</button>
+      <button mat-raised-button class="mx-1 bg-darkblue px-4 text-white"> <i
+          class="bi bi-check2 mr-1 font-size-1_5rem"></i>
+
+        {{data.pageflow =='Edit'? 'Update': 'Save'}}</button>
+    </div>
+
+
+
+  </div>
+</form>
+
+<mat-menu #menu="matMenu">
+  <ng-template matMenuContent>
+    <button mat-menu-item>Delete</button>
+  </ng-template>
+</mat-menu>

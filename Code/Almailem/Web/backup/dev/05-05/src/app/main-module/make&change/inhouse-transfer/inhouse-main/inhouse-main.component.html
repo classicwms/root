@@ -1,0 +1,293 @@
+<div class="row mx-1 pl-2">
+  <div class="col-12">
+    <!--inner header-->
+
+    <div class="row  text-secondary pr-0 mt-1">
+      <div class="col bg-white d-flex align-items-center mt-1 px-1 py-1 pathname">
+
+
+        <nav aria-label="breadcrumb" class="d-flex align-items-center">
+          <ol class="breadcrumb mb-0 bg-white">
+            <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">Home</li>
+            <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto"><a
+                routerLink="/main/make&change/inhouse-transfer">Make & Change</a></li>
+            <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">Inhouse Transfer</li>
+          </ol>
+        </nav>
+
+
+        <div class="d-flex ml-auto my-auto">
+          <div [hidden]="isShowDiv"> <input matInput class="form-control filter_button mt-2 mt-2 mx-2 border-bottom"
+              placeholder="Search" style="width:90%">
+          </div>
+          <div [ngClass]="showFloatingButtons == true ? 'floating-pane-active' : 'floating-pane-deactive'"
+            class="button-row d-flex align-items-center">
+            <!--
+                    <button mat-mini-fab *ngIf="showFloatingButtons == true" class="floating-buttons  d-flex align-items-center justify-content-center bg-pink text-white mx-2"
+                    matTooltip="Add">
+                    <mat-icon class="action-icon d-flex align-items-center justify-content-center">add_circle_outline</mat-icon>
+                  </button>
+                  -->
+            <button disabled mat-mini-fab *ngIf="showFloatingButtons == true"
+              class=" disabled floating-buttons  d-flex align-items-center justify-content-center text-white   yellowaction"
+              matTooltip="Display">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">search</mat-icon>
+            </button>
+            <button disabled  mat-mini-fab *ngIf="showFloatingButtons == true"
+              class=" disabled floating-buttons  d-flex align-items-center justify-content-center text-white  blueaction "
+              matTooltip="Edit">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">edit</mat-icon>
+            </button>
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class=" floating-buttons  d-flex align-items-center justify-content-center redaction text-white  align-middle"
+              matTooltip="Delete">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">delete</mat-icon>
+            </button>
+            <!-- 
+                    <button  mat-mini-fab *ngIf="showFloatingButtons == true"
+                  class="floating-buttons  d-flex align-items-center justify-content-center text-white  bg-success  " matTooltip="Info">
+                  <mat-icon class="action-icon d-flex align-items-center justify-content-center">info_outline</mat-icon>
+                </button>
+                  -->
+            <button mat-mini-fab *ngIf="showFloatingButtons == true" (click)="downloadexcel()"
+              class="floating-buttons  d-flex align-items-center justify-content-center text-white  darkblueaction "
+              matTooltip="Download">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">download</mat-icon>
+            </button>
+
+
+            <button mat-mini-fab (click)="toggleFloat()" class="mx-2 text-white action-button"
+              [ngClass]="{'bg-orange' : toggle, 'purple': !toggle}">
+              <mat-icon>{{icon}}</mat-icon>Options
+            </button>
+            <button mat-mini-fab routerLink="/main/make&change/inhouse-new"
+              class=" floating-buttons1  d-flex align-items-center justify-content-center darkaction text-white mx-2 mr-3 align-middle"
+              matTooltip="New">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">add</mat-icon>
+            </button>
+            <button mat-mini-fab
+              class=" floating-buttons1  d-flex align-items-center justify-content-center greyaction text-white mx-2 mr-3 align-middle"
+              matTooltip="Save">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">save</mat-icon>
+            </button>
+            <button mat-mini-fab disabled class="text-white mx-2 action-button  bg-red disabled" type="button"
+              mat-button>
+              <mat-icon class="">tune</mat-icon> Filter
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <!--main-section-tabbar-->
+    <!--      <app-main-section-tabbar>
+    </app-main-section-tabbar> -->
+    <!--main section-->
+    <div class="row pr-1 mt-2">
+      <div class="pr-1 mt-2 mx-0 w-100 ">
+        <app-makeandchange-tab></app-makeandchange-tab>
+      </div>
+    </div>
+    <!-- <div class="row "style="padding-right: 15px !important;"> -->
+      <div class="row "style="padding-right: 15px !important;">
+      <div class="scroll uatwhite col-12 px-0 ">
+        <table mat-table [dataSource]="dataSource" matSort class=" w-100">
+
+          <!-- Checkbox Column -->
+          <ng-container matColumnDef="select">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              <mat-checkbox (change)="$event ? masterToggle() : null"
+                [checked]="selection.hasValue() && isAllSelected()" disabled
+                [indeterminate]="selection.hasValue() && !isAllSelected()" [aria-label]="checkboxLabel()">
+              </mat-checkbox>
+            </th>
+            <td mat-cell *matCellDef="let row">
+              <mat-checkbox (click)="$event.stopPropagation()" (change)="clearselection(row)"
+                [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)">
+              </mat-checkbox>
+            </td>
+          </ng-container>
+
+
+          <!-- Symbol Column -->
+          <ng-container matColumnDef="no">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> S No </th>
+            <td mat-cell *matCellDef="let element"> {{element.no}} </td>
+          </ng-container>
+          <!-- Weight Column -->
+          <ng-container matColumnDef="warehouseno">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Warehouse No</th>
+            <td mat-cell *matCellDef="let element"> {{element.warehouseId}} </td>
+          </ng-container>
+          <!-- Weight Column -->
+          <ng-container matColumnDef="transferNumber">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Transfer No</th>
+            <td mat-cell *matCellDef="let element"> {{element.transferNumber}} </td>
+          </ng-container>
+          <!-- Weight Column -->
+          <ng-container matColumnDef="createdOn">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Transfer Date</th>
+            <td mat-cell *matCellDef="let element"> {{element.createdOn| date : 'dd-MM-yyyy HH:mm' :'GMT'}} </td>
+          </ng-container>
+          <!-- Weight Column -->
+          <ng-container matColumnDef="transferTypeId">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Transfer Type</th>
+            <td mat-cell *matCellDef="let element"> {{element.transferTypeId == 1 ? 'Stock Type to Stock Type' : element.transferTypeId == 2 ? 'SKU to SKU' : element.transferTypeId == 3 ? 'Bin to Bin' : ''}} </td>
+          </ng-container>
+          <!-- Weight Column -->
+          <ng-container matColumnDef="createdBy">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Transferred By</th>
+            <td mat-cell *matCellDef="let element"> {{element.createdBy}} </td>
+          </ng-container>
+      <!-- Weight Column -->
+      <ng-container matColumnDef="lines">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Lines</th>
+        <td mat-cell *matCellDef="let element"> 
+          <button mat-icon-button (click)="openLines(element)"> <!-- (click)="openLines(element)"-->
+            <mat-icon class="text-secondary">open_in_new</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+          <!-- Weight Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+            <td mat-cell *matCellDef="let element"> {{cs.getstatus_text(element.statusId)}} </td>
+          </ng-container>
+          <!-- <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header >Actions </th>
+            <td *matCellDef="let row;let element" class="tableborder p-0 border-bottom">
+              <button mat-icon-button [matMenuTriggerFor]="menu">
+                <mat-icon class="text-secondary">more_horiz</mat-icon>
+              </button>
+            </td>
+          </ng-container> -->
+          <tr mat-header-row *matHeaderRowDef="displayedColumns;sticky: true"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="clearselection(row)">
+          </tr>
+        </table>
+      </div>
+      <div class="buttons   pb-1 w-100 d-flex justify-content-end ">
+        <div class="p-0 mx-1">
+          <mat-paginator class="" showFirstLastButtons [pageSize]="100" [pageSizeOptions]="[100, 150, 200, 250]"
+            aria-label="Select page of periodic elements">
+          </mat-paginator>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <mat-menu #menu="matMenu">
+    <ng-template matMenuContent>
+      <button mat-menu-item>Edit</button>
+      <button mat-menu-item>Display</button>
+      <button mat-menu-item>Delete</button>
+    </ng-template>
+  </mat-menu>
+  <!--right pane-->
+  <div class="col-3 pl-1 pr-1 mt-1 d-none">
+    <div class="whs-rightpane bg-white shadow">
+      <div class="text-dark p-2 bg-white">
+        <div class="whs-vertical-scroll">
+          <div class="d-flex justify-content-start my-1">
+            <label for="" class="mr-5 mt-1">Variant</label>
+            <label for="" class=" mt-1 ml-4 pl-3">Inhouse</label>
+          </div>
+          <hr class="my-0">
+          <div class="row mt-1">
+            <div class="col-6 pr-1">
+              <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">Transfer No</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+
+                  <mat-select class="mb-0" placeholder="Select">
+                    <mat-option value="option">Option</mat-option>
+                    <mat-option value="option2">Option2</mat-option>
+                    <mat-option value="option3">Option3</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="col-6 pl-1">
+              <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">Transfer Type</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+
+                  <mat-select placeholder="select">
+                    <mat-option value="option">Option</mat-option>
+                    <mat-option value="option2">Option2</mat-option>
+                    <mat-option value="option3">Option3</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="col-6 pr-1">
+              <div class="form-group mb-1">
+                <label for="inputEmail4" class="mb-0">Transfer Date</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+                  <mat-label>Choose a date</mat-label>
+                  <input matInput [matDatepicker]="picker">
+                  <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                  <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="col-6 pl-1">
+              <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">Transferred By</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+
+                  <mat-select class="mb-0" placeholder="Select">
+                    <mat-option value="option">Option</mat-option>
+                    <mat-option value="option2">Option2</mat-option>
+                    <mat-option value="option3">Option3</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="col-6 pr-1">
+              <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">Product Code</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+
+                  <mat-select class="mb-0" placeholder="Select">
+                    <mat-option value="option">Option</mat-option>
+                    <mat-option value="option2">Option2</mat-option>
+                    <mat-option value="option3">Option3</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="col-6 pl-1">
+              <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">Status</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+
+                  <mat-select class="mb-0" placeholder="Select">
+                    <mat-option value="option">Option</mat-option>
+                    <mat-option value="option2">Option2</mat-option>
+                    <mat-option value="option3">Option3</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-center my-1">
+          <button mat-raised-button class="text-white mr-1" color="warn">
+            <mat-icon class="">close</mat-icon> Cancel
+          </button>
+          <button mat-raised-button class="bg-darkblue  text-white mx-1">
+            <mat-icon class="">search</mat-icon> Search
+          </button>
+        </div>
+      </div>
+      <div class="row  no-gutters">
+
+
+      </div>
+    </div>
+  </div>
+</div>

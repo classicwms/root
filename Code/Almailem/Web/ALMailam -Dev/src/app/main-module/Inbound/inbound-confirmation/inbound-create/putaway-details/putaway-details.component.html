@@ -1,0 +1,140 @@
+<div class="card  border-0 bg-white " style="overflow: hidden;">
+  <div mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle
+    class="d-flex justify-content-between align-items-center header_colour text-white p-2">
+    <h6 class="my-auto">Putaway Details</h6>
+    <mat-icon class="text-white" mat-dialog-close>close</mat-icon>
+  </div>
+  <div class="row mx-0 py-2 d-flex justify-content-end align-items-center">
+   
+    <div class="d-flex flex-column"> <input matInput
+        (input)="assignppickerTag.filterGlobal($any($event.target).value, 'contains')"
+        class="form-control filter_button mt-2 mt-2 mx-2 border-bottom" placeholder="Search" style="width:90%">
+    </div>
+
+  </div>
+  <div class="row ">
+    <p-table #assignppickerTag [value]="assignpicker" [globalFilterFields]="['userId','userName']"
+      styleClass="p-datatable-gridlines p-datatable-sm" [scrollable]="true" selectionMode="single"
+      scrollHeight="calc(100vh - 29.2rem)" sortField="preOutboundNo" [sortOrder]="-1" [paginator]="true" [rows]="100"
+      [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      [resizableColumns]="true" style="width: 100%;margin-left: 10px;background-color:white">
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="max-width: 3.5rem">
+            <p-tableHeaderCheckbox [disabled]="true"></p-tableHeaderCheckbox>
+          </th>
+          <th style="width: 10rem;" pSortableColumn="barcodeId" pResizableColumn>Barcode Id <p-sortIcon field="barcodeId">
+            </p-sortIcon>
+
+          </th>
+          <th style="width: 10rem;" pSortableColumn="putAwayNumber" pResizableColumn>Putaway No <p-sortIcon field="putAwayNumber"></p-sortIcon>
+
+          </th>
+          <th style="width: 10rem;" pSortableColumn="putawayConfirmedQty" pResizableColumn>Putaway Qty <p-sortIcon field="putawayConfirmedQty"></p-sortIcon>
+
+          </th>
+          <th style="width: 10rem;" pSortableColumn="proposedStorageBin" pResizableColumn>Proposed Storage Bin <p-sortIcon field="proposedStorageBin"></p-sortIcon>
+
+          </th>
+          <th style="width: 10rem;" pSortableColumn="confirmedStorageBin" pResizableColumn>Confirmed Storage Bin <p-sortIcon field="confirmedStorageBin"></p-sortIcon>
+
+          </th>
+          <th pSortableColumn="statusDescription" pResizableColumn>Status <p-sortIcon field="statusDescription"></p-sortIcon>
+
+          </th>
+
+        </tr>
+
+        <tr>
+          <th style="max-width: 3.5rem">
+            <p-tableHeaderCheckbox [disabled]="true"></p-tableHeaderCheckbox>
+          </th>
+          <th style="width: 10rem">
+            <input pInputText type="text"
+              (input)="assignppickerTag.filter($any($event.target)?.value, 'barcodeId', 'contains')"
+              [value]="$any(assignppickerTag.filters['barcodeId'])?.value" placeholder="Search "
+              class=" w-100 p-column-filter">
+            <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+          </th>
+          <th style="width: 10rem;">
+            <input pInputText type="text"
+              (input)="assignppickerTag.filter($any($event.target)?.value, 'putAwayNumber', 'contains')"
+              [value]="$any(assignppickerTag.filters['putAwayNumber'])?.value" placeholder="Search "
+              class=" w-100 p-column-filter">
+            <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+          </th>
+          <th style="width: 10rem;">
+            <input pInputText type="text"
+              (input)="assignppickerTag.filter($any($event.target)?.value, 'putawayConfirmedQty', 'contains')"
+              [value]="$any(assignppickerTag.filters['putawayConfirmedQty'])?.value" placeholder="Search "
+              class=" w-100 p-column-filter">
+            <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+          </th>
+          <th style="width: 10rem;">
+            <input pInputText type="text"
+              (input)="assignppickerTag.filter($any($event.target)?.value, 'proposedStorageBin', 'contains')"
+              [value]="$any(assignppickerTag.filters['proposedStorageBin'])?.value" placeholder="Search "
+              class=" w-100 p-column-filter">
+            <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+          </th>
+          <th style="width: 10rem;">
+            <input pInputText type="text"
+              (input)="assignppickerTag.filter($any($event.target)?.value, 'confirmedStorageBin', 'contains')"
+              [value]="$any(assignppickerTag.filters['confirmedStorageBin'])?.value" placeholder="Search "
+              class=" w-100 p-column-filter">
+            <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+          </th>
+          <th >
+            <input pInputText type="text"
+              (input)="assignppickerTag.filter($any($event.target)?.value, 'statusDescription', 'contains')"
+              [value]="$any(assignppickerTag.filters['statusDescription'])?.value" placeholder="Search "
+              class=" w-100 p-column-filter">
+            <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+          </th>
+
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-assignpicker let-rowIndex="rowIndex">
+        <tr>
+
+          <td style="max-width:3.5rem;">
+            <p-checkbox (onChange)="onChange()" [(ngModel)]="selectedassign" [value]="assignpicker"></p-checkbox>
+            <!--<p-tableCheckbox [value]="approvals"></p-tableCheckbox>-->
+          </td>
+
+          <td style="width: 10rem"> {{assignpicker.barcodeId}}</td>
+          <td style="width: 10rem;">{{assignpicker.putAwayNumber}}</td>
+          <td style="width: 10rem"> {{assignpicker.putawayConfirmedQty}}</td>
+          <td style="width: 10rem;">{{assignpicker.proposedStorageBin}}</td>
+          <td style="width: 10rem;">{{assignpicker.confirmedStorageBin}}</td>
+          <td>{{assignpicker.statusDescription}}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+  </div>
+
+  <!-- <div class="buttons border d-flex justify-content-end">
+    <div class="p-0 mx-1">
+      <mat-paginator class="" showFirstLastButtons [pageSize]="100" [pageSizeOptions]="[100, 150, 200, 250]"
+        aria-label="Select page of periodic elements">
+      </mat-paginator>
+    </div>
+  </div>
+  <div class="d-flex justify-content-center align-items-center py-2 bg-white">
+    <button mat-raised-button mat-dialog-close class="text-white mr-1 px-4" color="warn">
+      <mat-icon class="">close</mat-icon> Cancel
+    </button>
+    <button mat-raised-button (click)="confirm()" class="bg-darkblue px-4 text-white ml-1">
+      <mat-icon class="">done</mat-icon> Confirm
+    </button>
+  </div> -->
+  <div class=" pb-1 w-100 d-flex justify-content-center transparentBg">
+    <div class="d-flex justify-content-center align-items-center py-2">
+      <button mat-raised-button mat-dialog-close class="text-white mr-1 px-4" color="warn">
+        <mat-icon class="">close</mat-icon> Cancel
+      </button>
+    </div>
+  </div>
+
+</div>

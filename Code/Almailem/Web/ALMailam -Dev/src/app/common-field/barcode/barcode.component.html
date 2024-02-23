@@ -1,0 +1,43 @@
+<!-- <p>barcode works!</p> -->
+<div *ngFor="let element of barcodeValueList">
+
+  <div class="barcodelayout" id="barcode" *ngIf="lable =='barcode'">
+    <!-- [id]="element.case_no"  -->
+    <div style="margin-top: 3%;margin-left: 3%;">
+      <div class="row">
+        <div class="col-4 my-1">
+          <div class="d-flex flex-column">
+            <mat-label class="lablepadding labelvalue">Mfg: {{element.manufacturerName}}</mat-label>
+          </div>
+        </div>
+        <div class="col-8 d-flex justify-content-end">
+          <img class="logwh" src="./assets/img/almailem.png" />
+        </div>
+     
+        <div class="col-12 my-1  d-flex justify-content-start">
+          <div class="d-flex flex-column">
+            <div class="d-flex justify-content-start">
+              <mat-label class="lablepadding labelvalue mb-1">Part No: {{element.itemCode}}</mat-label> <!--{{element.qty}}-->
+            </div>
+            <mat-label class="lablepadding labelvalue">Desc: {{element.itemDescription}}</mat-label>
+            <mat-label class="lablepadding labelvalue">Qty: {{element.totalLabel}}</mat-label>
+          </div>
+        </div>
+      </div>
+      <div class="row mx-1">
+        <div *ngIf="element.barCodeType == '1'" class="col-7 d-flex justify-content-center">
+          <ngx-barcode [bc-value]="element.partner_item_barcode" [bc-display-value]="true" [bc-font-size]='8'
+            bc-format='CODE128' [bc-height]="40" [bc-width]="0.8" bc-element-type='svg'>
+          </ngx-barcode>
+        </div>
+        <div *ngIf="element.barCodeType == '2'" class="col-7 d-flex justify-content-start">
+          <qr-code [value]="element.partner_item_barcode" [size]="60"></qr-code>
+        </div>
+        
+        <div class="col-5 my-1 d-flex justify-content-start">
+          <mat-label class="lablepadding labelvalue mr-2 text-right">MADE IN: {{element.origin}}</mat-label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

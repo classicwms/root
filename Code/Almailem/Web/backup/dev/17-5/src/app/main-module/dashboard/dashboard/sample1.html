@@ -1,0 +1,230 @@
+<!-- PROD -->
+
+<!-- <div class="row  margint-2 px-0 mx-0 ">
+  <div class="col-6">
+
+    <app-bar-chart></app-bar-chart>
+  </div>
+  <div class="col-6">
+    <app-line-chart></app-line-chart>
+  </div>
+  <div class="col-4 margint-2">
+    <app-piechart></app-piechart>
+    <app-binning></app-binning>
+  </div>
+  <div class="col-4 margint-2">
+    <app-stack-bar></app-stack-bar>
+
+  </div>
+  <div class="col-4 margint-2">
+    <app-stack-chart></app-stack-chart>
+  </div>
+</div>  -->
+
+<!-- DEV-->
+<!--  
+  <div class="row  margint-2 px-0 mx-0 ">
+  <div class="col-8 border">
+    <div class="row">
+      <div class="col-6 border">
+
+        <app-semi-pie></app-semi-pie>
+      </div>
+      <div class="col-6 border">
+        <app-receipt-bar></app-receipt-bar>
+      </div>
+      <div class="col-6 border">
+        <app-bin-chart></app-bin-chart>
+        <app-deliver-chart></app-deliver-chart>
+      </div>
+      <div class="col-6 border">
+        <app-deliver-chart></app-deliver-chart>
+      </div>
+    </div>
+  </div>
+  <div class="col-4 px-0">
+    <div class="d-flex justify-content-end">
+      <div class="d-flex align-items-center">
+        <p class="mb-0 mr-1">FTD</p>
+        <mat-form-field class="mb-0 w-100 " appearance="outline">
+          <input matInput [(ngModel)]="planModel.start_time " [matDatepicker]="picker4" placeholder="Choose Date ">
+          <mat-datepicker-toggle matSuffix [for]="picker4"></mat-datepicker-toggle>
+          <mat-datepicker #picker4></mat-datepicker>
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="border">
+      <app-skuchart></app-skuchart>
+    </div>
+  </div>
+</div>       -->
+
+
+<!--PROD LATEST DESIGN -->
+
+
+
+
+<!-- <mat-form-field class="form-group input_field mb-0 w-25 ml-5 mt-2" appearance="outline">
+  <input matInput [matDatepicker]="picker4" placeholder="Choose Date ">
+  <mat-datepicker-toggle matSuffix [for]="picker4"></mat-datepicker-toggle>
+  <mat-datepicker #picker4></mat-datepicker>
+</mat-form-field> -->
+
+
+
+<div class="row  margint-2 px-0 mx-0 ml-5 mt-5" style="height: calc(100vh - 6rem);">
+  <div class="col-4">
+    <h4 class="mb-0  text-grey  font-weight-bold text-center">
+      For the Day : {{date | date: 'dd-MM-YYYY'}}
+    </h4>
+  </div>
+  <div class="col-2"></div>
+  <div class="col-4">
+    <h4 class="mb-0 text-grey  font-weight-bold text-center">
+      For the Month : {{date | date: 'MMMM YYYY'}}
+    </h4>
+  </div>
+  <div class="col-3 my-2 ">
+    <div class="">
+      <img src="./assets/img/dashboard/receipt1.png" class="img-fluid iconsize" alt="" srcset="">
+      <h4 class="text-grey font-weight-bold mt-3">Receipts</h4>
+    </div>
+    <div class="row d-flex align-items-center">
+      <div class="col-2">
+        <h4 class="text-purple  font-weight-bold mt-1">{{dayawaitingASN}}</h4>
+      </div>
+      <div class="col-8">
+        <h6 class="text-grey mt-1 ml-1">Awaiting ASN</h6>
+      </div>
+    </div>
+    <div class="row d-flex align-items-center">
+      <div class="col-2">
+        <h4 class="text-purple  font-weight-bold mt-1">{{daycontainerReceived}}</h4>
+      </div>
+      <div class="col-8">
+        <h6 class="text-grey mt-1 ml-1">Container Received</h6>
+      </div>
+    </div>
+    <div class="row d-flex align-items-center">
+      <div class="col-2">
+        <h4 class="text-purple  font-weight-bold mt-1">{{dayitemReceived}}</h4>
+      </div>
+      <div class="col-8">
+        <h6 class="text-grey mt-1 ml-1">Item Received</h6>
+      </div>
+    </div>
+  </div>
+  <div class="col-3 my-2">
+    <div class="">
+      <img src="./assets/img/dashboard/shipping4.png" class="img-fluid iconsize" alt="" srcset="">
+      <h4 class="text-grey font-weight-bold mt-3">Shipping</h4>
+    </div>
+    <div class="row d-flex align-items-center">
+      <div class="col-2">
+        <h4 class="text-purple  font-weight-bold mt-1">{{dayshippedLine}}</h4>
+      </div>
+      <div class="col-8">
+        <h6 class="text-grey mt-1 ml-1">Shipped Line</h6>
+      </div>
+    </div>
+    <div class="row d-flex align-items-center">
+      <div class="col-2">
+        <h4 class="text-purple  font-weight-bold mt-1">{{daynormal}}</h4>
+      </div>
+      <div class="col-8">
+        <h6 class="text-grey mt-1 ml-1">Normal Order</h6>
+      </div>
+    </div>
+    <div class="row d-flex align-items-center">
+      <div class="col-2">
+        <h4 class="text-purple  font-weight-bold mt-1">{{dayspecial}}</h4>
+      </div>
+      <div class="col-8">
+        <h6 class="text-grey mt-1 ml-1">Special Order</h6>
+      </div>
+    </div>
+  </div>
+  <div class="col-3 my-2">
+    <div class="">
+      <img src="./assets/img/dashboard/receipt5.png" class="img-fluid iconsize" alt="" srcset="">
+      <h4 class="text-grey font-weight-bold mt-3">Receipts</h4>
+    </div>
+    <div class="row d-flex align-items-center">
+      <div class="col-2">
+        <h4 class="text-red  font-weight-bold mt-1">{{monthawaitingASN}}</h4>
+      </div>
+      <div class="col-8">
+        <h6 class="text-grey mt-1 ml-1">Awaiting ASN</h6>
+      </div>
+    </div>
+    <div class="row d-flex align-items-center">
+      <div class="col-2">
+        <h4 class="text-red  font-weight-bold mt-1">{{monthcontainerReceived}}</h4>
+      </div>
+      <div class="col-8">
+        <h6 class="text-grey mt-1 ml-1">Container Received</h6>
+      </div>
+    </div>
+    <div class="row d-flex align-items-center">
+      <div class="col-2">
+        <h4 class="text-red  font-weight-bold mt-1">{{monthitemReceived}}</h4>
+      </div>
+      <div class="col-8">
+        <h6 class="text-grey mt-1 ml-1">Item Received</h6>
+      </div>
+    </div>
+  </div>
+  <div class="col-3 my-2">
+    <div class="">
+      <img src="./assets/img/dashboard/shipping1.png" class="img-fluid iconsize" alt="" srcset="">
+      <h4 class="text-grey font-weight-bold mt-3">Shipping</h4>
+    </div>
+    <div class="row d-flex align-items-center">
+      <div class="col-2">
+        <h4 class="text-red  font-weight-bold mt-1">{{monthshippedLine}}</h4>
+      </div>
+      <div class="col-8">
+        <h6 class="text-grey mt-1 ml-1">Shipped Line</h6>
+      </div>
+    </div>
+    <div class="row d-flex align-items-center">
+      <div class="col-2">
+        <h4 class="text-red  font-weight-bold mt-1">{{monthnormal}}</h4>
+      </div>
+      <div class="col-8">
+        <h6 class="text-grey mt-1 ml-1">Normal Order</h6>
+      </div>
+    </div>
+    <div class="row d-flex align-items-center">
+      <div class="col-2">
+        <h4 class="text-red  font-weight-bold mt-1">{{monthspecial}}</h4>
+      </div>
+      <div class="col-8">
+        <h6 class="text-grey mt-1 ml-1">Special Order</h6>
+      </div>
+    </div>
+  </div>
+  <div class="col-3 my-2">
+    <div class="">
+      <img src="./assets/img/dashboard/bin1.png" class="img-fluid iconsize" alt="" srcset="">
+      <h4 class="text-grey font-weight-bold mt-3">Bin Status</h4>
+    </div>
+    <div class="row d-flex align-items-center">
+      <div class="col-2">
+        <h4 class="text-green  font-weight-bold mt-1">{{statusEqualToZeroCount}}</h4>
+      </div>
+      <div class="col-8">
+        <h6 class="text-grey mt-1 ml-1">Empty</h6>
+      </div>
+    </div>
+    <div class="row d-flex align-items-center">
+      <div class="col-2">
+        <h4 class="text-green  font-weight-bold mt-1">{{statusNotEqualToZeroCount}}</h4>
+      </div>
+      <div class="col-8">
+        <h6 class="text-grey mt-1 ml-1">Full</h6>
+      </div>
+    </div>
+  </div>
+</div>  

@@ -1,0 +1,82 @@
+<div class="card bg-white " style="overflow-x: hidden;">
+  <div mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle
+    class="d-flex justify-content-between align-items-center whs-bg-grey text-white p-2">
+    <h6 class="my-auto">Periodic Count - New</h6>
+    <mat-icon class="text-white" mat-dialog-close>close</mat-icon>
+  </div>
+    <div class="mt-2 px-4">
+      <div class="row p-1">
+        <div class="col-lg-6 col-md-6 mt-1">
+          <div class="d-flex flex-column">
+            <p class="mb-0 py-0 text-black required">Warehouse No</p>
+            <div class="form-group input_field mb-0" appearance="outline">
+              <!-- <ng-multiselect-dropdown [placeholder]="'Select'" [settings]="dropdownSettings"
+                [data]="multiSelectWarehouseList" [(ngModel)]="selectedWareHouse" [ngModelOptions]="{standalone: true}"
+                required>
+              </ng-multiselect-dropdown> --> 
+              <p-multiSelect placeholder="Select"  [selectionLimit]="1"  appendTo="body" class="w-100" [options]="multiSelectWarehouseList"
+              [(ngModel)]="selectedWareHouse" [style]="{'width': '100%'}" [panelStyle]="{'width':'20%'}">
+            </p-multiSelect>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6 col-md-6 mt-1">
+          <div class="form-group mb-0">
+            <label for="inputEmail4" class="mb-0">Cycle Count Method</label>
+            <mat-form-field class="mb-0 w-100 " appearance="outline">
+              <input matInput [(ngModel)]="cycledCount" disabled>
+            </mat-form-field>
+          </div>
+        </div>
+        <div class="col-lg-6 col-md-6 mt-1">
+          <div class="d-flex flex-column">
+            <p class="mb-0 py-0 text-black required">Storage Section</p>
+            <div class="form-group input_field mb-0" appearance="outline">
+              <!-- <ng-multiselect-dropdown [placeholder]="'Select'" [settings]="dropdownSettings"
+                [data]="multiSelectStorageSectionList" (onSelect)="onItemSelect($event)"
+                (onSelectAll)="onItemSelect($event)" [(ngModel)]="selectedStorageSection"
+                [ngModelOptions]="{standalone: true}" required>
+              </ng-multiselect-dropdown> -->
+              <p-multiSelect placeholder="Select" appendTo="body" class="w-100" [options]="multiSelectStorageSectionList"
+              [(ngModel)]="selectedStorageSection" (onChange)="onItemSelect($event)" [style]="{'width': '100%'}" [panelStyle]="{'width':'20%'}">
+            </p-multiSelect>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6 col-md-6 mt-1">
+          <div class="d-flex flex-column">
+            <p class="mb-0 py-0 text-black">Bin Location</p>
+            <div class="form-group input_field mb-0" appearance="outline">
+              <!-- <ng-multiselect-dropdown [placeholder]="'Select'" [settings]="dropdownSettings"
+                [data]="multiSelectStorageBinList" [(ngModel)]="selectedStorageBin"
+                [ngModelOptions]="{standalone: true}" required>
+              </ng-multiselect-dropdown> -->
+              <p-multiSelect placeholder="Select" appendTo="body" class="w-100" [options]="multiSelectStorageBinList"
+              [(ngModel)]="selectedStorageBin" [style]="{'width': '100%'}" [panelStyle]="{'width':'20%'}">
+            </p-multiSelect>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6 col-md-6 mt-1">
+          <div class="form-group mb-0">
+            <label for="inputEmail4" class="mb-0">Creation Date</label>
+            <mat-form-field class="mb-0 w-100 " appearance="outline">
+              <input matInput [matDatepicker]="picker" [(ngModel)]="createdDate">
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+      <div class="d-flex justify-content-center align-items-center py-2">
+        <button mat-raised-button color="warn" mat-dialog-close class="mx-2"> <i
+            class="bi bi-x me-1 font-size-1_5rem"></i>Cancel</button>
+        <button mat-raised-button mat-dialog-close class="mx-2 bg-darkblue px-4 text-white" (click)="goTo()">
+          <mat-icon>settings</mat-icon>
+          Run
+        </button>
+      </div>
+    </div>
+
+
+</div>

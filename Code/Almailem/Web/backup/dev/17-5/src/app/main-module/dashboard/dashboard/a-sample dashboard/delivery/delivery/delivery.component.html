@@ -1,0 +1,172 @@
+<div class="row mx-1 pl-2">
+    <div class="col-12">
+      <div class="row  text-secondary pr-0 mt-1">
+        <div class="col bg-white d-flex align-items-center mt-1 px-1 py-1 pathname">
+  
+  
+          <nav aria-label="breadcrumb" class="d-flex align-items-center">
+            <ol class="breadcrumb mb-0 bg-white">
+              <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto"><a routerLink="/main/dashboard">Home</a></li>
+              <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto"><a routerLink="/main/reports/report-list">Dashboard</a></li>
+              <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">Delivery</li>
+            </ol>
+          </nav>
+  
+  
+          <div class="d-flex ml-auto my-auto">
+            <div [hidden]="isShowDiv"> <input matInput (keyup)="applyFilter($event)" class="form-control filter_button mt-2 mt-2 mx-2 border-bottom"
+                placeholder="Search" style="width:90%">
+            </div>
+            <div [ngClass]="showFloatingButtons == true ? 'floating-pane-active' : 'floating-pane-deactive'"
+              class="button-row d-flex align-items-center">
+              <!--
+                          <button mat-mini-fab *ngIf="showFloatingButtons == true" class="floating-buttons  d-flex align-items-center justify-content-center bg-pink text-white mx-2"
+                          matTooltip="Add">
+                          <mat-icon class="action-icon d-flex align-items-center justify-content-center">add_circle_outline</mat-icon>
+                        </button>
+                        -->
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                class=" floating-buttons  d-flex align-items-center justify-content-center text-white   yellowaction"
+                matTooltip="Display">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">search</mat-icon>
+              </button>
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                class="floating-buttons  d-flex align-items-center justify-content-center text-white  blueaction "
+                matTooltip="Edit">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">edit</mat-icon>
+              </button>
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                class=" floating-buttons  d-flex align-items-center justify-content-center redaction text-white  align-middle"
+                matTooltip="Delete">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">delete</mat-icon>
+              </button>
+              <!-- 
+                          <button  mat-mini-fab *ngIf="showFloatingButtons == true"
+                        class="floating-buttons  d-flex align-items-center justify-content-center text-white  bg-success  " matTooltip="Info">
+                        <mat-icon class="action-icon d-flex align-items-center justify-content-center">info_outline</mat-icon>
+                      </button>
+                        -->
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                class="floating-buttons  d-flex align-items-center justify-content-center text-white  darkblueaction "
+                matTooltip="Download">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">download</mat-icon>
+              </button>
+  
+  
+              <button mat-mini-fab (click)="toggleFloat()" class="mx-2 text-white action-button"
+                [ngClass]="{'bg-orange' : toggle, 'purple': !toggle}">
+                <mat-icon>{{icon}}</mat-icon>Options
+              </button>
+              <button mat-mini-fab
+                class=" floating-buttons1  d-flex align-items-center justify-content-center darkaction text-white mx-2 mr-3 align-middle"
+                matTooltip="New">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">add</mat-icon>
+              </button>
+              <button mat-mini-fab
+                class=" floating-buttons1  d-flex align-items-center justify-content-center greyaction text-white mx-2 mr-3 align-middle"
+                matTooltip="Save">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">save</mat-icon>
+              </button>
+              <button mat-mini-fab class="text-white mx-2 action-button  bg-red " type="button" mat-button>
+                <mat-icon class="">tune</mat-icon> Filter
+              </button>
+            </div>
+  
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 mainsection mt-1  border-top px-0 bg-white"style="height: calc(100vh - 12rem);">
+      <div class="d-flex align-items-center justify-content-between pb-2"style="height: 3rem !important;background-color: #f5f5f5 !important;">
+        <div> <h6 class="my-auto mb-0 mx-3 font-weight-bold whs-text-grey">Shipped Lines & Quantities</h6></div>
+       
+       </div>
+          <div class="row  px-2 " >
+            <div class="px-0 pl-1 scrollfull pb-1 w-100  scroll1">
+              <div class="">
+                <table mat-table [dataSource]="dataSource" matSort class=" w-100">
+                
+                  <!-- Checkbox Column -->
+                     <ng-container matColumnDef="select">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                    <mat-checkbox (change)="$event ? masterToggle() : null"
+                      [checked]="selection.hasValue() && isAllSelected()" disabled
+                      [indeterminate]="selection.hasValue() && !isAllSelected()" [aria-label]="checkboxLabel()">
+                    </mat-checkbox>
+                  </th>
+                  <td mat-cell *matCellDef="let row">
+                    <mat-checkbox (click)="$event.stopPropagation()" (change)="clearselection(row)"
+                      [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)">
+                    </mat-checkbox>
+                  </td>
+                </ng-container>
+        
+                  <!-- Weight Column -->
+                  <ng-container matColumnDef="warehouseno">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Required Del Date</th>
+                    <td mat-cell *matCellDef="let element"> {{element.warehouseno}} </td>
+                  </ng-container>
+                  <!-- Weight Column -->
+                  <ng-container matColumnDef="countno">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Shipped Date</th>
+                    <td mat-cell *matCellDef="let element"> {{element.countno}} </td>
+                  </ng-container>
+                  <!-- Weight Column -->
+                  <ng-container matColumnDef="by">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Branch</th>
+                    <td mat-cell *matCellDef="let element"> {{element.by}} </td>
+                  </ng-container>
+                  <!-- Weight Column -->
+                  <ng-container matColumnDef="preinboundno">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Order Type</th>
+                    <td mat-cell *matCellDef="let element"> {{element.preinboundno}} </td>
+                  </ng-container>
+                  <!-- Weight Column -->
+                  <ng-container matColumnDef="status">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Order No</th>
+                    <td mat-cell *matCellDef="let element"> {{element.status}} </td>
+                  </ng-container>
+                     <!-- Weight Column -->
+                     <ng-container matColumnDef="damage">
+                      <th mat-header-cell *matHeaderCellDef mat-sort-header>Ordered Lines</th>
+                      <td mat-cell *matCellDef="let element"> {{element.damage}} </td>
+                    </ng-container>
+                        <!-- Weight Column -->
+                        <ng-container matColumnDef="hold">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header>Shipped Lines </th>
+                          <td mat-cell *matCellDef="let element"> {{element.hold}} </td>
+                        </ng-container>
+                            <!-- Weight Column -->
+                     <ng-container matColumnDef="available">
+                      <th mat-header-cell *matHeaderCellDef mat-sort-header>Ordered Qty</th>
+                      <td mat-cell *matCellDef="let element"> {{element.available}} </td>
+                    </ng-container>
+                    <!-- Weight Column -->
+                    <ng-container matColumnDef="stype">
+                      <th mat-header-cell *matHeaderCellDef mat-sort-header>Shipped Qty </th>
+                      <td mat-cell *matCellDef="let element"> {{element.stype}} </td>
+                    </ng-container>
+                      <!-- Weight Column -->
+                      <ng-container matColumnDef="time">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header>% Shipped</th>
+                          <td mat-cell *matCellDef="let element"> {{element.time}} </td>
+                        </ng-container>
+                  <tr mat-header-row *matHeaderRowDef="displayedColumns;sticky: true"></tr>
+                  <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="selection.toggle(row)">
+                  </tr>
+                </table>
+              </div>
+            </div>
+             <div class="buttons  pb-1 w-100 d-flex justify-content-end ">
+              <div class="p-0 mx-1">
+              <mat-paginator class="" showFirstLastButtons [pageSize]="100" [pageSizeOptions]="[100, 150, 200, 250]"
+                aria-label="Select page of periodic elements">
+              </mat-paginator>
+            </div>
+          </div>
+        
+          </div>
+    </div>
+  
+  </div>
+  

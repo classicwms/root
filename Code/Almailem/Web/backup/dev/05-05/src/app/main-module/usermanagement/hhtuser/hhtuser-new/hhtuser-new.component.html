@@ -1,0 +1,149 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <div class="card bg-white " style="overflow-x: hidden;">
+    <div mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle
+      class="d-flex justify-content-between align-items-center whs-bg-grey text-white p-2">
+      <h6 class="my-auto">User Profile - New </h6>
+      <mat-icon class="text-white" mat-dialog-close>close</mat-icon>
+    </div>
+    <mat-accordion>
+      <mat-expansion-panel #panel [expanded]="step === 0" (opened)="setStep(0)" hideToggle>
+        <mat-expansion-panel-header class="border-bottom padding-space border-top">
+          <mat-panel-title class="d-flex justify-content-between collapsefont align-items-center">
+            General
+            <mat-icon class="text-secondary">{{panel.expanded? 'remove' : 'add'}}</mat-icon>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="row scroll p-1">
+          <div class="col-lg-6 col-md-6 mt-1">
+            <div class="d-flex flex-column">
+              <p class="mb-0 py-0 text-black">Company Code</p>
+              <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                <input matInput placeholder="Enter" formControlName="companyCodeId">
+              </mat-form-field>
+            </div>
+          </div>
+  
+          <div class="col-lg-6 col-md-6 mt-1">
+            <div class="d-flex flex-column">
+              <p class="mb-0 py-0">LanguageID</p>
+              <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                <input matInput placeholder="Enter" formControlName="languageId">
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="col-lg-6 col-md-6 mt-1">
+            <div class="d-flex flex-column">
+              <p class="mb-0 py-0">Password </p>
+              <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                <input matInput placeholder="Enter" formControlName="password">
+              </mat-form-field>
+            </div>
+          </div>
+  
+          <div class="col-lg-6 col-md-6 mt-1">
+            <div class="d-flex flex-column">
+              <p class="mb-0 py-0">PlantID</p>
+              <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                <input matInput placeholder="Enter" formControlName="plantId">
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="col-lg-6 col-md-6 mt-1">
+            <div class="d-flex flex-column">
+              <p class="mb-0 py-0">StatusID</p>
+              <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                <input matInput placeholder="Enter" formControlName="statusId">
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="col-lg-6 col-md-6 mt-1">
+            <div class="d-flex flex-column">
+              <p class="mb-0 py-0">UserID</p>
+              <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                <input matInput placeholder="Enter" formControlName="userId">
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="col-lg-6 col-md-6 mt-1">
+            <div class="d-flex flex-column">
+              <p class="mb-0 py-0">UserName</p>
+              <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                <input matInput placeholder="Enter" formControlName="userName">
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="col-lg-6 col-md-6 mt-1">
+            <div class="d-flex flex-column">
+              <p class="mb-0 py-0">WareHouseID</p>
+              <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                <input matInput placeholder="Enter" formControlName="warehouseId">
+              </mat-form-field>
+            </div>
+          </div>
+        <div class="col-lg-6 col-md-6 mt-1">
+          <div class="d-flex flex-column">
+            <p class="mb-0 py-0">Status</p>
+            <mat-form-field class="form-group input_field mb-0" appearance="outline">
+              <mat-select class="form-group input_field mb-0" placeholder="Select">
+                <mat-option value="1">Active </mat-option>
+                <mat-option value="2">Inactive </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+  </div>
+  </mat-expansion-panel>
+  <mat-expansion-panel #panel2 hideToggle>
+    <mat-expansion-panel-header class="border-bottom padding-space border-top">
+      <mat-panel-title class="d-flex justify-content-between collapsefont align-items-center">
+        Admin
+        <mat-icon class="text-secondary">{{panel2.expanded? 'remove' : 'add'}}</mat-icon>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <div class="row p-1 px-3  mt-2">
+      <div class="col-lg-6 col-md-6 mt-2">
+        <div class="d-flex flex-column">
+          <p class="mb-0 py-0">Created By</p>
+          <mat-form-field class="form-group input_field mb-0" appearance="outline">
+            <input matInput placeholder="AP-Editable">
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="col-lg-6 col-md-6 mt-2">
+        <div class="d-flex flex-column">
+          <p class="mb-0 py-0">Created On</p>
+          <mat-form-field class="form-group input_field mb-0" appearance="outline">
+            <input matInput placeholder="AP-Editable">
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="col-lg-6 col-md-6 mt-2">
+        <div class="d-flex flex-column">
+          <p class="mb-0 py-0">Updated By</p>
+          <mat-form-field class="form-group input_field mb-0" appearance="outline">
+            <input matInput placeholder="AP-Editable">
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="col-lg-6 col-md-6 mt-2">
+        <div class="d-flex flex-column">
+          <p class="mb-0 py-0">Updated On</p>
+          <mat-form-field class="form-group input_field mb-0" appearance="outline">
+            <input matInput placeholder="AP-Editable">
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+  </mat-expansion-panel>
+  </mat-accordion>
+  <div class="d-flex justify-content-center align-items-center py-2">
+    <button mat-raised-button color="warn" mat-dialog-close class="mx-2"> <i
+        class="bi bi-x me-1 font-size-1_5rem"></i>Cancel</button>
+    <button mat-raised-button class="mx-2 bg-darkblue px-4 text-white"> <i class="bi bi-check2 mr-1 font-size-1_5rem"></i>
+  
+      Save</button>
+  </div>
+  
+  
+  </div>
+  </form>

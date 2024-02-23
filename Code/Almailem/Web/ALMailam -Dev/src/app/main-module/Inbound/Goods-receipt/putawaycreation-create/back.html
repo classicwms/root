@@ -1,0 +1,310 @@
+<div class="row mx-1 pl-2">
+    <div class="col-12">
+      <!--inner header-->
+  
+      <div class="row  text-secondary pr-0 mt-1">
+        <div class="col bg-white d-flex align-items-center mt-1 px-1 py-1 pathname">
+  
+  
+          <nav aria-label="breadcrumb" class="d-flex align-items-center">
+            <ol class="breadcrumb mb-0 bg-white">
+              <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">Home</li>
+              <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto"><a
+                  routerLink="/main/inbound/container-receipt">Inbound</a></li>
+              <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto"><a
+                  routerLink="/main/inbound/putawayCreate">Putaway Create</a></li>
+            </ol>
+          </nav>
+  
+  
+          <div class="d-flex ml-auto my-auto">
+            <div [hidden]="isShowDiv"> <input matInput 
+                class="form-control filter_button mt-2 mx-2 border-bottom" placeholder="Search" style="width:90%">
+            </div>
+            <div [ngClass]="showFloatingButtons == true ? 'floating-pane-active' : 'floating-pane-deactive'"
+              class="button-row d-flex align-items-center">
+              <!--
+                        <button mat-mini-fab *ngIf="showFloatingButtons == true" class="floating-buttons  d-flex align-items-center justify-content-center bg-pink text-white mx-2"
+                        matTooltip="Add">
+                        <mat-icon class="action-icon d-flex align-items-center justify-content-center">add_circle_outline</mat-icon>
+                      </button>
+                      -->
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                class=" floating-buttons  d-flex align-items-center justify-content-center text-white   yellowaction"
+                matTooltip="Display">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">search</mat-icon>
+              </button>
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                class="floating-buttons  d-flex align-items-center justify-content-center text-white  blueaction "
+                matTooltip="Edit">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">edit</mat-icon>
+              </button>
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                class=" floating-buttons  d-flex align-items-center justify-content-center redaction text-white  align-middle"
+                matTooltip="Delete">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">delete</mat-icon>
+              </button>
+              <!-- 
+                        <button  mat-mini-fab *ngIf="showFloatingButtons == true"
+                      class="floating-buttons  d-flex align-items-center justify-content-center text-white  bg-success  " matTooltip="Info">
+                      <mat-icon class="action-icon d-flex align-items-center justify-content-center">info_outline</mat-icon>
+                    </button>
+                      -->
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                class="floating-buttons  d-flex align-items-center justify-content-center text-white  darkblueaction "
+                matTooltip="Download">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">download</mat-icon>
+              </button>
+  
+  
+              <button mat-mini-fab (click)="toggleFloat()" class="mx-2 text-white action-button"
+                [ngClass]="{'bg-orange' : toggle, 'purple': !toggle}">
+                <mat-icon>{{icon}}</mat-icon>Options
+              </button>
+              <button mat-mini-fab disabled
+                class=" floating-buttons1 disabled d-flex align-items-center justify-content-center darkaction text-white mx-2 mr-3 align-middle"
+                matTooltip="New">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">add</mat-icon>
+              </button>
+              <button mat-mini-fab (click)="openDialog()"
+                class=" floating-buttons1  d-flex align-items-center justify-content-center greyaction text-white mx-2 mr-3 align-middle"
+                matTooltip="Save">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">save</mat-icon>
+              </button>
+              <button mat-mini-fab disabled class="text-white mx-2 action-button  bg-red disabled" type="button"
+                mat-button>
+                <mat-icon class="">tune</mat-icon> Filter
+              </button>
+            </div>
+  
+          </div>
+        </div>
+      </div>
+      <!--main-section-tabbar
+        <app-main-section-tabbar>
+        </app-main-section-tabbar>  -->
+      <!--main section-->
+      <div class="tabbar1  uatwhite mt-1 px-0 bg-white row d-flex align-items-center">
+        <h5 class="my-auto mb-0 mx-4 font-weight-bold whs-text-grey">Part No - {{code.referenceField5}}</h5>
+      </div>
+      <div class="row  mt-1 pr-1" style="height: calc(100vh - 11rem)">
+  
+        <div class="col-md-12 px-0">
+          <div class="">
+            <mat-accordion>
+              <form [formGroup]="form">
+  
+                <mat-expansion-panel #panel hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top bg-white">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont align-items-center">
+                      <div> <img src="./assets/img/icons/header.png" class="header_icon mr-2" alt="" srcset=""> Header
+                      </div>
+                      <mat-icon class="collapsefont text-secondary">{{panel.expanded? 'remove' : 'add'}}</mat-icon>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <div class="row boxgrey mt-2">
+                    <div class="col-lg-4 col-md-6 mt-2">
+                      <p class="mb-0 py-0"> Order No </p>
+                      <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                        <input matInput placeholder="Enter" formControlName="refDocNumber">
+                      </mat-form-field>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mt-2">
+                      <div class="d-flex flex-column">
+                        <p class="mb-0 py-0">To Creation Date</p>
+                        <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                          <input matInput [matDatepicker]="picker" placeholder="Choose Date" formControlName="createdOn">
+                          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                          <mat-datepicker #picker></mat-datepicker>
+                        </mat-form-field>
+                      </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mt-2">
+                      <div class="d-flex flex-column">
+                        <p class="mb-0 py-0">Status </p>
+                        <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                          <input matInput placeholder="Enter" formControlName="statusId">
+                        </mat-form-field>
+                      </div>
+                    </div>
+                    <!-- <div class="col-lg-4 col-md-6 mt-2">
+                      <p class="mb-0 py-0">Barcode Id </p>
+                      <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                        <input matInput placeholder="Enter">
+                      </mat-form-field>
+                    </div> -->
+                    <div class="col-lg-4 col-md-6 mt-2">
+                      <p class="mb-0 py-0">Order Qty </p>
+                      <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                        <input matInput placeholder="Enter" formControlName="putAwayQuantity">
+                      </mat-form-field>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mt-2">
+                      <p class="mb-0 py-0">Proposed Bin Location</p>
+                      <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                        <input matInput placeholder="Enter" formControlName="proposedStorageBin">
+                      </mat-form-field>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mt-2">
+                      <p class="mb-0 py-0">HHT User</p>
+                      <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                        <input matInput placeholder="Enter" formControlName="assignedUserId">
+                      </mat-form-field>
+                    </div>
+  
+                  </div>
+                </mat-expansion-panel>
+              </form>
+              <!--
+                  <mat-expansion-panel #panel1 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont align-items-center">
+                      Administrator
+                      <mat-icon class="collapsefont">{{panel1.expanded? 'remove' : 'add'}}</mat-icon>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <div class="row mt-2">
+                    
+                  </div>
+                </mat-expansion-panel>
+            -->
+              <mat-expansion-panel #panel5 [expanded]="step === 0" (opened)="setStep(0)" hideToggle>
+                <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                  <mat-panel-title class="d-flex justify-content-between collapsefont align-items-center">
+                    <div> <img src="./assets/img/icons/signal.png" class="header_icon mr-2" alt="" srcset=""> Lines</div>
+                    <mat-icon class="collapsefont">{{panel5.expanded? 'remove' : 'add'}}</mat-icon>
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+                <div class="row mt-2">
+                      <p-table #putawayCreateTag  [value]="putawayCreate"
+                      styleClass="p-datatable-gridlines p-datatable-sm" [scrollable]="true" selectionMode="single" 
+                      scrollHeight="calc(100vh - 14.8rem)" sortField="putawayCreateNumber" [sortOrder]="-1" [paginator]="true" [rows]="100" [showCurrentPageReport]="true"
+                      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                         [resizableColumns]="true" style="width: 100%;margin-left: 10px;background-color:white" >
+                      <ng-template pTemplate="header">
+                        <tr>
+                            <th style="max-width: 4.5rem;"  pSortableColumn="lineNo"   pResizableColumn>Line No<p-sortIcon field="lineNo"></p-sortIcon></th>
+                            <th style="max-width: 6.5rem;"  pSortableColumn="itemCode"   pResizableColumn>Part No<p-sortIcon field="itemCode"></p-sortIcon></th>
+                            <th style="max-width: 12.5rem;" pSortableColumn="itemDescription" pResizableColumn>Description <p-sortIcon field="itemDescription"></p-sortIcon></th> 
+                          <th style="max-width: 5.5rem;"  pSortableColumn="manufacturerPartNo" pResizableColumn>Mfr Part Name<p-sortIcon field="manufacturerPartNo"></p-sortIcon></th> 
+                          <th  pSortableColumn="confirmedStorageBin" pResizableColumn>Confirmed Bin Location<p-sortIcon field="confirmedStorageBin"></p-sortIcon></th> 
+                          <th  style="max-width: 5.5rem;" pSortableColumn="orderQty" pResizableColumn>Order Qty<p-sortIcon field="orderQty"></p-sortIcon></th> 
+                          <th  pSortableColumn="putawayConfirmedQty" pResizableColumn>Putaway Qty<p-sortIcon field="putawayConfirmedQty"></p-sortIcon></th> 
+                          <th  pSortableColumn="delete" pResizableColumn>Delete<p-sortIcon field="delete"></p-sortIcon></th> 
+                          <th  pSortableColumn="edit" pResizableColumn>Edit<p-sortIcon field="edit"></p-sortIcon></th> 
+                        </tr>
+                         
+                        <tr >
+                        <th style="max-width: 4.5rem;" >
+                          <input pInputText  type="text" (input)="putawayCreateTag.filter($any($event.target)?.value, 'lineNo', 'contains')" 
+                          [value]="$any(putawayCreateTag.filters['lineNo'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                        </th>
+                        <th  style="max-width: 6.5rem;">
+                            <input pInputText  type="text" (input)="putawayCreateTag.filter($any($event.target)?.value, 'itemCode', 'contains')" 
+                            [value]="$any(putawayCreateTag.filters['referenceField5'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                          </th> 
+                          <th style="max-width: 12.5rem;">
+                            <input pInputText  type="text" (input)="putawayCreateTag.filter($any($event.target)?.value, 'itemDescription', 'contains')" 
+                            [value]="$any(putawayCreateTag.filters['refDocNumber'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                          </th>
+                            <th style="max-width: 5.5rem;">
+                              <input pInputText  type="text" (input)="putawayCreateTag.filter($any($event.target)?.value, 'manufacturerName', 'contains')" 
+                              [value]="$any(putawayCreateTag.filters['manufacturerName'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                            </th>
+                            <th >
+                            <input pInputText  type="text" (input)="putawayCreateTag.filter($any($event.target)?.value, 'confirmedStorageBin', 'contains')" 
+                            [value]="$any(putawayCreateTag.filters['confirmedStorageBin'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                          </th> 
+                          <th  style="max-width: 5.5rem;">
+                            <input pInputText  type="text" (input)="putawayCreateTag.filter($any($event.target)?.value, 'orderQty', 'contains')" 
+                            [value]="$any(putawayCreateTag.filters['orderQty'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                          </th>
+                          <th >
+                            <input pInputText  type="text" (input)="putawayCreateTag.filter($any($event.target)?.value, 'putawayConfirmedQty', 'contains')" 
+                            [value]="$any(putawayCreateTag.filters['putawayConfirmedQty'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                          </th>
+                          <th >
+                            <input pInputText  type="text" (input)="putawayCreateTag.filter($any($event.target)?.value, 'delete', 'contains')" 
+                            [value]="$any(putawayCreateTag.filters['delete'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                          </th>
+                          <th >
+                            <input pInputText  type="text" (input)="putawayCreateTag.filter($any($event.target)?.value, 'edit', 'contains')" 
+                            [value]="$any(putawayCreateTag.filters['edit'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                          </th>
+                        </tr>
+                      </ng-template>
+                      <ng-template pTemplate="body" let-putawayCreate let-rowIndex="rowIndex">
+                        <tr>
+                            <td style="max-width: 4.5rem;" >{{putawayCreate.lineNo}}</td>
+                          <td  style="max-width: 6.5rem;">{{putawayCreate.itemCode}}</td>
+                          <td style="max-width: 12.5rem;">{{putawayCreate.itemDescription}}</td>
+                          <td style="max-width: 5.5rem;">{{putawayCreate.manufacturerName}}</td>
+                          <td >
+                            <!-- <p-dropdown placeholder="Select" [filter]="true" class="w-100" [options]="multiSelectbinList"
+                            [(ngModel)]="putawayCreate.confirmedStorageBin" [style]="{'width': '100%'}"  [disabled]="pageflow == 'Display'">
+                          </p-dropdown> -->
+  
+                          <p-dropdown *ngIf="showDropdown1" placeholder="Select" [filter]="true" class="w-100" [options]="multiselectStorageList"
+                          [resetFilterOnHide]="true"   [disabled]="pageflow == 'Display'"
+                          [(ngModel)]="putawayCreate.confirmedStorageBin" name="product" [style]="{'width': '100%'}" [panelStyle]="{'width':'20%'}"
+                              (onFilter)="onStorageType($event)"  >     </p-dropdown>
+  
+                              <mat-form-field *ngIf="!showDropdown1" class="form-group input_field mb-0 w-100" appearance="outline">
+                                <input matInput placeholder="Enter" [(ngModel)]="putawayCreate.confirmedStorageBin" 
+                                 disabled>
+                                 <button  matSuffix mat-icon-button (click)="showDropdown()">
+                                  <mat-icon>edit</mat-icon>
+                                </button>
+                              </mat-form-field>
+  
+  
+                          </td>
+                          <td  style="max-width: 5.5rem;">{{putawayCreate.orderQty}}</td>
+                          <td >
+                            <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                              <input matInput placeholder="Enter" type="number" [(ngModel)]="putawayCreate.putawayConfirmedQty" required
+                                [disabled]="pageflow == 'Display'"> 
+                            </mat-form-field>
+                            <mat-error *ngIf="putawayCreate.putawayConfirmedQty == null" class="mt-1">Qty Required</mat-error>
+                          </td>
+                          <td>  <button mat-icon-button  [disabled]="pageflow=='Display'" (click)="onDeleteRow(rowIndex)">
+                            <mat-icon class="text-danger" [ngClass]="rowIndex == 0 ? 'd-none' : ''">delete_outline</mat-icon>
+                          </button></td>
+                          <td>  <button class="mx-2" [disabled]="pageflow == 'Display'" mat-icon-button (click)="openDialog()">
+                            <mat-icon class="text-info">edit</mat-icon>
+                          </button></td>
+                        </tr>
+                      </ng-template>
+                    </p-table>
+                </div>
+              </mat-expansion-panel>
+            </mat-accordion>
+            <div class=" pb-1 w-100 d-flex justify-content-center fixed-bottom">
+              <div class="py-2 mr-5 pr-5">
+                <button mat-raised-button class="bg-yellow  text-white mx-1" (click)="add()" *ngIf="pageflow != 'Display'">
+                  <mat-icon class="">add</mat-icon> Add Bin
+                </button>
+                <button mat-raised-button class="text-white mx-1" color="warn" routerLink="/main/inbound/putaway">
+                  <mat-icon class="">close</mat-icon> Cancel
+                </button>
+                <button mat-raised-button class="bg-darkblue  text-white mx-1" (click)="submit()"
+                  *ngIf="pageflow != 'Display'">
+                  <mat-icon class="">done</mat-icon> Confirm
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+    </div>
+  
+  
+  
+    <!--right pane-->
+    <div class="col-3 pl-1 pr-1 mt-1 d-none">
+      <div class="whs-rightpane bg-white shadow ">
+  
+      </div>
+    </div>
+  </div>

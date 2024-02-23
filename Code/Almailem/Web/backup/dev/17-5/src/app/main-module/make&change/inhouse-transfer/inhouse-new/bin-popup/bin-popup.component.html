@@ -1,0 +1,218 @@
+<div class="card bg-white " style="overflow-x: hidden;">
+  <div mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle
+    class="d-flex justify-content-between align-items-center whs-bg-grey text-white p-2">
+    <h6 class="my-auto">Inhouse Transfer - Bin to Bin</h6>
+    <mat-icon class="text-white" mat-dialog-close>close</mat-icon>
+  </div>
+  <div class="row px-2 mt-2 bg-danger">
+    <div class="col-6 border-right uatwhite">
+      <h6 class=" mt-2">Source</h6>
+      <div class="row">
+        <div class="col-5 mt-2">
+          <div class="d-flex flex-column">
+            <p class="mb-0 py-0">Bin </p>
+            <!-- <mat-form-field class="form-group input_field mb-0 w-100 " appearance="outline">
+              <mat-select class="mb-0" placeholder="Select" [(ngModel)]="sourceStorageBin"
+                (selectionChange)="load($event.value)">
+                <mat-option *ngFor="let item of binlist" [value]="item.storageBin">
+                  {{item.storageBin}} - {{item.description}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field> -->
+            <div class="form-group input_field mb-2" appearance="outline">
+              <!-- <angular2-multiselect [data]="multiselectbinList" [(ngModel)]="selectedItems"
+                [settings]="dropdownSettings" (onSelect)="onItemSelect($event)" (onDeSelect)="OnItemDeSelect($event)"
+                (onSelectAll)="onSelectAll($event)" (onDeSelectAll)="onDeSelectAll($event)" name="bin">
+              </angular2-multiselect> -->
+              <!-- <mat-form-field class="mb-0 w-100" appearance="outline">
+                <input matInput placeholder="Enter" [(ngModel)]="sourceStorageBin">
+              </mat-form-field> -->
+              <p-dropdown placeholder="Select" [filter]="true" class="w-100" [options]="multiselectStorageList"
+              [resetFilterOnHide]="true" 
+              [(ngModel)]="sourceStorageBin" name="product" [style]="{'width': '100%'}" [panelStyle]="{'width':'20%'}"
+                  (onFilter)="onStorageType($event)"  (onChange)="binSelected($event)">
+            </p-dropdown>
+            </div>
+          </div>
+        </div>
+        <div class="col-5 mt-2">
+          <div class="d-flex flex-column">
+            <p class="mb-0 py-0">Product Code </p>
+            <div class="form-group input_field mb-2" appearance="outline">
+              <!-- <mat-form-field class="mb-0 w-100" appearance="outline">
+                <input matInput placeholder="Enter" [(ngModel)]="sourceItemCode">
+              </mat-form-field> -->
+              <!-- <p-dropdown placeholder="Select" [filter]="true" class="w-100" [options]="multiselectItemCodeList"
+              [resetFilterOnHide]="true" 
+                [(ngModel)]="sourceItemCode" name="product" [style]="{'width': '100%'}" [panelStyle]="{'width':'20%'}"
+                  (onFilter)="onItemType($event)"  >
+            </p-dropdown> -->
+            <p-dropdown placeholder="Select" [filter]="true" class="w-100" [options]="filterItemSelectList" 
+              [(ngModel)]="sourceItemCode"  [style]="{'width': '100%'}" [panelStyle]="{'width':'20%'}"  >
+          </p-dropdown>
+            </div>
+          </div>
+        </div>
+  
+        <div class="col-1 mt-2">
+          <div class="d-flex flex-column" style="margin-top: 27px;">
+            <!-- <button mat-raised-button (click)="load(sourceItemCode)" class="mx-1 bg-darkblue px-4 text-white">
+              Search</button> -->
+              
+              <button mat-button class="bg-orange" (click)="load(sourceStorageBin)" ><mat-icon class="text-white">search</mat-icon></button>
+          </div>
+        </div>
+        <div class="col-6 mt-2" [hidden]="selectedItems.length == 0">
+          <div class="d-flex flex-column">
+            <p class="mb-0 py-0">Search</p>
+            <div> <input  matInput
+                class="form-control filter_button mt-2 mt-2 mx-2 border-bottom" style="width:90%">
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="row ">
+        <p-table #bin1Tag  [value]="bin1" [globalFilterFields]="[  'storageBin', 'packBarcodes',  'inventoryQuantity']"
+        styleClass="p-datatable-gridlines p-datatable-sm" [scrollable]="true" selectionMode="single" scrollDirection="both"
+        scrollHeight="calc(100vh - 25.2rem)"  [sortOrder]="-1" [paginator]="true" [rows]="100" [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [rowsPerPageOptions]="[100, 150, 200, 250]" [resizableColumns]="true" style="width: 100%;margin-left: 10px;background-color:white" >
+          <ng-template pTemplate="header">
+            <tr>
+             
+              <th style="width: 9.5rem;"pSortableColumn="itemCode "  pResizableColumn>Sku <p-sortIcon field="itemCode"></p-sortIcon>
+               
+              </th>
+              <th style="width: 9.5rem;"pSortableColumn="stockTypeIddes "  pResizableColumn>Stock Type Id<p-sortIcon field="stockTypeIddes"></p-sortIcon>
+               
+              </th>
+              <th style="width: 9.5rem" pSortableColumn="packBarcodes"  pResizableColumn>Pallet Id <p-sortIcon field="packBarcodes"></p-sortIcon>
+             
+              </th>
+              <th style="width: 9.5rem" pSortableColumn="inventoryQuantity"  pResizableColumn>Qty <p-sortIcon field="inventoryQuantity"></p-sortIcon>
+             
+              </th>
+            
+    
+              
+            </tr>
+    
+            
+          </ng-template>
+          <ng-template pTemplate="body" let-bin1 let-rowIndex="rowIndex">
+            <tr>
+    
+             
+           
+              <td style="width: 9.5rem"> {{bin1.itemCode}}</td>
+              <td style="width: 9.5rem">{{bin1.stockTypeIddes}}</td>
+              <td style="width: 9.5rem">{{bin1.packBarcodes}}</td>
+              <td style="width: 9.5rem">{{bin1.inventoryQuantity}}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+    
+      </div>
+    </div>
+
+    <div class="col-6 border-left uatwhite">
+      <h6 class=" mt-2">Destination</h6>
+      <div class="row">
+        <div class="col-6 mt-2">
+          <div class="d-flex flex-column">
+            <p class="mb-0 py-0">Bin </p>
+            <!-- <mat-form-field class="form-group input_field mb-0 w-100 " appearance="outline">
+              <mat-select class="mb-0" placeholder="Select" [(ngModel)]="targetStorageBin">
+                <mat-option *ngFor="let item of binlist" [value]="item.storageBin">
+                  {{item.storageBin}} - {{item.description}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field> -->
+            <div class="form-group input_field mb-2" appearance="outline">
+              <!-- <angular2-multiselect [data]="multiselectbinList" [(ngModel)]="selectedItems1"
+                [settings]="dropdownSettings" (onSelect)="onItemSelect($event)" (onDeSelect)="OnItemDeSelect($event)"
+                (onSelectAll)="onSelectAll($event)" (onDeSelectAll)="onDeSelectAll($event)" name="bin">
+              </angular2-multiselect> -->
+              <!-- <mat-form-field class="mb-0 w-100" appearance="outline">
+                <input matInput placeholder="Enter" [(ngModel)]="targetStorageBin">
+              </mat-form-field> -->
+              <p-dropdown placeholder="Select" [filter]="true" class="w-100" [options]="multiselectStorageList1"
+              [resetFilterOnHide]="true" 
+              [(ngModel)]="targetStorageBin" name="product1" [style]="{'width': '100%'}" [panelStyle]="{'width':'20%'}"
+                  (onFilter)="onStorageType1($event)">
+            </p-dropdown>
+            </div>
+          </div>
+        </div>
+   
+        <div class="col-6 mt-2" >
+          <div class="d-flex flex-column">
+          <p class="mb-0 py-0 invisible">Search</p> 
+            <div> <input  matInput placeholder="Enter"
+                class="form-control filter_button mt-2 mt-2 mx-2 border-bottom" style="width:90%">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row ">
+        <p-table #bin2Tag  [value]="bin2" [globalFilterFields]="[  'storageBin', 'packBarcodes',  'inventoryQuantity']"
+        styleClass="p-datatable-gridlines p-datatable-sm" [scrollable]="true" selectionMode="single" scrollDirection="both"
+        scrollHeight="calc(100vh - 25.2rem)"  [sortOrder]="-1" [paginator]="true" [rows]="100" [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [rowsPerPageOptions]="[100, 150, 200, 250]" [resizableColumns]="true" style="width: 100%;margin-left: 10px;background-color:white" >
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="max-width: 3.5rem">
+                <p-tableHeaderCheckbox [disabled]="true"></p-tableHeaderCheckbox>
+              </th>
+              <th style="width: 9.5rem;"pSortableColumn="itemCode "  pResizableColumn>Sku <p-sortIcon field="itemCode"></p-sortIcon>
+               
+              </th>
+              <th style="width: 9.5rem;"pSortableColumn="stockTypeIddes "  pResizableColumn>Stock Type Id<p-sortIcon field="stockTypeIddes"></p-sortIcon>
+               
+              </th>
+              <th style="width: 9.5rem" pSortableColumn="packBarcodes"  pResizableColumn>Pallet Id <p-sortIcon field="packBarcodes"></p-sortIcon>
+             
+              </th>
+              <th style="width: 9.5rem" pSortableColumn="inventoryQuantity"  pResizableColumn>Qty <p-sortIcon field="inventoryQuantity"></p-sortIcon>
+             
+              </th>
+            
+    
+              
+            </tr>
+    
+            
+          </ng-template>
+          <ng-template pTemplate="body" let-bin2 let-rowIndex="rowIndex">
+            <tr>
+    
+              <td style="max-width:3.5rem;">
+                <p-checkbox [(ngModel)]="selectedbin" [value]="bin2"></p-checkbox>
+                <!--<p-tableCheckbox [value]="approvals"></p-tableCheckbox>-->
+              </td>
+           
+              <td style="width: 9.5rem"> {{bin2.itemCode}}</td>
+              <td style="width: 9.5rem"> <mat-select class="mb-0" value="1" placeholder="Select" [(ngModel)]="bin2.targetStock">
+                <mat-option value="1">On hand </mat-option>
+                <mat-option value="7">Hold </mat-option>
+              </mat-select></td>
+              <td style="width: 9.5rem">{{bin2.packBarcodes}}</td>
+              <td style="width: 9.5rem">  <input matInput placeholder="Enter" [value]="bin2.inventoryQuantity" [(ngModel)]="bin2.inventoryQuantity1"></td>
+            </tr>
+          </ng-template>
+        </p-table>
+    
+      </div>
+    </div>
+  </div>
+  <div class="d-flex justify-content-center align-items-center py-2">
+    <button mat-raised-button color="warn" mat-dialog-close class="mx-1"> <i
+        class="bi bi-x me-1 font-size-1_5rem"></i>Cancel</button>
+    <button mat-raised-button (click)="save()" class="mx-1 bg-darkblue px-4 text-white"> <i
+        class="bi bi-check2 mr-1 font-size-1_5rem"></i>
+
+      Save</button>
+  </div>
+</div>

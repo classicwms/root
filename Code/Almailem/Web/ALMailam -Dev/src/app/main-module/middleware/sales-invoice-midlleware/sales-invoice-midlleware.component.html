@@ -1,0 +1,347 @@
+<div class="row mx-1 pl-2">
+    <div class="col-12">
+        <div class="row  text-secondary pr-0 mt-1">
+            <div class="col bg-white d-flex align-items-center mt-1 px-1 py-1 pathname">
+
+
+                <nav aria-label="breadcrumb" class="d-flex align-items-center">
+                    <ol class="breadcrumb mb-0 bg-white">
+                        <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">Home</li>
+                        <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto"><a
+                                routerLink="/main/inbound/container-receipt">MiddleWare</a></li>
+                        <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto"><a
+                                routerLink="/main/middleware/salesInvoice">Sales Invoice</a>
+                        </li>
+                    </ol>
+                </nav>
+
+
+                <div class="d-flex ml-auto my-auto">
+                    <div [hidden]="isShowDiv"> <input matInput
+                            class="form-control filter_button mt-2 mx-2 border-bottom" placeholder="Search"
+                            style="width:90%">
+                    </div>
+                    <div [ngClass]="showFloatingButtons == true ? 'floating-pane-active' : 'floating-pane-deactive'"
+                        class="button-row d-flex align-items-center">
+
+                        <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                            class="floating-buttons  d-flex align-items-center justify-content-center bg-pink text-white mx-2"
+                            matTooltip="Add">
+                            <mat-icon
+                                class="action-icon d-flex align-items-center justify-content-center">add_circle_outline</mat-icon>
+                        </button>
+
+                        <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                            class=" floating-buttons  d-flex align-items-center justify-content-center text-white  yellowaction"
+                            matTooltip="Display"  [disabled]="!RA.view">
+                            <mat-icon
+                                class="action-icon d-flex align-items-center justify-content-center">search</mat-icon>
+                        </button>
+                        <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                            class="floating-buttons  d-flex align-items-center justify-content-center text-white blueaction "
+                            matTooltip="Edit" [disabled]="!RA.createUpdate">
+                            <mat-icon
+                                class="action-icon d-flex align-items-center justify-content-center">edit</mat-icon>
+                        </button>
+                        <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                            class=" floating-buttons  d-flex align-items-center justify-content-center redaction text-white align-middle"
+                            matTooltip="Delete"  [disabled]="this.auth.userTypeId == '2'">
+                            <mat-icon
+                                class="action-icon d-flex align-items-center justify-content-center">delete</mat-icon>
+                        </button>
+                        <!-- 
+                        <button  mat-mini-fab *ngIf="showFloatingButtons == true"
+                      class="floating-buttons  d-flex align-items-center justify-content-center text-white bg-success  " matTooltip="Info">
+                      <mat-icon class="action-icon d-flex align-items-center justify-content-center">info_outline</mat-icon>
+                    </button>
+                      -->
+                        <button mat-mini-fab *ngIf="showFloatingButtons == true" (click)="downloadexcel()"
+                            class="floating-buttons  d-flex align-items-center justify-content-center text-white darkblueaction "
+                            matTooltip="Download">
+                            <mat-icon
+                                class="action-icon d-flex align-items-center justify-content-center">download</mat-icon>
+                        </button>
+
+
+                        <button mat-mini-fab (click)="toggleFloat()" class="mx-2 text-white action-button"
+                            [ngClass]="{'bg-orange' : toggle, 'purple': !toggle}">
+                            <mat-icon>{{icon}}</mat-icon>Options
+                        </button>
+                        <button mat-mini-fab disabled
+                            class=" floating-buttons1 disabled d-flex align-items-center justify-content-center darkaction text-white mx-2 mr-3 align-middle"
+                            matTooltip="New" [disabled]="!RA.createUpdate">
+                            <mat-icon
+                                class="action-icon d-flex align-items-center justify-content-center my-auto">add</mat-icon>
+                        </button>
+                        <button mat-mini-fab
+                            class=" floating-buttons1  d-flex align-items-center justify-content-center greyaction text-white mx-2 mr-3 align-middle"
+                            matTooltip="Save">
+                            <mat-icon
+                                class="action-icon d-flex align-items-center justify-content-center my-auto">save</mat-icon>
+                        </button>
+                        <button mat-mini-fab class="text-white mx-2 action-button  bg-red" type="button" mat-button
+                            (click)="drawer.toggle()">
+                            <mat-icon class="">tune</mat-icon> Filter
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--main-section-tabbar
+        <app-main-section-tabbar>
+        </app-main-section-tabbar>  -->
+    <!--main section-->
+    <div class="pr-1 mt-2 mx-0 w-100 ">
+        <app-middleware-tab></app-middleware-tab>
+    </div>
+    <mat-drawer-container class="example-container  w-100 animate__animated animate__fadeInRight animate__faster">
+        <mat-drawer #drawer class="example-sidenav " mode="over" position="end">
+            <div class="card-header whs-bg-grey text-white d-flex justify-content-between align-items-center">
+                <h6 class="my-auto mb-0">Search Parameter</h6>
+                <mat-icon type="button" (click)="drawer.toggle()">close</mat-icon>
+            </div>
+            <form [formGroup]="form">
+                <div class="row searchscroll1 mt-1 mr-1 p-2 pl-3">
+                    <div class="col-12 my-1">
+                        <div class="form-group mb-0">
+                          <label for="inputEmail4" class="mb-0">Sales Order No</label>
+                          <p-multiSelect placeholder="Select" class="w-100" [options]="multisalesOrderNo"
+                            formControlName="salesOrderNumber" [style]="{'width': '100%'}" [panelStyle]="{'width':'20%'}">
+                          </p-multiSelect>
+                        </div>
+                      </div>
+                      <div class="col-12 my-1">
+                        <div class="form-group mb-0">
+                          <label for="inputEmail4" class="mb-0">Sales Invoice No</label>
+                          <p-multiSelect placeholder="Select" class="w-100" [options]="multisalesInvoiceNo"
+                            formControlName="salesInvoiceNumber" [style]="{'width': '100%'}" [panelStyle]="{'width':'20%'}">
+                          </p-multiSelect>
+                        </div>
+                      </div>
+                      <div class="col-12 my-1">
+                        <div class="form-group mb-0">
+                          <label for="inputEmail4" class="mb-0">Pick List No</label>
+                          <p-multiSelect placeholder="Select" class="w-100" [options]="multipickuplistNo" formControlName="pickListNumber"
+                            [style]="{'width': '100%'}" [panelStyle]="{'width':'20%'}"></p-multiSelect>
+                        </div>
+                      </div>
+                      <div class="col-12 my-1">
+                        <div class="form-group mb-0">
+                          <label for="inputEmail4" class="mb-0">Customer Name</label>
+                          <p-multiSelect placeholder="Select" class="w-100" [options]="multicustomer" formControlName="customerId"
+                            [style]="{'width': '100%'}" [panelStyle]="{'width':'20%'}"></p-multiSelect>
+                        </div>
+                      </div>
+                      <div class="col-12 mt-2">
+                      <p class="mb-0 py-0">Order Processed Date</p>
+                      <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+
+                          <mat-date-range-input [rangePicker]="pickerss">
+                              <input matStartDate placeholder="Start date" formControlName="fromOrderProcessedOn">
+                              <input matEndDate placeholder="End date" formControlName="toOrderProcessedOn">
+                          </mat-date-range-input>
+                          <mat-datepicker-toggle matSuffix [for]="pickerss"></mat-datepicker-toggle>
+                          <mat-date-range-picker #pickerss></mat-date-range-picker>
+                      </mat-form-field>
+
+                  </div>
+
+                 <div class="col-12 mt-2">
+                      <p class="mb-0 py-0">Order Received Date</p>
+                      <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+
+                          <mat-date-range-input [rangePicker]="pickerss1">
+                              <input matStartDate placeholder="Start date" formControlName="fromOrderReceivedOn">
+                              <input matEndDate placeholder="End date" formControlName="toOrderReceivedOn">
+                          </mat-date-range-input>
+                          <mat-datepicker-toggle matSuffix [for]="pickerss1"></mat-datepicker-toggle>
+                          <mat-date-range-picker #pickerss1></mat-date-range-picker>
+                      </mat-form-field>
+
+                  </div>
+               
+
+
+              
+                </div>
+            </form>
+            <div class="d-flex justify-content-center align-items-center py-2">
+                <button mat-raised-button color="warn" class="text-white mx-1 px-4" (click)="reload();">
+                    <mat-icon class="">restart_alt</mat-icon> Reset
+                </button>
+                <button mat-raised-button class="bg-darkblue text-white mx-1" (click)="search(); drawer.toggle()"  >
+                    <mat-icon class="">done</mat-icon> Search
+                </button>
+            </div>
+        </mat-drawer>
+        <div class="example-sidenav-content">
+            <div class="row " style="padding-right: 15px !important;">
+                <p-table #salesInvoiceTag [value]="salesInvoice" [(selection)]="selectedSalesInvoice"
+                    styleClass="p-datatable-gridlines p-datatable-sm" [scrollable]="true" selectionMode="multiple"
+                    scrollHeight="calc(100vh - 14.8rem)" sortField="proposedStorageBin" [sortOrder]="-1"
+                    [paginator]="true" [rows]="100" [showCurrentPageReport]="true"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                    [resizableColumns]="true" style="width: 100%;margin-left: 10px;background-color:white">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th style="max-width: 3.5rem; justify-content: center;">
+                                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                            </th>
+
+                            <th style="max-width: 8rem;" pSortableColumn="branchCode" pResizableColumn>
+                                Branch<p-sortIcon field="branchCode"></p-sortIcon></th>
+                            <th style="max-width: 8rem;" pSortableColumn="companyCode" pResizableColumn>
+                                Company<p-sortIcon field="companyCode"></p-sortIcon></th>
+                            <th style="max-width: 8rem;" pSortableColumn="status" pResizableColumn>
+                                 Status <p-sortIcon field="status"></p-sortIcon></th>
+                            <th style="max-width: 8rem;" pSortableColumn="salesOrderNumber" pResizableColumn>
+                              Sales Order Number  <p-sortIcon field="salesOrderNumber"></p-sortIcon></th>
+                              <th style="max-width: 8rem;" pSortableColumn="salesInvoiceNumber" pResizableColumn>
+                                Sales Invoice Number  <p-sortIcon field="salesInvoiceNumber"></p-sortIcon></th>
+                            <th style="max-width: 8rem;" pSortableColumn="pickListNumber" pResizableColumn>
+                                Pick List Number<p-sortIcon field="pickListNumber"></p-sortIcon></th>
+                            <th style="max-width: 8rem;" pSortableColumn="customerId" pResizableColumn>
+                                Customer<p-sortIcon field="customerId"></p-sortIcon></th>
+                            <th style="max-width: 8rem;" pSortableColumn="customerName" pResizableColumn>
+                               Customer Name <p-sortIcon field="customerName"></p-sortIcon></th>
+                            <th style="max-width: 8rem;" pSortableColumn="address" pResizableColumn>Address<p-sortIcon
+                                    field="address"></p-sortIcon></th>
+                            <th style="max-width: 8rem;" pSortableColumn="phoneNumber" pResizableColumn>Phone
+                                <p-sortIcon field="phoneNumber"></p-sortIcon></th>
+                            <th pSortableColumn="alternateNo" pResizableColumn>Alternate No<p-sortIcon
+                                    field="alternateNo"></p-sortIcon></th>
+                            <th pSortableColumn="invoiceDate" pResizableColumn>Invoice Date<p-sortIcon
+                                    field="invoiceDate"></p-sortIcon></th>
+                            <!-- <th  pSortableColumn="proposedHandlingEquipment" pResizableColumn> HE No<p-sortIcon field="proposedHandlingEquipment"></p-sortIcon></th>  -->
+                            <th style="max-width: 8rem;" pSortableColumn="orderReceivedOn" pResizableColumn>Order Received On<p-sortIcon field="orderReceivedOn"></p-sortIcon></th>
+                            <th style="max-width: 8rem;" pSortableColumn="orderProcessedOn" pResizableColumn>Order Processed On
+                                <p-sortIcon field="orderProcessedOn"></p-sortIcon>
+                            </th>
+                           
+                        </tr>
+
+
+                        <tr>
+                            <th style="max-width: 3.5rem; justify-content: center;">
+                                <p-tableHeaderCheckbox [disabled]="true"></p-tableHeaderCheckbox>
+                            </th>
+
+                            <th style="max-width: 8rem;">
+                                <input pInputText type="text"
+                                    (input)="salesInvoiceTag.filter($any($event.target)?.value, '[branchCode]', 'contains')"
+                                    [value]="$any(salesInvoiceTag.filters['branchCode'])?.value"
+                                    placeholder="Search" class=" w-100 p-column-filter">
+                            </th>
+                            <th style="max-width: 8rem;">
+                                <input pInputText type="text"
+                                    (input)="salesInvoiceTag.filter($any($event.target)?.value, 'companyCode', 'contains')"
+                                    [value]="$any(salesInvoiceTag.filters['companyCode'])?.value"
+                                    placeholder="Search" class=" w-100 p-column-filter">
+                            </th>
+                            <th style="max-width: 8rem;">
+                                <input pInputText type="text"
+                                    (input)="salesInvoiceTag.filter($any($event.target)?.value, 'status', 'contains')"
+                                    [value]="$any(salesInvoiceTag.filters['status'])?.value"
+                                    placeholder="Search" class=" w-100 p-column-filter">
+                            </th>
+                            <th style="max-width: 8rem;">
+                                <input pInputText type="text"
+                                    (input)="salesInvoiceTag.filter($any($event.target)?.value, 'salesOrderNumber', 'contains')"
+                                    [value]="$any(salesInvoiceTag.filters['salesOrderNumber'])?.value"
+                                    placeholder="Search" class=" w-100 p-column-filter">
+                            </th>
+                            <th style="max-width: 8rem;">
+                                <input pInputText type="text"
+                                    (input)="salesInvoiceTag.filter($any($event.target)?.value, 'salesInvoiceNumber', 'contains')"
+                                    [value]="$any(salesInvoiceTag.filters['salesInvoiceNumber'])?.value"
+                                    placeholder="Search" class=" w-100 p-column-filter">
+                            </th>
+                            <th style="max-width: 8rem;">
+                                <input pInputText type="text"
+                                    (input)="salesInvoiceTag.filter($any($event.target)?.value, 'pickListNumber', 'contains')"
+                                    [value]="$any(salesInvoiceTag.filters['pickListNumber'])?.value" placeholder="Search"
+                                    class=" w-100 p-column-filter">
+                            </th>
+                            <th style="max-width: 8rem;">
+                                <input pInputText type="text"
+                                    (input)="salesInvoiceTag.filter($any($event.target)?.value, 'customerId', 'contains')"
+                                    [value]="$any(salesInvoiceTag.filters['customerId'])?.value" placeholder="Search"
+                                    class=" w-100 p-column-filter">
+                            </th>
+                            <th style="max-width: 8rem;">
+                                <input pInputText type="text"
+                                    (input)="salesInvoiceTag.filter($any($event.target)?.value, 'customerName', 'contains')"
+                                    [value]="$any(salesInvoiceTag.filters['customerName'])?.value" placeholder="Search"
+                                    class=" w-100 p-column-filter">
+                            </th>
+                            <th style="max-width: 8rem;">
+                                <input pInputText type="text"
+                                    (input)="salesInvoiceTag.filter($any($event.target)?.value, 'address', 'contains')"
+                                    [value]="$any(salesInvoiceTag.filters['address'])?.value"
+                                    placeholder="Search" class=" w-100 p-column-filter">
+                            </th>
+                            <th style="max-width: 8rem;">
+                                <input pInputText type="text"
+                                    (input)="salesInvoiceTag.filter($any($event.target)?.value, 'phoneNumber', 'contains')"
+                                    [value]="$any(salesInvoiceTag.filters['phoneNumber'])?.value"
+                                    placeholder="Search" class=" w-100 p-column-filter">
+                            </th>
+                            <th style="max-width: 8rem;">
+                                <input pInputText type="text"
+                                    (input)="salesInvoiceTag.filter($any($event.target)?.value, 'alternateNo', 'contains')"
+                                    [value]="$any(salesInvoiceTag.filters['alternateNo'])?.value" placeholder="Search"
+                                    class=" w-100 p-column-filter">
+                            </th>
+                            <th style="max-width: 8rem;">
+                                <input pInputText type="text"
+                                    (input)="salesInvoiceTag.filter($any($event.target)?.value, 'invoiceDate', 'contains')"
+                                    [value]="$any(salesInvoiceTag.filters['invoiceDate'])?.value"
+                                    placeholder="Search" class=" w-100 p-column-filter">
+                            </th>
+                            <th style="max-width: 8rem;">
+                                <input pInputText type="text"
+                                    (input)="salesInvoiceTag.filter($any($event.target)?.value, 'orderReceivedOn', 'contains')"
+                                    [value]="$any(salesInvoiceTag.filters['orderReceivedOn'])?.value" placeholder="Search"
+                                    class=" w-100 p-column-filter">
+                            </th>
+                            <th style="max-width: 8rem;">
+                                <input pInputText type="text"
+                                    (input)="salesInvoiceTag.filter($any($event.target)?.value, 'orderProcessedOn', 'contains')"
+                                    [value]="$any(salesInvoiceTag.filters['orderProcessedOn'])?.value" placeholder="Search"
+                                    class=" w-100 p-column-filter">
+                            </th>
+                       
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-putaway let-rowIndex="rowIndex">
+                        <tr>
+                            <!-- <td style="max-width:3.5rem;  justify-content: center;">
+                    <p-checkbox (onChange)="onChange()" [(ngModel)]="selectedSalesInvoice"   [value]="putaway"></p-checkbox>
+                  </td> -->
+                            <td style="max-width: 3.5rem; justify-content: center;">
+                                <p-tableCheckbox [value]="putaway"></p-tableCheckbox>
+                            </td>
+                            <td style="max-width: 8rem;">{{putaway.branchCode}}</td>
+                            <td style="max-width: 8rem;">{{putaway.companyCode}}</td>
+                            <td style="max-width: 8rem;">{{putaway.status}}</td>
+                            <td style="max-width: 8rem;">{{putaway.salesOrderNumber}}</td>
+                            <td style="max-width: 8rem;">{{putaway.salesInvoiceNumber}}</td>
+                            <td style="max-width: 8rem;">
+                                {{putaway.pickListNumber}}</td>
+                            <td style="max-width: 8rem;">{{putaway.customerId}}</td>
+                            <td style="max-width: 8rem;">{{putaway.customerName}}</td>
+                            <td style="max-width: 8rem;">{{putaway.address }}</td>
+                            <td style="max-width: 8rem;">{{putaway.phoneNumber}}</td>
+                            <td style="max-width: 8rem;">{{putaway.alternateNo}}</td>
+                            <td style="max-width: 8rem;">{{putaway.invoiceDate | date : 'dd-MM-yyyy HH:mm' :'GMT'}}</td>
+                            <td style="max-width: 8rem;">{{putaway.orderReceivedOn | date : 'dd-MM-yyyy HH:mm' :'GMT'}}</td>
+                            <td style="max-width: 8rem;">{{putaway.orderProcessedOn | date : 'dd-MM-yyyy HH:mm' :'GMT' }}</td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </div>
+    </mat-drawer-container>
+</div>

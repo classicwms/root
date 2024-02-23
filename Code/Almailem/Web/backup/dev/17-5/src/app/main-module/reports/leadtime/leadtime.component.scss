@@ -1,0 +1,109 @@
+
+::ng-deep .mat-paginator {
+    background: #f5f5f5 !important;
+  }
+  //inner header
+  ::ng-deep .action-button{border-radius: 4px !important;min-width: 6rem !important;min-height: 2.3rem !important;}
+  .floating-buttons {
+    border-radius: 50% !important;
+    height: 40px !important;
+    width: 40px !important;
+  }
+  .mat-mini-fab:not([class*=mat-elevation-z]) {
+    box-shadow: none;
+    border-radius: 0%;
+    margin-right: 0.5rem !important;
+    margin-left: 0.5rem !important;
+  }
+  
+  
+  ::ng-deep.mat-dialog-container{padding: 0px;}
+  ::ng-deep.mat-expansion-panel-body {
+      padding: 0 0px 16px;
+  }
+  
+  ::ng-deep.mat-expansion-panel-body {
+      padding: 0 0px 16px;
+  }
+  //input
+  ::ng-deep .mat-dialog-container {
+      color: rgba(0,0,0,1);
+  }
+  .mat-expansion-panel-spacing {
+      margin: 0px 0;
+  }
+  
+  
+  .input_field{width: 100%;border-color: #dee2e6;}
+  .input_field1{width: 30%;border-color: #dee2e6;}
+  ::ng-deep .mat-form-field-appearance-outline .mat-form-field-infix {
+      padding: 0.5em 0 0.7em 0 !important;
+  }
+  ::ng-deep .mat-form-field-wrapper{padding-bottom: 0.5rem;}
+  ::ng-deep .mat-form-field-appearance-fill .mat-form-field-flex {
+      background-color: rgb(167 167 167 / 4%);
+  }
+  
+  ////.mainsection{margin-top: 3.6rem !important;}
+  
+  .font-size-1_5rem{font-size: 1.1rem;}
+  
+  .scroll4{height: calc(100vh- 13.2rem)!important;overflow-y: scroll !important;overflow-x: hidden;}
+  
+  .scroll{height: calc(100vh - 25rem)!important;overflow-y: scroll !important;overflow-x: hidden;}
+  .input_field{width: 100%;border-color: #dee2e6;}
+  .input_field1{width: 30%;border-color: #dee2e6;}
+  
+  ::ng-deep .mat-form-field-wrapper{padding-bottom: 0.5rem;}
+  ::ng-deep .mat-form-field-appearance-fill .mat-form-field-flex {
+      background-color: rgb(167 167 167 / 4%);
+  }
+  .mat-header-cell {
+      font-size: 14px;
+      font-weight: 600;
+      color: rgb(53, 53, 53);
+      background-color: #f1f1f1;
+      filter: drop-shadow(0px 3px 0px rgba(0,0,0,0.15));
+  }
+  
+  
+  fieldset {
+    margin: 20px;
+    padding: 0 10px 10px;
+    border: 1px solid #c0c0c0;
+    border-radius: 8px;
+    //box-shadow: 0 0 10px #666;
+    padding-top: 10px;
+  }
+  legend {
+    padding: 2px 4px;
+    background: #fff;
+    font-size: 1rem;
+    width: 15% !important;
+    /* For better legibility against the box-shadow */
+  }
+  
+   
+  fieldset > legend {
+    float: left;
+    margin-top: -25px;
+  }
+  fieldset > legend + * {
+    clear: both;
+  }
+  
+  
+    
+  .scroll2{width: 100rem;}
+  
+  .scroll1{width: 60rem;overflow-x: hidden;overflow-y: scroll;height: calc(100vh - 22.3rem);}
+  
+  
+  .scrollfull{width: 60rem;overflow-x: hidden;overflow-y: scroll;height: calc(100vh - 15rem);}
+  
+  .roundedhover:hover{
+    background-color: #bcbcbc !important;
+  }
+  .roundedhover{
+    background-color: #f5f5f5 !important;
+  }

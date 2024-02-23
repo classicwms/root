@@ -1,0 +1,70 @@
+<div class="card bg-white " style="overflow-x: hidden;">
+  <div mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle
+    class="d-flex justify-content-between align-items-center whs-bg-grey text-white p-2">
+    <h5 class="my-auto">Reversal - New</h5>
+    <mat-icon class="text-white" mat-dialog-close>close</mat-icon>
+  </div>
+  <div class="mt-2 px-4">
+    <div class="row  p-1">
+      <div class="col-lg-6 col-md-6 mt-1">
+        <div class="d-flex flex-column">
+          <p class="mb-0 py-0 text-black mb-1">Order No</p>
+          <!-- <mat-form-field class="form-group input_field mb-0" appearance="outline">
+            <mat-select placeholder="Select" [(ngModel)]="refDocNumber" (selectionChange)="getpalletid()">
+              <mat-option *ngFor="let item of filterrefDocNumberList" [value]="item.refDocNumber">
+                {{item.refDocNumber}}
+              </mat-option>
+
+            </mat-select>
+          </mat-form-field> -->
+          <div class="form-group input_field" appearance="outline">
+            <!-- <ng-multiselect-dropdown [placeholder]="'Select'" [settings]="dropdownSettings"
+              [data]="multiSelectorderList" [(ngModel)]="refDocNumber" (onSelect)="getpalletid()"
+              [ngModelOptions]="{standalone: true}">
+            </ng-multiselect-dropdown> -->
+            <!-- <angular2-multiselect [data]="multiSelectorderList" [(ngModel)]="refDocNumber" [settings]="dropdownSettings"
+              (onSelect)="getpalletid()" (onDeSelect)="OnItemDeSelect($event)"
+              (onSelectAll)="onSelectAll($event)" (onDeSelectAll)="onDeSelectAll($event)"></angular2-multiselect> -->
+                   <p-dropdown placeholder="Select" (onChange)="getpalletid()" [filter]="true" class="w-100" [options]="multiSelectorderList"
+                [(ngModel)]="refDocNumber" [style]="{'width': '100%'}" >
+              </p-dropdown>
+          </div>
+          <mat-error class="error-message" *ngIf=" submitted && !refDocNumber">
+            ASN Required</mat-error>
+
+        </div>
+      </div>
+      <div class="col-lg-6 col-md-6 mt-1">
+        <p class="mb-0 py-0">Pallet ID</p>
+        <mat-form-field class="form-group input_field mb-0" appearance="outline">
+
+          <mat-select placeholder="Select" [(ngModel)]="packBarcodes">
+            <mat-option *ngFor="let item of packBarcodesList" [value]="item.packBarcodes">
+              {{item.packBarcodes}}
+            </mat-option>
+          </mat-select>
+
+        </mat-form-field>
+        <!-- <div class="form-group input_field mb-2" appearance="outline">
+          <ng-multiselect-dropdown [placeholder]="'Select'" [settings]="dropdownSettings"
+            [data]="multiSelectpallet1List" [(ngModel)]="selectedItems1" (onSelect)="onItemSelect($event)"
+            (onSelectAll)="onSelectAll($event)" [ngModelOptions]="{standalone: true}">
+          </ng-multiselect-dropdown>
+        </div>
+        <mat-error class="error-message" *ngIf="submitted && !packBarcodes">
+          Pallet Required</mat-error>
+      </div> -->
+
+      </div>
+      <div class="d-flex justify-content-center mx-auto align-items-center py-2">
+        <button mat-raised-button color="warn" mat-dialog-close class="mx-2 px-4"> <i
+            class="bi bi-x me-1 font-size-1_5rem"></i>Cancel</button>
+        <button mat-raised-button (click)="reverse()" class="mx-2 bg-darkblue px-4 text-white"> <i
+            class="bi bi-check2 mr-1 font-size-1_5rem"></i>
+
+          Reverse</button>
+      </div>
+    </div>
+
+
+  </div>

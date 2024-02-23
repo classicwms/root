@@ -1,0 +1,397 @@
+<div class="row mx-1 pl-2">
+  <div class="col-12">
+    <!--inner header-->
+
+    <div class="row  text-secondary pr-0 mt-1">
+      <div class="col bg-white d-flex align-items-center mt-1 px-1 py-1 pathname">
+
+
+        <nav aria-label="breadcrumb" class="d-flex align-items-center">
+          <ol class="breadcrumb mb-0 bg-white">
+            <!-- <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">Home</li> -->
+            <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">Home</li>
+            <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto">Outbound</li>
+            <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto">Preoutbound</li>
+
+          </ol>
+        </nav>
+
+
+        <div class="d-flex ml-auto my-auto">
+          <div [hidden]="isShowDiv"> <input matInput
+              (input)="preoutboundMainTag.filterGlobal($any($event.target).value, 'contains')"
+              class="form-control filter_button mt-2 mt-2 mx-2 border-bottom" placeholder="Search" style="width:90%">
+          </div>
+          <div [ngClass]="showFloatingButtons == true ? 'floating-pane-active' : 'floating-pane-deactive'"
+            class="button-row d-flex align-items-center">
+            <!--
+                          <button mat-mini-fab *ngIf="showFloatingButtons == true" class="floating-buttons  d-flex align-items-center justify-content-center bg-pink text-white mx-2"
+                          matTooltip="Add">
+                          <mat-icon class="action-icon d-flex align-items-center justify-content-center">add_circle_outline</mat-icon>
+                        </button>
+                        -->
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class=" floating-buttons  d-flex align-items-center justify-content-center text-white   yellowaction"
+              matTooltip="Display" (click)="openDialog('Display')" [disabled]="!RA.view">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">search</mat-icon>
+            </button>
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class="floating-buttons  d-flex align-items-center justify-content-center text-white  blueaction "
+              matTooltip="Edit" [disabled]="!RA.createUpdate">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">edit</mat-icon>
+            </button>
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class=" floating-buttons  d-flex align-items-center justify-content-center redaction text-white  align-middle"
+              matTooltip="Delete" [disabled]="!RA.delete">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">delete</mat-icon>
+            </button>
+            <!-- 
+                          <button  mat-mini-fab *ngIf="showFloatingButtons == true"
+                        class="floating-buttons  d-flex align-items-center justify-content-center text-white  bg-success  " matTooltip="Info">
+                        <mat-icon class="action-icon d-flex align-items-center justify-content-center">info_outline</mat-icon>
+                      </button>
+                        -->
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class="floating-buttons  d-flex align-items-center justify-content-center text-white  darkblueaction "
+              matTooltip="Download" (click)="downloadexcel()">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">download</mat-icon>
+            </button>
+
+
+            <button mat-mini-fab (click)="toggleFloat()" class="mx-2 text-white action-button"
+              [ngClass]="{'bg-orange' : toggle, 'purple': !toggle}">
+              <mat-icon>{{icon}}</mat-icon>Options
+            </button>
+            <button mat-mini-fab [disabled]="true"
+              class=" floating-buttons1  d-flex align-items-center justify-content-center darkaction text-white mx-2 mr-3 align-middle"
+              matTooltip="New">
+              <!--(click)="preOutboundUpload()"-->
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">add</mat-icon>
+            </button>
+            <button mat-mini-fab
+              class=" floating-buttons1  d-flex align-items-center justify-content-center greyaction text-white mx-2 mr-3 align-middle"
+              matTooltip="Save">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">save</mat-icon>
+            </button>
+            <button mat-mini-fab class="text-white mx-2 action-button  bg-red" type="button" (click)="drawer.toggle()"
+              mat-button>
+              <mat-icon class="">tune</mat-icon> Filter
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <!--main-section-tabbar
+        <app-main-section-tabbar>
+        </app-main-section-tabbar>  -->
+  </div>
+  <!--main section-->
+  <div class="pr-1 mt-2 mx-0 w-100">
+    <app-order-tab></app-order-tab>
+  </div>
+
+  <mat-drawer-container class="example-container  w-100 animate__animated animate__fadeInRight animate__faster">
+    <mat-drawer #drawer class="example-sidenav " mode="over" position="end">
+      <div class="card-header whs-bg-grey text-white d-flex justify-content-between align-items-center">
+        <h6 class="my-auto mb-0">Search Parameter</h6>
+        <mat-icon type="button" (click)="drawer.toggle()">close</mat-icon>
+      </div>
+      <form [formGroup]="searhform">
+        <div class="row searchscroll mt-1 mr-1 p-2 pl-3">
+          <div class="col-12 my-1">
+            <div class="form-group mb-0">
+              <label for="inputEmail4" class="mb-0">Preoutbound No</label>
+              <!-- <ng-multiselect-dropdown [placeholder]="'Select'" [settings]="dropdownSettings" [data]="preOutboundNoList"
+                [(ngModel)]="preOutboundNoselected" [ngModelOptions]="{standalone: true}">
+              </ng-multiselect-dropdown> -->
+              <!-- <angular2-multiselect [data]="preOutboundNoList" [(ngModel)]="preOutboundNoselected"
+                [settings]="dropdownSettings" (onSelect)="onItemSelect($event)" (onDeSelect)="OnItemDeSelect($event)"
+                (onSelectAll)="onSelectAll($event)" (onDeSelectAll)="onDeSelectAll($event)"
+                formControlName="preOutboundNo"></angular2-multiselect> -->
+              <p-multiSelect placeholder="Select" class="w-100" [options]="preOutboundNoList"
+                formControlName="preOutboundNo" [style]="{'width': '100%'}" [panelStyle]="{'width':'20%'}">
+              </p-multiSelect>
+            </div>
+          </div>
+          <div class="col-12 my-1">
+            <div class="form-group mb-0">
+              <label for="inputEmail4" class="mb-0">Store Code</label>
+              <!-- <ng-multiselect-dropdown [placeholder]="'Select'" [settings]="dropdownSettings" [data]="partnerCodeList"
+                [(ngModel)]="partnerCodeListselected" [ngModelOptions]="{standalone: true}">
+              </ng-multiselect-dropdown> -->
+              <!-- <angular2-multiselect [data]="partnerCodeList" [(ngModel)]="partnerCodeListselected"
+                [settings]="dropdownSettings" (onSelect)="onItemSelect($event)" (onDeSelect)="OnItemDeSelect($event)"
+                (onSelectAll)="onSelectAll($event)" (onDeSelectAll)="onDeSelectAll($event)"
+                formControlName="partnerCode"></angular2-multiselect> -->
+              <p-multiSelect placeholder="Select" class="w-100" [options]="partnerCodeList"
+                formControlName="partnerCode" [style]="{'width': '100%'}" [panelStyle]="{'width':'20%'}">
+              </p-multiSelect>
+            </div>
+          </div>
+          <div class="col-12 my-1">
+            <div class="form-group mb-0">
+              <label for="inputEmail4" class="mb-0">Order Type</label>
+              <!-- <ng-multiselect-dropdown [placeholder]="'Select'" [settings]="dropdownSettings" [data]="outboundOrderTypeIdList"
+                [(ngModel)]="outboundOrderTypeIdListselected" [ngModelOptions]="{standalone: true}">
+              </ng-multiselect-dropdown> -->
+              <!-- <angular2-multiselect [data]="outboundOrderTypeIdList" [(ngModel)]="outboundOrderTypeIdListselected"
+                [settings]="dropdownSettings" (onSelect)="onItemSelect($event)" (onDeSelect)="OnItemDeSelect($event)"
+                (onSelectAll)="onSelectAll($event)" (onDeSelectAll)="onDeSelectAll($event)"
+                formControlName="outboundOrderTypeId"></angular2-multiselect> -->
+              <p-multiSelect placeholder="Select" class="w-100" [options]="outboundOrderTypeIdList"
+                formControlName="outboundOrderTypeId" [style]="{'width': '100%'}" [panelStyle]="{'width':'20%'}">
+              </p-multiSelect>
+            </div>
+          </div>
+          <div class="col-12 my-1">
+            <div class="form-group mb-0">
+              <label for="inputEmail4" class="mb-0">Status</label>
+              <!-- <ng-multiselect-dropdown [placeholder]="'Select'" [settings]="dropdownSettings" [data]="statusIdList"
+                [(ngModel)]="statusIdListselected" [ngModelOptions]="{standalone: true}">
+              </ng-multiselect-dropdown> -->
+              <!-- <angular2-multiselect [data]="statusIdList" [(ngModel)]="statusIdListselected"
+                [settings]="dropdownSettings" (onSelect)="onItemSelect($event)" (onDeSelect)="OnItemDeSelect($event)"
+                (onSelectAll)="onSelectAll($event)" (onDeSelectAll)="onDeSelectAll($event)" formControlName="statusId">
+              </angular2-multiselect> -->
+              <p-multiSelect placeholder="Select" class="w-100" [options]="statusIdList" formControlName="statusId"
+                [style]="{'width': '100%'}" [panelStyle]="{'width':'20%'}"> </p-multiSelect>
+            </div>
+          </div>
+
+          <div class="col-12 my-1">
+            <div class="form-group mb-0">
+              <label for="inputEmail4" class="mb-0">SO Type</label>
+              <!-- <mat-form-field class="mb-0 w-100 " appearance="outline">
+                <mat-select class="mb-0" placeholder="Select"  formControlName="soType">
+                  <mat-option value="S">S</mat-option>
+                  <mat-option value="N">N</mat-option>
+                </mat-select>
+              </mat-form-field> -->
+              <p-multiSelect placeholder="Select" class="w-100" [options]="soTypeList1" formControlName="soType"
+                [style]="{'width': '100%'}" [panelStyle]="{'width':'20%'}"> </p-multiSelect>
+            </div>
+          </div>
+
+          <div class="col-12 my-1">
+            <p class="mb-0 py-0">Required Date</p>
+            <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+              <mat-date-range-input [rangePicker]="picker1">
+                <input matStartDate placeholder="Start date" formControlName="startRequiredDeliveryDate">
+                <input matEndDate placeholder="End date" formControlName="endRequiredDeliveryDate">
+              </mat-date-range-input>
+              <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+              <mat-date-range-picker #picker1></mat-date-range-picker>
+            </mat-form-field>
+
+          </div>
+
+          <div class="col-12 my-1">
+            <p class="mb-0 py-0">Ordered Date</p>
+            <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+              <mat-date-range-input [rangePicker]="picker2">
+                <input matStartDate placeholder="Start date" formControlName="startOrderDate">
+                <input matEndDate placeholder="End date" formControlName="endOrderDate">
+              </mat-date-range-input>
+              <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+              <mat-date-range-picker #picker2></mat-date-range-picker>
+            </mat-form-field>
+
+          </div>
+        </div>
+      </form>
+      <div class="d-flex justify-content-center align-items-center py-2">
+        <button mat-raised-button color="warn" class="text-white mx-1 px-4" (click)="reload();">
+          <mat-icon class="">restart_alt</mat-icon> Reset
+        </button>
+        <button mat-raised-button class="bg-darkblue text-white mx-1" (click)="search(); drawer.toggle();">
+          <mat-icon class="">done</mat-icon> Search
+        </button>
+      </div>
+    </mat-drawer>
+    <div class="example-sidenav-content">
+      <!-- <div class="row "style="padding-right: 15px !important;"> -->
+      <div class="row ">
+        <p-table #preoutboundMainTag [value]="preoutboundMain"
+          [globalFilterFields]="[ 'plantDescription','warehouseDescription','partnerCode','tokenNumber','salesOrderNumber', 'statusDescription', 'refDocNumber',  'referenceDocumentType','referenceField1','preOutboundNo','refDocDate','requiredDeliveryDate']"
+          styleClass="p-datatable-gridlines p-datatable-sm" [scrollable]="true" selectionMode="single"
+          scrollDirection="both" scrollHeight="calc(100vh - 15.2rem)" sortField="preOutboundNo" [sortOrder]="-1"
+          [paginator]="true" [rows]="100" [showCurrentPageReport]="true"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [resizableColumns]="true"
+          style="width: 100%;margin-left: 10px;background-color:white">
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="max-width: 3.5rem">
+                <p-tableHeaderCheckbox [disabled]="true"></p-tableHeaderCheckbox>
+              </th>
+
+              <th style="width: 8rem;" pSortableColumn="plantDescription" pResizableColumn>Branch<p-sortIcon
+                  field="plantDescription"></p-sortIcon>
+              </th>
+              <th style="width: 8rem;" pSortableColumn="warehouseDescription" pResizableColumn>Warehouse<p-sortIcon
+                  field="warehouseDescription"></p-sortIcon>
+              </th>
+              <th style="width: 8rem;" pSortableColumn="targetBranchCode" pResizableColumn>Target Branch<p-sortIcon
+                  field="targetBranchCode"></p-sortIcon>
+
+              </th>
+              <th style="width: 8rem;" pSortableColumn="tokenNumber" pResizableColumn>Token Number <p-sortIcon
+                  field="tokenNumber"></p-sortIcon>
+
+              </th>
+              <th style="width: 8rem;" pSortableColumn="salesOrderNumber" pResizableColumn>Sales Order No<p-sortIcon
+                  field="salesOrderNumber"></p-sortIcon>
+
+              </th>
+              <th style="width: 8rem;" pSortableColumn="statusDescription" pResizableColumn>Status <p-sortIcon
+                  field="statusDescription"></p-sortIcon>
+
+              </th>
+
+              <th style="width: 8rem;" pSortableColumn="refDocNumber" pResizableColumn>Order No<p-sortIcon
+                  field="refDocNumber"></p-sortIcon>
+
+              </th>
+              <th style="width: 8rem;" pSortableColumn="referenceDocumentType" pResizableColumn>Order Type<p-sortIcon
+                  field="referenceDocumentType"></p-sortIcon>
+
+              </th>
+              <th style="width: 8rem;" pSortableColumn="preOutboundNo" pResizableColumn>Preoutbound No<p-sortIcon
+                  field="preOutboundNo"></p-sortIcon>
+
+              </th>
+
+
+              <th style="width:8rem" pSortableColumn="referenceField1" pResizableColumn>Order Category<p-sortIcon
+                  field="referenceField1"></p-sortIcon>
+
+              </th>
+              <th style="width: 8rem;" pSortableColumn="refDocDate" pResizableColumn>Order Date<p-sortIcon
+                  field="refDocDate"></p-sortIcon>
+
+              </th>
+              <th *ngIf="this.auth.userTypeId == 1"  style="width: 8rem;"  pResizableColumn pSortableColumn="details" >Order Details <p-sortIcon field="details"></p-sortIcon></th>
+            </tr>
+
+            <tr>
+              <th style="max-width: 3.5rem">
+                <p-tableHeaderCheckbox [disabled]="true"></p-tableHeaderCheckbox>
+              </th>
+
+              <th style="width: 8rem;">
+                <input pInputText type="text"
+                  (input)="preoutboundMainTag.filter($any($event.target)?.value, '[plantDescription]', 'contains')"
+                  [value]="$any(preoutboundMainTag.filters['plantDescription'])?.value" placeholder="Search"
+                  class=" w-100 p-column-filter">
+              </th>
+              <th style="width: 8rem;">
+                <input pInputText type="text"
+                  (input)="preoutboundMainTag.filter($any($event.target)?.value, 'warehouseDescription', 'contains')"
+                  [value]="$any(preoutboundMainTag.filters['warehouseDescription'])?.value" placeholder="Search"
+                  class=" w-100 p-column-filter">
+              </th>
+              <th style="width: 8rem;">
+                <input pInputText type="text"
+                  (input)="preoutboundMainTag.filter($any($event.target)?.value, 'targetBranchCode', 'contains')"
+                  [value]="$any(preoutboundMainTag.filters['targetBranchCode'])?.value" placeholder="Search "
+                  class=" w-100 p-column-filter">
+                <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+              </th>
+              <th style="width: 8rem;">
+                <input pInputText type="text"
+                  (input)="preoutboundMainTag.filter($any($event.target)?.value, 'tokenNumber', 'contains')"
+                  [value]="$any(preoutboundMainTag.filters['tokenNumber'])?.value" placeholder="Search "
+                  class=" w-100 p-column-filter">
+                <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+              </th>
+              <th style="width: 8rem;">
+                <input pInputText type="text"
+                  (input)="preoutboundMainTag.filter($any($event.target)?.value, 'salesOrderNumber', 'contains')"
+                  [value]="$any(preoutboundMainTag.filters['salesOrderNumber'])?.value" placeholder="Search "
+                  class=" w-100 p-column-filter">
+                <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+              </th>
+              <th style="width: 8rem;">
+                <input pInputText type="text"
+                  (input)="preoutboundMainTag.filter($any($event.target)?.value, 'statusDescription', 'contains')"
+                  [value]="$any(preoutboundMainTag.filters['statusDescription'])?.value" placeholder="Search "
+                  class=" w-100 p-column-filter">
+                <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+              </th>
+
+              <th style="width: 8rem;">
+                <input pInputText type="text"
+                  (input)="preoutboundMainTag.filter($any($event.target)?.value, 'refDocNumber', 'contains')"
+                  [value]="$any(preoutboundMainTag.filters['refDocNumber'])?.value" placeholder="Search "
+                  class=" w-100 p-column-filter">
+                <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+              </th>
+
+              <th style="width: 8rem;">
+                <input pInputText type="text"
+                  (input)="preoutboundMainTag.filter($any($event.target)?.value, 'referenceDocumentType', 'contains')"
+                  [value]="$any(preoutboundMainTag.filters['referenceDocumentType'])?.value" placeholder="Search "
+                  class=" w-100 p-column-filter">
+                <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+              </th>
+
+
+              <th style="width: 8rem;">
+                <input pInputText type="text"
+                  (input)="preoutboundMainTag.filter($any($event.target)?.value, 'preOutboundNo', 'contains')"
+                  [value]="$any(preoutboundMainTag.filters['preOutboundNo'])?.value" placeholder="Search "
+                  class=" w-100 p-column-filter">
+                <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+              </th>
+              <th style="width: 8rem;">
+                <input pInputText type="text"
+                  (input)="preoutboundMainTag.filter($any($event.target)?.value, 'referenceField1', 'contains')"
+                  [value]="$any(preoutboundMainTag.filters['referenceField1'])?.value" placeholder="Search "
+                  class=" w-100 p-column-filter">
+                <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+              </th>
+              <th style="width: 8rem;">
+                <input pInputText type="text"
+                  (input)="preoutboundMainTag.filter($any($event.target)?.value, 'refDocDate', 'contains')"
+                  [value]="$any(preoutboundMainTag.filters['refDocDate'])?.value" placeholder="Search "
+                  class=" w-100 p-column-filter">
+                <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+              </th>
+             <th *ngIf="this.auth.userTypeId == 1" style="width: 8rem;">
+                <input pInputText  type="text" (input)="preoutboundMainTag.filter($any($event.target)?.value, 'details', 'contains')" 
+                [value]="$any(preoutboundMainTag.filters['details'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+              </th>
+
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-preoutboundMain let-rowIndex="rowIndex">
+            <tr>
+
+              <td style="max-width:3.5rem;">
+                <p-checkbox (onChange)="onChange()" [(ngModel)]="selectedpreoutboundManin" [value]="preoutboundMain">
+                </p-checkbox>
+                <!--<p-tableCheckbox [value]="approvals"></p-tableCheckbox>-->
+              </td>
+              <td style="width: 8rem;">{{preoutboundMain.plantDescription}}</td>
+              <td style="width: 8rem;">{{preoutboundMain.warehouseDescription}}</td>
+              <td style="width: 8rem;">{{ preoutboundMain.targetBranchCode }}</td>
+              <td style="width: 8rem;"> {{preoutboundMain.tokenNumber}}</td>
+              <td style="width: 8rem;">{{preoutboundMain.salesOrderNumber}}</td>
+              <td style="width: 8rem;"> {{preoutboundMain.statusDescription}}</td>
+              <td style="text-decoration-line: underline;width:8rem;cursor:pointer" class="text-primary"
+                (click)="openDialog('Display',preoutboundMain)">{{preoutboundMain.refDocNumber}}</td>
+              <td style="width: 8rem;">{{preoutboundMain.referenceDocumentType}}</td>
+              <td style="width: 8rem;">{{preoutboundMain.preOutboundNo}}</td>
+              <td style="width: 8rem;">{{preoutboundMain.referenceField1}}</td>
+              <td style="width: 8rem;">{{preoutboundMain.refDocDate| date : 'dd-MM-yyyy HH:mm' :'GMT'}}</td>
+             <td *ngIf="this.auth.userTypeId == 1" style="width: 8rem;" (click)="openDialogView(preoutboundMain)"><mat-icon>code</mat-icon></td>
+
+            </tr>
+          </ng-template>
+        </p-table>
+
+      </div>
+
+    </div>
+  </mat-drawer-container>
+</div>

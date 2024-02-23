@@ -1,0 +1,178 @@
+<!-- <p>barcode works!</p> -->
+<div *ngFor="let element of barcodeValueList">
+
+    <div class="barcodelayout" id="barcode" *ngIf="lable =='barcode'">
+        <!-- [id]="element.case_no"  -->
+        <div style="margin-top: 3%;margin-left: 3%;">
+            <div class="rowb">
+                <div class="colmd8">
+                    <div class="rowb">
+                        <mat-label class="lablepadding colmd3">INV #</mat-label>
+                        <mat-label class="lablepadding colmd1">:</mat-label>
+                        <mat-label class="lablepadding colmd6 labelvalue">{{element.invoiceNo}}</mat-label>
+                    </div>
+
+                    <div class="rowb">
+                        <mat-label class="lablepadding colmd3">Sku</mat-label>
+                        <mat-label class="lablepadding colmd1">:</mat-label>
+
+                        <mat-label class="lablepadding colmd6 labelvalue">{{element.itemCode}}</mat-label>
+
+                    </div>
+                    <div class="rowb">
+                        <div class=" colmd6">
+
+                            <mat-label class="lablepadding colmd3">Date</mat-label>
+                            <mat-label class="lablepadding colmd1">:</mat-label>
+
+                            <mat-label class="lablepadding colmd6 labelvalue">{{date}}</mat-label>
+                        </div>
+                        <div class=" colmd6">
+                            <mat-label class="lablepadding colmd3">User</mat-label>
+                            <mat-label class="lablepadding colmd1">:</mat-label>
+
+                            <mat-label class="lablepadding colmd6 labelvalue">{{user}}</mat-label>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="colmd4">
+                    <!-- <mat-label class="lablepadding "
+                        style="font-weight: 900 !important; font-size: 12px   !important;font-style: italic;">
+                        Classic WMS</mat-label> -->
+                    <img class="logwh" [src]="element.warehouseId" />
+                </div>
+            </div>
+            <div class="rowb">
+                <div class=" colmd3">
+                    <div class=" colmd12">
+                        <div class="rowb">
+                            <mat-label class="lablepadding colmd3">Pallet No.</mat-label>
+                            <mat-label class="lablepadding colmd1">:</mat-label>
+                        </div>
+                        <div class="rowb">
+                            <mat-label class="lablepadding colmd6 labelvalueqty">{{element.packBarcodes}}</mat-label>
+                        </div>
+                    </div>
+                    <div class="rowb">
+                        <div class=" colmd9">
+
+                            <div class="rowb">
+                                <mat-label class="lablepadding colmd3">Qty</mat-label>
+                                <mat-label class="lablepadding colmd1">:</mat-label>
+                            </div>
+                            <div class="rowb">
+                                <mat-label class="lablepadding colmd6 labelvalueqty">{{element.Qty}}</mat-label>
+
+                            </div>
+                        </div>
+                        <div class=" colmd3">
+                            <div class="rowb">
+                                <mat-label class="lablepadding colmd3 labelvalueqty "> {{element.Type}}</mat-label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class=" colmd9 barcodeimg">
+                    <!-- <mat-label class="lablepadding "
+                        style="font-weight: 900 !important; font-size: medium   !important;">
+                        Inner Works &nbsp;&nbsp;</mat-label> -->
+                    <ngx-barcode [bc-value]="element.packBarcodes" [bc-display-value]="false" [bc-font-size]='8'
+                        bc-format='CODE128' [bc-height]="40" [bc-width]="1" bc-element-type='svg'>
+                    </ngx-barcode>
+
+
+                </div>
+
+            </div>
+            <div class="rowb">
+                <div class=" ">
+                    <div class="rowb">
+
+                        <mat-label class="colmd3">SKU Descr.</mat-label>
+                        <mat-label class="lablepadding colmd1">:</mat-label>
+                    </div>
+                    <div class="rowb">
+
+                        <mat-label class="descrsku  colmd6">
+                            {{element.itemDescription}}</mat-label>
+                    </div>
+                    <div class="rowb">
+
+                        <mat-label class="colmd3">Mfg Code</mat-label>
+                        <mat-label class="lablepadding colmd1">: &nbsp; &nbsp;</mat-label>
+                        <mat-label class="descrsku  colmd6">{{element.manufacturerPartNo}}</mat-label>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+    <div class="barcodelayout" id="barcode" *ngIf="lable =='case'">
+        <!-- [id]="element.case_no"  -->
+        <div style="margin-top: 3%;margin-left: 3%;">
+            <div class="rowb">
+                <div class="colmd7">
+                    <div class="rowb">
+                        <mat-label class="lablepadding colmd3">ASN #</mat-label>
+                        <mat-label class="lablepadding colmd1">:</mat-label>
+                        <mat-label class="lablepadding colmd6 labelvalue">{{element.asn}}</mat-label>
+                    </div>
+
+
+                    <div class="rowb">
+                        <mat-label class="lablepadding colmd3">INV #</mat-label>
+                        <mat-label class="lablepadding colmd1">:</mat-label>
+
+                        <mat-label class="lablepadding colmd6 labelvalue">{{element.inv}}</mat-label>
+
+                    </div>
+
+                    <div class="rowb">
+                        <mat-label class="lablepadding colmd3">Container NO #</mat-label>
+                        <mat-label class="lablepadding colmd1">:</mat-label>
+                        <mat-label class="lablepadding colmd6 labelvalue">{{element.container_no}}</mat-label>
+                    </div>
+
+                    <div class="rowb">
+
+                        <mat-label class="lablepadding colmd3">Date</mat-label>
+                        <mat-label class="lablepadding colmd1">:</mat-label>
+
+                        <mat-label class="lablepadding colmd6 labelvalue">{{date}}</mat-label>
+
+                    </div>
+
+                    <div class="rowb">
+                        <mat-label class="lablepadding colmd3" style="font-size: 12px;">Case No.</mat-label>
+                        <mat-label class="lablepadding colmd1" style="font-size: 12px;">:</mat-label>
+
+                    </div>
+                </div>
+                <div class="colmd5">
+
+                    <img class="logwh" [src]="element.warehouseId" />
+
+                </div>
+            </div>
+            <div class="rowb">
+                <div class="rowb">
+                    <div class=" barcodeimgcase">
+                        <ngx-barcode [bc-value]="element.case_no" [bc-display-value]="true" [bc-font-size]="13"
+                            bc-format='CODE128' [bc-height]="60" [bc-width]="1.6" bc-element-type='svg'
+                            bc-text-position="top">
+                        </ngx-barcode>
+                    </div>
+                </div>
+                <!-- <div class="rowb">
+
+                    <img class="logwh" [src]="./assets/warehouseId.png" />
+                </div> -->
+            </div>
+
+        </div>
+    </div>
+</div>

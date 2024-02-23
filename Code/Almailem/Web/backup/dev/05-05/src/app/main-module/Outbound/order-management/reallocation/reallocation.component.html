@@ -1,0 +1,131 @@
+<div class="row mx-1 pl-2">
+    <div class="col-12">
+      <!--inner header-->
+  
+      <app-innerheader [title1]="title1" [title2]="title2"></app-innerheader>
+      <!--main-section-tabbar
+      <app-main-section-tabbar>
+      </app-main-section-tabbar>  -->
+      <!--main section-->
+      <div class="row pr-3 bg-white">
+          <div class="scroll1 col-12 px-0 mt-1">
+            <div class="scroll2">
+              <table mat-table [dataSource]="dataSource" matSort class=" w-100">
+  
+                <!-- Checkbox Column -->
+                <ng-container matColumnDef="select">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                    <mat-checkbox (change)="$event ? masterToggle() : null"
+                      [checked]="selection.hasValue() && isAllSelected()" disabled
+                      [indeterminate]="selection.hasValue() && !isAllSelected()" [aria-label]="checkboxLabel()">
+                    </mat-checkbox>
+                  </th>
+                  <td mat-cell *matCellDef="let row">
+                    <mat-checkbox (click)="$event.stopPropagation()" (change)="clearselection(row)"
+                      [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)">
+                    </mat-checkbox>
+                  </td>
+                </ng-container>
+  
+  
+                <!-- Symbol Column -->
+                <ng-container matColumnDef="no">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header> S No </th>
+                  <td mat-cell *matCellDef="let element"> {{element.no}} </td>
+                </ng-container>
+                <!-- Weight Column -->
+                <ng-container matColumnDef="lineno">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Line No </th>
+                  <td mat-cell *matCellDef="let element"> {{element.lineno}} </td>
+                </ng-container>
+                <!-- Weight Column -->
+                <ng-container matColumnDef="partner">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Partner Code</th>
+                  <td mat-cell *matCellDef="let element"> {{element.partner}} </td>
+                </ng-container>
+                <!-- Symbol Column -->
+                <ng-container matColumnDef="product">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Product Code</th>
+                  <td mat-cell *matCellDef="let element"> {{element.product}} </td>
+                </ng-container>
+                 <!-- Symbol Column -->
+                 <ng-container matColumnDef="description">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Description</th>
+                  <td mat-cell *matCellDef="let element"> {{element.description}} </td>
+                </ng-container>
+                 <!-- Symbol Column -->
+                 <ng-container matColumnDef="refdocno">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>ASN No </th>
+                  <td mat-cell *matCellDef="let element"> {{element.refdocno}} </td>
+                </ng-container>
+                 <!-- Symbol Column -->
+                 <ng-container matColumnDef="variant">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Vairant </th>
+                  <td mat-cell *matCellDef="let element"> {{element.variant}} </td>
+                </ng-container>
+                 <!-- Symbol Column -->
+                 <ng-container matColumnDef="type">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Order Type </th>
+                  <td mat-cell *matCellDef="let element"> {{element.type}} </td>
+                </ng-container>
+                 <!-- Symbol Column -->
+                 <ng-container matColumnDef="preoutboundno">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Preoutbound No </th>
+                  <td mat-cell *matCellDef="let element"> {{element.preoutboundno}} </td>
+                </ng-container>
+                 <!-- Symbol Column -->
+                 <ng-container matColumnDef="order">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Order Qty </th>
+                  <td mat-cell *matCellDef="let element"> {{element.order}} </td>
+                </ng-container>
+                 <!-- Symbol Column -->
+                 <ng-container matColumnDef="reallocated">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Reallocation Qty </th>
+                  <td mat-cell *matCellDef="let element"> {{element.reallocated}} </td>
+                </ng-container>
+                  <!-- Symbol Column -->
+                  <ng-container matColumnDef="inventory">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Inventory Qty </th>
+                    <td mat-cell *matCellDef="let element"> {{element.inventory}} </td>
+                  </ng-container>
+                    <!-- Symbol Column -->
+                 <ng-container matColumnDef="allocated">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Allocated Qty </th>
+                  <td mat-cell *matCellDef="let element"> {{element.allocated}} </td>
+                </ng-container>
+                  <!-- Symbol Column -->
+                  <ng-container matColumnDef="status">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Status </th>
+                    <td mat-cell *matCellDef="let element"> {{element.status}} </td>
+                  </ng-container>
+  
+  
+                <tr mat-header-row *matHeaderRowDef="displayedColumns;sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="selection.toggle(row)">
+                </tr>
+              </table>
+            </div>
+  
+          </div>
+          <div class="buttons border bg-white pb-1 w-100 d-flex justify-content-end ">
+            <div class="p-0 mx-1 ">
+              <mat-paginator class="" showFirstLastButtons [pageSize]="100" [pageSizeOptions]="[100, 150, 200, 250]"
+                aria-label="Select page of periodic elements">
+              </mat-paginator>
+            </div>
+          </div>
+        </div>
+    </div>
+  
+  
+  
+  
+  
+
+    <!--right pane-->
+    <div class="col-3 pl-1 pr-1 mt-1 d-none">
+      <div class="whs-rightpane bg-white shadow">
+      </div>
+    </div>
+  </div>
+  

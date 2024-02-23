@@ -1,0 +1,249 @@
+
+<form [formGroup]="form" >
+    <div class="row mx-1 pl-2">
+        <div class="col-12">
+          <!--inner header-->
+      
+          <div class="row  text-secondary pr-0 mt-1">
+            <div class="col bg-white d-flex align-items-center mt-1 px-1 py-1 pathname">
+      
+      
+              <nav aria-label="breadcrumb" class="d-flex align-items-center">
+                <ol class="breadcrumb mb-0 bg-white">
+                  <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">Home</li>
+                  <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto">Master</li>
+                  <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto">Others</li>
+                  <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto">Driver</li>
+                </ol>
+              </nav>
+      
+      
+              <div class="d-flex ml-auto my-auto">
+                <div [hidden]="isShowDiv"> <input matInput
+                    class="form-control filter_button mt-2 mt-2 mx-2 border-bottom" placeholder="Search" style="width:90%">
+                </div>
+                <div [ngClass]="showFloatingButtons == true ? 'floating-pane-active' : 'floating-pane-deactive'"
+                  class="button-row d-flex align-items-center">
+                  <!--
+                              <button mat-mini-fab *ngIf="showFloatingButtons == true" class="floating-buttons  d-flex align-items-center justify-content-center bg-pink text-white mx-2"
+                              matTooltip="Add">
+                              <mat-icon class="action-icon d-flex align-items-center justify-content-center">add_circle_outline</mat-icon>
+                            </button>
+                            -->
+                  <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                    class=" floating-buttons  d-flex align-items-center justify-content-center text-white   yellowaction"
+                    matTooltip="Display">
+                    <mat-icon class="action-icon d-flex align-items-center justify-content-center">search</mat-icon>
+                  </button>
+                  <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                    class="floating-buttons  d-flex align-items-center justify-content-center text-white  blueaction "
+                    matTooltip="Edit" >
+                    <mat-icon class="action-icon d-flex align-items-center justify-content-center">edit</mat-icon>
+                  </button>
+                  <button mat-mini-fab *ngIf="showFloatingButtons == true" 
+                    class=" floating-buttons  d-flex align-items-center justify-content-center redaction text-white  align-middle"
+                    matTooltip="Delete">
+                    <mat-icon class="action-icon d-flex align-items-center justify-content-center">delete</mat-icon>
+                  </button>
+                  <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                    class="floating-buttons  d-flex align-items-center justify-content-center text-white  darkblueaction "
+                    matTooltip="Download">
+                    <mat-icon class="action-icon d-flex align-items-center justify-content-center">download</mat-icon>
+                  </button>
+                  <button mat-mini-fab (click)="toggleFloat()" class="mx-2 text-white action-button"
+                    [ngClass]="{'bg-orange' : toggle, 'purple': !toggle}">
+                    <mat-icon>{{icon}}</mat-icon>Options
+                  </button>
+                  <button mat-mini-fab 
+                    class=" floating-buttons1  d-flex align-items-center justify-content-center darkaction text-white mx-2 mr-3 align-middle"
+                    matTooltip="New">
+                    <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">add</mat-icon>
+                  </button>
+                  <button mat-mini-fab
+                    class=" floating-buttons1  d-flex align-items-center justify-content-center greyaction text-white mx-2 mr-3 align-middle"
+                    matTooltip="Save">
+                    <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">save</mat-icon>
+                  </button>
+                  <button mat-mini-fab disabled class="text-white mx-2 action-button  bg-red " type="button" 
+                    mat-button>
+                    <mat-icon class="">tune</mat-icon> Filter
+                  </button>
+                </div>
+      
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row mt-2 mx-1 pr-0 w-100">
+            <div class=" bg-white col-md-12 px-0" style="height:calc(100vh - 12rem);">
+              <div class="">
+                <mat-stepper [linear]="isLinear" #stepper>
+                  <mat-step >
+                    <ng-template matStepLabel>General</ng-template>
+                    <div class="row  boxgrey  mt-2">
+                   
+                        <div class="col-lg-3 col-md-6 mt-2">
+                            <div class="d-flex flex-column">
+                              <p class="mb-0 py-0 required">Language</p>
+                              <p-dropdown (onChange)="onLanguageChange($event)"  placeholder="Select" class="w-100" [filter]="true" [options]="languageidList"
+                                    formControlName="languageId" [style]="{'width': '100%', 'margin-top': '0.3rem', 'margin-bottom': '0.3rem'}" 
+                                    [panelStyle]="{'width':'20%'}" appendTo="body"  [disabled]="this.auth.userTypeId != 1"> </p-dropdown >
+                                    <mat-error *ngIf="errorHandling('languageId')">{{getErrorMessage()}}</mat-error>
+                            </div>
+                          </div>
+              
+                          <div class="col-lg-3 col-md-6 mt-2">
+                            <div class="d-flex flex-column">
+                              <p class="mb-0 py-0 text-black required">Company</p>
+                              <p-dropdown   placeholder="Select" class="w-100" [filter]="true" [options]="companyidList"
+                                    formControlName="companyCodeId" [style]="{'width': '100%', 'margin-top': '0.3rem', 'margin-bottom': '0.3rem'}" 
+                                    [panelStyle]="{'width':'20%'}" appendTo="body"  [disabled]="this.auth.userTypeId != 1" (onChange)="onCompanyChange($event)"> </p-dropdown >
+                                    <mat-error *ngIf="errorHandling('companyCodeId')">{{getErrorMessage()}}</mat-error>
+                            </div>
+                          </div>
+                                    <div class="col-lg-3 col-md-6 mt-2">
+                              <div class="d-flex flex-column">
+                                <p class="mb-0 py-0 required">Branch</p>
+                                <p-dropdown  (onChange)="onPlantChange($event)" placeholder="Select" class="w-100" [filter]="true" [options]="plantidList"
+                                formControlName="plantId" [style]="{'width': '100%', 'margin-top': '0.3rem', 'margin-bottom': '0.3rem'}" 
+                                [panelStyle]="{'width':'20%'}" appendTo="body"> </p-dropdown >
+                                <mat-error *ngIf="errorHandling('plantId')">{{getErrorMessage()}}</mat-error>
+                              </div>
+                            </div> 
+                            <div class="col-lg-3 col-md-6 mt-2">
+                              <div class="d-flex flex-column">
+                                <p class="mb-0 py-0 required">Warehouse</p>
+                                <p-dropdown   placeholder="Select" class="w-100" [filter]="true" [options]="warehouseidList" 
+                                formControlName="warehouseId" [style]="{'width': '100%', 'margin-top': '0.3rem', 'margin-bottom': '0.3rem'}" 
+                                [panelStyle]="{'width':'20%'}" appendTo="body"> </p-dropdown >
+                                <mat-error *ngIf="errorHandling('warehouseId')">{{getErrorMessage()}}</mat-error>
+                              </div>
+                            </div>
+                   
+                    </div>
+                  </mat-step>
+                  <mat-step >
+                    <ng-template matStepLabel>Driver Details</ng-template>
+                    <div class="mt-0">
+                        <div section="frame1" class="uatwhite mt-1 text-dark">
+                          <div class="p-1 resp_padding px-4">
+                            <div class="row pt-2">
+                                <div class="col-4">
+                                    <div class="d-flex flex-column ">
+          
+                                      <label for="inputState" class="mb-0 text-dark required">Driver </label>
+                                      <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                                        <input matInput placeholder="Enter" formControlName="driverId">
+                                      </mat-form-field>
+                                      <mat-error *ngIf="errorHandling('driverId')">{{getErrorMessage()}}</mat-error>
+                                    </div>
+                                  </div>
+                                  <div class="col-4   ">
+                                    <div class="d-flex flex-column">
+                                      <label for="inputState" class="mb-0 text-dark">Driver Name</label>
+                                      <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                                        <input matInput placeholder="Enter" formControlName="driverName">
+                                      </mat-form-field>
+                                    </div>
+                                  </div>
+                                  <div class="col-4">
+                                    <div class="d-flex flex-column   ">
+                                      <label for="inputState" class="mb-0 text-dark ">Phone Number</label>
+                                      <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                                        <input matInput placeholder="Enter" formControlName="phoneNUmber">
+                                      </mat-form-field>
+                                    </div>
+                                  </div>
+                                  <div class="col-4">
+                                    <div class="d-flex flex-column">
+          
+                                      <label for="inputState" class="mb-0 text-dark">Email
+                                      </label>
+                                      <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                                        <input matInput placeholder="Enter" formControlName="emailId">
+                                      </mat-form-field>
+                                    </div>
+                                  </div>
+                                  <div class="col-4">
+                                    <div class="d-flex flex-column">
+          
+                                      <label for="inputState" class="mb-0 text-dark">Address 1
+                                      </label>
+                                      <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                                        <input matInput placeholder="Enter" formControlName="address1">
+                                      </mat-form-field>
+                                    </div>
+                                  </div>
+                                  <div class="col-4">
+                                    <div class="d-flex flex-column">
+          
+                                      <label for="inputState" class="mb-0 text-dark">Address 2
+                                      </label>
+                                      <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                                        <input matInput placeholder="Enter" formControlName="address2">
+                                      </mat-form-field>
+                                    </div>
+                                  </div>
+                            
+                              
+                           
+                         
+                            </div>
+                        </div>
+                      </div>
+                    </div>
+                  </mat-step>
+                
+               
+                  <mat-step *ngIf="this.js.pageflow != 'New'">
+                    <ng-template matStepLabel>Admin</ng-template>
+                    <div class="row  boxgrey  mt-2">
+                      <div class="col-lg-3 col-md-6 mt-2"> 
+                          <p class="mb-0 py-0">Created By</p>
+                          <mat-form-field class="mb-0 w-100 " appearance="outline">
+                            <input matInput placeholder="Enter" formControlName="createdBy">
+                          </mat-form-field>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mt-2"> 
+                            <p class="mb-0 py-0">Created On</p>
+                            <mat-form-field class="mb-0 w-100 " appearance="outline">
+                              <input matInput placeholder="Enter" formControlName="createdOnFE">
+                            </mat-form-field>
+                          </div>
+                          <div class="col-lg-3 col-md-6 mt-2"> 
+                              <p class="mb-0 py-0">Updated On</p>
+                              <mat-form-field class="mb-0 w-100 " appearance="outline">
+                                <input matInput placeholder="Enter" formControlName="updatedOnFE">
+                              </mat-form-field>
+                            </div>
+                            <div class="col-lg-3 col-md-6 mt-2"> 
+                                <p class="mb-0 py-0">updated By</p>
+                                <mat-form-field class="mb-0 w-100 " appearance="outline">
+                                  <input matInput placeholder="Enter" formControlName="updatedBy">
+                                </mat-form-field>
+                              </div>
+                  </div>
+                  </mat-step>
+                  <ng-template matStepperIcon="phone">
+                    <mat-icon>call_end</mat-icon>
+                  </ng-template>
+                  <ng-template matStepperIcon="chat">
+                    <mat-icon>forum</mat-icon>
+                  </ng-template>
+                </mat-stepper>
+                
+              </div>
+            </div>
+        
+          </div>
+          <div class="d-flex justify-content-center  align-items-center py-2 fixed-bottom">
+        
+            <button mat-raised-button class="text-white mx-1 px-3" color="warn" routerLink="/main/delivery/driver">
+              <mat-icon class="">close</mat-icon>Cancel
+            </button>
+            <button *ngIf="this.js.pageflow != 'Display'"  mat-raised-button class="bg-darkblue text-white mx-1 px-3" (click)="submit()"> 
+              <mat-icon class="">done</mat-icon>{{js.pageflow =='Edit'? 'Update': 'Save'}}
+            </button>
+          </div>
+    </div>
+    </form>

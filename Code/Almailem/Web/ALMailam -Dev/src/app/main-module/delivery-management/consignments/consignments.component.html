@@ -1,0 +1,296 @@
+<div class="row mx-1 pl-2">
+  <div class="col-12">
+    <!--inner header-->
+
+    <div class="row  text-secondary pr-0 mt-1">
+      <div class="col bg-white d-flex align-items-center mt-1 px-1 py-1 pathname">
+
+
+        <nav aria-label="breadcrumb" class="d-flex align-items-center">
+          <ol class="breadcrumb mb-0 bg-white">
+            <!-- <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">Home</li> -->
+            <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">Home</li>
+            <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto">Delivery </li>
+            <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto">Consignment</li>
+
+          </ol>
+        </nav>
+
+
+        <div class="d-flex ml-auto my-auto">
+          <div [hidden]="isShowDiv"> <input (input)="Setupinvoice.filterGlobal($any($event.target).value, 'contains')"
+              matInput class="form-control filter_button mt-2 mt-2 mx-2 border-bottom" placeholder="Search"
+              style="width:90%">
+          </div>
+          <div [ngClass]="showFloatingButtons == true ? 'floating-pane-active' : 'floating-pane-deactive'"
+            class="button-row d-flex align-items-center">
+            <!--
+                          <button mat-mini-fab *ngIf="showFloatingButtons == true" class="floating-buttons  d-flex align-items-center justify-content-center bg-pink text-white mx-2"
+                          matTooltip="Add">
+                          <mat-icon class="action-icon d-flex align-items-center justify-content-center">add_circle_outline</mat-icon>
+                        </button>
+                        -->
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class=" floating-buttons  d-flex align-items-center justify-content-center text-white   yellowaction"
+              matTooltip="Display">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">search</mat-icon>
+            </button>
+            <button disbaled  mat-mini-fab *ngIf="showFloatingButtons == true"
+              class=" disbaled floating-buttons  d-flex align-items-center justify-content-center text-white  blueaction "
+              matTooltip="Edit">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">edit</mat-icon>
+            </button>
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class=" floating-buttons  d-flex align-items-center justify-content-center redaction text-white  align-middle"
+              matTooltip="Delete">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">delete</mat-icon>
+            </button>
+
+            <button mat-mini-fab *ngIf="showFloatingButtons == true" (click)="createManifest()"
+              class="floating-buttons  d-flex align-items-center justify-content-center text-white  bg-success  "
+              matTooltip="Create Manifest">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">info_outline</mat-icon>
+            </button>
+
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class="floating-buttons  d-flex align-items-center justify-content-center text-white  darkblueaction "
+              matTooltip="Download" (click)="downloadexcel()">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">download</mat-icon>
+            </button>
+
+
+            <button mat-mini-fab (click)="toggleFloat()" class="mx-2 text-white action-button"
+              [ngClass]="{'bg-orange' : toggle, 'purple': !toggle}">
+              <mat-icon>{{icon}}</mat-icon>Options
+            </button>
+            <button disbaled mat-mini-fab disabled
+              class="disabled floating-buttons1  d-flex align-items-center justify-content-center darkaction text-white mx-2 mr-3 align-middle"
+              matTooltip="New" routerLink="/main/threePL/invoice-new">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">add</mat-icon>
+            </button>
+            <button mat-mini-fab
+              class=" floating-buttons1  d-flex align-items-center justify-content-center greyaction text-white mx-2 mr-3 align-middle"
+              matTooltip="Save" type="button">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">save</mat-icon>
+            </button>
+            <button mat-mini-fab disabled class="text-white mx-2 action-button  bg-red " type="button"
+              (click)="drawer.toggle()" mat-button>
+              <mat-icon class="">tune</mat-icon> Filter
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pr-1 mt-2 mx-0 w-100">
+    <app-delivery-mannagement-tab></app-delivery-mannagement-tab>
+  </div>
+  <mat-drawer-container class="example-container  w-100">
+    <mat-drawer #drawer class="example-sidenav " mode="over" position="end">
+      <div class="card-header whs-bg-grey text-white d-flex justify-content-between align-items-center">
+        <h6 class="my-auto mb-0">Search Parameter</h6>
+        <mat-icon (click)="drawer.toggle()">close</mat-icon>
+      </div>
+
+      <div class="row  mt-1 mr-1 p-2 pl-3">
+
+      </div>
+
+      <div class="d-flex justify-content-center align-items-center py-2 bottombutton">
+        <button mat-raised-button color="warn" class="text-white mx-1 px-4">
+          <mat-icon class="">restart_alt</mat-icon> Reset
+        </button>
+        <button mat-raised-button class="bg-darkblue text-white mx-1" (click)="drawer.toggle();">
+          <mat-icon class="">done</mat-icon> Search
+        </button>
+      </div>
+    </mat-drawer>
+    <div class="example-sidenav-content">
+      <!-- <div class="row "style="padding-right: 15px !important;"> -->
+      <div class="row ">
+        <p-table #Setupinvoice
+          [globalFilterFields]="['companyDescription','plantDescription','warehouseDescription','statusId','refDocNumber','referenceDocumentType','partnerCode','address','requiredDeliveryDate','createdBy','referenceField2','statusDescription']"
+          [value]="invoices" styleClass="p-datatable-gridlines p-datatable-sm" [scrollable]="true"
+          selectionMode="multiple" [(selection)]="selectedinvoice" scrollHeight="calc(100vh - 14.6rem)"
+          [paginator]="true" [rows]="100" [showCurrentPageReport]="true"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [resizableColumns]="true"
+          style="width: 100%;margin-left: 10px;background-color:white">
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="max-width: 3.5rem; justify-content: center;">
+                <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+              </th>
+              <!-- <th style="max-width: 4.5rem;" pResizableColumn>Actions</th> -->
+              <th style="width: 10rem;" pSortableColumn="statusDescription" pResizableColumn>Status<p-sortIcon
+                  field="statusDescription"></p-sortIcon></th>
+              <th style="width: 10rem;" st pSortableColumn="companyDescription" pResizableColumn>Company<p-sortIcon
+                  field="companyDescription"></p-sortIcon></th>
+              <th style="width: 10rem;" st pSortableColumn="plantDescription" pResizableColumn>Branch<p-sortIcon
+                  field="plantDescription"></p-sortIcon></th>
+              <th style="width: 10rem;" st pSortableColumn="warehouseDescription" pResizableColumn>Warehouse<p-sortIcon
+                  field="warehouseDescription"></p-sortIcon></th>
+              <th style="width: 10rem;" pSortableColumn="refDocNumber" pResizableColumn>Order No<p-sortIcon
+                  field="refDocNumber"></p-sortIcon></th>
+              <th style="width: 10rem;" pSortableColumn="salesInvoiceNumber" pResizableColumn>Invoice No<p-sortIcon
+                  field="salesInvoiceNumber"></p-sortIcon></th>
+              <th style="width: 10rem;" pSortableColumn="referenceDocumentType" pResizableColumn>Order Type <p-sortIcon
+                  field="referenceDocumentType"></p-sortIcon></th>
+              <th style="width: 6rem;" pSortableColumn="customerId" pResizableColumn>Customer Code<p-sortIcon
+                  field="customerId"></p-sortIcon></th>
+              <th style="width: 7rem;" pSortableColumn="address" pResizableColumn>Address<p-sortIcon
+                  field="address"></p-sortIcon></th>
+              <th style="width: 7rem;" pSortableColumn="targetBranchCode" pResizableColumn>Target Branch<p-sortIcon
+                  field="targetBranchCode"></p-sortIcon></th>
+              <th style="width: 7rem;" pSortableColumn="phoneNumber" pResizableColumn>Contact Number<p-sortIcon
+                  field="phoneNumber"></p-sortIcon></th>
+              <th style="width: 10rem;" pSortableColumn="requiredDeliveryDate" pResizableColumn>RFD Date <p-sortIcon
+                  field="requiredDeliveryDate"></p-sortIcon></th>
+              <th style="width: 10rem;" pSortableColumn="referenceField8" pResizableColumn>Count Of Items <p-sortIcon
+                  field="referenceField8"></p-sortIcon></th>
+              <th style="width: 10rem;" pSortableColumn="referenceField2" pResizableColumn>Invoice Qty<p-sortIcon
+                  field="referenceField2"></p-sortIcon></th>
+              <th style="width: 10rem;" pSortableColumn="invoiceDate" pResizableColumn>Created On<p-sortIcon
+                  field="invoiceDate"></p-sortIcon></th>
+            </tr>
+
+            <tr>
+              <th style="max-width: 3.5rem; justify-content: center;">
+                <p-tableHeaderCheckbox [disabled]="true"></p-tableHeaderCheckbox>
+              </th>
+              <!-- <th style="max-width: 4.5rem"> </th> -->
+              <th style="width: 10rem;">
+                <input pInputText type="text"
+                  (input)="Setupinvoice.filter($any($event.target)?.value, 'companyDescription', 'contains')"
+                  [value]="$any(Setupinvoice.filters['companyDescription'])?.value" placeholder="Search"
+                  class=" w-100 p-column-filter">
+              </th>
+              <th style="width: 10rem;">
+                <input pInputText type="text"
+                  (input)="Setupinvoice.filter($any($event.target)?.value, 'statusDescription', 'contains')"
+                  [value]="$any(Setupinvoice.filters['statusDescription'])?.value" placeholder="Search"
+                  class=" w-100 p-column-filter">
+              </th>
+              <th style="width: 10rem;">
+                <input pInputText type="text"
+                  (input)="Setupinvoice.filter($any($event.target)?.value, 'plantDescription', 'contains')"
+                  [value]="$any(Setupinvoice.filters['plantDescription'])?.value" placeholder="Search"
+                  class=" w-100 p-column-filter">
+              </th>
+              <th style="width: 10rem;">
+                <input pInputText type="text"
+                  (input)="Setupinvoice.filter($any($event.target)?.value, 'warehouseDescription', 'contains')"
+                  [value]="$any(Setupinvoice.filters['warehouseDescription'])?.value" placeholder="Search"
+                  class=" w-100 p-column-filter">
+              </th>
+              <th style="width: 10rem;">
+                <input pInputText type="text"
+                  (input)="Setupinvoice.filter($any($event.target)?.value, 'refDocNumber', 'contains')"
+                  [value]="$any(Setupinvoice.filters['refDocNumber'])?.value" placeholder="Search"
+                  class=" w-100 p-column-filter">
+              </th>
+              <th style="width: 10rem;">
+                <input pInputText type="text"
+                  (input)="Setupinvoice.filter($any($event.target)?.value, 'salesInvoiceNumber', 'contains')"
+                  [value]="$any(Setupinvoice.filters['salesInvoiceNumber'])?.value" placeholder="Search"
+                  class=" w-100 p-column-filter">
+              </th>
+              <th style="width: 10rem;">
+                <input pInputText type="text"
+                  (input)="Setupinvoice.filter($any($event.target)?.value, 'referenceDocumentType', 'contains')"
+                  [value]="$any(Setupinvoice.filters['referenceDocumentType'])?.value" placeholder="Search"
+                  class=" w-100 p-column-filter">
+              </th>
+              <th style="width: 6rem;">
+                <input pInputText type="text"
+                  (input)="Setupinvoice.filter($any($event.target)?.value, 'customerId', 'contains')"
+                  [value]="$any(Setupinvoice.filters['customerId'])?.value" placeholder="Search"
+                  class=" w-100 p-column-filter">
+              </th>
+              <th style="width: 7rem;">
+                <input pInputText type="text"
+                  (input)="Setupinvoice.filter($any($event.target)?.value, 'address', 'contains')"
+                  [value]="$any(Setupinvoice.filters['address'])?.value" placeholder="Search"
+                  class=" w-100 p-column-filter">
+              </th>
+              <th style="width: 7rem;">
+                <input pInputText type="text"
+                  (input)="Setupinvoice.filter($any($event.target)?.value, 'targetBranchCode', 'contains')"
+                  [value]="$any(Setupinvoice.filters['targetBranchCode'])?.value" placeholder="Search"
+                  class=" w-100 p-column-filter">
+              </th>
+              <th style="width: 7rem;">
+                <input pInputText type="text"
+                  (input)="Setupinvoice.filter($any($event.target)?.value, 'phoneNumber', 'contains')"
+                  [value]="$any(Setupinvoice.filters['phoneNumber'])?.value" placeholder="Search"
+                  class=" w-100 p-column-filter">
+              </th>
+              <th style="width: 10rem;">
+                <input pInputText type="text"
+                  (input)="Setupinvoice.filter($any($event.target)?.value, 'requiredDeliveryDate', 'contains')"
+                  [value]="$any(Setupinvoice.filters['requiredDeliveryDate'])?.value" placeholder="Search"
+                  class=" w-100 p-column-filter">
+              </th>
+              <th style="width: 10rem;">
+                <input pInputText type="text"
+                  (input)="Setupinvoice.filter($any($event.target)?.value, 'referenceField8', 'contains')"
+                  [value]="$any(Setupinvoice.filters['referenceField8'])?.value" placeholder="Search"
+                  class=" w-100 p-column-filter">
+              </th>
+              <th style="width: 10rem;">
+                <input pInputText type="text"
+                  (input)="Setupinvoice.filter($any($event.target)?.value, 'referenceField2', 'contains')"
+                  [value]="$any(Setupinvoice.filters['referenceField2'])?.value" placeholder="Search"
+                  class=" w-100 p-column-filter">
+              </th>
+              <th style="width: 10rem;">
+                <input pInputText type="text"
+                  (input)="Setupinvoice.filter($any($event.target)?.value, 'invoiceDate', 'contains')"
+                  [value]="$any(Setupinvoice.filters['invoiceDate'])?.value" placeholder="Search"
+                  class=" w-100 p-column-filter">
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-invoice let-rowIndex="rowIndex">
+            <tr>
+              <td style="max-width:3.5rem;  justify-content: center;">
+                <!-- <p-checkbox  [(ngModel)]="selectedinvoice"  [value]="invoice"></p-checkbox> -->
+                <p-tableCheckbox [value]="invoice"></p-tableCheckbox>
+              </td>
+              <!-- <td style="max-width:4.5rem;">
+                <button mat-icon-button [matMenuTriggerFor]="menu" [matMenuTriggerData]="{invoice: invoice}">
+                  <mat-icon class="text-secondary">more_horiz</mat-icon>
+                </button>
+              </td> -->
+              <td style="width: 10rem;">{{invoice.statusDescription }}</td>
+              <td style="width: 10rem;">{{invoice.companyDescription}}</td>
+              <td style="width: 10rem;">{{invoice.plantDescription}}</td>
+              <td style="width: 10rem;">{{invoice.warehouseDescription}}</td>
+              <td style="width: 10rem;">{{invoice.refDocNumber}}</td>
+              <td style="width: 10rem;">{{invoice.salesInvoiceNumber}}</td>
+              <td style="width: 10rem;">{{invoice.referenceDocumentType}}</td>
+              <td style="width: 6rem;">{{invoice.customerId }}</td>
+              <td style="width: 7rem;">{{invoice.address }}</td>
+              <td style="width: 7rem;">{{invoice.targetBranchCode }}</td>
+              <td style="width: 7rem;">{{invoice.phoneNumber }}</td>
+              <td style="width: 10rem;">{{invoice.requiredDeliveryDate| date : 'dd-MM-yyyy HH:mm' :'GMT' }}</td>
+              <td style="width: 10rem;">{{invoice.referenceField8 }}</td>
+              <td style="width: 10rem;">{{invoice.referenceField2 }}</td>
+              <td style="width: 10rem;">{{invoice.invoiceDate | date : 'dd-MM-yyyy HH:mm' :'GMT'}}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+
+      </div>
+    </div>
+  </mat-drawer-container>
+
+
+
+  <mat-menu #menu="matMenu">
+    <ng-template matMenuContent let-aliasMenuItems="invoice">
+      <button mat-menu-item (click)="createManifest('New', aliasMenuItems)">Edit</button>
+      <!--<button mat-menu-item (click)="openDialog()" >Generate Delivery order</button>-->
+    </ng-template>
+
+  </mat-menu>

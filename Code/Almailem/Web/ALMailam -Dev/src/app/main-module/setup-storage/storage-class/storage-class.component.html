@@ -1,0 +1,468 @@
+<div class="w-100 mx-1 pl-2">
+  <form [formGroup]="form" #formDirective="ngForm" (ngSubmit)="onSubmit(formDirective)" novalidate> 
+    <div class="col-12">
+      <!--inner header-->
+  
+      <div class="row  text-secondary pr-0 mt-1">
+        <div class="col bg-white d-flex align-items-center mt-1 px-1 py-1 pathname">
+  
+  
+          <nav aria-label="breadcrumb" class="d-flex align-items-center">
+            <ol class="breadcrumb mb-0 bg-white">
+              <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">Home</li>
+                <li class="breadcrumb-item"
+                            class=" whs-fontsize-1-2rem  my-auto">Setup</li>
+                <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto"><a routerLink="/main/storage/selection">Storage</a></li>
+            </ol>
+        </nav>
+  
+  
+          <div class="d-flex ml-auto my-auto">
+            <div [hidden]="isShowDiv"> <input  matInput class="form-control filter_button mt-2 mt-2 mx-2 border-bottom"
+                placeholder="Search" style="width:90%">
+            </div>
+            <div [ngClass]="showFloatingButtons == true ? 'floating-pane-active' : 'floating-pane-deactive'"
+              class="button-row d-flex align-items-center">
+              <!--
+                        <button mat-mini-fab *ngIf="showFloatingButtons == true" class="floating-buttons  d-flex align-items-center justify-content-center bg-pink text-white mx-2"
+                        matTooltip="Add">
+                        <mat-icon class="action-icon d-flex align-items-center justify-content-center">add_circle_outline</mat-icon>
+                      </button>
+                      -->
+              <button type="button" mat-mini-fab *ngIf="showFloatingButtons == true"
+                class=" floating-buttons  d-flex align-items-center justify-content-center text-white   yellowaction"
+                matTooltip="Display">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">search</mat-icon>
+              </button>
+              <button type="button" mat-mini-fab *ngIf="showFloatingButtons == true"
+                class="floating-buttons  d-flex align-items-center justify-content-center text-white  blueaction "
+                matTooltip="Edit">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">edit</mat-icon>
+              </button>
+              <button type="button" mat-mini-fab *ngIf="showFloatingButtons == true"
+                class=" floating-buttons  d-flex align-items-center justify-content-center redaction text-white  align-middle"
+                matTooltip="Delete">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">delete</mat-icon>
+              </button>
+              <!-- 
+                        <button  mat-mini-fab *ngIf="showFloatingButtons == true"
+                      class="floating-buttons  d-flex align-items-center justify-content-center text-white  bg-success  " matTooltip="Info">
+                      <mat-icon class="action-icon d-flex align-items-center justify-content-center">info_outline</mat-icon>
+                    </button>
+                      -->
+              <button type="button" mat-mini-fab *ngIf="showFloatingButtons == true"
+                class="floating-buttons  d-flex align-items-center justify-content-center text-white  darkblueaction "
+                matTooltip="Download">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">download</mat-icon>
+              </button>
+  
+  
+              <button type="button" mat-mini-fab (click)="toggleFloat()" class="mx-2 text-white action-button"
+                 [ngClass]="{'bg-orange' : toggle, 'purple': !toggle}">
+                <mat-icon>{{icon}}</mat-icon>Options
+              </button>
+              <button type="button" mat-mini-fab  
+              class=" floating-buttons1  d-flex align-items-center justify-content-center darkaction text-white mx-2 mr-3 align-middle" matTooltip="New">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">add</mat-icon>
+            </button>
+                <button type="submit" mat-mini-fab  
+                  class=" floating-buttons1  d-flex align-items-center justify-content-center greyaction text-white mx-2 mr-3 align-middle" matTooltip="Save">
+                  <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">save</mat-icon>
+                </button>
+              <button mat-mini-fab  class="text-white mx-2 action-button  bg-red " type="button" (click)="drawer.toggle()"
+                mat-button>
+                <mat-icon class="">tune</mat-icon> Filter
+              </button>
+            </div>
+  
+          </div>
+        </div>
+      </div>
+    </div>
+      <!--main-section-tabbar
+      <app-main-section-tabbar>
+      </app-main-section-tabbar>  -->
+      <!--vertical tab-->
+      <mat-drawer-container class="example-container  w-100">
+        <mat-drawer #drawer class="example-sidenav " mode="over" position="end">
+          <div class="card-header whs-bg-grey text-white d-flex justify-content-between align-items-center">
+            <h6 class="my-auto mb-0">Search Parameter</h6>
+            <mat-icon type="button" (click)="drawer.toggle()">close</mat-icon>
+          </div>
+          <div class="row searchscroll1 mt-1 mr-1 p-2 pl-3">
+            <div class="col-12">
+              <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">Warehouse No</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+              
+                  <mat-select class="mb-0" placeholder="Select">
+                    <mat-option value="option">Option</mat-option>
+                    <mat-option value="option2">Option2</mat-option>
+                    <mat-option value="option3">Option3</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">Product</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+                  
+                  <mat-select placeholder="select">
+                    <mat-option value="option">Option</mat-option>
+                    <mat-option value="option2">Option2</mat-option>
+                    <mat-option value="option3">Option3</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="form-group mb-1">
+                <label for="inputEmail4" class="mb-0">Item Type</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+                  
+                  <mat-select placeholder="select">
+                    <mat-option value="option">Option</mat-option>
+                    <mat-option value="option2">Option2</mat-option>
+                    <mat-option value="option3">Option3</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">Item Group</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+              
+                  <mat-select class="mb-0" placeholder="Select">
+                    <mat-option value="option">Option</mat-option>
+                    <mat-option value="option2">Option2</mat-option>
+                    <mat-option value="option3">Option3</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">Item Sub Group</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+              
+                  <mat-select class="mb-0" placeholder="Select">
+                    <mat-option value="option">Option</mat-option>
+                    <mat-option value="option2">Option2</mat-option>
+                    <mat-option value="option3">Option3</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">Item Sub Group</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+              
+                  <mat-select class="mb-0" placeholder="Select">
+                    <mat-option value="option">Option</mat-option>
+                    <mat-option value="option2">Option2</mat-option>
+                    <mat-option value="option3">Option3</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="col-12">
+              <label for="inputEmail4" class="mb-1">From</label>
+              <mat-form-field class="mb-0 w-100 " appearance="outline">
+                <mat-label>Choose a date</mat-label>
+                <input matInput [matDatepicker]="picker">
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+              </mat-form-field>
+            </div>
+            <div class="col-12">
+              <label for="inputEmail4" class="mb-1">To</label>
+              <mat-form-field class="mb-0 w-100 " appearance="outline">
+                <mat-label>Choose a date</mat-label>
+                <input matInput [matDatepicker]="date">
+                <mat-datepicker-toggle matSuffix [for]="date"></mat-datepicker-toggle>
+                <mat-datepicker #date></mat-datepicker>
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="d-flex justify-content-center align-items-center py-2">
+            <button mat-raised-button color="warn" class="text-white mx-1 px-4">
+              <mat-icon class="">restart_alt</mat-icon> Reset
+            </button>
+            <button mat-raised-button class="bg-darkblue text-white mx-1">
+              <mat-icon class="">done</mat-icon> Search
+            </button>
+          </div>
+        </mat-drawer>
+        <div class="example-sidenav-content">
+      <div class="row pr-1 mt-1">
+        <div class="col-2 px-0  pr-1 mt-2">
+          <app-subsidenav></app-subsidenav>
+        </div>
+  
+        <div class="col-10 px-0 pl-1 pb-1">
+   
+            <!-- <button type="submit" class="btn " visible="false" hidden="hidden" id="btnsave"></button> -->
+            <div >
+              <!--<p class="my-1 pl-1 row  font-weight-bold  text-dark mx-0">General Data</p>-->
+              <div class="mt-2">
+                <ul class="nav nav-tabs mt-1">
+                  <li class="nav-item">
+                    <p class="nav-link navpadding bg-white whs-text-grey pl-2 py-1 pl-1 row mx-0" href="">
+                      <img src="./assets/img/icons/shield.png" class="header_icon" alt="" srcset=""> General Data</p>
+                  </li>
+                </ul>
+                <div section="frame1" class="uatwhite mt-1 text-dark">
+  
+                 <div class="p-1 resp_padding px-4">
+                    <div class="row pt-2"style="height:10.5rem">
+                      <div class="col-4">
+                        <div class="d-flex flex-column">
+  
+                          <label for="inputState" class="mb-0 text-dark">Warehouse No<mat-icon
+                              class="ml-1 text-secondary" style="font-size: 1rem;" mat-raised-button
+                              matTooltip="Company Code" matTooltipPosition="right">
+                              help</mat-icon>
+                          </label>
+                          <mat-form-field class="form-group input_field mb-0 " appearance="outline">
+                            
+                            <mat-select placeholder="Select" formControlName="warehouseId">
+                              <mat-option *ngFor="let warehouse of warehouseList" [value]="warehouse.warehouseId">
+                                {{warehouse.warehouseId}} {{warehouse.description == null ? '' : '- ' + warehouse.description}}
+                              </mat-option>
+                            </mat-select>
+                          </mat-form-field>
+                        </div>
+                      </div>
+                      <div class="col-4   ">
+                        <div class="d-flex flex-column">
+                          <label for="inputState" class="mb-0 text-dark">Storage Class</label>
+                          <mat-form-field class="form-group input_field mb-0 " appearance="outline">
+                            
+                            <mat-select placeholder="Select" formControlName="storageClassId">
+                              <mat-option *ngFor="let storageClass of showingStorageClassList" [value]="storageClass.storageClassId">
+                                {{storageClass.storageClassId}} - {{storageClass.description}}
+                              </mat-option>
+                            </mat-select>
+                          </mat-form-field>
+                        </div>
+                      </div>
+                      <div class="col-4">
+                        <div class="d-flex flex-column   ">
+                          <label for="inputState" class="mb-0 text-dark ">Storage Class Description </label>
+                          <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                            <input matInput placeholder="Enter" formControlName="description">
+                          </mat-form-field>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!--<p class="my-1 pl-1 row font-weight-bold text-dark mx-0 ">Address</p>-->
+              <div class="mt-2">
+                <ul class="nav nav-tabs mt-1">
+                  <li class="nav-item">
+                    <p class="nav-link navpadding bg-white whs-text-grey pl-2 py-1 pl-1 row mx-0" href="">
+                      <img src="./assets/img/icons/shield.png" class="header_icon" alt="" srcset=""> Storage Class Details</p>
+                  </li>
+                </ul>
+                <div section="frame1" class="uatwhite mt-1 text-dark">
+                 <div class="p-1 resp_padding px-4">
+                    <div class="row pt-2"style="height:10.5rem">
+                      <div class="col-4 ">
+                        <div class="d-flex flex-column">
+                          <label for="inputState" class="mb-0 text-dark">Hazard Material class</label>
+                          <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                            <input matInput placeholder="Enter" formControlName="hazardMaterialClass">
+                            <mat-error class="error-message" >
+                              </mat-error>
+                          </mat-form-field>
+                        </div>
+                      </div>
+                      <div class="col-4   ">
+                        <div class="d-flex flex-column">
+                          <label for="inputState" class="mb-0 text-dark">Water Pollution class</label>
+                          <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                            <input matInput placeholder="Enter" formControlName="waterPollutionClass">
+                          </mat-form-field>
+                        </div>
+                      </div>
+                      <div class="col-4">
+                        <div class="d-flex flex-column   ">
+                          <label for="inputState" class="mb-0 text-dark ">Remarks</label>
+                          <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                            <input matInput placeholder="Enter" formControlName="remarks">
+                          </mat-form-field>
+  
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+           
+            </div>
+ 
+        </div>
+        <div class="col-12 px-0 mx-0 pb-1">
+          <div class="p-0 mx-1">
+            <mat-paginator class="invisible" showFirstLastButtons [pageSize]="100" [pageSizeOptions]="[100, 150, 200, 250]"
+              aria-label="Select page of periodic elements">
+            </mat-paginator>
+          </div>
+        </div>
+      </div>
+        </div>
+      </mat-drawer-container>
+    <!--right pane-->
+    <!-- <div class="col-3 pl-1 pr-1 mt-1 d-none">
+      <div class="whs-rightpane bg-white shadow">
+        <div class="text-dark p-2 bg-white">
+          <div class="whs-vertical-scroll">
+            <div class="d-flex justify-content-start my-1">
+              <label for="" class="mr-5 mt-1">Variant</label>
+              <label for="" class=" mt-1 ml-4 pl-3">Company Tab</label>
+            </div>
+            <hr class="my-0">
+            <div class="row mt-1">
+              <div class="col-12">
+                <div class="form-group mb-0">
+                  <label for="inputEmail4" class="mb-0">Warehouse No</label>
+                  <mat-form-field class="mb-0 w-100 " appearance="outline">
+                
+                    <mat-select class="mb-0" placeholder="Select">
+                      <mat-option value="option">Option</mat-option>
+                      <mat-option value="option2">Option2</mat-option>
+                      <mat-option value="option3">Option3</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group mb-0">
+                  <label for="inputEmail4" class="mb-0">Product</label>
+                  <mat-form-field class="mb-0 w-100 " appearance="outline">
+                    
+                    <mat-select placeholder="select">
+                      <mat-option value="option">Option</mat-option>
+                      <mat-option value="option2">Option2</mat-option>
+                      <mat-option value="option3">Option3</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group mb-1">
+                  <label for="inputEmail4" class="mb-0">Item Type</label>
+                  <mat-form-field class="mb-0 w-100 " appearance="outline">
+                    
+                    <mat-select placeholder="select">
+                      <mat-option value="option">Option</mat-option>
+                      <mat-option value="option2">Option2</mat-option>
+                      <mat-option value="option3">Option3</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group mb-0">
+                  <label for="inputEmail4" class="mb-0">Item Group</label>
+                  <mat-form-field class="mb-0 w-100 " appearance="outline">
+                
+                    <mat-select class="mb-0" placeholder="Select">
+                      <mat-option value="option">Option</mat-option>
+                      <mat-option value="option2">Option2</mat-option>
+                      <mat-option value="option3">Option3</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group mb-0">
+                  <label for="inputEmail4" class="mb-0">Item Sub Group</label>
+                  <mat-form-field class="mb-0 w-100 " appearance="outline">
+                
+                    <mat-select class="mb-0" placeholder="Select">
+                      <mat-option value="option">Option</mat-option>
+                      <mat-option value="option2">Option2</mat-option>
+                      <mat-option value="option3">Option3</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group mb-0">
+                  <label for="inputEmail4" class="mb-0">Item Sub Group</label>
+                  <mat-form-field class="mb-0 w-100 " appearance="outline">
+                
+                    <mat-select class="mb-0" placeholder="Select">
+                      <mat-option value="option">Option</mat-option>
+                      <mat-option value="option2">Option2</mat-option>
+                      <mat-option value="option3">Option3</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="col-12">
+                <label for="inputEmail4" class="mb-1">From</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+                  <mat-label>Choose a date</mat-label>
+                  <input matInput [matDatepicker]="picker">
+                  <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                  <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+              </div>
+              <div class="col-12">
+                <label for="inputEmail4" class="mb-1">To</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+                  <mat-label>Choose a date</mat-label>
+                  <input matInput [matDatepicker]="date">
+                  <mat-datepicker-toggle matSuffix [for]="date"></mat-datepicker-toggle>
+                  <mat-datepicker #date></mat-datepicker>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-center my-1">
+            <button mat-raised-button class="text-white mr-1" color="warn">
+              <mat-icon class="">close</mat-icon> Cancel
+            </button>
+            <button mat-raised-button class="bg-darkblue  text-white mx-1">
+              <mat-icon class="">search</mat-icon> Search
+            </button>
+          </div>
+        </div>
+        <div class="row  no-gutters">
+          <div class="col-6 pl-0">
+            <div class="whs-rightpane-box border d-flex flex-column align-items-center justify-content-center">
+              <i class="far fa-arrow-alt-circle-down fa-2x"></i>
+              <p class="mb-0 mt-1">Storage Setup</p>
+            </div>
+          </div>
+          <div class="col-6 pl-0 ">
+            <div class="whs-rightpane-box border d-flex flex-column align-items-center justify-content-center">
+              <i class="far fa-arrow-alt-circle-down fa-2x"></i>
+              <p class="mb-0 mt-1">Item Setup</p>
+            </div>
+          </div>
+          <div class="col-6 pl-0 d-none">
+            <div class="whs-rightpane-box border d-flex flex-column align-items-center justify-content-center">
+              <i class="far fa-arrow-alt-circle-down fa-2x"></i>
+              <p class="mb-0 mt-1">Storage Setup</p>
+            </div>
+          </div>
+          <div class="col-6 pl-0 d-none">
+            <div class="whs-rightpane-box border d-flex flex-column align-items-center justify-content-center">
+              <i class="far fa-arrow-alt-circle-down fa-2x"></i>
+              <p class="mb-0 mt-1">Item Setup</p>
+            </div>
+          </div>
+  
+        </div>
+      </div>
+    </div> -->
+    </form>
+  </div>

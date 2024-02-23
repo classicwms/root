@@ -1,0 +1,60 @@
+<div class="card bg-white " style="overflow-x: hidden;">
+    <div mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle
+      class="d-flex justify-content-between align-items-center whs-bg-grey text-white p-2">
+      <h6 class="my-auto">BOM-Child </h6>
+      <mat-icon class="text-white" mat-dialog-close>close</mat-icon>
+    </div>
+    <div class="row">
+        <p-table #Setupstoragesection [globalFilterFields]="['childItemCode','childItemQuantity']" [value]="bomLines"
+        styleClass="p-datatable-gridlines p-datatable-sm" [scrollable]="true" selectionMode="single"  scrollDirection="Both"
+        scrollHeight="calc(100vh - 29.2rem)"  [paginator]="false" [rows]="100" [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+           [resizableColumns]="true" style="width: 100%;margin-left: 10px;background-color:white" >
+        <ng-template pTemplate="header">
+          <tr>
+      
+       
+            <th  pSortableColumn="sequenceNo"   pResizableColumn>Sequence No<p-sortIcon field="sequenceNo"></p-sortIcon>
+            </th>
+        <th  pSortableColumn="childItemCode"   pResizableColumn>Child Part No<p-sortIcon field="childItemCode"></p-sortIcon>
+            <th  pSortableColumn="childItemQuantity"   pResizableColumn>Child Item Quantity<p-sortIcon field="childItemQuantity"></p-sortIcon>
+        </th>
+        
+           
+          </tr>
+          <tr >
+            <th >
+              <input pInputText  type="text" (input)="Setupstoragesection.filter($any($event.target)?.value, 'sequenceNo', 'contains')" 
+              [value]="$any(Setupstoragesection.filters['sequenceNo'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+            </th>
+           <th >
+             <input pInputText  type="text" (input)="Setupstoragesection.filter($any($event.target)?.value, 'childItemCode', 'contains')" 
+                 [value]="$any(Setupstoragesection.filters['childItemCode'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+               </th>
+               <th >
+                 <input pInputText  type="text" (input)="Setupstoragesection.filter($any($event.target)?.value, 'childItemQuantity', 'contains')" 
+                 [value]="$any(Setupstoragesection.filters['childItemQuantity'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+               </th>
+              
+            
+           </tr>
+        
+        </ng-template>
+        <ng-template pTemplate="body" let-sections let-rowIndex="rowIndex">
+          <tr >
+            <td >{{sections.sequenceNo}}</td>
+          <td >{{sections.childItemCode}}</td>
+          <td >{{sections.childItemQuantity}}</td>
+       
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+      <div class="d-flex justify-content-center align-items-center py-2">
+        <button mat-raised-button color="warn" mat-dialog-close class="mx-2"> <i
+            class="bi bi-x me-1 font-size-1_5rem"></i>Cancel</button>
+      </div>
+
+
+  </div>
+

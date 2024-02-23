@@ -1,0 +1,101 @@
+<div class="card  border-0 bg-white " style="overflow-x: hidden;">
+  <div mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle
+    class="d-flex justify-content-between align-items-center header_colour text-white p-2">
+    <h6 class="my-auto">Assign Case</h6>
+    <mat-icon class="text-white" mat-dialog-close>close</mat-icon>
+  </div>
+  <div class="row bg-white p-2 d-flex px-3">
+    <div class="col-6 mt-1">
+      <div class="form-group mb-0">
+        <label for="inputEmail4" class="mb-0">No of Cases</label>
+        <mat-form-field class="mb-0 w-100 " appearance="outline">
+          <input matInput placeholder="Enter" [(ngModel)]="noOfCase">
+        </mat-form-field>
+      </div>
+    </div>
+    <div class="col- offset-4 mt-1 my-auto">
+
+      <button mat-raised-button class="bg-darkblue text-white ml-1" [ngClass]="{'disabled' : isgenerate}" [disabled]="isgenerate"
+        (click)="toggleFloat(); generate()">
+        <mat-icon class="">settings_suggest</mat-icon> Generate
+      </button>
+    </div>
+
+    <!-- <div class="d-flex justify-content-end mr-3 mb-1 pb-2">
+    <button disabled  mat-raised-button class="disabled bg-yellow text-white ml-1" >
+        <mat-icon class="">settings_suggest</mat-icon> Generate
+      </button>
+  </div> -->
+    <div *ngIf="show" class="w-100">
+      <div class="scroll">
+        <table mat-table [dataSource]="dataSource" matSort class=" col-12 w-100">
+
+          <!-- Checkbox Column -->
+          <ng-container matColumnDef="select">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              <mat-checkbox (change)="$event ? masterToggle() : null" [checked]="true"
+                [indeterminate]="selection.hasValue() && !isAllSelected()" [aria-label]="checkboxLabel()">
+              </mat-checkbox>
+            </th>
+            <td mat-cell *matCellDef="let row">
+              <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
+                [checked]="true" [aria-label]="checkboxLabel(row)">
+              </mat-checkbox>
+            </td>
+          </ng-container>
+
+
+          <ng-container matColumnDef="no">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Line No </th>
+            <td mat-cell *matCellDef="let element"> {{element.lineNo}} </td>
+          </ng-container>
+          <!-- Weight Column -->
+          <ng-container matColumnDef="dimensions">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Product Code</th>
+            <td mat-cell *matCellDef="let element"> {{element.itemCode}} </td>
+          </ng-container>
+
+          <!-- Symbol Column -->
+          <ng-container matColumnDef="caseCode">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Case Code</th>
+            <td mat-cell *matCellDef="let element"> {{element.caseCode}} </td>
+          </ng-container>
+
+
+          <!-- Symbol Column -->
+          <ng-container matColumnDef="width">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>No of Label</th>
+            <td mat-cell *matCellDef="let element">
+
+              <input matInput placeholder="AP-Readonly" [(ngModel)]="element.nooflable">
+            </td>
+          </ng-container>
+
+          <!-- Symbol Column -->
+          <ng-container matColumnDef="uom">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Pack Code</th>
+            <td mat-cell *matCellDef="let element"> {{element.orderUom}} </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns;sticky: true"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="selection.toggle(row)">
+          </tr>
+        </table>
+      </div>
+      <!-- <div class="buttons border d-flex justify-content-end">
+        <div class="p-0 mx-1">
+          <mat-paginator class="" showFirstLastButtons [pageSize]="100" [pageSizeOptions]="[100, 150, 200, 250]"
+            aria-label="Select page of periodic elements">
+          </mat-paginator>
+        </div>
+      </div> -->
+      <div class="d-flex justify-content-center align-items-center py-2 originalbackground">
+        <button mat-raised-button mat-dialog-close class="text-white mx-1 px-3" color="warn">
+          <mat-icon class="">close</mat-icon>Cancel
+        </button>
+        <button mat-raised-button (click)="print()" class="bg-darkblue px-4 text-white mx-1">
+          <mat-icon class="">print</mat-icon> Print
+        </button>
+      </div>
+    </div>
+  </div>

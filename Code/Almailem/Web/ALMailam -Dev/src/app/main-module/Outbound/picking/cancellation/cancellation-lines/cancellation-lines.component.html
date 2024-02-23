@@ -1,0 +1,370 @@
+<div class="row mx-1 pl-2">
+  <div class="col-12">
+    <!--inner header-->
+
+    <div class="row  text-secondary pr-0 mt-1">
+      <div class="col bg-white d-flex align-items-center mt-1 px-1 py-1 pathname">
+
+
+        <nav aria-label="breadcrumb" class="d-flex align-items-center">
+          <ol class="breadcrumb mb-0 bg-white d-flex align-items-center">
+            <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">Home</li>
+            <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto">Outbound</li>
+            <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">Pick List Cancellation</li>
+          </ol>
+        </nav>
+
+
+        <div class="d-flex ml-auto my-auto">
+          <div [hidden]="isShowDiv"> <input matInput class="form-control filter_button mt-2 mt-2 mx-2 border-bottom"
+              placeholder="Search" style="width:90%">
+          </div>
+          <div [ngClass]="showFloatingButtons == true ? 'floating-pane-active' : 'floating-pane-deactive'"
+            class="button-row d-flex align-items-center">
+            <!--
+                        <button mat-mini-fab *ngIf="showFloatingButtons == true" class="floating-buttons  d-flex align-items-center justify-content-center bg-pink text-white mx-2"
+                        matTooltip="Add">
+                        <mat-icon class="action-icon d-flex align-items-center justify-content-center">add_circle_outline</mat-icon>
+                      </button>
+                      -->
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class=" floating-buttons  d-flex align-items-center justify-content-center text-white   yellowaction"
+              matTooltip="Display">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">search</mat-icon>
+            </button>
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class="floating-buttons  d-flex align-items-center justify-content-center text-white  blueaction "
+              matTooltip="Edit">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">edit</mat-icon>
+            </button>
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class=" floating-buttons  d-flex align-items-center justify-content-center redaction text-white  align-middle"
+              matTooltip="Delete">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">delete</mat-icon>
+            </button>
+            <!-- 
+                        <button  mat-mini-fab *ngIf="showFloatingButtons == true"
+                      class="floating-buttons  d-flex align-items-center justify-content-center text-white  bg-success  " matTooltip="Info">
+                      <mat-icon class="action-icon d-flex align-items-center justify-content-center">info_outline</mat-icon>
+                    </button>
+                      -->
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class="floating-buttons  d-flex align-items-center justify-content-center text-white  darkblueaction "
+              matTooltip="Download">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">download</mat-icon>
+            </button>
+
+
+            <button mat-mini-fab (click)="toggleFloat()" class="mx-2 text-white action-button"
+              [ngClass]="{'bg-orange' : toggle, 'purple': !toggle}">
+              <mat-icon>{{icon}}</mat-icon>Options
+            </button>
+            <button mat-mini-fab disabled
+              class=" floating-buttons1 disabled d-flex align-items-center justify-content-center darkaction text-white mx-2 mr-3 align-middle"
+              matTooltip="New">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">add</mat-icon>
+            </button>
+            <button mat-mini-fab
+              class=" floating-buttons1  d-flex align-items-center justify-content-center greyaction text-white mx-2 mr-3 align-middle"
+              matTooltip="Save">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">save</mat-icon>
+            </button>
+            <button disabled mat-mini-fab class=" disabled text-white mx-2 action-button  bg-red" type="button"
+              mat-button>
+              <mat-icon class="">tune</mat-icon> Filter
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--main section-->
+  <mat-drawer-container class="w-100 example-container">
+    <mat-drawer #drawer class="example-sidenav " mode="over" position="end">
+
+    </mat-drawer>
+    <div class="example-sidenav-content  mt-1">
+      <div class="row mt-1 pr-1" style="height: calc(100vh - 11rem);">
+        <div class="col-md-12 px-0">
+          <div class="">
+            <mat-accordion>
+
+              <!--
+                  <mat-expansion-panel #panel1 hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont align-items-center">
+                      Administrator
+                      <mat-icon class="collapsefont">{{panel1.expanded? 'remove' : 'add'}}</mat-icon>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <div class="row mt-2 boxgrey">
+                    
+                  </div>
+                </mat-expansion-panel>
+               -->
+          
+                <div class="row ">
+                  <p-table #pickingTag [value]="picking" styleClass="p-datatable-gridlines p-datatable-sm"
+                    [scrollable]="true" selectionMode="single" scrollDirection="both"
+                    scrollHeight="calc(100vh - 14.2rem)" sortField="lineNumber" [paginator]="true" [rows]="100"
+                    [showCurrentPageReport]="true"
+                    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                    [resizableColumns]="true" style="width: 100%;margin-left: 30px;background-color:white">
+                    <ng-template pTemplate="header">
+                      <tr>
+                        <th style="width: 10rem;border-bottom:none;text-align: bottom;"pSortableColumn="sno" pResizableColumn>S No <p-sortIcon field="sno"></p-sortIcon>
+                         
+                        </th>
+                        <th style="width: 10rem;border-bottom:none;text-align: bottom;" pSortableColumn="manufacturerName" pResizableColumn>Mfr Name<p-sortIcon field="manufacturerName"></p-sortIcon>
+                       
+                        </th>
+                        <th style="width: 10rem;border-bottom:none;text-align: bottom;" pSortableColumn="itemCode" pResizableColumn>Part No<p-sortIcon field="itemCode"></p-sortIcon>
+                         
+                        </th>
+                        <th style="width: 10rem;border-bottom:none;text-align: bottom;" pSortableColumn="description" pResizableColumn>Description <p-sortIcon field="description"></p-sortIcon>
+                         
+                        </th> 
+                        <th style="width: 10rem;border-bottom:none;text-align: bottom;" pSortableColumn="salesOrderNumber"   pResizableColumn>Sales Order Number<p-sortIcon field="salesOrderNumber"></p-sortIcon>
+                   
+                        </th>
+                        <th style="width:10rem;border-right:none">       
+                         
+                        </th>
+                        <th style="width:10rem;border-left:none;border-right:none">        Old
+                         
+                        </th>
+                        <th style="width:10rem;border-left:none">       
+                         
+                        </th>
+                       
+                        <th style="width:10rem;border-right:none">       
+                         
+                        </th>
+                        <th style="width:10rem;border-left:none;border-right:none"> New
+                         
+                        </th>
+                        <th style="width:10rem;border-left:none">       
+                         
+                        </th>
+                      </tr>
+                      <tr>
+                        
+                        <th style="width: 10rem;border-top:none" pResizableColumn>
+                         
+                        </th>
+                        <th style="width: 10rem;border-top:none"  pResizableColumn>
+                       
+                        </th>
+                        <th style="width: 10rem;border-top:none"  pResizableColumn>
+                         
+                        </th>
+                        <th style="width: 10rem;border-top:none" pResizableColumn>
+                         
+                        </th> 
+                        <th style="width: 10rem;border-top:none"   pResizableColumn>
+                   
+                        </th>
+                        <th style="width: 10rem" pSortableColumn="oldRefDocNumber" pResizableColumn>PickList No<p-sortIcon field="oldRefDocNumber"></p-sortIcon>
+                         
+                        </th>
+                        <th style="width: 10rem" pSortableColumn="oldOrderQty" pResizableColumn>Order Qty <p-sortIcon field="oldOrderQty"></p-sortIcon>
+                         
+                        </th> 
+                        <th style="width: 10rem" pSortableColumn="oldStatusId"   pResizableColumn>Status<p-sortIcon field="oldStatusId"></p-sortIcon>
+                   
+                        </th>
+                        <th style="width: 10rem" pSortableColumn="newRefDocNumber" pResizableColumn>PickList No<p-sortIcon field="newRefDocNumber"></p-sortIcon>
+                         
+                        </th>
+                        <th style="width: 10rem" pSortableColumn="newRefDocNumber" pResizableColumn>Order Qty <p-sortIcon field="newRefDocNumber"></p-sortIcon>
+                         
+                        </th> 
+                        <th style="width: 10rem" pSortableColumn="newStatusId"   pResizableColumn>Status<p-sortIcon field="newStatusId"></p-sortIcon>
+                   
+                        </th>
+                        
+                        <!-- <th style="width: 10rem;" pResizableColumn>Approval Process
+                         
+                        </th>
+                        <th style="width: 8rem;" pResizableColumn>Approver Code
+                         
+                        </th>
+                        <th style="width: 10rem;" pResizableColumn>Approver Name
+                         
+                        </th>-->
+          
+                        
+                      </tr>
+                        
+                      <tr>
+                        
+
+                        <th style="width: 10rem">
+                          <input pInputText type="text"
+                            (input)="pickingTag.filter($any($event.target)?.value, 'sno', 'contains')"
+                            [value]="$any(pickingTag.filters['sno'])?.value" placeholder="Search "
+                            class=" w-100 p-column-filter">
+                          <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                        </th>
+                        <th style="width: 10rem">
+                          <input pInputText type="text"
+                            (input)="pickingTag.filter($any($event.target)?.value, 'manufacturerName', 'contains')"
+                            [value]="$any(pickingTag.filters['manufacturerName'])?.value" placeholder="Search "
+                            class=" w-100 p-column-filter">
+                          <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                        </th>
+                        <th style="width: 10rem">
+                          <input pInputText type="text"
+                            (input)="pickingTag.filter($any($event.target)?.value, 'itemCode', 'contains')"
+                            [value]="$any(pickingTag.filters['itemCode'])?.value" placeholder="Search "
+                            class=" w-100 p-column-filter">
+                          <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                        </th>
+                        <th style="width: 10rem">
+                          <input pInputText type="text"
+                            (input)="pickingTag.filter($any($event.target)?.value, 'description', 'contains')"
+                            [value]="$any(pickingTag.filters['description'])?.value" placeholder="Search "
+                            class=" w-100 p-column-filter">
+                          <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                        </th>
+                        <th style="width: 10rem">
+                          <input pInputText type="text"
+                            (input)="pickingTag.filter($any($event.target)?.value, 'salesOrderNumber', 'contains')"
+                            [value]="$any(pickingTag.filters['salesOrderNumber'])?.value" placeholder="Search "
+                            class=" w-100 p-column-filter">
+                          <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                        </th>
+                        <th style="width: 10rem">
+                          <input pInputText type="text"
+                            (input)="pickingTag.filter($any($event.target)?.value, 'oldRefDocNumber', 'contains')"
+                            [value]="$any(pickingTag.filters['oldRefDocNumber'])?.value" placeholder="Search "
+                            class=" w-100 p-column-filter">
+                          <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                        </th>
+                        <th style="width: 10rem">
+                          <input pInputText type="text"
+                            (input)="pickingTag.filter($any($event.target)?.value, 'oldOrderQty', 'contains')"
+                            [value]="$any(pickingTag.filters['oldOrderQty'])?.value" placeholder="Search "
+                            class=" w-100 p-column-filter">
+                          <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                        </th>
+                        <th style="width: 10rem">
+                          <input pInputText type="text"
+                            (input)="pickingTag.filter($any($event.target)?.value, 'oldStatusId', 'contains')"
+                            [value]="$any(pickingTag.filters['oldStatusId'])?.value" placeholder="Search "
+                            class=" w-100 p-column-filter">
+                          <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                        </th>
+                        <th style="width: 10rem">
+                          <input pInputText type="text"
+                            (input)="pickingTag.filter($any($event.target)?.value, 'newRefDocNumber', 'contains')"
+                            [value]="$any(pickingTag.filters['newRefDocNumber'])?.value" placeholder="Search "
+                            class=" w-100 p-column-filter">
+                          <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                        </th>
+                        <th style="width: 10rem">
+                          <input pInputText type="text"
+                            (input)="pickingTag.filter($any($event.target)?.value, 'newOrderQty', 'contains')"
+                            [value]="$any(pickingTag.filters['newOrderQty'])?.value" placeholder="Search "
+                            class=" w-100 p-column-filter">
+                          <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                        </th>
+                        <th style="width: 10rem">
+                          <input pInputText type="text"
+                            (input)="pickingTag.filter($any($event.target)?.value, 'newStatusId', 'contains')"
+                            [value]="$any(pickingTag.filters['newStatusId'])?.value" placeholder="Search "
+                            class=" w-100 p-column-filter">
+                          <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                        </th>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-picking let-rowIndex="rowIndex">
+                      <tr>
+
+                      
+                          
+                         
+        
+
+                        <td style="width: 10rem"> {{rowIndex+1}}</td>
+                        <td style="width: 10rem">{{picking.manufacturerName}}</td>
+                        <!--(click)="remarks(picking)"-->
+                        <td style="width: 10rem">{{picking.itemCode}}</td>
+                        <td style="width: 10rem">{{picking.description}}</td>
+                        <td style="width: 10rem">{{picking.salesOrderNumber}}
+
+                        </td>
+                        <td style="width: 10rem">{{picking.oldRefDocNumber}}
+
+                        </td>
+                        <td style="width: 10rem">{{picking.oldOrderQty}}
+
+                        </td>
+                        <td style="width: 10rem">{{picking.oldStatusDescription}}
+
+                        </td>
+                        <td style="width: 10rem">{{picking.newRefDocNumber}}
+
+                        </td>
+                        <td style="width: 10rem">{{picking.newOrderQty}}
+
+                        </td>
+                        <td style="width: 10rem">{{picking.newStatusDescription}}
+
+                        </td>
+                      </tr>
+                    </ng-template>
+                  </p-table>
+
+                </div>
+          
+            </mat-accordion>
+            <!--     <div class="d-flex justify-content-center align-items-center py-2  bottombutton">
+                <button mat-raised-button class="bg-yellow px-4 text-white mx-1" (click)="addbin();"
+                  *ngIf="pageflow != 'Display'" [disabled]="!isaddbin">
+                  <mat-icon class="">add</mat-icon> Add Bin
+                </button>
+                <button mat-raised-button class="text-white mx-1 px-4" color="warn"
+                  routerLink="/main/outbound/pickup-main">
+                  <mat-icon class="">close</mat-icon>Cancel
+                </button>
+                <button mat-raised-button class="bg-darkblue px-4 mx-1 text-white" (click)="assignhe();"
+                  *ngIf="pageflow != 'Display'">
+                  <mat-icon class="">done</mat-icon> Confirm
+                </button>
+                <button mat-raised-button (click)="pallet1()"
+                  class="whs-bg-grey text-white ml-1 px-4 d-inline">
+                  <i class="fas fa-pallet mr-2" ></i> No of Pallte
+                </button> 
+              </div>-->
+
+            <div class=" pb-1 w-100 d-flex justify-content-center fixed-bottom transparentBg">
+              <div class="py-2 mr-5 pr-5">
+              
+                <button mat-raised-button class="text-white mx-1 px-4" color="warn"
+                  routerLink="/main/outbound/cancellation">
+                  <mat-icon class="">close</mat-icon>Cancel
+                </button>
+               
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </mat-drawer-container>
+
+
+
+
+  <!--right pane
+      <div class="col-3 pl-1 pr-1 mt-1 ">
+        <div class="whs-rightpane bg-white shadow ">
+          
+        </div>
+      </div>
+    
+      -->
+</div>

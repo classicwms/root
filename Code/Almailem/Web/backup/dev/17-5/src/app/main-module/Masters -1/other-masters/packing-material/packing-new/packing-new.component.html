@@ -1,0 +1,130 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+<div class="card bg-white " style="overflow-x: hidden;">
+    <div mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle
+      class="d-flex justify-content-between align-items-center whs-bg-grey text-white p-2">
+      <h6 class="my-auto">Packing Material - New</h6>
+      <mat-icon class="text-white" mat-dialog-close>close</mat-icon>
+    </div>
+    <div class="mt-2 px-4">
+      <div class="row scroll p-1">
+        <div class="col-lg-6 col-md-6 mt-1">
+          <div class="d-flex flex-column">
+            <p class="mb-0 py-0 text-black">Packing Material Code</p>
+            <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                <input matInput placeholder="Enter" formControlName="packingMaterialNo">
+                <mat-error *ngIf="form.controls.packingMaterialNo.errors?.required" class="mt-1">Field Should not be blank</mat-error>
+              </mat-form-field>
+          </div>
+        </div>
+        <div class="col-lg-6 col-md-6 mt-1">
+          <p class="mb-0 py-0">Description</p>
+          <mat-form-field class="form-group input_field mb-0" appearance="outline">
+            <input matInput placeholder="Enter" formControlName="description">
+            <mat-error *ngIf="form.controls.description.errors?.required" class="mt-1">Field Should not be blank</mat-error>
+          </mat-form-field>
+
+        </div>
+        <div class="col-lg-6 col-md-6 mt-1">
+          <p class="mb-0 py-0">Partner Code</p>
+          <!-- <mat-form-field class="form-group input_field mb-0" appearance="outline">
+            <input matInput placeholder="Enter" formControlName="businessPartnerCode">
+          </mat-form-field> -->
+          <div class="form-group input_field mb-2" appearance="outline">
+            <!-- <ng-multiselect-dropdown  [placeholder]="'Select'" [settings]="dropdownSettings" 
+              [data]="multiSelectitemcodeList" [(ngModel)]="selectedItems1" (onSelect)="onItemSelect($event)"
+              (onSelectAll)="onSelectAll($event)" [ngModelOptions]="{standalone: true}">
+            </ng-multiselect-dropdown> -->
+              <angular2-multiselect [data]="multiSelectitemcodeList" [(ngModel)]="selectedItems1"
+                            [settings]="dropdownSettings" (onSelect)="onItemSelect($event)"
+                            (onDeSelect)="OnItemDeSelect($event)" (onSelectAll)="onSelectAll($event)"
+                            (onDeSelectAll)="onDeSelectAll($event)" formControlName="businessPartnerCode"></angular2-multiselect>
+          </div>
+        </div>
+        <div class="col-lg-6 col-md-6 mt-1">
+          <p class="mb-0 py-0">Total Stock</p>
+          <mat-form-field class="form-group input_field mb-0" appearance="outline">
+            <input matInput placeholder="AP-Editable" formControlName="totalStock">
+          </mat-form-field>
+        </div>
+        <div class="col-lg-6 col-md-6 mt-1">
+          <div class="d-flex flex-column">
+            <p class="mb-0 py-0">Length</p>
+            <mat-form-field class="form-group input_field mb-0" appearance="outline">
+              <input matInput placeholder="Enter" formControlName="length">
+            </mat-form-field>
+          </div>
+        </div>
+        <div class="col-lg-6 col-md-6 mt-1">
+            <div class="d-flex flex-column">
+              <p class="mb-0 py-0">Width </p>
+              <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                <input matInput placeholder="Enter" formControlName="width">
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="col-lg-6 col-md-6 mt-1">
+            <div class="d-flex flex-column">
+              <p class="mb-0 py-0">Weight</p>
+              <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                <input matInput placeholder="Enter" formControlName="referenceField1">
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="col-lg-6 col-md-6 mt-1">
+            <div class="d-flex flex-column">
+              <p class="mb-0 py-0">Dimension UOM </p>
+              <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                <mat-select class="form-group input_field mb-0"
+                  placeholder="Select" formControlName="dimensionUom">
+                  <mat-option>
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="col-lg-6 col-md-6 mt-1">
+            <div class="d-flex flex-column">
+              <p class="mb-0 py-0">Volume</p>
+              <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                <input matInput placeholder="AP-Editable" formControlName="volume">
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="col-lg-6 col-md-6 mt-1">
+            <div class="d-flex flex-column">
+              <p class="mb-0 py-0">Volume UOM</p>
+              <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                <mat-select class="form-group input_field mb-0"
+                  placeholder="Select" formControlName="volumeUom">
+                  <mat-option>
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="col-lg-6 col-md-6 mt-1">
+            <p class="mb-0 py-0">Status</p>
+            <mat-form-field class="form-group input_field mb-0" appearance="outline">
+              <mat-select value="1" class="form-group input_field mb-0"
+                placeholder="Select"  formControlName="statusId">
+                <mat-option value="1">01 - Active</mat-option>
+                <mat-option value="0">02 - Inactive</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+      
+      </div>
+      <div class="d-flex justify-content-center align-items-center py-2">
+        <button mat-raised-button color="warn" mat-dialog-close class="mx-1"> <i
+            class="bi bi-x me-1 font-size-1_5rem"></i>Cancel</button>
+        <button mat-raised-button class="mx-1 bg-darkblue px-4 text-white"> <i
+            class="bi bi-check2 mr-1 font-size-1_5rem"></i>
+          
+            {{data.pageflow =='Edit'? 'Update': 'Save'}}</button>
+      </div>
+    </div>
+
+
+  </div>
+</form>

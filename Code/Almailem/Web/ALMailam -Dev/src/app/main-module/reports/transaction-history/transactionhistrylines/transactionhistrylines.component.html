@@ -1,0 +1,124 @@
+<div class="card  border-0 bg-white " style="overflow: hidden;">
+    <div mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle
+      class="d-flex justify-content-between align-items-center header_colour text-white p-2">
+      <h6 class="my-auto">Stock Movement Report</h6>
+      <mat-icon class="text-white" mat-dialog-close>close</mat-icon>
+    </div>
+   
+    <div class="col-12 mainsection mt-1  border-top px-0 uatwhite" style="height: calc(100vh - 12rem);  ">
+      <div class="example-sidenav-content">
+        <div class="row " style="padding-right: 15px !important;">
+          <p-table #transferTag  [value]="transfer" 
+          styleClass="p-datatable-gridlines p-datatable-sm" [scrollable]="true" selectionMode="single"   [globalFilterFields]="['companyDescription', 'plantDescription', 'warehouseDescription', 'itemCode',  'referenceField8','manufacturerName','storageBin','referenceField10','barcodeId','inventoryQuantity','allocatedQuantity','total','stockTypeId1']"
+          scrollHeight="calc(100vh - 20.8rem)" sortField="lineNumber" [sortOrder]="-1" [paginator]="true" [rows]="100" [showCurrentPageReport]="true" [scrollable]="true" selectionMode="single"  scrollDirection="both"
+          
+             [resizableColumns]="true" style="width: 100%;margin-left: 10px;background-color:white" >
+          <ng-template pTemplate="header">
+            <tr>
+                <th style="width: 7rem;" pSortableColumn="companyDescription" pResizableColumn>Company<p-sortIcon field="companyDescription"></p-sortIcon></th> 
+                <th style="width: 7rem;" pSortableColumn="plantDescription" pResizableColumn>Branch<p-sortIcon field="plantDescription"></p-sortIcon></th> 
+                <th style="width: 7rem;" pSortableColumn="warehouseDescription" pResizableColumn>Warehouse<p-sortIcon field="warehouseDescription"></p-sortIcon></th> 
+                <th style="width: 7rem;" pSortableColumn="manufacturerName" pResizableColumn> MFR Name<p-sortIcon field="manufacturerName"></p-sortIcon></th> 
+                <th style="width: 7rem;" pSortableColumn="itemCode"   pResizableColumn>Part No<p-sortIcon field="itemCode"></p-sortIcon></th>
+                <th style="width: 7rem;" pSortableColumn="itemText" pResizableColumn> Description <p-sortIcon field="itemText"></p-sortIcon></th> 
+                <th style="width: 7rem;" pSortableColumn="documentType" pResizableColumn>Document Type<p-sortIcon field="documentType"></p-sortIcon></th> 
+                <th style="width: 7rem;" pSortableColumn="documentNumber" pResizableColumn>Document No<p-sortIcon field="documentNumber"></p-sortIcon></th> 
+                <th style="width: 7rem;" pSortableColumn="movementQty" pResizableColumn>Movement Qty<p-sortIcon field="movementQty"></p-sortIcon></th> 
+                <th style="width: 7rem;" pSortableColumn="openingStock" pResizableColumn>Opening Qty<p-sortIcon field="openingStock"></p-sortIcon></th> 
+              <th style="width: 7rem;" pSortableColumn="balanceOHQty" pResizableColumn>Balance OH Qty <p-sortIcon field="balanceOHQty"></p-sortIcon></th>
+              <th style="width: 7rem;" pSortableColumn="customerCode" pResizableColumn>Customer Code <p-sortIcon field="customerCode"></p-sortIcon></th>
+              <th style="width: 7rem;" pSortableColumn="confirmedOn" pResizableColumn>Date<p-sortIcon field="confirmedOn"></p-sortIcon></th>
+    
+              <th style="width: 7rem;" pSortableColumn="confirmedOn" pResizableColumn>Time<p-sortIcon field="confirmedOn"></p-sortIcon></th>
+             
+              </tr>
+               
+              <tr >
+                <th  style="width: 7rem;">
+                  <input pInputText  type="text" (input)="transferTag.filter($any($event.target)?.value, 'companyDescription', 'contains')" 
+                  [value]="$any(transferTag.filters['companyDescription'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                </th> 
+                <th  style="width: 7rem;">
+                  <input pInputText  type="text" (input)="transferTag.filter($any($event.target)?.value, 'plantDescription', 'contains')" 
+                  [value]="$any(transferTag.filters['plantDescription'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                </th> 
+                <th  style="width: 7rem;">
+                  <input pInputText  type="text" (input)="transferTag.filter($any($event.target)?.value, 'warehouseDescription', 'contains')" 
+                  [value]="$any(transferTag.filters['warehouseDescription'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                </th> 
+                <th style="width: 7rem;">
+                  <input pInputText  type="text" (input)="transferTag.filter($any($event.target)?.value, 'manufacturerName', 'contains')" 
+                  [value]="$any(transferTag.filters['manufacturerName'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                </th>
+                
+                  <th style="width: 7rem;">
+                  <input pInputText  type="text" (input)="transferTag.filter($any($event.target)?.value, 'itemCode', 'contains')" 
+                  [value]="$any(transferTag.filters['itemCode'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                </th> 
+              
+                <th style="width: 7rem;">
+                  <input pInputText  type="text" (input)="transferTag.filter($any($event.target)?.value, 'itemText', 'contains')" 
+                  [value]="$any(transferTag.filters['itemText'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                </th>
+                <th style="width: 7rem;">
+                  <input pInputText  type="text" (input)="transferTag.filter($any($event.target)?.value, 'documentType', 'contains')" 
+                  [value]="$any(transferTag.filters['documentType'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                </th>
+                <th style="width: 7rem;">
+                  <input pInputText  type="text" (input)="transferTag.filter($any($event.target)?.value, 'documentNumber', 'contains')" 
+                  [value]="$any(transferTag.filters['documentNumber'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                </th>
+                <th style="width: 7rem;">
+                  <input pInputText  type="text" (input)="transferTag.filter($any($event.target)?.value, 'movementQty', 'contains')" 
+                  [value]="$any(transferTag.filters['movementQty'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                </th>
+                <th style="width: 7rem;">
+                  <input pInputText  type="text" (input)="transferTag.filter($any($event.target)?.value, 'openingStock', 'contains')" 
+                  [value]="$any(transferTag.filters['openingStock'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                </th>
+                <th style="width: 7rem;">
+                  <input pInputText  type="text" (input)="transferTag.filter($any($event.target)?.value, 'balanceOHQty', 'contains')" 
+                  [value]="$any(transferTag.filters['balanceOHQty'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                </th>
+                <th style="width: 7rem;">
+                  <input pInputText  type="text" (input)="transferTag.filter($any($event.target)?.value, 'customerCode', 'contains')" 
+                  [value]="$any(transferTag.filters['customerCode'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                </th>
+                <th style="width: 7rem;">
+                  <input pInputText  type="text" (input)="transferTag.filter($any($event.target)?.value, 'confirmedOn', 'contains')" 
+                  [value]="$any(transferTag.filters['confirmedOn'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                </th>
+                <th style="width: 7rem;">
+                  <input pInputText  type="text" (input)="transferTag.filter($any($event.target)?.value, 'confirmedOn', 'contains')" 
+                  [value]="$any(transferTag.filters['confirmedOn'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                </th>
+                
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-transfer let-rowIndex="rowIndex">
+              <tr [pSelectableRow]="transfer" [pSelectableRowIndex]="rowIndex">
+                <td style="width: 7rem;">{{transfer.companyDescription}}</td>
+                <td style="width: 7rem;">{{transfer.plantDescription}}</td>
+                <td style="width: 7rem;">{{transfer.warehouseDescription}}</td>
+                <td style="width: 7rem;"> {{transfer.manufacturerSKU}}</td>
+                <td style="width: 7rem;">{{transfer.itemCode}}</td>
+                <td style="width: 7rem;">{{transfer.itemText}}</td>
+                <td style="width: 7rem;">{{transfer.documentType }}</td>
+                <td style="width: 7rem;">{{transfer.documentNumber }}</td>
+                <td style="width: 7rem;">{{transfer.movementQty }}</td>
+                <td style="width: 7rem;">{{transfer.openingStock | number}}</td>
+                <td style="width: 7rem;">{{transfer.balanceOHQty | number}}</td>
+                <td style="width: 7rem;">{{transfer.customerCode }}</td>
+                <td style="width: 7rem;">{{transfer.confirmedOn | date : 'dd-MM-yyyy' :'GMT'}}</td>
+                <td style="width: 7rem;">{{transfer.confirmedOn | date : ' HH:mm' :'GMT'}}</td>
+             
+              
+              </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+    </div>
+  
+  </div>
+

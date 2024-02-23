@@ -1,0 +1,453 @@
+<td mat-footer-cell *matFooterCellDef style="font-weight: bold; padding-left: 0.5rem;" class="text-left"></td>
+<div class="row mx-1 pl-2">
+  <div class="col-12">
+    <div class="row  text-secondary pr-0 mt-1">
+      <div class="col bg-white d-flex align-items-center mt-1 px-1 py-1 pathname">
+
+
+        <nav aria-label="breadcrumb" class="d-flex align-items-center">
+          <ol class="breadcrumb mb-0 bg-white">
+            <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto"><a routerLink="/main/dashboard">Home</a>
+            </li>
+            <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto"><a
+                routerLink="/main/reports/report-list">Reports</a></li>
+            <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">Order Management Report</li>
+          </ol>
+        </nav>
+
+
+        <div class="d-flex ml-auto my-auto">
+          <div [hidden]="isShowDiv"> <input matInput (input)="orderManagementTag.filterGlobal($any($event.target).value, 'contains')"
+              class="form-control filter_button mt-2 mt-2 mx-2 border-bottom" placeholder="Search" style="width:90%">
+          </div>
+          <div [ngClass]="showFloatingButtons == true ? 'floating-pane-active' : 'floating-pane-deactive'"
+            class="button-row d-flex align-items-center">
+            <!--
+                            <button mat-mini-fab *ngIf="showFloatingButtons == true" class="floating-buttons  d-flex align-items-center justify-content-center bg-pink text-white mx-2"
+                            matTooltip="Add">
+                            <mat-icon class="action-icon d-flex align-items-center justify-content-center">add_circle_outline</mat-icon>
+                          </button>
+                          -->
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class=" floating-buttons  d-flex align-items-center justify-content-center text-white   yellowaction"
+              matTooltip="Display">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">search</mat-icon>
+            </button>
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class="floating-buttons  d-flex align-items-center justify-content-center text-white  blueaction "
+              matTooltip="Edit">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">edit</mat-icon>
+            </button>
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class=" floating-buttons  d-flex align-items-center justify-content-center redaction text-white  align-middle"
+              matTooltip="Delete">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">delete</mat-icon>
+            </button>
+            <!-- 
+                            <button  mat-mini-fab *ngIf="showFloatingButtons == true"
+                          class="floating-buttons  d-flex align-items-center justify-content-center text-white  bg-success  " matTooltip="Info">
+                          <mat-icon class="action-icon d-flex align-items-center justify-content-center">info_outline</mat-icon>
+                        </button>
+                          -->
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class="floating-buttons  d-flex align-items-center justify-content-center text-white  darkblueaction "
+              matTooltip="Download" (click)="downloadexcel()">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">download</mat-icon>
+            </button>
+
+
+            <button mat-mini-fab (click)="toggleFloat()" class="mx-2 text-white action-button"
+              [ngClass]="{'bg-orange' : toggle, 'purple': !toggle}">
+              <mat-icon>{{icon}}</mat-icon>Options
+            </button>
+            <button mat-mini-fab
+              class=" floating-buttons1  d-flex align-items-center justify-content-center darkaction text-white mx-2 mr-3 align-middle"
+              matTooltip="New">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">add</mat-icon>
+            </button>
+            <button mat-mini-fab
+              class=" floating-buttons1  d-flex align-items-center justify-content-center greyaction text-white mx-2 mr-3 align-middle"
+              matTooltip="Save">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">save</mat-icon>
+            </button>
+            <button mat-mini-fab class="text-white mx-2 action-button  bg-red " type="button" mat-button>
+              <mat-icon class="">tune</mat-icon> Filter
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 mainsection mt-1  border-top px-0 uatwhite" style="height: calc(100vh - 12rem);  ">
+    <div class="d-flex align-items-center justify-content-between pb-2"
+      style="height: 3rem !important;background-color: #f5f5f5 !important;">
+      <div>
+        <h6 class="my-auto mb-0 mx-3 font-weight-bold whs-text-grey">Order Management Report</h6>
+      </div>
+      <div *ngIf="fullscreen">
+        <button mat-mini-fab (click)="togglesearch()"
+          class=" floating-buttons1  d-flex align-items-center justify-content-center roundedhover text-white mx-2 mr-3 align-middle"
+          matTooltip="Fullscreen">
+          <mat-icon class="action-icon whs-text-grey d-flex align-items-center justify-content-center my-auto">launch
+          </mat-icon>
+        </button>
+      </div>
+      <div *ngIf="back">
+        <button mat-mini-fab (click)="backsearch()"
+          class=" floating-buttons1  d-flex align-items-center justify-content-center roundedhover text-white mx-2 mr-3 align-middle"
+          matTooltip="Back">
+          <mat-icon class="action-icon whs-text-grey d-flex align-items-center justify-content-center my-auto">
+            arrow_back</mat-icon>
+        </button>
+      </div>
+    </div>
+    <div class="mt-3 mb-0 " *ngIf="search">
+      <form [formGroup]="searhform">
+      <div class="row  px-3">
+        <div class="col-lg-3 col-md-4">
+          <div class="d-flex flex-column">
+            <p class="mb-0 py-0 required">Company</p>
+            <mat-form-field class="form-group input_field mb-0" appearance="outline">
+              <input matInput placeholder="Enter" [disabled]="true" [value]="this.auth.companyIdAndDescription">
+            </mat-form-field>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-4">
+          <div class="d-flex flex-column">
+            <p class="mb-0 py-0 required">Branch</p>
+            <mat-form-field class="form-group input_field mb-0" appearance="outline">
+              <input matInput placeholder="Enter" [disabled]="true" [value]="this.auth.plantIdAndDescription">
+            </mat-form-field>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <p class="mb-0 py-0 required">Warehouse </p>
+          <mat-form-field class="form-group input_field mb-0" appearance="outline">
+            <input matInput placeholder="Enter" [disabled]="true" [value]="this.auth.warehouseIdAndDescription">
+          </mat-form-field>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="form-group mb-0">
+              <label for="inputEmail4" class="mb-0">Order No</label>
+              <!-- <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                <input matInput placeholder="Enter" [(ngModel)]="confirmedStorageBin"
+                  [ngModelOptions]="{standalone: true}">
+              </mat-form-field> -->
+              <p-multiSelect placeholder="Select" [filter]="true" class="w-100" [options]="multirefdocList"
+              [resetFilterOnHide]="true" 
+              formControlName="refDocNumber" name="product" [style]="{'width': '100%'}" [panelStyle]="{'width':'20%'}"
+                    >
+            </p-multiSelect>
+            </div>
+          </div>
+        
+        <div class="col-lg-3 col-md-6">
+          <div class="form-group mb-0">
+            <label for="inputEmail4" class="mb-0">Part No</label>
+            <!-- <mat-form-field class="form-group input_field mb-0" appearance="outline">
+              <input matInput placeholder="Enter" [(ngModel)]="itemCode" [ngModelOptions]="{standalone: true}">
+            </mat-form-field> -->
+            <p-dropdown placeholder="Select" [filter]="true" class="w-100" [options]="multiselectItemCodeList"
+            [resetFilterOnHide]="true"  
+              formControlName="itemCodeFE" name="product" [style]="{'width': '100%'}" [panelStyle]="{'width':'20%'}"
+                (onFilter)="onItemType($event)"  >
+          </p-dropdown>
+          </div>
+        </div>
+       
+      
+       
+        
+
+        <div class="col-lg-3 col-md-6">
+          <div class="form-group mb-0">
+            <label for="inputEmail4" class="mb-0">Status</label>
+            <!-- <mat-form-field class="form-group input_field mb-0" appearance="outline">
+              <input matInput placeholder="Enter" [(ngModel)]="refDocNumber" [ngModelOptions]="{standalone: true}">
+            </mat-form-field> -->
+            <p-multiSelect placeholder="Select" class="w-100" [options]="multistatusList" formControlName="statusId"
+              [style]="{'width': '100%'}" [panelStyle]="{'width':'20%'}">
+            </p-multiSelect>
+          </div>
+        </div>
+      
+
+     
+      
+
+      </div>
+    </form>
+      <div class="d-flex justify-content-end align-items-center pr-3">
+        <button mat-raised-button color="warn" class="text-white mb-2 mx-1" (click)="reset();">
+          <mat-icon class="">restart_alt</mat-icon> Reset
+        </button>
+        
+        <button mat-raised-button class=" bg-darkblue text-white mb-2" (click)="filtersearch()"> <i
+            class="bi bi-gear-fill me-1 font-size-1_5rem pr-2"></i>Execute</button>
+      </div>
+    </div>
+    <div class="example-sidenav-content">
+        <div class="row " style="padding-right: 15px !important;">
+          <p-table #orderManagementTag [value]="orderManagement" styleClass="p-datatable-gridlines p-datatable-sm" [scrollable]="true"
+            selectionMode="single"
+            [globalFilterFields]="['statusId', 'itemCode', 'proposedStorageBin', 'confirmedStorageBin',  'barcodeId','putAwayQuantity','putawayConfirmedQty','confirmedBy','confirmedOn']"
+            scrollHeight="calc(100vh - 14.8rem)" sortField="stagingNo" [sortOrder]="-1" [paginator]="true" [rows]="100"
+            [showCurrentPageReport]="true" [scrollable]="true" selectionMode="single" scrollDirection="both"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [resizableColumns]="true"
+            style="width: 100%;margin-left: 10px;background-color:white">
+            <ng-template pTemplate="header">
+                <tr>
+                  
+                   
+                    <th style="width: 6rem;" pSortableColumn="plantDescription"   pResizableColumn>Branch<p-sortIcon field="plantDescription"></p-sortIcon></th>
+                    <th style="width: 6rem;" pSortableColumn="warehouseDescription"   pResizableColumn>Warehouse<p-sortIcon field="warehouseDescription"></p-sortIcon></th>
+                    <th style="width: 6rem;" pSortableColumn="targetBranchCode" pResizableColumn>Target Branch<p-sortIcon field="targetBranchCode"></p-sortIcon>
+      
+                    </th>
+                    <th style="width: 6rem;" pSortableColumn="tokenNumber" pResizableColumn>Token Number<p-sortIcon field="tokenNumber"></p-sortIcon>
+      
+                    </th>
+                    <th style="width: 6rem;" pSortableColumn="salesOrderNumber"   pResizableColumn>Sales Order No<p-sortIcon field="salesOrderNumber"></p-sortIcon>
+               
+                    </th>
+                    <th style="width: 6rem" pSortableColumn="statusDescription" pResizableColumn>Status <p-sortIcon field="statusDescription"></p-sortIcon>
+                   
+                    </th>
+                    <th style="width: 6rem" pSortableColumn="refDocNumber" pResizableColumn> Order No<p-sortIcon field="refDocNumber"></p-sortIcon>
+                     
+                    </th>
+                 
+                    <th style="width: 8rem;" pSortableColumn="referenceDocumentType"   pResizableColumn>Order Type<p-sortIcon field="referenceDocumentType"></p-sortIcon>
+               
+                    </th>
+                    <th style="width: 6rem;" pSortableColumn="lineNumber"   pResizableColumn>Line No<p-sortIcon field="lineNumber"></p-sortIcon>
+               
+                    </th>
+                    <th style="width: 6rem;" pSortableColumn="manufacturerName" pResizableColumn>Mfr Name<p-sortIcon field="manufacturerName"></p-sortIcon>
+      
+                    </th>
+                    <th style="width: 6rem;" pSortableColumn="itemCode" pResizableColumn>Part No<p-sortIcon field="itemCode"></p-sortIcon>
+      
+                    </th>
+                   
+                   
+                   
+      
+      
+                    <th style="width: 6rem;" pSortableColumn="orderQty" pResizableColumn>Order Qty<p-sortIcon
+                        field="orderQty"></p-sortIcon>
+      
+                    </th>
+                    <th style="width: 6rem;" pSortableColumn="inventoryQty" pResizableColumn>Inventory Qty<p-sortIcon
+                      field="inventoryQty"></p-sortIcon>
+                      <th style="width: 6rem;" pSortableColumn="allocatedQty" pResizableColumn>Allocated Qty<p-sortIcon
+                        field="allocatedQty"></p-sortIcon>
+      
+                  </th>
+          
+                    
+                    <th style="width: 6rem;" pSortableColumn="partnerItemBarcode" pResizableColumn>Barcode Id<p-sortIcon
+                        field="partnerItemBarcode"></p-sortIcon>
+      
+                    </th>
+                    <th style="width: 8rem;" pSortableColumn="proposedStorageBin" pResizableColumn>Bin Location<p-sortIcon
+                        field="proposedStorageBin"></p-sortIcon>
+      
+                    </th>
+                     
+                    <th style="width: 15rem;" pSortableColumn="description" pResizableColumn>
+                      Description<p-sortIcon field="description"></p-sortIcon>
+      
+                    </th>
+                    <th style="width: 8rem;" pSortableColumn="preOutboundNo" pResizableColumn>Preoutbound No<p-sortIcon field="preOutboundNo"></p-sortIcon>
+      
+                    </th>
+                    <th style="width: 8rem;" pSortableColumn="levelId" pResizableColumn> Level<p-sortIcon field="levelId"></p-sortIcon>
+      
+                    </th>
+                    <!-- <th style="width: 10rem;" pResizableColumn>Approval Process
+                     
+                    </th>
+                    <th style="width: 8rem;" pResizableColumn>Approver Code
+                     
+                    </th>
+                    <th style="width: 10rem;" pResizableColumn>Approver Name
+                     
+                    </th>-->
+      
+      
+                  </tr>
+      
+                  <tr>
+                
+                   
+                    <th style="width: 6rem">
+                      <input pInputText  type="text" (input)="orderManagementTag.filter($any($event.target)?.value, '[plantDescription]', 'contains')" 
+                      [value]="$any(orderManagementTag.filters['plantDescription'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                    </th>
+                    <th style="width: 6rem">
+                      <input pInputText type="text"
+                        (input)="orderManagementTag.filter($any($event.target)?.value, 'warehouseDescription', 'contains')"
+                        [value]="$any(orderManagementTag.filters['warehouseDescription'])?.value" placeholder="Search"
+                        class=" w-100 p-column-filter">
+                    </th>
+                    <th style="width: 6rem;">
+                      <input pInputText type="text"
+                        (input)="orderManagementTag.filter($any($event.target)?.value, 'targetBranchCode', 'contains')"
+                        [value]="$any(orderManagementTag.filters['targetBranchCode'])?.value" placeholder="Search "
+                        class=" w-100 p-column-filter">
+                      <!-- <p-columnFilter type="text" placeholder="Search" field="createdBy"></p-columnFilter>-->
+                    </th>
+                    <th style="width: 6rem;">
+                      <input pInputText type="text"
+                        (input)="orderManagementTag.filter($any($event.target)?.value, 'tokenNumber', 'contains')"
+                        [value]="$any(orderManagementTag.filters['tokenNumber'])?.value" placeholder="Search "
+                        class=" w-100 p-column-filter">
+                      <!-- <p-columnFilter type="text" placeholder="Search" field="createdBy"></p-columnFilter>-->
+                    </th>
+                    <th style="width: 6rem">
+                      <input pInputText type="text"
+                        (input)="orderManagementTag.filter($any($event.target)?.value, 'salesOrderNumber', 'contains')"
+                        [value]="$any(orderManagementTag.filters['salesOrderNumber'])?.value" placeholder="Search "
+                        class=" w-100 p-column-filter">
+                      <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                    </th>
+                    <th style="width: 6rem">
+                      <input pInputText type="text"
+                        (input)="orderManagementTag.filter($any($event.target)?.value, 'statusDescription', 'contains')"
+                        [value]="$any(orderManagementTag.filters['statusDescription'])?.value" placeholder="Search "
+                        class=" w-100 p-column-filter">
+                      <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                    </th>
+                    <th style="width: 6rem">
+                      <input pInputText type="text"
+                        (input)="orderManagementTag.filter($any($event.target)?.value, 'refDocNumber', 'contains')"
+                        [value]="$any(orderManagementTag.filters['refDocNumber'])?.value" placeholder="Search "
+                        class=" w-100 p-column-filter">
+                      <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                    </th>
+      
+                    <th style="width: 8rem">
+                      <input pInputText type="text"
+                        (input)="orderManagementTag.filter($any($event.target)?.value, 'referenceDocumentType', 'contains')"
+                        [value]="$any(orderManagementTag.filters['referenceDocumentType'])?.value" placeholder="Search "
+                        class=" w-100 p-column-filter">
+                      <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                    </th>
+                    <th style="width: 6rem">
+                      <input pInputText type="text"
+                        (input)="orderManagementTag.filter($any($event.target)?.value, 'lineNumber', 'contains')"
+                        [value]="$any(orderManagementTag.filters['lineNumber'])?.value" placeholder="Search "
+                        class=" w-100 p-column-filter">
+                      <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                    </th>
+                    <th style="width: 6rem">
+                      <input pInputText type="text"
+                        (input)="orderManagementTag.filter($any($event.target)?.value, 'manufacturerName', 'contains')"
+                        [value]="$any(orderManagementTag.filters['manufacturerName'])?.value" placeholder="Search "
+                        class=" w-100 p-column-filter">
+                      <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                    </th>
+                    <th style="width: 6rem">
+                      <input pInputText type="text"
+                        (input)="orderManagementTag.filter($any($event.target)?.value, 'itemCode', 'contains')"
+                        [value]="$any(orderManagementTag.filters['itemCode'])?.value" placeholder="Search "
+                        class=" w-100 p-column-filter">
+                      <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                    </th>
+                   
+                    <th style="width: 6rem;">
+                      <input pInputText type="text"
+                        (input)="orderManagementTag.filter($any($event.target)?.value, 'orderQty', 'contains')"
+                        [value]="$any(orderManagementTag.filters['orderQty'])?.value" placeholder="Search "
+                        class=" w-100 p-column-filter">
+                      <!--<p-columnFilter type="text" placeholder="Search" field="approvalLevel"></p-columnFilter>-->
+                    </th>
+                    <th style="width: 6rem;">
+                      <input pInputText type="text"
+                        (input)="orderManagementTag.filter($any($event.target)?.value, 'inventoryQty', 'contains')"
+                        [value]="$any(orderManagementTag.filters['inventoryQty'])?.value" placeholder="Search "
+                        class=" w-100 p-column-filter">
+                      <!-- <p-columnFilter type="text" placeholder="Search" field="createdBy"></p-columnFilter>-->
+                    </th>
+                    <th style="width: 6rem;">
+                      <input pInputText type="text"
+                        (input)="orderManagementTag.filter($any($event.target)?.value, 'allocatedQty', 'contains')"
+                        [value]="$any(orderManagementTag.filters['allocatedQty'])?.value" placeholder="Search "
+                        class=" w-100 p-column-filter">
+                      <!-- <p-columnFilter type="text" placeholder="Search" field="createdBy"></p-columnFilter>-->
+                    </th>
+      
+                    <th style="width: 6rem;">
+                      <input pInputText type="text"
+                        (input)="orderManagementTag.filter($any($event.target)?.value, 'partnerItemBarcode', 'contains')"
+                        [value]="$any(orderManagementTag.filters['partnerItemBarcode'])?.value" placeholder="Search "
+                        class=" w-100 p-column-filter">
+                      <!-- <p-columnFilter type="text" placeholder="Search" field="createdBy"></p-columnFilter>-->
+                    </th>
+                    <th style="width: 8rem;">
+                      <input pInputText type="text"
+                        (input)="orderManagementTag.filter($any($event.target)?.value, 'proposedStorageBin', 'contains')"
+                        [value]="$any(orderManagementTag.filters['proposedStorageBin'])?.value" placeholder="Search"
+                        class=" w-100 p-column-filter">
+                      <!-- <p-columnFilter type="text" placeholder="Search" field="createdOn"></p-columnFilter>-->
+                    </th>
+                    <th style="width: 15rem;">
+                      <input pInputText type="text"
+                        (input)="orderManagementTag.filter($any($event.target)?.value, 'description', 'contains')"
+                        [value]="$any(orderManagementTag.filters['description'])?.value" placeholder="Search"
+                        class=" w-100 p-column-filter">
+                      <!-- <p-columnFilter type="text" placeholder="Search" field="createdOn"></p-columnFilter>-->
+                    </th>
+                   
+                    <th style="width: 8rem;">
+                      <input pInputText type="text"
+                        (input)="orderManagementTag.filter($any($event.target)?.value, 'preOutboundNo', 'contains')"
+                        [value]="$any(orderManagementTag.filters['preOutboundNo'])?.value" placeholder="Search "
+                        class=" w-100 p-column-filter">
+                      <!-- <p-columnFilter type="text" placeholder="Search" field="createdBy"></p-columnFilter>-->
+                    </th>
+                    <th style="width: 8rem;">
+                      <input pInputText type="text"
+                        (input)="orderManagementTag.filter($any($event.target)?.value, 'levelId', 'contains')"
+                        [value]="$any(orderManagementTag.filters['levelId'])?.value" placeholder="Search "
+                        class=" w-100 p-column-filter">
+                      <!-- <p-columnFilter type="text" placeholder="Search" field="createdBy"></p-columnFilter>-->
+                    </th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-orderManagement let-rowIndex="rowIndex">
+                  <tr>
+    
+                    <td style="width: 6rem">{{orderManagement.plantDescription}}</td>
+                    <td style="width: 6rem">{{orderManagement.warehouseDescription}}</td>
+                    <td style="width: 6rem;">{{orderManagement.targetBranchCode }}</td>
+                    <td style="width: 6rem;">{{orderManagement.tokenNumber }}</td>
+                    <td style="width: 6rem">{{orderManagement.salesOrderNumber}}</td>
+                    <td style="width: 6rem"> {{orderManagement.statusDescription}}</td>
+                    <td style="width: 6rem">{{orderManagement.refDocNumber}}</td>
+                    <td style="width: 8rem">{{orderManagement.referenceDocumentType}}</td>
+                    <td style="width: 6rem">{{orderManagement.lineNumber}}</td>
+                    <td style="width: 6rem">{{orderManagement.manufacturerName}}</td>
+                    <td style="width: 6rem">{{orderManagement.itemCode}}</td>
+                    <td style="width: 6rem;">{{orderManagement.orderQty }}</td>
+                    <td style="width: 6rem;">{{orderManagement.inventoryQty }}</td>
+                    <td style="width: 6rem;">{{orderManagement.allocatedQty }}</td>
+                    <td style="width: 6rem;">{{orderManagement.partnerItemBarcode }}</td>
+                    <td style="width: 8rem;">{{orderManagement.proposedStorageBin }}</td>
+                    <td style="width: 15rem;">{{orderManagement.description }}</td>
+                    <td style="width: 8rem;">{{orderManagement.preOutboundNo }}</td>
+                    <td style="width: 8rem;">{{orderManagement.levelId }}</td>
+      
+                  </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+  </div>
+
+</div>
+
+
+

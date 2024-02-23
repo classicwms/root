@@ -1,0 +1,330 @@
+<div class="row mx-1 pl-2">
+  <div class="col-12">
+    <!--inner header-->
+
+    <div class="row  text-secondary pr-0 mt-1">
+      <div class="col bg-white d-flex align-items-center mt-1 px-1 py-1 pathname">
+
+
+        <nav aria-label="breadcrumb" class="d-flex align-items-center">
+          <ol class="breadcrumb mb-0 bg-white">
+            <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">Home</li>
+            <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto"><a
+                routerLink="/main/inbound/container-receipt">Inbound</a></li>
+            <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto"><a
+                routerLink="/main/inbound/inbound-confirm">Confirm</a></li>
+          </ol>
+        </nav>
+        <div class="d-flex ml-auto my-auto">
+          <div [hidden]="isShowDiv"> <input  matInput
+              class="form-control filter_button mt-2 mx-2 border-bottom" placeholder="Search" style="width:90%">
+          </div>
+          <div [ngClass]="showFloatingButtons == true ? 'floating-pane-active' : 'floating-pane-deactive'"
+            class="button-row d-flex align-items-center">
+            <!--
+=======
+          
+          
+            <div class="d-flex ml-auto my-auto">
+              <div [hidden]="isShowDiv"> <input (keyup)="applyFilter($event)" matInput  class="form-control filter_button mt-2 mt-2 mx-2 border-bottom"
+                placeholder="Search" style="width:90%">
+            </div>
+                <div [ngClass]="showFloatingButtons == true ? 'floating-pane-active' : 'floating-pane-deactive'" class="button-row d-flex align-items-center">
+                   
+>>>>>>> b1f87b75fb353e03fe4ee63106f6c3f1441a23db
+                      <button mat-mini-fab *ngIf="showFloatingButtons == true" class="floating-buttons  d-flex align-items-center justify-content-center bg-pink text-white mx-2"
+                      matTooltip="Add">
+                      <mat-icon class="action-icon d-flex align-items-center justify-content-center">add_circle_outline</mat-icon>
+                    </button>
+                    -->
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class=" floating-buttons  d-flex align-items-center justify-content-center text-white   yellowaction"
+              matTooltip="Display">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">search</mat-icon>
+            </button>
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class="floating-buttons  d-flex align-items-center justify-content-center text-white  blueaction "
+              matTooltip="Edit">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">edit</mat-icon>
+            </button>
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class=" floating-buttons  d-flex align-items-center justify-content-center redaction text-white  align-middle"
+              matTooltip="Delete">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">delete</mat-icon>
+            </button>
+            <!-- 
+                      <button  mat-mini-fab *ngIf="showFloatingButtons == true"
+                    class="floating-buttons  d-flex align-items-center justify-content-center text-white  bg-success  " matTooltip="Info">
+                    <mat-icon class="action-icon d-flex align-items-center justify-content-center">info_outline</mat-icon>
+                  </button>
+                    -->
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class="floating-buttons  d-flex align-items-center justify-content-center text-white  darkblueaction "
+              matTooltip="Download" (click)="downloadexcel();">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">download</mat-icon>
+            </button>
+
+
+            <button mat-mini-fab (click)="toggleFloat()" class="mx-2 text-white action-button"
+              [ngClass]="{'bg-orange' : toggle, 'purple': !toggle}">
+              <mat-icon>{{icon}}</mat-icon>Options
+            </button>
+            <button mat-mini-fab disabled
+              class=" floating-buttons1 disabled d-flex align-items-center justify-content-center darkaction text-white mx-2 mr-3 align-middle"
+              matTooltip="New">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">add</mat-icon>
+            </button>
+            <button mat-mini-fab
+              class=" floating-buttons1  d-flex align-items-center justify-content-center greyaction text-white mx-2 mr-3 align-middle"
+              matTooltip="Save">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">save</mat-icon>
+            </button>
+            <button mat-mini-fab disabled class="text-white mx-2 action-button  bg-red disabled" type="button"
+              mat-button>
+              <mat-icon class="">tune</mat-icon> Filter
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <!--main-section-tabbar
+      <app-main-section-tabbar>
+      </app-main-section-tabbar>  -->
+    <!--main section-->
+    <div class="row pr-1 mt-1">
+      <div class="tabbar1 uatwhite px-0 uatwhite my-auto col d-flex align-items-center">
+        <h5 class="my-auto mb-0 mx-4 font-weight-bold whs-text-grey">Order No - {{code.refDocNumber}}</h5>
+      </div>
+    </div>
+    <div class="row mt-2">
+      <p-table #inboundTag  [value]="inbound"
+      styleClass="p-datatable-gridlines p-datatable-sm" [scrollable]="true" selectionMode="single" 
+      scrollHeight="calc(100vh - 20.8rem)" sortField="lineNo" [sortOrder]="-1" [paginator]="true" [rows]="100" [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      [rowsPerPageOptions]="[100, 150, 200, 250]" [resizableColumns]="true" style="width: 100%;margin-left: 10px;background-color:white" >
+      <ng-template pTemplate="header">
+        <tr>
+          <th  pSortableColumn="statusId"   pResizableColumn>Status<p-sortIcon field="statusId"></p-sortIcon></th>
+            <th  pSortableColumn="lineNo"   pResizableColumn>Line No<p-sortIcon field="lineNo"></p-sortIcon></th>
+            <th  pSortableColumn="refDocNumber"   pResizableColumn>Invoice No<p-sortIcon field="refDocNumber"></p-sortIcon></th>
+            <th  pSortableColumn="itemCode"  pResizableColumn>Product Code <p-sortIcon field="itemCode"></p-sortIcon></th> 
+          <th  pSortableColumn="description"  pResizableColumn>Description<p-sortIcon field="description"></p-sortIcon></th> 
+          <th  pSortableColumn="manufacturerPartNo"  pResizableColumn>Mfr Part No<p-sortIcon field="manufacturerPartNo"></p-sortIcon></th> 
+          <th  pSortableColumn="orderQty"  pResizableColumn>Expected Qty<p-sortIcon field="orderQty"></p-sortIcon></th> 
+          <th  pSortableColumn="acceptedQty"  pResizableColumn> Accepted Qty<p-sortIcon field="acceptedQty"></p-sortIcon></th> 
+          <th  pSortableColumn="damageQty"  pResizableColumn>Damaged Qty<p-sortIcon field="damageQty"></p-sortIcon></th> 
+          <th  pSortableColumn="varianceQty"  pResizableColumn>Variance<p-sortIcon field="varianceQty"></p-sortIcon></th> 
+          <th  pSortableColumn="cases"  pResizableColumn>Cases<p-sortIcon field="cases"></p-sortIcon></th> 
+          <th  pSortableColumn="putaway"  pResizableColumn>Putaway Details<p-sortIcon field="putaway"></p-sortIcon></th> 
+          <th  pSortableColumn="qtyreceived"  pResizableColumn>% of Quantity<p-sortIcon field="qtyreceived"></p-sortIcon></th> 
+        </tr>
+         
+        <tr >
+          <th >
+            <input pInputText  type="text" (input)="inboundTag.filter($any($event.target)?.value, 'statusId', 'contains')" 
+            [value]="$any(inboundTag.filters['statusId'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+          </th>
+  
+        <th >
+          <input pInputText  type="text" (input)="inboundTag.filter($any($event.target)?.value, 'lineNo', 'contains')" 
+          [value]="$any(inboundTag.filters['lineNo'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+        </th>
+        <th>
+            <input pInputText  type="text" (input)="inboundTag.filter($any($event.target)?.value, 'refDocNumber', 'contains')" 
+            [value]="$any(inboundTag.filters['refDocNumber'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+          </th> 
+          <th >
+            <input pInputText  type="text" (input)="inboundTag.filter($any($event.target)?.value, 'itemCode', 'contains')" 
+            [value]="$any(inboundTag.filters['itemCode'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+          </th>
+            <th >
+              <input pInputText  type="text" (input)="inboundTag.filter($any($event.target)?.value, 'description', 'contains')" 
+              [value]="$any(inboundTag.filters['description'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+            </th>
+            <th >
+            <input pInputText  type="text" (input)="inboundTag.filter($any($event.target)?.value, 'manufacturerPartNo', 'contains')" 
+            [value]="$any(inboundTag.filters['manufacturerPartNo'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+          </th> 
+          <th>
+            <input pInputText  type="text" (input)="inboundTag.filter($any($event.target)?.value, 'orderQty', 'contains')" 
+            [value]="$any(inboundTag.filters['orderQty'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+          </th>
+          <th >
+            <input pInputText  type="text" (input)="inboundTag.filter($any($event.target)?.value, 'acceptedQty', 'contains')" 
+            [value]="$any(inboundTag.filters['acceptedQty'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+          </th>
+          <th >
+            <input pInputText  type="text" (input)="inboundTag.filter($any($event.target)?.value, 'damageQty', 'contains')" 
+            [value]="$any(inboundTag.filters['damageQty'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+          </th>
+          <th >
+            <input pInputText  type="text" (input)="inboundTag.filter($any($event.target)?.value, 'varianceQty', 'contains')" 
+            [value]="$any(inboundTag.filters['varianceQty'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+          </th>
+          <th >
+            <input pInputText  type="text" (input)="inboundTag.filter($any($event.target)?.value, 'cases', 'contains')" 
+            [value]="$any(inboundTag.filters['cases'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+          </th>
+          <th >
+            <input pInputText  type="text" (input)="inboundTag.filter($any($event.target)?.value, 'putaway', 'contains')" 
+            [value]="$any(inboundTag.filters['putaway'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+          </th>
+          <th >
+            <input pInputText  type="text" (input)="inboundTag.filter($any($event.target)?.value, 'qtyreceived', 'contains')" 
+            [value]="$any(inboundTag.filters['qtyreceived'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-inbound let-rowIndex="rowIndex">
+        <tr>
+            <td >{{inbound.statusId}}</td>
+          <td >{{inbound.lineNo}}</td>
+          <td >{{inbound.refDocNumber}}</td>
+          <td>{{inbound.itemCode}}</td>
+          <td >{{inbound.description}}</td>
+          <td >{{inbound.manufacturerPartNo}}</td>
+          <td >{{inbound.orderQty}}</td>
+          <td >{{inbound.acceptedQty}}</td>
+          <td >{{inbound.damageQty}}</td>
+          <td >{{inbound.varianceQty}}</td>
+          <td >{{inbound.cases}}</td>
+          <td >{{inbound.putaway}}</td>
+          <td >{{inbound.qtyreceived}}</td>
+         
+        </tr>
+      </ng-template>
+    </p-table>
+</div>
+  </div>
+  <div class=" pb-1 w-100 d-flex justify-content-center fixed-bottom">
+    <div class=" py-2" style="padding-right: 13%;">
+      <button mat-raised-button class="text-white mx-1 px-4" color="warn" routerLink="/main/inbound/inbound-confirm">
+        <mat-icon class="">close</mat-icon>Cancel
+      </button>
+      <button mat-raised-button class="bg-orange px-3 text-white mx-1" (click)="confirm()"
+        *ngIf="pageflow != 'Display'">
+        <mat-icon class="">done</mat-icon> Confirm
+      </button>
+    </div>
+  <!--right pane-->
+  <div class="col-3 pl-1 pr-1 mt-1 d-none">
+    <div class="whs-rightpane bg-white shadow">
+      <div class="text-dark p-2 bg-white">
+        <div class="">
+          <div class="d-flex justify-content-start my-1">
+            <label for="" class="mr-5 mt-1">Variant</label>
+            <label for="" class=" mt-1 ml-4 pl-3">Company Tab</label>
+          </div>
+          <hr class="my-0">
+          <div class="row mt-1">
+            <div class="col-6 pr-1">
+              <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">Warehouse No</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+                  <input matInput placeholder="Enter">
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="col-6 pl-1">
+              <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">ASN No</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+
+                  <mat-select placeholder="select">
+                    <mat-option value="option">Option</mat-option>
+                    <mat-option value="option2">Option2</mat-option>
+                    <mat-option value="option3">Option3</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="col-6 pr-1">
+              <div class="form-group mb-1">
+                <label for="inputEmail4" class="mb-0"> Pre Inbound No</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+
+                  <mat-select placeholder="select">
+                    <mat-option value="option">Option</mat-option>
+                    <mat-option value="option2">Option2</mat-option>
+                    <mat-option value="option3">Option3</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="col-6 pl-1">
+              <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">Ref Doc DATE</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+                  <input matInput placeholder="Enter">
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="col-6 pr-1">
+              <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">GR Number</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+
+                  <mat-select class="mb-0" placeholder="Select">
+                    <mat-option value="option">Option</mat-option>
+                    <mat-option value="option2">Option2</mat-option>
+                    <mat-option value="option3">Option3</mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+              </div>
+            </div>
+            <div class="col-6 pl-1">
+              <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">Status</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+
+                  <mat-select class="mb-0" placeholder="Select">
+                    <mat-option value="option">Option</mat-option>
+                    <mat-option value="option2">Option2</mat-option>
+                    <mat-option value="option3">Option3</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-center my-1">
+          <button mat-raised-button class="text-white mr-1" color="warn">
+            <mat-icon class="">close</mat-icon> Cancel
+          </button>
+          <button mat-raised-button class="bg-darkblue  text-white mx-1">
+            <mat-icon class="">search</mat-icon> Search
+          </button>
+        </div>
+      </div>
+      <div class="row  no-gutters">
+        <div class="col-6 pl-0 d-none">
+          <div class="whs-rightpane-box border d-flex flex-column align-items-center justify-content-center">
+            <i class="far fa-arrow-alt-circle-down fa-2x"></i>
+            <p class="mb-0 mt-1">Storage Setup</p>
+          </div>
+        </div>
+        <div class="col-6 pl-0  d-none">
+          <div class="whs-rightpane-box border d-flex flex-column align-items-center justify-content-center">
+            <i class="far fa-arrow-alt-circle-down fa-2x"></i>
+            <p class="mb-0 mt-1">Item Setup</p>
+          </div>
+        </div>
+        <div class="col-6 pl-0 d-none">
+          <div class="whs-rightpane-box border d-flex flex-column align-items-center justify-content-center">
+            <i class="far fa-arrow-alt-circle-down fa-2x"></i>
+            <p class="mb-0 mt-1">Storage Setup</p>
+          </div>
+        </div>
+        <div class="col-6 pl-0 d-none">
+          <div class="whs-rightpane-box border d-flex flex-column align-items-center justify-content-center">
+            <i class="far fa-arrow-alt-circle-down fa-2x"></i>
+            <p class="mb-0 mt-1">Item Setup</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

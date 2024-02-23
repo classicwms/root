@@ -1,0 +1,179 @@
+<div class="card bg-white " style="overflow-x: hidden;">
+    <div mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle
+      class="d-flex justify-content-between align-items-center whs-bg-grey text-white p-2">
+      <h6 class="my-auto"> Molding New </h6>
+      <mat-icon class="text-white" mat-dialog-close>close</mat-icon>
+    </div>
+  
+    <mat-accordion>
+      <mat-expansion-panel #panel1 [expanded]="step === 0" (opened)="setStep(0)" hideToggle>
+        <mat-expansion-panel-header class="border-bottom padding-space border-top uatwhite">
+          <mat-panel-title class="d-flex justify-content-between collapsefont align-items-center">
+            <div> <img src="./assets/img/icons/header.png" class="header_icon mr-2" alt="" srcset="">Process</div>
+            <mat-icon class="collapsefont text-secondary">{{panel1.expanded? 'remove' : 'add'}}</mat-icon>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="row  p-1">
+            <div class="col-6">
+                <h5 class=" fw-bold py-0">Plan </h5>
+            </div>
+            <div class="col-6">
+                <h5 class=" fw-bold py-0">Actual</h5>
+            </div>
+          <div class="col-lg-6 col-md-6 mt-1">
+            <p class="mb-0 py-0">Input Qty </p>
+            <mat-form-field class="form-group input_field mb-0" appearance="outline">
+              <input matInput [ngModel]="inputQty" placeholder="Enter" [value]="1" [disabled]="true">
+            </mat-form-field>
+          </div>
+          <div class="col-lg-6 col-md-6 mt-1">
+            <p class="mb-0 py-0">Confirmed Qty</p>
+            <mat-form-field class="form-group input_field mb-0" appearance="outline">
+              <input matInput [ngModel]="confirmedQty" placeholder="Enter">
+            </mat-form-field>
+          </div>
+          <div class="col-lg-6 col-md-6 mt-1">
+            <p class="mb-0 py-0">Setup Time</p>
+            <mat-form-field class="form-group input_field mb-0" appearance="outline">
+              <input matInput [ngModel]="setupTime" placeholder="Enter" [disabled]="true">
+            </mat-form-field>
+          </div>
+          <div class="col-lg-6 col-md-6 mt-1">
+            <p class="mb-0 py-0">Setup Time</p>
+            <mat-form-field class="form-group input_field mb-0" appearance="outline">
+              <input matInput [ngModel]="confirmSetupTime" placeholder="Enter">
+            </mat-form-field>
+          </div>
+          <div class="col-lg-6 col-md-6 mt-1">
+            <p class="mb-0 py-0">Machine Time</p>
+            <mat-form-field class="form-group input_field mb-0" appearance="outline">
+              <input matInput [ngModel]="machineTime" placeholder="Enter"  [disabled]="true">
+            </mat-form-field>
+          </div>
+          <div class="col-lg-6 col-md-6 mt-1">
+            <p class="mb-0 py-0">Machine Time</p>
+            <mat-form-field class="form-group input_field mb-0" appearance="outline">
+              <input matInput [ngModel]="confirmedMachineTime" placeholder="Enter">
+            </mat-form-field>
+          </div>
+          <div class="col-lg-6 col-md-6 mt-1">
+            <p class="mb-0 py-0">Activitiy Time</p>
+            <mat-form-field class="form-group input_field mb-0" appearance="outline">
+              <input matInput [ngModel]="activityTime" placeholder="Enter" [disabled]="true">
+            </mat-form-field>
+          </div>
+          <div class="col-lg-6 col-md-6 mt-1">
+            <p class="mb-0 py-0">Activitiy Time</p>
+            <mat-form-field class="form-group input_field mb-0" appearance="outline">
+              <input matInput [ngModel]="confirmedActivityTime" placeholder="Enter">
+            </mat-form-field>
+          </div>
+        </div>
+      </mat-expansion-panel>
+      <mat-expansion-panel #panel hideToggle>
+        <mat-expansion-panel-header class="border-bottom padding-space border-top uatwhite">
+          <mat-panel-title class="d-flex justify-content-between collapsefont align-items-center">
+            <div> <img src="./assets/img/icons/header.png" class="header_icon mr-2" alt="" srcset="">BOM</div>
+            <mat-icon class="collapsefont text-secondary">{{panel.expanded? 'remove' : 'add'}}</mat-icon>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="row">
+          <p-table #Setupstoragesection
+            [globalFilterFields]="['storageSectionId','description', 'storageSection','createdBy','createdOn']"
+            [value]="OrderDetails" styleClass="p-datatable-gridlines p-datatable-sm" [scrollable]="true"
+            selectionMode="single" scrollDirection="Both" scrollHeight="calc(100vh - 29.2rem)" [paginator]="false"
+            [rows]="100" [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+            [rowsPerPageOptions]="[100, 150, 200, 250]" [resizableColumns]="true"
+            style="width: 100%;margin-left: 10px;background-color:white">
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="max-width: 8rem;" pSortableColumn="childItemCode" pResizableColumn>Item Code<p-sortIcon
+                    field="childItemCode"></p-sortIcon>
+  
+                </th>
+                <th style="max-width: 14.5rem;" pSortableColumn="referenceField1" pResizableColumn>Description <p-sortIcon
+                    field="referenceField1"></p-sortIcon>
+  
+                </th>
+                <th style="max-width: 14rem;" pSortableColumn="description" pResizableColumn>FG Base Qty <p-sortIcon
+                    field="description"></p-sortIcon>
+  
+                </th>
+                <th style="max-width: 14rem;" pSortableColumn="bom" pResizableColumn>BOM Qty<p-sortIcon field="bom">
+                  </p-sortIcon>
+  
+                </th>
+                <th style="max-width: 10rem;" pSortableColumn="orderQty" pResizableColumn>UOM <p-sortIcon
+                    field="orderQty"></p-sortIcon>
+  
+                </th>
+  
+              </tr>
+  
+              <tr>
+  
+                <th style="max-width: 8rem;">
+                  <input pInputText type="text"
+                    (input)="Setupstoragesection.filter($any($event.target)?.value, 'childItemCode', 'contains')"
+                    [value]="$any(Setupstoragesection.filters['childItemCode'])?.value" placeholder="Search "
+                    class=" w-100 p-column-filter">
+                  <!--<p-columnFilter type="text" placeholder="Search" field="description"></p-columnFilter>-->
+                </th>
+                <th style="max-width: 14.5rem;">
+                  <input pInputText type="text"
+                    (input)="Setupstoragesection.filter($any($event.target)?.value, 'referenceField1', 'contains')"
+                    [value]="$any(Setupstoragesection.filters['referenceField1'])?.value" placeholder="Search "
+                    class=" w-100 p-column-filter">
+                  <!--<p-columnFilter type="text" placeholder="Search" field="description"></p-columnFilter>-->
+                </th>
+                <th style="max-width: 14rem;">
+                  <input pInputText type="text"
+                    (input)="Setupstoragesection.filter($any($event.target)?.value, 'description', 'contains')"
+                    [value]="$any(Setupstoragesection.filters['description'])?.value" placeholder="Search "
+                    class=" w-100 p-column-filter">
+                  <!--<p-columnFilter type="text" placeholder="Search" field="description"></p-columnFilter>-->
+                </th>
+                <th style="max-width: 14rem;">
+                  <input pInputText type="text"
+                    (input)="Setupstoragesection.filter($any($event.target)?.value, 'bom', 'contains')"
+                    [value]="$any(Setupstoragesection.filters['bom'])?.value" placeholder="Search "
+                    class=" w-100 p-column-filter">
+                  <!--<p-columnFilter type="text" placeholder="Search" field="description"></p-columnFilter>-->
+                </th>
+                <th style="max-width: 10rem;">
+                  <input pInputText type="text"
+                    (input)="Setupstoragesection.filter($any($event.target)?.value, 'orderQty', 'contains')"
+                    [value]="$any(Setupstoragesection.filters['orderQty'])?.value" placeholder="Search "
+                    class=" w-100 p-column-filter">
+                  <!--<p-columnFilter type="text" placeholder="Search" field="description"></p-columnFilter>-->
+                </th>
+  
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-sections let-rowIndex="rowIndex">
+              <tr>
+  
+  
+                <td style="max-width: 8rem;">{{sections.childItemCode}}</td>
+                <td style="max-width: 14.5rem;">{{sections.referenceField1}}</td>
+                <td style="max-width: 14rem;">1</td>
+                <td style="max-width: 14rem;">{{sections.childItemQuantity}}</td>
+                <td style="max-width: 10rem;">{{sections.orderQty}}</td>
+  
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
+    <div class="d-flex justify-content-center align-items-center py-2">
+      <button mat-raised-button color="warn" mat-dialog-close class="mx-2"> <i
+          class="bi bi-x me-1 font-size-1_5rem"></i>Cancel</button>
+      <button mat-raised-button class="mx-2 bg-darkblue text-white" (click)="save()"> <i class="bi bi-check2 mr-1 font-size-1_5rem"></i>
+        Save</button>
+    </div>
+  
+  
+  </div>
+  

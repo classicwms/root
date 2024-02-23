@@ -1,0 +1,359 @@
+<div class="row mx-1 pl-2">
+    <div class="col-12">
+      <!--inner header-->
+  
+      <div class="row  text-secondary pr-0 mt-1">
+        <div class="col bg-white d-flex align-items-center mt-1 px-1 py-1 pathname">
+  
+  
+          <nav aria-label="breadcrumb" class="d-flex align-items-center">
+            <ol class="breadcrumb mb-0 bg-white d-flex align-items-center">
+              <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">Home</li>
+              <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto">Outbound</li>
+              <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">Preoutbound</li>
+            </ol>
+          </nav>
+  
+  
+  
+          <div class="d-flex ml-auto my-auto">
+            <div [hidden]="isShowDiv"> <input (keyup)="applyFilter($event)" matInput
+                class="form-control filter_button mt-2 mt-2 mx-2 border-bottom" placeholder="Search" style="width:90%">
+            </div>
+            <div [ngClass]="showFloatingButtons == true ? 'floating-pane-active' : 'floating-pane-deactive'"
+              class="button-row d-flex align-items-center">
+              <!--
+                          <button mat-mini-fab *ngIf="showFloatingButtons == true" class="floating-buttons  d-flex align-items-center justify-content-center bg-pink text-white mx-2"
+                          matTooltip="Add">
+                          <mat-icon class="action-icon d-flex align-items-center justify-content-center">add_circle_outline</mat-icon>
+                        </button>
+                        -->
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                class=" floating-buttons  d-flex align-items-center justify-content-center text-white   yellowaction"
+                matTooltip="Display">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">search</mat-icon>
+              </button>
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                class="floating-buttons  d-flex align-items-center justify-content-center text-white  blueaction "
+                matTooltip="Edit">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">edit</mat-icon>
+              </button>
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                class=" floating-buttons  d-flex align-items-center justify-content-center redaction text-white  align-middle"
+                matTooltip="Delete">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">delete</mat-icon>
+              </button>
+              <!-- 
+                          <button  mat-mini-fab *ngIf="showFloatingButtons == true"
+                        class="floating-buttons  d-flex align-items-center justify-content-center text-white  bg-success  " matTooltip="Info">
+                        <mat-icon class="action-icon d-flex align-items-center justify-content-center">info_outline</mat-icon>
+                      </button>
+                        -->
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                class="floating-buttons  d-flex align-items-center justify-content-center text-white  darkblueaction "
+                matTooltip="Download">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">download</mat-icon>
+              </button>
+  
+  
+              <button mat-mini-fab (click)="toggleFloat()" class="mx-2 text-white action-button"
+                [ngClass]="{'bg-orange' : toggle, 'purple': !toggle}">
+                <mat-icon>{{icon}}</mat-icon>Options
+              </button>
+              <button mat-mini-fab disabled
+                class="disabled floating-buttons1  d-flex align-items-center justify-content-center darkaction text-white mx-2 mr-3 align-middle"
+                matTooltip="New" routerLink="/main/outbound/preoutbound-create">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">add</mat-icon>
+              </button>
+              <button mat-mini-fab
+                class=" floating-buttons1  d-flex align-items-center justify-content-center greyaction text-white mx-2 mr-3 align-middle"
+                matTooltip="Save">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">save</mat-icon>
+              </button>
+              <button mat-mini-fab class="text-white mx-2 action-button  bg-red" type="button" mat-button>
+                <mat-icon class="">tune</mat-icon> Filter
+              </button>
+            </div>
+  
+          </div>
+        </div>
+      </div>
+      <!--main-section-tabbar
+        <app-main-section-tabbar>
+        </app-main-section-tabbar>  -->
+      <!--main section-->
+      <div class="row mt-1 pr-1" style="height: calc(100vh - 7.5rem);">
+        <div class="col-md-12 px-0">
+          <div class="">
+            <mat-accordion>
+              <mat-expansion-panel #panel1 hideToggle>
+                <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                  <mat-panel-title class="d-flex justify-content-between collapsefont align-items-center">
+                    <div> <img src="./assets/img/icons/header.png" class="header_icon mr-2" alt="" srcset="">Header</div>
+                    <mat-icon class="collapsefont">{{panel1.expanded? 'remove' : 'add'}}</mat-icon>
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+                <div class="row   mt-2">
+                  <div class="col-lg-4 col-md-6 mt-2">
+                    <p class="mb-0 py-0">Warehouse No</p>
+                    <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                      <input matInput [(ngModel)]="data.warehouseId" disabled>
+                    </mat-form-field>
+                  </div>
+                  <div class="col-lg-4 col-md-6 mt-2">
+                    <p class="mb-0 py-0">Store Code</p>
+                    <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                      <input matInput [(ngModel)]="data.partnerCode" disabled>
+                    </mat-form-field>
+                  </div>
+                  <div class="col-lg-4 col-md-6 mt-2">
+                    <p class="mb-0 py-0">Outbound Type</p>
+                    <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                      <input matInput [(ngModel)]="data.referenceDocumentType" disabled>
+                    </mat-form-field>
+                  </div>
+                  <div class="col-lg-4 col-md-6 mt-2">
+                    <p class="mb-0 py-0">Order No</p>
+                    <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                      <input matInput [(ngModel)]="data.refDocNumber" disabled>
+                    </mat-form-field>
+                  </div>
+                  <div class="col-lg-4 col-md-6 mt-2">
+                    <p class="mb-0 py-0">Order Type</p>
+                    <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                      <input matInput [(ngModel)]="data.outboundOrderTypeId" disabled>
+                    </mat-form-field>
+                  </div>
+                  <div class="col-lg-4 col-md-6 mt-2">
+  
+                    <p class="mb-0 py-0">Order Date</p>
+                    <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                      <input matInput [matDatepicker]="picker" placeholder="Choose Date " [(ngModel)]="data.refDocDate"
+                        disabled>
+                      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                      <mat-datepicker #picker></mat-datepicker>
+                    </mat-form-field>
+  
+                  </div>
+                  <div class="col-lg-4 col-md-6 mt-2">
+  
+                    <p class="mb-0 py-0">Required Date</p>
+                    <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                      <input matInput [matDatepicker]="picker1" placeholder="Choose Date "
+                        [(ngModel)]="data.requiredDeliveryDate" disabled>
+                      <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+                      <mat-datepicker #picker1></mat-datepicker>
+                    </mat-form-field>
+  
+                  </div>
+                  <div class="col-lg-4 col-md-6 mt-2">
+                    <p class="mb-0 py-0">Created By</p>
+                    <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                      <input matInput [(ngModel)]="data.createdBy" disabled>
+                    </mat-form-field>
+                  </div>
+                  <div class="col-lg-4 col-md-6 mt-2">
+  
+                    <p class="mb-0 py-0">Created On</p>
+                    <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                      <input matInput [matDatepicker]="picker443" placeholder="Choose Date " [(ngModel)]="data.createdOn"
+                        disabled>
+                      <mat-datepicker-toggle matSuffix [for]="picker443"></mat-datepicker-toggle>
+                      <mat-datepicker #picker443></mat-datepicker>
+                    </mat-form-field>
+  
+                  </div>
+                  <div class="col-lg-4 col-md-6 mt-2">
+                    <p class="mb-0 py-0">Remarks</p>
+                    <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                      <input matInput [(ngModel)]="data.remarks" disabled>
+                    </mat-form-field>
+                  </div>
+  
+  
+                </div>
+              </mat-expansion-panel>
+              <mat-expansion-panel #panel5 [expanded]="step === 0" (opened)="setStep(0)" hideToggle>
+                <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                  <mat-panel-title class="d-flex justify-content-between collapsefont align-items-center">
+                    <div> <img src="./assets/img/icons/signal.png" class="header_icon mr-2" alt="" srcset=""> Lines
+                    </div>
+                    <mat-icon class="collapsefont">{{panel5.expanded? 'remove' : 'add'}}</mat-icon>
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+                <div class="row mt-2">
+                  <div class="px-0 pl-1 pb-1 col-12  scroll1 ">
+                    <div class="scroll2">
+                      <table mat-table [dataSource]="dataSource" matSort matSortActive="lineNumber" matSortDirection="desc" class=" w-100">
+  
+                        <!-- Checkbox Column -->
+                        <ng-container matColumnDef="select">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header [attr.rowspan]="2">
+                            <mat-checkbox (change)="$event ? masterToggle() : null"
+                              [checked]="selection.hasValue() && isAllSelected()"
+                              [indeterminate]="selection.hasValue() && !isAllSelected()" [aria-label]="checkboxLabel()">
+                            </mat-checkbox>
+                          </th>
+                          <td mat-cell *matCellDef="let row">
+                            <mat-checkbox (click)="$event.stopPropagation()"
+                              (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)"
+                              [aria-label]="checkboxLabel(row)">
+                            </mat-checkbox>
+                          </td>
+                        </ng-container>
+  
+  
+                        <!-- Symbol Column -->
+                        <ng-container matColumnDef="no">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header> S No </th>
+                          <td mat-cell *matCellDef="let element; let i = index  "> {{i +1}} </td>
+                        </ng-container>
+                        <!-- Weight Column -->
+                        <ng-container matColumnDef="lineNumber">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header>Line No </th>
+                          <td mat-cell *matCellDef="let element"> {{element.lineNumber}} </td>
+                        </ng-container>
+                             <!-- Weight Column -->
+                             <ng-container matColumnDef="ordercategory">
+                              <th mat-header-cell *matHeaderCellDef mat-sort-header>Order Category</th>
+                              <td mat-cell *matCellDef="let element"> {{element.referenceField1}} </td>
+                            </ng-container>
+                                 <!-- Weight Column -->
+                        <ng-container matColumnDef="storecode">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header>Store Code </th>
+                          <td mat-cell *matCellDef="let element"> {{element.partnerCode}} </td>
+                        </ng-container>
+                             <!-- Weight Column -->
+                             <ng-container matColumnDef="status">
+                              <th mat-header-cell *matHeaderCellDef mat-sort-header>Status </th>
+                              <td mat-cell *matCellDef="let element">{{cs.getstatus_text(element.statusId)}} </td>
+                            </ng-container>
+                        <!-- Weight Column -->
+  
+                        <ng-container matColumnDef="statusicon">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header >  </th>
+                          <td mat-cell *matCellDef="let element;let i = index;">
+                            <i  [ngClass]="{'statusgreen': (element.statusId == 39) , 'statusred': (element.statusId == 59)}" class="fas fa-circle" style="font-size:11px"></i>
+                          </td>
+                        </ng-container>
+                        <!-- Symbol Column -->
+                        <ng-container matColumnDef="product">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header>Part No</th>
+                          <td mat-cell *matCellDef="let element"> {{element.itemCode}} </td>
+                        </ng-container>
+                        <!-- Symbol Column -->
+                        <ng-container matColumnDef="description">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header>Description</th>
+                          <td mat-cell *matCellDef="let element"> {{element.description}} </td>
+                        </ng-container>
+                        <!-- Symbol Column -->
+                        <ng-container matColumnDef="mfrno">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header>Mfr Part No </th>
+                          <td mat-cell *matCellDef="let element"> {{element.manufacturerPartNo}} </td>
+                        </ng-container>
+                        <!-- Symbol Column -->
+                        <ng-container matColumnDef="variant">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header>Vairant </th>
+                          <td mat-cell *matCellDef="let element"> {{element.variantCode}} </td>
+                        </ng-container>
+                        <!-- Symbol Column -->
+                        <ng-container matColumnDef="order">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header>Order Qty </th>
+                          <td mat-cell *matCellDef="let element"> {{element.orderQty}} </td>
+                        </ng-container>
+                        <!-- Symbol Column -->
+                        <ng-container matColumnDef="uom">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header> UOM </th>
+                          <td mat-cell *matCellDef="let element"> {{element.orderUom}} </td>
+                        </ng-container>
+                        <!-- Symbol Column -->
+                        <ng-container matColumnDef="req">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header>Required Date </th>
+                          <td mat-cell *matCellDef="let element"> {{element.requiredDeliveryDate| date : 'dd-MM-yyyy' :'GMT'}} </td>
+                        </ng-container>
+                        <!-- Symbol Column -->
+                        <ng-container matColumnDef="stock">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header>Stock Type </th>
+                          <td mat-cell *matCellDef="let element"> {{element.stockTypeId}} </td>
+                        </ng-container>
+                        <!-- Symbol Column -->
+                        <ng-container matColumnDef="spl">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header>Special Stock </th>
+                          <td mat-cell *matCellDef="let element"> {{element.specialStockIndicatorId}} </td>
+                        </ng-container>
+                        <!-- Symbol Column -->
+                        <ng-container matColumnDef="details">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header>Special Details </th>
+                          <td mat-cell *matCellDef="let element">
+                            <button mat-icon-button (click)="stockdetails()">
+                              <mat-icon class="text-secondary">open_in_new</mat-icon>
+                            </button>
+                          </td>
+                        </ng-container>
+  
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns;sticky: true"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="selection.toggle(row)">
+                        </tr>
+                      </table>
+                    </div>
+  
+                  </div>
+                  <!-- <div class="buttons border bg-white pb-1 w-100 d-flex justify-content-end ">
+                    <div class="p-0 mx-1">
+                      <mat-paginator class="" showFirstLastButtons [pageSize]="100"
+                        [pageSizeOptions]="[100, 150, 200, 250]" aria-label="Select page of periodic elements">
+                      </mat-paginator>
+                    </div>
+                  </div> -->
+                </div>
+              </mat-expansion-panel>
+            </mat-accordion>
+            <!-- <div class="d-flex justify-content-center align-items-center py-2 bg-white">
+              <button mat-raised-button class="text-white mx-1" color="warn" routerLink="/main/outbound/preoutbound">
+                <mat-icon class="">close</mat-icon> Cancel
+              </button>
+             <button disabled mat-raised-button class="bg-darkblue disabled px-4 text-white ml-1" >
+                  <mat-icon class="">done</mat-icon> Save
+                </button>
+            </div> -->
+            <div class=" pb-1 w-100 d-flex justify-content-end bottombutton">
+              <div class=" py-2  mr-5 pr-5">
+                <button mat-raised-button class="text-white mx-1" color="warn" routerLink="/main/outbound/preoutbound">
+                  <mat-icon class="">close</mat-icon> Cancel
+                </button>
+                <button mat-raised-button class="text-white  invisible mx-1" color="warn" routerLink="/main/outbound/preoutbound">
+                  <mat-icon class="">close</mat-icon> Cancel
+                </button>
+              </div>
+              <div class="p-0 mx-1 ">
+                <mat-paginator class="" showFirstLastButtons [pageSize]="100" [pageSizeOptions]="[100, 150, 200, 250]"
+                  aria-label="Select page of periodic elements">
+                </mat-paginator>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+    </div>
+  
+  
+  
+    <!--right pane-->
+    <div class="col-3 pl-1 pr-1 mt-1 d-none">
+      <div class="whs-rightpane bg-white shadow ">
+        <div class="row container px-0 ml-0">
+          <div class="card-header w-100 rounded-0 bg-light p-0 d-flex justify-content-between">
+  
+            <button class="btn whs-text-blue w-100 text-left pl-4" type="button">
+              Inventory Quantity
+            </button>
+            <span class="my-auto whs-text-blue">
+              <i class="fas fa-plus pr-3"></i>
+            </span>
+          </div>
+  
+        </div>
+      </div>
+    </div>
+  </div>

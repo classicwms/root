@@ -1,0 +1,250 @@
+
+
+<div class="row mx-1 pl-2">
+    <div class="col-12">
+      <div class="row  text-secondary pr-0 mt-1">
+        <div class="col bg-white d-flex align-items-center mt-1 px-1 py-1 pathname">
+  
+  
+          <nav aria-label="breadcrumb" class="d-flex align-items-center">
+            <ol class="breadcrumb mb-0 bg-white">
+              <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto"><a routerLink="/main/dashboard">Home</a>
+              </li>
+              <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto"><a
+                  routerLink="/main/reports/report-list">Reports</a></li>
+              <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">Picking Productivity Report</li>
+            </ol>
+          </nav>
+  
+  
+          <div class="d-flex ml-auto my-auto">
+            <div [hidden]="isShowDiv"> <input matInput (input)="hhtPickupTag.filterGlobal($any($event.target).value, 'contains')"
+                class="form-control filter_button mt-2 mt-2 mx-2 border-bottom" placeholder="Search" style="width:90%">
+            </div>
+            <div [ngClass]="showFloatingButtons == true ? 'floating-pane-active' : 'floating-pane-deactive'"
+              class="button-row d-flex align-items-center">
+  
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                class=" floating-buttons  d-flex align-items-center justify-content-center text-white   yellowaction"
+                matTooltip="Display">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">search</mat-icon>
+              </button>
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                class="floating-buttons  d-flex align-items-center justify-content-center text-white  blueaction "
+                matTooltip="Edit">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">edit</mat-icon>
+              </button>
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                class=" floating-buttons  d-flex align-items-center justify-content-center redaction text-white  align-middle"
+                matTooltip="Delete">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">delete</mat-icon>
+              </button>
+  
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                class="floating-buttons  d-flex align-items-center justify-content-center text-white  darkblueaction "
+                matTooltip="Download" (click)="downloadexcel();">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">download</mat-icon>
+              </button>
+              <button mat-mini-fab (click)="toggleFloat()" class="mx-2 text-white action-button"
+                [ngClass]="{'bg-orange' : toggle, 'purple': !toggle}">
+                <mat-icon>{{icon}}</mat-icon>Options
+              </button>
+              <button mat-mini-fab
+                class=" floating-buttons1  d-flex align-items-center justify-content-center darkaction text-white mx-2 mr-3 align-middle"
+                matTooltip="New">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">add</mat-icon>
+              </button>
+              <button mat-mini-fab
+                class=" floating-buttons1  d-flex align-items-center justify-content-center greyaction text-white mx-2 mr-3 align-middle"
+                matTooltip="Save">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">save</mat-icon>
+              </button>
+              <button mat-mini-fab class="text-white mx-2 action-button  bg-red " type="button" mat-button>
+                <mat-icon class="">tune</mat-icon> Filter
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 mainsection mt-1  border-top px-0 bg-white" style="height: calc(100vh - 12rem);  ">
+      <div class="d-flex align-items-center justify-content-between pb-2"
+        style="height: 3rem !important;background-color: #f5f5f5 !important;">
+        <div>
+          <h6 class="my-auto mb-0 mx-3 font-weight-bold whs-text-grey">Picking Productivity Report </h6>
+        </div>
+        <div *ngIf="fullscreen">
+          <button mat-mini-fab (click)="togglesearch()"
+            class=" floating-buttons1  d-flex align-items-center justify-content-center roundedhover text-white mx-2 mr-3 align-middle"
+            matTooltip="Fullscreen">
+            <mat-icon class="action-icon whs-text-grey d-flex align-items-center justify-content-center my-auto">launch
+            </mat-icon>
+          </button>
+        </div>
+        <div *ngIf="back">
+          <button mat-mini-fab (click)="backsearch()"
+            class=" floating-buttons1  d-flex align-items-center justify-content-center roundedhover text-white mx-2 mr-3 align-middle"
+            matTooltip="Back">
+            <mat-icon class="action-icon whs-text-grey d-flex align-items-center justify-content-center my-auto">
+              arrow_back</mat-icon>
+          </button>
+        </div>
+      </div>
+      <div class="mt-3 mb-0 " *ngIf="search">
+     <form [formGroup]="searhform">
+        <div class="row  px-3">
+          <div class="col-lg-3 col-md-6">
+            <div class="form-group mb-0">
+              <label for="status" class="mb-0 required">Company</label>
+              <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                <input matInput placeholder="Enter" [disabled]="true" [value]="this.auth.companyIdAndDescription">
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <div class="form-group mb-0">
+              <label for="status" class="mb-0 required">Branch</label>
+              <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                <input matInput placeholder="Enter" [disabled]="true" [value]="this.auth.plantIdAndDescription">
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <div class="form-group mb-0">
+              <label for="status" class="mb-0 required">WareHouse</label>
+              <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                <input matInput placeholder="Enter" [disabled]="true" [value]="this.auth.warehouseIdAndDescription">
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 mt-2">
+            <p class="mb-0 py-0 ">Picker Id</p>
+            <p-multiSelect  placeholder="Select" class="w-100" [filter]="true" [options]="multipickerId" formControlName="assignedPickerId"
+            [style]="{'width': '100%', 'margin-top': '0.3rem', 'margin-bottom': '0.3rem'}" 
+            [panelStyle]="{'width':'20%'}" appendTo="body"> </p-multiSelect >
+          </div>
+  
+         
+        
+        
+  
+
+          <div class="col-lg-3 col-md-4">
+            <div class="d-flex flex-column">
+              <p class="mb-0 py-0 ">Pickup Date</p>
+              <mat-form-field class="form-group input_field2 mb-0 w-100" appearance="outline">
+                <mat-date-range-input [rangePicker]="picker2">
+                  <input matStartDate placeholder="Start date" formControlName="fromPickConfirmedOn">
+                  <input matEndDate placeholder="End date" formControlName="toPickConfirmedOn">
+                </mat-date-range-input>
+                <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+                <mat-date-range-picker #picker2></mat-date-range-picker>
+              </mat-form-field>
+            </div>
+          </div>    
+        </div>
+        </form>
+        <div class="d-flex justify-content-end align-items-center pr-3">
+          <button mat-raised-button color="warn" class="text-white mb-2 mr-2 px-4" (click)="reset();">
+            <mat-icon class="">restart_alt</mat-icon> Reset
+          </button>
+          <button mat-raised-button class=" bg-darkblue text-white mb-2" (click)="filtersearch()"> <i
+              class="bi bi-gear-fill me-1 font-size-1_5rem pr-2"></i>Execute</button>
+        </div>
+      </div>
+      <div class="example-sidenav-content">
+        <div class="row " style="padding-right: 15px !important;">
+          <p-table #hhtPickupTag  [value]="hhtPicker" 
+          styleClass="p-datatable-gridlines p-datatable-sm" [scrollable]="true" selectionMode="single"   [globalFilterFields]="['companyDescription','plantDescription','warehouseDescription','statusId','countOfOrderLines','refDocNumber', 'referenceDocumentType','receivedLines', 'containerNo', 'confirmedOn', 'u', 'confirmedBy']"
+          scrollHeight="calc(100vh - 14.8rem)" sortField="refDocNumber" [sortOrder]="+1" [paginator]="true" [rows]="100" [showCurrentPageReport]="true" [scrollable]="true" selectionMode="single"  scrollDirection="both"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+             [resizableColumns]="true" style="width: 100%;margin-left: 10px;background-color:white" >
+          <ng-template pTemplate="header">
+            <tr>
+                <th style="width: 11.5rem;" pSortableColumn="plantDescription" pResizableColumn>Branch<p-sortIcon field="plantDescription"></p-sortIcon></th> 
+                <th style="width: 11.5rem;" pSortableColumn="warehouseDescription" pResizableColumn>Warehouse<p-sortIcon field="warehouseDescription"></p-sortIcon></th> 
+                <th style="width: 10rem;" st pSortableColumn="assignedPickerId" pResizableColumn>Picker<p-sortIcon field="assignedPickerId"></p-sortIcon></th> 
+                <th style="width: 10rem;" pSortableColumn="refDocNumber" pResizableColumn>Order No<p-sortIcon field="refDocNumber"></p-sortIcon></th> 
+                <th style="width: 10rem;" pSortableColumn="pickConfirmQty"   pResizableColumn>Pickup Qty<p-sortIcon field="pickConfirmQty"></p-sortIcon></th>
+                <th style="width: 10rem;" pSortableColumn="referenceField1" pResizableColumn>Lead Time<p-sortIcon field="referenceField1"></p-sortIcon></th> 
+                <th style="width: 10rem;" pSortableColumn="pickupCreatedOn" pResizableColumn>Assigned On<p-sortIcon field="pickupCreatedOn"></p-sortIcon></th> 
+                <th style="width: 10rem;" pSortableColumn="pickupConfirmedOn" pResizableColumn>Picked On<p-sortIcon field="pickupConfirmedOn"></p-sortIcon></th> 
+                <th style="width: 10rem;" pSortableColumn="details" pResizableColumn> Details<p-sortIcon field="details"></p-sortIcon></th> 
+            </tr>
+             
+            <tr >
+                <th  style="width: 11.5rem;">
+                    <input pInputText  type="text" (input)="hhtPickupTag.filter($any($event.target)?.value, 'plantDescription', 'contains')" 
+                    [value]="$any(hhtPickupTag.filters['plantDescription'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                  </th> 
+                  <th  style="width: 11.5rem;">
+                    <input pInputText  type="text" (input)="hhtPickupTag.filter($any($event.target)?.value, 'warehouseDescription', 'contains')" 
+                    [value]="$any(hhtPickupTag.filters['warehouseDescription'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                  </th> 
+                <th  style="width: 10rem;">
+                    <input pInputText  type="text" (input)="hhtPickupTag.filter($any($event.target)?.value, 'assignedPickerId', 'contains')" 
+                    [value]="$any(hhtPickupTag.filters['assignedPickerId'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                  </th> 
+                  <th style="width: 10rem;">
+                    <input pInputText  type="text" (input)="hhtPickupTag.filter($any($event.target)?.value, 'refDocNumber', 'contains')" 
+                    [value]="$any(hhtPickupTag.filters['refDocNumber'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                  </th>
+                    <th style="width: 10rem;">
+                      <input pInputText  type="text" (input)="hhtPickupTag.filter($any($event.target)?.value, 'pickConfirmQty', 'contains')" 
+                      [value]="$any(hhtPickupTag.filters['pickConfirmQty'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                    </th>
+                    <th style="width: 10rem;">
+                    <input pInputText  type="text" (input)="hhtPickupTag.filter($any($event.target)?.value, 'referenceField1', 'contains')" 
+                    [value]="$any(hhtPickupTag.filters['referenceField1'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                  </th> 
+                  <th style="width: 10rem;">
+                    <input pInputText  type="text" (input)="hhtPickupTag.filter($any($event.target)?.value, 'pickupUpdatedOn', 'contains')" 
+                    [value]="$any(hhtPickupTag.filters['pickupUpdatedOn'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                  </th>
+                  <th style="width: 10rem;">
+                    <input pInputText  type="text" (input)="hhtPickupTag.filter($any($event.target)?.value, 'pickupConfirmedOn', 'contains')" 
+                    [value]="$any(hhtPickupTag.filters['pickupConfirmedOn'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                  </th>
+                
+                  <th style="width: 10rem;">
+                    <input pInputText  type="text" (input)="hhtPickupTag.filter($any($event.target)?.value, 'details', 'contains')" 
+                    [value]="$any(hhtPickupTag.filters['details'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                  </th>
+          
+              
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-picker let-rowIndex="rowIndex">
+            <tr [pSelectableRow]="picker" [pSelectableRowIndex]="rowIndex">
+                <td style="width: 11.5rem;">{{picker.plantDescription}}</td>
+                <td style="width: 11.5rem;">{{picker.warehouseDescription}}</td>
+                  <td style="width: 10rem;"> {{picker.assignedPickerId}}</td>
+                <td style="width: 10rem;"> {{picker.refDocNumber}}</td>
+                <td style="width: 10rem;">{{picker.pickConfirmQty}}</td>
+                <td style="width: 10rem;">{{picker.referenceField1}}</td>
+                <td style="width: 10rem;" >{{picker.pickupCreatedOn| date : 'dd-MM-yyyy HH:mm' :'GMT' }}</td>
+                <td style="width: 10rem;" >{{picker.pickupConfirmedOn| date : 'dd-MM-yyyy HH:mm' :'GMT' }}</td>
+                <td style="width: 10rem;" ><mat-icon class="text-secondary"  type="button" (click)="lines(picker)" >list</mat-icon></td>
+            </tr>
+         
+          </ng-template>
+          <ng-template pTemplate="footer">
+            <tr>
+             
+              <td style="width: 15.4rem;">No of Parts </td>
+              <td style="width: 10.4rem;">{{this.hhtPicker.length}}</td>
+              <td style="width: 20.4rem;">Productivity (No of Parts/Lead Time)</td>
+              <td style="width: 15.4rem;">{{getProductivity()}}</td>
+              <td style="width: 15.4rem;">Average Lead Time</td>
+              <td style="width: 15.4rem;" >{{getavgLeadTime() +''+' min'}}</td>
+            
+              <!--<td style="width: 11.5rem;" >{{picker.pickupConfirmedOn| date : 'dd-MM-yyyy HH:mm' :'GMT' }}</td>-->
+
+            </tr>
+              
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+  
+  </div>

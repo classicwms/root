@@ -1,0 +1,174 @@
+<div class="row margint-2 px-0 mx-0 ml-3 mt-2">
+
+  <div class="card glass mr-3 " [ngClass]="showDashboard == true ? 'animate__animated animate__fadeIn ' : ''"
+    style="width: 48%;">
+    <div class="card-header text-center">
+      <h4 class="mb-0  text-grey  font-weight-bold text-center dateFont">
+        For the Day : {{date | date: 'dd-MM-YYYY'}}
+      </h4>
+    </div>
+    <div class="card-body row mr-2">
+      <div class=" col-6 border-right pl-5 my-1 ">
+        <div class="">
+          <img src="./assets/img/dashboard/receipt1.png" class="img-fluid iconsize" alt="" srcset="">
+          <h4 class="text-grey font-weight-bold headertext mt-2">Receipts</h4>
+        </div>
+        <div class="row d-flex align-items-center">
+          <div class="col-4">
+            <h4 class="text-purple  font-weight-bold mt-1">{{dayawaitingASN}}</h4>
+          </div>
+          <div class="col-8">
+            <h6 class="text-grey mt-1 ml-1 paratext">Awaiting ASN</h6>
+          </div>
+        </div>
+        <div class="row d-flex align-items-center">
+          <div class="col-4">
+            <h4 class="text-purple  font-weight-bold mt-1">{{daycontainerReceived}}</h4>
+          </div>
+          <div class="col-8">
+            <h6 class="text-grey mt-1 ml-1 paratext">Receipt Confirm</h6>
+          </div>
+        </div>
+        <div class="row d-flex align-items-center">
+          <div class="col-4">
+            <h4 class="text-purple  font-weight-bold mt-1">{{dayitemReceived}}</h4>
+          </div>
+          <div class="col-8">
+            <h6 class="text-grey mt-1 ml-1 paratext">Item Received</h6>
+          </div>
+        </div>
+      </div>
+      <div class=" col-6 border-left pl-5 my-1">
+        <div class="">
+          <img src="./assets/img/dashboard/shipping4.png" class="img-fluid iconsize" alt="" srcset="">
+          <h4 class="text-grey font-weight-bold headertext mt-2">Shipping</h4>
+        </div>
+        <div class="row d-flex align-items-center">
+          <div class="col-4">
+            <h4 class="text-purple  font-weight-bold mt-1">{{dayshippedLine}}</h4>
+          </div>
+          <div class="col-8">
+            <h6 class="text-grey mt-1 ml-1 paratext">Shipped Line</h6>
+          </div>
+        </div>
+        <div class="row d-flex align-items-center">
+          <div class="col-4">
+            <h4 class="text-purple  font-weight-bold mt-1">{{daynormal}}</h4>
+          </div>
+          <div class="col-8">
+            <h6 class="text-grey mt-1 ml-1 paratext">Normal Order</h6>
+          </div>
+        </div>
+        <div class="row d-flex align-items-center">
+          <div class="col-4">
+            <h4 class="text-purple  font-weight-bold mt-1">{{dayspecial}}</h4>
+          </div>
+          <div class="col-8">
+            <h6 class="text-grey mt-1 ml-1 paratext">Special Order</h6>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card glass" [ngClass]="showDashboard == true ? 'animate__animated animate__fadeIn ' : ''"
+    style="width: 48%;">
+    <div class="card-header text-center">
+      <h4 class="mb-0  text-grey  font-weight-bold text-center dateFont">
+        For the Month : {{date | date: 'MMMM YYYY'}}
+      </h4>
+    </div>
+    <div class="card-body row">
+      <div class="col-6 border-right pl-5 my-1">
+        <div class="">
+          <img src="./assets/img/dashboard/receipt1.png" class="img-fluid iconsize" alt="" srcset="">
+          <h4 class="text-grey font-weight-bold headertext mt-2">Receipts</h4>
+        </div>
+        <div class="row d-flex align-items-center">
+          <div class="col-4">
+            <h4 class="text-red  font-weight-bold mt-1">{{monthawaitingASN}}</h4>
+          </div>
+          <div class="col-8">
+            <h6 class="text-grey mt-1 ml-1 paratext">Awaiting ASN</h6>
+          </div>
+        </div>
+        <div class="row d-flex align-items-center">
+          <div class="col-4">
+            <h4 class="text-red  font-weight-bold mt-1">{{monthcontainerReceived}}</h4>
+          </div>
+          <div class="col-8">
+            <h6 class="text-grey mt-1 ml-1 paratext">Receipt Confirm</h6>
+          </div>
+        </div>
+        <div class="row d-flex align-items-center">
+          <div class="col-4">
+            <h4 class="text-red  font-weight-bold mt-1">{{monthitemReceived}}</h4>
+          </div>
+          <div class="col-8">
+            <h6 class="text-grey mt-1 ml-1 paratext">Item Received</h6>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 border-left pl-5 my-1">
+        <div class="">
+          <img src="./assets/img/dashboard/shipping4.png" class="img-fluid iconsize" alt="" srcset="">
+          <h4 class="text-grey font-weight-bold headertext mt-2">Shipping</h4>
+        </div>
+        <div class="row d-flex align-items-center">
+          <div class="col-4">
+            <h4 class="text-red  font-weight-bold mt-1">{{monthshippedLine}}</h4>
+          </div>
+          <div class="col-8">
+            <h6 class="text-grey mt-1 ml-1 paratext">Shipped Line</h6>
+          </div>
+        </div>
+        <div class="row d-flex align-items-center">
+          <div class="col-4">
+            <h4 class="text-red  font-weight-bold mt-1">{{monthnormal}}</h4>
+          </div>
+          <div class="col-8">
+            <h6 class="text-grey mt-1 ml-1 paratext">Normal Order</h6>
+          </div>
+        </div>
+        <div class="row d-flex align-items-center">
+          <div class="col-4">
+            <h4 class="text-red  font-weight-bold mt-1">{{monthspecial}}</h4>
+          </div>
+          <div class="col-8">
+            <h6 class="text-grey mt-1 ml-1 paratext">Special Order</h6>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mt-2 glass" [ngClass]="showDashboard == true ? 'animate__animated animate__fadeIn ' : ''"
+    style="width: 24%;">
+
+    <div class="card-body row">
+      <div class="col-12 my-1">
+        <div class="">
+          <img src="./assets/img/dashboard/bin1.png" class="img-fluid iconsize" alt="" srcset="">
+          <h4 class="text-grey font-weight-bold headertext mt-2">Bin Status</h4>
+        </div>
+        <div class="row d-flex align-items-center">
+          <div class="col-4">
+            <h4 class="text-green  font-weight-bold mt-1">{{statusEqualToZeroCount}}</h4>
+          </div>
+          <div class="col-8">
+            <h6 class="text-grey mt-1 ml-1 paratext">Empty</h6>
+          </div>
+        </div>
+        <div class="row d-flex align-items-center">
+          <div class="col-4">
+            <h4 class="text-green  font-weight-bold mt-1">{{statusNotEqualToZeroCount}}</h4>
+          </div>
+          <div class="col-8">
+            <h6 class="text-grey mt-1 ml-1 paratext">Full</h6>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

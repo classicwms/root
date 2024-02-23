@@ -1,0 +1,351 @@
+<div class="row mx-1 pl-2">
+  <div class="col-12">
+    <!--inner header-->
+
+    <div class="row  text-secondary pr-0 mt-1">
+      <div class="col bg-white d-flex align-items-center mt-1 px-1 py-1 pathname">
+
+
+        <nav aria-label="breadcrumb" class="d-flex align-items-center">
+          <ol class="breadcrumb mb-0 bg-white">
+            <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto"><a routerLink="/main/dashboard">Home</a>
+            </li>
+            <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto">Stock Count</li>
+            <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">Stock Analysis</li>
+          </ol>
+        </nav>
+
+        <div class="d-flex ml-auto my-auto">
+          <div [hidden]="isShowDiv"> <input
+              (input)="perpetualvarianceConfirmTag.filterGlobal($any($event.target).value, 'contains')" matInput
+              class="form-control filter_button mt-2 mt-2 mx-2 border-bottom" placeholder="Search" style="width:90%">
+          </div>
+          <div [ngClass]="showFloatingButtons == true ? 'floating-pane-active' : 'floating-pane-deactive'"
+            class="button-row d-flex align-items-center">
+            <!--
+                        <button mat-mini-fab *ngIf="showFloatingButtons == true" class="floating-buttons  d-flex align-items-center justify-content-center bg-pink text-white mx-2"
+                        matTooltip="Add">
+                        <mat-icon class="action-icon d-flex align-items-center justify-content-center">add_circle_outline</mat-icon>
+                      </button>
+                      -->
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class=" floating-buttons  d-flex align-items-center justify-content-center text-white   yellowaction"
+              matTooltip="Display">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">search</mat-icon>
+            </button>
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class="floating-buttons  d-flex align-items-center justify-content-center text-white  blueaction "
+              matTooltip="Edit">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">edit</mat-icon>
+            </button>
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class=" floating-buttons  d-flex align-items-center justify-content-center redaction text-white  align-middle"
+              matTooltip="Delete">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">delete</mat-icon>
+            </button>
+            <!-- 
+                        <button  mat-mini-fab *ngIf="showFloatingButtons == true"
+                      class="floating-buttons  d-flex align-items-center justify-content-center text-white  bg-success  " matTooltip="Info">
+                      <mat-icon class="action-icon d-flex align-items-center justify-content-center">info_outline</mat-icon>
+                    </button>
+                      -->
+            <button mat-mini-fab *ngIf="showFloatingButtons == true" (click)="downloadexcel()"
+              class="floating-buttons  d-flex align-items-center justify-content-center text-white  darkblueaction "
+              matTooltip="Download">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">download</mat-icon>
+            </button>
+
+
+            <button mat-mini-fab (click)="toggleFloat()" class="mx-2 text-white action-button"
+              [ngClass]="{'bg-orange' : toggle, 'purple': !toggle}">
+              <mat-icon>{{icon}}</mat-icon>Options
+            </button>
+            <button mat-mini-fab
+              class=" floating-buttons1  d-flex align-items-center justify-content-center darkaction text-white mx-2 mr-3 align-middle"
+              matTooltip="New">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">add</mat-icon>
+            </button>
+            <button mat-mini-fab
+              class=" floating-buttons1  d-flex align-items-center justify-content-center greyaction text-white mx-2 mr-3 align-middle"
+              matTooltip="Save">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">save</mat-icon>
+            </button>
+            <button mat-mini-fab class="text-white mx-2 action-button  bg-red" type="button" mat-button>
+              <mat-icon class="">tune</mat-icon> Filter
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <!--main-section-tabbar
+      <app-main-section-tabbar>
+      </app-main-section-tabbar>  -->
+    <!--main section-->
+    <div class="row  mt-1 pr-1" style="height:calc(100vh - 9rem);">
+      <div class="col-md-12 px-0">
+        <div class="">
+          <div class="row mt-2 mx-0 px-0">
+              <p-table #perpetualvarianceConfirmTag [value]="perpetualvarianceConfirm"
+                styleClass="p-datatable-gridlines p-datatable-sm" [scrollable]="true" selectionMode="single"
+                scrollHeight="calc(100vh - 14.8rem)" sortField="cycleCountNo" [sortOrder]="-1" [paginator]="true"
+                [rows]="100" [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                   [resizableColumns]="true"
+                style="width: 100%;margin-left: 10px;background-color:white">
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th style="width: 40rem" pSortableColumn="actions" pResizableColumn>Actions<p-sortIcon field="actions"></p-sortIcon>
+                    </th>
+                    <th style="max-width: 7rem"  pSortableColumn="manufacturerPartNo" pResizableColumn>Mfr Name<p-sortIcon
+                      field="manufacturerPartNo"></p-sortIcon></th>
+                    <th style="max-width: 7rem" pSortableColumn="itemCode" pResizableColumn>Part No<p-sortIcon
+                        field="itemCode"></p-sortIcon></th>
+                    <th style="max-width: 7rem"  pSortableColumn="itemDesc" pResizableColumn>Description<p-sortIcon
+                        field="itemDesc"></p-sortIcon></th>
+                  
+                    <th style="max-width: 7rem" pSortableColumn="storageSectionId" pResizableColumn>Section<p-sortIcon
+                        field="storageSectionId"></p-sortIcon></th>
+                    <th style="max-width: 7rem" pSortableColumn="storageBin" pResizableColumn>Bin Location<p-sortIcon
+                        field="storageBin"></p-sortIcon></th>
+                    <th style="max-width: 7rem"  pSortableColumn="barcodeId" pResizableColumn>Barcode Id<p-sortIcon
+                        field="barcodeId"></p-sortIcon></th>
+                    <th style="max-width: 7rem" pSortableColumn="stockTypeId" pResizableColumn>Stock Type<p-sortIcon
+                        field="stockTypeId"></p-sortIcon></th>
+                        <th style="max-width: 7rem" pSortableColumn="frozenQty" pResizableColumn>Frozen Qty<p-sortIcon
+                          field="frozenQty"></p-sortIcon></th>
+                    <th style="max-width: 7rem"  pSortableColumn="inventoryQuantity" pResizableColumn>Inventory Qty<p-sortIcon
+                        field="inventoryQuantity"></p-sortIcon></th>
+                    <th style="max-width: 7rem" pSortableColumn="countedQty" pResizableColumn>Counted Qty<p-sortIcon
+                        field="countedQty"></p-sortIcon></th>
+                        <th style="max-width: 7rem"  pSortableColumn="inboundQuantity" pResizableColumn>Inbound Qty<p-sortIcon
+                          field="inboundQuantity"></p-sortIcon></th>
+                          <th style="max-width: 7rem"  pSortableColumn="outboundQuantity" pResizableColumn>Outbound Qty<p-sortIcon
+                            field="outboundQuantity"></p-sortIcon></th>
+                        <th style="max-width: 7rem" pSortableColumn="firstCountedQty" pResizableColumn>First Counted Qty<p-sortIcon
+                          field="firstCountedQty"></p-sortIcon></th>
+                            <th style="max-width: 7rem"  pSortableColumn="secondCountedQty" pResizableColumn>Second Counted Qty<p-sortIcon
+                              field="secondCountedQty"></p-sortIcon></th>
+                             
+                               
+                    <th style="max-width: 7rem" pSortableColumn="varianceQty" pResizableColumn>WMS Variance<p-sortIcon
+                        field="varianceQty"></p-sortIcon></th>
+                        <th style="max-width: 7rem" pSortableColumn="varianceQty1" pResizableColumn>AMS Variance<p-sortIcon
+                          field="varianceQty1"></p-sortIcon></th>
+                          <th style="max-width: 7rem" pSortableColumn="storageSectionId" pResizableColumn>Section<p-sortIcon
+                            field="storageSectionId"></p-sortIcon></th>
+                            <th style="max-width: 7rem" pSortableColumn="levelId" pResizableColumn>Level<p-sortIcon
+                              field="levelId"></p-sortIcon></th>
+                    <th style="max-width: 7rem" pSortableColumn="cycleCounterId" pResizableColumn>User<p-sortIcon
+                        field="cycleCounterId"></p-sortIcon></th>
+                    <th style="max-width: 7rem" pSortableColumn="status" pResizableColumn>Status<p-sortIcon field="status"></p-sortIcon></th>
+                  </tr>
+
+                  <tr>
+                    <th style="width: 40rem">
+                      <input pInputText type="text"
+                        (input)="perpetualvarianceConfirmTag.filter($any($event.target)?.value, 'actions', 'contains')"
+                        [value]="$any(perpetualvarianceConfirmTag.filters['actions'])?.value" placeholder="Search"
+                        class=" w-100 p-column-filter">
+                    </th>
+                    <th style="max-width: 7rem">
+                      <input pInputText type="text"
+                        (input)="perpetualvarianceConfirmTag.filter($any($event.target)?.value, 'manufacturerPartNo', 'contains')"
+                        [value]="$any(perpetualvarianceConfirmTag.filters['manufacturerPartNo'])?.value"
+                        placeholder="Search" class=" w-100 p-column-filter">
+                    </th>
+                    <th style="max-width: 7rem">
+                      <input pInputText type="text"
+                        (input)="perpetualvarianceConfirmTag.filter($any($event.target)?.value, 'itemCode', 'contains')"
+                        [value]="$any(perpetualvarianceConfirmTag.filters['itemCode'])?.value" placeholder="Search"
+                        class=" w-100 p-column-filter">
+                    </th>
+                    <th style="max-width: 7rem">
+                      <input pInputText type="text"
+                        (input)="perpetualvarianceConfirmTag.filter($any($event.target)?.value, 'itemDesc', 'contains')"
+                        [value]="$any(perpetualvarianceConfirmTag.filters['itemDesc'])?.value" placeholder="Search"
+                        class=" w-100 p-column-filter">
+                    </th>
+                  
+                    <th style="max-width: 7rem">
+                      <input pInputText type="text"
+                        (input)="perpetualvarianceConfirmTag.filter($any($event.target)?.value, 'storageSectionId', 'contains')"
+                        [value]="$any(perpetualvarianceConfirmTag.filters['storageSectionId'])?.value"
+                        placeholder="Search" class=" w-100 p-column-filter">
+                    </th>
+                    <th style="max-width: 7rem">
+                      <input pInputText type="text"
+                        (input)="perpetualvarianceConfirmTag.filter($any($event.target)?.value, 'storageBin', 'contains')"
+                        [value]="$any(perpetualvarianceConfirmTag.filters['storageBin'])?.value" placeholder="Search"
+                        class=" w-100 p-column-filter">
+                    </th>
+                    <th style="max-width: 7rem">
+                      <input pInputText type="text"
+                        (input)="perpetualvarianceConfirmTag.filter($any($event.target)?.value, 'barcodeId', 'contains')"
+                        [value]="$any(perpetualvarianceConfirmTag.filters['barcodeId'])?.value" placeholder="Search"
+                        class=" w-100 p-column-filter">
+                    </th>
+                    <th style="max-width: 7rem">
+                      <input pInputText type="text"
+                        (input)="perpetualvarianceConfirmTag.filter($any($event.target)?.value, 'stockTypeId', 'contains')"
+                        [value]="$any(perpetualvarianceConfirmTag.filters['stockTypeId'])?.value" placeholder="Search"
+                        class=" w-100 p-column-filter">
+                    </th>
+                    <th style="max-width: 7rem">
+                      <input pInputText type="text"
+                        (input)="perpetualvarianceConfirmTag.filter($any($event.target)?.value, 'frozenQty', 'contains')"
+                        [value]="$any(perpetualvarianceConfirmTag.filters['frozenQty'])?.value" placeholder="Search"
+                        class=" w-100 p-column-filter">
+                    </th>
+                    <th style="max-width: 7rem">
+                      <input pInputText type="text"
+                        (input)="perpetualvarianceConfirmTag.filter($any($event.target)?.value, 'inventoryQuantity', 'contains')"
+                        [value]="$any(perpetualvarianceConfirmTag.filters['inventoryQuantity'])?.value"
+                        placeholder="Search" class=" w-100 p-column-filter">
+                    </th>
+                    <th style="max-width: 7rem">
+                      <input pInputText type="text"
+                        (input)="perpetualvarianceConfirmTag.filter($any($event.target)?.value, 'countedQty', 'contains')"
+                        [value]="$any(perpetualvarianceConfirmTag.filters['countedQty'])?.value" placeholder="Search"
+                        class=" w-100 p-column-filter">
+                    </th>
+                    <th style="max-width: 7rem" >
+                      <input pInputText type="text"
+                        (input)="perpetualvarianceConfirmTag.filter($any($event.target)?.value, 'inboundQuantity', 'contains')"
+                        [value]="$any(perpetualvarianceConfirmTag.filters['inboundQuantity'])?.value" placeholder="Search"
+                        class=" w-100 p-column-filter">
+                    </th>
+                    <th style="max-width: 7rem" >
+                      <input pInputText type="text"
+                        (input)="perpetualvarianceConfirmTag.filter($any($event.target)?.value, 'outboundQuantity', 'contains')"
+                        [value]="$any(perpetualvarianceConfirmTag.filters['outboundQuantity'])?.value" placeholder="Search"
+                        class=" w-100 p-column-filter">
+                    </th>
+                   
+                    <th style="max-width: 7rem">
+                      <input pInputText type="text"
+                        (input)="perpetualvarianceConfirmTag.filter($any($event.target)?.value, 'firstCountedQty', 'contains')"
+                        [value]="$any(perpetualvarianceConfirmTag.filters['firstCountedQty'])?.value" placeholder="Search"
+                        class=" w-100 p-column-filter">
+                    </th>
+                  
+                    <th style="max-width: 7rem" >
+                      <input pInputText type="text"
+                        (input)="perpetualvarianceConfirmTag.filter($any($event.target)?.value, 'secondCountedQty', 'contains')"
+                        [value]="$any(perpetualvarianceConfirmTag.filters['secondCountedQty'])?.value" placeholder="Search"
+                        class=" w-100 p-column-filter">
+                    </th>
+                   
+                    <th style="max-width: 7rem">
+                      <input pInputText type="text"
+                        (input)="perpetualvarianceConfirmTag.filter($any($event.target)?.value, 'Variance', 'contains')"
+                        [value]="$any(perpetualvarianceConfirmTag.filters['Variance'])?.value" placeholder="Search"
+                        class=" w-100 p-column-filter">
+                    </th>
+                    <th style="max-width: 7rem">
+                      <input pInputText type="text"
+                        (input)="perpetualvarianceConfirmTag.filter($any($event.target)?.value, 'Variance1', 'contains')"
+                        [value]="$any(perpetualvarianceConfirmTag.filters['Variance1'])?.value" placeholder="Search"
+                        class=" w-100 p-column-filter">
+                    </th>
+                    <th style="max-width: 7rem">
+                      <input pInputText type="text"
+                        (input)="perpetualvarianceConfirmTag.filter($any($event.target)?.value, 'storageSectionId', 'contains')"
+                        [value]="$any(perpetualvarianceConfirmTag.filters['storageSectionId'])?.value" placeholder="Search"
+                        class=" w-100 p-column-filter">
+                    </th>
+                    <th style="max-width: 7rem">
+                      <input pInputText type="text"
+                        (input)="perpetualvarianceConfirmTag.filter($any($event.target)?.value, 'levelId', 'contains')"
+                        [value]="$any(perpetualvarianceConfirmTag.filters['levelId'])?.value" placeholder="Search"
+                        class=" w-100 p-column-filter">
+                    </th>
+                    <th style="max-width: 7rem">
+                      <input pInputText type="text"
+                        (input)="perpetualvarianceConfirmTag.filter($any($event.target)?.value, 'cycleCounterId', 'contains')"
+                        [value]="$any(perpetualvarianceConfirmTag.filters['cycleCounterId'])?.value"
+                        placeholder="Search" class=" w-100 p-column-filter">
+                    </th>
+                    <th style="max-width: 7rem" >
+                      <input pInputText type="text"
+                        (input)="perpetualvarianceConfirmTag.filter($any($event.target)?.value, 'status', 'contains')"
+                        [value]="$any(perpetualvarianceConfirmTag.filters['status'])?.value" placeholder="Search"
+                        class=" w-100 p-column-filter">
+                    </th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-perpetualvarianceConfirm let-rowIndex="rowIndex">
+                  <tr [pSelectableRow]="perpetualvarianceConfirm" [pSelectableRowIndex]="rowIndex">
+                    <td style="width: 40rem">
+                      <mat-radio-group [(ngModel)]="perpetualvarianceConfirm.cycleCountAction"
+                        [disabled]="this.data.type =='Display'">
+                        <!-- <mat-radio-button *ngFor="let action of cycleCountActions;let i = index" [checked]="i == 0"
+                          [value]="action.value" class="mr-3">{{action.view}} </mat-radio-button> -->
+                          <mat-radio-button [checked]="true"  [disabled]="perpetualvarianceConfirm.cycleCountAction == 'CONFIRM'"  value="RECOUNT" class="mr-3">ReCount </mat-radio-button>
+                          <mat-radio-button value="CONFIRM" class="mr-3">Confirm</mat-radio-button>
+                      </mat-radio-group>
+                    </td>
+                    <td style="max-width: 7rem">{{perpetualvarianceConfirm.manufacturerPartNo}}</td>
+                    <td style="max-width: 7rem">{{perpetualvarianceConfirm.itemCode}}</td>
+                    <td style="max-width: 7rem">{{perpetualvarianceConfirm.itemDesc}}</td>
+                    <td style="max-width: 7rem">{{perpetualvarianceConfirm.storageSectionId}}</td>
+                    <td style="max-width: 7rem">{{perpetualvarianceConfirm.storageBin}}</td>
+                    <td style="max-width: 7rem">{{perpetualvarianceConfirm.barcodeId}}</td>
+                    <td style="max-width: 7rem">
+                      {{perpetualvarianceConfirm.stockTypeId == 1 ? 'On Hand' : ''}}
+                      {{perpetualvarianceConfirm.stockTypeId == 7 ? 'Hold' : ''}}
+                    </td>
+                    <td style="max-width: 7rem">{{perpetualvarianceConfirm.frozenQty}}</td>
+                    <td style="max-width: 7rem">{{perpetualvarianceConfirm.inventoryQuantity}}</td>
+                    <td style="max-width: 7rem"><input matInput [disabled]="this.pageflow == 'Display'" type="number" placeholder="Counted Qty" [(ngModel)]="perpetualvarianceConfirm.countedQty" required></td>
+                    <td style="max-width: 7rem">{{perpetualvarianceConfirm.inboundQuantity}}</td>
+                    <td style="max-width: 7rem">{{perpetualvarianceConfirm.outboundQuantity}}</td>
+                    <td style="max-width: 7rem" >{{perpetualvarianceConfirm.firstCountedQty}}</td>
+                    <td style="max-width: 7rem">{{perpetualvarianceConfirm.secondCountedQty}}</td>
+                    <td style="max-width: 7rem" [ngClass]="perpetualvarianceConfirm.varianceQty != 0 ? 'text-danger' : ''">{{((perpetualvarianceConfirm.inventoryQuantity+perpetualvarianceConfirm.inboundQuantity)-(perpetualvarianceConfirm.outboundQuantity+perpetualvarianceConfirm.countedQty))}}</td><!--(perpetualvarianceConfirm.inventoryQuantity - ((perpetualvarianceConfirm.countedQty +  perpetualvarianceConfirm.inboundQuantity) - perpetualvarianceConfirm.outboundQuantity))-->
+                    <td style="max-width: 7rem">{{(perpetualvarianceConfirm.frozenQty-(perpetualvarianceConfirm.countedQty+perpetualvarianceConfirm.inboundQuantity-perpetualvarianceConfirm.outboundQuantity)) }}</td>
+                    <td style="max-width: 7rem" >{{perpetualvarianceConfirm.storageSectionId}}</td>
+                    <td style="max-width: 7rem" >{{perpetualvarianceConfirm.levelId}}</td>
+                    <td style="max-width: 7rem" >{{perpetualvarianceConfirm.cycleCounterId}}</td>
+                    <td style="max-width: 7rem">{{perpetualvarianceConfirm.statusDescription}}</td>
+                  </tr>
+                </ng-template>
+              </p-table>
+          </div>
+
+
+          <div class=" pb-1 w-100 d-flex justify-content-end ">
+            <div class=" py-2  mr-5 pr-5">
+              <button mat-raised-button class="text-white mr-1 px-4" color="warn"
+                routerLink="/main/cycle-count/variant-analysis-annual">
+                <mat-icon class="">close</mat-icon> Cancel
+              </button>
+              <button mat-raised-button class="bg-darkblue text-white ml-1"  *ngIf= "this.data.periodicHeaderData.statusId != 78 && this.pageflow != 'Display'"   (click)="checkAssignUser()">
+                <mat-icon class="">done</mat-icon> Confirm
+              </button>
+              <button mat-raised-button class="bg-orange text-white ml-1" (click)="pushToAms()"  *ngIf="this.data.periodicHeaderData.referenceField1 != 'True'">  <!--*ngIf="(showAMS || this.data.periodicHeaderData.statusId == 78) && this.pageflow != 'Display'" -->
+                <mat-icon class="">send</mat-icon> Push to AMS
+              </button>
+            </div>
+            <div class="p-0 mx-1 ">
+              <mat-paginator class="" showFirstLastButtons [pageSize]="100" [pageSizeOptions]="[100, 150, 200, 250]"
+                aria-label="Select page of periodic elements">
+              </mat-paginator>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <mat-menu #menu="matMenu">
+    <ng-template matMenuContent>
+      <button mat-menu-item>Recount</button>
+      <button mat-menu-item>Skip</button>
+      <button mat-menu-item>Write off</button>
+    </ng-template>
+  </mat-menu>
+
+
+</div>

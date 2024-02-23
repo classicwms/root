@@ -1,0 +1,530 @@
+<div class="row mx-2 bg-dark">
+    <div class="col-9 px-4 py-3 border border-secondary">
+      <div class="row">
+        <div class="col-12">
+          <fieldset class="boxLg neumorphismBox1">
+            <legend id="Legend5" runat="server" visible="true"
+              style="width:auto; margin-bottom: 0px; font-size: 12px; font-weight: bold; color: #cfcfcf;">Returns &
+              Delivery</legend>
+  
+          </fieldset>
+        </div>
+        <div class="col-4">
+          <fieldset class="longbox neumorphismBox1">
+            <legend id="Legend5" runat="server" visible="true"
+              style="width:auto; margin-bottom: 0px; font-size: 12px; font-weight: bold; color: #cfcfcf;">Zone 1</legend>
+            <div [ngClass]="temperature == true ? 'mr-2 ml-auto blink1' : 'mr-2 ml-auto ball'" (click)="showZone1();"></div>
+            <div class="d-flex justify-content-between p-1">
+              <div class="div ">
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                  <div type="button" class="bin neumorphism4 ml available"></div>
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                  <div type="button" class="bin neumorphism4 ml  partial"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                  <div type="button" class="bin neumorphism4 ml  partial"></div>
+                  <div type="button" class="bin neumorphism4 ml  partial"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                </div>
+              </div>
+              <!-- <div class="div new">
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  "></div>
+                  <div type="button" class="bin neumorphism4 ml  "></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  "></div>
+                  <div type="button" class="bin neumorphism4 ml  "></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  "></div>
+                  <div type="button" class="bin neumorphism4 ml  "></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  "></div>
+                  <div type="button" class="bin neumorphism4 ml  "></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  "></div>
+                  <div type="button" class="bin neumorphism4 ml  "></div>
+                </div>
+                
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  "></div>
+                  <div type="button" class="bin neumorphism4 ml  "></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  "></div>
+                  <div type="button" class="bin neumorphism4 ml  "></div>
+                </div>
+              </div> -->
+              <div class="div">
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  partial"></div>
+                  <div type="button" class="bin neumorphism4 ml  partial"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  partial"></div>
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                </div>
+                
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                  <div type="button" class="bin neumorphism4 ml  partial"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                </div>
+              </div>
+              <div class="div">
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  occupied "></div>
+                  <div type="button" class="bin neumorphism4 ml  partial"></div>
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available "></div>
+                  <div type="button" class="bin neumorphism4 ml  partial"></div>
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  occupied "></div>
+                  <div type="button" class="bin neumorphism4 ml  partial"></div>
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  partial "></div>
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                  <div type="button" class="bin neumorphism4 ml  available invisible" ></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  occupied "></div>
+                  <div type="button" class="bin neumorphism4 ml  partial"></div>
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  partial "></div>
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  occupied "></div>
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+        <div class="col-4">
+          <div class="row">
+            <div class="col-12">
+              <fieldset class="horizontalBox neumorphismBox1">
+                <legend id="Legend5" runat="server" visible="true"
+                  style="width:auto; margin-bottom: 0px; font-size: 12px; font-weight: bold; color: #cfcfcf;">Zone 2
+                </legend>
+                <div class="d-flex justify-content-between p-1">
+                  <div class="div">
+                    <div class="d-flex flex-row">
+                      <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                      <div type="button" class="bin neumorphism4 ml  partial"></div>
+                      <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                    </div>
+                    <div class="d-flex flex-row">
+                      <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                      <div type="button" class="bin neumorphism4 ml  partial"></div>
+                      <div type="button" class="bin neumorphism4 ml  available"></div>
+                    </div>
+                    <div class="d-flex flex-row">
+                      <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                      <div type="button" class="bin neumorphism4 ml  available"></div>
+                      <div type="button" class="bin neumorphism4 ml  partial"></div>
+                    </div>
+                    <div class="d-flex flex-row">
+                      <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                      <div type="button" class="bin neumorphism4 ml  partial"></div>
+                      <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                    </div>
+                  </div>
+                  <div class="div">
+                    <div class="d-flex flex-row">
+                      <div type="button" class="bin neumorphism4 ml  partial"></div>
+                      <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                    </div>
+                    
+                    <div class="d-flex flex-row">
+                      <div type="button" class="bin neumorphism4 ml  available"></div>
+                      <div type="button" class="bin neumorphism4 ml  available"></div>
+                    </div>
+                    <div class="d-flex flex-row">
+                      <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                      <div type="button" class="bin neumorphism4 ml  available"></div>
+                    </div>
+                    <div class="d-flex flex-row">
+                      <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                      <div type="button" class="bin neumorphism4 ml  available"></div>
+                    </div>
+                  </div>
+                  <div class="div">
+                    <div class="d-flex flex-row">
+                      <div type="button" class="bin neumorphism4 ml  partial "></div>
+                      <div type="button" class="bin neumorphism4 ml  available"></div>
+                      <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                    </div>
+                    <div class="d-flex flex-row">
+                      <div type="button" class="bin neumorphism4 ml  partial "></div>
+                      <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                      <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                    </div>
+                    <div class="d-flex flex-row">
+                      <div type="button" class="bin neumorphism4 ml  available "></div>
+                      <div type="button" class="bin neumorphism4 ml  partial"></div>
+                      <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                    </div>
+                    <div class="d-flex flex-row">
+                      <div type="button" class="bin neumorphism4 ml  available "></div>
+                      <div type="button" class="bin neumorphism4 ml  partial"></div>
+                      <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+            <div class="col-6 ">
+              <fieldset class="horizontalBox neumorphismBox1">
+                <legend id="Legend5" runat="server" visible="true"
+                  style="width:auto; margin-bottom: 0px; font-size: 12px; font-weight: bold; color: #cfcfcf;">Zone 3
+                </legend>
+                <div class="d-flex justify-content-between p-1 px-3">
+                  <div class="div">
+                    <div class="d-flex flex-row">
+                      <div type="button" class="bin neumorphism4 ml  available"></div>
+                    </div>
+                    <div class="d-flex flex-row">
+                      <div type="button" class="bin neumorphism4 ml  partial"></div>
+                    </div>
+                    <div class="d-flex flex-row">
+                      <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                    </div>
+                    <div class="d-flex flex-row">
+                      <div type="button" class="bin neumorphism4 ml  available"></div>
+                    </div>
+                  </div>
+                  <div class="div">
+                    <div class="d-flex flex-row">
+                      <div type="button" class="bin neumorphism4 ml  partial"></div>
+                      <div type="button" class="bin neumorphism4 ml  available"></div>
+                    </div>
+                    
+                    <div class="d-flex flex-row">
+                      <div type="button" class="bin neumorphism4 ml  available"></div>
+                      <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                    </div>
+                    <div class="d-flex flex-row">
+                      <div type="button" class="bin neumorphism4 ml  available"></div>
+                      <div type="button" class="bin neumorphism4 ml  partial"></div>
+                    </div>
+                    <div class="d-flex flex-row">
+                      <div type="button" class="bin neumorphism4 ml  available"></div>
+                      <div type="button" class="bin neumorphism4 ml  partial"></div>
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+            <div class="col-6 ">
+              <fieldset class="horizontalBox neumorphismBox1">
+                <legend id="Legend5" runat="server" visible="true"
+                  style="width:auto; margin-bottom: 0px; font-size: 12px; font-weight: bold; color: #cfcfcf;">Zone 4
+                </legend>
+                <div class="d-flex justify-content-between p-1 px-3">
+                  <div class="div">
+                    <div class="d-flex flex-row">
+                      <div type="button" class="bin neumorphism4 ml  available"></div>
+                    </div>
+                    <div class="d-flex flex-row">
+                      <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                    </div>
+                    <div class="d-flex flex-row">
+                      <div type="button" class="bin neumorphism4 ml  partial"></div>
+                    </div>
+                    <div class="d-flex flex-row">
+                      <div type="button" class="bin neumorphism4 ml  partial"></div>
+                    </div>
+                  </div>
+                  <div class="div">
+                    <div class="d-flex flex-row">
+                      <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                      <div type="button" class="bin neumorphism4 ml  partial"></div>
+                    </div>
+                    
+                    <div class="d-flex flex-row">
+                      <div type="button" class="bin neumorphism4 ml  available"></div>
+                      <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                    </div>
+                    <div class="d-flex flex-row">
+                      <div type="button" class="bin neumorphism4 ml  partial"></div>
+                      <div type="button" class="bin neumorphism4 ml  partial"></div>
+                    </div>
+                    <div class="d-flex flex-row">
+                      <div type="button" class="bin neumorphism4 ml  partial"></div>
+                      <div type="button" class="bin neumorphism4 ml  partial"></div>
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+            <div class="col-4">
+  
+            </div>
+          </div>
+        </div>
+        <div class="col-4">
+          <fieldset class="longbox neumorphismBox1">
+            <legend id="Legend5" runat="server" visible="true"
+              style="width:auto; margin-bottom: 0px; font-size: 12px; font-weight: bold; color: #cfcfcf;">Zone 5</legend>
+            <div [ngClass]="temperature == true ? 'mr-2 ml-auto blink1' : 'mr-2 ml-auto ball'" (click)="showZone2();"></div>
+            <div class="d-flex justify-content-between p-1">
+              <div class="div">
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                  <div type="button" class="bin neumorphism4 ml  partial"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                  <div type="button" class="bin neumorphism4 ml  partial"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                  <div type="button" class="bin neumorphism4 ml  partial"></div>
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                  <div type="button" class="bin neumorphism4 ml  partial"></div>
+                  <div type="button" class="bin neumorphism4 ml  partial"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                </div>
+              </div>
+              <div class="div">
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  partial"></div>
+                  <div type="button" class="bin neumorphism4 ml  partial"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  partial"></div>
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                </div>
+                
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                </div>
+              </div>
+              <div class="div">
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  occupied "></div>
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available "></div>
+                  <div type="button" class="bin neumorphism4 ml  partial"></div>
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  occupied "></div>
+                  <div type="button" class="bin neumorphism4 ml  partial"></div>
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  partial "></div>
+                  <div type="button" class="bin neumorphism4 ml  occupied"></div>
+                  <div type="button" class="bin neumorphism4 ml  available invisible" ></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  occupied "></div>
+                  <div type="button" class="bin neumorphism4 ml  partial"></div>
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  partial "></div>
+                  <div type="button" class="bin neumorphism4 ml  available"></div>
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  occupied "></div>
+                  <div type="button" class="bin neumorphism4 ml  partial"></div>
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  available "></div>
+                  <div type="button" class="bin neumorphism4 ml  partial"></div>
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                </div>
+                <div class="d-flex flex-row">
+                  <div type="button" class="bin neumorphism4 ml  occupied "></div>
+                  <div type="button" class="bin neumorphism4 ml  partial"></div>
+                  <div type="button" class="bin neumorphism4 ml  available invisible"></div>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+        <div class="col-6">
+          <fieldset class="boxLg neumorphismBox1" >
+            <legend id="Legend5" runat="server" visible="true"
+              style="width:auto; margin-bottom: 0px; font-size: 12px; font-weight: bold; color: #cfcfcf;">Inward</legend>
+  
+          </fieldset>
+        </div>
+        <div class="col-6">
+          <fieldset class="boxLg neumorphismBox1">
+            <legend id="Legend5" runat="server" visible="true"
+              style="width:auto; margin-bottom: 0px; font-size: 12px; font-weight: bold; color: #cfcfcf;"
+              (click)="triggerBlink();">Delivery
+            </legend>
+  
+          </fieldset>
+        </div>
+      </div>
+    </div>
+    <div class="col-3">
+      <div class="card " style="overflow-x: hidden;" *ngIf="this.zone1">
+        <div mat-dialog-title class="d-flex justify-content-between bg-secondary align-items-center p-2">
+          <h6 class="my-auto text-white  text-left">Zone 1, <br> ID - DS18B20</h6>
+          <mat-icon class="text-white" mat-dialog-close>close</mat-icon>
+        </div>
+        <div class="mt-2 px-4">
+          <div class="row  p-1">
+            <div class="frame p-1" (scroll)="scrolled($event)" #scrollframe>
+              <div *ngFor="let item of items" class="item" #item>
+                <p class="mb-0">
+                  <small>
+                    104.99, "feels like":300.73, "temp_min":304.99,"temp_max":107.42,"pressure":1005, "ses level":1005
+                  </small>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  

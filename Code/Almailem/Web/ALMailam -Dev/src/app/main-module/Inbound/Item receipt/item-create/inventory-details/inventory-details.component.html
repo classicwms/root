@@ -1,0 +1,81 @@
+<div class="card  border-0 " style="overflow: hidden;">
+    <div mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle
+      class="d-flex justify-content-between align-items-center header_colour text-white p-2">
+      <h5 class="my-auto">Inventory Details</h5>
+      <mat-icon class="text-white" mat-dialog-close>close</mat-icon>
+    </div>
+  
+    <p-table #inventoryTag  [value]="inventory"
+    styleClass="p-datatable-gridlines p-datatable-sm" [scrollable]="true" 
+    scrollHeight="calc(100vh - 32.2rem)" sortField="preInboundNo" [sortOrder]="-1" [paginator]="true" [rows]="100" [showCurrentPageReport]="true"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+       [resizableColumns]="true" style="width: 100%;margin-right: 10px;background-color:white" >
+    <ng-template pTemplate="header">
+      <tr>
+          <th  pSortableColumn="plantId" pResizableColumn>Branch<p-sortIcon field="plantId"></p-sortIcon></th>
+          <th  pSortableColumn="itemCode"   pResizableColumn>Part No<p-sortIcon field="itemCode"></p-sortIcon></th>
+          <th  pSortableColumn="referenceField8"   pResizableColumn>Description<p-sortIcon field="referenceField8"></p-sortIcon></th>
+        <th  pSortableColumn="storageBin"   pResizableColumn>Bin Location<p-sortIcon field="storageBin"></p-sortIcon></th>
+        <th  pSortableColumn="partnerItemBarcode" pResizableColumn>Barcode<p-sortIcon field="partnerItemBarcode"></p-sortIcon></th> 
+        <th  pSortableColumn="manufacturer" pResizableColumn>Mfr<p-sortIcon field="manufacturer"></p-sortIcon></th> 
+        <th  pSortableColumn="brand" pResizableColumn>Brand <p-sortIcon field="brand"></p-sortIcon></th> 
+      </tr>
+       
+      <tr >
+      <th >
+        <input pInputText  type="text" (input)="inventoryTag.filter($any($event.target)?.value, 'plantId', 'contains')" 
+        [value]="$any(inventoryTag.filters['plantId'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+      </th>
+        <th >
+          <input pInputText  type="text" (input)="inventoryTag.filter($any($event.target)?.value, 'itemCode', 'contains')" 
+          [value]="$any(inventoryTag.filters['itemCode'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+        </th>
+        <th >
+          <input pInputText  type="text" (input)="inventoryTag.filter($any($event.target)?.value, 'referenceField8', 'contains')" 
+          [value]="$any(inventoryTag.filters['referenceField8'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+        </th> 
+           <th >
+          <input pInputText  type="text" (input)="inventoryTag.filter($any($event.target)?.value, 'storageBin', 'contains')" 
+          [value]="$any(inventoryTag.filters['storageBin'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+        </th> 
+        <th >
+          <input pInputText  type="text" (input)="inventoryTag.filter($any($event.target)?.value, 'partnerItemBarcode', 'contains')" 
+          [value]="$any(inventoryTag.filters['partnerItemBarcode'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+        </th>
+        <th >
+          <input pInputText  type="text" (input)="inventoryTag.filter($any($event.target)?.value, 'manufacturer', 'contains')" 
+          [value]="$any(inventoryTag.filters['manufacturer'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+        </th>
+        <th >
+          <input pInputText  type="text" (input)="inventoryTag.filter($any($event.target)?.value, 'brand', 'contains')" 
+          [value]="$any(inventoryTag.filters['brand'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+        </th>
+      </tr>
+    </ng-template>
+        <ng-template pTemplate="body"  let-inventory>
+          <tr>
+          <td >{{inventory.plantId}}</td>
+        <td >{{inventory.itemCode}}</td>
+        <td >{{inventory.referenceField8}}</td>
+        <td >{{inventory.storageBin}}</td>
+        <td >{{inventory.partnerItemBarcode}}</td>
+        <td >{{inventory.manufacturer}}</td>
+        <td >{{inventory.brand}}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+    <div class=" pb-1 w-100 d-flex justify-content-center originalbackground">
+      <div class=" py-2  ">
+        <button mat-raised-button mat-dialog-close class="text-white mx-1 px-4" color="warn">
+          <mat-icon class="">close</mat-icon>Cancel
+        </button>
+        <button mat-raised-button class="bg-warning px-4 text-white mx-1" (click)="proceedBarcode(this.data.element)"> 
+            <mat-icon class="">print</mat-icon> Proceed Barcode
+          </button>
+        <button mat-raised-button class="bg-darkblue px-4 text-white mx-1"  (click)="createBarocde(this.data.element)">
+          <mat-icon class="">print</mat-icon> Generate Barcode
+        </button>
+      </div>
+    </div>
+  
+  </div>

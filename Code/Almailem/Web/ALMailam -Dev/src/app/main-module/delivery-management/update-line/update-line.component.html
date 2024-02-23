@@ -1,0 +1,94 @@
+<div class="card  border-0 bg-white " style="overflow: hidden;">
+  <div mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle
+    class="d-flex justify-content-between align-items-center header_colour text-white p-2">
+    <h6 class="my-auto">Assign Order</h6>
+    <mat-icon class="text-white" mat-dialog-close>close</mat-icon>
+  </div>
+  <div class="row my-2 mx-1 pr-0 w-100">
+    <div class="col-lg-4 col-md-6 mt-2">
+      <div class="d-flex flex-column">
+        <p class="mb-0 py-0 required">Order No</p>
+        <p-dropdown (onChange)="onOrderChange($event)" placeholder="Select" class="w-100" [filter]="true"
+          [options]="refDocList" [style]="{'width': '100%', 'margin-top': '0.3rem', 'margin-bottom': '0.3rem'}"
+          [panelStyle]="{'width':'20%'}" appendTo="body"> </p-dropdown>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="showTable">
+    <div class="row ">
+      <p-table #lineTag [value]="invoiceLine" styleClass="p-datatable-gridlines p-datatable-sm" [scrollable]="true"
+        selectionMode="multiple" [(selection)]="selectedInvoiceLine" scrollHeight="calc(100vh - 27rem)"
+        sortField="preOutboundNo" [sortOrder]="-1" [paginator]="true" [rows]="100" [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [resizableColumns]="true"
+        style="width: 100%;margin-left: 10px;background-color:white">
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="max-width: 3.5rem">
+              <p-tableHeaderCheckbox [disabled]="true"></p-tableHeaderCheckbox>
+            </th>
+            <th style="width: 10rem" pSortableColumn="manufacturerName" pResizableColumn>Mfr Name<p-sortIcon
+                field="manufacturerName"></p-sortIcon>
+            </th>
+            <th style="width: 10rem" pSortableColumn="itemCode" pResizableColumn>Part No<p-sortIcon
+                field="itemCode"></p-sortIcon>
+            </th>
+            <th style="width: 10rem" pSortableColumn="description" pResizableColumn>Desc <p-sortIcon
+                field="description"></p-sortIcon>
+            </th>
+            <th style="width: 10rem" pSortableColumn="orderQty" pResizableColumn>Order Qty<p-sortIcon
+                field="orderQty"></p-sortIcon>
+            </th>
+          </tr>
+          <tr>
+            <th style="max-width: 3.5rem">
+              <p-tableHeaderCheckbox [disabled]="true"></p-tableHeaderCheckbox>
+            </th>
+            <th style="width: 10rem">
+              <input pInputText type="text"
+                (input)="lineTag.filter($any($event.target)?.value, 'manufacturerName', 'contains')"
+                [value]="$any(lineTag.filters['manufacturerName'])?.value" placeholder="Search "
+                class=" w-100 p-column-filter">
+            </th>
+            <th style="width: 10rem">
+              <input pInputText type="text" (input)="lineTag.filter($any($event.target)?.value, 'itemCode', 'contains')"
+                [value]="$any(lineTag.filters['itemCode'])?.value" placeholder="Search " class=" w-100 p-column-filter">
+            </th>
+            <th style="width: 10rem">
+              <input pInputText type="text"
+                (input)="lineTag.filter($any($event.target)?.value, 'description', 'contains')"
+                [value]="$any(lineTag.filters['description'])?.value" placeholder="Search "
+                class=" w-100 p-column-filter">
+            </th>
+            <th style="width: 10rem">
+              <input pInputText type="text" (input)="lineTag.filter($any($event.target)?.value, 'orderQty', 'contains')"
+                [value]="$any(lineTag.filters['orderQty'])?.value" placeholder="Search " class=" w-100 p-column-filter">
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-invoiceLine let-rowIndex="rowIndex">
+          <tr>
+            <td style="max-width:3.5rem;">
+              <p-tableCheckbox [value]="invoiceLine"></p-tableCheckbox>
+            </td>
+            <td style="width: 10rem"> {{invoiceLine.manufacturerName}}</td>
+            <td style="width: 10rem">{{invoiceLine.itemCode}}</td>
+            <td style="width: 10rem">{{invoiceLine.description}}</td>
+            <td style="width: 10rem">{{invoiceLine.orderQty}}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+    </div>
+    <div class=" pb-1 w-100 d-flex justify-content-center transparentBg">
+      <div class="d-flex justify-content-center align-items-center py-2  ">
+        <button mat-raised-button mat-dialog-close class="text-white mr-1 px-4" color="warn">
+          <mat-icon class="">close</mat-icon> Cancel
+        </button>
+        <button mat-raised-button (click)="confirm()" class="bg-darkblue px-4 text-white ml-1">
+          <mat-icon class="">done</mat-icon> Confirm
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

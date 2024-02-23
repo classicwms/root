@@ -1,0 +1,15 @@
+<div class="tabbar mx-2 px-0 ">
+    <nav mat-tab-nav-bar  class=" mx-1 scroll2 d-flex justify-content-start ">
+      <a mat-tab-link *ngFor=" let link of listmenu"[ngClass]="link.class"
+        (click)="activeLink = link.url" [active]="activeLink == link.url" [routerLink]="link.url">
+        <h4 [ngClass]="link.icon"> {{link.title}}</h4> </a>
+    </nav>
+    </div> 
+    <router-outlet></router-outlet>
+  
+
+
+      
+    
+    
+    

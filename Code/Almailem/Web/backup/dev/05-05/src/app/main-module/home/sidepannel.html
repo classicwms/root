@@ -1,0 +1,207 @@
+<div class="container  vw-100 vh-100 mw-100  mx-0 px-0">
+  <div class="col px-0 header_band">
+    <div class="d-flex justify-content-between text-white whs-header-height  pr-2 shadow">
+      <!-- <div class="font my-auto mb-0 invisible">
+                <h1  class="font-weight-bold text-white">CLASSIC WMS</h1>
+            </div> -->
+
+      <div class="d-flex justify-content-center align-items-center">
+
+        <!-- <mat-icon class="sidebar_icon whs-text-grey px-3" style="font-size:1.6rem">{{icon}}</mat-icon> -->
+        <button mat-icon-button>
+          <img (click)="toggleFloat()" (click)="isExpanded = !isExpanded"
+            src="{{ toggle ? './assets/img/icons/Hamburger.png' : './assets/img/icons/Hamburger1.png'}}" class="" alt=""
+            srcset="">
+        </button>
+
+      </div>
+      <div class="d-flex flex-row  my-auto mb-0  py-1 px-2 rounded text-left">
+        <!--  <i class="fas fa-warehouse mr-4 my-auto fa-2x "></i>-->
+        <img src="./assets/img/icons/logotitle.png" class="ïmg-fluid" alt="" srcset="">
+      </div>
+      <div class="d-flex flex-row-reverse pr-3">
+        <div class="my-auto ml-4">
+
+          <button mat-icon-button class="whs-text-grey  mx-1" [matMenuTriggerFor]="menu7">
+            <a href=""><img src="./assets/img/icons/usericon.png" class="ïmg-fluid" alt="" srcset=""></a>
+          </button>
+          <!--       <i class="fas fa-power-off whs-header-iconsize-1_6rem text-white" data-toggle="modal"
+              data-target="#exampleModal123" [matMenuTriggerFor]="menu7"></i>
+            -->
+        </div>
+        <mat-menu #menu7="matMenu" class="logout">
+          <button mat-menu-item class=" dropdown_fields" (click)="logout()"><i
+              class="fas fa-power-off mx-2 font_1-5 mb-0 pb-0 my-auto"></i>Logout</button>
+        </mat-menu>
+        <div class="d-flex flex-column justify-content-center mt-auto username ml-4">
+          <h6 class="mb-0 text-center whs-text-grey">{{username}}</h6>
+          <p class="mb-1 mt-1 whs-text-grey"><small> {{currentdate | date:'dd-MM-yyyy, HH:mm z'}}</small></p>
+        </div>
+        <div class="my-auto">
+          <a href=""><img src="./assets/img/icons/bellicon.png" class="ïmg-fluid" alt="" srcset=""></a>
+        </div>
+        <!-- <i class="fas fa-ellipsis-h fa-2x mr-4 my-auto whs-text-grey" data-toggle="dropdown"></i> -->
+        <div class="dropdown-menu px-3 actiondropdown" aria-labelledby="dropdownMenuLink">
+          <div class="d-flex  text-secondary"><i class="bi bi-envelope-fill pr-2 mb-1"></i>
+            <p class="mb-1">Personal Notepad</p>
+          </div>
+          <!-- <div class="d-flex  text-secondary"><i class="bi bi-file-check-fill pr-2 mb-2"></i>
+            <p class="mb-1">Files</p>
+          </div> -->
+        </div>
+        <!-- <div class="my-auto">
+          <i class="bi bi-gear-fill fa-2x mr-4 my-auto whs-text-grey"></i>
+        </div> -->
+        <!--    <div class="my-auto">
+                    <a href=""><i
+                            class="bi bi-binoculars-fill mr-3 rounded-0 whs-header-iconsize-1_6rem btn btn-sm btn-outline-light border-0 py-0"></i></a>
+                </div>
+                <div class="my-auto">
+                    <a href=""><i
+                            class="bi bi-printer-fill mr-3 rounded-0 btn whs-header-iconsize-1_6rem btn-sm btn-outline-light border-0 py-0"></i></a>
+                </div> -->
+        <div class="dropdown my-auto mr-3 d-none">
+          <button class="btn btn-sm rounded-0 btn-outline-light dropdown-toggle py-0" type="button"
+            data-toggle="dropdown">Tab 1</button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="">Action</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+  <div class="row no-gutters" style="height:calc(100vh - 4.5rem);">
+    <!--Sidebar-->
+
+    <mat-sidenav-container class="example-container col ml-0" autosize>
+      <mat-sidenav #sidenav class="example-sidenav" mode="side" opened="true" style="overflow-y: hidden !important;"
+        [ngClass]="{'white' : toggle, 'black': !toggle}">
+        <mat-nav-list *ngFor="let item of menulist ">
+          <mat-list-item *ngIf="item.id == 1000" class=" parent  hvr-sweep-to-right" (click)="routeto(item.url,item.id)"
+            [ngClass]="{'text-grey1' : toggle, 'text-white' : !toggle}">
+            <span class="full-width pt-2 ml-4   d-flex align-items-center" *ngIf="isExpanded || isShowing"><a
+                href="/#/main/dashboard">Home</a></span>
+            <mat-icon mat-list-icon class=" sidebar_icon hvr-bounce-in" style="font-size:27px" matTooltip="Home"
+              matTooltipPosition="right"><a href="/#/main/dashboard">Home</a></mat-icon>
+            <!--
+                <mat-icon class="menu-button mx-2" [ngClass]="{'rotated' : showSubmenu}" *ngIf="isExpanded || isShowing">
+              expand_more</mat-icon>
+            -->
+          </mat-list-item>
+
+          <mat-list-item *ngIf="item.id == 1001" class=" parent  hvr-sweep-to-right"
+            [ngClass]="{'text-grey1' : toggle, 'text-white' : !toggle}">
+            <span class="full-width pt-2 ml-4 " *ngIf="isExpanded || isShowing">Setup</span>
+            <mat-icon mat-list-icon class=" sidebar_icon hvr-bounce-in" style="font-size:27px" matTooltip="Setup"
+              matTooltipPosition="right">settings</mat-icon>
+            <mat-icon class="menu-button mx-2 pt-1 my-auto" *ngIf="isExpanded || isShowing" [matMenuTriggerFor]="setup">
+              expand_more</mat-icon>
+          </mat-list-item>
+
+          <mat-list-item *ngIf="item.id == 2210" class=" parent  hvr-sweep-to-right"
+            [ngClass]="{'text-grey1' : toggle, 'text-white' : !toggle}">
+            <span class="full-width pt-2 ml-4 " *ngIf="isExpanded || isShowing">Master Data</span>
+            <mat-icon mat-list-icon class=" sidebar_icon hvr-bounce-in" style="font-size:27px" matTooltip="Master Data"
+              matTooltipPosition="right">key</mat-icon>
+            <mat-icon class="menu-button mx-2 pt-1 my-auto" *ngIf="isExpanded || isShowing"
+              [matMenuTriggerFor]="master">
+              expand_more</mat-icon>
+          </mat-list-item>
+
+          <mat-list-item *ngIf="item.id == 1003" class=" parent  hvr-sweep-to-right" (click)="routeto(item.url,item.id)"
+            [ngClass]="{'text-grey1' : toggle, 'text-white' : !toggle}">
+            <span class="full-width pt-2 ml-4 " *ngIf="isExpanded || isShowing">Inbound</span>
+            <mat-icon mat-list-icon class=" sidebar_icon hvr-bounce-in" style="font-size:27px" matTooltip="Inbound"
+              matTooltipPosition="right">login</mat-icon>
+          </mat-list-item>
+
+          <mat-list-item *ngIf="item.id == 1004" class=" parent  hvr-sweep-to-right" (click)="routeto(item.url,item.id)"
+            [ngClass]="{'text-grey1' : toggle, 'text-white' : !toggle}">
+            <span class="full-width pt-2 ml-4 " *ngIf="isExpanded || isShowing">Make & Change</span>
+            <mat-icon mat-list-icon class=" sidebar_icon hvr-bounce-in" style="font-size:27px"
+              matTooltip="Make & Change" matTooltipPosition="right">sync_alt</mat-icon>
+          </mat-list-item>
+
+          <mat-list-item *ngIf="item.id == 1005" class=" parent  hvr-sweep-to-right" (click)="routeto(item.url,item.id)"
+            [ngClass]="{'text-grey1' : toggle, 'text-white' : !toggle}">
+            <span class="full-width pt-2 ml-4 " *ngIf="isExpanded || isShowing">Outbound</span>
+            <mat-icon mat-list-icon class=" sidebar_icon hvr-bounce-in" style="font-size:27px" matTooltip="Outbound"
+              matTooltipPosition="right">logout</mat-icon>
+          </mat-list-item>
+
+          <mat-list-item *ngIf="item.id == 1006" class=" parent  hvr-sweep-to-right"
+            [ngClass]="{'text-grey1' : toggle, 'text-white' : !toggle}">
+            <span class="full-width pt-2 ml-4 " *ngIf="isExpanded || isShowing">Stock Count</span>
+            <mat-icon mat-list-icon class=" sidebar_icon hvr-bounce-in" style="font-size:27px" matTooltip="Stock Count"
+              matTooltipPosition="right">autorenew</mat-icon>
+            <mat-icon class="menu-button mx-2 pt-1 my-auto" *ngIf="isExpanded || isShowing"
+              [matMenuTriggerFor]="stockcount">
+              expand_more</mat-icon>
+          </mat-list-item>
+
+          <mat-list-item *ngIf="item.id == 1007" class=" parent  hvr-sweep-to-right" (click)="routeto(item.url,item.id)"
+            [ngClass]="{'text-grey1' : toggle, 'text-white' : !toggle}">
+            <span class="full-width pt-2 ml-4 " *ngIf="isExpanded || isShowing">Reports</span>
+            <mat-icon mat-list-icon class=" sidebar_icon hvr-bounce-in" style="font-size:27px" matTooltip="Reports"
+              matTooltipPosition="right">dashboard</mat-icon>
+          </mat-list-item>
+
+          <!--
+              <div class="submenu" [ngClass]="{'expanded' : showSubmenu}" *ngIf="isShowing || isExpanded">
+            <mat-list-item class="parent">Submenu Item 1</mat-list-item>
+            <mat-list-item class="parent">Submenu Item 2</mat-list-item>
+            <mat-list-item (click)="showSubSubMenu = !showSubSubMenu" class="parent">
+              <span class="full-width pt-2 ml-4" *ngIf="isExpanded || isShowing">Nested Menu</span>
+              <mat-icon class="menu-button" [ngClass]="{'rotated' : showSubSubMenu}" *ngIf="isExpanded || isShowing">
+                expand_more</mat-icon>
+            </mat-list-item>
+            <div class="submenu" [ngClass]="{'expanded' : showSubSubMenu}" *ngIf="isShowing || isExpanded">
+              <mat-list-item class="parent">SubSubmenu Item 1</mat-list-item>
+              <mat-list-item class="parent">SubSubmenu Item 2</mat-list-item>
+            </div>
+          </div>
+        -->
+
+        </mat-nav-list>
+
+      </mat-sidenav>
+      <div class="example-sidenav-content">
+
+        <div class="col pl-1">
+
+          <router-outlet></router-outlet>
+        </div>
+      </div>
+    </mat-sidenav-container>
+  </div>
+</div>
+
+
+
+
+<mat-menu class="nav-item" #setup="matMenu" class="custom-class2" style="padding-bottom: 5px !important;">
+  <button mat-menu-item (click)="routeto('/main/setup/selection', 2106)" class=" dropdown_fields">Organisation
+    Setup</button>
+  <button mat-menu-item (click)="routeto('/main/product/selection', 3006)" class="dropdown_fields">Product
+    Setup</button>
+  <button mat-menu-item (click)="routeto('/main/storage/selection', 2905)" class="dropdown_fields">Storage
+    Setup</button>
+</mat-menu>
+
+<mat-menu class="nav-item" #master="matMenu" class="custom-class2" style="padding-bottom: 5px !important;">
+  <button mat-menu-item (click)="routeto('/main/masters/selection', 2210)" class=" dropdown_fields">Product
+    Master</button>
+  <button mat-menu-item (click)="routeto('/main/masters-storage/selection', 2805)" class="dropdown_fields">Storage
+    Master</button>
+  <button mat-menu-item (click)="routeto('/main/other-masters/handling-unit', 1011)" class="dropdown_fields">Other
+    Master</button>
+</mat-menu>
+
+<mat-menu class="nav-item" #stockcount="matMenu" class="custom-class2" style="padding-bottom: 5px !important;">
+  <button mat-menu-item (click)="routeto('/main/cycle-count/Prepetual-main/count', 2601)"
+    class=" dropdown_fields">Perpetual Count</button>
+  <button mat-menu-item (click)="routeto('/main/cycle-count/physical-main', 2605)" class="dropdown_fields">Periodic
+    Count</button>
+</mat-menu>

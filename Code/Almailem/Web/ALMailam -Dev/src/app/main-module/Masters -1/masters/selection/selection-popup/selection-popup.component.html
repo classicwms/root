@@ -1,0 +1,135 @@
+<form [formGroup]="form">
+  <div class="card  border-0 uatwhite " style="overflow: hidden;">
+    <div mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle
+      class="d-flex justify-content-between align-items-center header_colour text-white p-2">
+      <h6 class="my-auto">Tab Selection</h6>
+      <mat-icon class="text-white" mat-dialog-close>close</mat-icon>
+    </div>
+    <div class="row px-4  uatwhite mt-2 d-none">
+      <div class="col-6">
+        <div class="d-flex flex-column">
+          <label for="inputState" class="mb-0 text-dark">Warehouse No </label>
+          <mat-form-field class="mb-0 w-100 " appearance="outline">
+
+            <mat-select placeholder="select" formControlName="warehouseId">
+              <mat-option *ngFor="let item of warehouseIdList" [value]="item.warehouseId">
+                {{item.warehouseId}}
+              </mat-option>
+
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+      <!-- <div class="col-6">
+                <div class="d-flex flex-column">
+                  <label for="inputState" class="mb-0 text-dark">Product  </label>
+                  <mat-form-field class="form-group input_field mb-0 " appearance="outline">
+                    <mat-select  placeholder="select">
+                      <mat-option value="option">Option</mat-option>
+                      <mat-option value="option2">Option2</mat-option>
+                      <mat-option value="option3">Option3</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div> -->
+      <div class="col-6">
+        <div class="d-flex flex-column">
+          <label for="inputState" class="mb-0 text-dark">Item Type </label>
+          <!-- <mat-form-field class="mb-0 w-100 " appearance="outline">
+
+            <mat-select placeholder="select" formControlName="itemType">
+              <mat-option *ngFor="let item of filteritemtypeList" [value]="item.itemTypeId">
+                {{item.itemTypeId}} - {{item.itemType}}
+              </mat-option>
+
+            </mat-select>
+          </mat-form-field> -->
+          <div class="form-group input_field mb-2" appearance="outline">
+            <ng-multiselect-dropdown [placeholder]="'Select'" [settings]="dropdownSettings"
+              [data]="multiSelectItemtypeList" [(ngModel)]="selectedItems" (onSelect)="onItemSelect($event)"
+              (onSelectAll)="onSelectAll($event)" [ngModelOptions]="{standalone: true}">
+            </ng-multiselect-dropdown>
+          </div>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="d-flex flex-column">
+          <label for="inputState" class="mb-0 text-dark">Item Group </label>
+          <!-- <mat-form-field class="mb-0 w-100 " appearance="outline">
+
+                    <mat-select placeholder="select" formControlName="itemGroup">
+                      <mat-option *ngFor="let item of filteritemgroupList" [value]="item.itemGroupId">
+                        {{item.itemGroupId}} - {{item.itemGroup}}
+                      </mat-option>
+
+                    </mat-select>
+                  </mat-form-field> -->
+          <div class="form-group input_field mb-2" appearance="outline">
+            <ng-multiselect-dropdown [placeholder]="'Select'" [settings]="dropdownSettings"
+              [data]="multiSelectItemGroupList" [(ngModel)]="selectedItems1" (onSelect)="onItemSelect($event)"
+              (onSelectAll)="onSelectAll($event)" [ngModelOptions]="{standalone: true}">
+            </ng-multiselect-dropdown>
+          </div>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="d-flex flex-column">
+          <label for="inputState" class="mb-0 text-dark">Item Sub Group </label>
+          <!-- <mat-form-field class="mb-0 w-100 " appearance="outline">
+
+            <mat-select placeholder="select" formControlName="subItemGroup">
+              <mat-option *ngFor="let item of filteritemsubgroupList" [value]="item.subItemGroupId">
+                {{item.subItemGroupId}} - {{item.subItemGroup}}
+              </mat-option>
+
+            </mat-select>
+          </mat-form-field> -->
+          <div class="form-group input_field mb-2" appearance="outline">
+            <ng-multiselect-dropdown [placeholder]="'Select'" [settings]="dropdownSettings"
+              [data]="multiSelectsubItemtypeList" [(ngModel)]="selectedItems2" (onSelect)="onItemSelect($event)"
+              (onSelectAll)="onSelectAll($event)" [ngModelOptions]="{standalone: true}">
+            </ng-multiselect-dropdown>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="row uatwhite p-2 d-flex ml-4 scroll1">
+      <div class="col-4 my-auto">
+        <mat-checkbox [checked]="true" [disabled]="isDisabled" class="example-margin">Basic Data</mat-checkbox>
+      </div>
+      <div class="col-4 my-auto">
+        <mat-checkbox [checked]="true" [disabled]="isDisabled" class="example-margin">Alternate UOM </mat-checkbox>
+      </div>
+      <div class="col-4 my-auto">
+        <mat-checkbox [checked]="true" [disabled]="isDisabled" class="example-margin">Partner</mat-checkbox>
+      </div>
+
+      <div class="col-4 my-auto">
+        <mat-checkbox disabled class="example-margin">Strategies</mat-checkbox>
+      </div>
+      <div class="col-4 my-auto">
+        <mat-checkbox disabled class="example-margin">Batch / Serial </mat-checkbox>
+      </div>
+      <div class="col-4 my-auto">
+        <mat-checkbox disabled class="example-margin">Palletization</mat-checkbox>
+      </div>
+      <div class="col-4 my-auto">
+        <mat-checkbox disabled class="example-margin">Variant </mat-checkbox>
+      </div>
+      <div class="col-4 my-auto">
+        <mat-checkbox disabled class="example-margin">Packing</mat-checkbox>
+      </div>
+    </div>
+    <hr>
+    <div class="d-flex justify-content-center align-items-center bg-white py-2">
+      <button mat-raised-button color="warn" mat-dialog-close class="mx-2 px-4"> <i
+          class="bi bi-x mr-1 font-size-1_5rem"></i>Cancel</button>
+      <button (click)="routeto();" mat-raised-button class="mx-2 bg-yellow text-white my-auto px-4" mat-dialog-close
+        type="submit">
+        <i class="bi bi-check2 mr-1 font-size-1_5rem  my-auto"></i>Confirm</button>
+    </div>
+
+  </div>
+
+</form>

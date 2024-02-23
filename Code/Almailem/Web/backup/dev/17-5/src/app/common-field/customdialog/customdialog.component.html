@@ -1,0 +1,14 @@
+<button mat-icon-button class="close-button" [mat-dialog-close]="true">
+    <mat-icon class="close-icon" color="warn">close</mat-icon>
+</button>
+
+<h1 mat-dialog-title>{{data.title}}</h1>
+<div mat-dialog-content>
+    {{data.body}}
+</div>
+<br />
+<div mat-dialog-actions>
+    <button mat-button class="btn btn-secondary" (click)="onNoClick()">Close</button>
+    <button mat-button cdkFocusInitial class="btn btn-primary" mat-dialog-close>Save changes
+    </button>
+</div>

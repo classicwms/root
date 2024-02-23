@@ -1,0 +1,534 @@
+<div class="row mx-1 pl-2">
+  <div class="col-12">
+    <!--inner header-->
+
+    <div class="row  text-secondary pr-0 mt-1">
+      <div class="col bg-white d-flex align-items-center mt-1 px-1 py-1 pathname">
+
+        <nav aria-label="breadcrumb" class="d-flex align-items-center">
+          <ol class="breadcrumb mb-0 bg-white">
+            <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">Home</li>
+            <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto">Master</li>
+            <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto"><a
+                routerLink="/main/masters-storage/selection">Bin Location</a></li>
+          </ol>
+        </nav>
+
+        <div class="d-flex ml-auto my-auto">
+          <div [hidden]="isShowDiv"> <input matInput class="form-control filter_button mt-2 mt-2 mx-2 border-bottom"
+              placeholder="Search" style="width:90%">
+          </div>
+          <div [ngClass]="showFloatingButtons == true ? 'floating-pane-active' : 'floating-pane-deactive'"
+            class="button-row d-flex align-items-center">
+            <!--
+                      <button mat-mini-fab *ngIf="showFloatingButtons == true" class="floating-buttons  d-flex align-items-center justify-content-center bg-pink text-white mx-2"
+                      matTooltip="Add">
+                      <mat-icon class="action-icon d-flex align-items-center justify-content-center">add_circle_outline</mat-icon>
+                    </button>
+                    -->
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class=" floating-buttons  d-flex align-items-center justify-content-center text-white mx-2 mr-3  yellowaction"
+              matTooltip="Display">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">search</mat-icon>
+            </button>
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class="floating-buttons  d-flex align-items-center justify-content-center text-white mx-2 mr-3 blueaction "
+              matTooltip="Edit" (click)="onEditClick()">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">edit</mat-icon>
+            </button>
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class=" floating-buttons  d-flex align-items-center justify-content-center redaction text-white mx-2 mr-3 align-middle"
+              matTooltip="Delete">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">delete</mat-icon>
+            </button>
+            <!-- 
+                      <button  mat-mini-fab *ngIf="showFloatingButtons == true"
+                    class="floating-buttons  d-flex align-items-center justify-content-center text-white mx-2 mr-3 bg-success  " matTooltip="Info">
+                    <mat-icon class="action-icon d-flex align-items-center justify-content-center">info_outline</mat-icon>
+                  </button>
+                    -->
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class="floating-buttons  d-flex align-items-center justify-content-center text-white mx-2 mr-3 darkblueaction "
+              matTooltip="Download" (click)="downloadexcel()">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">download</mat-icon>
+            </button>
+
+
+            <button mat-mini-fab (click)="toggleFloat()" class="mx-2 text-white action-button"
+              [ngClass]="{'bg-orange' : toggle, 'purple': !toggle}">
+              <mat-icon>{{icon}}</mat-icon>Options
+            </button>
+            <button mat-mini-fab (click)="onNewClick()"
+              class=" floating-buttons1  d-flex align-items-center justify-content-center darkaction text-white mx-2 mr-3 align-middle"
+              matTooltip="New">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">add</mat-icon>
+            </button>
+            <button mat-mini-fab
+              class=" floating-buttons1  d-flex align-items-center justify-content-center greyaction text-white mx-2 mr-3 align-middle"
+              matTooltip="Save">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">save</mat-icon>
+            </button>
+            <button mat-mini-fab  class="text-white mx-2 action-button  bg-red " type="button" (click)="drawer.toggle();"
+              mat-button>
+              <mat-icon class="">tune</mat-icon> Filter
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+    <!--
+        
+            <button mat-raised-button (click)="openDialog()" style="background-color: #666666;color: white"
+                class="ml-1 mx-2 px-3">
+                <mat-icon class="mr-1">tune</mat-icon>Filter
+            </button>
+    -->
+    <!--main-section-tabbar
+      <app-main-section-tabbar>
+      </app-main-section-tabbar>  -->
+    <!--main section-->
+
+    <mat-drawer-container class="example-container  w-100">
+      <mat-drawer #drawer class="example-sidenav " mode="over" position="end">
+        <div class="card-header whs-bg-grey text-white d-flex justify-content-between align-items-center">
+          <h6 class="my-auto mb-0">Search Parameter</h6>
+          <mat-icon type="button" (click)="drawer.toggle()">close</mat-icon>
+        </div>
+        <form [formGroup]="searhform">
+          <div class="row  mt-1 mr-1 p-2 pl-3">
+            <div class="col-12 my-1">
+              <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">Storage Section</label>
+                <!-- <ng-multiselect-dropdown [placeholder]="'Select'" [settings]="dropdownSettings" [data]="storageSectionIdList"
+                  [(ngModel)]="storageSectionIdListselected" [ngModelOptions]="{standalone: true}">
+                </ng-multiselect-dropdown> -->
+
+                         <p-multiSelect placeholder="Select" class="w-100" [options]="storageSectionIdList"
+              formControlName="storageSectionId" [style]="{'width': '100%'}" [panelStyle]="{'width':'20%'}"></p-multiSelect>
+
+              </div>
+            </div>
+            <div class="col-12 my-1">
+              <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">Storage Bin</label>
+                <!-- <ng-multiselect-dropdown [placeholder]="'Select'" [settings]="dropdownSettings" [data]="storageBinList"
+                  [(ngModel)]="storageBinListselected" [ngModelOptions]="{standalone: true}">
+                </ng-multiselect-dropdown> -->
+
+                         <p-multiSelect placeholder="Select" class="w-100" [options]="storageBinList"
+              formControlName="storageBin" [style]="{'width': '100%'}" [panelStyle]="{'width':'20%'}"></p-multiSelect>
+
+              </div>
+            </div>
+            <div class="col-12 my-1">
+              <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">Floor ID</label>
+                <!-- <ng-multiselect-dropdown [placeholder]="'Select'" [settings]="dropdownSettings" [data]="floorIdList"
+                  [(ngModel)]="floorIdListselected" [ngModelOptions]="{standalone: true}">
+                </ng-multiselect-dropdown> -->
+
+                         <p-multiSelect placeholder="Select" class="w-100" [options]="floorIdList"
+              formControlName="floorId" [style]="{'width': '100%'}" [panelStyle]="{'width':'20%'}"></p-multiSelect>
+
+              </div>
+            </div>
+            <div class="col-12 my-1">
+              <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">Level</label>
+                <!-- <ng-multiselect-dropdown [placeholder]="'Select'" [settings]="dropdownSettings" [data]="spanIdList"
+                  [(ngModel)]="spanIdListselected" [ngModelOptions]="{standalone: true}">
+                </ng-multiselect-dropdown> -->
+
+                         <p-multiSelect placeholder="Select" class="w-100" [options]="spanIdList"
+              formControlName="spanId" [style]="{'width': '100%'}" [panelStyle]="{'width':'20%'}"></p-multiSelect>
+
+              </div>
+            </div>
+            <div class="col-12 my-1">
+              <p class="mb-0 py-0">Created</p>
+              <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+               
+                <mat-date-range-input [rangePicker]="pickerss">
+                  <input matStartDate placeholder="Start date" formControlName="startCreatedOn">
+                  <input matEndDate placeholder="End date" formControlName="endCreatedOn">
+                </mat-date-range-input>
+                <mat-datepicker-toggle matSuffix [for]="pickerss"></mat-datepicker-toggle>
+                <mat-date-range-picker #pickerss></mat-date-range-picker>
+              </mat-form-field>
+    
+            </div>
+          </div>
+          </form>
+        <div class="d-flex justify-content-center align-items-center py-2 bottombutton">
+          <button mat-raised-button color="warn" class="text-white mx-1 px-4" (click)="reload()">
+            <mat-icon class="">restart_alt</mat-icon> Reset
+          </button>
+          <button mat-raised-button class="bg-darkblue text-white mx-1" (click)="search();drawer.toggle();">
+            <mat-icon class="">done</mat-icon> Search
+          </button>
+        </div>
+      </mat-drawer>
+      <div class="example-sidenav-content">
+        <div class="row mt-2"style="padding-right: 15px !important;">
+      <div class=" uatwhite col-12 px-0 ">
+        <!--<div class="">
+          <table mat-table [dataSource]="dataSource" matSort class=" w-100">
+
+            Checkbox Column
+            <ng-container matColumnDef="select">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                <mat-checkbox (change)="$event ? masterToggle() : null"
+                  [checked]="selection.hasValue() && isAllSelected()" disabled
+                  [indeterminate]="selection.hasValue() && !isAllSelected()" [aria-label]="checkboxLabel()">
+                </mat-checkbox>
+              </th>
+              <td mat-cell *matCellDef="let row">
+                <mat-checkbox (click)="$event.stopPropagation()" (change)="clearselection(row)"
+                  [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)">
+                </mat-checkbox>
+              </td>
+            </ng-container>
+
+
+             Symbol Column 
+            <ng-container matColumnDef="no">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> S No </th>
+              <td mat-cell *matCellDef="let element"> {{element.no}} </td>
+            </ng-container>
+                 
+                  <ng-container matColumnDef="statusId">
+                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Status </th>
+                    <td mat-cell *matCellDef="let element"> {{element.statusId == 1 ? 'Active' : element.statusId == 0 ? 'InActive' : ''  }} </td>
+                  </ng-container>
+
+          
+            <ng-container matColumnDef="warehouseId">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Warehouse No </th>
+              <td mat-cell *matCellDef="let element"> {{element.warehouseId}} </td>
+            </ng-container>
+        
+            <ng-container matColumnDef="storageBin">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Storage Bin</th>
+              <td mat-cell *matCellDef="let element"> {{element.storageBin}} </td>
+            </ng-container>
+            
+            <ng-container matColumnDef="floorId">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Floor</th>
+              <td mat-cell *matCellDef="let element"> {{element.floorId}} </td>
+            </ng-container>
+           
+            <ng-container matColumnDef="storageSectionId">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Storage Section</th>
+              <td mat-cell *matCellDef="let element"> {{element.storageSectionId}} </td>
+            </ng-container>
+           
+            <ng-container matColumnDef="spanId">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Level </th>
+              <td mat-cell *matCellDef="let element"> {{element.spanId}} </td>
+            </ng-container>
+            <!-- Symbol Column -->
+            <!-- <ng-container matColumnDef="aisleNumber">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Aisle</th>
+              <td mat-cell *matCellDef="let element"> {{element.aisleNumber}} </td>
+            </ng-container>
+            
+            <ng-container matColumnDef="createdBy">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Created By</th>
+              <td mat-cell *matCellDef="let element"> {{element.createdBy}} </td>
+            </ng-container>
+            
+            <ng-container matColumnDef="createdOn">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Created On</th>
+              <td mat-cell *matCellDef="let element"> {{element.createdOn| date : 'dd-MM-yyyy HH:mm' :'GMT'}} </td>
+            </ng-container>
+
+
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns;sticky: true"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="clearselection(row)">
+            </tr>
+          </table>
+        </div>-->
+        <div class="row mx-2">
+          <p-table #Setupstorageselection [globalFilterFields]="['statusId', 'warehouseId','storageBin','floorId','storageSectionId','spanId','aisleNumber','createdBy','createdOn']"
+            [value]="storageselection" styleClass="p-datatable-gridlines p-datatable-sm" [scrollable]="true" selectionMode="single"
+            scrollHeight="calc(100vh - 12.2rem)" [paginator]="true" [rows]="100" [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+               [resizableColumns]="true"
+            style="width: 100%;margin-left: 10px;background-color:white">
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="max-width: 3.5rem; justify-content: center;">
+                  <p-tableHeaderCheckbox [disabled]="true"></p-tableHeaderCheckbox>
+                </th>
+                <th style="max-width: 10rem;" pResizableColumn>Status
+  
+                </th>
+                <th style="max-width: 15rem;" pResizableColumn>Warehouse No
+  
+  
+                </th>
+                <th style="max-width: 15rem;" pResizableColumn>Storage Bin
+                  
+  
+                </th>
+                <th style="max-width: 15rem;" pResizableColumn>Floor
+                  
+  
+                </th>
+                <th style="max-width: 15rem;" pResizableColumn>Storage Section
+                  
+  
+                </th>
+                <th style="max-width: 15rem;" pResizableColumn>Level
+                  
+  
+                </th>
+                <th style="max-width: 15rem;" pResizableColumn>Aisle
+                  
+  
+                </th>
+               
+               
+                <!-- <th style="max-width: 10rem;" pResizableColumn>Approval Process
+                 
+                </th>
+                <th style="max-width: 8rem;" pResizableColumn>Approver Code
+                 
+                </th>
+                <th style="max-width: 10rem;" pResizableColumn>Approver Name
+                 
+                </th>-->
+  
+                <th style="max-width: 8rem;" pResizableColumn>Created By
+  
+                </th>
+  
+  
+                <th pResizableColumn>Created On
+  
+                </th>
+              </tr>
+  
+              <tr>
+                <th style="max-width: 3.5rem; justify-content: center;">
+                  <p-tableHeaderCheckbox [disabled]="true"></p-tableHeaderCheckbox>
+                </th>
+                <th style="max-width: 10rem">
+                  <input pInputText type="text"
+                    (input)="Setupstorageselection.filter($any($event.target)?.value, 'statusId', 'contains')"
+                    [value]="$any(Setupstorageselection.filters['statusId'])?.value" placeholder="Search "
+                    class=" w-100 p-column-filter">
+                  <!--<p-columnFilter type="text" placeholder="Search" field="approvalId"></p-columnFilter>-->
+                </th>
+                <th style="max-width: 15rem;">
+                  <input pInputText type="text"
+                    (input)="Setupstorageselection.filter($any($event.target)?.value, 'warehouseId', 'contains')"
+                    [value]="$any(Setupstorageselection.filters['warehouseId'])?.value" placeholder="Search "
+                    class=" w-100 p-column-filter">
+                  <!--<p-columnFilter type="text" placeholder="Search" field="approvalLevel"></p-columnFilter>-->
+                </th>
+                <th style="max-width: 15rem;">
+                  <input pInputText type="text"
+                    (input)="Setupstorageselection.filter($any($event.target)?.value, 'storageBin', 'contains')"
+                    [value]="$any(Setupstorageselection.filters['storageBin'])?.value" placeholder="Search "
+                    class=" w-100 p-column-filter">
+                  <!--<p-columnFilter type="text" placeholder="Search" field="approvalLevel"></p-columnFilter>-->
+                </th>
+                <th style="max-width: 15rem;">
+                  <input pInputText type="text"
+                    (input)="Setupstorageselection.filter($any($event.target)?.value, 'floorId', 'contains')"
+                    [value]="$any(Setupstorageselection.filters['floorId'])?.value" placeholder="Search "
+                    class=" w-100 p-column-filter">
+                  <!--<p-columnFilter type="text" placeholder="Search" field="approvalLevel"></p-columnFilter>-->
+                </th>
+                <th style="max-width: 15rem;">
+                  <input pInputText type="text"
+                    (input)="Setupstorageselection.filter($any($event.target)?.value, 'storageSectionId', 'contains')"
+                    [value]="$any(Setupstorageselection.filters['storageSectionId'])?.value" placeholder="Search "
+                    class=" w-100 p-column-filter">
+                  <!--<p-columnFilter type="text" placeholder="Search" field="approvalLevel"></p-columnFilter>-->
+                </th>
+                <th style="max-width: 15rem;">
+                  <input pInputText type="text"
+                    (input)="Setupstorageselection.filter($any($event.target)?.value, 'spanId', 'contains')"
+                    [value]="$any(Setupstorageselection.filters['spanId'])?.value" placeholder="Search "
+                    class=" w-100 p-column-filter">
+                  <!--<p-columnFilter type="text" placeholder="Search" field="approvalLevel"></p-columnFilter>-->
+                </th>
+                <th style="max-width: 15rem;">
+                  <input pInputText type="text"
+                    (input)="Setupstorageselection.filter($any($event.target)?.value, 'aisleNumber', 'contains')"
+                    [value]="$any(Setupstorageselection.filters['aisleNumber'])?.value" placeholder="Search "
+                    class=" w-100 p-column-filter">
+                  <!--<p-columnFilter type="text" placeholder="Search" field="approvalLevel"></p-columnFilter>-->
+                </th>
+
+                <th style="max-width: 8rem;">
+                  <input pInputText type="text"
+                    (input)="Setupstorageselection.filter($any($event.target)?.value, 'createdBy', 'contains')"
+                    [value]="$any(Setupstorageselection.filters['createdBy'])?.value" placeholder="Search "
+                    class=" w-100 p-column-filter">
+                  <!-- <p-columnFilter type="text" placeholder="Search" field="createdBy"></p-columnFilter>-->
+                </th>
+                <th>
+                  <input pInputText type="text"
+                    (input)="Setupstorageselection.filter($any($event.target)?.value, 'createdOn', 'contains')"
+                    [value]="$any(Setupstorageselection.filters['createdOn'])?.value" placeholder="Search"
+                    class=" w-100 p-column-filter">
+                  <!-- <p-columnFilter type="text" placeholder="Search" field="createdOn"></p-columnFilter>-->
+                </th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-storage let-rowIndex="rowIndex">
+              <tr>
+  
+                <td style="max-width:3.5rem;  justify-content: center;">
+                  <p-checkbox (onChange)="onChange()" [(ngModel)]="selectedstorage" [value]="storage"></p-checkbox>
+                  <!--<p-tableCheckbox [value]="approvals"></p-tableCheckbox>-->
+                </td>
+                <td style="max-width: 10rem;" > {{storage.statusId == 1 ? 'Active' : storage.statusId == 0 ? 'InActive' : ''  }} </td>
+                <td style="max-width: 15rem;">{{storage.warehouseId}}</td>
+                <td style="max-width: 15rem;">{{storage.storageBin}}</td>
+                <td style="max-width: 15rem;">{{storage.floorId}}</td>
+                <td style="max-width: 15rem;">{{storage.storageSectionId}}</td>
+                <td style="max-width: 15rem;">{{storage.spanId}}</td>
+                <td style="max-width: 15rem;">{{storage.aisleNumber}}</td>
+                <td style="max-width: 8rem;">{{storage.createdBy }}</td>
+                <td>{{storage.createdOn | date : 'dd-MM-yyyy HH:mm' :'GMT'}}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+          <div class="buttons  pb-1 w-100 d-flex justify-content-end uatwhite">
+            <div class="p-0 mx-1 ">
+              <mat-paginator class="" showFirstLastButtons [pageSize]="100" [pageSizeOptions]="[100, 150, 200, 250]"
+                aria-label="Select page of periodic elements">
+              </mat-paginator>
+            </div>
+          </div>
+  
+        </div>
+      </div>
+    </div>
+  </div>
+    </mat-drawer-container>
+
+
+
+
+
+
+  <!--right pane-->
+  <div class="col-3 pl-1 pr-1 mt-1 d-none">
+    <div class="whs-rightpane bg-white shadow">
+      <div class="text-dark p-2 bg-white">
+        <div class="whs-vertical-scroll">
+          <div class="d-flex justify-content-start my-1">
+            <label for="" class="mr-5 mt-1">Variant</label>
+            <label for="" class=" mt-1 ml-4 pl-3">Preoutbound</label>
+          </div>
+          <hr class="my-0">
+          <div class="row mt-1">
+            <div class="col-6 pr-1">
+              <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">Warehouse No</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+                  <input matInput placeholder="Autofill">
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="col-6 pl-1">
+              <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">Product</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+
+                  <mat-select placeholder="select">
+                    <mat-option value="option">Option</mat-option>
+                    <mat-option value="option2">Option2</mat-option>
+                    <mat-option value="option3">Option3</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="col-6 pr-1">
+              <div class="form-group mb-1">
+                <label for="inputEmail4" class="mb-0">Item Type</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+
+                  <mat-select placeholder="select">
+                    <mat-option value="option">Option</mat-option>
+                    <mat-option value="option2">Option2</mat-option>
+                    <mat-option value="option3">Option3</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="col-6 pl-1">
+              <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">Item Group</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+
+                  <mat-select class="mb-0" placeholder="Select">
+                    <mat-option value="option">Option</mat-option>
+                    <mat-option value="option2">Option2</mat-option>
+                    <mat-option value="option3">Option3</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="col-6 pr-1">
+              <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">Item Sub Group</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+
+                  <mat-select class="mb-0" placeholder="Select">
+                    <mat-option value="option">Option</mat-option>
+                    <mat-option value="option2">Option2</mat-option>
+                    <mat-option value="option3">Option3</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-center my-1">
+          <button mat-raised-button class="text-white mr-1" color="warn">
+            <mat-icon class="">close</mat-icon> Cancel
+          </button>
+          <button mat-raised-button class="bg-darkblue  text-white mx-1">
+            <mat-icon class="">search</mat-icon> Search
+          </button>
+        </div>
+      </div>
+      <div class="row  no-gutters">
+        <div class="col-6 pl-0 d-none">
+          <div class="whs-rightpane-box border d-flex flex-column align-items-center justify-content-center">
+            <i class="far fa-arrow-alt-circle-down fa-2x"></i>
+            <p class="mb-0 mt-1">Storage Setup</p>
+          </div>
+        </div>
+        <div class="col-6 pl-0  d-none">
+          <div class="whs-rightpane-box border d-flex flex-column align-items-center justify-content-center">
+            <i class="far fa-arrow-alt-circle-down fa-2x"></i>
+            <p class="mb-0 mt-1">Item Setup</p>
+          </div>
+        </div>
+        <div class="col-6 pl-0 d-none">
+          <div class="whs-rightpane-box border d-flex flex-column align-items-center justify-content-center">
+            <i class="far fa-arrow-alt-circle-down fa-2x"></i>
+            <p class="mb-0 mt-1">Storage Setup</p>
+          </div>
+        </div>
+        <div class="col-6 pl-0 d-none">
+          <div class="whs-rightpane-box border d-flex flex-column align-items-center justify-content-center">
+            <i class="far fa-arrow-alt-circle-down fa-2x"></i>
+            <p class="mb-0 mt-1">Item Setup</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

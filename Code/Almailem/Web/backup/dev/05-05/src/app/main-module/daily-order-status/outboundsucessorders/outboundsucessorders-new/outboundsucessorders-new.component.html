@@ -1,0 +1,73 @@
+
+
+
+
+
+
+
+
+
+<div class="card bg-white " style="overflow-x: hidden;">
+    <div mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle
+      class="d-flex justify-content-between align-items-center whs-bg-grey text-white p-2">
+      <h6 class="my-auto">Successful Order Lines</h6>
+      <mat-icon class="text-white" mat-dialog-close>close</mat-icon>
+    </div>
+     
+       
+      <div class="row mx-2 p-1">
+        <div class="col-12 uatwhite px-0">
+            <div class="scroll1 uatwhite col-12 px-0">
+              <table mat-table [dataSource]="dataSource" class=" w-100">
+                <ng-container matColumnDef="id">
+                  <th mat-header-cell *matHeaderCellDef>ID </th>
+                  <td mat-cell *matCellDef="let element"> {{element.id}}</td>
+                </ng-container>
+                <ng-container matColumnDef="orderId">
+                  <th mat-header-cell *matHeaderCellDef> Order ID </th>
+                  <td mat-cell *matCellDef="let element"> {{element.orderId}}</td>
+                </ng-container>
+                <ng-container matColumnDef="orderedQty">
+                  <th mat-header-cell *matHeaderCellDef> Ordered Quantity </th>
+                  <td mat-cell *matCellDef="let element"> {{element.orderedQty  }} </td>
+                </ng-container>
+                <ng-container matColumnDef="lineReference">
+                    <th mat-header-cell *matHeaderCellDef> Lines Reference </th>
+                    <td mat-cell *matCellDef="let element"> {{element.lineReference  }} </td>
+                  </ng-container>
+                <ng-container matColumnDef="itemCode">
+                  <th mat-header-cell *matHeaderCellDef>  Item Code</th>
+                  <td mat-cell *matCellDef="let element"> {{element.itemCode }} </td>
+                </ng-container>
+                <ng-container matColumnDef="itemText">
+                  <th mat-header-cell *matHeaderCellDef>  Item Text</th>
+                  <td mat-cell *matCellDef="let element"> {{element.itemText }} </td>
+                </ng-container>
+                <ng-container matColumnDef="refField1ForOrderType">
+                  <th mat-header-cell *matHeaderCellDef>  Reference Field for Order Type</th>
+                  <td mat-cell *matCellDef="let element"> {{element.refField1ForOrderType }} </td>
+                </ng-container>
+                <ng-container matColumnDef="uom">
+                  <th mat-header-cell *matHeaderCellDef>  UOM</th>
+                  <td mat-cell *matCellDef="let element"> {{element.uom }} </td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+              </table>
+            </div>
+            <mat-paginator showFirstLastButtons [pageSize]="50"  [pageSizeOptions]="[50, 100, 150,200]"
+              aria-label="Select page of periodic elements">
+            </mat-paginator>
+          </div>
+
+      </div>
+   
+</div>
+       
+
+
+
+
+
+
+

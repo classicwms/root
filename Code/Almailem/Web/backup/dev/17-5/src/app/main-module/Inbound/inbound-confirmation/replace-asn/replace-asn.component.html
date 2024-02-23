@@ -1,0 +1,27 @@
+<div class="card  border-0 bg-white " style="overflow: hidden;">
+    <div mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle
+        class="d-flex justify-content-between align-items-center header_colour text-white p-2">
+        <h5 class="my-auto">New ASN</h5>
+        <mat-icon class="text-white" mat-dialog-close>close</mat-icon>
+    </div>
+    <div class="row mx-0 mt-2 ">
+        <div class="col-8 mt-1">
+            <div class="form-group mb-0">
+                <label for="inputEmail4" class="mb-0">New ASN</label>
+                <mat-form-field class="mb-0 w-100 " appearance="outline">
+                    <input matInput placeholder="Enter" [(ngModel)]="asnno">
+                </mat-form-field>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center mr-3 mb-1 pb-2">
+        <button mat-raised-button mat-dialog-close class=" bg-red text-white ml-1">
+            <mat-icon class="">close</mat-icon> Cancel
+        </button>
+        <button mat-raised-button (click)="submit()" class=" bg-darkblue text-white ml-1">
+            <mat-icon class="">done</mat-icon> Save
+        </button>
+    </div>
+
+</div>

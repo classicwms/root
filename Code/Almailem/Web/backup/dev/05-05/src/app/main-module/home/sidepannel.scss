@@ -1,0 +1,38 @@
+.whs-leftnav-icon-circle{height: 2.6rem;width: 2.6rem;background-color:#0c677c00;border-radius: 100%;}
+// .whs-leftnav-icon-circle:hover , .btn-outline-light:hover {background-color: white;color: #0c687c;}
+
+.bg-shadow{box-shadow: inset -4px 0px 5px rgba(0, 0, 0, 0.1);}
+.menu_width{width: 6%;}
+.side{position: relative;width: 80px;}
+.sidebar{height: 85vh;}
+.sidebar_icon{font-size: 2rem;}
+::ng-deep .mat-tooltip{
+    background-color: #fbc02d;
+    color: white !important;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    font-size: 1rem;
+}
+
+.bg-semigrey{background-color: #f8fafc;}
+::ng-deep .mat-form-field {font-size: 0.9rem;}
+.header_band{background-color: #4faf99;}
+.bg-orange{background-color: #fbc02d;}
+
+.example-sidenav{width: 9rem;}
+
+
+.hvr-bounce-in {
+    display: inline-block;
+    vertical-align: middle;
+    -webkit-transform: perspective(1px) translateZ(0);
+    transform: perspective(1px) translateZ(0);
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0);
+    -webkit-transition-duration: 0.5s;
+    transition-duration: 0.5s;
+  }
+  .hvr-bounce-in:hover, .hvr-bounce-in:focus, .hvr-bounce-in:active {
+    -webkit-transform: scale(1.2);
+    transform: scale(1.2);
+    -webkit-transition-timing-function: cubic-bezier(0.47, 2.02, 0.31, -0.36);
+    transition-timing-function: cubic-bezier(0.47, 2.02, 0.31, -0.36);
+  }

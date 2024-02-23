@@ -1,0 +1,201 @@
+<div class="card bg-white " style="overflow-x: hidden;">
+    <div mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle
+      class="d-flex justify-content-between align-items-center whs-bg-grey text-white p-2">
+      <h6 class="my-auto">Inhouse Transfer - Sku to Sku</h6>
+      <mat-icon class="text-white" mat-dialog-close>close</mat-icon>
+    </div>
+    <div class="row px-2 mt-2 bg-danger">
+      <div class="col-6 border-right uatwhite">
+        <h6 class=" mt-2">Source</h6>
+        <div class="row">
+          <div class="col-6 mt-2">
+            <p class="mb-0 py-0">Product Code </p>
+  
+            <div class="form-group input_field mb-2" appearance="outline">
+              <!-- <angular2-multiselect [data]="multiselectskuList" [(ngModel)]="selectedItems"
+                [settings]="dropdownSettings" (onSelect)="onItemSelect($event)"
+                (onDeSelect)="OnItemDeSelect($event)" (onSelectAll)="onSelectAll($event)"
+                (onDeSelectAll)="onDeSelectAll($event)" name="sku"></angular2-multiselect> -->
+              <!-- <mat-form-field class="mb-0 w-100" appearance="outline">
+                <input matInput placeholder="Enter" [(ngModel)]="sourceItemCode">
+              </mat-form-field> -->
+              <p-dropdown placeholder="Select" [filter]="true" class="w-100" [options]="multiselectItemCodeList"
+              [resetFilterOnHide]="true" 
+                [(ngModel)]="sourceItemCode" name="product" [style]="{'width': '100%'}" [panelStyle]="{'width':'20%'}"
+                  (onFilter)="onItemType($event)"  >
+            </p-dropdown>
+            </div>
+          </div>
+          <!-- <div class="col-3 mt-2">
+            <div class="d-flex flex-column" style="margin-top: 27px;">
+              <button mat-raised-button (click)="load(sourceItemCode)" class="mx-1 bg-darkblue px-4 text-white">
+                Search</button>
+            </div>
+          </div> -->
+  
+          <div class="col-1 mt-2">
+            <div class="d-flex flex-column" style="margin-top: 27px;">
+              <!-- <button mat-raised-button (click)="load(sourceItemCode)" class="mx-1 bg-darkblue px-4 text-white">
+                Search</button> -->
+                
+                <button mat-button class="bg-orange" (click)="load(sourceItemCode)" ><mat-icon class="text-white">search</mat-icon></button>
+            </div>
+          </div>
+        </div>
+        <div class="px-0 pl-1 pb-1 w-100 scroll1 ">
+          <div class="scroll2 w-100">
+            <table mat-table [dataSource]="dataSource" matSort class=" w-100">
+  
+              <!-- Checkbox Column -->
+              <ng-container matColumnDef="select">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header [attr.rowspan]="2">
+                  <mat-checkbox (change)="$event ? masterToggle() : null"
+                    [checked]="selection.hasValue() && isAllSelected()"
+                    [indeterminate]="selection.hasValue() && !isAllSelected()" [aria-label]="checkboxLabel()">
+                  </mat-checkbox>
+                </th>
+                <td mat-cell *matCellDef="let row">
+                  <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
+                    [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)">
+                  </mat-checkbox>
+                </td>
+              </ng-container>
+  
+  
+              <!-- Symbol Column -->
+              <ng-container matColumnDef="no">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Bin </th>
+                <td mat-cell *matCellDef="let element"> {{element.storageBin}} </td>
+              </ng-container>
+              <!-- Weight Column -->
+              <ng-container matColumnDef="lineno">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Pallet ID</th>
+                <td mat-cell *matCellDef="let element"> {{element.packBarcodes}} </td>
+              </ng-container>
+              <!-- Weight Column -->
+              <ng-container matColumnDef="supcode">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Qty</th>
+                <td mat-cell *matCellDef="let element"> {{element.inventoryQuantity}} </td>
+              </ng-container>
+              <!-- <ng-container matColumnDef="one">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Target Stock Type</th>
+                  <td mat-cell *matCellDef="let element"> {{element.one}} </td>
+                </ng-container>
+               
+                <ng-container matColumnDef="receipt">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Stock Details</th>
+                  <td mat-cell *matCellDef="let element" class="mx-auto">
+                    <button mat-icon-button (click)="receiptdetails()">
+                      <mat-icon class="text-secondary">open_in_new</mat-icon>
+                    </button>
+                  </td>
+                </ng-container> -->
+  
+              <tr mat-header-row *matHeaderRowDef="displayedColumns;sticky: true"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="selection.toggle(row)">
+              </tr>
+            </table>
+          </div>
+  
+        </div>
+      </div>
+  
+      <div class="col-6 border-left uatwhite">
+        <h6 class=" mt-2">Destination</h6>
+        <div class="row">
+          <div class="col-6 mt-2">
+            <div class="d-flex flex-column">
+              <p class="mb-0 py-0">Product Code </p>
+              <!-- <mat-form-field class="form-group input_field mb-0 w-100 " appearance="outline">
+                <mat-select class="mb-0" placeholder="Select" [(ngModel)]="targetItemCode">
+                  <mat-option *ngFor="let item of skulist" [value]="item.itemCode">
+                    {{item.itemCode}} - {{item.description}}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field> -->
+              <div class="form-group input_field mb-2" appearance="outline">
+                <!-- <ng-multiselect-dropdown [placeholder]="'Select'" [settings]="dropdownSettings" 
+                  [data]="multiselectskuList" [(ngModel)]="selectedItems1" (onSelect)="onItemSelect($event)"
+                  (onSelectAll)="onSelectAll($event)" [ngModelOptions]="{standalone: true}">
+                </ng-multiselect-dropdown> -->
+                <!-- <angular2-multiselect [data]="multiselectskuList" [(ngModel)]="selectedItems1"
+                  [settings]="dropdownSettings" (onSelect)="onItemSelect($event)" (onDeSelect)="OnItemDeSelect($event)"
+                  (onSelectAll)="onSelectAll($event)" (onDeSelectAll)="onDeSelectAll($event)" name="sku">
+                </angular2-multiselect> -->
+                <!-- <mat-form-field class="mb-0 w-100" appearance="outline">
+                  <input matInput  placeholder="Enter" [(ngModel)]="targetItemCode">
+                </mat-form-field> -->
+                <p-dropdown placeholder="Select" [filter]="true" class="w-100" [options]="multiselectItemCodeList1"
+                [resetFilterOnHide]="true" 
+                  [(ngModel)]="targetItemCode"  [style]="{'width': '100%'}" [panelStyle]="{'width':'20%'}"
+                    (onFilter)="onItemType1($event)"  >
+              </p-dropdown>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="px-0 pl-1 pb-1 w-100 scroll1 ">
+          <div class="scroll2 w-100">
+            <table mat-table [dataSource]="dataSource" matSort class=" w-100">
+  
+              <!-- Checkbox Column -->
+              <ng-container matColumnDef="select">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header [attr.rowspan]="2">
+                  <mat-checkbox (change)="$event ? masterToggle() : null"
+                    [checked]="selection.hasValue() && isAllSelected()"
+                    [indeterminate]="selection.hasValue() && !isAllSelected()" [aria-label]="checkboxLabel()">
+                  </mat-checkbox>
+                </th>
+                <td mat-cell *matCellDef="let row">
+                  <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
+                    [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)">
+                  </mat-checkbox>
+                </td>
+              </ng-container>
+  
+  
+              <ng-container matColumnDef="no">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Bin </th>
+                <td mat-cell *matCellDef="let element"> {{element.storageBin}} </td>
+              </ng-container>
+              <!-- Weight Column -->
+              <ng-container matColumnDef="lineno">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Pallet ID</th>
+                <td mat-cell *matCellDef="let element"> {{element.packBarcodes}} </td>
+              </ng-container>
+              <!-- Weight Column -->
+              <ng-container matColumnDef="supcode">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Qty</th>
+                <td mat-cell *matCellDef="let element"> {{element.inventoryQuantity}} </td>
+              </ng-container>
+              <!-- <ng-container matColumnDef="one">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Target Stock Type</th>
+                  <td mat-cell *matCellDef="let element"> {{element.one}} </td>
+                </ng-container>
+               
+                <ng-container matColumnDef="receipt">
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>Stock Details</th>
+                  <td mat-cell *matCellDef="let element" class="mx-auto">
+                    <button mat-icon-button (click)="receiptdetails()">
+                      <mat-icon class="text-secondary">open_in_new</mat-icon>
+                    </button>
+                  </td>
+                </ng-container> -->
+  
+              <tr mat-header-row *matHeaderRowDef="displayedColumns;sticky: true"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="selection.toggle(row)">
+              </tr>
+            </table>
+          </div>
+  
+        </div>
+      </div>
+    </div>
+    <div class="d-flex justify-content-center align-items-center py-2">
+      <button mat-raised-button color="warn" mat-dialog-close class="mx-1"> <i
+          class="bi bi-x me-1 font-size-1_5rem"></i>Cancel</button>
+      <button mat-raised-button (click)="save()" class="mx-1 bg-darkblue px-4 text-white"> <i
+          class="bi bi-check2 mr-1 font-size-1_5rem"></i>
+        Save</button>
+    </div>
+  </div>

@@ -1,0 +1,200 @@
+.bin{
+  height: 16px !important;
+  width: 20px !important;
+}
+
+.bin:hover{background-color: #cdcdcd !important;}
+.blueborder{ border: 1.9px solid #99d3ff !important}
+.yellowborder{ border: 1.9px solid #ffe26c !important}
+.borderBlueBottom{border-bottom: 1.9px solid #00346b !important}
+
+.borderYellowBottom{border-bottom: 1.9px solid #a08000 !important}
+
+#returns{
+    width: 12rem !important;
+    height: calc(100vh - 30rem) !important;
+    border: 1.9px solid #ffe26c !important
+}
+
+.rack{width: 8rem !important; height: 8rem !important; border-top: 12px solid #cfcfcf !important; 
+    padding: 5px 5px -1px 5px !important;
+    border-top: 0px !important;
+   // border-top: 12px solid #cfcfcf !important; 
+    border-right:  6px solid #cfcfcf !important;
+    border-left:  6px solid #cfcfcf !important;
+    border-bottom: 12px solid #cfcfcf !important; }
+
+.inboundtext{    
+    position: absolute;
+    bottom: 7%;
+    left: 32%;}
+
+.dispatchtext{
+    position: absolute;
+    bottom: 7%;
+    right: 43%;}
+
+.pallettext{
+    position: absolute;
+    top: 59%;
+    left: 30%;
+}
+.palletRacking{
+    position: absolute;
+    top: 59%;
+    right: 14%;
+}
+
+.legendfilled{width: 15px;
+    height: 7px;
+background-color: #f98893;
+border: 1px solid #f72439;}
+
+.legendavailable{width: 15px;
+    height: 7px;
+background-color: #96f693;
+border: 1px solid #2ce926;}
+
+.legendpartial{width: 15px;
+    height: 7px;
+background-color: #f6c893;
+border: 1px solid #f89626;}
+
+.ml{margin: 0.1rem;}
+.occupied{background-color: #ff4254 !important;}
+.available{background-color: #7afd75 !important;}
+.partial{background-color: #f6af5f !important;}
+
+.door1{
+    position: absolute;
+    top: 0.5%;
+    left: 0.5%;
+}
+
+.sideborder{
+    position: absolute;
+    top: 3.5%;
+    left: 59.1%;
+
+}
+.sideborder1{
+    position: absolute;
+    top: 3.5%;
+    left: 0.3%;
+
+}
+.bottomBorder{
+  position: absolute;
+  bottom: 7.2%;
+  left: 0.4%;
+  z-index: 100;
+}
+.measurement{
+    position: absolute;
+    top: 59%;
+    right: 33%;
+}
+.bgBlue{background-color: #e7e7e7;}
+.bgBlue1{background-color: #d2d2d2;}
+.binFound{border-radius: 50%;     height: 15px !important;
+  width: 15px !important; border: transparent !important;}
+  .borderTransparent{ border: 1.9px solid transparent !important}
+
+.animate__animated.animate__fadeInDown {
+    --animate-duration: 1.7s;
+    --animate-delay: 1.3s;
+  }
+
+  .blink{
+    width:400px;
+    height:400px;
+    border:1px solid black;
+    animation: blink 5s infinite;
+  }
+  @keyframes blink{
+    0% {
+      background:blue;
+    }
+    20% {
+      background: transparent;
+    }
+    40% {
+      background:blue;
+    }
+    60% {
+      background: transparent;
+    }
+    80% {
+      background:blue;
+    }
+    100% {
+      background: transparent;
+    }
+  }
+  @-webkit-keyframes blink{
+    0% {
+        background:blue;
+      }
+      20% {
+        background: transparent;
+      }
+      40% {
+        background:blue;
+      }
+      60% {
+        background: transparent;
+      }
+      80% {
+        background:blue;
+      }
+      100% {
+        background: transparent;
+      }
+  }
+
+
+
+  .frame {
+    overflow-y: scroll;
+    height: 200px;
+    width: 250px;
+    font-size: 8px !important;
+    background-color: white;
+    text-align: left;
+  }
+  
+  .returnsbox{
+    height: 14rem; width: 11rem;
+  }
+
+  .neumorphism2{
+    background: #EDEEF2;
+/* Neu/Silver/Inset/Medium */
+    box-shadow: 3px 3px 6px #FFFFFF, -3px -3px 6px #C4C7D4;
+    border-radius: 3px;
+  }
+
+  .neumorphismBox{
+    border: 0.5px solid #ebebeb;
+   // background: #EDEEF2;
+box-shadow: 3px 3px 6px #FFFFFF, -3px -3px 6px #C4C7D4;
+//color: transparent !important;
+margin: 1px;
+  }
+
+
+  .neumorphism4 {
+    background: #343a40;
+    border-radius: 7%;
+    box-shadow: 2.91px 1.91px 3px #26272b, -0.91px -1.91px 3px #232426;
+  }
+  // .neumorphismBox1{
+  //   background: #343a40;
+  // border-radius: 0%;
+  // box-shadow: inset 9.91px 9.91px 15px #2F353A, inset -9.91px -9.91px 15px #393F46;
+  // }
+  .neumorphismBox1 {
+    background: #343f46;
+    border-radius: 0%;
+   // box-shadow: inset 9.91px 9.91px 15px #2e3238, inset -9.91px -9.91px 15px #3b4045;
+}

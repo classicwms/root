@@ -1,0 +1,69 @@
+<div class="row  text-secondary pr-0 mt-1">
+    <div class="col bg-white d-flex align-items-center mt-1 px-1 py-1">
+        <nav aria-label="breadcrumb" class="d-flex align-items-center">
+            <ol class="breadcrumb mb-0 bg-white">
+                <li class="breadcrumb-item"><a [attr.href]="currenturl"
+                    class="text-muted whs-fontsize-1-2rem  my-auto"><a href="/#/main/dashboard">Home</a></a></li>
+                <li class="breadcrumb-item"><a [attr.href]="currenturl"
+                            class="text-muted whs-fontsize-1-2rem  my-auto">{{title1}}</a></li>
+                <li class="breadcrumb-item active text-muted whs-fontsize-1-2rem  my-auto" aria-current="page">{{title2}}</li>
+            </ol>
+        </nav>
+        <div class="d-flex ml-auto my-auto">
+          <div [hidden]="isShowDiv"> <input matInput  class="form-control filter_button mt-2 mt-2 mx-2 border-bottom"
+            placeholder="Search" style="width:90%">
+        </div>
+            <div [ngClass]="showFloatingButtons == true ? 'floating-pane-active' : 'floating-pane-deactive'" class="button-row d-flex align-items-center">
+                <!--
+                  <button mat-mini-fab *ngIf="showFloatingButtons == true" class="floating-buttons  d-flex align-items-center justify-content-center bg-pink text-white mx-2"
+                  matTooltip="Add">
+                  <mat-icon class="action-icon d-flex align-items-center justify-content-center">add_circle_outline</mat-icon>
+                </button>
+                -->
+              <button mat-mini-fab  *ngIf="showFloatingButtons == true"
+                class=" floating-buttons  d-flex align-items-center justify-content-center text-white mx-2 mr-3 bg-lightblue" matTooltip="Display">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">search</mat-icon>
+              </button> 
+              <button  mat-mini-fab *ngIf="showFloatingButtons == true"
+              class="floating-buttons  d-flex align-items-center justify-content-center text-white mx-2 mr-3 bg-darkblue  " matTooltip="Edit">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">edit</mat-icon>
+            </button>
+                <button mat-mini-fab  *ngIf="showFloatingButtons == true"
+                  class=" floating-buttons  d-flex align-items-center justify-content-center bg-yellow text-white mx-2 mr-3 align-middle" matTooltip="Save">
+                  <mat-icon class="action-icon d-flex align-items-center justify-content-center">delete</mat-icon>
+                </button>
+               <!-- 
+                  <button  mat-mini-fab *ngIf="showFloatingButtons == true"
+                class="floating-buttons  d-flex align-items-center justify-content-center text-white mx-2 mr-3 bg-success  " matTooltip="Info">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">info_outline</mat-icon>
+              </button>
+                -->
+              <button  mat-mini-fab *ngIf="showFloatingButtons == true"
+              class="floating-buttons  d-flex align-items-center justify-content-center text-white mx-2 mr-3 bg-orange " matTooltip="Download">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">download</mat-icon>
+            </button>
+              
+              
+                <button mat-mini-fab (click)="toggleFloat()" class="mx-2 text-white action-button"
+                  [ngClass]="{'bg-orange' : toggle, 'purple': !toggle}">
+                  <mat-icon>{{icon}}</mat-icon>Options
+                </button>
+                <button mat-mini-fab disabled class="whs-bg-grey     text-white mx-2 action-button disabled">
+                  <mat-icon class="">add</mat-icon> New
+                </button>
+                <button mat-mini-fab class="text-white mx-2 action-button  bg-red" type="button" mat-button>
+                  <mat-icon class="">tune</mat-icon> Filter
+                </button>
+              </div>
+
+        </div>
+    </div>
+</div>
+
+<!--
+    
+        <button mat-raised-button (click)="openDialog()" style="background-color: #666666;color: white"
+            class="ml-1 mx-2 px-3">
+            <mat-icon class="mr-1">tune</mat-icon>Filter
+        </button>
+-->

@@ -1,0 +1,365 @@
+<form [formGroup]="form">
+  <div class="row mx-1 pl-2">
+    <div class="col-12">
+      <!--inner header-->
+
+      <div class="row  text-secondary pr-0 mt-1">
+        <div class="col bg-white d-flex align-items-center mt-1 px-1 py-1 pathname">
+
+          <nav aria-label="breadcrumb" class="d-flex align-items-center">
+            <ol class="breadcrumb mb-0 bg-white d-flex align-items-center">
+              <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto"><a
+                  routerLink="/main/dashboard">Home</a></li>
+              <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto"><a
+                  routerLink="/main/inbound/container-receipt">Inbound</a></li>
+              <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto"><a
+                  routerLink="/main/inbound/goods-receipt">Case Receipt</a></li>
+            </ol>
+          </nav>
+
+
+          <div class="d-flex ml-auto my-auto">
+            <div [hidden]="isShowDiv"> <input  matInput
+                class="form-control filter_button mt-2 mx-2 border-bottom" placeholder="Search" style="width:90%">
+            </div>
+            <div [ngClass]="showFloatingButtons == true ? 'floating-pane-active' : 'floating-pane-deactive'"
+              class="button-row d-flex align-items-center">
+              <!--
+                    <button mat-mini-fab *ngIf="showFloatingButtons == true" class="floating-buttons  d-flex align-items-center justify-content-center bg-pink text-white mx-2"
+                    matTooltip="Add">
+                    <mat-icon class="action-icon d-flex align-items-center justify-content-center">add_circle_outline</mat-icon>
+                  </button>
+                  -->
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                class=" floating-buttons  d-flex align-items-center justify-content-center text-white   yellowaction"
+                matTooltip="Display">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">search</mat-icon>
+              </button>
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                class="floating-buttons  d-flex align-items-center justify-content-center text-white  blueaction "
+                matTooltip="Edit">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">edit</mat-icon>
+              </button>
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                class=" floating-buttons  d-flex align-items-center justify-content-center redaction text-white  align-middle"
+                matTooltip="Delete">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">delete</mat-icon>
+              </button>
+              <!-- 
+                    <button  mat-mini-fab *ngIf="showFloatingButtons == true"
+                  class="floating-buttons  d-flex align-items-center justify-content-center text-white  bg-success  " matTooltip="Info">
+                  <mat-icon class="action-icon d-flex align-items-center justify-content-center">info_outline</mat-icon>
+                </button>
+                  -->
+              <button mat-mini-fab *ngIf="showFloatingButtons == true"
+                class="floating-buttons  d-flex align-items-center justify-content-center text-white  darkblueaction "
+                matTooltip="Download">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center">download</mat-icon>
+              </button>
+
+
+              <button mat-mini-fab (click)="toggleFloat()" class="mx-2 text-white action-button"
+                [ngClass]="{'bg-orange' : toggle, 'purple': !toggle}">
+                <mat-icon>{{icon}}</mat-icon>Options
+              </button>
+              <button mat-mini-fab disabled
+                class=" floating-buttons1 disabled d-flex align-items-center justify-content-center darkaction text-white mx-2 mr-3 align-middle"
+                matTooltip="Save">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">add</mat-icon>
+              </button>
+              <button mat-mini-fab
+                class=" floating-buttons1  d-flex align-items-center justify-content-center greyaction text-white mx-2 mr-3 align-middle"
+                matTooltip="Save">
+                <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">save</mat-icon>
+              </button>
+              <button disabled mat-mini-fab class=" disabled text-white mx-2 action-button  bg-red" type="button"
+                mat-button>
+                <mat-icon class="">tune</mat-icon> Filter
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--main section-->
+    <mat-drawer-container class="example-container pr-0">
+      <mat-drawer #drawer class="example-sidenav " mode="over" position="end">
+
+      </mat-drawer>
+      <div class="example-sidenav-content mt-1">
+        <div class="tabbar1 px-0 uatwhite my-auto col d-flex align-items-center">
+          <h5 class="my-auto mb-0 mx-4 font-weight-bold whs-text-grey">Order No - {{code.refDocNumber}}</h5>
+        </div>
+        <div class="row  mt-1 pr-1" style="height: calc(100vh - 11rem);">
+
+          <div class="col-md-12 px-0">
+            <div class="">
+              <mat-accordion>
+                <mat-expansion-panel #panel hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top ">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont align-items-center">
+                      <div> <img src="./assets/img/icons/header.png" class="header_icon mr-2" alt="" srcset=""> Header
+                      </div>
+                      <mat-icon class="collapsefont text-secondary">{{panel.expanded? 'remove' : 'add'}}</mat-icon>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <div class="row  mt-2 boxgrey pb-3">
+                    <div class="col-lg-4 col-md-6 mt-2">
+                      <p class="mb-0 py-0">Warehouse No</p>
+                      <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                        <input matInput placeholder="Enter" formControlName="warehouseId">
+                      </mat-form-field>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mt-2">
+                      <div class="d-flex flex-column">
+                        <p class="mb-0 py-0">Preinbound No</p>
+                        <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                          <input matInput placeholder="Enter" formControlName="preInboundNo">
+                        </mat-form-field>
+                      </div>
+                    </div>
+                    <!-- <div class="col-lg-4 col-md-6 mt-2">
+                    <div class="d-flex flex-column">
+                      <p class="mb-0 py-0">Order No </p>
+                      <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                        <input matInput placeholder="Enter">
+                      </mat-form-field>
+                    </div>
+                  </div> -->
+                    <div class="col-lg-4 col-md-6 mt-2">
+                      <div class="d-flex flex-column">
+                        <p class="mb-0 py-0">Order Type </p>
+                        <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                          <input matInput placeholder="Enter" formControlName="inboundOrderTypeId">
+                        </mat-form-field>
+                      </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mt-2">
+                      <div class="d-flex flex-column">
+                        <p class="mb-0 py-0">Staging No</p>
+                        <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                          <input matInput placeholder="Enter" formControlName="stagingNo">
+                        </mat-form-field>
+                      </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mt-2">
+                      <div class="d-flex flex-column">
+                        <p class="mb-0 py-0">Status </p>
+                        <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                          <input matInput placeholder="Enter"  formControlName="statusId">
+                        </mat-form-field>
+                      </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mt-2">
+                      <p class="mb-0 py-0">Created On</p>
+                      <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                        <input matInput [matDatepicker]="picker" placeholder="Choose Date " formControlName="createdOn">
+                        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                        <mat-datepicker #picker></mat-datepicker>
+                      </mat-form-field>
+                    </div>
+                    <div class="col-lg-4 col-md-6 mt-2">
+                      <p class="mb-0 py-0">Created By</p>
+                      <mat-form-field class="form-group input_field mb-0 w-100" appearance="outline">
+                        <input matInput placeholder="Enter" formControlName="createdBy">
+                      </mat-form-field>
+                    </div>
+
+                  </div>
+                </mat-expansion-panel>
+                <!--
+              <mat-expansion-panel #panel1 hideToggle>
+              <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                <mat-panel-title class="d-flex justify-content-between collapsefont align-items-center">
+                  Administrator
+                  <mat-icon class="collapsefont">{{panel1.expanded? 'remove' : 'add'}}</mat-icon>
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <div class="row mt-2 boxgrey">
+                
+              </div>
+            </mat-expansion-panel>
+           -->
+                <mat-expansion-panel #panel5 [expanded]="step === 0" (opened)="setStep(0)" hideToggle>
+                  <mat-expansion-panel-header class="border-bottom padding-space border-top">
+                    <mat-panel-title class="d-flex justify-content-between collapsefont align-items-center">
+                      <div> <img src="./assets/img/icons/signal.png" class="header_icon mr-2" alt="" srcset=""> Lines
+                      </div>
+                      <mat-icon class="collapsefont">{{panel5.expanded? 'remove' : 'add'}}</mat-icon>
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+                  <div class="row mt-2">
+                        <p-table #goodsReceiptNewTag  [value]="GoodsReceiptNew" [(selection)]="selectedGoodsReceiptNew"
+                      styleClass="p-datatable-gridlines p-datatable-sm" [scrollable]="true" selectionMode="single" 
+                      scrollHeight="calc(100vh - 25.2rem)" sortField="preInboundNo" [sortOrder]="-1" [paginator]="true" [rows]="100" [showCurrentPageReport]="true"
+                      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                         [resizableColumns]="true" style="width: 100%;margin-left: 10px;background-color:white" >
+                      <ng-template pTemplate="header">
+                        <tr>
+                          <th style="max-width: 3.5rem; justify-content: center;">
+                                <p-tableHeaderCheckbox ></p-tableHeaderCheckbox>
+                            </th>
+                            <th  pSortableColumn="cases"   pResizableColumn>Case Details<p-sortIcon field="cases"></p-sortIcon></th>
+                          <th  pSortableColumn="lineNo"   pResizableColumn>Line No<p-sortIcon field="lineNo"></p-sortIcon></th>
+                          <th  pSortableColumn="containerNo" pResizableColumn> Container No<p-sortIcon field="containerNo"></p-sortIcon></th> 
+                          <th  pSortableColumn="invoiceNo" pResizableColumn> Invoice No<p-sortIcon field="invoiceNo"></p-sortIcon></th> 
+                          <th  pSortableColumn="itemCode" pResizableColumn>Part No <p-sortIcon field="itemCode"></p-sortIcon></th> 
+                        <th  pSortableColumn="itemDescription" pResizableColumn>Description  <p-sortIcon field="itemDescription"></p-sortIcon></th>
+                        <th  pResizableColumn pSortableColumn="manufacturerPartNo" >Mfr Part No <p-sortIcon field="manufacturerPartNo"></p-sortIcon></th>
+                        <th  pSortableColumn="businessPartnerCode" pResizableColumn>Supplier <p-sortIcon field="businessPartnerCode"></p-sortIcon></th>
+                        <th  pResizableColumn pSortableColumn="expectedArrivalDate" >Exp Arrival Date <p-sortIcon field="expectedArrivalDate"></p-sortIcon></th>
+                        <th  pSortableColumn="orderQty" pResizableColumn>Exp Qty <p-sortIcon field="orderQty"></p-sortIcon></th>
+                        <th  pResizableColumn pSortableColumn="referenceField5" >Rec Qty <p-sortIcon field="referenceField5"></p-sortIcon></th>
+                        <th  pSortableColumn="stockTypeId" pResizableColumn>Variance <p-sortIcon field="stockTypeId"></p-sortIcon></th>
+                        <th  pResizableColumn pSortableColumn="orderUom" >UOM <p-sortIcon field="orderUom"></p-sortIcon></th>
+                        <th  pSortableColumn="stockTypeId" pResizableColumn>Stock Type <p-sortIcon field="stockTypeId"></p-sortIcon></th>
+                        <th  pResizableColumn pSortableColumn="specialStockIndicatorId" >Spl Stock ID <p-sortIcon field="specialStockIndicatorId"></p-sortIcon></th>
+                        <th  pResizableColumn pSortableColumn="remarks" >Remarks<p-sortIcon field="remarks"></p-sortIcon></th>
+                        </tr>
+                         
+                        <tr >
+                         <th style="max-width: 3.5rem; justify-content: center;">
+                            <p-tableHeaderCheckbox [disabled]="true" ></p-tableHeaderCheckbox>
+                        </th>
+                        <th >
+                          <input pInputText  type="text" (input)="goodsReceiptNewTag.filter($any($event.target)?.value, 'cases', 'contains')" 
+                          [value]="$any(goodsReceiptNewTag.filters['cases'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                        </th>
+                          <th >
+                            <input pInputText  type="text" (input)="goodsReceiptNewTag.filter($any($event.target)?.value, 'lineNo', 'contains')" 
+                            [value]="$any(goodsReceiptNewTag.filters['lineNo'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                          </th>
+                          <th >
+                            <input pInputText  type="text" (input)="goodsReceiptNewTag.filter($any($event.target)?.value, 'containerNo', 'contains')" 
+                            [value]="$any(goodsReceiptNewTag.filters['containerNo'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                          </th> 
+                             <th >
+                            <input pInputText  type="text" (input)="goodsReceiptNewTag.filter($any($event.target)?.value, 'invoiceNo', 'contains')" 
+                            [value]="$any(goodsReceiptNewTag.filters['invoiceNo'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                          </th> 
+                          <th >
+                            <input pInputText  type="text" (input)="goodsReceiptNewTag.filter($any($event.target)?.value, 'itemCode', 'contains')" 
+                            [value]="$any(goodsReceiptNewTag.filters['itemCode'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                          </th>
+                          <th >
+                            <input pInputText  type="text" (input)="goodsReceiptNewTag.filter($any($event.target)?.value, 'itemDescription', 'contains')" 
+                            [value]="$any(goodsReceiptNewTag.filters['itemDescription'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                          </th>
+                          <th >
+                            <input pInputText  type="text" (input)="goodsReceiptNewTag.filter($any($event.target)?.value, 'manufacturerPartNo', 'contains')" 
+                            [value]="$any(goodsReceiptNewTag.filters['manufacturerPartNo'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                          </th>
+                          <th >
+                            <input pInputText  type="text" (input)="goodsReceiptNewTag.filter($any($event.target)?.value, 'businessPartnerCode', 'contains')" 
+                            [value]="$any(goodsReceiptNewTag.filters['businessPartnerCode'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                          </th>
+                          <th >
+                            <input pInputText  type="text" (input)="goodsReceiptNewTag.filter($any($event.target)?.value, 'expectedArrivalDate', 'contains')" 
+                            [value]="$any(goodsReceiptNewTag.filters['expectedArrivalDate'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                          </th>
+                          <th >
+                            <input pInputText  type="text" (input)="goodsReceiptNewTag.filter($any($event.target)?.value, 'orderQty', 'contains')" 
+                            [value]="$any(goodsReceiptNewTag.filters['orderQty'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                          </th>
+                          <th >
+                            <input pInputText  type="text" (input)="goodsReceiptNewTag.filter($any($event.target)?.value, 'referenceField5', 'contains')" 
+                            [value]="$any(goodsReceiptNewTag.filters['referenceField5'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                          </th>
+                          <th >
+                            <input pInputText  type="text" (input)="goodsReceiptNewTag.filter($any($event.target)?.value, 'variance', 'contains')" 
+                            [value]="$any(goodsReceiptNewTag.filters['variance'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                          </th>
+                          <th >
+                            <input pInputText  type="text" (input)="goodsReceiptNewTag.filter($any($event.target)?.value, 'orderUom', 'contains')" 
+                            [value]="$any(goodsReceiptNewTag.filters['orderUom'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                          </th>
+                          <th >
+                            <input pInputText  type="text" (input)="goodsReceiptNewTag.filter($any($event.target)?.value, 'stockTypeId', 'contains')" 
+                            [value]="$any(goodsReceiptNewTag.filters['stockTypeId'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                          </th>
+                          <th >
+                            <input pInputText  type="text" (input)="goodsReceiptNewTag.filter($any($event.target)?.value, 'specialStockIndicatorId', 'contains')" 
+                            [value]="$any(goodsReceiptNewTag.filters['specialStockIndicatorId'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                          </th>
+                          <th >
+                            <input pInputText  type="text" (input)="goodsReceiptNewTag.filter($any($event.target)?.value, 'remarks', 'contains')" 
+                            [value]="$any(goodsReceiptNewTag.filters['remarks'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+                          </th>
+                        </tr>
+                      </ng-template>
+                          <ng-template pTemplate="body"  let-GoodsReceiptNew>
+                            <tr>
+                                <td style="max-width: 3.5rem; justify-content: center;">
+                                    <p-tableCheckbox [value]="GoodsReceiptNew"></p-tableCheckbox>
+                                </td>
+                            <td >     
+                              <button mat-icon-button class="text-secondary" (click)="pallet(GoodsReceiptNew)">
+                              <mat-icon>open_in_new</mat-icon>
+                            </button>
+                          </td>
+                          <td >{{GoodsReceiptNew.lineNo}}</td>
+                          <td >{{GoodsReceiptNew.containerNo}}</td>
+                          <td >{{GoodsReceiptNew.invoiceNo}}</td>
+                          <td >{{GoodsReceiptNew.itemCode}}</td>
+                          <td >{{GoodsReceiptNew.itemDescription }}</td>
+                          <td >{{GoodsReceiptNew.manufacturerPartNo}}</td>
+                          <td >{{GoodsReceiptNew.businessPartnerCode}}</td>
+                          <td >{{GoodsReceiptNew.expectedArrivalDate}}</td>
+                          <td >{{GoodsReceiptNew.orderQty}}</td>
+                          <td >{{GoodsReceiptNew.orderUom }}</td>
+                          <td >{{GoodsReceiptNew.stockTypeId}}</td>
+                          <td >{{GoodsReceiptNew.specialStockIndicatorId}}</td>
+                          <td >{{GoodsReceiptNew.remarks}}</td>
+                        </tr>
+                      </ng-template>
+                    </p-table>
+                  </div>
+                </mat-expansion-panel>
+
+
+              </mat-accordion>
+            <!--   <div class="d-flex justify-content-center align-items-center py-2  bottombutton">
+                <button mat-raised-button class="text-white mx-1 px-4" color="warn"
+                  routerLink="/main/inbound/goods-receipt">
+                  <mat-icon class="">close</mat-icon>Cancel
+                </button>
+
+         <button mat-raised-button class="bg-orange px-4 text-white ml-1">
+                <mat-icon class="">add</mat-icon> Add Case
+              </button> 
+                <button mat-raised-button (click)="pallet1()" class="bg-darkblue text-white mx-1 px-4 d-inline">
+                  <i class="fas fa-pallet mr-2"></i> Assign Case
+                </button>
+
+              </div> -->
+              <div class=" pb-1 w-100 d-flex justify-content-center fixed-bottom">
+                <div class=" py-2" style="padding-right: 6rem;">
+                  <button mat-raised-button class="text-white mx-1 px-4" color="warn"
+                  routerLink="/main/inbound/goods-receipt">
+                  <mat-icon class="">close</mat-icon>Cancel
+                </button>
+                  <button  mat-raised-button (click)="pallet1()" class="bg-darkblue text-white mx-1 px-4 d-inline">
+                    <i class="fas fa-pallet mr-2"></i> Assign Case
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-drawer-container>
+
+
+
+
+    <!--right pane
+  <div class="col-3 pl-1 pr-1 mt-1 ">
+    <div class="whs-rightpane bg-white shadow ">
+      
+    </div>
+  </div>
+
+  -->
+  </div>
+</form>

@@ -1,0 +1,98 @@
+<div class="card bg-white " style="overflow-x: hidden;">
+  <div mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle
+    class="d-flex justify-content-between align-items-center whs-bg-grey text-white p-2">
+    <h6 class="my-auto">Transfer Lines - {{this.data}}</h6>
+    <mat-icon class="text-white" mat-dialog-close>close</mat-icon>
+  </div>
+  <div class="row px-2 mt-2">
+    <div class="px-0 pl-1 pb-1 w-100 scroll1 ">
+      <div class="w-100">
+        <table mat-table [dataSource]="dataSource" matSort class=" w-100">
+
+
+          <!-- Position Column display none-->
+          <ng-container matColumnDef="transferConfirmedQty">
+            <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}">Confirmed Qty </th>
+            <td mat-cell *matCellDef="let element">{{element.sourceItemCode}}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="transferConfirmedQty1">
+            <th mat-header-cell *matHeaderCellDef [attr.rowspan]="2">Confirmed Qty </th>
+          </ng-container>
+
+          <ng-container matColumnDef="transferUom">
+            <th mat-header-cell *matHeaderCellDef [ngStyle]="{'display': 'none'}">UOM </th>
+            <td mat-cell *matCellDef="let element">{{element.transferUom}}</td>
+          </ng-container>
+
+
+          <ng-container matColumnDef="transferUom1">
+            <th mat-header-cell *matHeaderCellDef [attr.rowspan]="2">UOM</th>
+          </ng-container>
+
+          <ng-container matColumnDef="sourceItemCode">
+            <th mat-header-cell *matHeaderCellDef>Product Code</th>
+            <td mat-cell *matCellDef="let element">{{element.sourceItemCode}}</td>
+          </ng-container>
+
+          <!-- Symbol Column -->
+          <ng-container matColumnDef="sourceStockTypeId">
+            <th mat-header-cell *matHeaderCellDef>Stock TypeId</th>
+            <td mat-cell *matCellDef="let element">{{element.sourceStockTypeId}}</td>
+          </ng-container>
+
+          <!-- Symbol Column -->
+          <ng-container matColumnDef="sourceStorageBin">
+            <th mat-header-cell *matHeaderCellDef>Storag eBin</th>
+            <td mat-cell *matCellDef="let element">{{element.sourceStorageBin}}</td>
+          </ng-container>
+
+          <!-- Header row second group -->
+          <ng-container matColumnDef="header-row-second-group" class="text-center">
+            <th mat-header-cell class="text-center" *matHeaderCellDef [attr.colspan]="3">Source</th>
+          </ng-container>
+
+          <ng-container matColumnDef="targetItemCode">
+            <th mat-header-cell *matHeaderCellDef>Product Code</th>
+            <td mat-cell *matCellDef="let element">{{element.targetItemCode}}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="targetStockTypeId">
+            <th mat-header-cell *matHeaderCellDef>Stock TypeId</th>
+            <td mat-cell *matCellDef="let element">{{element.targetStockTypeId}}</td>
+          </ng-container>
+
+          <!-- Symbol Column -->
+          <ng-container matColumnDef="targetStorageBin">
+            <th mat-header-cell *matHeaderCellDef>Storage Bin</th>
+            <td mat-cell *matCellDef="let element">{{element.targetStorageBin}}</td>
+          </ng-container>
+          <!-- Symbol Column -->
+          <!-- Header row second group -->
+          <ng-container matColumnDef="header-row-second-group2">
+            <th mat-header-cell *matHeaderCellDef [attr.colspan]="3">Target</th>
+          </ng-container>
+
+          <tr mat-header-row
+            *matHeaderRowDef="[ 'header-row-second-group', 'header-row-second-group2', 'transferConfirmedQty1', 'transferUom1',]">
+          </tr>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns;sticky: true"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="selection.toggle(row)">
+          </tr>
+        </table>
+      </div>
+
+    </div>
+  </div>
+  <div class=" pb-1 w-100 d-flex justify-content-end transparentBg">
+    <div class="py-2 mr-5 pr-5">
+      <button mat-raised-button color="warn" mat-dialog-close class="mx-1"> <i
+        class="bi bi-x me-1 font-size-1_5rem"></i>Cancel</button>
+    </div>
+    <div class="p-0 mx-1 ">
+      <mat-paginator class="" showFirstLastButtons [pageSize]="100" [pageSizeOptions]="[100, 150, 200, 250]"
+        aria-label="Select page of periodic elements">
+      </mat-paginator>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,381 @@
+<div class="row mx-1 pl-2">
+  <div class="col-12">
+    <!--inner header-->
+
+    <div class="row  text-secondary pr-0 mt-1">
+      <div class="col bg-white d-flex align-items-center mt-1 px-1 py-1 pathname">
+
+
+        <nav aria-label="breadcrumb" class="d-flex align-items-center">
+          <ol class="breadcrumb mb-0 bg-white">
+            <!-- <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">Home</li> -->
+            <li class="breadcrumb-item whs-fontsize-1-2rem  my-auto">Home</li>
+            <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto" routerLink="/main/otherSetup/setupAccess">Setup</li>
+            <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto">User Management</li>
+            <li class="breadcrumb-item" class=" whs-fontsize-1-2rem  my-auto">User Role</li>
+          </ol>
+        </nav>
+
+
+        <div class="d-flex ml-auto my-auto">
+          <div [hidden]="isShowDiv"> <input matInput class="form-control filter_button mt-2 mt-2 mx-2 border-bottom"
+              placeholder="Search" style="width:90%">
+          </div>
+          <div [ngClass]="showFloatingButtons == true ? 'floating-pane-active' : 'floating-pane-deactive'"
+            class="button-row d-flex align-items-center">
+            <!--
+                            <button mat-mini-fab *ngIf="showFloatingButtons == true" class="floating-buttons  d-flex align-items-center justify-content-center bg-pink text-white mx-2"
+                            matTooltip="Add">
+                            <mat-icon class="action-icon d-flex align-items-center justify-content-center">add_circle_outline</mat-icon>
+                          </button>
+                          -->
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class=" floating-buttons  d-flex align-items-center justify-content-center text-white   yellowaction"
+              matTooltip="Display">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">search</mat-icon>
+            </button>
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class="floating-buttons  d-flex align-items-center justify-content-center text-white  blueaction "
+              matTooltip="Edit">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">edit</mat-icon>
+            </button>
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class=" floating-buttons  d-flex align-items-center justify-content-center redaction text-white  align-middle"
+              matTooltip="Delete">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">delete</mat-icon>
+            </button>
+            <!-- 
+                            <button  mat-mini-fab *ngIf="showFloatingButtons == true"
+                          class="floating-buttons  d-flex align-items-center justify-content-center text-white  bg-success  " matTooltip="Info">
+                          <mat-icon class="action-icon d-flex align-items-center justify-content-center">info_outline</mat-icon>
+                        </button>
+                          -->
+            <button mat-mini-fab *ngIf="showFloatingButtons == true"
+              class="floating-buttons  d-flex align-items-center justify-content-center text-white  darkblueaction "
+              matTooltip="Download">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center">download</mat-icon>
+            </button>
+
+
+            <button mat-mini-fab (click)="toggleFloat()" class="mx-2 text-white action-button"
+              [ngClass]="{'bg-orange' : toggle, 'purple': !toggle}">
+              <mat-icon>{{icon}}</mat-icon>Options
+            </button>
+            <button mat-mini-fab
+              class=" floating-buttons1  d-flex align-items-center justify-content-center darkaction text-white mx-2 mr-3 align-middle"
+              matTooltip="New">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">add</mat-icon>
+            </button>
+            <button mat-mini-fab
+              class=" floating-buttons1  d-flex align-items-center justify-content-center greyaction text-white mx-2 mr-3 align-middle"
+              matTooltip="Save">
+              <mat-icon class="action-icon d-flex align-items-center justify-content-center my-auto">save</mat-icon>
+            </button>
+            <button mat-mini-fab disabled class="text-white mx-2 action-button  bg-red " type="button" mat-button>
+              <mat-icon class="">tune</mat-icon> Filter
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <mat-drawer-container class="example-container  w-100">
+    <mat-drawer #drawer class="example-sidenav " mode="over" position="end">
+      <div class="card-header whs-bg-grey text-white d-flex justify-content-between align-items-center">
+        <h6 class="my-auto mb-0">Search Parameter</h6>
+        <mat-icon (click)="drawer.toggle()">close</mat-icon>
+      </div>
+
+      <div class="row  mt-1 mr-1 p-2 pl-3">
+
+      </div>
+
+      <div class="d-flex justify-content-center align-items-center py-2 bottombutton">
+        <button mat-raised-button color="warn" class="text-white mx-1 px-4">
+          <mat-icon class="">restart_alt</mat-icon> Reset
+        </button>
+        <button mat-raised-button class="bg-darkblue text-white mx-1" (click)="drawer.toggle();">
+          <mat-icon class="">done</mat-icon> Search
+        </button>
+      </div>
+    </mat-drawer>
+    <div class="example-sidenav-content">
+      <!-- <div class="row "style="padding-right: 15px !important;"> -->
+      <div class="row ms-3 me-3 px-1">
+        <div class="col-md-12 px-0 mt-1">
+          <div class="">
+            <mat-accordion>
+              <mat-expansion-panel class="shadow-none " hideToggle  #panel10>
+              <mat-expansion-panel-header class="border-bottom padding-space border-top bg-white">
+                <mat-panel-title class="d-flex justify-content-between align-items-center collapsefont">
+                 Header
+                  <div class="d-flex align-items-center">
+                    <mat-icon class="my-auto text-primary">{{panel10.expanded? 'remove' : 'add'}}
+                    </mat-icon>
+                  </div>
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <form [formGroup]="form">
+                <div class="row mt-1 p-1 px-3">
+                    <div class="col-lg-2 col-md-6 mt-2">
+                    <div class="d-flex flex-column">
+                      <p class="mb-0 py-0 required"> Language</p>
+                      <p-dropdown (onChange)="onLanguageChange($event)" placeholder="Select" class="w-100"
+                        [filter]="true" [options]="languageidList" formControlName="languageId"
+                        [style]="{'width': '100%', 'margin-top': '0.3rem', 'margin-bottom': '0.3rem'}"
+                        [panelStyle]="{'width':'20%'}" appendTo="body">
+                      </p-dropdown>
+                      <mat-error *ngIf="errorHandling('languageId')">{{getErrorMessage()}}</mat-error>
+                    </div>
+                  </div>
+
+                    <div class="col-lg-2 col-md-6 mt-2">
+                    <div class="d-flex flex-column">
+                      <p class="mb-0 py-0 text-black required">Company</p>
+                      <p-dropdown placeholder="Select" class="w-100" [filter]="true" [options]="companyidList"
+                        formControlName="companyCodeId"
+                        [style]="{'width': '100%', 'margin-top': '0.3rem', 'margin-bottom': '0.3rem'}"
+                        [panelStyle]="{'width':'20%'}" appendTo="body" (onChange)="onCompanyChange($event)">
+                      </p-dropdown>
+                      <mat-error *ngIf="errorHandling('companyCodeId')">{{getErrorMessage()}}</mat-error>
+                    </div>
+                  </div>
+                    <div class="col-lg-2 col-md-6 mt-2">
+                    <div class="d-flex flex-column">
+                      <p class="mb-0 py-0 required">Branch</p>
+                      <p-dropdown (onChange)="onPlantChange($event)" placeholder="Select" class="w-100" [filter]="true"
+                        [options]="plantidList" formControlName="plantId"
+                        [style]="{'width': '100%', 'margin-top': '0.3rem', 'margin-bottom': '0.3rem'}"
+                        [panelStyle]="{'width':'20%'}" appendTo="body"> </p-dropdown>
+                      <mat-error *ngIf="errorHandling('plantId')">{{getErrorMessage()}}</mat-error>
+                    </div>
+                  </div>
+                    <div class="col-lg-2 col-md-6 mt-2">
+                    <div class="d-flex flex-column">
+                      <p class="mb-0 py-0 required"> Warehouse </p>
+                      <p-dropdown  placeholder="Select" class="w-100" (onChange)="onWarehouseChange($event)"
+                        [filter]="true" [options]="warehouseidList" formControlName="warehouseId"
+                        [style]="{'width': '100%', 'margin-top': '0.3rem', 'margin-bottom': '0.3rem'}"
+                        [panelStyle]="{'width':'20%'}" appendTo="body"> </p-dropdown>
+                      <mat-error *ngIf="errorHandling('warehouseId')">{{getErrorMessage()}}</mat-error>
+                    </div>
+                  </div>
+
+                  <div class="col-lg-2 col-md-6 mt-2" *ngIf="this.js.pageflow != 'New'">
+                    <div class="d-flex flex-column">
+                      <p class="mb-0 py-0">Role Id</p>
+                      <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                        <input matInput placeholder="Enter" formControlName="roleId">
+                      </mat-form-field>
+                      <mat-error *ngIf="errorHandling('roleId')">{{getErrorMessage()}}</mat-error>
+                    </div>
+                  </div>
+
+                  <div class="col-lg-2 col-md-6 mt-2">
+                    <div class="d-flex flex-column">
+                      <p class="mb-0 py-0 required">Role Name</p>
+                      <mat-form-field class="form-group input_field mb-0" appearance="outline">
+                        <input matInput placeholder="Enter" formControlName="userRoleName" required>
+                      </mat-form-field>
+                      <mat-error *ngIf="errorHandling('userRoleName')">{{getErrorMessage()}}
+                      </mat-error>
+                    </div>
+                  </div>
+
+                  <div class="col-lg-2 col-md-6 mt-2">
+
+                    <p class="mb-0 py-0 text-black">Status</p>
+                    <mat-form-field class="w-100" appearance="outline">
+                      <mat-select class="form-group   mb-0" formControlName="roleStatus" placeholder="Select">
+                        <mat-option value="Active">Active</mat-option>
+                        <mat-option value="Inactive">Inactive</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-error *ngIf="errorHandling('roleStatus')">{{getErrorMessage()}}</mat-error>
+
+                  </div>
+
+
+                </div>
+              </form>
+              </mat-expansion-panel>
+      
+            <mat-expansion-panel class="shadow-none " [expanded]="step === 0" (opened)="setStep(0)" hideToggle  #panel10>
+              <mat-expansion-panel-header class="border-bottom padding-space border-top bg-white">
+                <mat-panel-title class="d-flex justify-content-between align-items-center collapsefont">
+                 Screen Access
+                  <div class="d-flex align-items-center">
+                    <mat-icon class="my-auto text-primary">{{panel10.expanded? 'remove' : 'add'}}
+                    </mat-icon>
+                  </div>
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+            <mat-tab-group class="mx-2">
+              <mat-tab *ngFor="let element of menuList; let j = index">
+                <ng-template mat-tab-label>
+                  <ul class="nav nav-tabs mt-1">
+                    <li class="nav-item">
+                      <p class="nav-link navpadding bg-white whs-text-grey pl-2 py-1 pl-1 row mx-0" href="">
+                        {{element.mainMenu}}
+                      </p>
+                    </li>
+                  </ul>
+                </ng-template>
+                <div class="scrolltable mr-1">
+                  <div class="col-12 col-sm-12 col-md-4 col-lg-4 pt-3 py-2 ">
+                    <mat-checkbox (change)="checkUncheckAll(element.mainMenu,$event)">
+                      Select All
+                    </mat-checkbox>
+                  </div>
+
+                  <table class="table table-bordered ">
+                    <thead>
+                      <tr>
+                        <th scope="col">S.No</th>
+                        <th class="text-left" scope="col">Menu</th>
+                        <th scope="col">Select All</th>
+                        <th scope="col">Create / Modify</th>
+                        <th scope="col">Display</th>
+                        <th scope="col">Delete</th>
+                      </tr>
+                    </thead>
+                    <tbody *ngFor="let menu of element.Menu; let i = index">
+                      <tr>
+                        <th scope="row">{{ i + 1}}</th>
+                        <!-- <th scope="row">{{menu.subScreenId}}</th> -->
+                        <th class="text-left" scope="row">{{menu.subMenuName}}</th>
+                        <th>
+                          <mat-checkbox #d1 class="col-12 col-sm-12 col-md-3" [checked]="menu.createUpdate && menu.view && menu.delete" 
+                          (change)="onChange(menu,$event)">
+                        </mat-checkbox>
+                        </th>
+                        <th>
+                          <div class="col-12 col-sm-12 col-md-12 font-weight-bold">
+                            <mat-checkbox class="col-12 col-sm-12 col-md-3" [(ngModel)]="menu.createUpdate">
+                            </mat-checkbox>
+
+                          </div>
+                        </th>
+                        <th>
+                          <div class="col-12 col-sm-12 col-md-12 font-weight-bold">
+
+                            <mat-checkbox class="col-12 col-sm-12 col-md-3" [(ngModel)]="menu.view">
+                            </mat-checkbox>
+                          </div>
+                        </th>
+                        <th>
+                          <div class="col-12 col-sm-12 col-md-12 font-weight-bold">
+                            <mat-checkbox class="col-12 col-sm-12 col-md-3" [(ngModel)]="menu.delete">
+                            </mat-checkbox>
+                          </div>
+                        </th>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="d-flex justify-content-end mr-2">
+                  Total Records: {{element.Menu.length}}
+                </div>
+              </mat-tab>
+             
+            </mat-tab-group>
+            </mat-expansion-panel>
+          </mat-accordion>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+    <div class="d-flex justify-content-center align-items-center py-2 bg-white w-100 bottombutton123">
+      <!--bottombutton123-->
+      <button mat-raised-button (click)="back()" class="mx-2 bg-red text-white"> <i
+          class="bi bi-x me-1 font-size-1_5rem"></i>Cancel</button>
+      <button *ngIf="this.js.pageflow != 'Display'" mat-raised-button (click)="submit()"
+        class="mx-2 bg-darkblue text-white"> <i class="bi bi-check2 me-1 font-size-1_5rem"></i>
+        {{btntext}}</button>
+
+
+      <!-- <button mat-raised-button (click)="addScreens()" class="mx-2 bg-warning text-white"> <i
+            class="bi bi-arrow-counterclockwise me-1 font-size-1_5rem"></i>
+          Add Screens</button> -->
+    </div>
+  </mat-drawer-container>
+</div>
+
+
+
+
+
+<!--
+
+    <mat-expansion-panel class="shadow-none " hideToggle *ngFor="let element of menuList; let j = index"
+                #panel0>
+                <mat-expansion-panel-header class="border-bottom padding-space border-top bg-white">
+                  <mat-panel-title class="d-flex justify-content-between align-items-center collapsefont">
+                    {{element.mainMenu}}
+                    <div class="d-flex align-items-center">
+                      <mat-icon class="my-auto text-primary">{{panel0.expanded? 'remove' : 'add'}}
+                      </mat-icon>
+                    </div>
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+                <div class="scrolltable">
+                  <div class="col-12 col-sm-12 col-md-4 col-lg-4 pt-3 py-2 ">
+                    <mat-checkbox (change)="checkUncheckAll(element.mainMenu,$event)">
+                      Select All
+                    </mat-checkbox>
+                  </div>
+
+                  <table class="table table-bordered ">
+                    <thead>
+                      <tr>
+                        <th scope="col">S.No</th>
+                        <th class="text-left" scope="col">Menu</th>
+                        <th scope="col">Select All</th>
+                        <th scope="col">Create / Modify</th>
+                        <th scope="col">Display</th>
+                        <th scope="col">Delete</th>
+                      </tr>
+                    </thead>
+                    <tbody *ngFor="let menu of element.Menu; let i = index">
+                      <tr>
+                        <th scope="row">{{ i + 1}}</th>
+                        <th class="text-left" scope="row">{{menu.subMenuName}}</th>
+                        <th>
+                          <mat-checkbox #d1 class="col-12 col-sm-12 col-md-3" [checked]="true"
+                            (change)="onChange(menu,$event)">
+                          </mat-checkbox>
+                        </th>
+                        <th>
+                          <div class="col-12 col-sm-12 col-md-12 font-weight-bold">
+                            <mat-checkbox class="col-12 col-sm-12 col-md-3" [(ngModel)]="menu.createUpdate">
+                            </mat-checkbox>
+
+                          </div>
+                        </th>
+                        <th>
+                          <div class="col-12 col-sm-12 col-md-12 font-weight-bold">
+
+                            <mat-checkbox class="col-12 col-sm-12 col-md-3" [(ngModel)]="menu.view">
+                            </mat-checkbox>
+                          </div>
+                        </th>
+                        <th>
+                          <div class="col-12 col-sm-12 col-md-12 font-weight-bold">
+                            <mat-checkbox class="col-12 col-sm-12 col-md-3" [(ngModel)]="menu.delete">
+                            </mat-checkbox>
+                          </div>
+                        </th>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+
+              </mat-expansion-panel>
+
+
+-->

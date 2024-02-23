@@ -1,0 +1,106 @@
+.rowb{
+    display: -webkit-box;
+//  min-height: 25%;
+}
+.logo{
+    max-width: 99%;
+}
+.logwh
+{
+    max-width: 65% !important;
+    height: 100% !important;
+}
+.barcodelayout{
+    margin: 0;
+    width: 2.3in!important;
+    height: 1.5in!important;
+    border-radius: 10px;
+    border-style: solid;
+    font-size: 10px !important;
+    background-color: #fff;
+    color: #000;
+    font-weight: 700;
+    page-break-after: always;
+    position: relative;
+    transform: scale(1.30) rotate(90deg) !important;
+   
+
+    top: 120px;
+left: -6px;
+font-weight: 900 !important;
+// font-family: Arial !important;
+font-style: normal;
+
+}
+.colmd1{width:  8.333333333333333% !important;}
+.colmd2{width:  16.66666666666670% !important;}
+.colmd3{width:  25% !important;}
+.colmd4{width:  33.33333333333330% !important;}
+.colmd5{width:  41.66666666666670% !important;}
+.colmd6{width:  50% !important;}
+.colmd7{width:  58.333333333333333% !important;}
+.colmd8{width:  66.66666666666660% !important;}
+.colmd9{width:  75% !important;}
+.colmd10{width:  83.33333333333330% !important;}
+.colmd11{width:  91.66666666666660% !important;}
+.colmd12{width:  100% !important;}
+
+
+
+
+   .labelvalue{
+    font-size: 7px !important;
+    text-overflow: ellipsis;
+    padding-left:2px;
+    font-weight: bold;
+
+}
+.labelvalueqty{
+    font-size: 20px !important;
+    text-overflow: ellipsis;
+    padding-left:2px;
+    font-weight: bold;
+}
+
+.descrsku{
+    font-size: 8px !important;
+    word-break: break-all;
+}
+
+ 
+.barcodeimg{
+    text-align: right;
+
+}
+
+.barcodeimgcase{
+    margin: 0 auto;
+    display: table;
+    text-align: center;
+
+}
+// .backgourndimagecls{
+//     background-position: top; /* Center the image */
+//     background-repeat: no-repeat; /* Do not repeat the image */
+//     background-size: 1in;
+//     background-blend-mode: op;
+// // background-opacity;
+//     background-image: url('innerworkslogo.jpeg') ;
+// opacity: .9;
+// }
+    
+
+@media print {
+
+@page {
+// size: landscape;
+    // size: auto;
+  
+// width: 3in !important;
+// height: 2in !important;
+// margin: 0.;
+// transform: rotate(90deg) !important;
+// position: fixed;
+}
+  }
+  

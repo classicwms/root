@@ -1,0 +1,79 @@
+<div class="card  border-0 bg-white " style="overflow: hidden;">
+    <div mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle
+      class="d-flex justify-content-between align-items-center header_colour text-white p-2">
+      <h6 class="my-auto">Pickup Lines</h6>
+      <mat-icon class="text-white" mat-dialog-close>close</mat-icon>
+    </div>
+   
+    <div class="col-12 mainsection mt-1  border-top px-0 uatwhite" style="height: calc(100vh - 12rem);  ">
+      <div class="example-sidenav-content">
+        <div class="row " style="padding-right: 15px !important;">
+          <p-table #binnerTag  [value]="inventory" 
+          styleClass="p-datatable-gridlines p-datatable-sm" [scrollable]="true" selectionMode="single"   [globalFilterFields]="['companyDescription', 'plantDescription', 'warehouseDescription', 'itemCode',  'referenceField8','manufacturerName','storageBin','referenceField10','barcodeId','inventoryQuantity','allocatedQuantity','total','stockTypeId1']"
+          scrollHeight="calc(100vh - 20.8rem)" sortField="lineNumber" [sortOrder]="+1" [paginator]="true" [rows]="100" [showCurrentPageReport]="true" [scrollable]="true" selectionMode="single"  scrollDirection="both"
+          
+             [resizableColumns]="true" style="width: 100%;margin-left: 10px;background-color:white" >
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width: 4rem;" pSortableColumn="manufacturerName" pResizableColumn>Mfr Name <p-sortIcon field="manufacturerName"></p-sortIcon></th> 
+              <th style="width: 8rem;" pSortableColumn="itemCode" pResizableColumn>Part No<p-sortIcon field="itemCode"></p-sortIcon></th> 
+              <th style="width: 9rem;" pSortableColumn="description"   pResizableColumn>Description <p-sortIcon field="description"></p-sortIcon></th>
+              <th style="width: 8rem;" pSortableColumn="barcodeId" pResizableColumn>Barcode<p-sortIcon field="barcodeId"></p-sortIcon></th> 
+            <!--<th style="width: 9rem;" pSortableColumn="pickedStorageBin" pResizableColumn>Bin Location <p-sortIcon field="pickedStorageBin"></p-sortIcon></th>-->
+            <th style="width: 7rem;" pSortableColumn="refDocNumber" pResizableColumn>Order No <p-sortIcon field="refDocNumber"></p-sortIcon></th>
+           
+          
+            </tr>
+             
+            <tr >
+           
+              <th style="width: 4rem;">
+                <input pInputText  type="text" (input)="binnerTag.filter($any($event.target)?.value, 'manufacturerName', 'contains')" 
+                [value]="$any(binnerTag.filters['manufacturerName'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+              </th> 
+              <th style="width: 8rem;">
+                <input pInputText  type="text" (input)="binnerTag.filter($any($event.target)?.value, 'itemCode', 'contains')" 
+                [value]="$any(binnerTag.filters['itemCode'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+              </th>
+              <th style="width: 9rem;">
+                <input pInputText  type="text" (input)="binnerTag.filter($any($event.target)?.value, 'description', 'contains')" 
+                [value]="$any(binnerTag.filters['description'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+              </th>
+              
+              <th style="width: 8rem;">
+                <input pInputText  type="text" (input)="binnerTag.filter($any($event.target)?.value, 'barcodeId', 'contains')" 
+                [value]="$any(binnerTag.filters['barcodeId'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+              </th>
+              <!--<th style="width: 9rem;">
+                <input pInputText  type="text" (input)="binnerTag.filter($any($event.target)?.value, 'pickedStorageBin', 'contains')" 
+                [value]="$any(binnerTag.filters['pickedStorageBin'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+              </th>-->
+              <th style="width: 7rem;">
+                <input pInputText  type="text" (input)="binnerTag.filter($any($event.target)?.value, 'refDocNumber', 'contains')" 
+                [value]="$any(binnerTag.filters['refDocNumber'])?.value" placeholder="Search" class=" w-100 p-column-filter">
+              </th>
+             
+             
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-picker let-rowIndex="rowIndex">
+            <tr [pSelectableRow]="picker" [pSelectableRowIndex]="rowIndex">
+             
+              <td style="width: 4rem;">{{picker.manufacturerName}}</td>
+              <td style="width: 8rem;"> {{picker.itemCode}}</td>
+              <td style="width: 9rem;"> {{picker.description}}</td>
+              <td style="width: 8rem;">{{picker.partnerItemBarcode }}</td>
+              <td style="width: 7rem;">{{picker.refDocNumber }}</td>
+            
+             
+              <!--<td style="width: 9rem;" >{{picker.pickupConfirmedOn| date : 'dd-MM-yyyy HH:mm' :'GMT' }}</td>-->
+            
+            </tr>
+         
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+    </div>
+  
+  </div>
