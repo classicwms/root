@@ -197,7 +197,7 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 		tokenizer.setNames(new String[] { "languageId", "companyCodeId", "plantId", "warehouseId", "businessParnterType", "partnerCode",
 				"partnerName", "address1", "address2", "zone", "country", "state", "phoneNumber", "faxNumber",
 				"emailId", "referenceText", "location", "lattitude", "longitude", "storageTypeId", "storageBin",
-				"statusId", "deletionIndicator", "createdBy"});
+				"statusId", "deletionIndicator", "createdBy", "dType"});
 		customerLineMapper.setLineTokenizer(tokenizer);
 		customerLineMapper.setFieldSetMapper(new BusinessPartnerFieldSetMapper());
 		customerLineMapper.afterPropertiesSet();
@@ -212,11 +212,11 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 		itemWriter.setDataSource(this.dataSource);
 		itemWriter.setSql("INSERT INTO tblbusinesspartner (LANG_ID, C_ID, PLANT_ID, WH_ID, PARTNER_TYP, PARTNER_CODE, PARTNER_NM, "
 				+ "ADD_1, ADD_2, Zone, COUNTRY, STATE, PH_NO, FX_NO, MAIL_ID, REF_TXT, LOCATION, LATITUDE, LONGITUDE, ST_TYP_ID, "
-				+ "ST_BIN, STATUS_ID, IS_DELETED, CTD_BY, CTD_ON, UTD_BY, UTD_ON) "
+				+ "ST_BIN, STATUS_ID, IS_DELETED, CTD_BY, DTYPE, CTD_ON, UTD_BY, UTD_ON) "
 				+ "VALUES (:languageId, :companyCodeId, :plantId, :warehouseId, :businessParnterType, :partnerCode, :partnerName, "
 				+ ":address1, :address2, :zone, :country, :state, :phoneNumber, :faxNumber, :emailId, :referenceText, :location, "
 				+ ":lattitude, :longitude, :storageTypeId, :storageBin, :statusId,\r\n"
-				+ ":deletionIndicator, :createdBy, GETDATE(), :createdBy, GETDATE())");
+				+ ":deletionIndicator, :createdBy, :dType, GETDATE(), :createdBy, GETDATE())");
 		itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider());
 		itemWriter.afterPropertiesSet();
 		return itemWriter;

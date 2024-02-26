@@ -33,7 +33,8 @@ public class BusinessPartnerFieldSetMapper implements FieldSetMapper<BusinessPar
 				fieldSet.readString("storageBin"),
 				fieldSet.readString("statusId"),
 				fieldSet.readString("deletionIndicator"),
-				fieldSet.readString("createdBy")
+				fieldSet.readString("createdBy"),
+				fieldSet.readString("dType")
 			);
 	}
 }

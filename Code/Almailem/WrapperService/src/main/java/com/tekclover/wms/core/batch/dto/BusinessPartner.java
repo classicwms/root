@@ -28,6 +28,7 @@ public class BusinessPartner {
 	private String statusId;				// STATUS_ID
 	private String deletionIndicator;		// Is_deleted
 	private String createdBy;			// CTD_BY
+	private String dType;				// DTYPE
 	
 	/**
 	* @param languageId
@@ -59,7 +60,7 @@ public class BusinessPartner {
 							String partnerCode, String partnerName, String address1, String address2, String zone, String country, 
 							String state, String phoneNumber, String faxNumber, String emailId, String referenceText, String location, 
 							String lattitude, String longitude, String storageTypeId, String storageBin, String statusId, 
-							String deletionIndicator, String createdBy) {
+							String deletionIndicator, String createdBy, String dType) {
 		this.languageId = languageId;
 		this.companyCodeId = companyCodeId;
 		this.plantId = plantId;
@@ -84,5 +85,6 @@ public class BusinessPartner {
 		this.statusId = statusId;
 		this.deletionIndicator = deletionIndicator;
 		this.createdBy = createdBy;
+		this.dType = dType;
 	}
 }
