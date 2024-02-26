@@ -11,13 +11,14 @@ import java.util.Date;
 public class InventoryFieldSetMapper implements FieldSetMapper<Inventory> {
 
 
-	Long inventoryId = System.currentTimeMillis();
+//	Long inventoryId = System.currentTimeMillis();
 
 	//Inventory FieldSet
 	@Override
 	public Inventory mapFieldSet(FieldSet fieldSet) {
 		return new Inventory(
-				inventoryId,
+//				inventoryId,
+				fieldSet.readLong("inventoryId"),
 				fieldSet.readString("languageId"),
 				fieldSet.readString("companyCodeId"),
 				fieldSet.readString("plantId"),
