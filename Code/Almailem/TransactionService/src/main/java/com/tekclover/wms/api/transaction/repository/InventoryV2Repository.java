@@ -1795,15 +1795,13 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                     "(COALESCE(:itemText, null) IS NULL OR (text IN (:itemText))) \n" +
 
                     "select max(inv_id) inventoryId into #inv from tblinventory \n" +
-                    "WHERE \n" +
-                    "is_deleted = 0 \n" +
-                    "group by itm_code,mfr_name \n" +
+                    "group by itm_code,mfr_name,st_bin \n" +
 
                     // inv_qty from tblinventory to temp table
                     "UPDATE TH SET TH.INV_QTY = X.INV_QTY,TH.ALLOC_QTY = X.ALLOC_QTY,TH.TOT_QTY = X.REF_FIELD_4 FROM #stockreport TH INNER JOIN \n" +
                     "(select c_id, plant_id, lang_id, wh_id, itm_code, mfr_name, INV_QTY, ALLOC_QTY, REF_FIELD_4 \n"+
                     "from tblinventory \r\n"+
-                    "where  \r\n"+
+                    "where is_deleted = 0 and \r\n"+
                     "inv_id in (select inventoryId from #inv) \r\n"+
                     ") X ON \n" +
                     "X.C_ID = TH.C_ID AND X.PLANT_ID = TH.PLANT_ID AND X.WH_ID = TH.WH_ID AND X.LANG_ID = TH.LANG_ID AND \n" +
