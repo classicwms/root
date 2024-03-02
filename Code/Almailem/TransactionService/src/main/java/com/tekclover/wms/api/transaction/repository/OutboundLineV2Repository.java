@@ -264,10 +264,12 @@ public interface OutboundLineV2Repository extends JpaRepository<OutboundLineV2, 
             "ob.wh_id warehouseId,\n" +
             "ob.str_no batchSerialNumber,\n" +
             "ob.dlv_ctd_by createdBy,\n" +
-            "DATEADD(HOUR,3,ob.dlv_ctd_on) createdOn,\n" +
+//            "DATEADD(HOUR,3,ob.dlv_ctd_on) createdOn,\n" +
+            "ob.dlv_ctd_on createdOn,\n" +
             "ob.is_deleted deletionIndicator,\n" +
             "ob.dlv_cnf_by deliveryConfirmedBy,\n" +
-            "DATEADD(HOUR,3,ob.dlv_cnf_on) deliveryConfirmedOn,\n" +
+//            "DATEADD(HOUR,3,ob.dlv_cnf_on) deliveryConfirmedOn,\n" +
+            "ob.dlv_cnf_on deliveryConfirmedOn,\n" +
             "ob.dlv_ord_no deliveryOrderNo,\n" +
             "ob.dlv_qty deliveryQty,\n" +
             "ob.dlv_uom deliveryUom,\n" +
@@ -284,18 +286,21 @@ public interface OutboundLineV2Repository extends JpaRepository<OutboundLineV2, 
             "ob.ref_field_7 referenceField7,\n" +
             "ob.ref_field_8 referenceField8,\n" +
             "ob.dlv_rev_by reversedBy,\n" +
-            "DATEADD(HOUR,3,ob.dlv_rev_on) reversedOn,\n" +
+//            "DATEADD(HOUR,3,ob.dlv_rev_on) reversedOn,\n" +
+            "ob.dlv_rev_on reversedOn,\n" +
             "ob.sp_st_ind_id specialStockIndicatorId,\n" +
             "ob.status_id statusId,\n" +
             "ob.stck_typ_id stockTypeId,\n" +
             "ob.dlv_utd_by updatedBy,\n" +
-            "DATEADD(HOUR,3,ob.dlv_utd_on) updatedOn,\n" +
+//            "DATEADD(HOUR,3,ob.dlv_utd_on) updatedOn,\n" +
+            "ob.dlv_utd_on updatedOn,\n" +
             "ob.var_id variantCode,\n" +
             "ob.var_sub_id variantSubCode,\n" +
             "ob.mfr_name manufacturerName,\n" +
             "ob.SALES_INVOICE_NUMBER salesInvoiceNumber,\n" +
             "ob.PICK_LIST_NUMBER pickListNumber,\n" +
-            "DATEADD(HOUR,3,ob.INVOICE_DATE) invoiceDate,\n" +
+//            "DATEADD(HOUR,3,ob.INVOICE_DATE) invoiceDate,\n" +
+            "ob.INVOICE_DATE invoiceDate,\n" +
             "ob.DELIVERY_TYPE deliveryType,\n" +
             "ob.CUSTOMER_ID customerId,\n" +
             "ob.CUSTOMER_NAME customerName,\n" +

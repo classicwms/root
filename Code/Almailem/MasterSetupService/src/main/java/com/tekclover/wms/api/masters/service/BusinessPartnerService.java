@@ -103,7 +103,7 @@ public class BusinessPartnerService {
 
         BusinessPartnerSpecification spec = new BusinessPartnerSpecification(searchBusinessPartner);
         List<BusinessPartner> results = businesspartnerRepository.findAll(spec);
-        log.info("results: " + results);
+//        log.info("results: " + results);
         return results;
     }
 
