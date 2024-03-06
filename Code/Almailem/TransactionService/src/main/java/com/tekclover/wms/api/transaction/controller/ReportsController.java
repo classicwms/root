@@ -109,6 +109,13 @@ public class ReportsController {
         return new ResponseEntity<>(stockReportList, HttpStatus.OK);
     }
 
+    @ApiOperation(response = StockReportOutput.class, value = "Get All Stock Reports StoredProcedure") // label for swagger
+    @PostMapping("/v2/stockReportSP")
+    public ResponseEntity<?> getAllStockReportV2SP(@Valid @RequestBody SearchStockReportInput searchStockReport) {
+        Stream<StockReportOutput> stockReportList = reportsService.stockReportUsingStoredProcedure(searchStockReport);
+        return new ResponseEntity<>(stockReportList, HttpStatus.OK);
+    }
+
     /*
      * Inventory Report
      */

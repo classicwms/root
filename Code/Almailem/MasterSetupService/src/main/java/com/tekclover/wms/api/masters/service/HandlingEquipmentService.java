@@ -129,7 +129,7 @@ public class HandlingEquipmentService {
             throws Exception {
         HandlingEquipmentSpecification spec = new HandlingEquipmentSpecification(searchHandlingEquipment);
         List<HandlingEquipment> results = handlingequipmentRepository.findAll(spec);
-        log.info("results: " + results);
+        log.info("HandlingEquipment results: " + results.size());
         return results;
     }
 

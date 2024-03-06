@@ -24,6 +24,7 @@ import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundLineV2;
 import com.tekclover.wms.api.transaction.model.report.*;
 import com.tekclover.wms.api.transaction.repository.*;
 import com.tekclover.wms.api.transaction.repository.specification.StockMovementReportNewSpecification;
+import com.tekclover.wms.api.transaction.repository.specification.StockReportOutputSpecification;
 import com.tekclover.wms.api.transaction.repository.specification.TransactionHistoryReportSpecification;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -173,6 +174,9 @@ public class ReportsService extends BaseService {
 
     @Autowired
     PeriodicHeaderService periodicHeaderService;
+
+    @Autowired
+    StockReportOutputRepository stockReportOutputRepository;
 
 
     /**
@@ -443,6 +447,61 @@ public class ReportsService extends BaseService {
                 searchStockReport.getManufacturerName());
 //                searchStockReport.getStockTypeText());
 
+        return reportList;
+    }
+
+    public Stream<StockReportOutput> stockReportUsingStoredProcedure(SearchStockReportInput searchStockReport) {
+
+        if (searchStockReport.getCompanyCodeId() == null) {
+            throw new BadRequestException("Company Code Cannot be Null");
+        }
+
+        if (searchStockReport.getPlantId() == null) {
+            throw new BadRequestException("Plant Cannot be Null");
+        }
+
+        if (searchStockReport.getLanguageId() == null) {
+            throw new BadRequestException("Language Cannot be Null");
+        }
+
+        if (searchStockReport.getWarehouseId() == null) {
+            throw new BadRequestException("warehouse Cannot be Null");
+        }
+
+        if (searchStockReport.getStockTypeText() == null || searchStockReport.getStockTypeText().equalsIgnoreCase("ALL")) {
+            searchStockReport.setStockTypeText("0");
+        }
+        if (searchStockReport.getStockTypeText().equalsIgnoreCase("ONHAND")) {
+            searchStockReport.setStockTypeText("1");
+        }
+        if (searchStockReport.getStockTypeText().equalsIgnoreCase("DAMAGED")) {
+            searchStockReport.setStockTypeText("7");
+        }
+        if (searchStockReport.getItemCode() == null) {
+            searchStockReport.setItemCode("0");
+        }
+        if (searchStockReport.getManufacturerName() == null) {
+            searchStockReport.setManufacturerName("0");
+        }
+
+        if (searchStockReport.getItemText() == null) {
+            searchStockReport.setItemText("0");
+        }
+
+        stockReportOutputRepository.updateSpStockReport(
+                searchStockReport.getCompanyCodeId(),
+                searchStockReport.getPlantId(),
+                searchStockReport.getLanguageId(),
+                searchStockReport.getWarehouseId(),
+                searchStockReport.getItemCode(),
+                searchStockReport.getManufacturerName(),
+                searchStockReport.getItemText(),
+                searchStockReport.getStockTypeText()
+        );
+        log.info("Report Generated successfully through Stored Procedure");
+        StockReportOutputSpecification specification = new StockReportOutputSpecification();
+        Stream<StockReportOutput> reportList = stockReportOutputRepository.stream(specification, StockReportOutput.class);
+        log.info("Stock Report Output -----> ");
         return reportList;
     }
 

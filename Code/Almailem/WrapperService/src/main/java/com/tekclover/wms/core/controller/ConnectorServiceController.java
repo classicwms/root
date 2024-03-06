@@ -36,7 +36,7 @@ public class ConnectorServiceController {
     //FindSupplierInvoice
     @ApiOperation(response = SupplierInvoiceHeader[].class, value = "Find SupplierInvoiceHeader")//label for swagger
     @PostMapping("/findSupplierInvoiceHeader")
-    public ResponseEntity<?> findSupplierInvoiceHeader(@RequestBody SearchSupplierInvoiceHeader searchSupplierInvoiceHeader,
+    public ResponseEntity<?> findSupplierInvoiceHeader(@RequestBody FindSupplierInvoiceHeader searchSupplierInvoiceHeader,
                                                        @RequestParam String authToken) {
         SupplierInvoiceHeader[] supplierInvoiceHeader = connectorService.findSupplierInvoiceHeader(searchSupplierInvoiceHeader, authToken);
         return new ResponseEntity<>(supplierInvoiceHeader, HttpStatus.OK);

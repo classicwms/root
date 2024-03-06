@@ -17,6 +17,7 @@ public class FindOrderManagementLineV2 {
     private List<Long> statusId;
     private List<String> description;
     private List<String> soType;
+    private List<String> manufacturerName;
 
     private Date startRequiredDeliveryDate;
     private Date endRequiredDeliveryDate;

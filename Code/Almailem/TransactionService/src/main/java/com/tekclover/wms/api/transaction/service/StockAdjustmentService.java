@@ -1208,11 +1208,27 @@ public class StockAdjustmentService extends BaseService {
                 stockAdjustment.getWarehouseId(),
                 stockAdjustment.getManufacturerName(),
                 stockAdjustment.getItemCode());
-        inventoryMovement.setBalanceOHQty(sumOfInvQty);
+        log.info("BalanceOhQty: " + sumOfInvQty);
         if(sumOfInvQty != null) {
+        inventoryMovement.setBalanceOHQty(sumOfInvQty);
             Double openQty = 0D;
             if(movementQtyValue.equalsIgnoreCase("P")) {
                 openQty = sumOfInvQty - stockAdjustment.getAdjustmentQty();
+            }
+            if(movementQtyValue.equalsIgnoreCase("N")) {
+                openQty = sumOfInvQty + stockAdjustment.getAdjustmentQty();
+            }
+            inventoryMovement.setReferenceField2(String.valueOf(openQty));          //Qty before inventory Movement occur
+        }
+        if(sumOfInvQty == null) {
+            inventoryMovement.setBalanceOHQty(0D);
+            Double openQty = 0D;
+            sumOfInvQty = 0D;
+            if(movementQtyValue.equalsIgnoreCase("P")) {
+                openQty = sumOfInvQty - stockAdjustment.getAdjustmentQty();
+                if(openQty < 0){
+                    openQty = 0D;
+                }
             }
             if(movementQtyValue.equalsIgnoreCase("N")) {
                 openQty = sumOfInvQty + stockAdjustment.getAdjustmentQty();

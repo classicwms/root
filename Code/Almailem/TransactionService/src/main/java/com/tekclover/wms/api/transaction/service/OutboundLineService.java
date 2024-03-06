@@ -3568,7 +3568,7 @@ public class OutboundLineService extends BaseService {
         inventoryMovement.setMovementType(3L);
 
         // SUB_MVT_TYP_ID
-        inventoryMovement.setSubmovementType(5L);
+        inventoryMovement.setSubmovementType(2L);
 
         // PACK_BARCODE
         inventoryMovement.setPackBarcodes(pickupLine.getPickedPackCode());
@@ -3608,10 +3608,15 @@ public class OutboundLineService extends BaseService {
                 pickupLine.getWarehouseId(),
                 pickupLine.getManufacturerName(),
                 pickupLine.getItemCode());
-        inventoryMovement.setBalanceOHQty(sumOfInvQty);
+        log.info("BalanceOhQty: " + sumOfInvQty);
         if(sumOfInvQty != null) {
+        inventoryMovement.setBalanceOHQty(sumOfInvQty);
             Double openQty = sumOfInvQty - pickupLine.getPickConfirmQty();
             inventoryMovement.setReferenceField2(String.valueOf(openQty));
+        }
+        if(sumOfInvQty == null) {
+            inventoryMovement.setBalanceOHQty(0D);
+            inventoryMovement.setReferenceField2("0");
         }
 
         // IM_CTD_BY
@@ -4030,7 +4035,9 @@ public class OutboundLineService extends BaseService {
                 log.info("OutboundLine updated ");
 
                 //----------------Outbound Header update----------------------------------------------------------------------------------------
-                outboundHeaderV2Repository.updateOutboundHeaderStatusV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, STATUS_ID_59, statusDescription, new Date());
+                log.info("c_id, plant_id, lang_id, wh_id, ref_doc_no, status_id, Status_desc, date:---->OBH Update----> "
+                        + companyCodeId + "," + plantId + "," + languageId + "," + warehouseId + "," + refDocNumber + "," + STATUS_ID_59 + "," + statusDescription + "," + new Date());
+                outboundHeaderV2Repository.updateOutboundHeaderStatusNewV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, STATUS_ID_59, statusDescription, new Date());
                 OutboundHeaderV2 isOrderConfirmedOutboundHeader = outboundHeaderService.getOutboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber);
                 log.info("OutboundHeader updated----1---> : " + isOrderConfirmedOutboundHeader.getRefDocNumber() + "---" + isOrderConfirmedOutboundHeader.getStatusId());
                 if (isOrderConfirmedOutboundHeader.getStatusId() != 59L) {
@@ -4050,7 +4057,7 @@ public class OutboundLineService extends BaseService {
                 log.info("PreOutbound Line updated");
 
                 //----------------Preoutbound Header--------------------------------------------------------------------------------------------
-                preOutboundHeaderV2Repository.updatePreOutboundHeaderStatus(companyCodeId, plantId, languageId, warehouseId, refDocNumber, STATUS_ID_59, statusDescription);
+                preOutboundHeaderV2Repository.updatePreOutboundHeaderStatusV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, STATUS_ID_59, statusDescription);
                 log.info("PreOutbound Header updated");
 
                 //----------------OrderManagement Line--------------------------------------------------------------------------------------------
@@ -4087,27 +4094,27 @@ public class OutboundLineService extends BaseService {
 //                }
 
                 /*-------------------Inserting record in InventoryMovement-------------------------------------*/
-                Long BIN_CLASS_ID = 5L;
-                AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-                StorageBinV2 storageBin = mastersService.getStorageBin(companyCodeId, plantId, languageId, warehouseId, BIN_CLASS_ID, authTokenForMastersService.getAccess_token());
-                String movementDocumentNo = refDocNumber;
-                String stBin = storageBin.getStorageBin();
-                String movementQtyValue = "N";
+//                Long BIN_CLASS_ID = 5L;
+//                AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+//                StorageBinV2 storageBin = mastersService.getStorageBin(companyCodeId, plantId, languageId, warehouseId, BIN_CLASS_ID, authTokenForMastersService.getAccess_token());
+//                String movementDocumentNo = refDocNumber;
+//                String stBin = storageBin.getStorageBin();
+//                String movementQtyValue = "N";
 
-                List<PickupLineV2> dbPickupLine = pickupLineService.getPickupLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumbers, itemCodes);
-                log.info("dbPickupLine: " + dbPickupLine.size());
-                if (dbPickupLine != null) {
-                    List<InventoryMovement> newInventoryMovementList = new ArrayList<>();
-                    for (PickupLineV2 pickupLine : dbPickupLine) {
-                        InventoryMovement inventoryMovement = createInventoryMovementV2(pickupLine, movementDocumentNo, stBin,
-                                movementQtyValue, loginUserID, true);
-                        newInventoryMovementList.add(inventoryMovement);
-                    }
-                    if (newInventoryMovementList.size() > 0) {
-                        inventoryMovementRepository.saveAll(newInventoryMovementList);
-                        log.info("InventoryMovement list created.");
-                    }
-                }
+//                List<PickupLineV2> dbPickupLine = pickupLineService.getPickupLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumbers, itemCodes);
+//                log.info("dbPickupLine: " + dbPickupLine.size());
+//                if (dbPickupLine != null) {
+//                    List<InventoryMovement> newInventoryMovementList = new ArrayList<>();
+//                    for (PickupLineV2 pickupLine : dbPickupLine) {
+//                        InventoryMovement inventoryMovement = createInventoryMovementV2(pickupLine, movementDocumentNo, stBin,
+//                                movementQtyValue, loginUserID, true);
+//                        newInventoryMovementList.add(inventoryMovement);
+//                    }
+//                    if (newInventoryMovementList.size() > 0) {
+//                        inventoryMovementRepository.saveAll(newInventoryMovementList);
+//                        log.info("InventoryMovement list created.");
+//                    }
+//                }
                 return outboundLineByStatus57List;
             } catch (Exception e) {
                 e.printStackTrace();

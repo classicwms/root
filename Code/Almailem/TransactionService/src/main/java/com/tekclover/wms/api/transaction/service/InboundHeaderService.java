@@ -1747,7 +1747,7 @@ public class InboundHeaderService extends BaseService {
         inventoryMovement.setMovementType(1L);
 
         // SUB_MVT_TYP_ID
-        inventoryMovement.setSubmovementType(3L);    //3 - Inbound/Gr Confirm
+        inventoryMovement.setSubmovementType(1L);    //1 - Inbound/Gr Confirm
 
         // STR_MTD
         inventoryMovement.setStorageMethod("1");
@@ -1786,10 +1786,18 @@ public class InboundHeaderService extends BaseService {
                 putAwayLineV2.getWarehouseId(),
                 putAwayLineV2.getManufacturerName(),
                 putAwayLineV2.getItemCode());
-        inventoryMovement.setBalanceOHQty(sumOfInvQty);
+        log.info("BalanceOhQty: " + sumOfInvQty);
         if(sumOfInvQty != null) {
+        inventoryMovement.setBalanceOHQty(sumOfInvQty);
             Double openQty = sumOfInvQty - putAwayLineV2.getPutawayConfirmedQty();
             inventoryMovement.setReferenceField2(String.valueOf(openQty));          //Qty before inventory Movement occur
+            log.info("OH Qty, OpenQty : " + sumOfInvQty + ", " + openQty);
+        }
+        if(sumOfInvQty == null) {
+            inventoryMovement.setBalanceOHQty(0D);
+//            Double openQty = sumOfInvQty - putAwayLineV2.getPutawayConfirmedQty();
+            inventoryMovement.setReferenceField2("0");          //Qty before inventory Movement occur
+            log.info("OH Qty, OpenQty : 0 , 0" );
         }
 
         inventoryMovement.setVariantCode(1L);

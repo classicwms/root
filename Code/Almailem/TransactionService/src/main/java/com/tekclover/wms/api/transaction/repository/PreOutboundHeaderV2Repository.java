@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,9 +40,31 @@ public interface PreOutboundHeaderV2Repository extends JpaRepository<PreOutbound
     @Modifying(clearAutomatically = true)
     @Query("UPDATE PreOutboundHeaderV2 ib SET ib.statusId = :statusId, REF_FIELD_10 = :refField10, STATUS_TEXT = :refField10 \n" +
             "WHERE ib.languageId = :languageId AND ib.companyCodeId = :companyCodeId AND ib.plantId = :plantId AND ib.warehouseId = :warehouseId AND ib.refDocNumber = :refDocNumber")
-    void updatePreOutboundHeaderStatus(@Param("languageId") String languageId, @Param("companyCodeId") String companyCodeId, @Param("plantId") String plantId, @Param("warehouseId") String warehouseId,
-                                       @Param("refDocNumber") String refDocNumber, @Param("statusId") Long statusId, @Param("refField10") String refField10);
+    void updatePreOutboundHeaderStatus(@Param("companyCodeId") String companyCodeId, @Param("plantId") String plantId, @Param("languageId") String languageId,
+                                       @Param("warehouseId") String warehouseId, @Param("refDocNumber") String refDocNumber, @Param("statusId") Long statusId, @Param("refField10") String refField10);
 
+    @Modifying(clearAutomatically = true)
+    @Query(value = "UPDATE tblpreoutboundheader SET STATUS_ID = :statusId, REF_FIELD_10 = :statusDescription, STATUS_TEXT = :statusDescription \n" +
+            "WHERE LANG_ID = :languageId AND C_ID = :companyCodeId AND \n" +
+            "PLANT_ID = :plantId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber", nativeQuery = true)
+    void updatePreOutboundHeaderStatusV2(@Param("companyCodeId") String companyCodeId,
+                                         @Param("plantId") String plantId,
+                                         @Param("languageId") String languageId,
+                                         @Param("warehouseId") String warehouseId,
+                                         @Param("refDocNumber") String refDocNumber,
+                                         @Param("statusId") Long statusId,
+                                         @Param("statusDescription") String statusDescription);
+    @Transactional
+    @Procedure(procedureName = "preoutbound_header_update_proc")
+    void updatePreOutboundHeaderUpdateProc(
+                                @Param("companyCodeId") String companyCodeId,
+                                @Param("plantId") String plantId,
+                                @Param("languageId") String languageId,
+                                @Param("warehouseId") String warehouseId,
+                                @Param("refDocNumber") String refDocNumber,
+                                @Param("statusId") Long statusId,
+                                @Param("statusDescription") String statusDescription
+                                );
 
     @Query(value = "select ht.usr_id from tblhhtuser ht \n" +
             "join tblordertypeid ot on ot.usr_id=ht.usr_id \n" +

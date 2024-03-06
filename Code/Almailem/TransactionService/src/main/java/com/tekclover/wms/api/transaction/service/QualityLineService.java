@@ -1406,11 +1406,11 @@ public class QualityLineService extends BaseService {
 
                 /*-----------------Inventory Updates--------------------------------------*/
                 // Pass WH_ID/ITM_CODE/ST_BIN/PACK_BARCODE in INVENTORY table
-                AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-                Long BIN_CLASS_ID = 4L;
-                StorageBinV2 storageBin = mastersService.getStorageBin(dbQualityLine.getCompanyCodeId(), dbQualityLine.getPlantId(),
-                        dbQualityLine.getLanguageId(), dbQualityLine.getWarehouseId(), BIN_CLASS_ID,
-                        authTokenForMastersService.getAccess_token());
+//                AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+//                Long BIN_CLASS_ID = 4L;
+//                StorageBinV2 storageBin = mastersService.getStorageBin(dbQualityLine.getCompanyCodeId(), dbQualityLine.getPlantId(),
+//                        dbQualityLine.getLanguageId(), dbQualityLine.getWarehouseId(), BIN_CLASS_ID,
+//                        authTokenForMastersService.getAccess_token());
 ////                Warehouse warehouse = getWarehouse(dbQualityLine.getWarehouseId());
 //                InventoryV2 inventory = null;
 //                try {
@@ -1438,13 +1438,13 @@ public class QualityLineService extends BaseService {
 //                }
 
                 /*-------------------Inserting record in InventoryMovement-------------------------------------*/
-                Long subMvtTypeId = 2L;
-                String movementDocumentNo = dbQualityLine.getQualityInspectionNo();
-                String stBin = storageBin.getStorageBin();
-                String movementQtyValue = "N";
-                InventoryMovement inventoryMovement = createInventoryMovementV2(dbQualityLine, subMvtTypeId,
-                        movementDocumentNo, stBin, movementQtyValue, loginUserID);
-                log.info("InventoryMovement created : " + inventoryMovement);
+//                Long subMvtTypeId = 2L;
+//                String movementDocumentNo = dbQualityLine.getQualityInspectionNo();
+//                String stBin = storageBin.getStorageBin();
+//                String movementQtyValue = "N";
+//                InventoryMovement inventoryMovement = createInventoryMovementV2(dbQualityLine, subMvtTypeId,
+//                        movementDocumentNo, stBin, movementQtyValue, loginUserID);
+//                log.info("InventoryMovement created : " + inventoryMovement);
 
                 /*--------------------------------------------------------------------------*/
                 // 2.Insert a new record in INVENTORY table as below
@@ -1552,13 +1552,13 @@ public class QualityLineService extends BaseService {
 
                 /*-----------------------InventoryMovement----------------------------------*/
                 // Inserting record in InventoryMovement
-                subMvtTypeId = 2L;
-                movementDocumentNo = DLV_ORD_NO;
-                stBin = storageBin.getStorageBin();
-                movementQtyValue = "P";
-                inventoryMovement = createInventoryMovementV2(dbQualityLine, subMvtTypeId, movementDocumentNo, stBin,
-                        movementQtyValue, loginUserID);
-                log.info("InventoryMovement created for update2: " + inventoryMovement);
+//                subMvtTypeId = 2L;
+//                movementDocumentNo = DLV_ORD_NO;
+//                stBin = storageBin.getStorageBin();
+//                movementQtyValue = "P";
+//                inventoryMovement = createInventoryMovementV2(dbQualityLine, subMvtTypeId, movementDocumentNo, stBin,
+//                        movementQtyValue, loginUserID);
+//                log.info("InventoryMovement created for update2: " + inventoryMovement);
 
                 boolean qtyEqual = dbQualityLine.getQualityQty().equals(dbQualityLine.getPickConfirmQty());
                 log.info("getQualityQty, getPickConfirmQty: " + dbQualityLine.getQualityQty() + "," + dbQualityLine.getPickConfirmQty());

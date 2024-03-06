@@ -490,34 +490,34 @@ public class MastersServiceController {
         return new ResponseEntity<>(imbasicdata1, HttpStatus.OK);
     }
 
-    @ApiOperation(response = ImBasicData1.class, value = "Get a ImBasicData1") // label for swagger
+    @ApiOperation(response = ImBasicData1V2.class, value = "Get a ImBasicData1") // label for swagger
     @RequestMapping(value = "/imbasicdata1/{itemCode}", method = RequestMethod.GET)
     public ResponseEntity<?> getImBasicData1(@PathVariable String itemCode, @RequestParam String companyCodeId, @RequestParam String plantId,
                                              @RequestParam String manufacturerPartNo, @RequestParam String uomId, @RequestParam String languageId,
                                              @RequestParam String warehouseId, @RequestParam String authToken) {
 
-        ImBasicData1 imbasicdata1 =
+        ImBasicData1V2 imbasicdata1 =
                 mastersService.getImBasicData1(itemCode, warehouseId, companyCodeId, plantId, uomId, languageId, manufacturerPartNo, authToken);
         log.info("ImBasicData1 : " + imbasicdata1);
         return new ResponseEntity<>(imbasicdata1, HttpStatus.OK);
     }
 
-    @ApiOperation(response = Optional.class, value = "Create ImBasicData1") // label for swagger
+    @ApiOperation(response = ImBasicData1V2.class, value = "Create ImBasicData1") // label for swagger
     @RequestMapping(value = "/imbasicdata1", method = RequestMethod.POST)
-    public ResponseEntity<?> createImBasicData1(@RequestBody ImBasicData1 newImBasicData1, @RequestParam String loginUserID,
+    public ResponseEntity<?> createImBasicData1(@RequestBody ImBasicData1V2 newImBasicData1, @RequestParam String loginUserID,
                                                 @RequestParam String authToken) {
-        ImBasicData1 createdImBasicData1 = mastersService.addImBasicData1(newImBasicData1, loginUserID, authToken);
+        ImBasicData1V2 createdImBasicData1 = mastersService.addImBasicData1(newImBasicData1, loginUserID, authToken);
         return new ResponseEntity<>(createdImBasicData1, HttpStatus.OK);
     }
 
-    @ApiOperation(response = Optional.class, value = "Update ImBasicData1") // label for swagger
+    @ApiOperation(response = ImBasicData1V2.class, value = "Update ImBasicData1") // label for swagger
     @RequestMapping(value = "/imbasicdata1/{itemCode}", method = RequestMethod.PATCH)
     public ResponseEntity<?> updateImBasicData1(@PathVariable String itemCode, @RequestParam String warehouseId, @RequestParam String companyCodeId,
                                                 @RequestParam String plantId, @RequestParam String languageId, @RequestParam String uomId,
-                                                @RequestBody ImBasicData1 updatedImBasicData1, @RequestParam String manufacturerPartNo,
+                                                @RequestBody ImBasicData1V2 updatedImBasicData1, @RequestParam String manufacturerPartNo,
                                                 @RequestParam String loginUserID, @RequestParam String authToken) {
 
-        ImBasicData1 modifiedImBasicData1 = mastersService.updateImBasicData1(itemCode, warehouseId, companyCodeId, plantId, manufacturerPartNo,
+        ImBasicData1V2 modifiedImBasicData1 = mastersService.updateImBasicData1(itemCode, warehouseId, companyCodeId, plantId, manufacturerPartNo,
                 uomId, languageId, updatedImBasicData1, loginUserID, authToken);
 
         return new ResponseEntity<>(modifiedImBasicData1, HttpStatus.OK);

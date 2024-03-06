@@ -139,4 +139,20 @@ public interface PutAwayLineV2Repository extends JpaRepository<PutAwayLineV2, Lo
                               @Param("warehouseId") String warehouseId,
                               @Param(value = "putAwayNumber") String putAwayNumber,
                               @Param("lDate") Date lDate);
+
+    @Query(value = "select sum(pa_cnf_qty) \n" +
+            "from tblputawayline where c_id = :companyCode and plant_id = :plantId and lang_id = :languageId and \n" +
+            "wh_id = :warehouseId and REF_DOC_NO = :refDocNumber and PRE_IB_NO = :preInboundNo and \n" +
+            "itm_code = :itemCode and mfr_name = :manufacturerName and \n" +
+            "is_deleted = 0 and ib_line_no = :lineNo \n"+
+            "group by itm_code,mfr_name,pre_ib_no,ref_doc_no,ib_line_no,lang_id,wh_id,plant_id,c_id ",nativeQuery = true)
+    public Double getPutawayCnfQuantity(@Param("companyCode") String companyCode,
+                                        @Param("plantId") String plantId,
+                                        @Param("languageId") String languageId,
+                                        @Param("warehouseId") String warehouseId,
+                                        @Param("refDocNumber") String refDocNumber,
+                                        @Param("preInboundNo") String preInboundNo,
+                                        @Param("itemCode") String itemCode,
+                                        @Param("manufacturerName") String manufacturerName,
+                                        @Param("lineNo") Long lineNo);
 }

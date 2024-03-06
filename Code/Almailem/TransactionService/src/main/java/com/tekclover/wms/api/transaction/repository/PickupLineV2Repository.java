@@ -175,4 +175,20 @@ public interface PickupLineV2Repository extends JpaRepository<PickupLineV2, Long
     PickupLineV2 findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndStatusIdAndAssignedPickerIdInAndDeletionIndicatorAndPickupConfirmedOnBetweenOrderByPickupConfirmedOn(
             String companyCodeId, String plantId, String languageId, String warehouseId, Long StatusId,
             List<String> assignedPickerId, Long deletionIndicator, Date startTime, Date endTime);
+
+    @Query(value = "SELECT SUM(PICK_CNF_QTY) FROM tblpickupline WHERE \r\n"
+            + "C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND \r\n"
+            + "WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND PU_NO = :pickupNumber AND STATUS_ID = :statusId AND\r\n"
+            + "PRE_OB_NO = :preOutboundNo AND MFR_NAME = :manufacturerName AND ITM_CODE = :itemCode AND IS_DELETED = 0 \r\n"
+            + "GROUP BY ITM_CODE, MFR_NAME, PU_NO, REF_DOC_NO, LANG_ID, PLANT_ID, WH_ID, C_ID", nativeQuery = true)
+    public Double getPickupLineSumV2(@Param("companyCodeId") String companyCodeId,
+                                     @Param("plantId") String plantId,
+                                     @Param("languageId") String languageId,
+                                     @Param("warehouseId") String warehouseId,
+                                     @Param("refDocNumber") String refDocNumber,
+                                     @Param("preOutboundNo") String preOutboundNo,
+                                     @Param("pickupNumber") String pickupNumber,
+                                     @Param("statusId") Long statusId,
+                                     @Param("itemCode") String itemCode,
+                                     @Param("manufacturerName") String manufacturerName);
 }

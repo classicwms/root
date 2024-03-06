@@ -9,6 +9,7 @@ import com.tekclover.wms.core.model.masters.*;
 import com.tekclover.wms.core.model.threepl.*;
 import com.tekclover.wms.core.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.core.model.warehouse.mastersorder.Customer;
+import com.tekclover.wms.core.model.warehouse.mastersorder.ImBasicData1V2;
 import com.tekclover.wms.core.model.warehouse.mastersorder.Item;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -1051,7 +1052,7 @@ public class MastersService {
     }
 
     // GET ImBasicData1
-    public ImBasicData1 getImBasicData1(String itemCode, String warehouseId, String companyCodeId, String plantId,
+    public ImBasicData1V2 getImBasicData1(String itemCode, String warehouseId, String companyCodeId, String plantId,
                                         String uomId, String languageId, String manufacturerPartNo, String authToken) {
         try {
             HttpHeaders headers = new HttpHeaders();
@@ -1061,14 +1062,14 @@ public class MastersService {
 
             HttpEntity<?> entity = new HttpEntity<>(headers);
             UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "imbasicdata1/" + itemCode)
+                    UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "imbasicdata1/v2/" + itemCode)
                             .queryParam("warehouseId", warehouseId)
                             .queryParam("companyCodeId", companyCodeId)
                             .queryParam("plantId", plantId)
                             .queryParam("uomId", uomId)
                             .queryParam("manufacturerPartNo", manufacturerPartNo)
                             .queryParam("languageId", languageId);
-            ResponseEntity<ImBasicData1> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, ImBasicData1.class);
+            ResponseEntity<ImBasicData1V2> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, ImBasicData1V2.class);
             log.info("result : " + result.getStatusCode());
             return result.getBody();
         } catch (Exception e) {
@@ -1227,7 +1228,7 @@ public class MastersService {
     }
 
     // POST ImBasicData1
-    public ImBasicData1 addImBasicData1(ImBasicData1 imbasicdata1, String loginUserID, String authToken) {
+    public ImBasicData1V2 addImBasicData1(ImBasicData1V2 imbasicdata1, String loginUserID, String authToken) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -1235,11 +1236,11 @@ public class MastersService {
             headers.add("Authorization", "Bearer " + authToken);
 
             UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "imbasicdata1")
+                    UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "imbasicdata1/v2")
                             .queryParam("loginUserID", loginUserID);
 
             HttpEntity<?> entity = new HttpEntity<>(imbasicdata1, headers);
-            ResponseEntity<ImBasicData1> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, ImBasicData1.class);
+            ResponseEntity<ImBasicData1V2> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, ImBasicData1V2.class);
             log.info("result : " + result.getStatusCode());
             return result.getBody();
         } catch (Exception e) {
@@ -1249,8 +1250,8 @@ public class MastersService {
     }
 
     // Patch ImBasicData1
-    public ImBasicData1 updateImBasicData1(String itemCode, String warehouseId, String companyCodeId, String plantId, String manufacturerPartNo,
-                                           String uomId, String languageId, ImBasicData1 modifiedImBasicData1, String loginUserID, String authToken) {
+    public ImBasicData1V2 updateImBasicData1(String itemCode, String warehouseId, String companyCodeId, String plantId, String manufacturerPartNo,
+                                           String uomId, String languageId, ImBasicData1V2 modifiedImBasicData1, String loginUserID, String authToken) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -1263,7 +1264,7 @@ public class MastersService {
             restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
 
             UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "imbasicdata1/" + itemCode)
+                    UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "imbasicdata1/v2/" + itemCode)
                             .queryParam("warehouseId", warehouseId)
                             .queryParam("companyCodeId", companyCodeId)
                             .queryParam("plantId", plantId)
@@ -1272,7 +1273,7 @@ public class MastersService {
                             .queryParam("manufacturerPartNo", manufacturerPartNo)
                             .queryParam("loginUserID", loginUserID);
 
-            ResponseEntity<ImBasicData1> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, ImBasicData1.class);
+            ResponseEntity<ImBasicData1V2> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, ImBasicData1V2.class);
             log.info("result : " + result.getStatusCode());
             return result.getBody();
         } catch (Exception e) {
@@ -1293,7 +1294,7 @@ public class MastersService {
 
             HttpEntity<?> entity = new HttpEntity<>(headers);
             UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "imbasicdata1/" + itemCode)
+                    UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "imbasicdata1/v2/" + itemCode)
                             .queryParam("warehouseId", warehouseId)
                             .queryParam("companyCodeId", companyCodeId)
                             .queryParam("plantId", plantId)

@@ -14,6 +14,8 @@ public class SearchStorageType {
 	 * CTD_BY
 	 * CTD_ON
 	 */
+	private String companyId;
+	private String plantId;
 	private String warehouseId;
 	private Long storageClassId;
 	private Long storageTypeId;

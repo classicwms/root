@@ -126,7 +126,7 @@ public class ImPartnerService {
 		log.info("SearchImpartner Input: " + searchImPartner);
 		ImPartnerSpecification spec = new ImPartnerSpecification(searchImPartner);
 		List<ImPartner> results = impartnerRepository.stream(spec, ImPartner.class).collect(Collectors.toList());
-		log.info("results: " + results.size());
+		log.info("ImPartner results: " + results.size());
 		return results;
 	}
 

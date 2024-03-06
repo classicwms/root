@@ -1547,6 +1547,7 @@ public class StagingLineService extends BaseService {
             newGrLine.setAssignedUserId(hhtUser);
 
             newGrLine.setPackBarcodes(packBarcodeList);
+            newGrLine.setInterimStorageBin("REC-AL-B2");
 
             newGrLineList.add(newGrLine);
         }

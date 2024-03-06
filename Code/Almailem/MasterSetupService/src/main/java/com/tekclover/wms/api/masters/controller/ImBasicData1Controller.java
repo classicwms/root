@@ -55,12 +55,12 @@ public class ImBasicData1Controller {
         return new ResponseEntity<>(imbasicdata1, HttpStatus.OK);
     }
 
-    @ApiOperation(response = ImBasicData1.class, value = "Get a ImBasicData1 V2") // label for swagger
+    @ApiOperation(response = ImBasicData1V2.class, value = "Get a ImBasicData1 V2") // label for swagger
     @GetMapping("/v2/{itemCode}")
     public ResponseEntity<?> getImBasicData1ByItemCodeV2(@PathVariable String itemCode, @RequestParam String companyCodeId,
-                                                         @RequestParam String plantId, @RequestParam String languageId,
+                                                         @RequestParam String plantId, @RequestParam String languageId, @RequestParam String uomId,
                                                          @RequestParam String manufacturerPartNo, @RequestParam String warehouseId) {
-        ImBasicData1 imbasicdata1 = imbasicdata1Service.getImBasicData1(itemCode, warehouseId, companyCodeId, plantId, manufacturerPartNo, languageId);
+        ImBasicData1V2 imbasicdata1 = imbasicdata1Service.getaImBasicData1V2(itemCode, warehouseId, companyCodeId, plantId, uomId, manufacturerPartNo, languageId);
         log.info("ImBasicData1 : " + imbasicdata1);
         return new ResponseEntity<>(imbasicdata1, HttpStatus.OK);
     }
@@ -159,6 +159,17 @@ public class ImBasicData1Controller {
                 warehouseId, manufacturerPartNo, updateImBasicData1, loginUserID);
         return new ResponseEntity<>(createdImBasicData1, HttpStatus.OK);
     }
+    @ApiOperation(response = ImBasicData1.class, value = "Update ImBasicData1 v2") // label for swagger
+    @PatchMapping("/v2/{itemCode}")
+    public ResponseEntity<?> patchImBasicData1V2(@PathVariable String itemCode, @RequestParam String warehouseId, @RequestParam String manufacturerPartNo,
+                                               @RequestParam String companyCodeId, @RequestParam String languageId, @RequestParam String plantId,
+                                               @RequestParam String uomId, @Valid @RequestBody ImBasicData1V2 updateImBasicData1, @RequestParam String loginUserID)
+            throws IllegalAccessException, InvocationTargetException, ParseException {
+
+        ImBasicData1 createdImBasicData1 = imbasicdata1Service.updateImBasicData1V2(itemCode, companyCodeId, plantId, languageId, uomId,
+                warehouseId, manufacturerPartNo, updateImBasicData1, loginUserID);
+        return new ResponseEntity<>(createdImBasicData1, HttpStatus.OK);
+    }
 
     @ApiOperation(response = ImBasicData1.class, value = "Delete ImBasicData1") // label for swagger
     @DeleteMapping("/{itemCode}")
@@ -167,6 +178,16 @@ public class ImBasicData1Controller {
                                                 @RequestParam String manufacturerPartNo, @RequestParam String loginUserID) throws ParseException {
 
         imbasicdata1Service.deleteImBasicData1(itemCode, companyCodeId, plantId, languageId, uomId,
+                manufacturerPartNo, warehouseId, loginUserID);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+    @ApiOperation(response = ImBasicData1V2.class, value = "Delete ImBasicData1 V2") // label for swagger
+    @DeleteMapping("/v2/{itemCode}")
+    public ResponseEntity<?> deleteImBasicData1v2(@PathVariable String itemCode, @RequestParam String warehouseId, @RequestParam String companyCodeId,
+                                                @RequestParam String languageId, @RequestParam String plantId, @RequestParam String uomId,
+                                                @RequestParam String manufacturerPartNo, @RequestParam String loginUserID) throws ParseException {
+
+        imbasicdata1Service.deleteImBasicData1V2(itemCode, companyCodeId, plantId, languageId, uomId,
                 manufacturerPartNo, warehouseId, loginUserID);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

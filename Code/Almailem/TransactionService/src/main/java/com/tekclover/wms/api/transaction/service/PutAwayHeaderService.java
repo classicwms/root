@@ -804,6 +804,80 @@ public class PutAwayHeaderService extends BaseService {
     }
 
     /**
+     *
+     * @param warehouseId
+     * @param preInboundNo
+     * @param refDocNumber
+     * @param putAwayNumber
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @return
+     */
+    public PutAwayHeaderV2 getPutAwayHeaderV2ForPutAwayLine(String warehouseId, String preInboundNo, String refDocNumber, String putAwayNumber,
+                                                            String companyCodeId, String plantId, String languageId) {
+        PutAwayHeaderV2 putAwayHeader =
+                putAwayHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreInboundNoAndRefDocNumberAndPutAwayNumberAndDeletionIndicator(
+                        companyCodeId,
+                        plantId,
+                        languageId,
+                        warehouseId,
+                        preInboundNo,
+                        refDocNumber,
+                        putAwayNumber,
+                        0L
+                );
+        if (putAwayHeader == null) {
+            throw new BadRequestException("The given values: warehouseId:" + warehouseId +
+                    ",refDocNumber: " + refDocNumber +
+                    ",preInboundNo: " + preInboundNo +
+                    ",putAwayNumber: " + putAwayNumber +
+                    " doesn't exist.");
+        }
+        return putAwayHeader;
+    }
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param preInboundNo
+     * @param refDocNumber
+     * @param lineNumber
+     * @param itemCode
+     * @param manufacturerName
+     * @return
+     */
+    public PutAwayHeaderV2 getPutAwayHeaderV2ForPutAwayLine(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                            String preInboundNo, String refDocNumber, String lineNumber,
+                                                            String itemCode, String manufacturerName) {
+        PutAwayHeaderV2 putAwayHeader =
+                putAwayHeaderV2Repository.findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreInboundNoAndRefDocNumberAndReferenceField5AndManufacturerNameAndReferenceField9AndDeletionIndicatorOrderByCreatedBy(
+                        companyCodeId,
+                        plantId,
+                        languageId,
+                        warehouseId,
+                        preInboundNo,
+                        refDocNumber,
+                        itemCode,
+                        manufacturerName,
+                        lineNumber,
+                        0L
+                );
+        if (putAwayHeader == null) {
+            throw new BadRequestException("The given values: warehouseId:" + warehouseId +
+                    ",refDocNumber: " + refDocNumber +
+                    ",preInboundNo: " + preInboundNo +
+                    ",itemCode: " + itemCode +
+                    ",manufacturerName: " + manufacturerName +
+                    " doesn't exist.");
+        }
+        return putAwayHeader;
+    }
+
+    /**
      * @param companyCode
      * @param plantId
      * @param languageId
@@ -1203,15 +1277,15 @@ public class PutAwayHeaderService extends BaseService {
          * 1. If STATUS_ID=20, then
          */
         List<PutAwayHeaderV2> putAwayHeaderList = getPutAwayHeaderForReversalV2(companyCode, plantId, languageId, warehouseId, refDocNumber, putAwayNumber);
-        List<GrLineV2> grLineList = grLineService.getGrLineV2(companyCode, languageId, plantId, warehouseId, refDocNumber, packBarcodes);
-        List<IInventoryImpl> createInventoryMovement = null;
+        List<GrLineV2> grLineList = grLineService.getGrLineV2ForReversal(companyCode, languageId, plantId, warehouseId, refDocNumber, packBarcodes);
+//        List<IInventoryImpl> createInventoryMovement = null;
 
         AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
 
         // Fetching Item Code
         String itemCode = null;
         String manufactureName = null;
-        if (grLineList != null) {
+        if (grLineList != null && !grLineList.isEmpty()) {
             itemCode = grLineList.get(0).getItemCode();
             manufactureName = grLineList.get(0).getManufacturerName();
         }
@@ -1240,13 +1314,14 @@ public class PutAwayHeaderService extends BaseService {
                  * update Status ID as 22, PA_UTD_BY = USR_ID and PA_UTD_ON=Server time
                  */
                 List<PutAwayLineV2> putAwayLineList =
-                        putAwayLineService.getPutAwayLineV2(dbPutAwayHeader.getCompanyCodeId(),
+                        putAwayLineService.getPutAwayLineV2ForReversal(dbPutAwayHeader.getCompanyCodeId(),
                                 dbPutAwayHeader.getPlantId(),
                                 dbPutAwayHeader.getLanguageId(),
                                 dbPutAwayHeader.getWarehouseId(),
                                 refDocNumber,
                                 dbPutAwayHeader.getPutAwayNumber());
                 log.info("putAwayLineList : " + putAwayLineList);
+                if(putAwayLineList != null && !putAwayLineList.isEmpty()) {
                 for (PutAwayLineV2 dbPutAwayLine : putAwayLineList) {
                     log.info("dbPutAwayLine---------> : " + dbPutAwayLine);
 
@@ -1271,7 +1346,7 @@ public class PutAwayHeaderService extends BaseService {
                     InventoryV2 updateStorageBin =
                             inventoryService.getInventoryForReversalV2(companyCode, plantId, languageId, warehouseId, "99999", itemCode, manufactureName);
                     log.info("Inventory for Delete: " + updateStorageBin);
-                    createInventoryMovement = inventoryService.getInventoryForInvMmt(companyCode, plantId, languageId, warehouseId, itemCode, manufactureName, 1L);
+//                    createInventoryMovement = inventoryService.getInventoryForInvMmt(companyCode, plantId, languageId, warehouseId, itemCode, manufactureName, 1L);
 
                     /*
                      * On Successful reversal, update INVENTORY table as below
@@ -1425,6 +1500,7 @@ public class PutAwayHeaderService extends BaseService {
                     }
                 }
             }
+            }
 
             /*
              * 3. For STATUS_ID=19 and 20 , below tables to be updated
@@ -1436,7 +1512,7 @@ public class PutAwayHeaderService extends BaseService {
 //                List<InventoryV2> updateStorageBinList = inventoryService.getInventoryForDeleteV2(companyCode, plantId, languageId, warehouseId, packBarcodes, itemCode, manufactureName);
                 InventoryV2 updateStorageBin = inventoryService.getInventoryForReversalV2(companyCode, plantId, languageId, warehouseId, "99999", itemCode, manufactureName);
                 log.info("Inventory for Delete: " + updateStorageBin);
-                createInventoryMovement = inventoryService.getInventoryForInvMmt(companyCode, plantId, languageId, warehouseId, itemCode, manufactureName, 1L);
+//                createInventoryMovement = inventoryService.getInventoryForInvMmt(companyCode, plantId, languageId, warehouseId, itemCode, manufactureName, 1L);
 
                 ImBasicData imBasicData = new ImBasicData();
                 imBasicData.setCompanyCodeId(companyCode);
@@ -1566,11 +1642,11 @@ public class PutAwayHeaderService extends BaseService {
         }
 
         // Insert a record into INVENTORYMOVEMENT table as below
-        if(grLineList != null && !grLineList.isEmpty()) {
-            for (GrLineV2 grLine : grLineList) {
-                createInventoryMovementV2(grLine, createInventoryMovement, caseCode, palletCode, storageBin);
-            }
-        }
+//        if(grLineList != null && !grLineList.isEmpty()) {
+//            for (GrLineV2 grLine : grLineList) {
+//                createInventoryMovementV2(grLine, createInventoryMovement, caseCode, palletCode, storageBin);
+//            }
+//        }
 
         //update the statusId to complete reversal process
         reversalProcess(grLineList, preInboundNo, companyCode, plantId, languageId, warehouseId, refDocNumber, loginUserID);
@@ -2009,11 +2085,11 @@ public class PutAwayHeaderService extends BaseService {
         }
 
         // Insert a record into INVENTORYMOVEMENT table as below
-        if(grLineList != null && !grLineList.isEmpty()) {
-            for (GrLineV2 grLine : grLineList) {
-                createInventoryMovementV2(grLine, createInventoryMovement, caseCode, palletCode, storageBin);
-            }
-        }
+//        if(grLineList != null && !grLineList.isEmpty()) {
+//            for (GrLineV2 grLine : grLineList) {
+//                createInventoryMovementV2(grLine, createInventoryMovement, caseCode, palletCode, storageBin);
+//            }
+//        }
 
         //update the statusId to complete reversal process
         reversalProcess(grLineList, preInboundNo, companyCode, plantId, languageId, warehouseId, refDocNumber, loginUserID);
@@ -2036,6 +2112,7 @@ public class PutAwayHeaderService extends BaseService {
                                 String warehouseId, String refDocNumber, String loginUserID) throws ParseException {
         // Update PREINBOUNDHEADER and PREINBOUNDLINE table with STATUS_ID = 05 and update the other fields from UI
         // PREINBOUNDLINE Update
+        if (inputGrLineList != null && !inputGrLineList.isEmpty()) {
         for (GrLineV2 grLine : inputGrLineList) {
             InboundLineV2 inboundLine = inboundLineService.getInboundLineV2(companyCode,
                     plantId, languageId, warehouseId, refDocNumber,
@@ -2077,6 +2154,7 @@ public class PutAwayHeaderService extends BaseService {
             grLine.setDeletionIndicator(1L);
             grLineV2Repository.save(grLine);
             log.info("grLine deleted successfully");
+        }
         }
 
         //Gr Header
@@ -2187,6 +2265,12 @@ public class PutAwayHeaderService extends BaseService {
             double sumOfInvQty = createInventoryMovement.stream().mapToDouble(a -> a.getInventoryQuantity()).sum();
             log.info("InvMmt - SumOfInvQty: " + sumOfInvQty);
             inventoryMovement.setBalanceOHQty(sumOfInvQty);
+            Double openQty = sumOfInvQty + grLine.getGoodReceiptQty();
+            inventoryMovement.setReferenceField2(String.valueOf(openQty));                      //Qty before inventory Movement occur
+        }
+        if(createInventoryMovement == null) {
+            inventoryMovement.setBalanceOHQty(0D);
+            inventoryMovement.setReferenceField2(String.valueOf(grLine.getGoodReceiptQty()));   //Qty before inventory Movement occur
         }
 
         // MVT_UOM

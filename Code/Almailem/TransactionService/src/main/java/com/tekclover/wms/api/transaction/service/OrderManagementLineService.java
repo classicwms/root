@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.model.dto.*;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.IInventoryImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +22,6 @@ import org.springframework.stereotype.Service;
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
-import com.tekclover.wms.api.transaction.model.dto.IInventory;
-import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
-import com.tekclover.wms.api.transaction.model.dto.StatusId;
-import com.tekclover.wms.api.transaction.model.dto.StorageBin;
-import com.tekclover.wms.api.transaction.model.dto.StorageBinV2;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
@@ -1903,10 +1899,20 @@ public class OrderManagementLineService extends BaseService {
         ImBasicData1 dbImBasicData1 = null;
         boolean shelfLifeIndicator = false;
         if (finalInventoryList != null && !finalInventoryList.isEmpty()) {
-            dbImBasicData1 = mastersService.getImBasicData1ByItemCodeV2(itemCode,
-                    orderManagementLine.getLanguageId(), orderManagementLine.getCompanyCodeId(),
-                    orderManagementLine.getPlantId(), orderManagementLine.getWarehouseId(),
-                    orderManagementLine.getManufacturerName(), authTokenForMastersService.getAccess_token());
+
+            ImBasicData imBasicData = new ImBasicData();
+            imBasicData.setCompanyCodeId(orderManagementLine.getCompanyCodeId());
+            imBasicData.setPlantId(orderManagementLine.getPlantId());
+            imBasicData.setLanguageId(orderManagementLine.getLanguageId());
+            imBasicData.setWarehouseId(orderManagementLine.getWarehouseId());
+            imBasicData.setItemCode(itemCode);
+            imBasicData.setManufacturerName(orderManagementLine.getManufacturerName());
+            dbImBasicData1 = mastersService.getImBasicData1ByItemCodeV2(imBasicData, authTokenForMastersService.getAccess_token());
+
+//            dbImBasicData1 = mastersService.getImBasicData1ByItemCodeV2(itemCode,
+//                    orderManagementLine.getLanguageId(), orderManagementLine.getCompanyCodeId(),
+//                    orderManagementLine.getPlantId(), orderManagementLine.getWarehouseId(),
+//                    orderManagementLine.getManufacturerName(), authTokenForMastersService.getAccess_token());
 
             log.info("ImBasicData1: " + dbImBasicData1);
             if(dbImBasicData1 != null) {

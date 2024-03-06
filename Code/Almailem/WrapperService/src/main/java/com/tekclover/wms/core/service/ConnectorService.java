@@ -54,7 +54,7 @@ public class ConnectorService {
 
     //================================================Find_APIs'=======================================================
     //Find SupplierInvoiceHeader
-    public SupplierInvoiceHeader[] findSupplierInvoiceHeader(SearchSupplierInvoiceHeader searchSupplierInvoiceHeader, String authToken) {
+    public SupplierInvoiceHeader[] findSupplierInvoiceHeader(FindSupplierInvoiceHeader searchSupplierInvoiceHeader, String authToken) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));

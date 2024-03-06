@@ -2522,7 +2522,7 @@ public class WarehouseService extends BaseService {
 
 			Optional<Warehouse> warehouse =
 					warehouseRepository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndDeletionIndicator(
-							interWhTransferOutHeader.getToCompanyCode(), interWhTransferOutHeader.getToBranchCode(),
+							interWhTransferOutHeader.getFromCompanyCode(), interWhTransferOutHeader.getFromBranchCode(),
 							"EN", 0L);
 
 			// Warehouse ID Validation

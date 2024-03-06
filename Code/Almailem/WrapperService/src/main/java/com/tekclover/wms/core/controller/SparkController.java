@@ -295,4 +295,12 @@ public class SparkController {
         ImBasicData1V3[] imBasicData1V3s = sparkService.findImbasicData1V5(searchImBasicData1);
         return new ResponseEntity<>(imBasicData1V3s, HttpStatus.OK);
     }
+
+    // Find BusinessPartner
+    @ApiOperation(response = BusinessPartnerV2.class, value = "Spark BusinessPartner details test")
+    @PostMapping("/findBusinessPartner")
+    public ResponseEntity<?> findBusinessPartner(@RequestBody FindBusinessPartner findBusinessPartner) throws Exception {
+        BusinessPartnerV2[] businessPartnerV2s = sparkService.findBusinessPartner(findBusinessPartner);
+        return new ResponseEntity<>(businessPartnerV2s, HttpStatus.OK);
+    }
 }

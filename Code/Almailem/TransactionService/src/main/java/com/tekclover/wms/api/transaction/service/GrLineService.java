@@ -1174,6 +1174,30 @@ public class GrLineService extends BaseService {
     }
 
     /**
+     *
+     * @param companyCode
+     * @param languageId
+     * @param plantId
+     * @param warehouseId
+     * @param refDocNumber
+     * @param packBarcodes
+     * @return
+     */
+    public List<GrLineV2> getGrLineV2ForReversal(String companyCode, String languageId, String plantId,
+                                                 String warehouseId, String refDocNumber, String packBarcodes) {
+        List<GrLineV2> grLine =
+                grLineV2Repository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPackBarcodesAndDeletionIndicator(
+                        languageId,
+                        companyCode,
+                        plantId,
+                        warehouseId,
+                        refDocNumber,
+                        packBarcodes,
+                        0L);
+        return grLine;
+    }
+
+    /**
      * @param companyCode
      * @param languageId
      * @param plantId
@@ -1410,7 +1434,7 @@ public class GrLineService extends BaseService {
                     if (variance < 0D) {
                         throw new BadRequestException("Variance Qty cannot be Less than 0");
                     }
-
+                    dbGrLine.setConfirmedQty(dbGrLine.getGoodReceiptQty());
                     dbGrLine.setBranchCode(newGrLine.getBranchCode());
                     dbGrLine.setTransferOrderNo(newGrLine.getTransferOrderNo());
                     dbGrLine.setIsCompleted(newGrLine.getIsCompleted());
@@ -1719,9 +1743,14 @@ public class GrLineService extends BaseService {
                     storageBinPutAway.setBin(proposedStorageBin);
                     StorageBinV2 storageBin = mastersService.getaStorageBinV2(storageBinPutAway, authTokenForMastersService.getAccess_token());
                     log.info("InterimStorageBin: " + storageBin);
+                    putAwayHeader.setPutAwayQuantity(createdGRLine.getGoodReceiptQty());
                     if (storageBin != null) {
-                        putAwayHeader.setProposedStorageBin(createdGRLine.getInterimStorageBin());
+                        putAwayHeader.setProposedStorageBin(proposedStorageBin);
                         putAwayHeader.setLevelId(String.valueOf(storageBin.getFloorId()));
+                        cbm = 0D;               //to break the loop
+                    }
+                    if (storageBin == null) {
+                        putAwayHeader.setProposedStorageBin(proposedStorageBin);
                         cbm = 0D;               //to break the loop
                     }
                 }
@@ -1979,7 +2008,7 @@ public class GrLineService extends BaseService {
                 InventoryV2 createdinventory = createInventoryNonCBMV2(createdGRLine);
 
                 /*----------------INVENTORYMOVEMENT table Update---------------------------------------------*/
-                createInventoryMovementV2(createdGRLine, createdinventory.getStorageBin());
+//                createInventoryMovementV2(createdGRLine, createdinventory.getStorageBin());
             }
 //            if (cbm == 0D) {
 //                break outerloop;
@@ -2700,7 +2729,7 @@ public class GrLineService extends BaseService {
             log.info("cbm, createdGrLine.getCbm: " + cbm + ", " + createdGRLine.getCbm());
         }
         outerloop:
-        while (true) {
+//        while (true) {
             //  ASS_HE_NO
 //            if (createdGRLine != null && createdGRLine.getAssignedUserId() != null) {
             if (createdGRLine != null) {
@@ -3590,12 +3619,12 @@ public class GrLineService extends BaseService {
                 InventoryV2 createdinventory = createInventoryV2(createdGRLine);
 
                 /*----------------INVENTORYMOVEMENT table Update---------------------------------------------*/
-                createInventoryMovementV2(createdGRLine, createdinventory.getStorageBin());
-            }
-            if (cbm == 0D) {
-                break outerloop;
-            }
+//                createInventoryMovementV2(createdGRLine, createdinventory.getStorageBin());
         }
+//            if (cbm == 0D) {
+//                break outerloop;
+//            }
+//        }
     }
 
     /**
