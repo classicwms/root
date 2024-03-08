@@ -123,6 +123,18 @@ public class InboundLineService extends BaseService {
 	 * @return
 	 */
 	public List<InboundLine> getInboundLinebyRefDocNoISNULL (String warehouseId, String refDocNumber, String preInboundNo) {
+		/* For ProdIssue - Log added */
+		List<InboundLine> inboundLine_additional_log = 
+				inboundLineRepository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+						getLanguageId(),
+						getCompanyCode(),
+						getPlantId(),
+						warehouseId,
+						refDocNumber,
+						preInboundNo,
+						0L);
+		log.info("inboundLine____inboundLine_additional_log---->: " + inboundLine_additional_log);
+		
 		List<InboundLine> inboundLine = 
 				inboundLineRepository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndReferenceField1AndStatusIdAndDeletionIndicator(
 						getLanguageId(),
