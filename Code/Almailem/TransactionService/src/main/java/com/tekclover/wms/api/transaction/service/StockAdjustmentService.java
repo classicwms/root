@@ -1186,7 +1186,8 @@ public class StockAdjustmentService extends BaseService {
         inventoryMovement.setDescription(stockAdjustment.getItemDescription());
 
         // MVT_DOC_NO
-        inventoryMovement.setMovementDocumentNo(String.valueOf(stockAdjustment.getStockAdjustmentKey()));
+//        inventoryMovement.setMovementDocumentNo(String.valueOf(stockAdjustment.getStockAdjustmentKey()));
+        inventoryMovement.setReferenceField10(String.valueOf(stockAdjustment.getStockAdjustmentKey()));
 
         // ST_BIN
         inventoryMovement.setStorageBin(stockAdjustment.getStorageBin());
@@ -1246,6 +1247,7 @@ public class StockAdjustmentService extends BaseService {
 
         // IM_CTD_ON
         inventoryMovement.setCreatedOn(new Date());
+        inventoryMovement.setMovementDocumentNo(String.valueOf(System.currentTimeMillis()));
         inventoryMovement = inventoryMovementRepository.save(inventoryMovement);
         log.info("inventoryMovement : " + inventoryMovement);
     }

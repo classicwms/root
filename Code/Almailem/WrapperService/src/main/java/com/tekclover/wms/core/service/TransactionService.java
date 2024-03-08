@@ -9347,6 +9347,20 @@ public class TransactionService {
 //        }
 //        return grLineList.toArray(new GrLineV2[grLineList.size()]);
     }
+    // POST - findGrLine SQL Method
+    public GrLineV2[] findGrLineSQLV2(SearchGrLineV2 searchGrLine, String authToken) throws ParseException {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.add("User-Agent", "ClassicWMS RestTemplate");
+        headers.add("Authorization", "Bearer " + authToken);
+
+        UriComponentsBuilder builder =
+                UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "grline/findGrLineNew/v2");
+        HttpEntity<?> entity = new HttpEntity<>(searchGrLine, headers);
+        ResponseEntity<GrLineV2[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, GrLineV2[].class);
+        log.info("result : " + result.getStatusCode());
+        return result.getBody();
+    }
 
     // POST - V2
     public GrLineV2[] createGrLineV2(List<AddGrLineV2> newGrLine, String loginUserID, String authToken) {

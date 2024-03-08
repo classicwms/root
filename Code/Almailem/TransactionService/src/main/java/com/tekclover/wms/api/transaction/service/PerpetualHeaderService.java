@@ -1572,7 +1572,12 @@ public class PerpetualHeaderService extends BaseService {
                     storageBinPutAway.setWarehouseId(dbInventory.getWarehouseId());
                     storageBinPutAway.setBin(dbInventory.getStorageBin());
 
-                    StorageBinV2 dbStorageBin = mastersService.getaStorageBinV2(storageBinPutAway,authTokenForMastersService.getAccess_token());
+                    StorageBinV2 dbStorageBin = null;
+                    try {
+                        dbStorageBin = mastersService.getaStorageBinV2(storageBinPutAway, authTokenForMastersService.getAccess_token());
+                    } catch (Exception e) {
+                        throw new BadRequestException("Invalid StorageBin");
+                    }
                     if(dbStorageBin != null) {
                         dbPerpetualLine.setStorageSectionId(dbStorageBin.getStorageSectionId());
                         dbPerpetualLine.setLevelId(String.valueOf(dbStorageBin.getFloorId()));

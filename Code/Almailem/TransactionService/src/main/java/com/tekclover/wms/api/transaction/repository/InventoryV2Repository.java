@@ -266,7 +266,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:storageBin, null) IS NULL OR (iv.ST_BIN IN (:storageBin))) and\n" +
             "(COALESCE(:stockTypeId, null) IS NULL OR (iv.STCK_TYP_ID IN (:stockTypeId))) and \n" +
             "(COALESCE(:binClassId, null) IS NULL OR (iv.BIN_CL_ID IN (:binClassId))) and\n" +
-            "iv.is_deleted = 0 and (iv.INV_QTY > 0) ", nativeQuery = true)
+            "iv.is_deleted = 0 and (iv.INV_QTY > 0) ORDER BY iv.INV_QTY ", nativeQuery = true)
     public List<IInventoryImpl> findInventoryOml(@Param("companyCodeId") String companyCodeId,
                                                  @Param("languageId") String languageId,
                                                  @Param("plantId") String plantId,

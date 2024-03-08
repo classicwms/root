@@ -2814,6 +2814,13 @@ public class TransactionServiceController {
             throws Exception {
         return transactionService.findGrLineV2(searchGrLine, authToken);
     }
+    //Find
+    @ApiOperation(response = GrLineV2.class, value = "Search GrLine - SQL for report V2") // label for swagger
+    @PostMapping("/grline/findGrLineNew/v2")
+    public GrLineV2[] findGrLineNewV2(@RequestBody SearchGrLineV2 searchGrLine, @RequestParam String authToken)
+            throws Exception {
+        return transactionService.findGrLineSQLV2(searchGrLine, authToken);
+    }
 
     //Create
     @ApiOperation(response = GrLineV2.class, value = "Create GrLine V2") // label for swagger

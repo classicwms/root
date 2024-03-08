@@ -54,7 +54,7 @@ public interface InboundHeaderV2Repository extends JpaRepository<InboundHeaderV2
     @Query(value =
             "Select COUNT(*) \r\n" +
             "From tblputawayline \r\n" +
-            "Where ref_doc_no IN (:refDocNumber) And is_deleted = 0 AND STATUS_ID = 20 \r\n"
+            "Where ref_doc_no IN (:refDocNumber) And is_deleted = 0 AND STATUS_ID IN (20,24) \r\n"
            , nativeQuery = true)
     Long getReceivedLinesByRefDocNumber(@Param(value = "refDocNumber") String refDocNumber);
 

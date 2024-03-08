@@ -93,6 +93,11 @@ public class PickupLineV2Specification implements Specification<PickupLineV2> {
             predicates.add(group.in(searchPickupLine.getStatusId()));
         }
 
+        if (searchPickupLine.getLevelId() != null && !searchPickupLine.getLevelId().isEmpty()) {
+            final Path<Group> group = root.<Group>get("levelId");
+            predicates.add(group.in(searchPickupLine.getLevelId()));
+        }
+
         if (searchPickupLine.getFromPickConfirmedOn() != null && searchPickupLine.getToPickConfirmedOn() != null) {
             predicates.add(cb.between(root.get("pickupConfirmedOn"), searchPickupLine.getFromPickConfirmedOn(), searchPickupLine.getToPickConfirmedOn()));
         }

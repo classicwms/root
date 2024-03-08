@@ -645,7 +645,8 @@ public class InhouseTransferHeaderService extends BaseService {
         }
 
         // MVT_DOC_NO
-        inventoryMovement.setMovementDocumentNo(createdInhouseTransferLine.getTransferNumber());
+//        inventoryMovement.setMovementDocumentNo(createdInhouseTransferLine.getTransferNumber());
+        inventoryMovement.setReferenceField10(createdInhouseTransferLine.getTransferNumber());
 
         // ST_BIN
         inventoryMovement.setStorageBin(storageBin);
@@ -698,6 +699,7 @@ public class InhouseTransferHeaderService extends BaseService {
         // IM_CTD_ON
         inventoryMovement.setCreatedOn(createdInhouseTransferLine.getCreatedOn());
         inventoryMovement.setDeletionIndicator(0L);
+        inventoryMovement.setMovementDocumentNo(String.valueOf(System.currentTimeMillis()));
         inventoryMovement = inventoryMovementRepository.save(inventoryMovement);
         log.info("inventoryMovement created: for transferTypeId : " + transferTypeId + "---" + inventoryMovement);
     }
@@ -788,11 +790,16 @@ public class InhouseTransferHeaderService extends BaseService {
             storageBinPutAway.setLanguageId(newInhouseTransferLine.getLanguageId());
             storageBinPutAway.setWarehouseId(newInhouseTransferLine.getWarehouseId());
             storageBinPutAway.setBin(newInhouseTransferLine.getTargetStorageBin());
-            StorageBinV2 dbStorageBin = mastersService.getaStorageBinV2(storageBinPutAway, authTokenForMastersService.getAccess_token());
-
-            if (dbStorageBin == null) {
+            StorageBinV2 dbStorageBin = null;
+            try {
+                dbStorageBin = mastersService.getaStorageBinV2(storageBinPutAway, authTokenForMastersService.getAccess_token());
+            } catch (Exception e) {
                 throw new BadRequestException("Invalid StorageBin");
             }
+
+//            if (dbStorageBin == null) {
+//                throw new BadRequestException("Invalid StorageBin");
+//            }
 
             InhouseTransferLine dbInhouseTransferLine = new InhouseTransferLine();
             BeanUtils.copyProperties(newInhouseTransferLine, dbInhouseTransferLine, CommonUtils.getNullPropertyNames(newInhouseTransferLine));

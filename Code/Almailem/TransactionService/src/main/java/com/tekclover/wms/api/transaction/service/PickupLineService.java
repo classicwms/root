@@ -1570,7 +1570,7 @@ public class PickupLineService extends BaseService {
 //            return inventoryAdditionalBins;
             List<IInventoryImpl> inventoryAdditionalBins = fetchAdditionalBinsV2(companyCodeId, plantId, languageId, warehouseId, itemCode,
                     proposedPackBarCode, proposedStorageBin, manufacturerName, 7L);
-            return null;
+            return inventoryAdditionalBins;
         }
         return null;
     }
@@ -3539,7 +3539,8 @@ public class PickupLineService extends BaseService {
         inventoryMovement.setBatchSerialNumber("1");
 
         // MVT_DOC_NO
-        inventoryMovement.setMovementDocumentNo(movementDocumentNo);
+//        inventoryMovement.setMovementDocumentNo(movementDocumentNo);
+        inventoryMovement.setReferenceField10(movementDocumentNo);
         inventoryMovement.setManufacturerName(dbPickupLine.getManufacturerName());
         inventoryMovement.setDescription(dbPickupLine.getDescription());
         inventoryMovement.setBarcodeId(dbPickupLine.getBarcodeId());
@@ -3607,7 +3608,7 @@ public class PickupLineService extends BaseService {
 
         // IM_CTD_ON
         inventoryMovement.setCreatedOn(dbPickupLine.getPickupCreatedOn());
-
+        inventoryMovement.setMovementDocumentNo(String.valueOf(System.currentTimeMillis()));
         InventoryMovement createdInventoryMovement = inventoryMovementRepository.save(inventoryMovement);
         return createdInventoryMovement;
     }
@@ -3878,7 +3879,7 @@ public class PickupLineService extends BaseService {
                                                        String proposedPackBarCode, String proposedStorageBin, String manufacturerName, Long binclassId) {
         List<IInventoryImpl> finalizedInventoryList = new ArrayList<>();
         List<IInventoryImpl> listInventory = inventoryService.getInventoryV2ForAdditionalBinsV2(companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, binclassId);
-        log.info("selected listInventory--------: " + listInventory);
+        log.info("selected listInventory--------: " + listInventory.size());
         boolean toBeIncluded = false;
         for (IInventoryImpl inventory : listInventory) {
             if (inventory.getPackBarcodes().equalsIgnoreCase(proposedPackBarCode)) {
@@ -3898,6 +3899,7 @@ public class PickupLineService extends BaseService {
                 finalizedInventoryList.add(inventory);
             }
         }
+        log.info("Additional Bins: " + finalizedInventoryList.size());
         return finalizedInventoryList;
     }
 

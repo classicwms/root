@@ -1519,7 +1519,12 @@ public class PutAwayLineService extends BaseService {
                         storageBinPutAway.setWarehouseId(dbPutAwayLine.getWarehouseId());
                         storageBinPutAway.setBin(dbPutAwayLine.getConfirmedStorageBin());
 
-                        StorageBinV2 dbStorageBin = mastersService.getaStorageBinV2(storageBinPutAway, authTokenForMastersService.getAccess_token());
+                        StorageBinV2 dbStorageBin = null;
+                        try {
+                            dbStorageBin = mastersService.getaStorageBinV2(storageBinPutAway, authTokenForMastersService.getAccess_token());
+                        } catch (Exception e) {
+                            throw new BadRequestException("Invalid StorageBin");
+                        }
 
 //                        List<IImbasicData1> imbasicdata1 = imbasicdata1Repository.findByItemCode(inventory.getItemCode());
 //                        if (imbasicdata1 != null && !imbasicdata1.isEmpty()) {
@@ -2137,7 +2142,12 @@ public class PutAwayLineService extends BaseService {
         storageBinPutAway.setWarehouseId(dbPutAwayLine.getWarehouseId());
         storageBinPutAway.setBin(dbPutAwayLine.getConfirmedStorageBin());
 
-        StorageBinV2 dbStoragebin = mastersService.getaStorageBinV2(storageBinPutAway, authTokenForMastersService.getAccess_token());
+        StorageBinV2 dbStoragebin = null;
+        try {
+            dbStoragebin = mastersService.getaStorageBinV2(storageBinPutAway, authTokenForMastersService.getAccess_token());
+        } catch (Exception e) {
+            throw new BadRequestException("Invalid StorageBin");
+        }
 
         log.info("StorageBin: " + dbStoragebin);
 

@@ -1458,7 +1458,12 @@ public class PeriodicHeaderService extends BaseService {
                     storageBinPutAway.setWarehouseId(dbInventory.getWarehouseId());
                     storageBinPutAway.setBin(dbInventory.getStorageBin());
 
-                    StorageBinV2 dbStorageBin = mastersService.getaStorageBinV2(storageBinPutAway, authTokenForMastersService.getAccess_token());
+                    StorageBinV2 dbStorageBin = null;
+                    try {
+                        dbStorageBin = mastersService.getaStorageBinV2(storageBinPutAway, authTokenForMastersService.getAccess_token());
+                    } catch (Exception e) {
+                        throw new BadRequestException("Invalid StorageBin");
+                    }
                     if (dbStorageBin != null) {
                         periodicLineV2.setStorageSectionId(dbStorageBin.getStorageSectionId());
                         periodicLineV2.setLevelId(String.valueOf(dbStorageBin.getFloorId()));

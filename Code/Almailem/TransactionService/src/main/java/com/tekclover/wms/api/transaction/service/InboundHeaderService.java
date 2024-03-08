@@ -1578,7 +1578,12 @@ public class InboundHeaderService extends BaseService {
             storageBinPutAway.setWarehouseId(putAwayLine.getWarehouseId());
             storageBinPutAway.setBin(putAwayLine.getConfirmedStorageBin());
 
-            StorageBinV2 storageBin = mastersService.getaStorageBinV2(storageBinPutAway, authTokenForMastersService.getAccess_token());
+            StorageBinV2 storageBin = null;
+            try {
+                storageBin = mastersService.getaStorageBinV2(storageBinPutAway, authTokenForMastersService.getAccess_token());
+            } catch (Exception e) {
+                throw new BadRequestException("Invalid StorageBin");
+            }
             log.info("storageBin: " + storageBin);
 
             ImBasicData imBasicData = new ImBasicData();
@@ -1764,7 +1769,8 @@ public class InboundHeaderService extends BaseService {
         inventoryMovement.setDescription(putAwayLineV2.getDescription());
 
         // MVT_DOC_NO
-        inventoryMovement.setMovementDocumentNo(putAwayLineV2.getPutAwayNumber());
+//        inventoryMovement.setMovementDocumentNo(putAwayLineV2.getPutAwayNumber());
+        inventoryMovement.setReferenceField10(putAwayLineV2.getPutAwayNumber());
 
         // ST_BIN
         inventoryMovement.setStorageBin(putAwayLineV2.getConfirmedStorageBin());
@@ -1810,6 +1816,7 @@ public class InboundHeaderService extends BaseService {
 
         // IM_CTD_ON
         inventoryMovement.setCreatedOn(new Date());
+        inventoryMovement.setMovementDocumentNo(String.valueOf(System.currentTimeMillis()));
         inventoryMovement = inventoryMovementRepository.save(inventoryMovement);
         log.info("inventoryMovement : " + inventoryMovement);
     }

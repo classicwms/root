@@ -33,4 +33,5 @@ public class GrLineV2 extends GrLine {
     private String branchCode;
     private String transferOrderNo;
     private String isCompleted;
+    private Long lineNumber;
 }

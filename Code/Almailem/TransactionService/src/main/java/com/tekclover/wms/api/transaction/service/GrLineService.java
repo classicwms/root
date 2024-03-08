@@ -4,6 +4,7 @@ import com.tekclover.wms.api.transaction.controller.exception.BadRequestExceptio
 import com.tekclover.wms.api.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.transaction.model.dto.*;
+import com.tekclover.wms.api.transaction.model.impl.GrLineImpl;
 import com.tekclover.wms.api.transaction.model.inbound.InboundLine;
 import com.tekclover.wms.api.transaction.model.inbound.gr.*;
 import com.tekclover.wms.api.transaction.model.inbound.gr.v2.AddGrLineV2;
@@ -1239,6 +1240,97 @@ public class GrLineService extends BaseService {
         }
         GrLineV2Specification spec = new GrLineV2Specification(searchGrLine);
         Stream<GrLineV2> results = grLineV2Repository.stream(spec, GrLineV2.class);
+        return results;
+    }
+
+ public List<GrLineImpl> findGrLineSQLV2(SearchGrLineV2 searchGrLine) throws ParseException, java.text.ParseException {
+    if (searchGrLine.getStartCreatedOn() != null
+            && searchGrLine.getEndCreatedOn() != null) {
+        Date[] dates = DateUtils.addTimeToDatesForSearch(searchGrLine.getStartCreatedOn(),
+                searchGrLine.getEndCreatedOn());
+        searchGrLine.setStartCreatedOn(dates[0]);
+        searchGrLine.setEndCreatedOn(dates[1]);
+    }
+    if(searchGrLine.getCompanyCodeId() == null || searchGrLine.getCompanyCodeId().isEmpty()){
+        searchGrLine.setCompanyCodeId(null);
+    }
+    if(searchGrLine.getPlantId() == null || searchGrLine.getPlantId().isEmpty()){
+        searchGrLine.setPlantId(null);
+    }
+    if(searchGrLine.getLanguageId() == null || searchGrLine.getLanguageId().isEmpty()){
+        searchGrLine.setLanguageId(null);
+    }
+    if(searchGrLine.getWarehouseId() == null || searchGrLine.getWarehouseId().isEmpty()){
+        searchGrLine.setWarehouseId(null);
+    }
+    if(searchGrLine.getRefDocNumber() == null || searchGrLine.getRefDocNumber().isEmpty()){
+        searchGrLine.setRefDocNumber(null);
+    }
+    if(searchGrLine.getPreInboundNo() == null || searchGrLine.getPreInboundNo().isEmpty()){
+        searchGrLine.setPreInboundNo(null);
+    }
+    if(searchGrLine.getLineNo() == null || searchGrLine.getLineNo().isEmpty()){
+        searchGrLine.setLineNo(null);
+    }
+    if(searchGrLine.getPackBarcodes() == null || searchGrLine.getPackBarcodes().isEmpty()){
+        searchGrLine.setPackBarcodes(null);
+    }
+    if(searchGrLine.getItemCode() == null || searchGrLine.getItemCode().isEmpty()){
+        searchGrLine.setItemCode(null);
+    }
+    if(searchGrLine.getCaseCode() == null || searchGrLine.getCaseCode().isEmpty()){
+        searchGrLine.setCaseCode(null);
+    }
+    if(searchGrLine.getManufacturerName() == null || searchGrLine.getManufacturerName().isEmpty()){
+        searchGrLine.setManufacturerName(null);
+    }
+    if(searchGrLine.getBarcodeId() == null || searchGrLine.getBarcodeId().isEmpty()){
+        searchGrLine.setBarcodeId(null);
+    }
+    if(searchGrLine.getStatusId() == null || searchGrLine.getStatusId().isEmpty()){
+        searchGrLine.setStatusId(null);
+    }
+    if(searchGrLine.getManufacturerCode() == null || searchGrLine.getManufacturerCode().isEmpty()){
+        searchGrLine.setManufacturerCode(null);
+    }
+    if(searchGrLine.getOrigin() == null || searchGrLine.getOrigin().isEmpty()){
+        searchGrLine.setOrigin(null);
+    }
+    if(searchGrLine.getInterimStorageBin() == null || searchGrLine.getInterimStorageBin().isEmpty()){
+        searchGrLine.setInterimStorageBin(null);
+    }
+    if(searchGrLine.getBrand() == null || searchGrLine.getBrand().isEmpty()){
+        searchGrLine.setBrand(null);
+    }
+    if(searchGrLine.getRejectType() == null || searchGrLine.getRejectType().isEmpty()){
+        searchGrLine.setRejectType(null);
+    }
+    if(searchGrLine.getRejectReason() == null || searchGrLine.getRejectReason().isEmpty()){
+        searchGrLine.setRejectReason(null);
+    }
+
+     List<GrLineImpl> results = grLineV2Repository.findGrLine(
+             searchGrLine.getCompanyCodeId(),
+             searchGrLine.getPlantId(),
+             searchGrLine.getLanguageId(),
+             searchGrLine.getWarehouseId(),
+             searchGrLine.getRefDocNumber(),
+             searchGrLine.getPreInboundNo(),
+             searchGrLine.getPackBarcodes(),
+             searchGrLine.getLineNo(),
+             searchGrLine.getItemCode(),
+             searchGrLine.getCaseCode(),
+             searchGrLine.getManufacturerName(),
+             searchGrLine.getBarcodeId(),
+             searchGrLine.getStatusId(),
+             searchGrLine.getManufacturerCode(),
+             searchGrLine.getOrigin(),
+             searchGrLine.getInterimStorageBin(),
+             searchGrLine.getBrand(),
+             searchGrLine.getRejectType(),
+             searchGrLine.getRejectReason(),
+             searchGrLine.getStartCreatedOn(),
+             searchGrLine.getEndCreatedOn());
         return results;
     }
 

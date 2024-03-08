@@ -15,5 +15,6 @@ public class SearchPickupLineV2 extends SearchPickupLine {
 	private List<String> languageId;
 	private List<String> companyCodeId;
 	private List<String> plantId;
+	private List<Long> levelId;
 
 }

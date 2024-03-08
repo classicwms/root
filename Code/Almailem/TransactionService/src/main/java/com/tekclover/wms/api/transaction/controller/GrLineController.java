@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.model.impl.GrLineImpl;
 import com.tekclover.wms.api.transaction.model.inbound.gr.v2.AddGrLineV2;
 import com.tekclover.wms.api.transaction.model.inbound.gr.v2.GrLineV2;
 import com.tekclover.wms.api.transaction.model.inbound.gr.v2.SearchGrLineV2;
@@ -158,6 +159,12 @@ public class GrLineController {
 	public Stream<GrLineV2> findGrLineV2(@RequestBody SearchGrLineV2 searchGrLine)
 			throws Exception {
 		return grlineService.findGrLineV2(searchGrLine);
+	}
+	@ApiOperation(response = GrLineV2.class, value = "Search GrLine V2 SQL") // label for swagger
+	@PostMapping("/findGrLineNew/v2")
+	public List<GrLineImpl> findGrLineV2SQL(@RequestBody SearchGrLineV2 searchGrLine)
+			throws Exception {
+		return grlineService.findGrLineSQLV2(searchGrLine);
 	}
 
 	@ApiOperation(response = GrLineV2.class, value = "Create GrLine V2") // label for swagger
