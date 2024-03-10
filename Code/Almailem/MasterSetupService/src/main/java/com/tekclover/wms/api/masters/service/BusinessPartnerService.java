@@ -50,7 +50,7 @@ public class BusinessPartnerService {
      */
     public List<BusinessPartner> getBusinessPartners() {
         List<BusinessPartner> businesspartnerList = businesspartnerRepository.findAll();
-        log.info("businesspartnerList : " + businesspartnerList);
+        //log.info("businesspartnerList : " + businesspartnerList);
         businesspartnerList = businesspartnerList.stream()
                 .filter(n -> n.getDeletionIndicator() != null && n.getDeletionIndicator() == 0)
                 .collect(Collectors.toList());
