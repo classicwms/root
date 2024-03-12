@@ -16,7 +16,7 @@ public class FindInboundLineV2 {
     private List<String> refDocNumber;
     private Date startConfirmedOn;
     private Date endConfirmedOn;
-
+    private List<Long> inboundOrderTypeId;
     // V2 fields
     private List<String> languageId;
     private List<String> companyCodeId;
