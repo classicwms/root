@@ -3498,14 +3498,22 @@ public class TransactionServiceController {
         return new ResponseEntity<>(createdPickupHeader, HttpStatus.OK);
     }
 
-    @ApiOperation(response = PickupHeader.class, value = "Update Assigned PickerId in PickupHeader V2")
-    // label for swagger // label for swagger
+//    @ApiOperation(response = PickupHeader.class, value = "Update Assigned PickerId in PickupHeader V2")
+//    // label for swagger // label for swagger
+//    @PatchMapping("/pickupheader/v2/update-assigned-picker")
+//    public ResponseEntity<?> patchAssignedPickerIdInPickupHeaderV2(@Valid @RequestBody List<PickupHeaderV2> updatePickupHeaderList, @RequestParam String companyCodeId, @RequestParam String plantId,
+//                                                                   @RequestParam String languageId, @RequestParam String warehouseId, @RequestParam("loginUserID") String loginUserID, @RequestParam String authToken)
+//            throws IllegalAccessException, InvocationTargetException {
+//        PickupHeaderV2[] updatedPickupHeader =
+//                transactionService.patchAssignedPickerIdInPickupHeaderV2(companyCodeId, plantId, languageId, warehouseId, loginUserID, updatePickupHeaderList, authToken);
+//        return new ResponseEntity<>(updatedPickupHeader, HttpStatus.OK);
+//    }
+    @ApiOperation(response = PickupHeader.class, value = "Update Assigned PickerId in PickupHeader V2")    // label for swagger // label for swagger
     @PatchMapping("/pickupheader/v2/update-assigned-picker")
-    public ResponseEntity<?> patchAssignedPickerIdInPickupHeaderV2(@Valid @RequestBody List<PickupHeaderV2> updatePickupHeaderList, @RequestParam String companyCodeId, @RequestParam String plantId,
-                                                                   @RequestParam String languageId, @RequestParam String warehouseId, @RequestParam("loginUserID") String loginUserID, @RequestParam String authToken)
+    public ResponseEntity<?> patchAssignedPickerIdInPickupHeaderV2(@Valid @RequestBody List<PickupHeaderV2> updatePickupHeaderList, @RequestParam String authToken)
             throws IllegalAccessException, InvocationTargetException {
         PickupHeaderV2[] updatedPickupHeader =
-                transactionService.patchAssignedPickerIdInPickupHeaderV2(companyCodeId, plantId, languageId, warehouseId, loginUserID, updatePickupHeaderList, authToken);
+                transactionService.patchAssignedPickerIdInPickupHeaderV2(updatePickupHeaderList, authToken);
         return new ResponseEntity<>(updatedPickupHeader, HttpStatus.OK);
     }
 

@@ -797,9 +797,22 @@ public class InhouseTransferHeaderService extends BaseService {
                 throw new BadRequestException("Invalid StorageBin");
             }
 
-//            if (dbStorageBin == null) {
-//                throw new BadRequestException("Invalid StorageBin");
-//            }
+            //restrict bin to bin transfer from bin class Id 3
+            //11-03-2024 - Ticket No. ALM/2024/004
+            storageBinPutAway.setBin(newInhouseTransferLine.getSourceStorageBin());
+            StorageBinV2 dbSourceStorageBin = null;
+            try {
+                dbSourceStorageBin = mastersService.getaStorageBinV2(storageBinPutAway, authTokenForMastersService.getAccess_token());
+            } catch (Exception e) {
+                throw new BadRequestException("Invalid StorageBin");
+            }
+            if(dbSourceStorageBin != null && dbSourceStorageBin.getBinClassId() == 3L) {
+                throw new BadRequestException("Source Bin must be a physical Bin - Either BinClassId 1 or 7");
+            }
+
+            if (dbStorageBin != null && dbStorageBin.getBinClassId() == 3L) {
+                throw new BadRequestException("Target Bin must be a physical Bin - Either BinClassId 1 or 7");
+            }
 
             InhouseTransferLine dbInhouseTransferLine = new InhouseTransferLine();
             BeanUtils.copyProperties(newInhouseTransferLine, dbInhouseTransferLine, CommonUtils.getNullPropertyNames(newInhouseTransferLine));

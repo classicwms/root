@@ -11041,8 +11041,36 @@ public class TransactionService {
     }
 
     // PATCH
-    public PickupHeaderV2[] patchAssignedPickerIdInPickupHeaderV2(String companyCodeId, String plantId, String languageId, String warehouseId, String loginUserID,
-                                                                  @Valid List<PickupHeaderV2> updatePickupHeaderList, String authToken) {
+//    public PickupHeaderV2[] patchAssignedPickerIdInPickupHeaderV2(String companyCodeId, String plantId, String languageId, String warehouseId, String loginUserID,
+//                                                                  @Valid List<PickupHeaderV2> updatePickupHeaderList, String authToken) {
+//        try {
+//            HttpHeaders headers = new HttpHeaders();
+//            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+//            headers.add("User-Agent", "ClassicWMS-Almailem RestTemplate");
+//            headers.add("Authorization", "Bearer " + authToken);
+//            HttpEntity<?> entity = new HttpEntity<>(updatePickupHeaderList, headers);
+//            HttpClient client = HttpClients.createDefault();
+//            RestTemplate restTemplate = getRestTemplate();
+//            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+//
+//            UriComponentsBuilder builder = UriComponentsBuilder
+//                    .fromHttpUrl(getTransactionServiceApiUrl() + "pickupheader/v2/update-assigned-picker")
+//                    .queryParam("companyCodeId", companyCodeId)
+//                    .queryParam("plantId", plantId)
+//                    .queryParam("languageId", languageId)
+//                    .queryParam("warehouseId", warehouseId)
+//                    .queryParam("loginUserID", loginUserID);
+//            ResponseEntity<PickupHeaderV2[]> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH,
+//                    entity, PickupHeaderV2[].class);
+//            log.info("result : " + result.getStatusCode());
+//            return result.getBody();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            throw e;
+//        }
+//    }
+
+    public PickupHeaderV2[] patchAssignedPickerIdInPickupHeaderV2(@Valid List<PickupHeaderV2> updatePickupHeaderList, String authToken) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -11054,12 +11082,7 @@ public class TransactionService {
             restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
 
             UriComponentsBuilder builder = UriComponentsBuilder
-                    .fromHttpUrl(getTransactionServiceApiUrl() + "pickupheader/v2/update-assigned-picker")
-                    .queryParam("companyCodeId", companyCodeId)
-                    .queryParam("plantId", plantId)
-                    .queryParam("languageId", languageId)
-                    .queryParam("warehouseId", warehouseId)
-                    .queryParam("loginUserID", loginUserID);
+                    .fromHttpUrl(getTransactionServiceApiUrl() + "pickupheader/v2/update-assigned-picker");
             ResponseEntity<PickupHeaderV2[]> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH,
                     entity, PickupHeaderV2[].class);
             log.info("result : " + result.getStatusCode());
@@ -11082,7 +11105,7 @@ public class TransactionService {
             headers.add("Authorization", "Bearer " + authToken);
             HttpEntity<?> entity = new HttpEntity<>(headers);
             UriComponentsBuilder builder = UriComponentsBuilder
-                    .fromHttpUrl(getTransactionServiceApiUrl() + "pickupheader/v2" + pickupNumber)
+                    .fromHttpUrl(getTransactionServiceApiUrl() + "pickupheader/v2/" + pickupNumber)
                     .queryParam("companyCodeId", companyCodeId)
                     .queryParam("plantId", plantId)
                     .queryParam("languageId", languageId)

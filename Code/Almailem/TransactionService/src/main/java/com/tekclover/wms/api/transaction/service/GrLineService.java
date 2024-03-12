@@ -1833,7 +1833,12 @@ public class GrLineService extends BaseService {
                 if (createdGRLine.getInterimStorageBin() != null) {                         //Direct Stock Receipt - Fixed Bin - Inbound OrderTypeId - 5
                     storageBinPutAway.setBinClassId(binClassId);
                     storageBinPutAway.setBin(proposedStorageBin);
-                    StorageBinV2 storageBin = mastersService.getaStorageBinV2(storageBinPutAway, authTokenForMastersService.getAccess_token());
+                    StorageBinV2 storageBin = null;
+                    try {
+                        storageBin = mastersService.getaStorageBinV2(storageBinPutAway, authTokenForMastersService.getAccess_token());
+                    } catch (Exception e) {
+                        throw new BadRequestException("Invalid StorageBin");
+                    }
                     log.info("InterimStorageBin: " + storageBin);
                     putAwayHeader.setPutAwayQuantity(createdGRLine.getGoodReceiptQty());
                     if (storageBin != null) {

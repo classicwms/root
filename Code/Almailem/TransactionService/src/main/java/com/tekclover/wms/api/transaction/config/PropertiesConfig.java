@@ -109,4 +109,9 @@ public class PropertiesConfig {
 	//--------------------------------------------------------------------------------------
 	@Value("${errorlog.folder.name}")
 	private String errorlogFolderName;
+
+	//-------------INVENTORY-STRATEGY-CONF-----------------------------------------------------
+	// #------SB_CTD_ON,SB_LEVEL_ID
+	@Value("${order.allocation.strategy.choice}")
+	private String orderAllocationStrategyCoice;
 }

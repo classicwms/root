@@ -60,9 +60,12 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
             String companyCodeId, String plantId, String languageId, String warehouseId,
             Long binClassId, boolean capacityCheck, int i, int j, Long deletionIndicator);
 
+    //pick_block=0 and putaway_block=0 condition removed since it is not requered in Almailem
+    //11-03-2024 validation removed as per business requirement - Ticket No. ALM/2024/001
     @Query(value = "SELECT top 1 * FROM tblstoragebin WHERE bin_cl_id = :binclassId and c_id = :companyCode and plant_id = :plantId and \n" +
             "wh_id = :warehouseId and lang_id = :languageId and CAP_CHECK = 'TRUE' and \n" +
-            "pick_block = 0 and putaway_block = 0 and status_id = :statusId and \n" +
+//            "pick_block = 0 and putaway_block = 0 and status_id = :statusId and \n" +
+            "status_id = :statusId and \n" +
             "(case when ISNUMERIC(remain_vol)=1 then CAST(remain_vol AS NUMERIC) else 0 end) > :cbm and \n" +
             "is_deleted = 0  order by remain_vol", nativeQuery = true)
     public StorageBinV2 getStorageBinCBM(@Param("binclassId") Long binclassId,
@@ -75,7 +78,8 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
 
     @Query(value = "SELECT top 1 * FROM tblstoragebin WHERE bin_cl_id = :binclassId and c_id = :companyCode and plant_id = :plantId and \n" +
             "wh_id = :warehouseId and lang_id = :languageId and CAP_CHECK = 'TRUE' and \n" +
-            "pick_block = 0 and putaway_block = 0 and status_id = :statusId and \n" +
+//            "pick_block = 0 and putaway_block = 0 and status_id = :statusId and \n" +
+            "status_id = :statusId and \n" +
             "(case when ISNUMERIC(remain_vol)=1 then CAST(remain_vol AS NUMERIC) else 0 end) > :cbmPerQty and \n" +
             "is_deleted = 0  order by remain_vol", nativeQuery = true)
     public StorageBinV2 getStorageBinCbmPerQty(@Param("binclassId") Long binclassId,
@@ -88,7 +92,8 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
 
     @Query(value = "SELECT top 1 * FROM tblstoragebin WHERE bin_cl_id = :binclassId and c_id = :companyCode and plant_id = :plantId and \n" +
             "wh_id = :warehouseId and lang_id = :languageId and CAP_CHECK = 'TRUE' and st_bin in (:storageBin) and\n" +
-            "pick_block = 0 and putaway_block = 0 and status_id = :statusId and \n" +
+//            "pick_block = 0 and putaway_block = 0 and status_id = :statusId and \n" +
+            "status_id = :statusId and \n" +
             "(case when ISNUMERIC(remain_vol)=1 then CAST(remain_vol AS NUMERIC) else 0 end) > :cbm and \n" +
             "is_deleted = 0  order by remain_vol", nativeQuery = true)
     public StorageBinV2 getStorageBinLastPickCBM(@Param("binclassId") Long binclassId,
@@ -102,7 +107,8 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
 
     @Query(value = "SELECT top 1 * FROM tblstoragebin WHERE bin_cl_id = :binclassId and c_id = :companyCode and plant_id = :plantId and \n" +
             "wh_id = :warehouseId and lang_id = :languageId and CAP_CHECK = 'TRUE' and st_bin in (:storageBin) and\n" +
-            "pick_block = 0 and putaway_block = 0 and status_id = :statusId and \n" +
+//            "pick_block = 0 and putaway_block = 0 and status_id = :statusId and \n" +
+            "status_id = :statusId and \n" +
             "(case when ISNUMERIC(remain_vol)=1 then CAST(remain_vol AS NUMERIC) else 0 end) > :cbmPerQty and \n" +
             "is_deleted = 0  order by remain_vol", nativeQuery = true)
     public StorageBinV2 getStorageBinCbmPerQtyLastPick(@Param("binclassId") Long binclassId,
@@ -116,8 +122,9 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
 
     @Query(value = "SELECT top 1 * FROM tblstoragebin WHERE bin_cl_id = :binclassId and c_id = :companyCode and plant_id = :plantId and \n" +
             "wh_id = :warehouseId and lang_id = :languageId and st_bin not in (:storageBin) and \n" +
-            "CAP_CHECK = 'FALSE' and pick_block = 0 and status_id = :statusId and \n" +
-            "putaway_block = 0 and is_deleted = 0 order by st_bin", nativeQuery = true)
+//            "putaway_block = 0 and pick_block = 0 and status_id = :statusId and \n" +
+            "status_id = :statusId and \n" +
+            "CAP_CHECK = 'FALSE' and is_deleted = 0 order by st_bin", nativeQuery = true)
     public StorageBinV2 getStorageBinNonCBM(@Param("binclassId") Long binclassId,
                                             @Param("companyCode") String companyCode,
                                             @Param("plantId") String plantId,
@@ -128,8 +135,9 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
 
     @Query(value = "SELECT top 1 * FROM tblstoragebin WHERE bin_cl_id = :binclassId and c_id = :companyCode and plant_id = :plantId and \n" +
             "wh_id = :warehouseId and lang_id = :languageId and st_bin in (:storageBin) and \n" +
-            "CAP_CHECK = 'FALSE' and pick_block = 0 and status_id = :statusId and \n" +
-            "putaway_block = 0 and is_deleted = 0 ", nativeQuery = true)
+//            "putaway_block = 0 and pick_block = 0 and status_id = :statusId and \n" +
+            "status_id = :statusId and \n" +
+            "CAP_CHECK = 'FALSE' and is_deleted = 0 ", nativeQuery = true)
     public StorageBinV2 getStorageBinNonCBMLastPick(@Param("binclassId") Long binclassId,
                                                     @Param("companyCode") String companyCode,
                                                     @Param("plantId") String plantId,
@@ -140,8 +148,9 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
 
     @Query(value = "SELECT top 1 * FROM tblstoragebin WHERE bin_cl_id = :binclassId and c_id = :companyCode and plant_id = :plantId and \n" +
             "wh_id = :warehouseId and lang_id = :languageId and \n" +
-            "CAP_CHECK = 'FALSE' and pick_block = 0 and status_id = :statusId and \n" +
-            "putaway_block = 0 and is_deleted = 0 order by st_bin", nativeQuery = true)
+//            "putaway_block = 0 and pick_block = 0 and status_id = :statusId and \n" +
+            "status_id = :statusId and \n" +
+            "CAP_CHECK = 'FALSE' and is_deleted = 0 order by st_bin", nativeQuery = true)
     public StorageBinV2 getStorageBinNonCBM(@Param("binclassId") Long binclassId,
                                             @Param("companyCode") String companyCode,
                                             @Param("plantId") String plantId,
@@ -151,8 +160,8 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
 
     @Query(value = "SELECT top 1 * FROM tblstoragebin WHERE bin_cl_id = :binclassId and c_id = :companyCode and plant_id = :plantId and \n" +
             "wh_id = :warehouseId and lang_id = :languageId and st_bin in (:storageBin) and \n" +
-            "CAP_CHECK = 'FALSE' and pick_block = 0 and \n" +
-            "putaway_block = 0 and is_deleted = 0 order by st_bin", nativeQuery = true)
+//            "putaway_block = 0 and pick_block = 0 and \n" +
+            "CAP_CHECK = 'FALSE' and is_deleted = 0 order by st_bin", nativeQuery = true)
     public StorageBinV2 getExistingStorageBinNonCBM(@Param("binclassId") Long binclassId,
                                                     @Param("companyCode") String companyCode,
                                                     @Param("plantId") String plantId,

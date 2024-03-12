@@ -558,9 +558,10 @@ public class OutboundHeaderService {
                 warehouseId, outboundIntegrationHeader.getPickListNumber());
         log.info("OutboundHeader: " + dbOutboundHeader);
 
-        if(dbOutboundHeader.getStatusId() != 59) {
-            throw new RuntimeException("OutboundOrder is not Delivered Yet to process Sales Invoice. Aborting...!");
-        }
+        //11-03-2024 validation removed as per business requirement - Ticket No. ALM/2024/003
+//        if(dbOutboundHeader.getStatusId() != 59) {
+//            throw new RuntimeException("OutboundOrder is not Delivered Yet to process Sales Invoice. Aborting...!");
+//        }
 
         if (dbOutboundHeader != null) {
             dbOutboundHeader.setSalesOrderNumber(outboundIntegrationHeader.getSalesOrderNumber());

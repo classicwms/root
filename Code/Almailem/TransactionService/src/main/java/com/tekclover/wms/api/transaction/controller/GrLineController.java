@@ -160,6 +160,7 @@ public class GrLineController {
 			throws Exception {
 		return grlineService.findGrLineV2(searchGrLine);
 	}
+	//Grline - Report - to calculate lead time created on fetched from grheader created on using SQL query method
 	@ApiOperation(response = GrLineV2.class, value = "Search GrLine V2 SQL") // label for swagger
 	@PostMapping("/findGrLineNew/v2")
 	public List<GrLineImpl> findGrLineV2SQL(@RequestBody SearchGrLineV2 searchGrLine)
