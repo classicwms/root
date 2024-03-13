@@ -291,4 +291,16 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
             @Param("recAcceptQty") Double recAcceptQty,
             @Param("recDamageQty") Double recDamageQty
     );
+
+    @Transactional
+    @Procedure(procedureName = "staging_line_update_new_proc")
+    public void updateStagingLineUpdateNewProc(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preInboundNo") String preInboundNo,
+            @Param("updatedOn") Date updatedOn
+    );
 }

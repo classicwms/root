@@ -141,5 +141,67 @@ public interface InboundLineV2Repository extends JpaRepository<InboundLineV2, Lo
             @Param("updatedOn") Date updatedOn
     );
 
+    @Transactional
+    @Procedure(procedureName = "inboundline_status_update_new_proc")
+    public void updateInboundLineStatusUpdateNewProc(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preInboundNo") String preInboundNo,
+            @Param("statusId") Long statusId,
+            @Param("statusDescription") String statusDescription,
+            @Param("updatedOn") Date updatedOn
+    );
+
+    @Transactional
+    @Procedure(procedureName = "inboundline_status_update_ib_cnf_proc")
+    public void updateInboundLineStatusUpdateInboundConfirmProc(
+            @Param("companyCodeId") String companyCode,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preInboundNo") String preInboundNo,
+            @Param("statusId") Long statusId,
+            @Param("statusDescription") String statusDescription,
+            @Param("updatedBy") String updatedBy,
+            @Param("updatedOn") Date updatedOn
+    );
+
+    InboundLineV2 findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndLineNoAndItemCodeAndManufacturerNameAndDeletionIndicator(
+            String languageId, String companyCode, String plantId, String warehouseId, String refDocNumber,
+            String preInboundNo, Long lineNo, String itemCode, String manufacturerName, Long deletionIndicator);
+
+
+    @Query(value = "select * from tblinboundline where ref_doc_no = :refDocNo \n" +
+            "and c_id = :companyCode and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId \n" +
+            "and status_id = :statusId and status_id != :cnfStatusId and ref_field_2 = 'true' and is_deleted = 0 ", nativeQuery = true)
+    public List<InboundLineV2> getInboundLinesV2ForInboundConfirm(@Param("companyCode") String companyCode,
+                                                                  @Param("plantId") String plantId,
+                                                                  @Param("languageId") String languageId,
+                                                                  @Param("warehouseId") String warehouseId,
+                                                                  @Param("refDocNo") String refDocNo,
+                                                                  @Param("statusId") Long statusId,
+                                                                  @Param("cnfStatusId") Long cnfStatusId);
+
+    @Query(value = "select count(ref_doc_no) from tblinboundline where ref_doc_no = :refDocNo \n" +
+            "and c_id = :companyCode and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId \n" +
+            "and status_id = :statusId and ref_field_2 = 'true' and is_deleted = 0 ", nativeQuery = true)
+    public Long getInboundLinesV2CountForInboundConfirmWithStatusId(@Param("companyCode") String companyCode,
+                                                                    @Param("plantId") String plantId,
+                                                                    @Param("languageId") String languageId,
+                                                                    @Param("warehouseId") String warehouseId,
+                                                                    @Param("refDocNo") String refDocNo,
+                                                                    @Param("statusId") Long statusId);
+    @Query(value = "select count(ref_doc_no) from tblinboundline where ref_doc_no = :refDocNo \n" +
+            "and c_id = :companyCode and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId \n" +
+            "and is_deleted = 0 ", nativeQuery = true)
+    public Long getInboundLinesV2CountForInboundConfirm(@Param("companyCode") String companyCode,
+                                                        @Param("plantId") String plantId,
+                                                        @Param("languageId") String languageId,
+                                                        @Param("warehouseId") String warehouseId,
+                                                        @Param("refDocNo") String refDocNo);
 }
 
