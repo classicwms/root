@@ -76,4 +76,12 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
                                          @Param("refDocNumber") String refDocNumber,
                                          @Param("statusId") Long statusId,
                                          @Param("statusDescription") String statusDescription);
+
+    OrderManagementLineV2 findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndLineNumberAndItemCodeAndManufacturerNameAndProposedStorageBinAndDeletionIndicator(
+            String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo,
+            String refDocNumber, Long lineNumber, String itemCode, String manufacturerName, String storageBin, Long deletionIndicator);
+
+    List<OrderManagementLineV2> findByPlantIdAndCompanyCodeIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndLineNumberAndItemCodeAndDeletionIndicator(
+            String plantId, String companyCodeId, String languageId, String warehouseId, String preOutboundNo,
+            String refDocNumber, Long lineNumber, String itemCode, Long deletionIndicator);
 }

@@ -1164,6 +1164,59 @@ public class OrderManagementLineService extends BaseService {
     }
 
     /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param preOutboundNo
+     * @param refDocNumber
+     * @param lineNumber
+     * @param itemCode
+     * @return
+     */
+    public OrderManagementLineV2 getOrderManagementLineForLineUpdateV2(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                                       String preOutboundNo, String refDocNumber, Long lineNumber, String itemCode) {
+        List<OrderManagementLineV2> orderManagementHeader = orderManagementLineV2Repository
+                .findByPlantIdAndCompanyCodeIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndLineNumberAndItemCodeAndDeletionIndicator(
+                         plantId, companyCodeId, languageId, warehouseId, preOutboundNo, refDocNumber, lineNumber, itemCode, 0L);
+        if (orderManagementHeader != null && !orderManagementHeader.isEmpty()) {
+            return orderManagementHeader.get(0);
+        } else {
+            return null;
+        }
+
+    }
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param preOutboundNo
+     * @param refDocNumber
+     * @param lineNumber
+     * @param itemCode
+     * @param manufacturerName
+     * @param storageBin
+     * @return
+     */
+    public OrderManagementLineV2 getOrderManagementLineForQualityLineV2(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                                        String preOutboundNo, String refDocNumber, Long lineNumber, String itemCode,
+                                                                        String manufacturerName, String storageBin) {
+        OrderManagementLineV2 orderManagementHeader = orderManagementLineV2Repository
+                .findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndLineNumberAndItemCodeAndManufacturerNameAndProposedStorageBinAndDeletionIndicator(
+                        companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, lineNumber, itemCode, manufacturerName, storageBin, 0L);
+        if (orderManagementHeader != null) {
+            return orderManagementHeader;
+        } else {
+            return null;
+        }
+
+    }
+
+    /**
      * @param companyCodeId
      * @param plantId
      * @param languageId

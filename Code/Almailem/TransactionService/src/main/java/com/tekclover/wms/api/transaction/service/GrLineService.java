@@ -1407,6 +1407,13 @@ public class GrLineService extends BaseService {
     @Transactional
     public List<GrLineV2> createGrLineNonCBMV2(@Valid List<AddGrLineV2> newGrLines, String loginUserID) throws java.text.ParseException {
         List<GrLineV2> createdGRLines = new ArrayList<>();
+        String companyCode = null;
+        String plantId = null;
+        String languageId = null;
+        String warehouseId = null;
+        String refDocNumber = null;
+        String preInboundNo = null;
+        String goodsReceiptNo = null;
         try {
 
             // Inserting multiple records
@@ -1439,6 +1446,11 @@ public class GrLineService extends BaseService {
                     dbGrLine.setQuantityType(packBarcode.getQuantityType());
                     dbGrLine.setPackBarcodes(packBarcode.getBarcode());
                     dbGrLine.setStatusId(14L);
+
+                    //12-03-2024 - Ticket No. ALM/2024/006
+                    if(dbGrLine.getGoodReceiptQty() < 0){
+                        throw new BadRequestException("Gr Quantity Cannot be Negative");
+                    }
 
                     //GoodReceipt Qty should be less than or equal to ordered qty---> if GrQty > OrdQty throw Exception
                     Double dbGrQty = grLineV2Repository.getGrLineQuantity(
@@ -1540,11 +1552,19 @@ public class GrLineService extends BaseService {
                     dbGrLine.setUpdatedOn(new Date());
                     dbGrLine.setConfirmedOn(new Date());
 
+                    companyCode = dbGrLine.getCompanyCode();
+                    plantId = dbGrLine.getPlantId();
+                    languageId = dbGrLine.getLanguageId();
+                    warehouseId = dbGrLine.getWarehouseId();
+                    refDocNumber = dbGrLine.getRefDocNumber();
+                    preInboundNo = dbGrLine.getPreInboundNo();
+                    goodsReceiptNo = dbGrLine.getGoodsReceiptNo();
+
                     List<GrLineV2> oldGrLine = grLineV2Repository.findByGoodsReceiptNoAndItemCodeAndLineNoAndLanguageIdAndCompanyCodeAndPlantIdAndRefDocNumberAndPackBarcodesAndWarehouseIdAndPreInboundNoAndCaseCodeAndCreatedOnAndDeletionIndicator(
-                            dbGrLine.getGoodsReceiptNo(), dbGrLine.getItemCode(), dbGrLine.getLineNo(),
-                            dbGrLine.getLanguageId(), dbGrLine.getCompanyCode(), dbGrLine.getPlantId(),
-                            dbGrLine.getRefDocNumber(), dbGrLine.getPackBarcodes(), dbGrLine.getWarehouseId(),
-                            dbGrLine.getPreInboundNo(), dbGrLine.getCaseCode(), dbGrLine.getCreatedOn(), 0L);
+                            goodsReceiptNo, dbGrLine.getItemCode(), dbGrLine.getLineNo(),
+                            languageId, companyCode, plantId,
+                            refDocNumber, dbGrLine.getPackBarcodes(), warehouseId,
+                            preInboundNo, dbGrLine.getCaseCode(), dbGrLine.getCreatedOn(), 0L);
                     GrLineV2 createdGRLine = null;
                     boolean createGrLineError = false;
                     //validate to check if grline is already exists
@@ -1600,20 +1620,20 @@ public class GrLineService extends BaseService {
 //            log.info("createdGRLinesStatusId17Count: " + createdGRLinesStatusId17Count);
 
 //            log.info("createdStagingLinesCount, createdGRLinesStatusId17Count: " + createdStagingLinesCount + ", " + createdGRLinesStatusId17Count);
-            statusDescription = stagingLineV2Repository.getStatusDescription(17L, createdGRLines.get(0).getLanguageId());
-            grHeaderV2Repository.updateGrheaderStatusUpdateProc(
-                    createdGRLines.get(0).getCompanyCode(),
-                    createdGRLines.get(0).getPlantId(),
-                    createdGRLines.get(0).getLanguageId(),
-                    createdGRLines.get(0).getWarehouseId(),
-                    createdGRLines.get(0).getRefDocNumber(),
-                    createdGRLines.get(0).getPreInboundNo(),
-                    createdGRLines.get(0).getGoodsReceiptNo(),
-                    17L,
-                    statusDescription,
-                    new Date());
-            log.info("GrHeader Status 17 Updating Using Stored Procedure when condition met");
-            for (GrLineV2 grLine : createdGRLines) {
+//            statusDescription = stagingLineV2Repository.getStatusDescription(17L, createdGRLines.get(0).getLanguageId());
+//            grHeaderV2Repository.updateGrheaderStatusUpdateProc(
+//                    createdGRLines.get(0).getCompanyCode(),
+//                    createdGRLines.get(0).getPlantId(),
+//                    createdGRLines.get(0).getLanguageId(),
+//                    createdGRLines.get(0).getWarehouseId(),
+//                    createdGRLines.get(0).getRefDocNumber(),
+//                    createdGRLines.get(0).getPreInboundNo(),
+//                    createdGRLines.get(0).getGoodsReceiptNo(),
+//                    17L,
+//                    statusDescription,
+//                    new Date());
+//            log.info("GrHeader Status 17 Updating Using Stored Procedure when condition met");
+//            for (GrLineV2 grLine : createdGRLines) {
                 /*
                  * 1. Update GRHEADER table with STATUS_ID=17 by Passing WH_ID/GR_NO/CASE_CODE/REF_DOC_NO and
                  * GR_CNF_BY with USR_ID and GR_CNF_ON with Server time
@@ -1647,27 +1667,27 @@ public class GrLineService extends BaseService {
                  * update STATUS_ID as 17
                  */
 
-                log.info("Updating StagingLine and InboundLine with StatusId 17 Initiated");
-                if (grLine.getAcceptedQty() == null) {
-                    grLine.setAcceptedQty(0D);
-                }
-                if (grLine.getDamageQty() == null) {
-                    grLine.setDamageQty(0D);
-                }
-                stagingLineV2Repository.updateStagingLineUpdateProc(
-                                grLine.getCompanyCode(),
-                                grLine.getPlantId(),
-                                grLine.getLanguageId(),
-                                grLine.getWarehouseId(),
-                                grLine.getRefDocNumber(),
-                                grLine.getPreInboundNo(),
-                                grLine.getItemCode(),
-                                grLine.getManufacturerName(),
-                                grLine.getLineNo(),
-                                new Date(),
-                                grLine.getAcceptedQty(),
-                                grLine.getDamageQty());
-                log.info("stagingLineEntity updated through Stored Procedure: ");
+//                log.info("Updating StagingLine and InboundLine with StatusId 17 Initiated");
+//                if (grLine.getAcceptedQty() == null) {
+//                    grLine.setAcceptedQty(0D);
+//                }
+//                if (grLine.getDamageQty() == null) {
+//                    grLine.setDamageQty(0D);
+//                }
+//                stagingLineV2Repository.updateStagingLineUpdateProc(
+//                                grLine.getCompanyCode(),
+//                                grLine.getPlantId(),
+//                                grLine.getLanguageId(),
+//                                grLine.getWarehouseId(),
+//                                grLine.getRefDocNumber(),
+//                                grLine.getPreInboundNo(),
+//                                grLine.getItemCode(),
+//                                grLine.getManufacturerName(),
+//                                grLine.getLineNo(),
+//                                new Date(),
+//                                grLine.getAcceptedQty(),
+//                                grLine.getDamageQty());
+//                log.info("stagingLineEntity updated through Stored Procedure: ");
 //                List<StagingLineEntityV2> stagingLineEntityList =
 //                        stagingLineService.getStagingLineV2(
 //                                grLine.getCompanyCode(),
@@ -1714,22 +1734,22 @@ public class GrLineService extends BaseService {
                  * 3. Then Pass WH_ID/PRE_IB_NO/REF_DOC_NO/IB_LINE_NO/ITM_CODE in INBOUNDLINE table and
                  * updated STATUS_ID as 17
                  */
-                if (grLine.getStatusId() == 17L) {
-                    inboundLineV2Repository.updateInboundLineStatusUpdateProc(
-                            grLine.getCompanyCode(),
-                            grLine.getPlantId(),
-                            grLine.getLanguageId(),
-                            grLine.getWarehouseId(),
-                            grLine.getRefDocNumber(),
-                            grLine.getPreInboundNo(),
-                            grLine.getItemCode(),
-                            grLine.getManufacturerName(),
-                            grLine.getLineNo(),
-                            17L,
-                            statusDescription,
-                            new Date()
-                    );
-                    log.info("inboundLine Status updated : ");
+//                if (grLine.getStatusId() == 17L) {
+//                    inboundLineV2Repository.updateInboundLineStatusUpdateProc(
+//                            grLine.getCompanyCode(),
+//                            grLine.getPlantId(),
+//                            grLine.getLanguageId(),
+//                            grLine.getWarehouseId(),
+//                            grLine.getRefDocNumber(),
+//                            grLine.getPreInboundNo(),
+//                            grLine.getItemCode(),
+//                            grLine.getManufacturerName(),
+//                            grLine.getLineNo(),
+//                            17L,
+//                            statusDescription,
+//                            new Date()
+//                    );
+//                    log.info("inboundLine Status updated : ");
 //                    InboundLineV2 inboundLine = inboundLineV2Repository.getInboundLineV2(grLine.getWarehouseId(),
 //                            grLine.getLineNo(),
 //                            grLine.getPreInboundNo(),
@@ -1742,8 +1762,23 @@ public class GrLineService extends BaseService {
 //                    inboundLine.setStatusDescription(statusDescription);
 //                    inboundLine = inboundLineV2Repository.save(inboundLine);
 //                    log.info("inboundLine updated : " + inboundLine);
-                }
-            }
+//                }
+//            }
+
+            //Update GrHeader using stored Procedure
+            statusDescription = stagingLineV2Repository.getStatusDescription(17L, createdGRLines.get(0).getLanguageId());
+            grHeaderV2Repository.updateGrheaderStatusUpdateProc(
+                    companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, goodsReceiptNo, 17L, statusDescription, new Date());
+            log.info("GrHeader Status 17 Updating Using Stored Procedure when condition met");
+
+            //Update staging Line using stored Procedure
+            stagingLineV2Repository.updateStagingLineUpdateNewProc(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo,new Date());
+
+            //Update InboundLine using Stored Procedure
+            inboundLineV2Repository.updateInboundLineStatusUpdateNewProc(
+                    companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo,17L, statusDescription, new Date());
+            log.info("inboundLine Status updated using Stored Procedure ");
+
             return createdGRLines;
         } catch (Exception e) {
             //Exception Log
