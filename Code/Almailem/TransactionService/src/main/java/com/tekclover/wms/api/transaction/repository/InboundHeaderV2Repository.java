@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,4 +74,19 @@ public interface InboundHeaderV2Repository extends JpaRepository<InboundHeaderV2
                                    @Param("statusDescription") String statusDescription,
                                    @Param("confirmedBy") String confirmedBy,
                                    @Param("confirmedOn") Date confirmedOn);
+
+    @Transactional
+    @Procedure(procedureName = "ibheader_status_update_ib_cnf_proc")
+    public void updateIbheaderStatusUpdateInboundConfirmProc(
+            @Param("companyCodeId") String companyCode,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preInboundNo") String preInboundNo,
+            @Param("statusId") Long statusId,
+            @Param("statusDescription") String statusDescription,
+            @Param("updatedBy") String updatedBy,
+            @Param("updatedOn") Date updatedOn
+    );
 }

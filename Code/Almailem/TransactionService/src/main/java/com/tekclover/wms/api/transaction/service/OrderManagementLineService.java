@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
+import com.google.firebase.messaging.FirebaseMessagingException;
 import com.tekclover.wms.api.transaction.config.PropertiesConfig;
 import com.tekclover.wms.api.transaction.model.dto.*;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.IInventoryImpl;
@@ -124,6 +125,9 @@ public class OrderManagementLineService extends BaseService {
 
     @Autowired
     private OrderManagementLineService orderManagementLineService;
+
+    @Autowired
+    private PushNotificationService pushNotificationService;
 
     @Autowired
     PropertiesConfig propertiesConfig;
@@ -1776,7 +1780,7 @@ public class OrderManagementLineService extends BaseService {
      * @return
      */
     public List<OrderManagementLineV2> doAssignPickerV2(List<AssignPickerV2> assignPickers, String assignedPickerId,
-                                                        String loginUserID) throws java.text.ParseException {
+                                                        String loginUserID) throws java.text.ParseException, FirebaseMessagingException {
         String companyCodeId = null;
         String plantId = null;
         String languageId = null;
@@ -1907,9 +1911,33 @@ public class OrderManagementLineService extends BaseService {
 
                     // REF_FIELD_1
                     pickupHeader.setReferenceField1(dbOrderManagementLine.getReferenceField1());
-                    pickupHeader = pickupHeaderV2Repository.save(pickupHeader);
-                    log.info("pickupHeader created : " + pickupHeader);
+                    PickupHeaderV2 pickup = pickupHeaderV2Repository.save(pickupHeader);
+                    log.info("pickupHeader created : " + pickup);
 
+                    // send Notification
+                    if (pickup != null) {
+                        List<IKeyValuePair> notification =
+                                pickupHeaderV2Repository.findByStatusIdAndNotificationStatusAndDeletionIndicatorDistinctRefDocNo();
+
+                        if (notification != null) {
+                            for (IKeyValuePair pickupHeaderV2 : notification) {
+
+                                List<String> deviceToken = pickupHeaderV2Repository.getDeviceToken(
+                                        pickupHeaderV2.getAssignPicker(), pickupHeaderV2.getWarehouseId());
+
+                                if (deviceToken != null && !deviceToken.isEmpty()) {
+                                    String title = "PICKING";
+                                    String message =  pickupHeaderV2.getRefDocType() + " ORDER - " + pickupHeaderV2.getRefDocNumber() + " - IS RECEIVED ";
+                                    String response = pushNotificationService.sendPushNotification(deviceToken, title, message);
+                                    if (response.equals("OK")) {
+                                        pickupHeaderV2Repository.updateNotificationStatus(
+                                                pickupHeaderV2.getAssignPicker(), pickupHeaderV2.getRefDocNumber(), pickupHeaderV2.getWarehouseId());
+                                        log.info("status update successfully");
+                                    }
+                                }
+                            }
+                        }
+                    }
                     // Updating Ordermanagementline
                     dbOrderManagementLine.setPickupNumber(PU_NO);
                     dbOrderManagementLine = orderManagementLineV2Repository.save(dbOrderManagementLine);

@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.transaction.service;
 
+import com.google.firebase.messaging.FirebaseMessagingException;
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
@@ -1497,6 +1498,10 @@ public class PreOutboundHeaderService extends BaseService {
 //        OutboundHeaderV2 outboundHeader = createOutboundHeaderV2(createdPreOutboundHeader, createdOrderManagementHeader.getStatusId());
         OutboundHeaderV2 outboundHeader = createOutboundHeaderV2(createdPreOutboundHeader, createdOrderManagementHeader.getStatusId(), outboundIntegrationHeader);
 
+        //check the status of OrderManagementLine for NoStock update status of outbound header, preoutbound header, preoutboundline
+        statusDescription = stagingLineV2Repository.getStatusDescription(47L, languageId);
+        orderManagementLineV2Repository.updateNostockStatusUpdateProc(companyCodeId, plantId, languageId, warehouseId, outboundHeader.getRefDocNumber(), 47L, statusDescription);
+
         /*------------------------------------------------------------------------------------*/
         updateStatusAs47ForOBHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, outboundHeader.getRefDocNumber());
 
@@ -1547,7 +1552,7 @@ public class PreOutboundHeaderService extends BaseService {
      */
     private void createPickUpHeaderAssignPickerModified(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                    OutboundIntegrationHeaderV2 outboundIntegrationHeader,
-                                                   String preOutboundNo, String refDocNumber, String partnerCode) throws InvocationTargetException, IllegalAccessException, ParseException {
+                                                   String preOutboundNo, String refDocNumber, String partnerCode) throws InvocationTargetException, IllegalAccessException, ParseException, FirebaseMessagingException {
 
         List<OrderManagementLineV2> orderManagementLineV2List = orderManagementLineService.
                 getOrderManagementLineForPickupLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber);
@@ -1822,9 +1827,9 @@ public class PreOutboundHeaderService extends BaseService {
                     hhtUserCount = hhtUserList.stream().count();
                     log.info("hhtUserList count: " + hhtUserCount);
 
-                    PickupHeaderV2 assignPickerPickUpHeader = pickupHeaderService.getPickupHeaderAutomation(companyCodeId, plantId, languageId, warehouseId,
-                            orderManagementLine.getItemCode(), orderManagementLine.getManufacturerName());
-                    log.info("pickupHeader--> Status48---> assignPicker---> SameItem: " + assignPickerPickUpHeader);
+                    PickupHeaderV2 assignPickerPickUpHeader = pickupHeaderService.getPickupHeaderAutomationByLevelId(companyCodeId, plantId, languageId, warehouseId,
+                            orderManagementLine.getItemCode(), orderManagementLine.getManufacturerName(), String.valueOf(LEVEL_ID));
+                    log.info("pickupHeader--> Status48---> assignPicker---> SameItem ---> same level: " + assignPickerPickUpHeader);
                     if (assignPickerPickUpHeader != null) {
                         log.info("Picker Assigned: " + assignPickerPickUpHeader.getAssignedPickerId());
                         assignPickerId = assignPickerPickUpHeader.getAssignedPickerId();
@@ -2054,7 +2059,7 @@ public class PreOutboundHeaderService extends BaseService {
 
     private void createPickUpHeaderAssignPicker(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                 OutboundIntegrationHeaderV2 outboundIntegrationHeader,
-                                                String preOutboundNo, String refDocNumber, String partnerCode) throws InvocationTargetException, IllegalAccessException, ParseException {
+                                                String preOutboundNo, String refDocNumber, String partnerCode) throws InvocationTargetException, IllegalAccessException, ParseException, FirebaseMessagingException {
 
         List<OrderManagementLineV2> orderManagementLineV2List = orderManagementLineService.
                 getOrderManagementLineForPickupLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber);
@@ -2440,7 +2445,7 @@ public class PreOutboundHeaderService extends BaseService {
 
     private void updateStatusAs48ForPickupHeader(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                               OutboundIntegrationHeaderV2 outboundIntegrationHeader,
-                                                              String preOutboundNo, String refDocNumber, String partnerCode) throws InvocationTargetException, IllegalAccessException, ParseException {
+                                                              String preOutboundNo, String refDocNumber, String partnerCode) throws InvocationTargetException, IllegalAccessException, ParseException, FirebaseMessagingException {
 
         List<OrderManagementLineV2> orderManagementLineV2List = orderManagementLineService.
                 getOrderManagementLineForPickupLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber);
@@ -3183,7 +3188,7 @@ public class PreOutboundHeaderService extends BaseService {
      */
     private void updateStatusAs48ForPickupHeaderCreateSuccess(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                               OutboundIntegrationHeaderV2 outboundIntegrationHeader,
-                                                              String preOutboundNo, String refDocNumber, String partnerCode) throws InvocationTargetException, IllegalAccessException, ParseException {
+                                                              String preOutboundNo, String refDocNumber, String partnerCode) throws InvocationTargetException, IllegalAccessException, ParseException, FirebaseMessagingException {
 
         List<OrderManagementLineV2> orderManagementLineV2List = orderManagementLineService.
                 getOrderManagementLineForPickupLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber);
@@ -3933,7 +3938,7 @@ public class PreOutboundHeaderService extends BaseService {
      */
     private PreOutboundHeaderV2 createPreOutboundHeaderV2(String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo,
                                                           OutboundIntegrationHeaderV2 outboundIntegrationHeader, String refField1ForOrderType) throws ParseException {
-        AuthToken authTokenForIDService = authTokenService.getIDMasterServiceAuthToken();
+//        AuthToken authTokenForIDService = authTokenService.getIDMasterServiceAuthToken();
         PreOutboundHeaderV2 preOutboundHeader = new PreOutboundHeaderV2();
         preOutboundHeader.setLanguageId(languageId);
         preOutboundHeader.setCompanyCodeId(companyCodeId);

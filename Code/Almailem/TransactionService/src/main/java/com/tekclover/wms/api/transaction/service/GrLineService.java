@@ -1451,6 +1451,10 @@ public class GrLineService extends BaseService {
                     if(dbGrLine.getGoodReceiptQty() < 0){
                         throw new BadRequestException("Gr Quantity Cannot be Negative");
                     }
+                    log.info("StatusId: " + newGrLine.getStatusId());
+                    if(newGrLine.getStatusId() == 24L){
+                        throw new BadRequestException("GrLine is already Confirmed");
+                    }
 
                     //GoodReceipt Qty should be less than or equal to ordered qty---> if GrQty > OrdQty throw Exception
                     Double dbGrQty = grLineV2Repository.getGrLineQuantity(
@@ -1773,6 +1777,7 @@ public class GrLineService extends BaseService {
 
             //Update staging Line using stored Procedure
             stagingLineV2Repository.updateStagingLineUpdateNewProc(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo,new Date());
+            log.info("stagingLine Status updated using Stored Procedure ");
 
             //Update InboundLine using Stored Procedure
             inboundLineV2Repository.updateInboundLineStatusUpdateNewProc(

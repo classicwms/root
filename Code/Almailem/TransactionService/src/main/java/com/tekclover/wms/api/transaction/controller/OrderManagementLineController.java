@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
+import com.google.firebase.messaging.FirebaseMessagingException;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.v2.AssignPickerV2;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.v2.OrderManagementLineV2;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.v2.SearchOrderManagementLineV2;
@@ -246,7 +247,7 @@ public class OrderManagementLineController {
     @ApiOperation(response = OrderManagementLineV2.class, value = "Allocate") // label for swagger
     @PatchMapping("/v2/assignPicker")
     public ResponseEntity<?> assignPickerV2(@RequestBody List<AssignPickerV2> assignPicker, @RequestParam String assignedPickerId,
-                                            @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
+                                            @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException, FirebaseMessagingException {
         List<OrderManagementLineV2> updatedOrderManagementLine =
                 ordermangementlineService.doAssignPickerV2(assignPicker, assignedPickerId, loginUserID);
         return new ResponseEntity<>(updatedOrderManagementLine, HttpStatus.OK);

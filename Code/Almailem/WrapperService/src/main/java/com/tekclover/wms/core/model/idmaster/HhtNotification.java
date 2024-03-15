@@ -37,6 +37,8 @@ public class HhtNotification {
 
 	private Long deletionIndicator;
 
+	private Boolean isLoggedIn;
+
 	private String createdBy;
 
 	private Date createdOn = new Date();

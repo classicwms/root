@@ -6,7 +6,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.masters.model.impartner.SearchImPartner;
+import com.tekclover.wms.api.masters.model.impartner.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,9 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tekclover.wms.api.masters.model.impartner.AddImPartner;
-import com.tekclover.wms.api.masters.model.impartner.ImPartner;
-import com.tekclover.wms.api.masters.model.impartner.UpdateImPartner;
 import com.tekclover.wms.api.masters.service.ImPartnerService;
 
 import io.swagger.annotations.Api;
@@ -96,6 +93,31 @@ public class ImPartnerController {
 											 @RequestParam String loginUserID) throws ParseException, InvocationTargetException, IllegalAccessException {
 
 		impartnerService.deleteImPartner(companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, partnerItemBarcode, loginUserID);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+	@ApiOperation(response = ImPartner.class, value = "Get a ImPartner") // label for swagger
+	@PostMapping("/v2/get")
+	public ResponseEntity<?> getImPartnerV2(@RequestBody ImPartnerInput imPartnerInput) {
+		List<ImPartner> impartner =
+				impartnerService.getImPartnerV2(imPartnerInput);
+		return new ResponseEntity<>(impartner, HttpStatus.OK);
+	}
+
+	@ApiOperation(response = ImPartner.class, value = "Update ImPartner V2") // label for swagger
+    @PatchMapping("/v2/update")
+	public ResponseEntity<?> patchImPartnerV2(@Valid @RequestBody List<AddImPartner> updateImPartner, @RequestParam String loginUserID)
+			throws IllegalAccessException, InvocationTargetException, ParseException {
+
+		List<ImPartner> createdImPartner =
+				impartnerService.updateImPartnerV2(updateImPartner, loginUserID);
+		return new ResponseEntity<>(createdImPartner , HttpStatus.OK);
+	}
+
+    @ApiOperation(response = ImPartner.class, value = "Delete ImPartner") // label for swagger
+	@PostMapping("/v2/delete")
+	public ResponseEntity<?> deleteImPartnerV2(@RequestBody List<ImPartnerInput> imPartnerInput, @RequestParam String loginUserID)
+			throws ParseException, InvocationTargetException, IllegalAccessException {
+		impartnerService.deleteImPartnerV2(imPartnerInput, loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 }

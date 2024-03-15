@@ -66,6 +66,9 @@ public interface PickupHeaderV2Repository extends JpaRepository<PickupHeaderV2, 
     PickupHeaderV2 findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndManufacturerNameAndStatusIdAndDeletionIndicatorOrderByPickupCreatedOnDesc(
             String companyCodeId, String plantId, String languageId, String warehouseId, String itemCode, String manufacturerName, Long StatusId, Long deletionIndicator);
 
+    PickupHeaderV2 findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndManufacturerNameAndStatusIdAndLevelIdAndDeletionIndicatorOrderByPickupCreatedOn(
+            String companyCodeId, String plantId, String languageId, String warehouseId, String itemCode, String manufacturerName, Long StatusId, String levelId, Long deletionIndicator);
+
     public List<PickupHeaderV2> findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndStatusIdAndLevelIdAndOutboundOrderTypeIdInAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, Long statusId, String levelId, List<Long> outboundOrderTypeId, Long deletionIndicator);
 
@@ -114,6 +117,20 @@ public interface PickupHeaderV2Repository extends JpaRepository<PickupHeaderV2, 
     PickupHeaderV2 findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndAssignedPickerIdInAndStatusIdAndPickupCreatedOnBetweenAndDeletionIndicatorOrderByPickupCreatedOn(
             String companyCodeId, String plantId, String languageId, String warehouseId, List<String> assignedPickerId,
             Long statusId, Date startDate, Date endDate, Long deletionIndicator);
+
+    @Query(value = "select distinct ref_doc_no as refDocNumber, ass_picker_id as assignPicker, wh_id as warehouseId, \n" +
+            " ref_doc_type as refDocType from tblpickupheader \n" +
+            " WHERE status_id = 48 AND noti_status = 0 AND is_deleted = 0", nativeQuery = true)
+    List<IKeyValuePair> findByStatusIdAndNotificationStatusAndDeletionIndicatorDistinctRefDocNo();
+
+
+    @Modifying
+    @Query(value = "update tblpickupheader set noti_status = 1 where ass_picker_id = :assignPickerId \n" +
+            "and wh_id = :warehouseId and ref_doc_no = :refDocNo and is_deleted = 0", nativeQuery = true)
+    public void updateNotificationStatus(@Param("assignPickerId") String assignPickerId,
+                                         @Param("refDocNo") String refDocNo,
+                                         @Param("warehouseId") String warehouseId);
+
 
     @Query(value = "select ass_picker_id assignPicker \n" +
                     "from tblpickupheader \n" +
@@ -308,4 +325,19 @@ public interface PickupHeaderV2Repository extends JpaRepository<PickupHeaderV2, 
                                                         @Param("statusId") Long statusId,
                                                         @Param("startDate") Date startDate,
                                                         @Param("endDate") Date endDate);
+
+
+    @Query(value = "select token_id as tokenId from tblhhtnotification where usr_id = :userId and \n" +
+            " wh_id = :warehouseId and is_deleted = 0", nativeQuery = true)
+    public List<String> getDeviceToken(@Param("userId")String userId,
+                                       @Param("warehouseId")String warehouseId);
+
+//     @Query(value = "select token_id as tokenId from tblhhtnotification where usr_id = :userId and \n" +
+//                " c_id = :companyId and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and is_deleted = 0", nativeQuery = true)
+//        public List<String> getDeviceToken(@Param("userId")String userId,
+//                                           @Param("companyId")String companyId,
+//                                           @Param("plantId")String plantId,
+//                                           @Param("languageId")String languageId,
+//                                           @Param("warehouseId")String warehouseId);
+
 }

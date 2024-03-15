@@ -45,6 +45,8 @@ import java.util.stream.Stream;
 @Service
 public class InboundHeaderService extends BaseService {
     @Autowired
+    private GrLineV2Repository grLineV2Repository;
+    @Autowired
     private InventoryMovementRepository inventoryMovementRepository;
     @Autowired
     private PutAwayHeaderV2Repository putAwayHeaderV2Repository;
@@ -1482,6 +1484,115 @@ public class InboundHeaderService extends BaseService {
 
         axapiResponse.setStatusCode("200");                         //HardCode for Testing
         axapiResponse.setMessage("Success");                        //HardCode for Testing
+        log.info("axapiResponse: " + axapiResponse);
+        return axapiResponse;
+    }
+
+    /**
+     * @param warehouseId
+     * @param preInboundNo
+     * @param refDocNumber
+     * @param loginUserID
+     * @return
+     */
+    @Transactional
+    public AXApiResponse updateInboundHeaderPartialConfirmV2(String companyCode, String plantId, String languageId, String warehouseId,
+                                                             String preInboundNo, String refDocNumber, String loginUserID) {
+
+        // PutawayHeader Validation
+        long putAwayHeaderStatusIdCount = putAwayHeaderService.getPutawayHeaderByStatusIdV2(companyCode, plantId, warehouseId, preInboundNo, refDocNumber);
+        log.info("PutAwayHeader status----> : " + putAwayHeaderStatusIdCount);
+
+        if (putAwayHeaderStatusIdCount != 0) {
+            throw new BadRequestException("Error on Inbound Confirmation: PutAwayHeader are NOT processed completely ---> OrderNumber: "  + refDocNumber);
+        }
+
+        AXApiResponse axapiResponse = new AXApiResponse();
+
+        List<InboundLineV2> inboundLineList = inboundLineService.getInboundLineForInboundConfirmPartialAllocationV2(companyCode, plantId, languageId, warehouseId, refDocNumber);
+
+        if (inboundLineList != null) {
+            for (InboundLineV2 inboundLine : inboundLineList) {
+                List<GrLineV2> grLineList = grLineService.getGrLineForInboundConformV2(
+                        companyCode, plantId, languageId, warehouseId, refDocNumber,
+                        inboundLine.getItemCode(),
+                        inboundLine.getManufacturerName(),
+                        inboundLine.getLineNo(),
+                        inboundLine.getPreInboundNo());
+                log.info("GrLine List: " + grLineList.size());
+                for(GrLineV2 grLine : grLineList) {
+                    List<PutAwayLineV2> putAwayLineList = putAwayLineService.
+                            getPutAwayLineForInboundConfirmV2(companyCode, plantId, languageId, warehouseId, refDocNumber,
+                                    grLine.getItemCode(),
+                                    grLine.getManufacturerName(),
+                                    grLine.getLineNo(),
+                                    grLine.getPreInboundNo(),
+                                    grLine.getPackBarcodes());
+                    if (putAwayLineList != null) {
+                        for(PutAwayLineV2 putAwayLine : putAwayLineList) {
+                            InventoryV2 createdInventory = createInventoryV2(putAwayLine, grLine.getQuantityType());
+                            createInventoryMovementV2(putAwayLine);
+                            log.info("Inventory Created Successfully -----> for All Putaway Lines");
+                        }
+                    }
+                }
+            }
+        }
+
+        statusDescription = stagingLineV2Repository.getStatusDescription(24L, languageId);
+
+        inboundLineV2Repository.updateInboundLineStatusUpdateInboundConfirmProc(
+                companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
+        log.info("InboundLine updated");
+
+        putAwayLineV2Repository.updatePutawayLineStatusUpdateInboundConfirmProc(
+                companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
+        log.info("putAwayLine updated");
+
+        putAwayHeaderV2Repository.updatepaheaderStatusUpdateInboundConfirmProc(
+                companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
+        log.info("PutAwayHeader Updated");
+
+        preInboundLineV2Repository.updatePreInboundLineStatusUpdateInboundConfirmProc(
+                companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
+                log.info("PreInboundLine updated");
+
+        stagingLineV2Repository.updateStagingLineStatusUpdateInboundConfirmProc(
+                companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
+                log.info("StagingLine updated");
+
+        grLineV2Repository.updateGrLineStatusUpdateInboundConfirmProc(
+                companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
+                log.info("GrLine updated");
+
+        Long inboundLinesV2CountForInboundConfirmWithStatusId = inboundLineV2Repository.getInboundLinesV2CountForInboundConfirmWithStatusId(
+                companyCode, plantId, languageId, warehouseId, refDocNumber, 24L);
+        Long inboundLinesV2CountForInboundConfirm = inboundLineV2Repository.getInboundLinesV2CountForInboundConfirm(
+                companyCode, plantId, languageId, warehouseId, refDocNumber);
+        if(inboundLinesV2CountForInboundConfirmWithStatusId == null) {
+            inboundLinesV2CountForInboundConfirmWithStatusId = 0L;
+        }
+        if(inboundLinesV2CountForInboundConfirm == null) {
+            inboundLinesV2CountForInboundConfirm = 0L;
+        }
+        boolean isConditionMet = inboundLinesV2CountForInboundConfirmWithStatusId.equals(inboundLinesV2CountForInboundConfirm);
+        log.info("Inbound Line 24_StatusCount, Line Count: " + isConditionMet + ", " + inboundLinesV2CountForInboundConfirmWithStatusId + ", " + inboundLinesV2CountForInboundConfirm);
+        if(isConditionMet) {
+            inboundHeaderV2Repository.updateIbheaderStatusUpdateInboundConfirmProc(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
+            log.info("InboundHeader updated");
+
+            preInboundHeaderV2Repository.updatePreIbheaderStatusUpdateInboundConfirmProc(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
+            log.info("PreInboundHeader updated");
+
+            grHeaderV2Repository.updateGrheaderStatusUpdateInboundConfirmProc(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
+            log.info("grHeader updated");
+
+            stagingHeaderV2Repository.updateStagingheaderStatusUpdateInboundConfirmProc(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
+            log.info("stagingHeader updated");
+        }
+
+        axapiResponse.setStatusCode("200");                         //HardCoded
+        axapiResponse.setMessage("Success");                        //HardCoded
         log.info("axapiResponse: " + axapiResponse);
         return axapiResponse;
     }

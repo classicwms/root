@@ -769,6 +769,25 @@ public class SparkService {
         }
     }
 
+    // Find InboundLine Join InboundHeader
+    public InboundLineV3[] findInboundLineJoin(FindInboundLineV2 findInboundLineV2) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", " RestTemplate");
+//        headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/inboundLineV3");
+            HttpEntity<?> entity = new HttpEntity<>(findInboundLineV2, headers);
+            ResponseEntity<InboundLineV3[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, InboundLineV3[].class);
+            log.info("result: " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
 
 }
 

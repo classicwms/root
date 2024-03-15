@@ -86,4 +86,7 @@ public class PickupHeaderV2 extends PickupHeader {
 	@Column(name = "TARGET_BRANCH_CODE", columnDefinition = "nvarchar(50)")
 	private String targetBranchCode;
 
+	@Column(name = "NOTI_STATUS")
+	private Long notificationStatus = 0L;
+
 }

@@ -2,6 +2,7 @@ package com.tekclover.wms.core.controller;
 
 import com.tekclover.wms.core.model.masters.*;
 import com.tekclover.wms.core.model.threepl.*;
+import com.tekclover.wms.core.model.transaction.ImPartnerInput;
 import com.tekclover.wms.core.model.transaction.PaginatedResponse;
 import com.tekclover.wms.core.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.core.model.warehouse.mastersorder.Customer;
@@ -760,6 +761,28 @@ public class MastersServiceController {
                                              @PathVariable String itemCode, @RequestParam String partnerItemBarcode, @RequestParam String loginUserID) {
         mastersService.deleteImPartner(companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, partnerItemBarcode, loginUserID, authToken);
 
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @ApiOperation(response = ImPartner.class, value = "Get a ImPartner") // label for swagger
+    @RequestMapping(value = "/impartner/v2/get", method = RequestMethod.POST)
+    public ResponseEntity<?> getImPartnerV2(@RequestBody ImPartnerInput imPartnerInput, @RequestParam String authToken) {
+        ImPartner[] impartner = mastersService.getImPartnerV2(imPartnerInput, authToken);
+        log.info("ImPartner : " + impartner);
+        return new ResponseEntity<>(impartner, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = Optional.class, value = "Update ImPartner") // label for swagger
+    @RequestMapping(value = "/impartner/v2/update", method = RequestMethod.PATCH)
+    public ResponseEntity<?> updateImPartnerV2(@RequestBody List<ImPartner> updatedImPartner, @RequestParam String loginUserID, @RequestParam String authToken) {
+        ImPartner[] modifiedImPartner = mastersService.updateImPartnerV2(updatedImPartner, loginUserID, authToken);
+        return new ResponseEntity<>(modifiedImPartner, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = ImPartner.class, value = "Delete ImPartner") // label for swagger
+    @RequestMapping(value = "/impartner/v2/delete", method = RequestMethod.POST)
+    public ResponseEntity<?> deleteImPartnerV2(@RequestParam String authToken, @RequestBody List<ImPartnerInput> imPartnerInput, @RequestParam String loginUserID) {
+        mastersService.deleteImPartnerV2(imPartnerInput, loginUserID, authToken);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

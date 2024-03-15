@@ -229,6 +229,23 @@ public class InboundLineService extends BaseService {
     }
 
     /**
+     * PartialAllocation
+     * @param companyCode
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param refDocNumber
+     * @return
+     */
+    public List<InboundLineV2> getInboundLineForInboundConfirmPartialAllocationV2(String companyCode, String plantId, String languageId,
+                                                                                  String warehouseId, String refDocNumber) {
+        List<InboundLineV2> inboundLines = inboundLineV2Repository.getInboundLinesV2ForInboundConfirm(
+                        companyCode, plantId, languageId, warehouseId, refDocNumber,  20L, 24L);
+        log.info("inboundLine : " + inboundLines.size());
+        return inboundLines;
+    }
+
+    /**
      * @param newInboundLines
      * @param loginUserID
      * @return
@@ -614,6 +631,41 @@ public class InboundLineService extends BaseService {
         dbInboundLine.setUpdatedBy(loginUserID);
         dbInboundLine.setUpdatedOn(new Date());
         return inboundLineV2Repository.save(dbInboundLine);
+    }
+
+    /**
+     * Batch Update for Inbound Confirm
+     * @param loginUserID
+     * @param updateInboundLine
+     * @return
+     */
+    public List<InboundLineV2> updateBatchInboundLineV2(List<InboundLineV2> updateInboundLine, String loginUserID) {
+        log.info("InboundLines to Update: " + updateInboundLine.size());
+        List<InboundLineV2> updatedInboundLines = new ArrayList<>();
+        if(updateInboundLine != null && !updateInboundLine.isEmpty()) {
+            for(InboundLineV2 inboundLine : updateInboundLine) {
+                InboundLineV2 dbInboundLine = inboundLineV2Repository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndLineNoAndItemCodeAndManufacturerNameAndDeletionIndicator(
+                        inboundLine.getLanguageId(),
+                        inboundLine.getCompanyCode(),
+                        inboundLine.getPlantId(),
+                        inboundLine.getWarehouseId(),
+                        inboundLine.getRefDocNumber(),
+                        inboundLine.getPreInboundNo(),
+                        inboundLine.getLineNo(),
+                        inboundLine.getItemCode(),
+                        inboundLine.getManufacturerName(),
+                        0L );
+                if(dbInboundLine != null) {
+                    BeanUtils.copyProperties(inboundLine, dbInboundLine, CommonUtils.getNullPropertyNames(inboundLine));
+                    dbInboundLine.setUpdatedBy(loginUserID);
+                    dbInboundLine.setUpdatedOn(new Date());
+                    inboundLineV2Repository.save(dbInboundLine);
+                    updatedInboundLines.add(dbInboundLine);
+                }
+            }
+        }
+        log.info("InboundLines Updated : " + updatedInboundLines.size());
+        return updatedInboundLines;
     }
 
     /**

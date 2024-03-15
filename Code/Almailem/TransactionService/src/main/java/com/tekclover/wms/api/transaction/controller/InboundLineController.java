@@ -144,6 +144,14 @@ public class InboundLineController {
         return new ResponseEntity<>(createdInboundLine, HttpStatus.OK);
     }
 
+    //Batch Update InboundLine
+    @ApiOperation(response = InboundLineV2.class, value = "Batch Update InboundLines V2") // label for swagger
+    @PatchMapping("/v2/batchUpdateInboundLines")
+    public ResponseEntity<?> batchInboundLineV2Update(@Valid @RequestBody List<InboundLineV2> updateInboundLine, @RequestParam String loginUserID) {
+        List<InboundLineV2> updatedInboundLines = inboundlineService.updateBatchInboundLineV2(updateInboundLine, loginUserID);
+        return new ResponseEntity<>(updatedInboundLines, HttpStatus.OK);
+    }
+
     @ApiOperation(response = InboundLineV2.class, value = "Delete InboundLine") // label for swagger
     @DeleteMapping("/v2/{lineNo}")
     public ResponseEntity<?> deleteInboundLineV2(@PathVariable Long lineNo, @RequestParam String languageId, @RequestParam String companyCode,

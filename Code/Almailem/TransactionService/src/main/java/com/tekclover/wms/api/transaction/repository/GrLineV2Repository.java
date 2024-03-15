@@ -6,6 +6,7 @@ import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpeci
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -247,4 +248,20 @@ public interface GrLineV2Repository extends JpaRepository<GrLineV2, Long>, JpaSp
                                                @Param("rejectReason") List<String> rejectReason,
                                                @Param("startDate") Date startDate,
                                                @Param("endDate") Date endDate);
+
+
+    @Transactional
+    @Procedure(procedureName = "grline_status_update_ib_cnf_proc")
+    public void updateGrLineStatusUpdateInboundConfirmProc(
+            @Param("companyCodeId") String companyCode,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preInboundNo") String preInboundNo,
+            @Param("statusId") Long statusId,
+            @Param("statusDescription") String statusDescription,
+            @Param("updatedBy") String updatedBy,
+            @Param("updatedOn") Date updatedOn
+    );
 }

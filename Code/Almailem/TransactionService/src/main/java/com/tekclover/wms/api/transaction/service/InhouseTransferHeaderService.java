@@ -807,11 +807,11 @@ public class InhouseTransferHeaderService extends BaseService {
                 throw new BadRequestException("Invalid StorageBin");
             }
             if(dbSourceStorageBin != null && dbSourceStorageBin.getBinClassId() == 3L) {
-                throw new BadRequestException("Source Bin must be a physical Bin - Either BinClassId 1 or 7");
+                throw new BadRequestException("Source Bin must be a Live Location - Either BinClassId 1 or 7");
             }
 
             if (dbStorageBin != null && dbStorageBin.getBinClassId() == 3L) {
-                throw new BadRequestException("Target Bin must be a physical Bin - Either BinClassId 1 or 7");
+                throw new BadRequestException("Target Bin must be a Live Location - Either BinClassId 1 or 7");
             }
 
             InhouseTransferLine dbInhouseTransferLine = new InhouseTransferLine();

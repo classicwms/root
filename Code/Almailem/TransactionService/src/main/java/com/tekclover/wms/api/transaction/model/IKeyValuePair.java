@@ -19,6 +19,11 @@ public interface IKeyValuePair {
 
     String getRefDocNumber();
     String getAssignPicker();
+
+    String getWarehouseId();
+
+    String getRefDocType();
+
     Long getPickerCount();
     Long getLineNumber();
 

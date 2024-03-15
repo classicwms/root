@@ -24,7 +24,7 @@ public class SearchOutboundLine {
 	private List<String> itemCode;
 
 	private List<Long> statusId;
-
+	private List<String> orderType;
 	private Date fromDeliveryDate;	// DLV_CNF_ON
 	private Date toDeliveryDate;	// DLV_CNF_ON
 

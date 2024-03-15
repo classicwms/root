@@ -1572,7 +1572,8 @@ public class PreInboundHeaderService extends BaseService {
 //		}
 
         // process ASN
-        StagingHeaderV2 stagingHeader = processASNV2(createdPreInboundLine, createdInboundHeader.getCreatedBy());
+//        StagingHeaderV2 stagingHeader = processASNV2(createdPreInboundLine, createdInboundHeader.getCreatedBy());
+        StagingHeaderV2 stagingHeader = processNewASNV2(createdPreInboundHeader, createdInboundHeader.getCreatedBy());
         log.info("StagingHeader Created : " + stagingHeader);
 
         List<StagingLineEntityV2> stagingLines =
@@ -1723,7 +1724,7 @@ public class PreInboundHeaderService extends BaseService {
         preInboundLine.setItemCode(inboundIntegrationLine.getItemCode());
 
         // ITEM_TEXT - Pass CHL_ITM_CODE as ITM_CODE in IMBASICDATA1 table and fetch ITEM_TEXT and insert
-        AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+//        AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
         ImBasicData1 imBasicData1 =
                 imBasicData1Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerPartNoAndDeletionIndicator(
                         warehouse.getLanguageId(),
@@ -1763,9 +1764,11 @@ public class PreInboundHeaderService extends BaseService {
         // REF_FIELD_4
         preInboundLine.setReferenceField4(inboundIntegrationLine.getSalesOrderReference());
 
+        // Status ID - statusId changed to reduce one less step process and avoid deadlock while updating status
         // STATUS_ID
-        preInboundLine.setStatusId(6L);
-        statusDescription = stagingLineV2Repository.getStatusDescription(6L, warehouse.getLanguageId());
+//        preInboundLine.setStatusId(6L);
+        preInboundLine.setStatusId(5L);
+        statusDescription = stagingLineV2Repository.getStatusDescription(5L, warehouse.getLanguageId());
         preInboundLine.setStatusDescription(statusDescription);
 
         IKeyValuePair description = stagingLineV2Repository.getDescription(warehouse.getCompanyCodeId(),
@@ -1822,8 +1825,10 @@ public class PreInboundHeaderService extends BaseService {
         preInboundHeader.setReferenceDocumentType(inboundIntegrationHeader.getRefDocumentType());    // REF_DOC_TYP - Hard Coded Value "ASN"
         preInboundHeader.setInboundOrderTypeId(inboundIntegrationHeader.getInboundOrderTypeId());    // IB_ORD_TYP_ID
         preInboundHeader.setRefDocDate(inboundIntegrationHeader.getOrderReceivedOn());                // REF_DOC_DATE
-        preInboundHeader.setStatusId(6L);
-        statusDescription = stagingLineV2Repository.getStatusDescription(6L, warehouse.getLanguageId());
+        // Status ID - statusId changed to reduce one less step process and avoid deadlock while updating status
+//        preInboundHeader.setStatusId(6L);
+        preInboundHeader.setStatusId(5L);
+        statusDescription = stagingLineV2Repository.getStatusDescription(5L, warehouse.getLanguageId());
         preInboundHeader.setStatusDescription(statusDescription);
 
         IKeyValuePair description = stagingLineV2Repository.getDescription(warehouse.getCompanyCodeId(),
@@ -1864,9 +1869,10 @@ public class PreInboundHeaderService extends BaseService {
         InboundHeaderV2 inboundHeader = new InboundHeaderV2();
         BeanUtils.copyProperties(preInboundHeader, inboundHeader, CommonUtils.getNullPropertyNames(preInboundHeader));
 
-        // Status ID
-        inboundHeader.setStatusId(6L);
-        statusDescription = stagingLineV2Repository.getStatusDescription(6L, preInboundHeader.getLanguageId());
+        // Status ID - statusId changed to reduce one less step process and avoid deadlock while updating status
+//        inboundHeader.setStatusId(6L);
+        inboundHeader.setStatusId(5L);
+        statusDescription = stagingLineV2Repository.getStatusDescription(5L, preInboundHeader.getLanguageId());
         inboundHeader.setStatusDescription(statusDescription);
 
         IKeyValuePair description = stagingLineV2Repository.getDescription(preInboundHeader.getCompanyCode(),
@@ -2074,6 +2080,61 @@ public class PreInboundHeaderService extends BaseService {
                 preInboundHeader.getLanguageId(),
                 preInboundHeader.getPlantId(),
                 warehouseId);
+
+        stagingHeader.setCompanyDescription(description.getCompanyDesc());
+        stagingHeader.setPlantDescription(description.getPlantDesc());
+        stagingHeader.setWarehouseDescription(description.getWarehouseDesc());
+
+        stagingHeader.setContainerNo(preInboundHeader.getContainerNo());
+        stagingHeader.setMiddlewareId(preInboundHeader.getMiddlewareId());
+        stagingHeader.setMiddlewareTable(preInboundHeader.getMiddlewareTable());
+        stagingHeader.setReferenceDocumentType(preInboundHeader.getReferenceDocumentType());
+        stagingHeader.setManufacturerFullName(preInboundHeader.getManufacturerFullName());
+
+        stagingHeader.setTransferOrderDate(preInboundHeader.getTransferOrderDate());
+        stagingHeader.setSourceBranchCode(preInboundHeader.getSourceBranchCode());
+        stagingHeader.setSourceCompanyCode(preInboundHeader.getSourceCompanyCode());
+        stagingHeader.setIsCompleted(preInboundHeader.getIsCompleted());
+        stagingHeader.setIsCancelled(preInboundHeader.getIsCancelled());
+        stagingHeader.setMUpdatedOn(preInboundHeader.getMUpdatedOn());
+
+        stagingHeader.setCreatedBy(preInboundHeader.getCreatedBy());
+        stagingHeader.setCreatedOn(preInboundHeader.getCreatedOn());
+        return stagingHeaderV2Repository.save(stagingHeader);
+    }
+
+    /**
+     * To avoid Deadlock
+     * @param preInboundHeader
+     * @param loginUserID
+     * @return
+     */
+    public StagingHeaderV2 processNewASNV2(PreInboundHeaderEntityV2 preInboundHeader, String loginUserID) {
+
+        StagingHeaderV2 stagingHeader = new StagingHeaderV2();
+        BeanUtils.copyProperties(preInboundHeader, stagingHeader, CommonUtils.getNullPropertyNames(preInboundHeader));
+
+        // STG_NO
+        AuthToken authTokenForIDMasterService = authTokenService.getIDMasterServiceAuthToken();
+
+        long NUMBER_RANGE_CODE = 3;
+        WAREHOUSEID_NUMBERRANGE = preInboundHeader.getWarehouseId();
+        String nextRangeNumber = getNextRangeNumber(NUMBER_RANGE_CODE,
+                preInboundHeader.getCompanyCode(), preInboundHeader.getPlantId(), preInboundHeader.getLanguageId(), WAREHOUSEID_NUMBERRANGE,
+                authTokenForIDMasterService.getAccess_token());
+        stagingHeader.setStagingNo(nextRangeNumber);
+
+        // GR_MTD
+        stagingHeader.setGrMtd("INTEGRATION");
+
+        // STATUS_ID
+        stagingHeader.setStatusId(12L);
+        statusDescription = stagingLineV2Repository.getStatusDescription(12L, preInboundHeader.getLanguageId());
+        stagingHeader.setStatusDescription(statusDescription);
+        IKeyValuePair description = stagingLineV2Repository.getDescription(preInboundHeader.getCompanyCode(),
+                preInboundHeader.getLanguageId(),
+                preInboundHeader.getPlantId(),
+                preInboundHeader.getWarehouseId());
 
         stagingHeader.setCompanyDescription(description.getCompanyDesc());
         stagingHeader.setPlantDescription(description.getPlantDesc());

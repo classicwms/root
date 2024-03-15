@@ -11,6 +11,7 @@ import javax.persistence.EntityNotFoundException;
 
 import com.tekclover.wms.api.masters.model.auditlog.AddAuditLog;
 import com.tekclover.wms.api.masters.model.auditlog.AuditLog;
+import com.tekclover.wms.api.masters.model.impartner.ImPartnerInput;
 import com.tekclover.wms.api.masters.model.impartner.SearchImPartner;
 import com.tekclover.wms.api.masters.repository.specification.ImPartnerSpecification;
 import com.tekclover.wms.api.masters.util.DateUtils;
@@ -116,6 +117,29 @@ public class ImPartnerService {
 		return impartner;
 	}
 
+	public List<ImPartner> getImPartnerV2 (ImPartnerInput imPartnerInput) {
+		List<ImPartner> impartner =
+				impartnerRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndItemCodeAndManufacturerNameAndPartnerItemBarcodeAndDeletionIndicator(
+						imPartnerInput.getCompanyCodeId(),
+						imPartnerInput.getPlantId(),
+						imPartnerInput.getWarehouseId(),
+						imPartnerInput.getLanguageId(),
+						imPartnerInput.getItemCode(),
+						imPartnerInput.getManufacturerName(),
+						imPartnerInput.getPartnerItemBarcode(),
+						0L);
+		if(impartner.isEmpty()) {
+			throw new BadRequestException("The given values: " +
+					" plantId " + imPartnerInput.getPlantId() +
+					" itemCode " + imPartnerInput.getItemCode() +
+					" manufacturerName " + imPartnerInput.getManufacturerName() +
+					" warehouse " + imPartnerInput.getWarehouseId() +
+					" language Id " + imPartnerInput.getLanguageId() +
+					" companyCodeId " + imPartnerInput.getCompanyCodeId() +" doesn't exist.");
+		}
+		return impartner;
+	}
+
 	/**
 	 *
 	 * @param searchImPartner
@@ -126,7 +150,7 @@ public class ImPartnerService {
 		log.info("SearchImpartner Input: " + searchImPartner);
 		ImPartnerSpecification spec = new ImPartnerSpecification(searchImPartner);
 		List<ImPartner> results = impartnerRepository.stream(spec, ImPartner.class).collect(Collectors.toList());
-		log.info("ImPartner results: " + results.size());
+		log.info("results: " + results.size());
 		return results;
 	}
 
@@ -318,6 +342,69 @@ public List<ImPartner> updateImPartner (String companyCodeId, String plantId, St
 	 	return updatedImpartnerList;
 	}
 
+	/**
+	 *
+	 * @param updateImPartner
+	 * @param loginUserID
+	 * @return
+	 * @throws ParseException
+	 * @throws InvocationTargetException
+	 * @throws IllegalAccessException
+	 */
+	public List<ImPartner> updateImPartnerV2 (List<AddImPartner> updateImPartner, String loginUserID) throws ParseException, InvocationTargetException, IllegalAccessException {
+
+			List<ImPartner> updatedImpartnerList = new ArrayList<>();
+			for (AddImPartner newImPartner : updateImPartner) {
+				ImPartner dbImpartner = impartnerRepository.findByBusinessPartnerCodeAndCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndItemCodeAndBusinessPartnerTypeAndPartnerItemBarcodeAndManufacturerNameAndDeletionIndicator(
+						newImPartner.getBusinessPartnerCode(), newImPartner.getCompanyCodeId(), newImPartner.getPlantId(),
+						newImPartner.getWarehouseId(), newImPartner.getLanguageId(), newImPartner.getItemCode(),
+						newImPartner.getBusinessPartnerType(), newImPartner.getOldPartnerItemBarcode(), newImPartner.getManufacturerName(), 0L);
+
+				//Duplicate Barcode Validation
+				List<ImPartner> duplicateBarcodeCheck = impartnerRepository.findAllByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPartnerItemBarcodeAndDeletionIndicator(
+						newImPartner.getCompanyCodeId(), newImPartner.getPlantId(), newImPartner.getLanguageId(), newImPartner.getWarehouseId(), newImPartner.getPartnerItemBarcode(), 0L);
+				log.info("Duplicate BarcodeId : " + duplicateBarcodeCheck);
+				if(duplicateBarcodeCheck != null && !duplicateBarcodeCheck.isEmpty()) {
+					for(ImPartner dbImPartner : duplicateBarcodeCheck) {
+						String dbItemCode = dbImPartner.getItemCode();
+						String dbManufacturerName = dbImPartner.getManufacturerName();
+						String dbItmMfrName = dbItemCode+dbManufacturerName;
+						String newItemCode = newImPartner.getItemCode();
+						String newManufacturerName = newImPartner.getManufacturerName();
+						String newItmMfrName = newItemCode+newManufacturerName;
+						log.info("dbItmMfrName, newItmMfrName : " + dbItmMfrName + ", " + newItmMfrName);
+						if(!dbItmMfrName.equalsIgnoreCase(newItmMfrName)) {
+							throw new BadRequestException("BarcodeId already exist: " + newImPartner.getPartnerItemBarcode());
+						}
+					}
+				}
+
+				if (dbImpartner != null) {
+					//AuditLog
+					createAuditLogRecord(newImPartner.getCompanyCodeId(), newImPartner.getPlantId(), newImPartner.getLanguageId(),
+							newImPartner.getWarehouseId(), loginUserID, "tblimpartner",
+							"Impartner", "partner_itm_bar", newImPartner.getOldPartnerItemBarcode(),
+							newImPartner.getPartnerItemBarcode(), newImPartner.getItemCode(),
+							newImPartner.getManufacturerName(), newImPartner.getOldPartnerItemBarcode());
+					//delete Record
+					impartnerRepository.delete(dbImpartner);
+					log.info("Impartner Updated: " + dbImpartner);
+				}
+					ImPartner imPartner = new ImPartner();
+					BeanUtils.copyProperties(newImPartner, imPartner, CommonUtils.getNullPropertyNames(newImPartner));
+					imPartner.setDeletionIndicator(0L);
+					imPartner.setCreatedBy(loginUserID);
+					imPartner.setUpdatedBy(loginUserID);
+					imPartner.setCreatedOn(new Date());
+					imPartner.setUpdatedOn(new Date());
+					impartnerRepository.save(imPartner);
+					updatedImpartnerList.add(imPartner);
+					log.info("Created Impartner: " + imPartner);
+
+			}
+	 	return updatedImpartnerList;
+	}
+
 
 	/**
 	 *
@@ -354,6 +441,42 @@ public List<ImPartner> updateImPartner (String companyCodeId, String plantId, St
 			}
 		} else {
 			throw new EntityNotFoundException("Error in deleting Id:" + itemCode);
+		}
+	}
+
+	/**
+	 *
+	 * @param imPartnerInputList
+	 * @param loginUserID
+	 * @throws ParseException
+	 * @throws InvocationTargetException
+	 * @throws IllegalAccessException
+	 */
+	public void deleteImPartnerV2 (List<ImPartnerInput> imPartnerInputList, String loginUserID) throws ParseException, InvocationTargetException, IllegalAccessException {
+
+		if(imPartnerInputList != null && !imPartnerInputList.isEmpty()) {
+			for (ImPartnerInput dbimPartner : imPartnerInputList) {
+				List<ImPartner> impartner =
+						impartnerRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndItemCodeAndManufacturerNameAndPartnerItemBarcodeAndDeletionIndicator(
+								dbimPartner.getCompanyCodeId(),
+								dbimPartner.getPlantId(),
+								dbimPartner.getWarehouseId(),
+								dbimPartner.getLanguageId(),
+								dbimPartner.getItemCode(),
+								dbimPartner.getManufacturerName(),
+								dbimPartner.getPartnerItemBarcode(),
+								0L);
+
+				if (impartner != null) {
+					for (ImPartner dbImpartner : impartner) {
+						createAuditLogRecord(dbimPartner.getCompanyCodeId(), dbimPartner.getPlantId(), dbimPartner.getLanguageId(), dbimPartner.getWarehouseId(), loginUserID, "tblimpartner",
+								"Impartner", "partner_itm_bar", dbimPartner.getPartnerItemBarcode(), "Deleted", dbimPartner.getItemCode(), dbimPartner.getManufacturerName(), dbimPartner.getPartnerItemBarcode());
+						impartnerRepository.delete(dbImpartner);
+					}
+				} else {
+					throw new EntityNotFoundException("Error in deleting Id:" + dbimPartner.getItemCode());
+				}
+			}
 		}
 	}
 

@@ -17,6 +17,7 @@ import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.SearchPutAwayL
 import com.tekclover.wms.api.transaction.model.inbound.staging.v2.StagingLineEntityV2;
 import com.tekclover.wms.api.transaction.model.inbound.v2.InboundLineV2;
 import com.tekclover.wms.api.transaction.model.inbound.v2.PutAwayLineImpl;
+import com.tekclover.wms.api.transaction.model.warehouse.inbound.confirmation.AXApiResponse;
 import com.tekclover.wms.api.transaction.repository.*;
 import com.tekclover.wms.api.transaction.repository.specification.PutAwayLineSpecification;
 import com.tekclover.wms.api.transaction.repository.specification.PutAwayLineV2Specification;
@@ -96,6 +97,9 @@ public class PutAwayLineService extends BaseService {
 
     @Autowired
     private GrLineService grLineService;
+
+    @Autowired
+    private InboundHeaderService inboundHeaderService;
 
     String statusDescription = null;
     String stockTypeDesc = null;
@@ -1053,6 +1057,41 @@ public class PutAwayLineService extends BaseService {
     }
 
     /**
+     *
+     * @param companyCode
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param refDocNumber
+     * @param itemCode
+     * @param manufacturerName
+     * @param lineNumber
+     * @param preInboundNo
+     * @return
+     */
+    public List<PutAwayLineV2> getPutAwayLineForInboundConfirmV2(String companyCode, String plantId, String languageId, String warehouseId,
+                                                                 String refDocNumber, String itemCode, String manufacturerName,
+                                                                 Long lineNumber, String preInboundNo) {
+        List<PutAwayLineV2> putAwayLine =
+                putAwayLineV2Repository.findByCompanyCodeAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndItemCodeAndManufacturerNameAndLineNoAndStatusIdAndDeletionIndicator(
+                        companyCode,
+                        languageId,
+                        plantId,
+                        warehouseId,
+                        refDocNumber,
+                        preInboundNo,
+                        itemCode,
+                        manufacturerName,
+                        lineNumber,
+                        20L,
+                        0L);
+        if (putAwayLine == null) {
+            return null;
+        }
+        return putAwayLine;
+    }
+
+    /**
      * @param newPutAwayLines
      * @param loginUserID
      * @return
@@ -1064,6 +1103,15 @@ public class PutAwayLineService extends BaseService {
             throws IllegalAccessException, InvocationTargetException, ParseException {
         List<PutAwayLineV2> createdPutAwayLines = new ArrayList<>();
         log.info("newPutAwayLines to confirm : " + newPutAwayLines);
+
+        String itemCode = null;
+        String companyCode = null;
+        String plantId = null;
+        String languageId = null;
+        String warehouseId = null;
+        String refDocNumber = null;
+        String preInboundNo = null;
+
         AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
         AuthToken authTokenForIDMasterService = authTokenService.getIDMasterServiceAuthToken();
         try {
@@ -1094,11 +1142,13 @@ public class PutAwayLineService extends BaseService {
                 PutAwayLineV2 dbPutAwayLine = new PutAwayLineV2();
 //                PutAwayHeaderV2 dbPutAwayHeader = new PutAwayHeaderV2();
 
-                String itemCode = newPutAwayLine.getItemCode();
-                String companyCode = newPutAwayLine.getCompanyCode();
-                String plantId = newPutAwayLine.getPlantId();
-                String languageId = newPutAwayLine.getLanguageId();
-                String warehouseId = newPutAwayLine.getWarehouseId();
+                itemCode = newPutAwayLine.getItemCode();
+                companyCode = newPutAwayLine.getCompanyCode();
+                plantId = newPutAwayLine.getPlantId();
+                languageId = newPutAwayLine.getLanguageId();
+                warehouseId = newPutAwayLine.getWarehouseId();
+                refDocNumber = newPutAwayLine.getRefDocNumber();
+                preInboundNo = newPutAwayLine.getPreInboundNo();
 
                 Double cbmPerQuantity = 0D;
                 Double cbm = 0D;
@@ -1641,24 +1691,24 @@ public class PutAwayLineService extends BaseService {
 //                        if (isInventoryCreated && isInventoryMovemoentCreated) {
 //                        if (isInventoryMovemoentCreated) {
                         PutAwayHeaderV2 putAwayHeader = putAwayHeaderService.getPutAwayHeaderV2ForPutAwayLine(createdPutAwayLine.getWarehouseId(),
-                                    createdPutAwayLine.getPreInboundNo(),
-                                    createdPutAwayLine.getRefDocNumber(),
-                                    createdPutAwayLine.getPutAwayNumber(),
-                                    createdPutAwayLine.getCompanyCode(),
-                                    createdPutAwayLine.getPlantId(),
-                                    createdPutAwayLine.getLanguageId());
+                                createdPutAwayLine.getPreInboundNo(),
+                                createdPutAwayLine.getRefDocNumber(),
+                                createdPutAwayLine.getPutAwayNumber(),
+                                createdPutAwayLine.getCompanyCode(),
+                                createdPutAwayLine.getPlantId(),
+                                createdPutAwayLine.getLanguageId());
 
                         confirmedStorageBin = createdPutAwayLine.getConfirmedStorageBin();
                         proposedStorageBin = putAwayHeader.getProposedStorageBin();
                         if (putAwayHeader != null) {
-                                log.info("putawayConfirmQty, putawayQty: " + createdPutAwayLine.getPutawayConfirmedQty() + ", " + putAwayHeader.getPutAwayQuantity());
+                            log.info("putawayConfirmQty, putawayQty: " + createdPutAwayLine.getPutawayConfirmedQty() + ", " + putAwayHeader.getPutAwayQuantity());
 
-                                    putAwayHeader.setStatusId(20L);
-                                    log.info("PutawayHeader StatusId : 20");
-                                    statusDescription = stagingLineV2Repository.getStatusDescription(putAwayHeader.getStatusId(), createdPutAwayLine.getLanguageId());
-                                    putAwayHeader.setStatusDescription(statusDescription);
-                                    putAwayHeader = putAwayHeaderV2Repository.save(putAwayHeader);
-                                    log.info("putAwayHeader updated: " + putAwayHeader);
+                            putAwayHeader.setStatusId(20L);
+                            log.info("PutawayHeader StatusId : 20");
+                            statusDescription = stagingLineV2Repository.getStatusDescription(putAwayHeader.getStatusId(), createdPutAwayLine.getLanguageId());
+                            putAwayHeader.setStatusDescription(statusDescription);
+                            putAwayHeader = putAwayHeaderV2Repository.save(putAwayHeader);
+                            log.info("putAwayHeader updated: " + putAwayHeader);
 
                             if (createdPutAwayLine.getPutawayConfirmedQty() < putAwayHeader.getPutAwayQuantity()) {
 //                                List<PutAwayLineV2> filteredlist = newPutAwayLines

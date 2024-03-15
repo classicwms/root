@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface HhtNotificationRepository extends JpaRepository<HhtNotification,Long>, JpaSpecificationExecutor<HhtNotification> {
 
 
-    HhtNotification findByCompanyIdAndPlantIdAndWarehouseIdAndLanguageIdAndDeviceIdAndUserIdAndTokenIdAndDeletionIndicator(
+    Optional<HhtNotification> findByCompanyIdAndPlantIdAndWarehouseIdAndLanguageIdAndDeviceIdAndUserIdAndTokenIdAndDeletionIndicator(
              String companyId, String plantId, String warehouseId, String languageId, String deviceId, String userId, String tokenId, Long deletionIndicator);
 }
 

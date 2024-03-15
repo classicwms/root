@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
+import com.google.firebase.messaging.FirebaseMessagingException;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.FindPickUpHeader;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickUpHeaderReport;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickupHeaderV2;
@@ -165,7 +166,7 @@ public class PickupHeaderController {
     @ApiOperation(response = PickupHeaderV2.class, value = "Create PickupHeader") // label for swagger
     @PostMapping("/v2")
     public ResponseEntity<?> postPickupHeaderV2(@Valid @RequestBody PickupHeaderV2 newPickupHeader, @RequestParam String loginUserID)
-            throws IllegalAccessException, InvocationTargetException, ParseException {
+            throws IllegalAccessException, InvocationTargetException, ParseException, FirebaseMessagingException {
         PickupHeaderV2 createdPickupHeader = pickupheaderService.createPickupHeaderV2(newPickupHeader, loginUserID);
         return new ResponseEntity<>(createdPickupHeader, HttpStatus.OK);
     }
@@ -177,7 +178,7 @@ public class PickupHeaderController {
                                                  @RequestParam String preOutboundNo, @RequestParam String refDocNumber, @RequestParam String partnerCode,
                                                  @RequestParam Long lineNumber, @RequestParam String itemCode, @Valid @RequestBody PickupHeaderV2 updatePickupHeader,
                                                  @RequestParam String loginUserID)
-            throws IllegalAccessException, InvocationTargetException, ParseException {
+            throws IllegalAccessException, InvocationTargetException, ParseException, FirebaseMessagingException {
         PickupHeaderV2 createdPickupHeader =
                 pickupheaderService.updatePickupHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode,
                         pickupNumber, lineNumber, itemCode, loginUserID, updatePickupHeader);

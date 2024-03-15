@@ -13,4 +13,5 @@ public class SearchInboundLineV2 extends SearchInboundLine {
 	private List<String> languageId;
 	private List<String> companyCodeId;
 	private List<String> plantId;
+	private List<Long> inboundOrderTypeId;
 }

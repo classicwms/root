@@ -821,6 +821,45 @@ public class StagingLineService extends BaseService {
     }
 
     /**
+     *
+     * @param companyCode
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param refDocNumber
+     * @param preInboundNo
+     * @param itemCode
+     * @param manufacturerName
+     * @param caseCode
+     * @param palletCode
+     * @param lineNo
+     * @return
+     */
+    public StagingLineEntityV2 getStagingLineForReversalV2(String companyCode, String plantId, String languageId, String warehouseId,
+                                                           String refDocNumber, String preInboundNo, String itemCode, String manufacturerName,
+                                                           String caseCode, String palletCode, Long lineNo) {
+        StagingLineEntityV2 StagingLineEntity =
+                stagingLineV2Repository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndItemCodeAndManufacturerNameAndCaseCodeAndPalletCodeAndLineNoAndDeletionIndicator(
+                        languageId,
+                        companyCode,
+                        plantId,
+                        warehouseId,
+                        refDocNumber,
+                        preInboundNo,
+                        itemCode,
+                        manufacturerName,
+                        caseCode,
+                        palletCode,
+                        lineNo,
+                        0L);
+        if (StagingLineEntity == null) {
+            return null;
+        }
+
+        return StagingLineEntity;
+    }
+
+    /**
      * @param companyCode
      * @param plantId
      * @param languageId
@@ -931,6 +970,7 @@ public class StagingLineService extends BaseService {
             throws IllegalAccessException, InvocationTargetException, java.text.ParseException {
         List<StagingLineEntityV2> stagingLineEntityList = new ArrayList<>();
         String preInboundNo = null;
+        String refDocNumber = null;
 
         // Casecode needs to be created automatically by calling /({numberOfCases}/barcode) from StagingHeader
         Long numberOfCases = 1L;
@@ -977,12 +1017,13 @@ public class StagingLineService extends BaseService {
                  * Pass the C_ID,PLANT_ID,WH_ID,LANG_ID and ITM_CODE for each record of staging line table into inventory table and
                  * fetch the sum of INV_QTY+ ALLOC_QTY values and append in this field. If results are null append as Zero
                  */
-                dbStagingLineEntity.setInventoryQuantity(
-                        stagingLineV2Repository.getTotalQuantityNew(newStagingLine.getItemCode(),
-                                warehouseId,
-                                languageId,
-                                plantId,
-                                companyCodeId));
+                //code commented and approach changed to avoid deadlock, after save call update stagingline inventory
+//                dbStagingLineEntity.setInventoryQuantity(
+//                        stagingLineV2Repository.getTotalQuantityNew(newStagingLine.getItemCode(),
+//                                warehouseId,
+//                                languageId,
+//                                plantId,
+//                                companyCodeId));
 
                 //Pass ITM_CODE/SUPPLIER_CODE received in integration API into IMPARTNER table and fetch PARTNER_ITEM_BARCODE values. Values can be multiple
                 List<String> barcode = stagingLineV2Repository.getPartnerItemBarcode(newStagingLine.getItemCode(),
@@ -1043,6 +1084,9 @@ public class StagingLineService extends BaseService {
                 // PreInboundNo
                 preInboundNo = dbStagingLineEntity.getPreInboundNo();
 
+                // refDocNumber
+                refDocNumber = dbStagingLineEntity.getRefDocNumber();
+
                 caseCodeForCaseConfirmation = caseCode;
 
                 //ManufactureCode
@@ -1067,6 +1111,8 @@ public class StagingLineService extends BaseService {
         if (!stagingLineEntityList.isEmpty()) {
             List<StagingLineEntityV2> createdStagingLineEntityList = stagingLineV2Repository.saveAll(stagingLineEntityList);
             log.info("created StagingLine records." + stagingLineEntityList);
+            //update INV_QTY in stagingLine - calling stored procedure
+            stagingLineV2Repository.updateStagingLineInvQtyUpdateProc(companyCodeId, plantId, languageId, warehouseId, refDocNumber);
 
             // Update PreInboundLines
             List<PreInboundLineEntityV2> preInboundLineList = preInboundLineService.getPreInboundLineV2(preInboundNo);

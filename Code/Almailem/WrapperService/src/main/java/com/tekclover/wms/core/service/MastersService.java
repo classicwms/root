@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.tekclover.wms.core.model.masters.*;
 import com.tekclover.wms.core.model.threepl.*;
+import com.tekclover.wms.core.model.transaction.ImPartnerInput;
 import com.tekclover.wms.core.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.core.model.warehouse.mastersorder.Customer;
 import com.tekclover.wms.core.model.warehouse.mastersorder.ImBasicData1V2;
@@ -1729,6 +1730,73 @@ public class MastersService {
                             .queryParam("languageId", languageId)
                             .queryParam("warehouseId", warehouseId);
             ResponseEntity<String> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity, String.class);
+            log.info("result : " + result);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+
+    // GET ImPartner
+    public ImPartner[] getImPartnerV2(ImPartnerInput imPartnerInput, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "Classic WMS's RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            HttpEntity<?> entity = new HttpEntity<>(imPartnerInput, headers);
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "impartner/v2/get" );
+            ResponseEntity<ImPartner[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, ImPartner[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    // Patch ImPartner
+    public ImPartner[] updateImPartnerV2(List<ImPartner> modifiedImPartner, String loginUserID, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "Classic WMS's RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            HttpEntity<?> entity = new HttpEntity<>(modifiedImPartner, headers);
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "impartner/v2/update")
+                            .queryParam("loginUserID", loginUserID);
+
+            ResponseEntity<ImPartner[]> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, ImPartner[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    // Delete ImPartner
+    public boolean deleteImPartnerV2(List<ImPartnerInput> imPartnerInput, String loginUserID, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "Classic WMS's RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            HttpEntity<?> entity = new HttpEntity<>(imPartnerInput, headers);
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "impartner/v2/delete")
+                            .queryParam("loginUserID", loginUserID);
+            ResponseEntity<String> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, String.class);
             log.info("result : " + result);
             return true;
         } catch (Exception e) {

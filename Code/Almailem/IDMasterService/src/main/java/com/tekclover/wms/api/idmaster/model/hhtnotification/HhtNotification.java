@@ -47,6 +47,9 @@ public class HhtNotification {
 //	@OneToMany(cascade = CascadeType.ALL, mappedBy = "notificationHeaderId", fetch = FetchType.EAGER)
 //	private List<HhtNotificationToken> hhtNotificationTokens;
 
+	@Column(name = "IS_LOGGED_IN")
+	private Boolean isLoggedIn;
+
 	@Column(name = "IS_DELETED")
 	private Long deletionIndicator;
 

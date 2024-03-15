@@ -90,4 +90,18 @@ public interface GrHeaderV2Repository extends JpaRepository<GrHeaderV2, Long>, J
             @Param("statusDescription") String statusDescription,
             @Param("updatedOn") Date updatedOn
     );
+    @Transactional
+    @Procedure(procedureName = "grheader_status_update_ib_cnf_proc")
+    public void updateGrheaderStatusUpdateInboundConfirmProc(
+            @Param("companyCodeId") String companyCode,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preInboundNo") String preInboundNo,
+            @Param("statusId") Long statusId,
+            @Param("statusDescription") String statusDescription,
+            @Param("updatedBy") String updatedBy,
+            @Param("updatedOn") Date updatedOn
+    );
 }

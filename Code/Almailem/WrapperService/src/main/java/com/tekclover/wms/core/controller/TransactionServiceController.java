@@ -2455,6 +2455,17 @@ public class TransactionServiceController {
         return new ResponseEntity<>(createdInboundHeaderResponse, HttpStatus.OK);
     }
 
+    @ApiOperation(response = InboundHeaderV2.class, value = "Inbound Header & Line Partial Confirm") // label for swagger
+    @PatchMapping("/inboundheader/v2/partialConfirmIndividual")
+    public ResponseEntity<?> patchInboundHeaderPartialConfirmV2(@RequestParam String warehouseId, @RequestParam String preInboundNo,
+                                                                @RequestParam String companyCode, @RequestParam String plantId,
+                                                                @RequestParam String languageId, @RequestParam String refDocNumber,
+                                                                @RequestParam String loginUserID, @RequestParam String authToken) {
+        AXApiResponse createdInboundHeaderResponse =
+                transactionService.updateInboundHeaderPartialConfirmV2(companyCode, plantId, languageId, warehouseId, preInboundNo, refDocNumber, loginUserID, authToken);
+        return new ResponseEntity<>(createdInboundHeaderResponse, HttpStatus.OK);
+    }
+
     @ApiOperation(response = InboundHeaderV2.class, value = "Update InboundHeader V2") // label for swagger
     @RequestMapping(value = "/inboundheader/v2/{refDocNumber}", method = RequestMethod.PATCH)
     public ResponseEntity<?> patchInboundHeaderV2(@PathVariable String refDocNumber, @RequestParam String companyCode, @RequestParam String plantId,
@@ -2524,6 +2535,14 @@ public class TransactionServiceController {
                 transactionService.updateInboundLineV2(companyCode, plantId, languageId, warehouseId, refDocNumber,
                         preInboundNo, lineNo, itemCode, loginUserID, updateInboundLine, authToken);
         return new ResponseEntity<>(updatedInboundLine, HttpStatus.OK);
+    }
+    //Batch Update Process
+    @ApiOperation(response = InboundLineV2.class, value = "Batch Update InboundLines V2") // label for swagger
+    @RequestMapping(value = "/inboundline/v2/batchUpdateInboundLines", method = RequestMethod.PATCH)
+    public ResponseEntity<?> batchUpdateInboundLineV2(@RequestParam String loginUserID, @RequestParam String authToken,
+                                                      @Valid @RequestBody List<InboundLineV2> updateInboundLines) {
+        InboundLineV2[] updatedInboundLines = transactionService.batchUpdateInboundLineV2(updateInboundLines, loginUserID, authToken);
+        return new ResponseEntity<>(updatedInboundLines, HttpStatus.OK);
     }
 
     @ApiOperation(response = InboundLineV2.class, value = "Delete InboundLine V2") // label for swagger

@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -119,6 +120,9 @@ public interface PutAwayLineV2Repository extends JpaRepository<PutAwayLineV2, Lo
     List<PutAwayLineV2> findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndItemCodeAndManufacturerNameAndLineNoAndStatusIdAndPackBarcodesAndDeletionIndicator(
             String languageId, String companyCode, String plantId, String warehouseId, String refDocNumber,
             String preInboundNo, String itemCode, String manufacturerName, Long lineNumber, Long statusId, String packBarcodes, Long deletionIndicator);
+    List<PutAwayLineV2> findByCompanyCodeAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndItemCodeAndManufacturerNameAndLineNoAndStatusIdAndDeletionIndicator(
+            String companyCode, String languageId, String plantId, String warehouseId, String refDocNumber, String preInboundNo,
+            String itemCode, String manufacturerName, Long lineNumber, Long statusId, Long deletionIndicator);
 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE PutAwayLineV2 ib SET ib.statusId = :statusId, ib.statusDescription = :statusDescription \n" +
@@ -155,4 +159,19 @@ public interface PutAwayLineV2Repository extends JpaRepository<PutAwayLineV2, Lo
                                         @Param("itemCode") String itemCode,
                                         @Param("manufacturerName") String manufacturerName,
                                         @Param("lineNo") Long lineNo);
+
+    @Transactional
+    @Procedure(procedureName = "putawayline_status_update_ib_cnf_proc")
+    public void updatePutawayLineStatusUpdateInboundConfirmProc(
+            @Param("companyCodeId") String companyCode,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preInboundNo") String preInboundNo,
+            @Param("statusId") Long statusId,
+            @Param("statusDescription") String statusDescription,
+            @Param("updatedBy") String updatedBy,
+            @Param("updatedOn") Date updatedOn
+    );
 }

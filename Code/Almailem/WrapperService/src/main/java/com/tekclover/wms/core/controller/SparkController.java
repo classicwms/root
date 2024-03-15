@@ -303,4 +303,13 @@ public class SparkController {
         BusinessPartnerV2[] businessPartnerV2s = sparkService.findBusinessPartner(findBusinessPartner);
         return new ResponseEntity<>(businessPartnerV2s, HttpStatus.OK);
     }
+
+
+    // Find InboundLine Join InboundHeader
+    @ApiOperation(response = InboundLineV3.class, value = "Spark InboundLine Report")
+    @PostMapping("/findInboundLineReport")
+    public ResponseEntity<?> findInboundLineReport(@RequestBody FindInboundLineV2 findInboundLineV2) throws Exception {
+        InboundLineV3[] inboundLine = sparkService.findInboundLineJoin(findInboundLineV2);
+        return new ResponseEntity<>(inboundLine, HttpStatus.OK);
+    }
 }

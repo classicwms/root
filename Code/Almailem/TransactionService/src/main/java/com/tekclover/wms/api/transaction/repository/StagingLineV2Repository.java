@@ -267,6 +267,9 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
     StagingLineEntityV2 findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndItemCodeAndManufacturerNameAndCaseCodeAndPalletCodeAndDeletionIndicator(
             String languageId, String companyCode, String plantId, String warehouseId, String refDocNumber,
             String preInboundNo, String itemCode, String manufacturerName, String caseCode, String palletCode, Long deletionIndicator);
+    StagingLineEntityV2 findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndItemCodeAndManufacturerNameAndCaseCodeAndPalletCodeAndLineNoAndDeletionIndicator(
+            String languageId, String companyCode, String plantId, String warehouseId, String refDocNumber,
+            String preInboundNo, String itemCode, String manufacturerName, String caseCode, String palletCode, Long lineNo, Long deletionIndicator);
 
     List<StagingLineEntityV2> findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
             String companyCode, String plantId, String languageId, String warehouseId, String refDocNumber, Long deletionIndicator);
@@ -302,5 +305,30 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
             @Param("refDocNumber") String refDocNumber,
             @Param("preInboundNo") String preInboundNo,
             @Param("updatedOn") Date updatedOn
+    );
+
+    @Transactional
+    @Procedure(procedureName = "stagingline_status_update_ib_cnf_proc")
+    public void updateStagingLineStatusUpdateInboundConfirmProc(
+            @Param("companyCodeId") String companyCode,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preInboundNo") String preInboundNo,
+            @Param("statusId") Long statusId,
+            @Param("statusDescription") String statusDescription,
+            @Param("updatedBy") String updatedBy,
+            @Param("updatedOn") Date updatedOn
+    );
+
+    @Transactional
+    @Procedure(procedureName = "stagingline_inv_qty_update_proc")
+    public void updateStagingLineInvQtyUpdateProc(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber
     );
 }

@@ -53,6 +53,11 @@ public class InboundLineV2Specification implements Specification<InboundLineV2> 
             predicates.add(group.in(searchInboundLine.getRefDocNumber()));
         }
 
+        if (searchInboundLine.getInboundOrderTypeId() != null && !searchInboundLine.getInboundOrderTypeId().isEmpty()) {
+            final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("inboundOrderTypeId");
+            predicates.add(group.in(searchInboundLine.getInboundOrderTypeId()));
+        }
+
         if (searchInboundLine.getPlantId() != null && !searchInboundLine.getPlantId().isEmpty()) {
             final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("plantId");
             predicates.add(group.in(searchInboundLine.getPlantId()));
