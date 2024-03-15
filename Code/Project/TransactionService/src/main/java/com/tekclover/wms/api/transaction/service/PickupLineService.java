@@ -413,7 +413,8 @@ public class PickupLineService extends BaseService {
 			dbPickupLine.setPickupUpdatedOn(new Date());
 			
 			// Checking for Duplicates
-			PickupLine existingPickupLine = pickupLineRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndPickupNumberAndItemCodeAndActualHeNoAndPickedStorageBinAndPickedPackCodeAndDeletionIndicator (
+			PickupLine existingPickupLine = 
+					pickupLineRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndPickupNumberAndItemCodeAndPickedStorageBinAndPickedPackCodeAndDeletionIndicator (
 					dbPickupLine.getLanguageId(),
 					dbPickupLine.getCompanyCodeId(),
 					dbPickupLine.getPlantId(),
@@ -424,7 +425,6 @@ public class PickupLineService extends BaseService {
 					dbPickupLine.getLineNumber(),
 					dbPickupLine.getPickupNumber(),
 					dbPickupLine.getItemCode(),
-					dbPickupLine.getActualHeNo(),
 					dbPickupLine.getPickedStorageBin(),
 					dbPickupLine.getPickedPackCode(),
 					0L);

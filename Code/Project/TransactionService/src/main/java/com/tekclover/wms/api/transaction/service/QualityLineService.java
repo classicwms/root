@@ -440,6 +440,7 @@ public class QualityLineService extends BaseService {
 					 */
 					StatusId idStatus = idmasterService.getStatus(55L, dbQualityLine.getWarehouseId(), authTokenForIDService.getAccess_token());
 					qualityHeaderRepository.updateQualityHeader(idStatus.getStatus(), dbQualityLine.getQualityInspectionNo());
+					log.info("-----updateQualityHeader--updated---->: " + idStatus.getStatus());
 					
 					storageBin = mastersService.getStorageBin(dbQualityLine.getWarehouseId(), BIN_CLASS_ID, authTokenForMastersService.getAccess_token());
 					log.info("storageBin------>: " + storageBin);

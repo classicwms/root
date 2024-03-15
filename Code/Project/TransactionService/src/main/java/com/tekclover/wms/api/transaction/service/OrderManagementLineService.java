@@ -962,21 +962,21 @@ public class OrderManagementLineService extends BaseService {
 				/*
 				 * OutboundLine Update
 				 */
-				try {
-					OutboundLine outboundLine = outboundLineService.getOutboundLine(warehouseId, 
-							newOrderManagementLine.getPreOutboundNo(), 
-							newOrderManagementLine.getRefDocNumber(),
-							newOrderManagementLine.getPartnerCode(), 
-							newOrderManagementLine.getLineNumber(), 
-							itemCode);
-					if (outboundLine != null) {
-						outboundLine.setStatusId(newOrderManagementLine.getStatusId());
-						outboundLine = outboundLineRepository.save(outboundLine);
-						log.info("outboundLine updated : " + outboundLine);
-					}
-				} catch (Exception e) {
-					log.error("OutboundLine Update Error: " + e.toString());
-				}
+//				try {
+//					OutboundLine outboundLine = outboundLineService.getOutboundLine(warehouseId, 
+//							newOrderManagementLine.getPreOutboundNo(), 
+//							newOrderManagementLine.getRefDocNumber(),
+//							newOrderManagementLine.getPartnerCode(), 
+//							newOrderManagementLine.getLineNumber(), 
+//							itemCode);
+//					if (outboundLine != null) {
+//						outboundLine.setStatusId(newOrderManagementLine.getStatusId());
+//						outboundLine = outboundLineRepository.save(outboundLine);
+//						log.info("outboundLine updated : " + outboundLine);
+//					}
+//				} catch (Exception e) {
+//					log.error("OutboundLine Update Error: " + e.toString());
+//				}
 				
 				if (ORD_QTY == ALLOC_QTY) {
 					log.info("ORD_QTY fully allocated: " + ORD_QTY);
