@@ -239,8 +239,10 @@ public class InboundLineService extends BaseService {
      */
     public List<InboundLineV2> getInboundLineForInboundConfirmPartialAllocationV2(String companyCode, String plantId, String languageId,
                                                                                   String warehouseId, String refDocNumber) {
+//        List<InboundLineV2> inboundLines = inboundLineV2Repository.getInboundLinesV2ForInboundConfirm(
+//                        companyCode, plantId, languageId, warehouseId, refDocNumber,  20L, 24L);
         List<InboundLineV2> inboundLines = inboundLineV2Repository.getInboundLinesV2ForInboundConfirm(
-                        companyCode, plantId, languageId, warehouseId, refDocNumber,  20L, 24L);
+                companyCode, plantId, languageId, warehouseId, refDocNumber,  20L);
         log.info("inboundLine : " + inboundLines.size());
         return inboundLines;
     }

@@ -186,6 +186,16 @@ public interface InboundLineV2Repository extends JpaRepository<InboundLineV2, Lo
                                                                   @Param("statusId") Long statusId,
                                                                   @Param("cnfStatusId") Long cnfStatusId);
 
+    @Query(value = "select * from tblinboundline where ref_doc_no = :refDocNo \n" +
+            "and c_id = :companyCode and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId \n" +
+            "and status_id = :statusId and ref_field_2 = 'true' and is_deleted = 0 ", nativeQuery = true)
+    public List<InboundLineV2> getInboundLinesV2ForInboundConfirm(@Param("companyCode") String companyCode,
+                                                                  @Param("plantId") String plantId,
+                                                                  @Param("languageId") String languageId,
+                                                                  @Param("warehouseId") String warehouseId,
+                                                                  @Param("refDocNo") String refDocNo,
+                                                                  @Param("statusId") Long statusId);
+
     @Query(value = "select count(ref_doc_no) from tblinboundline where ref_doc_no = :refDocNo \n" +
             "and c_id = :companyCode and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId \n" +
             "and status_id = :statusId and ref_field_2 = 'true' and is_deleted = 0 ", nativeQuery = true)

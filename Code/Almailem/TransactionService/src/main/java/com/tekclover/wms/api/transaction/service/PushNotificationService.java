@@ -17,7 +17,11 @@ public class PushNotificationService {
     private FirebaseMessaging firebaseMessaging;
 
     public String sendPushNotification(List<String> tokens, String title, String message) throws FirebaseMessagingException {
-        for (String token : tokens) {
+
+        Iterator<String> iterator = tokens.iterator();
+        while (iterator.hasNext()) {
+            String token = iterator.next();
+            try {
             Message pushMessage = Message.builder()
                     .setToken(token)
                     .setNotification(Notification.builder()
@@ -25,8 +29,11 @@ public class PushNotificationService {
                             .setBody(message)
                             .build())
                     .build();
-
             firebaseMessaging.send(pushMessage);
+            } catch (FirebaseMessagingException e) {
+                iterator.remove();
+                e.printStackTrace();
+            }
         }
         return "OK";
     }
