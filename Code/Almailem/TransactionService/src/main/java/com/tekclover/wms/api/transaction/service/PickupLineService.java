@@ -1735,7 +1735,7 @@ public class PickupLineService extends BaseService {
             //------------------------UpdateLock-Applied------------------------------------------------------------
             InventoryV2 inventory = inventoryService.getInventoryV2(dbPickupLine.getCompanyCodeId(),
                     dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(),
-                    dbPickupLine.getPickedPackCode(), dbPickupLine.getItemCode(), dbPickupLine.getPickedStorageBin());
+                    dbPickupLine.getPickedPackCode(), dbPickupLine.getItemCode(), dbPickupLine.getPickedStorageBin(), dbPickupLine.getManufacturerName());
             log.info("inventory record queried: " + inventory);
             if (inventory != null) {
                 if (dbPickupLine.getAllocatedQty() > 0D) {
@@ -2269,7 +2269,7 @@ public class PickupLineService extends BaseService {
             //------------------------UpdateLock-Applied------------------------------------------------------------
             InventoryV2 inventory = inventoryService.getInventoryV2(dbPickupLine.getCompanyCodeId(),
                     dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(),
-                    dbPickupLine.getPickedPackCode(), dbPickupLine.getItemCode(), dbPickupLine.getPickedStorageBin());
+                    dbPickupLine.getPickedPackCode(), dbPickupLine.getItemCode(), dbPickupLine.getPickedStorageBin(), dbPickupLine.getManufacturerName());
             log.info("inventory record queried: " + inventory);
             if (inventory != null) {
                 if (dbPickupLine.getAllocatedQty() > 0D) {

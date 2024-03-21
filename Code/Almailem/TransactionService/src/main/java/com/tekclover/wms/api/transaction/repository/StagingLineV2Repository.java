@@ -211,6 +211,11 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
             String preInboundNo, String refDocNumber, String stagingNo, String palletCode,
             String caseCode, Long lineNo, String itemCode, Long deletionIndicator);
 
+    Optional<StagingLineEntityV2> findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndPreInboundNoAndRefDocNumberAndStagingNoAndPalletCodeAndCaseCodeAndLineNoAndDeletionIndicator(
+            String languageId, String companyCodeId, String plantId, String warehouseId,
+            String preInboundNo, String refDocNumber, String stagingNo, String palletCode,
+            String caseCode, Long lineNo, Long deletionIndicator);
+
     List<StagingLineEntityV2> findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndPreInboundNoAndRefDocNumberAndStagingNoAndLineNoAndItemCodeAndCaseCodeAndDeletionIndicator(
             String languageId, String companyCodeId, String plantId, String warehouseId,
             String preInboundNo, String refDocNumber, String stagingNo, Long lineNo,

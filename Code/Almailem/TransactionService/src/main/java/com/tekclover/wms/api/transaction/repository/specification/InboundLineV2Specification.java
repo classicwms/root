@@ -63,6 +63,16 @@ public class InboundLineV2Specification implements Specification<InboundLineV2> 
             predicates.add(group.in(searchInboundLine.getPlantId()));
         }
 
+        if (searchInboundLine.getSourceBranchCode() != null && !searchInboundLine.getSourceBranchCode().isEmpty()) {
+            final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("sourceBranchCode");
+            predicates.add(group.in(searchInboundLine.getSourceBranchCode()));
+        }
+
+        if (searchInboundLine.getSourceCompanyCode() != null && !searchInboundLine.getSourceCompanyCode().isEmpty()) {
+            final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("sourceCompanyCode");
+            predicates.add(group.in(searchInboundLine.getSourceCompanyCode()));
+        }
+
         if (searchInboundLine.getLanguageId() != null && !searchInboundLine.getLanguageId().isEmpty()) {
             final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("languageId");
             predicates.add(group.in(searchInboundLine.getLanguageId()));

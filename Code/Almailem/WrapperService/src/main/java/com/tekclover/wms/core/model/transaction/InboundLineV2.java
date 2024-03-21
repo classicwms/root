@@ -24,4 +24,6 @@ public class InboundLineV2 extends InboundLine {
     private String branchCode;
     private String transferOrderNo;
     private String isCompleted;
+    private String sourceBranchCode;
+    private String sourceCompanyCode;
 }

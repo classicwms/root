@@ -87,6 +87,8 @@ public class TransactionService {
                 inboundIntegrationHeader.setId(dbOBOrder.getOrderId());
                 inboundIntegrationHeader.setMiddlewareId(String.valueOf(dbOBOrder.getMiddlewareId()));
                 inboundIntegrationHeader.setMiddlewareTable(dbOBOrder.getMiddlewareTable());
+                inboundIntegrationHeader.setSourceBranchCode(dbOBOrder.getSourceBranchCode());
+                inboundIntegrationHeader.setSourceCompanyCode(dbOBOrder.getSourceCompanyCode());
 
                 List<InboundOrderLinesV2> sqlInboundLineList = inboundOrderLinesV2Repository.getOrderLines(dbOBOrder.getOrderId());
                 log.info("line list: " + sqlInboundLineList);
@@ -112,6 +114,8 @@ public class TransactionService {
                     inboundIntegrationLine.setManufacturerCode(line.getManufacturerCode());
                     inboundIntegrationLine.setOrigin(line.getOrigin());
                     inboundIntegrationLine.setBrand(line.getBrand());
+                    inboundIntegrationLine.setSourceCompanyCode(dbOBOrder.getSourceCompanyCode());
+                    inboundIntegrationLine.setSourceBranchCode(dbOBOrder.getSourceBranchCode());
 
                     inboundIntegrationLine.setSupplierName(line.getSupplierName());
 

@@ -21,4 +21,6 @@ public class FindInboundLineV2 {
     private List<String> languageId;
     private List<String> companyCodeId;
     private List<String> plantId;
+    private List<String> sourceBranchCode;
+    private List<String> sourceCompanyCode;
 }

@@ -1944,6 +1944,9 @@ public class PreInboundHeaderService extends BaseService {
             inboundLine.setTransferOrderNo(createdPreInboundLine.getTransferOrderNo());
             inboundLine.setIsCompleted(createdPreInboundLine.getIsCompleted());
 
+            inboundLine.setSourceCompanyCode(preInboundHeader.getSourceCompanyCode());
+            inboundLine.setSourceBranchCode(preInboundHeader.getSourceBranchCode());
+
             inboundLine.setDeletionIndicator(0L);
             inboundLine.setCreatedBy(preInboundHeader.getCreatedBy());
             inboundLine.setCreatedOn(preInboundHeader.getCreatedOn());

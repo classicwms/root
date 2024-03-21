@@ -1260,7 +1260,8 @@ public class InventoryService extends BaseService {
                                                              String itemCode, String manufacturerName, Long binClassId) {
 
         List<IInventoryImpl> inventory = inventoryV2Repository.
-                inventoryForPutAway(companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, binClassId);
+//                inventoryForPutAway(companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, binClassId);
+        inventoryForPutAwaytemp(companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, binClassId);
         return inventory;
     }
 

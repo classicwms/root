@@ -62,4 +62,10 @@ public class InboundLineV2 extends InboundLine {
 
     @Column(name = "IS_COMPLETED", columnDefinition = "nvarchar(20)")
     private String isCompleted;
+
+    @Column(name = "SOURCE_BRANCH_CODE", columnDefinition = "nvarchar(50)")
+    private String sourceBranchCode;
+
+    @Column(name = "SOURCE_COMPANY_CODE", columnDefinition = "nvarchar(50)")
+    private String sourceCompanyCode;
 }

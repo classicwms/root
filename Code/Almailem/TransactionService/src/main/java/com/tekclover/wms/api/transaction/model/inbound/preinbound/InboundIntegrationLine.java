@@ -44,4 +44,7 @@ public class InboundIntegrationLine {
     private String branchCode;
     private String transferOrderNo;
 
+    private String sourceBranchCode;
+    private String sourceCompanyCode;
+
 }

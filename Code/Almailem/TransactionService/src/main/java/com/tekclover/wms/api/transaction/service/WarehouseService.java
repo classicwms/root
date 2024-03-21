@@ -1347,6 +1347,8 @@ public class WarehouseService extends BaseService {
 			apiHeader.setTransferOrderDate(interWarehouseTransferInHeaderV2.getTransferOrderDate());
 			apiHeader.setIsCompleted(interWarehouseTransferInHeaderV2.getIsCompleted());
 			apiHeader.setUpdatedOn(interWarehouseTransferInHeaderV2.getUpdatedOn());
+			apiHeader.setSourceCompanyCode(interWarehouseTransferInHeaderV2.getSourceCompanyCode());
+			apiHeader.setSourceBranchCode(interWarehouseTransferInHeaderV2.getSourceBranchCode());
 
 			// Get Warehouse
 			Optional<com.tekclover.wms.api.transaction.model.warehouse.Warehouse> dbWarehouse =

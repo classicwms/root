@@ -1559,8 +1559,9 @@ public class InboundHeaderService extends BaseService {
                 companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
                 log.info("PreInboundLine updated");
 
+        String statusDescription17 = stagingLineV2Repository.getStatusDescription(17L,languageId);
         stagingLineV2Repository.updateStagingLineStatusUpdateInboundConfirmProc(
-                companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
+                companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 17L, statusDescription17, loginUserID, new Date());
                 log.info("StagingLine updated");
 
         grLineV2Repository.updateGrLineStatusUpdateInboundConfirmProc(

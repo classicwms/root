@@ -1503,7 +1503,9 @@ public class OrderManagementLineService extends BaseService {
                 }
                 inventory.setAllocatedQuantity(allocQty);
                 log.info("Inventory allocQty: " + allocQty);
-
+                Double totQty = invQty + allocQty;
+                inventory.setReferenceField4(totQty);
+                log.info("Inventory totQty: " + totQty);
 
 //            inventory = inventoryRepository.save(inventory);
 //            log.info("Inventory updated: " + inventory);

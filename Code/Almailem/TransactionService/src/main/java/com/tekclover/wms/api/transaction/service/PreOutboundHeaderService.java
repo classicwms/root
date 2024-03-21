@@ -1501,6 +1501,7 @@ public class PreOutboundHeaderService extends BaseService {
         //check the status of OrderManagementLine for NoStock update status of outbound header, preoutbound header, preoutboundline
         statusDescription = stagingLineV2Repository.getStatusDescription(47L, languageId);
         orderManagementLineV2Repository.updateNostockStatusUpdateProc(companyCodeId, plantId, languageId, warehouseId, outboundHeader.getRefDocNumber(), 47L, statusDescription);
+        log.info("No stock status updated in preinbound header and line, outbound header using stored procedure when condition is satisfied");
 
         /*------------------------------------------------------------------------------------*/
         updateStatusAs47ForOBHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, outboundHeader.getRefDocNumber());
