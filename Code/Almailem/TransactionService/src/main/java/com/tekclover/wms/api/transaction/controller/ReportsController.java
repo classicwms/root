@@ -203,6 +203,20 @@ public class ReportsController {
         return new ResponseEntity<>(shipmentDeliveryList, HttpStatus.OK);
     }
 
+    @ApiOperation(response = ShipmentDeliveryReport.class, value = "Get ShipmentDelivery Report v2 preOutboundNo added")    // label for swagger
+    @GetMapping("/v2/shipmentDelivery/new")
+    public ResponseEntity<?> getShipmentDeliveryReportV2(@RequestParam String companyCodeId, @RequestParam String plantId,
+                                                         @RequestParam String languageId, @RequestParam String warehouseId,
+                                                         @RequestParam(required = false) String fromDeliveryDate,
+                                                         @RequestParam(required = false) String toDeliveryDate,
+                                                         @RequestParam(required = false) String storeCode,
+                                                         @RequestParam(required = false) List<String> soType,
+                                                         @RequestParam String orderNumber, @RequestParam String preOutboundNo) throws ParseException, java.text.ParseException {
+        List<ShipmentDeliveryReport> shipmentDeliveryList = reportsService.getShipmentDeliveryReportV2(companyCodeId, plantId, languageId, warehouseId,
+                fromDeliveryDate, toDeliveryDate, storeCode, soType, orderNumber, preOutboundNo);
+        return new ResponseEntity<>(shipmentDeliveryList, HttpStatus.OK);
+    }
+
     /*
      * Shipment Delivery Summary
      */
@@ -239,6 +253,15 @@ public class ReportsController {
     public ResponseEntity<?> getReceiptConfimationReport(@RequestParam String asnNumber)
             throws Exception {
         ReceiptConfimationReport receiptConfimationReport = reportsService.getReceiptConfimationReport(asnNumber);
+        return new ResponseEntity<>(receiptConfimationReport, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = ReceiptConfimationReport.class, value = "Get ReceiptConfimation Report")    // label for swagger
+    @GetMapping("/v2/receiptConfirmation")
+    public ResponseEntity<?> getReceiptConfimationReportV2(@RequestParam String asnNumber, @RequestParam String preInboundNo, @RequestParam String companyCodeId,
+                                                           @RequestParam String plantId, @RequestParam String languageId, @RequestParam String warehouseId)
+            throws Exception {
+        ReceiptConfimationReport receiptConfimationReport = reportsService.getReceiptConfimationReportV2(asnNumber, preInboundNo, companyCodeId, plantId, languageId, warehouseId);
         return new ResponseEntity<>(receiptConfimationReport, HttpStatus.OK);
     }
 

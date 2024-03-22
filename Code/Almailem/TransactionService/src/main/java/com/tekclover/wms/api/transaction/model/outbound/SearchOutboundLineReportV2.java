@@ -13,4 +13,5 @@ public class SearchOutboundLineReportV2 extends SearchOutboundLineReport {
 	private List<String> companyCodeId;
 	private List<String> plantId;
 	private List<String> languageId;
+	private String preOutboundNo;			// Order Number
 }

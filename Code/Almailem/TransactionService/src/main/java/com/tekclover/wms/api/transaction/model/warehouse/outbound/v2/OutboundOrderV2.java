@@ -52,7 +52,7 @@ public class OutboundOrderV2 extends OutboundOrder {
     private String middlewareTable;
     private String customerType;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "orderId", fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "outboundOrderHeaderId", fetch = FetchType.EAGER)
     private Set<OutboundOrderLineV2> line;
 }
 

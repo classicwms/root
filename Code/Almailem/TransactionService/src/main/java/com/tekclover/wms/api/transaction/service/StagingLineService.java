@@ -929,6 +929,25 @@ public class StagingLineService extends BaseService {
         return StagingLineEntity;
     }
 
+    public List<StagingLineEntityV2> getStagingLineForGrLine(String companyCode, String plantId, String languageId,
+                                                             String warehouseId, String stagingNo, String refDocNumber, String preInboundNo) {
+        List<StagingLineEntityV2> StagingLineEntity =
+                stagingLineV2Repository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndStagingNoAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+                        languageId,
+                        companyCode,
+                        plantId,
+                        warehouseId,
+                        stagingNo,
+                        refDocNumber,
+                        preInboundNo,
+                        0L);
+        if (StagingLineEntity.isEmpty()) {
+            return null;
+        }
+
+        return StagingLineEntity;
+    }
+
     /**
      * @param warehouseId
      * @param preInboundNo
@@ -1155,7 +1174,7 @@ public class StagingLineService extends BaseService {
             List<StagingLineEntityV2> createdStagingLineEntityList = stagingLineV2Repository.saveAll(stagingLineEntityList);
             log.info("created StagingLine records." + stagingLineEntityList);
             //update INV_QTY in stagingLine - calling stored procedure
-            stagingLineV2Repository.updateStagingLineInvQtyUpdateProc(companyCodeId, plantId, languageId, warehouseId, refDocNumber);
+            stagingLineV2Repository.updateStagingLineInvQtyUpdateProc(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
 
             // Update PreInboundLines
             List<PreInboundLineEntityV2> preInboundLineList = preInboundLineService.getPreInboundLineV2(preInboundNo);
@@ -1864,7 +1883,7 @@ public class StagingLineService extends BaseService {
         }
         if (createdPutawayLine != null && !createdPutawayLine.isEmpty()) {
             log.info("Direct StockReceipt - Inbound Confirmation Process Initiated");
-            inboundHeaderService.updateInboundHeaderConfirmV2(
+            inboundHeaderService.updateInboundHeaderPartialConfirmV2(
                     grHeader.getCompanyCode(),
                     grHeader.getPlantId(),
                     grHeader.getLanguageId(),
@@ -1967,11 +1986,11 @@ public class StagingLineService extends BaseService {
      * @param loginUserID
      */
     public List<StagingLineEntityV2> deleteStagingLineV2(String companyCode, String plantId, String languageId,
-                                                         String warehouseId, String refDocNumber, String loginUserID) throws java.text.ParseException {
+                                                         String warehouseId, String refDocNumber, String preInboundNo, String loginUserID) throws java.text.ParseException {
        List<StagingLineEntityV2> stagingLineEntityV2s = new ArrayList<>();
        List<StagingLineEntityV2> dbStagingLineList =
-                stagingLineV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
-                        companyCode, plantId, languageId, warehouseId, refDocNumber, 0L);
+                stagingLineV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+                        companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 0L);
         log.info("StagingLineList - cancellation : " + dbStagingLineList);
         if (dbStagingLineList != null && !dbStagingLineList.isEmpty()) {
             for (StagingLineEntityV2 stagingLineEntityV2 : dbStagingLineList) {

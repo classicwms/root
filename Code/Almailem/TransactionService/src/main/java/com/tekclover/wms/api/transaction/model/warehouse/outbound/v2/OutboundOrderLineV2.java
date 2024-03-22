@@ -42,4 +42,5 @@ public class OutboundOrderLineV2 extends OutboundOrderLine {
     private String isCompleted;
     private String isCancelled;
     private String customerType;
+    private Long outboundOrderTypeID;
 }

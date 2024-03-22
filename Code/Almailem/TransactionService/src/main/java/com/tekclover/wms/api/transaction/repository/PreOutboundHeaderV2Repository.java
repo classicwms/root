@@ -32,6 +32,8 @@ public interface PreOutboundHeaderV2Repository extends JpaRepository<PreOutbound
 
     Optional<PreOutboundHeaderV2> findByRefDocNumberAndDeletionIndicator(String refDocumentNo, Long deletionIndicator);
 
+    Optional<PreOutboundHeaderV2> findByRefDocNumberAndOutboundOrderTypeIdAndDeletionIndicator(String refDocumentNo, Long outboundOrderTypeId, Long deletionIndicator);
+
     /**
      * @param warehouseId
      * @param refDocNumber
@@ -54,17 +56,17 @@ public interface PreOutboundHeaderV2Repository extends JpaRepository<PreOutbound
                                          @Param("refDocNumber") String refDocNumber,
                                          @Param("statusId") Long statusId,
                                          @Param("statusDescription") String statusDescription);
-    @Transactional
-    @Procedure(procedureName = "preoutbound_header_update_proc")
-    void updatePreOutboundHeaderUpdateProc(
-                                @Param("companyCodeId") String companyCodeId,
-                                @Param("plantId") String plantId,
-                                @Param("languageId") String languageId,
-                                @Param("warehouseId") String warehouseId,
-                                @Param("refDocNumber") String refDocNumber,
-                                @Param("statusId") Long statusId,
-                                @Param("statusDescription") String statusDescription
-                                );
+//    @Transactional
+//    @Procedure(procedureName = "preoutbound_header_update_proc")
+//    void updatePreOutboundHeaderUpdateProc(
+//                                @Param("companyCodeId") String companyCodeId,
+//                                @Param("plantId") String plantId,
+//                                @Param("languageId") String languageId,
+//                                @Param("warehouseId") String warehouseId,
+//                                @Param("refDocNumber") String refDocNumber,
+//                                @Param("statusId") Long statusId,
+//                                @Param("statusDescription") String statusDescription
+//                                );
 
     @Query(value = "select ht.usr_id from tblhhtuser ht \n" +
             "join tblordertypeid ot on ot.usr_id=ht.usr_id \n" +
@@ -217,5 +219,8 @@ public interface PreOutboundHeaderV2Repository extends JpaRepository<PreOutbound
 
     PreOutboundHeaderV2 findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber, Long deletionIndicator);
+
+    PreOutboundHeaderV2 findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+            String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber, String preOutboundNo, Long deletionIndicator);
 
 }

@@ -45,6 +45,7 @@ public interface PreInboundHeaderV2Repository extends JpaRepository<PreInboundHe
     public Optional<PreInboundHeaderEntityV2> findByPreInboundNoAndDeletionIndicator(String preInboundNo, Long deletionIndicator);
 
     public Optional<PreInboundHeaderEntityV2> findByRefDocNumberAndDeletionIndicator(String refDocNumber, Long deletionIndicator);
+    public Optional<PreInboundHeaderEntityV2> findByRefDocNumberAndInboundOrderTypeIdAndDeletionIndicator(String refDocNumber, Long inboundOrderTypeId, Long deletionIndicator);
 
     @Query(value = "Select REF_DOC_TYP from tblpreinboundheader where WH_ID = :warehouseId and ref_doc_no = :refDocNumber \n" +
             " and PRE_IB_NO = :preInboundNo and IS_DELETED = :delete ", nativeQuery = true)
@@ -80,6 +81,9 @@ public interface PreInboundHeaderV2Repository extends JpaRepository<PreInboundHe
 
     PreInboundHeaderEntityV2 findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
             String companyCode, String plantId, String languageId, String warehouseId, String refDocNumber, Long deletionIndicator);
+
+    PreInboundHeaderEntityV2 findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+            String companyCode, String plantId, String languageId, String warehouseId, String refDocNumber, String preInboundNo, Long deletionIndicator);
 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE PreInboundHeaderEntityV2 ib SET ib.statusId = :statusId, ib.statusDescription = :statusDescription " +

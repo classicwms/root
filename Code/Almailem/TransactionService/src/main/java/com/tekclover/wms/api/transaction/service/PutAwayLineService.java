@@ -1859,6 +1859,10 @@ public class PutAwayLineService extends BaseService {
                                 inboundLine.setVarianceQty(inboundLine.getOrderQty() - addedDamageQty);
                             }
 
+                            if(inboundLine.getInboundOrderTypeId() == 5L){          //condition added for final Inbound confirm
+                                inboundLine.setReferenceField2("true");
+                            }
+
                             inboundLine.setStatusId(20L);
                             statusDescription = stagingLineV2Repository.getStatusDescription(20L, createdPutAwayLine.getLanguageId());
                             inboundLine.setStatusDescription(statusDescription);
@@ -2260,10 +2264,10 @@ public class PutAwayLineService extends BaseService {
      */
     //Delete PutAwayLine
     public List<PutAwayLineV2> deletePutAwayLineV2(String languageId, String companyCodeId, String plantId, String warehouseId,
-                                                   String refDocNumber, String loginUserID) throws ParseException {
+                                                   String refDocNumber, String preInboundNo, String loginUserID) throws ParseException {
         List<PutAwayLineV2> putAwayLineV2List = new ArrayList<>();
-        List<PutAwayLineV2> putAwayLineList = putAwayLineV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
-                companyCodeId, plantId, languageId, warehouseId, refDocNumber, 0L);
+        List<PutAwayLineV2> putAwayLineList = putAwayLineV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+                companyCodeId, plantId, languageId, warehouseId, refDocNumber, preInboundNo,0L);
         log.info("putAwayLineList - cancellation : " + putAwayLineList);
         if (putAwayLineList != null && !putAwayLineList.isEmpty()) {
             for (PutAwayLineV2 putAwayLineV2 : putAwayLineList) {

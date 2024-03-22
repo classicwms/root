@@ -31,6 +31,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Slf4j
 @Service
 public class TransactionService {
+    @Autowired
+    private OutboundOrderLinesV2Repository outboundOrderLinesV2Repository;
 
     @Autowired
     PreInboundHeaderService preinboundheaderService;
@@ -80,6 +82,7 @@ public class TransactionService {
         WarehouseApiResponse warehouseApiResponse = new WarehouseApiResponse();
         if (inboundList == null || inboundList.isEmpty()) {
             List<InboundOrderV2> sqlInboundList = inboundOrderV2Repository.findTopByProcessedStatusIdOrderByOrderReceivedOn(0L);
+            log.info("ib sql header list: " + sqlInboundList);
             inboundList = new ArrayList<>();
             for (InboundOrderV2 dbOBOrder : sqlInboundList) {
                 InboundIntegrationHeader inboundIntegrationHeader = new InboundIntegrationHeader();
@@ -90,10 +93,10 @@ public class TransactionService {
                 inboundIntegrationHeader.setSourceBranchCode(dbOBOrder.getSourceBranchCode());
                 inboundIntegrationHeader.setSourceCompanyCode(dbOBOrder.getSourceCompanyCode());
 
-                List<InboundOrderLinesV2> sqlInboundLineList = inboundOrderLinesV2Repository.getOrderLines(dbOBOrder.getOrderId());
-                log.info("line list: " + sqlInboundLineList);
+//                List<InboundOrderLinesV2> sqlInboundLineList = inboundOrderLinesV2Repository.getOrderLinesByOrderTypeId(dbOBOrder.getOrderId(), dbOBOrder.getInboundOrderTypeId());
+                log.info("ib line list: " + dbOBOrder.getLine().size());
                 List<InboundIntegrationLine> inboundIntegrationLineList = new ArrayList<>();
-                for (InboundOrderLinesV2 line : sqlInboundLineList) {
+                for (InboundOrderLinesV2 line : dbOBOrder.getLine()) {
                     InboundIntegrationLine inboundIntegrationLine = new InboundIntegrationLine();
                     BeanUtils.copyProperties(line, inboundIntegrationLine, CommonUtils.getNullPropertyNames(line));
 
@@ -144,7 +147,7 @@ public class TransactionService {
                     InboundHeaderV2 inboundHeader = preinboundheaderService.processInboundReceivedV2(inbound.getRefDocumentNo(), inbound);
                     if (inboundHeader != null) {
                         // Updating the Processed Status
-                        orderService.updateProcessedInboundOrderV2(inbound.getRefDocumentNo(), 10L);
+                        orderService.updateProcessedInboundOrderV2(inbound.getRefDocumentNo(), inbound.getInboundOrderTypeId(), 10L);
                         inboundList.remove(inbound);
                         warehouseApiResponse.setStatusCode("200");
                         warehouseApiResponse.setMessage("Success");
@@ -153,7 +156,7 @@ public class TransactionService {
                     e.printStackTrace();
                     log.error("Error on inbound processing : " + e.toString());
                     // Updating the Processed Status
-                    orderService.updateProcessedInboundOrderV2(inbound.getRefDocumentNo(), 100L);
+                    orderService.updateProcessedInboundOrderV2(inbound.getRefDocumentNo(), inbound.getInboundOrderTypeId(),  100L);
                     try {
                         preinboundheaderService.createInboundIntegrationLogV2(inbound, e.toString());
                         inboundList.remove(inbound);
@@ -175,8 +178,10 @@ public class TransactionService {
         WarehouseApiResponse warehouseApiResponse = new WarehouseApiResponse();
         if (outboundList == null || outboundList.isEmpty()) {
             List<OutboundOrderV2> sqlOutboundList = outboundOrderV2Repository.findTopByProcessedStatusIdOrderByOrderReceivedOn(0L);
+            log.info("ob header list: " + sqlOutboundList);
             outboundList = new ArrayList<>();
             for (OutboundOrderV2 dbOBOrder : sqlOutboundList) {
+                log.info("OB Process Initiated : " + dbOBOrder.getOrderId());
                 OutboundIntegrationHeaderV2 outboundIntegrationHeader = new OutboundIntegrationHeaderV2();
                 BeanUtils.copyProperties(dbOBOrder, outboundIntegrationHeader, CommonUtils.getNullPropertyNames(dbOBOrder));
                 outboundIntegrationHeader.setId(dbOBOrder.getOrderId());
@@ -214,6 +219,8 @@ public class TransactionService {
                 }
 
                 List<OutboundIntegrationLineV2> outboundIntegrationLineList = new ArrayList<>();
+//                List<OutboundOrderLineV2> sqlOutboundLineList = outboundOrderLinesV2Repository.findAllByOrderIdAndOutboundOrderTypeID(dbOBOrder.getOrderId(), dbOBOrder.getOutboundOrderTypeID());
+                log.info("ob line list: " + dbOBOrder.getLine().size());
                 for (OutboundOrderLineV2 line : dbOBOrder.getLine()) {
                     OutboundIntegrationLineV2 outboundIntegrationLine = new OutboundIntegrationLineV2();
                     BeanUtils.copyProperties(line, outboundIntegrationLine, CommonUtils.getNullPropertyNames(line));
@@ -248,7 +255,7 @@ public class TransactionService {
                     OutboundHeaderV2 outboundHeader = preOutboundHeaderService.processOutboundReceivedV2(outbound);
                     if (outboundHeader != null) {
                         // Updating the Processed Status
-                        orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), 10L);
+                        orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID(),  10L);
                         outboundList.remove(outbound);
                         warehouseApiResponse.setStatusCode("200");
                         warehouseApiResponse.setMessage("Success");
@@ -257,7 +264,7 @@ public class TransactionService {
                     e.printStackTrace();
                     log.error("Error on outbound processing : " + e.toString());
                     // Updating the Processed Status
-                    orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), 100L);
+                    orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID(),100L);
                     try {
                         preOutboundHeaderService.createOutboundIntegrationLogV2(outbound, e.toString());
                         outboundList.remove(outbound);

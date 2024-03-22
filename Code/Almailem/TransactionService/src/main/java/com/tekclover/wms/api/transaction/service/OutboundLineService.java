@@ -4171,11 +4171,11 @@ public class OutboundLineService extends BaseService {
      */
     //Delete OutBoundLine
     public List<OutboundLineV2> deleteOutBoundLine(String companyCodeId, String plantId, String languageId,
-                                                   String warehouseId, String refDocNumber, String loginUserID) throws Exception {
+                                                   String warehouseId, String refDocNumber, String preOutboundNo, String loginUserID) throws Exception {
 
         List<OutboundLineV2> outboundLineV2List = new ArrayList<>();
-        List<OutboundLineV2> dbOutBoundLine = outboundLineV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
-                companyCodeId, plantId, languageId, warehouseId, refDocNumber, 0L);
+        List<OutboundLineV2> dbOutBoundLine = outboundLineV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 0L);
         log.info("PickList Cancellation - OutboundLine : " + dbOutBoundLine);
         if (dbOutBoundLine != null && !dbOutBoundLine.isEmpty()) {
             for (OutboundLineV2 outboundLineV2 : dbOutBoundLine) {
@@ -4200,10 +4200,10 @@ public class OutboundLineService extends BaseService {
      * @return
      */
     public List<OutboundLineInterim> deleteOutboundLineInterimForPickListCancellationV2(String companyCodeId, String plantId, String languageId,
-                                                                                        String warehouseId, String refDocNumber, String loginUserID) {
+                                                                                        String warehouseId, String refDocNumber, String preOutboundNo, String loginUserID) {
         List<OutboundLineInterim> listOutboundLineInterim = outboundLineInterimRepository.
-                findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
-                        companyCodeId, plantId, languageId, warehouseId, refDocNumber, 0L);
+                findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                        companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo,0L);
         log.info("PickList Cancellation - OutboundLine Interim: " + listOutboundLineInterim);
         if (listOutboundLineInterim != null && !listOutboundLineInterim.isEmpty()) {
             listOutboundLineInterim.forEach(data -> {

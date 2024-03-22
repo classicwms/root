@@ -1341,6 +1341,108 @@ public class ReportsService extends BaseService {
         return null;
     }
 
+    public List<ShipmentDeliveryReport> getShipmentDeliveryReportV2(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                                    String fromDeliveryDate, String toDeliveryDate, String storeCode,
+                                                                    List<String> soType, String orderNumber, String preOutboundNo)
+            throws ParseException, java.text.ParseException {
+//        AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+
+        try {
+            // WH_ID
+            if (warehouseId == null) {
+                throw new BadRequestException("WarehouseId can't be blank.");
+            }
+
+            if (orderNumber == null) {
+                throw new BadRequestException("OrderNumber can't be blank.");
+            }
+
+            SearchOutboundLineReportV2 searchOutboundLineReport = new SearchOutboundLineReportV2();
+            searchOutboundLineReport.setWarehouseId(warehouseId);
+            searchOutboundLineReport.setRefDocNumber(orderNumber);
+            searchOutboundLineReport.setCompanyCodeId(Collections.singletonList(companyCodeId));
+            searchOutboundLineReport.setPlantId(Collections.singletonList(plantId));
+            searchOutboundLineReport.setLanguageId(Collections.singletonList(languageId));
+            searchOutboundLineReport.setPreOutboundNo(preOutboundNo);
+
+            if (!storeCode.isEmpty()) {
+                searchOutboundLineReport.setPartnerCode(storeCode);
+                log.info("storeCode: " + storeCode);
+            }
+
+            if (!soType.isEmpty()) {
+                searchOutboundLineReport.setSoTypeRefField1(soType);
+                log.info("soType: " + soType);
+            }
+
+            if (fromDeliveryDate != null && fromDeliveryDate.trim().length() > 0 && toDeliveryDate != null
+                    && toDeliveryDate.trim().length() > 0) {
+                log.info("fromDeliveryDate : " + fromDeliveryDate);
+                log.info("toDeliveryDate : " + toDeliveryDate);
+
+                Date fromDeliveryDate_d = DateUtils.convertStringToDate(fromDeliveryDate);
+                fromDeliveryDate_d = DateUtils.addTimeToDate(fromDeliveryDate_d);
+
+                Date toDeliveryDate_d = DateUtils.convertStringToDate(toDeliveryDate);
+                toDeliveryDate_d = DateUtils.addDayEndTimeToDate(toDeliveryDate_d);
+
+                log.info("Date: " + fromDeliveryDate_d + "," + toDeliveryDate_d);
+
+                searchOutboundLineReport.setStartConfirmedOn(fromDeliveryDate_d);
+                searchOutboundLineReport.setEndConfirmedOn(toDeliveryDate_d);
+                log.info("fromDeliveryDate_d : " + fromDeliveryDate_d);
+            }
+
+            List<OutboundLineV2> outboundLineSearchResults = outboundLineService
+                    .findOutboundLineReportV2(searchOutboundLineReport);
+            log.info("outboundLineSearchResults : " + outboundLineSearchResults);
+            double total = 0;
+            if (outboundLineSearchResults.isEmpty()) {
+                log.info("Resultset is EMPTY");
+            } else {
+                total = outboundLineSearchResults.stream().filter(a -> a.getDeliveryQty() != null)
+                        .mapToDouble(OutboundLine::getDeliveryQty).sum();
+                log.info("total : " + total);
+            }
+
+            List<ShipmentDeliveryReport> shipmentDeliveryList = new ArrayList<>();
+            for (OutboundLineV2 outboundLine : outboundLineSearchResults) {
+                ShipmentDeliveryReport shipmentDelivery = new ShipmentDeliveryReport();
+                shipmentDelivery.setDeliveryDate(outboundLine.getDeliveryConfirmedOn());
+                shipmentDelivery.setDeliveryTo(outboundLine.getPartnerCode());
+                shipmentDelivery.setOrderType(getOutboundOrderTypeDesc(outboundLine.getOutboundOrderTypeId()));
+                shipmentDelivery.setCustomerRef(outboundLine.getRefDocNumber()); // REF_DOC_NO
+                shipmentDelivery.setCommodity(outboundLine.getItemCode());
+                shipmentDelivery.setDescription(outboundLine.getDescription());
+                shipmentDelivery.setManfCode(outboundLine.getManufacturerName());
+
+                // Obtain Partner Name
+//                BusinessPartner partner = mastersService.getBusinessPartner(outboundLine.getPartnerCode(),
+//                        authTokenForMastersService.getAccess_token());
+                shipmentDelivery.setPartnerName(outboundLine.getCustomerId() +" - " + outboundLine.getCustomerName());
+                shipmentDelivery.setTargetBranch(outboundLine.getTargetBranchCode());
+
+                /*
+                 * MFR_PART
+                 */
+
+//                ImBasicData1 imBasicData1 = mastersService.getImBasicData1ByItemCode(outboundLine.getItemCode(),
+//                        warehouseId, authTokenForMastersService.getAccess_token());
+//                if (imBasicData1 != null) {
+//                    shipmentDelivery.setManfCode(imBasicData1.getManufacturerPartNo());
+//                }
+
+                shipmentDelivery.setQuantity(outboundLine.getDeliveryQty()); // DLV_QTY
+                shipmentDelivery.setTotal(total);
+                shipmentDeliveryList.add(shipmentDelivery);
+            }
+            return shipmentDeliveryList;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     /**
      * @param fromDeliveryDate
      * @param toDeliveryDate
@@ -2030,6 +2132,147 @@ public class ReportsService extends BaseService {
             double sumTotalOfMissingORExcess = 0.0;
             List<Receipt> receiptList = new ArrayList<>();
             log.info("inboundLine---------> : " + inboundLineSearchResults);
+            if (!inboundLineSearchResults.isEmpty()) {
+                // Supplier - PARTNER_CODE
+                receiptHeader.setSupplier(inboundLineSearchResults.get(0).getVendorCode());
+
+                receiptHeader.setSupplierName(inboundLineSearchResults.get(0).getSupplierName());
+
+                // Container No
+                receiptHeader.setContainerNo(inboundLineSearchResults.get(0).getContainerNo());
+
+                // Order Number - REF_DOC_NO
+                receiptHeader.setOrderNumber(inboundLineSearchResults.get(0).getRefDocNumber());
+
+                // Order Type -> PREINBOUNDHEADER - REF_DOC_TYPE
+                // Pass REF_DOC_NO in PREINBOUNDHEADER and fetch REF_DOC_TYPE
+                String referenceDocumentType = preInboundHeaderService.getReferenceDocumentTypeFromPreInboundHeader(
+                        inboundLineSearchResults.get(0).getWarehouseId(), inboundLineSearchResults.get(0).getPreInboundNo(),
+                        inboundLineSearchResults.get(0).getRefDocNumber());
+                receiptHeader.setOrderType(referenceDocumentType);
+                log.info("preInboundHeader referenceDocumentType--------> : " + referenceDocumentType);
+            }
+            for (InboundLineV2 inboundLine : inboundLineSearchResults) {
+
+
+                Receipt receipt = new Receipt();
+
+                // SKU - ITM_CODE
+                receipt.setSku(inboundLine.getItemCode());
+
+                // Description - ITEM_TEXT
+                receipt.setDescription(inboundLine.getDescription());
+
+                // Mfr.Sku - MFR_PART
+//				receipt.setMfrSku(inboundLine.getManufacturerPartNo());
+                receipt.setMfrSku(inboundLine.getManufacturerName());
+
+                // Expected - ORD_QTY
+                double expQty = 0;
+                if (inboundLine.getOrderQty() != null) {
+                    expQty = inboundLine.getOrderQty();
+                    receipt.setExpectedQty(expQty);
+                    sumTotalOfExpectedQty += expQty;
+                    log.info("expQty------#--> : " + expQty);
+                }
+
+                // Accepted - ACCEPT_QTY
+                double acceptQty = 0;
+                if (inboundLine.getAcceptedQty() != null) {
+                    acceptQty = inboundLine.getAcceptedQty();
+                    receipt.setAcceptedQty(acceptQty);
+                    sumTotalOfAccxpectedQty += acceptQty;
+                    log.info("acceptQty------#--> : " + acceptQty);
+                }
+
+                // Damaged - DAMAGE_QTY
+                double damageQty = 0;
+                if (inboundLine.getDamageQty() != null) {
+                    damageQty = inboundLine.getDamageQty();
+                    receipt.setDamagedQty(damageQty);
+                    sumTotalOfDamagedQty += damageQty;
+                    log.info("damageQty------#--> : " + damageQty);
+                }
+
+                // Missing/Excess - SUM(Accepted + Damaged) - Expected
+                double missingORExcessSum = (acceptQty + damageQty) - expQty;
+                sumTotalOfMissingORExcess += missingORExcessSum;
+                receipt.setMissingORExcess(missingORExcessSum);
+                log.info("missingORExcessSum------#--> : " + missingORExcessSum);
+
+                // Status
+                /*
+                 * 1. If Missing/Excess = 0, then hardcode Status as ""Received"" 2. If Damage
+                 * qty is greater than zero, then Hard code status ""Damage Received"" 3. If
+                 * Missing/Excess is less than 0, then hardcode Status as ""Partial Received""
+                 * 4. If Missing/Excess is excess than 0, then hardcode Status as ""Excess
+                 * Received"" 5. If Sum (Accepted Qty +Damaged qty) is 0, then Hardcode status
+                 * as ""Not yet received""
+                 */
+                if (missingORExcessSum == 0) {
+                    receipt.setStatus("Received");
+                } else if (damageQty > 0) {
+                    receipt.setStatus("Damage Received");
+                } else if (missingORExcessSum < 0) {
+                    receipt.setStatus("Partial Received");
+                } else if (missingORExcessSum > 0) {
+                    receipt.setStatus("Excess Received");
+                } else if (sumTotalOfMissingORExcess == 0) {
+                    receipt.setStatus("Not Received");
+                }
+                log.info("receipt------#--> : " + receipt);
+                receiptList.add(receipt);
+            }
+
+            receiptHeader.setExpectedQtySum(sumTotalOfExpectedQty);
+            receiptHeader.setAcceptedQtySum(sumTotalOfAccxpectedQty);
+            receiptHeader.setDamagedQtySum(sumTotalOfDamagedQty);
+            receiptHeader.setMissingORExcessSum(sumTotalOfMissingORExcess);
+
+            receiptConfimation.setReceiptHeader(receiptHeader);
+            receiptConfimation.setReceiptList(receiptList);
+            log.info("receiptConfimation : " + receiptConfimation);
+            return receiptConfimation;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public ReceiptConfimationReport getReceiptConfimationReportV2(String asnNumber, String preInboundNo, String companyCodeId, String plantId,
+                                                                  String languageId, String warehouseId) throws Exception {
+        if (asnNumber == null) {
+            throw new BadRequestException("ASNNumber can't be blank");
+        }
+        if (preInboundNo == null || companyCodeId == null || plantId ==null || languageId == null || warehouseId == null) {
+            throw new BadRequestException("paramenters can't be blank");
+        }
+
+        ReceiptConfimationReport receiptConfimation;
+        try {
+            receiptConfimation = new ReceiptConfimationReport();
+            ReceiptHeader receiptHeader = new ReceiptHeader();
+
+            // 22-08-2022-Hareesh //commented the not used method call
+
+//			SearchInboundHeader searchInboundHeader = new SearchInboundHeader();
+//			searchInboundHeader.setRefDocNumber(Arrays.asList(asnNumber));
+//			List<InboundHeader> inboundHeaderSearchResults = inboundHeaderService
+//					.findInboundHeader(searchInboundHeader);
+//			log.info("inboundHeaderSearchResults : " + inboundHeaderSearchResults);
+
+//			List<InboundLine> inboundLineSearchResults = inboundLineService.getInboundLine(asnNumber);
+            log.info("c_id, plant_id, lang_id, wh_id, preInboundNo, ref_doc_no: " +
+                    companyCodeId + ", " + plantId + ", " + languageId + ", " + warehouseId + ", " + asnNumber + ", " + preInboundNo);
+            List<InboundLineV2> inboundLineSearchResults = inboundLineService.getInboundLineForReportV2(asnNumber, preInboundNo, companyCodeId, plantId, languageId, warehouseId);
+			log.info("inboundLineSearchResults ------>: " + inboundLineSearchResults.size());
+
+            double sumTotalOfExpectedQty = 0.0;
+            double sumTotalOfAccxpectedQty = 0.0;
+            double sumTotalOfDamagedQty = 0.0;
+            double sumTotalOfMissingORExcess = 0.0;
+            List<Receipt> receiptList = new ArrayList<>();
+            log.info("inboundLine---------> : " + inboundLineSearchResults.size());
             if (!inboundLineSearchResults.isEmpty()) {
                 // Supplier - PARTNER_CODE
                 receiptHeader.setSupplier(inboundLineSearchResults.get(0).getVendorCode());

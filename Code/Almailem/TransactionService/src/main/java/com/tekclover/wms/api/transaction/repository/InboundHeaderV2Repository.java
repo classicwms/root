@@ -43,6 +43,24 @@ public interface InboundHeaderV2Repository extends JpaRepository<InboundHeaderV2
 
     @Query(value = "Select \r\n" +
             "CASE \r\n" +
+            "When OrderLinesCount IS NOT NULL THEN OrderLinesCount \r\n" +
+            "Else 0 \r\n" +
+            "END as countOfOrderLines \r\n" +
+            "From \r\n" +
+            "(Select COUNT(*) as OrderLinesCount \r\n" +
+            "From tblinboundline \r\n" +
+            "Where ref_doc_no IN (:refDocNumber) AND is_deleted = 0 AND \r\n" +
+            "PRE_IB_NO IN (:preInboundNo) AND C_ID = :companyCode AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId \r\n" +
+            ") As CountsSubquery ", nativeQuery = true)
+    Long getCountOfTheOrderLinesByRefDocNumber(@Param("refDocNumber") String refDocNumber,
+                                               @Param("companyCode") String companyCode,
+                                               @Param("preInboundNo") String preInboundNo,
+                                               @Param("plantId") String plantId,
+                                               @Param("languageId") String languageId,
+                                               @Param("warehouseId") String warehouseId);
+
+    @Query(value = "Select \r\n" +
+            "CASE \r\n" +
             "When SUM(il.accept_qty + il.damage_qty) > 0 Then \r\n" +
             "(Select COUNT(*) \r\n" +
             "From tblinboundline \r\n" +
@@ -59,8 +77,24 @@ public interface InboundHeaderV2Repository extends JpaRepository<InboundHeaderV2
            , nativeQuery = true)
     Long getReceivedLinesByRefDocNumber(@Param(value = "refDocNumber") String refDocNumber);
 
+    @Query(value =
+            "Select COUNT(*) \r\n" +
+            "From tblputawayline \r\n" +
+            "Where ref_doc_no IN (:refDocNumber) And is_deleted = 0 AND STATUS_ID IN (20,24) AND\r\n"+
+            "PRE_IB_NO IN (:preInboundNo) AND C_ID = :companyCode AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId \r\n"
+           , nativeQuery = true)
+    Long getReceivedLinesByRefDocNumber(@Param("refDocNumber") String refDocNumber,
+                                        @Param("companyCode") String companyCode,
+                                        @Param("preInboundNo") String preInboundNo,
+                                        @Param("plantId") String plantId,
+                                        @Param("languageId") String languageId,
+                                        @Param("warehouseId") String warehouseId);
+
     InboundHeaderV2 findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
             String companyCode, String plantId, String languageId, String warehouseId, String refDocNumber, Long deletionIndicator);
+
+    InboundHeaderV2 findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+            String companyCode, String plantId, String languageId, String warehouseId, String refDocNumber, String preInboundNo, Long deletionIndicator);
 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE InboundHeaderV2 ib SET ib.statusId = :statusId, ib.confirmedBy = :confirmedBy, ib.confirmedOn = :confirmedOn, ib.statusDescription = :statusDescription \n" +

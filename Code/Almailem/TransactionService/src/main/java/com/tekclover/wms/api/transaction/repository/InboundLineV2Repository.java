@@ -78,6 +78,9 @@ public interface InboundLineV2Repository extends JpaRepository<InboundLineV2, Lo
     List<InboundLineV2> findByCompanyCodeAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
             String companyCode, String languageId, String plantId, String warehouseId, String refDocNumber, Long deletionIndicator);
 
+    List<InboundLineV2> findByCompanyCodeAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+            String companyCode, String languageId, String plantId, String warehouseId, String refDocNumber, String preInboundNo, Long deletionIndicator);
+
     @Query(value = "select il.wh_id as warehouseId, il.itm_code as itemCode, 'InBound' as documentType ,il.ref_doc_no as documentNumber, il.partner_code as partnerCode, "
             + " il.c_id as companyCodeId,il.plant_id as plantId,il.lang_id as languageId, "
             + " il.c_text as companyDescription,il.plant_text as plantDescription,il.status_text as statusDescription,il.wh_text as warehouseDescription, "
@@ -123,6 +126,9 @@ public interface InboundLineV2Repository extends JpaRepository<InboundLineV2, Lo
 
     List<InboundLineV2> findByRefDocNumberAndCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndStatusIdAndDeletionIndicator(
             String refDocNumber, String companyCode, String plantId, String languageId, String warehouseId, Long statusId, Long deletionIndicator);
+
+    List<InboundLineV2> findByRefDocNumberAndPreInboundNoAndCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndStatusIdAndDeletionIndicator(
+            String refDocNumber, String preInboundNo, String companyCode, String plantId, String languageId, String warehouseId, Long statusId, Long deletionIndicator);
 
     @Transactional
     @Procedure(procedureName = "inboundline_status_update_proc")
@@ -186,7 +192,7 @@ public interface InboundLineV2Repository extends JpaRepository<InboundLineV2, Lo
                                                                   @Param("statusId") Long statusId,
                                                                   @Param("cnfStatusId") Long cnfStatusId);
 
-    @Query(value = "select * from tblinboundline where ref_doc_no = :refDocNo \n" +
+    @Query(value = "select * from tblinboundline where ref_doc_no = :refDocNo and pre_ib_no = :preInboundNo \n" +
             "and c_id = :companyCode and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId \n" +
             "and status_id = :statusId and ref_field_2 = 'true' and is_deleted = 0 ", nativeQuery = true)
     public List<InboundLineV2> getInboundLinesV2ForInboundConfirm(@Param("companyCode") String companyCode,
@@ -194,9 +200,10 @@ public interface InboundLineV2Repository extends JpaRepository<InboundLineV2, Lo
                                                                   @Param("languageId") String languageId,
                                                                   @Param("warehouseId") String warehouseId,
                                                                   @Param("refDocNo") String refDocNo,
+                                                                  @Param("preInboundNo") String preInboundNo,
                                                                   @Param("statusId") Long statusId);
 
-    @Query(value = "select count(ref_doc_no) from tblinboundline where ref_doc_no = :refDocNo \n" +
+    @Query(value = "select count(ref_doc_no) from tblinboundline where ref_doc_no = :refDocNo and pre_ib_no = :preInboundNo \n" +
             "and c_id = :companyCode and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId \n" +
             "and status_id = :statusId and ref_field_2 = 'true' and is_deleted = 0 ", nativeQuery = true)
     public Long getInboundLinesV2CountForInboundConfirmWithStatusId(@Param("companyCode") String companyCode,
@@ -204,14 +211,16 @@ public interface InboundLineV2Repository extends JpaRepository<InboundLineV2, Lo
                                                                     @Param("languageId") String languageId,
                                                                     @Param("warehouseId") String warehouseId,
                                                                     @Param("refDocNo") String refDocNo,
+                                                                    @Param("preInboundNo") String preInboundNo,
                                                                     @Param("statusId") Long statusId);
-    @Query(value = "select count(ref_doc_no) from tblinboundline where ref_doc_no = :refDocNo \n" +
+    @Query(value = "select count(ref_doc_no) from tblinboundline where ref_doc_no = :refDocNo and pre_ib_no = :preInboundNo \n" +
             "and c_id = :companyCode and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId \n" +
             "and is_deleted = 0 ", nativeQuery = true)
     public Long getInboundLinesV2CountForInboundConfirm(@Param("companyCode") String companyCode,
                                                         @Param("plantId") String plantId,
                                                         @Param("languageId") String languageId,
                                                         @Param("warehouseId") String warehouseId,
-                                                        @Param("refDocNo") String refDocNo);
+                                                        @Param("refDocNo") String refDocNo,
+                                                        @Param("preInboundNo") String preInboundNo);
 }
 

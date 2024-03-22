@@ -499,10 +499,10 @@ public class PickupHeaderService {
      * @param refDocNumber
      * @return
      */
-    public List<PickupHeaderV2> getPickupHeaderForPickListCancellationV2(String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber) {
+    public List<PickupHeaderV2> getPickupHeaderForPickListCancellationV2(String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber, String preOutboundNo) {
         List<PickupHeaderV2> pickupHeader =
-                pickupHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
-                        companyCodeId, plantId, languageId, warehouseId, refDocNumber, 0L);
+                pickupHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                        companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 0L);
         log.info("New Picklist ---> pickup header : " + pickupHeader);
         if (pickupHeader != null && !pickupHeader.isEmpty()) {
             return pickupHeader;
@@ -1418,10 +1418,10 @@ public class PickupHeaderService {
      */
     //Delete PickUpHeaderV2
     public List<PickupHeaderV2> deletePickUpHeaderV2(String companyCodeId, String plantId, String languageId,
-                                                     String warehouseId, String refDocNumber, String loginUserID)throws Exception {
+                                                     String warehouseId, String refDocNumber, String preOutboundNo, String loginUserID)throws Exception {
 
-        List<PickupHeaderV2> pickupHeaderList = pickupHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
-                companyCodeId, plantId, languageId, warehouseId, refDocNumber, 0L);
+        List<PickupHeaderV2> pickupHeaderList = pickupHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 0L);
         log.info("PickList Cancellation - PickupHeader : " + pickupHeaderList);
         List<PickupHeaderV2> pickupHeaders = new ArrayList<>();
         if (pickupHeaderList != null && !pickupHeaderList.isEmpty()) {

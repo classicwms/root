@@ -559,6 +559,33 @@ public class GrHeaderService extends BaseService {
     }
 
     /**
+     *
+     * @param companyCode
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param refDocNumber
+     * @param preInboundNo
+     * @return
+     */
+    public GrHeaderV2 getGrHeaderForReversalV2(String companyCode, String plantId, String languageId,
+                                               String warehouseId, String refDocNumber, String preInboundNo) {
+        GrHeaderV2 grHeader =
+                grHeaderV2Repository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+                        languageId,
+                        companyCode,
+                        plantId,
+                        warehouseId,
+                        refDocNumber,
+                        preInboundNo,
+                        0L);
+        if (grHeader == null) {
+            return null;
+        }
+        return grHeader;
+    }
+
+    /**
      * @param refDocNumber
      * @param warehouseId
      * @param preInboundNo
@@ -810,10 +837,10 @@ public class GrHeaderService extends BaseService {
 
     //Delete GrHeader
     public GrHeaderV2 deleteGrHeaderV2(String companyCode, String languageId, String plantId,
-                                       String warehouseId, String refDocNumber, String loginUserID) throws ParseException {
+                                       String warehouseId, String refDocNumber, String preInboundNo, String loginUserID) throws ParseException {
 
-        GrHeaderV2 grHeader = grHeaderV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
-                companyCode, plantId, languageId, warehouseId, refDocNumber, 0L);
+        GrHeaderV2 grHeader = grHeaderV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+                companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 0L);
         log.info("GrHeader - Cancellation : " + grHeader);
         if (grHeader != null) {
             grHeader.setDeletionIndicator(1L);

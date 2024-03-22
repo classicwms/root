@@ -651,9 +651,9 @@ public class StagingHeaderService extends BaseService {
      */
     // Delete StagingHeader
     public StagingHeaderV2 deleteStagingHeaderV2(String companyCode, String plantId, String languageId,
-                                                 String warehouseId, String refDocNumber, String loginUserID) throws ParseException {
-        StagingHeaderV2 stagingHeader = stagingHeaderV2Repository.findByCompanyCodeAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
-                companyCode, languageId, plantId, warehouseId, refDocNumber, 0L);
+                                                 String warehouseId, String refDocNumber, String preInboundNo, String loginUserID) throws ParseException {
+        StagingHeaderV2 stagingHeader = stagingHeaderV2Repository.findByCompanyCodeAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+                companyCode, languageId, plantId, warehouseId, refDocNumber, preInboundNo, 0L);
         log.info("stagingHeader - cancellation : " + stagingHeader);
         if (stagingHeader != null) {
             stagingHeader.setDeletionIndicator(1L);

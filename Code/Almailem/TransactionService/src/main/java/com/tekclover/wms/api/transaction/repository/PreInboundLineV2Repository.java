@@ -72,6 +72,9 @@ public interface PreInboundLineV2Repository extends JpaRepository<PreInboundLine
     List<PreInboundLineEntityV2> findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
             String languageId, String companyCode, String plantId, String warehouseId, String refDocNumber, Long deletionIndicator);
 
+    List<PreInboundLineEntityV2> findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+            String languageId, String companyCode, String plantId, String warehouseId, String refDocNumber, String preInboundNo, Long deletionIndicator);
+
     @Transactional
     @Procedure(procedureName = "preinboundline_status_update_ib_cnf_proc")
     public void updatePreInboundLineStatusUpdateInboundConfirmProc(

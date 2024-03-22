@@ -144,4 +144,7 @@ public interface InventoryMovementRepository extends JpaRepository<InventoryMove
 
     List<InventoryMovement> findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
 			String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber, Long deletionIndicator);
+
+    List<InventoryMovement> findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndReferenceNumberAndDeletionIndicator(
+			String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber, String referenceNumber, Long deletionIndicator);
 }

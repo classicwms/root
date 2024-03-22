@@ -62,6 +62,9 @@ public interface GrLineV2Repository extends JpaRepository<GrLineV2, Long>, JpaSp
     List<GrLineV2> findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPackBarcodesAndItemCodeAndManufacturerNameAndLineNoAndDeletionIndicator(
             String languageId, String companyCodeId, String plantId, String warehouseId, String refDocNumber,
             String packBarcodes, String itemCode, String manufacturerName, Long lineNo, Long deletionIndicator);
+    List<GrLineV2> findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPackBarcodesAndItemCodeAndManufacturerNameAndLineNoAndPreInboundNoAndDeletionIndicator(
+            String languageId, String companyCodeId, String plantId, String warehouseId, String refDocNumber,
+            String packBarcodes, String itemCode, String manufacturerName, Long lineNo, String preInboundNo, Long deletionIndicator);
 
     List<GrLineV2> findByGoodsReceiptNoAndItemCodeAndLineNoAndLanguageIdAndCompanyCodeAndPlantIdAndRefDocNumberAndPackBarcodesAndWarehouseIdAndPreInboundNoAndCaseCodeAndCreatedOnAndDeletionIndicator(
             String goodsReceiptNo, String itemCode, Long lineNo,
@@ -85,6 +88,9 @@ public interface GrLineV2Repository extends JpaRepository<GrLineV2, Long>, JpaSp
 
     List<GrLineV2> findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
             String companyCode, String plantId, String languageId, String warehouseId, String refDocNumber, Long deletionIndicator);
+
+    List<GrLineV2> findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+            String companyCode, String plantId, String languageId, String warehouseId, String refDocNumber, String preInboundNo, Long deletionIndicator);
 
     @Query(value = "select count(*) \n" +
             "from tblgrline where c_id = :companyCode and plant_id = :plantId and lang_id = :languageId and \n" +

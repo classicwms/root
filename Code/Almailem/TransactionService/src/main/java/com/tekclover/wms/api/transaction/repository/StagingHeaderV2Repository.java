@@ -37,6 +37,9 @@ public interface StagingHeaderV2Repository extends JpaRepository<StagingHeaderV2
     StagingHeaderV2 findByCompanyCodeAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
             String companyCode, String languageId, String plantId, String warehouseId, String refDocNumber, Long deletionIndicator);
 
+    StagingHeaderV2 findByCompanyCodeAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+            String companyCode, String languageId, String plantId, String warehouseId, String refDocNumber, String preInboundNo, Long deletionIndicator);
+
     @Modifying(clearAutomatically = true)
     @Query("UPDATE StagingHeaderV2 ib SET ib.statusId = :statusId, ib.statusDescription = :statusDescription \n" +
             "WHERE ib.warehouseId = :warehouseId AND ib.refDocNumber = :refDocNumber and ib.companyCode = :companyCode and ib.plantId = :plantId and ib.languageId = :languageId")

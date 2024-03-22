@@ -188,6 +188,15 @@ public class InboundLineService extends BaseService {
         return inboundLine;
     }
 
+    public List<InboundLineV2> getInboundLineForReportV2(String refDocNumber, String preInboundNo, String companyCodeId,
+                                                         String plantId, String languageId, String warehouseId) {
+        List<InboundLineV2> inboundLine = inboundLineV2Repository.
+                findByCompanyCodeAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+                        companyCodeId, languageId, plantId, warehouseId,refDocNumber, preInboundNo, 0L);
+        log.info("inboundLine : " + inboundLine);
+        return inboundLine;
+    }
+
     public List<InboundLine> getInboundLine(String refDocNumber, String warehouseId) {
         List<InboundLine> inboundLine = inboundLineRepository.findByRefDocNumberAndWarehouseIdAndDeletionIndicator(refDocNumber, warehouseId, 0L);
         log.info("inboundLine : " + inboundLine);
@@ -203,10 +212,11 @@ public class InboundLineService extends BaseService {
      * @param refDocNumber
      * @return
      */
-    public List<InboundLineV2> getInboundLineForInboundConfirmV2(String companyCode, String plantId, String languageId, String warehouseId, String refDocNumber) {
+    public List<InboundLineV2> getInboundLineForInboundConfirmV2(String companyCode, String plantId, String languageId, String warehouseId, String refDocNumber, String preInboundNo) {
         List<InboundLineV2> inboundLines = inboundLineV2Repository.
-                findByRefDocNumberAndCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndDeletionIndicator(refDocNumber, companyCode, plantId, languageId, warehouseId, 0L);
-        log.info("inboundLine : " + inboundLines);
+                findByRefDocNumberAndPreInboundNoAndCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndStatusIdAndDeletionIndicator(
+                        refDocNumber, preInboundNo, companyCode, plantId, languageId, warehouseId, 20L,  0L);
+        log.info("inboundLine : " + inboundLines.size());
         return inboundLines;
     }
 
@@ -238,11 +248,11 @@ public class InboundLineService extends BaseService {
      * @return
      */
     public List<InboundLineV2> getInboundLineForInboundConfirmPartialAllocationV2(String companyCode, String plantId, String languageId,
-                                                                                  String warehouseId, String refDocNumber) {
+                                                                                  String warehouseId, String refDocNumber, String preInboundNo) {
 //        List<InboundLineV2> inboundLines = inboundLineV2Repository.getInboundLinesV2ForInboundConfirm(
 //                        companyCode, plantId, languageId, warehouseId, refDocNumber,  20L, 24L);
         List<InboundLineV2> inboundLines = inboundLineV2Repository.getInboundLinesV2ForInboundConfirm(
-                companyCode, plantId, languageId, warehouseId, refDocNumber,  20L);
+                companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo,   20L);
         log.info("inboundLine : " + inboundLines.size());
         return inboundLines;
     }
@@ -731,11 +741,11 @@ public class InboundLineService extends BaseService {
      */
     //Delete InboundLine
     public List<InboundLineV2> deleteInboundLineV2(String companyCode, String plantId, String languageId,
-                                                   String warehouseId, String refDocNumber, String loginUserID) throws ParseException {
+                                                   String warehouseId, String refDocNumber, String preInboundNo, String loginUserID) throws ParseException {
 
         List<InboundLineV2> inboundLineV2List = new ArrayList<>();
-        List<InboundLineV2> inboundLineList = inboundLineV2Repository.findByCompanyCodeAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
-                companyCode, languageId, plantId, warehouseId, refDocNumber, 0L);
+        List<InboundLineV2> inboundLineList = inboundLineV2Repository.findByCompanyCodeAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+                companyCode, languageId, plantId, warehouseId, refDocNumber, preInboundNo,0L);
         log.info("InboundLine - cancellation : " + inboundLineList);
         if(inboundLineList != null && !inboundLineList.isEmpty()){
             for(InboundLineV2 inboundLineV2 : inboundLineList){

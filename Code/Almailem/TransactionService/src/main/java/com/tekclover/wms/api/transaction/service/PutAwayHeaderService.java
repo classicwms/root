@@ -1086,6 +1086,38 @@ public class PutAwayHeaderService extends BaseService {
     }
 
     /**
+     *
+     * @param companyCode
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param refDocNumber
+     * @param preInboundNo
+     * @return
+     */
+    public List<PutAwayHeaderV2> getPutAwayHeaderForCancellationV2(String companyCode, String plantId, String languageId,
+                                                                   String warehouseId, String refDocNumber, String preInboundNo) {
+        List<Long> statusIds = Arrays.asList(19L, 20L);
+        List<PutAwayHeaderV2> putAwayHeader =
+                putAwayHeaderV2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndStatusIdInAndDeletionIndicator(
+                        languageId,
+                        companyCode,
+                        plantId,
+                        warehouseId,
+                        refDocNumber,
+                        preInboundNo,
+                        statusIds,
+                        0L
+                );
+        if (putAwayHeader.isEmpty()) {
+            throw new BadRequestException("The given values: " +
+                    ",refDocNumber: " + refDocNumber + "," +
+                    " doesn't exist.");
+        }
+        return putAwayHeader;
+    }
+
+    /**
      * @param warehouseId
      * @return
      */
@@ -1676,7 +1708,7 @@ public class PutAwayHeaderService extends BaseService {
 
             Long lineNumber = dbPutAwayHeader.getReferenceField9() != null ? Long.valueOf(dbPutAwayHeader.getReferenceField9()) : 0;
             grLineList = grLineService.getGrLineV2ForReversal(companyCode, languageId, plantId, warehouseId, refDocNumber,
-                    packBarcodes, dbPutAwayHeader.getReferenceField5(), dbPutAwayHeader.getManufacturerName(), lineNumber);
+                    packBarcodes, dbPutAwayHeader.getReferenceField5(), dbPutAwayHeader.getManufacturerName(), lineNumber, preInboundNo);
             log.info("Grline Reversal: " + grLineList);
 
             //update the statusId to complete reversal process
@@ -2253,7 +2285,7 @@ public class PutAwayHeaderService extends BaseService {
                                             String warehouseId, String refDocNumber, String loginUserID) throws ParseException {
         // Update PREINBOUNDHEADER and PREINBOUNDLINE table with STATUS_ID = 05 and update the other fields from UI
         //Gr Header
-        GrHeaderV2 updateGrHeaderStatus = grHeaderService.getGrHeaderForReversalV2(companyCode, plantId, languageId, warehouseId, refDocNumber);
+        GrHeaderV2 updateGrHeaderStatus = grHeaderService.getGrHeaderForReversalV2(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
         log.info("GrHeader for Status Update: " + updateGrHeaderStatus);
         if (updateGrHeaderStatus != null) {
             updateGrHeaderStatus.setStatusId(16L);
@@ -2451,11 +2483,11 @@ public class PutAwayHeaderService extends BaseService {
      */
     //Delete PutAwayHeader
     public List<PutAwayHeaderV2> deletePutAwayHeaderV2(String companyCodeId, String plantId, String languageId,
-                                                       String warehouseId, String refDocNumber, String loginUserID) {
+                                                       String warehouseId, String refDocNumber, String preInboundNo, String loginUserID) {
 
         List<PutAwayHeaderV2> putAwayHeaderV2List = new ArrayList<>();
-        List<PutAwayHeaderV2> putAwayHeaderList = putAwayHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
-                companyCodeId, plantId, languageId, warehouseId, refDocNumber, 0L);
+        List<PutAwayHeaderV2> putAwayHeaderList = putAwayHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+                companyCodeId, plantId, languageId, warehouseId, refDocNumber, preInboundNo,0L);
         log.info("PutAwayHeader - Cancellation : " + putAwayHeaderList);
         if (putAwayHeaderList != null && !putAwayHeaderList.isEmpty()) {
             for (PutAwayHeaderV2 putAwayHeaderV2 : putAwayHeaderList) {

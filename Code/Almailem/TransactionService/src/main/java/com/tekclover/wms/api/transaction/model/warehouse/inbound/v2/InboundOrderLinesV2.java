@@ -42,4 +42,5 @@ public class InboundOrderLinesV2 extends InboundOrderLines {
     private String supplierInvoiceNo;
     private String companyCode;
     private String branchCode;
+    private Long inboundOrderTypeId; 		// IB_ORD_TYP_ID
 }

@@ -2361,11 +2361,11 @@ public class QualityLineService extends BaseService {
      */
     //DeleteQualityHeaderV2
     public List<QualityLineV2> deleteQualityLine(String companyCodeId, String plantId, String languageId,
-                                                 String warehouseId, String refDocNumber, String loginUserID) throws Exception {
+                                                 String warehouseId, String refDocNumber, String preOutboundNo, String loginUserID) throws Exception {
 
         List<QualityLineV2> qualityLineV2List = new ArrayList<>();
-        List<QualityLineV2> dbQualityLineList = qualityLineV2Repository.findByCompanyCodeIdAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
-                companyCodeId, languageId, plantId, warehouseId, refDocNumber, 0L);
+        List<QualityLineV2> dbQualityLineList = qualityLineV2Repository.findByCompanyCodeIdAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                companyCodeId, languageId, plantId, warehouseId, refDocNumber, preOutboundNo,0L);
         log.info("PickList Cancellation - QualityLine : " + dbQualityLineList);
         if (dbQualityLineList != null && !dbQualityLineList.isEmpty()) {
             for (QualityLineV2 qualityLineV2 : dbQualityLineList) {

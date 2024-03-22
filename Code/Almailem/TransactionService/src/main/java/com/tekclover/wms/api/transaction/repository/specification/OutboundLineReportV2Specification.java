@@ -56,6 +56,9 @@ public class OutboundLineReportV2Specification implements Specification<Outbound
 		 if (searchOutboundLineReport.getRefDocNumber() != null) {
         	 predicates.add(cb.equal(root.get("refDocNumber"), searchOutboundLineReport.getRefDocNumber()));
          }
+		 if (searchOutboundLineReport.getPreOutboundNo() != null) {
+        	 predicates.add(cb.equal(root.get("preOutboundNo"), searchOutboundLineReport.getPreOutboundNo()));
+         }
 		 
          return cb.and(predicates.toArray(new Predicate[] {}));
      }

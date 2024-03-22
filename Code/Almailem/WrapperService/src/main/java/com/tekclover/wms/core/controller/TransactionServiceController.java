@@ -1711,6 +1711,22 @@ public class TransactionServiceController {
         return new ResponseEntity<>(shipmentDeliveryList, HttpStatus.OK);
     }
 
+    @ApiOperation(response = ShipmentDeliveryReport.class, value = "Get ShipmentDelivery Report v2 New")    // label for swagger
+    @GetMapping("/reports/v2/shipmentDelivery/new")
+    public ResponseEntity<?> getShipmentDeliveryReportV2(@RequestParam String companyCodeId, @RequestParam String plantId,
+                                                       @RequestParam String languageId, @RequestParam String warehouseId,
+                                                       @RequestParam(required = false) String fromDeliveryDate,
+                                                       @RequestParam(required = false) String toDeliveryDate,
+                                                       @RequestParam(required = false) String storeCode,
+                                                       @RequestParam(required = false) List<String> soType,
+                                                       @RequestParam String orderNumber, @RequestParam String preOutboundNo,
+                                                       @RequestParam String authToken)
+            throws ParseException, Exception {
+        ShipmentDeliveryReport[] shipmentDeliveryList = transactionService.getShipmentDeliveryReportV2(companyCodeId, plantId, languageId, warehouseId,
+                fromDeliveryDate, toDeliveryDate, storeCode, soType, orderNumber, preOutboundNo, authToken);
+        return new ResponseEntity<>(shipmentDeliveryList, HttpStatus.OK);
+    }
+
     @ApiOperation(response = ShipmentDeliverySummaryReport.class, value = "Get ShipmentDeliverySummary Report")    // label for swagger
     @GetMapping("/reports/shipmentDeliverySummary1")
     public ResponseEntity<?> getShipmentDeliveryReport1(@RequestParam String fromDeliveryDate,
@@ -1759,6 +1775,15 @@ public class TransactionServiceController {
     public ResponseEntity<?> getReceiptConfimationReport(@RequestParam String asnNumber,
                                                          @RequestParam String authToken) throws Exception {
         ReceiptConfimationReport receiptConfimationReport = transactionService.getReceiptConfimationReport(asnNumber, authToken);
+        return new ResponseEntity<>(receiptConfimationReport, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = ReceiptConfimationReport.class, value = "Get ReceiptConfimation Report")    // label for swagger
+    @GetMapping("/reports/v2/receiptConfirmation")
+    public ResponseEntity<?> getReceiptConfimationReportNew(@RequestParam String asnNumber, @RequestParam String preInboundNo, @RequestParam String companyCodeId,
+                                                            @RequestParam String plantId, @RequestParam String languageId, @RequestParam String warehouseId,
+                                                            @RequestParam String authToken) throws Exception {
+        ReceiptConfimationReport receiptConfimationReport = transactionService.getReceiptConfimationReportV2(asnNumber, preInboundNo, companyCodeId, plantId, languageId, warehouseId, authToken);
         return new ResponseEntity<>(receiptConfimationReport, HttpStatus.OK);
     }
 
@@ -4203,9 +4228,11 @@ public class TransactionServiceController {
     @GetMapping("/SalesInvoice/replace")
     public ResponseEntity<?> patchSalesInvoiceReplace(@RequestParam String companyCode, @RequestParam String languageId, @RequestParam String plantId,
                                                       @RequestParam String warehouseId, @RequestParam String oldInvoiceNumber, @RequestParam String newInvoiceNumber,
+                                                      @RequestParam String oldPreInboundNo, @RequestParam String newPreInboundNo,
                                                       @RequestParam String loginUserID, @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
 
-      WarehouseApiResponse result = transactionService.replaceInvoice(companyCode, plantId, languageId, warehouseId, newInvoiceNumber,oldInvoiceNumber, loginUserID, authToken);
+      WarehouseApiResponse result = transactionService.replaceInvoice(companyCode, plantId, languageId, warehouseId, newInvoiceNumber,oldInvoiceNumber,
+              newPreInboundNo,oldPreInboundNo, loginUserID, authToken);
       return new ResponseEntity<>(result, HttpStatus.OK);
     }
 

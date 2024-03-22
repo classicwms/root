@@ -57,6 +57,9 @@ public interface QualityLineV2Repository extends JpaRepository<QualityLineV2, Lo
     List<QualityLineV2> findByCompanyCodeIdAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
             String companyCodeId, String languageId, String plantId, String warehouseId, String refDocNumber, Long deletionIndicator);
 
+    List<QualityLineV2> findByCompanyCodeIdAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+            String companyCodeId, String languageId, String plantId, String warehouseId, String refDocNumber, String preOutboundNo, Long deletionIndicator);
+
     List<QualityLineV2> findAllByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndManufacturerNameAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo,
             String refDocNumber, String partnerCode, Long lineNumber, String itemCode, String manufacturerName, Long deletionIndicator);

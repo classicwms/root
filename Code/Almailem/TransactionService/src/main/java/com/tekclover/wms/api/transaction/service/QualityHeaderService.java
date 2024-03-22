@@ -378,10 +378,10 @@ public class QualityHeaderService {
      * @param refDocNumber
      * @return
      */
-    public List<QualityHeaderV2> getQualityHeaderForPickListCancellationV2(String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber) {
+    public List<QualityHeaderV2> getQualityHeaderForPickListCancellationV2(String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber, String preOutboundNo) {
         List<QualityHeaderV2> qualityHeader =
-                qualityHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
-                        companyCodeId, plantId, languageId, warehouseId, refDocNumber, 0L);
+                qualityHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                        companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 0L);
         if (qualityHeader != null && !qualityHeader.isEmpty()) {
             log.info("Quality Header: " + qualityHeader);
             return qualityHeader;
@@ -711,11 +711,11 @@ public class QualityHeaderService {
      * @throws Exception
      */
     //Delete QualityHeaderV2
-    public List<QualityHeaderV2> deleteQualityHeaderV2(String companyCodeId, String plantId, String languageId,
-                                                 String warehouseId, String refDocNumber, String loginUserID)throws Exception {
+    public List<QualityHeaderV2> deleteQualityHeaderV2(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                       String refDocNumber, String preOutboundNo, String loginUserID)throws Exception {
 
-        List<QualityHeaderV2> qualityHeaderList = qualityHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
-                companyCodeId, plantId, languageId, warehouseId, refDocNumber, 0L);
+        List<QualityHeaderV2> qualityHeaderList = qualityHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo,0L);
         log.info("PickList Cancellation - QualityHeader : " + qualityHeaderList);
         List<QualityHeaderV2> qualityHeaders = new ArrayList<>();
         if (qualityHeaderList != null && !qualityHeaderList.isEmpty()) {

@@ -765,7 +765,8 @@ public class OutboundHeaderService {
                 searchOutboundHeader.getPlantId(),
                 searchOutboundHeader.getLanguageId(),
                 searchOutboundHeader.getWarehouseId(),
-                searchOutboundHeader.getRefDocNumber(), searchOutboundHeader.getPartnerCode(), searchOutboundHeader.getOutboundOrderTypeId(),
+                searchOutboundHeader.getRefDocNumber(), searchOutboundHeader.getPartnerCode(),
+                searchOutboundHeader.getTargetBranchCode(), searchOutboundHeader.getOutboundOrderTypeId(),
                 searchOutboundHeader.getStatusId(), searchOutboundHeader.getSoType(),
                 searchOutboundHeader.getStartRequiredDeliveryDate(), searchOutboundHeader.getEndRequiredDeliveryDate(),
                 searchOutboundHeader.getStartDeliveryConfirmedOn(), searchOutboundHeader.getEndDeliveryConfirmedOn(),
@@ -862,7 +863,8 @@ public class OutboundHeaderService {
                 searchOutboundHeader.getPlantId(),
                 searchOutboundHeader.getLanguageId(),
                 searchOutboundHeader.getWarehouseId(),
-                searchOutboundHeader.getRefDocNumber(), searchOutboundHeader.getPartnerCode(), searchOutboundHeader.getOutboundOrderTypeId(),
+                searchOutboundHeader.getRefDocNumber(), searchOutboundHeader.getPartnerCode(),
+                searchOutboundHeader.getTargetBranchCode(), searchOutboundHeader.getOutboundOrderTypeId(),
                 searchOutboundHeader.getStatusId(), searchOutboundHeader.getSoType(),
                 searchOutboundHeader.getStartRequiredDeliveryDate(), searchOutboundHeader.getEndRequiredDeliveryDate(),
                 searchOutboundHeader.getStartDeliveryConfirmedOn(), searchOutboundHeader.getEndDeliveryConfirmedOn(),
@@ -1007,10 +1009,10 @@ public class OutboundHeaderService {
      */
     //Delete OutBoundHeaderV2
     public OutboundHeaderV2 deleteOutBoundHeader(String companyCodeId, String plantId, String languageId,
-                                                 String warehouseId, String refDocNumber,String loginUserID) throws Exception{
+                                                 String warehouseId, String refDocNumber, String preOutboundNo,String loginUserID) throws Exception{
 
-        OutboundHeaderV2 outboundHeaderV2 = outboundHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
-                companyCodeId, plantId, languageId, warehouseId, refDocNumber, 0L);
+        OutboundHeaderV2 outboundHeaderV2 = outboundHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 0L);
         log.info("PickList Cancellation - OutboundHeader : " + outboundHeaderV2);
         if (outboundHeaderV2 != null) {
             outboundHeaderV2.setDeletionIndicator(1L);

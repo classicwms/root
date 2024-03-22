@@ -92,4 +92,7 @@ public interface InboundHeaderRepository extends JpaRepository<InboundHeader,Lon
 	Optional<InboundHeader> findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndStatusIdAndDeletionIndicator(
 			String companyCode, String plantId, String languageId, String warehouseId, String oldInvoiceNo, Long refDocNumber, Long statusId);
 
+	Optional<InboundHeader> findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndStatusIdAndDeletionIndicator(
+			String companyCode, String plantId, String languageId, String warehouseId, String oldInvoiceNo, String preInboundNo, Long statusId, Long deletionIndicator);
+
 }

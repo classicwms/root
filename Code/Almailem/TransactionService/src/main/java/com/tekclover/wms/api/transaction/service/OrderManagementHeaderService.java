@@ -401,11 +401,11 @@ public class OrderManagementHeaderService {
      */
     // DeleteOrderManagementHeader
     public OrderManagementHeaderV2 deleteOrderManagementHeaderV2(String companyCodeId, String plantId, String languageId,
-                                                                 String warehouseId, String refDocNumber,String loginUserID)throws Exception{
+                                                                 String warehouseId, String refDocNumber, String preOutboundNo, String loginUserID)throws Exception{
 
         OrderManagementHeaderV2 orderManagementHeaderV2 =
-                orderManagementHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
-                companyCodeId, plantId, languageId, warehouseId, refDocNumber, 0L);
+                orderManagementHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo,0L);
         log.info("PickList Cancellation - OrderManagementHeader : " + orderManagementHeaderV2);
         if(orderManagementHeaderV2 != null){
             orderManagementHeaderV2.setDeletionIndicator(1L);

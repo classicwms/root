@@ -424,10 +424,10 @@ public class PreOutboundLineService extends BaseService {
      */
     //Delete PreOutboundLine
     public List<PreOutboundLineV2> deletePreOutBoundLine(String companyCodeId, String plantId, String languageId,
-                                                         String warehouseId, String refDocNumber, String loginUserID)throws Exception{
+                                                         String warehouseId, String refDocNumber, String preOutboundNo, String loginUserID)throws Exception{
 
-        List<PreOutboundLineV2> preOutboundLineV2List = preOutboundLineV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
-                companyCodeId, plantId, languageId, warehouseId, refDocNumber,0L);
+        List<PreOutboundLineV2> preOutboundLineV2List = preOutboundLineV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 0L);
         log.info("PickList Cancellation - PreOutboundLine : " + preOutboundLineV2List);
         List<PreOutboundLineV2> preOutboundLineV2s = new ArrayList<>();
         if(preOutboundLineV2List != null && !preOutboundLineV2List.isEmpty()) {

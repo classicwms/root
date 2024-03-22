@@ -186,18 +186,22 @@ public class InventoryMovementService extends BaseService {
 	 * @return
 	 */
 	// Delete InventoryMovement
-	public List<InventoryMovement> deleteInventoryMovement (String warehouseId, String companyCodeId, String plantId,
-															String languageId, String refDocNumber, String loginUserID) {
+	public List<InventoryMovement> deleteInventoryMovement (String warehouseId, String companyCodeId, String plantId, String languageId,
+															String refDocNumber, String referenceNumber, String loginUserID) {
 		List<InventoryMovement> inventoryMovements = new ArrayList<>();
-		List<InventoryMovement> inventoryMovementList = inventoryMovementRepository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
-				companyCodeId, plantId, languageId,warehouseId, refDocNumber, 0L);
-		log.info("InventoryMovement - cancellation : " + inventoryMovementList);
-		if ( inventoryMovementList != null && !inventoryMovementList.isEmpty()) {
-			for (InventoryMovement inventoryMovement : inventoryMovementList) {
-				inventoryMovement.setDeletionIndicator(1L);
-				inventoryMovementRepository.save(inventoryMovement);
-				inventoryMovements.add(inventoryMovement);
+		try {
+			List<InventoryMovement> inventoryMovementList = inventoryMovementRepository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndReferenceNumberAndDeletionIndicator(
+					companyCodeId, plantId, languageId,warehouseId, refDocNumber, referenceNumber,0L);
+			log.info("InventoryMovement - cancellation : " + inventoryMovementList);
+			if ( inventoryMovementList != null && !inventoryMovementList.isEmpty()) {
+				for (InventoryMovement inventoryMovement : inventoryMovementList) {
+					inventoryMovement.setDeletionIndicator(1L);
+					inventoryMovementRepository.save(inventoryMovement);
+					inventoryMovements.add(inventoryMovement);
+				}
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return inventoryMovements;
 	}

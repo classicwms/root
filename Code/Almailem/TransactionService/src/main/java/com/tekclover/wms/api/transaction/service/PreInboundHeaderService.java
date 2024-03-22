@@ -1419,10 +1419,13 @@ public class PreInboundHeaderService extends BaseService {
     @Transactional(rollbackFor = {Exception.class, Throwable.class})
     public InboundHeaderV2 processInboundReceivedV2(String refDocNumber, InboundIntegrationHeader inboundIntegrationHeader)
             throws IllegalAccessException, InvocationTargetException, BadRequestException, Exception {
+        log.info("Inbound Process Initiated ------> " + refDocNumber + ", " + inboundIntegrationHeader.getInboundOrderTypeId());
         /*
          * Checking whether received refDocNumber processed already.
          */
-        Optional<PreInboundHeaderEntityV2> orderProcessedStatus = preInboundHeaderV2Repository.findByRefDocNumberAndDeletionIndicator(refDocNumber, 0L);
+//        Optional<PreInboundHeaderEntityV2> orderProcessedStatus = preInboundHeaderV2Repository.findByRefDocNumberAndDeletionIndicator(refDocNumber, 0L);
+        Optional<PreInboundHeaderEntityV2> orderProcessedStatus = preInboundHeaderV2Repository.
+                findByRefDocNumberAndInboundOrderTypeIdAndDeletionIndicator(refDocNumber,  inboundIntegrationHeader.getInboundOrderTypeId(), 0L);
         if (!orderProcessedStatus.isEmpty()) {
 //            orderService.updateProcessedInboundOrderV2(refDocNumber, 100L);
             throw new BadRequestException("Order :" + refDocNumber + " already processed. Reprocessing can't be allowed.");
@@ -1435,7 +1438,7 @@ public class PreInboundHeaderService extends BaseService {
         // validate the ITM_CODE result is Not Null
         AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
         log.info("authTokenForMastersService : " + authTokenForMastersService);
-        InboundOrderV2 inboundOrder = inboundOrderV2Repository.findByRefDocumentNo(refDocNumber);
+        InboundOrderV2 inboundOrder = inboundOrderV2Repository.findByRefDocumentNoAndInboundOrderTypeId(refDocNumber, inboundIntegrationHeader.getInboundOrderTypeId());
         log.info("inboundOrder : " + inboundOrder);
 
         com.tekclover.wms.api.transaction.model.warehouse.Warehouse warehouse = null;
@@ -2298,10 +2301,10 @@ public class PreInboundHeaderService extends BaseService {
      */
     // Delete PreInboundHeader
     public PreInboundHeaderEntityV2 deletePreInboundHeader(String companyCode, String plantId, String languageId,
-                                                           String warehouseId, String refDocNumber, String loginUserId) {
+                                                           String warehouseId, String refDocNumber, String preInboundNo, String loginUserId) {
         PreInboundHeaderEntityV2 preInboundHeaderEntity =
-                preInboundHeaderV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
-                        companyCode, plantId, languageId, warehouseId, refDocNumber, 0L);
+                preInboundHeaderV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+                        companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 0L);
         log.info("preInboundHeaderEntity - Cancellation: " + preInboundHeaderEntity);
         if(preInboundHeaderEntity != null){
             preInboundHeaderEntity.setDeletionIndicator(1L);

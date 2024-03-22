@@ -61,6 +61,9 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
     List<OrderManagementLineV2> findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber, Long deletionIndicator);
 
+    List<OrderManagementLineV2> findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+            String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber, String preOutboundNo, Long deletionIndicator);
+
     List<OrderManagementLineV2> findAllByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndManufacturerNameAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String itemCode, String manufacturerName, Long deletionIndicator);
 
@@ -112,6 +115,7 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
             @Param("languageId") String languageId,
             @Param("warehouseId") String warehouseId,
             @Param("refDocNumber") String refDocNumber,
+            @Param("preOutboundNo") String preOutboundNo,
             @Param("statusId") Long statusId,
             @Param("statusDescription") String statusDescription
     );

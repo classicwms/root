@@ -3549,6 +3549,7 @@ public class PickupLineService extends BaseService {
         inventoryMovement.setWarehouseDescription(dbPickupLine.getWarehouseDescription());
         inventoryMovement.setRefDocNumber(dbPickupLine.getRefDocNumber());
         inventoryMovement.setBarcodeId(dbPickupLine.getBarcodeId());
+        inventoryMovement.setReferenceNumber(dbPickupLine.getPreOutboundNo());
 
         // ST_BIN
         inventoryMovement.setStorageBin(storageBin);
@@ -3951,11 +3952,11 @@ public class PickupLineService extends BaseService {
      */
     //DeletePickupLine
     public List<PickupLineV2> deletePickUpLine(String companyCodeId, String plantId, String languageId,
-                                               String warehouseId, String refDocNumber, String loginUserID)throws Exception {
+                                               String warehouseId, String refDocNumber, String preOutboundNo, String loginUserID)throws Exception {
 
         List<PickupLineV2> pickupLineV2List = new ArrayList<>();
-        List<PickupLineV2> dbPickUpLine = pickupLineV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
-                companyCodeId, plantId, languageId, warehouseId, refDocNumber, 0L);
+        List<PickupLineV2> dbPickUpLine = pickupLineV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo,0L);
         log.info("PickList Cancellation - PickupLine : " + dbPickUpLine);
         if(dbPickUpLine != null && !dbPickUpLine.isEmpty()){
             for(PickupLineV2 pickupLineV2 : dbPickUpLine){

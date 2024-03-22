@@ -79,18 +79,18 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
                                                 @Param("statusDescription") String statusDescription,
                                                 @Param("deliveryConfirmedOn") Date deliveryConfirmedOn);
 
-    @Transactional
-    @Procedure(procedureName = "outbound_header_update_proc")
-    void updateOutboundHeaderUpdateProc(
-            @Param("companyCodeId") String companyCodeId,
-            @Param("plantId") String plantId,
-            @Param("languageId") String languageId,
-            @Param("warehouseId") String warehouseId,
-            @Param("refDocNumber") String refDocNumber,
-            @Param("statusId") Long statusId,
-            @Param("statusDescription") String statusDescription,
-            @Param("deliveryConfirmedOn") Date deliveryConfirmedOn
-    );
+//    @Transactional
+//    @Procedure(procedureName = "outbound_header_update_proc")
+//    void updateOutboundHeaderUpdateProc(
+//            @Param("companyCodeId") String companyCodeId,
+//            @Param("plantId") String plantId,
+//            @Param("languageId") String languageId,
+//            @Param("warehouseId") String warehouseId,
+//            @Param("refDocNumber") String refDocNumber,
+//            @Param("statusId") Long statusId,
+//            @Param("statusDescription") String statusDescription,
+//            @Param("deliveryConfirmedOn") Date deliveryConfirmedOn
+//    );
 
     OutboundHeaderV2 findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPickListNumberAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String pickListNumber, Long deletionIndicator);
@@ -165,6 +165,7 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
                     "(COALESCE(:warehouseId, null) IS NULL OR (oh.wh_id IN (:warehouseId))) and \n" +
                     "(COALESCE(:refDocNo, null) IS NULL OR (oh.ref_doc_no IN (:refDocNo))) and \n" +
                     "(COALESCE(:partnerCode, null) IS NULL OR (oh.partner_code IN (:partnerCode))) and \n" +
+                    "(COALESCE(:targetBranchCode, null) IS NULL OR (oh.target_branch_code IN (:targetBranchCode))) and \n" +
                     "(COALESCE(:outboundOrderTypeId, null) IS NULL OR (oh.ob_ord_typ_id IN (:outboundOrderTypeId))) and \n" +
                     "(COALESCE(:statusId, null) IS NULL OR (oh.status_id IN (:statusId))) and \n" +
                     "(COALESCE(:soType, null) IS NULL OR (oh.ref_field_1 IN (:soType))) and\n" +
@@ -186,6 +187,7 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
             @Param(value = "warehouseId") List<String> warehouseId,
             @Param(value = "refDocNo") List<String> refDocNo,
             @Param(value = "partnerCode") List<String> partnerCode,
+            @Param(value = "targetBranchCode") List<String> targetBranchCode,
             @Param(value = "outboundOrderTypeId") List<Long> outboundOrderTypeId,
             @Param(value = "statusId") List<Long> statusId,
             @Param(value = "soType") List<String> soType,
@@ -269,6 +271,7 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
                     "(COALESCE(:warehouseId, null) IS NULL OR (oh.wh_id IN (:warehouseId))) and \n" +
                     "(COALESCE(:refDocNo, null) IS NULL OR (oh.ref_doc_no IN (:refDocNo))) and \n" +
                     "(COALESCE(:partnerCode, null) IS NULL OR (oh.partner_code IN (:partnerCode))) and \n" +
+                    "(COALESCE(:targetBranchCode, null) IS NULL OR (oh.target_branch_code IN (:targetBranchCode))) and \n" +
                     "(COALESCE(:outboundOrderTypeId, null) IS NULL OR (oh.ob_ord_typ_id IN (:outboundOrderTypeId))) and \n" +
                     "(COALESCE(:statusId, null) IS NULL OR (oh.status_id IN (:statusId))) and \n" +
                     "(COALESCE(:soType, null) IS NULL OR (oh.ref_field_1 IN (:soType))) and\n" +
@@ -290,6 +293,7 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
             @Param(value = "warehouseId") List<String> warehouseId,
             @Param(value = "refDocNo") List<String> refDocNo,
             @Param(value = "partnerCode") List<String> partnerCode,
+            @Param(value = "targetBranchCode") List<String> targetBranchCode,
             @Param(value = "outboundOrderTypeId") List<Long> outboundOrderTypeId,
             @Param(value = "statusId") List<Long> statusId,
             @Param(value = "soType") List<String> soType,
@@ -313,8 +317,13 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
     OutboundHeaderV2 findByCompanyCodeIdAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
             String companyCodeId, String languageId, String plantId, String warehouseId, String oldPickListNumber, Long deletionIndicator);
 
+    OutboundHeaderV2 findByCompanyCodeIdAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+            String companyCodeId, String languageId, String plantId, String warehouseId, String oldPickListNumber, String preOutboundNo, Long deletionIndicator);
+
     OutboundHeaderV2 findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber, Long deletionIndicator);
+    OutboundHeaderV2 findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+            String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber, String preOutboundNo, Long deletionIndicator);
 
     List<OutboundHeaderV2> findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndStatusIdAndOutboundOrderTypeIdAndDeliveryConfirmedOnBetween(
             String companyCode, String plantId, String languageId, String warehouseId, Long statusId, Long partnerCode, Date fromDeliveryDateD, Date toDeliveryDateD);
@@ -338,4 +347,6 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
     );
 
     List<OutboundHeaderV2> findBySalesOrderNumberAndDeletionIndicator(String salesOrderNumber, Long deletionIndicator);
+
+    List<OutboundHeaderV2> findBySalesOrderNumberAndOutboundOrderTypeIdAndDeletionIndicator(String salesOrderNumber, Long outboundOrderTypeId, Long deletionIndicator);
 }

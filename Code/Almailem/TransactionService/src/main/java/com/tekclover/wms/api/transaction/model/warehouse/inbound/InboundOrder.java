@@ -3,22 +3,19 @@ package com.tekclover.wms.api.transaction.model.warehouse.inbound;
 import java.util.Date;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import lombok.Data;
 
 @Entity
-@Table(name = "tbliborder")
+@Table(name = "tbliborder1")
 @Data
 public class InboundOrder {
 	
 	@Id
+	@Column(name = "INBOUND_ORDER_HEADER_ID")
+	private Long inboundOrderHeaderId;
+
 	@Column(name = "order_id", nullable = false)
 	private String orderId;
 
@@ -32,7 +29,7 @@ public class InboundOrder {
 
 	private String purchaseOrderNumber;
 	
-	@OneToMany(cascade = CascadeType.ALL,mappedBy = "orderId",fetch = FetchType.EAGER)
+	@OneToMany(cascade = CascadeType.ALL,mappedBy = "inboundOrderHeaderId",fetch = FetchType.EAGER)
     private Set<InboundOrderLines> lines;
 	
 }

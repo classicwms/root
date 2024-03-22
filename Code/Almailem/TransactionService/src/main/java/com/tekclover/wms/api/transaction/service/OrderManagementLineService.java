@@ -2819,12 +2819,12 @@ public class OrderManagementLineService extends BaseService {
      */
     //Delete OrderManagementLine
     public List<OrderManagementLineV2> deleteOrderManagementLineV2(String companyCodeId, String plantId, String languageId,
-                                                                   String warehouseId, String refDocNumber, String loginUserID) throws Exception{
+                                                                   String warehouseId, String refDocNumber, String preOutboundNo, String loginUserID) throws Exception{
 
         List<OrderManagementLineV2> orderManagementLineList = new ArrayList<>();
         List<OrderManagementLineV2> orderManagementLine =
-                orderManagementLineV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
-                        companyCodeId, plantId, languageId, warehouseId, refDocNumber, 0L);
+                orderManagementLineV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                        companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo,0L);
         log.info("PickList Cancellation - OrderManagementLine : " + orderManagementLine);
 
         if (orderManagementLine != null && !orderManagementLine.isEmpty()) {

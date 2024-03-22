@@ -224,6 +224,9 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
     List<StagingLineEntityV2> findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndStagingNoAndCaseCodeAndDeletionIndicator(
             String languageId, String companyCode, String plantId, String warehouseId, String stagingNo, String caseCode, Long deletionIndicator);
 
+    List<StagingLineEntityV2> findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndStagingNoAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+            String languageId, String companyCode, String plantId, String warehouseId, String stagingNo, String refDocNumber, String preInboundNo, Long deletionIndicator);
+
     //HHt User by order type id
     @Query(value = "select ht.usr_id \n" +
             "from tblhhtuser ht join tblordertypeid ot on  ot.usr_id = ht.usr_id \n" +
@@ -278,6 +281,9 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
 
     List<StagingLineEntityV2> findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
             String companyCode, String plantId, String languageId, String warehouseId, String refDocNumber, Long deletionIndicator);
+
+    List<StagingLineEntityV2> findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+            String companyCode, String plantId, String languageId, String warehouseId, String refDocNumber, String preInboundNo, Long deletionIndicator);
 
     List<StagingLineEntityV2> findAllByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerNameAndDeletionIndicator(
             String languageId, String companyCode, String plantId, String warehouseId,
@@ -334,6 +340,7 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
             @Param("plantId") String plantId,
             @Param("languageId") String languageId,
             @Param("warehouseId") String warehouseId,
-            @Param("refDocNumber") String refDocNumber
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preInboundNo") String preInboundNo
     );
 }

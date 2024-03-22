@@ -41,9 +41,11 @@ public class InvoiceCancellationController {
     @GetMapping("/supplierInvoice/cancellation")
     public ResponseEntity<?> replaceSupplierInvoice(@RequestParam String companyCode, @RequestParam String languageId,
                                                     @RequestParam String plantId, @RequestParam String warehouseId, @RequestParam String oldInvoiceNo,
-                                                    @RequestParam String newInvoiceNo, @RequestParam String loginUserId) throws ParseException {
+                                                    @RequestParam String newInvoiceNo, @RequestParam String oldPreInboundNo,
+                                                    @RequestParam String newPreInboundNo, @RequestParam String loginUserId) throws ParseException {
 
-           WarehouseApiResponse result = invoiceCancellationService.replaceSupplierInvoice(companyCode, languageId, plantId, warehouseId, oldInvoiceNo, newInvoiceNo, loginUserId);
+           WarehouseApiResponse result = invoiceCancellationService.replaceSupplierInvoice(companyCode, languageId, plantId, warehouseId,
+                   oldPreInboundNo, oldInvoiceNo, newInvoiceNo, newPreInboundNo, loginUserId);
            return new ResponseEntity<>(result, HttpStatus.OK);
         }
 

@@ -1204,10 +1204,16 @@ public class InboundHeaderService extends BaseService {
         List<InboundHeaderV2> inboundHeaderV2List = new ArrayList<>();
         for (InboundHeaderV2 dbInboundHeaderV2 : results) {
 
-            Long countOfOrderLines = inboundHeaderV2Repository.getCountOfTheOrderLinesByRefDocNumber(dbInboundHeaderV2.getRefDocNumber());
+//            Long countOfOrderLines = inboundHeaderV2Repository.getCountOfTheOrderLinesByRefDocNumber(dbInboundHeaderV2.getRefDocNumber());
+            Long countOfOrderLines = inboundHeaderV2Repository.getCountOfTheOrderLinesByRefDocNumber(dbInboundHeaderV2.getRefDocNumber(),
+                    dbInboundHeaderV2.getCompanyCode(), dbInboundHeaderV2.getPreInboundNo(), dbInboundHeaderV2.getPlantId(),
+                    dbInboundHeaderV2.getLanguageId(), dbInboundHeaderV2.getWarehouseId());
             dbInboundHeaderV2.setCountOfOrderLines(countOfOrderLines);
 
-            Long countOfReceivedLines = inboundHeaderV2Repository.getReceivedLinesByRefDocNumber(dbInboundHeaderV2.getRefDocNumber());
+//            Long countOfReceivedLines = inboundHeaderV2Repository.getReceivedLinesByRefDocNumber(dbInboundHeaderV2.getRefDocNumber());
+            Long countOfReceivedLines = inboundHeaderV2Repository.getReceivedLinesByRefDocNumber(dbInboundHeaderV2.getRefDocNumber(),
+                    dbInboundHeaderV2.getCompanyCode(), dbInboundHeaderV2.getPreInboundNo(), dbInboundHeaderV2.getPlantId(),
+                    dbInboundHeaderV2.getLanguageId(), dbInboundHeaderV2.getWarehouseId());
             dbInboundHeaderV2.setReceivedLines(countOfReceivedLines);
 
             inboundHeaderV2List.add(dbInboundHeaderV2);
@@ -1421,7 +1427,7 @@ public class InboundHeaderService extends BaseService {
 //            log.info("Inventory created: " + createdInventoryV2);
 //        });
 
-        List<InboundLineV2> inboundLineList = inboundLineService.getInboundLineForInboundConfirmV2(companyCode, plantId, languageId, warehouseId, refDocNumber);
+        List<InboundLineV2> inboundLineList = inboundLineService.getInboundLineForInboundConfirmV2(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
 
         if (inboundLineList != null) {
             for (InboundLineV2 inboundLine : inboundLineList) {
@@ -1510,7 +1516,7 @@ public class InboundHeaderService extends BaseService {
 
         AXApiResponse axapiResponse = new AXApiResponse();
 
-        List<InboundLineV2> inboundLineList = inboundLineService.getInboundLineForInboundConfirmPartialAllocationV2(companyCode, plantId, languageId, warehouseId, refDocNumber);
+        List<InboundLineV2> inboundLineList = inboundLineService.getInboundLineForInboundConfirmPartialAllocationV2(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
 
         if (inboundLineList != null) {
             for (InboundLineV2 inboundLine : inboundLineList) {
@@ -1569,9 +1575,9 @@ public class InboundHeaderService extends BaseService {
                 log.info("GrLine updated");
 
         Long inboundLinesV2CountForInboundConfirmWithStatusId = inboundLineV2Repository.getInboundLinesV2CountForInboundConfirmWithStatusId(
-                companyCode, plantId, languageId, warehouseId, refDocNumber, 24L);
+                companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L);
         Long inboundLinesV2CountForInboundConfirm = inboundLineV2Repository.getInboundLinesV2CountForInboundConfirm(
-                companyCode, plantId, languageId, warehouseId, refDocNumber);
+                companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
         if(inboundLinesV2CountForInboundConfirmWithStatusId == null) {
             inboundLinesV2CountForInboundConfirmWithStatusId = 0L;
         }
@@ -1883,6 +1889,7 @@ public class InboundHeaderService extends BaseService {
         inventoryMovement.setWarehouseDescription(putAwayLineV2.getWarehouseDescription());
         inventoryMovement.setBarcodeId(putAwayLineV2.getBarcodeId());
         inventoryMovement.setDescription(putAwayLineV2.getDescription());
+        inventoryMovement.setReferenceNumber(putAwayLineV2.getPreInboundNo());
 
         // MVT_DOC_NO
 //        inventoryMovement.setMovementDocumentNo(putAwayLineV2.getPutAwayNumber());
@@ -2372,11 +2379,11 @@ public class InboundHeaderService extends BaseService {
      * @throws ParseException
      */
     //Delete InboundHeader
-    public InboundHeaderV2 deleteInboundHeaderV2(String companyCode, String plantId, String languageId,
-                                                 String warehouseId, String refDocNumber, String loginUserID) throws ParseException {
+    public InboundHeaderV2 deleteInboundHeaderForCancelV2(String companyCode, String plantId, String languageId, String warehouseId,
+                                                          String refDocNumber, String preInboundNo, String loginUserID) throws ParseException {
 
-        InboundHeaderV2 inboundHeader = inboundHeaderV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
-                companyCode, plantId, languageId, warehouseId, refDocNumber, 0L);
+        InboundHeaderV2 inboundHeader = inboundHeaderV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+                companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo,0L);
         log.info("InboundHeaderV2 - cancellation : " + inboundHeader);
         if (inboundHeader != null) {
             inboundHeader.setDeletionIndicator(1L);

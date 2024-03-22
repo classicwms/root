@@ -120,6 +120,9 @@ public class InventoryMovement {
 	@Column(name = "REF_DOC_NO")
 	private String refDocNumber;
 
+	@Column(name = "REF_NO")
+	private String referenceNumber;
+
 	@Column(name = "REF_FIELD_1")
 	private String referenceField1;
 

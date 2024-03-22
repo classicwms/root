@@ -35,7 +35,7 @@ public class InboundOrderV2 extends InboundOrder {
     private Long middlewareId;
     private String middlewareTable;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "orderId", fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "inboundOrderHeaderId", fetch = FetchType.EAGER)
     private Set<InboundOrderLinesV2> line;
 
 }

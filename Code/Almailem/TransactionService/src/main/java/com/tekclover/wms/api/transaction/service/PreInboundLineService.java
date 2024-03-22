@@ -771,15 +771,16 @@ public class PreInboundLineService extends BaseService {
      */
     //DELETE
     public List<PreInboundLineEntityV2> deletePreInboundLine(String companyCode, String plantId, String languageId,
-                                                             String warehouseId, String refDocNumber, String loginUserID) throws ParseException {
+                                                             String warehouseId, String refDocNumber, String preInboundNo, String loginUserID) throws ParseException {
         List<PreInboundLineEntityV2> preInboundLineEntityV2List = new ArrayList<>();
         List<PreInboundLineEntityV2> preInboundLineList =
-                preInboundLineV2Repository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                preInboundLineV2Repository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
                         languageId,
                         companyCode,
                         plantId,
                         warehouseId,
                         refDocNumber,
+                        preInboundNo,
                         0L);
         log.info("preInboundLineList - Cancellation : " + preInboundLineList);
         if(preInboundLineList != null && !preInboundLineList.isEmpty()) {

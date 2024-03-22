@@ -22,5 +22,9 @@ public interface InboundOrderLinesV2Repository extends JpaRepository<InboundOrde
     @Query(value = "SELECT * FROM tbliborderlines WHERE order_id = :orderId ", nativeQuery = true)
     public List<InboundOrderLinesV2> getOrderLines(@Param("orderId") String orderId);
 
+    @Query(value = "SELECT * FROM tbliborderlines WHERE order_id = :orderId and  inbound_order_type_id = :inboundOrderTypeId ", nativeQuery = true)
+    public List<InboundOrderLinesV2> getOrderLinesByOrderTypeId(@Param("orderId") String orderId,
+                                                                @Param("inboundOrderTypeId") Long inboundOrderTypeId);
+
     InboundOrderLinesV2 findTopByOrderIdAndItemCode(String refDocNumber, String itemCode);
 }
