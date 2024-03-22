@@ -889,7 +889,7 @@ public class OutboundLineService extends BaseService {
 		if (axapiResponse.getStatusCode() != null && axapiResponse.getStatusCode().equalsIgnoreCase("200")) {
 			try {
 				Long STATUS_ID_59 = 59L;
-				List<Long> statusId57 = Arrays.asList(57L);
+				List<Long> statusId57 = Arrays.asList(51L, 57L);
 				AuthToken authTokenForIDService = authTokenService.getIDMasterServiceAuthToken();
 				List<OutboundLine> outboundLineByStatus57List = findOutboundLineByStatus(warehouseId, preOutboundNo, refDocNumber, partnerCode, statusId57);
 				
