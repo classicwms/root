@@ -794,4 +794,37 @@ public class PreInboundLineService extends BaseService {
         }
         return preInboundLineEntityV2List;
     }
+
+    /**
+     *
+     * @param companyCode
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param refDocNumber
+     * @param preInboundNo
+     * @param loginUserID
+     * @return
+     * @throws ParseException
+     */
+    public List<PreInboundLineEntityV2> cancelPreInboundLine(String companyCode, String plantId, String languageId, String warehouseId,
+                                                             String refDocNumber, String preInboundNo, String loginUserID) {
+        List<PreInboundLineEntityV2> preInboundLineEntityV2List = new ArrayList<>();
+        List<PreInboundLineEntityV2> preInboundLineList =
+                preInboundLineV2Repository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+                        languageId, companyCode, plantId, warehouseId, refDocNumber, preInboundNo, 0L);
+        log.info("preInboundLineList - Order Cancellation : " + preInboundLineList);
+        if(preInboundLineList != null && !preInboundLineList.isEmpty()) {
+            for (PreInboundLineEntityV2 updatePreInboundLine : preInboundLineList) {
+                updatePreInboundLine.setStatusId(96L);
+                statusDescription = stagingLineV2Repository.getStatusDescription(96L, languageId);
+                updatePreInboundLine.setStatusDescription(statusDescription);
+                updatePreInboundLine.setUpdatedBy(loginUserID);
+                updatePreInboundLine.setUpdatedOn(new Date());
+                PreInboundLineEntityV2 preInboundLineEntityV2 = preInboundLineV2Repository.save(updatePreInboundLine);
+                preInboundLineEntityV2List.add(preInboundLineEntityV2);
+            }
+        }
+        return preInboundLineEntityV2List;
+    }
 }

@@ -376,14 +376,14 @@ public class MasterOrderService {
     /**
      * @param sku
      */
-    public void updateProcessedItemMaster(String companyCode, String BranchCode, String sku, String manufactureName) throws ParseException {
+    public void updateProcessedItemMaster(String companyCode, String BranchCode, String sku, String manufactureName, Long processStatusId) throws ParseException {
 //        Item dbItemMaster = itemMasterRepository.findBySku(sku);
         Item dbItemMaster = itemMasterRepository.findTopByCompanyCodeAndBranchCodeAndSkuAndManufacturerNameAndProcessedStatusIdOrderByOrderReceivedOn(
                 companyCode, BranchCode, sku, manufactureName, 0L);
         log.info("ItemCode : " + sku);
         log.info("dbItemMaster : " + dbItemMaster);
         if (dbItemMaster != null) {
-            dbItemMaster.setProcessedStatusId(10L);
+            dbItemMaster.setProcessedStatusId(processStatusId);
             dbItemMaster.setOrderProcessedOn(new Date());
             Item itemMaster = itemMasterRepository.save(dbItemMaster);
         }
@@ -637,13 +637,13 @@ public class MasterOrderService {
     /**
      * @param partnerCode
      */
-    public void updateProcessedCustomerMaster(String companyCode, String branchCode, String partnerCode) throws ParseException {
+    public void updateProcessedCustomerMaster(String companyCode, String branchCode, String partnerCode, Long processedStatusId) throws ParseException {
         Customer dbCustomerMaster = customerMasterRepository.
                 findTopByCompanyCodeAndBranchCodeAndPartnerCodeAndProcessedStatusIdOrderByOrderReceivedOn(companyCode, branchCode, partnerCode, 0L);
         log.info("PartnerCode : " + partnerCode);
         log.info("dbCustomerMaster : " + dbCustomerMaster);
         if (dbCustomerMaster != null) {
-            dbCustomerMaster.setProcessedStatusId(10L);
+            dbCustomerMaster.setProcessedStatusId(processedStatusId);
             dbCustomerMaster.setOrderProcessedOn(new Date());
             Customer customerMaster = customerMasterRepository.save(dbCustomerMaster);
         }

@@ -26,13 +26,6 @@ public class MasterService {
     //-------------------------------------------------------------------------------------------
 
     public Item processItemMaster(Item item) throws IllegalAccessException, InvocationTargetException {
-        Item existItemMaster = itemMasterRepository.findTopByCompanyCodeAndBranchCodeAndSkuAndManufacturerNameAndProcessedStatusIdOrderByOrderReceivedOnDesc(
-                item.getCompanyCode(), item.getBranchCode(), item.getSku(), item.getManufacturerName(), 0L);
-        if (existItemMaster != null) {
-            if (existItemMaster.getProcessedStatusId() == 0) {
-                throw new BadRequestException("Item Master is already under processing");
-            }
-        }
         try {
             log.info("Item Master Received : " + item);
             Item inboundItemMaster = itemMasterRepository.save(item);
@@ -55,14 +48,6 @@ public class MasterService {
 
     // CustomerMaster
     public Customer processCustomerMaster(Customer customer) throws IllegalAccessException, InvocationTargetException {
-
-        Customer existCustomerInterim = customerMasterRepository.findTopByCompanyCodeAndBranchCodeAndPartnerCodeAndProcessedStatusIdOrderByOrderReceivedOnDesc(
-                customer.getCompanyCode(), customer.getBranchCode(), customer.getPartnerCode(), 0L);
-        if (existCustomerInterim != null) {
-            if (existCustomerInterim.getProcessedStatusId() == 0) {
-                throw new BadRequestException("Customer Master is already under processing");
-            }
-        }
 
         try {
             log.info("Customer Master received : " + customer);

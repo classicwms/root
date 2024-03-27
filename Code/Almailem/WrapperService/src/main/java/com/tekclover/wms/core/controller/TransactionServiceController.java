@@ -2447,6 +2447,14 @@ public class TransactionServiceController {
         return transactionService.findInboundHeaderV2(searchInboundHeader, authToken);
     }
 
+    //Find-Stream
+    @ApiOperation(response = InboundHeaderEntityV2.class, value = "Search InboundHeader Stream V2") // label for swagger
+    @PostMapping("/inboundheader/findInboundHeader/v2/stream")
+    public InboundHeaderEntityV2[] findInboundHeaderstreamV2(@RequestBody SearchInboundHeaderV2 searchInboundHeader,
+                                                             @RequestParam String authToken) throws Exception {
+        return transactionService.findInboundHeaderStreamV2(searchInboundHeader, authToken);
+    }
+
     //replaceASN
     @ApiOperation(response = InboundHeaderEntityV2.class, value = "Replace ASN V2") // label for swagger
     @GetMapping("/inboundheader/replaceASN/v2")
@@ -2488,6 +2496,17 @@ public class TransactionServiceController {
                                                                 @RequestParam String loginUserID, @RequestParam String authToken) {
         AXApiResponse createdInboundHeaderResponse =
                 transactionService.updateInboundHeaderPartialConfirmV2(companyCode, plantId, languageId, warehouseId, preInboundNo, refDocNumber, loginUserID, authToken);
+        return new ResponseEntity<>(createdInboundHeaderResponse, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = InboundHeaderV2.class, value = "Inbound Header & Line Partial Confirm with InboundLines Input") // label for swagger
+    @PostMapping("/inboundheader/v2/confirmIndividual/partial")
+    public ResponseEntity<?> patchInboundHeaderPartialWithInboundLinesConfirmV2(@RequestBody List<InboundLineV2> inboundLineList, @RequestParam String warehouseId,
+                                                                                @RequestParam String preInboundNo, @RequestParam String companyCode, @RequestParam String plantId,
+                                                                                @RequestParam String languageId, @RequestParam String refDocNumber,
+                                                                                @RequestParam String loginUserID, @RequestParam String authToken) {
+        AXApiResponse createdInboundHeaderResponse =
+                transactionService.updateInboundHeaderWithIbLinePartialConfirmV2(inboundLineList, companyCode, plantId, languageId, warehouseId, preInboundNo, refDocNumber, loginUserID, authToken);
         return new ResponseEntity<>(createdInboundHeaderResponse, HttpStatus.OK);
     }
 
@@ -4236,6 +4255,15 @@ public class TransactionServiceController {
       return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+    @ApiOperation(response = PreInboundHeaderV2.class, value = "Inbound Order Cancellation") // label for swagger
+    @PostMapping("/inboundOrder/cancellation")
+    public ResponseEntity<?> cancelInboundOrder(@RequestBody InboundOrderCancelInput inboundOrderCancelInput,
+                                                @RequestParam String loginUserID, @RequestParam String authToken) {
+
+        PreInboundHeaderV2 result = transactionService.inboundOrderCancellation(inboundOrderCancelInput, loginUserID, authToken);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
     //==========================================Get All Exception Log Details==========================================
     @ApiOperation(response = ExceptionLog.class, value = "Get All Exception Log Details")
     @GetMapping("/exceptionlog/all")
@@ -4298,5 +4326,12 @@ public class TransactionServiceController {
         return transactionService.findSupplierInvoiceHeader(searchSupplierInvoiceHeader, authToken);
     }
 
+    @ApiOperation(response = PickListHeader.class, value = "order Cancellation") // label for swagger
+    @PostMapping("/outbound/orderCancellation")
+    public ResponseEntity<?> orderCancellation(@RequestBody OutboundOrderCancelInput outboundOrderCancelInput, @RequestParam String loginUserID,
+                                               @RequestParam String authToken) throws java.text.ParseException {
+        PreOutboundHeaderV2 orderCancelled = transactionService.orderCancellation(outboundOrderCancelInput, loginUserID, authToken);
+        return new ResponseEntity<>(orderCancelled, HttpStatus.OK);
+    }
 
 }

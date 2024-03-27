@@ -28,6 +28,10 @@ public interface OutboundLineV2Repository extends JpaRepository<OutboundLineV2, 
             String companyCodeId, String plantId, String languageId, String warehouseId,
             String preOutboundNo, String refDocNumber, String partnerCode, Long deletionIndicator);
 
+    List<OutboundLineV2> findByCompanyCodeIdInAndPlantIdInAndLanguageIdInAndWarehouseIdInAndPreOutboundNoInAndRefDocNumberInAndDeletionIndicator(
+            List<String> companyCodeId, List<String> plantId, List<String> languageId, List<String> warehouseId,
+            List<String> preOutboundNo, List<String> refDocNumber, Long deletionIndicator);
+
     @Query("Select count(ob) from OutboundLine ob where ob.companyCodeId=:companyCodeId and ob.plantId=:plantId and ob.languageId=:languageId and \r\n"
             + "ob.warehouseId=:warehouseId and ob.preOutboundNo=:preOutboundNo and \r\n"
             + " ob.refDocNumber=:refDocNumber and ob.partnerCode=:partnerCode and ob.statusId in :statusId and ob.deletionIndicator=:deletionIndicator")
@@ -179,12 +183,13 @@ public interface OutboundLineV2Repository extends JpaRepository<OutboundLineV2, 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE OutboundLineV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription, ob.deliveryConfirmedOn = :deliveryConfirmedOn \r\n"
             + " WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND ob.warehouseId = :warehouseId AND \r\n "
-            + " ob.refDocNumber = :refDocNumber AND ob.lineNumber in :lineNumber")
+            + " ob.refDocNumber = :refDocNumber AND ob.preOutboundNo = :preOutboundNo AND ob.lineNumber in :lineNumber")
     public void updateOutboundLineStatusV2(@Param("companyCodeId") String companyCodeId,
                                            @Param("plantId") String plantId,
                                            @Param("languageId") String languageId,
                                            @Param("warehouseId") String warehouseId,
                                            @Param("refDocNumber") String refDocNumber,
+                                           @Param("preOutboundNo") String preOutboundNo,
                                            @Param("statusId") Long statusId,
                                            @Param("statusDescription") String statusDescription,
                                            @Param("lineNumber") List<Long> lineNumber,

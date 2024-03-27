@@ -47,6 +47,10 @@ public class OutboundHeaderV2Specification implements Specification<OutboundHead
             final Path<Group> group = root.<Group>get("refDocNumber");
             predicates.add(group.in(searchOutboundHeader.getRefDocNumber()));
         }
+        if (searchOutboundHeader.getPreOutboundNo() != null && !searchOutboundHeader.getPreOutboundNo().isEmpty()) {
+            final Path<Group> group = root.<Group>get("preOutboundNo");
+            predicates.add(group.in(searchOutboundHeader.getPreOutboundNo()));
+        }
 
         if (searchOutboundHeader.getPartnerCode() != null && !searchOutboundHeader.getPartnerCode().isEmpty()) {
             final Path<Group> group = root.<Group>get("partnerCode");

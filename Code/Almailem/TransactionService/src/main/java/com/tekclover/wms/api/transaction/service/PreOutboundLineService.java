@@ -422,6 +422,39 @@ public class PreOutboundLineService extends BaseService {
      * @return
      * @throws Exception
      */
+    //Cancel PreOutboundLine
+    public List<PreOutboundLineV2> cancelPreOutBoundLine(String companyCodeId, String plantId, String languageId,
+                                                         String warehouseId, String refDocNumber, String  preOutboundNo, String loginUserID)throws Exception{
+
+        List<PreOutboundLineV2> preOutboundLineV2List = preOutboundLineV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo,0L);
+        log.info("PickList Cancellation - PreOutboundLine : " + preOutboundLineV2List);
+        List<PreOutboundLineV2> preOutboundLineV2s = new ArrayList<>();
+        if(preOutboundLineV2List != null && !preOutboundLineV2List.isEmpty()) {
+            for(PreOutboundLineV2 preOutboundLineV2 : preOutboundLineV2List){
+                preOutboundLineV2.setStatusId(96L);
+                statusDescription = stagingLineV2Repository.getStatusDescription(96L, languageId);
+                preOutboundLineV2.setStatusDescription(statusDescription);
+                preOutboundLineV2.setUpdatedBy(loginUserID);
+                preOutboundLineV2.setUpdatedOn(new Date());
+                PreOutboundLineV2 dbPreOutBoundLine = preOutboundLineV2Repository.save(preOutboundLineV2);
+                preOutboundLineV2s.add(dbPreOutBoundLine);
+            }
+        }
+        return preOutboundLineV2s;
+    }
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param refDocNumber
+     * @param loginUserID
+     * @return
+     * @throws Exception
+     */
     //Delete PreOutboundLine
     public List<PreOutboundLineV2> deletePreOutBoundLine(String companyCodeId, String plantId, String languageId,
                                                          String warehouseId, String refDocNumber, String preOutboundNo, String loginUserID)throws Exception{

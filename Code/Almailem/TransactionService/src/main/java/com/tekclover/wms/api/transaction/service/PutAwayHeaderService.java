@@ -1406,11 +1406,6 @@ public class PutAwayHeaderService extends BaseService {
                     }
                     log.info("deleteInventory deleted.." + isDeleted);
 
-                    if (isDeleted) {
-                            StorageBinV2 dbstorageBin = storageBinRepository.getStorageBinByBinClassId(companyCode, plantId, languageId, warehouseId, 1L, updateStorageBin.getStorageBin());
-                            log.info("dbStorageBin: " + dbstorageBin);
-
-                            if (dbstorageBin != null) {
                                 StagingLineEntityV2 dbStagingLineEntity = stagingLineService.getStagingLineForReversalV2(companyCode, plantId, languageId, warehouseId, refDocNumber,
                                         dbPutAwayLine.getPreInboundNo(), dbPutAwayLine.getItemCode(), dbPutAwayLine.getManufacturerName(), dbPutAwayLine.getLineNo());
 
@@ -1433,6 +1428,12 @@ public class PutAwayHeaderService extends BaseService {
                                     stagingLineV2Repository.save(dbStagingLineEntity);
                                     log.info("stagingLineEntity rec_accept_damage_qty and status updated: " + dbStagingLineEntity);
                                 }
+
+                    if (isDeleted) {
+                            StorageBinV2 dbstorageBin = storageBinRepository.getStorageBinByBinClassId(companyCode, plantId, languageId, warehouseId, 3L, updateStorageBin.getStorageBin());
+                            log.info("dbStorageBin: " + dbstorageBin);
+
+                            if (dbstorageBin != null) {
 
                                 storageBinCapacityCheck = dbstorageBin.isCapacityCheck();
                                 log.info("storageBinCapacityCheck: " + storageBinCapacityCheck);
@@ -1598,15 +1599,6 @@ public class PutAwayHeaderService extends BaseService {
 
                 log.info("---#---deleteInventory deleted.." + isDeleted);
 
-                if (isDeleted) {
-                        StorageBinV2 dbstorageBin = storageBinRepository.getStorageBinByBinClassId(companyCode, plantId, languageId, warehouseId, 1L, updateStorageBin.getStorageBin());
-                        log.info("dbStorageBin: " + dbstorageBin);
-
-                        if (dbstorageBin == null) {
-                            dbstorageBin = storageBinRepository.getStorageBinByBinClassId(companyCode, plantId, languageId, warehouseId, 1L, storageBin);
-                        }
-
-                        if (dbstorageBin != null) {
                             Long lineNo = dbPutAwayHeader.getReferenceField9() != null ? Long.valueOf(dbPutAwayHeader.getReferenceField9()) : 0;
 
                             StagingLineEntityV2 dbStagingLineEntity = stagingLineService.getStagingLineForReversalV2(companyCode, plantId, languageId, warehouseId, refDocNumber,
@@ -1630,6 +1622,16 @@ public class PutAwayHeaderService extends BaseService {
                                 stagingLineV2Repository.save(dbStagingLineEntity);
                                 log.info("stagingLineEntity rec_accept_damage_qty and status updated: " + dbStagingLineEntity);
                             }
+
+                if (isDeleted) {
+                        StorageBinV2 dbstorageBin = storageBinRepository.getStorageBinByBinClassId(companyCode, plantId, languageId, warehouseId, 1L, updateStorageBin.getStorageBin());
+                        log.info("dbStorageBin: " + dbstorageBin);
+
+                        if (dbstorageBin == null) {
+                            dbstorageBin = storageBinRepository.getStorageBinByBinClassId(companyCode, plantId, languageId, warehouseId, 1L, storageBin);
+                        }
+
+                        if (dbstorageBin != null) {
 
                             storageBinCapacityCheck = dbstorageBin.isCapacityCheck();
                             log.info("storageBinCapacityCheck: " + storageBinCapacityCheck);
@@ -2195,6 +2197,13 @@ public class PutAwayHeaderService extends BaseService {
         log.info("GrLine : " + inputGrLineList);
         if (inputGrLineList != null && !inputGrLineList.isEmpty()) {
             for (GrLineV2 grLine : inputGrLineList) {
+
+                List<PutAwayLineV2> putAwayLineList = putAwayLineService.getPutAwayLineForInboundConfirmV2(
+                        companyCode, plantId, languageId, warehouseId, refDocNumber,
+                        grLine.getItemCode(), grLine.getManufacturerName(), grLine.getLineNo(), preInboundNo);
+                log.info("PutawayLine List to check any partial Putaway done: " + putAwayLineList);
+
+                if(putAwayLineList == null || putAwayLineList.isEmpty()) {
                 InboundLineV2 inboundLine = inboundLineService.getInboundLineV2(companyCode,
                         plantId, languageId, warehouseId, refDocNumber,
                         grLine.getPreInboundNo(), grLine.getLineNo(), grLine.getItemCode());
@@ -2205,6 +2214,12 @@ public class PutAwayHeaderService extends BaseService {
                 // warehouseId, refDocNumber, preInboundNo, lineNo, itemCode, loginUserID, updateInboundLine
                 InboundLineV2 updatedInboundLine = inboundLineV2Repository.save(inboundLine);
                 log.info("InboundLine status updated: " + updatedInboundLine);
+
+                //delete grline
+                grLine.setDeletionIndicator(1L);
+                grLineV2Repository.save(grLine);
+                log.info("grLine deleted successfully");
+                }
 
                 PreInboundLineEntityV2 preInboundLine = preInboundLineService.getPreInboundLineV2(
                         companyCode, plantId, languageId, grLine.getPreInboundNo(), warehouseId, refDocNumber, grLine.getLineNo(), grLine.getItemCode());
@@ -2231,10 +2246,6 @@ public class PutAwayHeaderService extends BaseService {
 //                    log.info("stagingLineEntity rec_accept_damage_qty and status updated: " + stagingLineEntity);
 //                }
 
-                //delete grline
-                grLine.setDeletionIndicator(1L);
-                grLineV2Repository.save(grLine);
-                log.info("grLine deleted successfully");
             }
         }
 

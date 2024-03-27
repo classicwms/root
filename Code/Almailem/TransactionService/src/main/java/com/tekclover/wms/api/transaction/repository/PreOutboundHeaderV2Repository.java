@@ -48,12 +48,13 @@ public interface PreOutboundHeaderV2Repository extends JpaRepository<PreOutbound
     @Modifying(clearAutomatically = true)
     @Query(value = "UPDATE tblpreoutboundheader SET STATUS_ID = :statusId, REF_FIELD_10 = :statusDescription, STATUS_TEXT = :statusDescription \n" +
             "WHERE LANG_ID = :languageId AND C_ID = :companyCodeId AND \n" +
-            "PLANT_ID = :plantId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber", nativeQuery = true)
+            "PLANT_ID = :plantId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND PRE_OB_NO = :preOutboundNo", nativeQuery = true)
     void updatePreOutboundHeaderStatusV2(@Param("companyCodeId") String companyCodeId,
                                          @Param("plantId") String plantId,
                                          @Param("languageId") String languageId,
                                          @Param("warehouseId") String warehouseId,
                                          @Param("refDocNumber") String refDocNumber,
+                                         @Param("preOutboundNo") String preOutboundNo,
                                          @Param("statusId") Long statusId,
                                          @Param("statusDescription") String statusDescription);
 //    @Transactional

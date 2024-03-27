@@ -73,12 +73,14 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE OrderManagementLineV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription \n" +
-            "WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND ob.refDocNumber = :refDocNumber")
+            "WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId \n" +
+            "AND ob.refDocNumber = :refDocNumber AND ob.preOutboundNo = :preOutboundNo")
     void updateOrderManagementLineStatus(@Param("companyCodeId") String companyCodeId,
                                          @Param("plantId") String plantId,
                                          @Param("languageId") String languageId,
                                          @Param("warehouseId") String warehouseId,
                                          @Param("refDocNumber") String refDocNumber,
+                                         @Param("preOutboundNo") String preOutboundNo,
                                          @Param("statusId") Long statusId,
                                          @Param("statusDescription") String statusDescription);
 

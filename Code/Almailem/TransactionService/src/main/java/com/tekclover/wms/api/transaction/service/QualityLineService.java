@@ -1845,6 +1845,7 @@ public class QualityLineService extends BaseService {
             searchPickupHeader.setWarehouseId(warehouseId);
 
             searchPickupHeader.setRefDocNumber(refDocNumber);
+            searchPickupHeader.setPreOutboundNo(preOutboundNo);
 
             List<PickupHeaderV2> pickupHeaderList = pickupHeaderService.findPickupHeaderV2(searchPickupHeader).collect(Collectors.toList());
             log.info("pickupHeaderList statusId [48]----------->: " + pickupHeaderList.stream().count());
@@ -1858,6 +1859,7 @@ public class QualityLineService extends BaseService {
             searchQualityHeader.setWarehouseId(warehouseId);
 
             searchQualityHeader.setRefDocNumber(refDocNumber);
+            searchQualityHeader.setPreOutboundNo(preOutboundNo);
 
             List<QualityHeaderV2> qualityHeaderList = qualityHeaderService.findQualityHeaderNewV2(searchQualityHeader).collect(Collectors.toList());
             log.info("qualityHeaderList statusId [54]----------->: " + qualityHeaderList.stream().count());
@@ -1867,27 +1869,23 @@ public class QualityLineService extends BaseService {
                     (qualityHeaderList == null || qualityHeaderList.isEmpty())) {
 
                 List<OutboundLineV2> outboundLineV2List = outboundLineService.getOutboundLineV2(
-                        dbQualityLines.get(0).getCompanyCodeId(),
-                        dbQualityLines.get(0).getPlantId(),
-                        dbQualityLines.get(0).getLanguageId(),
-                        dbQualityLines.get(0).getWarehouseId(),
-                        dbQualityLines.get(0).getPreOutboundNo(),
-                        dbQualityLines.get(0).getRefDocNumber(),
-                        dbQualityLines.get(0).getPartnerCode());
-
+                        companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber);
                 log.info("OutboundLineList: " + outboundLineV2List);
 
                 long count_57 = 0;
-                if (outboundLineV2List != null) {
-                    List<Long> statusIdsToBeChecked = Arrays.asList(57L, 47L, 51L);
-                    count_57 = outboundLineService.getOutboundLineV2(dbQualityLines.get(0).getCompanyCodeId(),
-                            dbQualityLines.get(0).getPlantId(),
-                            dbQualityLines.get(0).getLanguageId(),
-                            dbQualityLines.get(0).getWarehouseId(),
-                            dbQualityLines.get(0).getPreOutboundNo(),
-                            dbQualityLines.get(0).getRefDocNumber(),
-                            dbQualityLines.get(0).getPartnerCode(),
-                            statusIdsToBeChecked);
+                if (outboundLineV2List != null && !outboundLineV2List.isEmpty()) {
+//                    List<Long> statusIdsToBeChecked = Arrays.asList(57L, 47L, 51L);
+//                    count_57 = outboundLineService.getOutboundLineV2(dbQualityLines.get(0).getCompanyCodeId(),
+//                            dbQualityLines.get(0).getPlantId(),
+//                            dbQualityLines.get(0).getLanguageId(),
+//                            dbQualityLines.get(0).getWarehouseId(),
+//                            dbQualityLines.get(0).getPreOutboundNo(),
+//                            dbQualityLines.get(0).getRefDocNumber(),
+//                            dbQualityLines.get(0).getPartnerCode(),
+//                            statusIdsToBeChecked);
+                    List<OutboundLineV2> statusFilterList = outboundLineV2List.stream().filter(n -> n.getStatusId() == 57L || n.getStatusId() == 47L || n.getStatusId() == 51L).collect(Collectors.toList());
+                    count_57 = statusFilterList.stream().count();
+
                     log.info("Count_57, OutboundLineList Size: " + count_57 + ", " + outboundLineV2List.size());
 
                     if (count_57 == outboundLineV2List.size()) {
@@ -1900,6 +1898,7 @@ public class QualityLineService extends BaseService {
                         searchOutboundHeaderV2.setWarehouseId(warehouseId);
 
                         searchOutboundHeaderV2.setRefDocNumber(refDocNumber);
+                        searchOutboundHeaderV2.setPreOutboundNo(preOutboundNo);
 
                         List<OutboundHeaderV2Stream> outboundHeaderV2List = outboundHeaderService.findOutboundHeadernewV2(searchOutboundHeaderV2);
                         log.info("outboundHeaderV2List ----------->: " + outboundHeaderV2List.stream().count());

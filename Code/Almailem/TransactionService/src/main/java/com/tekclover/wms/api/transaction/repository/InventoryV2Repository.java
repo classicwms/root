@@ -119,7 +119,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "lang_id in (:languageId) and \n" +
             "mfr_name in (:manufacturerName) and \n" +
             "c_id in (:companyCodeId) and is_deleted = 0 \n" +
-            "group by itm_code,mfr_name,st_bin \n"
+            "group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n"
 
             + "SELECT LANG_ID languageId, \n"
             + "C_ID companyCodeId, \n"
@@ -196,7 +196,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             @Param(value = "manufacturerName") String manufacturerName);
 
     @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n"
-            + "WHERE is_deleted = 0 group by itm_code,mfr_name,st_bin \n" +
+            + "WHERE is_deleted = 0 group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
             "SELECT \n" +
             "iv.INV_ID inventoryId, \n" +
@@ -278,7 +278,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                                  @Param("binClassId") Long binClassId);
 
     @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n"
-            + "WHERE is_deleted = 0 group by itm_code,mfr_name,st_bin \n" +
+            + "WHERE is_deleted = 0 group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
             "SELECT \n" +
             "iv.INV_ID inventoryId, \n" +
@@ -359,7 +359,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                                                @Param("stockTypeId") Long stockTypeId,
                                                                @Param("binClassId") Long binClassId);
     @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n"
-            + "WHERE is_deleted = 0 group by itm_code,mfr_name,st_bin \n" +
+            + "WHERE is_deleted = 0 group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
             "SELECT \n" +
             "iv.INV_ID inventoryId, \n" +
@@ -442,7 +442,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                                                @Param("binClassId") Long binClassId,
                                                                @Param("levelId") Long levelId);
     @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n"
-            + "WHERE is_deleted = 0 group by itm_code,mfr_name,st_bin \n" +
+            + "WHERE is_deleted = 0 group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
             "SELECT \n" +
             "iv.INV_ID inventoryId, \n" +
@@ -523,7 +523,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                                                @Param("stockTypeId") Long stockTypeId,
                                                                @Param("binClassId") Long binClassId);
     @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n"
-            + "WHERE is_deleted = 0 group by itm_code,mfr_name,st_bin \n" +
+            + "WHERE is_deleted = 0 group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
             "SELECT \n" +
             "iv.INV_ID inventoryId, \n" +
@@ -602,7 +602,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                                                @Param("stockTypeId") Long stockTypeId,
                                                                @Param("binClassId") Long binClassId);
     @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n"
-            + "WHERE is_deleted = 0 group by itm_code,mfr_name,st_bin \n" +
+            + "WHERE is_deleted = 0 group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
             "SELECT \n" +
             "iv.INV_ID inventoryId, \n" +
@@ -681,7 +681,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                                                @Param("stockTypeId") Long stockTypeId,
                                                                @Param("binClassId") Long binClassId);
     @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n"
-            + "WHERE is_deleted = 0 group by itm_code,mfr_name,st_bin \n" +
+            + "WHERE is_deleted = 0 group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
             "SELECT \n" +
             "iv.INV_ID inventoryId, \n" +
@@ -771,7 +771,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "lang_id in (:languageId) and \n" +
             "mfr_name in (:manufacturerName) and \n" +
             "c_id in (:companyCodeId) and is_deleted = 0 and inv_qty > 0 \n" +
-            "group by itm_code,mfr_name,pack_barcode,st_bin \n"
+            "group by itm_code,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id \n"
 
             + "SELECT LANG_ID languageId, \n"
             + "C_ID companyCodeId, \n"
@@ -858,7 +858,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "lang_id in (:languageId) and \n" +
             "mfr_name in (:manufacturerName) and \n" +
             "c_id in (:companyCodeId) and is_deleted = 0 and inv_qty > 0 \n" +
-            "group by itm_code,mfr_name,st_bin \n"
+            "group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n"
             + "SELECT LANG_ID languageId, \n"
             + "C_ID companyCodeId, \n"
             + "PLANT_ID plantId, \n"
@@ -944,7 +944,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "lang_id in (:languageId) and \n" +
             "mfr_name in (:manufacturerName) and \n" +
             "c_id in (:companyCodeId) and is_deleted = 0 \n" +
-            "group by itm_code,mfr_name,st_bin \n"
+            "group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n"
 
             + "SELECT LANG_ID languageId, \n"
             + "C_ID companyCodeId, \n"
@@ -1029,7 +1029,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "lang_id in (:languageId) and \n" +
 //            "mfr_name in (:manufacturerName) and \n" +
             "c_id in (:companyCodeId) and is_deleted = 0 \n" +
-            "group by itm_code,mfr_name,pack_barcode,st_bin \n"
+            "group by itm_code,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id \n"
 
             + "SELECT LANG_ID languageId, \n"
             + "C_ID companyCodeId, \n"
@@ -1113,7 +1113,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "lang_id in (:languageId) and \n" +
             "mfr_name in (:manufacturerName) and \n" +
             "c_id in (:companyCodeId) and is_deleted = 0 \n" +
-            "group by itm_code,mfr_name,pack_barcode,st_bin \n"
+            "group by itm_code,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id \n"
 
             + "SELECT LANG_ID languageId, \n"
             + "C_ID companyCodeId, \n"
@@ -1200,7 +1200,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "lang_id in (:languageId) and \n" +
             "mfr_name in (:manufacturerName) and \n" +
             "c_id in (:companyCodeId) and is_deleted = 0 \n" +
-            "group by itm_code,mfr_name,pack_barcode,st_bin \n"
+            "group by itm_code,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id \n"
 
             + "SELECT * from ( \n"
             + "SELECT LANG_ID languageId, \n"
@@ -1281,13 +1281,13 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             @Param(value = "stockTypeId") Long stockTypeId,
             @Param(value = "manufacturerName") String manufacturerName);
 
-    @Query (value = "SELECT max(INV_ID) inventoryId into #inv FROM TBLINVENTORY GROUP BY ITM_CODE,MFR_NAME,ST_BIN \r\n"
+    @Query (value = "SELECT max(INV_ID) inventoryId into #inv FROM TBLINVENTORY GROUP BY ITM_CODE,MFR_NAME,ST_BIN,PLANT_ID,WH_ID,C_ID,LANG_ID \r\n"
             + "SELECT LEVEL_ID AS levelId, SUM(INV_QTY) AS inventoryQty FROM tblinventory \r\n"
             + "WHERE WH_ID = :warehouseId and ITM_CODE = :itemCode AND BIN_CL_ID = :binClassId AND STCK_TYP_ID = :stockTypeId \r\n"
             + "AND C_ID = :companyCodeId and PLANT_ID = :plantId AND LANG_ID = :languageId \r\n"
             + "AND MFR_NAME = :manufacturerName AND IS_DELETED = 0 \r\n"
             + "AND INV_ID in (select inventoryId from #inv) \r\n"
-            + "GROUP BY LEVEL_ID, ITM_CODE, MFR_NAME \r\n"
+            + "GROUP BY LEVEL_ID, ITM_CODE, MFR_NAME, PLANT_ID, WH_ID, C_ID, LANG_ID \r\n"
             + "HAVING SUM(INV_QTY) > 0 \r\n"
             + "ORDER BY LEVEL_ID, SUM(INV_QTY)", nativeQuery = true)
     public List<IInventory> findInventoryGroupByLevelId (
@@ -1300,7 +1300,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             @Param(value = "stockTypeId") Long stockTypeId,
             @Param(value = "binClassId") Long binClassId);
 
-    @Query (value = "SELECT max(INV_ID) inventoryId into #inv FROM TBLINVENTORY GROUP BY ITM_CODE,MFR_NAME,ST_BIN \r\n"
+    @Query (value = "SELECT max(INV_ID) inventoryId into #inv FROM TBLINVENTORY GROUP BY ITM_CODE,MFR_NAME,ST_BIN,PLANT_ID,WH_ID,C_ID,LANG_ID \r\n"
             + "SELECT IU_CTD_ON AS createdOn, ITM_CODE AS itemCode, MFR_NAME AS manufacturerName, SUM(INV_QTY) AS inventoryQty, ST_BIN AS storageBin\r\n"
             + "FROM tblinventory WHERE WH_ID = :warehouseId and ITM_CODE = :itemCode \r\n"
             + "AND C_ID = :companyCodeId and PLANT_ID = :plantId AND LANG_ID = :languageId \r\n"
@@ -1483,7 +1483,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
             "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
             "is_deleted = 0 \n" +
-            "group by itm_code,mfr_name,pack_barcode,st_bin \n" +
+            "group by itm_code,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
             "select max(inv_id) inventoryId into #invgrp from tblinventory \n" +
             "WHERE \n" +
@@ -1495,7 +1495,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
             "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
             "is_deleted = 0 \n" +
-            "group by itm_code,mfr_name,st_bin \n" +
+            "group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
 //            "select sum(inv_qty) sumInvQty, sum(alloc_qty) sumAllocQty,sum(inv_qty)+sum(alloc_qty) totalQty, itm_code,mfr_name,st_bin \n" +
 //            "into #sumInv from tblinventory where inv_id in (select inventoryId from #inv) \n" +
@@ -1503,7 +1503,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
 
             "select *,COALESCE(sumInvQty,0)+COALESCE(sumAllocQty,0) totalQty into #sumInv from (select sum(inv_qty) sumInvQty, sum(alloc_qty) sumAllocQty, itm_code,mfr_name,st_bin \n" +
             "from tblinventory where inv_id in (select inventoryId from #inv) \n" +
-            "group by itm_code,mfr_name,st_bin) x \n" +
+            "group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) x \n" +
 
 //            "SELECT * from ( \n" +
             "SELECT \n" +
@@ -1614,7 +1614,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
 //            "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
 //            "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
 //            "is_deleted = 0 \n" +
-            "group by itm_code,mfr_name,st_bin \n" +
+            "group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
             "SELECT \n" +
             "iv.INV_ID inventoryId, \n" +
@@ -1722,7 +1722,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
             "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
             "is_deleted = 0 \n" +
-            "group by itm_code,mfr_name,pack_barcode,st_bin \n" +
+            "group by itm_code,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
             "select max(inv_id) inventoryId into #invgrp from tblinventory \n" +
             "WHERE \n" +
@@ -1734,11 +1734,11 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
             "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
             "is_deleted = 0 \n" +
-            "group by itm_code,mfr_name,st_bin \n" +
+            "group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
             "select sum(inv_qty) sumInvQty, sum(alloc_qty) sumAllocQty,itm_code,mfr_name,st_bin \n" +
             "into #sumInv from tblinventory where inv_id in (select inventoryId from #inv) \n" +
-            "group by itm_code,mfr_name,st_bin \n" +
+            "group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
 
 //            "SELECT * from ( \n" +
@@ -1832,7 +1832,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
             "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
             "is_deleted = 0 \n" +
-            "group by itm_code,mfr_name,st_bin \n" +
+            "group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
             "SELECT \n" +
             "iv.INV_ID inventoryId, \n" +
@@ -1910,7 +1910,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                                     @Param("manufacturerName") String manufacturerName,
                                                     @Param("binClassId") Long binClassId);
     @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n"
-            + "WHERE is_deleted = 0 group by itm_code,mfr_name,st_bin \n" +
+            + "WHERE is_deleted = 0 group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
             "SELECT \n" +
             "iv.INV_ID inventoryId, \n" +
@@ -1991,7 +1991,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
 
     @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n" +
             "WHERE is_deleted = 0 \n" +
-            "group by itm_code,mfr_name,st_bin \n" +
+            "group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
             "SELECT \n" +
             "iv.INV_ID inventoryId, \n" +
@@ -2100,12 +2100,12 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
 
     @Query(value ="select max(inv_id) inventoryId into #inv from tblinventory \n" +
             "WHERE is_deleted = 0 \n" +
-            "group by itm_code,mfr_name,st_bin \n" +
+            "group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
             "SELECT SUM(REF_FIELD_4) FROM tblinventory \r\n"
             + " WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId AND MFR_NAME = :manufacturerName AND ITM_CODE = :itemCode AND \r\n"
             + " BIN_CL_ID in (1,7) and inv_id in (select inventoryId from #inv) and IS_DELETED = 0 \r\n"
-            + " GROUP BY ITM_CODE, MFR_NAME", nativeQuery = true)
+            + " GROUP BY ITM_CODE, MFR_NAME, PLANT_ID, WH_ID, C_ID, LANG_ID", nativeQuery = true)
     public Double getInventoryQtyCountForInvMmt(
             @Param(value = "companyCodeId") String companyCodeId,
             @Param(value = "plantId") String plantId,
@@ -2176,7 +2176,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:plantIds, null) IS NULL OR (plant_id IN (:plantIds))) and \n" +
             "(COALESCE(:warehouseIds, null) IS NULL OR (wh_id IN (:warehouseIds))) and \n" +
             "is_deleted = 0 \n" +
-            "group by itm_code,mfr_name \n" +
+            "group by itm_code,mfr_name,plant_id,wh_id,c_id,lang_id \n" +
 
             "Select itemCode, languageId, companyCodeId, plantId, warehouseId, manufacturerSKU, itemText, \r\n"
             + "companyDescription, plantDescription, warehouseDescription, barcodeId, manufacturerName, \r\n"
@@ -2396,7 +2396,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                     "(COALESCE(:itemText, null) IS NULL OR (text IN (:itemText))) \n" +
 
                     "select max(inv_id) inventoryId into #inv from tblinventory \n" +
-                    "group by itm_code,mfr_name,st_bin \n" +
+                    "group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
                     // inv_qty from tblinventory to temp table
                     "UPDATE TH SET TH.INV_QTY = X.INV_QTY,TH.ALLOC_QTY = X.ALLOC_QTY,TH.TOT_QTY = X.REF_FIELD_4 FROM #stockreport TH INNER JOIN \n" +

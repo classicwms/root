@@ -2314,6 +2314,37 @@ public class PreInboundHeaderService extends BaseService {
         return preInboundHeaderEntity;
     }
 
+    /**
+     *
+     * @param companyCode
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param refDocNumber
+     * @param preInboundNo
+     * @param loginUserId
+     * @return
+     */
+    public PreInboundHeaderEntityV2 cancelPreInboundHeader(String companyCode, String plantId, String languageId, String warehouseId,
+                                                           String refDocNumber, String preInboundNo, String loginUserId, String remarks) {
+        PreInboundHeaderEntityV2 preInboundHeaderEntity =
+                preInboundHeaderV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+                        companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 0L);
+        log.info("preInboundHeaderEntity - Order Cancellation: " + preInboundHeaderEntity);
+        if(preInboundHeaderEntity != null){
+            preInboundHeaderEntity.setStatusId(96L);
+            statusDescription = stagingLineV2Repository.getStatusDescription(96L, languageId);
+            preInboundHeaderEntity.setStatusDescription(statusDescription);
+            if(remarks != null) {
+                preInboundHeaderEntity.setReferenceField1(remarks);
+            }
+            preInboundHeaderEntity.setUpdatedBy(loginUserId);
+            preInboundHeaderEntity.setUpdatedOn(new Date());
+            preInboundHeaderV2Repository.save(preInboundHeaderEntity);
+            }
+        return preInboundHeaderEntity;
+    }
+
     //=========================================PreInboundHeader_ExceptionLog===========================================
     private void createPreInboundHeaderLog1(String languageId, String companyCode, String plantId, String warehouseId,
                                             String refDocNumber, String preInboundNo, String error) {

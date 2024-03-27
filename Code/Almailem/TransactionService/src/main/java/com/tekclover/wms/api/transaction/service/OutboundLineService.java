@@ -2103,6 +2103,35 @@ public class OutboundLineService extends BaseService {
     }
 
     /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param preOutboundNo
+     * @param refDocNumber
+     * @return
+     */
+    public List<OutboundLineV2> getOutboundLineV2(List<String> companyCodeId, List<String> plantId, List<String> languageId,
+                                                  List<String> warehouseId, List<String> preOutboundNo, List<String> refDocNumber) {
+        List<OutboundLineV2> outboundLine =
+                outboundLineV2Repository.findByCompanyCodeIdInAndPlantIdInAndLanguageIdInAndWarehouseIdInAndPreOutboundNoInAndRefDocNumberInAndDeletionIndicator(
+                        companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, 0L);
+        if (outboundLine != null) {
+            return outboundLine;
+        } else {
+            throw new BadRequestException("The given OutboundLine ID : "
+                    + "companyCodeId : " + companyCodeId
+                    + "plantId : " + plantId
+                    + "languageId : " + languageId
+                    + "warehouseId : " + warehouseId
+                    + ", preOutboundNo : " + preOutboundNo
+                    + ", refDocNumber : " + refDocNumber
+                    + " doesn't exist.");
+        }
+    }
+
+    /**
      * @param warehouseId
      * @param preOutboundNo
      * @param refDocNumber
@@ -4031,13 +4060,13 @@ public class OutboundLineService extends BaseService {
                 List<Long> lineNumbers = outboundLineByStatus57List.stream().map(OutboundLine::getLineNumber).collect(Collectors.toList());
                 List<String> itemCodes = outboundLineByStatus57List.stream().map(OutboundLine::getItemCode).collect(Collectors.toList());
                 Date deliveryConfirmedOn = new Date();
-                outboundLineV2Repository.updateOutboundLineStatusV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, STATUS_ID_59, statusDescription, lineNumbers, deliveryConfirmedOn);
+                outboundLineV2Repository.updateOutboundLineStatusV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription, lineNumbers, deliveryConfirmedOn);
                 log.info("OutboundLine updated ");
 
                 //----------------Outbound Header update----------------------------------------------------------------------------------------
                 log.info("c_id, plant_id, lang_id, wh_id, ref_doc_no, status_id, Status_desc, date:---->OBH Update----> "
                         + companyCodeId + "," + plantId + "," + languageId + "," + warehouseId + "," + refDocNumber + "," + STATUS_ID_59 + "," + statusDescription + "," + new Date());
-                outboundHeaderV2Repository.updateOutboundHeaderStatusNewV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, STATUS_ID_59, statusDescription, new Date());
+                outboundHeaderV2Repository.updateOutboundHeaderStatusNewV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription, new Date());
                 OutboundHeaderV2 isOrderConfirmedOutboundHeader = outboundHeaderService.getOutboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber);
                 log.info("OutboundHeader updated----1---> : " + isOrderConfirmedOutboundHeader.getRefDocNumber() + "---" + isOrderConfirmedOutboundHeader.getStatusId());
                 if (isOrderConfirmedOutboundHeader.getStatusId() != 59L) {
@@ -4053,15 +4082,15 @@ public class OutboundLineService extends BaseService {
                 }
 
                 //----------------Preoutbound Line----------------------------------------------------------------------------------------------
-                preOutboundLineV2Repository.updatePreOutboundLineStatusV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, STATUS_ID_59, statusDescription);
+                preOutboundLineV2Repository.updatePreOutboundLineStatusV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription);
                 log.info("PreOutbound Line updated");
 
                 //----------------Preoutbound Header--------------------------------------------------------------------------------------------
-                preOutboundHeaderV2Repository.updatePreOutboundHeaderStatusV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, STATUS_ID_59, statusDescription);
+                preOutboundHeaderV2Repository.updatePreOutboundHeaderStatusV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription);
                 log.info("PreOutbound Header updated");
 
                 //----------------OrderManagement Line--------------------------------------------------------------------------------------------
-                orderManagementLineV2Repository.updateOrderManagementLineStatus(companyCodeId, plantId, languageId, warehouseId, refDocNumber, STATUS_ID_59, statusDescription);
+                orderManagementLineV2Repository.updateOrderManagementLineStatus(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription);
                 log.info("OrderManagement Line updated");
 
                 /*-----------------Inventory Updates---------------------------*/

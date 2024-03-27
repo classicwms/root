@@ -2,8 +2,6 @@ package com.tekclover.wms.api.transaction.service;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
-import com.tekclover.wms.api.transaction.model.dto.ImBasicData;
-import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
 import com.tekclover.wms.api.transaction.model.inbound.InboundHeader;
 import com.tekclover.wms.api.transaction.model.inbound.gr.PackBarcode;
 import com.tekclover.wms.api.transaction.model.inbound.gr.v2.AddGrLineV2;
@@ -11,6 +9,7 @@ import com.tekclover.wms.api.transaction.model.inbound.gr.v2.GrHeaderV2;
 import com.tekclover.wms.api.transaction.model.inbound.gr.v2.GrLineV2;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
+import com.tekclover.wms.api.transaction.model.inbound.preinbound.PreInboundHeaderEntity;
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.v2.PreInboundHeaderEntityV2;
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.v2.PreInboundLineEntityV2;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.PutAwayHeaderV2;
@@ -352,7 +351,15 @@ public class InvoiceCancellationService extends BaseService{
                 companyCode, plantId, languageId, warehouseId, oldInvoiceNo, oldPreInboundNo, 24L, 0L);
 
         if (dbInvoiceNumber.isPresent()) {
-            throw new BadRequestException("Invoice cannot be processed it has been already completed " + oldInvoiceNo);
+            throw new BadRequestException("Invoice cannot be processed it has been already completed " + oldInvoiceNo + ", " + oldPreInboundNo);
+        }
+
+        //InboundLine
+        List<InboundLineV2> inboundLineStatus24List = inboundLineService.cancelInboundLineV2(companyCode, plantId, languageId, warehouseId, oldInvoiceNo, oldPreInboundNo);
+        log.info("InboundLineStatus24List : " + inboundLineStatus24List);
+
+        if(inboundLineStatus24List != null && !inboundLineStatus24List.isEmpty()){
+            throw new BadRequestException("Inbound Order cannot be cancelled, it has been already confirmed " + oldInvoiceNo + ", " + oldPreInboundNo);
         }
 
         //InboundHeader
@@ -1059,6 +1066,115 @@ public class InvoiceCancellationService extends BaseService{
         log.info("createdSupplierInvoiceLine : " + toBeCreatedSupplierInvoiceLineList);
 
         return creatednewSupplierInvoiceHeader;
+    }
+
+    /**
+     *
+     * @param inboundOrderCancelInput
+     * @param loginUserId
+     * @return
+     * @throws ParseException
+     */
+    public PreInboundHeaderEntityV2 inboundOrderCancellation(InboundOrderCancelInput inboundOrderCancelInput, String loginUserId) throws ParseException {
+        PreInboundHeaderEntityV2 preInboundHeaderEntityV2 = inboundOrderCancellation(
+                inboundOrderCancelInput.getCompanyCodeId(),
+                inboundOrderCancelInput.getLanguageId(),
+                inboundOrderCancelInput.getPlantId(),
+                inboundOrderCancelInput.getWarehouseId(),
+                inboundOrderCancelInput.getRefDocNumber(),
+                inboundOrderCancelInput.getPreInboundNo(),
+                loginUserId,
+                inboundOrderCancelInput.getRemarks()
+        );
+        return preInboundHeaderEntityV2;
+    }
+
+    /**
+     *
+     * @param companyCode
+     * @param languageId
+     * @param plantId
+     * @param warehouseId
+     * @param refDocNumber
+     * @param preInboundNo
+     * @param loginUserId
+     * @return
+     * @throws ParseException
+     */
+    public PreInboundHeaderEntityV2 inboundOrderCancellation(String companyCode, String languageId, String plantId, String warehouseId,
+                                                             String refDocNumber, String preInboundNo, String loginUserId, String remarks) throws ParseException {
+
+        log.info("Inbound Order Cancellation Initiated ---> Inbound Order ----> : " + refDocNumber + ", " + preInboundNo);
+
+        Optional<InboundHeader> dbInvoiceNumber = inboundHeaderRepository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndStatusIdAndDeletionIndicator(
+                companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L, 0L);
+
+        if (dbInvoiceNumber.isPresent()) {
+            throw new BadRequestException("Inbound Order cannot be cancelled, it has been already confirmed " + refDocNumber + ", " + preInboundNo);
+        }
+
+        //InboundLine
+        List<InboundLineV2> inboundLineStatus24List = inboundLineService.cancelInboundLineV2(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
+        log.info("InboundLineStatus24List : " + inboundLineStatus24List);
+
+        if(inboundLineStatus24List != null && !inboundLineStatus24List.isEmpty()){
+            throw new BadRequestException("Inbound Order cannot be cancelled, it has been already confirmed " + refDocNumber + ", " + preInboundNo);
+        }
+
+        //InboundHeader
+        InboundHeaderV2 inboundHeaderV2 = inboundHeaderService.deleteInboundHeaderForCancelV2(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, loginUserId);
+        log.info("InboundHeader Deleted Successfully" + inboundHeaderV2);
+
+        //InboundLine
+        List<InboundLineV2> inboundLineV2 = inboundLineService.deleteInboundLineV2(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, loginUserId);
+        log.info("InboundLine Deleted Successfully" + inboundLineV2);
+
+        //PreInboundHeader
+        PreInboundHeaderEntityV2 preInboundHeaderV2 = preInboundHeaderService.cancelPreInboundHeader(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, loginUserId, remarks);
+        log.info("PreInboundHeader cancelled SuccessFully" + preInboundHeaderV2);
+
+        //Delete PreInboundLine
+        List<PreInboundLineEntityV2> preInboundLineEntityV2 = preInboundLineService.cancelPreInboundLine(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, loginUserId);
+        log.info("PreInboundLine cancelled Successfully " + preInboundLineEntityV2);
+
+        //Delete StagingHeader
+        StagingHeaderV2 stagingHeaderV2 = stagingHeaderService.deleteStagingHeaderV2(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, loginUserId);
+        log.info("StagingHeader Deleted Successfully" + stagingHeaderV2);
+
+        //Delete StagingLine
+        List<StagingLineEntityV2> stagingLineEntityV2 = stagingLineService.deleteStagingLineV2(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, loginUserId);
+        log.info("StagingLine Deleted Successfully " + stagingLineEntityV2);
+
+        //Delete GrHeaderService
+        GrHeaderV2 grHeaderV2 = grHeaderService.deleteGrHeaderV2(companyCode, languageId, plantId, warehouseId, refDocNumber, preInboundNo, loginUserId);
+        log.info("GrHeader Deleted Successfully " + grHeaderV2);
+
+        //Delete GrLine
+        List<GrLineV2> grLineList = grLineService.deleteGrLineV2(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, loginUserId);
+        log.info("GrLine Deleted Successfully " + grLineList);
+
+        if (grLineList != null && !grLineList.isEmpty()) {
+            List<InventoryV2> inventoryList = new ArrayList<>();
+            for (GrLineV2 grLine : grLineList) {
+                InventoryV2 dbInventory = inventoryService.deleteInventoryInvoiceCancellation(companyCode, plantId, languageId, warehouseId, grLine);
+                inventoryList.add(dbInventory);
+            }
+            log.info("Inventory List - after delete(insert) : " + inventoryList);
+        }
+
+        //Delete PutAwayHeader
+        List<PutAwayHeaderV2> putAwayHeaderV2 = putAwayHeaderService.deletePutAwayHeaderV2(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, loginUserId);
+        log.info("PutAwayHeader Deleted Successfully " + putAwayHeaderV2);
+
+        //Delete PutAwayLine
+        List<PutAwayLineV2> putAwayLineV2List = putAwayLineService.deletePutAwayLineV2(languageId, companyCode, plantId, warehouseId, refDocNumber, preInboundNo, loginUserId);
+        log.info("PutAwayLine Deleted Successfully" + putAwayLineV2List);
+
+        //InventoryMovement
+        List<InventoryMovement> inventoryMovement = inventoryMovementService.deleteInventoryMovement(warehouseId, companyCode, plantId, languageId, refDocNumber, preInboundNo, loginUserId);
+        log.info("InventoryMovement Deleted Successfully" + inventoryMovement);
+
+        return preInboundHeaderV2;
     }
 
 }

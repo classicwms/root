@@ -43,6 +43,11 @@ public class QualityHeaderV2Specification implements Specification<QualityHeader
             predicates.add(group.in(searchQualityHeader.getRefDocNumber()));
         }
 
+        if (searchQualityHeader.getPreOutboundNo() != null && !searchQualityHeader.getPreOutboundNo().isEmpty()) {
+            final Path<Group> group = root.<Group>get("preOutboundNo");
+            predicates.add(group.in(searchQualityHeader.getPreOutboundNo()));
+        }
+
         if (searchQualityHeader.getPartnerCode() != null && !searchQualityHeader.getPartnerCode().isEmpty()) {
             final Path<Group> group = root.<Group>get("partnerCode");
             predicates.add(group.in(searchQualityHeader.getPartnerCode()));

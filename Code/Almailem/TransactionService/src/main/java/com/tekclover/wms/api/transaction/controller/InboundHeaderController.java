@@ -4,6 +4,7 @@ import com.tekclover.wms.api.transaction.model.inbound.*;
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.PreInboundHeaderEntity;
 import com.tekclover.wms.api.transaction.model.inbound.v2.InboundHeaderEntityV2;
 import com.tekclover.wms.api.transaction.model.inbound.v2.InboundHeaderV2;
+import com.tekclover.wms.api.transaction.model.inbound.v2.InboundLineV2;
 import com.tekclover.wms.api.transaction.model.inbound.v2.SearchInboundHeaderV2;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.confirmation.AXApiResponse;
 import com.tekclover.wms.api.transaction.service.InboundHeaderService;
@@ -128,6 +129,13 @@ public class InboundHeaderController {
         return inboundheaderService.findInboundHeaderV2(searchInboundHeader);
     }
 
+    @ApiOperation(response = InboundHeaderV2.class, value = "Search InboundHeader Stream V2") // label for swagger
+    @PostMapping("/findInboundHeader/v2/stream")
+    public Stream<InboundHeaderV2> findInboundHeaderStreamV2(@RequestBody SearchInboundHeaderV2 searchInboundHeader)
+            throws Exception {
+        return inboundheaderService.findInboundHeaderStreamV2(searchInboundHeader);
+    }
+
     @ApiOperation(response = InboundHeaderV2.class, value = "Create InboundHeader V2") // label for swagger
     @GetMapping("/replaceASN/v2")
     public ResponseEntity<?> replaceASNV2(@RequestParam String refDocNumber, @RequestParam String preInboundNo,
@@ -166,6 +174,16 @@ public class InboundHeaderController {
                                                                  @RequestParam String loginUserID) {
         AXApiResponse createdInboundHeaderResponse =
                 inboundheaderService.updateInboundHeaderPartialConfirmV2(companyCode, plantId, languageId, warehouseId, preInboundNo, refDocNumber, loginUserID);
+        return new ResponseEntity<>(createdInboundHeaderResponse, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = InboundHeaderV2.class, value = "Inbound Header & Line Partial Confirm New") // label for swagger
+    @PostMapping("/v2/confirmIndividual/partial")
+    public ResponseEntity<?> updatePartialInboundHeaderConfirmNewV2(@RequestBody List<InboundLineV2> inboundLineList, @RequestParam String warehouseId,
+                                                                    @RequestParam String preInboundNo, @RequestParam String refDocNumber, @RequestParam String companyCode,
+                                                                    @RequestParam String plantId, @RequestParam String languageId, @RequestParam String loginUserID) {
+        AXApiResponse createdInboundHeaderResponse =
+                inboundheaderService.updateInboundHeaderPartialConfirmNewV2(inboundLineList, companyCode, plantId, languageId, warehouseId, preInboundNo, refDocNumber, loginUserID);
         return new ResponseEntity<>(createdInboundHeaderResponse, HttpStatus.OK);
     }
 

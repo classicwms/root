@@ -16,4 +16,5 @@ public class SearchPickupHeaderV2 extends SearchPickupHeader {
 	private List<String> companyCodeId;
 	private List<String> plantId;
 	private List<String> levelId;
+	private List<String> preOutboundNo;
 }

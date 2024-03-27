@@ -735,11 +735,19 @@ public class InboundLineService extends BaseService {
      * @param languageId
      * @param warehouseId
      * @param refDocNumber
-     * @param loginUserID
+     * @param preInboundNo
      * @return
-     * @throws ParseException
      */
     //Delete InboundLine
+    public List<InboundLineV2> cancelInboundLineV2(String companyCode, String plantId, String languageId,
+                                                   String warehouseId, String refDocNumber, String preInboundNo) {
+
+        List<InboundLineV2> inboundLineList = inboundLineV2Repository.findByCompanyCodeAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndStatusIdAndDeletionIndicator(
+                companyCode, languageId, plantId, warehouseId, refDocNumber, preInboundNo, 24L,0L);
+        log.info("InboundLine - order cancellation : " + inboundLineList);
+        return inboundLineList;
+    }
+
     public List<InboundLineV2> deleteInboundLineV2(String companyCode, String plantId, String languageId,
                                                    String warehouseId, String refDocNumber, String preInboundNo, String loginUserID) throws ParseException {
 

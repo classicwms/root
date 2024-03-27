@@ -8361,6 +8361,22 @@ public class TransactionService {
 //        return inboundHeaderList.toArray(new InboundHeaderEntityV2[inboundHeaderList.size()]);
     }
 
+    // GET - findInboundHeader-V2
+    public InboundHeaderEntityV2[] findInboundHeaderStreamV2(SearchInboundHeaderV2 searchInboundHeader, String authToken) throws Exception {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.add("User-Agent", "ClassicWMS RestTemplate");
+        headers.add("Authorization", "Bearer " + authToken);
+
+        UriComponentsBuilder builder =
+                UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "inboundheader/findInboundHeader/v2/stream");
+        HttpEntity<?> entity = new HttpEntity<>(searchInboundHeader, headers);
+        ResponseEntity<InboundHeaderEntityV2[]> result =
+                getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, InboundHeaderEntityV2[].class);
+        log.info("result : " + result.getStatusCode());
+        return result.getBody();
+    }
+
     // POST - replaceASN
     public Boolean replaceASNV2(String refDocNumber, String preInboundNo, String asnNumber, String authToken) {
         HttpHeaders headers = new HttpHeaders();
@@ -8514,7 +8530,37 @@ public class TransactionService {
             throw e;
         }
     }
+    // PATCH - Partial Confirm - with InboundLines input
+    public AXApiResponse updateInboundHeaderWithIbLinePartialConfirmV2(List<InboundLineV2> inboundLineList, String companyCode, String plantId,
+                                                                       String languageId, String warehouseId, String preInboundNo, String refDocNumber,
+                                                                       String loginUserID, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS-Almailem RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+            HttpEntity<?> entity = new HttpEntity<>(inboundLineList, headers);
 
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getTransactionServiceApiUrl() + "inboundheader/v2/confirmIndividual/partial")
+                    .queryParam("companyCode", companyCode)
+                    .queryParam("plantId", plantId)
+                    .queryParam("languageId", languageId)
+                    .queryParam("warehouseId", warehouseId)
+                    .queryParam("preInboundNo", preInboundNo)
+                    .queryParam("refDocNumber", refDocNumber)
+                    .queryParam("loginUserID", loginUserID);
+            ResponseEntity<AXApiResponse> result = restTemplate.exchange(builder.toUriString(), HttpMethod.POST, entity,
+                    AXApiResponse.class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            throw e;
+        }
+    }
     // DELETE
     public boolean deleteInboundHeaderV2(String companyCode, String plantId, String languageId, String warehouseId,
                                          String refDocNumber, String preInboundNo, String loginUserID, String authToken) {
@@ -13264,6 +13310,29 @@ public class TransactionService {
         }
     }
 
+    //Inbound Order Cancellation
+    public PreInboundHeaderV2 inboundOrderCancellation(InboundOrderCancelInput inboundOrderCancelInput, String loginUserId, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS-Almailem RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            HttpEntity<?> entity = new HttpEntity<>(inboundOrderCancelInput, headers);
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getTransactionServiceApiUrl() + "invoice/inboundOrderCancellation")
+                    .queryParam("loginUserId", loginUserId);
+
+            ResponseEntity<PreInboundHeaderV2> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity,
+                    PreInboundHeaderV2.class);
+            log.info("result : " + result.getBody());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
     //==========================================Get All Exception Log Details==========================================
     public ExceptionLog[] getAllExceptionLogs(String authToken) {
         try {
@@ -13369,6 +13438,37 @@ public class TransactionService {
             HttpEntity<?> entity = new HttpEntity<>(searchSupplierInvoiceHeader, headers);
             ResponseEntity<SupplierInvoiceHeader[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
                     entity, SupplierInvoiceHeader[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    /**
+     *
+     * @param outboundOrderCancelInput
+     * @param loginUserID
+     * @param authToken
+     * @return
+     * @throws ParseException
+     */
+    public PreOutboundHeaderV2 orderCancellation(OutboundOrderCancelInput outboundOrderCancelInput, String loginUserID, String authToken) throws ParseException {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getTransactionServiceApiUrl() + "preoutboundheader/v2/orderCancellation")
+                    .queryParam("loginUserID", loginUserID);
+
+            HttpEntity<?> entity = new HttpEntity<>(outboundOrderCancelInput, headers);
+            ResponseEntity<PreOutboundHeaderV2> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
+                    entity, PreOutboundHeaderV2.class);
             log.info("result : " + result.getStatusCode());
             return result.getBody();
 

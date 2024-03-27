@@ -48,6 +48,11 @@ public class PickupHeaderV2Specification implements Specification<PickupHeaderV2
             predicates.add(group.in(searchPickupHeader.getRefDocNumber()));
         }
 
+        if (searchPickupHeader.getPreOutboundNo() != null && !searchPickupHeader.getPreOutboundNo().isEmpty()) {
+            final Path<Group> group = root.<Group>get("preOutboundNo");
+            predicates.add(group.in(searchPickupHeader.getPreOutboundNo()));
+        }
+
         if (searchPickupHeader.getPartnerCode() != null && !searchPickupHeader.getPartnerCode().isEmpty()) {
             final Path<Group> group = root.<Group>get("partnerCode");
             predicates.add(group.in(searchPickupHeader.getPartnerCode()));

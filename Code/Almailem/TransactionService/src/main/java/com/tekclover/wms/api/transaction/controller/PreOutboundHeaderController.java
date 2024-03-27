@@ -9,6 +9,8 @@ import javax.validation.Valid;
 
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.v2.PreOutboundHeaderV2;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.v2.SearchPreOutboundHeaderV2;
+import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundOrderCancelInput;
+import com.tekclover.wms.api.transaction.model.outbound.v2.PickListHeader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -147,5 +149,11 @@ public class PreOutboundHeaderController {
                                                        @RequestParam String partnerCode, @RequestParam String loginUserID) {
         preoutboundheaderService.deletePreOutboundHeaderV2(languageId, companyCodeId, plantId, warehouseId, refDocNumber, preOutboundNo, partnerCode, loginUserID);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+    @ApiOperation(response = PickListHeader.class, value = "Cancel Order") // label for swagger
+    @PostMapping("/v2/orderCancellation")
+    public ResponseEntity<?> orderCancellation(@RequestBody OutboundOrderCancelInput outboundOrderCancelInput, @RequestParam String loginUserID) throws Exception {
+        PreOutboundHeaderV2 orderCancelled = preoutboundheaderService.orderCancellation(outboundOrderCancelInput, loginUserID);
+        return new ResponseEntity<>(orderCancelled, HttpStatus.OK);
     }
 }

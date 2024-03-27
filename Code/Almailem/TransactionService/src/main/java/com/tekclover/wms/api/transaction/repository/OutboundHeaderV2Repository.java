@@ -69,12 +69,13 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value ="Update tbloutboundheader SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, DLV_CNF_ON = :deliveryConfirmedOn \r\n "
             + " WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND \r\n"
-            + "LANG_ID = :languageId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber", nativeQuery = true)
+            + "LANG_ID = :languageId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND PRE_OB_NO = :preOutboundNo", nativeQuery = true)
     public void updateOutboundHeaderStatusNewV2(@Param("companyCodeId") String companyCodeId,
                                                 @Param("plantId") String plantId,
                                                 @Param("languageId") String languageId,
                                                 @Param("warehouseId") String warehouseId,
                                                 @Param("refDocNumber") String refDocNumber,
+                                                @Param("preOutboundNo") String preOutboundNo,
                                                 @Param("statusId") Long statusId,
                                                 @Param("statusDescription") String statusDescription,
                                                 @Param("deliveryConfirmedOn") Date deliveryConfirmedOn);

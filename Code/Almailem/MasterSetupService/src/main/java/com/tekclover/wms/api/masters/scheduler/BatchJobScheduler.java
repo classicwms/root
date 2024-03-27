@@ -115,14 +115,14 @@ public class BatchJobScheduler {
                     ImBasicData1V2 inboundItemMaster = masterOrderService.processItemMasterReceived(inbound);
                     if (inboundItemMaster != null) {
                         // Updating the Processed Status
-                        masterOrderService.updateProcessedItemMaster(inbound.getCompanyCodeId(), inbound.getPlantId(), inbound.getItemCode(), inbound.getManufacturerName());
+                        masterOrderService.updateProcessedItemMaster(inbound.getCompanyCodeId(), inbound.getPlantId(), inbound.getItemCode(), inbound.getManufacturerName(), 10L);
                         inboundItemList.remove(inbound);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                     log.error("Error on item master processing : " + e.toString());
                     // Updating the Processed Status
-                    masterOrderService.updateProcessedItemMaster(inbound.getCompanyCodeId(), inbound.getPlantId(), inbound.getItemCode(), inbound.getManufacturerName());
+                    masterOrderService.updateProcessedItemMaster(inbound.getCompanyCodeId(), inbound.getPlantId(), inbound.getItemCode(), inbound.getManufacturerName(), 100L);
                     masterOrderService.createInboundIntegrationLog(inbound);
                     inboundItemList.remove(inbound);
                 }
@@ -190,14 +190,14 @@ public class BatchJobScheduler {
                     List<BusinessPartnerV2> inboundCustomerMaster = masterOrderService.processCustomerMasterReceived(inbound);
                     if (inboundCustomerMaster != null) {
                         // Updating the Processed Status
-                        masterOrderService.updateProcessedCustomerMaster(inbound.getCompanyCodeId(), inbound.getPlantId(), inbound.getPartnerCode());
+                        masterOrderService.updateProcessedCustomerMaster(inbound.getCompanyCodeId(), inbound.getPlantId(), inbound.getPartnerCode(), 10L);
                         inboundCustomerList.remove(inbound);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                     log.error("Error on customer master processing : " + e.toString());
                     // Updating the Processed Status
-                    masterOrderService.updateProcessedCustomerMaster(inbound.getCompanyCodeId(), inbound.getPlantId(), inbound.getPartnerCode());
+                    masterOrderService.updateProcessedCustomerMaster(inbound.getCompanyCodeId(), inbound.getPlantId(), inbound.getPartnerCode(), 100L);
                     masterOrderService.createInboundIntegrationLog(inbound);
                     inboundCustomerList.remove(inbound);
                 }
