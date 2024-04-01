@@ -2132,6 +2132,44 @@ public class OutboundLineService extends BaseService {
     }
 
     /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param preOutboundNo
+     * @param refDocNumber
+     * @return
+     */
+    public Long getOutboundLineCountV2(List<String> companyCodeId, List<String> plantId, List<String> languageId,
+                                       List<String> warehouseId, List<String> preOutboundNo, List<String> refDocNumber) {
+        Long outboundLineCount =
+                outboundLineV2Repository.getOutboundLinesCount(
+                        companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber);
+        log.info("OuboundLine count :----------->" + outboundLineCount);
+        return outboundLineCount;
+    }
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param preOutboundNo
+     * @param refDocNumber
+     * @param statusIds
+     * @return
+     */
+    public Long getOutboundLineStatusIdCountV2(List<String> companyCodeId, List<String> plantId, List<String> languageId, List<String> warehouseId,
+                                               List<String> preOutboundNo, List<String> refDocNumber, List<Long> statusIds) {
+        Long outboundLineCount =
+                outboundLineV2Repository.getOutboundLinesStatusIdCount(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, statusIds);
+        log.info("OuboundLine status Id 47L,51L,57L :----------->" + outboundLineCount);
+        return outboundLineCount;
+    }
+
+    /**
      * @param warehouseId
      * @param preOutboundNo
      * @param refDocNumber

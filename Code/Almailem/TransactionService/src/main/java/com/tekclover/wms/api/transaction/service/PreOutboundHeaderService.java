@@ -33,6 +33,9 @@ import com.tekclover.wms.api.transaction.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -1538,6 +1541,7 @@ public class PreOutboundHeaderService extends BaseService {
 //    }
 
     @Transactional(rollbackFor = {Exception.class, Throwable.class})
+    @Retryable(value = CannotAcquireLockException.class, maxAttempts = 2, backoff = @Backoff(delay = 5000))
     public OutboundHeaderV2 processOutboundReceivedV2(OutboundIntegrationHeaderV2 outboundIntegrationHeader)
             throws IllegalAccessException, InvocationTargetException, BadRequestException, Exception {
         /*

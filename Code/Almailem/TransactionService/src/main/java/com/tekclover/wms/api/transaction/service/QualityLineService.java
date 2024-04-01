@@ -1868,13 +1868,15 @@ public class QualityLineService extends BaseService {
                     (pickupHeaderList == null || pickupHeaderList.isEmpty()) &&
                     (qualityHeaderList == null || qualityHeaderList.isEmpty())) {
 
-                List<OutboundLineV2> outboundLineV2List = outboundLineService.getOutboundLineV2(
-                        companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber);
-                log.info("OutboundLineList: " + outboundLineV2List);
-
-                long count_57 = 0;
-                if (outboundLineV2List != null && !outboundLineV2List.isEmpty()) {
-//                    List<Long> statusIdsToBeChecked = Arrays.asList(57L, 47L, 51L);
+//                List<OutboundLineV2> outboundLineV2List = outboundLineService.getOutboundLineV2(
+//                        companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber);
+//                log.info("OutboundLineList: " + outboundLineV2List);
+                Long outboundLineCount = outboundLineService.getOutboundLineCountV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber);
+                log.info("OuboundLine count :----------->" + outboundLineCount);
+                Long count_57 = 0L;
+//                if (outboundLineV2List != null && !outboundLineV2List.isEmpty()) {
+                if (outboundLineCount != null && outboundLineCount > 0) {
+                    List<Long> statusIdsToBeChecked = Arrays.asList(57L, 47L, 51L);
 //                    count_57 = outboundLineService.getOutboundLineV2(dbQualityLines.get(0).getCompanyCodeId(),
 //                            dbQualityLines.get(0).getPlantId(),
 //                            dbQualityLines.get(0).getLanguageId(),
@@ -1883,12 +1885,14 @@ public class QualityLineService extends BaseService {
 //                            dbQualityLines.get(0).getRefDocNumber(),
 //                            dbQualityLines.get(0).getPartnerCode(),
 //                            statusIdsToBeChecked);
-                    List<OutboundLineV2> statusFilterList = outboundLineV2List.stream().filter(n -> n.getStatusId() == 57L || n.getStatusId() == 47L || n.getStatusId() == 51L).collect(Collectors.toList());
-                    count_57 = statusFilterList.stream().count();
+//                    List<OutboundLineV2> statusFilterList = outboundLineV2List.stream().filter(n -> n.getStatusId() == 57L || n.getStatusId() == 47L || n.getStatusId() == 51L).collect(Collectors.toList());
+//                    count_57 = statusFilterList.stream().count();
+                    count_57 = outboundLineService.getOutboundLineStatusIdCountV2(
+                            companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, statusIdsToBeChecked);
 
-                    log.info("Count_57, OutboundLineList Size: " + count_57 + ", " + outboundLineV2List.size());
+                    log.info("Count_57, OutboundLineList Size: " + count_57 + ", " + outboundLineCount);
 
-                    if (count_57 == outboundLineV2List.size()) {
+                    if (count_57.equals(outboundLineCount)) {
                         log.info("All Outbound Lines Confirmed - Automate/Calling the Delivery Confirm Procedure");
 
                         SearchOutboundHeaderV2 searchOutboundHeaderV2 = new SearchOutboundHeaderV2();

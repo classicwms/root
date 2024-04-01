@@ -461,4 +461,27 @@ public interface OutboundLineV2Repository extends JpaRepository<OutboundLineV2, 
     OutboundLineV2 findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndManufacturerNameAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo,
             String refDocNumber, String partnerCode, Long lineNumber, String itemCode, String manufacturerName, Long deletionIndicator);
+
+    @Query(value = "SELECT COUNT(OB_LINE_NO) \r\n"
+            + "FROM tbloutboundline \r\n"
+            + "WHERE C_ID IN (:companyCodeId) AND PLANT_ID IN (:plantId) AND LANG_ID IN (:languageId) AND WH_ID IN (:warehouseId) AND PRE_OB_NO IN (:preOutboundNo) \r\n"
+            + "AND REF_DOC_NO IN (:refDocNumber) AND IS_DELETED = 0 ", nativeQuery = true)
+    public Long getOutboundLinesCount(@Param("companyCodeId") List<String> companyCodeId,
+                                      @Param("plantId") List<String> plantId,
+                                      @Param("languageId") List<String> languageId,
+                                      @Param("warehouseId") List<String> warehouseId,
+                                      @Param("preOutboundNo") List<String> preOutboundNo,
+                                      @Param("refDocNumber") List<String> refDocNumber);
+    
+    @Query(value = "SELECT COUNT(OB_LINE_NO) \r\n"
+            + "FROM tbloutboundline \r\n"
+            + "WHERE C_ID IN (:companyCodeId) AND PLANT_ID IN (:plantId) AND LANG_ID IN (:languageId) AND WH_ID IN (:warehouseId) AND PRE_OB_NO IN (:preOutboundNo) \r\n"
+            + "AND REF_DOC_NO IN (:refDocNumber) AND STATUS_ID IN (:statusId) AND IS_DELETED = 0 ", nativeQuery = true)
+    public Long getOutboundLinesStatusIdCount(@Param("companyCodeId") List<String> companyCodeId,
+                                              @Param("plantId") List<String> plantId,
+                                              @Param("languageId") List<String> languageId,
+                                              @Param("warehouseId") List<String> warehouseId,
+                                              @Param("preOutboundNo") List<String> preOutboundNo,
+                                              @Param("refDocNumber") List<String> refDocNumber,
+                                              @Param("statusId") List<Long> statusId);
 }
