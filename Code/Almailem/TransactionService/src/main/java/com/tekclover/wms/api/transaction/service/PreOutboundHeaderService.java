@@ -31,6 +31,7 @@ import com.tekclover.wms.api.transaction.repository.specification.PreOutboundHea
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.CannotAcquireLockException;
@@ -1541,7 +1542,7 @@ public class PreOutboundHeaderService extends BaseService {
 //    }
 
     @Transactional(rollbackFor = {Exception.class, Throwable.class})
-    @Retryable(value = CannotAcquireLockException.class, maxAttempts = 2, backoff = @Backoff(delay = 5000))
+    @Retryable(value = {CannotAcquireLockException.class, LockAcquisitionException.class}, maxAttempts = 2, backoff = @Backoff(delay = 5000))
     public OutboundHeaderV2 processOutboundReceivedV2(OutboundIntegrationHeaderV2 outboundIntegrationHeader)
             throws IllegalAccessException, InvocationTargetException, BadRequestException, Exception {
         /*

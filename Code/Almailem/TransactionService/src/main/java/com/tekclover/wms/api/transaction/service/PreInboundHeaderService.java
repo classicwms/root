@@ -26,8 +26,12 @@ import com.tekclover.wms.api.transaction.repository.specification.PreInboundHead
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -1417,6 +1421,7 @@ public class PreInboundHeaderService extends BaseService {
      * @throws IllegalAccessException
      */
     @Transactional(rollbackFor = {Exception.class, Throwable.class})
+    @Retryable(value = {CannotAcquireLockException.class, LockAcquisitionException.class}, maxAttempts = 2, backoff = @Backoff(delay = 5000))
     public InboundHeaderV2 processInboundReceivedV2(String refDocNumber, InboundIntegrationHeader inboundIntegrationHeader)
             throws IllegalAccessException, InvocationTargetException, BadRequestException, Exception {
         log.info("Inbound Process Initiated ------> " + refDocNumber + ", " + inboundIntegrationHeader.getInboundOrderTypeId());

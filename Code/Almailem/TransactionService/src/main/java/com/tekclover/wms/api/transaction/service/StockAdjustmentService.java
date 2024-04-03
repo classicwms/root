@@ -1164,6 +1164,7 @@ public class StockAdjustmentService extends BaseService {
         InventoryMovement inventoryMovement = new InventoryMovement();
         BeanUtils.copyProperties(stockAdjustment, inventoryMovement, CommonUtils.getNullPropertyNames(stockAdjustment));
         inventoryMovement.setCompanyCodeId(stockAdjustment.getCompanyCode());
+        inventoryMovement.setPlantId(stockAdjustment.getBranchCode());
 
         // MVT_TYP_ID
         inventoryMovement.setMovementType(4L);

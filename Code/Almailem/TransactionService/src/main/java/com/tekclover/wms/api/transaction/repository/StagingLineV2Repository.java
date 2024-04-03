@@ -343,4 +343,16 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
             @Param("refDocNumber") String refDocNumber,
             @Param("preInboundNo") String preInboundNo
     );
+
+    //update barcode - stagingline - barcode is null
+    @Query(value = "select * from tblstagingline i \n" +
+            "WHERE i.ITM_CODE in (:itemCode) AND i.MFR_NAME in (:manufacturerName) AND i.WH_ID in (:warehouseId) AND \n" +
+            "i.LANG_ID in (:languageId) AND i.PLANT_ID in (:plantId) AND i.C_ID in (:companyCodeId) AND \n" +
+            "i.STATUS_ID <> 17 AND i.PARTNER_ITEM_BARCODE IS NULL AND i.IS_DELETED = 0", nativeQuery = true)
+    public List<StagingLineEntityV2> getStagingLineList(@Param(value = "itemCode") String itemCode,
+                                                        @Param(value = "manufacturerName") String manufacturerName,
+                                                        @Param(value = "companyCodeId") String companyCodeId,
+                                                        @Param(value = "plantId") String plantId,
+                                                        @Param(value = "languageId") String languageId,
+                                                        @Param(value = "warehouseId") String warehouseId);
 }
