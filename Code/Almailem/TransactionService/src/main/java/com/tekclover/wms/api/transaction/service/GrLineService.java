@@ -1331,6 +1331,7 @@ public class GrLineService extends BaseService {
             searchGrLine.setStartCreatedOn(dates[0]);
             searchGrLine.setEndCreatedOn(dates[1]);
         }
+        log.info("Grline Search Input - Stream: " + searchGrLine);
         GrLineV2Specification spec = new GrLineV2Specification(searchGrLine);
         Stream<GrLineV2> results = grLineV2Repository.stream(spec, GrLineV2.class);
         return results;
@@ -1401,7 +1402,7 @@ public class GrLineService extends BaseService {
     if(searchGrLine.getRejectReason() == null || searchGrLine.getRejectReason().isEmpty()){
         searchGrLine.setRejectReason(null);
     }
-
+     log.info("Grline Search Input - SQL: " + searchGrLine);
      List<GrLineImpl> results = grLineV2Repository.findGrLine(
              searchGrLine.getCompanyCodeId(),
              searchGrLine.getPlantId(),
@@ -1424,6 +1425,7 @@ public class GrLineService extends BaseService {
              searchGrLine.getRejectReason(),
              searchGrLine.getStartCreatedOn(),
              searchGrLine.getEndCreatedOn());
+     log.info("Grline Search Output: " + results.size());
         return results;
     }
 

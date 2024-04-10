@@ -14,10 +14,12 @@ public class SearchPutAwayHeaderV2 extends SearchPutAwayHeader {
 	private List<String> plantId;
 
 	private List<String> barcodeId;
+	private List<String> preInboundNo;
 	private List<String> manufacturerCode;
 	private List<String> manufacturerName;
 	private List<String> origin;
 	private List<String> brand;
 	private List<String> approvalStatus;
 	private List<String> itemCode;				//Ref_field_5
+	private List<Long> inboundOrderTypeId;
 }

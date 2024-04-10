@@ -6,6 +6,7 @@ import com.tekclover.wms.api.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.transaction.model.dto.ImBasicData;
 import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
 import com.tekclover.wms.api.transaction.model.dto.StorageBinV2;
+import com.tekclover.wms.api.transaction.model.impl.PutAwayHeaderImpl;
 import com.tekclover.wms.api.transaction.model.inbound.InboundLine;
 import com.tekclover.wms.api.transaction.model.inbound.gr.GrLine;
 import com.tekclover.wms.api.transaction.model.inbound.gr.v2.GrHeaderV2;
@@ -1033,6 +1034,110 @@ public class PutAwayHeaderService extends BaseService {
         log.info("searchPutAwayHeader V2: " + searchPutAwayHeader);
         PutAwayHeaderV2Specification spec = new PutAwayHeaderV2Specification(searchPutAwayHeader);
         List<PutAwayHeaderV2> results = putAwayHeaderV2Repository.findAll(spec);
+        log.info("putAwayHeader results:" + results.size());
+        return results;
+    }
+
+    /**
+     * SQL - Method - to set Inventory Qty
+     * @param searchPutAwayHeader
+     * @return
+     * @throws Exception
+     */
+    public List<PutAwayHeaderImpl> findPutAwayHeaderSQLV2(SearchPutAwayHeaderV2 searchPutAwayHeader)
+            throws Exception {
+        if (searchPutAwayHeader.getStartCreatedOn() != null && searchPutAwayHeader.getEndCreatedOn() != null) {
+            Date[] dates = DateUtils.addTimeToDatesForSearch(searchPutAwayHeader.getStartCreatedOn(),
+                    searchPutAwayHeader.getEndCreatedOn());
+            searchPutAwayHeader.setStartCreatedOn(dates[0]);
+            searchPutAwayHeader.setEndCreatedOn(dates[1]);
+        }
+        log.info("searchPutAwayHeader V2: " + searchPutAwayHeader);
+
+        if(searchPutAwayHeader.getCompanyCodeId() == null || searchPutAwayHeader.getCompanyCodeId().isEmpty()){
+            searchPutAwayHeader.setCompanyCodeId(null);
+        }
+        if (searchPutAwayHeader.getPlantId() == null || searchPutAwayHeader.getPlantId().isEmpty()) {
+            searchPutAwayHeader.setPlantId(null);
+        }
+        if (searchPutAwayHeader.getLanguageId() == null || searchPutAwayHeader.getLanguageId().isEmpty()) {
+            searchPutAwayHeader.setLanguageId(null);
+        }
+        if (searchPutAwayHeader.getWarehouseId() == null || searchPutAwayHeader.getWarehouseId().isEmpty()) {
+            searchPutAwayHeader.setWarehouseId(null);
+        }
+        if (searchPutAwayHeader.getItemCode() == null || searchPutAwayHeader.getItemCode().isEmpty()) {
+            searchPutAwayHeader.setItemCode(null);
+        }
+        if (searchPutAwayHeader.getManufacturerName() == null || searchPutAwayHeader.getManufacturerName().isEmpty()) {
+            searchPutAwayHeader.setManufacturerName(null);
+        }
+        if (searchPutAwayHeader.getManufacturerCode() == null || searchPutAwayHeader.getManufacturerCode().isEmpty()) {
+            searchPutAwayHeader.setManufacturerCode(null);
+        }
+        if (searchPutAwayHeader.getRefDocNumber() == null || searchPutAwayHeader.getRefDocNumber().isEmpty()) {
+            searchPutAwayHeader.setRefDocNumber(null);
+        }
+        if (searchPutAwayHeader.getPreInboundNo() == null || searchPutAwayHeader.getPreInboundNo().isEmpty()) {
+            searchPutAwayHeader.setPreInboundNo(null);
+        }
+        if (searchPutAwayHeader.getPackBarcodes() == null || searchPutAwayHeader.getPackBarcodes().isEmpty()) {
+            searchPutAwayHeader.setPackBarcodes(null);
+        }
+        if (searchPutAwayHeader.getPutAwayNumber() == null || searchPutAwayHeader.getPutAwayNumber().isEmpty()) {
+            searchPutAwayHeader.setPutAwayNumber(null);
+        }
+        if (searchPutAwayHeader.getProposedHandlingEquipment() == null || searchPutAwayHeader.getProposedHandlingEquipment().isEmpty()) {
+            searchPutAwayHeader.setProposedHandlingEquipment(null);
+        }
+        if (searchPutAwayHeader.getProposedStorageBin() == null || searchPutAwayHeader.getProposedStorageBin().isEmpty()) {
+            searchPutAwayHeader.setProposedStorageBin(null);
+        }
+        if (searchPutAwayHeader.getCreatedBy() == null || searchPutAwayHeader.getCreatedBy().isEmpty()) {
+            searchPutAwayHeader.setCreatedBy(null);
+        }
+        if (searchPutAwayHeader.getBarcodeId() == null || searchPutAwayHeader.getBarcodeId().isEmpty()) {
+            searchPutAwayHeader.setBarcodeId(null);
+        }
+        if (searchPutAwayHeader.getOrigin() == null || searchPutAwayHeader.getOrigin().isEmpty()) {
+            searchPutAwayHeader.setOrigin(null);
+        }
+        if (searchPutAwayHeader.getBrand() == null || searchPutAwayHeader.getBrand().isEmpty()) {
+            searchPutAwayHeader.setBrand(null);
+        }
+        if (searchPutAwayHeader.getApprovalStatus() == null || searchPutAwayHeader.getApprovalStatus().isEmpty()) {
+            searchPutAwayHeader.setApprovalStatus(null);
+        }
+        if (searchPutAwayHeader.getStatusId() == null || searchPutAwayHeader.getStatusId().isEmpty()) {
+            searchPutAwayHeader.setStatusId(null);
+        }
+        if (searchPutAwayHeader.getStartCreatedOn() == null || searchPutAwayHeader.getEndCreatedOn() == null) {
+            searchPutAwayHeader.setStartCreatedOn(null);
+        }
+
+        List<PutAwayHeaderImpl> results = putAwayHeaderV2Repository.findPutAwayHeader(
+                                                                    searchPutAwayHeader.getCompanyCodeId(),
+                                                                    searchPutAwayHeader.getPlantId(),
+                                                                    searchPutAwayHeader.getLanguageId(),
+                                                                    searchPutAwayHeader.getWarehouseId(),
+                                                                    searchPutAwayHeader.getItemCode(),
+                                                                    searchPutAwayHeader.getManufacturerName(),
+                                                                    searchPutAwayHeader.getRefDocNumber(),
+                                                                    searchPutAwayHeader.getPreInboundNo(),
+                                                                    searchPutAwayHeader.getPackBarcodes(),
+                                                                    searchPutAwayHeader.getPutAwayNumber(),
+                                                                    searchPutAwayHeader.getProposedStorageBin(),
+                                                                    searchPutAwayHeader.getProposedHandlingEquipment(),
+                                                                    searchPutAwayHeader.getCreatedBy(),
+                                                                    searchPutAwayHeader.getBarcodeId(),
+                                                                    searchPutAwayHeader.getManufacturerCode(),
+                                                                    searchPutAwayHeader.getOrigin(),
+                                                                    searchPutAwayHeader.getBrand(),
+                                                                    searchPutAwayHeader.getApprovalStatus(),
+                                                                    searchPutAwayHeader.getStatusId(),
+                                                                    searchPutAwayHeader.getInboundOrderTypeId(),
+                                                                    searchPutAwayHeader.getStartCreatedOn(),
+                                                                    searchPutAwayHeader.getEndCreatedOn());
         log.info("putAwayHeader results:" + results.size());
         return results;
     }

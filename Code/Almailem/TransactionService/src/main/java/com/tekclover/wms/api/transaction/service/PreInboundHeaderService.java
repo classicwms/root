@@ -1904,6 +1904,7 @@ public class PreInboundHeaderService extends BaseService {
         inboundHeader.setIsCompleted(preInboundHeader.getIsCompleted());
         inboundHeader.setIsCancelled(preInboundHeader.getIsCancelled());
         inboundHeader.setMUpdatedOn(preInboundHeader.getMUpdatedOn());
+        inboundHeader.setCountOfOrderLines((long) preInboundLine.size());       //count of lines
 
         inboundHeader.setDeletionIndicator(0L);
         inboundHeader.setCreatedBy(preInboundHeader.getCreatedBy());

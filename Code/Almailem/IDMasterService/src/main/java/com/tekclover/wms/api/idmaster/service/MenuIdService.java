@@ -306,35 +306,35 @@ public class MenuIdService {
 		results = results.stream().filter(n -> n.getDeletionIndicator() == 0).collect(Collectors.toList());
 		log.info("results: " + results);
 
-		List<MenuId> newMenuIdList=new ArrayList<>();
-		String companyCodeId = null;
-		String plantId = null;
-		String languageId = null;
-		String warehouseId = null;
-		IKeyValuePair description = null;
-
-		for(MenuId dbMenuId:results) {
-
-			if(dbMenuId.getCompanyCodeId() != companyCodeId && dbMenuId.getPlantId() != plantId &&
-					dbMenuId.getLanguageId() != languageId && dbMenuId.getWarehouseId() != warehouseId) {
-
-				companyCodeId = dbMenuId.getCompanyCodeId();
-				plantId = dbMenuId.getPlantId();
-				languageId = dbMenuId.getLanguageId();
-				warehouseId = dbMenuId.getWarehouseId();
-
-				description = menuIdRepository.getDescription(dbMenuId.getCompanyCodeId(),
-						dbMenuId.getLanguageId(),
-						dbMenuId.getPlantId(),
-						dbMenuId.getWarehouseId());
-			}
-			if(description != null) {
-				dbMenuId.setCompanyIdAndDescription(description.getCompanyCodeId() + "-" + description.getCompanyDesc());
-				dbMenuId.setPlantIdAndDescription(description.getPlantId() + "-" + description.getPlantDesc());
-				dbMenuId.setWarehouseIdAndDescription(description.getWarehouseId() + "-" + description.getWarehouseDesc());
-			}
-			newMenuIdList.add(dbMenuId);
-		}
-		return newMenuIdList;
+//		List<MenuId> newMenuIdList=new ArrayList<>();
+//		String companyCodeId = null;
+//		String plantId = null;
+//		String languageId = null;
+//		String warehouseId = null;
+//		IKeyValuePair description = null;
+//
+//		for(MenuId dbMenuId:results) {
+//
+//			if(dbMenuId.getCompanyCodeId() != companyCodeId && dbMenuId.getPlantId() != plantId &&
+//					dbMenuId.getLanguageId() != languageId && dbMenuId.getWarehouseId() != warehouseId) {
+//
+//				companyCodeId = dbMenuId.getCompanyCodeId();
+//				plantId = dbMenuId.getPlantId();
+//				languageId = dbMenuId.getLanguageId();
+//				warehouseId = dbMenuId.getWarehouseId();
+//
+//				description = menuIdRepository.getDescription(dbMenuId.getCompanyCodeId(),
+//						dbMenuId.getLanguageId(),
+//						dbMenuId.getPlantId(),
+//						dbMenuId.getWarehouseId());
+//			}
+//			if(description != null) {
+//				dbMenuId.setCompanyIdAndDescription(description.getCompanyCodeId() + "-" + description.getCompanyDesc());
+//				dbMenuId.setPlantIdAndDescription(description.getPlantId() + "-" + description.getPlantDesc());
+//				dbMenuId.setWarehouseIdAndDescription(description.getWarehouseId() + "-" + description.getWarehouseDesc());
+//			}
+//			newMenuIdList.add(dbMenuId);
+//		}
+		return results;
 	}
 }

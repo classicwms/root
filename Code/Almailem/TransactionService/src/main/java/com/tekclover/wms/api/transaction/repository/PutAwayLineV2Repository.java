@@ -177,4 +177,15 @@ public interface PutAwayLineV2Repository extends JpaRepository<PutAwayLineV2, Lo
             @Param("updatedBy") String updatedBy,
             @Param("updatedOn") Date updatedOn
     );
+
+    @Transactional
+    @Procedure(procedureName = "ibheader_pal_cnt_update_proc")
+    public void updateInboundHeaderRxdLinesCountProc(
+            @Param("companyCodeId") String companyCode,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preInboundNo") String preInboundNo
+    );
 }

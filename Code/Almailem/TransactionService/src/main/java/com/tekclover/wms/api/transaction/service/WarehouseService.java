@@ -402,12 +402,12 @@ public class WarehouseService extends BaseService {
 			List<ASNLine> asnLines = asn.getAsnLine();
 			InboundOrder apiHeader = new InboundOrder();
 			apiHeader.setOrderId(asnHeader.getAsnNumber());
-			apiHeader.setInboundOrderHeaderId(System.currentTimeMillis());
 			apiHeader.setRefDocumentNo(asnHeader.getAsnNumber());
 			apiHeader.setRefDocumentType("ASN");
 			apiHeader.setWarehouseID(asnHeader.getWareHouseId());
 			apiHeader.setInboundOrderTypeId(1L);
 			apiHeader.setOrderReceivedOn(new Date());
+			apiHeader.setInboundOrderHeaderId(System.currentTimeMillis());
 			
 			Set<InboundOrderLines> orderLines = new HashSet<>();
 			for (ASNLine asnLine : asnLines) {
@@ -476,12 +476,12 @@ public class WarehouseService extends BaseService {
 			List<StoreReturnLine> storeReturnLines = storeReturn.getStoreReturnLine();
 			InboundOrder apiHeader = new InboundOrder();
 			apiHeader.setOrderId(storeReturnHeader.getTransferOrderNumber());
-			apiHeader.setInboundOrderHeaderId(System.currentTimeMillis());
 			apiHeader.setRefDocumentNo(storeReturnHeader.getTransferOrderNumber());
 			apiHeader.setWarehouseID(storeReturnHeader.getWareHouseId());
 			apiHeader.setRefDocumentType("RETURN");			
 			apiHeader.setInboundOrderTypeId(2L);
 			apiHeader.setOrderReceivedOn(new Date());
+			apiHeader.setInboundOrderHeaderId(System.currentTimeMillis());
 			
 			Set<InboundOrderLines> orderLines = new HashSet<>();
 			for (StoreReturnLine storeReturnLine : storeReturnLines) {
@@ -551,12 +551,12 @@ public class WarehouseService extends BaseService {
 			List<SOReturnLine> storeReturnLines = soReturn.getSoReturnLine();
 			InboundOrder apiHeader = new InboundOrder();
 			apiHeader.setOrderId(soReturnHeader.getReturnOrderReference());
-			apiHeader.setInboundOrderHeaderId(System.currentTimeMillis());
 			apiHeader.setRefDocumentNo(soReturnHeader.getReturnOrderReference());
 			apiHeader.setWarehouseID(soReturnHeader.getWareHouseId());
 			apiHeader.setRefDocumentType("RETURN");	
 			apiHeader.setInboundOrderTypeId(4L);										// Hardcoded Value 4
 			apiHeader.setOrderReceivedOn(new Date());
+			apiHeader.setInboundOrderHeaderId(System.currentTimeMillis());
 			
 			Set<InboundOrderLines> orderLines = new HashSet<>();
 			for (SOReturnLine soReturnLine : storeReturnLines) {
@@ -626,12 +626,12 @@ public class WarehouseService extends BaseService {
 			List<InterWarehouseTransferInLine> interWarehouseTransferInLines = interWarehouseTransferIn.getInterWarehouseTransferInLine();
 			InboundOrder apiHeader = new InboundOrder();
 			apiHeader.setOrderId(interWarehouseTransferInHeader.getTransferOrderNumber());
-			apiHeader.setInboundOrderHeaderId(System.currentTimeMillis());
 			apiHeader.setRefDocumentNo(interWarehouseTransferInHeader.getTransferOrderNumber());
 			apiHeader.setWarehouseID(interWarehouseTransferInHeader.getToWhsId());
 			apiHeader.setRefDocumentType("WH2WH");				// Hardcoded Value "WH to WH"
 			apiHeader.setInboundOrderTypeId(3L);				// Hardcoded Value 3
 			apiHeader.setOrderReceivedOn(new Date());
+			apiHeader.setInboundOrderHeaderId(System.currentTimeMillis());
 			
 			Set<InboundOrderLines> orderLines = new HashSet<>();
 			for (InterWarehouseTransferInLine iwhTransferLine : interWarehouseTransferInLines) {
@@ -706,7 +706,6 @@ public class WarehouseService extends BaseService {
 			
 			OutboundOrder apiHeader = new OutboundOrder();
 			apiHeader.setOrderId(soHeader.getTransferOrderNumber());
-			apiHeader.setOutboundOrderHeaderId(System.currentTimeMillis());
 			apiHeader.setWarehouseID(soHeader.getWareHouseId());
 			apiHeader.setPartnerCode(soHeader.getStoreID());
 			apiHeader.setPartnerName(soHeader.getStoreName());
@@ -722,7 +721,7 @@ public class WarehouseService extends BaseService {
 			} catch (Exception e) {
 				throw new OutboundOrderRequestException("Date format should be MM-dd-yyyy");
 			}
-			
+			apiHeader.setOutboundOrderHeaderId(System.currentTimeMillis());
 			Set<OutboundOrderLine> orderLines = new HashSet<>();
 			for (SOLine soLine : soLines) {
 				OutboundOrderLine apiLine = new OutboundOrderLine();
@@ -778,7 +777,6 @@ public class WarehouseService extends BaseService {
 			List<SalesOrderLine> salesOrderLines = salesOrder.getSalesOrderLine();
 			OutboundOrder apiHeader = new OutboundOrder();
 			apiHeader.setOrderId(salesOrderHeader.getSalesOrderNumber());
-			apiHeader.setOutboundOrderHeaderId(System.currentTimeMillis());
 			apiHeader.setWarehouseID(salesOrderHeader.getWareHouseId());
 			apiHeader.setPartnerCode(salesOrderHeader.getStoreID());
 			apiHeader.setPartnerName(salesOrderHeader.getStoreName());
@@ -794,7 +792,7 @@ public class WarehouseService extends BaseService {
 			} catch (Exception e) {
 				throw new OutboundOrderRequestException("Date format should be MM-dd-yyyy");
 			}
-			
+			apiHeader.setOutboundOrderHeaderId(System.currentTimeMillis());
 			Set<OutboundOrderLine> orderLines = new HashSet<>();
 			for (SalesOrderLine soLine : salesOrderLines) {
 				OutboundOrderLine apiLine = new OutboundOrderLine();
@@ -855,7 +853,6 @@ public class WarehouseService extends BaseService {
 			// Mongo Primary Key
 			OutboundOrder apiHeader = new OutboundOrder();
 			apiHeader.setOrderId(returnPOHeader.getPoNumber());
-			apiHeader.setOutboundOrderHeaderId(System.currentTimeMillis());
 			apiHeader.setWarehouseID(returnPOHeader.getWareHouseId());
 			apiHeader.setPartnerCode(returnPOHeader.getStoreID());
 			apiHeader.setPartnerName(returnPOHeader.getStoreName());
@@ -871,7 +868,7 @@ public class WarehouseService extends BaseService {
 			} catch (Exception e) {
 				throw new OutboundOrderRequestException("Date format should be MM-dd-yyyy");
 			}
-			
+			apiHeader.setOutboundOrderHeaderId(System.currentTimeMillis());
 			Set<OutboundOrderLine> orderLines = new HashSet<>();
 			for (ReturnPOLine rpoLine : returnPOLines) {
 				OutboundOrderLine apiLine = new OutboundOrderLine();
@@ -933,7 +930,6 @@ public class WarehouseService extends BaseService {
 			// Mongo Primary Key
 			OutboundOrder apiHeader = new OutboundOrder();
 			apiHeader.setOrderId(interWarehouseTransferOutHeader.getTransferOrderNumber());
-			apiHeader.setOutboundOrderHeaderId(System.currentTimeMillis());
 			apiHeader.setWarehouseID(interWarehouseTransferOutHeader.getFromWhsID());
 			apiHeader.setPartnerCode(interWarehouseTransferOutHeader.getToWhsID());
 			apiHeader.setPartnerName(interWarehouseTransferOutHeader.getStoreName());
@@ -949,7 +945,7 @@ public class WarehouseService extends BaseService {
 			} catch (Exception e) {
 				throw new OutboundOrderRequestException("Date format should be MM-dd-yyyy");
 			}
-			
+			apiHeader.setOutboundOrderHeaderId(System.currentTimeMillis());
 			Set<OutboundOrderLine> orderLines = new HashSet<>();
 			for (InterWarehouseTransferOutLine iwhTransferLine : interWarehouseTransferOutLines) {
 				OutboundOrderLine apiLine = new OutboundOrderLine();
@@ -1009,7 +1005,6 @@ public class WarehouseService extends BaseService {
 			InboundOrderV2 apiHeader = new InboundOrderV2();
 
 			apiHeader.setOrderId(asnV2Header.getAsnNumber());
-			apiHeader.setInboundOrderHeaderId(System.currentTimeMillis());
 			apiHeader.setCompanyCode(asnV2Header.getCompanyCode());
 			apiHeader.setBranchCode(asnV2Header.getBranchCode());
 			apiHeader.setRefDocumentNo(asnV2Header.getAsnNumber());
@@ -1033,6 +1028,7 @@ public class WarehouseService extends BaseService {
 					);
 			log.info("dbWarehouse : " + dbWarehouse);
 			apiHeader.setWarehouseID(dbWarehouse.get().getWarehouseId());
+			apiHeader.setInboundOrderHeaderId(System.currentTimeMillis());
 
 			Set<InboundOrderLinesV2> orderLines = new HashSet<>();
 			for (ASNLineV2 asnLineV2 : asnLineV2s) {
@@ -1151,7 +1147,6 @@ public class WarehouseService extends BaseService {
 			InboundOrderV2 apiHeader = new InboundOrderV2();
 
 			apiHeader.setOrderId(stockReceipt.getReceiptNo());
-			apiHeader.setInboundOrderHeaderId(System.currentTimeMillis());
 			apiHeader.setCompanyCode(stockReceipt.getCompanyCode());
 			apiHeader.setBranchCode(stockReceipt.getBranchCode());
 			apiHeader.setRefDocumentNo(stockReceipt.getReceiptNo());
@@ -1175,6 +1170,7 @@ public class WarehouseService extends BaseService {
 					);
 			log.info("dbWarehouse : " + dbWarehouse);
 			apiHeader.setWarehouseID(dbWarehouse.get().getWarehouseId());
+			apiHeader.setInboundOrderHeaderId(System.currentTimeMillis());
 
 			Set<InboundOrderLinesV2> orderLines = new HashSet<>();
 			for (StockReceiptLine stockReceiptLine : stockReceiptLines) {
@@ -1253,7 +1249,6 @@ public class WarehouseService extends BaseService {
 			apiHeader.setRefDocumentNo(soReturnHeaderV2.getTransferOrderNumber());
 			apiHeader.setBranchCode(soReturnHeaderV2.getBranchCode());
 			apiHeader.setOrderId(soReturnHeaderV2.getTransferOrderNumber());
-			apiHeader.setInboundOrderHeaderId(System.currentTimeMillis());
 			apiHeader.setCompanyCode(soReturnHeaderV2.getCompanyCode());
 			apiHeader.setRefDocumentType("SalesReturn");
 			apiHeader.setInboundOrderTypeId(2L);                                        // Hardcoded Value 2
@@ -1274,6 +1269,7 @@ public class WarehouseService extends BaseService {
 					);
 			log.info("dbWarehouse : " + dbWarehouse);
 			apiHeader.setWarehouseID(dbWarehouse.get().getWarehouseId());
+			apiHeader.setInboundOrderHeaderId(System.currentTimeMillis());
 
 			Set<InboundOrderLinesV2> orderLinesV2 = new HashSet<>();
 			for (SOReturnLineV2 soReturnLineV2 : salesOrderReturnLinesV2) {
@@ -1361,7 +1357,6 @@ public class WarehouseService extends BaseService {
 			InboundOrderV2 apiHeader = new InboundOrderV2();
 			apiHeader.setRefDocumentNo(interWarehouseTransferInHeaderV2.getTransferOrderNumber());
 			apiHeader.setOrderId(interWarehouseTransferInHeaderV2.getTransferOrderNumber());
-			apiHeader.setInboundOrderHeaderId(System.currentTimeMillis());
 			apiHeader.setCompanyCode(interWarehouseTransferInHeaderV2.getToCompanyCode());
 			apiHeader.setTransferOrderNumber(interWarehouseTransferInHeaderV2.getTransferOrderNumber());
 			apiHeader.setBranchCode(interWarehouseTransferInHeaderV2.getToBranchCode());
@@ -1386,6 +1381,7 @@ public class WarehouseService extends BaseService {
 					);
 			log.info("dbWarehouse : " + dbWarehouse);
 			apiHeader.setWarehouseID(dbWarehouse.get().getWarehouseId());
+			apiHeader.setInboundOrderHeaderId(System.currentTimeMillis());
 
 			Set<InboundOrderLinesV2> orderLinesV2 = new HashSet<>();
 			for (InterWarehouseTransferInLineV2 iwhTransferLineV2 : interWarehouseTransferInLinesV2) {
@@ -1482,7 +1478,6 @@ public class WarehouseService extends BaseService {
 			apiHeader.setCompanyCode(b2BTransferInHeader.getCompanyCode());
 			apiHeader.setBranchCode(b2BTransferInHeader.getBranchCode());
 			apiHeader.setOrderId(b2BTransferInHeader.getTransferOrderNumber());
-			apiHeader.setInboundOrderHeaderId(System.currentTimeMillis());
 			apiHeader.setRefDocumentNo(b2BTransferInHeader.getTransferOrderNumber());
 			apiHeader.setRefDocumentType("Non-WMS to WMS");
 			apiHeader.setInboundOrderTypeId(3L);                                        // Hardcoded Value 2
@@ -1504,6 +1499,7 @@ public class WarehouseService extends BaseService {
 							0L
 					);
 			apiHeader.setWarehouseID(dbWarehouse.get().getWarehouseId());
+			apiHeader.setInboundOrderHeaderId(System.currentTimeMillis());
 
 			Set<InboundOrderLinesV2> orderLines = new HashSet<>();
 			for (B2bTransferInLine b2bTransferInLine : b2bTransferInLines) {
@@ -1699,7 +1695,6 @@ public class WarehouseService extends BaseService {
 			InboundOrderV2 apiHeader = new InboundOrderV2();
 			apiHeader.setRefDocumentNo(interWarehouseTransferInHeaderV2.getTransferOrderNumber());
 			apiHeader.setOrderId(interWarehouseTransferInHeaderV2.getTransferOrderNumber());
-			apiHeader.setInboundOrderHeaderId(System.currentTimeMillis());
 			apiHeader.setCompanyCode(interWarehouseTransferInHeaderV2.getToCompanyCode());
 			apiHeader.setTransferOrderNumber(interWarehouseTransferInHeaderV2.getTransferOrderNumber());
 			apiHeader.setBranchCode(interWarehouseTransferInHeaderV2.getToBranchCode());
@@ -1723,6 +1718,7 @@ public class WarehouseService extends BaseService {
 					);
 			log.info("dbWarehouse : " + dbWarehouse);
 			apiHeader.setWarehouseID(dbWarehouse.get().getWarehouseId());
+			apiHeader.setInboundOrderHeaderId(System.currentTimeMillis());
 			Set<InboundOrderLinesV2> orderLinesV2 = new HashSet<>();
 			for (InterWarehouseTransferInLineV2 iwhTransferLineV2 : interWarehouseTransferInLinesV2) {
 				InboundOrderLinesV2 apiLine = new InboundOrderLinesV2();
@@ -2127,7 +2123,6 @@ public class WarehouseService extends BaseService {
 			apiHeader.setMiddlewareId(soHeader.getMiddlewareId());
 			apiHeader.setMiddlewareTable(soHeader.getMiddlewareTable());
 			apiHeader.setOrderId(soHeader.getTransferOrderNumber());
-			apiHeader.setOutboundOrderHeaderId(System.currentTimeMillis());
 			apiHeader.setPartnerCode(soHeader.getStoreID());
 			apiHeader.setPartnerName(soHeader.getStoreName());
 			apiHeader.setRefDocumentNo(soHeader.getTransferOrderNumber());
@@ -2152,7 +2147,7 @@ public class WarehouseService extends BaseService {
 				apiHeader.setBranchName(iKeyValuePair.getPlantDesc());
 				apiHeader.setWarehouseName(iKeyValuePair.getWarehouseDesc());
 			}
-
+			apiHeader.setOutboundOrderHeaderId(System.currentTimeMillis());
 			Set<OutboundOrderLineV2> orderLines = new HashSet<>();
 			for (SOLineV2 soLine : soLines) {
 				OutboundOrderLineV2 apiLine = new OutboundOrderLineV2();
@@ -2345,7 +2340,6 @@ public class WarehouseService extends BaseService {
 			apiHeader.setWarehouseID(warehouse.get().getWarehouseId());
 
 			apiHeader.setOrderId(salesOrderHeader.getPickListNumber());
-			apiHeader.setOutboundOrderHeaderId(System.currentTimeMillis());
 			apiHeader.setPartnerCode(salesOrderHeader.getStoreID());
 			apiHeader.setPartnerName(salesOrderHeader.getStoreName());
 			apiHeader.setPickListNumber(salesOrderHeader.getPickListNumber());
@@ -2374,7 +2368,7 @@ public class WarehouseService extends BaseService {
 				apiHeader.setCompanyName(iKeyValuePair.getCompanyDesc());
 				apiHeader.setWarehouseName(iKeyValuePair.getWarehouseDesc());
 			}
-
+			apiHeader.setOutboundOrderHeaderId(System.currentTimeMillis());
 			List<SalesOrderLineV2> salesOrderLines = salesOrder.getSalesOrderLine();
 			Set<OutboundOrderLineV2> orderLines = new HashSet<>();
 			for (SalesOrderLineV2 soLine : salesOrderLines) {
@@ -2470,7 +2464,6 @@ public class WarehouseService extends BaseService {
 			apiHeader.setWarehouseID(warehouse.get().getWarehouseId());
 
 			apiHeader.setOrderId(returnPOHeader.getPoNumber());
-			apiHeader.setOutboundOrderHeaderId(System.currentTimeMillis());
 			apiHeader.setPartnerCode(returnPOHeader.getStoreID());
 			apiHeader.setPartnerName(returnPOHeader.getStoreName());
 			apiHeader.setRefDocumentNo(returnPOHeader.getPoNumber());
@@ -2499,7 +2492,7 @@ public class WarehouseService extends BaseService {
 				apiHeader.setCompanyName(iKeyValuePair.getCompanyDesc());
 				apiHeader.setWarehouseName(iKeyValuePair.getWarehouseDesc());
 			}
-
+			apiHeader.setOutboundOrderHeaderId(System.currentTimeMillis());
 			Set<OutboundOrderLineV2> orderLines = new HashSet<>();
 			for (ReturnPOLineV2 rpoLine : returnPOLines) {
 				OutboundOrderLineV2 apiLine = new OutboundOrderLineV2();
@@ -2595,7 +2588,6 @@ public class WarehouseService extends BaseService {
 			apiHeader.setFromBranchCode(interWhTransferOutHeader.getFromBranchCode());
 
 			apiHeader.setOrderId(interWhTransferOutHeader.getTransferOrderNumber());
-			apiHeader.setOutboundOrderHeaderId(System.currentTimeMillis());
 //			apiHeader.setWarehouseID(interWhTransferOutHeader.getFromWhsID());
 			apiHeader.setPartnerCode(interWhTransferOutHeader.getToBranchCode());
 			apiHeader.setPartnerName(interWhTransferOutHeader.getStoreName());
@@ -2629,7 +2621,7 @@ public class WarehouseService extends BaseService {
 				apiHeader.setBranchName(iKeyValuePair.getPlantDesc());
 				apiHeader.setWarehouseName(iKeyValuePair.getWarehouseDesc());
 			}
-
+			apiHeader.setOutboundOrderHeaderId(System.currentTimeMillis());
 			Set<OutboundOrderLineV2> orderLines = new HashSet<>();
 			for (InterWarehouseTransferOutLineV2 iwhTransferLine : interWarehouseTransferOutLines) {
 				OutboundOrderLineV2 apiLine = new OutboundOrderLineV2();

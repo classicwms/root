@@ -267,6 +267,9 @@ public class StockAdjustmentService extends BaseService {
                     Double INV_QTY = dbInventory.getInventoryQuantity();
                     Double ADJ_QTY = stockAdjustment.getAdjustmentQty();
                     INV_QTY = INV_QTY + ADJ_QTY;
+                    if(INV_QTY < 0){
+                        INV_QTY = 0D;
+                    }
                     newInventory.setInventoryQuantity(INV_QTY);
                     Double ALLOC_QTY = 0D;
                     if(dbInventory.getAllocatedQuantity() != null) {
@@ -368,6 +371,9 @@ public class StockAdjustmentService extends BaseService {
                         Double INV_QTY = dbInventory.getInventoryQuantity();
                         Double ADJ_QTY = stockAdjustment.getAdjustmentQty();
                         INV_QTY = INV_QTY + ADJ_QTY;
+                        if(INV_QTY < 0){
+                            INV_QTY = 0D;
+                        }
                         newInventory.setInventoryQuantity(INV_QTY);
                         Double ALLOC_QTY = 0D;
                         if (dbInventory.getAllocatedQuantity() != null) {

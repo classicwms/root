@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.model.impl.PutAwayHeaderImpl;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.InboundReversalInput;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.PutAwayHeaderV2;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.SearchPutAwayHeaderV2;
@@ -182,11 +183,17 @@ public class PutAwayHeaderController {
         return new ResponseEntity<>(createdPutAwayHeader, HttpStatus.OK);
     }
 
+//    @ApiOperation(response = PutAwayHeaderV2.class, value = "Search PutAwayHeader V2") // label for swagger
+//    @PostMapping("/findPutAwayHeader/v2")
+//    public List<PutAwayHeaderV2> findPutAwayHeaderV2(@RequestBody SearchPutAwayHeaderV2 searchPutAwayHeader)
+//            throws Exception {
+//        return putawayheaderService.findPutAwayHeaderV2(searchPutAwayHeader);
+//    }
     @ApiOperation(response = PutAwayHeaderV2.class, value = "Search PutAwayHeader V2") // label for swagger
     @PostMapping("/findPutAwayHeader/v2")
-    public List<PutAwayHeaderV2> findPutAwayHeaderV2(@RequestBody SearchPutAwayHeaderV2 searchPutAwayHeader)
+    public List<PutAwayHeaderImpl> findPutAwayHeaderV2(@RequestBody SearchPutAwayHeaderV2 searchPutAwayHeader)
             throws Exception {
-        return putawayheaderService.findPutAwayHeaderV2(searchPutAwayHeader);
+        return putawayheaderService.findPutAwayHeaderSQLV2(searchPutAwayHeader);
     }
 
     @ApiOperation(response = PutAwayHeaderV2.class, value = "Update PutAwayHeader V2") // label for swagger

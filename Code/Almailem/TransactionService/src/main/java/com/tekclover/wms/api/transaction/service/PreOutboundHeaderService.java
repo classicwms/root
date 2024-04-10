@@ -1740,7 +1740,7 @@ public class PreOutboundHeaderService extends BaseService {
         log.info("No stock status updated in preinbound header and line, outbound header using stored procedure when condition is satisfied");
 
         /*------------------------------------------------------------------------------------*/
-        updateStatusAs47ForOBHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, outboundHeader.getRefDocNumber());
+//        updateStatusAs47ForOBHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, outboundHeader.getRefDocNumber());
 
         /*------------------------------------------------------------------------------------*/
         //Pickup Header Automation only for Picklist Header - OutboundOrderTypeId - 3L --> wh_id = 200 referenceDocumentType - Pick List
