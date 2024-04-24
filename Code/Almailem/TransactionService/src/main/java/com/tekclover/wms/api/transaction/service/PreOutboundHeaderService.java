@@ -2069,8 +2069,12 @@ public class PreOutboundHeaderService extends BaseService {
                             orderManagementLine.getItemCode(), orderManagementLine.getManufacturerName(), String.valueOf(LEVEL_ID));
                     log.info("pickupHeader--> Status48---> assignPicker---> SameItem ---> same level: " + assignPickerPickUpHeader);
                     if (assignPickerPickUpHeader != null) {
+                        List<String> userPresentInSelectedLevel = hhtUserList.stream().filter(n -> n.equalsIgnoreCase(assignPickerPickUpHeader.getAssignedPickerId())).collect(Collectors.toList());
+                        log.info("userPresentInSelectedLevel: " + userPresentInSelectedLevel);
+                        if(userPresentInSelectedLevel != null && !userPresentInSelectedLevel.isEmpty()) {
                         log.info("Picker Assigned: " + assignPickerPickUpHeader.getAssignedPickerId());
                         assignPickerId = assignPickerPickUpHeader.getAssignedPickerId();
+                        }
                     }
 
                     if (assignPickerId == null) {

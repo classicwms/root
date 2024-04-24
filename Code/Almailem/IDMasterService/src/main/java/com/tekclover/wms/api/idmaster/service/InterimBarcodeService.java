@@ -36,6 +36,7 @@ public class InterimBarcodeService {
      */
     public List<InterimBarcode> getAll() {
         List<InterimBarcode> interimBarcodeList = interimBarcodeRepository.findAll();
+        interimBarcodeList = interimBarcodeList.stream().filter(n -> n.getDeletionIndicator() == 0).collect(Collectors.toList());
         return interimBarcodeList;
     }
 
