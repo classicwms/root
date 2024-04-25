@@ -4,6 +4,9 @@ import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.InboundOrder
 import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,5 +24,10 @@ public interface InboundOrderV2Repository extends JpaRepository<InboundOrderV2, 
     InboundOrderV2 findByRefDocumentNoAndProcessedStatusIdOrderByOrderReceivedOn(String orderId, long l);
 
     public InboundOrderV2 findTopByRefDocumentNoOrderByOrderReceivedOnDesc(String orderId);
+
+    @Modifying
+    @Query(value = "update tbliborder1 set processed_status_id = 0 where " +
+            " inbound_order_header_id = :inboundOrderHeaderId ", nativeQuery = true)
+    void updateProcessStatusId(@Param("inboundOrderHeaderId") Long inboundOrderHeaderId);
 
 }

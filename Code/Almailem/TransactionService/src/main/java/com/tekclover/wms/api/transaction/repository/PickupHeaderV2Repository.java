@@ -335,6 +335,10 @@ public interface PickupHeaderV2Repository extends JpaRepository<PickupHeaderV2, 
     public List<String> getDeviceToken(@Param("userId")String userId,
                                        @Param("warehouseId")String warehouseId);
 
+    PickupHeaderV2 findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndManufacturerNameAndStatusIdAndOutboundOrderTypeIdAndDeletionIndicatorOrderByPickupCreatedOn(
+            String companyCodeId, String plantId, String languageId, String warehouseId, String itemCode,
+            String manufacturerName, Long statusId, Long outboundOrderTypeId, Long deletionIndicator);
+
 //     @Query(value = "select token_id as tokenId from tblhhtnotification where usr_id = :userId and \n" +
 //                " c_id = :companyId and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and is_deleted = 0", nativeQuery = true)
 //        public List<String> getDeviceToken(@Param("userId")String userId,

@@ -1,10 +1,13 @@
 package com.tekclover.wms.api.transaction.service;
 
+import com.microsoft.sqlserver.jdbc.SQLServerException;
+import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.v2.PeriodicHeaderEntityV2;
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.v2.PerpetualHeaderEntityV2;
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.InboundIntegrationHeader;
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.InboundIntegrationLine;
 import com.tekclover.wms.api.transaction.model.inbound.v2.InboundHeaderV2;
+import com.tekclover.wms.api.transaction.model.inbound.v2.InboundOrderCancelInput;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.v2.OutboundIntegrationHeaderV2;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.v2.OutboundIntegrationLineV2;
 import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2;
@@ -30,7 +33,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 @Slf4j
 @Service
-public class TransactionService {
+public class TransactionService extends BaseService{
     @Autowired
     private OutboundOrderLinesV2Repository outboundOrderLinesV2Repository;
 
@@ -50,6 +53,8 @@ public class TransactionService {
     StockAdjustmentService stockAdjustmentService;
     @Autowired
     CycleCountService cycleCountService;
+    @Autowired
+    MastersService mastersService;
     //-------------------------------------------------------------------------------------------
 
     @Autowired
@@ -155,8 +160,26 @@ public class TransactionService {
                 } catch (Exception e) {
                     e.printStackTrace();
                     log.error("Error on inbound processing : " + e.toString());
+                    if ((e.toString().contains("SQLState: 40001") && e.toString().contains("SQL Error: 1205")) ||
+                            e.toString().contains("was deadlocked on lock") ||
+                            e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException")) {
+                        // Updating the Processed Status
+                        orderService.updateProcessedInboundOrderV2(inbound.getRefDocumentNo(), inbound.getInboundOrderTypeId(), 900L);
+                       //============================================================================================
+                        try {
+                            preinboundheaderService.createInboundIntegrationLogV2(inbound, e.toString());
+                            inboundList.remove(inbound);
+                        } catch (Exception ex) {
+                            inboundList.remove(inbound);
+                            throw new RuntimeException(ex);
+                        }
+
+                        warehouseApiResponse.setStatusCode("1400");
+                        warehouseApiResponse.setMessage("Failure");
+                    } else {
                     // Updating the Processed Status
                     orderService.updateProcessedInboundOrderV2(inbound.getRefDocumentNo(), inbound.getInboundOrderTypeId(),  100L);
+                    //============================================================================================
                     try {
                         preinboundheaderService.createInboundIntegrationLogV2(inbound, e.toString());
                         inboundList.remove(inbound);
@@ -164,11 +187,11 @@ public class TransactionService {
                         inboundList.remove(inbound);
                         throw new RuntimeException(ex);
                     }
-
                     warehouseApiResponse.setStatusCode("1400");
                     warehouseApiResponse.setMessage("Failure");
                 }
             }
+        }
         }
         return warehouseApiResponse;
     }
@@ -263,8 +286,25 @@ public class TransactionService {
                 } catch (Exception e) {
                     e.printStackTrace();
                     log.error("Error on outbound processing : " + e.toString());
+                    if ((e.toString().contains("SQLState: 40001") && e.toString().contains("SQL Error: 1205")) ||
+                            e.toString().contains("was deadlocked on lock") ||
+                            e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException")) {
+                        // Updating the Processed Status
+                        orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID(), 900L);
+                        //============================================================================================
+                        try {
+                            preOutboundHeaderService.createOutboundIntegrationLogV2(outbound, e.toString());
+                            outboundList.remove(outbound);
+                        } catch (Exception ex) {
+                            outboundList.remove(outbound);
+                            throw new RuntimeException(ex);
+                        }
+                        warehouseApiResponse.setStatusCode("1400");
+                        warehouseApiResponse.setMessage("Failure");
+                    } else {
                     // Updating the Processed Status
                     orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID(),100L);
+                    //============================================================================================
                     try {
                         preOutboundHeaderService.createOutboundIntegrationLogV2(outbound, e.toString());
                         outboundList.remove(outbound);
@@ -276,6 +316,7 @@ public class TransactionService {
                     warehouseApiResponse.setMessage("Failure");
                 }
             }
+        }
         }
         return warehouseApiResponse;
     }
@@ -310,6 +351,7 @@ public class TransactionService {
                     log.error("Error on PerpetualStockCount processing : " + e.toString());
                     // Updating the Processed Status
                     cycleCountService.updateProcessedOrderV2(stockCount.getCycleCountNo(), 100L);
+                    //============================================================================================
 //                    preOutboundHeaderService.createOutboundIntegrationLogV2(outbound);
                     stockCountPerpetualList.remove(stockCount);
                     warehouseApiResponse.setStatusCode("1400");
@@ -349,6 +391,7 @@ public class TransactionService {
                     log.error("Error on PeriodicStockCount processing : " + e.toString());
                     // Updating the Processed Status
                     cycleCountService.updateProcessedOrderV2(stockCount.getCycleCountNo(), 100L);
+                    //============================================================================================
 //                    preOutboundHeaderService.createOutboundIntegrationLogV2(outbound);
                     stockCountPeriodicList.remove(stockCount);
                     warehouseApiResponse.setStatusCode("1400");
@@ -389,12 +432,47 @@ public class TransactionService {
                     log.error("Error on StockAdjustment processing : " + e.toString());
                     // Updating the Processed Status
                     stockAdjustmentMiddlewareService.updateProcessedOrderV2(stockAdjustment.getStockAdjustmentId(), 100L);
+                    //============================================================================================
 //                    preOutboundHeaderService.createOutboundIntegrationLogV2(outbound);
                     stockAdjustmentList.remove(stockAdjustment);
                     warehouseApiResponse.setStatusCode("1400");
                     warehouseApiResponse.setMessage("Failure");
                 }
             }
+        }
+        return warehouseApiResponse;
+    }
+
+    //-------------------------------------------------------------------Inbound-Failed-Order-------------------------------------------------------------
+    public synchronized WarehouseApiResponse processInboundFailedOrder() throws InterruptedException {
+        WarehouseApiResponse warehouseApiResponse = new WarehouseApiResponse();
+        List<InboundOrderV2> sqlInboundList = inboundOrderV2Repository.findTopByProcessedStatusIdOrderByOrderReceivedOn(900L);
+        log.info("ib failedOrders list: " + sqlInboundList);
+        if (sqlInboundList != null && !sqlInboundList.isEmpty()) {
+            for (InboundOrderV2 dbIBOrder : sqlInboundList) {
+                log.info("DeadLock OrderId: " + dbIBOrder.getOrderId() + ", " + dbIBOrder.getInboundOrderTypeId());
+                Thread.sleep(10000);
+                inboundOrderV2Repository.updateProcessStatusId(dbIBOrder.getInboundOrderHeaderId());
+            }
+            warehouseApiResponse.setStatusCode("200");
+            warehouseApiResponse.setMessage("Success");
+        }
+        return warehouseApiResponse;
+    }
+
+    //-------------------------------------------------------------------Outbound-Failed-Order-------------------------------------------------------------
+    public synchronized WarehouseApiResponse processOutboundFailedOrder() throws InterruptedException {
+        WarehouseApiResponse warehouseApiResponse = new WarehouseApiResponse();
+        List<OutboundOrderV2> sqlOutboundList = outboundOrderV2Repository.findTopByProcessedStatusIdOrderByOrderReceivedOn(900L);
+        log.info("ob failedOrders list: " + sqlOutboundList);
+        if (sqlOutboundList != null && !sqlOutboundList.isEmpty()) {
+            for (OutboundOrderV2 dbOBOrder : sqlOutboundList) {
+                log.info("DeadLock OrderId: " + dbOBOrder.getOrderId() + ", " + dbOBOrder.getOutboundOrderTypeID());
+                Thread.sleep(10000);
+                outboundOrderV2Repository.updateProcessStatusId(dbOBOrder.getOutboundOrderHeaderId());
+            }
+            warehouseApiResponse.setStatusCode("200");
+            warehouseApiResponse.setMessage("Success");
         }
         return warehouseApiResponse;
     }

@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.transaction.service;
 
 import com.google.firebase.messaging.FirebaseMessagingException;
+import com.microsoft.sqlserver.jdbc.SQLServerException;
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
@@ -42,6 +43,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -1542,9 +1544,10 @@ public class PreOutboundHeaderService extends BaseService {
 //    }
 
     @Transactional(rollbackFor = {Exception.class, Throwable.class})
-    @Retryable(value = {CannotAcquireLockException.class, LockAcquisitionException.class}, maxAttempts = 2, backoff = @Backoff(delay = 5000))
+    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class, LockAcquisitionException.class}, maxAttempts = 3, backoff = @Backoff(delay = 5000))
     public OutboundHeaderV2 processOutboundReceivedV2(OutboundIntegrationHeaderV2 outboundIntegrationHeader)
-            throws IllegalAccessException, InvocationTargetException, BadRequestException, Exception {
+            throws IllegalAccessException, InvocationTargetException, BadRequestException,
+            SQLException, SQLServerException, CannotAcquireLockException, LockAcquisitionException, Exception {
         /*
          * Checking whether received refDocNumber processed already.
          */

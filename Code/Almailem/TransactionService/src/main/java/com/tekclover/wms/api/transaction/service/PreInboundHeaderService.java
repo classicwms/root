@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.transaction.service;
 
+import com.microsoft.sqlserver.jdbc.SQLServerException;
 import com.tekclover.wms.api.transaction.model.errorlog.ErrorLog;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
@@ -37,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -1421,9 +1423,10 @@ public class PreInboundHeaderService extends BaseService {
      * @throws IllegalAccessException
      */
     @Transactional(rollbackFor = {Exception.class, Throwable.class})
-    @Retryable(value = {CannotAcquireLockException.class, LockAcquisitionException.class}, maxAttempts = 2, backoff = @Backoff(delay = 5000))
+    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class, LockAcquisitionException.class}, maxAttempts = 3, backoff = @Backoff(delay = 5000))
     public InboundHeaderV2 processInboundReceivedV2(String refDocNumber, InboundIntegrationHeader inboundIntegrationHeader)
-            throws IllegalAccessException, InvocationTargetException, BadRequestException, Exception {
+            throws IllegalAccessException, InvocationTargetException, BadRequestException,
+            SQLException, SQLServerException, CannotAcquireLockException, LockAcquisitionException, Exception {
         log.info("Inbound Process Initiated ------> " + refDocNumber + ", " + inboundIntegrationHeader.getInboundOrderTypeId());
         /*
          * Checking whether received refDocNumber processed already.

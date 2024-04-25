@@ -190,6 +190,48 @@ public class BaseService {
 
         return referenceDocumentType;
     }
+    /**
+     * @param referenceDocumentTypeId
+     * @return
+     */
+    public String getInboundOrderTypeTable(Long referenceDocumentTypeId) {
+        String referenceDocumentType = null;
+
+        if (referenceDocumentTypeId == 1) {
+            referenceDocumentType = "SUPPLIERINVOICEHEADER";
+        }
+        if (referenceDocumentTypeId == 2) {
+            referenceDocumentType = "SALESRETURNHEADER"; //sale return -7(Bin Class Id)
+        }
+        if (referenceDocumentTypeId == 3 || referenceDocumentTypeId == 4) {
+            referenceDocumentType = "TRANSFERINHEADER"; //b2b
+        }
+        if (referenceDocumentTypeId == 5) {
+            referenceDocumentType = "STOCKRECEIPTHEADER";
+        }
+
+        return referenceDocumentType;
+    }
+
+    /**
+     * @param referenceDocumentTypeId
+     * @return
+     */
+    public String getOutboundOrderTypeTable(Long referenceDocumentTypeId) {
+        String referenceDocumentType = null;
+
+        if (referenceDocumentTypeId == 0 || referenceDocumentTypeId == 1) {
+            referenceDocumentType = "TRANSFEROUTHEADER";
+        }
+        if (referenceDocumentTypeId == 2) {
+            referenceDocumentType = "PURCHASERETURNHEADER";
+        }
+        if (referenceDocumentTypeId == 3) {
+            referenceDocumentType = "PICKLISTHEADER";
+        }
+
+        return referenceDocumentType;
+    }
 
     /**
      *

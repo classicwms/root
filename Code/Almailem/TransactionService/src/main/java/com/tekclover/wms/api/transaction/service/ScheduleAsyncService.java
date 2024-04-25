@@ -58,4 +58,22 @@ public class ScheduleAsyncService {
         WarehouseApiResponse stockAdjustmentOrder = transactionService.processStockAdjustmentOrder();
         return CompletableFuture.completedFuture(stockAdjustmentOrder);
     }
+
+    //-------------------------------------------------------------------Inbound-Failed-Order-------------------------------------------------------------
+    @Async("asyncTaskExecutor")
+    public CompletableFuture<WarehouseApiResponse> processInboundFailedOrder() throws InterruptedException {
+
+        WarehouseApiResponse inboundFailedOrder = transactionService.processInboundFailedOrder();
+        return CompletableFuture.completedFuture(inboundFailedOrder);
+
+    }
+
+    //-------------------------------------------------------------------Outbound-Failed-Order---------------------------------------------------------------
+    @Async("asyncTaskExecutor")
+    public CompletableFuture<WarehouseApiResponse> processOutboundFailedOrder() throws InterruptedException {
+
+        WarehouseApiResponse outboundFailedOrder = transactionService.processOutboundFailedOrder();
+        return CompletableFuture.completedFuture(outboundFailedOrder);
+
+    }
 }

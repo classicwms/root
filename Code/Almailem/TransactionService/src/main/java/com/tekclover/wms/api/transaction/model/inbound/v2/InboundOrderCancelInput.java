@@ -13,4 +13,6 @@ public class InboundOrderCancelInput {
 	private String refDocNumber;
 	private String preInboundNo;
 	private String remarks;
+	private String referenceField1;
+	private String referenceField2;
 }

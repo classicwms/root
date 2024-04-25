@@ -5,6 +5,7 @@ import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.OutboundOrd
 import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -39,4 +40,9 @@ public interface OutboundOrderV2Repository extends JpaRepository<OutboundOrderV2
     IKeyValuePair getV2Description(@Param(value = "companyCodeId") String companyCodeId,
                                    @Param(value = "plantId") String plantId,
                                    @Param(value = "warehouseId") String warehouseId);
+
+    @Modifying
+    @Query(value = "update tbloborder1 set processed_status_id = 0 where " +
+            " outbound_order_header_id = :outboundOrderHeaderId ", nativeQuery = true)
+    void updateProcessStatusId(@Param("outboundOrderHeaderId") Long outboundOrderHeaderId);
 }
