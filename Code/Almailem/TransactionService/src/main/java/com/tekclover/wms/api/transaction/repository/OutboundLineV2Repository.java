@@ -376,6 +376,124 @@ public interface OutboundLineV2Repository extends JpaRepository<OutboundLineV2, 
                                                         @Param("orderType") List<String> orderType,
                                                         @Param("partnerCode") List<String> partnerCode);
 
+    //this method to avoid time out while calling findoutboundline
+    @Query(value = "select sum(PICK_CNF_QTY) pcQty,ref_doc_no,itm_code,ob_line_no,pre_ob_no,c_id,plant_id,lang_id,wh_id \n" +
+            "into #tpl from tblpickupline where is_deleted=0 \n" +
+            "group by ref_doc_no,itm_code,ob_line_no,pre_ob_no,c_id,plant_id,lang_id,wh_id \n" +
+
+            "select sum(QC_QTY) qcQty,ref_doc_no,itm_code,ob_line_no,pre_ob_no,c_id,plant_id,lang_id,wh_id \n" +
+            "into #tql from tblqualityline where is_deleted=0 \n" +
+            "group by ref_doc_no,itm_code,ob_line_no,pre_ob_no,c_id,plant_id,lang_id,wh_id \n" +
+
+            "select \n" +
+            "ob.c_id companyCodeId,\n" +
+            "ob.itm_code itemCode,\n" +
+            "ob.lang_id languageId,\n" +
+            "ob.ob_line_no lineNumber,\n" +
+            "ob.partner_code partnerCode,\n" +
+            "ob.plant_id plantId,\n" +
+            "ob.pre_ob_no preOutboundNo,\n" +
+            "ob.ref_doc_no refDocNumber,\n" +
+            "ob.wh_id warehouseId,\n" +
+            "ob.str_no batchSerialNumber,\n" +
+            "ob.dlv_ctd_by createdBy,\n" +
+            "ob.dlv_ctd_on createdOn,\n" +
+            "ob.is_deleted deletionIndicator,\n" +
+            "ob.dlv_cnf_by deliveryConfirmedBy,\n" +
+            "ob.dlv_cnf_on deliveryConfirmedOn,\n" +
+            "ob.dlv_ord_no deliveryOrderNo,\n" +
+            "ob.dlv_qty deliveryQty,\n" +
+            "ob.dlv_uom deliveryUom,\n" +
+            "ob.item_text description,\n" +
+            "ob.ord_qty orderQty,\n" +
+            "ob.ord_uom orderUom,\n" +
+            "ob.ob_ord_typ_id outboundOrderTypeId,\n" +
+            "ob.ref_field_1 referenceField1,\n" +
+            "ob.ref_field_2 referenceField2,\n" +
+            "ob.ref_field_3 referenceField3,\n" +
+            "ob.ref_field_4 referenceField4,\n" +
+            "ob.ref_field_5 referenceField5,\n" +
+            "ob.ref_field_6 referenceField6,\n" +
+            "ob.ref_field_7 referenceField7,\n" +
+            "ob.ref_field_8 referenceField8,\n" +
+            "ob.dlv_rev_by reversedBy,\n" +
+            "ob.dlv_rev_on reversedOn,\n" +
+            "ob.sp_st_ind_id specialStockIndicatorId,\n" +
+            "ob.status_id statusId,\n" +
+            "ob.stck_typ_id stockTypeId,\n" +
+            "ob.dlv_utd_by updatedBy,\n" +
+            "ob.dlv_utd_on updatedOn,\n" +
+            "ob.var_id variantCode,\n" +
+            "ob.var_sub_id variantSubCode,\n" +
+            "ob.mfr_name manufacturerName,\n" +
+            "ob.SALES_INVOICE_NUMBER salesInvoiceNumber,\n" +
+            "ob.PICK_LIST_NUMBER pickListNumber,\n" +
+            "ob.INVOICE_DATE invoiceDate,\n" +
+            "ob.DELIVERY_TYPE deliveryType,\n" +
+            "ob.CUSTOMER_ID customerId,\n" +
+            "ob.CUSTOMER_NAME customerName,\n" +
+            "ob.ADDRESS address,\n" +
+            "ob.PHONE_NUMBER phoneNumber,\n" +
+            "ob.ALTERNATE_NO alternateNo,\n" +
+            "ob.STATUS status,\n" +
+            "ob.TARGET_BRANCH_CODE targetBranchCode,\n" +
+            "ob.c_text companyDescription,\n" +
+            "ob.plant_text plantDescription,\n" +
+            "ob.wh_text warehouseDescription,\n" +
+            "ob.status_text statusDescription,\n" +
+            "ob.middleware_id middlewareId,\n" +
+            "ob.middleware_header_id middlewareHeaderId,\n" +
+            "ob.middleware_table middlewareTable,\n" +
+            "ob.ref_doc_type referenceDocumentType,\n" +
+            "ob.supplier_invoice_no supplierInvoiceNo,\n" +
+            "ob.sales_order_number salesOrderNumber,\n" +
+            "ob.manufacturer_full_name manufacturerFullName,\n" +
+            "ob.PARTNER_ITEM_BARCODE barcodeId,\n" +
+            "ob.HE_NO handlingEquipment,\n" +
+            "ob.ASS_PICKER_ID assignedPickerId,\n" +
+            "ob.CUSTOMER_TYPE customerType,\n" +
+            "p.pcQty referenceField9,\n" +
+            "q.qcQty referenceField10\n" +
+            "from tbloutboundline ob \n" +
+            "left join #tpl p on p.wh_id = ob.wh_id and p.c_id = ob.c_id and p.plant_id=ob.plant_id and p.lang_id = ob.lang_id and \n" +
+            "p.PRE_OB_NO = ob.PRE_OB_NO and p.OB_LINE_NO = ob.OB_LINE_NO and p.itm_code = ob.itm_code and p.ref_doc_no = ob.ref_doc_no \n" +
+            "left join #tql q on q.wh_id = ob.wh_id and q.c_id = ob.c_id and q.plant_id=ob.plant_id and q.lang_id = ob.lang_id and \n" +
+            "q.PRE_OB_NO = ob.PRE_OB_NO and q.OB_LINE_NO = ob.OB_LINE_NO and q.itm_code = ob.itm_code and q.ref_doc_no = ob.ref_doc_no \n" +
+            "where \n" +
+            "ob.is_deleted = 0 and \n"+
+            "(COALESCE(:companyCodeId, null) IS NULL OR (ob.c_id IN (:companyCodeId))) and \n" +
+            "(COALESCE(:languageId, null) IS NULL OR (ob.lang_id IN (:languageId))) and \n" +
+            "(COALESCE(:plantId, null) IS NULL OR (ob.plant_id IN (:plantId))) and \n" +
+            "(COALESCE(:warehouseId, null) IS NULL OR (ob.wh_id IN (:warehouseId))) and \n" +
+            "(COALESCE(:refDocNo, null) IS NULL OR (ob.ref_doc_no IN (:refDocNo))) and \n" +
+            "(COALESCE(:partnerCode, null) IS NULL OR (ob.partner_code IN (:partnerCode))) and \n" +
+            "(COALESCE(:preObNumber, null) IS NULL OR (ob.pre_ob_no IN (:preObNumber))) and \n" +
+            "(COALESCE(:statusId, null) IS NULL OR (ob.status_id IN (:statusId))) and \n" +
+            "(COALESCE(:lineNo, null) IS NULL OR (ob.ob_line_no IN (:lineNo))) and \n" +
+            "(COALESCE(:itemCode, null) IS NULL OR (ob.itm_code IN (:itemCode))) and\n" +
+            "(COALESCE(:manufacturerName, null) IS NULL OR (ob.MFR_NAME IN (:manufacturerName))) and\n" +
+            "(COALESCE(:salesOrderNumber, null) IS NULL OR (ob.SALES_ORDER_NUMBER IN (:salesOrderNumber))) and\n" +
+            "(COALESCE(:targetBranchCode, null) IS NULL OR (ob.TARGET_BRANCH_CODE IN (:targetBranchCode))) and\n" +
+            "(COALESCE(:orderType, null) IS NULL OR (ob.ob_ord_typ_id IN (:orderType))) and \n" +
+            "(COALESCE(CONVERT(VARCHAR(255), :fromDeliveryDate), null) IS NULL OR (ob.DLV_CNF_ON between COALESCE(CONVERT(VARCHAR(255), :fromDeliveryDate), null) and COALESCE(CONVERT(VARCHAR(255), :toDeliveryDate), null))) \n"
+            , nativeQuery = true)
+    public List<OutboundLineOutput> findOutboundLine(@Param("companyCodeId") List<String> companyCodeId,
+                                                     @Param("languageId") List<String> languageId,
+                                                     @Param("plantId") List<String> plantId,
+                                                     @Param("warehouseId") List<String> warehouseId,
+                                                     @Param("fromDeliveryDate") Date fromDeliveryDate,
+                                                     @Param("toDeliveryDate") Date toDeliveryDate,
+                                                     @Param("preObNumber") List<String> preObNumber,
+                                                     @Param("refDocNo") List<String> refDocNo,
+                                                     @Param("lineNo") List<Long> lineNo,
+                                                     @Param("itemCode") List<String> itemCode,
+                                                     @Param("salesOrderNumber") List<String> salesOrderNumber,
+                                                     @Param("targetBranchCode") List<String> targetBranchCode,
+                                                     @Param("manufacturerName") List<String> manufacturerName,
+                                                     @Param("statusId") List<Long> statusId,
+                                                     @Param("orderType") List<String> orderType,
+                                                     @Param("partnerCode") List<String> partnerCode);
+
     @Transactional
     @Procedure(procedureName = "obline_update_qlcreate_proc")
     public void updateOBlineByQLCreateProcedure(
@@ -472,7 +590,6 @@ public interface OutboundLineV2Repository extends JpaRepository<OutboundLineV2, 
                                       @Param("warehouseId") List<String> warehouseId,
                                       @Param("preOutboundNo") List<String> preOutboundNo,
                                       @Param("refDocNumber") List<String> refDocNumber);
-    
     @Query(value = "SELECT COUNT(OB_LINE_NO) \r\n"
             + "FROM tbloutboundline \r\n"
             + "WHERE C_ID IN (:companyCodeId) AND PLANT_ID IN (:plantId) AND LANG_ID IN (:languageId) AND WH_ID IN (:warehouseId) AND PRE_OB_NO IN (:preOutboundNo) \r\n"

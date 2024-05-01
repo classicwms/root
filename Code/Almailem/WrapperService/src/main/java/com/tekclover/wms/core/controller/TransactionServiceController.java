@@ -3799,6 +3799,12 @@ public class TransactionServiceController {
         return transactionService.findOutboundLineV2(searchOutboundLine, authToken);
     }
 
+    @ApiOperation(response = OutboundLineV2.class, value = "Search OutboundLine V2 stream") // label for swagger
+    @PostMapping("/outboundline/v2/findOutboundLine/stream")
+    public OutboundLineV2[] findOutboundLineStreamV2(@RequestBody SearchOutboundLineV2 searchOutboundLine,
+                                                     @RequestParam String authToken) throws Exception {
+        return transactionService.findOutboundLineStreamV2(searchOutboundLine, authToken);
+    }
 
     @ApiOperation(response = OutboundLineV2.class, value = "Update OutboundLine V2") // label for swagger
     @GetMapping("/outboundline/v2/delivery/confirmation")

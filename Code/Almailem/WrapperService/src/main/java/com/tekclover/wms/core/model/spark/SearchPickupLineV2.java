@@ -23,10 +23,13 @@ public class SearchPickupLineV2 {
     private List<String> pickedPackCode;
     private List<String> assignedPickerId;
     private List<Long> outboundOrderTypeId;
+    private List<String> manufacturerName;
+    private List<String> salesOrderNumber;
 
     private List<String> levelId;
     private List<Long> statusId;
     private Date fromPickConfirmedOn;
     private Date toPickConfirmedOn;
+
 
 }

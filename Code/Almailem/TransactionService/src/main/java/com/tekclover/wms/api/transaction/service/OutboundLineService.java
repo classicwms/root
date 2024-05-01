@@ -2600,7 +2600,7 @@ public class OutboundLineService extends BaseService {
             if (searchOutboundLine.getPartnerCode() == null || searchOutboundLine.getPartnerCode().isEmpty()) {
                 searchOutboundLine.setPartnerCode(null);
             }
-
+            log.info("Find OutboundLine Stream Search Input: " + searchOutboundLine);
             OutboundLineV2Specification spec = new OutboundLineV2Specification(searchOutboundLine);
             Stream<OutboundLineV2> outboundLineSearchResults = outboundLineV2Repository.stream(spec, OutboundLineV2.class);
 
@@ -2661,14 +2661,15 @@ public class OutboundLineService extends BaseService {
                 searchOutboundLine.setManufacturerName(null);
             }
 
-            List<OutboundLineOutput> outboundLineSearchResults = outboundLineV2Repository.findOutboundLineNew(
+            log.info("Find OutboundLine Search Input: " + searchOutboundLine);
+            List<OutboundLineOutput> outboundLineSearchResults = outboundLineV2Repository.findOutboundLine(
                     searchOutboundLine.getCompanyCodeId(), searchOutboundLine.getLanguageId(),
                     searchOutboundLine.getPlantId(), searchOutboundLine.getWarehouseId(),
                     searchOutboundLine.getFromDeliveryDate(), searchOutboundLine.getToDeliveryDate(), searchOutboundLine.getPreOutboundNo(),
                     searchOutboundLine.getRefDocNumber(), searchOutboundLine.getLineNumber(), searchOutboundLine.getItemCode(),
                     searchOutboundLine.getSalesOrderNumber(), searchOutboundLine.getTargetBranchCode(), searchOutboundLine.getManufacturerName(),
                     searchOutboundLine.getStatusId(), searchOutboundLine.getOrderType(), searchOutboundLine.getPartnerCode());
-
+            log.info("OutboundLine search results : " + outboundLineSearchResults.size());
             return outboundLineSearchResults;
 
         } catch (Exception e) {

@@ -1664,16 +1664,16 @@ public class InboundHeaderService extends BaseService {
                                 inboundLine.getItemCode() + ", " + inboundLine.getManufacturerName() + ", " + inboundLine.getLineNo());
                     }
                 }
-                    inboundLineV2Repository.updateInboundLineStatusUpdateInboundConfirmIndividualItemProc(
+                inboundLineV2Repository.updateInboundLineStatusUpdateInboundConfirmIndividualItemProc(
                             companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo,
                             inboundLine.getItemCode(), inboundLine.getManufacturerName(), inboundLine.getLineNo(),   24L, statusDescription, loginUserID, new Date());
                 log.info("InboundLine status updated: " + inboundLine.getItemCode() + ", " + inboundLine.getManufacturerName() + ", " + inboundLine.getLineNo());
+
+		        putAwayLineV2Repository.updatePutawayLineStatusUpdateInboundConfirmProc(
+		                companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
+		        log.info("putAwayLine updated");
             }
         }
-
-        putAwayLineV2Repository.updatePutawayLineStatusUpdateInboundConfirmProc(
-                companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
-        log.info("putAwayLine updated");
 
         putAwayHeaderV2Repository.updatepaheaderStatusUpdateInboundConfirmProc(
                 companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());

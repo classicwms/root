@@ -12027,6 +12027,28 @@ public class TransactionService {
         }
     }
 
+    // POST - findOutboundLineStream for calling in reports
+    public OutboundLineV2[] findOutboundLineStreamV2(SearchOutboundLineV2 searchOutboundLine, String authToken) throws ParseException {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getTransactionServiceApiUrl() + "outboundline/v2/findOutboundLineStream");
+            HttpEntity<?> entity = new HttpEntity<>(searchOutboundLine, headers);
+            ResponseEntity<OutboundLineV2[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
+                    entity, OutboundLineV2[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
     // PATCH ----
     public OutboundLineV2 updateOutboundLineV2(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,

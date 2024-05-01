@@ -25,4 +25,5 @@ public class FindPeriodicLineV2 {
     private List<Long> stockTypeId;
     private List<String> referenceField9;			//MFR Code
     private List<String> referenceField10;			//Section
+    private List<String> manufactureName;
 }
