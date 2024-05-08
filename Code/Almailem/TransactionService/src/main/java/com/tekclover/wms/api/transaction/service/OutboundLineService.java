@@ -3993,10 +3993,19 @@ public class OutboundLineService extends BaseService {
                             searchOutboundLine.getCompanyCodeId(),
                             searchOutboundLine.getPlantId(),
                             searchOutboundLine.getLanguageId(),
-                            Arrays.asList(24L));
+                            Arrays.asList(24L), searchOutboundLine.getFromDeliveryDate(), searchOutboundLine.getToDeliveryDate());
+
+            List<StockMovementReportImpl> stockAdjustmentSearchResults =
+                    inventoryMovementRepository.findStockAdjustmentForStockMovement(searchOutboundLine.getItemCode(),
+                            searchOutboundLine.getManufacturerName(),
+                            searchOutboundLine.getWarehouseId(),
+                            searchOutboundLine.getCompanyCodeId(),
+                            searchOutboundLine.getPlantId(),
+                            searchOutboundLine.getLanguageId(), searchOutboundLine.getFromDeliveryDate(), searchOutboundLine.getToDeliveryDate());
 
             allLineData.addAll(outboundLineSearchResults);
             allLineData.addAll(inboundLineSearchResults);
+            allLineData.addAll(stockAdjustmentSearchResults);
 
             List<StockMovementReport> stockMovementReports = new ArrayList<>();
             allLineData.forEach(data -> {
@@ -4014,7 +4023,7 @@ public class OutboundLineService extends BaseService {
                 stockMovementReports.add(stockMovementReport);
             });
             log.info("stockMovementReports :  " + stockMovementReports);
-            stockMovementReports.sort(Comparator.comparing(StockMovementReport::getConfirmedOn));
+//            stockMovementReports.sort(Comparator.comparing(StockMovementReport::getConfirmedOn));
             return stockMovementReports;
         } catch (Exception e) {
             e.printStackTrace();

@@ -85,15 +85,15 @@ public interface InboundLineV2Repository extends JpaRepository<InboundLineV2, Lo
             String companyCode, String languageId, String plantId, String warehouseId, String refDocNumber, String preInboundNo, Long statusId, Long deletionIndicator);
 
     @Query(value = "select il.wh_id as warehouseId, il.itm_code as itemCode, 'InBound' as documentType ,il.ref_doc_no as documentNumber, il.partner_code as partnerCode, "
-            + " il.c_id as companyCodeId,il.plant_id as plantId,il.lang_id as languageId, "
+            + " il.c_id as companyCodeId,il.plant_id as plantId,il.lang_id as languageId, il.ib_cnf_on as confirmedOn,"
             + " il.c_text as companyDescription,il.plant_text as plantDescription,il.status_text as statusDescription,il.wh_text as warehouseDescription, "
             + " (COALESCE(il.accept_qty,0) + COALESCE(il.damage_qty,0)) as movementQty, il.text as itemText ,il.mfr_name as manufacturerSKU from tblinboundline il "
 //            + " join tblimbasicdata1 im on il.itm_code = im.itm_code "
-            + "WHERE il.ITM_CODE in (:itemCode) AND "
+            + "WHERE il.ITM_CODE in (:itemCode) AND il.is_deleted = 0  AND "
 //            + "im.WH_ID in (:warehouseId) AND "
             + "(COALESCE(:manufacturerName, null) IS NULL OR (il.MFR_NAME IN (:manufacturerName))) and \n"
             + "il.C_ID in (:companyCodeId) AND il.PLANT_ID in (:plantId) AND il.LANG_ID in (:languageId) AND il.WH_ID in (:warehouseId) AND il.status_id in (:statusId) "
-            + " AND (il.accept_qty is not null OR il.damage_qty is not null)",
+            + " AND (il.accept_qty is not null OR il.damage_qty is not null) AND il.IB_CNF_ON between :fromDate and :toDate ",
             nativeQuery = true)
     public List<StockMovementReportImpl> findInboundLineForStockMovement(@Param("itemCode") List<String> itemCode,
                                                                          @Param("manufacturerName") List<String> manufacturerName,
@@ -101,7 +101,9 @@ public interface InboundLineV2Repository extends JpaRepository<InboundLineV2, Lo
                                                                          @Param("companyCodeId") List<String> companyCodeId,
                                                                          @Param("plantId") List<String> plantId,
                                                                          @Param("languageId") List<String> languageId,
-                                                                         @Param("statusId") List<Long> statusId);
+                                                                         @Param("statusId") List<Long> statusId,
+                                                                         @Param("fromDate") Date fromDate,
+                                                                         @Param("toDate") Date toDate);
 
     @Query(value = "Select top 1 PA_CNF_ON from tblputawayline where ref_doc_no = :refDocNo and itm_code = :itemCode " +
             "and c_id = :companyCodeId and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId " +

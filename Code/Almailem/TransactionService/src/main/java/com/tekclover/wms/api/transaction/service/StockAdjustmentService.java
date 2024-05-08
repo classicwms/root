@@ -846,13 +846,14 @@ public class StockAdjustmentService extends BaseService {
                 if (dbInventory != null) {
                     InventoryV2 newInventory = new InventoryV2();
                     BeanUtils.copyProperties(dbInventory, newInventory, CommonUtils.getNullPropertyNames(dbInventory));
-                    newInventory.setInventoryId(System.currentTimeMillis());
                     newInventory.setInventoryQuantity(dbInventory.getInventoryQuantity() + stockAdjustment.getAdjustmentQty());
                     Double ALLOC_QTY = 0D;
                     if(dbInventory.getAllocatedQuantity() != null) {
                         ALLOC_QTY = dbInventory.getAllocatedQuantity();
                     }
                     newInventory.setReferenceField4(dbInventory.getInventoryQuantity() + ALLOC_QTY);
+                    newInventory.setInventoryId(System.currentTimeMillis());
+                    newInventory.setUpdatedOn(new Date());
                     inventoryV2Repository.save(newInventory);
 
                     //StockAdjustment Record Insert
