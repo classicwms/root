@@ -34,6 +34,7 @@ import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
@@ -1423,10 +1424,11 @@ public class PreInboundHeaderService extends BaseService {
      * @throws IllegalAccessException
      */
     @Transactional(rollbackFor = {Exception.class, Throwable.class})
-    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class, LockAcquisitionException.class}, maxAttempts = 3, backoff = @Backoff(delay = 5000))
+    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class, LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 3, backoff = @Backoff(delay = 5000))
     public InboundHeaderV2 processInboundReceivedV2(String refDocNumber, InboundIntegrationHeader inboundIntegrationHeader)
             throws IllegalAccessException, InvocationTargetException, BadRequestException,
             SQLException, SQLServerException, CannotAcquireLockException, LockAcquisitionException, Exception {
+        try {
         log.info("Inbound Process Initiated ------> " + refDocNumber + ", " + inboundIntegrationHeader.getInboundOrderTypeId());
         /*
          * Checking whether received refDocNumber processed already.
@@ -1594,6 +1596,10 @@ public class PreInboundHeaderService extends BaseService {
         log.info("StagingLines Created : " + stagingLines);
 
         return createdInboundHeader;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BadRequestException("Inbound Order Processing Bad Request Exception : " + e);
+        }
     }
 
     /**

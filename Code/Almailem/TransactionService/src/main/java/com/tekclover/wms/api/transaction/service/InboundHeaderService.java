@@ -1645,23 +1645,32 @@ public class InboundHeaderService extends BaseService {
         AXApiResponse axapiResponse = new AXApiResponse();
         statusDescription = stagingLineV2Repository.getStatusDescription(24L, languageId);
         log.info("InboundLine List: " + inboundLineList.size());
+        List<PutAwayLineV2> putAwayLineList = null;
         if (inboundLineList != null && !inboundLineList.isEmpty()) {
             for (InboundLineV2 inboundLine : inboundLineList) {
+                log.info("Input InboundLine : " + inboundLine);
                 if(inboundLine.getStatusId() == 20L) {
-                    List<PutAwayLineV2> putAwayLineList = putAwayLineService.
-                            getPutAwayLineForInboundConfirmV2(companyCode, plantId, languageId, warehouseId, refDocNumber,
-                                    inboundLine.getItemCode(),
-                                    inboundLine.getManufacturerName(),
-                                    inboundLine.getLineNo(),
-                                    inboundLine.getPreInboundNo());
-                    log.info("PutawayLine List: " + putAwayLineList.size());
-                    if (putAwayLineList != null) {
-                        for (PutAwayLineV2 putAwayLine : putAwayLineList) {
-                            InventoryV2 createdInventory = createInventoryNonCBMV2(putAwayLine);
-                            createInventoryMovementV2(putAwayLine);
+                    InboundLineV2 inboundLineV2 = inboundLineService.getInboundLineForInboundConfirmPartialConfirmV2(companyCode, plantId, languageId, warehouseId, refDocNumber,
+                            inboundLine.getPreInboundNo(),
+                            inboundLine.getItemCode(),
+                            inboundLine.getManufacturerName(),
+                            inboundLine.getLineNo());
+                    if(inboundLineV2 != null) {
+                        putAwayLineList = putAwayLineService.
+                                getPutAwayLineForInboundConfirmV2(companyCode, plantId, languageId, warehouseId, refDocNumber,
+                                        inboundLine.getItemCode(),
+                                        inboundLine.getManufacturerName(),
+                                        inboundLine.getLineNo(),
+                                        inboundLine.getPreInboundNo());
+                        log.info("PutawayLine List: " + putAwayLineList.size());
+                        if (putAwayLineList != null) {
+                            for (PutAwayLineV2 putAwayLine : putAwayLineList) {
+                                InventoryV2 createdInventory = createInventoryNonCBMV2(putAwayLine);
+                                createInventoryMovementV2(putAwayLine);
+                            }
+                            log.info("Inventory Created Successfully -----> for Inbound Line ----> " +
+                                    inboundLine.getItemCode() + ", " + inboundLine.getManufacturerName() + ", " + inboundLine.getLineNo());
                         }
-                        log.info("Inventory Created Successfully -----> for Inbound Line ----> " +
-                                inboundLine.getItemCode() + ", " + inboundLine.getManufacturerName() + ", " + inboundLine.getLineNo());
                     }
                 }
                 inboundLineV2Repository.updateInboundLineStatusUpdateInboundConfirmIndividualItemProc(

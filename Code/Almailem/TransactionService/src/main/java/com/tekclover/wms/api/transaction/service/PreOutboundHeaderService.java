@@ -39,6 +39,7 @@ import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
@@ -1544,10 +1545,11 @@ public class PreOutboundHeaderService extends BaseService {
 //    }
 
     @Transactional(rollbackFor = {Exception.class, Throwable.class})
-    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class, LockAcquisitionException.class}, maxAttempts = 3, backoff = @Backoff(delay = 5000))
+    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class, LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 3, backoff = @Backoff(delay = 5000))
     public OutboundHeaderV2 processOutboundReceivedV2(OutboundIntegrationHeaderV2 outboundIntegrationHeader)
             throws IllegalAccessException, InvocationTargetException, BadRequestException,
             SQLException, SQLServerException, CannotAcquireLockException, LockAcquisitionException, Exception {
+        try {
         /*
          * Checking whether received refDocNumber processed already.
          */
@@ -1775,6 +1777,10 @@ public class PreOutboundHeaderService extends BaseService {
             }
         }
         return outboundHeader;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BadRequestException("Outbound Order Processing Bad Request Exception : " + e);
+        }
     }
 
     /**

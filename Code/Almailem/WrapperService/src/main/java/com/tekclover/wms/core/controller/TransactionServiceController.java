@@ -3761,6 +3761,13 @@ public class TransactionServiceController {
         return transactionService.findOutboundHeaderV2(searchOutboundHeader, authToken);
     }
 
+    @ApiOperation(response = OutboundHeaderV2.class, value = "Search OutboundHeader V2 for Delivery")    // label for swagger
+    @PostMapping("/outboundheader/v2/findOutboundHeader/delivery")
+    public OutboundHeaderV2[] findOutboundHeaderDeliveryV2(@RequestBody SearchOutboundHeaderV2 searchOutboundHeader,
+                                                           @RequestParam String authToken) throws Exception {
+        return transactionService.findOutboundHeaderDeliveryV2(searchOutboundHeader, authToken);
+    }
+
     @ApiOperation(response = OutboundHeaderV2.class, value = "Search OutboundHeader V2") // label for swagger
     @PostMapping("/outboundheader/v2/findOutboundHeader/rfd")
     public OutboundHeaderV2[] findOutboundHeaderV2Rfd(@RequestBody SearchOutboundHeaderV2 searchOutboundHeader,

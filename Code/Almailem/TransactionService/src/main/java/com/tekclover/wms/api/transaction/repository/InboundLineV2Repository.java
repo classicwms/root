@@ -245,5 +245,9 @@ public interface InboundLineV2Repository extends JpaRepository<InboundLineV2, Lo
                                                         @Param("warehouseId") String warehouseId,
                                                         @Param("refDocNo") String refDocNo,
                                                         @Param("preInboundNo") String preInboundNo);
+
+    InboundLineV2 findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndLineNoAndItemCodeAndManufacturerNameAndStatusIdAndDeletionIndicator(
+            String languageId, String companyCode, String plantId, String warehouseId, String refDocNumber,
+            String preInboundNo, Long lineNo, String itemCode, String manufacturerName, Long statusId, Long deletionIndicator);
 }
 

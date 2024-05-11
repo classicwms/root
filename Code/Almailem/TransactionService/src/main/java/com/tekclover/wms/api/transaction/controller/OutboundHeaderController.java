@@ -145,6 +145,14 @@ public class OutboundHeaderController {
         return outboundheaderService.findOutboundHeadernewV2(searchOutboundHeader);
     }
 
+    //This Method for seperate consignment Tab in Delivery
+    @ApiOperation(response = OutboundHeaderV2Stream.class, value = "Search OutboundHeader Stream - Consignment Tab") // label for swagger
+    @PostMapping("/v2/findOutboundHeader/delivery")
+    public List<OutboundHeaderV2Stream> findOutboundHeaderDelivery(@RequestBody SearchOutboundHeaderV2 searchOutboundHeader)
+            throws Exception {
+        return outboundheaderService.findOutboundHeaderForDeliveryV2(searchOutboundHeader);
+    }
+
     @ApiOperation(response = OutboundHeaderV2.class, value = "Search OutboundHeader Rfd") // label for swagger
     @PostMapping("/v2/findOutboundHeaderRfd")
     public List<OutboundHeaderV2Stream> findOutboundHeaderrfdV2(@RequestBody SearchOutboundHeaderV2 searchOutboundHeader)

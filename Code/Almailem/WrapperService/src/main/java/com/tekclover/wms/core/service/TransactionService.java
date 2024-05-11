@@ -11853,6 +11853,63 @@ public class TransactionService {
         }
     }
 
+    // POST - findOutboundHeader - This Method for seperate consignment Tab in Delivery
+    public OutboundHeaderV2[] findOutboundHeaderDeliveryV2(SearchOutboundHeaderV2 requestData, String authToken)
+            throws ParseException {
+        try {
+            SearchOutboundHeaderModel requestDataForService = new SearchOutboundHeaderModel();
+            BeanUtils.copyProperties(requestData, requestDataForService, CommonUtils.getNullPropertyNames(requestData));
+            if (requestData.getStartDeliveryConfirmedOn() != null) {
+                if (requestData.getStartDeliveryConfirmedOn().length() < 11) {
+                    requestDataForService.setStartDeliveryConfirmedOn(
+                            DateUtils.convertStringToYYYYMMDD(requestData.getStartDeliveryConfirmedOn()));
+                } else {
+                    requestDataForService.setStartDeliveryConfirmedOn(
+                            DateUtils.convertStringToDateWithTime(requestData.getStartDeliveryConfirmedOn()));
+                }
+            }
+            if (requestData.getEndDeliveryConfirmedOn() != null) {
+                if (requestData.getEndDeliveryConfirmedOn().length() < 11) {
+                    requestDataForService.setEndDeliveryConfirmedOn(
+                            DateUtils.convertStringToYYYYMMDD(requestData.getEndDeliveryConfirmedOn()));
+                } else {
+                    requestDataForService.setEndDeliveryConfirmedOn(
+                            DateUtils.convertStringToDateWithTime(requestData.getEndDeliveryConfirmedOn()));
+                }
+            }
+            if (requestData.getStartOrderDate() != null) {
+                requestDataForService
+                        .setStartOrderDate(DateUtils.convertStringToYYYYMMDD(requestData.getStartOrderDate()));
+            }
+            if (requestData.getEndOrderDate() != null) {
+                requestDataForService.setEndOrderDate(DateUtils.convertStringToYYYYMMDD(requestData.getEndOrderDate()));
+            }
+            if (requestData.getStartRequiredDeliveryDate() != null) {
+                requestDataForService.setStartRequiredDeliveryDate(
+                        DateUtils.convertStringToYYYYMMDD(requestData.getStartRequiredDeliveryDate()));
+            }
+            if (requestData.getEndRequiredDeliveryDate() != null) {
+                requestDataForService.setEndRequiredDeliveryDate(
+                        DateUtils.convertStringToYYYYMMDD(requestData.getEndRequiredDeliveryDate()));
+            }
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getTransactionServiceApiUrl() + "outboundheader/v2/findOutboundHeader/delivery");
+            HttpEntity<?> entity = new HttpEntity<>(requestDataForService, headers);
+            ResponseEntity<OutboundHeaderV2[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
+                    entity, OutboundHeaderV2[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
     // POST - findOutBoundHeader/Rfd
     public OutboundHeaderV2[] findOutboundHeaderRfd(SearchOutboundHeaderV2 searchOutboundHeaderV2, String authToken) throws ParseException {
         try {

@@ -557,6 +557,97 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
             @Param(value = "startOrderDate") Date startOrderDate,
             @Param(value = "endOrderDate") Date endOrderDate);
 
+    //This Query for seperate consignment Tab in Delivery
+    @QueryHints(@javax.persistence.QueryHint(name = "org.hibernate.fetchSize", value = "1000"))
+    @Query(value =
+            "SELECT C_ID,PLANT_ID,LANG_ID,WH_ID,REF_DOC_NO,PRE_OB_NO,COUNT(PRE_OB_NO) linesCount into #obl FROM tbloutboundline WHERE is_deleted = 0 and \n" +
+                    "(COALESCE(:refDocNo, null) IS NULL OR (ref_doc_no IN (:refDocNo))) AND\n" +
+                    "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and \n" +
+                    "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
+                    "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n" +
+                    "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
+                    "(COALESCE(:preOutboundNo, null) IS NULL OR (pre_ob_no IN (:preOutboundNo))) \n" +
+                    "GROUP BY PRE_OB_NO,REF_DOC_NO,PLANT_ID,WH_ID,C_ID,LANG_ID\n" +
+
+                    "select \n" +
+                    "oh.c_id companyCodeId, oh.lang_id languageId, oh.partner_code partnerCode, \n" +
+                    "oh.plant_id plantId, oh.pre_ob_no preOutboundNo,oh.ref_doc_no refDocNumber,oh.wh_id warehouseId, \n" +
+                    "oh.dlv_ctd_by createdBy, \n" +
+                    "oh.dlv_ctd_on createdOn, \n" +
+                    "oh.is_deleted deletionIndicator, \n" +
+                    "oh.dlv_cnf_by deliveryConfirmedBy, \n" +
+                    "oh.dlv_cnf_on deliveryConfirmedOn, \n" +
+                    "oh.dlv_ord_no deliveryOrderNo, oh.ob_ord_typ_id outboundOrderTypeId, \n" +
+                    "oh.ref_doc_date refDocDate, \n" +
+                    "oh.ref_doc_typ referenceDocumentType,oh.remark remarks, \n" +
+                    "oh.req_del_date requiredDeliveryDate,\n" +
+                    "oh.dlv_rev_by reversedBy, \n" +
+                    "oh.dlv_rev_on reversedOn, \n" +
+                    "oh.status_id statusId,oh.dlv_utd_by updatedBy, \n" +
+                    "oh.dlv_utd_on updatedOn,\n" +
+                    "oh.INVOICE_NO invoiceNumber,\n" +
+                    "oh.C_TEXT companyDescription,\n" +
+                    "oh.PLANT_TEXT plantDescription,\n" +
+                    "oh.WH_TEXT warehouseDescription,\n" +
+                    "oh.STATUS_TEXT statusDescription,\n" +
+                    "oh.MIDDLEWARE_ID middlewareId,\n" +
+                    "oh.MIDDLEWARE_TABLE middlewareTable,\n" +
+                    "oh.SALES_ORDER_NUMBER salesOrderNumber,\n" +
+                    "oh.SALES_INVOICE_NUMBER salesInvoiceNumber,\n" +
+                    "oh.PICK_LIST_NUMBER pickListNumber,\n" +
+                    "oh.INVOICE_DATE invoiceDate,\n" +
+                    "oh.DELIVERY_TYPE deliveryType,\n" +
+                    "oh.CUSTOMER_ID customerId,\n" +
+                    "oh.CUSTOMER_NAME customerName,\n" +
+                    "oh.TARGET_BRANCH_CODE targetBranchCode,\n" +
+                    "oh.ADDRESS address,\n" +
+                    "oh.PHONE_NUMBER phoneNumber,\n" +
+                    "oh.ALTERNATE_NO alternateNo,\n" +
+                    "oh.TOKEN_NUMBER tokenNumber,\n" +
+                    "oh.STATUS status,\n" +
+                    "oh.CUSTOMER_TYPE customerType,\n" +
+                    "oh.ref_field_1 referenceField1,oh.ref_field_2 referenceField2,oh.ref_field_3 referenceField3, \n" +
+                    "oh.ref_field_4 referenceField4,oh.ref_field_5 referenceField5,oh.ref_field_6 referenceField6,\n" +
+                    "oh.ref_field_7 as referenceField7, \n"+
+                    "ol.linesCount as referenceField8, \n"+
+                    "oh.ref_field_9 as referenceField9, \n"+
+                    "oh.ref_field_10 as referenceField10 \n"+
+                    "from tbloutboundheader oh\n" +
+                    "Left Join #obl ol on ol.REF_DOC_NO = oh.REF_DOC_NO AND ol.PRE_OB_NO = oh.pre_ob_no AND ol.c_id = oh.c_id AND ol.plant_id = oh.plant_id AND ol.lang_id = oh.lang_id AND ol.wh_id = oh.wh_id\n" +
+                    "where oh.is_deleted = 0 and \n" +
+                    "(COALESCE(:companyCodeId, null) IS NULL OR (oh.c_id IN (:companyCodeId))) and \n" +
+                    "(COALESCE(:plantId, null) IS NULL OR (oh.plant_id IN (:plantId))) and \n" +
+                    "(COALESCE(:languageId, null) IS NULL OR (oh.lang_id IN (:languageId))) and \n" +
+                    "(COALESCE(:warehouseId, null) IS NULL OR (oh.wh_id IN (:warehouseId))) and \n" +
+                    "(COALESCE(:refDocNo, null) IS NULL OR (oh.ref_doc_no IN (:refDocNo))) and \n" +
+                    "(COALESCE(:preOutboundNo, null) IS NULL OR (oh.pre_ob_no IN (:preOutboundNo))) and \n" +
+                    "(COALESCE(:partnerCode, null) IS NULL OR (oh.partner_code IN (:partnerCode))) and \n" +
+                    "(COALESCE(:targetBranchCode, null) IS NULL OR (oh.target_branch_code IN (:targetBranchCode))) and \n" +
+                    "(COALESCE(:outboundOrderTypeId, null) IS NULL OR (oh.ob_ord_typ_id IN (:outboundOrderTypeId))) and \n" +
+                    "(COALESCE(:statusId, null) IS NULL OR (oh.status_id IN (:statusId))) and \n" +
+                    "(COALESCE(:soType, null) IS NULL OR (oh.ref_field_1 IN (:soType))) and\n" +
+                    "(COALESCE(CONVERT(VARCHAR(255), :startRequiredDeliveryDate), null) IS NULL OR (oh.REQ_DEL_DATE between COALESCE(CONVERT(VARCHAR(255), :startRequiredDeliveryDate), null) and COALESCE(CONVERT(VARCHAR(255), :endRequiredDeliveryDate), null))) and\n" +
+                    "(COALESCE(CONVERT(VARCHAR(255), :startDeliveryConfirmedOn), null) IS NULL OR (oh.DLV_CNF_ON between COALESCE(CONVERT(VARCHAR(255), :startDeliveryConfirmedOn), null) and COALESCE(CONVERT(VARCHAR(255), :endDeliveryConfirmedOn), null))) and\n" +
+                    "(COALESCE(CONVERT(VARCHAR(255), :startOrderDate), null) IS NULL OR (oh.DLV_CTD_ON between COALESCE(CONVERT(VARCHAR(255), :startOrderDate), null) and COALESCE(CONVERT(VARCHAR(255), :endOrderDate), null))) \n ", nativeQuery = true)
+    Stream<OutboundHeaderV2Stream> findAllOutBoundHeaderV2(
+            @Param(value = "companyCodeId") List<String> companyCodeId,
+            @Param(value = "plantId") List<String> plantId,
+            @Param(value = "languageId") List<String> languageId,
+            @Param(value = "warehouseId") List<String> warehouseId,
+            @Param(value = "refDocNo") List<String> refDocNo,
+            @Param(value = "preOutboundNo") List<String> preOutboundNo,
+            @Param(value = "partnerCode") List<String> partnerCode,
+            @Param(value = "targetBranchCode") List<String> targetBranchCode,
+            @Param(value = "outboundOrderTypeId") List<Long> outboundOrderTypeId,
+            @Param(value = "statusId") List<Long> statusId,
+            @Param(value = "soType") List<String> soType,
+            @Param(value = "startRequiredDeliveryDate") Date startRequiredDeliveryDate,
+            @Param(value = "endRequiredDeliveryDate") Date endRequiredDeliveryDate,
+            @Param(value = "startDeliveryConfirmedOn") Date startDeliveryConfirmedOn,
+            @Param(value = "endDeliveryConfirmedOn") Date endDeliveryConfirmedOn,
+            @Param(value = "startOrderDate") Date startOrderDate,
+            @Param(value = "endOrderDate") Date endOrderDate);
+
     List<OutboundHeaderV2> findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndStatusIdAndDeliveryConfirmedOnBetween(
             String companyCodeId, String plantId, String languageId, String warehouseIds, Long statusId, Date fromDeliveryDateD, Date toDeliveryDateD);
 

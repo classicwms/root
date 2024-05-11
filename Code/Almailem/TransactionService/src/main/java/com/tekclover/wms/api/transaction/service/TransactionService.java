@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.UnexpectedRollbackException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
@@ -162,7 +163,8 @@ public class TransactionService extends BaseService{
                     log.error("Error on inbound processing : " + e.toString());
                     if ((e.toString().contains("SQLState: 40001") && e.toString().contains("SQL Error: 1205")) ||
                             e.toString().contains("was deadlocked on lock") ||
-                            e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException")) {
+                            e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException") ||
+                            e.toString().contains("UnexpectedRollbackException")) {
                         // Updating the Processed Status
                         orderService.updateProcessedInboundOrderV2(inbound.getRefDocumentNo(), inbound.getInboundOrderTypeId(), 900L);
                        //============================================================================================
@@ -288,7 +290,8 @@ public class TransactionService extends BaseService{
                     log.error("Error on outbound processing : " + e.toString());
                     if ((e.toString().contains("SQLState: 40001") && e.toString().contains("SQL Error: 1205")) ||
                             e.toString().contains("was deadlocked on lock") ||
-                            e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException")) {
+                            e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException") ||
+                            e.toString().contains("UnexpectedRollbackException")) {
                         // Updating the Processed Status
                         orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID(), 900L);
                         //============================================================================================

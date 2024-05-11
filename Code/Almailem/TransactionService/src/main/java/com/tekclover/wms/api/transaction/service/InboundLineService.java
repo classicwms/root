@@ -532,6 +532,28 @@ public class InboundLineService extends BaseService {
     }
 
     /**
+     *
+     * @param companyCode
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param refDocNumber
+     * @param preInboundNo
+     * @param itemCode
+     * @param manufacturerName
+     * @param lineNumber
+     * @return
+     */
+    public InboundLineV2 getInboundLineForInboundConfirmPartialConfirmV2(String companyCode, String plantId, String languageId,
+                                                                            String warehouseId, String refDocNumber, String preInboundNo,
+                                                                            String itemCode, String manufacturerName, Long lineNumber) {
+        InboundLineV2 inboundLines = inboundLineV2Repository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndLineNoAndItemCodeAndManufacturerNameAndStatusIdAndDeletionIndicator(
+                languageId, companyCode, plantId, warehouseId, refDocNumber, preInboundNo, lineNumber, itemCode, manufacturerName, 20L, 0L);
+        log.info("db inboundLine for partial Confirm: " + inboundLines);
+        return inboundLines;
+    }
+
+    /**
      * @param newInboundLine
      * @param loginUserID
      * @return

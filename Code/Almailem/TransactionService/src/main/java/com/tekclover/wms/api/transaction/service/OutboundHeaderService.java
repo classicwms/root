@@ -779,6 +779,83 @@ public class OutboundHeaderService {
         return outboundHeaderList;
     }
 
+    //This Method for seperate consignment Tab in Delivery
+    @Transactional(readOnly = true)
+    public List<OutboundHeaderV2Stream> findOutboundHeaderForDeliveryV2(SearchOutboundHeaderV2 searchOutboundHeader)        //Streaming
+            throws ParseException, java.text.ParseException {
+
+        if (searchOutboundHeader.getStartRequiredDeliveryDate() != null && searchOutboundHeader.getEndRequiredDeliveryDate() != null) {
+            Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartRequiredDeliveryDate(), searchOutboundHeader.getEndRequiredDeliveryDate());
+            searchOutboundHeader.setStartRequiredDeliveryDate(dates[0]);
+            searchOutboundHeader.setEndRequiredDeliveryDate(dates[1]);
+        } else {
+            searchOutboundHeader.setStartRequiredDeliveryDate(null);
+            searchOutboundHeader.setEndRequiredDeliveryDate(null);
+        }
+
+        if (searchOutboundHeader.getStartDeliveryConfirmedOn() != null && searchOutboundHeader.getEndDeliveryConfirmedOn() != null) {
+            Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartDeliveryConfirmedOn(), searchOutboundHeader.getEndDeliveryConfirmedOn());
+            searchOutboundHeader.setStartDeliveryConfirmedOn(dates[0]);
+            searchOutboundHeader.setEndDeliveryConfirmedOn(dates[1]);
+        } else {
+            searchOutboundHeader.setStartDeliveryConfirmedOn(null);
+            searchOutboundHeader.setEndDeliveryConfirmedOn(null);
+        }
+        if (searchOutboundHeader.getStartDeliveryConfirmedOn() != null && searchOutboundHeader.getEndDeliveryConfirmedOn() != null) {
+                Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartDeliveryConfirmedOn(), searchOutboundHeader.getEndDeliveryConfirmedOn());
+                searchOutboundHeader.setStartDeliveryConfirmedOn(dates[0]);
+                searchOutboundHeader.setEndDeliveryConfirmedOn(dates[1]);
+        } else {
+            searchOutboundHeader.setStartDeliveryConfirmedOn(null);
+            searchOutboundHeader.setEndDeliveryConfirmedOn(null);
+        }
+
+        if (searchOutboundHeader.getStartOrderDate() != null && searchOutboundHeader.getEndOrderDate() != null) {
+            Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartOrderDate(), searchOutboundHeader.getEndOrderDate());
+            searchOutboundHeader.setStartOrderDate(dates[0]);
+            searchOutboundHeader.setEndOrderDate(dates[1]);
+        } else {
+            searchOutboundHeader.setStartOrderDate(null);
+            searchOutboundHeader.setEndOrderDate(null);
+        }
+
+        if (searchOutboundHeader.getWarehouseId() == null || searchOutboundHeader.getWarehouseId().isEmpty()) {
+            searchOutboundHeader.setWarehouseId(null);
+        }
+        if (searchOutboundHeader.getRefDocNumber() == null || searchOutboundHeader.getRefDocNumber().isEmpty()) {
+            searchOutboundHeader.setRefDocNumber(null);
+        }
+        if (searchOutboundHeader.getPartnerCode() == null || searchOutboundHeader.getPartnerCode().isEmpty()) {
+            searchOutboundHeader.setPartnerCode(null);
+        }
+        if (searchOutboundHeader.getOutboundOrderTypeId() == null || searchOutboundHeader.getOutboundOrderTypeId().isEmpty()) {
+            searchOutboundHeader.setOutboundOrderTypeId(null);
+        }
+        if (searchOutboundHeader.getSoType() == null || searchOutboundHeader.getSoType().isEmpty()) {
+            searchOutboundHeader.setSoType(null);
+        }
+        if (searchOutboundHeader.getStatusId() == null || searchOutboundHeader.getStatusId().isEmpty()) {
+            searchOutboundHeader.setStatusId(null);
+        }
+
+        List<OutboundHeaderV2Stream> outboundHeaderList = outboundHeaderV2Repository.findAllOutBoundHeaderV2(
+                searchOutboundHeader.getCompanyCodeId(),
+                searchOutboundHeader.getPlantId(),
+                searchOutboundHeader.getLanguageId(),
+                searchOutboundHeader.getWarehouseId(),
+                searchOutboundHeader.getRefDocNumber(),
+                searchOutboundHeader.getPreOutboundNo(),
+                searchOutboundHeader.getPartnerCode(),
+                searchOutboundHeader.getTargetBranchCode(), searchOutboundHeader.getOutboundOrderTypeId(),
+                searchOutboundHeader.getStatusId(), searchOutboundHeader.getSoType(),
+                searchOutboundHeader.getStartRequiredDeliveryDate(), searchOutboundHeader.getEndRequiredDeliveryDate(),
+                searchOutboundHeader.getStartDeliveryConfirmedOn(), searchOutboundHeader.getEndDeliveryConfirmedOn(),
+                searchOutboundHeader.getStartOrderDate(), searchOutboundHeader.getEndOrderDate()).collect(Collectors.toList());
+        log.info("outboundHeaderList : " + outboundHeaderList.size());
+
+        return outboundHeaderList;
+    }
+
     /**
      *
      * @param searchOutboundHeader
