@@ -1839,10 +1839,13 @@ public class PutAwayLineService extends BaseService {
 
                             // If QTY_TYPE = A, add PA_CNF_QTY with existing value in ACCEPT_QTY field
                             if (createdPutAwayLine.getQuantityType().equalsIgnoreCase("A")) {
-                                if (inboundLine.getAcceptedQty() != null) {
+                                if (inboundLine.getAcceptedQty() != null && inboundLine.getAcceptedQty() < inboundLine.getOrderQty()) {
                                     addedAcceptQty = inboundLine.getAcceptedQty() + createdPutAwayLine.getPutawayConfirmedQty();
                                 } else {
                                     addedAcceptQty = createdPutAwayLine.getPutawayConfirmedQty();
+                                }
+                                if(addedAcceptQty > inboundLine.getOrderQty()) {
+                                    throw new BadRequestException("Accept qty cannot be greater than order qty");
                                 }
                                 inboundLine.setAcceptedQty(addedAcceptQty);
                                 inboundLine.setVarianceQty(inboundLine.getOrderQty() - addedAcceptQty);
@@ -1850,10 +1853,13 @@ public class PutAwayLineService extends BaseService {
 
                             // if QTY_TYPE = D, add PA_CNF_QTY with existing value in DAMAGE_QTY field
                             if (createdPutAwayLine.getQuantityType().equalsIgnoreCase("D")) {
-                                if (inboundLine.getDamageQty() != null) {
+                                if (inboundLine.getDamageQty() != null && inboundLine.getDamageQty() < inboundLine.getOrderQty()) {
                                     addedDamageQty = inboundLine.getDamageQty() + createdPutAwayLine.getPutawayConfirmedQty();
                                 } else {
                                     addedDamageQty = createdPutAwayLine.getPutawayConfirmedQty();
+                                }
+                                if(addedDamageQty > inboundLine.getOrderQty()) {
+                                    throw new BadRequestException("Damage qty cannot be greater than order qty");
                                 }
                                 inboundLine.setDamageQty(addedDamageQty);
                                 inboundLine.setVarianceQty(inboundLine.getOrderQty() - addedDamageQty);

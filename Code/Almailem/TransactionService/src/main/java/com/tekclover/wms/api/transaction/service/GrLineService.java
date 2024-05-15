@@ -2060,30 +2060,31 @@ public class GrLineService extends BaseService {
                 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
                 if (putAwayHeader.getProposedStorageBin() == null && (stBinInventoryList == null || stBinInventoryList.isEmpty())) {
 
-                    List<PickupLineV2> pickupLineList = pickupLineService.getPickupLineForLastBinCheckV2(companyCode, plantId, languageId, warehouseId, itemCode, createdGRLine.getManufacturerName());
+//                    List<PickupLineV2> pickupLineList = pickupLineService.getPickupLineForLastBinCheckV2(companyCode, plantId, languageId, warehouseId, itemCode, createdGRLine.getManufacturerName());
+                    PickupLineV2 pickupLineList = pickupLineService.getPickupLineForLastBinCheck(companyCode, plantId, languageId, warehouseId, itemCode, createdGRLine.getManufacturerName());
                     log.info("PickupLineForLastBinCheckV2: " + pickupLineList);
-                    List<String> lastPickedStorageBinList = null;
+//                    String lastPickedStorageBinList = null;
                     if (pickupLineList != null) {
-                        lastPickedStorageBinList = pickupLineList.stream().map(PickupLineV2::getPickedStorageBin).collect(Collectors.toList());
-                    }
-                    log.info("LastPickedStorageBinList: " + lastPickedStorageBinList);
+//                        lastPickedStorageBinList = pickupLineList.getPickedStorageBin();
+//                    }
+//                    log.info("LastPickedStorageBinList: " + lastPickedStorageBinList);
 
-                    if (lastPickedStorageBinList != null && !lastPickedStorageBinList.isEmpty()) {
-                        log.info("BinClassId : " + binClassId);
+//                    if (lastPickedStorageBinList != null && !lastPickedStorageBinList.isEmpty()) {
+//                        log.info("BinClassId : " + binClassId);
 
-                        storageBinPutAway.setStatusId(0L);
-                        storageBinPutAway.setBinClassId(1L);
-                        storageBinPutAway.setStorageBin(lastPickedStorageBinList);
+//                        storageBinPutAway.setStatusId(0L);
+//                        storageBinPutAway.setBinClassId(1L);
+//                        storageBinPutAway.setStorageBin(lastPickedStorageBinList);
 
-                        StorageBinV2 proposedNonCbmLastPickStorageBin = mastersService.getStorageBinNonCbmLastPicked(storageBinPutAway, authTokenForMastersService.getAccess_token());
-                        log.info("proposedNonCbmLastPickStorageBin: " + proposedNonCbmLastPickStorageBin);
-                        if (proposedNonCbmLastPickStorageBin != null) {
-                            putAwayHeader.setProposedStorageBin(proposedNonCbmLastPickStorageBin.getStorageBin());
-                            putAwayHeader.setLevelId(String.valueOf(proposedNonCbmLastPickStorageBin.getFloorId()));
-                            log.info("LastPick NonCBM Bin: " + proposedNonCbmLastPickStorageBin.getStorageBin());
+//                        StorageBinV2 proposedNonCbmLastPickStorageBin = mastersService.getStorageBinNonCbmLastPicked(storageBinPutAway, authTokenForMastersService.getAccess_token());
+//                        log.info("proposedNonCbmLastPickStorageBin: " + proposedNonCbmLastPickStorageBin);
+//                        if (proposedNonCbmLastPickStorageBin != null) {
+                            putAwayHeader.setProposedStorageBin(pickupLineList.getPickedStorageBin());
+                            putAwayHeader.setLevelId(pickupLineList.getLevelId());
+                            log.info("LastPick NonCBM Bin: " + pickupLineList.getPickedStorageBin());
                             log.info("LastPick NonCBM PutawayQty: " + createdGRLine.getGoodReceiptQty());
                             cbm = 0D;   //break the loop
-                        }
+//                        }
                     }
                 }
 

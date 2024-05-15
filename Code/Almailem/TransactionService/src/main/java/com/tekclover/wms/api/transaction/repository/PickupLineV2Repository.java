@@ -194,4 +194,7 @@ public interface PickupLineV2Repository extends JpaRepository<PickupLineV2, Long
                                      @Param("statusId") Long statusId,
                                      @Param("itemCode") String itemCode,
                                      @Param("manufacturerName") String manufacturerName);
+
+    PickupLineV2 findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndManufacturerNameAndDeletionIndicatorOrderByPickupConfirmedOnDesc(
+            String companyCodeId, String plantId, String languageId, String warehouseId, String itemCode, String manufacturerName, Long deletionIndicator);
 }

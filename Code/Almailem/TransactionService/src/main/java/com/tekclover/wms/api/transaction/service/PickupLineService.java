@@ -1460,11 +1460,32 @@ public class PickupLineService extends BaseService {
      * @return
      */
     public List<PickupLineV2> getPickupLineForLastBinCheckV2(String companyCodeId, String plantId, String languageId, String warehouseId,
-                                                             String manufacturerName, String itemCode) {
+                                                             String itemCode, String manufacturerName) {
         List<PickupLineV2> pickupLine = pickupLineV2Repository
                 .findAllByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndManufacturerNameAndDeletionIndicatorOrderByPickupConfirmedOnDesc(
                         companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, 0L);
         if (pickupLine != null && !pickupLine.isEmpty()) {
+            return pickupLine;
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param manufacturerName
+     * @return
+     */
+    public PickupLineV2 getPickupLineForLastBinCheck(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                     String itemCode, String manufacturerName) {
+        PickupLineV2 pickupLine = pickupLineV2Repository
+                .findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndManufacturerNameAndDeletionIndicatorOrderByPickupConfirmedOnDesc(
+                        companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, 0L);
+        if (pickupLine != null) {
             return pickupLine;
         }
         return null;
