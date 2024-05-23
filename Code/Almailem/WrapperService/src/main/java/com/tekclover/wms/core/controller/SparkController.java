@@ -312,4 +312,12 @@ public class SparkController {
         InboundLineV3[] inboundLine = sparkService.findInboundLineJoin(findInboundLineV2);
         return new ResponseEntity<>(inboundLine, HttpStatus.OK);
     }
+
+    // Find Inventory
+    @ApiOperation(response = InventoryV3.class, value = "Spark Inventory")
+    @PostMapping("/inventory/v2/new")
+    public ResponseEntity<?> findInventoryV2(@RequestBody FindInventoryV3 findInventoryV3) throws Exception {
+        InventoryV3[] inventoryV3s = sparkService.findInventoryV3(findInventoryV3);
+        return new ResponseEntity<>(inventoryV3s, HttpStatus.OK);
+    }
 }

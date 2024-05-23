@@ -240,6 +240,7 @@ public interface GrLineV2Repository extends JpaRepository<GrLineV2, Long>, JpaSp
             "(COALESCE(:brand, null) IS NULL OR (gl.BRAND IN (:brand))) and\n" +
             "(COALESCE(:rejectType, null) IS NULL OR (gl.REJ_TYPE IN (:rejectType))) and\n" +
             "(COALESCE(:rejectReason, null) IS NULL OR (gl.REJ_REASON IN (:rejectReason))) and\n" +
+            "(COALESCE(:inboundOrderTypeId, null) IS NULL OR (gl.IB_ORD_TYP_ID IN (:inboundOrderTypeId))) and \n" +
             "(COALESCE(CONVERT(VARCHAR(255), :startDate), null) IS NULL OR (gl.GR_CNF_ON between COALESCE(CONVERT(VARCHAR(255), :startDate), null) and COALESCE(CONVERT(VARCHAR(255), :endDate), null))) ",nativeQuery = true)
             public List<GrLineImpl> findGrLine(@Param("companyCodeId") List<String> companyCodeId,
                                                @Param("plantId") List<String> plantId,
@@ -261,7 +262,8 @@ public interface GrLineV2Repository extends JpaRepository<GrLineV2, Long>, JpaSp
                                                @Param("rejectType") List<String> rejectType,
                                                @Param("rejectReason") List<String> rejectReason,
                                                @Param("startDate") Date startDate,
-                                               @Param("endDate") Date endDate);
+                                               @Param("endDate") Date endDate,
+                                               @Param("inboundOrderTypeId") List<Long> inboundOrderTypeId);
 
 
     @Transactional

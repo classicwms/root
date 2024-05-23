@@ -26,6 +26,7 @@ public class SearchGrLineV2 extends SearchGrLine {
 	private List<String> brand;
 	private List<String> rejectType;
 	private List<String> rejectReason;
+	private List<Long> inboundOrderTypeId;
 
 	private Date startCreatedOn;
 	private Date endCreatedOn;

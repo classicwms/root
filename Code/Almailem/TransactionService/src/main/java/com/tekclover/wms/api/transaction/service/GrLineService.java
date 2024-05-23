@@ -1402,6 +1402,9 @@ public class GrLineService extends BaseService {
     if(searchGrLine.getRejectReason() == null || searchGrLine.getRejectReason().isEmpty()){
         searchGrLine.setRejectReason(null);
     }
+    if(searchGrLine.getInboundOrderTypeId() == null || searchGrLine.getInboundOrderTypeId().isEmpty()) {
+        searchGrLine.setInboundOrderTypeId(null);
+    }
      log.info("Grline Search Input - SQL: " + searchGrLine);
      List<GrLineImpl> results = grLineV2Repository.findGrLine(
              searchGrLine.getCompanyCodeId(),
@@ -1424,7 +1427,8 @@ public class GrLineService extends BaseService {
              searchGrLine.getRejectType(),
              searchGrLine.getRejectReason(),
              searchGrLine.getStartCreatedOn(),
-             searchGrLine.getEndCreatedOn());
+             searchGrLine.getEndCreatedOn(),
+             searchGrLine.getInboundOrderTypeId());
      log.info("Grline Search Output: " + results.size());
         return results;
     }
