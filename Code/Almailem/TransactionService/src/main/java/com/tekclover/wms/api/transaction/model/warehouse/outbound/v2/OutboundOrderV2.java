@@ -5,10 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.Date;
 import java.util.Set;
 
@@ -52,7 +49,8 @@ public class OutboundOrderV2 extends OutboundOrder {
     private String middlewareTable;
     private String customerType;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "outboundOrderHeaderId", fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "OUTBOUND_ORDER_HEADER_ID",referencedColumnName = "OUTBOUND_ORDER_HEADER_ID")
     private Set<OutboundOrderLineV2> line;
 }
 

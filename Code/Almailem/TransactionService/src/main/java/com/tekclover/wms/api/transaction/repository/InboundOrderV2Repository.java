@@ -26,7 +26,7 @@ public interface InboundOrderV2Repository extends JpaRepository<InboundOrderV2, 
     public InboundOrderV2 findTopByRefDocumentNoOrderByOrderReceivedOnDesc(String orderId);
 
     @Modifying
-    @Query(value = "update tbliborder1 set processed_status_id = 0 where " +
+    @Query(value = "update tbliborder2 set processed_status_id = 0 where " +
             " inbound_order_header_id = :inboundOrderHeaderId ", nativeQuery = true)
     void updateProcessStatusId(@Param("inboundOrderHeaderId") Long inboundOrderHeaderId);
 

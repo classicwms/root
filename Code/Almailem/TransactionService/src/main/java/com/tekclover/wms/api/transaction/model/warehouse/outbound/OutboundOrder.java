@@ -8,11 +8,12 @@ import javax.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "tbloborder1")
+@Table(name = "tbloborder2")
 @Data
 public class OutboundOrder {
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "OUTBOUND_ORDER_HEADER_ID")
 	private Long outboundOrderHeaderId;
 
@@ -31,7 +32,8 @@ public class OutboundOrder {
 	private Date orderProcessedOn;
 	private Long processedStatusId;			// processed_status_id
 	private Long outboundOrderTypeID;
-	@OneToMany(cascade = CascadeType.ALL,mappedBy = "outboundOrderHeaderId",fetch = FetchType.EAGER)
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinColumn(name = "OUTBOUND_ORDER_HEADER_ID",referencedColumnName = "OUTBOUND_ORDER_HEADER_ID")
     private Set<OutboundOrderLine> lines;
 }
 

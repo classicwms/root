@@ -9,7 +9,7 @@ import javax.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "tbloborderlines1")
+@Table(name = "tbloborderlines2")
 @Data
 public class OutboundOrderLine { 
 	@Id
@@ -17,7 +17,7 @@ public class OutboundOrderLine {
     private Long id;
 	
 	private Long lineReference;								// IB_LINE_NO
-	private Long outboundOrderHeaderId;
+//	private Long outboundOrderHeaderId;
 	private String itemCode; 								// ITM_CODE
 	private String itemText; 								// ITEM_TEXT
 	private Double orderedQty;								// ORD_QTY

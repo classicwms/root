@@ -148,10 +148,25 @@ public class StatusIdService {
                                    UpdateStatusId updateStatusId)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         StatusId dbStatusId = getStatusId(statusId, languageId);
+        if(dbStatusId.getStatus().equalsIgnoreCase(updateStatusId.getStatus())) {
         BeanUtils.copyProperties(updateStatusId, dbStatusId, CommonUtils.getNullPropertyNames(updateStatusId));
         dbStatusId.setUpdatedBy(loginUserID);
         dbStatusId.setUpdatedOn(new Date());
         return statusIdRepository.save(dbStatusId);
+        }
+        if(!dbStatusId.getStatus().equalsIgnoreCase(updateStatusId.getStatus())) {
+            String oldStatusText = dbStatusId.getStatus();
+            BeanUtils.copyProperties(updateStatusId, dbStatusId, CommonUtils.getNullPropertyNames(updateStatusId));
+            dbStatusId.setUpdatedBy(loginUserID);
+            dbStatusId.setUpdatedOn(new Date());
+            StatusId savedStatusId =statusIdRepository.save(dbStatusId);
+
+            //update transaction table status description using stored procedure
+            statusIdRepository.updateStatusDescriptionProc(languageId, statusId, updateStatusId.getStatus(), oldStatusText);
+
+            return savedStatusId;
+        }
+        return dbStatusId;
     }
 
     /**

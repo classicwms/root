@@ -11,14 +11,14 @@ import javax.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "tbliborderlines1")
+@Table(name = "tbliborderlines2")
 @Data
 public class InboundOrderLines {
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 	
-	private Long inboundOrderHeaderId;
+//	private Long inboundOrderHeaderId;
 	private Long lineReference;								// IB_LINE_NO
 	private String itemCode; 								// ITM_CODE
 	private String itemText; 								// ITEM_TEXT

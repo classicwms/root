@@ -5,10 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.Date;
 import java.util.Set;
 
@@ -35,7 +32,8 @@ public class InboundOrderV2 extends InboundOrder {
     private Long middlewareId;
     private String middlewareTable;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "inboundOrderHeaderId", fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "INBOUND_ORDER_HEADER_ID",referencedColumnName = "INBOUND_ORDER_HEADER_ID")
     private Set<InboundOrderLinesV2> line;
 
 }
