@@ -36,4 +36,5 @@ public class TransactionHistoryReport {
     private Double stockAdjustmentQty;
 
     private Double systemInventory;
+    private Double variance;
 }

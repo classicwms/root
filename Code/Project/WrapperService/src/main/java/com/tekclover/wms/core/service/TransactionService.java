@@ -3311,6 +3311,56 @@ public class TransactionService {
 			throw e;
 		}
 	}
+
+	// PATCH
+	public PreOutboundHeader updatePreOutboundHeader(String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode,
+													 @Valid PreOutboundHeader updatePreOutboundHeader, String loginUserID, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			HttpEntity<?> entity = new HttpEntity<>(updatePreOutboundHeader, headers);
+			HttpClient client = HttpClients.createDefault();
+			RestTemplate restTemplate = getRestTemplate();
+			restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "preoutboundheader/" + preOutboundNo)
+					.queryParam("warehouseId", warehouseId).queryParam("refDocNumber", refDocNumber)
+					.queryParam("partnerCode", partnerCode).queryParam("loginUserID", loginUserID);
+			ResponseEntity<PreOutboundHeader> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH,
+					entity, PreOutboundHeader.class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	// DELETE
+	public boolean deletePreOutboundHeader(String warehouseId, String preOutboundNo, String refDocNumber,
+										   String partnerCode, String loginUserID, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "preoutboundheader/" + preOutboundNo)
+					.queryParam("warehouseId", warehouseId).queryParam("refDocNumber", refDocNumber)
+					.queryParam("partnerCode", partnerCode).queryParam("loginUserID", loginUserID);
+			ResponseEntity<String> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity,
+					String.class);
+			log.info("result : " + result);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
 	// -------------------------PreOutboundLine------------------------------------------------
 	public PreOutboundLine[] findPreOutboundLine(SearchPreOutboundLine searchPreOutboundLine, String authToken) throws ParseException {
 		try {

@@ -441,8 +441,8 @@ public class MastersServiceController {
     @ApiOperation(response = ImBasicData1.class, value = "Delete ImBasicData1") // label for swagger
 	@RequestMapping(value = "/imbasicdata1", method = RequestMethod.DELETE)
 	public ResponseEntity<?> deleteImBasicData1(@RequestParam String authToken, @RequestParam String loginUserID, 
-			@RequestParam String uomId) {
-    	mastersService.deleteImBasicData1(uomId, loginUserID, authToken);
+												@RequestParam String warehouseId, @RequestParam String itemCode) {
+    	mastersService.deleteImBasicData1(itemCode, warehouseId, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 

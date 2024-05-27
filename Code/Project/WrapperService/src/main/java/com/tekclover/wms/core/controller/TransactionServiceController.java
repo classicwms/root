@@ -1095,6 +1095,25 @@ public class TransactionServiceController {
 			@RequestParam String authToken) throws Exception {
 		return transactionService.findPreOutboundHeaderNew(searchPreOutboundHeader, authToken);
 	}
+	//Patch
+	@ApiOperation(response = PreOutboundHeader.class, value = "Update PreOutboundHeader") // label for swagger
+	@PatchMapping("/preoutboundheader/{preOutboundNo}")
+	public ResponseEntity<?> patchPreOutboundHeader(@PathVariable String preOutboundNo, @RequestParam String warehouseId, @RequestParam String refDocNumber,
+													@RequestParam String partnerCode, @Valid @RequestBody PreOutboundHeader updateOutboundHeader,
+													@RequestParam String loginUserID, @RequestParam String authToken) {
+		PreOutboundHeader createdPreOutboundHeader =
+				transactionService.updatePreOutboundHeader(warehouseId, preOutboundNo, refDocNumber, partnerCode,
+						updateOutboundHeader, loginUserID, authToken);
+		return new ResponseEntity<>(createdPreOutboundHeader , HttpStatus.OK);
+	}
+	//Delete
+	@ApiOperation(response = PreOutboundHeader.class, value = "Delete PreOutboundHeader") // label for swagger
+	@DeleteMapping("/preoutboundheader/{preOutboundNo}")
+	public ResponseEntity<?> deletePreOutboundHeader(@PathVariable String preOutboundNo, @RequestParam String warehouseId, @RequestParam String refDocNumber,
+													 @RequestParam String partnerCode, @RequestParam String loginUserID, @RequestParam String authToken) {
+		transactionService.deletePreOutboundHeader(warehouseId, preOutboundNo, refDocNumber, partnerCode, loginUserID, authToken);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
 
 	/*
 	 * -------------------PreOutboundLine---------------------------------------------------

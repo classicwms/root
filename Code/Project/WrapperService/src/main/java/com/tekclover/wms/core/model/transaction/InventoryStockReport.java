@@ -22,4 +22,5 @@ public class InventoryStockReport {
 	private Double stockAdjustmentQty;
 	private Double closingStock;
 	private Double systemInventory;
+	private Double variance;
 }

@@ -1235,7 +1235,7 @@ public class MastersService {
 	}
 	
 	// Delete ImBasicData1
-	public boolean deleteImBasicData1 (String uomId, String loginUserID, String authToken) {
+	public boolean deleteImBasicData1 (String itemCode, String warehouseId, String loginUserID, String authToken) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -1244,7 +1244,8 @@ public class MastersService {
 			
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			UriComponentsBuilder builder = 
-					UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "imbasicdata1/" + uomId)
+					UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "imbasicdata1/" + itemCode)
+					.queryParam("warehouseId", warehouseId)
 					.queryParam("loginUserID", loginUserID);
 			ResponseEntity<String> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity, String.class);
 			log.info("result : " + result);

@@ -76,7 +76,7 @@ public class ImBasicData1Specification implements Specification<ImBasicData1> {
         	 final Path<Group> group = root.<Group> get("updatedBy");
         	 predicates.add(group.in(searchImBasicData1.getUpdatedBy()));
          }
-                 
-         return cb.and(predicates.toArray(new Predicate[] {}));
+        predicates.add(cb.equal(root.get("deletionIndicator"), 0L));
+        return cb.and(predicates.toArray(new Predicate[]{}));
      }
 }

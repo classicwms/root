@@ -88,7 +88,7 @@ public class PutAwayLineSpecification implements Specification<PutAwayLine> {
             final Path<Group> group = root.<Group>get("packBarcodes");
             predicates.add(group.in(searchPutAwayLine.getPackBarCodes()));
         }
-
+        predicates.add(cb.equal(root.get("deletionIndicator"), 0L));
         return cb.and(predicates.toArray(new Predicate[]{}));
     }
 }

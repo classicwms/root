@@ -6,17 +6,12 @@ import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.model.outbound.preoutbound.UpdatePreOutboundHeader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.AddPreOutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.PreOutboundHeader;
@@ -78,20 +73,21 @@ public class PreOutboundHeaderController {
 		return new ResponseEntity<>(createdPreOutboundHeader , HttpStatus.OK);
 	}
     
-//    @ApiOperation(response = PreOutboundHeader.class, value = "Update PreOutboundHeader") // label for swagger
-//    @PatchMapping("/{preOutboundNo}")
-//	public ResponseEntity<?> patchPreOutboundHeader(@PathVariable String preOutboundNo, @RequestParam String languageId, @RequestParam String companyCodeId, @RequestParam String plantId, @RequestParam String warehouseId, @RequestParam String refDocNumber, @RequestParam String partnerCode,
-//			@Valid @RequestBody UpdatePreOutboundHeader updatePreOutboundHeader, @RequestParam String loginUserID) 
-//			throws IllegalAccessException, InvocationTargetException {
-//		PreOutboundHeader createdPreOutboundHeader = 
-//				preoutboundheaderService.updatePreOutboundHeader(languageId, companyCodeId, plantId, warehouseId, refDocNumber, preOutboundNo, partnerCode, loginUserID);
-//		return new ResponseEntity<>(createdPreOutboundHeader , HttpStatus.OK);
-//	}
-//    
-//    @ApiOperation(response = PreOutboundHeader.class, value = "Delete PreOutboundHeader") // label for swagger
-//	@DeleteMapping("/{preOutboundNo}")
-//	public ResponseEntity<?> deletePreOutboundHeader(@PathVariable String preOutboundNo, @RequestParam String languageId, @RequestParam String companyCodeId, @RequestParam String plantId, @RequestParam String warehouseId, @RequestParam String refDocNumber, @RequestParam String partnerCode, @RequestParam String loginUserID) {
-//    	preoutboundheaderService.deletePreOutboundHeader(languageId, companyCodeId, plantId, warehouseId, refDocNumber, preOutboundNo, partnerCode, loginUserID);
-//		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-//	}
+    @ApiOperation(response = PreOutboundHeader.class, value = "Update PreOutboundHeader") // label for swagger
+    @PatchMapping("/{preOutboundNo}")
+	public ResponseEntity<?> patchPreOutboundHeader(@PathVariable String preOutboundNo, @RequestParam String warehouseId, @RequestParam String refDocNumber, @RequestParam String partnerCode,
+													@Valid @RequestBody UpdatePreOutboundHeader updatePreOutboundHeader, @RequestParam String loginUserID)
+			throws IllegalAccessException, InvocationTargetException {
+		PreOutboundHeader createdPreOutboundHeader =
+				preoutboundheaderService.updatePreOutboundHeader(warehouseId, refDocNumber, preOutboundNo, partnerCode, loginUserID, updatePreOutboundHeader);
+		return new ResponseEntity<>(createdPreOutboundHeader , HttpStatus.OK);
+	}
+
+    @ApiOperation(response = PreOutboundHeader.class, value = "Delete PreOutboundHeader") // label for swagger
+	@DeleteMapping("/{preOutboundNo}")
+	public ResponseEntity<?> deletePreOutboundHeader(@PathVariable String preOutboundNo, @RequestParam String warehouseId, @RequestParam String refDocNumber,
+													 @RequestParam String partnerCode, @RequestParam String loginUserID) {
+    	preoutboundheaderService.deletePreOutboundHeader(warehouseId, refDocNumber, preOutboundNo, partnerCode, loginUserID);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
 }

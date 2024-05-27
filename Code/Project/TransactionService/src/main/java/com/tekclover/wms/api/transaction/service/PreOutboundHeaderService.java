@@ -239,9 +239,12 @@ public class PreOutboundHeaderService extends BaseService {
 	}
 	
 	/**
-	 * updatePreOutboundHeader
-	 * @param loginUserId 
+	 *
+	 * @param warehouseId
+	 * @param refDocNumber
 	 * @param preOutboundNo
+	 * @param partnerCode
+	 * @param loginUserID
 	 * @param updatePreOutboundHeader
 	 * @return
 	 * @throws IllegalAccessException
@@ -262,8 +265,8 @@ public class PreOutboundHeaderService extends BaseService {
 	 * @param loginUserID 
 	 * @param preOutboundNo
 	 */
-	public void deletePreOutboundHeader (String languageId, String companyCodeId, String plantId, String warehouseId, String refDocNumber, String preOutboundNo, String partnerCode, String loginUserID) {
-		PreOutboundHeader preOutboundHeader = getPreOutboundHeader(preOutboundNo);
+	public void deletePreOutboundHeader (String warehouseId, String refDocNumber, String preOutboundNo, String partnerCode, String loginUserID) {
+		PreOutboundHeader preOutboundHeader = getPreOutboundHeader(warehouseId, refDocNumber, preOutboundNo, partnerCode);
 		if ( preOutboundHeader != null) {
 			preOutboundHeader.setDeletionIndicator(1L);
 			preOutboundHeader.setUpdatedBy(loginUserID);
