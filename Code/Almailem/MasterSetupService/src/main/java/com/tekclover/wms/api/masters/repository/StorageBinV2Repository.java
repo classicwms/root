@@ -67,7 +67,7 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
 //            "pick_block = 0 and putaway_block = 0 and status_id = :statusId and \n" +
             "status_id = :statusId and \n" +
             "(case when ISNUMERIC(remain_vol)=1 then CAST(remain_vol AS NUMERIC) else 0 end) > :cbm and \n" +
-            "is_deleted = 0  order by remain_vol", nativeQuery = true)
+            "is_deleted = 0 and st_bin <> 'REC-AL-B2' order by remain_vol", nativeQuery = true)                     //storage-bin excluding direct stock receipt bin
     public StorageBinV2 getStorageBinCBM(@Param("binclassId") Long binclassId,
                                          @Param("companyCode") String companyCode,
                                          @Param("plantId") String plantId,
@@ -81,7 +81,7 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
 //            "pick_block = 0 and putaway_block = 0 and status_id = :statusId and \n" +
             "status_id = :statusId and \n" +
             "(case when ISNUMERIC(remain_vol)=1 then CAST(remain_vol AS NUMERIC) else 0 end) > :cbmPerQty and \n" +
-            "is_deleted = 0  order by remain_vol", nativeQuery = true)
+            "is_deleted = 0 and st_bin <> 'REC-AL-B2' order by remain_vol", nativeQuery = true)                     //storage-bin excluding direct stock receipt bin
     public StorageBinV2 getStorageBinCbmPerQty(@Param("binclassId") Long binclassId,
                                                @Param("companyCode") String companyCode,
                                                @Param("plantId") String plantId,
@@ -95,7 +95,7 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
 //            "pick_block = 0 and putaway_block = 0 and status_id = :statusId and \n" +
             "status_id = :statusId and \n" +
             "(case when ISNUMERIC(remain_vol)=1 then CAST(remain_vol AS NUMERIC) else 0 end) > :cbm and \n" +
-            "is_deleted = 0  order by remain_vol", nativeQuery = true)
+            "is_deleted = 0 and st_bin <> 'REC-AL-B2' order by remain_vol", nativeQuery = true)                     //storage-bin excluding direct stock receipt bin
     public StorageBinV2 getStorageBinLastPickCBM(@Param("binclassId") Long binclassId,
                                                  @Param("companyCode") String companyCode,
                                                  @Param("plantId") String plantId,
@@ -110,7 +110,7 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
 //            "pick_block = 0 and putaway_block = 0 and status_id = :statusId and \n" +
             "status_id = :statusId and \n" +
             "(case when ISNUMERIC(remain_vol)=1 then CAST(remain_vol AS NUMERIC) else 0 end) > :cbmPerQty and \n" +
-            "is_deleted = 0  order by remain_vol", nativeQuery = true)
+            "is_deleted = 0 and st_bin <> 'REC-AL-B2' order by remain_vol", nativeQuery = true)                     //storage-bin excluding direct stock receipt bin
     public StorageBinV2 getStorageBinCbmPerQtyLastPick(@Param("binclassId") Long binclassId,
                                                        @Param("companyCode") String companyCode,
                                                        @Param("plantId") String plantId,
@@ -124,7 +124,7 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
             "wh_id = :warehouseId and lang_id = :languageId and st_bin not in (:storageBin) and \n" +
 //            "putaway_block = 0 and pick_block = 0 and status_id = :statusId and \n" +
             "status_id = :statusId and \n" +
-            "CAP_CHECK = 'FALSE' and is_deleted = 0 order by st_bin", nativeQuery = true)
+            "CAP_CHECK = 'FALSE' and is_deleted = 0 and st_bin <> 'REC-AL-B2' order by st_bin", nativeQuery = true)                     //storage-bin excluding direct stock receipt bin
     public StorageBinV2 getStorageBinNonCBM(@Param("binclassId") Long binclassId,
                                             @Param("companyCode") String companyCode,
                                             @Param("plantId") String plantId,
@@ -137,7 +137,7 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
             "wh_id = :warehouseId and lang_id = :languageId and st_bin in (:storageBin) and \n" +
 //            "putaway_block = 0 and pick_block = 0 and status_id = :statusId and \n" +
             "status_id = :statusId and \n" +
-            "CAP_CHECK = 'FALSE' and is_deleted = 0 ", nativeQuery = true)
+            "CAP_CHECK = 'FALSE' and is_deleted = 0 and st_bin <> 'REC-AL-B2' order by UTD_ON desc", nativeQuery = true)                     //storage-bin excluding direct stock receipt bin
     public StorageBinV2 getStorageBinNonCBMLastPick(@Param("binclassId") Long binclassId,
                                                     @Param("companyCode") String companyCode,
                                                     @Param("plantId") String plantId,
@@ -150,7 +150,7 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
             "wh_id = :warehouseId and lang_id = :languageId and \n" +
 //            "putaway_block = 0 and pick_block = 0 and status_id = :statusId and \n" +
             "status_id = :statusId and \n" +
-            "CAP_CHECK = 'FALSE' and is_deleted = 0 order by st_bin", nativeQuery = true)
+            "CAP_CHECK = 'FALSE' and is_deleted = 0 and st_bin <> 'REC-AL-B2' order by st_bin", nativeQuery = true)                     //storage-bin excluding direct stock receipt bin
     public StorageBinV2 getStorageBinNonCBM(@Param("binclassId") Long binclassId,
                                             @Param("companyCode") String companyCode,
                                             @Param("plantId") String plantId,
@@ -161,7 +161,7 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
     @Query(value = "SELECT top 1 * FROM tblstoragebin WHERE bin_cl_id = :binclassId and c_id = :companyCode and plant_id = :plantId and \n" +
             "wh_id = :warehouseId and lang_id = :languageId and st_bin in (:storageBin) and \n" +
 //            "putaway_block = 0 and pick_block = 0 and \n" +
-            "CAP_CHECK = 'FALSE' and is_deleted = 0 order by st_bin", nativeQuery = true)
+            "CAP_CHECK = 'FALSE' and is_deleted = 0 and st_bin <> 'REC-AL-B2' order by st_bin", nativeQuery = true)                     //storage-bin excluding direct stock receipt bin
     public StorageBinV2 getExistingStorageBinNonCBM(@Param("binclassId") Long binclassId,
                                                     @Param("companyCode") String companyCode,
                                                     @Param("plantId") String plantId,
@@ -172,7 +172,7 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
     @Query(value = "SELECT top 1 * FROM tblstoragebin WHERE bin_cl_id = :binclassId and c_id = :companyCode and plant_id = :plantId and \n" +
             "wh_id = :warehouseId and lang_id = :languageId and \n" +
 //            "CAP_CHECK = 'FALSE' and pick_block = 0 and putaway_block = 0 and \n" +
-            " is_deleted = 0 order by st_bin", nativeQuery = true)
+            " is_deleted = 0 and st_bin <> 'REC-AL-B2' order by st_bin", nativeQuery = true)                     //storage-bin excluding direct stock receipt bin
     public StorageBinV2 getStorageBinNonCBMBinClassId(@Param("binclassId") Long binclassId,
                                                       @Param("companyCode") String companyCode,
                                                       @Param("plantId") String plantId,

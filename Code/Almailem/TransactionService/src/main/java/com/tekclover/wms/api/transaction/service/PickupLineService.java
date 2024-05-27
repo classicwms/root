@@ -1482,9 +1482,10 @@ public class PickupLineService extends BaseService {
      */
     public PickupLineV2 getPickupLineForLastBinCheck(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                      String itemCode, String manufacturerName) {
+        String directReceiptStorageBin = "REC-AL-B2";   //storage-bin excluding direct stock receipt bin
         PickupLineV2 pickupLine = pickupLineV2Repository
-                .findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndManufacturerNameAndDeletionIndicatorOrderByPickupConfirmedOnDesc(
-                        companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, 0L);
+                .findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndManufacturerNameAndDeletionIndicatorAndPickedStorageBinNotOrderByPickupConfirmedOnDesc(
+                        companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, 0L, directReceiptStorageBin);
         if (pickupLine != null) {
             return pickupLine;
         }
@@ -1798,7 +1799,7 @@ public class PickupLineService extends BaseService {
                                 InventoryV2 inventoryByStBin = inventoryService.getInventoryByStorageBinV2(dbPickupLine.getCompanyCodeId(),
                                         dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(),
                                         dbPickupLine.getWarehouseId(), inventory.getStorageBin());
-                                if (inventoryByStBin == null) {
+                                if (inventoryByStBin == null || (inventoryByStBin != null && inventoryByStBin.getReferenceField4() == 0)) {
                                     StorageBinV2 dbStorageBin = mastersService.getStorageBinV2(inventory.getStorageBin(),
                                             dbPickupLine.getWarehouseId(),
                                             dbPickupLine.getCompanyCodeId(),
@@ -2332,7 +2333,7 @@ public class PickupLineService extends BaseService {
                                 InventoryV2 inventoryByStBin = inventoryService.getInventoryByStorageBinV2(dbPickupLine.getCompanyCodeId(),
                                         dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(),
                                         dbPickupLine.getWarehouseId(), inventory.getStorageBin());
-                                if (inventoryByStBin == null) {
+                                if (inventoryByStBin == null || (inventoryByStBin != null && inventoryByStBin.getReferenceField4() == 0)) {
                                     StorageBinV2 dbStorageBin = mastersService.getStorageBinV2(inventory.getStorageBin(),
                                             dbPickupLine.getWarehouseId(),
                                             dbPickupLine.getCompanyCodeId(),
@@ -3017,7 +3018,7 @@ public class PickupLineService extends BaseService {
                                 InventoryV2 inventoryByStBin = inventoryService.getInventoryByStorageBinV2(dbPickupLine.getCompanyCodeId(),
                                         dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(),
                                         dbPickupLine.getWarehouseId(), inventory.getStorageBin());
-                                if (inventoryByStBin == null) {
+                                if (inventoryByStBin == null || (inventoryByStBin != null && inventoryByStBin.getReferenceField4() == 0)) {
                                     StorageBinV2 dbStorageBin = mastersService.getStorageBinV2(inventory.getStorageBin(),
                                             dbPickupLine.getWarehouseId(),
                                             dbPickupLine.getCompanyCodeId(),

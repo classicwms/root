@@ -630,6 +630,7 @@ public class GrHeaderService extends BaseService {
             searchGrHeader.setStartCreatedOn(dates[0]);
             searchGrHeader.setEndCreatedOn(dates[1]);
         }
+        log.info("Find GrHeader Input: " + searchGrHeader);
         GrHeaderV2Specification spec = new GrHeaderV2Specification(searchGrHeader);
         Stream<GrHeaderV2> results = grHeaderV2Repository.stream(spec, GrHeaderV2.class);
         return results;

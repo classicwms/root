@@ -1281,7 +1281,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             @Param(value = "stockTypeId") Long stockTypeId,
             @Param(value = "manufacturerName") String manufacturerName);
 
-    @Query (value = "SELECT max(INV_ID) inventoryId into #inv FROM TBLINVENTORY GROUP BY ITM_CODE,MFR_NAME,ST_BIN,PLANT_ID,WH_ID,C_ID,LANG_ID \r\n"
+    @Query (value = "SELECT max(INV_ID) inventoryId into #inv FROM TBLINVENTORY WHERE is_deleted = 0 GROUP BY ITM_CODE,MFR_NAME,ST_BIN,PLANT_ID,WH_ID,C_ID,LANG_ID \r\n"
             + "SELECT LEVEL_ID AS levelId, SUM(INV_QTY) AS inventoryQty FROM tblinventory \r\n"
             + "WHERE WH_ID = :warehouseId and ITM_CODE = :itemCode AND BIN_CL_ID = :binClassId AND STCK_TYP_ID = :stockTypeId \r\n"
             + "AND C_ID = :companyCodeId and PLANT_ID = :plantId AND LANG_ID = :languageId \r\n"
@@ -1300,7 +1300,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             @Param(value = "stockTypeId") Long stockTypeId,
             @Param(value = "binClassId") Long binClassId);
 
-    @Query (value = "SELECT max(INV_ID) inventoryId into #inv FROM TBLINVENTORY GROUP BY ITM_CODE,MFR_NAME,ST_BIN,PLANT_ID,WH_ID,C_ID,LANG_ID \r\n"
+    @Query (value = "SELECT max(INV_ID) inventoryId into #inv FROM TBLINVENTORY WHERE is_deleted = 0 GROUP BY ITM_CODE,MFR_NAME,ST_BIN,PLANT_ID,WH_ID,C_ID,LANG_ID \r\n"
             + "SELECT IU_CTD_ON AS createdOn, ITM_CODE AS itemCode, MFR_NAME AS manufacturerName, SUM(INV_QTY) AS inventoryQty, ST_BIN AS storageBin\r\n"
             + "FROM tblinventory WHERE WH_ID = :warehouseId and ITM_CODE = :itemCode \r\n"
             + "AND C_ID = :companyCodeId and PLANT_ID = :plantId AND LANG_ID = :languageId \r\n"
@@ -1605,15 +1605,15 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                               @Param("binClassId") List<Long> binClassId);
 
     @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n" +
-//            + "WHERE \n" +
-//            "(COALESCE(:itemCode, null) IS NULL OR (ITM_CODE IN (:itemCode))) and \n" +
-//            "(COALESCE(:binClassId, null) IS NULL OR (BIN_CL_ID IN (:binClassId))) and\n" +
-//            "(COALESCE(:manufacturerCode, null) IS NULL OR (MFR_NAME IN (:manufacturerCode))) and \n" +
-//            "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and \n" +
-//            "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n" +
-//            "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
-//            "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
-//            "is_deleted = 0 \n" +
+            "WHERE \n" +
+            "(COALESCE(:itemCode, null) IS NULL OR (ITM_CODE IN (:itemCode))) and \n" +
+            "(COALESCE(:binClassId, null) IS NULL OR (BIN_CL_ID IN (:binClassId))) and\n" +
+            "(COALESCE(:manufacturerName, null) IS NULL OR (MFR_NAME IN (:manufacturerName))) and \n" +
+            "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and \n" +
+            "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n" +
+            "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
+            "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
+            "is_deleted = 0 \n" +
             "group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
             "SELECT \n" +
@@ -1978,7 +1978,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:manufacturerName, null) IS NULL OR (iv.MFR_NAME IN (:manufacturerName))) and \n" +
             "(COALESCE(:itemCode, null) IS NULL OR (iv.ITM_CODE IN (:itemCode))) and \n" +
             "(COALESCE(:binClassId, null) IS NULL OR (iv.BIN_CL_ID IN (:binClassId))) and\n" +
-            "iv.is_deleted = 0 and (iv.REF_FIELD_4 > 0) \n" +
+            "iv.is_deleted = 0 and (iv.REF_FIELD_4 > 0) and st_bin <> 'REC-AL-B2' \n" +
 
             "select * from #inventoryTempTable", nativeQuery = true)
     public List<IInventoryImpl> inventoryForPutAwaytemp(@Param("companyCodeId") String companyCodeId,
@@ -2395,7 +2395,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                     "(COALESCE(:manufacturerName, null) IS NULL OR (mfr_part IN (:manufacturerName))) and\n" +
                     "(COALESCE(:itemText, null) IS NULL OR (text IN (:itemText))) \n" +
 
-                    "select max(inv_id) inventoryId into #inv from tblinventory \n" +
+                    "select max(inv_id) inventoryId into #inv from tblinventory WHERE is_deleted = 0 \n" +
                     "group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
                     // inv_qty from tblinventory to temp table
