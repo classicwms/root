@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.util.Date;
 import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
@@ -18,4 +19,7 @@ public class SearchInboundLineV2 extends SearchInboundLine {
 	private List<Long> inboundOrderTypeId;
 	private List<String> sourceBranchCode;
 	private List<String> sourceCompanyCode;
+
+	private Date startCreatedOn;
+	private Date endCreatedOn;
 }

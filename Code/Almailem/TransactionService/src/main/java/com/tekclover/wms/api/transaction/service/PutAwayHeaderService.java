@@ -763,9 +763,9 @@ public class PutAwayHeaderService extends BaseService {
      * @param refDocNumber
      * @return
      */
-    public long getPutawayHeaderForInboundConfirmV2(String companyId, String plantId, String warehouseId,
-                                                    String preInboundNo, String refDocNumber) {
-        long putAwayHeaderStatusIdCount = putAwayHeaderRepository.getPutawayHeaderForInboundConfirm(companyId, plantId, warehouseId, preInboundNo, refDocNumber);
+    public long getPutawayHeaderForInboundConfirmV2(String companyId, String plantId, String warehouseId, String preInboundNo,
+                                                    String refDocNumber, String itemCode, String manufacturerName, Long inboundLineNumber) {
+        long putAwayHeaderStatusIdCount = putAwayHeaderRepository.getPutawayHeaderForInboundConfirm(companyId, plantId, warehouseId, preInboundNo, refDocNumber, itemCode, manufacturerName, inboundLineNumber);
         return putAwayHeaderStatusIdCount;
     }
 

@@ -32,6 +32,10 @@ public class InboundLineV2Specification implements Specification<InboundLineV2> 
             predicates.add(cb.between(root.get("confirmedOn"), searchInboundLine.getStartConfirmedOn(),
                     searchInboundLine.getEndConfirmedOn()));
         }
+        if (searchInboundLine.getStartCreatedOn() != null && searchInboundLine.getEndCreatedOn() != null) {
+            predicates.add(cb.between(root.get("createdOn"), searchInboundLine.getStartCreatedOn(),
+                    searchInboundLine.getEndCreatedOn()));
+        }
 
         if (searchInboundLine.getStatusId() != null && !searchInboundLine.getStatusId().isEmpty()) {
             final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("statusId");

@@ -38,5 +38,5 @@ public class SearchOutboundHeaderModel {
 	
 	private Date startOrderDate;
 	private Date endOrderDate;
-
+	private List<String> targetBranchCode;
 }

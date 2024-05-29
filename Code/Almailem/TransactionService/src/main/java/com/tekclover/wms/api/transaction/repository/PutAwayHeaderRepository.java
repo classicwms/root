@@ -88,12 +88,15 @@ public interface PutAwayHeaderRepository extends JpaRepository<PutAwayHeader, Lo
             @Param("refDocNumber") String refDocNumber);
 
     @Query(value = "SELECT COUNT(*) FROM tblputawayheader WHERE LANG_ID ='EN' AND C_ID = :companyId AND PLANT_ID = :plantId AND WH_ID = :warehouseId \r\n"
-            + "AND PRE_IB_NO = :preInboundNo AND REF_DOC_NO = :refDocNumber AND IS_DELETED = 0", nativeQuery = true)
+            + "AND PRE_IB_NO = :preInboundNo AND REF_DOC_NO = :refDocNumber AND REF_FIELD_5 = :itemCode AND MFR_NAME = :manufacturerName AND REF_FIELD_9 = :inboundLineNumber AND IS_DELETED = 0 AND STATUS_ID = 19", nativeQuery = true)
     public long getPutawayHeaderForInboundConfirm(@Param("companyId") String companyId,
                                                   @Param("plantId") String plantId,
                                                   @Param("warehouseId") String warehouseId,
                                                   @Param("preInboundNo") String preInboundNo,
-                                                  @Param("refDocNumber") String refDocNumber);
+                                                  @Param("refDocNumber") String refDocNumber,
+                                                  @Param("itemCode") String itemCode,
+                                                  @Param("manufacturerName") String manufacturerName,
+                                                  @Param("inboundLineNumber") Long inboundLineNumber);
 
     // Count PutAwayHeader for MobileDashBoard
     @Query(value = "SELECT COUNT(*) AS count FROM tblputawayheader WHERE "
