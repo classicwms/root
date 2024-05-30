@@ -812,5 +812,28 @@ public class SparkService {
         }
     }
 
+    /**
+     * FindPutAwayLine
+     *
+     * @param findPutAwayLineV2
+     * @return
+     */
+    public PutAwayLineSpark[] findPutAwayLineSpark(FindPutAwayLineV2 findPutAwayLineV2) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", " RestTemplate");
+//        headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/putawayline/new");
+            HttpEntity<?> entity = new HttpEntity<>(findPutAwayLineV2, headers);
+            ResponseEntity<PutAwayLineSpark[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PutAwayLineSpark[].class);
+            log.info("result: " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
 }
 

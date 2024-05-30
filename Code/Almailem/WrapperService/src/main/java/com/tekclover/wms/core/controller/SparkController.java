@@ -320,4 +320,12 @@ public class SparkController {
         InventoryV3[] inventoryV3s = sparkService.findInventoryV3(findInventoryV3);
         return new ResponseEntity<>(inventoryV3s, HttpStatus.OK);
     }
+
+    // Find PutAwayLine
+    @ApiOperation(response = PutAwayLineSpark.class, value = "Spark PutAwayLine Spark")
+    @PostMapping("/putawayline/new")
+    public ResponseEntity<?> findPutAwayLineSpark(@RequestBody FindPutAwayLineV2 findPutAwayLineV2) throws Exception {
+        PutAwayLineSpark[] putAwayLineSparks = sparkService.findPutAwayLineSpark(findPutAwayLineV2);
+        return new ResponseEntity<>(putAwayLineSparks, HttpStatus.OK);
+    }
 }

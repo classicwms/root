@@ -34,4 +34,6 @@ public class FindPutAwayLineV2 {
     private List<String> origin;
     private List<String> brand;
     private List<Long> statusId;
+    private List<String> confirmedBy;
+    private List<Long> inboundOrderTypeId;
 }
