@@ -173,4 +173,7 @@ public class InhouseTransferLine {
     @Column(name = "TGT_BARCODE_ID")
     private String targetBarcodeId;
 
+    @Column(name = "STATUS_TEXT")
+    private String statusDescription;
+
 }

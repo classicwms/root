@@ -112,4 +112,16 @@ public class InhouseTransferHeader {
 	//Almailem Code
 	@Column(name = "MFR_NAME")
 	private String manufacturerName;
+
+	@Column(name = "STATUS_TEXT")
+	private String statusDescription;
+
+	@Column(name = "C_TEXT", columnDefinition = "nvarchar(255)")
+	private String companyDescription;
+
+	@Column(name = "PLANT_TEXT", columnDefinition = "nvarchar(255)")
+	private String plantDescription;
+
+	@Column(name = "WH_TEXT", columnDefinition = "nvarchar(255)")
+	private String warehouseDescription;
 }

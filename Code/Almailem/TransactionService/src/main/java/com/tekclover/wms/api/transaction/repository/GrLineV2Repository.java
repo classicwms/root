@@ -188,7 +188,7 @@ public interface GrLineV2Repository extends JpaRepository<GrLineV2, Long>, JpaSp
             "IS_DELETED deletionIndicator, \n" +
             "GR_CTD_BY createdBy, \n" +
             "(select top 1 gr_ctd_on from tblgrheader gh  \n" +
-            "where gh.gr_no=gl.gr_no and gh.ref_doc_no=gl.ref_doc_no and  \n" +
+            "where gh.gr_no=gl.gr_no and gh.ref_doc_no=gl.ref_doc_no and gh.pre_ib_no = gl.pre_ib_no and \n" +
             "gh.c_id=gl.c_id and gh.plant_id=gl.plant_id and gh.lang_id=gl.lang_id and gh.wh_id=gl.wh_id) createdOn, \n" +
             "GR_UTD_BY updatedBy, \n" +
             "GR_UTD_ON updatedOn, \n" +

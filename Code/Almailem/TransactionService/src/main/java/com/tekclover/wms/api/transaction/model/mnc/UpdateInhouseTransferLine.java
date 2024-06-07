@@ -70,6 +70,9 @@ public class UpdateInhouseTransferLine {
 	private String remarks;
 
 	private String updatedBy;
-
+	private String companyDescription;
+	private String plantDescription;
+	private String warehouseDescription;
+	private String statusDescription;
 
 }

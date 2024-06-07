@@ -681,4 +681,27 @@ public ResponseEntity<?> postAsnUploadV2 (@Valid @RequestBody List<ASNV2> asnv2L
 		}
 		return null;
 	}
+
+	//Stock Adjustment - upload
+	@ApiOperation(response = StockAdjustment.class, value = "Create StockAdjustment") //label for Swagger
+	@PostMapping("/stockAdjustment/upload")
+	public ResponseEntity<?> createStockAdjustmentUpload(@Valid @RequestBody List<StockAdjustment> stockAdjustment) {
+		try {
+			List<StockAdjustment> createdStockAdjustment = warehouseService.postStockAdjustmentUpload(stockAdjustment);
+			if (createdStockAdjustment != null) {
+				WarehouseApiResponse response = new WarehouseApiResponse();
+				response.setStatusCode("200");
+				response.setMessage("Success");
+				return new ResponseEntity<>(response, HttpStatus.OK);
+			}
+		} catch (Exception e) {
+			log.info("StockAdjustment order Error: " + stockAdjustment);
+			e.printStackTrace();
+			WarehouseApiResponse response = new WarehouseApiResponse();
+			response.setStatusCode("1400");
+			response.setMessage("Not Success: " + e.getLocalizedMessage());
+			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
+		}
+		return null;
+	}
 }

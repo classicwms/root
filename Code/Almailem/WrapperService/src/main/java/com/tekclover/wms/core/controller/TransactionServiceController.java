@@ -4345,6 +4345,21 @@ public class TransactionServiceController {
                                                @RequestParam String authToken) throws java.text.ParseException {
         PreOutboundHeaderV2 orderCancelled = transactionService.orderCancellation(outboundOrderCancelInput, loginUserID, authToken);
         return new ResponseEntity<>(orderCancelled, HttpStatus.OK);
+}
+
+    // File Upload - InhouseTransfer
+    @ApiOperation(response = Optional.class, value = "InhouseTransfer Upload V2") // label for swagger
+    @PostMapping("/warehouse/makeAndChange/inhouseTransfer/upload/v2")
+    public ResponseEntity<?> postInhouseTransferUpload(@RequestParam("file") MultipartFile file) throws Exception {
+        Map<String, String> response = fileStorageService.processBinToBin(file);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+    // File Upload - StockAdjustment
+    @ApiOperation(response = Optional.class, value = "Stock Adjustment Upload V2") // label for swagger
+    @PostMapping("/warehouse/makeAndChange/stockAdjustment/upload/v2")
+    public ResponseEntity<?> postStockAdjustmentUpload(@RequestParam("file") MultipartFile file) throws Exception {
+        Map<String, String> response = fileStorageService.processStockAdjustment(file);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 }

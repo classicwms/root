@@ -2083,6 +2083,22 @@ public class WarehouseService extends BaseService {
 
 	/**
 	 *
+	 * @param stockAdjustmentList
+	 * @return
+	 */
+	public List<StockAdjustment> postStockAdjustmentUpload(List<StockAdjustment> stockAdjustmentList) {
+		List<StockAdjustment> savedStockAdjustmentList = new ArrayList<>();
+		for(StockAdjustment stockAdjustment : stockAdjustmentList) {
+			log.info("StockAdjustment received from external: " + stockAdjustment);
+			StockAdjustment savedStockAdjustment = saveStockAdjustment(stockAdjustment);
+			log.info("Saved StockAdjustment: " + savedStockAdjustment);
+			savedStockAdjustmentList.add(savedStockAdjustment);
+		}
+		return savedStockAdjustmentList;
+	}
+
+	/**
+	 *
 	 * @param stockAdjustment
 	 * @return
 	 */

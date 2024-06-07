@@ -46,4 +46,8 @@ public class UpdateInhouseTransferHeader {
 	private Long deletionIndicator;
 
 	private String updatedBy;
+	private String companyDescription;
+	private String plantDescription;
+	private String warehouseDescription;
+	private String statusDescription;
 }

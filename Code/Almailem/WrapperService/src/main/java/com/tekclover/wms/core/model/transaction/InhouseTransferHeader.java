@@ -35,6 +35,10 @@ public class InhouseTransferHeader {
 
 	//Almailem Code
 	private String manufacturerName;
+	private String companyDescription;
+	private String plantDescription;
+	private String warehouseDescription;
+	private String statusDescription;
 
 	private List<InhouseTransferLine> inhouseTransferLine;
 }

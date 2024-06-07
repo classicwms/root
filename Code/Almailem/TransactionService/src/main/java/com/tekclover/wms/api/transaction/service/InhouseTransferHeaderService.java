@@ -10,6 +10,7 @@ import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.transaction.model.mnc.*;
+import com.tekclover.wms.api.transaction.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.api.transaction.repository.*;
 import com.tekclover.wms.api.transaction.repository.specification.InhouseTransferHeaderSpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
@@ -765,8 +766,18 @@ public class InhouseTransferHeaderService extends BaseService {
                 authTokenForIDMasterService.getAccess_token());
         dbInhouseTransferHeader.setTransferNumber(TRANSFER_NO);
 
+        IKeyValuePair description = stagingLineV2Repository.getDescription(newInhouseTransferHeader.getCompanyCodeId(),
+                newInhouseTransferHeader.getLanguageId(),
+                newInhouseTransferHeader.getPlantId(),
+                newInhouseTransferHeader.getWarehouseId());
+
         // STATUS_ID - Hard Coded Value="30" at the time of Confirmation
         dbInhouseTransferHeader.setStatusId(30L);
+        String statusDescription = stagingLineV2Repository.getStatusDescription(30L, newInhouseTransferHeader.getLanguageId());
+        dbInhouseTransferHeader.setStatusDescription(statusDescription);
+        dbInhouseTransferHeader.setCompanyDescription(description.getCompanyDesc());
+        dbInhouseTransferHeader.setPlantDescription(description.getPlantDesc());
+        dbInhouseTransferHeader.setWarehouseDescription(description.getWarehouseDesc());
         dbInhouseTransferHeader.setDeletionIndicator(0L);
         dbInhouseTransferHeader.setCreatedBy(loginUserID);
         dbInhouseTransferHeader.setUpdatedBy(loginUserID);
@@ -837,6 +848,7 @@ public class InhouseTransferHeaderService extends BaseService {
 
             // STATUS_ID - Hard Coded Value="30" at the time of Confirmation
             dbInhouseTransferLine.setStatusId(30L);
+            dbInhouseTransferLine.setStatusDescription(statusDescription);
             dbInhouseTransferLine.setDeletionIndicator(0L);
             dbInhouseTransferLine.setCreatedBy(loginUserID);
             dbInhouseTransferLine.setCreatedOn(new Date());
@@ -844,11 +856,6 @@ public class InhouseTransferHeaderService extends BaseService {
             dbInhouseTransferLine.setUpdatedOn(new Date());
             dbInhouseTransferLine.setConfirmedBy(loginUserID);
             dbInhouseTransferLine.setConfirmedOn(new Date());
-
-            IKeyValuePair description = stagingLineV2Repository.getDescription(dbInhouseTransferLine.getCompanyCodeId(),
-                    dbInhouseTransferLine.getLanguageId(),
-                    dbInhouseTransferLine.getPlantId(),
-                    dbInhouseTransferLine.getWarehouseId());
 
             dbInhouseTransferLine.setCompanyDescription(description.getCompanyDesc());
             dbInhouseTransferLine.setPlantDescription(description.getPlantDesc());
@@ -963,6 +970,202 @@ public class InhouseTransferHeaderService extends BaseService {
 
         responseHeader.setInhouseTransferLine(responseLines);
         return responseHeader;
+    }
+
+    @Transactional
+    public WarehouseApiResponse createInHouseTransferHeaderUploadV2(List<InhouseTransferUpload> inhouseTransferUploadList, String loginUserID)
+            throws IllegalAccessException, InvocationTargetException {
+        for (InhouseTransferUpload inhouseTransferUpload : inhouseTransferUploadList) {
+            InhouseTransferHeader newInhouseTransferHeader = inhouseTransferUpload.getInhouseTransferHeader();
+            List<InhouseTransferLine> inhouseTransferLineList = inhouseTransferUpload.getInhouseTransferLine();
+            if (newInhouseTransferHeader != null) {
+                if (inhouseTransferLineList != null) {
+                    Long transferQtyNull = inhouseTransferLineList.stream().filter(a -> a.getTransferOrderQty() == null || a.getTransferConfirmedQty() == null).count();
+                    if (transferQtyNull > 0) {
+                        throw new BadRequestException("TransferQty is Missing!");
+                    }
+                }
+            }
+
+            InhouseTransferHeader dbInhouseTransferHeader = new InhouseTransferHeader();
+            log.info("newInHouseTransferHeader : " + newInhouseTransferHeader);
+
+            BeanUtils.copyProperties(newInhouseTransferHeader, dbInhouseTransferHeader, CommonUtils.getNullPropertyNames(newInhouseTransferHeader));
+            AuthToken authTokenForIDMasterService = authTokenService.getIDMasterServiceAuthToken();
+
+            dbInhouseTransferHeader.setLanguageId(newInhouseTransferHeader.getLanguageId());
+            dbInhouseTransferHeader.setCompanyCodeId(newInhouseTransferHeader.getCompanyCodeId());
+            dbInhouseTransferHeader.setPlantId(newInhouseTransferHeader.getPlantId());
+            dbInhouseTransferHeader.setWarehouseId(newInhouseTransferHeader.getWarehouseId());
+            // TR_NO
+            String TRANSFER_NO = getTransferNoV2(newInhouseTransferHeader.getCompanyCodeId(),
+                    newInhouseTransferHeader.getPlantId(),
+                    newInhouseTransferHeader.getLanguageId(),
+                    newInhouseTransferHeader.getWarehouseId(),
+                    authTokenForIDMasterService.getAccess_token());
+            dbInhouseTransferHeader.setTransferNumber(TRANSFER_NO);
+
+            IKeyValuePair description = stagingLineV2Repository.getDescription(newInhouseTransferHeader.getCompanyCodeId(),
+                    newInhouseTransferHeader.getLanguageId(),
+                    newInhouseTransferHeader.getPlantId(),
+                    newInhouseTransferHeader.getWarehouseId());
+
+            // STATUS_ID - Hard Coded Value="30" at the time of Confirmation
+            dbInhouseTransferHeader.setStatusId(30L);
+            String statusDescription = stagingLineV2Repository.getStatusDescription(30L, newInhouseTransferHeader.getLanguageId());
+            dbInhouseTransferHeader.setStatusDescription(statusDescription);
+            dbInhouseTransferHeader.setCompanyDescription(description.getCompanyDesc());
+            dbInhouseTransferHeader.setPlantDescription(description.getPlantDesc());
+            dbInhouseTransferHeader.setWarehouseDescription(description.getWarehouseDesc());
+            dbInhouseTransferHeader.setDeletionIndicator(0L);
+            dbInhouseTransferHeader.setCreatedBy(loginUserID);
+            dbInhouseTransferHeader.setUpdatedBy(loginUserID);
+            dbInhouseTransferHeader.setCreatedOn(new Date());
+            dbInhouseTransferHeader.setUpdatedOn(new Date());
+
+            // - TR_TYP_ID -
+            Long transferTypeId = dbInhouseTransferHeader.getTransferTypeId();
+
+            /*
+             * LINES Table
+             */
+            AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+            List<InhouseTransferLineEntity> responseLines = new ArrayList<>();
+            for (InhouseTransferLine newInhouseTransferLine : inhouseTransferLineList) {
+
+                if (newInhouseTransferLine.getSourceStorageBin().equalsIgnoreCase(newInhouseTransferLine.getTargetStorageBin())) {
+                    throw new BadRequestException("Source Bin and Target Bin cannot be same");
+                }
+                if (newInhouseTransferLine.getTransferOrderQty() <= 0L || newInhouseTransferLine.getTransferConfirmedQty() <= 0L) {
+                    throw new BadRequestException("Transfer Qty must be greater than zero");
+                }
+
+                StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
+                storageBinPutAway.setCompanyCodeId(newInhouseTransferLine.getCompanyCodeId());
+                storageBinPutAway.setPlantId(newInhouseTransferLine.getPlantId());
+                storageBinPutAway.setLanguageId(newInhouseTransferLine.getLanguageId());
+                storageBinPutAway.setWarehouseId(newInhouseTransferLine.getWarehouseId());
+                storageBinPutAway.setBin(newInhouseTransferLine.getTargetStorageBin());
+                StorageBinV2 dbStorageBin = null;
+                try {
+                    dbStorageBin = mastersService.getaStorageBinV2(storageBinPutAway, authTokenForMastersService.getAccess_token());
+                } catch (Exception e) {
+                    throw new BadRequestException("Invalid StorageBin");
+                }
+
+                //restrict bin to bin transfer from bin class Id 3
+                //11-03-2024 - Ticket No. ALM/2024/004
+                storageBinPutAway.setBin(newInhouseTransferLine.getSourceStorageBin());
+                StorageBinV2 dbSourceStorageBin = null;
+                try {
+                    dbSourceStorageBin = mastersService.getaStorageBinV2(storageBinPutAway, authTokenForMastersService.getAccess_token());
+                } catch (Exception e) {
+                    throw new BadRequestException("Invalid StorageBin");
+                }
+                if (dbSourceStorageBin != null && dbSourceStorageBin.getBinClassId() == 3L) {
+                    throw new BadRequestException("Source Bin must be a Live Location - Either BinClassId 1 or 7");
+                }
+
+                if (dbStorageBin != null && dbStorageBin.getBinClassId() == 3L) {
+                    throw new BadRequestException("Target Bin must be a Live Location - Either BinClassId 1 or 7");
+                }
+
+                InhouseTransferLine dbInhouseTransferLine = new InhouseTransferLine();
+                BeanUtils.copyProperties(newInhouseTransferLine, dbInhouseTransferLine, CommonUtils.getNullPropertyNames(newInhouseTransferLine));
+                dbInhouseTransferLine.setLanguageId(newInhouseTransferLine.getLanguageId());
+                dbInhouseTransferLine.setCompanyCodeId(newInhouseTransferLine.getCompanyCodeId());
+                dbInhouseTransferLine.setPlantId(newInhouseTransferLine.getPlantId());
+
+                // WH_ID
+                dbInhouseTransferLine.setWarehouseId(dbInhouseTransferHeader.getWarehouseId());
+
+                // TR_NO
+                dbInhouseTransferLine.setTransferNumber(TRANSFER_NO);
+                dbInhouseTransferLine.setManufacturerName(newInhouseTransferLine.getManufacturerName());
+                dbInhouseTransferLine.setTransferUom(newInhouseTransferLine.getTransferUom());
+
+                // STATUS_ID - Hard Coded Value="30" at the time of Confirmation
+                dbInhouseTransferLine.setStatusId(30L);
+                dbInhouseTransferLine.setStatusDescription(statusDescription);
+                dbInhouseTransferLine.setDeletionIndicator(0L);
+                dbInhouseTransferLine.setCreatedBy(loginUserID);
+                dbInhouseTransferLine.setCreatedOn(new Date());
+                dbInhouseTransferLine.setUpdatedBy(loginUserID);
+                dbInhouseTransferLine.setUpdatedOn(new Date());
+                dbInhouseTransferLine.setConfirmedBy(loginUserID);
+                dbInhouseTransferLine.setConfirmedOn(new Date());
+
+                dbInhouseTransferLine.setCompanyDescription(description.getCompanyDesc());
+                dbInhouseTransferLine.setPlantDescription(description.getPlantDesc());
+                dbInhouseTransferLine.setWarehouseDescription(description.getWarehouseDesc());
+
+                List<String> barcode = stagingLineV2Repository.getPartnerItemBarcode(dbInhouseTransferLine.getSourceItemCode(),
+                        dbInhouseTransferLine.getCompanyCodeId(),
+                        dbInhouseTransferLine.getPlantId(),
+                        dbInhouseTransferLine.getWarehouseId(),
+                        dbInhouseTransferLine.getManufacturerName(),
+                        dbInhouseTransferLine.getLanguageId());
+                log.info("source item Barcode : " + barcode);
+                if (barcode != null && !barcode.isEmpty()) {
+                    dbInhouseTransferLine.setSourceBarcodeId(barcode.get(0));
+                }
+
+                List<String> targetBarcode = stagingLineV2Repository.getPartnerItemBarcode(dbInhouseTransferLine.getTargetItemCode(),
+                        dbInhouseTransferLine.getCompanyCodeId(),
+                        dbInhouseTransferLine.getPlantId(),
+                        dbInhouseTransferLine.getWarehouseId(),
+                        dbInhouseTransferLine.getManufacturerName(),
+                        dbInhouseTransferLine.getLanguageId());
+                log.info("target item Barcode : " + targetBarcode);
+                if (targetBarcode != null && !targetBarcode.isEmpty()) {
+                    dbInhouseTransferLine.setTargetBarcodeId(targetBarcode.get(0));
+                }
+
+                // Save InhouseTransferLine
+                InhouseTransferLine createdInhouseTransferLine = inhouseTransferLineRepository.save(dbInhouseTransferLine);
+                log.info("InhouseTransferLine created : " + createdInhouseTransferLine);
+
+                /* Response List */
+                InhouseTransferLineEntity responseInhouseTransferLineEntity = new InhouseTransferLineEntity();
+                BeanUtils.copyProperties(createdInhouseTransferLine, responseInhouseTransferLineEntity,
+                        CommonUtils.getNullPropertyNames(createdInhouseTransferLine));
+                responseLines.add(responseInhouseTransferLineEntity);
+
+                if (createdInhouseTransferLine != null) {
+                    // Save InhouseTransferHeader
+                    log.info("InhouseTransferHeader before create-->: " + dbInhouseTransferHeader);
+                    InhouseTransferHeader createdInhouseTransferHeader = inhouseTransferHeaderRepository.save(dbInhouseTransferHeader);
+                    log.info("InhouseTransferHeader created: " + createdInhouseTransferHeader);
+
+                    /*--------------------INVENTORY TABLE UPDATES-----------------------------------------------*/
+                    updateInventoryV2(createdInhouseTransferHeader, createdInhouseTransferLine, loginUserID);
+
+                    /*
+                     * If TR_TYP_ID = 03, insert 2 records in INVENTORYMOVEMENT table.
+                     * One record with ST_BIN = SRCE_ST_BIN and other record with ST_BIN = TGT_ST_BIN
+                     */
+                    if (transferTypeId == 3L) {
+                        // Row insertion for Source
+                        Long stockTypeId = createdInhouseTransferLine.getSourceStockTypeId();
+                        String itemCode = createdInhouseTransferLine.getSourceItemCode();
+                        String movementQtyValue = "N";
+                        String storageBin = createdInhouseTransferLine.getSourceStorageBin();
+                        createInventoryMovementV2(createdInhouseTransferLine, transferTypeId, stockTypeId, itemCode, createdInhouseTransferLine.getManufacturerName(),
+                                storageBin, movementQtyValue, loginUserID);
+
+                        // Row insertion for Target
+                        movementQtyValue = "P";
+                        storageBin = createdInhouseTransferLine.getTargetStorageBin();
+                        createInventoryMovementV2(createdInhouseTransferLine, transferTypeId, stockTypeId, itemCode, createdInhouseTransferLine.getManufacturerName(),
+                                storageBin, movementQtyValue, loginUserID);
+                    }
+                }
+            }
+        }
+        WarehouseApiResponse warehouseApiResponse = new WarehouseApiResponse();
+        warehouseApiResponse.setStatusCode("200");
+        warehouseApiResponse.setMessage("Success");
+        return warehouseApiResponse;
     }
 
     /**

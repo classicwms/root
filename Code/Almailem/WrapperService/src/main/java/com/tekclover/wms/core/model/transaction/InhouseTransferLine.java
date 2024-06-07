@@ -52,6 +52,7 @@ public class InhouseTransferLine {
     private String warehouseDescription;
     private String sourceStockTypeDescription;
     private String targetStockTypeDescription;
+    private String statusDescription;
 
     //Almailem Code
     private String manufacturerName;

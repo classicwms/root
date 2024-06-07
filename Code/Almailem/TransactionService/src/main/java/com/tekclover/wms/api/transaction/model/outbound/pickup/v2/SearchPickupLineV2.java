@@ -17,5 +17,5 @@ public class SearchPickupLineV2 extends SearchPickupLine {
 	private List<String> plantId;
 	private List<Long> levelId;
 	private List<Long> outboundOrderTypeId;
-
+	private List<String> assignedPickerId;
 }

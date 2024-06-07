@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.model.mnc.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,10 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tekclover.wms.api.transaction.model.mnc.AddInhouseTransferHeader;
-import com.tekclover.wms.api.transaction.model.mnc.InhouseTransferHeader;
-import com.tekclover.wms.api.transaction.model.mnc.InhouseTransferHeaderEntity;
-import com.tekclover.wms.api.transaction.model.mnc.SearchInhouseTransferHeader;
 import com.tekclover.wms.api.transaction.service.InhouseTransferHeaderService;
 
 import io.swagger.annotations.Api;
@@ -93,5 +90,13 @@ public class InhouseTransferHeaderController {
 		InhouseTransferHeaderEntity createdInHouseTransferHeader =
 				inHouseTransferHeaderService.createInHouseTransferHeaderV2(newInHouseTransferHeader, loginUserID);
 		return new ResponseEntity<>(createdInHouseTransferHeader , HttpStatus.OK);
+	}
+
+	@ApiOperation(response = InhouseTransferHeader.class, value = "Create InHouseTransferHeader Upload") // label for swagger
+	@PostMapping("/v2/upload")
+	public ResponseEntity<?> postInHouseTransferHeaderUploadV2(@Valid @RequestBody List<InhouseTransferUpload> inhouseTransferUploadList, @RequestParam String loginUserID)
+			throws IllegalAccessException, InvocationTargetException {
+				inHouseTransferHeaderService.createInHouseTransferHeaderUploadV2(inhouseTransferUploadList, loginUserID);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 }

@@ -22,5 +22,7 @@ public class SearchPutAwayLineV2 extends SearchPutAwayLine {
 	private List<String> origin;
 	private List<String> brand;
 	private List<Long> statusId;
+	private List<Long> inboundOrderTypeId;
+	private List<String> confirmedBy;
 
 }

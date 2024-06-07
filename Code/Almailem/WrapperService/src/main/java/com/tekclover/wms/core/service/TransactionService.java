@@ -3173,6 +3173,24 @@ public class TransactionService {
         return result.getBody();
     }
 
+    // POST - V2
+    public WarehouseApiResponse createInhouseTransferUploadV2(List<InhouseTransferUpload> inhouseTransferUploadList,
+                                                               String loginUserID, String authToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.add("User-Agent", "ClassicWMS RestTemplate");
+        headers.add("Authorization", "Bearer " + authToken);
+
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromHttpUrl(getTransactionServiceApiUrl() + "inhousetransferheader/v2/upload")
+                .queryParam("loginUserID", loginUserID);
+        HttpEntity<?> entity = new HttpEntity<>(inhouseTransferUploadList, headers);
+        ResponseEntity<WarehouseApiResponse> result = getRestTemplate().exchange(builder.toUriString(),
+                HttpMethod.POST, entity, WarehouseApiResponse.class);
+        log.info("result : " + result.getStatusCode());
+        return result.getBody();
+    }
+
     // --------------------------------------------InhouseTransferHeader------------------------------------------------------------------------
     // GET ALL
     public InhouseTransferLine[] getInhouseTransferLines(String authToken) throws ParseException {
@@ -13557,4 +13575,19 @@ public class TransactionService {
         }
     }
 
+// POST - Upload - StockAdjustment V2
+    public WarehouseApiResponse createStockAdjustmentUploadV2(List<StockAdjustment> stockAdjustmentList, String authToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.add("User-Agent", "ClassicWMS RestTemplate");
+        headers.add("Authorization", "Bearer " + authToken);
+
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromHttpUrl(getTransactionServiceApiUrl() + "warehouse/stockAdjustment/upload");
+        HttpEntity<?> entity = new HttpEntity<>(stockAdjustmentList, headers);
+        ResponseEntity<WarehouseApiResponse> result = getRestTemplate().exchange(builder.toUriString(),
+                HttpMethod.POST, entity, WarehouseApiResponse.class);
+        log.info("result : " + result.getStatusCode());
+        return result.getBody();
+    }
 }

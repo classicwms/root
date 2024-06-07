@@ -7,9 +7,7 @@ import com.tekclover.wms.core.exception.RestResponseEntityExceptionHandler;
 import com.tekclover.wms.core.model.auth.AuthToken;
 import com.tekclover.wms.core.model.idmaster.FileNameForEmail;
 import com.tekclover.wms.core.model.idmaster.MailingReport;
-import com.tekclover.wms.core.model.transaction.SOHeader;
-import com.tekclover.wms.core.model.transaction.SOLine;
-import com.tekclover.wms.core.model.transaction.ShipmentOrder;
+import com.tekclover.wms.core.model.transaction.*;
 
 import com.tekclover.wms.core.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.core.model.warehouse.inbound.almailem.*;
@@ -782,5 +780,252 @@ public class FileStorageService {
 			whOrderList.add(whOrder);
 		}
 		return whOrderList;
+	}
+
+	/**
+	 *
+	 * @param file
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String, String> processBinToBin(MultipartFile file) throws Exception {
+		this.fileStorageLocation = Paths.get(propertiesConfig.getFileUploadDir()).toAbsolutePath().normalize();
+		if (!Files.exists(fileStorageLocation)) {
+			try {
+				Files.createDirectories(this.fileStorageLocation);
+			} catch (Exception ex) {
+				throw new BadRequestException(
+						"Could not create the directory where the uploaded files will be stored.");
+			}
+		}
+
+		log.info("loca : " + fileStorageLocation);
+
+		// Normalize file name
+		String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+		log.info("filename before: " + fileName);
+		fileName = fileName.replace(" ", "_");
+		log.info("filename after: " + fileName);
+		try {
+			// Check if the file's name contains invalid characters
+			if (fileName.contains("..")) {
+				throw new BadRequestException("Sorry! Filename contains invalid path sequence " + fileName);
+			}
+
+			// Copy file to the target location (Replacing existing file with the same name)
+			Path targetLocation = this.fileStorageLocation.resolve(fileName);
+			Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+			log.info("Copied : " + targetLocation);
+
+			List<List<String>> allRowsList = readExcelData(targetLocation.toFile());
+			List<InhouseTransferUpload> inhouseTransferUploads = prepInHouseTransferHeaderV2(allRowsList);
+			log.info("inhouseTransferUploads bin-to-bin : " + inhouseTransferUploads);
+
+			// Uploading Orders
+			AuthToken authToken = authTokenService.getTransactionServiceAuthToken();
+			WarehouseApiResponse dbWarehouseApiResponse = transactionService.createInhouseTransferUploadV2(inhouseTransferUploads, "UP_AMS", authToken.getAccess_token());
+
+			if (dbWarehouseApiResponse != null) {
+				Map<String, String> mapFileProps = new HashMap<>();
+				mapFileProps.put("file", fileName);
+				mapFileProps.put("status", "UPLOADED SUCCESSFULLY");
+				return mapFileProps;
+			}
+		} catch (IOException ex) {
+			ex.printStackTrace();
+			throw new BadRequestException("Could not store file " + fileName + ". Please try again!");
+		}
+		return null;
+	}
+
+	/**
+	 * @param allRowsList
+	 * @return
+	 */
+	private List<InhouseTransferUpload> prepInHouseTransferHeaderV2(List<List<String>> allRowsList) {
+		List<InhouseTransferUpload> orderList = new ArrayList<>();
+		for (List<String> listUploadedData : allRowsList) {
+			Set<InhouseTransferHeader> setInhouseTransferHeader = new HashSet<>();
+			List<InhouseTransferLine> listInhouseTransferLine = new ArrayList<>();
+
+			// Header
+			InhouseTransferHeader header = null;
+			boolean oneTimeAllow = true;
+
+			if (oneTimeAllow) {
+				header = new InhouseTransferHeader();
+				/*
+				 * companyCodeId
+				 * plantId
+				 * languageId
+				 * warehouseId
+				 * TransferTypeId
+				 */
+				header.setCompanyCodeId(listUploadedData.get(0));
+				header.setPlantId(listUploadedData.get(1));
+				header.setLanguageId(listUploadedData.get(2));
+				header.setWarehouseId(listUploadedData.get(3));
+				header.setTransferMethod("ONESTEP");
+				if (listUploadedData.get(4) != null) {
+					header.setTransferTypeId(Long.valueOf(listUploadedData.get(4)));
+				} else {
+					header.setTransferTypeId(3L);
+				}
+
+				setInhouseTransferHeader.add(header);
+			}
+			oneTimeAllow = false;
+
+			/*
+			 * itemCode
+			 * manufacturerName
+			 * sourceStorageBin
+			 * targetStorageBin
+			 * transferOrderQty
+			 * transferConfirmQty
+			 * transferUOM
+			 * stockTypeId
+			 * specialStockIndicatorId
+			 * palletcode
+			 * casecode
+			 * packbarcode
+			 */
+			// Line
+			InhouseTransferLine line = new InhouseTransferLine();
+			line.setCompanyCodeId(listUploadedData.get(0));
+			line.setPlantId(listUploadedData.get(1));
+			line.setLanguageId(listUploadedData.get(2));
+			line.setWarehouseId(listUploadedData.get(3));
+			line.setSourceItemCode(listUploadedData.get(5));
+			line.setTargetItemCode(listUploadedData.get(5));
+			line.setManufacturerName(listUploadedData.get(6));
+			if (listUploadedData.get(7).equalsIgnoreCase(listUploadedData.get(8))) {
+				throw new BadRequestException("Source and Target Storage Bin cannot be same");
+			}
+			line.setSourceStorageBin(listUploadedData.get(7));
+			line.setTargetStorageBin(listUploadedData.get(8));
+			if (listUploadedData.get(9) == null) {
+				throw new BadRequestException("Transfer Qty must not be null");
+			}
+			if (Double.valueOf(listUploadedData.get(9)) <= 0D) {
+				throw new BadRequestException("Transfer Qty must be greater than zero");
+			}
+			if (listUploadedData.get(9).trim().length() > 0) {
+				line.setTransferOrderQty(Double.valueOf(listUploadedData.get(9)));
+				line.setTransferConfirmedQty(Double.valueOf(listUploadedData.get(9)));
+			}
+			line.setTransferUom(listUploadedData.get(10));
+			line.setSourceStockTypeId(Long.valueOf(listUploadedData.get(11)));
+			line.setTargetStockTypeId(Long.valueOf(listUploadedData.get(11)));
+			line.setSpecialStockIndicatorId(Long.valueOf(listUploadedData.get(12)));
+			line.setPalletCode(listUploadedData.get(13));
+			line.setCaseCode(listUploadedData.get(14));
+			line.setPackBarcodes(listUploadedData.get(15));
+
+			listInhouseTransferLine.add(line);
+
+			InhouseTransferUpload inhouseTransferUpload = new InhouseTransferUpload();
+			inhouseTransferUpload.setInhouseTransferHeader(header);
+			inhouseTransferUpload.setInhouseTransferLine(listInhouseTransferLine);
+			orderList.add(inhouseTransferUpload);
+		}
+		return orderList;
+	}
+
+	/**
+	 * @param file
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String, String> processStockAdjustment(MultipartFile file) throws Exception {
+		this.fileStorageLocation = Paths.get(propertiesConfig.getFileUploadDir()).toAbsolutePath().normalize();
+		if (!Files.exists(fileStorageLocation)) {
+			try {
+				Files.createDirectories(this.fileStorageLocation);
+			} catch (Exception ex) {
+				throw new BadRequestException(
+						"Could not create the directory where the uploaded files will be stored.");
+			}
+		}
+
+		log.info("loca : " + fileStorageLocation);
+
+		// Normalize file name
+		String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+		log.info("filename before: " + fileName);
+		fileName = fileName.replace(" ", "_");
+		log.info("filename after: " + fileName);
+		try {
+			// Check if the file's name contains invalid characters
+			if (fileName.contains("..")) {
+				throw new BadRequestException("Sorry! Filename contains invalid path sequence " + fileName);
+			}
+
+			// Copy file to the target location (Replacing existing file with the same name)
+			Path targetLocation = this.fileStorageLocation.resolve(fileName);
+			Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+			log.info("Copied : " + targetLocation);
+
+			List<List<String>> allRowsList = readExcelData(targetLocation.toFile());
+			List<StockAdjustment> stockAdjustmentList = prepStockAdjustment(allRowsList);
+			log.info("StockAdjustment List: " + stockAdjustmentList);
+
+			// Uploading Orders
+			AuthToken authToken = authTokenService.getTransactionServiceAuthToken();
+			WarehouseApiResponse dbWarehouseApiResponse = transactionService.createStockAdjustmentUploadV2(stockAdjustmentList, authToken.getAccess_token());
+
+			if (dbWarehouseApiResponse != null) {
+				Map<String, String> mapFileProps = new HashMap<>();
+				mapFileProps.put("file", fileName);
+				mapFileProps.put("status", "UPLOADED SUCCESSFULLY");
+				return mapFileProps;
+			}
+		} catch (IOException ex) {
+			ex.printStackTrace();
+			throw new BadRequestException("Could not store file " + fileName + ". Please try again!");
+		}
+		return null;
+	}
+
+	/**
+	 * @param allRowsList
+	 * @return
+	 */
+	private List<StockAdjustment> prepStockAdjustment(List<List<String>> allRowsList) {
+		List<StockAdjustment> orderList = new ArrayList<>();
+		for (List<String> listUploadedData : allRowsList) {
+
+			/*
+			 * companyCodeId
+			 * plantId
+			 * warehouseId
+			 * date of adjustment
+			 * is cycle count
+			 * is damage
+			 * itemCode
+			 * itemDescription
+			 * manufacturerName
+			 * ManufacturerCode
+			 * UOM
+			 * adjustmentQty
+			 */
+			StockAdjustment header = new StockAdjustment();
+			header.setCompanyCode(listUploadedData.get(0));
+			header.setBranchCode(listUploadedData.get(1));
+			header.setWarehouseId(listUploadedData.get(2));
+			header.setDateOfAdjustment(new Date());
+			header.setIsCycleCount(listUploadedData.get(3));
+			header.setIsDamage(listUploadedData.get(4));
+			header.setItemCode(listUploadedData.get(5));
+			header.setItemDescription(listUploadedData.get(6));
+			header.setManufacturerName(listUploadedData.get(7));
+			header.setManufacturerCode(listUploadedData.get(8));
+			header.setUnitOfMeasure(listUploadedData.get(9));
+			if (listUploadedData.get(10) != null) {
+				header.setAdjustmentQty(Double.valueOf(listUploadedData.get(10)));
+			}
+			orderList.add(header);
+		}
+		return orderList;
 	}
 }
