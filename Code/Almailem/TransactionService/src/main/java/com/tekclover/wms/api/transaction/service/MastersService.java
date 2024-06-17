@@ -1,8 +1,11 @@
 package com.tekclover.wms.api.transaction.service;
 
 import com.tekclover.wms.api.transaction.config.PropertiesConfig;
+import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
+import com.tekclover.wms.api.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.transaction.model.dto.*;
 import com.tekclover.wms.api.transaction.model.inbound.gr.StorageBinPutAway;
+import com.tekclover.wms.api.transaction.model.inbound.v2.InboundOrderCancelInput;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -926,6 +929,26 @@ public class MastersService {
             return result.getBody();
         } catch (Exception e) {
             throw e;
+        }
+    }
+    // Send EMail
+    public String sendMail(InboundOrderCancelInput inboundOrderCancelInput) {
+        try {
+            AuthToken authTokenForMasterService = authTokenService.getMastersServiceAuthToken();
+            String authToken = authTokenForMasterService.getAccess_token();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "Classic WMS's RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getMastersServiceApiUrl() + "email/sendMail");
+            HttpEntity<?> entity = new HttpEntity<>(inboundOrderCancelInput, headers);
+            ResponseEntity<String> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, String.class);
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BadRequestException(e.getLocalizedMessage());
         }
     }
 }

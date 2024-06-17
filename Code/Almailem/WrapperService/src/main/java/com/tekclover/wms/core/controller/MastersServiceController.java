@@ -2398,6 +2398,53 @@ public class MastersServiceController {
         WarehouseApiResponse createdCustomer = mastersService.postCustomer(customer, authToken);
         return new ResponseEntity<>(createdCustomer, HttpStatus.OK);
     }
+    //========================================Email=========================================================================
 
+    @ApiOperation(response = EMailDetails.class, value = "Get a EMailDetails") // label for swagger
+    @GetMapping("/emailDetails/{emailId}")
+    public ResponseEntity<?> getEMailDetails(@PathVariable Long emailId, @RequestParam String authToken) {
+
+        EMailDetails eMailDetails = mastersService.getEMailDetails(emailId, authToken);
+        return new ResponseEntity<>(eMailDetails, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = EMailDetails.class, value = "Create EMailDetails") // label for swagger
+    @PostMapping("emailDetails/create")
+    public ResponseEntity<?> createEMailDetails(@RequestBody EMailDetails newEMailDetails, @RequestParam String loginUserID,
+                                                @RequestParam String authToken) {
+        EMailDetails createdEMailDetails = mastersService.createEMailDetails(newEMailDetails, loginUserID, authToken);
+        return new ResponseEntity<>(createdEMailDetails, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = EMailDetails.class, value = "Update EMailDetails") // label for swagger
+    @PatchMapping("/emailDetails/update/{emailId}")
+    public ResponseEntity<?> updateEMailDetails(@PathVariable Long emailId, @RequestBody EMailDetails updateEMailDetails,
+                                                @RequestParam String loginUserID, @RequestParam String authToken) {
+
+        EMailDetails modifiedEMailDetails = mastersService.updateEMailDetails(emailId, updateEMailDetails, loginUserID, authToken);
+        return new ResponseEntity<>(modifiedEMailDetails, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = EMailDetails.class, value = "Delete EMailDetails") // label for swagger
+    @DeleteMapping("/emailDetails/delete/{emailId}")
+    public ResponseEntity<?> deleteEMailDetails(@RequestParam String authToken, @PathVariable Long emailId, @RequestParam String loginUserID) {
+        mastersService.deleteEMailDetails(emailId, loginUserID, authToken);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+
+    @ApiOperation(response = EMailDetails.class, value = "UnDelete EMailDetails") // label for swagger
+    @DeleteMapping("/emailDetails/undelete/{emailId}")
+    public ResponseEntity<?> unDeleteEMailDetails(@RequestParam String authToken, @PathVariable Long emailId, @RequestParam String loginUserID) {
+        mastersService.deleteEMailDetails(emailId, loginUserID, authToken);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @ApiOperation(response = EMailDetails.class, value = "Search EMailDetails") // label for swagger
+    @PostMapping("/emailDetails/findEMailDetails")
+    public EMailDetails[] findEMailDetails(@RequestBody FindEmailDetails findEmailDetails,
+                                           @RequestParam String authToken) {
+        return mastersService.findEMailDetails(findEmailDetails, authToken);
+    }
 
 }

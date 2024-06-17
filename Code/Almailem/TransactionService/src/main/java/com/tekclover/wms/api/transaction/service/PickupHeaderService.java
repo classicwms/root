@@ -961,6 +961,24 @@ public class PickupHeaderService {
      * @param plantId
      * @param languageId
      * @param warehouseId
+     * @param itemCode
+     * @param manufacturerName
+     * @param outboundOrderTypeId
+     * @return
+     */
+    public PickupHeaderV2 getPickupHeaderAutomationByOutboundOrderTypeId(String companyCodeId, String plantId, String languageId, String warehouseId, String itemCode, String manufacturerName, Long outboundOrderTypeId) {
+        PickupHeaderV2 header =
+                pickupHeaderV2Repository.findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndManufacturerNameAndStatusIdAndOutboundOrderTypeIdAndDeletionIndicatorOrderByPickupCreatedOn(
+                        companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, 48L, outboundOrderTypeId, 0L);
+        return header;
+    }
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
      * @param assignedPickerId
      * @return
      */

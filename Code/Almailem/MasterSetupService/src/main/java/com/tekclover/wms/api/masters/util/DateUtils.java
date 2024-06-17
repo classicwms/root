@@ -99,7 +99,7 @@ public class DateUtils {
 	/**
 	 * 
 	 * @param date
-	 * @param time
+	 * @param timeFlag
 	 * @return
 	 */
 	public static LocalDateTime convertDateToLocalDateTime(Date date, String timeFlag) {
@@ -274,6 +274,25 @@ public class DateUtils {
 	public static Date convertStringToDateWithTime(String strDate) throws ParseException {
 		Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(strDate);
 		return date;
+	}
+
+	public static String getCurrentDateWithoutTimestamp() {
+		DateTimeFormatter newPattern = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+		LocalDateTime datetime = LocalDateTime.now();
+		Date date = DateUtils.convertStringToDateFormat(datetime.format(newPattern));
+		LocalDate sLocalDate = LocalDate.ofInstant(date.toInstant(), ZoneId.systemDefault());
+		String currentDate = sLocalDate.format(newPattern);
+		return currentDate;
+	}
+
+	public static Date convertStringToDateFormat(String strDate) {
+//		String str = "01-08-2022";
+		strDate += " 00:00:00";
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+		LocalDateTime dateTime = LocalDateTime.parse(strDate, formatter);
+		Date out = Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());
+		log.info("dbMatterGenAcc--PriorityDate-------> : " + out);
+		return out;
 	}
 
 }

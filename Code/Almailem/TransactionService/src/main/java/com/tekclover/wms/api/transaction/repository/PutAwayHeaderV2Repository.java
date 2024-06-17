@@ -120,6 +120,10 @@ public interface PutAwayHeaderV2Repository extends JpaRepository<PutAwayHeaderV2
             String companyCodeId, String plantId, String languageId, String warehouseId, String preInboundNo,
             String refDocNumber, String itemCode, String manufacturerName, String lineNumber, Long deletionIndicator);
 
+    List<PutAwayHeaderV2> findAllByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreInboundNoAndRefDocNumberAndReferenceField5AndManufacturerNameAndReferenceField9AndStatusIdAndDeletionIndicator(
+            String companyCodeId, String plantId, String languageId, String warehouseId, String preInboundNo,
+            String refDocNumber, String itemCode, String manufacturerName, String lineNumber, Long statusId, Long deletionIndicator);
+
     @Transactional
     @Procedure(procedureName = "paheader_status_update_ib_cnf_proc")
     public void updatepaheaderStatusUpdateInboundConfirmProc(

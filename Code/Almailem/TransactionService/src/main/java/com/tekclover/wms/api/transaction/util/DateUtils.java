@@ -356,6 +356,26 @@ public class DateUtils {
 		log.info("convertStringToDate-------> : " + date);
 		return date;
 	}
+
+	/**
+	 *
+	 * @param strDate
+	 * @param endDate
+	 * @return
+	 * @throws ParseException
+	 */
+	public static Date[] convertStringToDate(String strDate, String endDate) throws ParseException {
+		strDate = strDate + " 00:00:00";
+		endDate = endDate + " 23:59:59";
+		Date sDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(strDate);
+		Date eDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(endDate);
+		log.info("convertStringToDate-------> : " + sDate + ", " + eDate);
+		Date[] dates = new Date[] {
+				sDate,
+				eDate
+		};
+		return dates;
+	}
 	
 	public static String convertDate2String(Date date) {
 		DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss a");  

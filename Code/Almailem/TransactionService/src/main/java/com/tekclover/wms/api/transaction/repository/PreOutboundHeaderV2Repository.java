@@ -71,13 +71,13 @@ public interface PreOutboundHeaderV2Repository extends JpaRepository<PreOutbound
 
     @Query(value = "select ht.usr_id from tblhhtuser ht \n" +
             "join tblordertypeid ot on ot.usr_id=ht.usr_id \n" +
-            "where ht.is_deleted = 0 and ot.ob_ord_typ_id in (:outboundOrderTypeId) ", nativeQuery = true)
+            "where ht.is_deleted = 0 and ot.is_deleted = 0 and ot.ob_ord_typ_id in (:outboundOrderTypeId) ", nativeQuery = true)
     public List<String> getHHTUserList(
             @Param("outboundOrderTypeId") Long outboundOrderTypeId);
 
     @Query(value = "select ht.usr_id from tblhhtuser ht \n" +
             "join tblordertypeid ot on ot.usr_id=ht.usr_id \n" +
-            "where ht.is_deleted = 0 and \n" +
+            "where ht.is_deleted = 0 and ot.is_deleted = 0 and  \n" +
             "ht.c_id in (:companyCodeId) and \n" +
             "ht.plant_id in (:plantId) and \n" +
             "ht.lang_id in (:languageId) and \n" +
@@ -105,7 +105,7 @@ public interface PreOutboundHeaderV2Repository extends JpaRepository<PreOutbound
             "ht.NO_OF_DAYS_LEAVE noOfDaysLeave \n" +
             "from tblhhtuser ht \n" +
             "join tblordertypeid ot on ot.usr_id=ht.usr_id \n" +
-            "where ht.is_deleted = 0 and \n" +
+            "where ht.is_deleted = 0 and ot.is_deleted = 0 and \n" +
             "ht.c_id in (:companyCodeId) and \n" +
             "ht.plant_id in (:plantId) and \n" +
             "ht.lang_id in (:languageId) and \n" +
@@ -119,7 +119,7 @@ public interface PreOutboundHeaderV2Repository extends JpaRepository<PreOutbound
 
     @Query(value = "select ht.usr_id from tblhhtuser ht \n" +
             "join tblordertypeid ot on ot.usr_id=ht.usr_id \n" +
-            "where ht.is_deleted = 0 and \n" +
+            "where ht.is_deleted = 0 and ot.is_deleted = 0 and \n" +
             "ht.c_id in (:companyCodeId) and \n" +
             "ht.plant_id in (:plantId) and \n" +
             "ht.lang_id in (:languageId) and \n" +

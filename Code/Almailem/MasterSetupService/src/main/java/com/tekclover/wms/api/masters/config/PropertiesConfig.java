@@ -35,4 +35,9 @@ public class PropertiesConfig {
 	
 	@Value("${api.idmaster.service.url}")
 	private String idmasterServiceUrl;
+
+	//--------------EMAIL-------------------------------------------------------------
+
+	@Value("${email.from.address}")
+	private String emailFromAddress;
 }

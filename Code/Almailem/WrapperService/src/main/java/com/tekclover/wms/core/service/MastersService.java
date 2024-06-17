@@ -5357,5 +5357,135 @@ public class MastersService {
         log.info("result: " + result.getStatusCode());
         return result.getBody();
     }
+    //==============================================================Email=====================================================
+
+    // GET EmailDetails
+    public EMailDetails getEMailDetails(Long emailId , String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "Classic WMS's RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            HttpEntity<?> entity = new HttpEntity<>(headers);
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "email/" + emailId );
+            ResponseEntity<EMailDetails> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, EMailDetails.class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+    // POST EMailDetails
+    public EMailDetails createEMailDetails(EMailDetails eMailDetails, String loginUserId, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "Classic WMS's RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "email/")
+                    .queryParam("loginUserId", loginUserId);
+
+            HttpEntity<?> entity = new HttpEntity<>(eMailDetails, headers);
+            ResponseEntity<EMailDetails> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, EMailDetails.class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+
+    // Patch EmailDetails
+    public EMailDetails updateEMailDetails(Long emailId, EMailDetails eMailDetails, String loginUserId, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "Classic WMS's RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            HttpEntity<?> entity = new HttpEntity<>(eMailDetails, headers);
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "email/" + emailId)
+                            .queryParam("loginUserId", loginUserId);
+
+            ResponseEntity<EMailDetails> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, EMailDetails.class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    // Delete EMailDetails
+    public boolean deleteEMailDetails(Long emailId, String loginUserId, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "Classic WMS's RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            HttpEntity<?> entity = new HttpEntity<>(headers);
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "email/" + emailId)
+                            .queryParam("loginUserId", loginUserId);
+            ResponseEntity<String> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity, String.class);
+            log.info("result : " + result);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    // UnDelete EMailDetails
+    public boolean unDeleteEMailDetails(String emailId, String loginUserId, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "Classic WMS's RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            HttpEntity<?> entity = new HttpEntity<>(headers);
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "email/undelete/" + emailId)
+                            .queryParam("loginUserId", loginUserId);
+            ResponseEntity<String> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, String.class);
+            log.info("result : " + result);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    // POST - findEMailDetails
+    public EMailDetails[] findEMailDetails(FindEmailDetails findEmailDetails, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", " RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "email/findEmail");
+            HttpEntity<?> entity = new HttpEntity<>(findEmailDetails, headers);
+            ResponseEntity<EMailDetails[]> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, EMailDetails[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
 }
 		

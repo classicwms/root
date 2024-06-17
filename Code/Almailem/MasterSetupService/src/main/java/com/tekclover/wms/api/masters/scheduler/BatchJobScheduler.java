@@ -2,6 +2,8 @@ package com.tekclover.wms.api.masters.scheduler;
 
 import com.tekclover.wms.api.masters.exception.BadRequestException;
 import com.tekclover.wms.api.masters.model.businesspartner.v2.BusinessPartnerV2;
+
+import com.tekclover.wms.api.masters.model.email.OrderCancelInput;
 import com.tekclover.wms.api.masters.model.imbasicdata1.v2.ImBasicData1V2;
 import com.tekclover.wms.api.masters.model.masters.Customer;
 import com.tekclover.wms.api.masters.model.masters.Item;
@@ -9,14 +11,15 @@ import com.tekclover.wms.api.masters.repository.BusinessPartnerV2Repository;
 import com.tekclover.wms.api.masters.repository.CustomerMasterRepository;
 import com.tekclover.wms.api.masters.repository.ItemMasterRepository;
 import com.tekclover.wms.api.masters.repository.WarehouseRepository;
-import com.tekclover.wms.api.masters.service.BusinessPartnerService;
-import com.tekclover.wms.api.masters.service.MasterOrderService;
+import com.tekclover.wms.api.masters.service.*;
 import com.tekclover.wms.api.masters.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.mail.MessagingException;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -48,6 +51,9 @@ public class BatchJobScheduler {
     @Autowired
     BusinessPartnerService businessService;
 
+    @Autowired
+    SendMailService sendMailService;
+
     //-------------------------------------------------------------------------------------------
 
     List<ImBasicData1V2> inboundItemList = null;
@@ -56,7 +62,7 @@ public class BatchJobScheduler {
     static CopyOnWriteArrayList<BusinessPartnerV2> spCustomerList = null;    // Customer List
 
     @Scheduled(fixedDelay = 30000)
-    public void processInboundOrder() throws IllegalAccessException, InvocationTargetException, ParseException {
+    public void processInboundOrder() throws IllegalAccessException, InvocationTargetException, ParseException, MessagingException, IOException {
         if (inboundItemList == null || inboundItemList.isEmpty()) {
             List<Item> sqlInboundList = itemMasterRepository.findByProcessedStatusIdOrderByOrderReceivedOn(0L);
             inboundItemList = new ArrayList<>();
@@ -123,6 +129,35 @@ public class BatchJobScheduler {
                     log.error("Error on item master processing : " + e.toString());
                     // Updating the Processed Status
                     masterOrderService.updateProcessedItemMaster(inbound.getCompanyCodeId(), inbound.getPlantId(), inbound.getItemCode(), inbound.getManufacturerName(), 100L);
+
+                    //============================================================================================
+                    //Sending Failed Details through Mail
+                    OrderCancelInput inboundOrderCancelInput = new OrderCancelInput();
+                    inboundOrderCancelInput.setCompanyCodeId(inbound.getCompanyCodeId());
+                    inboundOrderCancelInput.setPlantId(inbound.getPlantId());
+                    inboundOrderCancelInput.setRefDocNumber(inbound.getItemCode());
+                    inboundOrderCancelInput.setReferenceField2(inbound.getManufacturerName());
+                    inboundOrderCancelInput.setReferenceField1("ITEMMASTER");
+                    String errorDesc = null;
+                    try {
+                        if(e.toString().contains("message")) {
+                            errorDesc = e.toString().substring(e.toString().indexOf("message") + 9);
+                            errorDesc = errorDesc.replaceAll("}]", "");
+                        }
+                        if(e.toString().contains("DataIntegrityViolationException") || e.toString().contains("ConstraintViolationException")) {
+                            errorDesc = "Null Pointer Exception";
+                        }
+                        if(e.toString().contains("BadRequestException")){
+                            errorDesc = e.toString().substring(e.toString().indexOf("BadRequestException:") + 20);
+                        }
+                    } catch (Exception ex) {
+                        throw new BadRequestException("ErrorDesc Extract Error" + ex);
+                    }
+                    inboundOrderCancelInput.setRemarks(errorDesc);
+
+                    sendMailService.sendMail(inboundOrderCancelInput);
+                    //============================================================================================
+
                     masterOrderService.createInboundIntegrationLog(inbound);
                     inboundItemList.remove(inbound);
                 }
@@ -134,7 +169,7 @@ public class BatchJobScheduler {
 
     // CustomerMaster
     @Scheduled(fixedDelay = 50000)
-    public void processCustomerMaster() throws IllegalAccessException, InvocationTargetException, ParseException {
+    public void processCustomerMaster() throws IllegalAccessException, InvocationTargetException, ParseException, MessagingException, IOException {
         if (inboundCustomerList == null || inboundCustomerList.isEmpty()) {
             List<Customer> sqlInboundList = customerMasterRepository.findByProcessedStatusIdOrderByOrderReceivedOn(0L);
             inboundCustomerList = new ArrayList<>();
@@ -198,6 +233,32 @@ public class BatchJobScheduler {
                     log.error("Error on customer master processing : " + e.toString());
                     // Updating the Processed Status
                     masterOrderService.updateProcessedCustomerMaster(inbound.getCompanyCodeId(), inbound.getPlantId(), inbound.getPartnerCode(), 100L);
+                    //============================================================================================
+                    //Sending Failed Details through Mail
+                    OrderCancelInput inboundOrderCancelInput = new OrderCancelInput();
+                    inboundOrderCancelInput.setCompanyCodeId(inbound.getCompanyCodeId());
+                    inboundOrderCancelInput.setPlantId(inbound.getPlantId());
+                    inboundOrderCancelInput.setRefDocNumber(inbound.getPartnerCode());
+                    inboundOrderCancelInput.setReferenceField1("CUSTOMERMASTER");
+                    String errorDesc = null;
+                    try {
+                        if(e.toString().contains("message")) {
+                            errorDesc = e.toString().substring(e.toString().indexOf("message") + 9);
+                            errorDesc = errorDesc.replaceAll("}]", "");
+                        }
+                        if(e.toString().contains("DataIntegrityViolationException") || e.toString().contains("ConstraintViolationException")) {
+                            errorDesc = "Null Pointer Exception";
+                        }
+                        if(e.toString().contains("BadRequestException")){
+                            errorDesc = e.toString().substring(e.toString().indexOf("BadRequestException:") + 20);
+                        }
+                    } catch (Exception ex) {
+                        throw new BadRequestException("ErrorDesc Extract Error" + ex);
+                    }
+                    inboundOrderCancelInput.setRemarks(errorDesc);
+
+                    sendMailService.sendMail(inboundOrderCancelInput);
+                    //============================================================================================
                     masterOrderService.createInboundIntegrationLog(inbound);
                     inboundCustomerList.remove(inbound);
                 }

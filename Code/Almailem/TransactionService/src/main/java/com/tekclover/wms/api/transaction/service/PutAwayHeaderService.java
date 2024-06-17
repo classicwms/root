@@ -851,11 +851,11 @@ public class PutAwayHeaderService extends BaseService {
      * @param manufacturerName
      * @return
      */
-    public PutAwayHeaderV2 getPutAwayHeaderV2ForPutAwayLine(String companyCodeId, String plantId, String languageId, String warehouseId,
+    public List<PutAwayHeaderV2> getPutAwayHeaderV2ForPutAwayLine(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                             String preInboundNo, String refDocNumber, String lineNumber,
                                                             String itemCode, String manufacturerName) {
-        PutAwayHeaderV2 putAwayHeader =
-                putAwayHeaderV2Repository.findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreInboundNoAndRefDocNumberAndReferenceField5AndManufacturerNameAndReferenceField9AndDeletionIndicatorOrderByCreatedBy(
+        List<PutAwayHeaderV2> putAwayHeader =
+                putAwayHeaderV2Repository.findAllByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreInboundNoAndRefDocNumberAndReferenceField5AndManufacturerNameAndReferenceField9AndStatusIdAndDeletionIndicator(
                         companyCodeId,
                         plantId,
                         languageId,
@@ -865,6 +865,7 @@ public class PutAwayHeaderService extends BaseService {
                         itemCode,
                         manufacturerName,
                         lineNumber,
+                        19L,
                         0L
                 );
         if (putAwayHeader == null) {

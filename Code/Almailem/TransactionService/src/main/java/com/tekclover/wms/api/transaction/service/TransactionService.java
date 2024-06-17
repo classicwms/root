@@ -1,6 +1,5 @@
 package com.tekclover.wms.api.transaction.service;
 
-import com.microsoft.sqlserver.jdbc.SQLServerException;
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.v2.PeriodicHeaderEntityV2;
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.v2.PerpetualHeaderEntityV2;
@@ -24,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.UnexpectedRollbackException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
@@ -167,7 +165,38 @@ public class TransactionService extends BaseService{
                             e.toString().contains("UnexpectedRollbackException")) {
                         // Updating the Processed Status
                         orderService.updateProcessedInboundOrderV2(inbound.getRefDocumentNo(), inbound.getInboundOrderTypeId(), 900L);
+
                        //============================================================================================
+                        //Sending Failed Details through Mail
+                        InboundOrderCancelInput inboundOrderCancelInput = new InboundOrderCancelInput();
+                        inboundOrderCancelInput.setCompanyCodeId(inbound.getCompanyCode());
+                        inboundOrderCancelInput.setPlantId(inbound.getBranchCode());
+                        inboundOrderCancelInput.setRefDocNumber(inbound.getRefDocumentNo());
+                        inboundOrderCancelInput.setReferenceField1(getInboundOrderTypeTable(inbound.getInboundOrderTypeId()));
+                        String errorDesc = null;
+                        try {
+                            if (e.toString().contains("message")) {
+                                errorDesc = e.toString().substring(e.toString().indexOf("message") + 9);
+                                errorDesc = errorDesc.replaceAll("}]", "");
+                            }
+                            if (e.toString().contains("DataIntegrityViolationException") || e.toString().contains("ConstraintViolationException")) {
+                                errorDesc = "Null Pointer Exception";
+                            }
+                            if (e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException") ||
+                                    e.toString().contains("SQLServerException") || e.toString().contains("UnexpectedRollbackException")) {
+                                errorDesc = "SQLServerException";
+                            }
+                            if (e.toString().contains("BadRequestException")) {
+                                errorDesc = e.toString().substring(e.toString().indexOf("BadRequestException:") + 20);
+                            }
+                        } catch (Exception ex) {
+                            throw new BadRequestException("ErrorDesc Extract Error" + ex);
+                        }
+                        inboundOrderCancelInput.setRemarks(errorDesc);
+
+                        mastersService.sendMail(inboundOrderCancelInput);
+                        //============================================================================================
+
                         try {
                             preinboundheaderService.createInboundIntegrationLogV2(inbound, e.toString());
                             inboundList.remove(inbound);
@@ -181,7 +210,38 @@ public class TransactionService extends BaseService{
                     } else {
                     // Updating the Processed Status
                     orderService.updateProcessedInboundOrderV2(inbound.getRefDocumentNo(), inbound.getInboundOrderTypeId(),  100L);
+
                     //============================================================================================
+                    //Sending Failed Details through Mail
+                    InboundOrderCancelInput inboundOrderCancelInput = new InboundOrderCancelInput();
+                    inboundOrderCancelInput.setCompanyCodeId(inbound.getCompanyCode());
+                    inboundOrderCancelInput.setPlantId(inbound.getBranchCode());
+                    inboundOrderCancelInput.setRefDocNumber(inbound.getRefDocumentNo());
+                    inboundOrderCancelInput.setReferenceField1(getInboundOrderTypeTable(inbound.getInboundOrderTypeId()));
+                    String errorDesc = null;
+                    try {
+                        if(e.toString().contains("message")) {
+                            errorDesc = e.toString().substring(e.toString().indexOf("message") + 9);
+                            errorDesc = errorDesc.replaceAll("}]", "");
+                        }
+                        if(e.toString().contains("DataIntegrityViolationException") || e.toString().contains("ConstraintViolationException")) {
+                            errorDesc = "Null Pointer Exception";
+                        }
+                            if (e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException") ||
+                                    e.toString().contains("SQLServerException") || e.toString().contains("UnexpectedRollbackException")) {
+                                errorDesc = "SQLServerException";
+                        }
+                        if(e.toString().contains("BadRequestException")){
+                            errorDesc = e.toString().substring(e.toString().indexOf("BadRequestException:") + 20);
+                        }
+                    } catch (Exception ex) {
+                        throw new BadRequestException("ErrorDesc Extract Error" + ex);
+                    }
+                    inboundOrderCancelInput.setRemarks(errorDesc);
+
+                    mastersService.sendMail(inboundOrderCancelInput);
+                    //============================================================================================
+
                     try {
                         preinboundheaderService.createInboundIntegrationLogV2(inbound, e.toString());
                         inboundList.remove(inbound);
@@ -189,6 +249,7 @@ public class TransactionService extends BaseService{
                         inboundList.remove(inbound);
                         throw new RuntimeException(ex);
                     }
+
                     warehouseApiResponse.setStatusCode("1400");
                     warehouseApiResponse.setMessage("Failure");
                 }
@@ -294,7 +355,37 @@ public class TransactionService extends BaseService{
                             e.toString().contains("UnexpectedRollbackException")) {
                         // Updating the Processed Status
                         orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID(), 900L);
+
                         //============================================================================================
+                        //Sending Failed Details through Mail
+                        InboundOrderCancelInput inboundOrderCancelInput = new InboundOrderCancelInput();
+                        inboundOrderCancelInput.setCompanyCodeId(outbound.getCompanyCode());
+                        inboundOrderCancelInput.setPlantId(outbound.getBranchCode());
+                        inboundOrderCancelInput.setRefDocNumber(outbound.getRefDocumentNo());
+                        inboundOrderCancelInput.setReferenceField1(getOutboundOrderTypeTable(outbound.getOutboundOrderTypeID()));
+                        String errorDesc = null;
+                        try {
+                            if (e.toString().contains("message")) {
+                                errorDesc = e.toString().substring(e.toString().indexOf("message") + 9);
+                                errorDesc = errorDesc.replaceAll("}]", "");
+                            }
+                            if (e.toString().contains("DataIntegrityViolationException") || e.toString().contains("ConstraintViolationException")) {
+                                errorDesc = "Null Pointer Exception";
+                            }
+                            if (e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException") || e.toString().contains("SQLServerException")) {
+                                errorDesc = "SQLServerException";
+                            }
+                            if (e.toString().contains("BadRequestException")) {
+                                errorDesc = e.toString().substring(e.toString().indexOf("BadRequestException:") + 20);
+                            }
+                        } catch (Exception ex) {
+                            throw new BadRequestException("ErrorDesc Extract Error" + ex);
+                        }
+                        inboundOrderCancelInput.setRemarks(errorDesc);
+
+                        mastersService.sendMail(inboundOrderCancelInput);
+                        //============================================================================================
+
                         try {
                             preOutboundHeaderService.createOutboundIntegrationLogV2(outbound, e.toString());
                             outboundList.remove(outbound);
@@ -307,7 +398,38 @@ public class TransactionService extends BaseService{
                     } else {
                     // Updating the Processed Status
                     orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID(),100L);
+
                     //============================================================================================
+                    //Sending Failed Details through Mail
+                    InboundOrderCancelInput inboundOrderCancelInput = new InboundOrderCancelInput();
+                    inboundOrderCancelInput.setCompanyCodeId(outbound.getCompanyCode());
+                    inboundOrderCancelInput.setPlantId(outbound.getBranchCode());
+                    inboundOrderCancelInput.setRefDocNumber(outbound.getRefDocumentNo());
+                    inboundOrderCancelInput.setReferenceField1(getOutboundOrderTypeTable(outbound.getOutboundOrderTypeID()));
+                    String errorDesc = null;
+                    try {
+                        if(e.toString().contains("message")) {
+                            errorDesc = e.toString().substring(e.toString().indexOf("message") + 9);
+                            errorDesc = errorDesc.replaceAll("}]", "");
+                        }
+                        if(e.toString().contains("DataIntegrityViolationException") || e.toString().contains("ConstraintViolationException")) {
+                            errorDesc = "Null Pointer Exception";
+                        }
+                            if (e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException") ||
+                                    e.toString().contains("SQLServerException") || e.toString().contains("UnexpectedRollbackException")) {
+                                errorDesc = "SQLServerException";
+                        }
+                        if(e.toString().contains("BadRequestException")){
+                            errorDesc = e.toString().substring(e.toString().indexOf("BadRequestException:") + 20);
+                        }
+                    } catch (Exception ex) {
+                        throw new BadRequestException("ErrorDesc Extract Error" + ex);
+                    }
+                    inboundOrderCancelInput.setRemarks(errorDesc);
+
+                    mastersService.sendMail(inboundOrderCancelInput);
+                    //============================================================================================
+
                     try {
                         preOutboundHeaderService.createOutboundIntegrationLogV2(outbound, e.toString());
                         outboundList.remove(outbound);
@@ -354,7 +476,37 @@ public class TransactionService extends BaseService{
                     log.error("Error on PerpetualStockCount processing : " + e.toString());
                     // Updating the Processed Status
                     cycleCountService.updateProcessedOrderV2(stockCount.getCycleCountNo(), 100L);
+
                     //============================================================================================
+                    //Sending Failed Details through Mail
+                    InboundOrderCancelInput inboundOrderCancelInput = new InboundOrderCancelInput();
+                    inboundOrderCancelInput.setCompanyCodeId(stockCount.getCompanyCode());
+                    inboundOrderCancelInput.setPlantId(stockCount.getBranchCode());
+                    inboundOrderCancelInput.setRefDocNumber(stockCount.getCycleCountNo());
+                    inboundOrderCancelInput.setReferenceField1("PERPETUALHEADER");
+                    String errorDesc = null;
+                    try {
+                        if(e.toString().contains("message")) {
+                            errorDesc = e.toString().substring(e.toString().indexOf("message") + 9);
+                            errorDesc = errorDesc.replaceAll("}]", "");
+                        }
+                        if(e.toString().contains("DataIntegrityViolationException") || e.toString().contains("ConstraintViolationException")) {
+                            errorDesc = "Null Pointer Exception";
+                        }
+                        if(e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException") || e.toString().contains("SQLServerException")) {
+                            errorDesc = "SQLServerException";
+                        }
+                        if(e.toString().contains("BadRequestException")){
+                            errorDesc = e.toString().substring(e.toString().indexOf("BadRequestException:") + 20);
+                        }
+                    } catch (Exception ex) {
+                        throw new BadRequestException("ErrorDesc Extract Error" + ex);
+                    }
+                    inboundOrderCancelInput.setRemarks(errorDesc);
+
+                    mastersService.sendMail(inboundOrderCancelInput);
+                    //============================================================================================
+
 //                    preOutboundHeaderService.createOutboundIntegrationLogV2(outbound);
                     stockCountPerpetualList.remove(stockCount);
                     warehouseApiResponse.setStatusCode("1400");
@@ -394,7 +546,37 @@ public class TransactionService extends BaseService{
                     log.error("Error on PeriodicStockCount processing : " + e.toString());
                     // Updating the Processed Status
                     cycleCountService.updateProcessedOrderV2(stockCount.getCycleCountNo(), 100L);
+
                     //============================================================================================
+                    //Sending Failed Details through Mail
+                    InboundOrderCancelInput inboundOrderCancelInput = new InboundOrderCancelInput();
+                    inboundOrderCancelInput.setCompanyCodeId(stockCount.getCompanyCode());
+                    inboundOrderCancelInput.setPlantId(stockCount.getBranchCode());
+                    inboundOrderCancelInput.setRefDocNumber(stockCount.getCycleCountNo());
+                    inboundOrderCancelInput.setReferenceField1("PERIODICHEADER");
+                    String errorDesc = null;
+                    try {
+                        if(e.toString().contains("message")) {
+                            errorDesc = e.toString().substring(e.toString().indexOf("message") + 9);
+                            errorDesc = errorDesc.replaceAll("}]", "");
+                        }
+                        if(e.toString().contains("DataIntegrityViolationException") || e.toString().contains("ConstraintViolationException")) {
+                            errorDesc = "Null Pointer Exception";
+                        }
+                        if(e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException") || e.toString().contains("SQLServerException")) {
+                            errorDesc = "SQLServerException";
+                        }
+                        if(e.toString().contains("BadRequestException")){
+                            errorDesc = e.toString().substring(e.toString().indexOf("BadRequestException:") + 20);
+                        }
+                    } catch (Exception ex) {
+                        throw new BadRequestException("ErrorDesc Extract Error" + ex);
+                    }
+                    inboundOrderCancelInput.setRemarks(errorDesc);
+
+                    mastersService.sendMail(inboundOrderCancelInput);
+                    //============================================================================================
+
 //                    preOutboundHeaderService.createOutboundIntegrationLogV2(outbound);
                     stockCountPeriodicList.remove(stockCount);
                     warehouseApiResponse.setStatusCode("1400");
@@ -435,7 +617,38 @@ public class TransactionService extends BaseService{
                     log.error("Error on StockAdjustment processing : " + e.toString());
                     // Updating the Processed Status
                     stockAdjustmentMiddlewareService.updateProcessedOrderV2(stockAdjustment.getStockAdjustmentId(), 100L);
+
                     //============================================================================================
+                    //Sending Failed Details through Mail
+                    InboundOrderCancelInput inboundOrderCancelInput = new InboundOrderCancelInput();
+                    inboundOrderCancelInput.setCompanyCodeId(stockAdjustment.getCompanyCode());
+                    inboundOrderCancelInput.setPlantId(stockAdjustment.getBranchCode());
+                    inboundOrderCancelInput.setRefDocNumber(stockAdjustment.getItemCode());
+                    inboundOrderCancelInput.setReferenceField2(stockAdjustment.getManufacturerName());
+                    inboundOrderCancelInput.setReferenceField1("STOCKADJUSTMENT");
+                    String errorDesc = null;
+                    try {
+                        if(e.toString().contains("message")) {
+                            errorDesc = e.toString().substring(e.toString().indexOf("message") + 9);
+                            errorDesc = errorDesc.replaceAll("}]", "");
+                        }
+                        if(e.toString().contains("DataIntegrityViolationException") || e.toString().contains("ConstraintViolationException")) {
+                            errorDesc = "Null Pointer Exception";
+                        }
+                        if(e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException") || e.toString().contains("SQLServerException")) {
+                            errorDesc = "SQLServerException";
+                        }
+                        if(e.toString().contains("BadRequestException")){
+                            errorDesc = e.toString().substring(e.toString().indexOf("BadRequestException:") + 20);
+                        }
+                    } catch (Exception ex) {
+                        throw new BadRequestException("ErrorDesc Extract Error" + ex);
+                    }
+                    inboundOrderCancelInput.setRemarks(errorDesc);
+
+                    mastersService.sendMail(inboundOrderCancelInput);
+                    //============================================================================================
+
 //                    preOutboundHeaderService.createOutboundIntegrationLogV2(outbound);
                     stockAdjustmentList.remove(stockAdjustment);
                     warehouseApiResponse.setStatusCode("1400");
