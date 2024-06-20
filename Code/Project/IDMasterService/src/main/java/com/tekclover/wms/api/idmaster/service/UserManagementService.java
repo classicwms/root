@@ -126,6 +126,7 @@ public class UserManagementService {
 		try {
 			String encodedPwd = passwordEncoder.encodePassword(newUserManagement.getPassword());
 			dbUserManagement.setPassword(encodedPwd);
+			dbUserManagement.setUserId(newUserManagement.getUserId().toUpperCase());
 			dbUserManagement.setCreatedBy(loginUserID);
 			dbUserManagement.setCreatedOn(new Date());
 			dbUserManagement.setUpdatedBy(loginUserID);
@@ -158,6 +159,7 @@ public class UserManagementService {
 			String encodedPwd = passwordEncoder.encodePassword(updateUserManagement.getPassword());
 			dbUserManagement.setPassword(encodedPwd);
 		}
+		dbUserManagement.setUserId(updateUserManagement.getUserId().toUpperCase());
 		dbUserManagement.setUpdatedBy(loginUserID);
 		dbUserManagement.setUpdatedOn(new Date());
 		return userManagementRepository.save(dbUserManagement);

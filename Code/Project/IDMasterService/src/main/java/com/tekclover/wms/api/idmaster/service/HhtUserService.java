@@ -91,9 +91,10 @@ public class HhtUserService extends BaseService {
 			throws IllegalAccessException, InvocationTargetException {
 		HhtUser dbHhtUser = new HhtUser();
 		log.info("newHhtUser : " + newHhtUser);
-		
+
 		BeanUtils.copyProperties(newHhtUser, dbHhtUser, CommonUtils.getNullPropertyNames(newHhtUser));
 		dbHhtUser.setCompanyCodeId(getCompanyCode());
+		dbHhtUser.setUserId(dbHhtUser.getUserId().toUpperCase());
 		dbHhtUser.setDeletionIndicator(0L);
 		dbHhtUser.setCreatedBy(loginUserID);
 		dbHhtUser.setUpdatedBy(loginUserID);
@@ -104,7 +105,7 @@ public class HhtUserService extends BaseService {
 	
 	/**
 	 * updateHhtUser
-	 * @param loginUserId 
+	 * @param loginUserID
 	 * @param userId
 	 * @param updateHhtUser
 	 * @return
@@ -115,6 +116,7 @@ public class HhtUserService extends BaseService {
 			throws IllegalAccessException, InvocationTargetException {
 		HhtUser dbHhtUser = getHhtUser(userId, warehouseId);
 		BeanUtils.copyProperties(updateHhtUser, dbHhtUser, CommonUtils.getNullPropertyNames(updateHhtUser));
+		dbHhtUser.setUserId(dbHhtUser.getUserId().toUpperCase());
 		dbHhtUser.setUpdatedBy(loginUserID);
 		dbHhtUser.setUpdatedOn(new Date());
 		return hhtUserRepository.save(dbHhtUser);
