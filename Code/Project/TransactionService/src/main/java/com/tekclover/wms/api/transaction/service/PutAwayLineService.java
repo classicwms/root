@@ -176,6 +176,28 @@ public class PutAwayLineService extends BaseService {
 	}
 	
 	/**
+	 * 
+	 * @param warehouseId
+	 * @param refDocNumber
+	 * @param putAwayNumber
+	 * @param packBarCode
+	 * @return
+	 */
+	public PutAwayLine getPutAwayLine (String warehouseId, String refDocNumber, String putAwayNumber, String packBarCode) {
+		PutAwayLine putAwayLine = 
+				putAwayLineRepository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPutAwayNumberAndPackBarcodesAndDeletionIndicator(
+						getLanguageId(),
+						getCompanyCode(),
+						getPlantId(),
+						warehouseId, 
+						refDocNumber, 
+						putAwayNumber, 
+						packBarCode,
+						0L);
+		return putAwayLine;
+	}
+	
+	/**
 	 * getPutAwayLine
 	 * @param confirmedStorageBin
 	 * @return

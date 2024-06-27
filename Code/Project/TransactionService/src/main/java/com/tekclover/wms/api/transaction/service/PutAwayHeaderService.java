@@ -453,15 +453,19 @@ public class PutAwayHeaderService extends BaseService {
 					 * If QTY_TYPE = A, update ACCEPT_QTY as (ACCEPT_QTY-PA_CNF_QTY) 
 					 * if QTY_TYPE= D, update DAMAGE_QTY as (DAMAGE_QTY-PA_CNF_QTY)
 					 */
+					PutAwayLine dbPutAwayLineForPAConfirmedQty = 
+							putAwayLineService.getPutAwayLine(dbPutAwayHeader.getWarehouseId(), refDocNumber, dbPutAwayHeader.getPutAwayNumber(), dbPutAwayHeader.getPackBarcodes());
+					log.info("----------dbPutAwayLineForPAConfirmedQty---- > : " + dbPutAwayLineForPAConfirmedQty);	
+					
 					InboundLine inboundLine = inboundLineService.getInboundLine(dbPutAwayHeader.getWarehouseId(), refDocNumber, dbPutAwayHeader.getPreInboundNo(), 
 							dbPutAwayLine.getLineNo(), dbPutAwayLine.getItemCode());
 					if (dbPutAwayLine.getQuantityType().equalsIgnoreCase("A")) {
-						Double acceptedQty = inboundLine.getAcceptedQty() - dbPutAwayLine.getPutawayConfirmedQty();
+						Double acceptedQty = inboundLine.getAcceptedQty() - dbPutAwayLineForPAConfirmedQty.getPutawayConfirmedQty();
 						inboundLine.setAcceptedQty(acceptedQty);
 					}
 					
 					if (dbPutAwayLine.getQuantityType().equalsIgnoreCase("D")) {
-						Double damageQty = inboundLine.getDamageQty() - dbPutAwayLine.getPutawayConfirmedQty();
+						Double damageQty = inboundLine.getDamageQty() - dbPutAwayLineForPAConfirmedQty.getPutawayConfirmedQty();
 						inboundLine.setAcceptedQty(damageQty);
 					}
 					

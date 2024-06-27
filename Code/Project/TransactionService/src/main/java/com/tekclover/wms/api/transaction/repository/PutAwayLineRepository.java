@@ -140,4 +140,8 @@ public interface PutAwayLineRepository extends JpaRepository<PutAwayLine,Long>, 
 	public Double findSumOfPAConfirmQty (@Param(value = "itemCode") List<String> itemCode,
 			@Param(value = "dateFrom") Date dateFrom,
 			@Param(value = "dateTo") Date dateTo);
+
+	public PutAwayLine findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPutAwayNumberAndPackBarcodesAndDeletionIndicator(
+			String languageId, String companyCode, String plantId, String warehouseId, String refDocNumber,
+			String putAwayNumber, String packBarCode, long l);
 }

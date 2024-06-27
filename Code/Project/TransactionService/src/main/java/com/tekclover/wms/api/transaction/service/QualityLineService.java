@@ -484,8 +484,11 @@ public class QualityLineService extends BaseService {
 			 */
 			for (QualityLine dbQualityLine : createdQualityLineList) {
 				/*-----------------STATUS updates in QualityHeader-----------------------*/
+//				Optional<QualityHeader> qualityHeaderOpt = 
+//						qualityHeaderRepository.findByQualityInspectionNo(dbQualityLine.getQualityInspectionNo());
 				Optional<QualityHeader> qualityHeaderOpt = 
-						qualityHeaderRepository.findByQualityInspectionNo(dbQualityLine.getQualityInspectionNo());
+						qualityHeaderRepository.findByQualityInspectionNoAndRefDocNumberAndReferenceField4 (dbQualityLine.getQualityInspectionNo(),
+								dbQualityLine.getRefDocNumber(), dbQualityLine.getItemCode());
 				QualityHeader qualityHeader = qualityHeaderOpt.get();
 //				try {
 //					UpdateQualityHeader updateQualityHeader = new UpdateQualityHeader();

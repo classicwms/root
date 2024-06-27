@@ -26,6 +26,9 @@ public interface QualityHeaderRepository extends JpaRepository<QualityHeader,Lon
 
 	public Optional<QualityHeader> findByQualityInspectionNo(String qualityInspectionNo);
 	
+	public Optional<QualityHeader> findByQualityInspectionNoAndRefDocNumberAndReferenceField4(String qualityInspectionNo,
+			String refDocNumber, String itemCode);
+	
 	public QualityHeader findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndQualityInspectionNoAndActualHeNoAndDeletionIndicator(
 			String warehouseId, String preOutboundNo, String refDocNumber, String qualityInspectionNo,
 			String actualHeNo, Long deletionIndicator);
