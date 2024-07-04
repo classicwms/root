@@ -885,7 +885,7 @@ public class OutboundLineService extends BaseService {
 				log.info("AXApiResponse: " + axapiResponse);
 			}
 		}
-		
+	
 		if (axapiResponse.getStatusCode() != null && axapiResponse.getStatusCode().equalsIgnoreCase("200")) {
 			try {
 				Long STATUS_ID_59 = 59L;
@@ -1171,8 +1171,12 @@ public class OutboundLineService extends BaseService {
 						inventory.setAllocatedQuantity(ALLOC_QTY);
 
 						// INV_QTY > 0 then, update Inventory Table
-						inventory = inventoryRepository.save(inventory);
-						log.info("inventory updated : " + inventory);
+//						inventory = inventoryRepository.save(inventory);
+//						log.info("inventory updated : " + inventory);
+						inventoryRepository.updateInventoryUpdateProcedure(dbPickupLine.getWarehouseId(),
+								dbPickupLine.getPickedPackCode(), dbPickupLine.getItemCode(),
+								dbPickupLine.getPickedStorageBin(), INV_QTY, ALLOC_QTY);
+						log.info("inventory updated using stored procedure: " + inventory);
 
 						if (INV_QTY == 0) {
 							// Setting up statusId = 0
@@ -1213,8 +1217,13 @@ public class OutboundLineService extends BaseService {
 						}
 						// End
 						inventory.setInventoryQuantity(INV_QTY);
-						inventory = inventoryRepository.save(inventory);
-						log.info("inventory updated : " + inventory);
+//						inventory = inventoryRepository.save(inventory);
+//						log.info("inventory updated : " + inventory);
+
+						inventoryRepository.updateInventoryUpdateProcedure(dbPickupLine.getWarehouseId(),
+								dbPickupLine.getPickedPackCode(), dbPickupLine.getItemCode(),
+								dbPickupLine.getPickedStorageBin(), INV_QTY);
+						log.info("inventory updated using stored procedure: " + inventory);
 						
 						//-------------------------------------------------------------------
 						// PASS PickedConfirmedStBin, WH_ID to inventory

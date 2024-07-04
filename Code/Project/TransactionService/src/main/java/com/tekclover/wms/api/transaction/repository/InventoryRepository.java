@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
+import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -337,4 +338,50 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 			"where \n" +
 			"iv.MVT_TYP_ID = 4 and iv.SUB_MVT_TYP_ID = 1 and STR_NO = 1  and iv.is_deleted = 0", nativeQuery = true)
 	String findMovementDocumentNo();
+
+	//USE WMS
+	//GO
+	//
+	//CREATE OR ALTER PROCEDURE inv_update_oml_proc
+	//	@warehouseId nvarchar(5),
+	//	@packbarcode nvarchar(25),
+	//	@itemCode nvarchar(50),
+	//	@storageBin nvarchar(25),
+	//	@inventoryQty float,
+	//	@allocatedQty float
+	//
+	//AS
+	//BEGIN
+	//	UPDATE tblinventory
+	//	SET INV_QTY = @inventoryQty, ALLOC_QTY = @allocatedQty
+	//	WHERE WH_ID = @warehouseId AND PACK_BARCODE = @packbarcode AND ITM_CODE = @itemCode AND
+	//		ST_BIN = @storageBin AND IS_DELETED = 0
+	//END
+	//GO
+
+	//----------------------------STORED-PROCEDURE----------------------------------------------------------
+	/*
+	 * Calling this Stored Proc during Create orderManagementLine - update Inventory
+	 */
+	@Transactional
+	@Procedure(procedureName = "inv_update_oml_proc")
+	public void updateInventoryUpdateProcedure(
+			@Param("warehouseId") String warehouseId,
+			@Param("packbarcode") String packbarcode,
+			@Param("itemCode") String itemCode,
+			@Param("storageBin") String storageBin,
+			@Param("inventoryQty") Double inventoryQty,
+			@Param("allocatedQty") Double allocatedQty
+	);
+
+	@Transactional
+	@Procedure(procedureName = "inv_qty_update_oml_proc")
+	public void updateInventoryUpdateProcedure(
+			@Param("warehouseId") String warehouseId,
+			@Param("packbarcode") String packbarcode,
+			@Param("itemCode") String itemCode,
+			@Param("storageBin") String storageBin,
+			@Param("inventoryQty") Double inventoryQty
+	);
+
 }

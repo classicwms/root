@@ -955,8 +955,11 @@ public class OrderManagementLineService extends BaseService {
 					// End
 					inventoryForUpdate.setInventoryQuantity(inventoryQty);
 					inventoryForUpdate.setAllocatedQuantity(allocatedQty);
-					inventoryForUpdate = inventoryRepository.save(inventoryForUpdate);
-					log.info("inventoryForUpdate updated: " + inventoryForUpdate);
+//					inventoryForUpdate = inventoryRepository.save(inventoryForUpdate);
+//					log.info("inventoryForUpdate updated: " + inventoryForUpdate);
+					inventoryRepository.updateInventoryUpdateProcedure(warehouseId, stBinInventory.getPackBarcodes(), itemCode,
+							stBinInventory.getStorageBin(), inventoryQty, allocatedQty);
+					log.info("inventory updated using stored procedure: " + inventoryForUpdate);
 				}
 
 				/*
