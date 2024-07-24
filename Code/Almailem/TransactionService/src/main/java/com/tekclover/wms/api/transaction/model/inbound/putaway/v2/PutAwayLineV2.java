@@ -90,4 +90,8 @@ public class PutAwayLineV2 extends PutAwayLine {
 
     @Column(name = "IS_COMPLETED", columnDefinition = "nvarchar(20)")
     private String isCompleted;
+
+    @Column(name = "LEVEL_ID", columnDefinition = "nvarchar(25)")
+    private String levelId;
+
 }

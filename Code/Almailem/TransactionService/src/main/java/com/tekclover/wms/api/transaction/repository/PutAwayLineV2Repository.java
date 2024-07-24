@@ -188,4 +188,7 @@ public interface PutAwayLineV2Repository extends JpaRepository<PutAwayLineV2, Lo
             @Param("refDocNumber") String refDocNumber,
             @Param("preInboundNo") String preInboundNo
     );
+PutAwayLineV2 findTopByCompanyCodeAndPlantIdAndWarehouseIdAndLanguageIdAndItemCodeAndManufacturerNameAndStatusIdAndDeletionIndicatorOrderByCreatedOn(
+            String companyCodeId, String plantId, String warehouseId, String languageId,
+            String itemCode, String manufacturerName, Long statusId, Long deletionIndicator);
 }

@@ -18,6 +18,7 @@ import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.v2.PreInboundHeaderV2;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.PutAwayHeader;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.PutAwayHeaderV2;
+import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.PutAwayLineV2;
 import com.tekclover.wms.api.transaction.model.inbound.staging.StagingLineEntity;
 import com.tekclover.wms.api.transaction.model.inbound.staging.v2.StagingLineEntityV2;
 import com.tekclover.wms.api.transaction.model.inbound.v2.InboundLineV2;
@@ -120,6 +121,9 @@ public class GrLineService extends BaseService {
 
     @Autowired
     private PickupLineService pickupLineService;
+
+    @Autowired
+    private PutAwayLineService putAwayLineService;
 
     String statusDescription = null;
 
@@ -2106,6 +2110,25 @@ public class GrLineService extends BaseService {
 
                     if (createdGRLine.getQuantityType().equalsIgnoreCase("A")) {
                         storageBinPutAway.setBinClassId(binClassId);
+
+                    //Checking confirmed bin in putAway line for that item
+                    PutAwayLineV2 existingBinPutAwayLineItemCheck = putAwayLineService.getPutAwayLineExistingItemCheckV2(companyCode, plantId, languageId, warehouseId,
+                            itemCode, createdGRLine.getManufacturerName());
+                    log.info("existingBinPutAwayLineItemCheck: " + existingBinPutAwayLineItemCheck);
+                    if (existingBinPutAwayLineItemCheck != null) {
+                        proposedStorageBin = existingBinPutAwayLineItemCheck.getConfirmedStorageBin();
+                        putAwayHeader.setProposedStorageBin(proposedStorageBin);
+                        if (existingBinPutAwayLineItemCheck.getLevelId() != null) {
+                            putAwayHeader.setLevelId(String.valueOf(existingBinPutAwayLineItemCheck.getLevelId()));
+                        } else {
+                            storageBinPutAway.setBin(proposedStorageBin);
+                            StorageBinV2 getLevelIdForProposedBin = mastersService.getaStorageBinV2(storageBinPutAway, authTokenForMastersService.getAccess_token());
+                            if (getLevelIdForProposedBin != null) {
+                                putAwayHeader.setLevelId(String.valueOf(getLevelIdForProposedBin.getFloorId()));
+                            }
+                        }
+                        log.info("Existing PutAwayCreate ProposedStorageBin from putAway line-->A : " + proposedStorageBin);
+                    }
                         List<PutAwayHeaderV2> existingBinItemCheck = putAwayHeaderService.getPutawayHeaderExistingBinItemCheckV2(companyCode, plantId, languageId, warehouseId,
                                 itemCode, createdGRLine.getManufacturerName());
                         log.info("existingBinItemCheck: " + existingBinItemCheck);

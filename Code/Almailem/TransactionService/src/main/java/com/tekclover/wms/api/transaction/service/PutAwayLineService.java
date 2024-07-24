@@ -1139,6 +1139,9 @@ public class PutAwayLineService extends BaseService {
 //                    }
 //                }
 
+                if(newPutAwayLine.getPutawayConfirmedQty() <= 0) {
+                    throw new BadRequestException("Putaway Confirm Qty cannot be zero or negative");
+                }
                 PutAwayLineV2 dbPutAwayLine = new PutAwayLineV2();
 //                PutAwayHeaderV2 dbPutAwayHeader = new PutAwayHeaderV2();
 
@@ -1195,6 +1198,7 @@ public class PutAwayLineService extends BaseService {
                 List<PutAwayLineV2> findPutawayLine = getPutAwayLineV2ForPutawayConfirm(companyCode, plantId, languageId, warehouseId, newPutAwayLine.getRefDocNumber(), newPutAwayLine.getPutAwayNumber());
 
                 if (storageBin != null) {
+                    dbPutAwayLine.setLevelId(String.valueOf(storageBin.getFloorId()));
                     if (storageBin.isCapacityCheck()) {
                         storageBinCapacityCheck = storageBin.isCapacityCheck();
                         log.info("confirmed storageBinCapacityCheck: " + storageBinCapacityCheck);
@@ -2287,5 +2291,26 @@ public class PutAwayLineService extends BaseService {
             }
         }
         return putAwayLineV2List;
+    }
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param manufacturerName
+     * @return
+     */
+    public PutAwayLineV2 getPutAwayLineExistingItemCheckV2(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                           String itemCode, String manufacturerName) {
+        PutAwayLineV2 dbPutawayLine = putAwayLineV2Repository.
+                findTopByCompanyCodeAndPlantIdAndWarehouseIdAndLanguageIdAndItemCodeAndManufacturerNameAndStatusIdAndDeletionIndicatorOrderByCreatedOn(
+                        companyCodeId, plantId, warehouseId, languageId, itemCode, manufacturerName, 20L, 0L);
+        if (dbPutawayLine != null) {
+            return dbPutawayLine;
+        }
+        return null;
     }
 }
