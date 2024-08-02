@@ -1683,7 +1683,7 @@ public class QualityLineService extends BaseService {
 //                }
             }
 
-            postDeliveryConfirm(createdQualityLineList);
+            postDeliveryConfirm(createdQualityLineList, loginUserID);
 
             return createdQualityLineList;
         } catch (Exception e) {
@@ -1810,7 +1810,7 @@ public class QualityLineService extends BaseService {
     /**
      * @param dbQualityLines
      */
-    private void postDeliveryConfirm(List<QualityLineV2> dbQualityLines) {
+    private void postDeliveryConfirm(List<QualityLineV2> dbQualityLines, String loginUserID ) {
         try {
             log.info("Delivery Confirm check: -------> started");
 
@@ -1919,7 +1919,7 @@ public class QualityLineService extends BaseService {
                             List<OutboundLineOutput> outboundLineV2s = outboundLineService.findOutboundLineNewV2(searchOutboundLineV2);
                             log.info("outboundLineV2s ----------->: " + outboundLineV2s.stream().count());
 
-                            List<OutboundLineV2> updatedOutboundLinesV2 = outboundLineService.updateOutboundLinesV2(dbOutboundHeader.getCreatedBy(), outboundLineV2s);
+                            List<OutboundLineV2> updatedOutboundLinesV2 = outboundLineService.updateOutboundLinesV2(loginUserID, outboundLineV2s);
                             log.info("updatedOutboundLinesV2 ----------->: " + updatedOutboundLinesV2.stream().count());
                             log.info("updatedOutboundLinesV2 ----------->: " + updatedOutboundLinesV2);
 
@@ -1929,7 +1929,7 @@ public class QualityLineService extends BaseService {
                                         updatedOutboundLinesV2.get(0).getCompanyCodeId(), updatedOutboundLinesV2.get(0).getPlantId(),
                                         updatedOutboundLinesV2.get(0).getLanguageId(), updatedOutboundLinesV2.get(0).getWarehouseId(),
                                         updatedOutboundLinesV2.get(0).getPreOutboundNo(), updatedOutboundLinesV2.get(0).getRefDocNumber(),
-                                        updatedOutboundLinesV2.get(0).getPartnerCode(), updatedOutboundLinesV2.get(0).getDeliveryConfirmedBy());
+                                        updatedOutboundLinesV2.get(0).getPartnerCode(), loginUserID);
                             }
                             log.info("<------------------Delivery Confirm Finished Processing------------------>");
                         }
