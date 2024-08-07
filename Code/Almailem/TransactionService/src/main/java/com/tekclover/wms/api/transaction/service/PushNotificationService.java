@@ -22,6 +22,10 @@ public class PushNotificationService {
         Iterator<String> iterator = tokens.iterator();
         while (iterator.hasNext()) {
             String token = iterator.next();
+            if(token == null || token.isEmpty()) {
+                iterator.remove();
+                continue;
+            }
             try {
             Message pushMessage = Message.builder()
                     .setToken(token)
@@ -33,6 +37,8 @@ public class PushNotificationService {
             firebaseMessaging.send(pushMessage);
             } catch (FirebaseMessagingException e) {
                 iterator.remove();
+                e.printStackTrace();
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
