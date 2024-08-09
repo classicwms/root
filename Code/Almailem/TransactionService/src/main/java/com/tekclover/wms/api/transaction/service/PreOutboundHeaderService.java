@@ -1611,7 +1611,7 @@ public class PreOutboundHeaderService extends BaseService {
             plantId = outboundIntegrationHeader.getBranchCode();
             warehouseId = outboundIntegrationHeader.getWarehouseID();
             languageId = outboundIntegrationHeader.getLanguageId();
-            String loginUserID = "MW_AMS";                                     //Hard Coded
+//            String loginUserID = MW_AMS;                                     //Hard Coded
 
             //Check WMS order table
 //            List<OutboundHeaderV2> outbound = outboundHeaderV2Repository.findBySalesOrderNumberAndDeletionIndicator(salesOrderNumber, 0L);
@@ -1639,7 +1639,7 @@ public class PreOutboundHeaderService extends BaseService {
                                 oldPickListNumber.getPreOutboundNo()  + " Cancellation Initiated and followed by New PickList " + newPickListNo + " creation started");
 
                         //Delete old PickListData
-                        createPickListCancellation = pickListCancellation(companyCodeId, plantId, languageId, warehouseId, oldPickListNumber.getPickListNumber(), newPickListNo, oldPickListNumber.getPreOutboundNo(), loginUserID);
+                        createPickListCancellation = pickListCancellation(companyCodeId, plantId, languageId, warehouseId, oldPickListNumber.getPickListNumber(), newPickListNo, oldPickListNumber.getPreOutboundNo(), "MW_AMS");
                     }
                 }
             }
@@ -1768,12 +1768,12 @@ public class PreOutboundHeaderService extends BaseService {
             plantId = outboundIntegrationHeader.getBranchCode();
             warehouseId = outboundIntegrationHeader.getWarehouseID();
             languageId = outboundIntegrationHeader.getLanguageId();
-            String loginUserID = "MW_AMS";                                     //Hard Coded
+            //String loginUserID = "MW_AMS";                                     //Hard Coded
 
             //Create PickListData
             createPickListCancellation(companyCodeId, plantId, languageId, warehouseId,
                     createPickListCancellation.getOldPickListNumber(), createPickListCancellation.getNewPickListNumber(),
-                    preOutboundNo, createPickListCancellation, loginUserID);
+                    preOutboundNo, createPickListCancellation, "MW_AMS");
             }
         }
         return outboundHeader;
@@ -4503,6 +4503,8 @@ public class PreOutboundHeaderService extends BaseService {
         orderManagementLine.setSupplierInvoiceNo(preOutboundLine.getSupplierInvoiceNo());
         orderManagementLine.setTokenNumber(preOutboundLine.getTokenNumber());
         orderManagementLine.setTargetBranchCode(preOutboundLine.getTargetBranchCode());
+        orderManagementLine.setPickupCreatedBy(preOutboundLine.getCreatedBy());
+        orderManagementLine.setPickupCreatedOn(new Date());
 
         List<String> barcode = stagingLineV2Repository.getPartnerItemBarcode(preOutboundLine.getItemCode(),
                 preOutboundLine.getCompanyCodeId(),

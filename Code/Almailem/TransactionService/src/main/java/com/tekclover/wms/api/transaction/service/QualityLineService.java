@@ -1322,7 +1322,11 @@ public class QualityLineService extends BaseService {
                     createdQualityLineList.add(createdQualityLine);
 
                     statusDescription = stagingLineV2Repository.getStatusDescription(55L, dbQualityLine.getLanguageId());
-                    qualityHeaderV2Repository.updateQualityHeader(statusDescription, dbQualityLine.getQualityInspectionNo());
+//                    qualityHeaderV2Repository.updateQualityHeader(statusDescription, dbQualityLine.getQualityInspectionNo());
+                    qualityHeaderV2Repository.updateQualityHeaderStatusUpdateProc(
+                            newQualityLine.getCompanyCodeId(), newQualityLine.getPlantId(),
+                            newQualityLine.getLanguageId(), newQualityLine.getWarehouseId(),
+                            dbQualityLine.getQualityInspectionNo(), 55L, statusDescription, dbQualityLine.getQualityCreatedBy());
                 }
             }
 

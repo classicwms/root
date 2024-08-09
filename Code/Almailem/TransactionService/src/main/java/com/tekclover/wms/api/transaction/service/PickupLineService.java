@@ -1607,6 +1607,7 @@ public class PickupLineService extends BaseService {
     @Transactional
     public List<PickupLineV2> createPickupLineNonCBMV2(@Valid List<AddPickupLine> newPickupLines, String loginUserID)
             throws IllegalAccessException, InvocationTargetException, java.text.ParseException {
+        log.info("login UserId : {}" , loginUserID);
         AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
         Long STATUS_ID = 0L;
         String companyCodeId = null;
@@ -1999,7 +2000,7 @@ public class PickupLineService extends BaseService {
                     statusDescription = stagingLineV2Repository.getStatusDescription(54L, dbPickupLine.getLanguageId());
                     newQualityHeader.setReferenceField10(statusDescription);
                     newQualityHeader.setStatusDescription(statusDescription);
-
+                    log.info("login UserId : {}" , loginUserID);
                     QualityHeaderV2 createdQualityHeader = qualityHeaderService.createQualityHeaderV2(newQualityHeader, loginUserID);
                     log.info("createdQualityHeader : " + createdQualityHeader);
                 } catch (Exception e) {

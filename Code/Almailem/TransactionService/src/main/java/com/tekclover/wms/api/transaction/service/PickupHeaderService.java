@@ -1037,8 +1037,8 @@ public class PickupHeaderService {
         dbPickupHeader.setDeletionIndicator(0L);
         dbPickupHeader.setPickupCreatedBy(loginUserID);
         dbPickupHeader.setPickupCreatedOn(new Date());
-        dbPickupHeader.setPickUpdatedBy(loginUserID);
-        dbPickupHeader.setPickUpdatedOn(new Date());
+//        dbPickupHeader.setPickUpdatedBy(loginUserID);
+//        dbPickupHeader.setPickUpdatedOn(new Date());
         PickupHeaderV2 pickupHeaderV2 =  pickupHeaderV2Repository.save(dbPickupHeader);
 
         // send Notification

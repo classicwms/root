@@ -534,7 +534,7 @@ public class QualityHeaderService {
     public QualityHeaderV2 createQualityHeaderV2(QualityHeaderV2 newQualityHeader, String loginUserID)
             throws IllegalAccessException, InvocationTargetException, java.text.ParseException {
         QualityHeaderV2 dbQualityHeader = new QualityHeaderV2();
-        log.info("newQualityHeader : " + newQualityHeader);
+        log.info("newQualityHeader : " + newQualityHeader + "; - " + loginUserID);
         BeanUtils.copyProperties(newQualityHeader, dbQualityHeader, CommonUtils.getNullPropertyNames(newQualityHeader));
 
         IKeyValuePair description = stagingLineV2Repository.getDescription(dbQualityHeader.getCompanyCodeId(),
