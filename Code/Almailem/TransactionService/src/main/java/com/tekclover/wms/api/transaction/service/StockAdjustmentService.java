@@ -342,7 +342,7 @@ public class StockAdjustmentService extends BaseService {
             }
             List<IInventoryImpl> inventoryList = null;
             if(perpetualLine == null) {
-                inventoryList = inventoryV2Repository.inventoryForStockCount(
+                inventoryList = inventoryService.getStockAdjustmentInventory(
                     stockAdjustment.getCompanyCode(),
                     stockAdjustment.getBranchCode(),
                         LANG_ID,
@@ -561,7 +561,7 @@ public class StockAdjustmentService extends BaseService {
                         log.info("STK_ADJ_QTY, STK_QTY: " + STK_ADJ_QTY + ", " + STK_QTY);
 
                         if(STK_ADJ_QTY > 0) {
-                            List<IInventoryImpl> inventoryList = inventoryV2Repository.inventoryForStockCount(
+                            List<IInventoryImpl> inventoryList = inventoryService.getStockAdjustmentInventory(
                                     stockAdjustment.getCompanyCode(),
                                     stockAdjustment.getBranchCode(),
                                     LANG_ID,
@@ -634,7 +634,7 @@ public class StockAdjustmentService extends BaseService {
 //                    }
                 }
                 if (dbInventory.getInventoryQuantity() <= 0) {
-                    List<IInventoryImpl> inventoryList = inventoryV2Repository.inventoryForStockCount(
+                    List<IInventoryImpl> inventoryList = inventoryService.getStockAdjustmentInventory(
                             stockAdjustment.getCompanyCode(),
                             stockAdjustment.getBranchCode(),
                             LANG_ID,
@@ -748,7 +748,7 @@ public class StockAdjustmentService extends BaseService {
                 }
             }
             if (dbInventory == null) {
-                List<IInventoryImpl> inventoryList = inventoryV2Repository.inventoryForStockCount(
+                List<IInventoryImpl> inventoryList = inventoryService.getStockAdjustmentInventory(
                         stockAdjustment.getCompanyCode(),
                         stockAdjustment.getBranchCode(),
                         LANG_ID,
@@ -1075,7 +1075,7 @@ public class StockAdjustmentService extends BaseService {
 //                        log.info("STK_ADJ_QTY, STK_QTY: " + STK_ADJ_QTY + ", " + STK_QTY);
 //
 //                        if(STK_ADJ_QTY > 0) {
-//                            List<IInventoryImpl> inventoryList = inventoryV2Repository.inventoryForStockCount(
+//                            List<IInventoryImpl> inventoryList = inventoryService.getStockAdjustmentInventory(
 //                                    stockAdjustment.getCompanyCode(),
 //                                    stockAdjustment.getBranchCode(),
 //                                    LANG_ID,
@@ -1148,7 +1148,7 @@ public class StockAdjustmentService extends BaseService {
 //                    }
 //                }
 //                if (dbInventory.getInventoryQuantity() <= 0) {
-//                    List<IInventoryImpl> inventoryList = inventoryV2Repository.inventoryForStockCount(
+//                    List<IInventoryImpl> inventoryList = inventoryService.getStockAdjustmentInventory(
 //                            stockAdjustment.getCompanyCode(),
 //                            stockAdjustment.getBranchCode(),
 //                            LANG_ID,
@@ -1262,7 +1262,7 @@ public class StockAdjustmentService extends BaseService {
 //                }
 //            }
 //            if (dbInventory == null) {
-//                List<IInventoryImpl> inventoryList = inventoryV2Repository.inventoryForStockCount(
+//                List<IInventoryImpl> inventoryList = inventoryService.getStockAdjustmentInventory(
 //                        stockAdjustment.getCompanyCode(),
 //                        stockAdjustment.getBranchCode(),
 //                        LANG_ID,

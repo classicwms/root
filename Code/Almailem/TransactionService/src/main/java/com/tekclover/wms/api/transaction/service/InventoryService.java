@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.transaction.service;
 
+import com.microsoft.sqlserver.jdbc.SQLServerException;
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auditlog.AuditLog;
 import com.tekclover.wms.api.transaction.model.dto.IInventory;
@@ -20,18 +21,24 @@ import com.tekclover.wms.api.transaction.repository.specification.InventoryV2Spe
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.expression.ParseException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -1757,8 +1764,10 @@ public class InventoryService extends BaseService {
      * @param storageBin
      * @return
      */
+    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class, LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 2000))
     public InventoryV2 getInventoryV2(String companyCode, String plantId, String languageId,
                                       String warehouseId, String packBarcodes, String itemCode, String storageBin) {
+        try {
         log.info("getInventory----------> : " + warehouseId + "," + packBarcodes + "," + itemCode + "," + storageBin);
         List<InventoryV2> inventory =
                 inventoryV2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPackBarcodesAndItemCodeAndStorageBinAndDeletionIndicatorOrderByInventoryIdDesc(
@@ -1777,6 +1786,10 @@ public class InventoryService extends BaseService {
         }
         log.info("getInventory record----------> : " + inventory.get(0));
         return inventory.get(0);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BadRequestException("Exception while Inventory Get : " + e);
+        }
     }
 
     /**
@@ -1790,8 +1803,10 @@ public class InventoryService extends BaseService {
      * @param manufacturerName
      * @return
      */
+    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class, LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 2000))
     public InventoryV2 getInventoryV2(String companyCode, String plantId, String languageId, String warehouseId,
                                       String packBarcodes, String itemCode, String storageBin, String manufacturerName) {
+        try {
         log.info("getInventory----------> : " + warehouseId + "," + packBarcodes + "," + itemCode + "," + storageBin);
         List<InventoryV2> inventory =
                 inventoryV2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPackBarcodesAndItemCodeAndStorageBinAndManufacturerNameAndDeletionIndicatorOrderByInventoryIdDesc(
@@ -1811,6 +1826,10 @@ public class InventoryService extends BaseService {
         }
         log.info("getInventory record----------> : " + inventory.get(0));
         return inventory.get(0);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BadRequestException("Exception while Inventory get : " + e);
+        }
     }
 
     /**
@@ -1857,8 +1876,10 @@ public class InventoryService extends BaseService {
      * @param manufacturerName
      * @return
      */
+    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class, LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 2000))
     public List<IInventoryImpl> getInventoryForPerpetualCountV2(String companyCode, String plantId, String languageId,
                                                                 String warehouseId, String itemCode, String manufacturerName) {
+        try {
         log.info("getInventory----------> : " + warehouseId + "," + manufacturerName + "," + itemCode + "," + plantId);
 //        List<InventoryV2> inventory =
 //                inventoryV2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerNameAndBinClassIdAndDeletionIndicator(
@@ -1879,7 +1900,7 @@ public class InventoryService extends BaseService {
                         languageId,
                         warehouseId,
                         itemCode,
-//                        1L,
+    //                        1L,
                         manufacturerName);
         if (inventory == null || inventory.isEmpty()) {
             log.error("---------Inventory is null-----------");
@@ -1887,6 +1908,10 @@ public class InventoryService extends BaseService {
         }
         log.info("getInventory record----------> : " + inventory.size());
         return inventory;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BadRequestException("Exception while Inventory Get : " + e);
+        }
     }
 
     /**
@@ -1900,8 +1925,10 @@ public class InventoryService extends BaseService {
      * @param storageBin
      * @return
      */
+    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class, LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 2000))
     public InventoryV2 getInventoryForInhouseTransferV2(String companyCode, String plantId, String languageId, String warehouseId,
                                                         String packBarcodes, String itemCode, String manufacturerName, String storageBin) {
+        try {
         log.info("getInventory----------> : " + warehouseId + "," + packBarcodes + "," + itemCode + "," + storageBin);
         List<InventoryV2> inventory =
                 inventoryV2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPackBarcodesAndItemCodeAndManufacturerCodeAndStorageBinAndDeletionIndicatorOrderByInventoryIdDesc(
@@ -1921,6 +1948,10 @@ public class InventoryService extends BaseService {
         }
         log.info("getInventory record----------> : " + inventory.get(0));
         return inventory.get(0);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BadRequestException("Error While Inventory Get : " + e);
+        }
     }
 
     /**
@@ -2045,8 +2076,10 @@ public class InventoryService extends BaseService {
      * @param binClassId
      * @return
      */
+    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class, LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 2000))
     public InventoryV2 getInventoryForStockAdjustmentDamageV2(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                               String itemCode, String packBarcodes, Long binClassId, String manufacturerName) {
+        try {
         InventoryV2 inventory =
                 inventoryV2Repository.findTopByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndPackBarcodesAndBinClassIdAndManufacturerNameAndDeletionIndicatorOrderByInventoryIdDesc(
                         languageId,
@@ -2064,6 +2097,10 @@ public class InventoryService extends BaseService {
             return inventory;
         }
         return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BadRequestException("Exception while Inventory Get : " + e);
+        }
     }
 
     /**
@@ -2074,7 +2111,9 @@ public class InventoryService extends BaseService {
      * @param storageBin
      * @return
      */
+    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class, LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 2000))
     public InventoryV2 getInventoryByStorageBinV2(String companyCode, String plantId, String languageId, String warehouseId, String storageBin) {
+        try {
         List<InventoryV2> inventory =
                 inventoryV2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndStorageBinAndDeletionIndicatorOrderByInventoryIdDesc(
                         languageId,
@@ -2089,6 +2128,10 @@ public class InventoryService extends BaseService {
             return null;
         }
         return inventory.get(0);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BadRequestException("Exception while Inventory Get : " + e);
+        }
     }
 
     /**
@@ -2155,6 +2198,12 @@ public class InventoryService extends BaseService {
         return results;
     }
 
+    /**
+     *
+     * @param searchInventory
+     * @return
+     * @throws ParseException
+     */
     public List<IInventoryImpl> findInventoryNewV2(SearchInventoryV2 searchInventory)
             throws ParseException {
 
@@ -2390,6 +2439,29 @@ public class InventoryService extends BaseService {
                         3L,
                         manufacturerName);
         return inventory;
+    }
+
+    /**
+     *
+     * @param companyCode
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param manufacturerName
+     * @param binClassId
+     * @return
+     */
+    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class, LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 2000))
+    public List<IInventoryImpl> getStockAdjustmentInventory(String companyCode, String plantId, String languageId, String warehouseId,
+                                                            String itemCode, String manufacturerName, Long binClassId) {
+        try {
+            return inventoryV2Repository.
+                    inventoryForStockCount(companyCode, plantId, languageId, warehouseId, itemCode, manufacturerName, binClassId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BadRequestException("Exception while Inventory Get : " + e);
+        }
     }
 
     /**

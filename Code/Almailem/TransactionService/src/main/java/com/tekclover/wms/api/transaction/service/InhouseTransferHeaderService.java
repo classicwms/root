@@ -1265,7 +1265,8 @@ public class InhouseTransferHeaderService extends BaseService {
                 Double transferConfirmedQty = createdInhouseTransferLine.getTransferConfirmedQty();
                 double INV_QTY = inventoryQty - transferConfirmedQty;
                 if (INV_QTY < 0) {
-                    throw new BadRequestException("Inventory became negative." + INV_QTY);
+//                    throw new BadRequestException("Inventory became negative." + INV_QTY);
+                    INV_QTY = 0L;
                 }
                 log.info("-----Source----INV_QTY-----------> : " + INV_QTY);
                 log.info("-----Source----ALLOC_QTY-----------> : " + ALLOC_QTY);
@@ -1336,7 +1337,11 @@ public class InhouseTransferHeaderService extends BaseService {
                         ALLOC_QTY = inventoryTargetItemCode.getAllocatedQuantity();
                     }
                     transferConfirmedQty = createdInhouseTransferLine.getTransferConfirmedQty();
+                    if(inventorySourceItemCode.getInventoryQuantity() > 0L) {                  //Checking source Inventory Qty - only update if source inventory qty present else leave it as it is
                     INV_QTY = inventoryQty + transferConfirmedQty;
+                    } else {
+                        INV_QTY = inventoryQty;
+                    }
                     log.info("-----Target----INV_QTY-----------> : " + INV_QTY);
                     log.info("-----Target----ALLOC_QTY-----------> : " + ALLOC_QTY);
 

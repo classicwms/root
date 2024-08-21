@@ -1998,14 +1998,22 @@ public class InboundHeaderService extends BaseService {
         String palletCode = null;
         String caseCode = null;
         try {
-            InventoryV2 existinginventory = inventoryV2Repository.findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndManufacturerNameAndPackBarcodesAndBinClassIdAndDeletionIndicatorOrderByInventoryIdDesc(
+//            InventoryV2 existinginventory = inventoryV2Repository.findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndManufacturerNameAndPackBarcodesAndBinClassIdAndDeletionIndicatorOrderByInventoryIdDesc(
+//                    putAwayLine.getCompanyCode(),
+//                    putAwayLine.getPlantId(),
+//                    putAwayLine.getLanguageId(),
+//                    putAwayLine.getWarehouseId(),
+//                    putAwayLine.getItemCode(),
+//                    putAwayLine.getManufacturerName(),
+//                    "99999", 3L,0L);
+            InventoryV2 existinginventory = inventoryService.getInventoryForStockAdjustmentDamageV2(
                     putAwayLine.getCompanyCode(),
                     putAwayLine.getPlantId(),
                     putAwayLine.getLanguageId(),
                     putAwayLine.getWarehouseId(),
                     putAwayLine.getItemCode(),
-                    putAwayLine.getManufacturerName(),
-                    "99999", 3L,0L);
+                    "99999", 3L,
+                    putAwayLine.getManufacturerName());
 
             if (existinginventory != null) {
                 log.info("Create Inventory bin Class Id 3 Initiated: " + new Date());
