@@ -1258,6 +1258,7 @@ public class InhouseTransferHeaderService extends BaseService {
             log.info("---------inventory----------> : " + inventorySourceItemCode);
             if (inventorySourceItemCode != null) {
                 Double inventoryQty = inventorySourceItemCode.getInventoryQuantity();
+                Double sourceInventoryQty = inventorySourceItemCode.getInventoryQuantity();
                 Double ALLOC_QTY = 0D;
                 if (inventorySourceItemCode.getAllocatedQuantity() != null) {
                     ALLOC_QTY = inventorySourceItemCode.getAllocatedQuantity();
@@ -1337,7 +1338,7 @@ public class InhouseTransferHeaderService extends BaseService {
                         ALLOC_QTY = inventoryTargetItemCode.getAllocatedQuantity();
                     }
                     transferConfirmedQty = createdInhouseTransferLine.getTransferConfirmedQty();
-                    if(inventorySourceItemCode.getInventoryQuantity() > 0L) {                  //Checking source Inventory Qty - only update if source inventory qty present else leave it as it is
+                    if (sourceInventoryQty > 0L) {                  //Checking source Inventory Qty - only update if source inventory qty present else leave it as it is
                     INV_QTY = inventoryQty + transferConfirmedQty;
                     } else {
                         INV_QTY = inventoryQty;
