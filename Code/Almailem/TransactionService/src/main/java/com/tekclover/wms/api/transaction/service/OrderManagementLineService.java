@@ -1,7 +1,11 @@
 package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -1792,10 +1796,6 @@ public class OrderManagementLineService extends BaseService {
         String itemCode = null;
         String proposedStorageBin = null;
         String proposedPackCode = null;
-
-        //push Notification
-        Set<String> preOutboundNoList = new HashSet<>();
-        Set<String> warehouseIdList = new HashSet<>();
         List<OrderManagementLineV2> orderManagementLineList = new ArrayList<>();
 
         // Iterating over AssignPicker
@@ -1811,10 +1811,6 @@ public class OrderManagementLineService extends BaseService {
             itemCode = assignPicker.getItemCode();
             proposedStorageBin = assignPicker.getProposedStorageBin();
             proposedPackCode = assignPicker.getProposedPackCode();
-
-            //push notification
-            preOutboundNoList.add(assignPicker.getPreOutboundNo());
-            warehouseIdList.add(assignPicker.getWarehouseId());
 
             /**
              * Check for duplicates
@@ -1923,51 +1919,7 @@ public class OrderManagementLineService extends BaseService {
                     log.info("pickupHeader created : " + pickup);
 
                     // send Notification
-//                    if (pickup != null) {
-//                        List<IKeyValuePair> notification =
-//                                pickupHeaderV2Repository.findByStatusIdAndNotificationStatusAndDeletionIndicatorDistinctRefDocNo();
-//
-//                    if(notification != null){
-//                            for (IKeyValuePair pickupHeaderV2 : notification) {
-//
-//                            List<String> deviceToken = pickupHeaderV2Repository.getDeviceToken(
-//                                        pickupHeaderV2.getAssignPicker(), pickupHeaderV2.getWarehouseId());
-//
-//                            if (deviceToken != null && !deviceToken.isEmpty()) {
-//                                    String title = "PICKING";
-//                                    String message =  pickupHeaderV2.getRefDocType() + " ORDER - " + pickupHeaderV2.getRefDocNumber() + " - IS RECEIVED ";
-//                                String response = pushNotificationService.sendPushNotification(deviceToken, title, message);
-//                                if (response.equals("OK")) {
-//                                        pickupHeaderV2Repository.updateNotificationStatus(
-//                                                pickupHeaderV2.getAssignPicker(), pickupHeaderV2.getRefDocNumber(), pickupHeaderV2.getWarehouseId());
-//                                    log.info("status update successfully");
-//                                }
-//                            }
-//                        }
-//                    }
-//                    }
-                    // Updating Ordermanagementline
-                    dbOrderManagementLine.setPickupNumber(PU_NO);
-                    dbOrderManagementLine = orderManagementLineV2Repository.save(dbOrderManagementLine);
-                    log.info("OrderManagementLine updated : " + dbOrderManagementLine);
-                }
-                orderManagementLineList.add(dbOrderManagementLine);
-            }
-        }
-        //push notification separated from pickup header and consolidated notification sent
-        if(preOutboundNoList != null && !preOutboundNoList.isEmpty() && warehouseIdList != null && !warehouseIdList.isEmpty()) {
-            sendPushNotification(preOutboundNoList, warehouseIdList);
-        } else {
-            sendPushNotification();
-        }
-        return orderManagementLineList;
-    }
-
-    /**
-     * send Push Notification
-     */
-    public void sendPushNotification() {
-        try {
+                    if (pickup != null) {
                         List<IKeyValuePair> notification =
                                 pickupHeaderV2Repository.findByStatusIdAndNotificationStatusAndDeletionIndicatorDistinctRefDocNo();
 
@@ -1989,82 +1941,18 @@ public class OrderManagementLineService extends BaseService {
                                 }
                             }
                         }
-        } catch (Exception e) {
-//            e.printStackTrace();
                     }
+                    // Updating Ordermanagementline
+                    dbOrderManagementLine.setPickupNumber(PU_NO);
+                    dbOrderManagementLine = orderManagementLineV2Repository.save(dbOrderManagementLine);
+                    log.info("OrderManagementLine updated : " + dbOrderManagementLine);
                 }
-
-    /**
-     *
-     * @param preOutboundNo
-     * @param warehouseId
-     */
-    public void sendPushNotification(String preOutboundNo, String warehouseId) {
-        try {
-            List<IKeyValuePair> notification =
-                    pickupHeaderV2Repository.findPushNotificationStatusByPreOutboundNo(preOutboundNo, warehouseId);
-
-            if (notification != null) {
-                for (IKeyValuePair pickupHeaderV2 : notification) {
-
-                    List<String> deviceToken = pickupHeaderV2Repository.getDeviceToken(
-                            pickupHeaderV2.getAssignPicker(), pickupHeaderV2.getWarehouseId());
-
-                    if (deviceToken != null && !deviceToken.isEmpty()) {
-                        String title = "PICKING";
-                        String message = pickupHeaderV2.getRefDocType() + " ORDER - " + pickupHeaderV2.getRefDocNumber() + " - IS RECEIVED ";
-                        String response = pushNotificationService.sendPushNotification(deviceToken, title, message);
-                        if (response.equals("OK")) {
-                            pickupHeaderV2Repository.updateNotificationStatus(
-                                    pickupHeaderV2.getAssignPicker(), pickupHeaderV2.getRefDocNumber(), pickupHeaderV2.getWarehouseId());
-                            log.info("status update successfully");
+                orderManagementLineList.add(dbOrderManagementLine);
             }
         }
-                    }
-                }
-        } catch (Exception e) {
-//            e.printStackTrace();
-            }
-        }
-
-    /**
-     *
-     * @param preOutboundNo
-     * @param warehouseId
-     */
-    public void sendPushNotification(Set<String> preOutboundNo, Set<String> warehouseId) {
-        try {
-            List<IKeyValuePair> notification = null;
-            if (preOutboundNo != null && !preOutboundNo.isEmpty() &&
-                    warehouseId != null && !warehouseId.isEmpty()) {
-                List<String> preOutboundList = new ArrayList<>(preOutboundNo);
-                List<String> warehouseIdList = new ArrayList<>(warehouseId);
-
-                notification = pickupHeaderV2Repository.findPushNotificationStatusByPreOutboundNo(preOutboundList, warehouseIdList);
+        return orderManagementLineList;
     }
 
-            if (notification != null) {
-                for (IKeyValuePair pickupHeaderV2 : notification) {
-
-                    List<String> deviceToken = pickupHeaderV2Repository.getDeviceToken(
-                            pickupHeaderV2.getAssignPicker(), pickupHeaderV2.getWarehouseId());
-
-                    if (deviceToken != null && !deviceToken.isEmpty()) {
-                        String title = "PICKING";
-                        String message = pickupHeaderV2.getRefDocType() + " ORDER - " + pickupHeaderV2.getRefDocNumber() + " - IS RECEIVED ";
-                        String response = pushNotificationService.sendPushNotification(deviceToken, title, message);
-                        if (response.equals("OK")) {
-                            pickupHeaderV2Repository.updateNotificationStatus(
-                                    pickupHeaderV2.getAssignPicker(), pickupHeaderV2.getRefDocNumber(), pickupHeaderV2.getWarehouseId());
-                            log.info("status update successfully");
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-//            e.printStackTrace();
-        }
-    }
     /**
      * @param orderManagementLine
      * @param binClassId

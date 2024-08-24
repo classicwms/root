@@ -127,21 +127,6 @@ public interface PickupHeaderV2Repository extends JpaRepository<PickupHeaderV2, 
     List<IKeyValuePair> findByStatusIdAndNotificationStatusAndDeletionIndicatorDistinctRefDocNo();
 
 
-    @Query(value = "select distinct ref_doc_no as refDocNumber, ass_picker_id as assignPicker, wh_id as warehouseId, \n" +
-            " ref_doc_type as refDocType from tblpickupheader \n" +
-            " WHERE status_id = 48 AND noti_status = 0 AND is_deleted = 0 \n" +
-            " and pre_ob_no = :preOutboundNo and wh_id = :warehouseId ", nativeQuery = true)
-    List<IKeyValuePair> findPushNotificationStatusByPreOutboundNo(@Param("preOutboundNo") String preOutboundNo,
-                                                                  @Param("warehouseId") String warehouseId);
-
-    @Query(value = "select distinct ref_doc_no as refDocNumber, ass_picker_id as assignPicker, wh_id as warehouseId, \n" +
-            " ref_doc_type as refDocType from tblpickupheader \n" +
-            " WHERE status_id = 48 AND noti_status = 0 AND is_deleted = 0 \n" +
-            " and pre_ob_no in (:preOutboundNo) and wh_id in (:warehouseId) ", nativeQuery = true)
-    List<IKeyValuePair> findPushNotificationStatusByPreOutboundNo(@Param("preOutboundNo") List<String> preOutboundNo,
-                                                                  @Param("warehouseId") List<String> warehouseId);
-
-
     @Modifying
     @Query(value = "update tblpickupheader set noti_status = 1 where ass_picker_id = :assignPickerId \n" +
             "and wh_id = :warehouseId and ref_doc_no = :refDocNo and is_deleted = 0", nativeQuery = true)
