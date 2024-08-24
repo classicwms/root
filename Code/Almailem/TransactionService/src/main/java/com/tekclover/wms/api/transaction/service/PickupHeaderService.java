@@ -1088,6 +1088,62 @@ public class PickupHeaderService {
     }
 
     /**
+     *
+     * @param newPickupHeader
+     * @param loginUserID
+     * @return
+     */
+    public PickupHeaderV2 createOutboundOrderProcessingPickupHeaderV2(PickupHeaderV2 newPickupHeader, String loginUserID) {
+        try {
+            PickupHeaderV2 dbPickupHeader = new PickupHeaderV2();
+            log.info("newPickupHeader : " + newPickupHeader);
+            BeanUtils.copyProperties(newPickupHeader, dbPickupHeader, CommonUtils.getNullPropertyNames(newPickupHeader));
+
+            IKeyValuePair description = stagingLineV2Repository.getDescription(dbPickupHeader.getCompanyCodeId(),
+                    dbPickupHeader.getLanguageId(),
+                    dbPickupHeader.getPlantId(),
+                    dbPickupHeader.getWarehouseId());
+
+            if (dbPickupHeader.getStatusId() != null) {
+                statusDescription = stagingLineV2Repository.getStatusDescription(dbPickupHeader.getStatusId(), dbPickupHeader.getLanguageId());
+                dbPickupHeader.setStatusDescription(statusDescription);
+            }
+
+            dbPickupHeader.setCompanyDescription(description.getCompanyDesc());
+            dbPickupHeader.setPlantDescription(description.getPlantDesc());
+            dbPickupHeader.setWarehouseDescription(description.getWarehouseDesc());
+
+            OutboundLineV2 updateOutboundLine = new OutboundLineV2();
+            updateOutboundLine.setAssignedPickerId(dbPickupHeader.getAssignedPickerId());
+            updateOutboundLine.setManufacturerName(dbPickupHeader.getManufacturerName());
+            outboundLineService.updateOutboundLineV2(
+                    dbPickupHeader.getCompanyCodeId(),
+                    dbPickupHeader.getPlantId(),
+                    dbPickupHeader.getLanguageId(),
+                    dbPickupHeader.getWarehouseId(),
+                    dbPickupHeader.getPreOutboundNo(),
+                    dbPickupHeader.getRefDocNumber(),
+                    dbPickupHeader.getPartnerCode(),
+                    dbPickupHeader.getLineNumber(),
+                    dbPickupHeader.getItemCode(),
+                    loginUserID,
+                    updateOutboundLine);
+
+            dbPickupHeader.setDeletionIndicator(0L);
+            dbPickupHeader.setPickupCreatedBy(loginUserID);
+            dbPickupHeader.setPickupCreatedOn(new Date());
+//        dbPickupHeader.setPickUpdatedBy(loginUserID);
+//        dbPickupHeader.setPickUpdatedOn(new Date());
+            PickupHeaderV2 pickupHeaderV2 =  pickupHeaderV2Repository.save(dbPickupHeader);
+
+            return pickupHeaderV2;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BadRequestException("Exception : " + e);
+        }
+    }
+
+    /**
      * @param companyCodeId
      * @param plantId
      * @param languageId
