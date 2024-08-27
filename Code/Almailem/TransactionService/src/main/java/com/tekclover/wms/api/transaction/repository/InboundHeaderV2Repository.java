@@ -123,4 +123,34 @@ public interface InboundHeaderV2Repository extends JpaRepository<InboundHeaderV2
             @Param("updatedBy") String updatedBy,
             @Param("updatedOn") Date updatedOn
     );
+
+    @Transactional
+    @Procedure(procedureName = "header_status_update_ib_cnf_proc")
+    void updateHeaderStatusInboundConfirmProcedure(
+            @Param("companyCodeId") String companyCode,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preInboundNo") String preInboundNo,
+            @Param("statusId") Long statusId,
+            @Param("statusDescription") String statusDescription,
+            @Param("updatedBy") String updatedBy,
+            @Param("updatedOn") Date updatedOn);
+
+    @Transactional
+    @Procedure(procedureName = "[pah_grl_stgl_pibl_status_update_ib_cnf_proc]")
+    void updatePahGrlStglPiblStatusInboundConfirmProcedure(
+            @Param("companyCodeId") String companyCode,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preInboundNo") String preInboundNo,
+            @Param("statusId") Long statusId,
+            @Param("statusId2") Long statusId2,
+            @Param("statusDescription") String statusDescription,
+            @Param("statusDescription2") String statusDescription2,
+            @Param("updatedBy") String updatedBy,
+            @Param("updatedOn") Date updatedOn);
 }
