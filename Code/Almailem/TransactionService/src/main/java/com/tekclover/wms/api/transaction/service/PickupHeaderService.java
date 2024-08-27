@@ -558,7 +558,7 @@ public class PickupHeaderService {
      * @param pickupNumber
      * @return
      */
-    public synchronized PickupHeaderV2 getPickupHeaderV2(String companyCodeId, String plantId, String languageId, String warehouseId,
+    public PickupHeaderV2 getPickupHeaderV2(String companyCodeId, String plantId, String languageId, String warehouseId,
                                             String preOutboundNo, String refDocNumber, String partnerCode, String pickupNumber) {
         PickupHeaderV2 pickupHeader =
                 pickupHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndPickupNumberAndDeletionIndicator(
