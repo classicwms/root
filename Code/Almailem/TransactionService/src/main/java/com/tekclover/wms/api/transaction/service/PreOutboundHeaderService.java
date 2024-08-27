@@ -2235,7 +2235,7 @@ public class PreOutboundHeaderService extends BaseService {
                 newPickupHeader.setIsCancelled(outboundIntegrationHeader.getIsCancelled());
                 newPickupHeader.setMUpdatedOn(outboundIntegrationHeader.getMUpdatedOn());
 
-                PickupHeaderV2 createdPickupHeader = pickupHeaderService.createPickupHeaderV2(newPickupHeader, orderManagementLine.getPickupCreatedBy());
+                PickupHeaderV2 createdPickupHeader = pickupHeaderService.createOutboundOrderProcessingPickupHeaderV2(newPickupHeader, orderManagementLine.getPickupCreatedBy());
                 log.info("pickupHeader created: " + createdPickupHeader);
 
                 orderManagementLine.setPickupNumber(PU_NO);
@@ -2264,6 +2264,10 @@ public class PreOutboundHeaderService extends BaseService {
                 log.info("outboundLine updated : " + outboundLine);
             }
         }
+
+        //push notification separated from pickup header and consolidated notification sent
+        orderManagementLineService.sendPushNotification(preOutboundNo, warehouseId);
+
         // OutboundHeader Update
         OutboundHeaderV2 outboundHeader = outboundHeaderService.getOutboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo,
                 refDocNumber, partnerCode);
@@ -2622,7 +2626,7 @@ public class PreOutboundHeaderService extends BaseService {
                 newPickupHeader.setIsCancelled(outboundIntegrationHeader.getIsCancelled());
                 newPickupHeader.setMUpdatedOn(outboundIntegrationHeader.getMUpdatedOn());
 
-                PickupHeaderV2 createdPickupHeader = pickupHeaderService.createPickupHeaderV2(newPickupHeader, orderManagementLine.getPickupCreatedBy());
+                PickupHeaderV2 createdPickupHeader = pickupHeaderService.createOutboundOrderProcessingPickupHeaderV2(newPickupHeader, orderManagementLine.getPickupCreatedBy());
                 log.info("pickupHeader created: " + createdPickupHeader);
 
                 orderManagementLine.setPickupNumber(PU_NO);
@@ -2650,6 +2654,10 @@ public class PreOutboundHeaderService extends BaseService {
                 log.info("outboundLine updated : " + outboundLine);
             }
         }
+
+        //push notification separated from pickup header and consolidated notification sent
+        orderManagementLineService.sendPushNotification(preOutboundNo, warehouseId);
+
         // OutboundHeader Update
         OutboundHeaderV2 outboundHeader = outboundHeaderService.getOutboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo,
                 refDocNumber, partnerCode);
@@ -3349,7 +3357,7 @@ public class PreOutboundHeaderService extends BaseService {
                 newPickupHeader.setIsCancelled(outboundIntegrationHeader.getIsCancelled());
                 newPickupHeader.setMUpdatedOn(outboundIntegrationHeader.getMUpdatedOn());
 
-                PickupHeaderV2 createdPickupHeader = pickupHeaderService.createPickupHeaderV2(newPickupHeader, orderManagementLine.getPickupCreatedBy());
+                PickupHeaderV2 createdPickupHeader = pickupHeaderService.createOutboundOrderProcessingPickupHeaderV2(newPickupHeader, orderManagementLine.getPickupCreatedBy());
                 log.info("pickupHeader created: " + createdPickupHeader);
 
                 orderManagementLine.setPickupNumber(PU_NO);
@@ -3376,8 +3384,11 @@ public class PreOutboundHeaderService extends BaseService {
                 outboundLine = outboundLineV2Repository.save(outboundLine);
                 log.info("outboundLine updated : " + outboundLine);
             }
-
         }
+
+        //push notification separated from pickup header and consolidated notification sent
+        orderManagementLineService.sendPushNotification(preOutboundNo, warehouseId);
+
         // OutboundHeader Update
         OutboundHeaderV2 outboundHeader = outboundHeaderService.getOutboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo,
                 refDocNumber, partnerCode);
@@ -3853,7 +3864,7 @@ public class PreOutboundHeaderService extends BaseService {
                 newPickupHeader.setIsCancelled(outboundIntegrationHeader.getIsCancelled());
                 newPickupHeader.setMUpdatedOn(outboundIntegrationHeader.getMUpdatedOn());
 
-                PickupHeaderV2 createdPickupHeader = pickupHeaderService.createPickupHeaderV2(newPickupHeader, orderManagementLine.getPickupCreatedBy());
+                PickupHeaderV2 createdPickupHeader = pickupHeaderService.createOutboundOrderProcessingPickupHeaderV2(newPickupHeader, orderManagementLine.getPickupCreatedBy());
                 log.info("pickupHeader created: " + createdPickupHeader);
 
                 orderManagementLine.setPickupNumber(PU_NO);
@@ -3880,8 +3891,11 @@ public class PreOutboundHeaderService extends BaseService {
                 outboundLine = outboundLineV2Repository.save(outboundLine);
                 log.info("outboundLine updated : " + outboundLine);
             }
-
         }
+
+        //push notification separated from pickup header and consolidated notification sent
+        orderManagementLineService.sendPushNotification(preOutboundNo, warehouseId);
+
         // OutboundHeader Update
         OutboundHeaderV2 outboundHeader = outboundHeaderService.getOutboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo,
                 refDocNumber, partnerCode);
