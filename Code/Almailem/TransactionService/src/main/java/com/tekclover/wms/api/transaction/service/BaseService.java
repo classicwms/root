@@ -46,14 +46,6 @@ public class BaseService {
         return "1001";
     }
 
-    protected String getMasterAuthToken() {
-        return authTokenService.getMastersServiceAuthToken().getAccess_token();
-    }
-
-    protected String getIdMasterAuthToken() {
-        return authTokenService.getIDMasterServiceAuthToken().getAccess_token();
-    }
-
     /**
      * @param NUM_RAN_CODE
      * @param warehouseId

@@ -537,7 +537,7 @@ public class OutboundHeaderService {
     public OutboundHeaderV2 getOutboundHeaderForSalesInvoiceUpdateV2(String companyCodeId, String plantId, String languageId,
                                                                      String warehouseId, String pickListNumber) {
         OutboundHeaderV2 outboundHeader =
-                outboundHeaderV2Repository.findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPickListNumberAndDeletionIndicatorOrderByCreatedOnDesc(
+                outboundHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPickListNumberAndDeletionIndicator(
                         companyCodeId, plantId, languageId, warehouseId, pickListNumber, 0L);
         if (outboundHeader != null) {
             return outboundHeader;
@@ -553,7 +553,6 @@ public class OutboundHeaderService {
      * @return
      */
     public OutboundHeaderV2 updateOutboundHeaderForSalesInvoice(OutboundIntegrationHeaderV2 outboundIntegrationHeader, String warehouseId) throws java.text.ParseException {
-        try {
         OutboundHeaderV2 dbOutboundHeader = getOutboundHeaderForSalesInvoiceUpdateV2(
                 outboundIntegrationHeader.getCompanyCode(), outboundIntegrationHeader.getBranchCode(), "EN",
                 warehouseId, outboundIntegrationHeader.getPickListNumber());
@@ -584,10 +583,6 @@ public class OutboundHeaderService {
                     dbOutboundHeader.getPreOutboundNo(), dbOutboundHeader.getRefDocNumber(), warehouseId);
         }
         return dbOutboundHeader;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new BadRequestException("Exception : " + e);
-        }
     }
 
     /**
