@@ -77,9 +77,7 @@ public class AuthTokenService {
 			accessTokenUrl = propertiesConfig.getIdmasterAccessTokenUrl();
 		} else if (apiUrl.equalsIgnoreCase("wms-transaction-service")) {
 			accessTokenUrl = propertiesConfig.getTransactionAccessTokenUrl();
-		}else if (apiUrl.equalsIgnoreCase("mnr-spark-service")){
-			accessTokenUrl = propertiesConfig.getSparkAccessTokenUrl();
-		} else if (apiUrl.equalsIgnoreCase("wms-connector-service")) {
+		}else if (apiUrl.equalsIgnoreCase("wms-connector-service")) {
 			accessTokenUrl = propertiesConfig.getConnectorAccessTokenUrl();
 		} else {
 			log.info("The givem URL is not available. Quiting.");

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/mnr-spark-service")
+@RequestMapping("/wms-spark-service")
 @Api(tags = {"Spark Service"}, value = "Spark Service Operations") // label for swagger
 @SwaggerDefinition(tags = {@Tag(name = "User", description = "Operations related to Spark Modules")})
 public class SparkController {

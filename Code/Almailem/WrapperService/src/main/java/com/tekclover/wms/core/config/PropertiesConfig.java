@@ -39,8 +39,8 @@ public class PropertiesConfig {
 	@Value("${idmaster.oauth.access_token_url}")
 	private String idmasterAccessTokenUrl;
 
-	@Value("${spark.oauth.access_token_url}")
-	private String sparkAccessTokenUrl;
+//	@Value("${spark.oauth.access_token_url}")
+//	private String sparkAccessTokenUrl;
 
 	@Value("${connector.oauth.access_token_url}")
 	private String connectorAccessTokenUrl;

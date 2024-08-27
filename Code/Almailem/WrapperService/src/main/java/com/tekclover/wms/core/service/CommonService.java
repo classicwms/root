@@ -80,9 +80,7 @@ public class CommonService {
 			accessTokenUrl = propertiesConfig.getTransactionAccessTokenUrl();
 		} else if (apiUrl.equalsIgnoreCase("wms-masters-service")) {
 			accessTokenUrl = propertiesConfig.getMastersAccessTokenUrl();
-		}else if (apiUrl.equalsIgnoreCase("mnr-spark-service")) {
-			accessTokenUrl = propertiesConfig.getSparkAccessTokenUrl();
-		} else if(apiUrl.equalsIgnoreCase("wms-connector-service")){
+		}else if(apiUrl.equalsIgnoreCase("wms-connector-service")){
 			accessTokenUrl = propertiesConfig.getConnectorAccessTokenUrl();
 		} else {
 			log.info("The given URL is not available. Quiting.");
