@@ -1608,7 +1608,7 @@ public class PreOutboundHeaderService extends BaseService {
             }
             return updateOutboundHeaderAndLine;
             } catch (Exception e) {
-                throw new BadRequestException("Exception - sales Invoice: " + e);
+                throw e;
             }
         }
 
@@ -1790,7 +1790,13 @@ public class PreOutboundHeaderService extends BaseService {
         return outboundHeader;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new BadRequestException("Outbound Order Processing Bad Request Exception : " + e);
+
+            // Updating the Processed Status
+            log.info("Rollback Initiated...!" + outboundIntegrationHeader.getRefDocumentNo());
+            orderManagementLineService.doUnAllocationV2(outboundIntegrationHeader);
+            orderService.updateProcessedOrderV2(outboundIntegrationHeader.getRefDocumentNo(), outboundIntegrationHeader.getOutboundOrderTypeID());
+
+            throw e;
         }
     }
 
@@ -1805,7 +1811,7 @@ public class PreOutboundHeaderService extends BaseService {
      */
     @Transactional
     private void createOrderManagementLine(String companyCodeId, String plantId, String languageId, String preOutboundNo,
-                                           OutboundIntegrationHeaderV2 outboundIntegrationHeader, List<PreOutboundLineV2> preOutboundLineList) {
+                                           OutboundIntegrationHeaderV2 outboundIntegrationHeader, List<PreOutboundLineV2> preOutboundLineList) throws Exception{
         OrderManagementLineV2 orderManagementLine = null;
         try {
             for(PreOutboundLineV2 preOutboundLine : preOutboundLineList) {
@@ -1813,7 +1819,7 @@ public class PreOutboundHeaderService extends BaseService {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            throw new BadRequestException("Exception : " + e);
+            throw e;
         }
         log.info("orderManagementLine created---1---> : " + orderManagementLine);
 
@@ -1835,8 +1841,9 @@ public class PreOutboundHeaderService extends BaseService {
      */
     private void createPickUpHeaderAssignPickerModified(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                    OutboundIntegrationHeaderV2 outboundIntegrationHeader,
-                                                   String preOutboundNo, String refDocNumber, String partnerCode) throws InvocationTargetException, IllegalAccessException, ParseException, FirebaseMessagingException {
+                                                   String preOutboundNo, String refDocNumber, String partnerCode) throws Exception {
 
+        try {
         List<OrderManagementLineV2> orderManagementLineV2List = orderManagementLineService.
                 getOrderManagementLineForPickupLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber);
 
@@ -1891,7 +1898,7 @@ public class PreOutboundHeaderService extends BaseService {
                 int currentTime = DateUtils.getCurrentTime();
                 log.info("CurrentTime: " + currentTime);
 
-//                if (currentTime < 15) {
+    //                if (currentTime < 15) {
 
                 if (warehouseId.equalsIgnoreCase("100")) {
                     log.info("warehouseId: " + warehouseId);
@@ -2037,7 +2044,7 @@ public class PreOutboundHeaderService extends BaseService {
                             }
                         }
                 }
-//            }
+    //            }
             if (warehouseId.equalsIgnoreCase("200")) {
                 log.info("warehouseId: " + warehouseId);
 
@@ -2136,14 +2143,14 @@ public class PreOutboundHeaderService extends BaseService {
                         outerLoop:
                         if (assignPickerList == null || assignPickerList.isEmpty() || assignPickerList.size() == 0) {
 
-//                                    String assignPickerPickupHeader50 = pickupHeaderService.getPickupHeaderAutomateCurrentDateHhtListCount(companyCodeId, plantId, languageId, warehouseId, hhtUserList, LEVEL_ID, 50L);
+    //                                    String assignPickerPickupHeader50 = pickupHeaderService.getPickupHeaderAutomateCurrentDateHhtListCount(companyCodeId, plantId, languageId, warehouseId, hhtUserList, LEVEL_ID, 50L);
 
-//                                    if(assignPickerPickupHeader50 != null) {
-//                                        assignPickerList.add(assignPickerPickupHeader50);
-//                                        if (assignPickerList.size() > 0) {
-//                                            break outerLoop;
-//                                        }
-//                                    }
+    //                                    if(assignPickerPickupHeader50 != null) {
+    //                                        assignPickerList.add(assignPickerPickupHeader50);
+    //                                        if (assignPickerList.size() > 0) {
+    //                                            break outerLoop;
+    //                                        }
+    //                                    }
 
                             List<String> pickerCountList_50 = pickupHeaderV2Repository
                                             .getPickUpheader50AssignPickerList(companyCodeId, plantId, languageId, warehouseId, hhtUserList, LEVEL_ID, 50L, dates[0], dates[1]);
@@ -2181,37 +2188,37 @@ public class PreOutboundHeaderService extends BaseService {
                                 }
                             }
 
-//                                    List<IKeyValuePair> pickerCountList = pickupHeaderV2Repository
-//                                            .getAssignPicker(companyCodeId, plantId, languageId, warehouseId, hhtUserList, LEVEL_ID, 48L, dates[0], dates[1]);
-//                                    if(pickerCountList != null && !pickerCountList.isEmpty()) {
-//                                        for(IKeyValuePair iKeyValuePair : pickerCountList){             //for log purpose only will comment later
-//                                            log.info("Picker Count - Picker : " + iKeyValuePair.getPickerCount() + " - " + iKeyValuePair.getAssignPicker());
-//                                        }
-//                                        List<String> hhtUser48List = pickerCountList.stream().map(IKeyValuePair::getAssignPicker).collect(Collectors.toList());
-//                                        log.info("Filter Picker List based on Count : " + hhtUser48List);
-//                                        List<IKeyValuePair> pickerCountListCreatedOn = pickupHeaderV2Repository
-//                                                .getAssignPickerList(companyCodeId, plantId, languageId, warehouseId, hhtUser48List, LEVEL_ID, 48L, dates[0], dates[1]);
-//                                        if(pickerCountListCreatedOn != null && !pickerCountListCreatedOn.isEmpty()) {
-//                                            for(IKeyValuePair pickerCheck : pickerCountList ){
-//                                                for(IKeyValuePair pickerCheckByCreatedOn : pickerCountListCreatedOn) {
-//                                                    log.info("Picker_Count, Picker Sortby Created On : "
-//                                                            + pickerCheck.getAssignPicker() + ", "
-//                                                            + pickerCheck.getPickerCount() + ", " + pickerCheckByCreatedOn.getAssignPicker());
-//                                                    if(pickerCheck.getAssignPicker().equalsIgnoreCase(pickerCheckByCreatedOn.getAssignPicker())) {
-//                                                        log.info("picker, count, ctdOn Picker : " + pickerCheck.getAssignPicker()
-//                                                                + "," + pickerCheck.getPickerCount() + ", " +pickerCheckByCreatedOn.getAssignPicker());
-//                                                        assignPickerList.add(pickerCheck.getAssignPicker());
-//                                                        log.info("assigned Picker: " + assignPickerList.get(0));
-//                                                        if (assignPickerList.size() > 0) {
-//                                                            break outerLoop;
-//                                                        }
-//                                                    }
-//                                                }
-//                                            }
-//                                        }
-//                                    }
+    //                                    List<IKeyValuePair> pickerCountList = pickupHeaderV2Repository
+    //                                            .getAssignPicker(companyCodeId, plantId, languageId, warehouseId, hhtUserList, LEVEL_ID, 48L, dates[0], dates[1]);
+    //                                    if(pickerCountList != null && !pickerCountList.isEmpty()) {
+    //                                        for(IKeyValuePair iKeyValuePair : pickerCountList){             //for log purpose only will comment later
+    //                                            log.info("Picker Count - Picker : " + iKeyValuePair.getPickerCount() + " - " + iKeyValuePair.getAssignPicker());
+    //                                        }
+    //                                        List<String> hhtUser48List = pickerCountList.stream().map(IKeyValuePair::getAssignPicker).collect(Collectors.toList());
+    //                                        log.info("Filter Picker List based on Count : " + hhtUser48List);
+    //                                        List<IKeyValuePair> pickerCountListCreatedOn = pickupHeaderV2Repository
+    //                                                .getAssignPickerList(companyCodeId, plantId, languageId, warehouseId, hhtUser48List, LEVEL_ID, 48L, dates[0], dates[1]);
+    //                                        if(pickerCountListCreatedOn != null && !pickerCountListCreatedOn.isEmpty()) {
+    //                                            for(IKeyValuePair pickerCheck : pickerCountList ){
+    //                                                for(IKeyValuePair pickerCheckByCreatedOn : pickerCountListCreatedOn) {
+    //                                                    log.info("Picker_Count, Picker Sortby Created On : "
+    //                                                            + pickerCheck.getAssignPicker() + ", "
+    //                                                            + pickerCheck.getPickerCount() + ", " + pickerCheckByCreatedOn.getAssignPicker());
+    //                                                    if(pickerCheck.getAssignPicker().equalsIgnoreCase(pickerCheckByCreatedOn.getAssignPicker())) {
+    //                                                        log.info("picker, count, ctdOn Picker : " + pickerCheck.getAssignPicker()
+    //                                                                + "," + pickerCheck.getPickerCount() + ", " +pickerCheckByCreatedOn.getAssignPicker());
+    //                                                        assignPickerList.add(pickerCheck.getAssignPicker());
+    //                                                        log.info("assigned Picker: " + assignPickerList.get(0));
+    //                                                        if (assignPickerList.size() > 0) {
+    //                                                            break outerLoop;
+    //                                                        }
+    //                                                    }
+    //                                                }
+    //                                            }
+    //                                        }
+    //                                    }
 
-//                                }
+    //                                }
                         }
                         if (assignPickerList == null || assignPickerList.isEmpty() || assignPickerList.size() == 0) {
                             assignPickerList.add(hhtUserList.get(0));
@@ -2270,15 +2277,15 @@ public class PreOutboundHeaderService extends BaseService {
                 PickupHeaderV2 createdPickupHeader = pickupHeaderService.createOutboundOrderProcessingPickupHeaderV2(newPickupHeader, orderManagementLine.getPickupCreatedBy());
                 log.info("pickupHeader created: " + createdPickupHeader);
 
-//                orderManagementLine.setPickupNumber(PU_NO);
-//                orderManagementLine.setAssignedPickerId(assignPickerId);
-//                orderManagementLine.setStatusId(48L);                        // 2. Update STATUS_ID = 48
-//                orderManagementLine.setStatusDescription(statusDescription);
-////                    orderManagementLine.setPickupUpdatedBy("Automate");            // Ref_field_7
-//                orderManagementLine.setPickupUpdatedOn(new Date());
-//                OrderManagementLineV2 orderManagementLineV2 = orderManagementLineV2Repository.save(orderManagementLine);
-//                log.info("OrderManagementLine updated : " + orderManagementLineV2);
-//                    }
+    //                orderManagementLine.setPickupNumber(PU_NO);
+    //                orderManagementLine.setAssignedPickerId(assignPickerId);
+    //                orderManagementLine.setStatusId(48L);                        // 2. Update STATUS_ID = 48
+    //                orderManagementLine.setStatusDescription(statusDescription);
+    ////                    orderManagementLine.setPickupUpdatedBy("Automate");            // Ref_field_7
+    //                orderManagementLine.setPickupUpdatedOn(new Date());
+    //                OrderManagementLineV2 orderManagementLineV2 = orderManagementLineV2Repository.save(orderManagementLine);
+    //                log.info("OrderManagementLine updated : " + orderManagementLineV2);
+    //                    }
                 orderManagementLineV2Repository.updateOrderManagementLineV2(
                         companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode,
                         orderManagementLine.getLineNumber(), orderManagementLine.getItemCode(),
@@ -2289,15 +2296,15 @@ public class PreOutboundHeaderService extends BaseService {
                  * Selected WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/OB_LINE_NO/ITM_CODE in
                  * OUTBOUNDLINE table and update SATATU_ID as 48
                  */
-//                OutboundLineV2 outboundLine = outboundLineService.getOutboundLineV2(companyCodeId, plantId, languageId, warehouseId,
-//                        preOutboundNo, refDocNumber, partnerCode,
-//                        orderManagementLine.getLineNumber(),
-//                        orderManagementLine.getItemCode());
-//                outboundLine.setAssignedPickerId(assignPickerId);
-//                outboundLine.setStatusId(48L);
-//                outboundLine.setStatusDescription(statusDescription);
-//                outboundLine = outboundLineV2Repository.save(outboundLine);
-//                log.info("outboundLine updated : " + outboundLine);
+    //                OutboundLineV2 outboundLine = outboundLineService.getOutboundLineV2(companyCodeId, plantId, languageId, warehouseId,
+    //                        preOutboundNo, refDocNumber, partnerCode,
+    //                        orderManagementLine.getLineNumber(),
+    //                        orderManagementLine.getItemCode());
+    //                outboundLine.setAssignedPickerId(assignPickerId);
+    //                outboundLine.setStatusId(48L);
+    //                outboundLine.setStatusDescription(statusDescription);
+    //                outboundLine = outboundLineV2Repository.save(outboundLine);
+    //                log.info("outboundLine updated : " + outboundLine);
             }
         }
 
@@ -2321,11 +2328,15 @@ public class PreOutboundHeaderService extends BaseService {
 //        orderManagementHeaderV2Repository.save(orderManagementHeader);
 //        log.info("orderManagementHeader updated : " + orderManagementHeader);
         orderManagementHeaderV2Repository.updateOrderManagementHeaderStatusV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 48L, statusDescription);
+        } catch (Exception e) {
+            log.error("create PickupHeader error : " + e);
+            throw e;
+        }
     }
 
     private void createPickUpHeaderAssignPicker(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                 OutboundIntegrationHeaderV2 outboundIntegrationHeader,
-                                                String preOutboundNo, String refDocNumber, String partnerCode) throws InvocationTargetException, IllegalAccessException, ParseException, FirebaseMessagingException {
+                                                String preOutboundNo, String refDocNumber, String partnerCode) throws Exception {
 
         List<OrderManagementLineV2> orderManagementLineV2List = orderManagementLineService.
                 getOrderManagementLineForPickupLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber);
@@ -2715,7 +2726,7 @@ public class PreOutboundHeaderService extends BaseService {
 
     private void updateStatusAs48ForPickupHeader(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                               OutboundIntegrationHeaderV2 outboundIntegrationHeader,
-                                                              String preOutboundNo, String refDocNumber, String partnerCode) throws InvocationTargetException, IllegalAccessException, ParseException, FirebaseMessagingException {
+                                                              String preOutboundNo, String refDocNumber, String partnerCode) throws Exception {
 
         List<OrderManagementLineV2> orderManagementLineV2List = orderManagementLineService.
                 getOrderManagementLineForPickupLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber);
@@ -3461,7 +3472,7 @@ public class PreOutboundHeaderService extends BaseService {
      */
     private void updateStatusAs48ForPickupHeaderCreateSuccess(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                               OutboundIntegrationHeaderV2 outboundIntegrationHeader,
-                                                              String preOutboundNo, String refDocNumber, String partnerCode) throws InvocationTargetException, IllegalAccessException, ParseException, FirebaseMessagingException {
+                                                              String preOutboundNo, String refDocNumber, String partnerCode) throws Exception {
 
         List<OrderManagementLineV2> orderManagementLineV2List = orderManagementLineService.
                 getOrderManagementLineForPickupLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber);

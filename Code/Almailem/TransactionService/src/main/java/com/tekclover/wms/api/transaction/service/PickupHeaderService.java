@@ -1095,7 +1095,7 @@ public class PickupHeaderService {
      * @param loginUserID
      * @return
      */
-    public PickupHeaderV2 createOutboundOrderProcessingPickupHeaderV2(PickupHeaderV2 newPickupHeader, String loginUserID) {
+    public PickupHeaderV2 createOutboundOrderProcessingPickupHeaderV2(PickupHeaderV2 newPickupHeader, String loginUserID) throws Exception {
         try {
             PickupHeaderV2 dbPickupHeader = new PickupHeaderV2();
             log.info("newPickupHeader : " + newPickupHeader);
@@ -1140,7 +1140,7 @@ public class PickupHeaderService {
             return pickupHeaderV2;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new BadRequestException("Exception : " + e);
+            throw e;
         }
     }
 

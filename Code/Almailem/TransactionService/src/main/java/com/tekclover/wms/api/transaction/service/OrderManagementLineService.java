@@ -1458,7 +1458,7 @@ public class OrderManagementLineService extends BaseService {
      *
      * @param outboundIntegrationHeader
      */
-    public void doUnAllocationV2(OutboundIntegrationHeaderV2 outboundIntegrationHeader) {
+    public void doUnAllocationV2(OutboundIntegrationHeaderV2 outboundIntegrationHeader) throws Exception {
         try {
             String companyCodeId = outboundIntegrationHeader.getCompanyCode();
             String plantId = outboundIntegrationHeader.getBranchCode();
@@ -1470,18 +1470,21 @@ public class OrderManagementLineService extends BaseService {
             List<OrderManagementLineV2> orderManagementLineV2List = orderManagementLineV2Repository.findAllByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndOutboundOrderTypeIdAndDeletionIndicator(
                     companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId, 0L);
 
+            log.info("Rollback---> 1. unAllocation ----> " + refDocNo + ", " + outboundOrderTypeId);
             //if order management line present do un allocation
             if (orderManagementLineV2List != null && !orderManagementLineV2List.isEmpty()) {
                 doUnAllocationV2(orderManagementLineV2List, "MW_AMS");
-                log.info("Unallocation Finished");
+                log.info("Rollback---> 1.Unallocation Finished ----> " + refDocNo + ", " + outboundOrderTypeId);
             }
 
             //delete all records from respective tables
+            log.info("Rollback---> 2. delete all record initiated ----> " + refDocNo + ", " + outboundOrderTypeId);
             orderManagementLineV2Repository.deleteOutboundProcessingProc(companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId);
-            log.info("all records delete finished");
+            log.info("Rollback---> 2. delete all record finished ----> " + refDocNo + ", " + outboundOrderTypeId);
 
         } catch (Exception e) {
-            throw new BadRequestException("Exception : " + e.toString());
+            e.printStackTrace();
+            throw e;
         }
     }
     /**

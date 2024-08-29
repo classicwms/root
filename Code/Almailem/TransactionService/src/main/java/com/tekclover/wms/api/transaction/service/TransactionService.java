@@ -354,9 +354,9 @@ public class TransactionService extends BaseService{
                             e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException") ||
                             e.toString().contains("UnexpectedRollbackException") || e.toString().contains("SqlException")) {
                         // Updating the Processed Status
-//                        orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID(), 900L);
-                        orderManagementLineService.doUnAllocationV2(outbound);
-                        orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID());
+                        orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID(), 900L);
+//                        orderManagementLineService.doUnAllocationV2(outbound);
+//                        orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID());
                         //============================================================================================
                         //Sending Failed Details through Mail
                         InboundOrderCancelInput inboundOrderCancelInput = new InboundOrderCancelInput();

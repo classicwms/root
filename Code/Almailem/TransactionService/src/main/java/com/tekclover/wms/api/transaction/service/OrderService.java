@@ -372,6 +372,9 @@ public class OrderService {
 		if (dbOutboundOrder != null) {
 			dbOutboundOrder.setProcessedStatusId(processStatusId);
 			dbOutboundOrder.setOrderProcessedOn(new Date());
+			if(dbOutboundOrder.getNumberOfAttempts() != null && dbOutboundOrder.getNumberOfAttempts().equals(3L)) {
+				dbOutboundOrder.setProcessedStatusId(100L);
+			}
 			OutboundOrderV2 outboundOrder = outboundOrderV2Repository.save(dbOutboundOrder);
 			return outboundOrder;
 		}
@@ -385,7 +388,7 @@ public class OrderService {
 	 * @return
 	 */
 	public void updateProcessedOrderV2(String orderId, Long outboundOrderTypeID) {
-		log.info("orderId : " + orderId + "," + outboundOrderTypeID);
+		log.info("rollback - rerun - orderId : " + orderId + "," + outboundOrderTypeID);
 		OutboundOrderV2 dbOutboundOrder = getOBOrderByIdV2(orderId, outboundOrderTypeID);
 		if (dbOutboundOrder != null) {
 			Long numberOfAttemts = 0L;
@@ -416,7 +419,7 @@ public class OrderService {
 			dbOutboundOrder.setNumberOfAttempts(numberOfAttemts);
 			dbOutboundOrder.setOrderProcessedOn(new Date());
 			OutboundOrderV2 updatedOutboundOrder = outboundOrderV2Repository.save(dbOutboundOrder);
-			log.info("updatedOutboundOrder : " + updatedOutboundOrder);
+			log.info("rollback rerun - updatedOutboundOrder : " + updatedOutboundOrder);
 		}
 	}
 

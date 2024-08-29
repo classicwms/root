@@ -591,7 +591,7 @@ public class OutboundHeaderService {
      * @param warehouseId
      * @return
      */
-    public OutboundHeaderV2 updateOutboundHeaderForSalesInvoiceV2(OutboundIntegrationHeaderV2 outboundIntegrationHeader, String warehouseId) {
+    public OutboundHeaderV2 updateOutboundHeaderForSalesInvoiceV2(OutboundIntegrationHeaderV2 outboundIntegrationHeader, String warehouseId) throws Exception {
 
         try {
             OutboundHeaderV2 dbOutboundHeader = getOutboundHeaderForSalesInvoiceUpdateV2(
@@ -620,7 +620,7 @@ public class OutboundHeaderService {
             return dbOutboundHeader;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new BadRequestException("Exception : " + e);
+            throw e;
         }
     }
 
