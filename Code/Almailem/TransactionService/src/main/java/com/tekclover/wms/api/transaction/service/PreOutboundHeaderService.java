@@ -1599,12 +1599,17 @@ public class PreOutboundHeaderService extends BaseService {
         }
 
         if (outboundIntegrationHeader.getOutboundOrderTypeID() == 4 || outboundIntegrationHeader.getReferenceDocumentType().equalsIgnoreCase("Sales Invoice")) {
-            OutboundHeaderV2 updateOutboundHeaderAndLine = outboundHeaderService.updateOutboundHeaderForSalesInvoice(outboundIntegrationHeader, warehouseId);
+            try {
+//            OutboundHeaderV2 updateOutboundHeaderAndLine = outboundHeaderService.updateOutboundHeaderForSalesInvoice(outboundIntegrationHeader, warehouseId);
+                OutboundHeaderV2 updateOutboundHeaderAndLine = outboundHeaderService.updateOutboundHeaderForSalesInvoiceV2(outboundIntegrationHeader, warehouseId);
             log.info("SalesInvoice Updated in OutboundHeader and Line");
             if (updateOutboundHeaderAndLine == null) {
                 updateOutboundHeaderAndLine = new OutboundHeaderV2();
             }
             return updateOutboundHeaderAndLine;
+            } catch (Exception e) {
+                throw new BadRequestException("Exception - sales Invoice: " + e);
+            }
         }
 
         //PickList Cancellation

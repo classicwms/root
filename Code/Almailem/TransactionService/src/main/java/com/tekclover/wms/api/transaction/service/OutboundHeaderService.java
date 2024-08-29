@@ -586,6 +586,45 @@ public class OutboundHeaderService {
     }
 
     /**
+     * V2
+     * @param outboundIntegrationHeader
+     * @param warehouseId
+     * @return
+     */
+    public OutboundHeaderV2 updateOutboundHeaderForSalesInvoiceV2(OutboundIntegrationHeaderV2 outboundIntegrationHeader, String warehouseId) {
+
+        try {
+            OutboundHeaderV2 dbOutboundHeader = getOutboundHeaderForSalesInvoiceUpdateV2(
+                    outboundIntegrationHeader.getCompanyCode(), outboundIntegrationHeader.getBranchCode(), "EN",
+                    warehouseId, outboundIntegrationHeader.getPickListNumber());
+            log.info("OutboundHeader: " + dbOutboundHeader);
+
+            outboundHeaderV2Repository.updateSalesInvoiceOutboundHeaderV2(
+                    outboundIntegrationHeader.getCompanyCode(), outboundIntegrationHeader.getBranchCode(), "EN", warehouseId,
+                    outboundIntegrationHeader.getPickListNumber(), outboundIntegrationHeader.getSalesOrderNumber(),
+                    outboundIntegrationHeader.getSalesInvoiceNumber(), outboundIntegrationHeader.getRequiredDeliveryDate(),
+                    outboundIntegrationHeader.getDeliveryType(), outboundIntegrationHeader.getCustomerId(),
+                    outboundIntegrationHeader.getCustomerName(), outboundIntegrationHeader.getAddress(),
+                    outboundIntegrationHeader.getPhoneNumber(), outboundIntegrationHeader.getAlternateNo(),
+                    outboundIntegrationHeader.getStatus(), new Date());
+
+            outboundHeaderV2Repository.updateSalesInvoiceOutboundLineV2(
+                    outboundIntegrationHeader.getCompanyCode(), outboundIntegrationHeader.getBranchCode(), "EN", warehouseId,
+                    outboundIntegrationHeader.getPickListNumber(), outboundIntegrationHeader.getSalesOrderNumber(),
+                    outboundIntegrationHeader.getSalesInvoiceNumber(), outboundIntegrationHeader.getRequiredDeliveryDate(),
+                    outboundIntegrationHeader.getDeliveryType(), outboundIntegrationHeader.getCustomerId(),
+                    outboundIntegrationHeader.getCustomerName(), outboundIntegrationHeader.getAddress(),
+                    outboundIntegrationHeader.getPhoneNumber(), outboundIntegrationHeader.getAlternateNo(),
+                    outboundIntegrationHeader.getStatus(), new Date());
+
+            return dbOutboundHeader;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BadRequestException("Exception : " + e);
+        }
+    }
+
+    /**
      * @param warehouseId
      * @param preOutboundNo
      * @param refDocNumber

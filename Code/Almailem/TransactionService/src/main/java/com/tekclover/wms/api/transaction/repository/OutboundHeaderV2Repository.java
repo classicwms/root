@@ -693,4 +693,50 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
     List<OutboundHeaderV2> findBySalesOrderNumberAndDeletionIndicator(String salesOrderNumber, Long deletionIndicator);
 
     List<OutboundHeaderV2> findBySalesOrderNumberAndOutboundOrderTypeIdAndDeletionIndicator(String salesOrderNumber, Long outboundOrderTypeId, Long deletionIndicator);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = "Update tbloutboundheader SET SALES_ORDER_NUMBER = :salesOrderNumber, SALES_INVOICE_NUMBER = :salesInvoiceNumber, INVOICE_DATE = :invoiceDate, \r\n "
+            + " DELIVERY_TYPE = :deliveryType, CUSTOMER_ID = :customerId, CUSTOMER_NAME = :customerName, ADDRESS = :address, PHONE_NUMBER = :phoneNumber, \r\n"
+            + " ALTERNATE_NO = :alternateNo, STATUS = :status, DLV_UTD_ON = :updatedOn \r\n"
+            + " WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND \r\n"
+            + "LANG_ID = :languageId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber", nativeQuery = true)
+    void updateSalesInvoiceOutboundHeaderV2(@Param("companyCodeId") String companyCodeId,
+                                            @Param("plantId") String plantId,
+                                            @Param("languageId") String languageId,
+                                            @Param("warehouseId") String warehouseId,
+                                            @Param("refDocNumber") String refDocNumber,
+                                            @Param("salesOrderNumber") String salesOrderNumber,
+                                            @Param("salesInvoiceNumber") String salesInvoiceNumber,
+                                            @Param("invoiceDate") Date invoiceDate,
+                                            @Param("deliveryType") String deliveryType,
+                                            @Param("customerId") String customerId,
+                                            @Param("customerName") String customerName,
+                                            @Param("address") String address,
+                                            @Param("phoneNumber") String phoneNumber,
+                                            @Param("alternateNo") String alternateNo,
+                                            @Param("status") String status,
+                                            @Param("updatedOn") Date updatedOn);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = "Update tbloutboundline SET SALES_ORDER_NUMBER = :salesOrderNumber, SALES_INVOICE_NUMBER = :salesInvoiceNumber, INVOICE_DATE = :invoiceDate, \r\n "
+            + " DELIVERY_TYPE = :deliveryType, CUSTOMER_ID = :customerId, CUSTOMER_NAME = :customerName, ADDRESS = :address, PHONE_NUMBER = :phoneNumber, \r\n"
+            + " ALTERNATE_NO = :alternateNo, STATUS = :status, DLV_UTD_ON = :updatedOn \r\n"
+            + " WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND \r\n"
+            + "LANG_ID = :languageId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber", nativeQuery = true)
+    void updateSalesInvoiceOutboundLineV2(@Param("companyCodeId") String companyCodeId,
+                                          @Param("plantId") String plantId,
+                                          @Param("languageId") String languageId,
+                                          @Param("warehouseId") String warehouseId,
+                                          @Param("refDocNumber") String refDocNumber,
+                                          @Param("salesOrderNumber") String salesOrderNumber,
+                                          @Param("salesInvoiceNumber") String salesInvoiceNumber,
+                                          @Param("invoiceDate") Date invoiceDate,
+                                          @Param("deliveryType") String deliveryType,
+                                          @Param("customerId") String customerId,
+                                          @Param("customerName") String customerName,
+                                          @Param("address") String address,
+                                          @Param("phoneNumber") String phoneNumber,
+                                          @Param("alternateNo") String alternateNo,
+                                          @Param("status") String status,
+                                          @Param("updatedOn") Date updatedOn);
 }
