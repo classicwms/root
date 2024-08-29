@@ -152,16 +152,20 @@ public class UserManagementService {
 	public UserManagement updateUserManagement (String userId, String warehouseId, UpdateUserManagement updateUserManagement, String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
 		UserManagement dbUserManagement = getUserManagement(warehouseId, userId);
-		BeanUtils.copyProperties(updateUserManagement, dbUserManagement, CommonUtils.getNullPropertyNames(updateUserManagement));
+		log.info("------dbUserManagement---1----> : " + dbUserManagement);
 		
+		BeanUtils.copyProperties(updateUserManagement, dbUserManagement, CommonUtils.getNullPropertyNames(updateUserManagement));
+		log.info("------updateUserManagement-------> : " + updateUserManagement);
+		log.info("------dbUserManagement--2-----> : " + dbUserManagement);
 		if (updateUserManagement.getPassword() != null) {
 			// Password encryption
 			String encodedPwd = passwordEncoder.encodePassword(updateUserManagement.getPassword());
 			dbUserManagement.setPassword(encodedPwd);
 		}
-		dbUserManagement.setUserId(updateUserManagement.getUserId().toUpperCase());
 		dbUserManagement.setUpdatedBy(loginUserID);
 		dbUserManagement.setUpdatedOn(new Date());
+		log.info("------dbUserManagement---3----> : " + dbUserManagement);
+		
 		return userManagementRepository.save(dbUserManagement);
 	}
 	
