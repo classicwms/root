@@ -2386,4 +2386,21 @@ public class QualityLineService extends BaseService {
         return qualityLineV2List;
 
     }
+
+    /**
+     * Pick List cancel
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param refDocNumber
+     * @return
+     */
+    public List<QualityLineV2> getPLCQualityLine(String companyCodeId, String plantId, String languageId,
+                                                 String warehouseId, String refDocNumber, String preOutboundNo) {
+        List<QualityLineV2> dbQualityLineList = qualityLineV2Repository.findByCompanyCodeIdAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                companyCodeId, languageId, plantId, warehouseId, refDocNumber, preOutboundNo, 0L);
+        log.info("PickList Cancellation - QualityLine : " + dbQualityLineList);
+        return dbQualityLineList;
+    }
 }

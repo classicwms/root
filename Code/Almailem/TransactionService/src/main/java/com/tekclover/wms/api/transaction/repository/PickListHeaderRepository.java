@@ -8,6 +8,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
+
 @Repository
 @Transactional
 public interface PickListHeaderRepository extends JpaRepository<PickListHeader, Long>,
@@ -26,5 +28,16 @@ public interface PickListHeaderRepository extends JpaRepository<PickListHeader, 
             @Param("newRefDocNumber") String newRefDocNumber,
             @Param("newPreOutboundNo") String newPreOutboundNo,
             @Param("salesOrderNo") String salesOrderNo);
+
+    @Transactional
+    @Procedure(procedureName = "pick_list_delete_proc")
+    void updateDeletionIndicatorPickListCancellationProc(@Param("companyCodeId") String companyCodeId,
+                                                         @Param("plantId") String plantId,
+                                                         @Param("languageId") String languageId,
+                                                         @Param("warehouseId") String warehouseId,
+                                                         @Param("refDocNumber") String refDocNumber,
+                                                         @Param("preOutboundNo") String preOutboundNo,
+                                                         @Param("updatedBy") String updatedBy,
+                                                         @Param("updatedOn") Date updatedOn);
 
 }

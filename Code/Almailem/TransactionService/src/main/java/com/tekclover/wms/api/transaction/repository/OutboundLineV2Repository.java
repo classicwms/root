@@ -601,4 +601,26 @@ public interface OutboundLineV2Repository extends JpaRepository<OutboundLineV2, 
                                               @Param("preOutboundNo") List<String> preOutboundNo,
                                               @Param("refDocNumber") List<String> refDocNumber,
                                               @Param("statusId") List<Long> statusId);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE OutboundLineV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription, ob.updatedOn = :updatedOn, \r\n"
+            + " ob.assignedPickerId = :assignedPickerId, ob.manufacturerName = :manufacturerName, ob.updatedBy = :loginUserId \r\n "
+            + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND \r\n "
+            + " ob.partnerCode = :partnerCode AND ob.itemCode = :itemCode AND \r\n "
+            + " ob.refDocNumber = :refDocNumber AND ob.preOutboundNo = :preOutboundNo AND ob.lineNumber = :lineNumber")
+    void updateOutboundLineV2(@Param("companyCodeId") String companyCodeId,
+                              @Param("plantId") String plantId,
+                              @Param("languageId") String languageId,
+                              @Param("warehouseId") String warehouseId,
+                              @Param("preOutboundNo") String preOutboundNo,
+                              @Param("refDocNumber") String refDocNumber,
+                              @Param("partnerCode") String partnerCode,
+                              @Param("lineNumber") Long lineNumber,
+                              @Param("itemCode") String itemCode,
+                              @Param("statusId") Long statusId,
+                              @Param("statusDescription") String statusDescription,
+                              @Param("assignedPickerId") String assignedPickerId,
+                              @Param("manufacturerName") String manufacturerName,
+                              @Param("loginUserId") String loginUserId,
+                              @Param("updatedOn") Date updatedOn);
 }

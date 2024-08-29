@@ -48,10 +48,9 @@ public class OutboundOrderV2 extends OutboundOrder {
     private Long middlewareId;
     private String middlewareTable;
     private String customerType;
+    private Long numberOfAttempts;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "OUTBOUND_ORDER_HEADER_ID",referencedColumnName = "OUTBOUND_ORDER_HEADER_ID")
     private Set<OutboundOrderLineV2> line;
 }
-
-

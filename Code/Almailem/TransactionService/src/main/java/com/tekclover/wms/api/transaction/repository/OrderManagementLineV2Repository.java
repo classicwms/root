@@ -121,4 +121,59 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
             @Param("statusId") Long statusId,
             @Param("statusDescription") String statusDescription
     );
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE OrderManagementLineV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription, ob.pickupUpdatedOn = :updatedOn, \r\n"
+            + " ob.assignedPickerId = :assignedPickerId, ob.pickupNumber = :pickupNumber \r\n "
+            + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND \r\n "
+            + " ob.partnerCode = :partnerCode AND ob.itemCode = :itemCode AND \r\n "
+            + " ob.refDocNumber = :refDocNumber AND ob.preOutboundNo = :preOutboundNo AND ob.lineNumber = :lineNumber")
+    void updateOrderManagementLineV2(@Param("companyCodeId") String companyCodeId,
+                                     @Param("plantId") String plantId,
+                                     @Param("languageId") String languageId,
+                                     @Param("warehouseId") String warehouseId,
+                                     @Param("preOutboundNo") String preOutboundNo,
+                                     @Param("refDocNumber") String refDocNumber,
+                                     @Param("partnerCode") String partnerCode,
+                                     @Param("lineNumber") Long lineNumber,
+                                     @Param("itemCode") String itemCode,
+                                     @Param("statusId") Long statusId,
+                                     @Param("statusDescription") String statusDescription,
+                                     @Param("assignedPickerId") String assignedPickerId,
+                                     @Param("pickupNumber") String pickupNumber,
+                                     @Param("updatedOn") Date updatedOn);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE OrderManagementLineV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription, \r\n"
+            + " ob.allocatedQty = 0, ob.deletionIndicator = :deletionIndicator, ob.pickupUpdatedBy = :pickupUpdatedBy, ob.pickupUpdatedOn = :pickupUpdatedOn \r\n "
+            + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND \r\n "
+            + " ob.partnerCode = :partnerCode AND ob.itemCode = :itemCode AND \r\n "
+            + " ob.refDocNumber = :refDocNumber AND ob.preOutboundNo = :preOutboundNo AND ob.lineNumber = :lineNumber")
+    void updateOrderManagementLineUnAllocateV2(@Param("companyCodeId") String companyCodeId,
+                                               @Param("plantId") String plantId,
+                                               @Param("languageId") String languageId,
+                                               @Param("warehouseId") String warehouseId,
+                                               @Param("preOutboundNo") String preOutboundNo,
+                                               @Param("refDocNumber") String refDocNumber,
+                                               @Param("partnerCode") String partnerCode,
+                                               @Param("lineNumber") Long lineNumber,
+                                               @Param("itemCode") String itemCode,
+                                               @Param("statusId") Long statusId,
+                                               @Param("statusDescription") String statusDescription,
+                                               @Param("deletionIndicator") Long deletionIndicator,
+                                               @Param("pickupUpdatedBy") String pickupUpdatedBy,
+                                               @Param("pickupUpdatedOn") Date pickupUpdatedOn);
+
+    List<OrderManagementLineV2> findAllByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndOutboundOrderTypeIdAndDeletionIndicator(
+            String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNo, Long outboundOrderTypeId, Long deletionIndicator);
+
+    @Transactional
+    @Procedure(procedureName = "outbound_process_delete_proc")
+    public void deleteOutboundProcessingProc(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("outboundOrderTypeId") Long outboundOrderTypeId);
 }

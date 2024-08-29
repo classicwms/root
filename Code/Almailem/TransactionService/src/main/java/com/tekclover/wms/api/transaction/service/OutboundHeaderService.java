@@ -1103,5 +1103,21 @@ public class OutboundHeaderService {
         }
         return outboundHeaderV2;
     }
+    /**
+     * picklistcancel
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param refDocNumber
+     * @return
+     */
+    public OutboundHeaderV2 getPLCOutBoundHeader(String companyCodeId, String plantId, String languageId,
+                                                 String warehouseId, String refDocNumber, String preOutboundNo) {
 
+        OutboundHeaderV2 outboundHeaderV2 = outboundHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 0L);
+        log.info("PickList Cancellation - OutboundHeader : " + outboundHeaderV2);
+        return outboundHeaderV2;
+    }
 }

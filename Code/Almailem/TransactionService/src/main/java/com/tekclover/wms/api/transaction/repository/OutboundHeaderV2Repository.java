@@ -55,16 +55,16 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
                                                @Param("statusId") Long statusId);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("Update OutboundHeaderV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription, ob.deliveryConfirmedOn = :deliveryConfirmedOn \r\n "
-            + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND ob.refDocNumber = :refDocNumber")
+    @Query("Update OutboundHeaderV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription \r\n "
+            + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND ob.refDocNumber = :refDocNumber AND ob.preOutboundNo = :preOutboundNo")
     public void updateOutboundHeaderStatusV2(@Param("companyCodeId") String companyCodeId,
                                              @Param("plantId") String plantId,
                                              @Param("languageId") String languageId,
                                              @Param("warehouseId") String warehouseId,
                                              @Param("refDocNumber") String refDocNumber,
+                                             @Param("preOutboundNo") String preOutboundNo,
                                              @Param("statusId") Long statusId,
-                                             @Param("statusDescription") String statusDescription,
-                                             @Param("deliveryConfirmedOn") Date deliveryConfirmedOn);
+                                             @Param("statusDescription") String statusDescription);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value ="Update tbloutboundheader SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, DLV_CNF_ON = :deliveryConfirmedOn \r\n "

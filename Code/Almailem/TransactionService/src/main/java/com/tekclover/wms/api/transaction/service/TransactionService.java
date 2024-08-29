@@ -33,8 +33,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Slf4j
 @Service
 public class TransactionService extends BaseService{
-    @Autowired
-    private OutboundOrderLinesV2Repository outboundOrderLinesV2Repository;
 
     @Autowired
     PreInboundHeaderService preinboundheaderService;
@@ -54,6 +52,8 @@ public class TransactionService extends BaseService{
     CycleCountService cycleCountService;
     @Autowired
     MastersService mastersService;
+    @Autowired
+    OrderManagementLineService orderManagementLineService;
     //-------------------------------------------------------------------------------------------
 
     @Autowired
@@ -352,10 +352,11 @@ public class TransactionService extends BaseService{
                     if ((e.toString().contains("SQLState: 40001") && e.toString().contains("SQL Error: 1205")) ||
                             e.toString().contains("was deadlocked on lock") ||
                             e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException") ||
-                            e.toString().contains("UnexpectedRollbackException")) {
+                            e.toString().contains("UnexpectedRollbackException") || e.toString().contains("SqlException")) {
                         // Updating the Processed Status
-                        orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID(), 900L);
-
+//                        orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID(), 900L);
+                        orderManagementLineService.doUnAllocationV2(outbound);
+                        orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID());
                         //============================================================================================
                         //Sending Failed Details through Mail
                         InboundOrderCancelInput inboundOrderCancelInput = new InboundOrderCancelInput();

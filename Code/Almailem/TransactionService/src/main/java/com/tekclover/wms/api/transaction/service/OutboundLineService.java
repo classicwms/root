@@ -4292,4 +4292,21 @@ public class OutboundLineService extends BaseService {
         }
         return listOutboundLineInterim;
     }
+
+    /**
+     * Pick List cancel
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param refDocNumber
+     * @return
+     */
+    public List<OutboundLineV2> getPLCOutBoundLine(String companyCodeId, String plantId, String languageId,
+                                                   String warehouseId, String refDocNumber, String preOutboundNo) {
+        List<OutboundLineV2> outboundLineV2List = outboundLineV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 0L);
+        log.info("PickList Cancellation - OutboundLine : " + outboundLineV2List);
+        return outboundLineV2List;
+    }
 }

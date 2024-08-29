@@ -33,6 +33,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class PickupHeaderService {
+    @Autowired
+    private OutboundLineV2Repository outboundLineV2Repository;
 
     @Autowired
     private PickupHeaderRepository pickupHeaderRepository;
@@ -695,7 +697,7 @@ public class PickupHeaderService {
         log.info("searchPickupHeader: " + searchPickupHeader);
         PickupHeaderV2Specification spec = new PickupHeaderV2Specification(searchPickupHeader);
         List<PickupHeaderV2> results = pickupHeaderV2Repository.stream(spec, PickupHeaderV2.class).collect(Collectors.toList());
-        log.info("Pickupheader Results: " + results);
+        log.info("Pickupheader Results: " + results.size());
         return results;
     }
 
@@ -1113,11 +1115,8 @@ public class PickupHeaderService {
             dbPickupHeader.setPlantDescription(description.getPlantDesc());
             dbPickupHeader.setWarehouseDescription(description.getWarehouseDesc());
 
-            OutboundLineV2 updateOutboundLine = new OutboundLineV2();
-            updateOutboundLine.setAssignedPickerId(dbPickupHeader.getAssignedPickerId());
-            updateOutboundLine.setManufacturerName(dbPickupHeader.getManufacturerName());
-            outboundLineService.updateOutboundLineV2(
-                    dbPickupHeader.getCompanyCodeId(),
+            statusDescription = stagingLineV2Repository.getStatusDescription(48L, dbPickupHeader.getLanguageId());
+            outboundLineV2Repository.updateOutboundLineV2(dbPickupHeader.getCompanyCodeId(),
                     dbPickupHeader.getPlantId(),
                     dbPickupHeader.getLanguageId(),
                     dbPickupHeader.getWarehouseId(),
@@ -1126,14 +1125,16 @@ public class PickupHeaderService {
                     dbPickupHeader.getPartnerCode(),
                     dbPickupHeader.getLineNumber(),
                     dbPickupHeader.getItemCode(),
+                                                          48L,
+                                                          statusDescription,
+                                                          dbPickupHeader.getAssignedPickerId(),
+                                                          dbPickupHeader.getManufacturerName(),
                     loginUserID,
-                    updateOutboundLine);
+                                                          new Date());
 
             dbPickupHeader.setDeletionIndicator(0L);
             dbPickupHeader.setPickupCreatedBy(loginUserID);
             dbPickupHeader.setPickupCreatedOn(new Date());
-//        dbPickupHeader.setPickUpdatedBy(loginUserID);
-//        dbPickupHeader.setPickUpdatedOn(new Date());
             PickupHeaderV2 pickupHeaderV2 =  pickupHeaderV2Repository.save(dbPickupHeader);
 
             return pickupHeaderV2;

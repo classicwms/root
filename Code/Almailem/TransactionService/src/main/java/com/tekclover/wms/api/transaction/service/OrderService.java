@@ -379,6 +379,48 @@ public class OrderService {
 	}
 
 	/**
+	 * re run procedure
+	 * @param orderId
+	 * @param outboundOrderTypeID
+	 * @return
+	 */
+	public void updateProcessedOrderV2(String orderId, Long outboundOrderTypeID) {
+		log.info("orderId : " + orderId + "," + outboundOrderTypeID);
+		OutboundOrderV2 dbOutboundOrder = getOBOrderByIdV2(orderId, outboundOrderTypeID);
+		if (dbOutboundOrder != null) {
+			Long numberOfAttemts = 0L;
+			Long attempted = 0L;
+			Long processStatusId = 0L;
+			if(dbOutboundOrder.getNumberOfAttempts() != null){
+				if(dbOutboundOrder.getNumberOfAttempts().equals(0L)){
+					numberOfAttemts = 1L;
+					processStatusId = 0L;
+				}
+				if(dbOutboundOrder.getNumberOfAttempts().equals(1L)){
+					numberOfAttemts = 2L;
+					processStatusId = 0L;
+				}
+				if(dbOutboundOrder.getNumberOfAttempts().equals(2L)){
+					numberOfAttemts = 3L;
+					processStatusId = 100L;
+				}
+				if(dbOutboundOrder.getNumberOfAttempts().equals(3L)){
+					numberOfAttemts = 3L;
+					processStatusId = 100L;
+				}
+			} else {
+				numberOfAttemts = 1L;
+				processStatusId = 0L;
+			}
+			dbOutboundOrder.setProcessedStatusId(processStatusId);
+			dbOutboundOrder.setNumberOfAttempts(numberOfAttemts);
+			dbOutboundOrder.setOrderProcessedOn(new Date());
+			OutboundOrderV2 updatedOutboundOrder = outboundOrderV2Repository.save(dbOutboundOrder);
+			log.info("updatedOutboundOrder : " + updatedOutboundOrder);
+		}
+	}
+
+	/**
 	 *
 	 * @param orderId
 	 * @return

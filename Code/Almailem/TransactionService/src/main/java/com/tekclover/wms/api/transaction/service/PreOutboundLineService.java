@@ -474,4 +474,21 @@ public class PreOutboundLineService extends BaseService {
         }
         return preOutboundLineV2s;
     }
+
+    /**
+     * Pick List cancel
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param refDocNumber
+     * @return
+     */
+    public List<PreOutboundLineV2> getPLCPreOutBoundLine(String companyCodeId, String plantId, String languageId,
+                                                         String warehouseId, String refDocNumber, String preOutboundNo) {
+        List<PreOutboundLineV2> preOutboundLineV2List = preOutboundLineV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 0L);
+        log.info("PickList Cancellation - PreOutboundLine : " + preOutboundLineV2List);
+        return preOutboundLineV2List;
+    }
 }
