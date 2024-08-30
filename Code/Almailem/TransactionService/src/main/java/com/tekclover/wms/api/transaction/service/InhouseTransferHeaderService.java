@@ -1338,8 +1338,13 @@ public class InhouseTransferHeaderService extends BaseService {
                         ALLOC_QTY = inventoryTargetItemCode.getAllocatedQuantity();
                     }
                     transferConfirmedQty = createdInhouseTransferLine.getTransferConfirmedQty();
+                    log.info("sourceInventoryQty,transferConfirmedQty,inventoryQty : " + sourceInventoryQty + ", " + transferConfirmedQty + "," + inventoryQty);
                     if (sourceInventoryQty > 0L) {                  //Checking source Inventory Qty - only update if source inventory qty present else leave it as it is
+                        if(sourceInventoryQty >= transferConfirmedQty) {
                     INV_QTY = inventoryQty + transferConfirmedQty;
+                    } else {
+                            INV_QTY = inventoryQty + sourceInventoryQty;
+                        }
                     } else {
                         INV_QTY = inventoryQty;
                     }
@@ -1406,7 +1411,18 @@ public class InhouseTransferHeaderService extends BaseService {
                         }
                     }
 
-                    newInventory.setInventoryQuantity(createdInhouseTransferLine.getTransferConfirmedQty());
+                    log.info("sourceInventoryQty,transferConfirmedQty : " + sourceInventoryQty + ", " + transferConfirmedQty);
+                    if (sourceInventoryQty > 0L) {                  //Checking source Inventory Qty - only update if source inventory qty present else leave it as it is
+                        if(sourceInventoryQty >= transferConfirmedQty) {
+                            INV_QTY = transferConfirmedQty;
+                        } else {
+                            INV_QTY = sourceInventoryQty;
+                        }
+                    } else {
+                        INV_QTY = 0L;
+                    }
+
+                    newInventory.setInventoryQuantity(INV_QTY);
                     newInventory.setAllocatedQuantity(0D);
                     newInventory.setReferenceField4(newInventory.getInventoryQuantity() + newInventory.getAllocatedQuantity());
                     log.info("INV_QTY--->ALLOC_QTY--->TOT_QTY----> : " + newInventory.getInventoryQuantity() + ", " + newInventory.getAllocatedQuantity() + ", " + newInventory.getReferenceField4());

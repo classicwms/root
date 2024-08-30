@@ -16,6 +16,8 @@ import com.tekclover.wms.api.transaction.model.outbound.preoutbound.v2.OutboundI
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
@@ -59,6 +61,7 @@ import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -1458,6 +1461,8 @@ public class OrderManagementLineService extends BaseService {
      *
      * @param outboundIntegrationHeader
      */
+    @Transactional(rollbackFor = {Exception.class, Throwable.class})
+    @Retryable(value = Exception.class, maxAttempts = 3, backoff = @Backoff(delay = 3000))
     public void doUnAllocationV2(OutboundIntegrationHeaderV2 outboundIntegrationHeader) throws Exception {
         try {
             String companyCodeId = outboundIntegrationHeader.getCompanyCode();
