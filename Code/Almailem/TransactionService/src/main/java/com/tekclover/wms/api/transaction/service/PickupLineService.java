@@ -1604,7 +1604,7 @@ public class PickupLineService extends BaseService {
      * @throws IllegalAccessException
      * @throws InvocationTargetException
      */
-    @Transactional
+//    @Transactional
     public List<PickupLineV2> createPickupLineNonCBMV2(@Valid List<AddPickupLine> newPickupLines, String loginUserID)
             throws IllegalAccessException, InvocationTargetException, java.text.ParseException {
         log.info("login UserId : {}" , loginUserID);

@@ -426,6 +426,22 @@ public class OrderService {
 	/**
 	 *
 	 * @param orderId
+	 * @param outboundOrderTypeID
+	 */
+	public void reRunProcessedOrderV2(String orderId, Long outboundOrderTypeID) {
+		log.info("rollback(Ext Trigger) - rerun - orderId : " + orderId + "," + outboundOrderTypeID);
+		OutboundOrderV2 dbOutboundOrder = getOBOrderByIdV2(orderId, outboundOrderTypeID);
+		if (dbOutboundOrder != null) {
+			dbOutboundOrder.setProcessedStatusId(0L);
+			dbOutboundOrder.setOrderProcessedOn(new Date());
+			OutboundOrderV2 updatedOutboundOrder = outboundOrderV2Repository.save(dbOutboundOrder);
+			log.info("rollback(Ext Trigger) rerun - updatedOutboundOrder : " + updatedOutboundOrder);
+		}
+	}
+
+	/**
+	 *
+	 * @param orderId
 	 * @return
 	 */
 	public OutboundOrderV2 getOBOrderByIdV2(String orderId, Long outboundOrderTypeID) {

@@ -281,6 +281,15 @@ public class OrderManagementLineController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @ApiOperation(response = OrderManagementLineV2.class, value = "roll back") // label for swagger
+    @PostMapping("/v2/rollBack")
+    public ResponseEntity<?> rollBackOutboundOrder(@RequestParam String warehouseId, @RequestParam String companyCodeId, @RequestParam String plantId,
+                                                   @RequestParam String languageId, @RequestParam String refDocNumber,
+                                                   @RequestParam Long outboundOrderTypeId) throws Exception {
+        ordermangementlineService.rollback(companyCodeId, plantId, languageId, warehouseId, refDocNumber, outboundOrderTypeId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     //----------------------Update--Ref9&10------------------------------------------------------------
     @ApiOperation(response = OrderManagementLineV2.class, value = "Get a OrderManagementLine") // label for swagger
     @GetMapping("/v2/updateRefFields")

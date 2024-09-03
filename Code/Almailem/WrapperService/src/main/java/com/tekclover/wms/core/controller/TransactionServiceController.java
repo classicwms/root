@@ -4360,6 +4360,15 @@ public class TransactionServiceController {
     public ResponseEntity<?> postStockAdjustmentUpload(@RequestParam("file") MultipartFile file) throws Exception {
         Map<String, String> response = fileStorageService.processStockAdjustment(file);
         return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
+    @ApiOperation(response = Optional.class, value = "RollBack") // label for swagger
+    @PatchMapping("/outbound/order/v2/rollBack")
+    public ResponseEntity<?> rollBackOutbound(@RequestParam String companyCodeId, @RequestParam String plantId, @RequestParam String languageId,
+                                              @RequestParam String warehouseId, @RequestParam String refDocNumber,
+                                              @RequestParam Long outboundOrderTypeId, @RequestParam String authToken) throws Exception {
+        transactionService.rollBackOutboundOrder(companyCodeId, plantId, languageId, warehouseId, refDocNumber, outboundOrderTypeId, authToken);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }

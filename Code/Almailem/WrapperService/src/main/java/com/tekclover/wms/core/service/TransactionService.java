@@ -11026,6 +11026,34 @@ public class TransactionService {
         }
     }
 
+    public boolean rollBackOutboundOrder(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                         String refDocNumber, Long outboundOrderTypeId, String authToken) throws Exception {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS-Almailem RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+            HttpEntity<?> entity = new HttpEntity<>(headers);
+            HttpClient client = HttpClients.createDefault();
+
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getTransactionServiceApiUrl() + "ordermanagementline/v2/rollBack")
+                    .queryParam("companyCodeId", companyCodeId)
+                    .queryParam("plantId", plantId)
+                    .queryParam("languageId", languageId)
+                    .queryParam("warehouseId", warehouseId)
+                    .queryParam("refDocNumber", refDocNumber)
+                    .queryParam("outboundOrderTypeId", outboundOrderTypeId);
+            ResponseEntity<String> result = restTemplate.exchange(builder.toUriString(), HttpMethod.POST, entity, String.class);
+            log.info("result : " + result.getStatusCode());
+            return true;
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
     // PATCH
     public OrderManagementLineV2[] doAllocationV2(List<OrderManagementLineV2> orderManagementLineV2, String loginUserID, String authToken) {
         try {

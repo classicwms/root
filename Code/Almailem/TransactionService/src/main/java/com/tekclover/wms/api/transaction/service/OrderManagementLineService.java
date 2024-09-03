@@ -104,6 +104,9 @@ public class OrderManagementLineService extends BaseService {
     @Autowired
     MastersService mastersService;
 
+    @Autowired
+    OrderService orderService;
+
     //------------------------------------------------------------------------------------------------------
     @Autowired
     private OutboundHeaderV2Repository outboundHeaderV2Repository;
@@ -1486,7 +1489,119 @@ public class OrderManagementLineService extends BaseService {
             log.info("Rollback---> 2. delete all record initiated ----> " + refDocNo + ", " + outboundOrderTypeId);
             orderManagementLineV2Repository.deleteOutboundProcessingProc(companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId);
             log.info("Rollback---> 2. delete all record finished ----> " + refDocNo + ", " + outboundOrderTypeId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
 
+    /**
+     *
+     * @param outboundIntegrationHeader
+     * @throws Exception
+     */
+    public void rollback(OutboundIntegrationHeaderV2 outboundIntegrationHeader) throws Exception {
+        try {
+            String companyCodeId = outboundIntegrationHeader.getCompanyCode();
+            String plantId = outboundIntegrationHeader.getBranchCode();
+            String languageId = outboundIntegrationHeader.getLanguageId() != null ? outboundIntegrationHeader.getLanguageId() : "EN";
+            String warehouseId = outboundIntegrationHeader.getWarehouseID();
+            Long outboundOrderTypeId = outboundIntegrationHeader.getOutboundOrderTypeID();
+            String refDocNo = outboundIntegrationHeader.getRefDocumentNo();
+            initiateRollBack(companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId);
+        } catch (Exception e) {
+            log.error("Exception occurred : " + e.toString());
+            throw e;
+        }
+    }
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param refDocNo
+     * @param outboundOrderTypeId
+     * @throws Exception
+     */
+    public void rollback(String companyCodeId, String plantId, String languageId, String warehouseId,
+                         String refDocNo, Long outboundOrderTypeId) throws Exception {
+        try {
+            initiateRollBack(companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId);
+            log.info("Rollback---> 3. rerun the order ----> " + refDocNo + ", " + outboundOrderTypeId);
+            orderService.reRunProcessedOrderV2(refDocNo, outboundOrderTypeId);
+        } catch (Exception e) {
+            log.error("Exception occurred during Rollback : " + e.toString());
+            throw e;
+        }
+    }
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param refDocNo
+     * @param outboundOrderTypeId
+     * @throws Exception
+     */
+    @Transactional(rollbackFor = {Exception.class, Throwable.class})
+    @Retryable(value = Exception.class, maxAttempts = 3, backoff = @Backoff(delay = 5000, multiplier = 2))
+    public void initiateRollBack(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                 String refDocNo, Long outboundOrderTypeId) throws Exception {
+        try {
+
+            List<OrderManagementLineV2> orderManagementLineV2List = orderManagementLineV2Repository.findAllByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndOutboundOrderTypeIdAndDeletionIndicator(
+                    companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId, 0L);
+
+            log.info("Rollback---> 1. Inventory restore ----> " + refDocNo + ", " + outboundOrderTypeId);
+            //if order management line present do un allocation
+            if (orderManagementLineV2List != null && !orderManagementLineV2List.isEmpty()) {
+                for (OrderManagementLineV2 dbOrderManagementLine : orderManagementLineV2List) {
+                    String packBarcodes = dbOrderManagementLine.getProposedPackBarCode();
+                    String storageBin = dbOrderManagementLine.getProposedStorageBin();
+                    InventoryV2 inventory =
+                            inventoryService.getInventoryV2(dbOrderManagementLine.getCompanyCodeId(), dbOrderManagementLine.getPlantId(), dbOrderManagementLine.getLanguageId(),
+                                                            dbOrderManagementLine.getWarehouseId(), packBarcodes, dbOrderManagementLine.getItemCode(), storageBin,
+                                                            dbOrderManagementLine.getManufacturerName());
+                    Double invQty = inventory.getInventoryQuantity() + dbOrderManagementLine.getAllocatedQty();
+
+                    /*
+                     * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
+                     */
+                    if (invQty < 0D) {
+                        invQty = 0D;
+                    }
+
+                    inventory.setInventoryQuantity(invQty);
+                    log.info("Inventory invQty: " + invQty);
+
+                    Double allocQty = inventory.getAllocatedQuantity() - dbOrderManagementLine.getAllocatedQty();
+                    if (allocQty < 0D) {
+                        allocQty = 0D;
+                    }
+                    inventory.setAllocatedQuantity(allocQty);
+                    log.info("Inventory allocQty: " + allocQty);
+                    Double totQty = invQty + allocQty;
+                    inventory.setReferenceField4(totQty);
+                    log.info("Inventory totQty: " + totQty);
+
+                    // Create new Inventory Record
+                    InventoryV2 inventoryV2 = new InventoryV2();
+                    BeanUtils.copyProperties(inventory, inventoryV2, CommonUtils.getNullPropertyNames(inventory));
+                    inventoryV2.setInventoryId(System.currentTimeMillis());
+                    inventoryV2 = inventoryV2Repository.save(inventoryV2);
+                    log.info("-----InventoryV2 created-------: " + inventoryV2);
+                }
+                log.info("Rollback---> 1.Inventory restoration Finished ----> " + refDocNo + ", " + outboundOrderTypeId);
+            }
+
+            //delete all records from respective tables
+            log.info("Rollback---> 2. delete all record initiated ----> " + refDocNo + ", " + outboundOrderTypeId);
+            orderManagementLineV2Repository.deleteOutboundProcessingProc(companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId);
+            log.info("Rollback---> 2. delete all record finished ----> " + refDocNo + ", " + outboundOrderTypeId);
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
