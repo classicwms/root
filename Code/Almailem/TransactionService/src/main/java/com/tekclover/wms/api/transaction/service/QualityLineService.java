@@ -1219,7 +1219,7 @@ public class QualityLineService extends BaseService {
      * @throws IllegalAccessException
      * @throws InvocationTargetException
      */
-    @Transactional
+//    @Transactional
     public List<QualityLineV2> createQualityLineV2(List<AddQualityLineV2> newQualityLines, String loginUserID)
             throws IllegalAccessException, InvocationTargetException, java.text.ParseException {
         try {
