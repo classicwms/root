@@ -243,4 +243,71 @@ public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader,L
 			@Param("partnerCode") String partnerCode,
 			@Param("updatedBy") String updatedBy
 		);
+
+	@Query(value =
+			"SELECT WH_ID,REF_DOC_NO,PRE_OB_NO,sum(DLV_QTY) ref_field_7 into #obl1 FROM tbloutboundline WHERE ref_field_2 is null and is_deleted = 0 and \n" +
+			"(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
+			"(COALESCE(:refDocNo, null) IS NULL OR (ref_doc_no IN (:refDocNo))) and \n" +
+			"(COALESCE(:partnerCode, null) IS NULL OR (partner_code IN (:partnerCode))) and \n" +
+			"(COALESCE(:outboundOrderTypeId, null) IS NULL OR (ob_ord_typ_id IN (:outboundOrderTypeId))) and \n" +
+			"(COALESCE(:statusId, null) IS NULL OR (status_id IN (:statusId))) \n" +
+			"group by ref_doc_no,pre_ob_no,wh_id \n" +
+
+			"SELECT WH_ID,REF_DOC_NO,PRE_OB_NO,count(OB_LINE_NO) ref_field_8 into #obl2 FROM tbloutboundline WHERE ref_field_2 is null and is_deleted = 0 and status_id = 59 and \n" +
+			"(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
+			"(COALESCE(:refDocNo, null) IS NULL OR (ref_doc_no IN (:refDocNo))) and \n" +
+			"(COALESCE(:partnerCode, null) IS NULL OR (partner_code IN (:partnerCode))) and \n" +
+			"(COALESCE(:outboundOrderTypeId, null) IS NULL OR (ob_ord_typ_id IN (:outboundOrderTypeId))) and \n" +
+			"(COALESCE(:statusId, null) IS NULL OR (status_id IN (:statusId))) \n" +
+			"group by ref_doc_no,pre_ob_no,wh_id \n" +
+
+			"SELECT WH_ID,REF_DOC_NO,PRE_OB_NO,sum(ORD_QTY) ref_field_9 into #obl3 FROM tbloutboundline WHERE ref_field_2 is null and is_deleted = 0 and \n" +
+			"(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
+			"(COALESCE(:refDocNo, null) IS NULL OR (ref_doc_no IN (:refDocNo))) and \n" +
+			"(COALESCE(:partnerCode, null) IS NULL OR (partner_code IN (:partnerCode))) and \n" +
+			"(COALESCE(:outboundOrderTypeId, null) IS NULL OR (ob_ord_typ_id IN (:outboundOrderTypeId))) and \n" +
+			"(COALESCE(:statusId, null) IS NULL OR (status_id IN (:statusId))) \n" +
+			"group by ref_doc_no,pre_ob_no,wh_id \n" +
+
+			"SELECT WH_ID,REF_DOC_NO,PRE_OB_NO,count(OB_LINE_NO) ref_field_10 into #obl4 FROM tbloutboundline WHERE ref_field_2 is null and is_deleted = 0 and \n" +
+			"(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
+			"(COALESCE(:refDocNo, null) IS NULL OR (ref_doc_no IN (:refDocNo))) and \n" +
+			"(COALESCE(:partnerCode, null) IS NULL OR (partner_code IN (:partnerCode))) and \n" +
+			"(COALESCE(:outboundOrderTypeId, null) IS NULL OR (ob_ord_typ_id IN (:outboundOrderTypeId))) and \n" +
+			"(COALESCE(:statusId, null) IS NULL OR (status_id IN (:statusId))) \n" +
+			"group by ref_doc_no,pre_ob_no,wh_id \n" +
+
+			"select \n" +
+			"oh.c_id , oh.lang_id, oh.partner_code, oh.plant_id, oh.pre_ob_no,oh.ref_doc_no ,oh.wh_id,oh.dlv_ctd_by,oh.dlv_ctd_on,oh.is_deleted,oh.dlv_cnf_by,oh.dlv_cnf_on,\n" +
+			"oh.dlv_ord_no, oh.ob_ord_typ_id,oh.ref_doc_date,oh.ref_doc_typ,oh.remark,oh.req_del_date,oh.dlv_rev_by,oh.dlv_rev_on,oh.status_id,oh.dlv_utd_by,oh.dlv_utd_on,\n" +
+			"oh.ref_field_1,oh.ref_field_2,oh.ref_field_3,oh.ref_field_4,oh.ref_field_5,oh.ref_field_6,\n" +
+			"ol1.ref_field_7,ol2.ref_field_8,ol3.ref_field_9,ol4.ref_field_10\n" +
+			"from tbloutboundheader oh\n" +
+			"join #obl1 ol1 on ol1.ref_doc_no = oh.ref_doc_no and ol1.pre_ob_no = oh.pre_ob_no \n" +
+			"join #obl2 ol2 on ol2.ref_doc_no = oh.ref_doc_no and ol2.pre_ob_no = oh.pre_ob_no \n" +
+			"join #obl3 ol3 on ol3.ref_doc_no = oh.ref_doc_no and ol3.pre_ob_no = oh.pre_ob_no \n" +
+			"join #obl4 ol4 on ol4.ref_doc_no = oh.ref_doc_no and ol4.pre_ob_no = oh.pre_ob_no \n" +
+			"where \n" +
+			"(COALESCE(:warehouseId, null) IS NULL OR (oh.wh_id IN (:warehouseId))) and \n" +
+			"(COALESCE(:refDocNo, null) IS NULL OR (oh.ref_doc_no IN (:refDocNo))) and \n" +
+			"(COALESCE(:partnerCode, null) IS NULL OR (oh.partner_code IN (:partnerCode))) and \n" +
+			"(COALESCE(:outboundOrderTypeId, null) IS NULL OR (oh.ob_ord_typ_id IN (:outboundOrderTypeId))) and \n" +
+			"(COALESCE(:statusId, null) IS NULL OR (oh.status_id IN (:statusId))) and \n" +
+			"(COALESCE(:soType, null) IS NULL OR (oh.ref_field_1 IN (:soType))) and\n" +
+			"(COALESCE(CONVERT(VARCHAR(255), :startRequiredDeliveryDate), null) IS NULL OR (oh.REQ_DEL_DATE between COALESCE(CONVERT(VARCHAR(255), :startRequiredDeliveryDate), null) and COALESCE(CONVERT(VARCHAR(255), :endRequiredDeliveryDate), null))) and\n" +
+			"(COALESCE(CONVERT(VARCHAR(255), :startDeliveryConfirmedOn), null) IS NULL OR (oh.DLV_CNF_ON between COALESCE(CONVERT(VARCHAR(255), :startDeliveryConfirmedOn), null) and COALESCE(CONVERT(VARCHAR(255), :endDeliveryConfirmedOn), null))) and\n" +
+			"(COALESCE(CONVERT(VARCHAR(255), :startOrderDate), null) IS NULL OR (oh.DLV_CTD_ON between COALESCE(CONVERT(VARCHAR(255), :startOrderDate), null) and COALESCE(CONVERT(VARCHAR(255), :endOrderDate), null)))\n", nativeQuery = true)
+	public List<OutboundHeader> findAllOutBoundHeaderV2 (
+			@Param(value = "warehouseId") List<String> warehouseId,
+			@Param(value = "refDocNo") List<String> refDocNo,
+			@Param(value = "partnerCode") List<String> partnerCode,
+			@Param(value = "outboundOrderTypeId") List<Long> outboundOrderTypeId,
+			@Param(value = "statusId") List<Long> statusId,
+			@Param(value = "soType") List<String> soType,
+			@Param(value = "startRequiredDeliveryDate") Date startRequiredDeliveryDate,
+			@Param(value = "endRequiredDeliveryDate") Date endRequiredDeliveryDate,
+			@Param(value = "startDeliveryConfirmedOn") Date startDeliveryConfirmedOn,
+			@Param(value = "endDeliveryConfirmedOn") Date endDeliveryConfirmedOn,
+			@Param(value = "startOrderDate") Date startOrderDate,
+			@Param(value = "endOrderDate") Date endOrderDate);
 }

@@ -446,6 +446,15 @@ public class PutAwayHeaderService extends BaseService {
 						dbPutAwayLine.setUpdatedOn(new Date());
 						dbPutAwayLine = putAwayLineRepository.save(dbPutAwayLine);
 						log.info("dbPutAwayLine updated: " + dbPutAwayLine);
+						
+						// warehouseId, refDocNumber, preInboundNo, lineNo, itemCode
+						InboundLine inboundLine = 
+								inboundLineService.getInboundLine(warehouseId, refDocNumber, dbPutAwayLine.getPreInboundNo(), dbPutAwayLine.getLineNo(), itemCode);
+						inboundLine.setStatusId(22L);
+						inboundLine.setUpdatedBy(loginUserID);
+						inboundLine.setUpdatedOn(new Date());
+						inboundLineRepository.save(inboundLine);
+						log.info("InboundLine updated : " + inboundLine);
 					}
 				
 					/*
