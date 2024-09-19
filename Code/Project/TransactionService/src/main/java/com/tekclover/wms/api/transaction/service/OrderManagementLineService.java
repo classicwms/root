@@ -31,6 +31,7 @@ import com.tekclover.wms.api.transaction.model.outbound.ordermangement.OrderMana
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.OrderManagementLine;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.SearchOrderManagementLine;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.UpdateOrderManagementLine;
+import com.tekclover.wms.api.transaction.model.outbound.ordermangement.OrderManagementLineV2;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupHeader;
 import com.tekclover.wms.api.transaction.repository.InventoryRepository;
 import com.tekclover.wms.api.transaction.repository.OrderManagementHeaderRepository;
@@ -38,7 +39,9 @@ import com.tekclover.wms.api.transaction.repository.OrderManagementLineRepositor
 import com.tekclover.wms.api.transaction.repository.OutboundHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundLineRepository;
 import com.tekclover.wms.api.transaction.repository.PickupHeaderRepository;
+import com.tekclover.wms.api.transaction.repository.OrderManagementLineV2Repository;
 import com.tekclover.wms.api.transaction.repository.specification.OrderManagementLineSpecification;
+import com.tekclover.wms.api.transaction.repository.specification.OrderManagementLineV2Specification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 
@@ -83,6 +86,9 @@ public class OrderManagementLineService extends BaseService {
 	
 	@Autowired
 	PropertiesConfig propertiesConfig;
+
+	@Autowired
+	OrderManagementLineV2Repository orderManagementLineV2Repository;
 
 	/**
 	 * getOrderManagementLines
@@ -289,6 +295,30 @@ public class OrderManagementLineService extends BaseService {
 		Stream<OrderManagementLine> searchResults = orderManagementLineRepository.stream(spec, OrderManagementLine.class);
 
 		return searchResults;
+	}
+
+	//Streaming - V2 [Limited Fields]
+	public Stream<OrderManagementLineV2> findOrderManagementLineV2(SearchOrderManagementLine searchOrderManagementLine)
+			throws ParseException, java.text.ParseException {
+
+		if (searchOrderManagementLine.getStartRequiredDeliveryDate() != null
+				&& searchOrderManagementLine.getEndRequiredDeliveryDate() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOrderManagementLine.getStartRequiredDeliveryDate(),
+					searchOrderManagementLine.getEndRequiredDeliveryDate());
+			searchOrderManagementLine.setStartRequiredDeliveryDate(dates[0]);
+			searchOrderManagementLine.setEndRequiredDeliveryDate(dates[1]);
+		}
+
+		if (searchOrderManagementLine.getStartOrderDate() != null
+				&& searchOrderManagementLine.getEndOrderDate() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOrderManagementLine.getStartOrderDate(),
+					searchOrderManagementLine.getEndOrderDate());
+			searchOrderManagementLine.setStartOrderDate(dates[0]);
+			searchOrderManagementLine.setEndOrderDate(dates[1]);
+		}
+		OrderManagementLineV2Specification spec = new OrderManagementLineV2Specification(searchOrderManagementLine);
+
+        return orderManagementLineV2Repository.stream(spec, OrderManagementLineV2.class);
 	}
 	/**
 	 * 

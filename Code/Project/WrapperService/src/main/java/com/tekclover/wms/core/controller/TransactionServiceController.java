@@ -1142,6 +1142,14 @@ public class TransactionServiceController {
 			@RequestParam String authToken) throws Exception {
 		return transactionService.findOrderManagementLineNew(searchOrderMangementLine, authToken);
 	}
+
+	//Streaming - V2 [Limited Fields]
+	@ApiOperation(response = OrderManagementLineV2.class, value = "Search OrderMangementLine V2 Limited Fields") // label for swagger
+	@PostMapping("/ordermanagementline/findOrderManagementLineV2")
+	public OrderManagementLineV2[] findOrderManagementLineV2(@RequestBody SearchOrderManagementLine searchOrderMangementLine,
+			@RequestParam String authToken) throws Exception {
+		return transactionService.findOrderManagementLineV2(searchOrderMangementLine, authToken);
+	}
 	
 	@ApiOperation(response = OrderManagementLine.class, value = "UnAllocate") // label for swagger
     @PatchMapping("/ordermanagementline/unallocate")

@@ -26,6 +26,7 @@ import com.tekclover.wms.api.transaction.model.outbound.ordermangement.AssignPic
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.OrderManagementLine;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.SearchOrderManagementLine;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.UpdateOrderManagementLine;
+import com.tekclover.wms.api.transaction.model.outbound.ordermangement.OrderManagementLineV2;
 import com.tekclover.wms.api.transaction.service.OrderManagementLineService;
 
 import io.swagger.annotations.Api;
@@ -76,6 +77,14 @@ public class OrderManagementLineController {
 	public Stream<OrderManagementLine> findOrderManagementLineNew(@RequestBody SearchOrderManagementLine searchOrderManagementLine)
 			throws Exception {
 		return ordermangementlineService.findOrderManagementLineNew(searchOrderManagementLine);
+	}
+
+	//Streaming-V2[Limited fields]
+	@ApiOperation(response = OrderManagementLineV2.class, value = "Search OrderManagementLine V2") // label for swagger
+	@PostMapping("/findOrderManagementLineV2")
+	public Stream<OrderManagementLineV2> findOrderManagementLineV2(@RequestBody SearchOrderManagementLine searchOrderManagementLine)
+			throws Exception {
+		return ordermangementlineService.findOrderManagementLineV2(searchOrderManagementLine);
 	}
 
     @ApiOperation(response = OrderManagementLine.class, value = "Create OrderManagementLine") // label for swagger

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import javax.validation.Valid;
@@ -3483,6 +3484,36 @@ public class TransactionService {
 				obList.add(obHeader);
 			}
 			return obList.toArray(new OrderManagementLine[obList.size()]);
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	// POST - findOrderManagementLineV2 - Stream [Limited Fields]
+	public OrderManagementLineV2[] findOrderManagementLineV2(SearchOrderManagementLine searchOrderManagementLine,
+			String authToken) throws ParseException {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "ordermanagementline/findOrderManagementLineV2");
+			HttpEntity<?> entity = new HttpEntity<>(searchOrderManagementLine, headers);
+			ResponseEntity<OrderManagementLineV2[]> result = getRestTemplate().exchange(builder.toUriString(),
+					HttpMethod.POST, entity, OrderManagementLineV2[].class);
+			log.info("result : " + result.getStatusCode());
+
+			List<OrderManagementLineV2> obList = new ArrayList<>();
+			for (OrderManagementLineV2 obHeader : Objects.requireNonNull(result.getBody())) {
+				if(obHeader.getRequiredDeliveryDate() != null) {
+					obHeader.setRequiredDeliveryDate(DateUtils.addTimeToDate(obHeader.getRequiredDeliveryDate(), 3));
+				}
+				obList.add(obHeader);
+			}
+			return obList.toArray(new OrderManagementLineV2[obList.size()]);
 
 		} catch (Exception e) {
 			throw e;
