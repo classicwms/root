@@ -1146,13 +1146,17 @@ public class OutboundLineService extends BaseService {
 			 */
 			Inventory inventory = inventoryService.getInventory (dbPickupLine.getWarehouseId(),
 					dbPickupLine.getPickedPackCode(), dbPickupLine.getItemCode(), dbPickupLine.getPickedStorageBin());
-			log.info("inventory record queried: " + inventory);
+			log.info("---inventory record queried: " + inventory);
+			log.info("---dbPickupLine------>: " + dbPickupLine);
 			if (inventory != null) {
 				if (dbPickupLine.getAllocatedQty() > 0D) {
 					try {
-						Double INV_QTY = (inventory.getInventoryQuantity() + dbPickupLine.getAllocatedQty())
-								- dbPickupLine.getPickConfirmQty();
-						Double ALLOC_QTY = inventory.getAllocatedQuantity() - dbPickupLine.getAllocatedQty();
+						Double INV_QTY = ((inventory.getInventoryQuantity() + dbPickupLine.getAllocatedQty())
+								- dbPickupLine.getPickConfirmQty());
+						Double ALLOC_QTY = (inventory.getAllocatedQuantity() - dbPickupLine.getAllocatedQty());
+
+						log.info("---inventoryUpdateBeforeAXSubmit----INV_QTY---->: " + INV_QTY);
+						log.info("---inventoryUpdateBeforeAXSubmit-----ALLOC_QTY--->: " + ALLOC_QTY);
 
 						/*
 						 * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
@@ -1167,8 +1171,8 @@ public class OutboundLineService extends BaseService {
 						}
 						// End
 
-						inventory.setInventoryQuantity(INV_QTY);
-						inventory.setAllocatedQuantity(ALLOC_QTY);
+//						inventory.setInventoryQuantity(INV_QTY);
+//						inventory.setAllocatedQuantity(ALLOC_QTY);
 
 						// INV_QTY > 0 then, update Inventory Table
 //						inventory = inventoryRepository.save(inventory);
@@ -1176,7 +1180,11 @@ public class OutboundLineService extends BaseService {
 						inventoryRepository.updateInventoryUpdateProcedure(dbPickupLine.getWarehouseId(),
 								dbPickupLine.getPickedPackCode(), dbPickupLine.getItemCode(),
 								dbPickupLine.getPickedStorageBin(), INV_QTY, ALLOC_QTY);
-						log.info("inventory updated using stored procedure: " + inventory);
+						log.info("----update-using stored procedure--is done-->: ");
+						
+						Inventory updatedInventory = inventoryService.getInventory (dbPickupLine.getWarehouseId(),
+								dbPickupLine.getPickedPackCode(), dbPickupLine.getItemCode(), dbPickupLine.getPickedStorageBin());
+						log.info("----After-update-using stored procedure---->: " + updatedInventory);
 
 						if (INV_QTY == 0) {
 							// Setting up statusId = 0
