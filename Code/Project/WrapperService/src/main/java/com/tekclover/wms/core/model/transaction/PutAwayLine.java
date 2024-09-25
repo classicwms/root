@@ -69,10 +69,10 @@ import lombok.NoArgsConstructor;
 	private String referenceField10;
 	private Long deletionIndicator = 0L;
 	private String createdBy;
-	private Date createdOn = new Date();
+	private Date createdOn;
 	private String confirmedBy;
-	private Date confirmedOn = new Date();
+	private Date confirmedOn;
 	private String updatedBy;
-	private Date updatedOn = new Date();
+	private Date updatedOn;
 	private String packBarcodes;
 }

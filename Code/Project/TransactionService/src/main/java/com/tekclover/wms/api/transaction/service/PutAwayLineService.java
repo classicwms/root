@@ -337,6 +337,7 @@ public class PutAwayLineService extends BaseService {
 		List<PutAwayLine> createdPutAwayLines = new ArrayList<>();
 		log.info("newPutAwayLines to confirm : " + newPutAwayLines);
 		try {
+			AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
 			for (AddPutAwayLine newPutAwayLine : newPutAwayLines) {
 				PutAwayLine dbPutAwayLine = new PutAwayLine();
 				Warehouse warehouse = getWarehouse(newPutAwayLine.getWarehouseId());
@@ -347,8 +348,15 @@ public class PutAwayLineService extends BaseService {
 				} else {
 					dbPutAwayLine.setCompanyCode(newPutAwayLine.getCompanyCode());
 				}
-				dbPutAwayLine.setPutawayConfirmedQty(newPutAwayLine.getPutawayConfirmedQty());
+				
+				StorageBin dbStorageBin = mastersService.getStorageBin(dbPutAwayLine.getConfirmedStorageBin(), 
+						dbPutAwayLine.getWarehouseId(), authTokenForMastersService.getAccess_token());
+				if (dbStorageBin == null) {
+					throw new BadRequestException(dbPutAwayLine.getConfirmedStorageBin() + " does not exists.");
+				}
+				
 				dbPutAwayLine.setConfirmedStorageBin(newPutAwayLine.getConfirmedStorageBin());
+				dbPutAwayLine.setPutawayConfirmedQty(newPutAwayLine.getPutawayConfirmedQty());
 				dbPutAwayLine.setStatusId(20L);
 				dbPutAwayLine.setDeletionIndicator(0L);
 				dbPutAwayLine.setCreatedBy(loginUserID);
@@ -379,12 +387,6 @@ public class PutAwayLineService extends BaseService {
 						inventory.setBatchSerialNumber("1"); 		// STR_NO 
 						inventory.setBatchSerialNumber(newPutAwayLine.getBatchSerialNumber()); 
 						inventory.setStorageBin(createdPutAwayLine.getConfirmedStorageBin());
-
-						AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-						StorageBin dbStorageBin = 
-								mastersService.getStorageBin(dbPutAwayLine.getConfirmedStorageBin(), 
-										dbPutAwayLine.getWarehouseId(),
-										authTokenForMastersService.getAccess_token());
 						inventory.setBinClassId(dbStorageBin.getBinClassId());
 
 						List<IImbasicData1> imbasicdata1 = imbasicdata1Repository.findByItemCode(inventory.getItemCode());

@@ -57,11 +57,11 @@ public class PickupLine {
 	private String referenceField10;
 	private Long deletionIndicator;
 	private String pickupCreatedBy;	
-	private Date pickupCreatedOn = new Date();
+	private Date pickupCreatedOn;
 	private String pickupConfirmedBy;
-	private Date pickupConfirmedOn = new Date();
+	private Date pickupConfirmedOn;
 	private String pickUpUpdatedBy;
-	private Date pickupUpdatedOn = new Date();
+	private Date pickupUpdatedOn;
 	private String pickupReversedBy;
-	private Date pickupReversedOn = new Date();
+	private Date pickupReversedOn;
 }
