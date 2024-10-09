@@ -337,7 +337,6 @@ public class PutAwayLineService extends BaseService {
 		List<PutAwayLine> createdPutAwayLines = new ArrayList<>();
 		log.info("newPutAwayLines to confirm : " + newPutAwayLines);
 		try {
-			AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
 			for (AddPutAwayLine newPutAwayLine : newPutAwayLines) {
 				PutAwayLine dbPutAwayLine = new PutAwayLine();
 				Warehouse warehouse = getWarehouse(newPutAwayLine.getWarehouseId());
@@ -348,15 +347,8 @@ public class PutAwayLineService extends BaseService {
 				} else {
 					dbPutAwayLine.setCompanyCode(newPutAwayLine.getCompanyCode());
 				}
-				
-				StorageBin dbStorageBin = mastersService.getStorageBin(dbPutAwayLine.getConfirmedStorageBin(), 
-						dbPutAwayLine.getWarehouseId(), authTokenForMastersService.getAccess_token());
-				if (dbStorageBin == null) {
-					throw new BadRequestException(dbPutAwayLine.getConfirmedStorageBin() + " does not exists.");
-				}
-				
-				dbPutAwayLine.setConfirmedStorageBin(newPutAwayLine.getConfirmedStorageBin());
 				dbPutAwayLine.setPutawayConfirmedQty(newPutAwayLine.getPutawayConfirmedQty());
+				dbPutAwayLine.setConfirmedStorageBin(newPutAwayLine.getConfirmedStorageBin());
 				dbPutAwayLine.setStatusId(20L);
 				dbPutAwayLine.setDeletionIndicator(0L);
 				dbPutAwayLine.setCreatedBy(loginUserID);
@@ -387,6 +379,12 @@ public class PutAwayLineService extends BaseService {
 						inventory.setBatchSerialNumber("1"); 		// STR_NO 
 						inventory.setBatchSerialNumber(newPutAwayLine.getBatchSerialNumber()); 
 						inventory.setStorageBin(createdPutAwayLine.getConfirmedStorageBin());
+
+						AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+						StorageBin dbStorageBin = 
+								mastersService.getStorageBin(dbPutAwayLine.getConfirmedStorageBin(), 
+										dbPutAwayLine.getWarehouseId(),
+										authTokenForMastersService.getAccess_token());
 						inventory.setBinClassId(dbStorageBin.getBinClassId());
 
 						List<IImbasicData1> imbasicdata1 = imbasicdata1Repository.findByItemCode(inventory.getItemCode());
@@ -402,6 +400,18 @@ public class PutAwayLineService extends BaseService {
 							inventory.setReferenceField7(dbStorageBin.getRowId());
 						}
 
+						// INV_QTY
+						inventory.setInventoryQuantity(createdPutAwayLine.getPutawayConfirmedQty());
+
+						// INV_UOM
+						inventory.setInventoryUom(createdPutAwayLine.getPutAwayUom());
+						inventory.setCreatedBy(createdPutAwayLine.getCreatedBy());
+						inventory.setCreatedOn(createdPutAwayLine.getCreatedOn());
+						Inventory createdInventory = inventoryRepository.save(inventory);
+						log.info("createdInventory : " + createdInventory);
+						if (createdInventory != null) {
+							isInventoryCreated = true;
+							
 						/*
 						 * Insert PA_CNF_QTY value in this field.
 						 * Also Pass WH_ID/PACK_BARCODE/ITM_CODE/BIN_CL_ID=3 in INVENTORY table and fetch ST_BIN/INV_QTY value.
@@ -420,18 +430,6 @@ public class PutAwayLineService extends BaseService {
 						} catch (Exception e) {
 							log.info("Existing Inventory---Error-----> : " + e.toString());
 						}
-
-						// INV_QTY
-						inventory.setInventoryQuantity(createdPutAwayLine.getPutawayConfirmedQty());
-
-						// INV_UOM
-						inventory.setInventoryUom(createdPutAwayLine.getPutAwayUom());
-						inventory.setCreatedBy(createdPutAwayLine.getCreatedBy());
-						inventory.setCreatedOn(createdPutAwayLine.getCreatedOn());
-						Inventory createdInventory = inventoryRepository.save(inventory);
-						log.info("createdInventory : " + createdInventory);
-						if (createdInventory != null) {
-							isInventoryCreated = true;
 						}
 						
 						/* Insert a record into INVENTORYMOVEMENT table */
