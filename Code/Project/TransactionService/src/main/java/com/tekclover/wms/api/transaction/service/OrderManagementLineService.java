@@ -863,6 +863,7 @@ public class OrderManagementLineService extends BaseService {
 		
 		OrderManagementLine newOrderManagementLine = null;
 		AuthToken idmasterAuthToken = authTokenService.getIDMasterServiceAuthToken();
+		AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
 		outerloop: for (IInventory stBinWiseInventory : finalInventoryList) {
 			log.info("stBinWiseInventory---->: " + stBinWiseInventory.getStorageBin() + "::" + stBinWiseInventory.getInventoryQty());
 			List<Inventory> listInventoryForAlloc = null;

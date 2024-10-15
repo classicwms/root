@@ -77,7 +77,7 @@ public class OrderManagementLineV2Specification implements Specification<OrderMa
         	 predicates.add(cb.between(root.get("orderDate"), searchOrderMangementLine.getStartOrderDate(), 
         			 searchOrderMangementLine.getEndOrderDate()));
          }
-			
+		  predicates.add(cb.equal(root.get("deletionIndicator"), 0L));
          return cb.and(predicates.toArray(new Predicate[] {}));
      }
 }

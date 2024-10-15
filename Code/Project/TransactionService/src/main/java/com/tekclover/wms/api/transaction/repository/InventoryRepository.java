@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.jpa.repository.query.Procedure;
@@ -373,6 +374,27 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 			@Param("inventoryQty") Double inventoryQty,
 			@Param("allocatedQty") Double allocatedQty
 	);
+	
+	/*
+	 * 	UPDATE tblinventory
+		SET INV_QTY = @inventoryQty, ALLOC_QTY = @allocatedQty
+		WHERE WH_ID = @warehouseId AND PACK_BARCODE = @packbarcode AND ITM_CODE = @itemCode AND 
+		ST_BIN = @storageBin AND IS_DELETED = 0
+	 */
+	@Modifying(clearAutomatically = true)
+	@Query(" UPDATE Inventory inv \r\n"
+			+ " SET inv.inventoryQuantity = :inventoryQuantity, \r\n"
+			+ " inv.allocatedQuantity = :allocatedQuantity \r\n"
+			+ " WHERE inv.warehouseId = :warehouseId \r\n"
+			+ " AND inv.packBarcodes = :packBarcodes \r\n"
+			+ " AND inv.itemCode = :itemCode \r\n"
+			+ " AND inv.storageBin = :storageBin AND inv.deletionIndicator = 0")
+	void updateInventory(@Param ("warehouseId") String warehouseId,
+			@Param ("packBarcodes") String packBarcodes,
+			@Param ("itemCode") String itemCode,
+			@Param ("storageBin") String storageBin,
+			@Param ("inventoryQuantity") Double inventoryQuantity,
+			@Param ("allocatedQuantity") Double allocatedQuantity);
 
 	@Transactional
 	@Procedure(procedureName = "inv_qty_update_oml_proc")

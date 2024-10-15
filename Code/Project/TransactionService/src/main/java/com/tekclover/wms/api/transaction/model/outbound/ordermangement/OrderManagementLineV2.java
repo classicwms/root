@@ -93,5 +93,7 @@ public class OrderManagementLineV2 {
 	
 	@Column(name = "REF_FIELD_7")
 	private String referenceField7;
+	@Column(name = "IS_DELETED")
+	private Long deletionIndicator;
 	
 }

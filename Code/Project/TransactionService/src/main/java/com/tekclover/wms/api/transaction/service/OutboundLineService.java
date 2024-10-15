@@ -1177,10 +1177,18 @@ public class OutboundLineService extends BaseService {
 						// INV_QTY > 0 then, update Inventory Table
 //						inventory = inventoryRepository.save(inventory);
 //						log.info("inventory updated : " + inventory);
-						inventoryRepository.updateInventoryUpdateProcedure(dbPickupLine.getWarehouseId(),
+						
+						/*
+						 * Inventory update is not working as expected
+						 */
+//						inventoryRepository.updateInventoryUpdateProcedure(dbPickupLine.getWarehouseId(),
+//								dbPickupLine.getPickedPackCode(), dbPickupLine.getItemCode(),
+//								dbPickupLine.getPickedStorageBin(), INV_QTY, ALLOC_QTY);
+						
+						inventoryRepository.updateInventory(dbPickupLine.getWarehouseId(),
 								dbPickupLine.getPickedPackCode(), dbPickupLine.getItemCode(),
 								dbPickupLine.getPickedStorageBin(), INV_QTY, ALLOC_QTY);
-						log.info("----update-using stored procedure--is done-->: ");
+						log.info("----updateInventory-is-done-->: ");
 						
 						Inventory updatedInventory = inventoryService.getInventory (dbPickupLine.getWarehouseId(),
 								dbPickupLine.getPickedPackCode(), dbPickupLine.getItemCode(), dbPickupLine.getPickedStorageBin());
