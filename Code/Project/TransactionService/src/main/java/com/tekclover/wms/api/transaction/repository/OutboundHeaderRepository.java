@@ -283,10 +283,10 @@ public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader,L
 			"oh.ref_field_1,oh.ref_field_2,oh.ref_field_3,oh.ref_field_4,oh.ref_field_5,oh.ref_field_6,\n" +
 			"ol1.ref_field_7,ol2.ref_field_8,ol3.ref_field_9,ol4.ref_field_10\n" +
 			"from tbloutboundheader oh\n" +
-			"join #obl1 ol1 on ol1.ref_doc_no = oh.ref_doc_no and ol1.pre_ob_no = oh.pre_ob_no \n" +
-			"join #obl2 ol2 on ol2.ref_doc_no = oh.ref_doc_no and ol2.pre_ob_no = oh.pre_ob_no \n" +
-			"join #obl3 ol3 on ol3.ref_doc_no = oh.ref_doc_no and ol3.pre_ob_no = oh.pre_ob_no \n" +
-			"join #obl4 ol4 on ol4.ref_doc_no = oh.ref_doc_no and ol4.pre_ob_no = oh.pre_ob_no \n" +
+			"left join #obl1 ol1 on ol1.ref_doc_no = oh.ref_doc_no and ol1.pre_ob_no = oh.pre_ob_no \n" +
+			"left join #obl2 ol2 on ol2.ref_doc_no = oh.ref_doc_no and ol2.pre_ob_no = oh.pre_ob_no \n" +
+			"left join #obl3 ol3 on ol3.ref_doc_no = oh.ref_doc_no and ol3.pre_ob_no = oh.pre_ob_no \n" +
+			"left join #obl4 ol4 on ol4.ref_doc_no = oh.ref_doc_no and ol4.pre_ob_no = oh.pre_ob_no \n" +
 			"where \n" +
 			"(COALESCE(:warehouseId, null) IS NULL OR (oh.wh_id IN (:warehouseId))) and \n" +
 			"(COALESCE(:refDocNo, null) IS NULL OR (oh.ref_doc_no IN (:refDocNo))) and \n" +
