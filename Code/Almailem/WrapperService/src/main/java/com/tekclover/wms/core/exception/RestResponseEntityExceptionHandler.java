@@ -69,7 +69,8 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 	
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleAllExceptions(Exception ex, WebRequest request) {
-    	String str = removeUnwantedStrings(ex.getLocalizedMessage());
+//    	String str = removeUnwantedStrings(ex.getLocalizedMessage());
+    	String str = ex.getLocalizedMessage();
 		CustomErrorResponse error = new CustomErrorResponse();
         error.setTimestamp(LocalDateTime.now());
         error.setError(str);
