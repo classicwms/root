@@ -27,4 +27,7 @@ public class SearchOrderManagementLine {
 	private Date startOrderDate;
 	private Date endOrderDate;
 
+	private Date startCreatedOnDate;
+	private Date endCreatedOnDate;
+
 }

@@ -22,4 +22,6 @@ public class OrderManagementLineV2 {
 	private Double allocatedQty;
 	private Date requiredDeliveryDate;
 	private String referenceField7;
+	private String warehouseId;
+	private Date pickupCreatedOn;
 }

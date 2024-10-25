@@ -95,5 +95,8 @@ public class OrderManagementLineV2 {
 	private String referenceField7;
 	@Column(name = "IS_DELETED")
 	private Long deletionIndicator;
+
+	@Column(name = "PICK_UP_CTD_ON")
+	private Date pickupCreatedOn;
 	
 }

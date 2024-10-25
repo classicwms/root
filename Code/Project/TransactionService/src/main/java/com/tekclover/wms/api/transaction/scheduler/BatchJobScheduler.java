@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.tekclover.wms.api.transaction.model.dto.OrderFailedInput;
+import com.tekclover.wms.api.transaction.service.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,10 +25,6 @@ import com.tekclover.wms.api.transaction.model.warehouse.outbound.OutboundOrder;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.OutboundOrderLine;
 import com.tekclover.wms.api.transaction.repository.InboundOrderRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundOrderRepository;
-import com.tekclover.wms.api.transaction.service.OrderService;
-import com.tekclover.wms.api.transaction.service.PreInboundHeaderService;
-import com.tekclover.wms.api.transaction.service.PreOutboundHeaderService;
-import com.tekclover.wms.api.transaction.service.ReportsService;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +45,8 @@ public class BatchJobScheduler {
 	@Autowired
 	OrderService orderService;
 	
+	@Autowired
+	IDMasterService idMasterService;
 	//-------------------------------------------------------------------------------------------
 	
 	@Autowired
@@ -110,6 +110,8 @@ public class BatchJobScheduler {
 					orderService.updateProcessedInboundOrder(inbound.getRefDocumentNo());
 					preinboundheaderService.createInboundIntegrationLog(inbound);
 					inboundList.remove(inbound);
+					//send mail when order processing get failed
+					sendMail(inbound, e);
 				}
 			}
 		}
@@ -156,8 +158,99 @@ public class BatchJobScheduler {
 					orderService.updateProcessedOrder(outbound.getRefDocumentNo());
 					preOutboundHeaderService.createOutboundIntegrationLog(outbound);
 					outboundList.remove(outbound);
+					//send mail when order processing get failed
+					sendMail(outbound, e);
 				}
 			}
+		}
+	}
+
+	/**
+	 *
+	 * @param inbound
+	 * @param e
+	 */
+	private void sendMail(InboundIntegrationHeader inbound, Exception e) {
+		//============================================================================================
+		//Sending Failed Details through Mail
+		OrderFailedInput orderFailedInput = new OrderFailedInput();
+		orderFailedInput.setWarehouseId(inbound.getWarehouseID());
+		orderFailedInput.setRefDocNumber(inbound.getRefDocumentNo());
+		orderFailedInput.setReferenceField1(String.valueOf(inbound.getInboundOrderTypeId()));
+		String errorDesc = null;
+		try {
+			if (e.toString().contains("message")) {
+				errorDesc = e.toString().substring(e.toString().indexOf("message") + 9);
+				errorDesc = errorDesc.replaceAll("}]", "");
+			}
+			if (e.toString().contains("DataIntegrityViolationException") || e.toString().contains("ConstraintViolationException")) {
+				errorDesc = "Null Pointer Exception";
+			}
+			if (e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException") ||
+					e.toString().contains("SQLServerException") || e.toString().contains("UnexpectedRollbackException")) {
+				errorDesc = "SQLServerException";
+			}
+			if (e.toString().contains("BadRequestException")) {
+				errorDesc = e.toString().substring(e.toString().indexOf("BadRequestException:") + 20);
+			}
+			if (errorDesc == null) {
+				errorDesc = e.toString();
+			}
+		} catch (Exception ex) {
+			log.error("ErrorDesc Extract Error - inBound" + ex.toString());
+		}
+		orderFailedInput.setRemarks(errorDesc);
+		sendMail(orderFailedInput);
+	}
+
+	/**
+	 *
+	 * @param outbound
+	 * @param e
+	 */
+	private void sendMail(OutboundIntegrationHeader outbound, Exception e) {
+		//============================================================================================
+		//Sending Failed Details through Mail
+		OrderFailedInput orderFailedInput = new OrderFailedInput();
+		orderFailedInput.setWarehouseId(outbound.getWarehouseID());
+		orderFailedInput.setRefDocNumber(outbound.getRefDocumentNo());
+		orderFailedInput.setReferenceField1(String.valueOf(outbound.getOutboundOrderTypeID()));
+		String errorDesc = null;
+		try {
+			if (e.toString().contains("message")) {
+				errorDesc = e.toString().substring(e.toString().indexOf("message") + 9);
+				errorDesc = errorDesc.replaceAll("}]", "");
+				}
+			if (e.toString().contains("DataIntegrityViolationException") || e.toString().contains("ConstraintViolationException")) {
+				errorDesc = "Null Pointer Exception";
+			}
+			if (e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException") ||
+					e.toString().contains("SQLServerException") || e.toString().contains("UnexpectedRollbackException")) {
+				errorDesc = "SQLServerException";
+			}
+			if (e.toString().contains("BadRequestException")) {
+				errorDesc = e.toString().substring(e.toString().indexOf("BadRequestException:") + 20);
+			}
+			if (errorDesc == null) {
+				errorDesc = e.toString();
+			}
+		} catch (Exception ex) {
+			log.error("ErrorDesc Extract Error - outBound" + ex.toString());
+		}
+		orderFailedInput.setRemarks(errorDesc);
+		sendMail(orderFailedInput);
+	}
+
+	/**
+	 *
+	 * @param orderFailedInput
+	 */
+	public void sendMail(OrderFailedInput orderFailedInput) {
+        try {
+			log.info("orderFailedInput : " + orderFailedInput);
+            idMasterService.sendMail(orderFailedInput);
+        } catch (Exception e) {
+            log.error("Exception while sending Mail : " + e.toString());
 		}
 	}
 }

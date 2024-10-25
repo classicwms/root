@@ -4,6 +4,7 @@ import java.time.Year;
 import java.util.Collections;
 import java.util.Date;
 
+import com.tekclover.wms.api.transaction.model.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -17,11 +18,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.tekclover.wms.api.transaction.config.PropertiesConfig;
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
-import com.tekclover.wms.api.transaction.model.dto.AuditLog;
-import com.tekclover.wms.api.transaction.model.dto.BinClassId;
-import com.tekclover.wms.api.transaction.model.dto.StatusId;
-import com.tekclover.wms.api.transaction.model.dto.UserManagement;
-import com.tekclover.wms.api.transaction.model.dto.Warehouse;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -250,6 +246,27 @@ public class IDMasterService {
 			ResponseEntity<StatusId> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, StatusId.class);
 			log.info("result : " + result.getBody());
 			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new BadRequestException(e.getLocalizedMessage());
+		}
+	}
+
+	// Send EMail
+	public void sendMail(OrderFailedInput orderFailedInput) {
+		try {
+			AuthToken authTokenForIdMasterService = authTokenService.getIDMasterServiceAuthToken();
+			String authToken = authTokenForIdMasterService.getAccess_token();
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "Classic WMS's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			HttpEntity<?> entity = new HttpEntity<>(orderFailedInput, headers);
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() + "email/failedOrder/sendMail");
+			ResponseEntity<String> result =
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, String.class);
+			log.info("result --> SendMail --> : " + result.getStatusCode());
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new BadRequestException(e.getLocalizedMessage());

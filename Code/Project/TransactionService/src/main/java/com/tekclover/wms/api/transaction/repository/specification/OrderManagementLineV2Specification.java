@@ -77,6 +77,10 @@ public class OrderManagementLineV2Specification implements Specification<OrderMa
         	 predicates.add(cb.between(root.get("orderDate"), searchOrderMangementLine.getStartOrderDate(), 
         			 searchOrderMangementLine.getEndOrderDate()));
          }
+		  if (searchOrderMangementLine.getStartCreatedOnDate() != null && searchOrderMangementLine.getEndCreatedOnDate() != null) {
+        	 predicates.add(cb.between(root.get("pickupCreatedOn"), searchOrderMangementLine.getStartCreatedOnDate(),
+        			 searchOrderMangementLine.getEndCreatedOnDate()));
+         }
 		  predicates.add(cb.equal(root.get("deletionIndicator"), 0L));
          return cb.and(predicates.toArray(new Predicate[] {}));
      }

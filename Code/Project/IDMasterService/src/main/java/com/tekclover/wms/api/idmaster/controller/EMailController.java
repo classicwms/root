@@ -84,4 +84,10 @@ public class EMailController {
 		EMailDetails getMail = eMailDetailsService.undeleteEMailDetails(id);
 		return new ResponseEntity<>(getMail,HttpStatus.OK);
 	}
+	@ApiOperation(response = EMailDetails.class, value = "Failed Order Send Email") // label for swagger
+	@PostMapping("/failedOrder/sendMail")
+	public ResponseEntity<?> failedOrderSendEmail(@RequestBody OrderFailedInput orderFailedInput) throws Exception {
+		sendMailService.sendMail(orderFailedInput);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 }

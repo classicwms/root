@@ -22,7 +22,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -185,6 +188,150 @@ public class SendMailService {
 				fileNameForEmailRepository.save(fileNameForEmail);
 //			}
 			throw new MessagingException("Attachment not found, Sending email failed");
+		}
+	}
+
+	/**
+	 *
+	 * @param orderCancelInput
+	 * @throws Exception
+	 */
+	public void sendMail(OrderFailedInput orderCancelInput) throws Exception {
+		//Send Email
+        try {
+            log.info("Send Mail Initiated " + new Date());
+            String localDate = DateUtils.getCurrentDateWithoutTimestamp();
+			EMailDetails email = geteMailDetails(orderCancelInput, localDate);
+			sendMail(email);
+        } catch (Exception e) {
+			log.error("Exception while sending order process failed mail : " + e.toString());
+            throw e;
+        }
+    }
+
+	/**
+	 *
+	 * @param orderCancelInput
+	 * @param localDate
+	 * @return
+	 */
+	private static EMailDetails geteMailDetails(OrderFailedInput orderCancelInput, String localDate) {
+		String wh_id = orderCancelInput.getWarehouseId();
+		String ref_doc_no = orderCancelInput.getRefDocNumber();
+		String emailBodyText;
+		String emailSubject;
+		String toAddress = "yogesh.m@tekclover.com,fahima.a@tekclover.com";
+		String ccAddress = "senthil.v@tekclover.com";
+
+//		List<EMailDetails> userEMail = eMailDetailsService.getEMailDetailsList();
+//		Set<String> toAddressList = new HashSet<>();
+//		Set<String> ccAddressList = new HashSet<>();
+//
+//		if (userEMail == null || userEMail.isEmpty()) {
+//			throw new BadRequestException("Email Id is Empty");
+//		}
+//
+//		if (userEMail != null && !userEMail.isEmpty()) {
+//			toAddressList = userEMail.stream().map(EMailDetails::getToAddress).collect(Collectors.toSet());
+//			ccAddressList = userEMail.stream().map(EMailDetails::getCcAddress).collect(Collectors.toSet());
+//		}
+//		String toAddress = "";
+//		String ccAddress = "";
+//
+//		for (String dbToAddress : toAddressList) {
+//
+//			if (dbToAddress != null) {
+//				toAddress = dbToAddress + "," + toAddress;
+//			}
+//		}
+//		for (String dbCcAddress : ccAddressList) {
+//			if (dbCcAddress != null) {
+//				ccAddress = dbCcAddress + "," + ccAddress;
+//			}
+//		}
+
+		emailSubject = "Classic WMS/MSD Integration - Sync failure Notification - Order No: " + ref_doc_no + ", " + localDate;
+		emailBodyText = "Dear IWExpress Operations/IT team,<br><br>" + "Please find below the failed order sync details" +
+				"<table>"+
+				"<tr>"+
+				"<td>Order No </td>"+
+				"<td>: " + ref_doc_no + "</td>"+
+				"</tr>"+
+				"<tr>"+
+				"<td>Order Type Id </td>"+
+				"<td>: " + orderCancelInput.getReferenceField1() + "</td>"+
+				"</tr>"+
+				"<tr>"+
+				"<td>Warehouse </td>"+
+				"<td>: " + wh_id + "</td>"+
+				"</tr>"+
+				"<tr>"+
+				"<td>Failure Reason </td>"+
+				"<td>: " + orderCancelInput.getRemarks() + "</td>"+
+				"</tr>"+
+				"</table>"+
+				"<br><br>Regards<br>Classic WMS Support Team";
+
+		EMailDetails email = new EMailDetails();
+
+		email.setSenderName("Tekclover-Support");
+		email.setSubject(emailSubject);
+		email.setBodyText(emailBodyText);
+		email.setToAddress(toAddress);
+		email.setCcAddress(ccAddress);
+		return email;
+	}
+
+	/**
+	 * Order Process Failed Mail
+	 * @param email
+	 * @throws Exception
+	 */
+	public void sendMail(EMailDetails email) throws Exception {
+
+		MimeMessage msg = null;
+		MimeMessageHelper helper = null;
+		try {
+			msg = javaMailSender.createMimeMessage();
+			helper = new MimeMessageHelper(msg, true);
+			log.info("helper (From Address): " + email.getFromAddress());
+
+			// Set From
+			if (email.getFromAddress() != null && email.getFromAddress().isEmpty()) {
+				helper.setFrom(email.getFromAddress());
+			} else {
+				helper.setFrom(propertiesConfig.getEmailFromAddress());
+			}
+
+			helper.setTo(InternetAddress.parse(email.getToAddress()));
+
+			log.info("Email: To Address- " + email.getToAddress());
+
+			if (email.getCcAddress() != null) {
+
+				helper.setCc(InternetAddress.parse(email.getCcAddress()));
+
+				log.info("Email: Cc Address- " + email.getCcAddress());
+
+			} else {
+				helper.setCc(InternetAddress.parse(email.getToAddress()));
+			}
+
+			helper.setSubject(email.getSubject());
+
+			// true = text/html
+			helper.setText(email.getBodyText(), true);
+			javaMailSender.send(msg);
+			log.info("Failed Order Detail Mail sent successful");
+		} catch (Exception e) {
+			helper.setFrom(propertiesConfig.getEmailFromAddress());
+			helper.setTo("yogesh.m@tekclover.com");
+			helper.setCc("senthil.v@tekclover.com");
+			helper.setSubject("Failed Order Details sending through eMail Failed");
+			helper.setText("Failed Order Details sending through eMail Failed", true);
+			javaMailSender.send(msg);
+			log.info("Failed Order Detail Mail sent Unsuccessful");
+			throw new BadRequestException("Mail Sent Failed" + e.toString());
 		}
 	}
 }
