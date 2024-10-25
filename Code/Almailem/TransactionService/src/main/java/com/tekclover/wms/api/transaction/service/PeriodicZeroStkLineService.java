@@ -105,7 +105,7 @@ public class PeriodicZeroStkLineService extends BaseService{
                 inventory.setDeletionIndicator(0L);
                 inventory.setCreatedOn(new Date());
                 inventory.setUpdatedOn(new Date());
-                inventory.setInventoryId(System.currentTimeMillis());
+                inventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 5));
                 InventoryV2 createdinventory = inventoryV2Repository.save(inventory);
                 log.info("created inventory : " + createdinventory);
 

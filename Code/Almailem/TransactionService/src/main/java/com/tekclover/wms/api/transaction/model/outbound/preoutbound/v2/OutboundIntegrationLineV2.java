@@ -32,6 +32,7 @@ public class OutboundIntegrationLineV2 extends OutboundIntegrationLine {
     private String salesInvoiceNo;
     private String supplierInvoiceNo;
     private String referenceDocumentType;
+    private Integer imsSaleTypeCode;
 
     private String transferOrderNo;
     private String returnOrderNo;

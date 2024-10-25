@@ -34,4 +34,5 @@ public class OrderManagementLineV2 extends OrderManagementLine {
     private String returnOrderNo;
     private String isCompleted;
     private String isCancelled;
+    private Integer imsSaleTypeCode;
 }

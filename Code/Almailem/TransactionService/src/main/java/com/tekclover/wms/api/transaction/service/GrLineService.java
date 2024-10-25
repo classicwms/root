@@ -4241,7 +4241,7 @@ public class GrLineService extends BaseService {
                 inventory.setReferenceOrderNo(createdGRLine.getRefDocNumber());
                 inventory.setCreatedOn(dbInventory.getCreatedOn());
                 inventory.setUpdatedOn(new Date());
-                inventory.setInventoryId(System.currentTimeMillis());
+                inventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 8));
                 createdinventory = inventoryV2Repository.save(inventory);
                 log.info("created inventory[Existing] : " + createdinventory);
             }
@@ -4340,7 +4340,7 @@ public class GrLineService extends BaseService {
 
                 inventory.setCreatedOn(new Date());
                 inventory.setUpdatedOn(new Date());
-                inventory.setInventoryId(System.currentTimeMillis());
+                inventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 8));
                 createdinventory = inventoryV2Repository.save(inventory);
                 log.info("created inventory : " + createdinventory);
             }
@@ -4351,7 +4351,7 @@ public class GrLineService extends BaseService {
             createGrLineLog7(createdGRLine, e.toString());
 
             e.printStackTrace();
-            throw new RuntimeException(e);
+            throw e;
         }
     }
 
@@ -4390,7 +4390,7 @@ public class GrLineService extends BaseService {
                 inventory.setReferenceOrderNo(createdGRLine.getRefDocNumber());
                 inventory.setCreatedOn(dbInventory.getCreatedOn());
                 inventory.setUpdatedOn(new Date());
-                inventory.setInventoryId(System.currentTimeMillis());
+                inventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 8));
                 createdinventory = inventoryV2Repository.save(inventory);
                 log.info("created inventory[Existing] : " + createdinventory);
             }
@@ -4524,7 +4524,7 @@ public class GrLineService extends BaseService {
 
                 inventory.setCreatedOn(new Date());
                 inventory.setUpdatedOn(new Date());
-                inventory.setInventoryId(System.currentTimeMillis());
+                inventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 8));
                 createdinventory = inventoryV2Repository.save(inventory);
                 log.info("created inventory : " + createdinventory);
             }

@@ -1212,7 +1212,7 @@ public class InhouseTransferHeaderService extends BaseService {
 //                Inventory updatedInventory = inventoryV2Repository.save(inventory);
                 InventoryV2 newInventoryV2 = new InventoryV2();
                 BeanUtils.copyProperties(inventory, newInventoryV2, CommonUtils.getNullPropertyNames(inventory));
-                newInventoryV2.setInventoryId(System.currentTimeMillis());
+                newInventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 4));
                 InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventoryV2);
                 log.info("InventoryV2 created : " + createdInventoryV2);
                 log.info("transferTypeId: " + transferTypeId);
@@ -1232,8 +1232,8 @@ public class InhouseTransferHeaderService extends BaseService {
                 // insert a record with target item code and delete the old record in Inventory table
                 InventoryV2 newInventory = new InventoryV2();
                 BeanUtils.copyProperties(dbInventory, newInventory, CommonUtils.getNullPropertyNames(dbInventory));
-                newInventory.setInventoryId(System.currentTimeMillis());
                 newInventory.setItemCode(createdInhouseTransferLine.getTargetItemCode());
+                newInventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 4));
                 Inventory createdNewInventory = inventoryV2Repository.save(newInventory);
                 log.info("createdNewInventory : " + createdNewInventory);
 
@@ -1278,9 +1278,9 @@ public class InhouseTransferHeaderService extends BaseService {
                 InventoryV2 newInventoryV2 = new InventoryV2();
                 BeanUtils.copyProperties(inventorySourceItemCode, newInventoryV2, CommonUtils.getNullPropertyNames(inventorySourceItemCode));
                 newInventoryV2.setUpdatedOn(new Date());
-                newInventoryV2.setInventoryId(System.currentTimeMillis());
                 Double totalQty = inventorySourceItemCode.getInventoryQuantity() + inventorySourceItemCode.getAllocatedQuantity();
                 newInventoryV2.setReferenceField4(totalQty);
+                newInventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 4));
                 InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventoryV2);
                 log.info("InventoryV2 created : " + createdInventoryV2);
 
@@ -1296,7 +1296,7 @@ public class InhouseTransferHeaderService extends BaseService {
                     deleteInventoryV2.setInventoryQuantity(0D);
                     deleteInventoryV2.setAllocatedQuantity(0D);
                     deleteInventoryV2.setReferenceField4(0D);
-                    deleteInventoryV2.setInventoryId(System.currentTimeMillis());
+                    deleteInventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 4));
                     InventoryV2 deletedInventoryV2 = inventoryV2Repository.save(deleteInventoryV2);
                     log.info("---------inventory-----deleted-----");
                     try {
@@ -1359,8 +1359,8 @@ public class InhouseTransferHeaderService extends BaseService {
                     InventoryV2 newInventoryV2_1 = new InventoryV2();
                     BeanUtils.copyProperties(inventoryTargetItemCode, newInventoryV2_1, CommonUtils.getNullPropertyNames(inventoryTargetItemCode));
                     newInventoryV2_1.setUpdatedOn(new Date());
-                    newInventoryV2_1.setInventoryId(System.currentTimeMillis());
                     newInventoryV2_1.setReferenceField4(inventoryTargetItemCode.getInventoryQuantity() + inventoryTargetItemCode.getAllocatedQuantity());
+                    newInventoryV2_1.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 4));
                     createdInventoryV2 = inventoryV2Repository.save(newInventoryV2_1);
                     log.info("InventoryV2 created : " + createdInventoryV2);
                 } else {
@@ -1458,10 +1458,12 @@ public class InhouseTransferHeaderService extends BaseService {
                         newInventory.setReferenceField7(storageBin.getRowId());
                         newInventory.setLevelId(String.valueOf(storageBin.getFloorId()));
                     }
+                    newInventory.setDeletionIndicator(0L);
+                    newInventory.setCreatedBy(loginUserID);
                     newInventory.setCreatedOn(new Date());
                     newInventory.setUpdatedOn(new Date());
-                    newInventory.setInventoryId(System.currentTimeMillis());
-                    InventoryV2 createdInventory = inventoryService.createInventoryV2(newInventory, loginUserID);
+                    newInventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 4));
+                    InventoryV2 createdInventory = inventoryV2Repository.save(newInventory);
                     log.info("createdInventory------> : " + createdInventory);
                 }
             }

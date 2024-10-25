@@ -32,4 +32,5 @@ public class PickupHeaderV2 extends PickupHeader {
     private String isCompleted;
     private String isCancelled;
     private Date mUpdatedOn;
+    private Integer imsSaleTypeCode;
 }

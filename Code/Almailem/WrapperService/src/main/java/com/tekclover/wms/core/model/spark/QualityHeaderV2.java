@@ -58,4 +58,5 @@ public class QualityHeaderV2 {
     private String tokenNumber;
     private String manufacturerName;
     private String targetBranchCode;
+    private Integer imsSaleTypeCode;
 }

@@ -1255,7 +1255,7 @@ public class PerpetualLineService extends BaseService {
             InventoryV2 createInventory = new InventoryV2();
             BeanUtils.copyProperties(inventory, createInventory, CommonUtils.getNullPropertyNames(inventory));
             createInventory.setInventoryQuantity(updatePerpetualLine.getCountedQty());
-            createInventory.setInventoryId(System.currentTimeMillis());
+            createInventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 5));
             InventoryV2 updatedInventory = inventoryV2Repository.save(createInventory);
             log.info("updatedInventory : " + updatedInventory);
             return updatedInventory;
@@ -1271,7 +1271,6 @@ public class PerpetualLineService extends BaseService {
     private InventoryV2 createInventoryV2(PerpetualLineV2 updatePerpetualLine) {
         InventoryV2 inventory = new InventoryV2();
         BeanUtils.copyProperties(updatePerpetualLine, inventory, CommonUtils.getNullPropertyNames(updatePerpetualLine));
-        inventory.setInventoryId(System.currentTimeMillis());
         inventory.setCompanyCodeId(updatePerpetualLine.getCompanyCodeId());
         inventory.setPlantId(updatePerpetualLine.getPlantId());
         inventory.setLanguageId(updatePerpetualLine.getLanguageId());
@@ -1341,6 +1340,7 @@ public class PerpetualLineService extends BaseService {
 
         inventory.setCreatedBy(updatePerpetualLine.getCreatedBy());
         inventory.setCreatedOn(updatePerpetualLine.getCreatedOn());
+        inventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 5));
         InventoryV2 createdinventory = inventoryV2Repository.save(inventory);
         log.info("created inventory : " + createdinventory);
         return createdinventory;

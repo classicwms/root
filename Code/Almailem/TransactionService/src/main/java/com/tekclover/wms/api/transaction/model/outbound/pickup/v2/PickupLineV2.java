@@ -87,4 +87,7 @@ public class PickupLineV2 extends PickupLine {
 
 	@Column(name = "VAR_QTY")
 	private Double varianceQuantity;
+
+	@Column(name = "IMS_SALE_TYP_CODE")
+	private Integer imsSaleTypeCode;
 }

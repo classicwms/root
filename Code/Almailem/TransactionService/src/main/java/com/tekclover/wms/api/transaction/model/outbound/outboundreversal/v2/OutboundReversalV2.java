@@ -58,4 +58,7 @@ public class OutboundReversalV2 extends OutboundReversal {
 	@Column(name = "PARTNER_ITEM_BARCODE", columnDefinition = "nvarchar(255)")
 	private String barcodeId;
 
+	@Column(name = "IMS_SALE_TYP_CODE")
+	private Integer imsSaleTypeCode;
+
 }

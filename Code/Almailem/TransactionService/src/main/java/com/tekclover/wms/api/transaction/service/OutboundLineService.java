@@ -3043,7 +3043,7 @@ public class OutboundLineService extends BaseService {
                             InventoryV2 newInventoryV2 = new InventoryV2();
                             BeanUtils.copyProperties(inventory, newInventoryV2, CommonUtils.getNullPropertyNames(inventory));
                             newInventoryV2.setUpdatedOn(new Date());
-                            newInventoryV2.setInventoryId(System.currentTimeMillis());
+                            newInventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 3));
                             InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventoryV2);
                             log.info("InventoryV2 created : " + createdInventoryV2);
 //								}
@@ -3209,7 +3209,7 @@ public class OutboundLineService extends BaseService {
                             InventoryV2 newInventoryV2 = new InventoryV2();
                             BeanUtils.copyProperties(inventory, newInventoryV2, CommonUtils.getNullPropertyNames(inventory));
                             newInventoryV2.setUpdatedOn(new Date());
-                            newInventoryV2.setInventoryId(System.currentTimeMillis());
+                            newInventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 3));
                             InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventoryV2);
                             log.info("InventoryV2 created : " + createdInventoryV2);
                         }
@@ -3392,7 +3392,7 @@ public class OutboundLineService extends BaseService {
                             InventoryV2 newInventoryV2 = new InventoryV2();
                             BeanUtils.copyProperties(inventory, newInventoryV2, CommonUtils.getNullPropertyNames(inventory));
                             newInventoryV2.setUpdatedOn(new Date());
-                            newInventoryV2.setInventoryId(System.currentTimeMillis());
+                            newInventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 3));
                             InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventoryV2);
                             log.info("InventoryV2 created : " + createdInventoryV2);
 //								}
@@ -3558,7 +3558,7 @@ public class OutboundLineService extends BaseService {
                             InventoryV2 newInventoryV2 = new InventoryV2();
                             BeanUtils.copyProperties(inventory, newInventoryV2, CommonUtils.getNullPropertyNames(inventory));
                             newInventoryV2.setUpdatedOn(new Date());
-                            newInventoryV2.setInventoryId(System.currentTimeMillis());
+                            newInventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 3));
                             InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventoryV2);
                             log.info("InventoryV2 created : " + createdInventoryV2);
                         }

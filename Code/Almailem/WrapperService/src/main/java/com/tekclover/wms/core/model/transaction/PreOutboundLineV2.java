@@ -27,4 +27,5 @@ public class PreOutboundLineV2 extends PreOutboundLine {
 	private String pickListNumber;
 	private String tokenNumber;
 	private String targetBranchCode;
+	private Integer imsSaleTypeCode;
 }

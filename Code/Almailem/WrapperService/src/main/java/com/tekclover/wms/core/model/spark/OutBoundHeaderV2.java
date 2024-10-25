@@ -69,4 +69,5 @@ public class OutBoundHeaderV2 {
     private Timestamp mUpdatedOn;
     private String countOfPickedLine;
     private String sumOfPickedQty;
+    private Integer imsSaleTypeCode;
 }

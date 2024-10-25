@@ -100,4 +100,7 @@ public class OutboundHeaderV2 extends OutboundHeader {
 
     @Column(name = "CUSTOMER_TYPE", columnDefinition = "nvarchar(255)")
     private String customerType;
+
+    @Column(name = "IMS_SALE_TYP_CODE")
+    private Integer imsSaleTypeCode;
 }

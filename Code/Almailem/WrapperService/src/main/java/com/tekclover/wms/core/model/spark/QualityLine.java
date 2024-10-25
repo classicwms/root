@@ -71,4 +71,5 @@ public class QualityLine {
     private Timestamp qualityUpdatedOn ;
     private String qualityReversedBy;
     private Timestamp qualityReversedOn ;
+    private Integer imsSaleTypeCode;
 }

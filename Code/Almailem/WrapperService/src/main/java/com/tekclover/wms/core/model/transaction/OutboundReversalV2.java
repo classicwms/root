@@ -23,5 +23,6 @@ public class OutboundReversalV2 extends OutboundReversal {
 	private String tokenNumber;
 	private String manufacturerName;
 	private String barcodeId;
+	private Integer imsSaleTypeCode;
 
 }

@@ -50,5 +50,6 @@ public class OutBoundReversalV2 {
     private String tokenNumber;
     private String manufacturerName;
     private String barcodeId;
+    private Integer imsSaleTypeCode;
 
 }

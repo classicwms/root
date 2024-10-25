@@ -2522,7 +2522,7 @@ public class InventoryService extends BaseService {
             newInventory.setInventoryQuantity(dbInventory.getInventoryQuantity() - grLine.getGoodReceiptQty());
             newInventory.setReferenceField4(dbInventory.getReferenceField4() - grLine.getGoodReceiptQty());
             newInventory.setCreatedOn(new Date());
-            newInventory.setInventoryId(System.currentTimeMillis());
+            newInventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 7));
             inventoryV2Repository.save(newInventory);
         }
         return newInventory;

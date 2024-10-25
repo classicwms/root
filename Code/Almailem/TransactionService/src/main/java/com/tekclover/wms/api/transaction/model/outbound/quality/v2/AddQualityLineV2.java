@@ -56,6 +56,7 @@ public class AddQualityLineV2 {
 
 	private String manufacturerName;
 	private String barcodeId;
+	private Integer imsSaleTypeCode;
 
 	/**
 	 * 

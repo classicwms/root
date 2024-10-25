@@ -42,5 +42,6 @@ public class OutboundHeaderV2 extends OutboundHeader {
     private String sumOfPickedQty;
 
     private String customerType;
+    private Integer imsSaleTypeCode;
 
 }

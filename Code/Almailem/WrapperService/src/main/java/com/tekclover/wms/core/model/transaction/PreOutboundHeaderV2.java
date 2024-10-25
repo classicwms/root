@@ -25,5 +25,6 @@ public class PreOutboundHeaderV2 extends PreOutboundHeader {
     private String isCompleted;
     private String isCancelled;
     private Date mUpdatedOn;
+    private Integer imsSaleTypeCode;
 
 }

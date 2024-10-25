@@ -1591,7 +1591,7 @@ public class OrderManagementLineService extends BaseService {
                     // Create new Inventory Record
                     InventoryV2 inventoryV2 = new InventoryV2();
                     BeanUtils.copyProperties(inventory, inventoryV2, CommonUtils.getNullPropertyNames(inventory));
-                    inventoryV2.setInventoryId(System.currentTimeMillis());
+                    inventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 2));
                     inventoryV2 = inventoryV2Repository.save(inventoryV2);
                     log.info("-----InventoryV2 created-------: " + inventoryV2);
                 }
@@ -1662,7 +1662,7 @@ public class OrderManagementLineService extends BaseService {
                 // Create new Inventory Record
                 InventoryV2 inventoryV2 = new InventoryV2();
                 BeanUtils.copyProperties(inventory, inventoryV2, CommonUtils.getNullPropertyNames(inventory));
-                inventoryV2.setInventoryId(System.currentTimeMillis());
+                inventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 2));
                 inventoryV2 = inventoryV2Repository.save(inventoryV2);
                 log.info("-----InventoryV2 created-------: " + inventoryV2);
 
@@ -1770,7 +1770,7 @@ public class OrderManagementLineService extends BaseService {
             // Create new Inventory Record
             InventoryV2 inventoryV2 = new InventoryV2();
             BeanUtils.copyProperties(inventory, inventoryV2, CommonUtils.getNullPropertyNames(inventory));
-            inventoryV2.setInventoryId(System.currentTimeMillis());
+            inventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 2));
             inventoryV2 = inventoryV2Repository.save(inventoryV2);
             log.info("-----InventoryV2 created-------: " + inventoryV2);
 
@@ -2678,7 +2678,7 @@ public class OrderManagementLineService extends BaseService {
                                 InventoryV2 inventoryV2 = new InventoryV2();
                                 BeanUtils.copyProperties(inventoryForUpdate, inventoryV2, CommonUtils.getNullPropertyNames(inventoryForUpdate));
                                 inventoryV2.setUpdatedOn(new Date());
-                                inventoryV2.setInventoryId(System.currentTimeMillis());
+                                inventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 2));
                                 inventoryV2 = inventoryV2Repository.save(inventoryV2);
                                 log.info("-----Inventory2 updated-------: " + inventoryV2);
                             }
@@ -2921,7 +2921,7 @@ public class OrderManagementLineService extends BaseService {
                     InventoryV2 inventoryV2 = new InventoryV2();
                     BeanUtils.copyProperties(inventoryForUpdate, inventoryV2, CommonUtils.getNullPropertyNames(inventoryForUpdate));
                     inventoryV2.setUpdatedOn(new Date());
-                    inventoryV2.setInventoryId(System.currentTimeMillis());
+                    inventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 2));
                     inventoryV2 = inventoryV2Repository.save(inventoryV2);
                     log.info("-----Inventory2 updated-------: " + inventoryV2);
                 }

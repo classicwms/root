@@ -2268,6 +2268,7 @@ public class PreOutboundHeaderService extends BaseService {
                 newPickupHeader.setLevelId(orderManagementLine.getLevelId());
                 newPickupHeader.setTargetBranchCode(orderManagementLine.getTargetBranchCode());
                 newPickupHeader.setLineNumber(orderManagementLine.getLineNumber());
+                newPickupHeader.setImsSaleTypeCode(orderManagementLine.getImsSaleTypeCode());
 
                 newPickupHeader.setFromBranchCode(outboundIntegrationHeader.getFromBranchCode());
                 newPickupHeader.setIsCompleted(outboundIntegrationHeader.getIsCompleted());
@@ -4227,6 +4228,7 @@ public class PreOutboundHeaderService extends BaseService {
                                                           OutboundIntegrationHeaderV2 outboundIntegrationHeader, String refField1ForOrderType) throws ParseException {
 //        AuthToken authTokenForIDService = authTokenService.getIDMasterServiceAuthToken();
         PreOutboundHeaderV2 preOutboundHeader = new PreOutboundHeaderV2();
+        BeanUtils.copyProperties(outboundIntegrationHeader, preOutboundHeader, CommonUtils.getNullPropertyNames(outboundIntegrationHeader));
         preOutboundHeader.setLanguageId(languageId);
         preOutboundHeader.setCompanyCodeId(companyCodeId);
         preOutboundHeader.setPlantId(plantId);
@@ -4299,10 +4301,12 @@ public class PreOutboundHeaderService extends BaseService {
      */
     private PreOutboundLineV2 createPreOutboundLineBOMBasedV2(String companyCodeId, String plantId, String languageId, String preOutboundNo,
                                                               OutboundIntegrationHeaderV2 outboundIntegrationHeader, BomLine dbBomLine,
-                                                              OutboundIntegrationLineV2 outboundIntegrationLine) throws ParseException {
+                                                              OutboundIntegrationLineV2 outboundIntegrationLine) throws Exception {
+        try {
 //        Warehouse warehouse = getWarehouse(outboundIntegrationHeader.getWarehouseID());
 
         PreOutboundLineV2 preOutboundLine = new PreOutboundLineV2();
+            BeanUtils.copyProperties(outboundIntegrationLine, preOutboundLine, CommonUtils.getNullPropertyNames(outboundIntegrationLine));
         preOutboundLine.setLanguageId(languageId);
         preOutboundLine.setCompanyCodeId(companyCodeId);
         preOutboundLine.setPlantId(plantId);
@@ -4416,6 +4420,10 @@ public class PreOutboundHeaderService extends BaseService {
         preOutboundLine.setCreatedBy("MW_AMS");
         preOutboundLine.setCreatedOn(new Date());
         return preOutboundLine;
+        } catch (Exception e) {
+            log.error("PreOutBoundLine Create [BOM] Exception : " + e.toString());
+            throw e;
+        }
     }
 
     /**
@@ -4429,7 +4437,7 @@ public class PreOutboundHeaderService extends BaseService {
     private PreOutboundLineV2 createPreOutboundLineV2(String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo,
                                                       OutboundIntegrationHeaderV2 outboundIntegrationHeader, OutboundIntegrationLineV2 outboundIntegrationLine) throws ParseException {
         PreOutboundLineV2 preOutboundLine = new PreOutboundLineV2();
-
+        BeanUtils.copyProperties(outboundIntegrationLine, preOutboundLine, CommonUtils.getNullPropertyNames(outboundIntegrationLine));
         preOutboundLine.setLanguageId(languageId);
         preOutboundLine.setCompanyCodeId(companyCodeId);
         preOutboundLine.setPlantId(plantId);
@@ -4864,7 +4872,7 @@ public class PreOutboundHeaderService extends BaseService {
                         InventoryV2 newInventoryV2 = new InventoryV2();
                         BeanUtils.copyProperties(inventory, newInventoryV2, CommonUtils.getNullPropertyNames(inventory));
                         newInventoryV2.setUpdatedOn(new Date());
-                        newInventoryV2.setInventoryId(System.currentTimeMillis());
+                        newInventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 6));
                         InventoryV2 updateInventoryV2 = inventoryV2Repository.save(newInventoryV2);
                         log.info("InventoryV2 created : " + updateInventoryV2);
                     }
@@ -4894,7 +4902,7 @@ public class PreOutboundHeaderService extends BaseService {
                             InventoryV2 newInventoryV2 = new InventoryV2();
                             BeanUtils.copyProperties(inventory, newInventoryV2, CommonUtils.getNullPropertyNames(inventory));
                             newInventoryV2.setUpdatedOn(new Date());
-                            newInventoryV2.setInventoryId(System.currentTimeMillis());
+                            newInventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 6));
                             InventoryV2 updateInventoryV2 = inventoryV2Repository.save(newInventoryV2);
                             log.info("InventoryV2 created : " + updateInventoryV2);
                         }
@@ -4939,7 +4947,7 @@ public class PreOutboundHeaderService extends BaseService {
                             InventoryV2 newInventoryV2 = new InventoryV2();
                             BeanUtils.copyProperties(inventory, newInventoryV2, CommonUtils.getNullPropertyNames(inventory));
                             newInventoryV2.setUpdatedOn(new Date());
-                            newInventoryV2.setInventoryId(System.currentTimeMillis());
+                            newInventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 6));
                             InventoryV2 updateInventoryV2 = inventoryV2Repository.save(newInventoryV2);
                             log.info("InventoryV2 created : " + updateInventoryV2);
                         }
@@ -5181,7 +5189,7 @@ public class PreOutboundHeaderService extends BaseService {
                             InventoryV2 newInventoryV2 = new InventoryV2();
                             BeanUtils.copyProperties(inventory, newInventoryV2, CommonUtils.getNullPropertyNames(inventory));
                             newInventoryV2.setUpdatedOn(new Date());
-                            newInventoryV2.setInventoryId(System.currentTimeMillis());
+                            newInventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 6));
                             InventoryV2 updateInventoryV2 = inventoryV2Repository.save(newInventoryV2);
                             log.info("InventoryV2 created : " + updateInventoryV2);
                         }
@@ -5211,7 +5219,7 @@ public class PreOutboundHeaderService extends BaseService {
                                 InventoryV2 newInventoryV2 = new InventoryV2();
                                 BeanUtils.copyProperties(inventory, newInventoryV2, CommonUtils.getNullPropertyNames(inventory));
                                 newInventoryV2.setUpdatedOn(new Date());
-                                newInventoryV2.setInventoryId(System.currentTimeMillis());
+                                newInventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 6));
                                 InventoryV2 updateInventoryV2 = inventoryV2Repository.save(newInventoryV2);
                                 log.info("InventoryV2 created : " + updateInventoryV2);
                             }
@@ -5256,7 +5264,7 @@ public class PreOutboundHeaderService extends BaseService {
                                 InventoryV2 newInventoryV2 = new InventoryV2();
                                 BeanUtils.copyProperties(inventory, newInventoryV2, CommonUtils.getNullPropertyNames(inventory));
                                 newInventoryV2.setUpdatedOn(new Date());
-                                newInventoryV2.setInventoryId(System.currentTimeMillis());
+                                newInventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 6));
                                 InventoryV2 updateInventoryV2 = inventoryV2Repository.save(newInventoryV2);
                                 log.info("InventoryV2 created : " + updateInventoryV2);
                             }
@@ -5799,7 +5807,7 @@ public class PreOutboundHeaderService extends BaseService {
                         InventoryV2 newInventoryV2 = new InventoryV2();
                         BeanUtils.copyProperties(inventory, newInventoryV2, CommonUtils.getNullPropertyNames(inventory));
                         newInventoryV2.setUpdatedOn(new Date());
-                        newInventoryV2.setInventoryId(System.currentTimeMillis());
+                        newInventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 6));
                         InventoryV2 updateInventoryV2 = inventoryV2Repository.save(newInventoryV2);
                         log.info("InventoryV2 created : " + updateInventoryV2);
                     }
@@ -5829,7 +5837,7 @@ public class PreOutboundHeaderService extends BaseService {
                             InventoryV2 newInventoryV2 = new InventoryV2();
                             BeanUtils.copyProperties(inventory, newInventoryV2, CommonUtils.getNullPropertyNames(inventory));
                             newInventoryV2.setUpdatedOn(new Date());
-                            newInventoryV2.setInventoryId(System.currentTimeMillis());
+                            newInventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 6));
                             InventoryV2 updateInventoryV2 = inventoryV2Repository.save(newInventoryV2);
                             log.info("InventoryV2 created : " + updateInventoryV2);
                         }
@@ -5874,7 +5882,7 @@ public class PreOutboundHeaderService extends BaseService {
                             InventoryV2 newInventoryV2 = new InventoryV2();
                             BeanUtils.copyProperties(inventory, newInventoryV2, CommonUtils.getNullPropertyNames(inventory));
                             newInventoryV2.setUpdatedOn(new Date());
-                            newInventoryV2.setInventoryId(System.currentTimeMillis());
+                            newInventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 6));
                             InventoryV2 updateInventoryV2 = inventoryV2Repository.save(newInventoryV2);
                             log.info("InventoryV2 created : " + updateInventoryV2);
                         }

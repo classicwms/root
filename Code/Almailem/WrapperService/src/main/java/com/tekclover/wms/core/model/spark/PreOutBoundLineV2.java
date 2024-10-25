@@ -68,4 +68,5 @@ public class PreOutBoundLineV2 {
     private String returnOrderNo;
     private String isCompleted;
     private String isCancelled;
+    private Integer imsSaleTypeCode;
 }

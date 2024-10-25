@@ -24,6 +24,8 @@ import com.tekclover.wms.api.transaction.model.warehouse.stockAdjustment.StockAd
 import com.tekclover.wms.api.transaction.repository.IntegrationApiResponseRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundOrderV2Repository;
 import com.tekclover.wms.api.transaction.repository.WarehouseRepository;
+import com.tekclover.wms.api.transaction.util.CommonUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -2350,6 +2352,7 @@ public class WarehouseService extends BaseService {
 //			}
 
 			OutboundOrderV2 apiHeader = new OutboundOrderV2();
+			BeanUtils.copyProperties(salesOrderHeader, apiHeader, CommonUtils.getNullPropertyNames(salesOrderHeader));
 			apiHeader.setBranchCode(salesOrderHeader.getBranchCode());
 			apiHeader.setCompanyCode(salesOrderHeader.getCompanyCode());
 			apiHeader.setLanguageId(warehouse.get().getLanguageId());
@@ -2389,6 +2392,7 @@ public class WarehouseService extends BaseService {
 			Set<OutboundOrderLineV2> orderLines = new HashSet<>();
 			for (SalesOrderLineV2 soLine : salesOrderLines) {
 				OutboundOrderLineV2 apiLine = new OutboundOrderLineV2();
+				BeanUtils.copyProperties(soLine, apiLine, CommonUtils.getNullPropertyNames(apiLine));
 				apiLine.setBrand(soLine.getBrand());
 				apiLine.setOrigin(soLine.getOrigin());
 				apiLine.setPackQty(soLine.getPackQty());
@@ -2415,6 +2419,7 @@ public class WarehouseService extends BaseService {
 //				apiLine.setOutboundOrderHeaderId(apiHeader.getOutboundOrderHeaderId());
 				apiLine.setSalesOrderNo(soLine.getSalesOrderNo());
 				apiLine.setPickListNo(soLine.getPickListNo());
+				apiLine.setImsSaleTypeCode(salesOrderHeader.getImsSaleTypeCode());
 
 				apiLine.setMiddlewareId(soLine.getMiddlewareId());
 				apiLine.setMiddlewareHeaderId(soLine.getMiddlewareHeaderId());

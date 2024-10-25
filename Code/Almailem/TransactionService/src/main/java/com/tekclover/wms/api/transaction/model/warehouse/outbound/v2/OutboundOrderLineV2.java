@@ -43,4 +43,5 @@ public class OutboundOrderLineV2 extends OutboundOrderLine {
     private String isCancelled;
     private String customerType;
     private Long outboundOrderTypeID;
+    private Integer imsSaleTypeCode;
 }

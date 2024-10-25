@@ -33,4 +33,5 @@ public class PickupLineV2 extends PickupLine {
 	private String tokenNumber;
 	private String targetBranchCode;
 	private Double varianceQuantity;
+	private Integer imsSaleTypeCode;
 }

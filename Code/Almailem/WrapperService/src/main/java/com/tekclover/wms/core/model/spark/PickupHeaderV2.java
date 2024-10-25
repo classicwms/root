@@ -73,4 +73,5 @@ public class PickupHeaderV2 {
     private String isCancelled;
     private Timestamp mUpdatedOn;
     private String targetBranchCode;
+    private Integer imsSaleTypeCode;
 }

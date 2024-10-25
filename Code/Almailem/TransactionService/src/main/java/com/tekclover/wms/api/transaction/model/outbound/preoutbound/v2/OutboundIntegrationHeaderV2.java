@@ -43,6 +43,7 @@ public class OutboundIntegrationHeaderV2 extends OutboundIntegrationHeader {
     private String alternateNo;
     private String status;
     private String tokenNumber;
+    private Integer imsSaleTypeCode;
 
     private String fromBranchCode;
     private String isCompleted;

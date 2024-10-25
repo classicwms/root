@@ -85,4 +85,7 @@ public class PreOutboundLineV2 extends PreOutboundLine {
     @Column(name = "TARGET_BRANCH_CODE", columnDefinition = "nvarchar(50)")
     private String targetBranchCode;
 
+    @Column(name = "IMS_SALE_TYP_CODE")
+    private Integer imsSaleTypeCode;
+
 }

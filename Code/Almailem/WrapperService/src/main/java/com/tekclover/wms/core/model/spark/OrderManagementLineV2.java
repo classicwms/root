@@ -91,4 +91,5 @@ public class OrderManagementLineV2 {
     private String isCompleted;
     private String isCancelled;
     private String targetBranchCode;
+    private Integer imsSaleTypeCode;
 }

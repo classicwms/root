@@ -1287,6 +1287,7 @@ public class QualityLineService extends BaseService {
                     dbQualityLine.setTokenNumber(dbOrderManagementLine.getTokenNumber());
 //                    dbQualityLine.setBarcodeId(dbOrderManagementLine.getBarcodeId());
                     dbQualityLine.setTargetBranchCode(dbOrderManagementLine.getTargetBranchCode());
+                    dbQualityLine.setImsSaleTypeCode(dbOrderManagementLine.getImsSaleTypeCode());
                 }
 
                 dbQualityLine.setBarcodeId(newQualityLine.getBarcodeId());

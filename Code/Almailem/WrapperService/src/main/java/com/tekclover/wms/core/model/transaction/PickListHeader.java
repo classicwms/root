@@ -86,5 +86,6 @@ public class PickListHeader {
 	private String customerType;
 	private Long oldStatusId;
 	private Long newStatusId;
+	private Integer imsSaleTypeCode;
 	private List<PickListLine> line;
 }

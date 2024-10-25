@@ -1503,9 +1503,9 @@ public class PutAwayHeaderService extends BaseService {
                     if(updateStorageBin != null) {
                         InventoryV2 deleteInventory = new InventoryV2();
                         BeanUtils.copyProperties(updateStorageBin, deleteInventory, CommonUtils.getNullPropertyNames(updateStorageBin));
-                        deleteInventory.setInventoryId(System.currentTimeMillis());
                         deleteInventory.setInventoryQuantity(updateStorageBin.getInventoryQuantity() - dbPutAwayHeader.getPutAwayQuantity());
                         deleteInventory.setReferenceField4(deleteInventory.getInventoryQuantity());         //Allocated Qty is always 0 for BinClassId 3
+                        deleteInventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 8));
                         InventoryV2 createInventory = inventoryV2Repository.save(deleteInventory);
                         log.info("Delete Inventory Inserted: " + createInventory);
                         isDeleted = true;
@@ -1695,9 +1695,9 @@ public class PutAwayHeaderService extends BaseService {
                 if(updateStorageBin != null){
                     InventoryV2 deleteInventory = new InventoryV2();
                     BeanUtils.copyProperties(updateStorageBin, deleteInventory, CommonUtils.getNullPropertyNames(updateStorageBin));
-                    deleteInventory.setInventoryId(System.currentTimeMillis());
                     deleteInventory.setInventoryQuantity(updateStorageBin.getInventoryQuantity() - dbPutAwayHeader.getPutAwayQuantity());
                     deleteInventory.setReferenceField4(deleteInventory.getInventoryQuantity());         //Allocated Qty is always 0 for BinClassId 3
+                    deleteInventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 8));
                     InventoryV2 createInventory = inventoryV2Repository.save(deleteInventory);
                     log.info("Delete Inventory Inserted: " + createInventory);
                     isDeleted = true;
@@ -1944,10 +1944,10 @@ public class PutAwayHeaderService extends BaseService {
                     if(updateStorageBin != null) {
                         InventoryV2 deleteInventory = new InventoryV2();
                         BeanUtils.copyProperties(updateStorageBin, deleteInventory, CommonUtils.getNullPropertyNames(updateStorageBin));
-                        deleteInventory.setInventoryId(System.currentTimeMillis());
                         deleteInventory.setInventoryQuantity(updateStorageBin.getInventoryQuantity() - dbPutAwayHeader.getPutAwayQuantity());
                         deleteInventory.setReferenceField4(deleteInventory.getInventoryQuantity());         //Allocated Qty is always 0 for BinClassId 3
 //                        deleteInventory.setAllocatedQuantity(0D);
+                        deleteInventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 8));
                         InventoryV2 createInventory = inventoryV2Repository.save(deleteInventory);
                         log.info("Delete Inventory Inserted: " + createInventory);
                         isDeleted = true;
@@ -2140,10 +2140,10 @@ public class PutAwayHeaderService extends BaseService {
                 if(updateStorageBin != null){
                     InventoryV2 deleteInventory = new InventoryV2();
                     BeanUtils.copyProperties(updateStorageBin, deleteInventory, CommonUtils.getNullPropertyNames(updateStorageBin));
-                    deleteInventory.setInventoryId(System.currentTimeMillis());
                     deleteInventory.setInventoryQuantity(updateStorageBin.getInventoryQuantity() - dbPutAwayHeader.getPutAwayQuantity());
                     deleteInventory.setReferenceField4(deleteInventory.getInventoryQuantity());         //Allocated Qty is always 0 for BinClassId 3
 //                    deleteInventory.setAllocatedQuantity(0D);
+                    deleteInventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 8));
                     InventoryV2 createInventory = inventoryV2Repository.save(deleteInventory);
                     log.info("Delete Inventory Inserted: " + createInventory);
                     isDeleted = true;

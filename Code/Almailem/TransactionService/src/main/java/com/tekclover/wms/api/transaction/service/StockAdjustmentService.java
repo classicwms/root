@@ -207,8 +207,8 @@ public class StockAdjustmentService extends BaseService {
                             InventoryV2 dbInventoryV2 = dbInventoryList.get(0);
                             InventoryV2 newInventoryV2 = new InventoryV2();
                             BeanUtils.copyProperties(dbInventoryV2, newInventoryV2, CommonUtils.getNullPropertyNames(dbInventoryV2));
-                            newInventoryV2.setInventoryId(System.currentTimeMillis());
                             newInventoryV2.setInventoryQuantity(updatedStockAdjustment.getInventoryQuantity() + updatedStockAdjustment.getAdjustmentQty());
+                            newInventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 5));
                             InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventoryV2);
                             log.info("InventoryV2 created : " + createdInventoryV2);
                         }
@@ -277,7 +277,7 @@ public class StockAdjustmentService extends BaseService {
                     }
                     Double TOT_QTY = INV_QTY + ALLOC_QTY;
                     newInventory.setReferenceField4(TOT_QTY);
-                    newInventory.setInventoryId(System.currentTimeMillis());
+                    newInventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 5));
                     inventoryV2Repository.save(newInventory);
 
                     //StockAdjustment Record Insert
@@ -372,7 +372,7 @@ public class StockAdjustmentService extends BaseService {
                         stkInventory.setReferenceField4(TOT_QTY);
                         stkInventory.setDeletionIndicator(0L);
                         stkInventory.setUpdatedOn(new Date());
-                        stkInventory.setInventoryId(System.currentTimeMillis());
+                        stkInventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 5));
                         inventoryV2Repository.save(stkInventory);
 
                         //Insert New Record in StockAdjustment
@@ -421,7 +421,7 @@ public class StockAdjustmentService extends BaseService {
                         stkInventory.setInventoryQuantity(INV_QTY);
                         stkInventory.setReferenceField4(TOT_QTY);
                         stkInventory.setDeletionIndicator(0L);
-                        stkInventory.setInventoryId(System.currentTimeMillis());
+                        stkInventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 5));
                         inventoryV2Repository.save(stkInventory);
 
                         //Insert New Record in StockAdjustment
@@ -543,7 +543,7 @@ public class StockAdjustmentService extends BaseService {
                         stkInventory.setInventoryQuantity(INV_QTY);
                         stkInventory.setReferenceField4(TOT_QTY);
                         stkInventory.setDeletionIndicator(0L);
-                        stkInventory.setInventoryId(System.currentTimeMillis());
+                        stkInventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 5));
                         inventoryV2Repository.save(stkInventory);
 
                         //Insert New Record in StockAdjustment
@@ -596,7 +596,7 @@ public class StockAdjustmentService extends BaseService {
                                         stkInventoryNew.setInventoryQuantity(INV_QTY);
                                         stkInventoryNew.setReferenceField4(TOT_QTY);
                                         stkInventoryNew.setDeletionIndicator(0L);
-                                        stkInventoryNew.setInventoryId(System.currentTimeMillis());
+                                        stkInventoryNew.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 5));
                                         inventoryV2Repository.save(stkInventoryNew);
 
                                         //Insert New Record in StockAdjustment
@@ -713,7 +713,7 @@ public class StockAdjustmentService extends BaseService {
                                 stkInventory.setInventoryQuantity(INV_QTY);
                                 stkInventory.setReferenceField4(TOT_QTY);
                                 stkInventory.setDeletionIndicator(0L);
-                                stkInventory.setInventoryId(System.currentTimeMillis());
+                                stkInventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 5));
                                 inventoryV2Repository.save(stkInventory);
 
                                 //Insert New Record in StockAdjustment
@@ -827,7 +827,7 @@ public class StockAdjustmentService extends BaseService {
                             stkInventory.setInventoryQuantity(INV_QTY);
                             stkInventory.setReferenceField4(TOT_QTY);
                             stkInventory.setDeletionIndicator(0L);
-                            stkInventory.setInventoryId(System.currentTimeMillis());
+                            stkInventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 5));
                             inventoryV2Repository.save(stkInventory);
 
                             //Insert New Record in StockAdjustment
@@ -1481,7 +1481,7 @@ public class StockAdjustmentService extends BaseService {
                         ALLOC_QTY = dbInventory.getAllocatedQuantity();
                     }
                     newInventory.setReferenceField4(dbInventory.getInventoryQuantity() + ALLOC_QTY);
-                    newInventory.setInventoryId(System.currentTimeMillis());
+                    newInventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 5));
                     newInventory.setUpdatedOn(new Date());
                     inventoryV2Repository.save(newInventory);
 
@@ -1666,7 +1666,7 @@ public class StockAdjustmentService extends BaseService {
             }
 
             newInventory.setUpdatedOn(new Date());
-            newInventory.setInventoryId(System.currentTimeMillis());
+            newInventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 5));
             inventoryV2Repository.save(newInventory);
 
             //StockAdjustment Record Insert

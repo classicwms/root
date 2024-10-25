@@ -1797,7 +1797,7 @@ public class InboundHeaderService extends BaseService {
 
                     inventory2.setCreatedOn(existinginventory.getCreatedOn());
                     inventory2.setUpdatedOn(new Date());
-                    inventory2.setInventoryId(System.currentTimeMillis());
+                    inventory2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 8));
                     InventoryV2 createdInventoryV2 = inventoryV2Repository.save(inventory2);
                     log.info("----existinginventory--createdInventoryV2--------> : " + createdInventoryV2);
                 }
@@ -2003,7 +2003,7 @@ public class InboundHeaderService extends BaseService {
                 inventory.setCreatedOn(new Date());
             }
             inventory.setUpdatedOn(new Date());
-            inventory.setInventoryId(System.currentTimeMillis());
+            inventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 1));
             InventoryV2 createdinventory = inventoryV2Repository.save(inventory);
             log.info("created inventory : " + createdinventory);
             return createdinventory;
@@ -2063,7 +2063,7 @@ public class InboundHeaderService extends BaseService {
                     inventory2.setCreatedOn(existinginventory.getCreatedOn());
                     inventory2.setUpdatedOn(new Date());
                     if(!alreadyExecuted) {
-                    inventory2.setInventoryId(System.currentTimeMillis());
+                    inventory2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 8));
                     InventoryV2 createdInventoryV2 = inventoryV2Repository.save(inventory2);
                     log.info("----existinginventory--createdInventoryV2--------> : " + createdInventoryV2);
                 }
@@ -2206,7 +2206,7 @@ public class InboundHeaderService extends BaseService {
             inventory.setUpdatedOn(new Date());
             InventoryV2 createdinventory = null;
             if (!alreadyExecuted) {
-            inventory.setInventoryId(System.currentTimeMillis());
+            inventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 1));
             createdinventory = inventoryV2Repository.save(inventory);
             alreadyExecuted = true;             //to ensure method executing only once
                 log.info("created inventory : executed" + createdinventory + " -----> " + alreadyExecuted);

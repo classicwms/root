@@ -89,4 +89,7 @@ public class PickupHeaderV2 extends PickupHeader {
 	@Column(name = "NOTI_STATUS")
 	private Long notificationStatus = 0L;
 
+	@Column(name = "IMS_SALE_TYP_CODE")
+	private Integer imsSaleTypeCode;
+
 }

@@ -61,4 +61,7 @@ public class PreOutboundHeaderV2 extends PreOutboundHeader {
 	@Column(name = "TARGET_BRANCH_CODE", columnDefinition = "nvarchar(50)")
 	private String targetBranchCode;
 
+	@Column(name = "IMS_SALE_TYP_CODE")
+	private Integer imsSaleTypeCode;
+
 }

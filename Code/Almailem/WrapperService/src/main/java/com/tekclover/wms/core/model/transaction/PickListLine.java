@@ -89,4 +89,5 @@ public class PickListLine {
 	private String handlingEquipment;
 	private Long oldStatusId;
 	private Long newStatusId;
+	private Integer imsSaleTypeCode;
 }

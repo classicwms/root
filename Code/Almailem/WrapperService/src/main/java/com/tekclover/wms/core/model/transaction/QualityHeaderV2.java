@@ -22,4 +22,5 @@ public class QualityHeaderV2 extends QualityHeader {
 	private String pickListNumber;
 	private String tokenNumber;
 	private String targetBranchCode;
+	private Integer imsSaleTypeCode;
 }

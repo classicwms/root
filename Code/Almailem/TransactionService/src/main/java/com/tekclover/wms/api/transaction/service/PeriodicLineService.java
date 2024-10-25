@@ -1224,8 +1224,8 @@ public class PeriodicLineService extends BaseService {
         if (inventory != null) {
             InventoryV2 newinventory = new InventoryV2();
             BeanUtils.copyProperties(inventory, newinventory, CommonUtils.getNullPropertyNames(inventory));
-            newinventory.setInventoryId(System.currentTimeMillis());
             newinventory.setInventoryQuantity(updatePeriodicLine.getCountedQty());
+            newinventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 5));
             InventoryV2 updatedInventory = inventoryV2Repository.save(newinventory);
             log.info("updatedInventory : " + updatedInventory);
             return updatedInventory;
@@ -1241,7 +1241,6 @@ public class PeriodicLineService extends BaseService {
     private InventoryV2 createInventoryV2(PeriodicLineV2 updatePeriodicLine) throws ParseException {
         InventoryV2 inventory = new InventoryV2();
         BeanUtils.copyProperties(updatePeriodicLine, inventory, CommonUtils.getNullPropertyNames(updatePeriodicLine));
-        inventory.setInventoryId(System.currentTimeMillis());
         inventory.setCompanyCodeId(updatePeriodicLine.getCompanyCode());
 
         // VAR_ID, VAR_SUB_ID, STR_MTD, STR_NO ---> Hard coded as '1'
@@ -1300,6 +1299,7 @@ public class PeriodicLineService extends BaseService {
         inventory.setCreatedBy(updatePeriodicLine.getCreatedBy());
         inventory.setCreatedOn(updatePeriodicLine.getCreatedOn());
         inventory.setUpdatedOn(new Date());
+        inventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 5));
         InventoryV2 createdinventory = inventoryV2Repository.save(inventory);
         log.info("created inventory : " + createdinventory);
         return createdinventory;

@@ -25,4 +25,5 @@ public class QualityLineV2 extends QualityLine {
 	private String tokenNumber;
 	private String barcodeId;
 	private String targetBranchCode;
+	private Integer imsSaleTypeCode;
 }

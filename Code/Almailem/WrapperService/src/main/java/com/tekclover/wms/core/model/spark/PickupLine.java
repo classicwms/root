@@ -80,5 +80,6 @@ public class PickupLine {
     private String manufacturerFullName;
     private String targetBranchCode;
     private Double varianceQuantity;
+    private Integer imsSaleTypeCode;
 
 }
