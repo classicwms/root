@@ -88,7 +88,7 @@ public class OrderManagementLineSpecification implements Specification<OrderMana
 			predicates.add(cb.between(root.get("pickupCreatedOn"), searchOrderMangementLine.getStartCreatedOnDate(),
 									  searchOrderMangementLine.getEndCreatedOnDate()));
 		}
-			
+		predicates.add(cb.equal(root.get("deletionIndicator"), 0L));
          return cb.and(predicates.toArray(new Predicate[] {}));
      }
 }
