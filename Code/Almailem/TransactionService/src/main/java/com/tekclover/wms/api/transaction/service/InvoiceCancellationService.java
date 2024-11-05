@@ -573,8 +573,7 @@ public class InvoiceCancellationService extends BaseService{
                     }
                 }
                 try {
-//                    createdPutawayLine = putAwayLineService.putAwayLineConfirmV2(createPutawayLine, grHeader.getCreatedBy());
-                    createdPutawayLine = putAwayLineService.putAwayLineConfirmNonCBMV2(createPutawayLine, grHeader.getCreatedBy());
+                    createdPutawayLine = putAwayLineService.putAwayLineConfirmV2(createPutawayLine, grHeader.getCreatedBy());
                 } catch (Exception e) {
                     e.printStackTrace();
                     throw new RuntimeException(e);

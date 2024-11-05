@@ -2084,8 +2084,7 @@ public class StagingLineService extends BaseService {
                     }
                 }
 //            }
-//            createdPutawayLine = putAwayLineService.putAwayLineConfirmV2(createPutawayLine, grHeader.getCreatedBy());
-            createdPutawayLine = putAwayLineService.putAwayLineConfirmNonCBMV2(createPutawayLine, grHeader.getCreatedBy());
+            createdPutawayLine = putAwayLineService.putAwayLineConfirmV2(createPutawayLine, grHeader.getCreatedBy());
             log.info("PutawayLine Confirmed: " + createdPutawayLine);
         }
         if (createdPutawayLine != null && !createdPutawayLine.isEmpty()) {

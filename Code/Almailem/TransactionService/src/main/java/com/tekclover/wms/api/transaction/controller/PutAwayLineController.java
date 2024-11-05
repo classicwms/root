@@ -172,7 +172,7 @@ public class PutAwayLineController {
 													  @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		log.info("Request for putAwayLines to confirm : " + newPutAwayLine);
-		List<PutAwayLineV2> createdPutAwayLine = putawaylineService.putAwayLineConfirmNonCBMV2(newPutAwayLine, loginUserID);
+		List<PutAwayLineV2> createdPutAwayLine = putawaylineService.putAwayLineConfirmV2(newPutAwayLine, loginUserID);
 		return new ResponseEntity<>(createdPutAwayLine, HttpStatus.OK);
 	}
 
