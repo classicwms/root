@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import com.tekclover.wms.api.transaction.model.impl.StockMovementReportImpl;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -119,4 +120,15 @@ public interface InventoryMovementRepository extends JpaRepository<InventoryMove
 	public Double findSumOfMvtQty (@Param(value = "itemCode") List<String> itemCode,
 			@Param(value = "dateFrom") Date dateFrom,
 			@Param(value = "dateTo") Date dateTo);
+
+	@Query(value = "select im.wh_id as warehouseId, im.itm_code as itemCode, 'Adjustment' as documentType, im.mvt_doc_no as documentNumber, im.ref_field_6 as customerCode, \n"
+			+ " convert(varchar, im.im_ctd_on, 105) as createdOn, convert(varchar, im.im_ctd_on, 8) as createdTime, im.im_ctd_on as confirmedOn, \n"
+			+ " im.mvt_qty as movementQty, im.text as itemText, im.mfr_part as manufacturerSKU from tblinventorymovement im \n"
+			+ " WHERE im.ITM_CODE in (:itemCode) AND im.WH_ID in (:warehouseId) AND \n"
+			+ " (COALESCE(CONVERT(VARCHAR(255), :fromDate), null) IS NULL OR (im.IM_CTD_ON between COALESCE(CONVERT(VARCHAR(255), :fromDate), null) and COALESCE(CONVERT(VARCHAR(255), :toDate), null)))\n"
+			+ " AND im.MVT_QTY <> 0 AND im.MVT_TYP_ID = 4 AND im.SUB_MVT_TYP_ID = 1 AND im.IS_DELETED = 0", nativeQuery = true)
+	public List<StockMovementReportImpl> findStockMovement(@Param("itemCode") List<String> itemCode,
+														   @Param("warehouseId") List<String> warehouseId,
+														   @Param("fromDate") Date fromDate,
+														   @Param("toDate") Date toDate);
 }

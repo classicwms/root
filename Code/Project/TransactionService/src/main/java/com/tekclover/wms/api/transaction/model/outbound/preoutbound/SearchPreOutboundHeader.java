@@ -23,6 +23,7 @@ public class SearchPreOutboundHeader {
 	 
 	private List<String> warehouseId;
 	private List<String> preOutboundNo;
+	private List<String> refDocNumber;
 	private List<Long> outboundOrderTypeId;
 	private List<String> soType; 			// SO type - Ref.Field1
 	private List<String> soNumber; 			// refDocNumber - SO Number

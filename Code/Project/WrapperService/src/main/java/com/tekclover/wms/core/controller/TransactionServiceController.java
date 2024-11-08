@@ -1500,6 +1500,12 @@ public class TransactionServiceController {
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	
+	@ApiOperation(response = String.class, value = "Search OrderNumber") // label for swagger
+	@PostMapping("/outboundheader/findOrderNumber")
+	public String[] findOrderNumber(@RequestBody SearchOutboundHeader searchOutboundHeader, @RequestParam String authToken) throws Exception {
+		return transactionService.findOrderNumber(searchOutboundHeader, authToken);
+	}
+	
 	/*
 	 * ----------------------OutboundLine----------------------------------------------------------
 	 */
@@ -1517,11 +1523,18 @@ public class TransactionServiceController {
 		return transactionService.findOutboundLineNew(searchOutboundLine, authToken);
 	}
 
-	@ApiOperation(response = OutboundLine.class, value = "Search OutboundLine for Stock movement report") // label for swagger
+	@ApiOperation(response = StockMovementReport.class, value = "Search OutboundLine for Stock movement report") // label for swagger
 	@PostMapping("/outboundline/stock-movement-report/findOutboundLine")
 	public StockMovementReport[] findOutboundLineForStockMovement(@RequestBody SearchOutboundLine searchOutboundLine,@RequestParam String authToken)
 			throws Exception {
 		return transactionService.findOutboundLineForStockMovement(searchOutboundLine,authToken);
+	}
+
+	//Stock Movement Report with Inventory Movement
+	@ApiOperation(response = StockMovementReport.class, value = "Stock movement report with Inventory Movement") // label for swagger
+	@PostMapping("/outboundline/stock-movement-report/v2/findOutboundLine")
+	public StockMovementReport[] findStockMovement(@RequestBody SearchOutboundLine searchOutboundLine, @RequestParam String authToken) throws Exception {
+		return transactionService.findStockMovementReport(searchOutboundLine, authToken);
 	}
 
 	/*

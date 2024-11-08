@@ -310,4 +310,33 @@ public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader,L
 			@Param(value = "endDeliveryConfirmedOn") Date endDeliveryConfirmedOn,
 			@Param(value = "startOrderDate") Date startOrderDate,
 			@Param(value = "endOrderDate") Date endOrderDate);
+
+
+	@Query(value =
+			"select \n" +
+			"oh.ref_doc_no \n" +
+			"from tbloutboundheader oh\n" +
+			"where oh.is_deleted = 0 and \n" +
+			"(COALESCE(:warehouseId, null) IS NULL OR (oh.wh_id IN (:warehouseId))) and \n" +
+			"(COALESCE(:refDocNo, null) IS NULL OR (oh.ref_doc_no IN (:refDocNo))) and \n" +
+			"(COALESCE(:partnerCode, null) IS NULL OR (oh.partner_code IN (:partnerCode))) and \n" +
+			"(COALESCE(:outboundOrderTypeId, null) IS NULL OR (oh.ob_ord_typ_id IN (:outboundOrderTypeId))) and \n" +
+			"(COALESCE(:statusId, null) IS NULL OR (oh.status_id IN (:statusId))) and \n" +
+			"(COALESCE(:soType, null) IS NULL OR (oh.ref_field_1 IN (:soType))) and\n" +
+			"(COALESCE(CONVERT(VARCHAR(255), :startRequiredDeliveryDate), null) IS NULL OR (oh.REQ_DEL_DATE between COALESCE(CONVERT(VARCHAR(255), :startRequiredDeliveryDate), null) and COALESCE(CONVERT(VARCHAR(255), :endRequiredDeliveryDate), null))) and\n" +
+			"(COALESCE(CONVERT(VARCHAR(255), :startDeliveryConfirmedOn), null) IS NULL OR (oh.DLV_CNF_ON between COALESCE(CONVERT(VARCHAR(255), :startDeliveryConfirmedOn), null) and COALESCE(CONVERT(VARCHAR(255), :endDeliveryConfirmedOn), null))) and\n" +
+			"(COALESCE(CONVERT(VARCHAR(255), :startOrderDate), null) IS NULL OR (oh.DLV_CTD_ON between COALESCE(CONVERT(VARCHAR(255), :startOrderDate), null) and COALESCE(CONVERT(VARCHAR(255), :endOrderDate), null)))\n", nativeQuery = true)
+	public List<String> findAllOrderNumberV2 (
+			@Param(value = "warehouseId") List<String> warehouseId,
+			@Param(value = "refDocNo") List<String> refDocNo,
+			@Param(value = "partnerCode") List<String> partnerCode,
+			@Param(value = "outboundOrderTypeId") List<Long> outboundOrderTypeId,
+			@Param(value = "statusId") List<Long> statusId,
+			@Param(value = "soType") List<String> soType,
+			@Param(value = "startRequiredDeliveryDate") Date startRequiredDeliveryDate,
+			@Param(value = "endRequiredDeliveryDate") Date endRequiredDeliveryDate,
+			@Param(value = "startDeliveryConfirmedOn") Date startDeliveryConfirmedOn,
+			@Param(value = "endDeliveryConfirmedOn") Date endDeliveryConfirmedOn,
+			@Param(value = "startOrderDate") Date startOrderDate,
+			@Param(value = "endOrderDate") Date endOrderDate);
 }

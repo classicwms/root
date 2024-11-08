@@ -120,4 +120,10 @@ public class OutboundHeaderController {
     	outboundheaderService.deleteOutboundHeader(warehouseId, preOutboundNo, refDocNumber, partnerCode, loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
+
+	@ApiOperation(response = String.class, value = "Search OrderNumber") // label for swagger
+	@PostMapping("/findOrderNumber")
+	public List<String> findOrderNumber(@RequestBody SearchOutboundHeader searchOutboundHeader, @RequestParam Integer flag) throws Exception {
+		return outboundheaderService.findOrderNumberV2(searchOutboundHeader, flag);
+	}
 }

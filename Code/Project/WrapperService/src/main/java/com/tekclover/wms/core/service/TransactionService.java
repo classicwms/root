@@ -4346,7 +4346,7 @@ public class TransactionService {
 			UriComponentsBuilder builder = UriComponentsBuilder
 					.fromHttpUrl(getTransactionServiceApiUrl() + "outboundheader/findOutboundHeader")
 					.queryParam("flag", flag);
-			HttpEntity<?> entity = new HttpEntity<>(requestDataForService, headers);
+			HttpEntity<?> entity = new HttpEntity<>(requestData, headers);
 			ResponseEntity<OutboundHeader[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
 					entity, OutboundHeader[].class);
 //			log.info("result : " + result.getBody());
@@ -4372,6 +4372,66 @@ public class TransactionService {
 				obList.add(obHeader);
 			}
 			return obList.toArray(new OutboundHeader[obList.size()]);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+	
+	// POST - findOrderNumber
+	public String[] findOrderNumber(SearchOutboundHeader requestData, String authToken)
+			throws ParseException {
+		try {
+			SearchOutboundHeaderModel requestDataForService = new SearchOutboundHeaderModel();
+			BeanUtils.copyProperties(requestData, requestDataForService, CommonUtils.getNullPropertyNames(requestData));
+			if (requestData.getStartDeliveryConfirmedOn() != null) {
+				if (requestData.getStartDeliveryConfirmedOn().length() < 11) {
+					requestDataForService.setStartDeliveryConfirmedOn(
+							DateUtils.convertStringToYYYYMMDD(requestData.getStartDeliveryConfirmedOn()));
+				} else {
+					requestDataForService.setStartDeliveryConfirmedOn(
+							DateUtils.convertStringToDateWithTime(requestData.getStartDeliveryConfirmedOn()));
+				}
+			}
+			Integer flag = 0;
+			if (requestData.getEndDeliveryConfirmedOn() != null) {
+				if (requestData.getEndDeliveryConfirmedOn().length() < 11) {
+					requestDataForService.setEndDeliveryConfirmedOn(
+							DateUtils.convertStringToYYYYMMDD(requestData.getEndDeliveryConfirmedOn()));
+				} else {
+					requestDataForService.setEndDeliveryConfirmedOn(
+							DateUtils.convertStringToDateWithTime(requestData.getEndDeliveryConfirmedOn()));
+					flag = 1;
+				}
+			}
+			if (requestData.getStartOrderDate() != null) {
+				requestDataForService
+						.setStartOrderDate(DateUtils.convertStringToYYYYMMDD(requestData.getStartOrderDate()));
+			}
+			if (requestData.getEndOrderDate() != null) {
+				requestDataForService.setEndOrderDate(DateUtils.convertStringToYYYYMMDD(requestData.getEndOrderDate()));
+			}
+			if (requestData.getStartRequiredDeliveryDate() != null) {
+				requestDataForService.setStartRequiredDeliveryDate(
+						DateUtils.convertStringToYYYYMMDD(requestData.getStartRequiredDeliveryDate()));
+			}
+			if (requestData.getEndRequiredDeliveryDate() != null) {
+				requestDataForService.setEndRequiredDeliveryDate(
+						DateUtils.convertStringToYYYYMMDD(requestData.getEndRequiredDeliveryDate()));
+			}
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "outboundheader/findOrderNumber")
+					.queryParam("flag", flag);
+			HttpEntity<?> entity = new HttpEntity<>(requestDataForService, headers);
+			ResponseEntity<String[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
+					entity, String[].class);
+//			log.info("result : " + result.getBody());
+			return result.getBody();
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -4784,6 +4844,37 @@ public class TransactionService {
 
 			UriComponentsBuilder builder = UriComponentsBuilder
 					.fromHttpUrl(getTransactionServiceApiUrl() + "outboundline/stock-movement-report/findOutboundLine");
+			HttpEntity<?> entity = new HttpEntity<>(searchOutboundLine, headers);
+			ResponseEntity<StockMovementReport[]> result = getRestTemplate().exchange(builder.toUriString(),
+					HttpMethod.POST, entity, StockMovementReport[].class);
+			log.info("result : " + result.getStatusCode());
+
+			List<StockMovementReport> obList = new ArrayList<>();
+			for (StockMovementReport obHeader : result.getBody()) {
+
+				if(obHeader.getConfirmedOn() != null) {
+					obHeader.setConfirmedOn(DateUtils.addTimeToDate(obHeader.getConfirmedOn(), 3));
+				}
+				obList.add(obHeader);
+			}
+			return obList.toArray(new StockMovementReport[obList.size()]);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	// POST - stock-movement-report-with Inventory movement
+	public StockMovementReport[] findStockMovementReport(SearchOutboundLine searchOutboundLine, String authToken) throws Exception {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "outboundline/stock-movement-report/v2/findOutboundLine");
 			HttpEntity<?> entity = new HttpEntity<>(searchOutboundLine, headers);
 			ResponseEntity<StockMovementReport[]> result = getRestTemplate().exchange(builder.toUriString(),
 					HttpMethod.POST, entity, StockMovementReport[].class);

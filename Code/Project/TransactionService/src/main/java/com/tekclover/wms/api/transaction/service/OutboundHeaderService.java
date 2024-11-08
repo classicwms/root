@@ -308,6 +308,78 @@ public class OutboundHeaderService {
             throw new BadRequestException("Exception : " + e.toString());
         }
     }
+
+	/**
+	 * sql query optimised for performance - all order number alone
+	 * @param searchOutboundHeader
+	 * @return
+	 */
+	public List<String> findOrderNumberV2(SearchOutboundHeader searchOutboundHeader, Integer flag) {
+		try {
+			if (searchOutboundHeader.getStartRequiredDeliveryDate() != null && searchOutboundHeader.getEndRequiredDeliveryDate() != null) {
+				Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartRequiredDeliveryDate(), searchOutboundHeader.getEndRequiredDeliveryDate());
+				searchOutboundHeader.setStartRequiredDeliveryDate(dates[0]);
+				searchOutboundHeader.setEndRequiredDeliveryDate(dates[1]);
+			} else {
+				searchOutboundHeader.setStartRequiredDeliveryDate(null);
+				searchOutboundHeader.setEndRequiredDeliveryDate(null);
+			}
+
+			if (searchOutboundHeader.getStartDeliveryConfirmedOn() != null && searchOutboundHeader.getEndDeliveryConfirmedOn() != null) {
+				if(flag != 1 ) {
+					Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartDeliveryConfirmedOn(), searchOutboundHeader.getEndDeliveryConfirmedOn());
+					searchOutboundHeader.setStartDeliveryConfirmedOn(dates[0]);
+					searchOutboundHeader.setEndDeliveryConfirmedOn(dates[1]);
+				}
+			} else {
+				searchOutboundHeader.setStartDeliveryConfirmedOn(null);
+				searchOutboundHeader.setEndDeliveryConfirmedOn(null);
+			}
+
+			if (searchOutboundHeader.getStartOrderDate() != null && searchOutboundHeader.getEndOrderDate() != null) {
+				Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartOrderDate(), searchOutboundHeader.getEndOrderDate());
+				searchOutboundHeader.setStartOrderDate(dates[0]);
+				searchOutboundHeader.setEndOrderDate(dates[1]);
+			} else {
+				searchOutboundHeader.setStartOrderDate(null);
+				searchOutboundHeader.setEndOrderDate(null);
+			}
+
+			if (searchOutboundHeader.getWarehouseId() == null || searchOutboundHeader.getWarehouseId().isEmpty()) {
+				searchOutboundHeader.setWarehouseId(null);
+			}
+
+			if (searchOutboundHeader.getRefDocNumber() == null || searchOutboundHeader.getRefDocNumber().isEmpty()) {
+				searchOutboundHeader.setRefDocNumber(null);
+			}
+
+			if (searchOutboundHeader.getPartnerCode() == null || searchOutboundHeader.getPartnerCode().isEmpty()) {
+				searchOutboundHeader.setPartnerCode(null);
+			}
+
+			if (searchOutboundHeader.getOutboundOrderTypeId() == null || searchOutboundHeader.getOutboundOrderTypeId().isEmpty()) {
+				searchOutboundHeader.setOutboundOrderTypeId(null);
+			}
+
+			if (searchOutboundHeader.getSoType() == null || searchOutboundHeader.getSoType().isEmpty()) {
+				searchOutboundHeader.setSoType(null);
+			}
+
+			if (searchOutboundHeader.getStatusId() == null || searchOutboundHeader.getStatusId().isEmpty()) {
+				searchOutboundHeader.setStatusId(null);
+			}
+
+			return outboundHeaderRepository.findAllOrderNumberV2(searchOutboundHeader.getWarehouseId(), searchOutboundHeader.getRefDocNumber(),
+																 searchOutboundHeader.getPartnerCode(), searchOutboundHeader.getOutboundOrderTypeId(),
+																 searchOutboundHeader.getStatusId(), searchOutboundHeader.getSoType(),
+																 searchOutboundHeader.getStartRequiredDeliveryDate(), searchOutboundHeader.getEndRequiredDeliveryDate(),
+																 searchOutboundHeader.getStartDeliveryConfirmedOn(), searchOutboundHeader.getEndDeliveryConfirmedOn(),
+																 searchOutboundHeader.getStartOrderDate(), searchOutboundHeader.getEndOrderDate());
+		} catch (Exception e) {
+			log.error("Exception while order number Find operation...!");
+			throw new BadRequestException("Exception : " + e.toString());
+		}
+	}
 	
 	/**
 	 * 

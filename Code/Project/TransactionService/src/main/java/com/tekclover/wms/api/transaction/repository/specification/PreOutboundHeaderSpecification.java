@@ -39,6 +39,10 @@ public class PreOutboundHeaderSpecification implements Specification<PreOutbound
 			final Path<Group> group = root.<Group>get("preOutboundNo");
 			predicates.add(group.in(searchPreOutboundHeader.getPreOutboundNo()));
 		}
+		if (searchPreOutboundHeader.getRefDocNumber() != null && !searchPreOutboundHeader.getRefDocNumber().isEmpty()) {
+			final Path<Group> group = root.<Group>get("refDocNumber");
+			predicates.add(group.in(searchPreOutboundHeader.getRefDocNumber()));
+		}
 
 		if (searchPreOutboundHeader.getOutboundOrderTypeId() != null
 				&& !searchPreOutboundHeader.getOutboundOrderTypeId().isEmpty()) {

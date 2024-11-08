@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -13,6 +14,8 @@ import javax.persistence.EntityNotFoundException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -694,6 +697,58 @@ public class OutboundLineService extends BaseService {
 	}
 	
 	/**
+	 * Inventory Movement included
+	 * @param searchOutboundLine
+	 * @return
+	 * @throws Exception
+	 */
+	public List<StockMovementReport> findLinesForStockMovementV2(SearchOutboundLine searchOutboundLine) throws Exception {
+		try {
+			if (searchOutboundLine.getFromDeliveryDate() != null && searchOutboundLine.getToDeliveryDate() != null) {
+				Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundLine.getFromDeliveryDate(),
+																 searchOutboundLine.getToDeliveryDate());
+				searchOutboundLine.setFromDeliveryDate(dates[0]);
+				searchOutboundLine.setToDeliveryDate(dates[1]);
+			}
+
+			log.info("Stock Movement Report Input :  " + searchOutboundLine);
+			List<StockMovementReportImpl> allLineData = new ArrayList<>();
+			List<StockMovementReportImpl> outboundLineSearchResults =
+					outboundLineRepository.findOutboundLineForStockMovement(searchOutboundLine.getItemCode(), searchOutboundLine.getWarehouseId(),
+																			59L, searchOutboundLine.getFromDeliveryDate(), searchOutboundLine.getToDeliveryDate());
+
+			List<StockMovementReportImpl> inboundLineSearchResults =
+					inboundLineRepository.findInboundLineForStockMovement(searchOutboundLine.getItemCode(), searchOutboundLine.getWarehouseId(),
+																		  Arrays.asList(14L, 20L, 24L));
+
+			List<StockMovementReportImpl> inventoryMovementSearchResults =
+					inventoryMovementRepository.findStockMovement(searchOutboundLine.getItemCode(), searchOutboundLine.getWarehouseId(),
+																  searchOutboundLine.getFromDeliveryDate(), searchOutboundLine.getToDeliveryDate());
+
+			allLineData.addAll(outboundLineSearchResults);
+			allLineData.addAll(inboundLineSearchResults);
+			allLineData.addAll(inventoryMovementSearchResults);
+
+			List<StockMovementReport> stockMovementReports = new ArrayList<>();
+			allLineData.forEach(data->{
+				StockMovementReport stockMovementReport = new StockMovementReport();
+				BeanUtils.copyProperties(data, stockMovementReport, CommonUtils.getNullPropertyNames(data));
+				if (data.getConfirmedOn() == null && data.getDocumentType().equalsIgnoreCase("InBound")) {
+					Date date = inboundLineRepository.findDateFromPutawayLine (stockMovementReport.getDocumentNumber(), stockMovementReport.getItemCode());
+					stockMovementReport.setConfirmedOn(date);
+				}
+				stockMovementReports.add(stockMovementReport);
+			});
+			log.info("stockMovementReports :  " + stockMovementReports);
+			stockMovementReports.sort(Comparator.comparing(StockMovementReport::getConfirmedOn, Comparator.nullsLast(Comparator.naturalOrder())));
+			return stockMovementReports;
+		} catch (Exception e) {
+			log.error("Exception while Stock movement report generate : " + e.toString());
+			throw e;
+		}
+	}
+	
+	/**
 	 *
 	 * @param searchOutboundLine
 	 * @return
@@ -783,12 +838,12 @@ public class OutboundLineService extends BaseService {
 	}
 	
 	/**
-	 * updateOutboundLine
-	 * @param loginUserID2 
-	 * @param long1 
-	 * @param loginUserId 
-	 * @param languageId, companyCodeId, plantId, warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode
-	 * @param updateOutboundLine
+	 * after AX success - Update Inventory with @Transactional along with retry to handle exceptions and status update with retry attemts
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @param loginUserID
 	 * @return
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
@@ -890,74 +945,17 @@ public class OutboundLineService extends BaseService {
 			try {
 				Long STATUS_ID_59 = 59L;
 				List<Long> statusId57 = Arrays.asList(51L, 57L);
-				AuthToken authTokenForIDService = authTokenService.getIDMasterServiceAuthToken();
 				List<OutboundLine> outboundLineByStatus57List = findOutboundLineByStatus(warehouseId, preOutboundNo, refDocNumber, partnerCode, statusId57);
 				
 				// ----------------OoutboundLine update-----------------------------------------------------------------------------------------
 				List<Long> lineNumbers = outboundLineByStatus57List.stream().map(OutboundLine::getLineNumber).collect(Collectors.toList());
 				List<String> itemCodes = outboundLineByStatus57List.stream().map(OutboundLine::getItemCode).collect(Collectors.toList());
 				
-				outboundLineRepository.updateOutboundLineStatus (warehouseId, refDocNumber, STATUS_ID_59, lineNumbers, new Date());
-				log.info("OutboundLine updated ");
-				
-				//----------------Outbound Header update----------------------------------------------------------------------------------------
-				outboundHeaderRepository.updateOutboundHeaderStatus (warehouseId, refDocNumber, STATUS_ID_59, new Date());
-				OutboundHeader isOrderConfirmedOutboundHeader = outboundHeaderService.getOutboundHeader(warehouseId, preOutboundNo, refDocNumber);
-				log.info("OutboundHeader updated----1---> : " + isOrderConfirmedOutboundHeader.getRefDocNumber() + "---" + isOrderConfirmedOutboundHeader.getStatusId());
-				if (isOrderConfirmedOutboundHeader.getStatusId() != 59L) {
-					log.info("OutboundHeader is still updated not updated.");
-					log.info("Updating again OutboundHeader.");
-					isOrderConfirmedOutboundHeader.setStatusId(STATUS_ID_59);
-					isOrderConfirmedOutboundHeader.setUpdatedBy(loginUserID);
-					isOrderConfirmedOutboundHeader.setUpdatedOn(new Date());	
-					isOrderConfirmedOutboundHeader.setDeliveryConfirmedOn(new Date());
-					outboundHeaderRepository.saveAndFlush(isOrderConfirmedOutboundHeader);
-					log.info("OutboundHeader updated---2---> : " + isOrderConfirmedOutboundHeader.getRefDocNumber() + "---" + isOrderConfirmedOutboundHeader.getStatusId());
-				}
-				
-				//----------------Preoutbound Line----------------------------------------------------------------------------------------------
-				preOutboundLineRepository.updatePreOutboundLineStatus(warehouseId, refDocNumber, STATUS_ID_59);	
-				log.info("PreOutbound Line updated");
-				
-				//----------------Preoutbound Header--------------------------------------------------------------------------------------------
-				StatusId idStatus = idmasterService.getStatus(STATUS_ID_59, warehouseId, authTokenForIDService.getAccess_token());
-				preOutboundHeaderRepository.updatePreOutboundHeaderStatus(warehouseId, refDocNumber, STATUS_ID_59, idStatus.getStatus());
-				log.info("PreOutbound Header updated");
-				
 				// Inventory Update
 				inventoryUpdateBeforeAXSubmit (warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumbers, itemCodes);
 				
-				/*-----------------Inventory Updates---------------------------*/
-//				List<QualityLine> dbQualityLine = qualityLineService.getQualityLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumbers, itemCodes);
-//				Long BIN_CL_ID = 5L;
-//				for(QualityLine qualityLine : dbQualityLine) {
-//					try {
-//						//------------Update Lock applied---------------------------------------------------------------------------------
-//						List<Inventory> inventoryList = inventoryService.getInventoryForDeliveryConfirmtion (qualityLine.getWarehouseId(),
-//								qualityLine.getItemCode(), qualityLine.getPickPackBarCode(), BIN_CL_ID); 
-//						for(Inventory inventory : inventoryList) {
-//							Double INV_QTY = inventory.getInventoryQuantity() - qualityLine.getQualityQty();
-//
-//							if (INV_QTY < 0) {
-//								INV_QTY = 0D;
-//							}
-//
-//							if (INV_QTY >= 0) {
-//								inventory.setInventoryQuantity(INV_QTY);
-//
-//								// INV_QTY > 0 then, update Inventory Table
-//								inventory = inventoryRepository.save(inventory);
-//							}
-//						}
-//						log.info("Inventory updated");
-//					} catch (Exception e) {
-//						String objectData = (qualityLine.getWarehouseId() + "|" + qualityLine.getItemCode() + "|" + qualityLine.getPickPackBarCode() + "|" + BIN_CL_ID);
-//						transactionErrorService.createTransactionError("INVENTORY", "DeliveryConfirmation | Inventory Update Error", 
-//								e.getMessage(), e.getLocalizedMessage(), objectData, loginUserID);	
-//						log.error("DeliveryConfirmation | Inventory Update Error: " + e.toString());;
-//						e.printStackTrace();
-//					}
-//				} 
+				/*------------------------------------Status Update-------------------------------------------*/
+				deliveryConfirmStatusUpdate(warehouseId, preOutboundNo, refDocNumber, STATUS_ID_59, lineNumbers, loginUserID);
 							
 				/*-------------------Inserting record in InventoryMovement-------------------------------------*/
 				Long BIN_CLASS_ID = 5L;
@@ -1126,6 +1124,50 @@ public class OutboundLineService extends BaseService {
 	/**
 	 * 
 	 * @param warehouseId
+	 * @param refDocNumber
+	 * @param preOutboundNo
+	 * @param STATUS_ID_59
+	 * @param lineNumbers
+	 * @param loginUserID
+	 */
+	@Retryable(value = Exception.class, maxAttempts = 3, backoff = @Backoff(delay = 3000))
+	private void deliveryConfirmStatusUpdate (String warehouseId, String preOutboundNo, String refDocNumber, Long STATUS_ID_59, List<Long> lineNumbers, String loginUserID) {
+        try {
+            AuthToken authTokenForIDService = authTokenService.getIDMasterServiceAuthToken();
+            outboundLineRepository.updateOutboundLineStatus (warehouseId, refDocNumber, STATUS_ID_59, lineNumbers, new Date());
+            log.info("OutboundLine updated ");
+
+            //----------------Outbound Header update----------------------------------------------------------------------------------------
+            outboundHeaderRepository.updateOutboundHeaderStatus (warehouseId, refDocNumber, STATUS_ID_59, new Date());
+            OutboundHeader isOrderConfirmedOutboundHeader = outboundHeaderService.getOutboundHeader(warehouseId, preOutboundNo, refDocNumber);
+            log.info("OutboundHeader updated----1---> : " + isOrderConfirmedOutboundHeader.getRefDocNumber() + "---" + isOrderConfirmedOutboundHeader.getStatusId());
+            if (isOrderConfirmedOutboundHeader.getStatusId() != 59L) {
+                log.info("OutboundHeader is still updated not updated.");
+                log.info("Updating again OutboundHeader.");
+                isOrderConfirmedOutboundHeader.setStatusId(STATUS_ID_59);
+                isOrderConfirmedOutboundHeader.setUpdatedBy(loginUserID);
+                isOrderConfirmedOutboundHeader.setUpdatedOn(new Date());
+                isOrderConfirmedOutboundHeader.setDeliveryConfirmedOn(new Date());
+                outboundHeaderRepository.saveAndFlush(isOrderConfirmedOutboundHeader);
+                log.info("OutboundHeader updated---2---> : " + isOrderConfirmedOutboundHeader.getRefDocNumber() + "---" + isOrderConfirmedOutboundHeader.getStatusId());
+            }
+            //----------------Preoutbound Line----------------------------------------------------------------------------------------------
+            preOutboundLineRepository.updatePreOutboundLineStatus(warehouseId, refDocNumber, STATUS_ID_59);
+            log.info("PreOutbound Line updated");
+
+            //----------------Preoutbound Header--------------------------------------------------------------------------------------------
+            StatusId idStatus = idmasterService.getStatus(STATUS_ID_59, warehouseId, authTokenForIDService.getAccess_token());
+            preOutboundHeaderRepository.updatePreOutboundHeaderStatus(warehouseId, refDocNumber, STATUS_ID_59, idStatus.getStatus());
+            log.info("PreOutbound Header updated");
+        } catch (Exception e) {
+            log.error("Exception while delivery confirmation status update---> " + preOutboundNo + " | " + refDocNumber + " | " + warehouseId);
+			e.printStackTrace();
+        }
+    }
+	
+	/**
+	 * 
+	 * @param warehouseId
 	 * @param preOutboundNo
 	 * @param refDocNumber
 	 * @param partnerCode
@@ -1134,6 +1176,8 @@ public class OutboundLineService extends BaseService {
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
+	@Transactional
+	@Retryable(value = SQLException.class, maxAttempts = 3, backoff = @Backoff(delay = 3000))
 	private void inventoryUpdateBeforeAXSubmit (String warehouseId, String preOutboundNo, String refDocNumber, 
 			String partnerCode, List<Long> lineNumbers, List<String> itemCodes) throws IllegalAccessException, InvocationTargetException {
 		List<PickupLine> dbPickupLines = 
