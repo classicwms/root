@@ -464,7 +464,7 @@ public class OrderManagementLineService extends BaseService {
 	 * @return
 	 */
 	public OrderManagementLine doAllocation(String warehouseId, String preOutboundNo, String refDocNumber,
-			String partnerCode, Long lineNumber, String itemCode, String loginUserID) {
+			String partnerCode, Long lineNumber, String itemCode, String loginUserID) throws Exception {
 		List<OrderManagementLine> dbOrderManagementLines = getOrderManagementLine(warehouseId, preOutboundNo,
 				refDocNumber, partnerCode, lineNumber, itemCode);
 		log.info("Processing Order management Line : " + dbOrderManagementLines);
@@ -832,7 +832,7 @@ public class OrderManagementLineService extends BaseService {
 	 * @return
 	 */
 	public OrderManagementLine updateAllocation(OrderManagementLine orderManagementLine, List<String> storageSectionIds,
-			Double ORD_QTY, String warehouseId, String itemCode, String loginUserID) {
+			Double ORD_QTY, String warehouseId, String itemCode, String loginUserID) throws Exception {
 		// Inventory Strategy Choices
 		String INV_STRATEGY = propertiesConfig.getOrderAllocationStrategyCoice();
 		
@@ -1027,7 +1027,7 @@ public class OrderManagementLineService extends BaseService {
 	 * @param orderManagementLine
 	 * @return
 	 */
-	private OrderManagementLine updateOrderManagementLine(OrderManagementLine orderManagementLine) {
+	private OrderManagementLine updateOrderManagementLine(OrderManagementLine orderManagementLine) throws Exception {
 		AuthToken idmasterAuthToken = authTokenService.getIDMasterServiceAuthToken();
 		StatusId idStatus = idmasterService.getStatus(47L, orderManagementLine.getWarehouseId(), idmasterAuthToken.getAccess_token());
 		
@@ -1126,7 +1126,7 @@ public class OrderManagementLineService extends BaseService {
 
 
 	// Allocation Patch
-	public List<OrderManagementLine> doAllocation(List<OrderManagementLine> orderManagementLineV2s, String loginUserID) throws java.text.ParseException {
+	public List<OrderManagementLine> doAllocation(List<OrderManagementLine> orderManagementLineV2s, String loginUserID) throws Exception {
 
 		List<OrderManagementLine> orderManagementLineV2List = new ArrayList<>();
 

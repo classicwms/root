@@ -12,6 +12,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -5052,9 +5053,31 @@ public class TransactionService {
 		}
 	}
 
+	// PATCH ----
+	public void doRequiredDeliveryDateUpdate(UpdateRequestDeliveryDate updateRequestDeliveryDate,
+			String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			HttpEntity<?> entity = new HttpEntity<>(updateRequestDeliveryDate, headers);
+			HttpClient client = HttpClients.createDefault();
+			RestTemplate restTemplate = getRestTemplate();
+			restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "outboundline/requiredDeliveryDate");
+			
+			ResponseEntity<?> result = 
+					restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, String.class);
+			log.info("result : " + result);
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
 	/*
 	 * ---------------------------------OutboundReversal----------------------------
-	 * -----------------------
 	 */
 	// POST - findOutboundReversal
 	public OutboundReversal[] findOutboundReversal(SearchOutboundReversal searchOutboundReversal, String authToken) throws ParseException {
@@ -7689,6 +7712,11 @@ public class TransactionService {
 		return storageBinStream;
 	}
 
+	/**
+	 * 
+	 * @param searchImBasicData1
+	 * @return
+	 */
 	public List<ImBasicData1> getAllImBasicData1(SearchImBasicData1 searchImBasicData1){
 
 	String sql = "Select UOM_ID, LANG_ID, C_ID, PLANT_ID, WH_ID, ITM_CODE, "
@@ -7712,6 +7740,13 @@ public class TransactionService {
 //												BeanPropertyRowMapper.newInstance(ImBasicData1.class));
 		return imBasicData1List;
 	}
+	
+	/**
+	 * 
+	 * @param resultSet
+	 * @return
+	 * @throws SQLException
+	 */
 	private ImBasicData1 toImBasicData1(ResultSet resultSet) throws SQLException {
 		ImBasicData1 imBasicData1 = new ImBasicData1();
 		imBasicData1.setUomId			(resultSet.getString	("UOM_ID"));

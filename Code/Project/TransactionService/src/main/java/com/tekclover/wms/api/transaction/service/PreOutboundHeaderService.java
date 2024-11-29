@@ -408,7 +408,7 @@ public class PreOutboundHeaderService extends BaseService {
 	 * @param preOutboundNo
 	 * @param refDocNumber
 	 */
-	private void updateStatusAs47ForOBHeader(String warehouseId, String preOutboundNo, String refDocNumber) {
+	private void updateStatusAs47ForOBHeader(String warehouseId, String preOutboundNo, String refDocNumber) throws Exception {
 		List<OutboundLine> outboundLineList = outboundLineService.getOutboundLine(warehouseId, preOutboundNo, refDocNumber);
 		long matchedCount = outboundLineList.stream().filter(a->a.getStatusId() == 47L).count();
 		boolean isConditionMet = (matchedCount == outboundLineList.size());
@@ -431,7 +431,7 @@ public class PreOutboundHeaderService extends BaseService {
 	 * @param createdPreOutboundLine
 	 * @return 
 	 */
-	private List<OutboundLine> createOutboundLine(List<PreOutboundLine> createdPreOutboundLine) {
+	private List<OutboundLine> createOutboundLine(List<PreOutboundLine> createdPreOutboundLine) throws Exception {
 		List<OutboundLine> outboundLines = new ArrayList<>();
 		for (PreOutboundLine preOutboundLine : createdPreOutboundLine) {
 			List<OrderManagementLine> orderManagementLine = orderManagementLineService.getOrderManagementLine(preOutboundLine.getPreOutboundNo(), 
@@ -459,7 +459,7 @@ public class PreOutboundHeaderService extends BaseService {
 	 * @return 
 	 * @throws ParseException 
 	 */
-	private OutboundHeader createOutboundHeader(PreOutboundHeader createdPreOutboundHeader, Long statusId) throws ParseException {
+	private OutboundHeader createOutboundHeader(PreOutboundHeader createdPreOutboundHeader, Long statusId) throws Exception {
 		OutboundHeader outboundHeader = new OutboundHeader();
 		BeanUtils.copyProperties(createdPreOutboundHeader, outboundHeader, 
 				CommonUtils.getNullPropertyNames(createdPreOutboundHeader));
@@ -483,7 +483,7 @@ public class PreOutboundHeaderService extends BaseService {
 	 * @param createdPreOutboundHeader
 	 * @return
 	 */
-	private OrderManagementHeader createOrderManagementHeader(PreOutboundHeader createdPreOutboundHeader) {
+	private OrderManagementHeader createOrderManagementHeader(PreOutboundHeader createdPreOutboundHeader) throws Exception {
 		OrderManagementHeader newOrderManagementHeader = new OrderManagementHeader();
 		BeanUtils.copyProperties(createdPreOutboundHeader, newOrderManagementHeader, CommonUtils.getNullPropertyNames(createdPreOutboundHeader));
 		
@@ -506,7 +506,7 @@ public class PreOutboundHeaderService extends BaseService {
 	 * @throws ParseException 
 	 */
 	private PreOutboundHeader createPreOutboundHeader(String companyCodeId, String plantId, String preOutboundNo,
-			OutboundIntegrationHeader outboundIntegrationHeader, String refField1ForOrderType) throws ParseException {
+			OutboundIntegrationHeader outboundIntegrationHeader, String refField1ForOrderType) throws Exception {
 		AuthToken authTokenForIDService = authTokenService.getIDMasterServiceAuthToken();
 		PreOutboundHeader preOutboundHeader = new PreOutboundHeader();
 		preOutboundHeader.setLanguageId("EN");											
@@ -556,7 +556,7 @@ public class PreOutboundHeaderService extends BaseService {
 	 */
 	private PreOutboundLine createPreoutboundLineBOMBased(String companyCodeId, String plantId, String preOutboundNo,
 			OutboundIntegrationHeader outboundIntegrationHeader, BomLine dbBomLine,
-			OutboundIntegrationLine outboundIntegrationLine) {
+			OutboundIntegrationLine outboundIntegrationLine) throws Exception {
 		Warehouse warehouse = getWarehouse(outboundIntegrationHeader.getWarehouseID());
 		
 		PreOutboundLine preOutboundLine = new PreOutboundLine();
@@ -639,7 +639,7 @@ public class PreOutboundHeaderService extends BaseService {
 	 * @return
 	 */
 	private PreOutboundLine createPreOutboundLine(String companyCodeId, String plantId, String preOutboundNo,
-			OutboundIntegrationHeader outboundIntegrationHeader, OutboundIntegrationLine outboundIntegrationLine) {
+			OutboundIntegrationHeader outboundIntegrationHeader, OutboundIntegrationLine outboundIntegrationLine) throws Exception {
 		PreOutboundLine preOutboundLine = new PreOutboundLine();
 		
 		preOutboundLine.setLanguageId("EN");
@@ -719,7 +719,7 @@ public class PreOutboundHeaderService extends BaseService {
 	 * @return
 	 */
 	private OrderManagementLine createOrderManagementLine(String companyCodeId, String plantId, String preOutboundNo,
-			OutboundIntegrationHeader outboundIntegrationHeader, PreOutboundLine preOutboundLine) {
+			OutboundIntegrationHeader outboundIntegrationHeader, PreOutboundLine preOutboundLine) throws Exception {
 		OrderManagementLine orderManagementLine = new OrderManagementLine();
 		BeanUtils.copyProperties(preOutboundLine, orderManagementLine, CommonUtils.getNullPropertyNames(preOutboundLine));
 		
@@ -787,7 +787,7 @@ public class PreOutboundHeaderService extends BaseService {
 	 * @return 
 	 */
 	private OrderManagementLine createOrderManagement (List<String> storageSectionIds, OrderManagementLine orderManagementLine,
-	String warehouseId, String itemCode, Double ORD_QTY) {
+	String warehouseId, String itemCode, Double ORD_QTY) throws Exception {
 		List<Inventory> stockType1InventoryList = inventoryService.getInventoryForOrderManagement (warehouseId, itemCode, 1L, 1L);
 		log.info("---Global---stockType1InventoryList-------> : " + stockType1InventoryList);
 		if (stockType1InventoryList.isEmpty()) {

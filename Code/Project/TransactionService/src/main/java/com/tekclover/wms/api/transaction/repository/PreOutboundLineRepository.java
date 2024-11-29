@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.transaction.repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -89,4 +90,9 @@ public interface PreOutboundLineRepository extends JpaRepository<PreOutboundLine
 			+ " GROUP BY REF_DOC_NO", nativeQuery=true)
     public Long getCountOfOrderedQty(@Param ("refDocNumber") String refDocNumber);
 	
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	@Modifying(clearAutomatically = true)
+	@Query("UPDATE PreOutboundLine ob SET ob.requiredDeliveryDate = :requiredDeliveryDate WHERE ob.warehouseId = :warehouseId AND ob.refDocNumber = :refDocNumber")
+	void updatePreOutboundLineRequiredDeliveryDate(@Param ("warehouseId") String warehouseId,
+			@Param ("refDocNumber") String refDocNumber, @Param ("requiredDeliveryDate") Date requiredDeliveryDate);
 }

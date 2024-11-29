@@ -24,6 +24,7 @@ import com.tekclover.wms.api.transaction.model.outbound.OutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundLineReport;
 import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundLine;
+import com.tekclover.wms.api.transaction.model.outbound.UpdateRequestDeliveryDate;
 import com.tekclover.wms.api.transaction.model.outbound.outboundreversal.OutboundReversal;
 import com.tekclover.wms.api.transaction.model.report.StockMovementReport;
 import com.tekclover.wms.api.transaction.service.OutboundLineService;
@@ -154,5 +155,15 @@ public class OutboundLineController {
        	List<OutboundReversal> deliveryLines = outboundlineService.doReversal(refDocNumber, itemCode, loginUserID);
        	log.info("deliveryLines : " + deliveryLines);
    		return new ResponseEntity<>(deliveryLines, HttpStatus.OK);
+   	}
+    
+    //---------------------------------------------------------------------------------------------------
+    
+    @ApiOperation(response = OutboundLine.class, value = "Update Required Delivery Date") // label for swagger 
+    @PatchMapping("/requiredDeliveryDate")
+   	public ResponseEntity<?> doRequiredDeliveryDateUpdate (@RequestBody UpdateRequestDeliveryDate updateRequestDeliveryDate) 
+   					throws IllegalAccessException, InvocationTargetException {
+       	outboundlineService.doRequiredDeliveryDateUpdate(updateRequestDeliveryDate);
+   		return new ResponseEntity<>(HttpStatus.OK);
    	}
 }

@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.transaction.repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,6 +58,12 @@ public interface PreOutboundHeaderRepository extends JpaRepository<PreOutboundHe
 	@Query("UPDATE PreOutboundHeader ib SET ib.statusId = :statusId, REF_FIELD_10 = :refField10 WHERE ib.warehouseId = :warehouseId AND ib.refDocNumber = :refDocNumber")
 	void updatePreOutboundHeaderStatus(@Param ("warehouseId") String warehouseId,
 			@Param ("refDocNumber") String refDocNumber, @Param ("statusId") Long statusId, @Param ("refField10") String refField10);
+	
+	@Modifying(clearAutomatically = true)
+	@Query("UPDATE PreOutboundHeader ob SET ob.requiredDeliveryDate = :requiredDeliveryDate WHERE ob.warehouseId = :warehouseId AND ob.refDocNumber = :refDocNumber")
+	void updatePreOutboundHeaderRequiredDeliveryDate(@Param ("warehouseId") String warehouseId,
+			@Param ("refDocNumber") String refDocNumber, 
+			@Param ("requiredDeliveryDate") Date requiredDeliveryDate);
 
 	@Lock(value = LockModeType.PESSIMISTIC_WRITE) // adds 'FOR UPDATE' statement
 	@QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = UPGRADE_SKIPLOCKED)})

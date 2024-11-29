@@ -409,11 +409,10 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 			@Param("deliveryOrderNo") String deliveryOrderNo,
 			@Param("statusId") Long statusId
 		);
+
+	//----------------------------------------------------------------------------------------------------------------------------------------
+//	@Modifying(clearAutomatically = true)
+//	@Query("UPDATE OutboundLine ob SET ob.requiredDeliveryDate = :requiredDeliveryDate WHERE ob.warehouseId = :warehouseId AND ob.refDocNumber = :refDocNumber")
+//	void updateOutboundHeaderRequiredDeliveryDate(@Param ("warehouseId") String warehouseId,
+//			@Param ("refDocNumber") String refDocNumber, @Param ("requiredDeliveryDate") Date requiredDeliveryDate);
 }
-
-
-
-
-
-
-

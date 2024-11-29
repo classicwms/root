@@ -41,6 +41,7 @@ import com.tekclover.wms.api.transaction.model.outbound.OutboundLineInterim;
 import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundLineReport;
 import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundLine;
+import com.tekclover.wms.api.transaction.model.outbound.UpdateRequestDeliveryDate;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.OrderManagementLine;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.UpdateOrderManagementLine;
 import com.tekclover.wms.api.transaction.model.outbound.outboundreversal.AddOutboundReversal;
@@ -54,6 +55,7 @@ import com.tekclover.wms.api.transaction.model.report.FindImBasicData1;
 import com.tekclover.wms.api.transaction.model.report.SearchOrderStatusReport;
 import com.tekclover.wms.api.transaction.model.report.StockMovementReport;
 import com.tekclover.wms.api.transaction.model.report.StockMovementReport1;
+import com.tekclover.wms.api.transaction.model.trans.InventoryTrans;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.confirmation.AXApiResponse;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.InterWarehouseShipment;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.InterWarehouseShipmentHeader;
@@ -72,6 +74,7 @@ import com.tekclover.wms.api.transaction.repository.InboundLineRepository;
 import com.tekclover.wms.api.transaction.repository.IntegrationApiResponseRepository;
 import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
 import com.tekclover.wms.api.transaction.repository.InventoryRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryTransRepository;
 import com.tekclover.wms.api.transaction.repository.OrderManagementLineRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundLineRepository;
@@ -169,6 +172,10 @@ public class OutboundLineService extends BaseService {
 	
 	@Autowired
 	private PropertiesConfig propertiesConfig;
+	
+	// Inventory Prod Issue Fix
+	@Autowired
+	private InventoryTransRepository inventoryTransRepository;
 	
 	/**
 	 * getOutboundLines
@@ -1194,6 +1201,8 @@ public class OutboundLineService extends BaseService {
 			log.info("---dbPickupLine------>: " + dbPickupLine);
 			if (inventory != null) {
 				if (dbPickupLine.getAllocatedQty() > 0D) {
+					Double INV_QTY_ERR = 0D;
+					Double ALLOC_QTY_ERR = 0D;
 					try {
 						Double INV_QTY = ((inventory.getInventoryQuantity() + dbPickupLine.getAllocatedQty())
 								- dbPickupLine.getPickConfirmQty());
@@ -1213,7 +1222,9 @@ public class OutboundLineService extends BaseService {
 						if (ALLOC_QTY < 0D) {
 							ALLOC_QTY = 0D;
 						}
-						// End
+
+						INV_QTY_ERR = INV_QTY;
+						ALLOC_QTY_ERR = ALLOC_QTY;
 
 //						inventory.setInventoryQuantity(INV_QTY);
 //						inventory.setAllocatedQuantity(ALLOC_QTY);
@@ -1261,10 +1272,25 @@ public class OutboundLineService extends BaseService {
 						transactionErrorService.createTransactionError("INVENTORY", "createPickupLine | Inventory Update", e.getMessage(), e.getLocalizedMessage(), objectData, "");	
 						log.error("Inventory Update Error:" + e.toString());
 						e.printStackTrace();
+						
+						// Inventory Error Handling
+						InventoryTrans newInventoryTrans = new InventoryTrans();
+						BeanUtils.copyProperties(inventory, newInventoryTrans, CommonUtils.getNullPropertyNames(inventory));
+						
+						newInventoryTrans.setWarehouseId(dbPickupLine.getWarehouseId());	
+						newInventoryTrans.setPackBarcodes(dbPickupLine.getPickedPackCode());
+						newInventoryTrans.setItemCode(dbPickupLine.getItemCode());	
+						newInventoryTrans.setStorageBin(dbPickupLine.getPickedStorageBin());			
+						newInventoryTrans.setInventoryQuantity(INV_QTY_ERR);
+						newInventoryTrans.setAllocatedQuantity(ALLOC_QTY_ERR);
+						newInventoryTrans.setReRun(0L);	
+						InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+						log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
 					}
 				}
 
 				if (dbPickupLine.getAllocatedQty() == null || dbPickupLine.getAllocatedQty() == 0D) {
+					Double INV_QTY_ERR = 0D;
 					Double INV_QTY;
 					try {
 						INV_QTY = inventory.getInventoryQuantity() - dbPickupLine.getPickConfirmQty();
@@ -1280,6 +1306,7 @@ public class OutboundLineService extends BaseService {
 //						inventory = inventoryRepository.save(inventory);
 //						log.info("inventory updated : " + inventory);
 
+						INV_QTY_ERR = INV_QTY;
 						inventoryRepository.updateInventoryUpdateProcedure(dbPickupLine.getWarehouseId(),
 								dbPickupLine.getPickedPackCode(), dbPickupLine.getItemCode(),
 								dbPickupLine.getPickedStorageBin(), INV_QTY);
@@ -1311,10 +1338,42 @@ public class OutboundLineService extends BaseService {
 								e1.getMessage(), e1.getLocalizedMessage(), objectData, "");	
 						log.error("Inventory cum StorageBin update: Error :" + e1.toString());
 						e1.printStackTrace();
+						
+						// Inserting the failed Inventory in Inventory Trans Table
+						// Inventory Error Handling
+						InventoryTrans newInventoryTrans = new InventoryTrans();
+						BeanUtils.copyProperties(inventory, newInventoryTrans, CommonUtils.getNullPropertyNames(inventory));
+						
+						newInventoryTrans.setWarehouseId(dbPickupLine.getWarehouseId());	
+						newInventoryTrans.setPackBarcodes(dbPickupLine.getPickedPackCode());
+						newInventoryTrans.setItemCode(dbPickupLine.getItemCode());	
+						newInventoryTrans.setStorageBin(dbPickupLine.getPickedStorageBin());			
+						newInventoryTrans.setInventoryQuantity(INV_QTY_ERR);
+						newInventoryTrans.setAllocatedQuantity(0D);
+						newInventoryTrans.setReRun(0L);	
+						InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+						log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
 					}
 				}
 			} // End of Inventory Update
 		}
+	}
+	
+	/**
+	 * 
+	 */
+	//@Scheduled(fixedDelayString = "PT1M", initialDelayString = "PT2M")
+	private void updateErroredOutInventory () {
+		List<InventoryTrans> inventoryTransList = inventoryTransRepository.findByReRun(0L);
+		inventoryTransList.stream().forEach( it -> {
+			log.info("----updateErroredOutInventory-->: " + it);
+			inventoryRepository.updateInventory(it.getWarehouseId(),
+					it.getPackBarcodes(), it.getItemCode(),
+					it.getStorageBin(), it.getInventoryQuantity(), it.getAllocatedQuantity());
+			it.setReRun(1L);
+			inventoryTransRepository.save(it);		
+			log.info("----updateInventoryTrans-is-done-->: " + it);
+		});
 	}
 	
 	/**
@@ -2571,5 +2630,25 @@ public class OutboundLineService extends BaseService {
 		integrationApiResponseRepository.save(response);
 		
 		return apiResponse;
+	}
+
+	/**
+	 * doRequiredDeliveryDateUpdate
+	 * @param warehouseId
+	 * @param refDocNumber
+	 * @param requiredDeliveryDate
+	 */
+	public void doRequiredDeliveryDateUpdate(UpdateRequestDeliveryDate updateRequestDeliveryDate) {
+		String warehouseId = updateRequestDeliveryDate.getWarehouseId();
+		String refDocNumber = updateRequestDeliveryDate.getRefDocNumber();
+		Date requiredDeliveryDate = updateRequestDeliveryDate.getRequiredDeliveryDate();	
+		
+		log.info("warehouseId : " + warehouseId + ",refDocNumber :" + refDocNumber + ", requiredDeliveryDate : " + requiredDeliveryDate);		
+		preOutboundHeaderRepository.updatePreOutboundHeaderRequiredDeliveryDate(warehouseId, refDocNumber, requiredDeliveryDate);
+		preOutboundLineRepository.updatePreOutboundLineRequiredDeliveryDate(warehouseId, refDocNumber, requiredDeliveryDate);
+		orderManagementLineRepository.updateOrderManagementLineRequiredDeliveryDate(warehouseId, refDocNumber, requiredDeliveryDate);
+		outboundHeaderRepository.updateOutboundHeaderRequiredDeliveryDate(warehouseId, refDocNumber, requiredDeliveryDate);
+//		outboundLineRepository.updateOutboundHeaderRequiredDeliveryDate(warehouseId, refDocNumber, requiredDeliveryDate);
+		log.info("All tables were update");
 	}
 }

@@ -112,8 +112,7 @@ public class OrderManagementLineController {
     @PatchMapping("/allocate")
 	public ResponseEntity<?> allocateOrderManagementLine(@RequestParam String warehouseId, @RequestParam String preOutboundNo, 
 			@RequestParam String refDocNumber, @RequestParam String partnerCode, @RequestParam Long lineNumber, 
-			@RequestParam String itemCode, @RequestParam String loginUserID) 
-					throws IllegalAccessException, InvocationTargetException {
+			@RequestParam String itemCode, @RequestParam String loginUserID) throws Exception {
 		OrderManagementLine updatedOrderManagementLine = 
 				ordermangementlineService.doAllocation(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, 
 						itemCode, loginUserID);
@@ -168,7 +167,7 @@ public class OrderManagementLineController {
 	@ApiOperation(response = OrderManagementLine.class, value = "Allocate") // label for swagger
 	@PatchMapping("/allocate/patch")
 	public ResponseEntity<?> allocateOrderManagementLineV2(@Valid @RequestBody List<OrderManagementLine> orderManagementLineV2, @RequestParam String loginUserID)
-			throws IllegalAccessException, InvocationTargetException, ParseException {
+			throws Exception {
 		List<OrderManagementLine> updatedOrderManagementLine =
 				ordermangementlineService.doAllocation(orderManagementLineV2, loginUserID);
 		return new ResponseEntity<>(updatedOrderManagementLine, HttpStatus.OK);

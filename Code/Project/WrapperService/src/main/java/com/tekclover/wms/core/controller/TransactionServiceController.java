@@ -1,6 +1,7 @@
 package com.tekclover.wms.core.controller;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -1602,6 +1603,15 @@ public class TransactionServiceController {
     			itemCode, loginUserID, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
+    
+    @ApiOperation(response = OutboundLine.class, value = "Update Required Delivery Date") // label for swagger 
+    @PatchMapping("/outboundline/requiredDeliveryDate")
+   	public ResponseEntity<?> doRequiredDeliveryDateUpdate (@RequestBody UpdateRequestDeliveryDate updateRequestDeliveryDate,
+   			@RequestParam String authToken) 
+   					throws IllegalAccessException, InvocationTargetException {
+    	transactionService.doRequiredDeliveryDateUpdate(updateRequestDeliveryDate, authToken);
+   		return new ResponseEntity<>(HttpStatus.OK);
+   	}
     
     /*
      * --------------------------------OutboundReversal-----------------------------------------------

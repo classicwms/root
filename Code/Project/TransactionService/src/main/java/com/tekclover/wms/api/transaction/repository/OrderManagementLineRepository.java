@@ -1,17 +1,19 @@
 package com.tekclover.wms.api.transaction.repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.OrderManagementLine;
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 
 @Repository
 @Transactional
@@ -55,4 +57,10 @@ public interface OrderManagementLineRepository extends JpaRepository<OrderManage
 	public long getByWarehouseIdAndAndRefDocNumberAndPreOutboundNoAndStatusIdInAndDeletionIndicator (
 			 @Param ("warehouseId") String warehouseId, @Param ("refDocNumber") String refDocNumber, @Param ("preOutboundNo") String preOutboundNo, 
 			 @Param ("statusId") List<Long> statusId, @Param ("deletionIndicator") long deletionIndicator);
+	
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	@Modifying(clearAutomatically = true)
+	@Query("UPDATE OrderManagementLine ob SET ob.requiredDeliveryDate = :requiredDeliveryDate WHERE ob.warehouseId = :warehouseId AND ob.refDocNumber = :refDocNumber")
+	void updateOrderManagementLineRequiredDeliveryDate(@Param ("warehouseId") String warehouseId,
+			@Param ("refDocNumber") String refDocNumber, @Param ("requiredDeliveryDate") Date requiredDeliveryDate);
 }

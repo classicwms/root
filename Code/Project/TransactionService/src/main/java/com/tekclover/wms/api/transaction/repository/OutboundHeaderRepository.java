@@ -339,4 +339,10 @@ public interface OutboundHeaderRepository extends JpaRepository<OutboundHeader,L
 			@Param(value = "endDeliveryConfirmedOn") Date endDeliveryConfirmedOn,
 			@Param(value = "startOrderDate") Date startOrderDate,
 			@Param(value = "endOrderDate") Date endOrderDate);
+	
+	//----------------------------------------------------------------------------------------------------------------------------------------
+	@Modifying(clearAutomatically = true)
+	@Query("UPDATE OutboundHeader ob SET ob.requiredDeliveryDate = :requiredDeliveryDate WHERE ob.warehouseId = :warehouseId AND ob.refDocNumber = :refDocNumber")
+	void updateOutboundHeaderRequiredDeliveryDate(@Param ("warehouseId") String warehouseId,
+			@Param ("refDocNumber") String refDocNumber, @Param ("requiredDeliveryDate") Date requiredDeliveryDate);
 }
