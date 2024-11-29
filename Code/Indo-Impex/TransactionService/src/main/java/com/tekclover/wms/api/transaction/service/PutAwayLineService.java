@@ -3380,9 +3380,9 @@ public class PutAwayLineService extends BaseService {
      */
     public PutAwayLineV2 getPutAwayLineExistingItemCheckV4(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                            String itemCode, String manufacturerName, String alternateUom, Double bagSize) {
-        PutAwayLineV2 dbPutawayLine = putAwayLineV2Repository.
-                findTopByCompanyCodeAndPlantIdAndWarehouseIdAndLanguageIdAndItemCodeAndManufacturerNameAndStatusIdAndAlternateUomAndBagSizeAndDeletionIndicatorOrderByCreatedOn(
-                        companyCodeId, plantId, warehouseId, languageId, itemCode, manufacturerName, 20L, alternateUom, bagSize, 0L);
+//        PutAwayLineV2 dbPutawayLine = putAwayLineV2Repository.findTopByCompanyCodeAndPlantIdAndWarehouseIdAndLanguageIdAndItemCodeAndManufacturerNameAndStatusIdAndAlternateUomAndBagSizeAndDeletionIndicatorOrderByCreatedOn(companyCodeId, plantId, warehouseId, languageId, itemCode, manufacturerName, 20L, alternateUom, bagSize, 0L);
+        PutAwayLineV2 dbPutawayLine = putAwayLineV2Repository.findTopByCompanyCodeAndPlantIdAndWarehouseIdAndLanguageIdAndItemCodeAndManufacturerNameAndStatusIdAndDeletionIndicatorOrderByCreatedOn(
+                companyCodeId, plantId, warehouseId, languageId, itemCode, manufacturerName, 20L, 0L);
         return dbPutawayLine;
     }
 

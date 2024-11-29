@@ -1903,7 +1903,8 @@ public class StockAdjustmentService extends BaseService {
             String movementQtyValue = null;
             if (periodicLines != null && !periodicLines.isEmpty()) {
                 for (PeriodicLineV2 periodicLine : periodicLines) {
-                    InventoryV2 dbInventory = inventoryService.getInventoryV4(
+                    if (periodicLine.getVarianceQty() != 0) {
+                        InventoryV2 dbInventory = inventoryService.getOutboundInventoryV4(
                             periodicLine.getCompanyCode(), periodicLine.getPlantId(), periodicLine.getLanguageId(),
                             periodicLine.getWarehouseId(), periodicLine.getItemCode(), periodicLine.getManufacturerName(),
                             periodicLine.getBarcodeId(), periodicLine.getStorageBin(), periodicLine.getAlternateUom());
@@ -1964,6 +1965,7 @@ public class StockAdjustmentService extends BaseService {
                             movementQtyValue = "P";
                         }
                         createInventoryMovementV2(createStockAdjustment, movementQtyValue);
+                        }
                     }
                 }
             }

@@ -262,6 +262,9 @@ public class PeriodicLineService extends BaseService {
     public List<PeriodicLine> updateAssingHHTUser(List<AssignHHTUserCC> assignHHTUsers, String loginUserID) {
         try {
             log.info("assignHHTUsers : " + assignHHTUsers);
+            if(assignHHTUsers == null || assignHHTUsers.isEmpty()) {
+                throw new BadRequestException("Please assign User..! ");
+            }
             List<PeriodicLine> responseList = new ArrayList<>();
             for (AssignHHTUserCC assignHHTUser : assignHHTUsers) {
                 PeriodicLine periodicLine = getPeriodicLine(assignHHTUser.getWarehouseId(), assignHHTUser.getCycleCountNo(),
@@ -764,6 +767,9 @@ public class PeriodicLineService extends BaseService {
      */
     public List<PeriodicLineV2> updateAssingHHTUserV2(List<AssignHHTUserCC> assignHHTUsers, String loginUserID) {
         log.info("assignHHTUsers : " + assignHHTUsers);
+        if(assignHHTUsers == null || assignHHTUsers.isEmpty()) {
+            throw new BadRequestException("Please assign User..! ");
+        }
         List<PeriodicLineV2> responseList = new ArrayList<>();
         for (AssignHHTUserCC assignHHTUser : assignHHTUsers) {
 
@@ -898,7 +904,7 @@ public class PeriodicLineService extends BaseService {
                         dbPeriodicLine.setCountedQty(CTD_QTY);
 
                         // VAR_QTY = (INV_QTY + IB_QTY) - (OB_QTY + CTD_QTY);
-                        double VAR_QTY = (INV_QTY + IB_QTY) - (OB_QTY + CTD_QTY);
+                        double VAR_QTY = CTD_QTY - ((INV_QTY + IB_QTY) - OB_QTY);
                         dbPeriodicLine.setVarianceQty(VAR_QTY);
 
                         /*
@@ -1665,6 +1671,9 @@ public class PeriodicLineService extends BaseService {
      */
     public WarehouseApiResponse updatePeriodicLineConfirmV4(String cycleCountNo, List<PeriodicLineV2> periodicLineV2s,
                                                             String loginUserID) throws Exception {
+        if(periodicLineV2s == null || periodicLineV2s.isEmpty()) {
+            throw new BadRequestException("Kindly send Periodic lines to confirm..!" + periodicLineV2s);
+        }
         List<PeriodicLineV2> responsePeriodicLines = new ArrayList<>();
         List<String> statusId78 = new ArrayList<>();
         List<String> statusId47 = new ArrayList<>();

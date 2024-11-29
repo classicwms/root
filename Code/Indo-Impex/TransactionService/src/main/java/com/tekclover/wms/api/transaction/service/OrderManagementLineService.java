@@ -4421,7 +4421,7 @@ public class OrderManagementLineService extends BaseService {
             for (OrderManagementLineV2 dbOrderManagementLine : orderManagementLineV2List) {
                 String storageBin = dbOrderManagementLine.getProposedStorageBin();
                 InventoryV2 inventory =
-                        inventoryService.getInventoryV4(lineV2.getCompanyCodeId(), lineV2.getPlantId(), lineV2.getLanguageId(), lineV2.getWarehouseId(),
+                        inventoryService.getOutboundInventoryV4(lineV2.getCompanyCodeId(), lineV2.getPlantId(), lineV2.getLanguageId(), lineV2.getWarehouseId(),
                                                         lineV2.getItemCode(), lineV2.getManufacturerName(), lineV2.getBarcodeId(), storageBin, lineV2.getAlternateUom());
                 Double invQty = inventory.getInventoryQuantity() + dbOrderManagementLine.getAllocatedQty();
 
@@ -4510,8 +4510,7 @@ public class OrderManagementLineService extends BaseService {
 
         for (OrderManagementLineV2 dbOrderManagementLine : orderManagementLineList) {
             String storageBin = dbOrderManagementLine.getProposedStorageBin();
-            InventoryV2 inventory =
-                    inventoryService.getInventoryV4(companyCodeId, plantId, languageId, warehouseId, itemCode,
+            InventoryV2 inventory = inventoryService.getOutboundInventoryV4(companyCodeId, plantId, languageId, warehouseId, itemCode,
                                                     dbOrderManagementLine.getManufacturerName(), dbOrderManagementLine.getBarcodeId(),
                                                     storageBin, dbOrderManagementLine.getAlternateUom());
             Double invQty = inventory.getInventoryQuantity() + dbOrderManagementLine.getAllocatedQty();

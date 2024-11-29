@@ -807,6 +807,9 @@ public class PerpetualLineService extends BaseService {
      */
     public List<PerpetualLineV2> updateAssingHHTUserV2(List<AssignHHTUserCC> assignHHTUsers, String loginUserID) {
         log.info("assignHHTUsers : " + assignHHTUsers);
+        if(assignHHTUsers == null || assignHHTUsers.isEmpty()) {
+            throw new BadRequestException("Please assign User..! ");
+        }
         List<PerpetualLineV2> responseList = new ArrayList<>();
         for (AssignHHTUserCC assignHHTUser : assignHHTUsers) {
 
@@ -921,7 +924,7 @@ public class PerpetualLineService extends BaseService {
 
                         // VAR_QTY = INV_QTY - CTD_QTY
 //                    double VAR_QTY = INV_QTY - CTD_QTY;
-                        double VAR_QTY = (INV_QTY + IB_QTY) - (OB_QTY + CTD_QTY);
+                        double VAR_QTY = CTD_QTY - ((INV_QTY + IB_QTY) - OB_QTY);
                         dbPerpetualLine.setVarianceQty(VAR_QTY);
 
                         /*
@@ -1068,7 +1071,7 @@ public class PerpetualLineService extends BaseService {
 
                         if (updatePerpetualLine.getSecondCountedQty() == null && updatePerpetualLine.getFirstCountedQty() != null) {
                             dbPerpetualLine.setSecondCountedQty(updatePerpetualLine.getCountedQty());
-                            double VAR_QTY = (INV_QTY + IB_QTY) - (OB_QTY + CTD_QTY);
+                            double VAR_QTY = CTD_QTY - ((INV_QTY + IB_QTY) - OB_QTY);
                             dbPerpetualLine.setVarianceQty(VAR_QTY);
                         }
                         if (updatePerpetualLine.getFirstCountedQty() == null) {
@@ -1138,7 +1141,7 @@ public class PerpetualLineService extends BaseService {
 
 //                    if (updatePerpetualLine.getFirstCountedQty() == null && updatePerpetualLine.getSecondCountedQty() == null) {
                         dbPerpetualLine.setFirstCountedQty(updatePerpetualLine.getCountedQty());
-                        double VAR_QTY = (INV_QTY + IB_QTY) - (OB_QTY + CTD_QTY);
+                        double VAR_QTY = CTD_QTY - ((INV_QTY + IB_QTY) - OB_QTY);
                         dbPerpetualLine.setVarianceQty(VAR_QTY);
                         dbPerpetualLine.setCycleCountAction(RECOUNT);
                         dbPerpetualLine.setCountedQty(0D);

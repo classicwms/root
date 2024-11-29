@@ -52,7 +52,7 @@ public interface OutboundLineInterimRepository extends JpaRepository<OutboundLin
             + "AND C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND MFR_NAME = :manufacturerName \r\n"
             + "AND REF_DOC_NO = :refDocNumber AND PARTNER_CODE = :partnerCode\r\n"
             + "AND OB_LINE_NO = :lineNumber AND ITM_CODE = :itemCode AND IS_DELETED = 0 \r\n"
-            + "GROUP BY ITM_CODE, OB_LINE_NO, PARTNER_CODE, REF_DOC_NO, PRE_OB_NO, WH_ID", nativeQuery = true)
+            + "GROUP BY ITM_CODE, OB_LINE_NO, PARTNER_CODE, REF_DOC_NO, PRE_OB_NO, PLANT_ID, WH_ID, C_ID, LANG_ID", nativeQuery = true)
     public Double getSumOfDeliveryLine(@Param("companyCodeId") String companyCodeId,
                                        @Param("plantId") String plantId,
                                        @Param("languageId") String languageId,

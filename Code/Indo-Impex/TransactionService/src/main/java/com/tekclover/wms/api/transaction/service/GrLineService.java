@@ -6635,7 +6635,7 @@ public class GrLineService extends BaseService {
                             }
                         }
                         if (putAwayHeader.getProposedStorageBin() == null && (existingBinCheck == null || existingBinCheck.isEmpty() || existingBinCheck.size() == 0)) {
-                            List<String> existingProposedPutawayStorageBin = putAwayHeaderService.getPutawayHeaderExistingBinCheckV2(companyCode, plantId, languageId, warehouseId);
+                            List<String> existingProposedPutawayStorageBin = putAwayHeaderService.getPutawayHeaderExistingBinCheckV4(companyCode, plantId, languageId, warehouseId);
                             log.info("existingProposedPutawayStorageBin: " + existingProposedPutawayStorageBin);
                             log.info("BinClassId: " + binClassId);
                             storageBinPutAway.setStorageBin(existingProposedPutawayStorageBin);

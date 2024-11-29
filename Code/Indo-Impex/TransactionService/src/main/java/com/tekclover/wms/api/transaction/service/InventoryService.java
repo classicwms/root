@@ -4058,7 +4058,7 @@ public class InventoryService extends BaseService {
                          + "|"+ packBarcodes + "|"+ alternateUom + "|"+ bagSize + "|"+ binClassId);
         return inventoryV2Repository.getPutAwayHeaderCreateInventoryV4(companyCodeId, plantId, languageId, warehouseId,
                                                                        barcodeId, batchSerialNumber, itemCode, manufacturerName,
-                                                                       packBarcodes, binClassId, alternateUom, bagSize);
+                                                                       packBarcodes, binClassId, alternateUom);
     }
 
     /**
@@ -4079,7 +4079,7 @@ public class InventoryService extends BaseService {
         log.info(companyCodeId + "|" + plantId + "|"+ languageId + "|"+ warehouseId + "|"+ itemCode + "|"+ manufacturerName + "|" + alternateUom + "|"+ bagSize + "|"+ binClassId);
         return inventoryV2Repository.getPutAwayHeaderCreateInventoryV4(companyCodeId, plantId, languageId, warehouseId,
                                                                        null, null, itemCode, manufacturerName,
-                                                                       null, binClassId, alternateUom, bagSize);
+                                                                       null, binClassId, null);
     }
 
     /**
@@ -4217,6 +4217,37 @@ public class InventoryService extends BaseService {
                                                                itemCode, manufacturerName, PACK_BARCODE, storageBin, null);
         }
         if(dbInventory != null) {
+            InventoryV2 inventory = new InventoryV2();
+            BeanUtils.copyProperties(dbInventory, inventory, CommonUtils.getNullPropertyNames(dbInventory));
+            return inventory;
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param manufacturerName
+     * @param barcodeId
+     * @param storageBin
+     * @param alternateUom
+     * @return
+     */
+    public InventoryV2 getOutboundInventoryV4(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                              String itemCode, String manufacturerName, String barcodeId, String storageBin, String alternateUom) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName +
+                         "|" + alternateUom + "|" + barcodeId + "|" + storageBin);
+        IInventoryImpl dbInventory = inventoryV2Repository.getOutboundInventoryV4(companyCodeId, plantId, languageId, warehouseId, barcodeId, null,
+                                                                                  itemCode, manufacturerName, PACK_BARCODE, storageBin, alternateUom);
+        if (dbInventory == null) {
+            dbInventory = inventoryV2Repository.getOutboundInventoryV4(companyCodeId, plantId, languageId, warehouseId, barcodeId, null,
+                                                                       itemCode, manufacturerName, PACK_BARCODE, storageBin, null);
+        }
+        if (dbInventory != null) {
             InventoryV2 inventory = new InventoryV2();
             BeanUtils.copyProperties(dbInventory, inventory, CommonUtils.getNullPropertyNames(dbInventory));
             return inventory;

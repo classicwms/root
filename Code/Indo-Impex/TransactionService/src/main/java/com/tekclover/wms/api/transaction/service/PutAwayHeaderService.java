@@ -2761,9 +2761,9 @@ public class PutAwayHeaderService extends BaseService {
      */
     public PutAwayHeaderV2 getPutawayHeaderExistingBinItemCheckV4(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                                   String itemCode, String manufacturerName, String alternateUom, Double bagSize) {
-        PutAwayHeaderV2 dbPutAwayHeader = putAwayHeaderV2Repository.
-                findTopByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndReferenceField5AndManufacturerNameAndStatusIdAndAlternateUomAndBagSizeAndDeletionIndicatorOrderByCreatedOn(
-                        companyCodeId, plantId, warehouseId, languageId, itemCode, manufacturerName, 19L, alternateUom, bagSize, 0L);
+//        PutAwayHeaderV2 dbPutAwayHeader = putAwayHeaderV2Repository.findTopByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndReferenceField5AndManufacturerNameAndStatusIdAndAlternateUomAndBagSizeAndDeletionIndicatorOrderByCreatedOn(companyCodeId, plantId, warehouseId, languageId, itemCode, manufacturerName, 19L, alternateUom, bagSize, 0L);
+        PutAwayHeaderV2 dbPutAwayHeader = putAwayHeaderV2Repository.findTopByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndReferenceField5AndManufacturerNameAndStatusIdAndDeletionIndicatorOrderByCreatedOn(
+                companyCodeId, plantId, warehouseId, languageId, itemCode, manufacturerName, 19L, 0L);
         return dbPutAwayHeader;
     }
 

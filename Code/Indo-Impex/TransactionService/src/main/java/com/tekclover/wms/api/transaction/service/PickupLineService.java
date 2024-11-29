@@ -4734,7 +4734,6 @@ public class PickupLineService extends BaseService {
         String partnerCode = null;
         String pickupNumber = null;
         String itemCode = null;
-        String manufacturerName = null;
         boolean isQtyAvail = false;
         PickupHeaderV2 dbPickupHeader = null;
         List<PickupLineV2> createdPickupLineList = new ArrayList<>();
@@ -4765,7 +4764,6 @@ public class PickupLineService extends BaseService {
                 partnerCode = dbPickupLine.getPartnerCode();
                 pickupNumber = dbPickupLine.getPickupNumber();
                 itemCode = dbPickupLine.getItemCode();
-                manufacturerName = dbPickupLine.getManufacturerName();
 
                 // STATUS_ID
                 if (newPickupLine.getPickConfirmQty() > 0) {
@@ -4842,7 +4840,6 @@ public class PickupLineService extends BaseService {
                         dbPickupLine.setManufacturerName(dbPickupHeader.getManufacturerName());
                         dbPickupLine.setManufacturerCode(dbPickupHeader.getManufacturerName());
                         dbPickupLine.setManufacturerPartNo(dbPickupHeader.getManufacturerName());
-                        manufacturerName = dbPickupHeader.getManufacturerName();
                     }
                     if(dbPickupLine.getAlternateUom() == null || dbPickupLine.getBagSize() == null) {
                         dbPickupLine.setBagSize(dbPickupHeader.getBagSize());
@@ -4903,8 +4900,8 @@ public class PickupLineService extends BaseService {
             for (PickupLineV2 dbPickupLine : createdPickupLineList) {
                 fireBaseNotification(dbPickupLine, loginUserID);
                 //------------------------UpdateLock-Applied------------------------------------------------------------
-                InventoryV2 inventory = inventoryService.getInventoryV4(companyCodeId, plantId, languageId, warehouseId, itemCode,
-                                                                        manufacturerName, dbPickupLine.getBarcodeId(),
+                InventoryV2 inventory = inventoryService.getOutboundInventoryV4(companyCodeId, plantId, languageId, warehouseId, itemCode,
+                                                                        dbPickupLine.getManufacturerName(), dbPickupLine.getBarcodeId(),
                                                                         dbPickupLine.getPickedStorageBin(), dbPickupLine.getAlternateUom());
                 log.info("inventory record queried: " + inventory);
                 if (inventory != null) {
@@ -5124,9 +5121,9 @@ public class PickupLineService extends BaseService {
     public PickupLineV2 getPickupLineForLastBinCheckV4(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                        String itemCode, String manufacturerName, String alternateUom, Double bagSize) {
         String directReceiptStorageBin = "REC-AL-B2";   //storage-bin excluding direct stock receipt bin
-        PickupLineV2 pickupLine = pickupLineV2Repository
-                .findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndManufacturerNameAndAlternateUomAndBagSizeAndDeletionIndicatorAndPickedStorageBinNotOrderByPickupConfirmedOnDesc(
-                        companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, alternateUom, bagSize, 0L, directReceiptStorageBin);
+//        PickupLineV2 pickupLine = pickupLineV2Repository.findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndManufacturerNameAndAlternateUomAndBagSizeAndDeletionIndicatorAndPickedStorageBinNotOrderByPickupConfirmedOnDesc(companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, alternateUom, bagSize, 0L, directReceiptStorageBin);
+        PickupLineV2 pickupLine = pickupLineV2Repository.findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndManufacturerNameAndDeletionIndicatorAndPickedStorageBinNotOrderByPickupConfirmedOnDesc(
+                companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, 0L, directReceiptStorageBin);
         if (pickupLine != null) {
             return pickupLine;
         }
