@@ -1041,7 +1041,8 @@ public class PeriodicLineService extends BaseService {
 
                         if (updatePeriodicLine.getSecondCountedQty() == null && updatePeriodicLine.getFirstCountedQty() != null) {
                             dbPeriodicLine.setSecondCountedQty(updatePeriodicLine.getCountedQty());
-                            double VAR_QTY = (INV_QTY + IB_QTY) - (OB_QTY + CTD_QTY);
+//                            double VAR_QTY = (INV_QTY + IB_QTY) - (OB_QTY + CTD_QTY);
+                            double VAR_QTY =  CTD_QTY - ((INV_QTY + IB_QTY) - OB_QTY);
                             dbPeriodicLine.setVarianceQty(VAR_QTY);
                         }
                         if (updatePeriodicLine.getFirstCountedQty() == null) {
@@ -1118,7 +1119,8 @@ public class PeriodicLineService extends BaseService {
 
 //                    if (updatePeriodicLine.getFirstCountedQty() == null && updatePeriodicLine.getSecondCountedQty() == null) {
                         dbPeriodicLine.setFirstCountedQty(updatePeriodicLine.getCountedQty());
-                        double VAR_QTY = (INV_QTY + IB_QTY) - (OB_QTY + CTD_QTY);
+//                        double VAR_QTY =  (INV_QTY + IB_QTY) - (OB_QTY + CTD_QTY);
+                        double VAR_QTY =  CTD_QTY - ((INV_QTY + IB_QTY) - OB_QTY);
                         dbPeriodicLine.setVarianceQty(VAR_QTY);
                         dbPeriodicLine.setCycleCountAction(RECOUNT);
                         dbPeriodicLine.setCountedQty(0D);

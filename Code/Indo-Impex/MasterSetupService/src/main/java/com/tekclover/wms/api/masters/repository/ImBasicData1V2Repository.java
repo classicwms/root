@@ -7,6 +7,7 @@ import com.tekclover.wms.api.masters.repository.fragments.StreamableJpaSpecifica
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -170,4 +171,41 @@ public interface ImBasicData1V2Repository extends JpaRepository<ImBasicData1V2, 
 
     Optional<ImBasicData1V2> findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String itemCode, Long deletionIndicator);
+
+    //========================================================Impex============================================================
+
+    @Query(value = "select tc.itm_typ itemTypeDescription from \n" +
+            "tblitemtypeid tc\n" +
+            "where\n" +
+            "tc.itm_type_id IN (:itemTypeId) and \n" +
+            "tc.c_id IN (:companyCodeId) and \n" +
+            "tc.lang_id IN (:languageId) and \n" +
+            "tc.plant_id IN(:plantId) and \n" +
+            "tc.wh_id IN (:warehouseId) and \n" +
+            "tc.is_deleted=0", nativeQuery = true)
+    public String getItemTypeDescription(@Param(value = "companyCodeId") String companyCodeId,
+                                         @Param(value = "plantId") String plantId,
+                                         @Param(value = "languageId") String languageId,
+                                         @Param(value = "warehouseId") String warehouseId,
+                                         @Param(value = "itemTypeId") Long itemTypeId);
+
+    @Query(value = "select tc.imt_grp from \n" +
+            "tblitemgroupid tc\n" +
+            "where\n" +
+            "tc.itm_grp_id IN (:itemGroupId) and \n" +
+            "tc.c_id IN (:companyCodeId) and \n" +
+            "tc.lang_id IN (:languageId) and \n" +
+            "tc.plant_id IN(:plantId) and \n" +
+            "tc.wh_id IN (:warehouseId) and \n" +
+            "tc.is_deleted=0", nativeQuery = true)
+    public String getItemGroupDescription(@Param(value = "companyCodeId") String companyCodeId,
+                                          @Param(value = "plantId") String plantId,
+                                          @Param(value = "languageId") String languageId,
+                                          @Param(value = "warehouseId") String warehouseId,
+                                          @Param(value = "itemGroupId") Long itemGroupId);
+
+    @Transactional
+    @Procedure(procedureName = "imbasicdata_description_update_proc")
+    void updateImbasicData1DescriptionProcedure();
+
 }

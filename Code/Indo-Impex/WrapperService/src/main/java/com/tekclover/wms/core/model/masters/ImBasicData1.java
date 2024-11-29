@@ -136,4 +136,6 @@ public class ImBasicData1 {
     private String color;
     private String size;
     private String noPairs;
+	private String itemTypeDescription;
+	private String itemGroupDescription;
 }

@@ -1,8 +1,10 @@
 package com.tekclover.wms.api.masters.service;
 
+import com.tekclover.wms.api.masters.model.IKeyValuePair;
 import com.tekclover.wms.api.masters.model.auth.AuthToken;
 import com.tekclover.wms.api.masters.model.dto.UserManagement;
 import com.tekclover.wms.api.masters.model.dto.Warehouse;
+import com.tekclover.wms.api.masters.repository.ImBasicData1V2Repository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -12,10 +14,15 @@ import java.time.Year;
 public class BaseService {
 
     @Autowired
-    private IDMasterService idmasterService;
+    IDMasterService idmasterService;
 
     @Autowired
-    private AuthTokenService authTokenService;
+    AuthTokenService authTokenService;
+
+    @Autowired
+    ImBasicData1V2Repository imBasicData1V2Repository;
+
+    protected IKeyValuePair description = null;
 
     /**
      * @return
@@ -98,4 +105,41 @@ public class BaseService {
         return idmasterService.getWarehouse(warehouseId, authTokenForIDMasterService.getAccess_token());
     }
 
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemTypeId
+     * @return
+     */
+    public String getItemTypeDesc(String companyCodeId, String plantId, String languageId, String warehouseId, Long itemTypeId) {
+        return imBasicData1V2Repository.getItemTypeDescription(companyCodeId, plantId, languageId, warehouseId, itemTypeId);
+    }
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemGroupId
+     * @return
+     */
+    public String getItemGroupDesc(String companyCodeId, String plantId, String languageId, String warehouseId, Long itemGroupId) {
+        return imBasicData1V2Repository.getItemGroupDescription(companyCodeId, plantId, languageId, warehouseId, itemGroupId);
+    }
+
+    /**
+     * Get company, plant, warehouse description
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @return
+     */
+    public IKeyValuePair getDescription(String companyCodeId, String plantId, String languageId, String warehouseId) {
+        return imBasicData1V2Repository.getDescription(companyCodeId, languageId, plantId, warehouseId);
+    }
 }

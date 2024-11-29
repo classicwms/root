@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.tekclover.wms.core.model.auth.AuthToken;
 import com.tekclover.wms.core.model.masters.*;
 import com.tekclover.wms.core.model.threepl.*;
 import com.tekclover.wms.core.model.transaction.ImPartnerInput;
@@ -43,6 +44,9 @@ public class MastersService {
 
     @Autowired
     PropertiesConfig propertiesConfig;
+
+    @Autowired
+    AuthTokenService authTokenService;
 
     private RestTemplate getRestTemplate() {
         RestTemplate restTemplate = new RestTemplate();
@@ -1360,6 +1364,27 @@ public class MastersService {
             log.info("result : " + result);
             return true;
         } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    // Update ImBasicData1 description fields
+    public void updateImBasicData1() {
+        try {
+            AuthToken authTokenForMasterService = authTokenService.getMastersServiceAuthToken();
+            String authToken = authTokenForMasterService.getAccess_token();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "Classic WMS's RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            HttpEntity<?> entity = new HttpEntity<>(headers);
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "imbasicdata1/updateDescriptionFields");
+            ResponseEntity<String> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity, String.class);
+            log.info("result : " + result);
+        } catch (Exception e) {
+            e.printStackTrace();
             throw e;
         }
     }

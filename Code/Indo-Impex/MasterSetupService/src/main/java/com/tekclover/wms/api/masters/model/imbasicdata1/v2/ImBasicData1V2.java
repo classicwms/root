@@ -39,4 +39,10 @@ public class ImBasicData1V2 extends ImBasicData1 {
     //MiddleWare Fields
     private Long middlewareId;
     private String middlewareTable;
+
+    @Column(name = "ITM_TYP_TEXT", columnDefinition = "nvarchar(100)")
+    private String itemTypeDescription;
+
+    @Column(name = "ITM_GRP_TEXT", columnDefinition = "nvarchar(100)")
+    private String itemGroupDescription;
 }

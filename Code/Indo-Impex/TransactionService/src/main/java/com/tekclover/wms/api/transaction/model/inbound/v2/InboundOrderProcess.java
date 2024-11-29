@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.transaction.model.inbound.v2;
 
+import com.tekclover.wms.api.transaction.model.dto.ImPartner;
 import com.tekclover.wms.api.transaction.model.inbound.gr.v2.GrHeaderV2;
 import com.tekclover.wms.api.transaction.model.inbound.gr.v2.GrLineV2;
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.InboundIntegrationHeader;
@@ -39,4 +40,5 @@ public class InboundOrderProcess {
     List<StagingLineEntityV2> stagingLines;
     List<GrLineV2> grLines;
     List<PutAwayLineV2> putAwayLines;
+    List<ImPartner> imPartnerList;
 }

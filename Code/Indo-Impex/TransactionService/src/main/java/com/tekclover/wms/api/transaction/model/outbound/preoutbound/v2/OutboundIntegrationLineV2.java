@@ -53,4 +53,8 @@ public class OutboundIntegrationLineV2 extends OutboundIntegrationLine {
     private String alternateUom;
     private Double noBags;
     private Double bagSize;
+    private Double mrp;
+    private String itemType;
+    private String itemGroup;
+
 }

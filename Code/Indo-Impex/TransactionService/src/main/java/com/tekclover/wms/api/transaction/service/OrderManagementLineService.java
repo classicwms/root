@@ -4077,10 +4077,7 @@ public class OrderManagementLineService extends BaseService {
                                                     OrderManagementLineV2 orderManagementLine, String loginUserID) throws Exception {
 
         String masterToken = getMasterAuthToken();
-        String barcodeId = orderManagementLine.getBarcodeId();
-        String batchSerialNumber = orderManagementLine.getProposedBatchSerialNumber();
         String alternateUom = orderManagementLine.getAlternateUom();
-        Double bagSize = orderManagementLine.getBagSize();
         Long stockTypeId = 1L;
         String orderBy = null;
         String INV_STRATEGY = null;
@@ -4369,8 +4366,9 @@ public class OrderManagementLineService extends BaseService {
                     double dbInventoryQty = stBinInventory.getInventoryQuantity() != null ? stBinInventory.getInventoryQuantity() : 0;
                     double dbInvAllocatedQty = stBinInventory.getAllocatedQuantity() != null ? stBinInventory.getAllocatedQuantity() : 0;
 
-                    double inventoryQty = dbInventoryQty - allocatedQtyFromOrderMgmt;
-                    double allocatedQty = dbInvAllocatedQty + allocatedQtyFromOrderMgmt;
+                    double actualAllocatedQty = getQuantity(allocatedQtyFromOrderMgmt, orderManagementLine.getBagSize());
+                    double inventoryQty = dbInventoryQty - actualAllocatedQty;
+                    double allocatedQty = dbInvAllocatedQty + actualAllocatedQty;
                     double totalQty = inventoryQty + allocatedQty;
 
                     if (inventoryQty < 0) {

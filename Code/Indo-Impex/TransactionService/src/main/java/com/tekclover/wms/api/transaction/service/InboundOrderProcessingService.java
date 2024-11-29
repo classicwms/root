@@ -62,8 +62,6 @@ public class InboundOrderProcessingService extends BaseService {
     @Autowired
     OrderProcessingService orderProcessingService;
 
-    @Autowired
-    ImPartnerService imPartnerService;
     //--------------------------------------------------------------------------------------------------------------
     @Autowired
     private ImBasicData1V2Repository imBasicData1V2Repository;
@@ -169,11 +167,15 @@ public class InboundOrderProcessingService extends BaseService {
                 }
                     inboundIntegrationLine.setBrand(imBasicData1.getBrand());
                     inboundIntegrationLine.setSize(imBasicData1.getSize());
-                    if(imBasicData1.getItemType() != null) {
+                    if(imBasicData1.getItemType() != null && imBasicData1.getItemTypeDescription() == null) {
                     inboundIntegrationLine.setItemType(getItemTypeDesc(companyCodeId, plantId, languageId, warehouseId, imBasicData1.getItemType()));
+                    } else {
+                        inboundIntegrationLine.setItemType(imBasicData1.getItemTypeDescription());
                     }
-                    if(imBasicData1.getItemGroup() != null) {
+                    if(imBasicData1.getItemGroup() != null && imBasicData1.getItemGroupDescription() == null) {
                     inboundIntegrationLine.setItemGroup(getItemGroupDesc(companyCodeId, plantId, languageId, warehouseId, imBasicData1.getItemGroup()));
+                    } else {
+                        inboundIntegrationLine.setItemGroup(imBasicData1.getItemGroupDescription());
                 }
                 }
                 String barcodeId = generateBarCodeId(inboundIntegrationLine.getItemCode(), partBarCode);
@@ -235,7 +237,7 @@ public class InboundOrderProcessingService extends BaseService {
                 inboundIntegrationLines.add(inboundIntegrationLine);
             }
 
-            imPartnerService.createImPartner(imPartnerList);
+            inboundOrderProcess.setImPartnerList(imPartnerList);
             /*
              * Append PREINBOUNDLINE table through below logic
              */

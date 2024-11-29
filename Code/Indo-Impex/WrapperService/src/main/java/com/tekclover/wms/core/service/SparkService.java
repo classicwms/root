@@ -861,7 +861,7 @@ public class SparkService {
             headers.add("User-Agent", " RestTemplate");
 //        headers.add("Authorization", "Bearer " + authToken);
 
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "inventoryv2/new");
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "inventory/new");
             HttpEntity<?> entity = new HttpEntity<>(findInventoryV3, headers);
             ResponseEntity<InventoryV3[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, InventoryV3[].class);
             log.info("result: " + result.getStatusCode());

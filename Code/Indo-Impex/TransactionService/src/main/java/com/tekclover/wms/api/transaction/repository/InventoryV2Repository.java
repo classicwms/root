@@ -4761,7 +4761,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:barcodeId, null) IS NULL OR (BARCODE_ID IN (:barcodeId))) and \n" +
             "(COALESCE(:binClassId, null) IS NULL OR (BIN_CL_ID IN (:binClassId))) and\n" +
             "(COALESCE(:manufacturerName, null) IS NULL OR (MFR_NAME IN (:manufacturerName))) \n" +
-            "group by itm_code,barcode_id,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id \n"
+            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id \n"
 
             + "SELECT \n"
             + "C_ID companyCodeId, \n"
@@ -4828,7 +4828,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
             "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
             "is_deleted = 0 \n" +
-            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,st_bin,plant_id,wh_id,c_id,lang_id \n" +
+            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
             "SELECT \n" +
             "iv.INV_ID inventoryId, \n" +
@@ -4957,7 +4957,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
             "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
             "is_deleted = 0 \n" +
-            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,st_bin,plant_id,wh_id,c_id,lang_id \n" +
+            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
             "SELECT \n" +
             "iv.INV_ID inventoryId, \n" +
@@ -5045,7 +5045,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:storageBin, null) IS NULL OR (iv.ST_BIN IN (:storageBin))) and\n" +
             "(COALESCE(:binClassId, null) IS NULL OR (iv.BIN_CL_ID IN (:binClassId))) and\n" +
             "(COALESCE(:alternateUom, null) IS NULL OR (iv.ALT_UOM IN (:alternateUom))) and\n" +
-            "iv.is_deleted = 0 \n", nativeQuery = true)
+            "iv.is_deleted = 0 and iv.stck_typ_id = 1\n", nativeQuery = true)
     public IInventoryImpl getInboundInventoryV4(@Param("companyCodeId") String companyCodeId,
                                                 @Param("plantId") String plantId,
                                                 @Param("languageId") String languageId,
@@ -5069,7 +5069,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
             "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
             "is_deleted = 0 \n" +
-            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,st_bin,plant_id,wh_id,c_id,lang_id \n" +
+            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
             "SELECT \n" +
             "iv.ST_BIN storageBin\n" +
@@ -5088,7 +5088,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:binClassId, null) IS NULL OR (iv.BIN_CL_ID IN (:binClassId))) and\n" +
             "(COALESCE(:alternateUom, null) IS NULL OR (iv.ALT_UOM IN (:alternateUom))) and\n" +
             "(COALESCE(:bagSize, null) IS NULL OR (iv.BAG_SIZE IN (:bagSize))) and\n" +
-            "iv.is_deleted = 0 \n", nativeQuery = true)
+            "iv.is_deleted = 0 and iv.stck_typ_id = 1 \n", nativeQuery = true)
     public List<String> getPutAwayHeaderCreateInventoryV4(@Param("companyCodeId") String companyCodeId,
                                                           @Param("plantId") String plantId,
                                                           @Param("languageId") String languageId,
@@ -5112,7 +5112,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "lang_id in (:languageId) and \n" +
             "mfr_name in (:manufacturerName) and \n" +
             "c_id in (:companyCodeId) and is_deleted = 0 \n" +
-            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,st_bin,plant_id,wh_id,c_id,lang_id \n"
+            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id \n"
 
             + "SELECT * from ( \n"
             + "SELECT LANG_ID languageId, \n"
@@ -5398,7 +5398,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
             "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
             "is_deleted = 0 \n" +
-            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,st_bin,plant_id,wh_id,c_id,lang_id \n" +
+            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
             "SELECT \n" +
             "iv.INV_ID inventoryId, \n" +
@@ -5511,7 +5511,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
             "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
             "is_deleted = 0 \n" +
-            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,st_bin,plant_id,wh_id,c_id,lang_id \n" +
+            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
             "SELECT \n" +
             "iv.INV_ID inventoryId, \n" +
@@ -5598,7 +5598,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:itemCode, null) IS NULL OR (iv.ITM_CODE IN (:itemCode))) and \n" +
             "(COALESCE(:storageBin, null) IS NULL OR (iv.ST_BIN IN (:storageBin))) and\n" +
             "(COALESCE(:alternateUom, null) IS NULL OR (iv.ALT_UOM IN (:alternateUom))) and\n" +
-            "iv.is_deleted = 0 and (iv.INV_QTY > 0) order by iv.BARCODE_ID \n", nativeQuery = true)
+            "iv.is_deleted = 0  and iv.stck_typ_id = 1 and (iv.INV_QTY > 0) order by iv.BARCODE_ID \n", nativeQuery = true)
     public IInventoryImpl getInventoryV4(@Param("companyCodeId") String companyCodeId,
                                             @Param("plantId") String plantId,
                                             @Param("languageId") String languageId,
@@ -5621,7 +5621,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
             "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
             "is_deleted = 0 \n" +
-            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,st_bin,plant_id,wh_id,c_id,lang_id \n"
+            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id \n"
 
             + "SELECT SUM(INV_QTY) AS inventoryQty \r\n"
             + "FROM tblinventory WHERE WH_ID = :warehouseId and ITM_CODE = :itemCode \r\n"
@@ -5652,7 +5652,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
             "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
             "is_deleted = 0 \n" +
-            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,st_bin,plant_id,wh_id,c_id,lang_id \n"
+            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id \n"
 
             + "SELECT LEVEL_ID AS levelId, SUM(INV_QTY) AS inventoryQty FROM tblinventory \r\n"
             + "WHERE WH_ID = :warehouseId and ITM_CODE = :itemCode AND BIN_CL_ID = :binClassId AND STCK_TYP_ID = :stockTypeId \r\n"
@@ -5721,7 +5721,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
             "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
             "is_deleted = 0 \n" +
-            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,st_bin,plant_id,wh_id,c_id,lang_id \n" +
+            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
             "SELECT \n" +
             "iv.INV_ID inventoryId, \n" +
@@ -5834,7 +5834,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
             "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
             "is_deleted = 0 \n" +
-            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,st_bin,plant_id,wh_id,c_id,lang_id \n" +
+            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
             "SELECT \n" +
             "iv.INV_ID inventoryId, \n" +
@@ -5947,7 +5947,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
             "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
             "is_deleted = 0 \n" +
-            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,st_bin,plant_id,wh_id,c_id,lang_id \n" +
+            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
             "SELECT \n" +
             "iv.INV_ID inventoryId, \n" +
@@ -6060,7 +6060,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
             "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
             "is_deleted = 0 \n" +
-            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,st_bin,plant_id,wh_id,c_id,lang_id \n" +
+            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
             "SELECT \n" +
             "iv.INV_ID inventoryId, \n" +

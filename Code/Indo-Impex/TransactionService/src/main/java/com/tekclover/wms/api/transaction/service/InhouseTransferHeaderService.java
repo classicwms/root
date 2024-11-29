@@ -1574,13 +1574,16 @@ public class InhouseTransferHeaderService extends BaseService {
      */
     private void updateTransferInventoryV4(String companyCode, String plantId, String languageId, String warehouseId,
                                             InhouseTransferLine createdInhouseTransferLine, String loginUserID) {
+        Long sourceStockTypeId = createdInhouseTransferLine.getSourceStockTypeId() != null ? createdInhouseTransferLine.getSourceStockTypeId() : 1L;
+        Long targetStockTypeId = createdInhouseTransferLine.getTargetStockTypeId() != null ? createdInhouseTransferLine.getTargetStockTypeId() : 1L;
         InventoryV2 inventorySourceItemCode =
-                inventoryService.getInhouseTransferInventoryV4(companyCode, plantId, languageId, warehouseId,
+                inventoryService.getStockTypeInventoryTransferV4(companyCode, plantId, languageId, warehouseId,
                                                                createdInhouseTransferLine.getPackBarcodes(),
                                                                createdInhouseTransferLine.getSourceItemCode(),
                                                                createdInhouseTransferLine.getSourceBarcodeId(),
                                                                createdInhouseTransferLine.getManufacturerName(),
-                                                               createdInhouseTransferLine.getSourceStorageBin());
+                                                                 createdInhouseTransferLine.getSourceStorageBin(),
+                                                                 sourceStockTypeId);
         log.info("---------inventory----------> : " + inventorySourceItemCode);
         if (inventorySourceItemCode != null) {
             Double inventoryQty = inventorySourceItemCode.getInventoryQuantity();
@@ -1640,12 +1643,13 @@ public class InhouseTransferHeaderService extends BaseService {
 
             // Pass WH_ID/ TGT_ITM_CODE/PACK_BARCODE/TGT_ST_BIN in INVENTORY TABLE validate for a record.
             InventoryV2 inventoryTargetItemCode =
-                    inventoryService.getInhouseTransferInventoryV4(companyCode, plantId, languageId, warehouseId,
+                    inventoryService.getStockTypeInventoryTransferV4(companyCode, plantId, languageId, warehouseId,
                                                                    createdInhouseTransferLine.getPackBarcodes(),
                                                                    createdInhouseTransferLine.getTargetItemCode(),
                                                                    createdInhouseTransferLine.getTargetBarcodeId(),
                                                                    createdInhouseTransferLine.getManufacturerName(),
-                                                                   createdInhouseTransferLine.getTargetStorageBin());
+                                                                     createdInhouseTransferLine.getTargetStorageBin(),
+                                                                     targetStockTypeId);
             if (inventoryTargetItemCode != null) {
                 // update INV_QTY value (INV_QTY + TR_CNF_QTY)
                 inventoryQty = inventoryTargetItemCode.getInventoryQuantity();
@@ -1708,7 +1712,7 @@ public class InhouseTransferHeaderService extends BaseService {
                                                                  createdInhouseTransferLine.getManufacturerName(),
                                                                  createdInhouseTransferLine.getSourceStorageBin(),
                                                                  createdInhouseTransferLine.getSourceStockTypeId());
-        log.info("---------inventory----------> : " + inventorySourceItemCode);
+        log.info("---------Stock type to Stock Type inventory----------> : " + inventorySourceItemCode);
         if (inventorySourceItemCode != null) {
             Double inventoryQty = inventorySourceItemCode.getInventoryQuantity();
             Double sourceInventoryQty = inventorySourceItemCode.getInventoryQuantity();
@@ -1728,7 +1732,7 @@ public class InhouseTransferHeaderService extends BaseService {
             double sourceBagSize = inventorySourceItemCode.getBagSize() != null ? inventorySourceItemCode.getBagSize() : 0D;
             double NO_OF_BAGS = TOT_QTY / BAG_SIZE;
 
-            log.info("-----Source----INV_QTY, ALLOC_QTY, TOT_QTY-----------> : " + INV_QTY + ", " + ALLOC_QTY + ", " + TOT_QTY);
+            log.info("-----StkTyp Source----INV_QTY, ALLOC_QTY, TOT_QTY-----------> : " + INV_QTY + ", " + ALLOC_QTY + ", " + TOT_QTY);
             inventorySourceItemCode.setInventoryQuantity(round(INV_QTY));
             inventorySourceItemCode.setAllocatedQuantity(round(ALLOC_QTY));
             inventorySourceItemCode.setReferenceField4(round(TOT_QTY));
@@ -1781,7 +1785,7 @@ public class InhouseTransferHeaderService extends BaseService {
                     ALLOC_QTY = inventoryTargetItemCode.getAllocatedQuantity();
                 }
                 transferConfirmedQty = createdInhouseTransferLine.getTransferConfirmedQty();
-                log.info("sourceInventoryQty,transferConfirmedQty,inventoryQty : " + sourceInventoryQty + ", " + transferConfirmedQty + "," + inventoryQty);
+                log.info("stockType sourceInventoryQty,transferConfirmedQty,inventoryQty : " + sourceInventoryQty + ", " + transferConfirmedQty + "," + inventoryQty);
                 if (sourceInventoryQty > 0L) {                  //Checking source Inventory Qty - only update if source inventory qty present else leave it as it is
                     if (sourceInventoryQty >= transferConfirmedQty) {
                         INV_QTY = inventoryQty + transferConfirmedQty;
@@ -1806,7 +1810,7 @@ public class InhouseTransferHeaderService extends BaseService {
                 BeanUtils.copyProperties(inventoryTargetItemCode, newInventoryV2_1, CommonUtils.getNullPropertyNames(inventoryTargetItemCode));
                 newInventoryV2_1.setUpdatedOn(new Date());
                 createdInventoryV2 = inventoryV2Repository.save(newInventoryV2_1);
-                log.info("InventoryV2 created : " + createdInventoryV2);
+                log.info("StkType Target InventoryV2 created : " + createdInventoryV2);
             } else {
                 createdInhouseTransferLine.setBagSize(sourceBagSize);
                 createdInhouseTransferLine.setAlternateUom(inventorySourceItemCode.getAlternateUom());

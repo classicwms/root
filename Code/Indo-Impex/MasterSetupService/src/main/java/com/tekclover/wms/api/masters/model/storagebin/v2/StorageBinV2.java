@@ -18,7 +18,7 @@ import javax.persistence.Table;
 @ToString(callSuper = true)
 public class StorageBinV2 extends StorageBin {
 
-	@Column(name = "CAP_CHECK")
+	@Column(name = "CAP_CHECK", columnDefinition = "bit default '0'")
 	private boolean capacityCheck;
 
 	@Column(name="ALLOC_VOL")

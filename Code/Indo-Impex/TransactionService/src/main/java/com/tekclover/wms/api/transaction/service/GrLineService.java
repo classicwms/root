@@ -6186,7 +6186,8 @@ public class GrLineService extends BaseService {
                     } else if (packBarcode.getQuantityType().equalsIgnoreCase("D")) {
                         Double grQty = newGrLine.getDamageQty();
                         dbGrLine.setGoodReceiptQty(grQty);
-                        dbGrLine.setDamageQty(newGrLine.getDamageQty());
+                        dbGrLine.setDamageQty(grQty);
+                        dbGrLine.setOrderQty(grQty);
                         dbGrLine.setAcceptedQty(0D);
                         log.info("Damage (D)-------->: " + dbGrLine);
                     }
@@ -6196,8 +6197,11 @@ public class GrLineService extends BaseService {
                     dbGrLine.setGrUom(newGrLine.getOrderUom());
                     dbGrLine.setStatusId(14L);
 
-                    if (dbGrLine.getGoodReceiptQty() < 0) {
+                    if (dbGrLine.getGoodReceiptQty() != null && dbGrLine.getGoodReceiptQty() < 0) {
                         throw new BadRequestException("Gr Quantity Cannot be Negative");
+                    }
+                    if (dbGrLine.getOrderUom() == null) {
+                        throw new BadRequestException("Uom is mandatory");
                     }
                     log.info("StatusId: " + newGrLine.getStatusId());
                     if (newGrLine.getStatusId() != null && newGrLine.getStatusId() == 24L) {
@@ -6225,9 +6229,7 @@ public class GrLineService extends BaseService {
                         }
                     }
 
-                    //V2 Code
                     description = getDescription(companyCode, plantId, languageId, warehouseId);
-
                     if (description != null) {
                         dbGrLine.setCompanyDescription(description.getCompanyDesc());
                         dbGrLine.setPlantDescription(description.getPlantDesc());
@@ -6237,19 +6239,9 @@ public class GrLineService extends BaseService {
                     Double recAcceptQty = 0D;
                     Double recDamageQty = 0D;
                     Double variance = 0D;
-                    Double invoiceQty = 0D;
-                    Double acceptQty = 0D;
-                    Double damageQty = 0D;
-
-                    if (newGrLine.getOrderQty() != null) {
-                        invoiceQty = newGrLine.getOrderQty();
-                    }
-                    if (newGrLine.getAcceptedQty() != null) {
-                        acceptQty = newGrLine.getAcceptedQty();
-                    }
-                    if (newGrLine.getDamageQty() != null) {
-                        damageQty = newGrLine.getDamageQty();
-                    }
+                    Double invoiceQty = newGrLine.getOrderQty() != null ? newGrLine.getOrderQty() : 0D;
+                    Double acceptQty = newGrLine.getAcceptedQty() != null ? newGrLine.getAcceptedQty() : 0D;
+                    Double damageQty = newGrLine.getDamageQty() != null ? newGrLine.getDamageQty() : 0D;
 
                     StagingLineEntityV2 dbStagingLineEntity = stagingLineService.getStagingLineForPutAwayLineV2(companyCode, plantId, languageId, warehouseId,
                                                                                                                 preInboundNo, refDocNumber, newGrLine.getLineNo(),

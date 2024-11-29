@@ -23,7 +23,6 @@ public class OrderProcessingService extends BaseService {
 
     @Autowired
     OrderService orderService;
-
     //--------------------------------------------------------------------------------------------------------------
     @Autowired
     PreInboundHeaderV2Repository preInboundHeaderV2Repository;
@@ -57,6 +56,9 @@ public class OrderProcessingService extends BaseService {
 
     @Autowired
     PutAwayLineV2Repository putAwayLineV2Repository;
+
+    @Autowired
+    ImPartnerRepository imPartnerRepository;
     //========================================================================V2====================================================================
 
     /**
@@ -150,8 +152,7 @@ public class OrderProcessingService extends BaseService {
                                                InboundOrderProcess inboundOrderProcess) throws Exception {
 
         InboundHeaderV2 createdInboundHeader = null;
-        log.info("CompanyCodeId, plantId, languageId, warehouseId : " + companyCodeId + ", " + plantId + ", " + languageId + ", " + warehouseId);
-        log.info("Inbound Order Save Process Initiated ------> " + refDocNumber + ", " + inboundOrderTypeId);
+        log.info("Inbound Order Save Process Initiated ------> " + refDocNumber + "|" + inboundOrderTypeId + "|" + companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId);
 
         try {
             //Lines
@@ -169,6 +170,9 @@ public class OrderProcessingService extends BaseService {
             }
             if(inboundOrderProcess.getPutAwayLines() != null && !inboundOrderProcess.getPutAwayLines().isEmpty()) {
                 putAwayLineV2Repository.saveAll(inboundOrderProcess.getPutAwayLines());
+            }
+            if(inboundOrderProcess.getImPartnerList() != null) {
+                imPartnerRepository.saveAll(inboundOrderProcess.getImPartnerList());
             }
 
             //Header

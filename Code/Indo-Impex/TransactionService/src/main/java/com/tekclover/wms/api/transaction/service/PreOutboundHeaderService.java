@@ -148,6 +148,9 @@ public class PreOutboundHeaderService extends BaseService {
 
 	@Autowired
     private PickListHeaderRepository pickListHeaderRepository;
+
+    @Autowired
+    ImBasicData1V2Repository imBasicData1V2Repository;
     //------------------------------------------------------------------------------------------------------
     /**
      * getPreOutboundHeaders
@@ -4690,6 +4693,7 @@ public class PreOutboundHeaderService extends BaseService {
         outboundHeader.setSalesOrderNumber(outboundIntegrationHeader.getSalesOrderNumber());
         outboundHeader.setSalesInvoiceNumber(outboundIntegrationHeader.getSalesInvoiceNumber());
         outboundHeader.setPickListNumber(outboundIntegrationHeader.getPickListNumber());
+        outboundHeader.setConsignment(outboundIntegrationHeader.getPickListNumber());
         outboundHeader.setTokenNumber(outboundIntegrationHeader.getTokenNumber());
         outboundHeader.setTargetBranchCode(outboundIntegrationHeader.getTargetBranchCode());
         outboundHeader.setAddress(outboundIntegrationHeader.getAddress());
@@ -4775,6 +4779,7 @@ public class PreOutboundHeaderService extends BaseService {
         preOutboundHeader.setPlantId(plantId);
         preOutboundHeader.setWarehouseId(warehouseId);
         preOutboundHeader.setRefDocNumber(outboundIntegrationHeader.getRefDocumentNo());
+        preOutboundHeader.setConsignment(outboundIntegrationHeader.getRefDocumentNo());
         preOutboundHeader.setPreOutboundNo(preOutboundNo);                                                // PRE_OB_NO
         preOutboundHeader.setPartnerCode(outboundIntegrationHeader.getPartnerCode());
         preOutboundHeader.setOutboundOrderTypeId(outboundIntegrationHeader.getOutboundOrderTypeID());    // Hardcoded value "0"
@@ -4841,7 +4846,7 @@ public class PreOutboundHeaderService extends BaseService {
                                                               OutboundIntegrationHeaderV2 outboundIntegrationHeader, BomLine dbBomLine,
                                                               OutboundIntegrationLineV2 outboundIntegrationLine, String loginUserId) throws ParseException {
 //        Warehouse warehouse = getWarehouse(outboundIntegrationHeader.getWarehouseID());
-
+        String warehouseId = outboundIntegrationHeader.getWarehouseID();
         PreOutboundLineV2 preOutboundLine = new PreOutboundLineV2();
         BeanUtils.copyProperties(outboundIntegrationLine, preOutboundLine, CommonUtils.getNullPropertyNames(outboundIntegrationLine));
         preOutboundLine.setLanguageId(languageId);
@@ -4873,27 +4878,30 @@ public class PreOutboundHeaderService extends BaseService {
         AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
         //HAREESH 27-08-2022 - bom line creation get item description based on child item code change
 
-        ImBasicData imBasicData = new ImBasicData();
-        imBasicData.setCompanyCodeId(companyCodeId);
-        imBasicData.setPlantId(plantId);
-        imBasicData.setLanguageId(languageId);
-        imBasicData.setWarehouseId(outboundIntegrationHeader.getWarehouseID());
-        imBasicData.setItemCode(dbBomLine.getChildItemCode());
-        imBasicData.setManufacturerName(outboundIntegrationLine.getManufacturerName());
-        ImBasicData1 imBasicData1 = mastersService.getImBasicData1ByItemCodeV2(imBasicData, authTokenForMastersService.getAccess_token());
+//        ImBasicData imBasicData = new ImBasicData();
+//        imBasicData.setCompanyCodeId(companyCodeId);
+//        imBasicData.setPlantId(plantId);
+//        imBasicData.setLanguageId(languageId);
+//        imBasicData.setWarehouseId(outboundIntegrationHeader.getWarehouseID());
+//        imBasicData.setItemCode(dbBomLine.getChildItemCode());
+//        imBasicData.setManufacturerName(outboundIntegrationLine.getManufacturerName());
+        ImBasicData1V2 imBasicData1 = imBasicData1V2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerPartNoAndDeletionIndicator(
+                languageId, companyCodeId, plantId, warehouseId, dbBomLine.getChildItemCode(), outboundIntegrationLine.getManufacturerName(), 0L);
 
-//        ImBasicData1 imBasicData1 =
-//                mastersService.getImBasicData1ByItemCodeV2(dbBomLine.getChildItemCode(),
-//                        languageId,
-//                        companyCodeId,
-//                        plantId,
-//                        outboundIntegrationHeader.getWarehouseID(),
-//                        outboundIntegrationLine.getManufacturerName(),
-//                        authTokenForMastersService.getAccess_token());
         if (imBasicData1 != null) {
             preOutboundLine.setDescription(imBasicData1.getDescription());
             // MFR
             preOutboundLine.setManufacturerPartNo(imBasicData1.getManufacturerPartNo());
+            if(imBasicData1.getItemType() != null && imBasicData1.getItemTypeDescription() == null) {
+                preOutboundLine.setItemType(getItemTypeDesc(companyCodeId, plantId, languageId, outboundIntegrationHeader.getWarehouseID(), imBasicData1.getItemType()));
+            } else {
+                preOutboundLine.setItemType(imBasicData1.getItemTypeDescription());
+            }
+            if(imBasicData1.getItemGroup() != null && imBasicData1.getItemGroupDescription() == null) {
+                preOutboundLine.setItemGroup(getItemGroupDesc(companyCodeId, plantId, languageId, outboundIntegrationHeader.getWarehouseID(), imBasicData1.getItemGroup()));
+            } else {
+                preOutboundLine.setItemGroup(imBasicData1.getItemGroupDescription());
+            }
         }
 
         // PARTNER_CODE
@@ -5039,26 +5047,30 @@ public class PreOutboundHeaderService extends BaseService {
         preOutboundLine.setIsCancelled(outboundIntegrationLine.getIsCancelled());
 
         // ITEM_TEXT - Pass CHL_ITM_CODE as ITM_CODE in IMBASICDATA1 table and fetch ITEM_TEXT and insert
-        AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-        ImBasicData imBasicData = new ImBasicData();
-        imBasicData.setCompanyCodeId(companyCodeId);
-        imBasicData.setPlantId(plantId);
-        imBasicData.setLanguageId(languageId);
-        imBasicData.setWarehouseId(outboundIntegrationHeader.getWarehouseID());
-        imBasicData.setItemCode(outboundIntegrationLine.getItemCode());
-        imBasicData.setManufacturerName(outboundIntegrationLine.getManufacturerName());
-        ImBasicData1 imBasicData1 = mastersService.getImBasicData1ByItemCodeV2(imBasicData, authTokenForMastersService.getAccess_token());
-//        ImBasicData1 imBasicData1 =
-//                mastersService.getImBasicData1ByItemCodeV2(outboundIntegrationLine.getItemCode(),
-//                        languageId,
-//                        companyCodeId,
-//                        plantId,
-//                        outboundIntegrationHeader.getWarehouseID(),
-//                        outboundIntegrationLine.getManufacturerName(),
-//                        authTokenForMastersService.getAccess_token());
+//        AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+//        ImBasicData imBasicData = new ImBasicData();
+//        imBasicData.setCompanyCodeId(companyCodeId);
+//        imBasicData.setPlantId(plantId);
+//        imBasicData.setLanguageId(languageId);
+//        imBasicData.setWarehouseId(outboundIntegrationHeader.getWarehouseID());
+//        imBasicData.setItemCode(outboundIntegrationLine.getItemCode());
+//        imBasicData.setManufacturerName(outboundIntegrationLine.getManufacturerName());
+//        ImBasicData1 imBasicData1 = mastersService.getImBasicData1ByItemCodeV2(imBasicData, authTokenForMastersService.getAccess_token());
+        ImBasicData1V2 imBasicData1 = imBasicData1V2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerPartNoAndDeletionIndicator(
+                languageId, companyCodeId, plantId, warehouseId, outboundIntegrationLine.getItemCode(), outboundIntegrationLine.getManufacturerName(), 0L);
         log.info("imBasicData1 : " + imBasicData1);
-        if (imBasicData1 != null && imBasicData1.getDescription() != null) {
+        if (imBasicData1 != null) {
             preOutboundLine.setDescription(imBasicData1.getDescription());
+            if(imBasicData1.getItemType() != null && imBasicData1.getItemTypeDescription() == null) {
+                preOutboundLine.setItemType(getItemTypeDesc(companyCodeId, plantId, languageId, outboundIntegrationHeader.getWarehouseID(), imBasicData1.getItemType()));
+            } else {
+                preOutboundLine.setItemType(imBasicData1.getItemTypeDescription());
+            }
+            if(imBasicData1.getItemGroup() != null && imBasicData1.getItemGroupDescription() == null) {
+                preOutboundLine.setItemGroup(getItemGroupDesc(companyCodeId, plantId, languageId, outboundIntegrationHeader.getWarehouseID(), imBasicData1.getItemGroup()));
+            } else {
+                preOutboundLine.setItemGroup(imBasicData1.getItemGroupDescription());
+            }
         } else {
             preOutboundLine.setDescription(outboundIntegrationLine.getItemText());
         }

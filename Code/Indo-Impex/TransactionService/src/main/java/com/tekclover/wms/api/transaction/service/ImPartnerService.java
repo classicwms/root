@@ -144,7 +144,7 @@ public class ImPartnerService {
      * @throws Exception
      */
     public void createImPartner(List<ImPartner> imPartnerList) throws Exception {
-        log.info("Impartner Input: " + imPartnerList);
+        log.info("Impartner Input: " + imPartnerList.size());
         try {
             List<ImPartner> newImPartnerList = imPartnerList.stream().map(addImpartner -> {
                 ImPartner imPartner = new ImPartner();

@@ -189,4 +189,12 @@ public class ImBasicData1Controller {
                 manufacturerPartNo, warehouseId, loginUserID);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    //=========================================Impex=================================================================
+    @ApiOperation(response = ImBasicData1V2.class, value = "Update ImBasicData1 Description") // label for swagger
+    @GetMapping("/updateDescriptionFields")
+    public ResponseEntity<?> updateDescription() {
+        imbasicdata1Service.updateImBasicDataDescription();
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

@@ -1,45 +1,5 @@
 package com.tekclover.wms.core.controller;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.Writer;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-
-import com.lowagie.text.DocumentException;
-import com.tekclover.wms.core.model.warehouse.inbound.almailem.ASNV2;
-import com.tekclover.wms.core.model.warehouse.outbound.almailem.SalesOrderV2;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.opencsv.CSVWriter;
 import com.tekclover.wms.core.batch.config.singleton.AccountService;
 import com.tekclover.wms.core.batch.config.singleton.AppConfig;
@@ -49,19 +9,33 @@ import com.tekclover.wms.core.model.auth.AuthToken;
 import com.tekclover.wms.core.model.auth.AuthTokenRequest;
 import com.tekclover.wms.core.model.user.NewUser;
 import com.tekclover.wms.core.model.user.RegisteredUser;
-import com.tekclover.wms.core.service.CommonService;
-import com.tekclover.wms.core.service.FileStorageService;
-import com.tekclover.wms.core.service.RegisterService;
-import com.tekclover.wms.core.service.ReportService;
+import com.tekclover.wms.core.service.*;
 import com.tekclover.wms.core.util.DateUtils;
 import com.tekclover.wms.core.util.User1;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jasperreports.engine.JRException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.validation.Valid;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 
 @Slf4j
 @CrossOrigin(origins = "*")
@@ -84,6 +58,9 @@ public class WrapperServiceController {
 	
 	@Autowired
 	ReportService reportService;
+	
+	@Autowired
+    MastersService mastersService;
 	
 	@Autowired
 	PropertiesConfig propertiesConfig;
@@ -262,6 +239,7 @@ public class WrapperServiceController {
     		throws Exception {
         Map<String, String> response = fileStorageService.storeFile(file);
         batchJobScheduler.runJobImBasicData1();
+        mastersService.updateImBasicData1();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     

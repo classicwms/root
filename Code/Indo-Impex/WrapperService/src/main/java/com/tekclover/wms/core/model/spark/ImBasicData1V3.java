@@ -20,8 +20,8 @@ public class ImBasicData1V3 {
     private String warehouseDescription;
     private String brand;
     private String size;
-    private Long itemType;
-    private Long itemGroup;
+    private String itemTypeDescription;
+    private String itemGroupDescription;
     private String createdBy;
     private Timestamp createdOn;
 //    private String updatedBy;

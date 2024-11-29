@@ -4827,10 +4827,8 @@ public class PickupLineService extends BaseService {
                 dbPickupHeader = pickupHeaderService.getPickupHeaderV2(companyCodeId, plantId, languageId, warehouseId,
                                                                        preOutboundNo, refDocNumber, partnerCode, pickupNumber);
                 if (dbPickupHeader != null) {
-                    if (dbPickupLine.getCustomerId() == null) {
+                    if (dbPickupLine.getCustomerId() == null || dbPickupLine.getCustomerName() == null) {
                         dbPickupLine.setCustomerId(dbPickupHeader.getCustomerId());
-                    }
-                    if (dbPickupLine.getCustomerName() == null) {
                         dbPickupLine.setCustomerName(dbPickupHeader.getCustomerName());
                     }
                     dbPickupLine.setPickupCreatedOn(dbPickupHeader.getPickupCreatedOn());
@@ -4839,11 +4837,16 @@ public class PickupLineService extends BaseService {
                     } else {
                         dbPickupLine.setPickupCreatedBy(dbPickupHeader.getPickUpdatedBy());
                     }
-                    if (dbPickupLine.getAssignedPickerId() == null) {
+                    if (dbPickupLine.getManufacturerName() == null || dbPickupLine.getAssignedPickerId() == null) {
                         dbPickupLine.setAssignedPickerId(dbPickupHeader.getAssignedPickerId());
+                        dbPickupLine.setManufacturerName(dbPickupHeader.getManufacturerName());
+                        dbPickupLine.setManufacturerCode(dbPickupHeader.getManufacturerName());
+                        dbPickupLine.setManufacturerPartNo(dbPickupHeader.getManufacturerName());
+                        manufacturerName = dbPickupHeader.getManufacturerName();
                     }
-                    if(dbPickupLine.getBagSize() == null) {
+                    if(dbPickupLine.getAlternateUom() == null || dbPickupLine.getBagSize() == null) {
                         dbPickupLine.setBagSize(dbPickupHeader.getBagSize());
+                        dbPickupLine.setAlternateUom(dbPickupHeader.getAlternateUom());
                     }
                 }
 
@@ -4907,8 +4910,13 @@ public class PickupLineService extends BaseService {
                 if (inventory != null) {
                     if (dbPickupLine.getAllocatedQty() > 0D) {
                         try {
-                            Double INV_QTY = (inventory.getInventoryQuantity() + dbPickupLine.getAllocatedQty()) - dbPickupLine.getPickConfirmQty();
-                            Double ALLOC_QTY = inventory.getAllocatedQuantity() - dbPickupLine.getAllocatedQty();
+                            double actualAllocationQty = getQuantity(dbPickupLine.getAllocatedQty(), dbPickupLine.getBagSize());
+                            double actualPickConfirmQty = getQuantity(dbPickupLine.getPickConfirmQty(), dbPickupLine.getBagSize());
+//                            Double INV_QTY = (inventory.getInventoryQuantity() + dbPickupLine.getAllocatedQty()) - dbPickupLine.getPickConfirmQty();
+//                            Double ALLOC_QTY = inventory.getAllocatedQuantity() - dbPickupLine.getAllocatedQty();
+
+                            Double INV_QTY = (inventory.getInventoryQuantity() + actualAllocationQty) - actualPickConfirmQty;
+                            Double ALLOC_QTY = inventory.getAllocatedQuantity() - actualAllocationQty;
 
                             /*
                              * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
@@ -4975,7 +4983,9 @@ public class PickupLineService extends BaseService {
                     if (dbPickupLine.getAllocatedQty() == null || dbPickupLine.getAllocatedQty() == 0D) {
                         Double INV_QTY;
                         try {
-                            INV_QTY = inventory.getInventoryQuantity() - dbPickupLine.getPickConfirmQty();
+                            double actualPickConfirmQty = getQuantity(dbPickupLine.getPickConfirmQty(), dbPickupLine.getBagSize());
+//                            INV_QTY = inventory.getInventoryQuantity() - dbPickupLine.getPickConfirmQty();
+                            INV_QTY = inventory.getInventoryQuantity() - actualPickConfirmQty;
                             /*
                              * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
                              */
@@ -5069,7 +5079,7 @@ public class PickupLineService extends BaseService {
 //                log.info("outboundLine updated using Stored Procedure: ");
 
                 pickupHeaderV2Repository.updatePickupheaderStatusUpdateProc(
-                        companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, itemCode, manufacturerName,
+                        companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, itemCode, dbPickupLine.getManufacturerName(),
                         partnerCode, dbPickupLine.getPickupNumber(), HEADER_STATUS_ID, headerStatusDescription, loginUserID, new Date());
                 log.info("PickupHeader Updated using Stored Procedure..!");
 

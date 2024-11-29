@@ -41,9 +41,6 @@ public class OutboundOrderProcessingService extends BaseService {
 
     //--------------------------------------------------------------------------------------------------------------
     @Autowired
-    StagingLineV2Repository stagingLineV2Repository;
-
-    @Autowired
     PreOutboundHeaderV2Repository preOutboundHeaderV2Repository;
 
     @Autowired

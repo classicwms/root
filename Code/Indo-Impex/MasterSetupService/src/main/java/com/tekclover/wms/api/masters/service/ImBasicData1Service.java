@@ -37,7 +37,7 @@ import java.util.stream.Stream;
 
 @Slf4j
 @Service
-public class ImBasicData1Service {
+public class ImBasicData1Service extends BaseService {
     @Autowired
     private ImBasicData1V2Repository imBasicData1V2Repository;
 
@@ -485,10 +485,15 @@ public class ImBasicData1Service {
                 throw new EntityNotFoundException("Record is Getting Duplicated");
             } else {
                 BeanUtils.copyProperties(newImBasicData1, dbImBasicData1, CommonUtils.getNullPropertyNames(newImBasicData1));
+
+                String companyCodeId = newImBasicData1.getCompanyCodeId();
+                String plantId = newImBasicData1.getPlantId();
+                String languageId = newImBasicData1.getLanguageId();
+                String warehouseId = newImBasicData1.getWarehouseId();
+
                 if (newImBasicData1.getCapacityCheck() != null) {
                     dbImBasicData1.setCapacityCheck(newImBasicData1.getCapacityCheck());
-                }
-                if (newImBasicData1.getCapacityCheck() == null) {
+                } else {
                     dbImBasicData1.setCapacityCheck(false);
                 }
                 if (newImBasicData1.getItemType() == null) {
@@ -504,17 +509,19 @@ public class ImBasicData1Service {
                     dbImBasicData1.setManufacturerFullName(newImBasicData1.getManufacturerPartNo());
                 }
 
-                log.info("Id: " + newImBasicData1.getCompanyCodeId() + ", " + newImBasicData1.getPlantId() + ", " + newImBasicData1.getWarehouseId() + ", " + newImBasicData1.getLanguageId());
-                IKeyValuePair description = imBasicData1V2Repository.getDescription(newImBasicData1.getCompanyCodeId(),
-                        newImBasicData1.getLanguageId(),
-                        newImBasicData1.getPlantId(),
-                        newImBasicData1.getWarehouseId());
-                log.info("Description: " + description);
+                description = getDescription(companyCodeId, plantId, languageId, warehouseId);
                 if (description != null) {
-                    log.info("Description: " + description.getCompanyDesc() + ", " + description.getPlantDesc() + ", " + description.getWarehouseDesc());
                     dbImBasicData1.setCompanyDescription(description.getCompanyDesc());
                     dbImBasicData1.setPlantDescription(description.getPlantDesc());
                     dbImBasicData1.setWarehouseDescription(description.getWarehouseDesc());
+                }
+                if(newImBasicData1.getItemType() != null) {
+                    String itemTypeDesc = getItemTypeDesc(companyCodeId, plantId, languageId, warehouseId, newImBasicData1.getItemType());
+                    dbImBasicData1.setItemTypeDescription(itemTypeDesc);
+                }
+                if(newImBasicData1.getItemGroup() != null) {
+                    String itemGroupDesc = getItemGroupDesc(companyCodeId, plantId, languageId, warehouseId, newImBasicData1.getItemGroup());
+                    dbImBasicData1.setItemGroupDescription(itemGroupDesc);
                 }
 
                 dbImBasicData1.setDeletionIndicator(0L);
@@ -575,6 +582,16 @@ public class ImBasicData1Service {
             ImBasicData1V2 dbImBasicData1 =
                     getaImBasicData1V2(itemCode, warehouseId, companyCodeId, plantId, uomId, manufacturerPartNo, languageId);
             BeanUtils.copyProperties(updateImBasicData1, dbImBasicData1, CommonUtils.getNullPropertyNames(updateImBasicData1));
+
+            if(updateImBasicData1.getItemType() != null && dbImBasicData1.getItemTypeDescription() == null) {
+                String itemTypeDesc = getItemTypeDesc(companyCodeId, plantId, languageId, warehouseId, updateImBasicData1.getItemType());
+                dbImBasicData1.setItemTypeDescription(itemTypeDesc);
+            }
+            if(updateImBasicData1.getItemGroup() != null && dbImBasicData1.getItemGroupDescription() == null) {
+                String itemGroupDesc = getItemGroupDesc(companyCodeId, plantId, languageId, warehouseId, updateImBasicData1.getItemGroup());
+                dbImBasicData1.setItemGroupDescription(itemGroupDesc);
+            }
+
             dbImBasicData1.setUpdatedBy(loginUserID);
             dbImBasicData1.setUpdatedOn(new Date());
             return imBasicData1V2Repository.save(dbImBasicData1);
@@ -719,6 +736,13 @@ public class ImBasicData1Service {
             e.printStackTrace();
             throw new BadRequestException("Exception : " + e);
         }
+    }
+
+    /**
+     * update imBasicData1 Description fields
+     */
+    public void updateImBasicDataDescription() {
+        imBasicData1V2Repository.updateImbasicData1DescriptionProcedure();
     }
 
     //========================================ImBasicData1_ExceptionLog================================================

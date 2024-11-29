@@ -40,4 +40,10 @@ public class ImBasicData1V2 extends ImBasicData1 {
 
     @Column(name = "BARCODE_ID", columnDefinition = "nvarchar(100)")
     private String barcodeId;
+
+    @Column(name = "ITM_TYP_TEXT", columnDefinition = "nvarchar(100)")
+    private String itemTypeDescription;
+
+    @Column(name = "ITM_GRP_TEXT", columnDefinition = "nvarchar(100)")
+    private String itemGroupDescription;
 }

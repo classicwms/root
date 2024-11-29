@@ -103,7 +103,7 @@ public class ImBasicData1 {
 	@Column(name = "RE_ORD_LVL") 
 	private Double reorderLevel;
 
-	@Column(name="CAP_CHK")
+	@Column(name="CAP_CHK", columnDefinition = "bit default '0'")
 	private Boolean capacityCheck;
 
 	@Column(name = "REP_QTY") 
