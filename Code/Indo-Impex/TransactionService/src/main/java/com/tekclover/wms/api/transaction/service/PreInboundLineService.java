@@ -718,10 +718,7 @@ public class PreInboundLineService extends BaseService {
         searchInventoryV2.setWarehouseId(Collections.singletonList(preInboundLine.getWarehouseId()));
         searchInventoryV2.setItemCode(Collections.singletonList(preInboundLine.getItemCode()));
         searchInventoryV2.setManufacturerName(Collections.singletonList(preInboundLine.getManufacturerName()));
-        List<Long> binClassIdList = new ArrayList<>();
-        binClassIdList.add(1L);
-        binClassIdList.add(7L);
-        searchInventoryV2.setBinClassId(binClassIdList);
+        searchInventoryV2.setBinClassId(Arrays.asList(1L, 7L));
         return searchInventoryV2;
     }
 

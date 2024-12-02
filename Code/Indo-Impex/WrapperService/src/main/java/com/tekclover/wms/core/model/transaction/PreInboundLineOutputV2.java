@@ -91,5 +91,10 @@ public class PreInboundLineOutputV2 {
     private String size;
     private String noPairs;
 	private String barcodeId;
+    /*----------------------Impex--------------------------------------------------*/
+    private String alternateUom;
+    private Double noBags;
+    private Double bagSize;
+	private String stockTypeDescription;
 
 }

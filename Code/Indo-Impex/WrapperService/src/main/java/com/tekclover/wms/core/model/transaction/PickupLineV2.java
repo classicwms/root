@@ -35,6 +35,7 @@ public class PickupLineV2 extends PickupLine {
 	private String tokenNumber;
 	private String targetBranchCode;
 	private Double varianceQuantity;
+	private Double allocatedQty;
 
 	private String customerId;
 	private String customerName;

@@ -29,7 +29,9 @@ public class PickUpLineV3 {
     private Timestamp pick_ctd_on;
     private Timestamp pick_utd_on;
     private String alt_uom;
-    private String no_bags;
-    private String bag_size;
-
+    private Double no_bags;
+    private Double bag_size;
+    private Double mrp;
+    private String itm_typ;
+    private String itm_grp;
 }

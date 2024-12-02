@@ -4359,6 +4359,10 @@ public class OutboundLineService extends BaseService {
             orderManagementLineV2Repository.updateOrderManagementLineStatus(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription);
             log.info("OrderManagement Line updated");
 
+            //----------------Pickup Line--------------------------------------------------------------------------------------------
+            pickupLineV2Repository.updatePickupLineStatus(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription);
+            log.info("PickupLine Line updated");
+
             /*-----------------Inventory Updates---------------------------*/
 //                List<QualityLineV2> dbQualityLine = qualityLineService.getQualityLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumbers, itemCodes);
 //                Long BIN_CL_ID = 5L;
@@ -4410,7 +4414,7 @@ public class OutboundLineService extends BaseService {
 //                        log.info("InventoryMovement list created.");
 //                    }
 //                }
-
+            if (companyCodeId.equalsIgnoreCase(COMPANY_CODE)) {
             List<PickupLineV2> dbPickupLineList = pickupLineService.getPickupLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumbers, itemCodes);
             log.info("dbPickupLine: " + dbPickupLineList.size());
             if (dbPickupLineList != null) {
@@ -4425,7 +4429,7 @@ public class OutboundLineService extends BaseService {
                                                              dbPickupLine.getRefDocNumber(), dbPickupLine.getSalesOrderNumber(), dbPickupLine.getTokenNumber(), "updateIssuedQty");
                     }
                 }
-
+                }
             }
             return outboundLineByStatus57List;
         } catch (Exception e) {

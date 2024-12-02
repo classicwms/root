@@ -96,5 +96,5 @@ public class PreInboundLineOutputV2 {
     private String alternateUom;
     private Double noBags;
     private Double bagSize;
-
+    private String stockTypeDescription;
 }

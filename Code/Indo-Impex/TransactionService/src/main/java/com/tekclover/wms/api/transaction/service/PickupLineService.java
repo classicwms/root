@@ -4844,6 +4844,7 @@ public class PickupLineService extends BaseService {
                     if(dbPickupLine.getAlternateUom() == null || dbPickupLine.getBagSize() == null) {
                         dbPickupLine.setBagSize(dbPickupHeader.getBagSize());
                         dbPickupLine.setAlternateUom(dbPickupHeader.getAlternateUom());
+                        dbPickupLine.setNoBags(dbPickupHeader.getNoBags());
                     }
                 }
 

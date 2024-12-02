@@ -6,6 +6,7 @@ import com.tekclover.wms.api.transaction.model.report.PickingProductivityImpl;
 import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -310,4 +311,17 @@ public interface PickupLineV2Repository extends JpaRepository<PickupLineV2, Long
                                        @Param("plantId") String plantId,
                                        @Param("languageId") String languageId,
                                        @Param("warehouseId") String warehouseId);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE PickupLineV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription \n" +
+            "WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId \n" +
+            "AND ob.refDocNumber = :refDocNumber AND ob.preOutboundNo = :preOutboundNo")
+    void updatePickupLineStatus(@Param("companyCodeId") String companyCodeId,
+                                @Param("plantId") String plantId,
+                                @Param("languageId") String languageId,
+                                @Param("warehouseId") String warehouseId,
+                                @Param("refDocNumber") String refDocNumber,
+                                @Param("preOutboundNo") String preOutboundNo,
+                                @Param("statusId") Long statusId,
+                                @Param("statusDescription") String statusDescription);
 }

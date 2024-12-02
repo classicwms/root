@@ -393,6 +393,7 @@ public class InboundOrderProcessingService extends BaseService {
 
             // STCK_TYP_ID
             preInboundLine.setStockTypeId(1L);
+            preInboundLine.setStockTypeDescription(getStockTypeDesc(companyCodeId, plantId, languageId, warehouseId, preInboundLine.getStockTypeId()));
 
             // SP_ST_IND_ID
             preInboundLine.setSpecialStockIndicatorId(1L);
@@ -499,6 +500,7 @@ public class InboundOrderProcessingService extends BaseService {
 
             // STCK_TYP_ID
             preInboundLine.setStockTypeId(1L);
+            preInboundLine.setStockTypeDescription(getStockTypeDesc(companyCodeId, plantId, languageId, warehouseId, preInboundLine.getStockTypeId()));
 
             // SP_ST_IND_ID
             preInboundLine.setSpecialStockIndicatorId(1L);

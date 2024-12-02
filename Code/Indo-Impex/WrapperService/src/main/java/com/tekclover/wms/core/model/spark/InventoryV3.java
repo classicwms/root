@@ -65,6 +65,6 @@ public class InventoryV3 {
     private String itm_typ_txt;
     private Timestamp batch_date;
     private String alt_uom;
-    private String no_bags;
-    private String bag_size;
+    private Double no_bags;
+    private Double bag_size;
 }

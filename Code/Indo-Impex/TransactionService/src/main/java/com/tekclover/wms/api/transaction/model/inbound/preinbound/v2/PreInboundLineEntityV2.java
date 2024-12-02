@@ -117,4 +117,7 @@ public class PreInboundLineEntityV2 extends PreInboundLineEntity {
 
     @Column(name = "ITM_GRP", columnDefinition = "nvarchar(100)")
     private String itemGroup;
+
+    @Column(name = "STCK_TYP_TXT", columnDefinition = "nvarchar(100)")
+    private String stockTypeDescription;
 }
