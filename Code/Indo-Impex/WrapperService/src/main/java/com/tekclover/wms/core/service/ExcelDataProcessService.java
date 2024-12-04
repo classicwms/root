@@ -92,6 +92,12 @@ public class ExcelDataProcessService {
                     case "asnnumber":
                         invokeSetter(inboundOrderProcess, "setAsnNumber", cell != null ? getCellValueAsString(cell) : null);
                         break;
+                    case "returnordernumber":
+                        invokeSetter(inboundOrderProcess, "setTransferOrderNumber", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "refordernumber":
+                        invokeSetter(inboundOrderProcess, "setAsnNumber", cell != null ? getCellValueAsString(cell) : null);
+                        break;
                     case "purchaseordernumber":
                         invokeSetter(inboundOrderProcess, "setPurchaseOrderNumber", cell != null ? getCellValueAsString(cell) : null);
                         break;
@@ -122,6 +128,9 @@ public class ExcelDataProcessService {
                     case "expectedqty":
                         invokeSetter(inboundOrderProcess, "setExpectedQty", getCellValueAsDouble(cell));
                         break;
+                    case "qty":
+                        invokeSetter(inboundOrderProcess, "setExpectedQty", getCellValueAsDouble(cell));
+                        break;
                     case "uom":
                         invokeSetter(inboundOrderProcess, "setUom", cell != null ? getCellValueAsString(cell) : null);
                         break;
@@ -141,6 +150,9 @@ public class ExcelDataProcessService {
                         invokeSetter(inboundOrderProcess, "setSupplierPartNumber", cell != null ? getCellValueAsString(cell) : null);
                         break;
                     case "expecteddate":
+                        invokeSetter(inboundOrderProcess, "setExpectedDate", getCellValueAsDate(cell));
+                        break;
+                    case "date":
                         invokeSetter(inboundOrderProcess, "setExpectedDate", getCellValueAsDate(cell));
                         break;
                     case "receiveddate":
@@ -295,7 +307,16 @@ public class ExcelDataProcessService {
                     case "picklistno":
                         invokeSetter(outboundOrderProcess, "setPickListNumber", cell != null ? getCellValueAsString(cell) : null);
                         break;
+                    case "returnordernumber":
+                        invokeSetter(outboundOrderProcess, "setPoNumber", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "refordernumber":
+                        invokeSetter(outboundOrderProcess, "setPickListNumber", cell != null ? getCellValueAsString(cell) : null);
+                        break;
                     case "requireddeliverydate":
+                        invokeSetter(outboundOrderProcess, "setRequiredDeliveryDate", getCellValueAsDate(cell));
+                        break;
+                    case "date":
                         invokeSetter(outboundOrderProcess, "setRequiredDeliveryDate", getCellValueAsDate(cell));
                         break;
                     case "status":
@@ -366,6 +387,9 @@ public class ExcelDataProcessService {
                         invokeSetter(outboundOrderProcess, "setStorageSectionId", cell != null ? getCellValueAsString(cell) : null);
                         break;
                     case "returnqty":
+                        invokeSetter(outboundOrderProcess, "setReturnQty", getCellValueAsDouble(cell));
+                        break;
+                    case "qty":
                         invokeSetter(outboundOrderProcess, "setReturnQty", getCellValueAsDouble(cell));
                         break;
                     case "expectedqty":

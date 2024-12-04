@@ -6270,6 +6270,12 @@ public class GrLineService extends BaseService {
                             dbGrLine.setBrand(dbStagingLineEntity.getBrand());
                         }
                     }
+                    //Calculate No of Bags for Damage Qty
+                    if(dbGrLine.getQuantityType().equalsIgnoreCase("D")) {
+                        double actualQty = getQuantity(dbGrLine.getGoodReceiptQty(), dbGrLine.getBagSize());
+                        double NO_OF_BAGS = actualQty / dbGrLine.getBagSize();
+                        dbGrLine.setNoBags(roundUp(NO_OF_BAGS));
+                    }
 
                     variance = invoiceQty - (acceptQty + damageQty + recAcceptQty + recDamageQty);
                     log.info("Variance: " + variance);

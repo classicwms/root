@@ -55,4 +55,5 @@ public class PickupLineV2 extends PickupLine {
 	private Double mrp;
 	private String itemType;
 	private String itemGroup;
+	private Double actualInventoryQty;
 }

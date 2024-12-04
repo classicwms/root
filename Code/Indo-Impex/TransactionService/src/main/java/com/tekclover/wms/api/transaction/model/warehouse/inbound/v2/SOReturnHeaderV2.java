@@ -20,6 +20,7 @@ public class SOReturnHeaderV2 {
     @Column(nullable = false)
     @NotBlank(message = "Transfer Order Number is mandatory")
     private String transferOrderNumber;
+    private String asnNumber;
 
     private String warehouseId;
     private String languageId;

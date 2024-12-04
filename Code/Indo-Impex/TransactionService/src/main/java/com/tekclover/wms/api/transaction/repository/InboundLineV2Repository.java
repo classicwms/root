@@ -87,7 +87,7 @@ public interface InboundLineV2Repository extends JpaRepository<InboundLineV2, Lo
     @Query(value = "select il.wh_id as warehouseId, il.itm_code as itemCode, 'InBound' as documentType ,il.ref_doc_no as documentNumber, il.partner_code as partnerCode, "
             + " il.c_id as companyCodeId,il.plant_id as plantId,il.lang_id as languageId, il.ib_cnf_on as confirmedOn,"
             + " il.c_text as companyDescription,il.plant_text as plantDescription,il.status_text as statusDescription,il.wh_text as warehouseDescription, "
-            + " (COALESCE(il.accept_qty,0) + COALESCE(il.damage_qty,0)) as movementQty, il.text as itemText ,il.mfr_name as manufacturerSKU from tblinboundline il "
+            + " (COALESCE(il.act_accept_qty,0) + COALESCE(il.act_damage_qty,0)) as movementQty, il.text as itemText ,il.mfr_name as manufacturerSKU from tblinboundline il "
 //            + " join tblimbasicdata1 im on il.itm_code = im.itm_code "
             + "WHERE il.ITM_CODE in (:itemCode) AND il.is_deleted = 0  AND "
 //            + "im.WH_ID in (:warehouseId) AND "

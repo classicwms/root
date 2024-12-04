@@ -137,4 +137,7 @@ public class PutAwayLineV2 extends PutAwayLine {
     @Column(name = "ITM_GRP", columnDefinition = "nvarchar(100)")
     private String itemGroup;
 
+    @Column(name = "ACT_INV_QTY")
+    private Double actualInventoryQty;
+
 }

@@ -2,6 +2,7 @@ package com.tekclover.wms.api.transaction.service;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.IKeyValuePair;
+import com.tekclover.wms.api.transaction.model.dto.UpdateConsignmentSlip;
 import com.tekclover.wms.api.transaction.model.outbound.*;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.v2.OutboundIntegrationHeaderV2;
 import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2;
@@ -1165,6 +1166,27 @@ public class OutboundHeaderService extends BaseService {
             outboundHeaderV2Repository.updateOutboundHeaderV4(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, deliveryOrderNo);
         } catch (Exception e) {
             log.error("Exception while updating outboundheader: " + e.toString());
+            throw e;
+        }
+    }
+
+    /**
+     *
+     * @param updateConsignmentSlip
+     * @throws Exception
+     */
+    public void updateConsignmentSlipDetailsV4(UpdateConsignmentSlip updateConsignmentSlip) throws Exception {
+        try {
+            log.info("updateConsignmentSlip: " + updateConsignmentSlip);
+            outboundHeaderV2Repository.updateConsignmentSlipDetailsV4(
+                    updateConsignmentSlip.getCompanyCodeId(), updateConsignmentSlip.getPlantId(),
+                    updateConsignmentSlip.getLanguageId(), updateConsignmentSlip.getWarehouseId(),
+                    updateConsignmentSlip.getPreOutboundNo(), updateConsignmentSlip.getInvoiceNumber(),
+                    updateConsignmentSlip.getPartyName(), updateConsignmentSlip.getPartyLocation(),
+                    updateConsignmentSlip.getTransportName(), updateConsignmentSlip.getLoginUserId());
+            log.info("ConsignmentSlip Details Updated Successfully");
+        } catch (Exception e) {
+            log.error("Exception while updating outboundheader consignmentSlip Details: " + e.toString());
             throw e;
         }
     }

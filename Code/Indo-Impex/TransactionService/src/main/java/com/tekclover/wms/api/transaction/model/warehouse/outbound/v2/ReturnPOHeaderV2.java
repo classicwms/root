@@ -13,6 +13,7 @@ public class ReturnPOHeaderV2 {
     @Column(nullable = false)
     @NotBlank(message = "PO Number is mandatory")
     private String poNumber;                            // REF_DOC_NO;
+    private String pickListNumber;
 
     @Column(nullable = false)
     @NotBlank(message = "StoreId is mandatory")

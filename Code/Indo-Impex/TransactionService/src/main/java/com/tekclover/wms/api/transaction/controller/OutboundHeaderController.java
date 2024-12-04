@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.transaction.controller;
 
+import com.tekclover.wms.api.transaction.model.dto.UpdateConsignmentSlip;
 import com.tekclover.wms.api.transaction.model.outbound.*;
 import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2;
 import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2Stream;
@@ -179,5 +180,13 @@ public class OutboundHeaderController {
                                                   @RequestParam String partnerCode, @RequestParam String loginUserID) throws ParseException {
         outboundheaderService.deleteOutboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, loginUserID);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    //==================================================Impex==================================================================
+    @ApiOperation(response = OutboundHeaderV2.class, value = "Update OutboundHeader - Consignment slip") // label for swagger
+    @PostMapping("/v2/consignmentSlip")
+    public ResponseEntity<?> updateOutboundHeaderV2(@Valid @RequestBody UpdateConsignmentSlip updateConsignmentSlip) throws Exception {
+        outboundheaderService.updateConsignmentSlipDetailsV4(updateConsignmentSlip);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

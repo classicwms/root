@@ -64,4 +64,8 @@ public interface PeriodicLineV2Repository extends JpaRepository<PeriodicLineV2, 
     PeriodicLineV2 findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndCycleCountNoAndStorageBinAndItemCodeAndManufacturerNameAndPackBarcodesAndDeletionIndicator(
             String companyCode, String plantId, String languageId, String warehouseId, String cycleCountNo,
             String storageBin, String itemCode, String manufacturerName, String packBarcodes, Long deletionIndicator);
+
+    PeriodicLineV2 findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndCycleCountNoAndStorageBinAndItemCodeAndManufacturerNameAndPackBarcodesAndBarcodeIdAndDeletionIndicator(
+            String companyCode, String plantId, String languageId, String warehouseId, String cycleCountNo, String storageBin,
+            String itemCode, String manufacturerName, String packBarcodes, String barcodeId, Long deletionIndicator);
 }

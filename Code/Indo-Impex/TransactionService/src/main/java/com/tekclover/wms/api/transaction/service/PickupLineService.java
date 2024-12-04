@@ -4856,6 +4856,9 @@ public class PickupLineService extends BaseService {
                 handlingEquipment = handlingEquipment != null ? handlingEquipment : PICK_HE_NO;
                 log.info("HE_NO : " + handlingEquipment);
 
+                double actualInventoryQty = getQuantity(dbPickupLine.getPickConfirmQty(), dbPickupLine.getBagSize());
+                dbPickupLine.setActualInventoryQty(actualInventoryQty);
+
                 dbPickupLine.setActualHeNo(handlingEquipment);
                 dbPickupLine.setDeletionIndicator(0L);
                 dbPickupLine.setPickupUpdatedBy(loginUserID);

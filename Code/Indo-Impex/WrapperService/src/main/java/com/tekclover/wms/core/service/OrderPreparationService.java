@@ -1240,13 +1240,14 @@ public class OrderPreparationService {
                 if (oneTimeAllow) {
                     header = new SOReturnHeaderV2();
 
-                    header.setCompanyCode(plantId);
+                    header.setBranchCode(plantId);
                     header.setCompanyCode(companyCodeId);
                     header.setLanguageId(languageId);
                     header.setWarehouseId(warehouseId);
                     header.setLoginUserId(loginUserId);
                     header.setTransferOrderNumber(listUploadedData.getTransferOrderNumber());
                     header.setInboundOrderTypeId(listUploadedData.getInboundOrderTypeId());
+                    header.setAsnNumber(listUploadedData.getAsnNumber());
                 }
                 oneTimeAllow = false;
 

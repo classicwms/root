@@ -63,6 +63,9 @@ public class WrapperServiceController {
     MastersService mastersService;
 	
 	@Autowired
+    EnterpriseSetupService enterpriseSetupService;
+	
+	@Autowired
 	PropertiesConfig propertiesConfig;
 	
 	
@@ -456,6 +459,54 @@ public class WrapperServiceController {
         return ResponseEntity.ok()
                 .headers(header)
                 .contentLength(file.length())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
+    }
+
+    /*========================================PDF===============================================================*/
+
+    @ApiOperation(response = Optional.class, value = "PDF Extract content") // label for swagger
+    @PostMapping("/pdf/extract")
+    public ResponseEntity<?> extractPdf(@RequestParam("file") MultipartFile file, @RequestParam String filePath,
+                                        @RequestParam String companyCodeId, @RequestParam String plantId, @RequestParam String languageId,
+                                        @RequestParam String warehouseId, @RequestParam String preOutboundNo, @RequestParam String loginUserID) throws Exception {
+
+        try {
+            String storedFileResponse = fileStorageService.storeFile(file, filePath);
+            if(!filePath.startsWith("/")){
+                filePath = "/" + filePath;
+            }
+            String fileWithPath = filePath + "/" + storedFileResponse;
+            enterpriseSetupService.extractPdf(companyCodeId, plantId, languageId, warehouseId,
+                                              preOutboundNo, fileWithPath, loginUserID);
+            return new ResponseEntity <> (HttpStatus.OK) ;
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Failed to Extract PDF" + e.getMessage());
+        }
+    }
+
+    @ApiOperation(response = Optional.class, value = "Document Storage Download All")
+    @GetMapping("/doc-storage/download-all")
+    public ResponseEntity<?> docStorageDownloadAll(@RequestParam String location) throws Exception {
+        // Get the full file path for the directory
+        String directoryPath = fileStorageService.getQualifiedFilePath(location);
+
+        // Create temporary zip file
+        File zipFile = fileStorageService.createZipOfDirectory(directoryPath);
+
+        // Prepare the zip file as a ByteArrayResource for download
+        Path path = Paths.get(zipFile.getAbsolutePath());
+        ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
+
+        HttpHeaders header = new HttpHeaders();
+        header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + zipFile.getName());
+        header.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        header.add("Pragma", "no-cache");
+        header.add("Expires", "0");
+
+        return ResponseEntity.ok()
+                .headers(header)
+                .contentLength(zipFile.length())
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
     }

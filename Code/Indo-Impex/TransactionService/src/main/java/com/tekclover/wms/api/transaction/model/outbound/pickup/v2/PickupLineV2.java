@@ -133,4 +133,7 @@ public class PickupLineV2 extends PickupLine {
 
 	@Column(name = "ITM_GRP", columnDefinition = "nvarchar(100)")
 	private String itemGroup;
+
+	@Column(name = "ACT_INV_QTY")
+	private Double actualInventoryQty;
 }

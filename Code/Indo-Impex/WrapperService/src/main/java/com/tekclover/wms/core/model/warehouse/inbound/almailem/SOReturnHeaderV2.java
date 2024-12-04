@@ -16,6 +16,7 @@ public class SOReturnHeaderV2 {
 
     @NotBlank(message = "Transfer Order Number is mandatory")
     private String transferOrderNumber;
+    private String asnNumber;
 
     private String isCompleted;
     private Date updatedOn;

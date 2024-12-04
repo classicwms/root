@@ -3103,6 +3103,8 @@ public class PutAwayHeaderService extends BaseService {
                             Double acceptedQty = inboundLine.getAcceptedQty() - dbPutAwayLine.getPutawayConfirmedQty();
                             log.info("Accepted Qty: " + acceptedQty);
                             inboundLine.setAcceptedQty(acceptedQty);
+                            double actualAcceptQty = getQuantity(acceptedQty, dbPutAwayLine.getBagSize());
+                            inboundLine.setActualAcceptedQty(actualAcceptQty);
                             Double VAR_QTY = 0D;
                             if (inboundLine.getVarianceQty() != null) {
                                 VAR_QTY = inboundLine.getVarianceQty() - acceptedQty;
@@ -3114,6 +3116,10 @@ public class PutAwayHeaderService extends BaseService {
                             Double damageQty = inboundLine.getDamageQty() - dbPutAwayLine.getPutawayConfirmedQty();
                             log.info("Damage Qty: " + damageQty);
                             inboundLine.setDamageQty(damageQty);
+
+                            double actualDamageQty = getQuantity(damageQty, dbPutAwayLine.getBagSize());
+                            inboundLine.setActualDamageQty(actualDamageQty);
+
                             Double VAR_QTY = 0D;
                             if (inboundLine.getVarianceQty() != null) {
                                 VAR_QTY = inboundLine.getVarianceQty() - damageQty;

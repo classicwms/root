@@ -827,4 +827,20 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
                                        @Param("preOutboundNo") String preOutboundNo,
                                        @Param("refDocNumber") String refDocNumber,
                                        @Param("deliveryOrderNo") String deliveryOrderNo);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("Update OutboundHeaderV2 ob SET ob.invoiceNumber = :invoiceNo, ob.customerName = :partyName, ob.address = :partyLocation, \r\n"
+            + "ob.transportName = :transportName, ob.updatedBy = :loginUserId \r\n "
+            + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND \n"
+            + "ob.warehouseId = :warehouseId AND ob.preOutboundNo = :preOutboundNo ")
+    public void updateConsignmentSlipDetailsV4(@Param("companyCodeId") String companyCodeId,
+                                               @Param("plantId") String plantId,
+                                               @Param("languageId") String languageId,
+                                               @Param("warehouseId") String warehouseId,
+                                               @Param("preOutboundNo") String preOutboundNo,
+                                               @Param("invoiceNo") String invoiceNo,
+                                               @Param("partyName") String partyName,
+                                               @Param("partyLocation") String partyLocation,
+                                               @Param("transportName") String transportName,
+                                               @Param("loginUserId") String loginUserId);
 }

@@ -50,4 +50,5 @@ public class PutAwayLineV2 extends PutAwayLine {
 	private Double mrp;
 	private String itemType;
 	private String itemGroup;
+	private Double actualInventoryQty;
 }

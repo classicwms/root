@@ -598,6 +598,7 @@ public class InhouseTransferHeaderService extends BaseService {
      */
     @Transactional
     public InhouseTransferHeaderEntity createInHouseTransferHeaderV2(AddInhouseTransferHeader newInhouseTransferHeader, String loginUserID) throws Exception {
+        log.info("newInhouseTransferHeader: ---> " + newInhouseTransferHeader);
         try {
         if (newInhouseTransferHeader != null) {
             if (newInhouseTransferHeader.getInhouseTransferLine() != null) {
@@ -620,8 +621,6 @@ public class InhouseTransferHeaderService extends BaseService {
         Long transferTypeId = newInhouseTransferHeader.getTransferTypeId();                 // - TR_TYP_ID -
 
         InhouseTransferHeader dbInhouseTransferHeader = new InhouseTransferHeader();
-        log.info("newInHouseTransferHeader : " + newInhouseTransferHeader);
-
         BeanUtils.copyProperties(newInhouseTransferHeader, dbInhouseTransferHeader, CommonUtils.getNullPropertyNames(newInhouseTransferHeader));
 
         // TR_NO
@@ -1610,6 +1609,13 @@ public class InhouseTransferHeaderService extends BaseService {
             inventorySourceItemCode.setAllocatedQuantity(round(ALLOC_QTY));
             inventorySourceItemCode.setReferenceField4(round(TOT_QTY));
             inventorySourceItemCode.setNoBags(roundUp(NO_OF_BAGS));
+
+            if(inventorySourceItemCode.getStockTypeDescription() == null) {
+                if(inventorySourceItemCode.getStockTypeId() != null) {
+                    inventorySourceItemCode.setStockTypeDescription(getStockTypeDesc(companyCode, plantId, languageId, warehouseId, inventorySourceItemCode.getStockTypeId()));
+                }
+            }
+
             InventoryV2 newInventoryV2 = new InventoryV2();
             BeanUtils.copyProperties(inventorySourceItemCode, newInventoryV2, CommonUtils.getNullPropertyNames(inventorySourceItemCode));
             newInventoryV2.setUpdatedOn(new Date());
@@ -1679,6 +1685,11 @@ public class InhouseTransferHeaderService extends BaseService {
                 inventoryTargetItemCode.setReferenceField4(round(TOT_QTY));
                 inventoryTargetItemCode.setNoBags(roundUp(NO_OF_BAGS));
                 inventoryTargetItemCode.setBarcodeId(inventorySourceItemCode.getBarcodeId());
+                if(inventoryTargetItemCode.getStockTypeDescription() == null) {
+                    Long stockTypeId = createdInhouseTransferLine.getTargetStockTypeId() != null ? createdInhouseTransferLine.getTargetStockTypeId() : inventorySourceItemCode.getStockTypeId();
+                    inventoryTargetItemCode.setStockTypeId(stockTypeId);
+                    inventoryTargetItemCode.setStockTypeDescription(getStockTypeDesc(companyCode, plantId, languageId, warehouseId, stockTypeId));
+                }
                 InventoryV2 newInventoryV2_1 = new InventoryV2();
                 BeanUtils.copyProperties(inventoryTargetItemCode, newInventoryV2_1, CommonUtils.getNullPropertyNames(inventoryTargetItemCode));
                 newInventoryV2_1.setUpdatedOn(new Date());
@@ -1737,6 +1748,13 @@ public class InhouseTransferHeaderService extends BaseService {
             inventorySourceItemCode.setAllocatedQuantity(round(ALLOC_QTY));
             inventorySourceItemCode.setReferenceField4(round(TOT_QTY));
             inventorySourceItemCode.setNoBags(roundUp(NO_OF_BAGS));
+
+            if(inventorySourceItemCode.getStockTypeDescription() == null) {
+                if(inventorySourceItemCode.getStockTypeId() != null) {
+                    inventorySourceItemCode.setStockTypeDescription(getStockTypeDesc(companyCode, plantId, languageId, warehouseId, inventorySourceItemCode.getStockTypeId()));
+                }
+            }
+
             InventoryV2 newInventoryV2 = new InventoryV2();
             BeanUtils.copyProperties(inventorySourceItemCode, newInventoryV2, CommonUtils.getNullPropertyNames(inventorySourceItemCode));
             newInventoryV2.setUpdatedOn(new Date());
@@ -1806,6 +1824,10 @@ public class InhouseTransferHeaderService extends BaseService {
                 inventoryTargetItemCode.setReferenceField4(round(TOT_QTY));
                 inventoryTargetItemCode.setNoBags(roundUp(NO_OF_BAGS));
                 inventoryTargetItemCode.setBarcodeId(createdInhouseTransferLine.getTargetBarcodeId());
+                if(inventoryTargetItemCode.getStockTypeDescription() == null) {
+                    inventoryTargetItemCode.setStockTypeId(createdInhouseTransferLine.getTargetStockTypeId());
+                    inventoryTargetItemCode.setStockTypeDescription(getStockTypeDesc(companyCode, plantId, languageId, warehouseId, createdInhouseTransferLine.getTargetStockTypeId()));
+                }
                 InventoryV2 newInventoryV2_1 = new InventoryV2();
                 BeanUtils.copyProperties(inventoryTargetItemCode, newInventoryV2_1, CommonUtils.getNullPropertyNames(inventoryTargetItemCode));
                 newInventoryV2_1.setUpdatedOn(new Date());

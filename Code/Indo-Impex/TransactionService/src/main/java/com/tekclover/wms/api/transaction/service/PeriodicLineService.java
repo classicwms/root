@@ -848,16 +848,19 @@ public class PeriodicLineService extends BaseService {
      */
     public List<PeriodicLineV2> updatePeriodicLineForMobileCountV2(List<PeriodicLineV2> updatePeriodicLines,
                                                                    String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
+        log.info("updatePeriodicLines : " + updatePeriodicLines);
         List<PeriodicLineV2> responsePeriodicLines = new ArrayList<>();
         List<PeriodicLineV2> createPeriodicLine = new ArrayList<>();
         List<PeriodicLineV2> updateBatchPeriodicLine = new ArrayList<>();
         List<PeriodicLineV2> filteredPerpetualLines = updatePeriodicLines.stream().filter(a -> a.getStatusId() != 47L).collect(Collectors.toList());
         for (PeriodicLineV2 updatePeriodicLine : filteredPerpetualLines) {
             if (updatePeriodicLine.getStatusId() != 47L) {
-                PeriodicLineV2 dbPeriodicLine = getPeriodicLineV2(
+                PeriodicLineV2 dbPeriodicLine = getPeriodicLineV4(
                         updatePeriodicLine.getCompanyCode(), updatePeriodicLine.getPlantId(),
                         updatePeriodicLine.getLanguageId(), updatePeriodicLine.getWarehouseId(), updatePeriodicLine.getCycleCountNo(),
-                        updatePeriodicLine.getStorageBin(), updatePeriodicLine.getItemCode(), updatePeriodicLine.getPackBarcodes());
+                        updatePeriodicLine.getStorageBin(), updatePeriodicLine.getItemCode(), updatePeriodicLine.getBarcodeId(),
+                        updatePeriodicLine.getManufacturerName(), updatePeriodicLine.getPackBarcodes());
+                log.info("dbPeriodicLine : " + dbPeriodicLine);
                 if (dbPeriodicLine != null) { /* Update */
                     BeanUtils.copyProperties(updatePeriodicLine, dbPeriodicLine, CommonUtils.getNullPropertyNames(updatePeriodicLine));
 
@@ -963,7 +966,7 @@ public class PeriodicLineService extends BaseService {
             List<PeriodicLineV2> newPeriodicLines = new ArrayList<>();
             for (PeriodicLineV2 updatePeriodicLine : updatePeriodicLines) {
                 if (updatePeriodicLine.getStatusId() != 47L) {
-                    PeriodicLineV2 dbPeriodicLine = getPeriodicLineV2(
+                    PeriodicLineV2 dbPeriodicLine = getPeriodicLineV4(
                             updatePeriodicLine.getCompanyCode(),
                             updatePeriodicLine.getPlantId(),
                             updatePeriodicLine.getLanguageId(),
@@ -971,6 +974,8 @@ public class PeriodicLineService extends BaseService {
                             updatePeriodicLine.getCycleCountNo(),
                             updatePeriodicLine.getStorageBin(),
                             updatePeriodicLine.getItemCode(),
+                            updatePeriodicLine.getBarcodeId(),
+                            updatePeriodicLine.getManufacturerName(),
                             updatePeriodicLine.getPackBarcodes());
                     BeanUtils.copyProperties(updatePeriodicLine, dbPeriodicLine, CommonUtils.getNullPropertyNames(updatePeriodicLine));
                     dbPeriodicLine.setRemarks(updatePeriodicLine.getRemarks());
@@ -1690,7 +1695,7 @@ public class PeriodicLineService extends BaseService {
 
                 PeriodicLineV2 dbPeriodicLine = getPeriodicLineV4(
                         companyCode, plantId, languageId, warehouseId, cycleCountNo,
-                        updatePeriodicLine.getStorageBin(), updatePeriodicLine.getItemCode(),
+                        updatePeriodicLine.getStorageBin(), updatePeriodicLine.getItemCode(), updatePeriodicLine.getBarcodeId(),
                         updatePeriodicLine.getManufacturerName(), updatePeriodicLine.getPackBarcodes());
 
                 if (dbPeriodicLine != null) {
@@ -1760,5 +1765,26 @@ public class PeriodicLineService extends BaseService {
                                             String cycleCountNo, String storageBin, String itemCode, String manufacturerName, String packBarcodes) {
         return periodicLineV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndCycleCountNoAndStorageBinAndItemCodeAndManufacturerNameAndPackBarcodesAndDeletionIndicator(
                         companyCode, plantId, languageId, warehouseId, cycleCountNo, storageBin, itemCode, manufacturerName, packBarcodes, 0L);
+    }
+
+    /**
+     *
+     * @param companyCode
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param cycleCountNo
+     * @param storageBin
+     * @param itemCode
+     * @param barcodeId
+     * @param manufacturerName
+     * @param packBarcodes
+     * @return
+     */
+    public PeriodicLineV2 getPeriodicLineV4(String companyCode, String plantId, String languageId, String warehouseId, String cycleCountNo,
+                                            String storageBin, String itemCode, String barcodeId, String manufacturerName, String packBarcodes) {
+        log.info(companyCode + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + barcodeId + "|" + manufacturerName + "|" + packBarcodes+ "|" + storageBin);
+        return periodicLineV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndCycleCountNoAndStorageBinAndItemCodeAndManufacturerNameAndPackBarcodesAndBarcodeIdAndDeletionIndicator(
+                companyCode, plantId, languageId, warehouseId, cycleCountNo, storageBin, itemCode, manufacturerName, packBarcodes, barcodeId, 0L);
     }
 }

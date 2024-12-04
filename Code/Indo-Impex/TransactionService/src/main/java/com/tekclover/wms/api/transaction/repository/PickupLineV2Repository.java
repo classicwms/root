@@ -132,7 +132,7 @@ public interface PickupLineV2Repository extends JpaRepository<PickupLineV2, Long
     @Query(value = "select ol.wh_id as warehouseId,ol.c_id as companyCodeId,ol.plant_id as plantId,ol.lang_id as languageId, ol.itm_code as itemCode , \n" +
             " ol.wh_text as warehouseDescription,ol.c_text as companyDescription,ol.plant_text as plantDescription,ol.status_text as statusDescription,\n" +
             " 'OutBound' as documentType , ol.ref_doc_no as documentNumber, ol.partner_code as customerCode,\n" +
-            " ol.PICK_CNF_ON as confirmedOn, ol.pick_cnf_qty as movementQty, ol.item_text as itemText,ol.mfr_name as manufacturerSKU \n" +
+            " ol.PICK_CNF_ON as confirmedOn, ol.act_inv_qty as movementQty, ol.item_text as itemText,ol.mfr_name as manufacturerSKU \n" +
             " from tblpickupline ol\n" +
             " WHERE ol.ITM_CODE in (:itemCode) and ol.is_deleted = 0 and \n" +
             "(COALESCE(:manufacturerName, null) IS NULL OR (ol.MFR_NAME IN (:manufacturerName))) \n" +

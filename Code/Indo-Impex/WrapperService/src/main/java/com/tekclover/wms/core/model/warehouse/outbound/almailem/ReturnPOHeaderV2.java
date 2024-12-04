@@ -11,6 +11,7 @@ public class ReturnPOHeaderV2 {
 
     @NotBlank(message = "PO Number is mandatory")
     private String poNumber;                            // REF_DOC_NO;
+    private String pickListNumber;
 
     @NotBlank(message = "StoreId is mandatory")
     private String storeID;                            // PARTNER_CODE;

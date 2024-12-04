@@ -130,4 +130,10 @@ public class InboundLineV2 extends InboundLine {
 
     @Column(name = "BRAND", columnDefinition = "nvarchar(100)")
     private String brand;
+
+    @Column(name = "ACT_ACCEPT_QTY")
+    private Double actualAcceptedQty;
+
+    @Column(name = "ACT_DAMAGE_QTY")
+    private Double actualDamageQty;
 }

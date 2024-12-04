@@ -13,7 +13,6 @@ import com.tekclover.wms.core.model.warehouse.outbound.almailem.*;
 import com.tekclover.wms.core.model.warehouse.outbound.walkaroo.DeliveryConfirmationV3;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -23,15 +22,15 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.xml.bind.ValidationException;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Slf4j
 @Service
@@ -903,6 +902,65 @@ public class FileStorageService {
 	}
 
 	/**
+	 * @param directoryPath
+	 * @return
+	 * @throws Exception
+	 */
+	public File createZipOfDirectory(String directoryPath) throws Exception {
+		File directory = new File(directoryPath);
+		if (!directory.exists() || !directory.isDirectory()) {
+			throw new BadRequestException("Directory does not exist: " + directoryPath);
+		}
+
+		// Create temporary zip
+		File zipFile = File.createTempFile("files_", ".zip");
+		try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zipFile))) {
+			zipDirectory(directory, directory.getName(), zos);
+		}
+		return zipFile;
+	}
+	/**
+	 * @param folder
+	 * @param parentFolder
+	 * @param zos
+	 * @throws Exception
+	 */
+	private void zipDirectory(File folder, String parentFolder, ZipOutputStream zos) throws Exception {
+		for (File file : folder.listFiles()) {
+			if (file.isDirectory()) {
+				zipDirectory(file, parentFolder + "/" + file.getName(), zos);
+				continue;
+			}
+
+			try (FileInputStream fis = new FileInputStream(file)) {
+				ZipEntry zipEntry = new ZipEntry(parentFolder + "/" + file.getName());
+				zos.putNextEntry(zipEntry);
+
+				byte[] bytes = new byte[1024];
+				int length;
+				while ((length = fis.read(bytes)) >= 0) {
+					zos.write(bytes, 0, length);
+				}
+				zos.closeEntry();
+			}
+		}
+	}
+
+	/**
+	 * @param location
+	 * @return
+	 * @throws Exception
+	 */
+	public String getQualifiedFilePath(String location) throws Exception {
+		String filePath = propertiesConfig.getDocStorageBasePath();
+		if (!location.startsWith("/")) {
+			location = "/" + location;
+		}
+		filePath = filePath + location;
+		return filePath;
+	}
+
+	/**
 	 * @param location
 	 * @param file
 	 * @return
@@ -1103,6 +1161,8 @@ public class FileStorageService {
 							case "ponumber":
 							case "customerid":
 							case "customername":
+							case "refordernumber":
+							case "returnordernumber":
                                 validateStringCell(cell, rowIndex, colIndex, header ,errors);
 								break;
 							case "linereference":
@@ -1113,10 +1173,12 @@ public class FileStorageService {
 							case "nobags":
 							case "bagsize":
 							case "mrp":
+							case "qty":
 								validateIntegerCell(cell, rowIndex, colIndex,header, errors);
 								break;
 							case "expecteddate":
 							case "requireddeliverydate":
+							case "date":
 								validateDateCell(cell,rowIndex,colIndex,header,errors);
 								break;
 							default:
@@ -1251,5 +1313,50 @@ public class FileStorageService {
 			throw new BadRequestException("Could not store file " + fileName + ". Please try again!");
 		}
 		return null;
+	}
+
+	/**
+	 * @param file
+	 * @return
+	 * @throws Exception
+	 */
+	public String storeFile(MultipartFile file, String filePath) throws Exception {
+
+		if (!filePath.startsWith("/")) {
+			filePath = "/" + filePath;
+		}
+
+		this.fileStorageLocation = Paths.get(propertiesConfig.getDocStorageBasePath() + filePath).toAbsolutePath().normalize();
+		if (!Files.exists(fileStorageLocation)) {
+			try {
+				Files.createDirectories(this.fileStorageLocation);
+			} catch (Exception ex) {
+				throw new BadRequestException(
+						"Could not create the directory where the uploaded files will be stored.");
+			}
+		}
+
+		log.info("location : " + fileStorageLocation);
+
+		// Normalize file name
+		String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+		log.info("filename before: " + fileName);
+		fileName = fileName.replace(" ", "_");
+		log.info("filename after: " + fileName);
+		try {
+			// Check if the file's name contains invalid characters
+			if (fileName.contains("..")) {
+				throw new BadRequestException("Sorry! Filename contains invalid path sequence " + fileName);
+			}
+
+			// Copy file to the target location (Replacing existing file with the same name)
+			Path targetLocation = this.fileStorageLocation.resolve(fileName);
+			Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+			log.info("Copied : " + targetLocation);
+		} catch (IOException ex) {
+			ex.printStackTrace();
+			throw new BadRequestException("Could not store file " + fileName + ". Please try again!");
+		}
+		return fileName;
 	}
 }

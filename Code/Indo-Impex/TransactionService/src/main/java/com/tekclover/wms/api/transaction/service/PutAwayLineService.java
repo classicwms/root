@@ -3169,6 +3169,9 @@ public class PutAwayLineService extends BaseService {
                         Arrays.asList(newPutAwayLine.getConfirmedStorageBin()), 0L);
                 log.info("Existing putawayline already created : " + existingPutAwayLine);
 
+                double actualInventoryQty = getQuantity(dbPutAwayLine.getPutawayConfirmedQty(), dbPutAwayLine.getBagSize());
+                dbPutAwayLine.setActualInventoryQty(actualInventoryQty);
+
                 if (existingPutAwayLine.isEmpty()) {
                     //Lead Time calculation
                     String leadTime = putAwayLineV2Repository.getleadtime(companyCode, plantId, languageId, warehouseId, newPutAwayLine.getPutAwayNumber(), new Date());
@@ -3302,6 +3305,8 @@ public class PutAwayLineService extends BaseService {
                             if (addedAcceptQty > inboundLine.getOrderQty()) {
                                 throw new BadRequestException("Accept qty cannot be greater than order qty");
                             }
+                            double actualAcceptQty = getQuantity(addedAcceptQty, createdPutAwayLine.getBagSize());
+                            inboundLine.setActualAcceptedQty(actualAcceptQty);
                             inboundLine.setAcceptedQty(addedAcceptQty);
                             inboundLine.setVarianceQty(inboundLine.getOrderQty() - addedAcceptQty);
                         }
@@ -3316,6 +3321,8 @@ public class PutAwayLineService extends BaseService {
                             if (addedDamageQty > inboundLine.getOrderQty()) {
                                 throw new BadRequestException("Damage qty cannot be greater than order qty");
                             }
+                            double actualDamageQty = getQuantity(addedDamageQty, createdPutAwayLine.getBagSize());
+                            inboundLine.setActualDamageQty(actualDamageQty);
                             inboundLine.setDamageQty(addedDamageQty);
                             inboundLine.setVarianceQty(inboundLine.getOrderQty() - addedDamageQty);
                         }

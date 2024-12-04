@@ -1,30 +1,20 @@
 package com.tekclover.wms.core.service;
 
-import java.util.Collections;
-import java.util.List;
-
+import com.tekclover.wms.core.config.PropertiesConfig;
+import com.tekclover.wms.core.model.auth.AuthToken;
 import com.tekclover.wms.core.model.enterprise.*;
-import com.tekclover.wms.core.model.idmaster.ControlProcessId;
-import com.tekclover.wms.core.model.idmaster.FindControlProcessId;
-import com.tekclover.wms.core.model.warehouse.inbound.WarehouseApiResponse;
-import com.tekclover.wms.core.model.warehouse.inbound.almailem.ASNV2;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.tekclover.wms.core.config.PropertiesConfig;
-
-import lombok.extern.slf4j.Slf4j;
+import java.util.Collections;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -32,6 +22,9 @@ public class EnterpriseSetupService {
 
     @Autowired
     PropertiesConfig propertiesConfig;
+
+    @Autowired
+    AuthTokenService authTokenService;
 
     private RestTemplate getRestTemplate() {
         RestTemplate restTemplate = new RestTemplate();
@@ -2312,6 +2305,40 @@ public class EnterpriseSetupService {
             return true;
         } catch (Exception e) {
             e.printStackTrace();
+            throw e;
+        }
+    }
+
+    //======================================================================================================================
+
+    /**
+     *
+     * @param fileName
+     * @param loginUserID
+     * @throws Exception
+     */
+    public void extractPdf(String companyCodeId, String plantId, String languageId, String warehouseId,
+                           String preOutboundNo, String fileName, String loginUserID) throws Exception {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            AuthToken enterPriseAuthToken = authTokenService.getEnterpriseServiceAuthToken();
+            String authToken = enterPriseAuthToken.getAccess_token();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getEnterpriseSetupServiceApiUrl() + "pdf/extract/v2")
+                    .queryParam("companyCodeId", companyCodeId)
+                    .queryParam("plantId", plantId)
+                    .queryParam("languageId", languageId)
+                    .queryParam("warehouseId", warehouseId)
+                    .queryParam("preOutboundNo", preOutboundNo)
+                    .queryParam("fileName", fileName)
+                    .queryParam("loginUserId", loginUserID);
+            HttpEntity<?> entity = new HttpEntity<>(headers);
+            ResponseEntity<String> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, String.class);
+            log.info(result.getBody());
+        } catch (Exception e) {
+            log.error("Exception while pdf Extract : " + e.toString());
             throw e;
         }
     }

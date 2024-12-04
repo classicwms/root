@@ -1103,7 +1103,7 @@ public class WarehouseService extends BaseService {
 
             InboundOrderV2 apiHeader = new InboundOrderV2();
             BeanUtils.copyProperties(soReturnHeaderV2, apiHeader, CommonUtils.getNullPropertyNames(soReturnHeaderV2));
-            apiHeader.setTransferOrderNumber(soReturnHeaderV2.getTransferOrderNumber());
+            apiHeader.setTransferOrderNumber(soReturnHeaderV2.getAsnNumber());
             apiHeader.setRefDocumentNo(soReturnHeaderV2.getTransferOrderNumber());
             apiHeader.setBranchCode(soReturnHeaderV2.getBranchCode());
             apiHeader.setOrderId(soReturnHeaderV2.getTransferOrderNumber());
@@ -2431,6 +2431,7 @@ public class WarehouseService extends BaseService {
             apiHeader.setPartnerCode(returnPOHeader.getStoreID());
             apiHeader.setPartnerName(returnPOHeader.getStoreName());
             apiHeader.setRefDocumentNo(returnPOHeader.getPoNumber());
+            apiHeader.setPickListNumber(returnPOHeader.getPickListNumber());
             if(returnPOHeader.getOrderType() != null) {
                 apiHeader.setOutboundOrderTypeID(Long.valueOf(returnPOHeader.getOrderType()));
             } else {

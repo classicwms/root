@@ -48,4 +48,6 @@ public class InboundLineV2 extends InboundLine {
     private String itemType;
     private String itemGroup;
     private String brand;
+    private Double actualAcceptedQty;
+    private Double actualDamageQty;
 }

@@ -86,4 +86,5 @@ public class StagingLineV2 {
     private Double mrp;
     private String itemType;
     private String itemGroup;
+    private String size;
 }
