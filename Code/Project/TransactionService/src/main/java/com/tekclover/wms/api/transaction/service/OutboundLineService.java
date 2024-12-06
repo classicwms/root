@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -1183,8 +1184,8 @@ public class OutboundLineService extends BaseService {
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
 	 */
-	@Transactional
-	@Retryable(value = SQLException.class, maxAttempts = 3, backoff = @Backoff(delay = 3000))
+//	@Transactional
+//	@Retryable(value = SQLException.class, maxAttempts = 3, backoff = @Backoff(delay = 3000))
 	private void inventoryUpdateBeforeAXSubmit (String warehouseId, String preOutboundNo, String refDocNumber, 
 			String partnerCode, List<Long> lineNumbers, List<String> itemCodes) throws IllegalAccessException, InvocationTargetException {
 		List<PickupLine> dbPickupLines = 
@@ -1362,7 +1363,7 @@ public class OutboundLineService extends BaseService {
 	/**
 	 * 
 	 */
-	//@Scheduled(fixedDelayString = "PT1M", initialDelayString = "PT2M")
+	@Scheduled(fixedDelayString = "PT1M", initialDelayString = "PT2M")
 	private void updateErroredOutInventory () {
 		List<InventoryTrans> inventoryTransList = inventoryTransRepository.findByReRun(0L);
 		inventoryTransList.stream().forEach( it -> {

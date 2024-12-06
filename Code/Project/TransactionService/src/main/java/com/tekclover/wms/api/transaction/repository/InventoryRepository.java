@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -23,7 +24,8 @@ import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 
 @Repository
 @Transactional
-public interface InventoryRepository extends PagingAndSortingRepository<Inventory,Long>, JpaSpecificationExecutor<Inventory> {
+public interface InventoryRepository extends PagingAndSortingRepository<Inventory,Long>, JpaSpecificationExecutor<Inventory>,
+		StreamableJpaSpecificationRepository<Inventory> {
 	
 	String UPGRADE_SKIPLOCKED = "-2";
 	

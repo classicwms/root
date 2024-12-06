@@ -584,6 +584,27 @@ public class InventoryService extends BaseService {
 		});
 		return results;
 	}
+
+	/**
+	 * total qty greater than zero filter
+	 * @param searchInventory
+	 * @return
+	 * @throws Exception
+	 */
+	public List<Inventory> findInventoryStream(SearchInventory searchInventory) throws Exception {
+		log.info("searchInventory : " + searchInventory);
+		InventorySpecification spec = new InventorySpecification(searchInventory);
+		List<Inventory> filteredResult = inventoryRepository.stream(spec, Inventory.class)
+				.peek(n -> {
+					double invQty = n.getInventoryQuantity() != null ? n.getInventoryQuantity() : 0;
+					double allocQty = n.getAllocatedQuantity() != null ? n.getAllocatedQuantity() : 0;
+					n.setReferenceField4(invQty + allocQty);
+				})
+				.filter(n -> n.getReferenceField4() > 0) // Filter based on updated totalQty
+				.collect(Collectors.toList());
+		return filteredResult;
+	}
+	
 	@Transactional
 	public List<InventoryImpl> findInventoryNew(SearchInventory searchInventory)
 			throws ParseException {

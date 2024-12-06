@@ -86,7 +86,8 @@ public class InventoryController {
    	@PostMapping("/findInventory")
    	public List<Inventory> findInventory(@RequestBody SearchInventory searchInventory) 
    			throws Exception {
-   		return inventoryService.findInventory(searchInventory);
+//   		return inventoryService.findInventory(searchInventory);
+   		return inventoryService.findInventoryStream(searchInventory);
    	}
 	@ApiOperation(response = InventoryImpl.class, value = "Search Inventory New") // label for swagger
    	@PostMapping("/findInventoryNew")
