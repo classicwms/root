@@ -113,7 +113,9 @@ public class OrderManagementLineService extends BaseService {
     @Autowired
     PropertiesConfig propertiesConfig;
 
-    String statusDescription = null;
+    @Autowired
+    OrderManagementLineService orderManagementLineService;
+
     //------------------------------------------------------------------------------------------------------
 
     /**
@@ -2017,30 +2019,6 @@ public class OrderManagementLineService extends BaseService {
                     PickupHeaderV2 pickup = pickupHeaderV2Repository.save(pickupHeader);
                     log.info("pickupHeader created : " + pickup);
 
-                    // send Notification
-                    if (pickup != null) {
-                        List<IKeyValuePair> notification =
-                                pickupHeaderV2Repository.findByStatusIdAndNotificationStatusAndDeletionIndicatorDistinctRefDocNo();
-
-                        if (notification != null) {
-                            for (IKeyValuePair pickupHeaderV2 : notification) {
-
-                                List<String> deviceToken = pickupHeaderV2Repository.getDeviceToken(
-                                        pickupHeaderV2.getAssignPicker(), pickupHeaderV2.getWarehouseId());
-
-                                if (deviceToken != null && !deviceToken.isEmpty()) {
-                                    String title = "PICKING";
-                                    String message = pickupHeaderV2.getRefDocType() + " ORDER - " + pickupHeaderV2.getRefDocNumber() + " - IS RECEIVED ";
-                                    String response = pushNotificationService.sendPushNotification(deviceToken, title, message);
-                                    if (response.equals("OK")) {
-                                        pickupHeaderV2Repository.updateNotificationStatus(
-                                                pickupHeaderV2.getAssignPicker(), pickupHeaderV2.getRefDocNumber(), pickupHeaderV2.getWarehouseId());
-                                        log.info("status update successfully");
-                                    }
-                                }
-                            }
-                        }
-                    }
                     // Updating Ordermanagementline
                     dbOrderManagementLine.setPickupNumber(PU_NO);
                     dbOrderManagementLine = orderManagementLineV2Repository.save(dbOrderManagementLine);
@@ -2048,6 +2026,8 @@ public class OrderManagementLineService extends BaseService {
                 }
                 orderManagementLineList.add(dbOrderManagementLine);
             }
+            // send Notification
+            orderManagementLineService.sendPushNotification(preOutboundNo, warehouseId);
         }
         return orderManagementLineList;
     }
@@ -4353,6 +4333,7 @@ public class OrderManagementLineService extends BaseService {
                 }
                 newOrderManagementLine.setProposedPackBarCode(stBinInventory.getPackBarcodes());
                 newOrderManagementLine.setProposedBatchSerialNumber(stBinInventory.getBatchSerialNumber());
+                newOrderManagementLine.setMrp(stBinInventory.getMrp());
                 OrderManagementLineV2 createdOrderManagementLine = orderManagementLineV2Repository.save(newOrderManagementLine);
                 log.info("--else---createdOrderManagementLine newly created------: " + createdOrderManagementLine);
                 allocatedQtyFromOrderMgmt = createdOrderManagementLine.getAllocatedQty();
@@ -4363,27 +4344,20 @@ public class OrderManagementLineService extends BaseService {
 
                 if (allocatedQtyFromOrderMgmt > 0) {
 
-                    double dbInventoryQty = stBinInventory.getInventoryQuantity() != null ? stBinInventory.getInventoryQuantity() : 0;
-                    double dbInvAllocatedQty = stBinInventory.getAllocatedQuantity() != null ? stBinInventory.getAllocatedQuantity() : 0;
-
-                    double actualAllocatedQty = getQuantity(allocatedQtyFromOrderMgmt, orderManagementLine.getBagSize());
-                    double inventoryQty = dbInventoryQty - actualAllocatedQty;
-                    double allocatedQty = dbInvAllocatedQty + actualAllocatedQty;
-                    double totalQty = inventoryQty + allocatedQty;
-
-                    if (inventoryQty < 0) {
-                        inventoryQty = 0;
-                    }
+                    double[] inventoryQty = allocateInventory(allocatedQtyFromOrderMgmt, orderManagementLine.getBagSize(), stBinInventory.getInventoryQuantity(), stBinInventory.getAllocatedQuantity());
 
                     // Create new Inventory Record
                     InventoryV2 inventoryV2 = new InventoryV2();
                     BeanUtils.copyProperties(stBinInventory, inventoryV2, CommonUtils.getNullPropertyNames(stBinInventory));
 
+                    if (inventoryQty != null && inventoryQty.length > 2) {
+                        inventoryV2.setInventoryQuantity(inventoryQty[0]);
+                        inventoryV2.setAllocatedQuantity(inventoryQty[1]);
+                        inventoryV2.setReferenceField4(inventoryQty[2]);
+                    }
+
                     inventoryV2.setReferenceDocumentNo(orderManagementLine.getRefDocNumber());
                     inventoryV2.setReferenceOrderNo(orderManagementLine.getRefDocNumber());
-                    inventoryV2.setInventoryQuantity(round(inventoryQty));
-                    inventoryV2.setAllocatedQuantity(round(allocatedQty));
-                    inventoryV2.setReferenceField4(round(totalQty));
                     inventoryV2.setUpdatedOn(new Date());
                     inventoryV2 = inventoryV2Repository.save(inventoryV2);
                     log.info("-----Inventory2 updated-------: " + inventoryV2);
@@ -4416,34 +4390,22 @@ public class OrderManagementLineService extends BaseService {
             log.info("Processing Order management Line : " + orderManagementLineV2List);
 
             int i = 0;
-            statusDescription = stagingLineV2Repository.getStatusDescription(47L, lineV2.getLanguageId());
+            statusDescription = getStatusDescription(47L, lineV2.getLanguageId());
 
             for (OrderManagementLineV2 dbOrderManagementLine : orderManagementLineV2List) {
                 String storageBin = dbOrderManagementLine.getProposedStorageBin();
                 InventoryV2 inventory =
                         inventoryService.getOutboundInventoryV4(lineV2.getCompanyCodeId(), lineV2.getPlantId(), lineV2.getLanguageId(), lineV2.getWarehouseId(),
-                                                        lineV2.getItemCode(), lineV2.getManufacturerName(), lineV2.getBarcodeId(), storageBin, lineV2.getAlternateUom());
-                Double invQty = inventory.getInventoryQuantity() + dbOrderManagementLine.getAllocatedQty();
+                                                                lineV2.getItemCode(), lineV2.getManufacturerName(), dbOrderManagementLine.getBarcodeId(), storageBin, dbOrderManagementLine.getAlternateUom());
 
-                /*
-                 * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
-                 */
-                // Start
-                if (invQty < 0D) {
-                    invQty = 0D;
+                double[] inventoryQty = calculateInventoryUnAllocate(dbOrderManagementLine.getAllocatedQty(), dbOrderManagementLine.getBagSize(),
+                                                                     inventory.getInventoryQuantity(), inventory.getAllocatedQuantity());
+                if (inventoryQty != null && inventoryQty.length > 3) {
+                    inventory.setInventoryQuantity(inventoryQty[0]);
+                    inventory.setAllocatedQuantity(inventoryQty[1]);
+                    inventory.setReferenceField4(inventoryQty[2]);
+                    inventory.setNoBags(inventoryQty[3]);
                 }
-                // End
-
-                inventory.setInventoryQuantity(round(invQty));
-
-                Double allocQty = inventory.getAllocatedQuantity() - dbOrderManagementLine.getAllocatedQty();
-                if (allocQty < 0D) {
-                    allocQty = 0D;
-                }
-                inventory.setAllocatedQuantity(round(allocQty));
-                Double totQty = invQty + allocQty;
-                inventory.setReferenceField4(round(totQty));
-                log.info("Inventory invQty, allocQty, totQty: " + invQty + " | " + allocQty + " | " + totQty);
 
                 // Create new Inventory Record
                 InventoryV2 inventoryV2 = new InventoryV2();
@@ -4513,27 +4475,16 @@ public class OrderManagementLineService extends BaseService {
             InventoryV2 inventory = inventoryService.getOutboundInventoryV4(companyCodeId, plantId, languageId, warehouseId, itemCode,
                                                     dbOrderManagementLine.getManufacturerName(), dbOrderManagementLine.getBarcodeId(),
                                                     storageBin, dbOrderManagementLine.getAlternateUom());
-            Double invQty = inventory.getInventoryQuantity() + dbOrderManagementLine.getAllocatedQty();
 
-            /*
-             * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
-             */
-            // Start
-            if (invQty < 0D) {
-                invQty = 0D;
+            double[] inventoryQty = calculateInventoryUnAllocate(dbOrderManagementLine.getAllocatedQty(), dbOrderManagementLine.getBagSize(),
+                                                                 inventory.getInventoryQuantity(), inventory.getAllocatedQuantity());
+            if (inventoryQty != null && inventoryQty.length > 3) {
+                inventory.setInventoryQuantity(inventoryQty[0]);
+                inventory.setAllocatedQuantity(inventoryQty[1]);
+                inventory.setReferenceField4(inventoryQty[2]);
+                inventory.setNoBags(inventoryQty[3]);
             }
-            // End
 
-            inventory.setInventoryQuantity(round(invQty));
-
-            Double allocQty = inventory.getAllocatedQuantity() - dbOrderManagementLine.getAllocatedQty();
-            if (allocQty < 0D) {
-                allocQty = 0D;
-            }
-            inventory.setAllocatedQuantity(round(allocQty));
-            Double totQty = invQty + allocQty;
-            inventory.setReferenceField4(round(totQty));
-            log.info("Inventory invQty, allocQty, totQty: " + invQty + "|" + allocQty + "|" + totQty);
             // Create new Inventory Record
             InventoryV2 inventoryV2 = new InventoryV2();
             BeanUtils.copyProperties(inventory, inventoryV2, CommonUtils.getNullPropertyNames(inventory));

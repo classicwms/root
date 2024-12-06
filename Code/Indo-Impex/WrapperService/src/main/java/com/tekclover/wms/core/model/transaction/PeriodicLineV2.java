@@ -60,4 +60,5 @@ public class PeriodicLineV2 extends PeriodicLine {
 	private String itemType;
 	private String itemGroup;
 	private String brand;
+	private String size;
 }

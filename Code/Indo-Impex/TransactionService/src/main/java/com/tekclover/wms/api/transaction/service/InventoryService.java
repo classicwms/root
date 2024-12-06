@@ -4509,6 +4509,20 @@ public class InventoryService extends BaseService {
 
     /**
      *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param storageBin
+     * @return
+     */
+    public Double getInventoryByStorageBinV4(String companyCodeId, String plantId, String languageId, String warehouseId, String storageBin) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + storageBin);
+        return inventoryV2Repository.getInventoryBinStatusV4(companyCodeId, plantId, languageId, warehouseId, storageBin);
+    }
+
+    /**
+     *
      * @param searchInventory
      * @return
      * @throws ParseException

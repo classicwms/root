@@ -32,7 +32,7 @@ import java.util.stream.Stream;
 
 @Slf4j
 @Service
-public class PickupHeaderService {
+public class PickupHeaderService extends BaseService {
 
     @Autowired
     private PickupHeaderRepository pickupHeaderRepository;
@@ -1163,7 +1163,6 @@ public class PickupHeaderService {
      */
     public PickupHeaderV2 createOutboundOrderProcessingPickupHeaderV2(PickupHeaderV2 newPickupHeader, String loginUserID) throws Exception {
         try {
-
             Optional<PickupHeaderV2> duplicateCheck = pickupHeaderV2Repository.findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndPickupNumberAndLineNumberAndItemCodeAndProposedStorageBinAndProposedPackBarCodeAndBarcodeIdAndDeletionIndicator(
                     newPickupHeader.getCompanyCodeId(), newPickupHeader.getPlantId(), newPickupHeader.getLanguageId(),
                     newPickupHeader.getWarehouseId(), newPickupHeader.getPreOutboundNo(), newPickupHeader.getRefDocNumber(),
@@ -1176,19 +1175,18 @@ public class PickupHeaderService {
                 log.info("newPickupHeader : " + newPickupHeader);
                 BeanUtils.copyProperties(newPickupHeader, dbPickupHeader, CommonUtils.getNullPropertyNames(newPickupHeader));
 
-                IKeyValuePair description = stagingLineV2Repository.getDescription(dbPickupHeader.getCompanyCodeId(),
-                                                                                   dbPickupHeader.getLanguageId(),
-                                                                                   dbPickupHeader.getPlantId(),
-                                                                                   dbPickupHeader.getWarehouseId());
+                if(dbPickupHeader.getCompanyDescription() == null || dbPickupHeader.getPlantDescription() == null || dbPickupHeader.getWarehouseDescription() == null) {
+                    description = getDescription(dbPickupHeader.getCompanyCodeId(), dbPickupHeader.getPlantId(), dbPickupHeader.getLanguageId(), dbPickupHeader.getWarehouseId());
+                    dbPickupHeader.setCompanyDescription(description.getCompanyDesc());
+                    dbPickupHeader.setPlantDescription(description.getPlantDesc());
+                    dbPickupHeader.setWarehouseDescription(description.getWarehouseDesc());
+                }
 
                 if (dbPickupHeader.getStatusId() != null) {
                     statusDescription = stagingLineV2Repository.getStatusDescription(dbPickupHeader.getStatusId(), dbPickupHeader.getLanguageId());
                     dbPickupHeader.setStatusDescription(statusDescription);
                 }
 
-                dbPickupHeader.setCompanyDescription(description.getCompanyDesc());
-                dbPickupHeader.setPlantDescription(description.getPlantDesc());
-                dbPickupHeader.setWarehouseDescription(description.getWarehouseDesc());
 
                 statusDescription = stagingLineV2Repository.getStatusDescription(48L, dbPickupHeader.getLanguageId());
                 outboundLineV2Repository.updateOutboundLineV2(dbPickupHeader.getCompanyCodeId(),

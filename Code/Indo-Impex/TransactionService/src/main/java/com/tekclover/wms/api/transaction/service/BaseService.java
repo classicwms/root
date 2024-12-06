@@ -8,6 +8,7 @@ import com.tekclover.wms.api.transaction.model.dto.UserManagement;
 import com.tekclover.wms.api.transaction.model.dto.Warehouse;
 import com.tekclover.wms.api.transaction.repository.StagingLineV2Repository;
 import com.tekclover.wms.api.transaction.util.DateUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 public class BaseService {
 
     protected Long NUMBER_RANGE_CODE = 0L;
@@ -503,6 +505,22 @@ public class BaseService {
 
     /**
      *
+     * @param itemCode
+     * @param partBarCode
+     * @param bagNumber
+     * @return
+     */
+    public String generateBarCodeId (String itemCode, String partBarCode, long bagNumber) {
+        itemCode = itemCode.trim().toUpperCase().replaceAll("\\s+", "");
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(itemCode);
+        stringBuilder.append(partBarCode);
+        stringBuilder.append(bagNumber);
+        return stringBuilder.toString();
+    }
+
+    /**
+     *
      * @param refDocNumber
      * @return
      */
@@ -538,5 +556,167 @@ public class BaseService {
         stringBuilder.append(orderNoLastThreeDigit);
         stringBuilder.append(DateUtils.getDateMonth());
         return stringBuilder.toString();
+    }
+
+
+    /**
+     * pickupline inventory calculation
+     * @param allocatedQty
+     * @param pickCnfQty
+     * @param bagSize
+     * @param inventoryQty
+     * @param invAllocatedQty
+     * @return
+     */
+    public double[] calculateInventory (Double allocatedQty, Double pickCnfQty, Double bagSize, Double inventoryQty, Double invAllocatedQty) {
+        log.info("INV_QTY, ALLOC_QTY, PICK_CNF_QTY : " + inventoryQty + ", " + invAllocatedQty + ", " + pickCnfQty);
+        bagSize = bagSize != null ? bagSize : 0;
+
+        double actualAllocationQty = getQuantity((allocatedQty != null ? allocatedQty : 0), bagSize);
+        double actualPickConfirmQty = getQuantity((pickCnfQty != null ? pickCnfQty : 0), bagSize);
+
+        double INV_QTY = ((inventoryQty != null ? inventoryQty : 0) + actualAllocationQty) - actualPickConfirmQty;
+        double ALLOC_QTY = (invAllocatedQty != null ? invAllocatedQty : 0) - actualAllocationQty;
+
+        INV_QTY = INV_QTY < 0 ? 0 : round(INV_QTY);
+        ALLOC_QTY = ALLOC_QTY < 0 ? 0 : round(ALLOC_QTY);
+
+        double TOT_QTY = INV_QTY + ALLOC_QTY;
+        double NO_OF_BAGS = TOT_QTY != 0 ? roundUp(TOT_QTY / bagSize) : 0;
+
+        log.info("INV_QTY, ALLOC_QTY, TOT_QTY : " + INV_QTY + "|" + ALLOC_QTY + "|" + TOT_QTY + "|" + NO_OF_BAGS);
+        return new double[] {INV_QTY, ALLOC_QTY, TOT_QTY, NO_OF_BAGS};
+    }
+
+    /**
+     * pickupline inventory calculation (unAllocate)
+     * @param pickCnfQty/allocatedQty
+     * @param bagSize
+     * @param inventoryQty
+     * @param invAllocatedQty
+     * @return
+     */
+    public double[] calculateInventoryUnAllocate (Double pickCnfQty, Double bagSize, Double inventoryQty, Double invAllocatedQty) {
+        log.info("INV_QTY, ALLOC_QTY, PICK_CNF_QTY : " + inventoryQty + ", " + invAllocatedQty + ", " + pickCnfQty);
+        bagSize = bagSize != null ? bagSize : 0;
+
+        double actualPickConfirmQty = getQuantity((pickCnfQty != null ? pickCnfQty : 0), bagSize);
+
+        double INV_QTY = (inventoryQty != null ? inventoryQty : 0) + actualPickConfirmQty;
+        double ALLOC_QTY = (invAllocatedQty != null ? invAllocatedQty : 0) - actualPickConfirmQty;
+
+        INV_QTY = INV_QTY < 0 ? 0 : round(INV_QTY);
+        ALLOC_QTY = ALLOC_QTY < 0 ? 0 : round(ALLOC_QTY);
+
+        double TOT_QTY = INV_QTY + ALLOC_QTY;
+        double NO_OF_BAGS = TOT_QTY != 0 ? roundUp(TOT_QTY / bagSize) : 0;
+
+        log.info("INV_QTY, ALLOC_QTY, TOT_QTY : " + INV_QTY + "|" + ALLOC_QTY + "|" + TOT_QTY + "|" + NO_OF_BAGS);
+        return new double[] {INV_QTY, ALLOC_QTY, TOT_QTY, NO_OF_BAGS};
+    }
+
+    /**
+     * pickupline inventory calculation (Allocate)
+     * @param pickCnfQty
+     * @param bagSize
+     * @param inventoryQty
+     * @param invAllocatedQty
+     * @return
+     */
+    public double[] calculateInventoryAllocate (Double pickCnfQty, Double bagSize, Double inventoryQty, Double invAllocatedQty) {
+        log.info("INV_QTY, ALLOC_QTY, PICK_CNF_QTY : " + inventoryQty + ", " + invAllocatedQty + ", " + pickCnfQty);
+        bagSize = bagSize != null ? bagSize : 0;
+
+        double actualPickConfirmQty = getQuantity((pickCnfQty != null ? pickCnfQty : 0), bagSize);
+
+        double INV_QTY = (inventoryQty != null ? inventoryQty : 0) - actualPickConfirmQty;
+        double ALLOC_QTY = (invAllocatedQty != null ? invAllocatedQty : 0);
+
+        INV_QTY = INV_QTY < 0 ? 0 : round(INV_QTY);
+        ALLOC_QTY = ALLOC_QTY < 0 ? 0 : round(ALLOC_QTY);
+
+        double TOT_QTY = INV_QTY + ALLOC_QTY;
+        double NO_OF_BAGS = TOT_QTY != 0 ? roundUp(TOT_QTY / bagSize) : 0;
+
+        log.info("INV_QTY, ALLOC_QTY, TOT_QTY : " + INV_QTY + "|" + ALLOC_QTY + "|" + TOT_QTY + "|" + NO_OF_BAGS);
+        return new double[] {INV_QTY, ALLOC_QTY, TOT_QTY, NO_OF_BAGS};
+    }
+
+    /**
+     * orderManagementLine inventory calculation (Allocate)
+     * @param allocatedQty
+     * @param bagSize
+     * @param inventoryQty
+     * @param invAllocatedQty
+     * @return
+     */
+    public double[] allocateInventory (Double allocatedQty, Double bagSize, Double inventoryQty, Double invAllocatedQty) {
+        log.info("INV_QTY, ALLOC_QTY, ALLOC_QTY : " + inventoryQty + ", " + invAllocatedQty + ", " + allocatedQty);
+        bagSize = bagSize != null ? bagSize : 0;
+
+        double actualAllocatedQty = getQuantity((allocatedQty != null ? allocatedQty : 0), bagSize);
+
+        double INV_QTY = (inventoryQty != null ? inventoryQty : 0) - actualAllocatedQty;
+        double ALLOC_QTY = (invAllocatedQty != null ? invAllocatedQty : 0) + actualAllocatedQty;
+
+        INV_QTY = INV_QTY < 0 ? 0 : round(INV_QTY);
+        ALLOC_QTY = ALLOC_QTY < 0 ? 0 : round(ALLOC_QTY);
+
+        double TOT_QTY = INV_QTY + ALLOC_QTY;
+
+        log.info("INV_QTY, ALLOC_QTY, TOT_QTY : " + INV_QTY + "|" + ALLOC_QTY + "|" + TOT_QTY);
+        return new double[] {INV_QTY, ALLOC_QTY, TOT_QTY};
+    }
+
+    /**
+     *
+     * @param transferQty
+     * @param bagSize
+     * @param inventoryQty
+     * @param invAllocatedQty
+     * @return
+     */
+    public double[] calculateTransferInventory (Double transferQty, Double bagSize, Double inventoryQty, Double invAllocatedQty) {
+        log.info("INV_QTY, ALLOC_QTY, TFR_QTY : " + inventoryQty + ", " + invAllocatedQty + ", " + transferQty);
+        bagSize = bagSize != null ? bagSize : 0;
+
+        double INV_QTY = (inventoryQty != null ? inventoryQty : 0) + transferQty;
+        double ALLOC_QTY = (invAllocatedQty != null ? invAllocatedQty : 0);
+
+        INV_QTY = INV_QTY < 0 ? 0 : round(INV_QTY);
+        ALLOC_QTY = ALLOC_QTY < 0 ? 0 : round(ALLOC_QTY);
+
+        double TOT_QTY = INV_QTY + ALLOC_QTY;
+
+        double NO_OF_BAGS = TOT_QTY != 0 ? roundUp(TOT_QTY / bagSize) : 0;
+
+        log.info("Tfr INV_QTY, ALLOC_QTY, TOT_QTY : " + INV_QTY + "|" + ALLOC_QTY + "|" + TOT_QTY + "|" + NO_OF_BAGS);
+        return new double[] {INV_QTY, ALLOC_QTY, TOT_QTY, NO_OF_BAGS};
+    }
+
+    /**
+     *
+     * @param varianceQty
+     * @param bagSize
+     * @param inventoryQty
+     * @param invAllocatedQty
+     * @return
+     */
+    public double[] calculateStockAdjustmentInventory (Double varianceQty, Double bagSize, Double inventoryQty, Double invAllocatedQty) {
+        log.info("INV_QTY, ALLOC_QTY, TFR_QTY : " + inventoryQty + ", " + invAllocatedQty + ", " + varianceQty);
+        bagSize = bagSize != null ? bagSize : 0;
+        double actualVarianceQty = getQuantity((varianceQty != null ? varianceQty : 0), bagSize);
+
+        double INV_QTY = (inventoryQty != null ? inventoryQty : 0) + actualVarianceQty;
+        double ALLOC_QTY = (invAllocatedQty != null ? invAllocatedQty : 0);
+
+        INV_QTY = INV_QTY < 0 ? 0 : round(INV_QTY);
+        ALLOC_QTY = ALLOC_QTY < 0 ? 0 : round(ALLOC_QTY);
+
+        double TOT_QTY = INV_QTY + ALLOC_QTY;
+        double NO_OF_BAGS = TOT_QTY != 0 ? roundUp(TOT_QTY / bagSize) : 0;
+
+        log.info("Tfr INV_QTY, ALLOC_QTY, TOT_QTY : " + INV_QTY + "|" + ALLOC_QTY + "|" + TOT_QTY + "|" + NO_OF_BAGS);
+        return new double[] {INV_QTY, ALLOC_QTY, TOT_QTY, NO_OF_BAGS};
     }
 }

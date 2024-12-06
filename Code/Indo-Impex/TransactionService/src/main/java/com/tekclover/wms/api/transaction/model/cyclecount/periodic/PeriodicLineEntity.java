@@ -53,4 +53,12 @@ public class PeriodicLineEntity {
 	private String storageSectionId;
 	private String manufacturerPartNo;
 	private Long specialStockIndicator;
+
+	private String size;
+	private String alternateUom;
+	private Double noBags;
+	private Double bagSize;
+	private Double mrp;
+	private String itemType;
+	private String itemGroup;
 }

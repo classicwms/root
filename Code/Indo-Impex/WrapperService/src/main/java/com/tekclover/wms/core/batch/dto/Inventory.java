@@ -7,7 +7,6 @@ import java.util.Date;
 @Data
 public class Inventory {
 
-	private Long inventoryId;
 	private String languageId;
 	private String companyCodeId;
 	private String plantId;
@@ -61,6 +60,9 @@ public class Inventory {
 	private String warehouseDescription;
 	private String statusDescription;
 	private String stockTypeDescription;
+	private String alternateUom;
+	private Double noBags;
+	private Double bagSize;
 
 	/**
 	 * @param languageId
@@ -103,25 +105,26 @@ public class Inventory {
 	 * @param dType
 	 * @param createdBy
 	 */
-	public Inventory(Long inventoryId, String languageId, String companyCodeId, String plantId, String warehouseId, String palletCode, String caseCode,
-					 String itemCode, String packBarcodes, Long variantCode, String variantSubCode, String batchSerialNumber,
+	public Inventory(String languageId, String companyCodeId, String plantId, String warehouseId, String palletCode, String caseCode,
+					 String packBarcodes, String itemCode, Long variantCode, String variantSubCode, String batchSerialNumber,
 					 String storageBin, Long stockTypeId, Long specialStockIndicatorId, String referenceOrderNo, String storageMethod,
-					 Long binClassId, String description, Double allocatedQuantity, Double inventoryQuantity, String inventoryUom,
-					 String manufacturerCode, Date manufacturerDate, Date expiryDate, String barcodeId, String cbm, String cbmUnit, String cbmPerQuantity,
-					 String manufacturerName, String origin, String brand, String referenceDocumentNo, String levelId, String companyDescription,
-					 String plantDescription, String warehouseDescription, String statusDescription, String stockTypeDescription, Long deletionIndicator, String referenceField1,
+					 Long binClassId, String description, Double inventoryQuantity, Double allocatedQuantity, String inventoryUom,
+					 String manufacturerCode, Date manufacturerDate, Date expiryDate, Long deletionIndicator, String referenceField1,
 					 String referenceField2, String referenceField3, String referenceField4, String referenceField5, String referenceField6,
-					 String referenceField7, String referenceField8, String referenceField9, String referenceField10, String dType, String createdBy) {
+					 String referenceField7, String referenceField8, String referenceField9, String referenceField10, String dType, String createdBy,
+					 String barcodeId, String cbm, String cbmUnit, String cbmPerQuantity,
+					 String manufacturerName, String origin, String levelId, String brand, String referenceDocumentNo, String companyDescription,
+					 String plantDescription, String warehouseDescription, String statusDescription, String stockTypeDescription,
+					 String alternateUom, Double noBags, Double bagSize) {
 
-		this.inventoryId = inventoryId;
 		this.languageId = languageId;
 		this.companyCodeId = companyCodeId;
 		this.plantId = plantId;
 		this.warehouseId = warehouseId;
 		this.palletCode = palletCode;
 		this.caseCode = caseCode;
-		this.itemCode = itemCode;
 		this.packBarcodes = packBarcodes;
+		this.itemCode = itemCode;
 		this.variantCode = variantCode;
 		this.variantSubCode = variantSubCode;
 		this.batchSerialNumber = batchSerialNumber;
@@ -132,26 +135,12 @@ public class Inventory {
 		this.storageMethod = storageMethod;
 		this.binClassId = binClassId;
 		this.description = description;
-		this.allocatedQuantity = allocatedQuantity;
 		this.inventoryQuantity = inventoryQuantity;
+		this.allocatedQuantity = allocatedQuantity;
 		this.inventoryUom = inventoryUom;
 		this.manufacturerCode = manufacturerCode;
 		this.manufacturerDate = manufacturerDate;
 		this.expiryDate = expiryDate;
-		this.barcodeId = barcodeId;
-		this.cbm = cbm;
-		this.cbmUnit = cbmUnit;
-		this.cbmPerQuantity = cbmPerQuantity;
-		this.manufacturerName = manufacturerName;
-		this.origin = origin;
-		this.brand = brand;
-		this.referenceDocumentNo = referenceDocumentNo;
-		this.levelId = levelId;
-		this.companyDescription = companyDescription;
-		this.plantDescription = plantDescription;
-		this.warehouseDescription = warehouseDescription;
-		this.statusDescription = statusDescription;
-		this.stockTypeDescription = stockTypeDescription;
 		this.deletionIndicator = deletionIndicator;
 		this.referenceField1 = referenceField1;
 		this.referenceField2 = referenceField2;
@@ -165,5 +154,22 @@ public class Inventory {
 		this.referenceField10 = referenceField10;
 		this.dType = dType;
 		this.createdBy = createdBy;
+		this.barcodeId = barcodeId;
+		this.cbm = cbm;
+		this.cbmUnit = cbmUnit;
+		this.cbmPerQuantity = cbmPerQuantity;
+		this.manufacturerName = manufacturerName;
+		this.origin = origin;
+		this.levelId = levelId;
+		this.brand = brand;
+		this.referenceDocumentNo = referenceDocumentNo;
+		this.companyDescription = companyDescription;
+		this.plantDescription = plantDescription;
+		this.warehouseDescription = warehouseDescription;
+		this.statusDescription = statusDescription;
+		this.stockTypeDescription = stockTypeDescription;
+		this.alternateUom = alternateUom;
+		this.noBags = noBags;
+		this.bagSize = bagSize;
 	}
 }

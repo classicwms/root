@@ -120,4 +120,10 @@ public class InventoryV2 extends Inventory {
 
     @Column(name = "BAG_SIZE")
     private Double bagSize;
+
+    @Column(name = "MRP")
+    private Double mrp;
+
+    @Column(name = "ITM_GRP", columnDefinition = "nvarchar(100)")
+    private String itemGroup;
 }

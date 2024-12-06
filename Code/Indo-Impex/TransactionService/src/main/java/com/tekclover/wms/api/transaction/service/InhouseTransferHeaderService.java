@@ -28,6 +28,8 @@ import java.util.stream.Stream;
 @Slf4j
 @Service
 public class InhouseTransferHeaderService extends BaseService {
+    @Autowired
+    private ImBasicData1V2Repository imBasicData1V2Repository;
 
     @Autowired
     private StagingLineV2Repository stagingLineV2Repository;
@@ -75,6 +77,9 @@ public class InhouseTransferHeaderService extends BaseService {
 
     @Autowired
     StorageBinService storageBinService;
+
+    @Autowired
+    PickupLineService pickupLineService;
 
     /**
      * getInHouseTransferHeaders
@@ -1536,7 +1541,7 @@ public class InhouseTransferHeaderService extends BaseService {
              * Pass WH_ID/ITM_CODE in INVENTORY TABLE and update STCK_TYP_ID with TGT_STCK_TYP_ID
              */
             if (transferTypeId == 1L && transferMethod.equalsIgnoreCase(ONESTEP)) {
-                stockTypeInventoryTransferV4(companyCode, plantId, languageId, warehouseId, createdInhouseTransferLine, loginUserID);
+                updateTransferInventoryV4(companyCode, plantId, languageId, warehouseId, createdInhouseTransferLine, loginUserID);
             }
 
             /*
@@ -1585,30 +1590,17 @@ public class InhouseTransferHeaderService extends BaseService {
                                                                  sourceStockTypeId);
         log.info("---------inventory----------> : " + inventorySourceItemCode);
         if (inventorySourceItemCode != null) {
-            Double inventoryQty = inventorySourceItemCode.getInventoryQuantity();
             Double sourceInventoryQty = inventorySourceItemCode.getInventoryQuantity();
-            Double ALLOC_QTY = 0D;
-            Double TOT_QTY;
-            if (inventorySourceItemCode.getAllocatedQuantity() != null) {
-                ALLOC_QTY = inventorySourceItemCode.getAllocatedQuantity();
-            }
-
-            Double transferConfirmedQty = createdInhouseTransferLine.getTransferConfirmedQty();
-            double INV_QTY = inventoryQty - transferConfirmedQty;
-            if (INV_QTY < 0) {
-                INV_QTY = 0L;
-            }
-            TOT_QTY = INV_QTY + ALLOC_QTY;
-
-            double BAG_SIZE = inventorySourceItemCode.getBagSize() != null ? inventorySourceItemCode.getBagSize() : 0D;
             double sourceBagSize = inventorySourceItemCode.getBagSize() != null ? inventorySourceItemCode.getBagSize() : 0D;
-            double NO_OF_BAGS = TOT_QTY / BAG_SIZE;
 
-            log.info("-----Source----INV_QTY, ALLOC_QTY, TOT_QTY-----------> : " + INV_QTY + ", " + ALLOC_QTY + ", " + TOT_QTY + " | " + NO_OF_BAGS);
-            inventorySourceItemCode.setInventoryQuantity(round(INV_QTY));
-            inventorySourceItemCode.setAllocatedQuantity(round(ALLOC_QTY));
-            inventorySourceItemCode.setReferenceField4(round(TOT_QTY));
-            inventorySourceItemCode.setNoBags(roundUp(NO_OF_BAGS));
+            double[] inventoryQty = calculateInventoryAllocate(createdInhouseTransferLine.getTransferConfirmedQty(), inventorySourceItemCode.getBagSize(),
+                                                               inventorySourceItemCode.getInventoryQuantity(), inventorySourceItemCode.getAllocatedQuantity());
+            if (inventoryQty != null && inventoryQty.length > 3) {
+                inventorySourceItemCode.setInventoryQuantity(inventoryQty[0]);
+                inventorySourceItemCode.setAllocatedQuantity(inventoryQty[1]);
+                inventorySourceItemCode.setReferenceField4(inventoryQty[2]);
+                inventorySourceItemCode.setNoBags(inventoryQty[3]);
+            }
 
             if(inventorySourceItemCode.getStockTypeDescription() == null) {
                 if(inventorySourceItemCode.getStockTypeId() != null) {
@@ -1622,7 +1614,7 @@ public class InhouseTransferHeaderService extends BaseService {
             InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventoryV2);
             log.info("InventoryV2 created : " + createdInventoryV2);
 
-            if (INV_QTY == 0 && (inventorySourceItemCode.getAllocatedQuantity() == null || inventorySourceItemCode.getAllocatedQuantity() == 0D)) {
+            if (createdInventoryV2.getInventoryQuantity() == 0 && (inventorySourceItemCode.getAllocatedQuantity() == null || inventorySourceItemCode.getAllocatedQuantity() == 0D)) {
                 InventoryV2 deleteInventoryV2 = new InventoryV2();
                 BeanUtils.copyProperties(inventorySourceItemCode, deleteInventoryV2, CommonUtils.getNullPropertyNames(inventorySourceItemCode));
                 deleteInventoryV2.setUpdatedOn(new Date());
@@ -1633,14 +1625,11 @@ public class InhouseTransferHeaderService extends BaseService {
                 inventoryV2Repository.save(deleteInventoryV2);
                 log.info("---------inventory-----deleted-----");
                 try {
-                    StorageBinV2 dbStorageBin = storageBinService.getStorageBinV2(companyCode, plantId, languageId, warehouseId, createdInhouseTransferLine.getSourceStorageBin());
-                    if (dbStorageBin != null) {
-                        dbStorageBin.setStatusId(0L);
-                        dbStorageBin.setUpdatedBy(loginUserID);
-                        dbStorageBin.setUpdatedOn(new Date());
-                        storageBinService.updateStorageBinV2(dbStorageBin.getStorageBin(), dbStorageBin, companyCode,
-                                                             plantId, languageId, warehouseId, loginUserID);
-                        log.info("---------storage bin updated-------" + dbStorageBin);
+                    // Check whether Inventory has record or not for that storageBin
+                    Double inventoryByStBin = inventoryService.getInventoryByStorageBinV4(companyCode, plantId, languageId, warehouseId, createdInhouseTransferLine.getSourceStorageBin());
+                    if (inventoryByStBin == null) {
+                        // Setting up statusId = 0
+                       pickupLineService.updateStorageBinEmptyStatus(companyCode, plantId, languageId, warehouseId, createdInhouseTransferLine.getSourceStorageBin(), loginUserID);
                     }
                 } catch (Exception e) {
                     log.error("---------storagebin-update-----" + e);
@@ -1657,33 +1646,18 @@ public class InhouseTransferHeaderService extends BaseService {
                                                                      createdInhouseTransferLine.getTargetStorageBin(),
                                                                      targetStockTypeId);
             if (inventoryTargetItemCode != null) {
-                // update INV_QTY value (INV_QTY + TR_CNF_QTY)
-                inventoryQty = inventoryTargetItemCode.getInventoryQuantity();
-                ALLOC_QTY = 0D;
-                if (inventoryTargetItemCode.getAllocatedQuantity() != null) {
-                    ALLOC_QTY = inventoryTargetItemCode.getAllocatedQuantity();
-                }
-                transferConfirmedQty = createdInhouseTransferLine.getTransferConfirmedQty();
-                log.info("sourceInventoryQty,transferConfirmedQty,inventoryQty : " + sourceInventoryQty + ", " + transferConfirmedQty + "," + inventoryQty);
-                if (sourceInventoryQty > 0L) {                  //Checking source Inventory Qty - only update if source inventory qty present else leave it as it is
-                    if (sourceInventoryQty >= transferConfirmedQty) {
-                        INV_QTY = inventoryQty + transferConfirmedQty;
-                    } else {
-                        INV_QTY = inventoryQty + sourceInventoryQty;
-                    }
-                } else {
-                    INV_QTY = inventoryQty;
-                }
-                TOT_QTY = INV_QTY + ALLOC_QTY;
+                double actualTransferConfirmedQty = getQuantity(createdInhouseTransferLine.getTransferConfirmedQty(), inventoryTargetItemCode.getBagSize());
+                double transferConfirmedQty = sourceInventoryQty >= actualTransferConfirmedQty ? actualTransferConfirmedQty : sourceInventoryQty;
 
-                BAG_SIZE = inventoryTargetItemCode.getBagSize() != null ? inventoryTargetItemCode.getBagSize() : 0D;
-                NO_OF_BAGS = TOT_QTY / BAG_SIZE;
+                inventoryQty = calculateTransferInventory(transferConfirmedQty, inventoryTargetItemCode.getBagSize(),
+                                                          inventoryTargetItemCode.getInventoryQuantity(), inventoryTargetItemCode.getAllocatedQuantity());
+                if (inventoryQty != null && inventoryQty.length > 3) {
+                    inventoryTargetItemCode.setInventoryQuantity(inventoryQty[0]);
+                    inventoryTargetItemCode.setAllocatedQuantity(inventoryQty[1]);
+                    inventoryTargetItemCode.setReferenceField4(inventoryQty[2]);
+                    inventoryTargetItemCode.setNoBags(inventoryQty[3]);
+                }
 
-                log.info("-----Target----INV_QTY, ALLOC_QTY, TOT_QTY-----------> : " + INV_QTY + ", " + ALLOC_QTY + ", " + TOT_QTY + " | " + NO_OF_BAGS);
-                inventoryTargetItemCode.setInventoryQuantity(round(INV_QTY));
-                inventoryTargetItemCode.setAllocatedQuantity(round(ALLOC_QTY));
-                inventoryTargetItemCode.setReferenceField4(round(TOT_QTY));
-                inventoryTargetItemCode.setNoBags(roundUp(NO_OF_BAGS));
                 inventoryTargetItemCode.setBarcodeId(inventorySourceItemCode.getBarcodeId());
                 if(inventoryTargetItemCode.getStockTypeDescription() == null) {
                     Long stockTypeId = createdInhouseTransferLine.getTargetStockTypeId() != null ? createdInhouseTransferLine.getTargetStockTypeId() : inventorySourceItemCode.getStockTypeId();
@@ -1699,145 +1673,7 @@ public class InhouseTransferHeaderService extends BaseService {
                 createdInhouseTransferLine.setBagSize(sourceBagSize);
                 createdInhouseTransferLine.setAlternateUom(inventorySourceItemCode.getAlternateUom());
                 createInventoryV4 (companyCode, plantId, languageId, warehouseId, sourceInventoryQty,
-                                   transferConfirmedQty, createdInhouseTransferLine, loginUserID);
-            }
-        }
-    }
-
-    /**
-     *
-     * @param companyCode
-     * @param plantId
-     * @param languageId
-     * @param warehouseId
-     * @param createdInhouseTransferLine
-     * @param loginUserID
-     */
-    private void stockTypeInventoryTransferV4(String companyCode, String plantId, String languageId, String warehouseId,
-                                              InhouseTransferLine createdInhouseTransferLine, String loginUserID) {
-        InventoryV2 inventorySourceItemCode =
-                inventoryService.getStockTypeInventoryTransferV4(companyCode, plantId, languageId, warehouseId,
-                                                                 createdInhouseTransferLine.getPackBarcodes(),
-                                                                 createdInhouseTransferLine.getSourceItemCode(),
-                                                                 createdInhouseTransferLine.getSourceBarcodeId(),
-                                                                 createdInhouseTransferLine.getManufacturerName(),
-                                                                 createdInhouseTransferLine.getSourceStorageBin(),
-                                                                 createdInhouseTransferLine.getSourceStockTypeId());
-        log.info("---------Stock type to Stock Type inventory----------> : " + inventorySourceItemCode);
-        if (inventorySourceItemCode != null) {
-            Double inventoryQty = inventorySourceItemCode.getInventoryQuantity();
-            Double sourceInventoryQty = inventorySourceItemCode.getInventoryQuantity();
-            Double ALLOC_QTY = 0D;
-            Double TOT_QTY;
-            if (inventorySourceItemCode.getAllocatedQuantity() != null) {
-                ALLOC_QTY = inventorySourceItemCode.getAllocatedQuantity();
-            }
-            Double transferConfirmedQty = createdInhouseTransferLine.getTransferConfirmedQty();
-            double INV_QTY = inventoryQty - transferConfirmedQty;
-            if (INV_QTY < 0) {
-                INV_QTY = 0L;
-            }
-            TOT_QTY = INV_QTY + ALLOC_QTY;
-
-            double BAG_SIZE = inventorySourceItemCode.getBagSize() != null ? inventorySourceItemCode.getBagSize() : 0D;
-            double sourceBagSize = inventorySourceItemCode.getBagSize() != null ? inventorySourceItemCode.getBagSize() : 0D;
-            double NO_OF_BAGS = TOT_QTY / BAG_SIZE;
-
-            log.info("-----StkTyp Source----INV_QTY, ALLOC_QTY, TOT_QTY-----------> : " + INV_QTY + ", " + ALLOC_QTY + ", " + TOT_QTY);
-            inventorySourceItemCode.setInventoryQuantity(round(INV_QTY));
-            inventorySourceItemCode.setAllocatedQuantity(round(ALLOC_QTY));
-            inventorySourceItemCode.setReferenceField4(round(TOT_QTY));
-            inventorySourceItemCode.setNoBags(roundUp(NO_OF_BAGS));
-
-            if(inventorySourceItemCode.getStockTypeDescription() == null) {
-                if(inventorySourceItemCode.getStockTypeId() != null) {
-                    inventorySourceItemCode.setStockTypeDescription(getStockTypeDesc(companyCode, plantId, languageId, warehouseId, inventorySourceItemCode.getStockTypeId()));
-                }
-            }
-
-            InventoryV2 newInventoryV2 = new InventoryV2();
-            BeanUtils.copyProperties(inventorySourceItemCode, newInventoryV2, CommonUtils.getNullPropertyNames(inventorySourceItemCode));
-            newInventoryV2.setUpdatedOn(new Date());
-            InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventoryV2);
-            log.info("InventoryV2 created : " + createdInventoryV2);
-
-            if (INV_QTY == 0 && (inventorySourceItemCode.getAllocatedQuantity() == null || inventorySourceItemCode.getAllocatedQuantity() == 0D)) {
-                InventoryV2 deleteInventoryV2 = new InventoryV2();
-                BeanUtils.copyProperties(inventorySourceItemCode, deleteInventoryV2, CommonUtils.getNullPropertyNames(inventorySourceItemCode));
-                deleteInventoryV2.setUpdatedOn(new Date());
-                deleteInventoryV2.setInventoryQuantity(0D);
-                deleteInventoryV2.setAllocatedQuantity(0D);
-                deleteInventoryV2.setReferenceField4(0D);
-                deleteInventoryV2.setNoBags(0D);
-                inventoryV2Repository.save(deleteInventoryV2);
-                log.info("---------inventory-----deleted-----");
-                try {
-                    StorageBinV2 dbStorageBin = storageBinService.getStorageBinV2(companyCode, plantId, languageId, warehouseId, createdInhouseTransferLine.getSourceStorageBin());
-                    if (dbStorageBin != null) {
-                        dbStorageBin.setStatusId(0L);
-                        dbStorageBin.setUpdatedBy(loginUserID);
-                        dbStorageBin.setUpdatedOn(new Date());
-                        storageBinService.updateStorageBinV2(dbStorageBin.getStorageBin(), dbStorageBin, companyCode,
-                                                             plantId, languageId, warehouseId, loginUserID);
-                        log.info("---------storage bin updated-------" + dbStorageBin);
-                    }
-                } catch (Exception e) {
-                    log.error("---------storagebin-update-----" + e);
-                }
-            }
-
-            // Pass WH_ID/ TGT_ITM_CODE/PACK_BARCODE/TGT_ST_BIN in INVENTORY TABLE validate for a record.
-            InventoryV2 inventoryTargetItemCode =
-                    inventoryService.getStockTypeInventoryTransferV4(companyCode, plantId, languageId, warehouseId,
-                                                                     createdInhouseTransferLine.getPackBarcodes(),
-                                                                     createdInhouseTransferLine.getTargetItemCode(),
-                                                                     createdInhouseTransferLine.getTargetBarcodeId(),
-                                                                     createdInhouseTransferLine.getManufacturerName(),
-                                                                     createdInhouseTransferLine.getTargetStorageBin(),
-                                                                     createdInhouseTransferLine.getTargetStockTypeId());
-            if (inventoryTargetItemCode != null) {
-                // update INV_QTY value (INV_QTY + TR_CNF_QTY)
-                inventoryQty = inventoryTargetItemCode.getInventoryQuantity();
-                ALLOC_QTY = 0D;
-                if (inventoryTargetItemCode.getAllocatedQuantity() != null) {
-                    ALLOC_QTY = inventoryTargetItemCode.getAllocatedQuantity();
-                }
-                transferConfirmedQty = createdInhouseTransferLine.getTransferConfirmedQty();
-                log.info("stockType sourceInventoryQty,transferConfirmedQty,inventoryQty : " + sourceInventoryQty + ", " + transferConfirmedQty + "," + inventoryQty);
-                if (sourceInventoryQty > 0L) {                  //Checking source Inventory Qty - only update if source inventory qty present else leave it as it is
-                    if (sourceInventoryQty >= transferConfirmedQty) {
-                        INV_QTY = inventoryQty + transferConfirmedQty;
-                    } else {
-                        INV_QTY = inventoryQty + sourceInventoryQty;
-                    }
-                } else {
-                    INV_QTY = inventoryQty;
-                }
-                TOT_QTY = INV_QTY + ALLOC_QTY;
-
-                BAG_SIZE = inventoryTargetItemCode.getBagSize() != null ? inventoryTargetItemCode.getBagSize() : 0D;
-                NO_OF_BAGS = TOT_QTY / BAG_SIZE;
-
-                log.info("-----Target----INV_QTY, ALLOC_QTY, TOT_QTY-----------> : " + INV_QTY + ", " + ALLOC_QTY + ", " + TOT_QTY + " | " + NO_OF_BAGS);
-                inventoryTargetItemCode.setInventoryQuantity(round(INV_QTY));
-                inventoryTargetItemCode.setAllocatedQuantity(round(ALLOC_QTY));
-                inventoryTargetItemCode.setReferenceField4(round(TOT_QTY));
-                inventoryTargetItemCode.setNoBags(roundUp(NO_OF_BAGS));
-                inventoryTargetItemCode.setBarcodeId(createdInhouseTransferLine.getTargetBarcodeId());
-                if(inventoryTargetItemCode.getStockTypeDescription() == null) {
-                    inventoryTargetItemCode.setStockTypeId(createdInhouseTransferLine.getTargetStockTypeId());
-                    inventoryTargetItemCode.setStockTypeDescription(getStockTypeDesc(companyCode, plantId, languageId, warehouseId, createdInhouseTransferLine.getTargetStockTypeId()));
-                }
-                InventoryV2 newInventoryV2_1 = new InventoryV2();
-                BeanUtils.copyProperties(inventoryTargetItemCode, newInventoryV2_1, CommonUtils.getNullPropertyNames(inventoryTargetItemCode));
-                newInventoryV2_1.setUpdatedOn(new Date());
-                createdInventoryV2 = inventoryV2Repository.save(newInventoryV2_1);
-                log.info("StkType Target InventoryV2 created : " + createdInventoryV2);
-            } else {
-                createdInhouseTransferLine.setBagSize(sourceBagSize);
-                createdInhouseTransferLine.setAlternateUom(inventorySourceItemCode.getAlternateUom());
-                createInventoryV4(companyCode, plantId, languageId, warehouseId, sourceInventoryQty,
-                                  transferConfirmedQty, createdInhouseTransferLine, loginUserID);
+                                   createdInhouseTransferLine.getTransferConfirmedQty(), createdInhouseTransferLine, loginUserID);
             }
         }
     }
@@ -1860,7 +1696,6 @@ public class InhouseTransferHeaderService extends BaseService {
          * WH_ID/ TGT_ITM_CODE/PAL_CODE/PACK_BARCODE/TGT_ST_BIN/CASE_CODE/STCK_TYP_ID/SP_ST_IND_ID/INV_QTY=TR_CNF_QTY/
          * INV_UOM as QTY_UOM/BIN_CL_ID of ST_BIN from STORAGEBIN table
          */
-        String masterAuthToken = getMasterAuthToken();
             log.info("createdInhouseTransferLine for New Inventory : " + createdInhouseTransferLine);
 
         // "LANG_ID", "C_ID", "PLANT_ID", "WH_ID", "PACK_BARCODE", "ITM_CODE", "ST_BIN", "SP_ST_IND_ID"
@@ -1873,6 +1708,7 @@ public class InhouseTransferHeaderService extends BaseService {
         newInventory.setStorageBin(createdInhouseTransferLine.getTargetStorageBin());
         newInventory.setCaseCode(createdInhouseTransferLine.getCaseCode());
         newInventory.setStockTypeId(createdInhouseTransferLine.getTargetStockTypeId());
+            newInventory.setBarcodeId(createdInhouseTransferLine.getTargetBarcodeId());
 
             String stockTypeDesc = getStockTypeDesc(companyCode, plantId, languageId, warehouseId, createdInhouseTransferLine.getTargetStockTypeId());
         newInventory.setStockTypeDescription(stockTypeDesc);
@@ -1890,37 +1726,17 @@ public class InhouseTransferHeaderService extends BaseService {
             newInventory.setSpecialStockIndicatorId(createdInhouseTransferLine.getSpecialStockIndicatorId());
         }
 
-        if (createdInhouseTransferLine.getTargetBarcodeId() != null) {
-            newInventory.setBarcodeId(createdInhouseTransferLine.getTargetBarcodeId());
-            } else {
-            List<String> barcode = stagingLineV2Repository.getPartnerItemBarcode(createdInhouseTransferLine.getTargetItemCode(), companyCode, plantId, warehouseId,
-                                                                                 createdInhouseTransferLine.getManufacturerName(), languageId);
-            log.info("Barcode : " + barcode);
-            if (barcode != null && !barcode.isEmpty()) {
-                newInventory.setBarcodeId(barcode.get(0));
-            }
-        }
-        Double INV_QTY = 0D;
-        log.info("sourceInventoryQty,transferConfirmedQty : " + sourceInventoryQty + ", " + transferConfirmedQty);
-        if (sourceInventoryQty > 0L) {                  //Checking source Inventory Qty - only update if source inventory qty present else leave it as it is
-            if (sourceInventoryQty >= transferConfirmedQty) {
-                INV_QTY = transferConfirmedQty;
-            } else {
-                INV_QTY = sourceInventoryQty;
-            }
-        } else {
-            INV_QTY = 0D;
-        }
-        Double ALLOC_QTY = 0D;
-        Double TOT_QTY = INV_QTY + ALLOC_QTY;
+            double BAG_SIZE = createdInhouseTransferLine.getBagSize() != null ? createdInhouseTransferLine.getBagSize() : 0D;
+            double actualTransferQty = getQuantity(transferConfirmedQty, BAG_SIZE);
+            double INV_QTY = sourceInventoryQty >= actualTransferQty ? actualTransferQty : sourceInventoryQty;
+            double ALLOC_QTY = 0D;
+            double TOT_QTY = INV_QTY + ALLOC_QTY;
+            double NO_OF_BAGS = TOT_QTY / BAG_SIZE;
         newInventory.setInventoryQuantity(round(INV_QTY));
         newInventory.setAllocatedQuantity(ALLOC_QTY);
         newInventory.setReferenceField4(round(TOT_QTY));
-
-        double BAG_SIZE = createdInhouseTransferLine.getBagSize() != null ? createdInhouseTransferLine.getBagSize() : 0D;
-        double NO_OF_BAGS = TOT_QTY / BAG_SIZE;
         newInventory.setNoBags(roundUp(NO_OF_BAGS));
-        log.info("INV_QTY--->ALLOC_QTY--->TOT_QTY----> : " + INV_QTY + ", " + ALLOC_QTY + ", " + TOT_QTY + " | " + NO_OF_BAGS);
+            log.info("INV_QTY--->ALLOC_QTY--->TOT_QTY----> : " + INV_QTY + "|" + ALLOC_QTY + "|" + TOT_QTY + "|" + NO_OF_BAGS);
         newInventory.setInventoryUom(createdInhouseTransferLine.getTransferUom());
 
         StorageBinV2 storageBin = storageBinService.getStorageBinV2(companyCode, plantId, languageId, warehouseId, createdInhouseTransferLine.getTargetStorageBin());
@@ -1933,14 +1749,8 @@ public class InhouseTransferHeaderService extends BaseService {
             newInventory.setReferenceField7(storageBin.getRowId());
             newInventory.setLevelId(String.valueOf(storageBin.getFloorId()));
         }
-        ImBasicData imBasicData = new ImBasicData();
-        imBasicData.setCompanyCodeId(companyCode);
-        imBasicData.setPlantId(plantId);
-        imBasicData.setLanguageId(languageId);
-        imBasicData.setWarehouseId(warehouseId);
-        imBasicData.setItemCode(createdInhouseTransferLine.getTargetItemCode());
-        imBasicData.setManufacturerName(createdInhouseTransferLine.getManufacturerName());
-        ImBasicData1 imbasicdata1 = mastersService.getImBasicData1ByItemCodeV2(imBasicData, masterAuthToken);
+            ImBasicData1V2 imbasicdata1 = imBasicData1V2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerPartNoAndDeletionIndicator(
+                    languageId, companyCode, plantId, warehouseId, createdInhouseTransferLine.getTargetItemCode(), createdInhouseTransferLine.getManufacturerName(), 0L);
         log.info("ImBasicData1 : " + imbasicdata1);
 
         if (imbasicdata1 != null) {

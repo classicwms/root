@@ -4734,6 +4734,8 @@ public class PickupLineService extends BaseService {
         String partnerCode = null;
         String pickupNumber = null;
         String itemCode = null;
+        String allocatedBarCode = null;
+        String pickedBarCode = null;
         boolean isQtyAvail = false;
         PickupHeaderV2 dbPickupHeader = null;
         List<PickupLineV2> createdPickupLineList = new ArrayList<>();
@@ -4820,6 +4822,8 @@ public class PickupLineService extends BaseService {
                     if (dbPickupLine.getBatchSerialNumber() == null) {
                         dbPickupLine.setBatchSerialNumber(dbOrderManagementLine.getProposedBatchSerialNumber());
                     }
+                    allocatedBarCode = dbOrderManagementLine.getBarcodeId();
+                    pickedBarCode = dbPickupLine.getBarcodeId();
                 }
 
                 dbPickupHeader = pickupHeaderService.getPickupHeaderV2(companyCodeId, plantId, languageId, warehouseId,
@@ -4845,6 +4849,9 @@ public class PickupLineService extends BaseService {
                         dbPickupLine.setBagSize(dbPickupHeader.getBagSize());
                         dbPickupLine.setAlternateUom(dbPickupHeader.getAlternateUom());
                         dbPickupLine.setNoBags(dbPickupHeader.getNoBags());
+                    }
+                    if(dbPickupLine.getMrp() == null) {
+                        dbPickupLine.setMrp(dbPickupHeader.getMrp());
                     }
                 }
 
@@ -4903,147 +4910,12 @@ public class PickupLineService extends BaseService {
             // Updating respective tables
             for (PickupLineV2 dbPickupLine : createdPickupLineList) {
                 fireBaseNotification(dbPickupLine, loginUserID);
-                //------------------------UpdateLock-Applied------------------------------------------------------------
-                InventoryV2 inventory = inventoryService.getOutboundInventoryV4(companyCodeId, plantId, languageId, warehouseId, itemCode,
-                                                                        dbPickupLine.getManufacturerName(), dbPickupLine.getBarcodeId(),
-                                                                        dbPickupLine.getPickedStorageBin(), dbPickupLine.getAlternateUom());
-                log.info("inventory record queried: " + inventory);
-                if (inventory != null) {
-                    if (dbPickupLine.getAllocatedQty() > 0D) {
-                        try {
-                            double actualAllocationQty = getQuantity(dbPickupLine.getAllocatedQty(), dbPickupLine.getBagSize());
-                            double actualPickConfirmQty = getQuantity(dbPickupLine.getPickConfirmQty(), dbPickupLine.getBagSize());
-//                            Double INV_QTY = (inventory.getInventoryQuantity() + dbPickupLine.getAllocatedQty()) - dbPickupLine.getPickConfirmQty();
-//                            Double ALLOC_QTY = inventory.getAllocatedQuantity() - dbPickupLine.getAllocatedQty();
 
-                            Double INV_QTY = (inventory.getInventoryQuantity() + actualAllocationQty) - actualPickConfirmQty;
-                            Double ALLOC_QTY = inventory.getAllocatedQuantity() - actualAllocationQty;
-
-                            /*
-                             * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
-                             */
-                            // Start
-                            if (INV_QTY < 0D) {
-                                INV_QTY = 0D;
-                            }
-
-                            if (ALLOC_QTY < 0D) {
-                                ALLOC_QTY = 0D;
-                            }
-                            // End
-                            Double TOT_QTY = INV_QTY + ALLOC_QTY;
-                            inventory.setInventoryQuantity(round(INV_QTY));
-                            inventory.setAllocatedQuantity(round(ALLOC_QTY));
-                            inventory.setReferenceField4(round(TOT_QTY));
-                            log.info("INV_QTY, ALLOC_QTY, TOT_QTY : " + INV_QTY + ", " + ALLOC_QTY + ", " + TOT_QTY);
-                            if (inventory.getItemType() == null) {
-                                IKeyValuePair itemType = getItemTypeAndDesc(companyCodeId, plantId, languageId, warehouseId, itemCode);
-                                if (itemType != null) {
-                                    inventory.setItemType(itemType.getItemType());
-                                    inventory.setItemTypeDescription(itemType.getItemTypeDescription());
-                                }
-                            }
-
-                            double BAG_SIZE = inventory.getBagSize() != null ? inventory.getBagSize() : 0D;
-                            double NO_OF_BAGS = inventory.getReferenceField4() / BAG_SIZE;
-                            inventory.setNoBags(roundUp(NO_OF_BAGS));
-
-                            InventoryV2 inventoryV2 = new InventoryV2();
-                            BeanUtils.copyProperties(inventory, inventoryV2, CommonUtils.getNullPropertyNames(inventory));
-                            inventoryV2.setReferenceDocumentNo(refDocNumber);
-                            inventoryV2.setReferenceOrderNo(refDocNumber);
-                            inventoryV2.setUpdatedOn(new Date());
-                            inventoryV2 = inventoryV2Repository.save(inventoryV2);
-                            log.info("-----Inventory2 updated-------: " + inventoryV2);
-
-                            if (INV_QTY == 0) {
-                                // Setting up statusId = 0
-                                try {
-                                    // Check whether Inventory has record or not
-                                    InventoryV2 inventoryByStBin = inventoryService.getInventoryByStorageBinV2(companyCodeId, plantId, languageId, warehouseId, inventory.getStorageBin());
-                                    if (inventoryByStBin == null || (inventoryByStBin != null && inventoryByStBin.getReferenceField4() == 0)) {
-                                        StorageBinV2 dbStorageBin = storageBinService.getStorageBinV2(companyCodeId, plantId, languageId, warehouseId, inventory.getStorageBin());
-                                        if (dbStorageBin != null) {
-                                            dbStorageBin.setStatusId(0L);
-                                            log.info("Bin Emptied");
-                                            storageBinService.updateStorageBinV2(inventory.getStorageBin(), dbStorageBin, companyCodeId, plantId, languageId, warehouseId, loginUserID);
-                                            log.info("Bin Update Success");
-                                        }
-                                    }
-                                } catch (Exception e) {
-                                    log.error("updateStorageBin Error :" + e.toString());
-                                    e.printStackTrace();
-                                }
-                            }
-                        } catch (Exception e) {
-                            log.error("Inventory Update :" + e.toString());
-                            e.printStackTrace();
-                        }
-                    }
-
-                    if (dbPickupLine.getAllocatedQty() == null || dbPickupLine.getAllocatedQty() == 0D) {
-                        Double INV_QTY;
-                        try {
-                            double actualPickConfirmQty = getQuantity(dbPickupLine.getPickConfirmQty(), dbPickupLine.getBagSize());
-//                            INV_QTY = inventory.getInventoryQuantity() - dbPickupLine.getPickConfirmQty();
-                            INV_QTY = inventory.getInventoryQuantity() - actualPickConfirmQty;
-                            /*
-                             * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
-                             */
-                            // Start
-                            if (INV_QTY < 0D) {
-                                INV_QTY = 0D;
-                            }
-                            // End
-                            inventory.setInventoryQuantity(round(INV_QTY));
-                            inventory.setReferenceField4(round(INV_QTY));
-
-                            double BAG_SIZE = inventory.getBagSize() != null ? inventory.getBagSize() : 0D;
-                            double NO_OF_BAGS = inventory.getReferenceField4() / BAG_SIZE;
-                            inventory.setNoBags(roundUp(NO_OF_BAGS));
-
-                            if (inventory.getItemType() == null) {
-                                IKeyValuePair itemType = getItemTypeAndDesc(companyCodeId, plantId, languageId, warehouseId, itemCode);
-                                if (itemType != null) {
-                                    inventory.setItemType(itemType.getItemType());
-                                    inventory.setItemTypeDescription(itemType.getItemTypeDescription());
-                                }
-                            }
-
-                            InventoryV2 newInventoryV2 = new InventoryV2();
-                            BeanUtils.copyProperties(inventory, newInventoryV2, CommonUtils.getNullPropertyNames(inventory));
-                            newInventoryV2.setReferenceDocumentNo(refDocNumber);
-                            newInventoryV2.setReferenceOrderNo(refDocNumber);
-                            newInventoryV2.setUpdatedOn(new Date());
-                            newInventoryV2.setInventoryId(System.currentTimeMillis());
-                            InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventoryV2);
-                            log.info("InventoryV2 created : " + createdInventoryV2);
-
-                            //-------------------------------------------------------------------
-                            // PASS PickedConfirmedStBin, WH_ID to inventory
-                            // 	If inv_qty && alloc_qty is zero or null then do the below logic.
-                            //-------------------------------------------------------------------
-                            InventoryV2 inventoryBySTBIN = inventoryService.getInventoryByStorageBinV2(companyCodeId, plantId, languageId, warehouseId,
-                                                                                                       dbPickupLine.getPickedStorageBin());
-                            if (inventoryBySTBIN != null && (inventoryBySTBIN.getAllocatedQuantity() == null || inventoryBySTBIN.getAllocatedQuantity() == 0D)
-                                    && (inventoryBySTBIN.getInventoryQuantity() == null || inventoryBySTBIN.getInventoryQuantity() == 0D)) {
-                                try {
-                                    // Setting up statusId = 0
-                                    StorageBinV2 dbStorageBin = storageBinService.getStorageBinV2(companyCodeId, plantId, languageId, warehouseId,
-                                                                                                  inventory.getStorageBin());
-                                    dbStorageBin.setStatusId(0L);
-                                    storageBinService.updateStorageBinV2(inventory.getStorageBin(), dbStorageBin, companyCodeId,
-                                                                         plantId, languageId, warehouseId, loginUserID);
-                                } catch (Exception e) {
-                                    log.error("updateStorageBin Error :" + e.toString());
-                                    e.printStackTrace();
-                                }
-                            }
-                        } catch (Exception e1) {
-                            log.error("Inventory cum StorageBin update: Error :" + e1.toString());
-                            e1.printStackTrace();
-                        }
-                    }
+                //Update Inventory
+                if(allocatedBarCode != null && pickedBarCode != null && allocatedBarCode.equalsIgnoreCase(pickedBarCode)) {
+                    modifyInventoryForMatchingBarcodeIdV4(companyCodeId, plantId, languageId, warehouseId, itemCode, refDocNumber, dbPickupLine, loginUserID);
+                } else {
+                    modifyInventoryForNonMatchingBarcodeIdV4(companyCodeId, plantId, languageId, warehouseId, itemCode, refDocNumber, allocatedBarCode, dbPickupLine, loginUserID);
                 }
 
                 // Inserting record in InventoryMovement
@@ -5057,8 +4929,7 @@ public class PickupLineService extends BaseService {
                     movementDocumentNo = dbPickupLine.getPickupNumber();
                     stBin = dbPickupLine.getPickedStorageBin();
                     movementQtyValue = "N";
-                    inventoryMovement = createInventoryMovementV2(dbPickupLine, subMvtTypeId, movementDocumentNo, stBin,
-                                                                  movementQtyValue, loginUserID);
+                    inventoryMovement = createInventoryMovementV2(dbPickupLine, subMvtTypeId, movementDocumentNo, stBin, movementQtyValue, loginUserID);
                     log.info("InventoryMovement created : " + inventoryMovement);
                 } catch (Exception e) {
                     log.error("InventoryMovement create Error :" + e.toString());
@@ -5132,5 +5003,257 @@ public class PickupLineService extends BaseService {
             return pickupLine;
         }
         return null;
+    }
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param refDocNumber
+     * @param dbPickupLine
+     * @param loginUserID
+     */
+    public void modifyInventoryForMatchingBarcodeIdV4(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                         String itemCode, String refDocNumber, PickupLineV2 dbPickupLine, String loginUserID) {
+
+                InventoryV2 inventory = inventoryService.getOutboundInventoryV4(companyCodeId, plantId, languageId, warehouseId, itemCode,
+                                                                        dbPickupLine.getManufacturerName(), dbPickupLine.getBarcodeId(),
+                                                                        dbPickupLine.getPickedStorageBin(), dbPickupLine.getAlternateUom());
+                log.info("inventory record queried: " + inventory);
+                if (inventory != null) {
+                    if (dbPickupLine.getAllocatedQty() > 0D) {
+                        try {
+//                            Double INV_QTY = (inventory.getInventoryQuantity() + dbPickupLine.getAllocatedQty()) - dbPickupLine.getPickConfirmQty();
+//                            Double ALLOC_QTY = inventory.getAllocatedQuantity() - dbPickupLine.getAllocatedQty();
+
+                    double[] inventoryQty = calculateInventory(dbPickupLine.getAllocatedQty(), dbPickupLine.getPickConfirmQty(), dbPickupLine.getBagSize(), inventory.getInventoryQuantity(), inventory.getAllocatedQuantity());
+                    if (inventoryQty != null && inventoryQty.length > 3) {
+                        inventory.setInventoryQuantity(inventoryQty[0]);
+                        inventory.setAllocatedQuantity(inventoryQty[1]);
+                        inventory.setReferenceField4(inventoryQty[2]);
+                        inventory.setNoBags(inventoryQty[3]);
+                            }
+
+                            if (inventory.getItemType() == null) {
+                                IKeyValuePair itemType = getItemTypeAndDesc(companyCodeId, plantId, languageId, warehouseId, itemCode);
+                                if (itemType != null) {
+                                    inventory.setItemType(itemType.getItemType());
+                                    inventory.setItemTypeDescription(itemType.getItemTypeDescription());
+                                }
+                            }
+
+                            InventoryV2 inventoryV2 = new InventoryV2();
+                            BeanUtils.copyProperties(inventory, inventoryV2, CommonUtils.getNullPropertyNames(inventory));
+                            inventoryV2.setReferenceDocumentNo(refDocNumber);
+                            inventoryV2.setReferenceOrderNo(refDocNumber);
+                            inventoryV2.setUpdatedOn(new Date());
+                            inventoryV2 = inventoryV2Repository.save(inventoryV2);
+                            log.info("-----Inventory2 updated-------: " + inventoryV2);
+
+                    if (inventory.getReferenceField4() == 0) {
+                                // Setting up statusId = 0
+                                try {
+                            // Check whether Inventory has record or not for that storageBin
+                            Double inventoryByStBin = inventoryService.getInventoryByStorageBinV4(companyCodeId, plantId, languageId, warehouseId, inventory.getStorageBin());
+                            if (inventoryByStBin == null) {
+                                // Setting up statusId = 0
+                                updateStorageBinEmptyStatus(companyCodeId, plantId, languageId, warehouseId, inventory.getStorageBin(), loginUserID);
+                                    }
+                                } catch (Exception e) {
+                                    log.error("updateStorageBin Error :" + e.toString());
+                                    e.printStackTrace();
+                                }
+                            }
+                        } catch (Exception e) {
+                            log.error("Inventory Update :" + e.toString());
+                            e.printStackTrace();
+                        }
+                    }
+
+                    if (dbPickupLine.getAllocatedQty() == null || dbPickupLine.getAllocatedQty() == 0D) {
+                        try {
+
+                    double[] inventoryQty = calculateInventory(dbPickupLine.getAllocatedQty(), dbPickupLine.getPickConfirmQty(), dbPickupLine.getBagSize(), inventory.getInventoryQuantity(), inventory.getAllocatedQuantity());
+                    if (inventoryQty != null && inventoryQty.length > 3) {
+                        inventory.setInventoryQuantity(inventoryQty[0]);
+                        inventory.setAllocatedQuantity(inventoryQty[1]);
+                        inventory.setReferenceField4(inventoryQty[2]);
+                        inventory.setNoBags(inventoryQty[3]);
+                            }
+
+                            if (inventory.getItemType() == null) {
+                                IKeyValuePair itemType = getItemTypeAndDesc(companyCodeId, plantId, languageId, warehouseId, itemCode);
+                                if (itemType != null) {
+                                    inventory.setItemType(itemType.getItemType());
+                                    inventory.setItemTypeDescription(itemType.getItemTypeDescription());
+                                }
+                            }
+
+                            InventoryV2 newInventoryV2 = new InventoryV2();
+                            BeanUtils.copyProperties(inventory, newInventoryV2, CommonUtils.getNullPropertyNames(inventory));
+                            newInventoryV2.setReferenceDocumentNo(refDocNumber);
+                            newInventoryV2.setReferenceOrderNo(refDocNumber);
+                            newInventoryV2.setUpdatedOn(new Date());
+                            newInventoryV2.setInventoryId(System.currentTimeMillis());
+                            InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventoryV2);
+                            log.info("InventoryV2 created : " + createdInventoryV2);
+
+                    if (createdInventoryV2.getReferenceField4() == 0) {
+                            //-------------------------------------------------------------------
+                            // PASS PickedConfirmedStBin, WH_ID to inventory
+                            // 	If inv_qty && alloc_qty is zero or null then do the below logic.
+                            //-------------------------------------------------------------------
+                        // Check whether Inventory has record or not for that storageBin
+                        Double inventoryByStBin = inventoryService.getInventoryByStorageBinV4(companyCodeId, plantId, languageId, warehouseId, inventory.getStorageBin());
+                        if (inventoryByStBin == null) {
+                                    // Setting up statusId = 0
+                            updateStorageBinEmptyStatus(companyCodeId, plantId, languageId, warehouseId, inventory.getStorageBin(), loginUserID);
+                                }
+                            }
+                        } catch (Exception e1) {
+                            log.error("Inventory cum StorageBin update: Error :" + e1.toString());
+                            e1.printStackTrace();
+                        }
+                    }
+                }
+    }
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param refDocNumber
+     * @param allocatedBarcode
+     * @param dbPickupLine
+     * @param loginUserID
+     */
+    public void modifyInventoryForNonMatchingBarcodeIdV4(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                         String itemCode, String refDocNumber, String allocatedBarcode, PickupLineV2 dbPickupLine, String loginUserID) {
+
+        InventoryV2 allocatedInventory = inventoryService.getOutboundInventoryV4(companyCodeId, plantId, languageId, warehouseId, itemCode,
+                                                                                 dbPickupLine.getManufacturerName(), allocatedBarcode,
+                                                                                 dbPickupLine.getPickedStorageBin(), dbPickupLine.getAlternateUom());
+        log.info("allocated inventory record queried: " + allocatedInventory);
+        if(allocatedInventory != null) {
+            if (dbPickupLine.getPickConfirmQty() > 0D) {
+                double[] inventoryQty = calculateInventoryUnAllocate(dbPickupLine.getPickConfirmQty(), dbPickupLine.getBagSize(), allocatedInventory.getInventoryQuantity(), allocatedInventory.getAllocatedQuantity());
+                if (inventoryQty != null && inventoryQty.length > 3) {
+                    allocatedInventory.setInventoryQuantity(inventoryQty[0]);
+                    allocatedInventory.setAllocatedQuantity(inventoryQty[1]);
+                    allocatedInventory.setReferenceField4(inventoryQty[2]);
+                    allocatedInventory.setNoBags(inventoryQty[3]);
+                }
+
+                if (allocatedInventory.getItemType() == null) {
+                    IKeyValuePair itemType = getItemTypeAndDesc(companyCodeId, plantId, languageId, warehouseId, itemCode);
+                    if (itemType != null) {
+                        allocatedInventory.setItemType(itemType.getItemType());
+                        allocatedInventory.setItemTypeDescription(itemType.getItemTypeDescription());
+                    }
+                }
+
+                InventoryV2 inventoryV2 = new InventoryV2();
+                BeanUtils.copyProperties(allocatedInventory, inventoryV2, CommonUtils.getNullPropertyNames(allocatedInventory));
+                inventoryV2.setReferenceDocumentNo(refDocNumber);
+                inventoryV2.setReferenceOrderNo(refDocNumber);
+                inventoryV2.setUpdatedOn(new Date());
+                inventoryV2 = inventoryV2Repository.save(inventoryV2);
+                log.info("-----allocated Inventory2 updated-------: " + inventoryV2);
+
+                if (inventoryV2.getReferenceField4() == 0) {
+                    // Setting up statusId = 0
+                try {
+                        // Check whether Inventory has record or not for that storageBin
+                        Double inventoryByStBin = inventoryService.getInventoryByStorageBinV4(companyCodeId, plantId, languageId, warehouseId, allocatedInventory.getStorageBin());
+                        if (inventoryByStBin == null) {
+                            // Setting up statusId = 0
+                            updateStorageBinEmptyStatus(companyCodeId, plantId, languageId, warehouseId, allocatedInventory.getStorageBin(), loginUserID);
+                        }
+                } catch (Exception e) {
+                        log.error("updateStorageBin Error :" + e.toString());
+                    e.printStackTrace();
+                }
+                }
+            }
+        }
+
+        InventoryV2 inventory = inventoryService.getOutboundInventoryV4(companyCodeId, plantId, languageId, warehouseId, itemCode,
+                                                                        dbPickupLine.getManufacturerName(), dbPickupLine.getBarcodeId(),
+                                                                        dbPickupLine.getPickedStorageBin(), dbPickupLine.getAlternateUom());
+        log.info("picked inventory record queried: " + inventory);
+        if (inventory != null) {
+            if (dbPickupLine.getPickConfirmQty() > 0D) {
+                try {
+
+                    double[] inventoryQty = calculateInventoryAllocate(dbPickupLine.getPickConfirmQty(), dbPickupLine.getBagSize(), inventory.getInventoryQuantity(), inventory.getAllocatedQuantity());
+                    if (inventoryQty != null && inventoryQty.length > 3) {
+                        inventory.setInventoryQuantity(inventoryQty[0]);
+                        inventory.setAllocatedQuantity(inventoryQty[1]);
+                        inventory.setReferenceField4(inventoryQty[2]);
+                        inventory.setNoBags(inventoryQty[3]);
+                    }
+
+                    if (inventory.getItemType() == null) {
+                        IKeyValuePair itemType = getItemTypeAndDesc(companyCodeId, plantId, languageId, warehouseId, itemCode);
+                        if (itemType != null) {
+                            inventory.setItemType(itemType.getItemType());
+                            inventory.setItemTypeDescription(itemType.getItemTypeDescription());
+                        }
+                    }
+
+                    InventoryV2 inventoryV2 = new InventoryV2();
+                    BeanUtils.copyProperties(inventory, inventoryV2, CommonUtils.getNullPropertyNames(inventory));
+                    inventoryV2.setReferenceDocumentNo(refDocNumber);
+                    inventoryV2.setReferenceOrderNo(refDocNumber);
+                    inventoryV2.setUpdatedOn(new Date());
+                    inventoryV2 = inventoryV2Repository.save(inventoryV2);
+                    log.info("-----Inventory2 updated-------: " + inventoryV2);
+
+                    if (inventoryV2.getReferenceField4() == 0) {
+                        // Setting up statusId = 0
+                        try {
+                            // Check whether Inventory has record or not for that storageBin
+                            Double inventoryByStBin = inventoryService.getInventoryByStorageBinV4(companyCodeId, plantId, languageId, warehouseId, inventory.getStorageBin());
+                            if (inventoryByStBin == null) {
+                                // Setting up statusId = 0
+                                updateStorageBinEmptyStatus(companyCodeId, plantId, languageId, warehouseId, inventory.getStorageBin(), loginUserID);
+                            }
+                        } catch (Exception e) {
+                            log.error("updateStorageBin Error :" + e.toString());
+                            e.printStackTrace();
+                }
+            }
+        } catch (Exception e) {
+                    log.error("Inventory Update :" + e.toString());
+            e.printStackTrace();
+        }
+            }
+
+        }
+    }
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param storageBin
+     * @param loginUserID
+     */
+    public void updateStorageBinEmptyStatus (String companyCodeId, String plantId, String languageId,
+                                             String warehouseId, String storageBin, String loginUserID) {
+        StorageBinV2 dbStorageBin = storageBinService.getStorageBinV2(companyCodeId, plantId, languageId, warehouseId, storageBin);
+        if (dbStorageBin != null) {
+            dbStorageBin.setStatusId(0L);
+            StorageBinV2 updateStorageBin = storageBinService.updateStorageBinV2(storageBin, dbStorageBin, companyCodeId, plantId, languageId, warehouseId, loginUserID);
+            log.info("Bin Emptied Update Success----> " + updateStorageBin);
+        }
     }
 }

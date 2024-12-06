@@ -1616,6 +1616,7 @@ public class PeriodicLineService extends BaseService {
                 periodicLineV2.setInventoryQuantity(dbInventory.getInventoryQuantity());
                 periodicLineV2.setFrozenQty(dbInventory.getReferenceField4());
                 periodicLineV2.setReferenceField4(String.valueOf(dbInventory.getReferenceField4()));
+                periodicLineV2.setItemType(dbInventory.getItemTypeDescription());
                 periodicLineV2.setDeletionIndicator(0L);
 
                 createStockCountList.add(periodicLineV2);

@@ -120,12 +120,6 @@ public class InboundOrderProcessingService extends BaseService {
             }
 
             // save/create process
-            inboundOrderProcess.setCompanyCodeId(companyCodeId);
-            inboundOrderProcess.setPlantId(plantId);
-            inboundOrderProcess.setLanguageId(languageId);
-            inboundOrderProcess.setWarehouseId(warehouseId);
-            inboundOrderProcess.setRefDocNumber(refDocNumber);
-            inboundOrderProcess.setInboundOrderTypeId(inboundIntegrationHeader.getInboundOrderTypeId());
             inboundOrderProcess.setInboundIntegrationHeader(inboundIntegrationHeader);
             inboundOrderProcess.setLoginUserId(MW_AMS);
 
@@ -151,11 +145,12 @@ public class InboundOrderProcessingService extends BaseService {
             log.info("PreInboundNo, StagingNo, CaseCode, GrNumber : " + preInboundNo + ", " + stagingNo + ", " + caseCode + ", " + grNumber);
 
             statusDescription = getStatusDescription(statusId, languageId);
-            IKeyValuePair description = getDescription(companyCodeId, plantId, languageId, warehouseId);
+            description = getDescription(companyCodeId, plantId, languageId, warehouseId);
 
             List<PreInboundLineEntityV2> overallCreatedPreInboundLineList = new ArrayList<>();
             List<PreInboundLineEntityV2> toBeCreatedPreInboundLineList = new ArrayList<>();
             String partBarCode = generateBarCodeId(refDocNumber);
+            long lineNumber = 1;
             for (InboundIntegrationLine inboundIntegrationLine : inboundIntegrationHeader.getInboundIntegrationLine()) {
                 ImBasicData1V2 imBasicData1 = imBasicData1V2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerPartNoAndDeletionIndicator(
                             languageId, companyCodeId, plantId, warehouseId,
@@ -178,11 +173,6 @@ public class InboundOrderProcessingService extends BaseService {
                         inboundIntegrationLine.setItemGroup(imBasicData1.getItemGroupDescription());
                 }
                 }
-                String barcodeId = generateBarCodeId(inboundIntegrationLine.getItemCode(), partBarCode);
-                inboundIntegrationLine.setBarcodeId(barcodeId);
-                ImPartner imPartner = createImpartner(companyCodeId, plantId, languageId, warehouseId, inboundIntegrationLine.getItemCode(),
-                                                      inboundIntegrationLine.getManufacturerName(), barcodeId, MW_AMS);
-                imPartnerList.add(imPartner);
 
                 // If ITM_CODE value is Null, then insert a record in IMBASICDATA1 table as below
                 if (imBasicData1 == null) {
@@ -195,7 +185,7 @@ public class InboundOrderProcessingService extends BaseService {
                     imBasicData1.setItemCode(inboundIntegrationLine.getItemCode());                 // ITM_CODE
                     imBasicData1.setUomId(inboundIntegrationLine.getUom());                         // UOM_ID
                     imBasicData1.setDescription(inboundIntegrationLine.getItemText());              // ITEM_TEXT
-                    imBasicData1.setManufacturerPartNo(inboundIntegrationLine.getManufacturerPartNo());
+                    imBasicData1.setManufacturerPartNo(inboundIntegrationLine.getManufacturerName());
                         imBasicData1.setManufacturerName(inboundIntegrationLine.getManufacturerName());
                     imBasicData1.setManufacturerCode(inboundIntegrationLine.getManufacturerCode());
                     imBasicData1.setCapacityCheck(false);
@@ -217,12 +207,25 @@ public class InboundOrderProcessingService extends BaseService {
                 BomHeader bomHeader = mastersService.getBomHeader(inboundIntegrationLine.getItemCode(), warehouseId,
                                                                   companyCodeId, plantId, languageId, masterAuthToken);
                 log.info("bomHeader [BOM] : " + bomHeader);
+
+                double noOfBags = inboundIntegrationLine.getNoBags() != null ? inboundIntegrationLine.getNoBags() : 1L;
+                for (long i = 1; i <= noOfBags; i++) {
+                    InboundIntegrationLine newInboundIntegrationLine = new InboundIntegrationLine();
+                    BeanUtils.copyProperties(inboundIntegrationLine, newInboundIntegrationLine, CommonUtils.getNullPropertyNames(inboundIntegrationLine));
+                    String barcodeId = generateBarCodeId(newInboundIntegrationLine.getItemCode(), partBarCode, i);
+                    newInboundIntegrationLine.setBarcodeId(barcodeId);
+                    newInboundIntegrationLine.setLineReference(lineNumber);
+                    newInboundIntegrationLine.setNoBags(1D);
+                    newInboundIntegrationLine.setOrderedQty(1D);
+                    ImPartner imPartner = createImpartner(companyCodeId, plantId, languageId, warehouseId, newInboundIntegrationLine.getItemCode(),
+                                                          newInboundIntegrationLine.getManufacturerName(), barcodeId, MW_AMS);
+                    imPartnerList.add(imPartner);
+
                 if (bomHeader != null) {
-                    BomLine[] bomLine = mastersService.getBomLine(bomHeader.getBomNumber(),
-                                                                  companyCodeId, plantId, languageId, warehouseId, masterAuthToken);
+                        BomLine[] bomLine = mastersService.getBomLine(bomHeader.getBomNumber(), companyCodeId, plantId, languageId, warehouseId, masterAuthToken);
                     for (BomLine dbBomLine : bomLine) {
                         PreInboundLineEntityV2 preInboundLineEntity = createPreInboundLineBOMBasedV2(companyCodeId, plantId, languageId, warehouseId,
-                                                                                                     preInboundNo, inboundIntegrationHeader, inboundIntegrationLine,
+                                                                                                         preInboundNo, inboundIntegrationHeader, newInboundIntegrationLine,
                                                                                                      dbBomLine, MW_AMS, description, statusId, statusDescription);
                         toBeCreatedPreInboundLineList.add(preInboundLineEntity);
                         log.info("preInboundLineEntity [BOM] : " + toBeCreatedPreInboundLineList.size());
@@ -234,7 +237,9 @@ public class InboundOrderProcessingService extends BaseService {
                         overallCreatedPreInboundLineList.addAll(toBeCreatedPreInboundLineList);
                     }
                 }
-                inboundIntegrationLines.add(inboundIntegrationLine);
+                    lineNumber++;
+                    inboundIntegrationLines.add(newInboundIntegrationLine);
+            }
             }
 
             inboundOrderProcess.setImPartnerList(imPartnerList);
@@ -260,6 +265,11 @@ public class InboundOrderProcessingService extends BaseService {
             }
             inboundOrderProcess.setPreInboundLines(overallCreatedPreInboundLineList);
 
+            /*------------------Insert into PreInboundHeader table-----------------------------*/
+            PreInboundHeaderEntityV2 createPreInboundHeader = createPreInboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, preInboundNo,
+                                                                                       inboundIntegrationHeader, MW_AMS, description, statusId, statusDescription);
+            inboundOrderProcess.setPreInboundHeader(createPreInboundHeader);
+
             List<InboundLineV2> inboundLines = overallCreatedPreInboundLineList.stream().map(preInboundLine -> {
                 InboundLineV2 inboundLine = new InboundLineV2();
                 BeanUtils.copyProperties(preInboundLine, inboundLine, CommonUtils.getNullPropertyNames(preInboundLine));
@@ -277,16 +287,6 @@ public class InboundOrderProcessingService extends BaseService {
                 stagingLine.setPartner_item_barcode(preInboundLine.getBarcodeId());
                 stagingLine.setStatusId(14L);
                 stagingLine.setStatusDescription(statusDescription);
-
-                if(preInboundLine.getBarcodeId() == null) {
-                    //Barcode
-                    List<String> barcode = getBarCodeId(companyCodeId, plantId, languageId, warehouseId,
-                                                        preInboundLine.getItemCode(), preInboundLine.getManufacturerName());
-                    log.info("Barcode : " + barcode);
-                    if (barcode != null && !barcode.isEmpty()) {
-                        stagingLine.setBarcodeId(barcode.get(0));
-                    }
-                }
 
                 if(companyCodeId.equalsIgnoreCase(WK_COMPANY_CODE)) {
                     //-----------------PROP_ST_BIN---------------------------------------------
@@ -309,10 +309,6 @@ public class InboundOrderProcessingService extends BaseService {
             }).collect(Collectors.toList());
             inboundOrderProcess.setStagingLines(stagingLines);
 
-            /*------------------Insert into PreInboundHeader table-----------------------------*/
-            PreInboundHeaderEntityV2 createPreInboundHeader = createPreInboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, preInboundNo,
-                                                                                       inboundIntegrationHeader, MW_AMS, description, statusId, statusDescription);
-            inboundOrderProcess.setPreInboundHeader(createPreInboundHeader);
             /*------------------Insert into Inbound Header----------------------------*/
             InboundHeaderV2 createInboundHeader = createInboundHeaderV2(createPreInboundHeader, overallCreatedPreInboundLineList);
             inboundOrderProcess.setInboundHeader(createInboundHeader);
@@ -1098,7 +1094,6 @@ public class InboundOrderProcessingService extends BaseService {
     }
 
     /**
-     *
      * @param companyCodeId
      * @param plantId
      * @param languageId

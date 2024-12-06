@@ -1913,31 +1913,23 @@ public class StockAdjustmentService extends BaseService {
                     if (dbInventory != null) {
                         InventoryV2 newInventory = new InventoryV2();
                         BeanUtils.copyProperties(dbInventory, newInventory, CommonUtils.getNullPropertyNames(dbInventory));
-                        Double INV_QTY = dbInventory.getInventoryQuantity();
-                        Double ADJ_QTY = periodicLine.getVarianceQty();
-                        INV_QTY = INV_QTY + ADJ_QTY;
-                        if (INV_QTY < 0) {
-                            INV_QTY = 0D;
-                        }
-                        newInventory.setInventoryQuantity(round(INV_QTY));
-                        Double ALLOC_QTY = 0D;
-                        if (dbInventory.getAllocatedQuantity() != null) {
-                            ALLOC_QTY = dbInventory.getAllocatedQuantity();
-                        }
-                        Double TOT_QTY = INV_QTY + ALLOC_QTY;
-                        newInventory.setReferenceField4(round(TOT_QTY));
 
-                        double BAG_SIZE = newInventory.getBagSize() != null ? newInventory.getBagSize() : 0D;
-                        double NO_OF_BAGS = TOT_QTY / BAG_SIZE;
-                        newInventory.setNoBags(roundUp(NO_OF_BAGS));
+                            double[] inventoryQty = calculateStockAdjustmentInventory(periodicLine.getVarianceQty(), newInventory.getBagSize(),
+                                                                                      newInventory.getInventoryQuantity(), newInventory.getAllocatedQuantity());
+                            if (inventoryQty != null && inventoryQty.length > 3) {
+                                newInventory.setInventoryQuantity(inventoryQty[0]);
+                                newInventory.setAllocatedQuantity(inventoryQty[1]);
+                                newInventory.setReferenceField4(inventoryQty[2]);
+                                newInventory.setNoBags(inventoryQty[3]);
+                        }
+
                         inventoryV2Repository.save(newInventory);
 
                         //StockAdjustment Record Insert
                         StockAdjustment dbStockAdjustment = new StockAdjustment();
                         BeanUtils.copyProperties(newInventory, dbStockAdjustment, CommonUtils.getNullPropertyNames(newInventory));
 
-                        dbStockAdjustment.setAdjustmentQty(ADJ_QTY);
-                        dbStockAdjustment.setCompanyCode(periodicLine.getCompanyCode());
+                            dbStockAdjustment.setAdjustmentQty(periodicLine.getVarianceQty());
                         dbStockAdjustment.setBranchCode(periodicLine.getPlantId());
                         dbStockAdjustment.setItemDescription(periodicLine.getItemDesc());
                         dbStockAdjustment.setBeforeAdjustment(dbInventory.getReferenceField4());

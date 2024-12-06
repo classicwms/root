@@ -77,4 +77,6 @@ public interface IInventoryImpl {
 	String getAlternateUom();
 	Double getNoBags();
 	Double getBagSize();
+	Double getMrp();
+	String getItemGroup();
 }

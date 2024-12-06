@@ -277,14 +277,15 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 
 		DefaultLineMapper<Inventory> inventoryLineMapper = new DefaultLineMapper<>();
 		DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-		tokenizer.setNames(new String[]{"inventoryId", "languageId", "companyCodeId", "plantId", "warehouseId", "palletCode", "caseCode",
-				"itemCode", "packBarcodes", "variantCode", "variantSubCode", "batchSerialNumber", "storageBin",
+		tokenizer.setNames(new String[]{"languageId", "companyCodeId", "plantId", "warehouseId", "palletCode", "caseCode",
+				"packBarcodes", "itemCode",  "variantCode", "variantSubCode", "batchSerialNumber", "storageBin",
 				"stockTypeId", "specialStockIndicatorId", "referenceOrderNo", "storageMethod", "binClassId", "description",
-				"allocatedQuantity", "inventoryQuantity", "inventoryUom", "manufacturerCode", "manufacturerDate", "expiryDate",
-				"barcodeId", "cbm", "cbmUnit", "cbmPerQuantity", "manufacturerName", "origin", "brand", "referenceDocumentNo", "levelId",
-				"companyDescription", "plantDescription", "warehouseDescription", "statusDescription", "stockTypeDescription", "deletionIndicator", "referenceField1",
-				"referenceField2", "referenceField3", "referenceField4", "referenceField5", "referenceField6", "referenceField7",
-				"referenceField8", "referenceField9", "referenceField10", "dType", "createdBy"});
+				"inventoryQuantity", "allocatedQuantity",  "inventoryUom", "manufacturerCode", "manufacturerDate", "expiryDate",
+				"deletionIndicator", "referenceField1", "referenceField2", "referenceField3", "referenceField4", "referenceField5",
+				"referenceField6", "referenceField7", "referenceField8", "referenceField9", "referenceField10", "dType", "createdBy",
+				"barcodeId", "cbm", "cbmUnit", "cbmPerQuantity", "manufacturerName", "origin", "levelId", "brand", "referenceDocumentNo",
+				"companyDescription", "plantDescription", "warehouseDescription", "statusDescription", "stockTypeDescription",
+				"alternateUom", "noBags", "bagSize"});
 		inventoryLineMapper.setLineTokenizer(tokenizer);
 		inventoryLineMapper.setFieldSetMapper(new InventoryFieldSetMapper());
 		inventoryLineMapper.afterPropertiesSet();
@@ -297,18 +298,19 @@ public class JobConfiguration extends DefaultBatchConfigurer {
 	public JdbcBatchItemWriter<Inventory> inventoryItemWriter() {
 		JdbcBatchItemWriter<Inventory> itemWriter = new JdbcBatchItemWriter<>();
 		itemWriter.setDataSource(this.dataSource);
-		itemWriter.setSql(" INSERT INTO tblinventory (INV_ID, LANG_ID, C_ID, PLANT_ID, WH_ID, PAL_CODE, CASE_CODE, ITM_CODE, PACK_BARCODE, "
-				+ " VAR_ID, VAR_SUB_ID, STR_NO, ST_BIN, STCK_TYP_ID, SP_ST_IND_ID, REF_ORD_NO, STR_MTD, BIN_CL_ID, TEXT, ALLOC_QTY, "
-				+ " INV_QTY, INV_UOM, MFR_CODE, MFR_DATE, EXP_DATE, BARCODE_ID, CBM, CBM_UNIT, CBM_PER_QTY, MFR_NAME, ORIGIN, BRAND, "
-				+ " REF_DOC_NO,LEVEL_ID, C_TEXT, PLANT_TEXT, WH_TEXT, STATUS_TEXT,STCK_TYP_TEXT, IS_DELETED, REF_FIELD_1, REF_FIELD_2, REF_FIELD_3, REF_FIELD_4, "
-				+ " REF_FIELD_5, REF_FIELD_6, REF_FIELD_7, REF_FIELD_8, REF_FIELD_9, REF_FIELD_10, DTYPE, IU_CTD_BY, IU_CTD_ON) "
-				+ " VALUES (:inventoryId, :languageId, :companyCodeId, :plantId, :warehouseId, :palletCode, :caseCode, :itemCode, :packBarcodes, "
+		itemWriter.setSql(" INSERT INTO tblinventory (LANG_ID, C_ID, PLANT_ID, WH_ID, PAL_CODE, CASE_CODE, PACK_BARCODE, ITM_CODE, "
+				+ " VAR_ID, VAR_SUB_ID, STR_NO, ST_BIN, STCK_TYP_ID, SP_ST_IND_ID, REF_ORD_NO, STR_MTD, BIN_CL_ID, TEXT, INV_QTY, ALLOC_QTY, "
+				+ " INV_UOM, MFR_CODE, MFR_DATE, EXP_DATE, IS_DELETED, REF_FIELD_1, REF_FIELD_2, REF_FIELD_3, REF_FIELD_4, "
+				+ "REF_FIELD_5, REF_FIELD_6, REF_FIELD_7, REF_FIELD_8, REF_FIELD_9, REF_FIELD_10, DTYPE, IU_CTD_BY, "
+				+ "BARCODE_ID, CBM, CBM_UNIT, CBM_PER_QTY, MFR_NAME, ORIGIN, LEVEL_ID, BRAND, "
+				+ " REF_DOC_NO, C_TEXT, PLANT_TEXT, WH_TEXT, STATUS_TEXT,STCK_TYP_TEXT, ALT_UOM, NO_BAGS, BAG_SIZE, IU_CTD_ON) "
+				+ " VALUES (:languageId, :companyCodeId, :plantId, :warehouseId, :palletCode, :caseCode, :packBarcodes, :itemCode, "
 				+ " :variantCode, :variantSubCode, :batchSerialNumber, :storageBin, :stockTypeId, :specialStockIndicatorId,"
-				+ " :referenceOrderNo, :storageMethod, :binClassId, :description, :allocatedQuantity, :inventoryQuantity, :inventoryUom,"
-				+ " :manufacturerCode, :manufacturerDate, :expiryDate, :barcodeId, :cbm, :cbmUnit, :cbmPerQuantity, :manufacturerName,"
-				+ " :origin, :brand, :referenceDocumentNo,:levelId, :companyDescription, :plantDescription, :warehouseDescription,"
-				+ " :statusDescription, :stockTypeDescription, :deletionIndicator, :referenceField1, :referenceField2, :referenceField3, :referenceField4,"
-				+ " :referenceField5, :referenceField6, :referenceField7, :referenceField8, :referenceField9, :referenceField10, :dType, :createdBy, GETDATE())");
+				+ " :referenceOrderNo, :storageMethod, :binClassId, :description, :inventoryQuantity, :allocatedQuantity, :inventoryUom,"
+				+ " :manufacturerCode, :manufacturerDate, :expiryDate, :deletionIndicator, :referenceField1, :referenceField2, :referenceField3, :referenceField4,"
+				+ " :referenceField5, :referenceField6, :referenceField7, :referenceField8, :referenceField9, :referenceField10, :dType, :createdBy,"
+				+ " :barcodeId, :cbm, :cbmUnit, :cbmPerQuantity, :manufacturerName, :origin, :levelId, :brand, :referenceDocumentNo, "
+				+ " :companyDescription, :plantDescription, :warehouseDescription, :statusDescription, :stockTypeDescription, :alternateUom, :noBags, :bagSize, GETDATE())");
 		itemWriter.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider());
 		itemWriter.afterPropertiesSet();
 		return itemWriter;

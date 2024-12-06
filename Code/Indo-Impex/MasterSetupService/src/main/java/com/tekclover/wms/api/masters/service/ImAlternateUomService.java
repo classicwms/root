@@ -103,10 +103,7 @@ public class ImAlternateUomService {
         try {
             List<ImAlternateUom> dbImAlternateUomList = new ArrayList<>();
 
-//		String uomId = imalternateuomRepository.getUomId();
-
             for (AddImAlternateUom newAlternateUom : newImAlternateUom) {
-
                 List<ImAlternateUom> duplicateImAlternateUom = imalternateuomRepository.
                         findByAlternateUomAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndUomIdAndLanguageIdAndDeletionIndicator(
                                 newAlternateUom.getAlternateUom(), newAlternateUom.getCompanyCodeId(),
@@ -115,32 +112,12 @@ public class ImAlternateUomService {
                                 newAlternateUom.getLanguageId(), 0L);
 
                 if (!duplicateImAlternateUom.isEmpty()) {
-
                     throw new EntityNotFoundException("Record is Getting Duplicated");
-
                 } else {
-
                     ImAlternateUom dbImAlternateUom = new ImAlternateUom();
-                    Long id = imalternateuomRepository.getId();
-
                     BeanUtils.copyProperties(newAlternateUom, dbImAlternateUom, CommonUtils.getNullPropertyNames(newAlternateUom));
 
-                    //				if(uomId != null) {
-                    //
-                    //					dbImAlternateUom.setUomId(uomId);
-                    //
-                    //				}else {
-                    //
-                    //					dbImAlternateUom.setUomId("1");
-                    //				}
-                    if (id != null) {
-
-                        dbImAlternateUom.setId(id);
-
-                    } else {
-
-                        dbImAlternateUom.setId(1L);
-                    }
+                    dbImAlternateUom.setId(System.currentTimeMillis());
                     dbImAlternateUom.setDeletionIndicator(0L);
                     dbImAlternateUom.setCreatedBy(loginUserID);
                     dbImAlternateUom.setUpdatedBy(loginUserID);
@@ -190,58 +167,32 @@ public class ImAlternateUomService {
     public List<ImAlternateUom> updateImAlternateUom(String alternateUom, String companyCodeId, String plantId,
                                                      String warehouseId, String itemCode, String uomId, String languageId,
                                                      List<UpdateImAlternateUom> updateImAlternateUom, String loginUserID) {
-
         try {
             List<ImAlternateUom> dbImAlternateUomList = new ArrayList<>();
+            log.info("updateImAlternateUom : " + updateImAlternateUom + "|" + companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + uomId);
+
+                List<ImAlternateUom> dbImAlternateUom = imalternateuomRepository.
+                        findByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndLanguageIdAndDeletionIndicator(
+                            companyCodeId, plantId, warehouseId, itemCode, languageId, 0L);
+
+                if (dbImAlternateUom != null && !dbImAlternateUom.isEmpty()) {
+                    imalternateuomRepository.deleteAll(dbImAlternateUom);
+                    log.info("altUom deleted successfully for update process");
+                    }
 
             for (UpdateImAlternateUom newUpdateImAlternateUom : updateImAlternateUom) {
-
-                if (newUpdateImAlternateUom.getId() != null) {
-                    ImAlternateUom dbImAlternateUom = imalternateuomRepository.
-                            findByAlternateUomAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndUomIdAndLanguageIdAndIdAndDeletionIndicator(
-                                    newUpdateImAlternateUom.getAlternateUom(), companyCodeId, plantId,
-                                    warehouseId, itemCode, newUpdateImAlternateUom.getUomId(),
-                                    languageId, newUpdateImAlternateUom.getId(), 0L);
-
-
-                    if (dbImAlternateUom != null) {
-
-                        BeanUtils.copyProperties(newUpdateImAlternateUom, dbImAlternateUom, CommonUtils.getNullPropertyNames(newUpdateImAlternateUom));
-                        dbImAlternateUom.setUpdatedBy(loginUserID);
-                        dbImAlternateUom.setUpdatedOn(new Date());
-                        dbImAlternateUomList.add(imalternateuomRepository.save(dbImAlternateUom));
-
-                    }
-                } else {
-                    Long id = imalternateuomRepository.getId();
                     ImAlternateUom newImAlternateUom = new ImAlternateUom();
-
-                    List<ImAlternateUom> duplicateImAlternateUom = imalternateuomRepository.
-                            findByAlternateUomAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndUomIdAndLanguageIdAndDeletionIndicator(
-                                    newUpdateImAlternateUom.getAlternateUom(), newUpdateImAlternateUom.getCompanyCodeId(),
-                                    newUpdateImAlternateUom.getPlantId(), newUpdateImAlternateUom.getWarehouseId(),
-                                    newUpdateImAlternateUom.getItemCode(), newUpdateImAlternateUom.getUomId(),
-                                    newUpdateImAlternateUom.getLanguageId(), 0L);
-
-                    if (!duplicateImAlternateUom.isEmpty()) {
-
-                        throw new EntityNotFoundException("Record is Getting Duplicated");
-
-                    } else {
-
                         BeanUtils.copyProperties(newUpdateImAlternateUom, newImAlternateUom, CommonUtils.getNullPropertyNames(newUpdateImAlternateUom));
-
                         newImAlternateUom.setUomId(uomId);
-                        newImAlternateUom.setId(id);
+                newImAlternateUom.setId(System.currentTimeMillis());
                         newImAlternateUom.setDeletionIndicator(0L);
                         newImAlternateUom.setCreatedBy(loginUserID);
                         newImAlternateUom.setUpdatedBy(loginUserID);
                         newImAlternateUom.setCreatedOn(new Date());
                         newImAlternateUom.setUpdatedOn(new Date());
-
-                        dbImAlternateUomList.add(imalternateuomRepository.save(newImAlternateUom));
-                    }
-                }
+                    ImAlternateUom created = imalternateuomRepository.save(newImAlternateUom);
+                    log.info("created altUOM : " + created);
+                    dbImAlternateUomList.add(created);
             }
             return dbImAlternateUomList;
         } catch (Exception e) {

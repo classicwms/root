@@ -6839,7 +6839,6 @@ public class GrLineService extends BaseService {
                 }
 
                 // ST_BIN ---Pass WH_ID/BIN_CL_ID=3 in STORAGEBIN table and fetch ST_BIN value and update
-                String masterAuthToken = getMasterAuthToken();
                 StorageBinV2 storageBin = storageBinService.getStorageBinByBinClassIdV2(warehouseId, 3L, companyCode, plantId, languageId);
                 log.info("storageBin: " + storageBin);
 

@@ -180,4 +180,30 @@ public class PeriodicLine {
 	@Column(name = "CC_CNT_ON") 
 	private Date countedOn = new Date();
 
+	/*----------------------Impex--------------------------------------------------*/
+
+	@Column(name = "SIZE", columnDefinition = "nvarchar(50)")
+	private String size;
+
+	@Column(name = "BRAND", columnDefinition = "nvarchar(100)")
+	private String brand;
+
+	@Column(name = "ALT_UOM", columnDefinition = "nvarchar(50)")
+	private String alternateUom;
+
+	@Column(name = "NO_BAGS")
+	private Double noBags;
+
+	@Column(name = "BAG_SIZE")
+	private Double bagSize;
+
+	@Column(name = "MRP")
+	private Double mrp;
+
+	@Column(name = "ITM_TYP", columnDefinition = "nvarchar(100)")
+	private String itemType;
+
+	@Column(name = "ITM_GRP", columnDefinition = "nvarchar(100)")
+	private String itemGroup;
+
 }
