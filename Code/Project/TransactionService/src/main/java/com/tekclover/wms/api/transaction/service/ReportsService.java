@@ -348,6 +348,34 @@ public class ReportsService extends BaseService {
     }
 
     /**
+     * Modified Logic Requested by User
+     * @param warehouseId
+     * @param itemCode
+     * @param itemText
+     * @param stockTypeText
+     * @return
+     */
+    public List<StockReportImpl> getAllStockReportNew(List<String> warehouseId, List<String> itemCode, String itemText, String stockTypeText) {
+        if (warehouseId == null) {
+            throw new BadRequestException("WarehouseId can't be blank.");
+        }
+
+        if (stockTypeText == null) {
+            throw new BadRequestException("StockTypeText can't be blank.");
+        }
+        stockTypeText = stockTypeText.contains("%20") ? stockTypeText.replace("%20","") : stockTypeText;
+        if (itemText != null && itemText.trim().equals("")) {
+            itemText = null;
+        }
+
+        if (itemCode != null && itemCode.isEmpty()) {
+            itemCode = null;
+        }
+
+        return inventoryRepository.getAllStockReportNew(warehouseId, itemCode, itemText, stockTypeText);
+    }
+
+    /**
      * Inventory Report -------------------------
      *
      * @param warehouseId

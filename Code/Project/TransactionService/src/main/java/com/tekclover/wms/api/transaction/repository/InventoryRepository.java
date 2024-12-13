@@ -215,6 +215,32 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 			@Param(value = "itemText") String itemText,
 			@Param(value = "stockTypeText") String stockTypeText);
 
+	@Query(value = "select itemCode,warehouseId,manufacturerSKU,itemText,onHandQty,damageQty,holdQty,(COALESCE(onHandQty ,0) + COALESCE(damageQty,0) + COALESCE(holdQty,0)) as availableQty from \r\n"
+			+ "(select i.itm_code as itemCode,i.wh_id as warehouseId ,im.mfr_part as manufacturerSKU , im.text as itemText , \r\n"
+			+ "(case \r\n"
+			+ "WHEN :stockTypeText = 'ALL' THEN (select sum(CASE WHEN inv_qty > 0 THEN inv_qty ELSE 0 END) + sum(COALESCE(alloc_qty,0)) from tblinventory where wh_id IN (:warehouseIds) and itm_code = i.itm_code and IS_DELETED = 0 and ref_field_10 in ('ZB', 'ZG', 'ZC', 'ZT', 'ZD', 'ZH', 'ZO'))\r\n"
+			+ "WHEN :stockTypeText = 'ONHAND' THEN (select sum(CASE WHEN inv_qty > 0 THEN inv_qty ELSE 0 END) + sum(COALESCE(alloc_qty,0)) from tblinventory where wh_id IN (:warehouseIds) and itm_code = i.itm_code and IS_DELETED = 0 and ref_field_10 in ('ZB', 'ZG', 'ZC', 'ZT'))\r\n"
+			+ "ELSE 0\r\n"
+			+ "END ) as onHandQty,\r\n"
+			+ "(case \r\n"
+			+ "WHEN :stockTypeText = 'DAMAGED' THEN (select sum(CASE WHEN inv_qty > 0 THEN inv_qty ELSE 0 END) + sum(COALESCE(alloc_qty,0)) from tblinventory where wh_id IN (:warehouseIds) and itm_code = i.itm_code and IS_DELETED = 0 and ref_field_10 in ('ZD'))\r\n"
+			+ "ELSE 0\r\n"
+			+ "END ) as damageQty,\r\n"
+			+ "(case \r\n"
+			+ "WHEN :stockTypeText = 'HOLD' THEN (select sum(CASE WHEN inv_qty > 0 THEN inv_qty ELSE 0 END) + sum(COALESCE(alloc_qty,0)) from tblinventory where wh_id IN (:warehouseIds) and itm_code = i.itm_code and IS_DELETED = 0 and ref_field_10 in ('ZH', 'ZO'))\r\n"
+			+ "ELSE 0\r\n"
+			+ "END ) as holdQty\r\n"
+			+ "from tblinventory i \r\n"
+			+ "join tblimbasicdata1 im on i.itm_code = im.itm_code\r\n"
+			+ "where (:itemText IS NULL or (i.ref_field_8 = :itemText)) \r\n"
+			+ "AND i.wh_id IN (:warehouseIds) \r\n"
+			+ "AND (COALESCE(:itemCodes, null) IS NULL OR (i.itm_code IN (:itemCodes))) AND i.IS_DELETED = 0 \r\n"
+			+ "group by i.itm_code ,i.wh_id , im.mfr_part , im.text) as X", nativeQuery = true)
+	public List<StockReportImpl> getAllStockReportNew(@Param("warehouseIds") List<String> warehouseId,
+													  @Param("itemCodes") List<String> itemCode,
+													  @Param("itemText") String itemText,
+													  @Param("stockTypeText") String stockTypeText);
+
 	public List<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndReferenceField10InAndBinClassIdAndInventoryQuantityGreaterThan(
 			String languageId, String companyCode, String plantId, String warehouseId, String itemCode,
 			List<String> storageSectionIds, long l, Double m);

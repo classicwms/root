@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.tekclover.wms.api.transaction.model.dto.TransactionError;
+import com.tekclover.wms.api.transaction.model.impl.StockReportImpl;
 import com.tekclover.wms.api.transaction.model.report.*;
 import com.tekclover.wms.api.transaction.service.TransactionErrorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,13 +81,13 @@ public class ReportsController {
 //		return new ResponseEntity<>(stockReportList, HttpStatus.OK);
 //	}
 
-	@ApiOperation(response = Inventory.class, value = "Get Stock Report") // label for swagger
+	@ApiOperation(response = StockReportImpl.class, value = "Get Stock Report") // label for swagger
 	@GetMapping("/stockReport-all")
 	public ResponseEntity<?> getAllStockReport(@RequestParam List<String> warehouseId,
 											@RequestParam(required = false) List<String> itemCode,
 											@RequestParam(required = false) String itemText,
 											@RequestParam(required = true) String stockTypeText) {
-		List<StockReport> stockReportList = reportsService.getAllStockReport(warehouseId, itemCode, itemText, stockTypeText);
+		List<StockReportImpl> stockReportList = reportsService.getAllStockReportNew(warehouseId, itemCode, itemText, stockTypeText);
 		return new ResponseEntity<>(stockReportList, HttpStatus.OK);
 	}
     
