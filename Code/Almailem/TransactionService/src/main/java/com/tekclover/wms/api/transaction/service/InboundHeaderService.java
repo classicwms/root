@@ -13,10 +13,7 @@ import com.tekclover.wms.api.transaction.model.inbound.gr.v2.GrLineV2;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.PutAwayLineV2;
-import com.tekclover.wms.api.transaction.model.inbound.v2.InboundHeaderEntityV2;
-import com.tekclover.wms.api.transaction.model.inbound.v2.InboundHeaderV2;
-import com.tekclover.wms.api.transaction.model.inbound.v2.InboundLineV2;
-import com.tekclover.wms.api.transaction.model.inbound.v2.SearchInboundHeaderV2;
+import com.tekclover.wms.api.transaction.model.inbound.v2.*;
 import com.tekclover.wms.api.transaction.model.integration.IntegrationApiResponse;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.confirmation.*;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.*;
@@ -28,6 +25,8 @@ import com.tekclover.wms.api.transaction.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -145,6 +144,8 @@ public class InboundHeaderService extends BaseService {
 
     String statusDescription = null;
     boolean alreadyExecuted = true;
+    boolean inventoryError = false;
+    long inventoryErrorCount = 0;
     //----------------------------------------------------------------------------------------------
 
     /**
@@ -1525,7 +1526,7 @@ public class InboundHeaderService extends BaseService {
      * @param loginUserID
      * @return
      */
-    @Transactional
+//    @Transactional
     public AXApiResponse updateInboundHeaderPartialConfirmV2(String companyCode, String plantId, String languageId, String warehouseId,
                                                              String preInboundNo, String refDocNumber, String loginUserID) {
         try {
@@ -1562,7 +1563,7 @@ public class InboundHeaderService extends BaseService {
                     log.info("PutawayLine List: " + putAwayLineList.size());
                     if (putAwayLineList != null) {
                             for (PutAwayLineV2 putAwayLine : putAwayLineList) {
-                                InventoryV2 createdInventory = createInventoryNonCBMV2(putAwayLine);
+                                boolean createdInventory = createInventoryNonCBMV2(putAwayLine);
                             createInventoryMovementV2(putAwayLine);
                         }
                         log.info("Inventory Created Successfully -----> for All Putaway Lines");
@@ -1570,7 +1571,8 @@ public class InboundHeaderService extends BaseService {
                 }
             }
         }
-
+        log.info("inventoryError: " + inventoryError + "|" + refDocNumber);
+        if(!inventoryError) {
         statusDescription = stagingLineV2Repository.getStatusDescription(24L, languageId);
 
         inboundLineV2Repository.updateInboundLineStatusUpdateInboundConfirmProc(
@@ -1632,7 +1634,7 @@ public class InboundHeaderService extends BaseService {
                 inboundHeaderV2Repository.updateHeaderStatusInboundConfirmProcedure(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
                 log.info("Header Status updated using stored procedure");
         }
-
+        }
         axapiResponse.setStatusCode("200");                         //HardCoded
         axapiResponse.setMessage("Success");                        //HardCoded
         log.info("axapiResponse: " + axapiResponse);
@@ -1642,7 +1644,7 @@ public class InboundHeaderService extends BaseService {
         }
     }
 
-    @Transactional
+//    @Transactional
     public AXApiResponse updateInboundHeaderPartialConfirmNewV2(List<InboundLineV2> inboundLineList, String companyCode, String plantId, String languageId,
                                                                 String warehouseId, String preInboundNo, String refDocNumber, String loginUserID) {
 
@@ -1679,7 +1681,7 @@ public class InboundHeaderService extends BaseService {
                         log.info("PutawayLine List: " + putAwayLineList.size());
                         if (putAwayLineList != null) {
                             for (PutAwayLineV2 putAwayLine : putAwayLineList) {
-                                InventoryV2 createdInventory = createInventoryNonCBMV2(putAwayLine);
+                                boolean createdInventory = createInventoryNonCBMV2(putAwayLine);
                                 createInventoryMovementV2(putAwayLine);
                             }
                             log.info("Inventory Created Successfully -----> for Inbound Line ----> " +
@@ -1709,7 +1711,8 @@ public class InboundHeaderService extends BaseService {
 //        grLineV2Repository.updateGrLineStatusUpdateInboundConfirmProc(
 //                companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
 //        log.info("GrLine updated");
-
+        log.info("inventoryError: " + inventoryError + "|" + refDocNumber);
+        if(!inventoryError) {
         String statusDescription17 = stagingLineV2Repository.getStatusDescription(17L,languageId);
 //        stagingLineV2Repository.updateStagingLineStatusUpdateInboundConfirmProc(
 //                companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 17L, statusDescription17, loginUserID, new Date());
@@ -1748,7 +1751,7 @@ public class InboundHeaderService extends BaseService {
                 inboundHeaderV2Repository.updateHeaderStatusInboundConfirmProcedure(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
                 log.info("Header Status updated using stored procedure");
         }
-
+        }
         axapiResponse.setStatusCode("200");                         //HardCoded
         axapiResponse.setMessage("Success");                        //HardCoded
         log.info("axapiResponse: " + axapiResponse);
@@ -2018,7 +2021,10 @@ public class InboundHeaderService extends BaseService {
      * @param putAwayLine
      * @return
      */
-    private InventoryV2 createInventoryNonCBMV2(PutAwayLineV2 putAwayLine) {
+    @Transactional(rollbackFor = {Exception.class, Throwable.class})
+    @Retryable(value = Exception.class, maxAttempts = 3, backoff = @Backoff(delay = 5000, multiplier = 2))
+    private boolean createInventoryNonCBMV2(PutAwayLineV2 putAwayLine) throws Exception {
+        inventoryError = false;
         alreadyExecuted = false;
         log.info("Create Inventory Initiated ---> alreadyExecuted ---> " + new Date() + ", " + alreadyExecuted);
         String palletCode = null;
@@ -2211,10 +2217,16 @@ public class InboundHeaderService extends BaseService {
             alreadyExecuted = true;             //to ensure method executing only once
                 log.info("created inventory : executed" + createdinventory + " -----> " + alreadyExecuted);
             }
-            return createdinventory;
+            return false;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new BadRequestException("Error While Creating Inventory");
+            inventoryError = true;
+            inventoryErrorCount++;
+            log.error("Error While Creating Inventory --> errorCount ---> " + inventoryErrorCount);
+            if(inventoryErrorCount == 3) {
+                sendMail(putAwayLine, e.getLocalizedMessage());
+            }
+            throw e;
         }
     }
 
@@ -2749,6 +2761,29 @@ public class InboundHeaderService extends BaseService {
             inboundHeaderV2Repository.save(inboundHeader);
         }
         return inboundHeader;
+    }
+
+    /**
+     *
+     * @param putAwayLine
+     */
+    private void sendMail(PutAwayLineV2 putAwayLine, String errorMessage) throws Exception {
+        try {
+            //Sending Failed Details through Mail
+            InboundOrderCancelInput inboundOrderCancelInput = new InboundOrderCancelInput();
+            inboundOrderCancelInput.setCompanyCodeId(putAwayLine.getCompanyCode());
+            inboundOrderCancelInput.setPlantId(putAwayLine.getPlantId());
+            inboundOrderCancelInput.setLanguageId(putAwayLine.getLanguageId());
+            inboundOrderCancelInput.setWarehouseId(putAwayLine.getWarehouseId());
+            inboundOrderCancelInput.setRefDocNumber(putAwayLine.getRefDocNumber());
+            inboundOrderCancelInput.setReferenceField2(putAwayLine.getManufacturerName());
+            inboundOrderCancelInput.setReferenceField1("Inbound Confirm - Inventory Exception");
+            inboundOrderCancelInput.setRemarks(errorMessage);
+            mastersService.sendMail(inboundOrderCancelInput);
+        } catch (Exception e) {
+            log.error("Exception while sending mail..!");
+            throw e;
+        }
     }
 
 }
