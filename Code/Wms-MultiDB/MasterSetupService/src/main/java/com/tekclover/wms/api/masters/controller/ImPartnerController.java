@@ -1,0 +1,110 @@
+package com.tekclover.wms.api.masters.controller;
+
+import com.tekclover.wms.api.masters.model.impartner.AddImPartner;
+import com.tekclover.wms.api.masters.model.impartner.ImPartner;
+import com.tekclover.wms.api.masters.model.impartner.ImPartnerInput;
+import com.tekclover.wms.api.masters.model.impartner.SearchImPartner;
+import com.tekclover.wms.api.masters.service.ImPartnerService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.SwaggerDefinition;
+import io.swagger.annotations.Tag;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
+
+@Slf4j
+@Validated
+@Api(tags = {"ImPartner"}, value = "ImPartner  Operations related to ImPartnerController") // label for swagger
+@SwaggerDefinition(tags = {@Tag(name = "ImPartner ", description = "Operations related to ImPartner ")})
+@RequestMapping("/impartner")
+@RestController
+public class ImPartnerController {
+
+    @Autowired
+    ImPartnerService impartnerService;
+
+    @ApiOperation(response = ImPartner.class, value = "Get all ImPartner details") // label for swagger
+    @GetMapping("")
+    public ResponseEntity<?> getAll() {
+        List<ImPartner> impartnerList = impartnerService.getImPartners();
+        return new ResponseEntity<>(impartnerList, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = ImPartner.class, value = "Get a ImPartner") // label for swagger 
+    @GetMapping("/{itemCode}")
+    public ResponseEntity<?> getImPartner(@PathVariable String itemCode, @RequestParam String companyCodeId, @RequestParam String manufacturerName,
+                                          @RequestParam String plantId, @RequestParam String languageId,
+                                          @RequestParam String warehouseId, @RequestParam String partnerItemBarcode) {
+        List<ImPartner> impartner =
+                impartnerService.getImPartner(companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, partnerItemBarcode);
+        return new ResponseEntity<>(impartner, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = ImPartner.class, value = "Search ImPartner") // label for swagger
+    @PostMapping("/findImPartner")
+    public List<ImPartner> findImPartner(@RequestBody SearchImPartner searchImPartner) {
+        return impartnerService.findImPartner(searchImPartner);
+    }
+
+    @ApiOperation(response = ImPartner.class, value = "Create ImPartner") // label for swagger
+    @PostMapping("")
+    public ResponseEntity<?> postImPartner(@Valid @RequestBody List<AddImPartner> newImPartner,
+                                           @RequestParam String loginUserID) {
+        List<ImPartner> createdImPartner = impartnerService.createImPartner(newImPartner, loginUserID);
+        return new ResponseEntity<>(createdImPartner, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = ImPartner.class, value = "Update ImPartner") // label for swagger
+    @PatchMapping("/{itemCode}")
+    public ResponseEntity<?> patchImPartner(@PathVariable String itemCode, @RequestParam String companyCodeId,
+                                            @RequestParam String plantId, @RequestParam String languageId, @RequestParam String manufacturerName,
+                                            @RequestParam String warehouseId, @Valid @RequestBody List<AddImPartner> updateImPartner,
+                                            @RequestParam String loginUserID) {
+
+        List<ImPartner> createdImPartner =
+                impartnerService.updateImPartner(companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, updateImPartner, loginUserID);
+        return new ResponseEntity<>(createdImPartner, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = ImPartner.class, value = "Delete ImPartner") // label for swagger
+    @DeleteMapping("/{itemCode}")
+    public ResponseEntity<?> deleteImPartner(@PathVariable String itemCode, @RequestParam String manufacturerName,
+                                             @RequestParam String companyCodeId, @RequestParam String plantId,
+                                             @RequestParam String languageId, @RequestParam String warehouseId, @RequestParam String partnerItemBarcode,
+                                             @RequestParam String loginUserID) {
+
+        impartnerService.deleteImPartner(companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, partnerItemBarcode, loginUserID);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @ApiOperation(response = ImPartner.class, value = "Get a ImPartner") // label for swagger
+    @PostMapping("/v2/get")
+    public ResponseEntity<?> getImPartnerV2(@RequestBody ImPartnerInput imPartnerInput) {
+        List<ImPartner> impartner =
+                impartnerService.getImPartnerV2(imPartnerInput);
+        return new ResponseEntity<>(impartner, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = ImPartner.class, value = "Update ImPartner V2") // label for swagger
+    @PatchMapping("/v2/update")
+    public ResponseEntity<?> patchImPartnerV2(@Valid @RequestBody List<AddImPartner> updateImPartner, @RequestParam String loginUserID) {
+
+        List<ImPartner> createdImPartner =
+                impartnerService.updateImPartnerV2(updateImPartner, loginUserID);
+        return new ResponseEntity<>(createdImPartner, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = ImPartner.class, value = "Delete ImPartner") // label for swagger
+    @PostMapping("/v2/delete")
+    public ResponseEntity<?> deleteImPartnerV2(@RequestBody List<ImPartnerInput> imPartnerInput, @RequestParam String loginUserID) {
+        impartnerService.deleteImPartnerV2(imPartnerInput, loginUserID);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+}
