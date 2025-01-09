@@ -120,7 +120,7 @@ public class SparkService {
 //        headers.add("Authorization", "Bearer " + authToken);
 
             UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "test");
+                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "preinboundHeader");
             HttpEntity<?> entity = new HttpEntity<>(findPreInboundHeaderV2, headers);
             ResponseEntity<PreInboundHeaderV2[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PreInboundHeaderV2[].class);
