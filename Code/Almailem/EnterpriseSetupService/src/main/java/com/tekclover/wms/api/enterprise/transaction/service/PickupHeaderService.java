@@ -32,7 +32,7 @@ import java.util.stream.Stream;
 
 @Slf4j
 @Service
-public class PickupHeaderService {
+public class PickupHeaderService extends BaseService {
     @Autowired
     private OutboundLineV2Repository outboundLineV2Repository;
 
@@ -1036,6 +1036,13 @@ public class PickupHeaderService {
                             loginUserID,
                             updateOutboundLine);
 
+        String customerName = getCustomerName(dbPickupHeader.getCompanyCodeId(), dbPickupHeader.getPlantId(),
+                                              dbPickupHeader.getLanguageId(), dbPickupHeader.getWarehouseId(),
+                                              dbPickupHeader.getCustomerCode());
+        if(customerName != null) {
+            dbPickupHeader.setCustomerName(customerName);
+        }
+
         dbPickupHeader.setDeletionIndicator(0L);
         dbPickupHeader.setPickupCreatedBy(loginUserID);
         dbPickupHeader.setPickupCreatedOn(new Date());
@@ -1131,6 +1138,13 @@ public class PickupHeaderService {
                                                           dbPickupHeader.getManufacturerName(),
                     loginUserID,
                                                           new Date());
+
+            String customerName = getCustomerName(dbPickupHeader.getCompanyCodeId(), dbPickupHeader.getPlantId(),
+                                                  dbPickupHeader.getLanguageId(), dbPickupHeader.getWarehouseId(),
+                                                  dbPickupHeader.getCustomerCode());
+            if(customerName != null) {
+                dbPickupHeader.setCustomerName(customerName);
+            }
 
             dbPickupHeader.setDeletionIndicator(0L);
             dbPickupHeader.setPickupCreatedBy(loginUserID);

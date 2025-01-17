@@ -2271,6 +2271,8 @@ public class PreOutboundHeaderService extends BaseService {
                 newPickupHeader.setIsCompleted(outboundIntegrationHeader.getIsCompleted());
                 newPickupHeader.setIsCancelled(outboundIntegrationHeader.getIsCancelled());
                 newPickupHeader.setMUpdatedOn(outboundIntegrationHeader.getMUpdatedOn());
+                newPickupHeader.setCustomerCode(outboundIntegrationHeader.getCustomerCode());
+                newPickupHeader.setTransferRequestType(outboundIntegrationHeader.getTransferRequestType());
 
                 PickupHeaderV2 createdPickupHeader = pickupHeaderService.createOutboundOrderProcessingPickupHeaderV2(newPickupHeader, orderManagementLine.getPickupCreatedBy());
                 log.info("pickupHeader created: " + createdPickupHeader);

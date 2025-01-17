@@ -96,6 +96,9 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
     OutboundHeaderV2 findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPickListNumberAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String pickListNumber, Long deletionIndicator);
 
+    OutboundHeaderV2 findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPickListNumberAndDeletionIndicatorOrderByCreatedOnDesc(
+            String companyCodeId, String plantId, String languageId, String warehouseId, String pickListNumber, Long deletionIndicator);
+
 
 //    @QueryHints(@javax.persistence.QueryHint(name = "org.hibernate.fetchSize", value = "1000"))
 //    @Query(value =

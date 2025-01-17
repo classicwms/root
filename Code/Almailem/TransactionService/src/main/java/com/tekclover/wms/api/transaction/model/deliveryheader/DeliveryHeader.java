@@ -129,4 +129,7 @@ public class DeliveryHeader {
     @Column(name = "UTD_ON")
     private Date updatedOn;
 
+    // For Notification
+    @Column(name = "NOTI_STATUS")
+    public Long notificationStatus = 0L;
 }

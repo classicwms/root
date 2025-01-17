@@ -96,6 +96,8 @@ public class TransactionService extends BaseService{
                 inboundIntegrationHeader.setMiddlewareTable(dbOBOrder.getMiddlewareTable());
                 inboundIntegrationHeader.setSourceBranchCode(dbOBOrder.getSourceBranchCode());
                 inboundIntegrationHeader.setSourceCompanyCode(dbOBOrder.getSourceCompanyCode());
+                inboundIntegrationHeader.setCustomerCode(dbOBOrder.getCustomerCode());
+                inboundIntegrationHeader.setTransferRequestType(dbOBOrder.getTransferRequestType());
 
 //                List<InboundOrderLinesV2> sqlInboundLineList = inboundOrderLinesV2Repository.getOrderLinesByOrderTypeId(dbOBOrder.getOrderId(), dbOBOrder.getInboundOrderTypeId());
                 log.info("ib line list: " + dbOBOrder.getLine().size());
@@ -282,6 +284,8 @@ public class TransactionService extends BaseService{
                 outboundIntegrationHeader.setTokenNumber(dbOBOrder.getTokenNumber());
                 outboundIntegrationHeader.setTargetCompanyCode(dbOBOrder.getTargetCompanyCode());
                 outboundIntegrationHeader.setTargetBranchCode(dbOBOrder.getTargetBranchCode());
+                outboundIntegrationHeader.setCustomerCode(dbOBOrder.getCustomerCode());
+                outboundIntegrationHeader.setTransferRequestType(dbOBOrder.getTransferRequestType());
                 if (dbOBOrder.getOutboundOrderTypeID() == 3L) {
                     outboundIntegrationHeader.setStatus(dbOBOrder.getPickListStatus());
                     outboundIntegrationHeader.setRequiredDeliveryDate(dbOBOrder.getRequiredDeliveryDate());

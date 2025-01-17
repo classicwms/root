@@ -27,6 +27,7 @@ public class InboundOrderLinesV2 extends InboundOrderLines {
     private String countryOfOrigin;
     private String manufacturerFullName;
     private String purchaseOrderNumber;
+    private String AMSSupplierInvoiceNo;
 
     //MiddleWare Fields
     private Long middlewareId;

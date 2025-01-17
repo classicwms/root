@@ -89,4 +89,7 @@ public class GrLineV2 extends GrLine {
 
     @Column(name = "IS_COMPLETED", columnDefinition = "nvarchar(20)")
     private String isCompleted;
+
+    @Column(name = "AMS_SUP_INV", columnDefinition = "nvarchar(50)")
+    private String AMSSupplierInvoiceNo;
 }

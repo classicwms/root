@@ -43,6 +43,7 @@ public class SalesOrderHeaderV2 {
     private String branchCode;
     private String tokenNumber;
     private Integer imsSaleTypeCode;
+    private String customerCode;
 
     @JsonIgnore
     private String id;

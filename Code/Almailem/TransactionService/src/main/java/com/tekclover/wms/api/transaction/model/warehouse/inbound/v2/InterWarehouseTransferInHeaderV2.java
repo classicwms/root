@@ -27,6 +27,7 @@ public class InterWarehouseTransferInHeaderV2 {
     private Date transferOrderDate;
     private String isCompleted;
     private Date updatedOn;
+    private String TransferRequestType;
 
     //MiddleWare Fields
     private Long middlewareId;

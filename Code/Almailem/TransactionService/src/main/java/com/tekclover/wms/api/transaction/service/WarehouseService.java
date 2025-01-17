@@ -1006,6 +1006,7 @@ public class WarehouseService extends BaseService {
 			List<ASNLineV2> asnLineV2s = asnv2.getAsnLine();
 			InboundOrderV2 apiHeader = new InboundOrderV2();
 
+			apiHeader.setAMSSupplierInvoiceNo(asnV2Header.getAMSSupplierInvoiceNo());
 			apiHeader.setOrderId(asnV2Header.getAsnNumber());
 			apiHeader.setCompanyCode(asnV2Header.getCompanyCode());
 			apiHeader.setBranchCode(asnV2Header.getBranchCode());
@@ -1050,6 +1051,7 @@ public class WarehouseService extends BaseService {
 				apiLine.setSupplierName(asnLineV2.getSupplierName());
 				apiLine.setBrand(asnLineV2.getBrand());
 				apiLine.setOrderId(apiHeader.getOrderId());
+				apiLine.setAMSSupplierInvoiceNo(asnLineV2.getAMSSupplierInvoiceNo());
 //				apiLine.setInboundOrderHeaderId(apiHeader.getInboundOrderHeaderId());
 				apiLine.setManufacturerFullName(asnLineV2.getManufacturerFullName());
 				apiLine.setPurchaseOrderNumber(asnLineV2.getPurchaseOrderNumber());
@@ -1247,6 +1249,7 @@ public class WarehouseService extends BaseService {
 			List<SOReturnLineV2> salesOrderReturnLinesV2 = soReturnV2.getSoReturnLine();
 
 			InboundOrderV2 apiHeader = new InboundOrderV2();
+			BeanUtils.copyProperties(soReturnHeaderV2, apiHeader, CommonUtils.getNullPropertyNames(soReturnHeaderV2));
 			apiHeader.setTransferOrderNumber(soReturnHeaderV2.getTransferOrderNumber());
 			apiHeader.setRefDocumentNo(soReturnHeaderV2.getTransferOrderNumber());
 			apiHeader.setBranchCode(soReturnHeaderV2.getBranchCode());
@@ -1695,6 +1698,7 @@ public class WarehouseService extends BaseService {
 			List<InterWarehouseTransferInLineV2> interWarehouseTransferInLinesV2 = interWarehouseTransferInV2.getInterWarehouseTransferInLine();
 
 			InboundOrderV2 apiHeader = new InboundOrderV2();
+			BeanUtils.copyProperties(interWarehouseTransferInHeaderV2, apiHeader, CommonUtils.getNullPropertyNames(interWarehouseTransferInHeaderV2));
 			apiHeader.setRefDocumentNo(interWarehouseTransferInHeaderV2.getTransferOrderNumber());
 			apiHeader.setOrderId(interWarehouseTransferInHeaderV2.getTransferOrderNumber());
 			apiHeader.setCompanyCode(interWarehouseTransferInHeaderV2.getToCompanyCode());
@@ -2601,6 +2605,7 @@ public class WarehouseService extends BaseService {
 
 			// Mongo Primary Key
 			OutboundOrderV2 apiHeader = new OutboundOrderV2();
+			BeanUtils.copyProperties(interWhTransferOutHeader, apiHeader, CommonUtils.getNullPropertyNames(interWhTransferOutHeader));
 
 			apiHeader.setBranchCode(interWhTransferOutHeader.getFromBranchCode());
 			apiHeader.setCompanyCode(interWhTransferOutHeader.getFromCompanyCode());

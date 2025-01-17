@@ -248,6 +248,15 @@ public class PickListHeader {
 	@Column(name = "CUSTOMER_TYPE", columnDefinition = "nvarchar(255)")
 	private String customerType;
 
+	@Column(name = "IMS_SALE_TYP_CODE")
+	private Integer imsSaleTypeCode;
+
+	@Column(name = "CSTR_COD", columnDefinition = "nvarchar(50)")
+	private String customerCode;
+
+	@Column(name = "TFR_REQ_TYP", columnDefinition = "nvarchar(50)")
+	private String TransferRequestType;
+
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "pickListCancelHeaderId", fetch = FetchType.EAGER)
 	private List<PickListLine> line;
 }

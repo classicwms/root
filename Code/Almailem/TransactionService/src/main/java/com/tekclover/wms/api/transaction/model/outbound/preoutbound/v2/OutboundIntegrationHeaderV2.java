@@ -49,6 +49,8 @@ public class OutboundIntegrationHeaderV2 extends OutboundIntegrationHeader {
     private String isCompleted;
     private String isCancelled;
     private Date mUpdatedOn;
+    private String customerCode;
+    private String TransferRequestType;
 
     private List<OutboundIntegrationLineV2> outboundIntegrationLines;
 }

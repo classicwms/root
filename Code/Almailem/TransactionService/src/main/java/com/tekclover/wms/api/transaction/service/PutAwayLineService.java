@@ -1764,7 +1764,7 @@ public class PutAwayLineService extends BaseService {
                                         throw new BadRequestException("sum of confirm Putaway line qty is greater than assigned putaway header qty");
                                     }
                                     if (dbPutawayQty <= dbAssignedPutawayQty) {
-                                        if (proposedStorageBin.equalsIgnoreCase(confirmedStorageBin)) {
+                                        if (putAwayHeader.getWarehouseId().equalsIgnoreCase("200") && proposedStorageBin.equalsIgnoreCase(confirmedStorageBin)) {
                                     log.info("New PutawayHeader Creation: ");
                                     PutAwayHeaderV2 newPutAwayHeader = new PutAwayHeaderV2();
                                     BeanUtils.copyProperties(putAwayHeader, newPutAwayHeader, CommonUtils.getNullPropertyNames(putAwayHeader));
@@ -1800,7 +1800,7 @@ public class PutAwayLineService extends BaseService {
                                     newPutAwayHeader = putAwayHeaderV2Repository.save(newPutAwayHeader);
                                     log.info("putAwayHeader created: " + newPutAwayHeader);
                                 }
-                                        if (!proposedStorageBin.equalsIgnoreCase(confirmedStorageBin)) {
+                                        if (putAwayHeader.getWarehouseId().equalsIgnoreCase("200") && !proposedStorageBin.equalsIgnoreCase(confirmedStorageBin)) {
 
                                             putAwayHeader.setReferenceField1(String.valueOf(putAwayHeader.getPutAwayQuantity()));
                                             if (putAwayHeader.getReferenceField4() == null) {

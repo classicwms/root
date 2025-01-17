@@ -537,7 +537,7 @@ public class OutboundHeaderService {
     public OutboundHeaderV2 getOutboundHeaderForSalesInvoiceUpdateV2(String companyCodeId, String plantId, String languageId,
                                                                      String warehouseId, String pickListNumber) {
         OutboundHeaderV2 outboundHeader =
-                outboundHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPickListNumberAndDeletionIndicator(
+                outboundHeaderV2Repository.findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPickListNumberAndDeletionIndicatorOrderByCreatedOnDesc(
                         companyCodeId, plantId, languageId, warehouseId, pickListNumber, 0L);
         if (outboundHeader != null) {
             return outboundHeader;

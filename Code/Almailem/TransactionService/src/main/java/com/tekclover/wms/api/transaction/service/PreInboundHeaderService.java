@@ -1447,7 +1447,7 @@ public class PreInboundHeaderService extends BaseService {
         // Fetch ITM_CODE inserted in INBOUNDINTEGRATION table and pass the ITM_CODE in IMBASICDATA1 table and
         // validate the ITM_CODE result is Not Null
         AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-        log.info("authTokenForMastersService : " + authTokenForMastersService);
+//        log.info("authTokenForMastersService : " + authTokenForMastersService);
         InboundOrderV2 inboundOrder = inboundOrderV2Repository.findByRefDocumentNoAndInboundOrderTypeId(refDocNumber, inboundIntegrationHeader.getInboundOrderTypeId());
         log.info("inboundOrder : " + inboundOrder);
 
@@ -1617,13 +1617,15 @@ public class PreInboundHeaderService extends BaseService {
                                                                   BomLine bomLine,
                                                                   InboundIntegrationLine inboundIntegrationLine) throws ParseException {
         PreInboundLineEntityV2 preInboundLine = new PreInboundLineEntityV2();
-
+        BeanUtils.copyProperties(inboundIntegrationLine, preInboundLine, CommonUtils.getNullPropertyNames(inboundIntegrationLine));
         preInboundLine.setLanguageId(warehouse.getLanguageId());
         preInboundLine.setCompanyCode(warehouse.getCompanyCodeId());
         preInboundLine.setPlantId(warehouse.getPlantId());
         preInboundLine.setWarehouseId(inboundIntegrationHeader.getWarehouseID());
         preInboundLine.setRefDocNumber(inboundIntegrationHeader.getRefDocumentNo());
         preInboundLine.setInboundOrderTypeId(inboundIntegrationHeader.getInboundOrderTypeId());
+        preInboundLine.setCustomerCode(inboundIntegrationHeader.getCustomerCode());
+        preInboundLine.setTransferRequestType(inboundIntegrationHeader.getTransferRequestType());
 
         // PRE_IB_NO
         preInboundLine.setPreInboundNo(preInboundNo);
@@ -1723,13 +1725,15 @@ public class PreInboundHeaderService extends BaseService {
                                                           InboundIntegrationHeader inboundIntegrationHeader,
                                                           InboundIntegrationLine inboundIntegrationLine) throws ParseException {
         PreInboundLineEntityV2 preInboundLine = new PreInboundLineEntityV2();
-
+        BeanUtils.copyProperties(inboundIntegrationLine, preInboundLine, CommonUtils.getNullPropertyNames(inboundIntegrationLine));
         preInboundLine.setLanguageId(warehouse.getLanguageId());
         preInboundLine.setCompanyCode(warehouse.getCompanyCodeId());
         preInboundLine.setPlantId(warehouse.getPlantId());
         preInboundLine.setWarehouseId(inboundIntegrationHeader.getWarehouseID());
         preInboundLine.setRefDocNumber(inboundIntegrationHeader.getRefDocumentNo());
         preInboundLine.setInboundOrderTypeId(inboundIntegrationHeader.getInboundOrderTypeId());
+        preInboundLine.setCustomerCode(inboundIntegrationHeader.getCustomerCode());
+        preInboundLine.setTransferRequestType(inboundIntegrationHeader.getTransferRequestType());
 
         // PRE_IB_NO
         preInboundLine.setPreInboundNo(preInboundNo);
@@ -1832,7 +1836,7 @@ public class PreInboundHeaderService extends BaseService {
     private PreInboundHeaderEntityV2 createPreInboundHeaderV2(com.tekclover.wms.api.transaction.model.warehouse.Warehouse warehouse,
                                                               String preInboundNo, InboundIntegrationHeader inboundIntegrationHeader) throws ParseException {
         PreInboundHeaderEntityV2 preInboundHeader = new PreInboundHeaderEntityV2();
-
+        BeanUtils.copyProperties(inboundIntegrationHeader, preInboundHeader, CommonUtils.getNullPropertyNames(inboundIntegrationHeader));
         preInboundHeader.setLanguageId(warehouse.getLanguageId());                                    // LANG_ID
         preInboundHeader.setWarehouseId(inboundIntegrationHeader.getWarehouseID());
         preInboundHeader.setCompanyCode(warehouse.getCompanyCodeId());
@@ -1842,6 +1846,8 @@ public class PreInboundHeaderService extends BaseService {
         preInboundHeader.setReferenceDocumentType(inboundIntegrationHeader.getRefDocumentType());    // REF_DOC_TYP - Hard Coded Value "ASN"
         preInboundHeader.setInboundOrderTypeId(inboundIntegrationHeader.getInboundOrderTypeId());    // IB_ORD_TYP_ID
         preInboundHeader.setRefDocDate(inboundIntegrationHeader.getOrderReceivedOn());                // REF_DOC_DATE
+        preInboundHeader.setCustomerCode(inboundIntegrationHeader.getCustomerCode());
+        preInboundHeader.setTransferRequestType(inboundIntegrationHeader.getTransferRequestType());
         // Status ID - statusId changed to reduce one less step process and avoid deadlock while updating status
 //        preInboundHeader.setStatusId(6L);
         preInboundHeader.setStatusId(5L);

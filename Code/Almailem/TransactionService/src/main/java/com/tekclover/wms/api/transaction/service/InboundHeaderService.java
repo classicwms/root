@@ -1564,7 +1564,7 @@ public class InboundHeaderService extends BaseService {
                     if (putAwayLineList != null) {
                             for (PutAwayLineV2 putAwayLine : putAwayLineList) {
                                 boolean createdInventory = createInventoryNonCBMV2(putAwayLine);
-                            createInventoryMovementV2(putAwayLine);
+//                            createInventoryMovementV2(putAwayLine);
                         }
                         log.info("Inventory Created Successfully -----> for All Putaway Lines");
                     }
@@ -1682,7 +1682,7 @@ public class InboundHeaderService extends BaseService {
                         if (putAwayLineList != null) {
                             for (PutAwayLineV2 putAwayLine : putAwayLineList) {
                                 boolean createdInventory = createInventoryNonCBMV2(putAwayLine);
-                                createInventoryMovementV2(putAwayLine);
+//                              createInventoryMovementV2(putAwayLine);
                             }
                             log.info("Inventory Created Successfully -----> for Inbound Line ----> " +
                                     inboundLine.getItemCode() + ", " + inboundLine.getManufacturerName() + ", " + inboundLine.getLineNo());
@@ -2022,7 +2022,7 @@ public class InboundHeaderService extends BaseService {
      * @return
      */
     @Transactional(rollbackFor = {Exception.class, Throwable.class})
-    @Retryable(value = Exception.class, maxAttempts = 3, backoff = @Backoff(delay = 5000, multiplier = 2))
+//    @Retryable(value = Exception.class, maxAttempts = 3, backoff = @Backoff(delay = 5000, multiplier = 2))
     private boolean createInventoryNonCBMV2(PutAwayLineV2 putAwayLine) throws Exception {
         inventoryError = false;
         alreadyExecuted = false;

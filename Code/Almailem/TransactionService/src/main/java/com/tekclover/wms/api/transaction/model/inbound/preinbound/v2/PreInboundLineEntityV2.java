@@ -66,4 +66,13 @@ public class PreInboundLineEntityV2 extends PreInboundLineEntity {
     @Column(name = "IS_COMPLETED", columnDefinition = "nvarchar(20)")
     private String isCompleted;
 
+    @Column(name = "CSTR_COD", columnDefinition = "nvarchar(50)")
+    private String customerCode;
+
+    @Column(name = "TFR_REQ_TYP", columnDefinition = "nvarchar(50)")
+    private String TransferRequestType;
+
+    @Column(name = "AMS_SUP_INV", columnDefinition = "nvarchar(50)")
+    private String AMSSupplierInvoiceNo;
+
 }

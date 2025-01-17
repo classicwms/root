@@ -1629,7 +1629,7 @@ public class PickupLineService extends BaseService {
             newPickupLines.add(dupPickupLines.get(0));
             log.info("-------PickupLines---removed-dupPickupLines-----> " + newPickupLines);
         }
-
+        PickupHeaderV2 dbPickupHeader = null;
         // Create PickUpLine
         List<PickupLineV2> createdPickupLineList = new ArrayList<>();
         for (AddPickupLine newPickupLine : newPickupLines) {
@@ -1698,7 +1698,7 @@ public class PickupLineService extends BaseService {
                 dbPickupLine.setImsSaleTypeCode(dbOrderManagementLine.getImsSaleTypeCode());
             }
 
-            PickupHeaderV2 dbPickupHeader = pickupHeaderService.getPickupHeaderV2(
+            dbPickupHeader = pickupHeaderService.getPickupHeaderV2(
                     dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(),
                     dbPickupLine.getPreOutboundNo(), dbPickupLine.getRefDocNumber(), dbPickupLine.getPartnerCode(), dbPickupLine.getPickupNumber());
             if (dbPickupHeader != null) {
@@ -1764,6 +1764,7 @@ public class PickupLineService extends BaseService {
             if (inventory != null) {
                 if (dbPickupLine.getAllocatedQty() > 0D) {
                     try {
+                        log.info("db-->inv_qty,alloc_qty, pick_cnf_qty : ---> " + inventory.getInventoryQuantity() + ", " + dbPickupLine.getAllocatedQty() + ", " + dbPickupLine.getPickConfirmQty());
                         Double INV_QTY = (inventory.getInventoryQuantity() + dbPickupLine.getAllocatedQty()) - dbPickupLine.getPickConfirmQty();
                         Double ALLOC_QTY = inventory.getAllocatedQuantity() - dbPickupLine.getAllocatedQty();
 
@@ -1779,10 +1780,12 @@ public class PickupLineService extends BaseService {
                             ALLOC_QTY = 0D;
                         }
                         // End
-
+                        Double TOT_QTY = INV_QTY + ALLOC_QTY;
                         inventory.setInventoryQuantity(INV_QTY);
                         inventory.setAllocatedQuantity(ALLOC_QTY);
-                        inventory.setReferenceField4(INV_QTY + ALLOC_QTY);
+                        inventory.setReferenceField4(TOT_QTY);
+
+                        log.info("new-->inv_qty,alloc_qty, tot_qty : ---> " + INV_QTY + ", " + ALLOC_QTY + ", " + TOT_QTY);
 
                         // INV_QTY > 0 then, update Inventory Table
 //                        inventory = inventoryV2Repository.save(inventory);
@@ -1993,6 +1996,10 @@ public class PickupLineService extends BaseService {
                     newQualityHeader.setOutboundOrderTypeId(dbPickupLine.getOutboundOrderTypeId());
                     newQualityHeader.setSupplierInvoiceNo(dbPickupLine.getSupplierInvoiceNo());
                     newQualityHeader.setTokenNumber(dbPickupLine.getTokenNumber());
+                    if(dbPickupHeader != null) {
+                        newQualityHeader.setCustomerCode(dbPickupHeader.getCustomerCode());
+                        newQualityHeader.setTransferRequestType(dbPickupHeader.getTransferRequestType());
+                    }
 
 
                     // STATUS_ID - Hard Coded Value "54"

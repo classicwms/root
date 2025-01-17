@@ -31,6 +31,10 @@ public class InboundOrderV2 extends InboundOrder {
     //MiddleWare Fields
     private Long middlewareId;
     private String middlewareTable;
+    private Long numberOfAttempts;
+    private String customerCode;
+    private String TransferRequestType;
+    private String AMSSupplierInvoiceNo;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "INBOUND_ORDER_HEADER_ID",referencedColumnName = "INBOUND_ORDER_HEADER_ID")
