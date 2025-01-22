@@ -1764,8 +1764,8 @@ public class PutAwayLineService extends BaseService {
                                         throw new BadRequestException("sum of confirm Putaway line qty is greater than assigned putaway header qty");
                                     }
                                     if (dbPutawayQty <= dbAssignedPutawayQty) {
-//                                        if (putAwayHeader.getWarehouseId().equalsIgnoreCase("200") && proposedStorageBin.equalsIgnoreCase(confirmedStorageBin)) {
-                                        if (proposedStorageBin.equalsIgnoreCase(confirmedStorageBin)) {
+                                        if ((putAwayHeader.getWarehouseId().equalsIgnoreCase("200") || putAwayHeader.getWarehouseId().equalsIgnoreCase("100")) && proposedStorageBin.equalsIgnoreCase(confirmedStorageBin)) {
+//                                        if (proposedStorageBin.equalsIgnoreCase(confirmedStorageBin)) {
                                     log.info("New PutawayHeader Creation: ");
                                     PutAwayHeaderV2 newPutAwayHeader = new PutAwayHeaderV2();
                                     BeanUtils.copyProperties(putAwayHeader, newPutAwayHeader, CommonUtils.getNullPropertyNames(putAwayHeader));
@@ -1799,28 +1799,47 @@ public class PutAwayLineService extends BaseService {
                                     statusDescription = stagingLineV2Repository.getStatusDescription(newPutAwayHeader.getStatusId(), createdPutAwayLine.getLanguageId());
                                     newPutAwayHeader.setStatusDescription(statusDescription);
                                     newPutAwayHeader = putAwayHeaderV2Repository.save(newPutAwayHeader);
-                                    log.info("putAwayHeader created: " + newPutAwayHeader);
+                                    log.info("1.putAwayHeader created: " + newPutAwayHeader);
                                 }
-//                                        if (putAwayHeader.getWarehouseId().equalsIgnoreCase("200") && !proposedStorageBin.equalsIgnoreCase(confirmedStorageBin)) {
-                                        if (!proposedStorageBin.equalsIgnoreCase(confirmedStorageBin)) {
+                                        if ((putAwayHeader.getWarehouseId().equalsIgnoreCase("200") || putAwayHeader.getWarehouseId().equalsIgnoreCase("100")) && !proposedStorageBin.equalsIgnoreCase(confirmedStorageBin)) {
+//                                        if (!proposedStorageBin.equalsIgnoreCase(confirmedStorageBin)) {
 
-                                            putAwayHeader.setReferenceField1(String.valueOf(putAwayHeader.getPutAwayQuantity()));
+                                            //create new putaway header when partial putaway done and confirmed storage bin set as proposed bin for new putaway header
+                                            PutAwayHeaderV2 newPutAwayHeader = new PutAwayHeaderV2();
+                                            BeanUtils.copyProperties(putAwayHeader, newPutAwayHeader, CommonUtils.getNullPropertyNames(putAwayHeader));
+
+                                            // PA_NO
+                                            long NUM_RAN_CODE = 7;
+                                            String nextPANumber = getNextRangeNumber(NUM_RAN_CODE, companyCode, plantId, languageId, warehouseId, authTokenForIDMasterService.getAccess_token());
+                                            newPutAwayHeader.setPutAwayNumber(nextPANumber);
+                                            newPutAwayHeader.setProposedStorageBin(confirmedStorageBin);
+
+                                            newPutAwayHeader.setReferenceField1(String.valueOf(putAwayHeader.getPutAwayQuantity()));
                                             if (putAwayHeader.getReferenceField4() == null) {
-                                                putAwayHeader.setReferenceField2(String.valueOf(putAwayHeader.getPutAwayQuantity()));
-                                                putAwayHeader.setReferenceField4("1");
+                                                newPutAwayHeader.setReferenceField2(String.valueOf(putAwayHeader.getPutAwayQuantity()));
+                                                newPutAwayHeader.setReferenceField4("1");
                                             }
+
+                                            Double putawaycnfQty = 0D;
+                                            if (newPutAwayHeader.getReferenceField3() != null) {
+                                                putawaycnfQty = Double.valueOf(newPutAwayHeader.getReferenceField3());
+                                            }
+                                            putawaycnfQty = putawaycnfQty + createdPutAwayLine.getPutawayConfirmedQty();
+                                            newPutAwayHeader.setReferenceField3(String.valueOf(putawaycnfQty));
+
                                             Double PUTAWAY_QTY = dbAssignedPutawayQty - dbPutawayQty;
                                             if(PUTAWAY_QTY < 0) {
                                                 throw new BadRequestException("total confirm qty greater than putaway qty");
                                             }
-                                            putAwayHeader.setPutAwayQuantity(PUTAWAY_QTY);
+                                            newPutAwayHeader.setPutAwayQuantity(PUTAWAY_QTY);
                                             log.info("OrderQty ReCalcuated/Changed : " + PUTAWAY_QTY);
-                                            putAwayHeader.setStatusId(19L);
+                                            newPutAwayHeader.setStatusId(19L);
                                             log.info("PutawayHeader StatusId : 19");
                                             statusDescription = stagingLineV2Repository.getStatusDescription(putAwayHeader.getStatusId(), createdPutAwayLine.getLanguageId());
-                                            putAwayHeader.setStatusDescription(statusDescription);
-                                            putAwayHeader = putAwayHeaderV2Repository.save(putAwayHeader);
-                                            log.info("putAwayHeader updated: " + putAwayHeader);
+                                            newPutAwayHeader.setStatusDescription(statusDescription);
+
+                                            newPutAwayHeader = putAwayHeaderV2Repository.save(newPutAwayHeader);
+                                            log.info("2.putAwayHeader created: " + newPutAwayHeader);
                                         }
                                     }
 //                                }

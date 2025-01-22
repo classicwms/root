@@ -2086,6 +2086,7 @@ public class OrderManagementLineService extends BaseService {
                             pickupHeader.setCustomerName(customerName);
                         }
                     }
+                    pickupHeader.setCustomerCode(customerCode);
 
                     // REF_FIELD_1
                     pickupHeader.setReferenceField1(dbOrderManagementLine.getReferenceField1());
