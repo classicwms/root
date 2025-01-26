@@ -34,6 +34,15 @@ public class ScheduleAsyncService {
         return CompletableFuture.completedFuture(outboundOrder);
 
     }
+
+    //-------------------------------------------------------------------Amghara Outbound---------------------------------------------------------------
+    @Async("asyncTaskExecutor")
+    public CompletableFuture<WarehouseApiResponse> processAmgharaOutboundOrder() throws InterruptedException, InvocationTargetException, IllegalAccessException, ParseException {
+
+        WarehouseApiResponse outboundOrder = transactionService.processAmgharaOutboundOrder();
+        return CompletableFuture.completedFuture(outboundOrder);
+
+    }
     //-------------------------------------------------------------------StockCount---------------------------------------------------------------
     @Async("asyncTaskExecutor")
     public CompletableFuture<WarehouseApiResponse> processPerpetualStockCountOrder() throws InterruptedException, InvocationTargetException, IllegalAccessException, ParseException {

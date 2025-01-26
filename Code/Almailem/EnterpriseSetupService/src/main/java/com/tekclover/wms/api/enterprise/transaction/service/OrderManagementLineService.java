@@ -2062,6 +2062,7 @@ public class OrderManagementLineService extends BaseService {
                             pickupHeader.setCustomerName(customerName);
                         }
                     }
+                    pickupHeader.setCustomerCode(customerCode);
 
                     pickupHeader.setPickupCreatedBy(loginUserID);
                     pickupHeader.setPickupCreatedOn(new Date());
