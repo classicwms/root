@@ -57,6 +57,8 @@ dependencies {
 
 	// https://mvnrepository.com/artifact/com.dropbox.core/dropbox-core-sdk
 	implementation group: 'com.dropbox.core', name: 'dropbox-core-sdk', version: '4.0.1'
+
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail', version: '1.2.0.RELEASE'
 	
 	implementation group: 'com.microsoft.sqlserver', name: 'mssql-jdbc', version: '8.1.0.jre8-preview'
 	implementation 'org.apache.commons:commons-text:1.9'
