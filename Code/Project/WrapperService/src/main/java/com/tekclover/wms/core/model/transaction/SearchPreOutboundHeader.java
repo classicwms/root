@@ -37,10 +37,5 @@ public class SearchPreOutboundHeader {
 	private Date endOrderDate;
 	private Date startCreatedOn;
 	private Date endCreatedOn;
-
-	private String stStartDate;
-	private String stEndDate;
-
-	private Date runDate = new Date();
 	
 }

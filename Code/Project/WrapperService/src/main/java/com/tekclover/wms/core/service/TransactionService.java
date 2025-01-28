@@ -19,7 +19,6 @@ import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.core.model.auth.AuthToken;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.BeanUtils;
@@ -72,9 +71,6 @@ public class TransactionService {
 
 	@Autowired
 	JdbcTemplate jdbcTemplate;
-
-	@Autowired
-	AuthTokenService authTokenService;
 
 	@Autowired
 	private NamedParameterJdbcTemplate jdbcParamTemplate;
@@ -7794,48 +7790,5 @@ public class TransactionService {
 		imBasicData1.setUpdatedOn		(resultSet.getDate  	("UTD_ON"));
 
 		return imBasicData1;
-	}
-
-	/*------------------------------------------- find PreOutboundHeader for PDF -------------------------------*/
-	// Pdf PreOutBoundHeader
-	// POST - findPreOutboundHeader - Stream
-	public PreOutboundHeader[] findPreOutboundHeaderPdf(SearchPreOutboundHeader searchPreOutboundHeader) throws Exception {
-		try {
-			AuthToken interAuthToken = authTokenService.getTransactionServiceAuthToken();
-			String authToken = interAuthToken.getAccess_token();
-
-			HttpHeaders headers = new HttpHeaders();
-			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-			headers.add("User-Agent", "ClassicWMS RestTemplate");
-			headers.add("Authorization", "Bearer " + authToken);
-
-			UriComponentsBuilder builder = UriComponentsBuilder
-					.fromHttpUrl(getTransactionServiceApiUrl() + "preoutboundheader/findPreOutboundHeaderNew");
-			HttpEntity<?> entity = new HttpEntity<>(searchPreOutboundHeader, headers);
-			ResponseEntity<PreOutboundHeader[]> result = getRestTemplate().exchange(builder.toUriString(),
-					HttpMethod.POST, entity, PreOutboundHeader[].class);
-			log.info("result : " + result.getBody());
-
-			List<PreOutboundHeader> obList = new ArrayList<>();
-			for (PreOutboundHeader obHeader : result.getBody()) {
-				log.info("Result RefDocDate :" + obHeader.getRefDocDate());
-				if(obHeader.getRefDocDate() != null) {
-					obHeader.setRefDocDate(DateUtils.addTimeToDate(obHeader.getRefDocDate(), 3));
-				}
-				if(obHeader.getRequiredDeliveryDate() != null) {
-					obHeader.setRequiredDeliveryDate(DateUtils.addTimeToDate(obHeader.getRequiredDeliveryDate(), 3));
-				}
-				if(obHeader.getCreatedOn() != null) {
-					obHeader.setCreatedOn(DateUtils.addTimeToDate(obHeader.getCreatedOn(), 3));
-				}
-				if(obHeader.getUpdatedOn() != null) {
-					obHeader.setUpdatedOn(DateUtils.addTimeToDate(obHeader.getUpdatedOn(), 3));
-				}
-				obList.add(obHeader);
-			}
-			return obList.toArray(new PreOutboundHeader[obList.size()]);
-		} catch (Exception e) {
-			throw e;
-		}
 	}
 }
