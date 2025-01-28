@@ -48,7 +48,7 @@ public class SendMailService {
 		//Send Email
 		log.info("Scheduling the Mail Started at "+ new Date());
 
-		List<EMailDetails> userEMail = eMailDetailsService.getEMailDetailsList();
+		List<EMailDetails> userEMail = eMailDetailsService.getDailyReportEMailDetailsList();
 
 		String toAddress = "";
 		String ccAddress = "";
@@ -190,6 +190,115 @@ public class SendMailService {
 			throw new MessagingException("Attachment not found, Sending email failed");
 		}
 	}
+
+
+	public void sendTvReportMail(String fileName) throws MessagingException, IOException {
+
+		//Send Email
+		log.info("Scheduling the TV Report Mail Started at "+ new Date());
+
+		List<EMailDetails> userEMail = eMailDetailsService.getReportEMailDetailsList();
+
+		String toAddress = "";
+		String ccAddress = "";
+
+		for(EMailDetails eMailDetails: userEMail){
+
+			if(eMailDetails.getToAddress()!=null) {
+				toAddress = eMailDetails.getToAddress() + "," + toAddress;
+			}
+
+			if(eMailDetails.getCcAddress()!=null) {
+				ccAddress = eMailDetails.getCcAddress() + "," + ccAddress;
+			}
+		}
+		String localDate = DateUtils.getCurrentDateWithoutTimestamp();
+		String emailSubject = propertiesConfig.getEmailSubject() + "True Value - Daily Shipment Delivery Report - "+localDate;
+
+//		FileNameForEmail fileNameForEmail = fileNameForEmailService.getFileNameForEmailByDate(localDate);
+
+		EMailDetails email = new EMailDetails();
+
+		email.setSenderName("IWE Express-Support");
+		email.setSubject(emailSubject);
+		email.setBodyText("Dear TV Team,<br><br>"+"Please find the attached shipment delivery report for your reference<br><br>Regards<br>Operations Team - InnerWorks");
+		email.setToAddress(toAddress);
+		email.setCcAddress(ccAddress);
+		sendTvReportMail(email,fileName);
+	}
+
+	/**
+	 * sendMail
+	 * @param email
+	 * @throws MessagingException
+	 * @throws IOException
+	 */
+	public void sendTvReportMail (EMailDetails email, String fileNameForEmail) throws MessagingException, IOException {
+
+		MimeMessage msg = javaMailSender.createMimeMessage();
+
+		MimeMessageHelper helper = new MimeMessageHelper(msg, true);
+
+		String filePath1;
+		String filePath = propertiesConfig.getDocStorageBasePath() + "/";
+
+		if(!fileNameForEmail.isEmpty()) {
+
+			filePath1 = filePath + fileNameForEmail;
+
+			log.info("110 Delivery file Name: " + fileNameForEmail);
+
+			File file = new File(filePath1);
+
+			Path path = Paths.get(file.getAbsolutePath());
+
+			ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
+
+			helper.addAttachment(fileNameForEmail, resource);
+
+
+			log.info("helper (From Address): " + email.getFromAddress());
+
+			// Set From
+			if (email.getFromAddress() != null && email.getFromAddress().isEmpty()) {
+				helper.setFrom(email.getFromAddress());
+			} else {
+				helper.setFrom(propertiesConfig.getEmailFromAddress());
+			}
+
+			helper.setTo(InternetAddress.parse(email.getToAddress()));
+
+			log.info("Email: To Address- " + email.getToAddress());
+
+			if (email.getCcAddress() != null) {
+
+				helper.setCc(InternetAddress.parse(email.getCcAddress()));
+
+				log.info("Email: Cc Address- " + email.getCcAddress());
+
+			} else {
+				helper.setCc(InternetAddress.parse(email.getToAddress()));
+			}
+
+			helper.setSubject(email.getSubject());
+
+			helper.setText(email.getBodyText(), true);
+
+			javaMailSender.send(msg);
+			log.info("Scheduled Mail sent successful---> " + fileNameForEmail);
+		}else {
+			helper.setFrom(propertiesConfig.getEmailFromAddress());
+			helper.setTo("raj@tekclover.com");
+			helper.setCc("senthil.v@tekclover.com");
+			String subject = propertiesConfig.getEmailSubject()+"Sending Report Through eMail Failed";
+			helper.setSubject(subject);
+			helper.setText("Attachment not found, Sending Report Through eMail Failed", true);
+			javaMailSender.send(msg);
+			log.info("Scheduled Mail sent Unsuccessful ----> " + fileNameForEmail);
+			throw new MessagingException("Attachment not found, Sending email failed");
+		}
+	}
+
 
 	/**
 	 *

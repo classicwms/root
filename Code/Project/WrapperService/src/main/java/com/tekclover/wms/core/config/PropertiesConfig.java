@@ -123,4 +123,9 @@ public class PropertiesConfig {
 	@Value("${email.from.address}")
 	private String emailFromAddress;
 
+	/*---------------------------IW Logo ------------------------------------*/
+
+	@Value("${logo.path}")
+	private String logo;
+
 }

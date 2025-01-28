@@ -1,8 +1,9 @@
 package com.tekclover.wms.api.idmaster.controller;
 
 import com.tekclover.wms.api.idmaster.model.email.*;
-import com.tekclover.wms.api.idmaster.service.EMailDetailsService;
-import com.tekclover.wms.api.idmaster.service.SendMailService;
+import com.tekclover.wms.api.idmaster.model.outboundheader.PreOutboundHeader;
+import com.tekclover.wms.api.idmaster.model.outboundheader.SearchPreOutboundHeader;
+import com.tekclover.wms.api.idmaster.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
@@ -11,15 +12,23 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Validated
@@ -33,6 +42,15 @@ public class EMailController {
 	EMailDetailsService eMailDetailsService;
 	@Autowired
 	SendMailService sendMailService;
+
+	@Autowired
+	ReportService reportService;
+
+	@Autowired
+	FileStorageService fileStorageService;
+
+	@Autowired
+	TransactionService transactionService;
 
 	@ApiOperation(response = EMailDetails.class, value = "Add Email") // label for swagger
 	@PostMapping("")
@@ -89,5 +107,64 @@ public class EMailController {
 	public ResponseEntity<?> failedOrderSendEmail(@RequestBody OrderFailedInput orderFailedInput) throws Exception {
 		sendMailService.sendMail(orderFailedInput);
 		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	@Scheduled(cron = "0 0 1 * * ?")
+	@ApiOperation(response = Optional.class, value = "Email Sending")
+	@PostMapping("/send-report")
+	public ResponseEntity<?> sendReport() throws Exception {
+
+		SearchPreOutboundHeader searchPreOutboundHeader = new SearchPreOutboundHeader();
+
+		// Set the startOrderDate to 12:00 AM and endOrderDate to 11:59 PM of the current day
+		Calendar calendar = Calendar.getInstance();
+
+		// Move to the previous day
+		calendar.add(Calendar.DATE, -1);
+
+		// Set startOrderDate to 12:00 AM
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		searchPreOutboundHeader.setStartOrderDate(calendar.getTime());
+
+		// Set endOrderDate to 11:59 PM
+		calendar.set(Calendar.HOUR_OF_DAY, 23);
+		calendar.set(Calendar.MINUTE, 59);
+		calendar.set(Calendar.SECOND, 59);
+		calendar.set(Calendar.MILLISECOND, 999);
+		searchPreOutboundHeader.setEndOrderDate(calendar.getTime());
+
+		// Generate the PDF report
+		PreOutboundHeader[] preOutboundHeaders = transactionService.findPreOutboundHeaderPdf(searchPreOutboundHeader);
+
+		File pdfFile = new File("Shipment_Report.pdf");
+		try (FileOutputStream fos = new FileOutputStream(pdfFile)) {
+			reportService.exportEmail(fos, preOutboundHeaders, searchPreOutboundHeader); // Adjust `export` to accept OutputStream
+		}
+
+		String fileName = "TV_Shipment_Report_" + System.currentTimeMillis() + ".pdf";
+
+		// Convert the File to MultipartFile
+		try (FileInputStream fileInputStream = new FileInputStream(pdfFile)) {
+			MultipartFile multipartFile = new MockMultipartFile(
+					fileName,                 // Original file name
+					fileName,                 // File name
+					"application/pdf",        // Content type
+					fileInputStream           // File content as InputStream
+			);
+
+			// Use the existing storeFile method
+			fileStorageService.storeFile(multipartFile);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to store the file.");
+		}
+
+		sendMailService.sendTvReportMail(fileName);
+
+		return ResponseEntity.ok("Email sent successfully: " + fileName);
 	}
 }

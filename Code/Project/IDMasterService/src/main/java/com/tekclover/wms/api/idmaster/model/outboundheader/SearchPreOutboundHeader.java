@@ -1,9 +1,9 @@
-package com.tekclover.wms.core.model.transaction;
+package com.tekclover.wms.api.idmaster.model.outboundheader;
+
+import lombok.Data;
 
 import java.util.Date;
 import java.util.List;
-
-import lombok.Data;
 
 @Data
 public class SearchPreOutboundHeader {
@@ -23,7 +23,6 @@ public class SearchPreOutboundHeader {
 	 
 	private List<String> warehouseId;
 	private List<String> preOutboundNo;
-	private List<String> refDocNumber;
 	private List<Long> outboundOrderTypeId;
 	private List<String> soType; 			// SO type - Ref.Field1
 	private List<String> soNumber; 			// refDocNumber - SO Number
@@ -37,9 +36,6 @@ public class SearchPreOutboundHeader {
 	private Date endOrderDate;
 	private Date startCreatedOn;
 	private Date endCreatedOn;
-
-	private String stStartDate;
-	private String stEndDate;
 
 	private Date runDate = new Date();
 	

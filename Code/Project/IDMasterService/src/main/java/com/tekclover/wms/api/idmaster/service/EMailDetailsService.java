@@ -42,6 +42,21 @@ public class EMailDetailsService {
 		EMailDetailsList = EMailDetailsList.stream().filter(n -> n.getDeletionIndicator() == 0).collect(Collectors.toList());
 		return EMailDetailsList;
 	}
+
+	//get all
+	public List<EMailDetails> getDailyReportEMailDetailsList() {
+		List<EMailDetails> EMailDetailsList = eMailDetailsRepository.findAll();
+		EMailDetailsList = EMailDetailsList.stream().filter(n -> n.getDeletionIndicator() == 0).filter(n -> n.getGroupBy().equalsIgnoreCase("1")).collect(Collectors.toList());
+		return EMailDetailsList;
+	}
+
+	//get all
+	public List<EMailDetails> getReportEMailDetailsList() {
+		List<EMailDetails> EMailDetailsList = eMailDetailsRepository.findAll();
+		EMailDetailsList = EMailDetailsList.stream().filter(n -> n.getDeletionIndicator() == 0).filter(n -> n.getGroupBy().equalsIgnoreCase("2")).collect(Collectors.toList());
+		return EMailDetailsList;
+	}
+
 	//get Mail
 	public EMailDetails getEMailDetails(Long id) {
 
