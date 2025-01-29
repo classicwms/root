@@ -1,25 +1,21 @@
 package com.tekclover.wms.core.controller;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import com.lowagie.text.DocumentException;
+import com.tekclover.wms.core.exception.BadRequestException;
+import com.tekclover.wms.core.model.transaction.PreOutboundHeader;
+import com.tekclover.wms.core.model.transaction.SearchPreOutboundHeader;
+import com.tekclover.wms.core.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.io.ByteArrayResource;
@@ -27,6 +23,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,10 +44,6 @@ import com.tekclover.wms.core.model.auth.AuthToken;
 import com.tekclover.wms.core.model.auth.AuthTokenRequest;
 import com.tekclover.wms.core.model.user.NewUser;
 import com.tekclover.wms.core.model.user.RegisteredUser;
-import com.tekclover.wms.core.service.CommonService;
-import com.tekclover.wms.core.service.FileStorageService;
-import com.tekclover.wms.core.service.RegisterService;
-import com.tekclover.wms.core.service.ReportService;
 import com.tekclover.wms.core.util.DateUtils;
 import com.tekclover.wms.core.util.User1;
 
@@ -86,6 +79,8 @@ public class WrapperServiceController {
 	@Autowired
 	PropertiesConfig propertiesConfig;
 	
+    @Autowired
+    TransactionService transactionService;
 	
 	@ApiOperation(response = Optional.class, value = "TestAXAPI") // label for swagger
 	@PostMapping("/testAXAPI")
@@ -376,4 +371,95 @@ public class WrapperServiceController {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
    	}
+
+
+    //PDF Generate
+    @PostMapping("/shipment-report/pdf")
+    public void generatePDF(HttpServletResponse response, @RequestBody SearchPreOutboundHeader searchPreOutboundHeader) throws Exception {
+        response.setContentType("report/pdf");
+        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd:hh:mm:ss");
+        String currentDateTime = dateFormatter.format(new Date());
+
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=110_TV_Shipment_Delivery_Summary_" + currentDateTime + ".pdf";
+        response.setHeader(headerKey, headerValue);
+
+        SearchPreOutboundHeader searchPreOutboundHeader1 = new SearchPreOutboundHeader();
+        searchPreOutboundHeader1.setWarehouseId(searchPreOutboundHeader.getWarehouseId());
+
+        Date fromDate = null;
+        Date toDate = null;
+
+        try {
+            if (searchPreOutboundHeader.getStStartDate().indexOf("T") > 0) {
+                fromDate = DateUtils.convertStringToDateWithT(searchPreOutboundHeader.getStStartDate());
+                toDate = DateUtils.convertStringToDateWithT(searchPreOutboundHeader.getStEndDate());
+            } else {
+                fromDate = DateUtils.addTimeToDate(searchPreOutboundHeader.getStStartDate(), 14, 0, 0);
+                toDate = DateUtils.addTimeToDate(searchPreOutboundHeader.getStEndDate(), 13, 59, 59);
+            }
+            log.info("Date: " + fromDate + "," + toDate);
+
+        } catch (Exception e) {
+            throw new BadRequestException("Date should be in yyyy-MM-dd format.");
+        }
+
+        searchPreOutboundHeader1.setStartOrderDate(fromDate);
+        searchPreOutboundHeader1.setEndOrderDate(toDate);
+
+        // Generate the PDF file
+        PreOutboundHeader[] preOutboundHeader = transactionService.findPreOutboundHeaderPdf(searchPreOutboundHeader1);
+
+        reportService.export(response, preOutboundHeader, searchPreOutboundHeader1);
+    }
+
+//    @Scheduled(cron = "0 0 15 * * ?")
+//    @ApiOperation(response = Optional.class, value = "Email Sending")
+//    @PostMapping("/send-report")
+//    public String sendReport() throws Exception {
+//
+//        SearchPreOutboundHeader searchPreOutboundHeader = new SearchPreOutboundHeader();
+//
+//        // Set the startOrderDate to 12:00 AM and endOrderDate to 11:59 PM of the current day
+//        Calendar calendar = Calendar.getInstance();
+//
+//        // Set startOrderDate to 12:00 AM
+//        calendar.set(Calendar.HOUR_OF_DAY, 0);
+//        calendar.set(Calendar.MINUTE, 0);
+//        calendar.set(Calendar.SECOND, 0);
+//        calendar.set(Calendar.MILLISECOND, 0);
+//        searchPreOutboundHeader.setStartOrderDate(calendar.getTime());
+//
+//        // Set endOrderDate to 11:59 PM
+//        calendar.set(Calendar.HOUR_OF_DAY, 23);
+//        calendar.set(Calendar.MINUTE, 59);
+//        calendar.set(Calendar.SECOND, 59);
+//        calendar.set(Calendar.MILLISECOND, 999);
+//        searchPreOutboundHeader.setEndOrderDate(calendar.getTime());
+//
+//        // Generate the PDF report
+//        PreOutboundHeader[] preOutboundHeaders = transactionService.findPreOutboundHeaderPdf(searchPreOutboundHeader);
+//        File pdfFile = new File("Shipment_Report.pdf");
+//        try (FileOutputStream fos = new FileOutputStream(pdfFile)) {
+//            reportService.exportEmail(fos, preOutboundHeaders); // Adjust `export` to accept OutputStream
+//        }
+//
+//        // Send the PDF via email
+//        try {
+//            emailService.sendEmailWithAttachment(
+//                    "keyan7786@gmail.com",            // Replace with the recipient's email
+//                    "Shipment Dispatch Report",        // Subject
+//                    "Please find the attached report.", // Email body
+//                    pdfFile                             // Attachment
+//            );
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return "Failed to send email";
+//        }
+//
+//        // Clean up the file after sending the email
+//        pdfFile.delete();
+//
+//        return "Email sent successfully with the report!";
+//    }
 }
