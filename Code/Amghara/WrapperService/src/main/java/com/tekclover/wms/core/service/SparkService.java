@@ -69,7 +69,7 @@ public class SparkService {
 //        headers.add("Authorization", "Bearer " + authToken);
 
             UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/storagebin");
+                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "storagebin");
             HttpEntity<?> entity = new HttpEntity<>(searchStorageBin, headers);
             ResponseEntity<StorageBin[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, StorageBin[].class);
@@ -95,7 +95,7 @@ public class SparkService {
 //        headers.add("Authorization", "Bearer " + authToken);
 
             UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/containerReceipt");
+                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "containerReceipt");
             HttpEntity<?> entity = new HttpEntity<>(findContainerReceiptV2, headers);
             ResponseEntity<ContainerReceiptV2[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, ContainerReceiptV2[].class);
@@ -119,7 +119,7 @@ public class SparkService {
 //        headers.add("Authorization", "Bearer " + authToken);
 
             UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/preinboundHeader");
+                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "preinboundHeader");
             HttpEntity<?> entity = new HttpEntity<>(findPreInboundHeaderV2, headers);
             ResponseEntity<PreInboundHeaderV2[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PreInboundHeaderV2[].class);
@@ -143,7 +143,7 @@ public class SparkService {
 //        headers.add("Authorization", "Bearer " + authToken);
 
             UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/stagingheader");
+                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "stagingheader");
             HttpEntity<?> entity = new HttpEntity<>(searchInboundHeaderV2, headers);
             ResponseEntity<StagingHeaderV2[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, StagingHeaderV2[].class);
@@ -167,7 +167,7 @@ public class SparkService {
 //        headers.add("Authorization", "Bearer " + authToken);
 
             UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/grheader");
+                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "grheader");
             HttpEntity<?> entity = new HttpEntity<>(searchGrHeaderV2, headers);
             ResponseEntity<GrHeaderV2[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, GrHeaderV2[].class);
@@ -191,7 +191,7 @@ public class SparkService {
 //        headers.add("Authorization", "Bearer " + authToken);
 
             UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/putawayheader");
+                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "putawayheader");
             HttpEntity<?> entity = new HttpEntity<>(searchPutAwayHeaderV2, headers);
             ResponseEntity<PutAwayHeaderV2[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PutAwayHeaderV2[].class);
@@ -215,7 +215,7 @@ public class SparkService {
 //        headers.add("Authorization", "Bearer " + authToken);
 
             UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/inboundHeader");
+                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "inboundHeader");
             HttpEntity<?> entity = new HttpEntity<>(searchInboundHeaderV2, headers);
             ResponseEntity<InboundHeaderV2[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, InboundHeaderV2[].class);
@@ -238,7 +238,7 @@ public class SparkService {
 //        headers.add("Authorization", "Bearer " + authToken);
 
             UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/preoutboundheader");
+                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "preoutboundheader");
             HttpEntity<?> entity = new HttpEntity<>(findPreOutboundHeaderV2, headers);
             ResponseEntity<PreOutboundHeaderV2[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PreOutboundHeaderV2[].class);
@@ -259,7 +259,7 @@ public class SparkService {
 //        headers.add("Authorization", "Bearer " + authToken);
 
             UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/ordermanagementline");
+                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "ordermanagementline");
             HttpEntity<?> entity = new HttpEntity<>(findOrderManagementLineV2, headers);
             ResponseEntity<OrderManagementLineV2[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, OrderManagementLineV2[].class);
@@ -280,7 +280,7 @@ public class SparkService {
 //        headers.add("Authorization", "Bearer " + authToken);
 
             UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/pickupheader");
+                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "pickupheader");
             HttpEntity<?> entity = new HttpEntity<>(findPickupHeaderV2, headers);
             ResponseEntity<PickupHeaderV2[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PickupHeaderV2[].class);
@@ -301,7 +301,7 @@ public class SparkService {
 //        headers.add("Authorization", "Bearer " + authToken);
 
             UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/qualityheader");
+                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "qualityheader");
             HttpEntity<?> entity = new HttpEntity<>(findQualityHeaderV2, headers);
             ResponseEntity<QualityHeaderV2[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, QualityHeaderV2[].class);
@@ -322,7 +322,7 @@ public class SparkService {
 //        headers.add("Authorization", "Bearer " + authToken);
 
             UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/outboundheader");
+                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "outboundheader");
             HttpEntity<?> entity = new HttpEntity<>(findOutBoundHeaderV2, headers);
             ResponseEntity<OutBoundHeaderV2[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, OutBoundHeaderV2[].class);
@@ -346,7 +346,7 @@ public class SparkService {
 //        headers.add("Authorization", "Bearer " + authToken);
 
             UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/outboundreversal");
+                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "outboundreversal");
             HttpEntity<?> entity = new HttpEntity<>(findOutBoundReversalV2, headers);
             ResponseEntity<OutBoundReversalV2[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, OutBoundReversalV2[].class);
@@ -370,7 +370,7 @@ public class SparkService {
 //        headers.add("Authorization", "Bearer " + authToken);
 
             UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/pickupline");
+                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "pickupline");
             HttpEntity<?> entity = new HttpEntity<>(searchPickupLineV2, headers);
             ResponseEntity<PickupLine[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PickupLine[].class);
@@ -394,7 +394,7 @@ public class SparkService {
 //        headers.add("Authorization", "Bearer " + authToken);
 
             UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/inventorymovement");
+                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "inventorymovement");
             HttpEntity<?> entity = new HttpEntity<>(searchInventoryMovementV2, headers);
             ResponseEntity<InventoryMovementV2[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, InventoryMovementV2[].class);
@@ -415,7 +415,7 @@ public class SparkService {
             headers.add("User-Agent", " RestTemplate");
 //        headers.add("Authorization", "Bearer " + authToken);
 
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/inventory");
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "inventory");
             HttpEntity<?> entity = new HttpEntity<>(findInventoryV2, headers);
             ResponseEntity<InventoryV2[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, InventoryV2[].class);
             log.info("result: " + result.getStatusCode());
@@ -434,7 +434,7 @@ public class SparkService {
             headers.add("User-Agent", " RestTemplate");
 //        headers.add("Authorization", "Bearer " + authToken);
 
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/putawayline");
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "putawayline");
             HttpEntity<?> entity = new HttpEntity<>(findInventoryV2, headers);
             ResponseEntity<PutAwayLineV2[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PutAwayLineV2[].class);
             log.info("result: " + result.getStatusCode());
@@ -453,7 +453,7 @@ public class SparkService {
             headers.add("User-Agent", " RestTemplate");
 //        headers.add("Authorization", "Bearer " + authToken);
 
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/periodicheader");
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "periodicheader");
             HttpEntity<?> entity = new HttpEntity<>(findPeriodicHeaderV2, headers);
             ResponseEntity<PeriodicHeaderV2[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PeriodicHeaderV2[].class);
@@ -474,7 +474,7 @@ public class SparkService {
 //        headers.add("Authorization", "Bearer " + authToken);
 
             UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/inhousetransferline");
+                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "inhousetransferline");
             HttpEntity<?> entity = new HttpEntity<>(searchInhouseTransferLine, headers);
             ResponseEntity<InhouseTransferLine[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, InhouseTransferLine[].class);
@@ -494,7 +494,7 @@ public class SparkService {
             headers.add("User-Agent", " RestTemplate");
 //        headers.add("Authorization", "Bearer " + authToken);
 
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/perpetualheader");
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "perpetualheader");
             HttpEntity<?> entity = new HttpEntity<>(searchPerpetualHeaderV2, headers);
             ResponseEntity<PerpetualHeader[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PerpetualHeader[].class);
@@ -514,7 +514,7 @@ public class SparkService {
             headers.add("User-Agent", " RestTemplate");
 //        headers.add("Authorization", "Bearer " + authToken);
 
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/inboundline");
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "inboundline");
             HttpEntity<?> entity = new HttpEntity<>(findInboundLineV2, headers);
             ResponseEntity<InboundLineV2[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, InboundLineV2[].class);
@@ -534,7 +534,7 @@ public class SparkService {
             headers.add("User-Agent", " RestTemplate");
 //        headers.add("Authorization", "Bearer " + authToken);
 
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/inhousetransferheader");
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "inhousetransferheader");
             HttpEntity<?> entity = new HttpEntity<>(headers);
             ResponseEntity<InhouseTransferHeader[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, InhouseTransferHeader[].class);
@@ -554,7 +554,7 @@ public class SparkService {
             headers.add("User-Agent", " RestTemplate");
 //        headers.add("Authorization", "Bearer " + authToken);
 
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/stockreport");
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "stockreport");
             HttpEntity<?> entity = new HttpEntity<>(findStockReport, headers);
             ResponseEntity<StockReport[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, StockReport[].class);
@@ -574,7 +574,7 @@ public class SparkService {
             headers.add("User-Agent", " RestTemplate");
 //        headers.add("Authorization", "Bearer " + authToken);
 
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/inboundline");
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "inboundline");
             HttpEntity<?> entity = new HttpEntity<>(searchOrderStatusReport, headers);
             ResponseEntity<OrderStatusReport[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, OrderStatusReport[].class);
@@ -595,7 +595,7 @@ public class SparkService {
             headers.add("User-Agent", " RestTemplate");
 //        headers.add("Authorization", "Bearer " + authToken);
 
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/periodicline");
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "periodicline");
             HttpEntity<?> entity = new HttpEntity<>(findPeriodicLineV2, headers);
             ResponseEntity<PeriodicLineV2[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PeriodicLineV2[].class);
@@ -615,7 +615,7 @@ public class SparkService {
             headers.add("User-Agent", " RestTemplate");
 //        headers.add("Authorization", "Bearer " + authToken);
 
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/perpetualline");
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "perpetualline");
             HttpEntity<?> entity = new HttpEntity<>(searchPerpetualLineV2, headers);
             ResponseEntity<PerpetualLineV2[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PerpetualLineV2[].class);
@@ -636,7 +636,7 @@ public class SparkService {
             headers.add("User-Agent", " RestTemplate");
 //        headers.add("Authorization", "Bearer " + authToken);
 
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/preoutboundline");
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "preoutboundline");
             HttpEntity<?> entity = new HttpEntity<>(searchPreOutBoundLine, headers);
             ResponseEntity<PreOutBoundLineV2[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PreOutBoundLineV2[].class);
@@ -657,7 +657,7 @@ public class SparkService {
 //        headers.add("Authorization", "Bearer " + authToken);
 
             UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/stagingLine");
+                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "stagingLine");
             HttpEntity<?> entity = new HttpEntity<>(findStagingLineV2, headers);
             ResponseEntity<StagingLineV2[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, StagingLineV2[].class);
@@ -679,7 +679,7 @@ public class SparkService {
 //        headers.add("Authorization", "Bearer " + authToken);
 
             UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/grline");
+                    UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "grline");
             HttpEntity<?> entity = new HttpEntity<>(findGrLineV2, headers);
             ResponseEntity<GrLineV2[]> result =
                     getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, GrLineV2[].class);
@@ -699,7 +699,7 @@ public class SparkService {
             headers.add("User-Agent", " RestTemplate");
 //        headers.add("Authorization", "Bearer " + authToken);
 
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/qualityline");
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "qualityline");
             HttpEntity<?> entity = new HttpEntity<>(FindQualityLineV2, headers);
             ResponseEntity<QualityLine[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, QualityLine[].class);
             log.info("result: " + result.getStatusCode());
@@ -718,7 +718,7 @@ public class SparkService {
             headers.add("User-Agent", " RestTemplate");
 //        headers.add("Authorization", "Bearer " + authToken);
 
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/imbasicdata1v3");
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "imbasicdata1v3");
             HttpEntity<?> entity = new HttpEntity<>(searchImBasicData1, headers);
             ResponseEntity<ImBasicData1V3[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, ImBasicData1V3[].class);
             log.info("result: " + result.getStatusCode());
@@ -738,7 +738,7 @@ public class SparkService {
             headers.add("User-Agent", " RestTemplate");
 //        headers.add("Authorization", "Bearer " + authToken);
 
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/imbasicdata1v5");
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "imbasicdata1v5");
             HttpEntity<?> entity = new HttpEntity<>(searchImBasicData1, headers);
             ResponseEntity<ImBasicData1V3[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, ImBasicData1V3[].class);
             log.info("result: " + result.getStatusCode());
@@ -758,7 +758,7 @@ public class SparkService {
             headers.add("User-Agent", " RestTemplate");
 //        headers.add("Authorization", "Bearer " + authToken);
 
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/businessPartner");
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "businessPartner");
             HttpEntity<?> entity = new HttpEntity<>(findBusinessPartner, headers);
             ResponseEntity<BusinessPartnerV2[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, BusinessPartnerV2[].class);
             log.info("result: " + result.getStatusCode());
@@ -777,7 +777,7 @@ public class SparkService {
             headers.add("User-Agent", " RestTemplate");
 //        headers.add("Authorization", "Bearer " + authToken);
 
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/inboundLineV3");
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "inboundLineV3");
             HttpEntity<?> entity = new HttpEntity<>(findInboundLineV2, headers);
             ResponseEntity<InboundLineV3[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, InboundLineV3[].class);
             log.info("result: " + result.getStatusCode());
@@ -801,7 +801,7 @@ public class SparkService {
             headers.add("User-Agent", " RestTemplate");
 //        headers.add("Authorization", "Bearer " + authToken);
 
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/inventoryv2/new");
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "inventoryv2/new");
             HttpEntity<?> entity = new HttpEntity<>(findInventoryV3, headers);
             ResponseEntity<InventoryV3[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, InventoryV3[].class);
             log.info("result: " + result.getStatusCode());
@@ -825,7 +825,7 @@ public class SparkService {
             headers.add("User-Agent", " RestTemplate");
 //        headers.add("Authorization", "Bearer " + authToken);
 
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "almailem/spark/putawayline/new");
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "putawayline/new");
             HttpEntity<?> entity = new HttpEntity<>(findPutAwayLineV2, headers);
             ResponseEntity<PutAwayLineSpark[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PutAwayLineSpark[].class);
             log.info("result: " + result.getStatusCode());
