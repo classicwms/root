@@ -192,7 +192,7 @@ public class SendMailService {
 	}
 
 
-	public void sendTvReportMail(String fileName) throws MessagingException, IOException {
+	public void sendTvReportMail(String fileName, String fileName2) throws MessagingException, IOException {
 
 		//Send Email
 		log.info("Scheduling the TV Report Mail Started at "+ new Date());
@@ -213,7 +213,7 @@ public class SendMailService {
 			}
 		}
 		String localDate = DateUtils.getCurrentDateWithoutTimestamp();
-		String emailSubject = propertiesConfig.getEmailSubject() + "True Value - Daily Shipment Delivery Report - "+localDate;
+		String emailSubject = propertiesConfig.getEmailSubject() + "True Value - Daily Order Report - "+localDate;
 
 //		FileNameForEmail fileNameForEmail = fileNameForEmailService.getFileNameForEmailByDate(localDate);
 
@@ -221,10 +221,10 @@ public class SendMailService {
 
 		email.setSenderName("IWE Express-Support");
 		email.setSubject(emailSubject);
-		email.setBodyText("Dear TV Team,<br><br>"+"Please find the attached shipment delivery report for your reference<br><br>Regards<br>Operations Team - InnerWorks");
+		email.setBodyText("Dear TV Team,<br><br>"+"Please find the attached Daily Order Report for your reference<br><br>Regards<br>Operations Team - InnerWorks");
 		email.setToAddress(toAddress);
 		email.setCcAddress(ccAddress);
-		sendTvReportMail(email,fileName);
+		sendTvReportMail(email,fileName, fileName2);
 	}
 
 	/**
@@ -233,7 +233,7 @@ public class SendMailService {
 	 * @throws MessagingException
 	 * @throws IOException
 	 */
-	public void sendTvReportMail (EMailDetails email, String fileNameForEmail) throws MessagingException, IOException {
+	public void sendTvReportMail (EMailDetails email, String fileNameForEmail, String fileName2ForEmail) throws MessagingException, IOException {
 
 		MimeMessage msg = javaMailSender.createMimeMessage();
 
@@ -242,19 +242,28 @@ public class SendMailService {
 		String filePath1;
 		String filePath = propertiesConfig.getDocStorageBasePath() + "/";
 
-		if(!fileNameForEmail.isEmpty()) {
+		String filePath2;
+		String filePath3 = propertiesConfig.getDocStorageBasePath() + "/";
+
+		if(!fileNameForEmail.isEmpty() && !fileName2ForEmail.isEmpty()) {
 
 			filePath1 = filePath + fileNameForEmail;
+			filePath2 = filePath3 + fileName2ForEmail;
 
-			log.info("110 Delivery file Name: " + fileNameForEmail);
+			log.info("110 Order Report File Name: " + fileNameForEmail);
+			log.info("111 Order Report File Name: " + fileName2ForEmail);
 
 			File file = new File(filePath1);
+			File file2 = new File(filePath2);
 
 			Path path = Paths.get(file.getAbsolutePath());
+			Path path1 = Paths.get(file2.getAbsolutePath());
 
 			ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
+			ByteArrayResource resource1 = new ByteArrayResource(Files.readAllBytes(path1));
 
 			helper.addAttachment(fileNameForEmail, resource);
+			helper.addAttachment(fileName2ForEmail, resource1);
 
 
 			log.info("helper (From Address): " + email.getFromAddress());

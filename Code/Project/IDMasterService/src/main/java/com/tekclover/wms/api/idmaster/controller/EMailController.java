@@ -26,9 +26,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Validated
@@ -122,8 +120,16 @@ public class EMailController {
 		// Move to the previous day
 		calendar.add(Calendar.DATE, -1);
 
+		Date startOrderDate;
 		// Set startOrderDate to 12:00 AM
 		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		startOrderDate = calendar.getTime();
+
+		// Set startOrderDate to 12:00 AM
+		calendar.set(Calendar.HOUR_OF_DAY, 3);
 		calendar.set(Calendar.MINUTE, 0);
 		calendar.set(Calendar.SECOND, 0);
 		calendar.set(Calendar.MILLISECOND, 0);
@@ -136,21 +142,37 @@ public class EMailController {
 		calendar.set(Calendar.MILLISECOND, 999);
 		searchPreOutboundHeader.setEndOrderDate(calendar.getTime());
 
-		// Generate the PDF report
+		log.info("StartCreatedOn ------> {}", searchPreOutboundHeader.getStartOrderDate());
+		log.info("EndCreatedOn ------> {}", searchPreOutboundHeader.getEndOrderDate());
+
+		searchPreOutboundHeader.setWarehouseId(Collections.singletonList("110"));
+
+		// Generate the PDF report for WH_ID 110
 		PreOutboundHeader[] preOutboundHeaders = transactionService.findPreOutboundHeaderPdf(searchPreOutboundHeader);
 
-		File pdfFile = new File("Shipment_Report.pdf");
+		searchPreOutboundHeader.setWarehouseId(Collections.singletonList("111"));
+
+		// Generate the Pdf Report for WH_ID 111
+		PreOutboundHeader[] preOutboundHeaders1 = transactionService.findPreOutboundHeaderPdf(searchPreOutboundHeader);
+
+		File pdfFile = new File("Daily_Order_Report_110.pdf");
 		try (FileOutputStream fos = new FileOutputStream(pdfFile)) {
-			reportService.exportEmail(fos, preOutboundHeaders, searchPreOutboundHeader); // Adjust `export` to accept OutputStream
+			reportService.exportEmail(fos, preOutboundHeaders, searchPreOutboundHeader, startOrderDate); // Adjust `export` to accept OutputStream
 		}
 
-		String fileName = "TV_Shipment_Report_" + System.currentTimeMillis() + ".pdf";
+		File pdfFile1 = new File("Daily_Order_Report_111.pdf");
+		try (FileOutputStream fos = new FileOutputStream(pdfFile1)) {
+			reportService.exportEmail(fos, preOutboundHeaders1, searchPreOutboundHeader, startOrderDate); // Adjust `export` to accept OutputStream
+		}
+
+		String fileName1 = "Daily_Order_Report_110.pdf";
+		String fileName2 = "Daily_Order_Report_111.pdf";
 
 		// Convert the File to MultipartFile
 		try (FileInputStream fileInputStream = new FileInputStream(pdfFile)) {
 			MultipartFile multipartFile = new MockMultipartFile(
-					fileName,                 // Original file name
-					fileName,                 // File name
+					fileName1,                 // Original file name
+					fileName1,                 // File name
 					"application/pdf",        // Content type
 					fileInputStream           // File content as InputStream
 			);
@@ -163,8 +185,25 @@ public class EMailController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to store the file.");
 		}
 
-		sendMailService.sendTvReportMail(fileName);
+		// Convert the File to MultipartFile
+		try (FileInputStream fileInputStream = new FileInputStream(pdfFile1)) {
+			MultipartFile multipartFile = new MockMultipartFile(
+					fileName2,                 // Original file name
+					fileName2,                 // File name
+					"application/pdf",        // Content type
+					fileInputStream           // File content as InputStream
+			);
 
-		return ResponseEntity.ok("Email sent successfully: " + fileName);
+			// Use the existing storeFile method
+			fileStorageService.storeFile(multipartFile);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to store the file.");
+		}
+
+		sendMailService.sendTvReportMail(fileName1, fileName2);
+
+		return ResponseEntity.ok("Email sent successfully: " + fileName1 + "and" + fileName2);
 	}
 }

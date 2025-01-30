@@ -300,7 +300,7 @@ public class DateUtils {
 	public static Date addTimeToDate (Date inputDate, int numberOfDays) throws ParseException {
 		try {
 			LocalDateTime localDateTime = LocalDateTime.ofInstant(inputDate.toInstant(), ZoneId.systemDefault());
-			localDateTime = localDateTime.plusHours(numberOfDays);
+			localDateTime = localDateTime.minusHours(numberOfDays);
 			
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 			String sConvertedDateTime = formatter.format(localDateTime);

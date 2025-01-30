@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @Service
 @Slf4j
@@ -24,7 +25,7 @@ public class ReportService {
     PropertiesConfig propertiesConfig;
 
     //Email PDF Generate
-    public void exportEmail(OutputStream response, PreOutboundHeader[] preOutboundHeaders, SearchPreOutboundHeader searchPreOutboundHeader) throws IOException, DocumentException, ParseException {
+    public void exportEmail(OutputStream response, PreOutboundHeader[] preOutboundHeaders, SearchPreOutboundHeader searchPreOutboundHeader, Date startOrderDate) throws IOException, DocumentException, ParseException {
 
         Document document = new Document(PageSize.A4);
         PdfWriter.getInstance(document, response);
@@ -41,7 +42,7 @@ public class ReportService {
         table.setWidths(new float[] {2.0f, 1.5f, 1.5f, 2.0f, 1.5f, 3.0f});
         table.setSpacingBefore(10);
 
-        Paragraph paragraph = new Paragraph("Shipment Dispatch Summary Report", fontTitle);
+        Paragraph paragraph = new Paragraph("Daily Order Report", fontTitle);
         paragraph.setAlignment(Paragraph.ALIGN_CENTER);
         paragraph.setSpacingAfter(3.0f);
 
@@ -50,7 +51,7 @@ public class ReportService {
 
         SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy h:mm a");
 
-        String formattedStartDate = searchPreOutboundHeader.getStartOrderDate() != null ? dateFormatter.format(searchPreOutboundHeader.getStartOrderDate()) : "N/A";
+        String formattedStartDate = startOrderDate != null ? dateFormatter.format(startOrderDate) : "N/A";
         String formattedEndDate = searchPreOutboundHeader.getEndOrderDate() != null ? dateFormatter.format(searchPreOutboundHeader.getEndOrderDate()) : "N/A";
         String formattedRunDate = searchPreOutboundHeader.getRunDate() != null ? dateFormatter.format(searchPreOutboundHeader.getRunDate()) : "N/A";
 
@@ -72,7 +73,7 @@ public class ReportService {
         document.add(paragraph);
 
         writeTableHeader(table);
-        writeTableData(table, preOutboundHeaders, document, image);
+        writeTableData(table, preOutboundHeaders, document, image, searchPreOutboundHeader, startOrderDate);
 
         document.add(table);
 
@@ -108,7 +109,7 @@ public class ReportService {
 
     }
 
-    private void writeTableData(PdfPTable table, PreOutboundHeader[] preOutboundHeaders, Document document, Image image) throws ParseException, DocumentException, IOException {
+    private void writeTableData(PdfPTable table, PreOutboundHeader[] preOutboundHeaders, Document document, Image image, SearchPreOutboundHeader searchPreOutboundHeader, Date startOrderDate) throws ParseException, DocumentException, IOException {
 
         Font font = FontFactory.getFont(FontFactory.HELVETICA);
         font.setSize(8.5f);
@@ -160,7 +161,7 @@ public class ReportService {
                 // Add the logo and header
                 image.setAbsolutePosition(30, 780);
                 document.add(image);
-                addPageHeader(document);
+                addPageHeader(document, searchPreOutboundHeader, startOrderDate);
 
                 // Reset the table for the next page
                 table.deleteBodyRows();
@@ -177,19 +178,25 @@ public class ReportService {
 
     }
 
-    private void addPageHeader(Document document) throws DocumentException, IOException {
+    private void addPageHeader(Document document, SearchPreOutboundHeader searchPreOutboundHeader, Date startOrderDate) throws DocumentException, IOException {
         Font fontTitle = FontFactory.getFont(FontFactory.HELVETICA_BOLD);
         fontTitle.setSize(15);
 
         Font fontParagraph = FontFactory.getFont(FontFactory.HELVETICA);
         fontParagraph.setSize(8);
 
-        Paragraph paragraph = new Paragraph("Shipment Dispatch Summary Report", fontTitle);
+        Paragraph paragraph = new Paragraph("Daily Order Report", fontTitle);
         paragraph.setAlignment(Paragraph.ALIGN_CENTER);
 
-        Paragraph paragraph2 = new Paragraph("Selection Date: 01-01-2025 : 02:00 - 01-04-2025 : 01:59", fontParagraph);
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy h:mm a");
+
+        String formattedStartDate = startOrderDate != null ? dateFormatter.format(startOrderDate) : "N/A";
+        String formattedEndDate = searchPreOutboundHeader.getEndOrderDate() != null ? dateFormatter.format(searchPreOutboundHeader.getEndOrderDate()) : "N/A";
+        String formattedRunDate = searchPreOutboundHeader.getRunDate() != null ? dateFormatter.format(searchPreOutboundHeader.getRunDate()) : "N/A";
+
+        Paragraph paragraph2 = new Paragraph("Selection Date: " + formattedStartDate + " - "  + formattedEndDate , fontParagraph);
         paragraph2.setAlignment(Paragraph.ALIGN_RIGHT);
-        Paragraph paragraph3 = new Paragraph("Run Date: 01-08-2025 05:07", fontParagraph);
+        Paragraph paragraph3 = new Paragraph("Run Date: " + formattedRunDate, fontParagraph);
         paragraph3.setAlignment(Paragraph.ALIGN_RIGHT);
 
         document.add(paragraph2);
