@@ -50,8 +50,6 @@ public class OutboundOrderV2 extends OutboundOrder {
     private String customerType;
     private Long numberOfAttempts;
     private Integer imsSaleTypeCode;
-    private String TransferRequestType;
-    private String customerCode;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "OUTBOUND_ORDER_HEADER_ID",referencedColumnName = "OUTBOUND_ORDER_HEADER_ID")

@@ -26,8 +26,6 @@ public interface OutboundOrderV2Repository extends JpaRepository<OutboundOrderV2
 
     List<OutboundOrderV2> findTopByProcessedStatusIdOrderByOrderReceivedOn(long l);
 
-    List<OutboundOrderV2> findTopByProcessedStatusIdAndWarehouseIDOrderByOrderReceivedOn(Long processedStatusId, String warehouseId);
-
     @Query(value = "select \n"
             + "tc.c_text AS companyDesc,\n"
             + "tp.plant_text AS plantDesc,\n"

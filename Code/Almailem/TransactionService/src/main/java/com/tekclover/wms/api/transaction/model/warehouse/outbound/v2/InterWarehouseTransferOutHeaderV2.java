@@ -44,7 +44,6 @@ public class InterWarehouseTransferOutHeaderV2 {
 
     private String branchCode;
     private String languageId;
-    private String TransferRequestType;
 
     @JsonIgnore
     private String id;

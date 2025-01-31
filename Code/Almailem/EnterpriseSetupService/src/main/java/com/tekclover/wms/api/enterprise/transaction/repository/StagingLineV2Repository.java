@@ -355,28 +355,4 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
                                                         @Param(value = "plantId") String plantId,
                                                         @Param(value = "languageId") String languageId,
                                                         @Param(value = "warehouseId") String warehouseId);
-
-    @Transactional
-    @Procedure(procedureName = "stgl_stgh_ibl_status_update_proc")
-    public void updateStagingLineHeaderInboundLineStatusUpdateProc(
-            @Param("companyCodeId") String companyCode,
-            @Param("plantId") String plantId,
-            @Param("languageId") String languageId,
-            @Param("warehouseId") String warehouseId,
-            @Param("refDocNumber") String refDocNumber,
-            @Param("preInboundNo") String preInboundNo,
-            @Param("statusId") Long statusId,
-            @Param("statusDescription") String statusDescription,
-            @Param("updatedBy") String updatedBy,
-            @Param("updatedOn") Date updatedOn);
-
-    @Query(value = "select top 1 partner_nm from tblbusinesspartner \n" +
-            "WHERE partner_typ = 2 and partner_code = :partnerCode AND WH_ID in (:warehouseId) AND \n" +
-            "LANG_ID in (:languageId) AND PLANT_ID in (:plantId) AND C_ID in (:companyCodeId) AND \n" +
-            "IS_DELETED = 0", nativeQuery = true)
-    public String getCustomerName(@Param("companyCodeId") String companyCodeId,
-                                  @Param("plantId") String plantId,
-                                  @Param("languageId") String languageId,
-                                  @Param("warehouseId") String warehouseId,
-                                  @Param("partnerCode") String partnerCode);
 }

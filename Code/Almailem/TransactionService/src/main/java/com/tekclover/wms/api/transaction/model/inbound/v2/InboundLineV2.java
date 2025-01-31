@@ -68,7 +68,4 @@ public class InboundLineV2 extends InboundLine {
 
     @Column(name = "SOURCE_COMPANY_CODE", columnDefinition = "nvarchar(50)")
     private String sourceCompanyCode;
-
-    @Column(name = "AMS_SUP_INV", columnDefinition = "nvarchar(50)")
-    private String AMSSupplierInvoiceNo;
 }

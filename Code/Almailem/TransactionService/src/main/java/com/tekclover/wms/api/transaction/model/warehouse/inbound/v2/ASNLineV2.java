@@ -50,7 +50,6 @@ public class ASNLineV2 {
     private String origin;
     private String supplierName;
     private String brand;
-    private String AMSSupplierInvoiceNo;
 
     //almailem fields
     private Date receivedDate;

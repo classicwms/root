@@ -951,25 +951,4 @@ public class MastersService {
             throw new BadRequestException(e.getLocalizedMessage());
         }
     }
-
-    // Send EMail
-    public String sendMailForNotification(InboundOrderCancelInput inboundOrderCancelInput) {
-        try {
-            AuthToken authTokenForMasterService = authTokenService.getMastersServiceAuthToken();
-            String authToken = authTokenForMasterService.getAccess_token();
-            HttpHeaders headers = new HttpHeaders();
-            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-            headers.add("User-Agent", "Classic WMS's RestTemplate");
-            headers.add("Authorization", "Bearer " + authToken);
-            UriComponentsBuilder builder =
-                    UriComponentsBuilder.fromHttpUrl(getMastersServiceApiUrl() + "email/sendMail/notification");
-            HttpEntity<?> entity = new HttpEntity<>(inboundOrderCancelInput, headers);
-            ResponseEntity<String> result =
-                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, String.class);
-            return result.getBody();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new BadRequestException(e.getLocalizedMessage());
-        }
-    }
 }

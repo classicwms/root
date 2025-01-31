@@ -250,17 +250,4 @@ public class BaseService {
 
         return stockTypeDesc;
     }
-
-    /**
-     *
-     * @param companyCodeId
-     * @param plantId
-     * @param languageId
-     * @param warehouseId
-     * @param customerCode
-     * @return
-     */
-    public String getCustomerName(String companyCodeId, String plantId, String languageId, String warehouseId, String customerCode) {
-        return stagingLineV2Repository.getCustomerName(companyCodeId, plantId, languageId, warehouseId, customerCode);
-    }
 }

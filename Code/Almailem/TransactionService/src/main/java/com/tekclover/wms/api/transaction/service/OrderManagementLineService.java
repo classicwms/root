@@ -2077,17 +2077,6 @@ public class OrderManagementLineService extends BaseService {
                     pickupHeader.setPickupCreatedBy(loginUserID);
                     pickupHeader.setPickupCreatedOn(new Date());
 
-                    //customerName
-                    String customerCode = outboundHeader != null ? outboundHeader.getCustomerCode() : orderManagementHeader.getCustomerCode();
-                    if(customerCode != null) {
-                        String customerName = getCustomerName(pickupHeader.getCompanyCodeId(), pickupHeader.getPlantId(),
-                                                              pickupHeader.getLanguageId(), pickupHeader.getWarehouseId(), customerCode);
-                        if (customerName != null) {
-                            pickupHeader.setCustomerName(customerName);
-                        }
-                    }
-                    pickupHeader.setCustomerCode(customerCode);
-
                     // REF_FIELD_1
                     pickupHeader.setReferenceField1(dbOrderManagementLine.getReferenceField1());
                     PickupHeaderV2 pickup = pickupHeaderV2Repository.save(pickupHeader);

@@ -74,9 +74,4 @@ public class PickupHeaderV2 {
     private Timestamp mUpdatedOn;
     private String targetBranchCode;
     private Integer imsSaleTypeCode;
-
-    private Long notificationStatus;
-    private String customerCode;
-    private String TransferRequestType;
-    private String customerName;
 }

@@ -33,12 +33,4 @@ public class PickupHeaderV2 extends PickupHeader {
     private String isCancelled;
     private Date mUpdatedOn;
     private Integer imsSaleTypeCode;
-
-    private String salesInvoiceNumber;
-    private String supplierInvoiceNo;
-    private String pickListNumber;
-    private Long notificationStatus = 0L;
-    private String customerCode;
-    private String TransferRequestType;
-    private String customerName;
 }

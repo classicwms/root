@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class PickupHeaderService extends BaseService {
+public class PickupHeaderService {
     @Autowired
     private OutboundLineV2Repository outboundLineV2Repository;
 
@@ -1035,12 +1035,7 @@ public class PickupHeaderService extends BaseService {
                             dbPickupHeader.getItemCode(),
                             loginUserID,
                             updateOutboundLine);
-        String customerName = getCustomerName(dbPickupHeader.getCompanyCodeId(), dbPickupHeader.getPlantId(),
-                                              dbPickupHeader.getLanguageId(), dbPickupHeader.getWarehouseId(),
-                                              dbPickupHeader.getCustomerCode());
-        if(customerName != null) {
-            dbPickupHeader.setCustomerName(customerName);
-        }
+
         dbPickupHeader.setDeletionIndicator(0L);
         dbPickupHeader.setPickupCreatedBy(loginUserID);
         dbPickupHeader.setPickupCreatedOn(new Date());
@@ -1099,7 +1094,6 @@ public class PickupHeaderService extends BaseService {
      * @param newPickupHeader
      * @param loginUserID
      * @return
-     * @throws Exception
      */
     public PickupHeaderV2 createOutboundOrderProcessingPickupHeaderV2(PickupHeaderV2 newPickupHeader, String loginUserID) throws Exception {
         try {
@@ -1138,12 +1132,6 @@ public class PickupHeaderService extends BaseService {
                     loginUserID,
                                                           new Date());
 
-            String customerName = getCustomerName(dbPickupHeader.getCompanyCodeId(), dbPickupHeader.getPlantId(),
-                                                  dbPickupHeader.getLanguageId(), dbPickupHeader.getWarehouseId(),
-                                                  dbPickupHeader.getCustomerCode());
-            if(customerName != null) {
-                dbPickupHeader.setCustomerName(customerName);
-            }
             dbPickupHeader.setDeletionIndicator(0L);
             dbPickupHeader.setPickupCreatedBy(loginUserID);
             dbPickupHeader.setPickupCreatedOn(new Date());

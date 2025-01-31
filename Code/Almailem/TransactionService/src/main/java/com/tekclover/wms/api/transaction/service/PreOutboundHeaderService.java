@@ -1761,8 +1761,8 @@ public class PreOutboundHeaderService extends BaseService {
         /*------------------------------------------------------------------------------------*/
         //Pickup Header Automation only for Picklist Header - OutboundOrderTypeId - 3L --> wh_id = 200 referenceDocumentType - Pick List
         //for wh_id = 200 ---> ob_type_id=3 && wh_id = 100 ---> ob_type_id=0,1,3
-        if ((warehouseId.equalsIgnoreCase("200") && outboundIntegrationHeader.getOutboundOrderTypeID() == 3L)) {
-//                    || (warehouseId.equalsIgnoreCase("100") && (outboundIntegrationHeader.getOutboundOrderTypeID() == 0L || outboundIntegrationHeader.getOutboundOrderTypeID() == 1L || outboundIntegrationHeader.getOutboundOrderTypeID() == 3L))) {
+        if ((warehouseId.equalsIgnoreCase("200") && outboundIntegrationHeader.getOutboundOrderTypeID() == 3L) ||
+                (warehouseId.equalsIgnoreCase("100") && (outboundIntegrationHeader.getOutboundOrderTypeID() == 0L || outboundIntegrationHeader.getOutboundOrderTypeID() == 1L || outboundIntegrationHeader.getOutboundOrderTypeID() == 3L))) {
 //            updateStatusAs48ForPickupHeaderCreateSuccess(companyCodeId, plantId, languageId, warehouseId, outboundIntegrationHeader, preOutboundNo, outboundHeader.getRefDocNumber(), outboundHeader.getPartnerCode());
 //            updateStatusAs48ForPickupHeader(companyCodeId, plantId, languageId, warehouseId, outboundIntegrationHeader, preOutboundNo, outboundHeader.getRefDocNumber(), outboundHeader.getPartnerCode());
 //            createPickUpHeaderAssignPicker(companyCodeId, plantId, languageId, warehouseId, outboundIntegrationHeader, preOutboundNo, outboundHeader.getRefDocNumber(), outboundHeader.getPartnerCode());
@@ -2274,8 +2274,6 @@ public class PreOutboundHeaderService extends BaseService {
                 newPickupHeader.setIsCompleted(outboundIntegrationHeader.getIsCompleted());
                 newPickupHeader.setIsCancelled(outboundIntegrationHeader.getIsCancelled());
                 newPickupHeader.setMUpdatedOn(outboundIntegrationHeader.getMUpdatedOn());
-                newPickupHeader.setCustomerCode(outboundIntegrationHeader.getCustomerCode());
-                newPickupHeader.setTransferRequestType(outboundIntegrationHeader.getTransferRequestType());
 
                 PickupHeaderV2 createdPickupHeader = pickupHeaderService.createOutboundOrderProcessingPickupHeaderV2(newPickupHeader, orderManagementLine.getPickupCreatedBy());
                 log.info("pickupHeader created: " + createdPickupHeader);
@@ -4162,8 +4160,6 @@ public class PreOutboundHeaderService extends BaseService {
         outboundHeader.setIsCompleted(outboundIntegrationHeader.getIsCompleted());
         outboundHeader.setIsCancelled(outboundIntegrationHeader.getIsCancelled());
         outboundHeader.setMUpdatedOn(outboundHeader.getMUpdatedOn());
-        outboundHeader.setCustomerCode(outboundIntegrationHeader.getCustomerCode());
-        outboundHeader.setTransferRequestType(outboundIntegrationHeader.getTransferRequestType());
 
         if(outboundHeader.getOutboundOrderTypeId() == 3L) {
             outboundHeader.setCustomerType("INVOICE");
@@ -4242,8 +4238,6 @@ public class PreOutboundHeaderService extends BaseService {
         preOutboundHeader.setPartnerCode(outboundIntegrationHeader.getPartnerCode());
         preOutboundHeader.setOutboundOrderTypeId(outboundIntegrationHeader.getOutboundOrderTypeID());    // Hardcoded value "0"
 //        preOutboundHeader.setReferenceDocumentType("SO");                                                // Hardcoded value "SO"
-        preOutboundHeader.setCustomerCode(outboundIntegrationHeader.getCustomerCode());
-        preOutboundHeader.setTransferRequestType(outboundIntegrationHeader.getTransferRequestType());
 
         /*
          * Setting up KuwaitTime
@@ -4327,7 +4321,7 @@ public class PreOutboundHeaderService extends BaseService {
         preOutboundLine.setRefDocNumber(outboundIntegrationHeader.getRefDocumentNo());
 
         // OB_ORD_TYP_ID
-            preOutboundLine.setOutboundOrderTypeId(outboundIntegrationHeader.getOutboundOrderTypeID());
+        preOutboundLine.setOutboundOrderTypeId(Long.valueOf(outboundIntegrationHeader.getOutboundOrderTypeID()));
 
         // IB__LINE_NO
         preOutboundLine.setLineNumber(outboundIntegrationLine.getLineReference());
@@ -4574,7 +4568,6 @@ public class PreOutboundHeaderService extends BaseService {
         orderManagementLine.setMiddlewareId(preOutboundLine.getMiddlewareId());
         orderManagementLine.setMiddlewareHeaderId(preOutboundLine.getMiddlewareHeaderId());
         orderManagementLine.setMiddlewareTable(preOutboundLine.getMiddlewareTable());
-            orderManagementLine.setPreOutboundNo(preOutboundNo);
         orderManagementLine.setReferenceDocumentType(preOutboundLine.getReferenceDocumentType());
         orderManagementLine.setSalesInvoiceNumber(preOutboundLine.getSalesInvoiceNumber());
         orderManagementLine.setManufacturerName(preOutboundLine.getManufacturerName());

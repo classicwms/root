@@ -94,6 +94,4 @@ public class PutAwayLineV2 extends PutAwayLine {
     @Column(name = "LEVEL_ID", columnDefinition = "nvarchar(25)")
     private String levelId;
 
-    @Column(name = "AMS_SUP_INV", columnDefinition = "nvarchar(50)")
-    private String AMSSupplierInvoiceNo;
 }

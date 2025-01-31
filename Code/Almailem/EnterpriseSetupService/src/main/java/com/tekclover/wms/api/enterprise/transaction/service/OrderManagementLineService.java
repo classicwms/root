@@ -2053,17 +2053,6 @@ public class OrderManagementLineService extends BaseService {
                     // ProposedPackbarcode
                     pickupHeader.setProposedPackBarCode(dbOrderManagementLine.getProposedPackBarCode());
 
-                    //customerName
-                    String customerCode = outboundHeader != null ? outboundHeader.getCustomerCode() : orderManagementHeader.getCustomerCode();
-                    if(customerCode != null) {
-                        String customerName = getCustomerName(pickupHeader.getCompanyCodeId(), pickupHeader.getPlantId(),
-                                                              pickupHeader.getLanguageId(), pickupHeader.getWarehouseId(), customerCode);
-                        if (customerName != null) {
-                            pickupHeader.setCustomerName(customerName);
-                        }
-                    }
-                    pickupHeader.setCustomerCode(customerCode);
-
                     pickupHeader.setPickupCreatedBy(loginUserID);
                     pickupHeader.setPickupCreatedOn(new Date());
 

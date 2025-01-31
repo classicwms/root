@@ -1,16 +1,14 @@
 package com.tekclover.wms.api.enterprise.transaction.service;
 
-import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
-import java.util.concurrent.CompletableFuture;
-
+import com.tekclover.wms.api.enterprise.transaction.model.warehouse.inbound.WarehouseApiResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import com.tekclover.wms.api.enterprise.transaction.model.warehouse.inbound.WarehouseApiResponse;
-
-import lombok.extern.slf4j.Slf4j;
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -33,15 +31,6 @@ public class ScheduleAsyncService {
     public CompletableFuture<WarehouseApiResponse> processOutboundOrder() throws InterruptedException, InvocationTargetException, IllegalAccessException, ParseException {
 
         WarehouseApiResponse outboundOrder = transactionService.processOutboundOrder();
-        return CompletableFuture.completedFuture(outboundOrder);
-
-    }
-
-    //-------------------------------------------------------------------Amghara Outbound---------------------------------------------------------------
-    @Async("asyncTaskExecutor")
-    public CompletableFuture<WarehouseApiResponse> processAmgharaOutboundOrder() throws InterruptedException, InvocationTargetException, IllegalAccessException, ParseException {
-
-        WarehouseApiResponse outboundOrder = transactionService.processAmgharaOutboundOrder();
         return CompletableFuture.completedFuture(outboundOrder);
 
     }

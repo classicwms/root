@@ -55,8 +55,6 @@ public class PreInboundHeaderV2 {
     private Date mUpdatedOn;
     private String sourceBranchCode;
     private String sourceCompanyCode;
-    private String customerCode;
-    private String TransferRequestType;
 
     private List<PreInboundLineEntityV2> preInboundLineV2;
 }

@@ -33,7 +33,6 @@ public class InboundIntegrationLine {
     private String manufacturerFullName;
     private String purchaseOrderNumber;
     private String supplierName;
-    private String AMSSupplierInvoiceNo;
 
     private Date receivedDate;
     private Double receivedQty;

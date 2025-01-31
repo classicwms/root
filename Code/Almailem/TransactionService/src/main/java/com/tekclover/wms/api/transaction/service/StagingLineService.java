@@ -1095,9 +1095,6 @@ public class StagingLineService extends BaseService {
                 // PLANT_ID
                 dbStagingLineEntity.setPlantId(plantId);
 
-                dbStagingLineEntity.setCustomerCode(newStagingLine.getCustomerCode());
-                dbStagingLineEntity.setTransferRequestType(newStagingLine.getTransferRequestType());
-
                 dbStagingLineEntity.setOrderQty(newStagingLine.getOrderQty());
 
                 /*
@@ -1880,7 +1877,7 @@ public class StagingLineService extends BaseService {
         }
 
         // Record Insertion in GRHEADER table
-            if (updatedStagingLineEntityList != null && !updatedStagingLineEntityList.isEmpty()) {
+        if (!updatedStagingLineEntityList.isEmpty()) {
 
             StagingLineEntityV2 updatedStagingLineEntity = updatedStagingLineEntityList.get(0);
 
@@ -1917,8 +1914,6 @@ public class StagingLineService extends BaseService {
                 addGrHeader.setMUpdatedOn(stagingHeaderV2.getMUpdatedOn());
                 addGrHeader.setSourceBranchCode(stagingHeaderV2.getSourceBranchCode());
                 addGrHeader.setSourceCompanyCode(stagingHeaderV2.getSourceCompanyCode());
-                addGrHeader.setCustomerCode(stagingHeaderV2.getCustomerCode());
-                addGrHeader.setTransferRequestType(stagingHeaderV2.getTransferRequestType());
             }
 
             // STATUS_ID
@@ -1947,7 +1942,6 @@ public class StagingLineService extends BaseService {
                 grHeader.getStagingNo(), grHeader.getCaseCode());
 
         AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-            AuthToken authTokenForIDMasterService = authTokenService.getIDMasterServiceAuthToken();
 
         Double itemLength = 0D;
         Double itemWidth = 0D;
@@ -1967,6 +1961,7 @@ public class StagingLineService extends BaseService {
 
             BeanUtils.copyProperties(dbStagingLine, newGrLine, CommonUtils.getNullPropertyNames(dbStagingLine));
 
+            AuthToken authTokenForIDMasterService = authTokenService.getIDMasterServiceAuthToken();
             long NUM_RAN_ID = 6;
             String nextRangeNumber = getNextRangeNumber(NUM_RAN_ID, dbStagingLine.getCompanyCode(),
                     dbStagingLine.getPlantId(), dbStagingLine.getLanguageId(), dbStagingLine.getWarehouseId(), authTokenForIDMasterService.getAccess_token());

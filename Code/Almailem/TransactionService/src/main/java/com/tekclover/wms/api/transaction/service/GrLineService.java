@@ -2244,8 +2244,6 @@ public class GrLineService extends BaseService {
                 putAwayHeader.setIsCompleted(dbPreInboundHeader.getIsCompleted());
                 putAwayHeader.setIsCancelled(dbPreInboundHeader.getIsCancelled());
                 putAwayHeader.setMUpdatedOn(dbPreInboundHeader.getMUpdatedOn());
-            putAwayHeader.setCustomerCode(dbPreInboundHeader.getCustomerCode());
-            putAwayHeader.setTransferRequestType(dbPreInboundHeader.getTransferRequestType());
 
                 putAwayHeader.setReferenceField5(createdGRLine.getItemCode());
                 putAwayHeader.setReferenceField6(createdGRLine.getManufacturerName());

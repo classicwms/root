@@ -24,7 +24,6 @@ public class InboundIntegrationHeader {
     private String isCompleted;
     private Date updatedOn;
     private String isCancelled;
-    private String AMSSupplierInvoiceNo;
 
     private String middlewareId;
     private String middlewareTable;
@@ -32,8 +31,6 @@ public class InboundIntegrationHeader {
     private Date transferOrderDate;
     private String sourceBranchCode;
     private String sourceCompanyCode;
-    private String customerCode;
-    private String TransferRequestType;
 
     private List<InboundIntegrationLine> inboundIntegrationLine;
 

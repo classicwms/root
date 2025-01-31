@@ -487,7 +487,6 @@ public class ReportsService extends BaseService {
         if (searchStockReport.getItemText() == null) {
             searchStockReport.setItemText("0");
         }
-        log.info("Strock Report Search Input: " + searchStockReport);
 
         stockReportOutputRepository.updateSpStockReport(
                 searchStockReport.getCompanyCodeId(),

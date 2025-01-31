@@ -2746,7 +2746,7 @@ public class OutboundLineService extends BaseService {
         List<OutboundLineV2> outboundLineList = getOutboundLineV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber);
         List<OutboundLineV2> outboundLineListStatus90 = null;
         if(outboundLineList != null && !outboundLineList.isEmpty()) {
-//            log.info("outboundLineList : " + outboundLineList);
+            log.info("outboundLineList : " + outboundLineList);
             Long outboundLineCount = outboundLineList.stream().count();
             log.info("outboundLine count : " + outboundLineCount);
             outboundLineListStatus90 = outboundLineList.stream().filter(a-> a.getStatusId() == 90L).collect(Collectors.toList());

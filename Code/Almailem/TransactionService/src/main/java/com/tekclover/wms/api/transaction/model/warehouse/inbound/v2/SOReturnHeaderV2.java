@@ -24,7 +24,6 @@ public class SOReturnHeaderV2 {
     private String isCompleted;
     private Date updatedOn;
     private String isCancelled;
-    private String customerCode;
 
     //MiddleWare Fields
     private Long middlewareId;
