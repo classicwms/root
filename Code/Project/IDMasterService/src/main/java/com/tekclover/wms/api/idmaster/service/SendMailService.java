@@ -213,7 +213,7 @@ public class SendMailService {
 			}
 		}
 		String localDate = DateUtils.getCurrentDateWithoutTimestamp();
-		String emailSubject = propertiesConfig.getEmailSubject() + "True Value - Daily Order Report - "+localDate;
+		String emailSubject = propertiesConfig.getEmailSubject() + "Daily Order Report - True Value and True Express - "+localDate;
 
 //		FileNameForEmail fileNameForEmail = fileNameForEmailService.getFileNameForEmailByDate(localDate);
 
@@ -221,7 +221,7 @@ public class SendMailService {
 
 		email.setSenderName("IWE Express-Support");
 		email.setSubject(emailSubject);
-		email.setBodyText("Dear TV Team,<br><br>"+"Please find the attached Daily Order Report for your reference<br><br>Regards<br>Operations Team - InnerWorks");
+		email.setBodyText("Dear IW Express team,<br><br>"+"Please find the attached Daily Order Report for your reference<br><br>Regards<br>WMS IT Team");
 		email.setToAddress(toAddress);
 		email.setCcAddress(ccAddress);
 		sendTvReportMail(email,fileName, fileName2);
