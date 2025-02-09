@@ -1072,7 +1072,10 @@ public class PreInboundHeaderService extends BaseService {
             throw new BadRequestException("The given PreInboundHeader ID : preInboundNo : " + preInboundNo +
                     ", warehouseId: " + warehouseId + " doesn't exist.");
         }
-        PreInboundHeaderV2 preInboundHeader = getPreInboundLineItemsV2(preInboundHeaderEntity.get());
+        
+		//        PreInboundHeaderV2 preInboundHeader = getPreInboundLineItemsV2(preInboundHeaderEntity.get());
+        PreInboundHeaderV2 preInboundHeader = new PreInboundHeaderV2();
+        BeanUtils.copyProperties(preInboundHeaderEntity.get(), preInboundHeader, CommonUtils.getNullPropertyNames(preInboundHeaderEntity.get()));
         return preInboundHeader;
     }
 

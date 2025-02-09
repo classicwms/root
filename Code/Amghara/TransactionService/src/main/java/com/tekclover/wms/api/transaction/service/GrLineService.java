@@ -1694,6 +1694,15 @@ public class GrLineService extends BaseService {
                             createPutAwayHeaderNonCBMV2(createdGRLine, loginUserID);
                         }
                     }
+					//Update staging Line using stored Procedure
+                    stagingLineV2Repository.updateStagingLineUpdateNewProc(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo,
+                            createdGRLine.getLineNo(), createdGRLine.getItemCode(), createdGRLine.getManufacturerName(), new Date());
+                    log.info("stagingLine Status updated using Stored Procedure ");
+
+                    //Update InboundLine using Stored Procedure
+                    inboundLineV2Repository.updateInboundLineStatusUpdateNewProc(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo,
+                            createdGRLine.getLineNo(), createdGRLine.getItemCode(), createdGRLine.getManufacturerName(), 17L, statusDescription, new Date());
+                    log.info("inboundLine Status updated using Stored Procedure ");
                 }
                 log.info("Records were inserted successfully...");
             }
@@ -1879,13 +1888,13 @@ public class GrLineService extends BaseService {
             log.info("GrHeader Status 17 Updating Using Stored Procedure when condition met");
 
             //Update staging Line using stored Procedure
-            stagingLineV2Repository.updateStagingLineUpdateNewProc(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo,new Date());
-            log.info("stagingLine Status updated using Stored Procedure ");
+//            stagingLineV2Repository.updateStagingLineUpdateNewProc(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo,new Date());
+//            log.info("stagingLine Status updated using Stored Procedure ");
 
             //Update InboundLine using Stored Procedure
-            inboundLineV2Repository.updateInboundLineStatusUpdateNewProc(
-                    companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo,17L, statusDescription, new Date());
-            log.info("inboundLine Status updated using Stored Procedure ");
+//            inboundLineV2Repository.updateInboundLineStatusUpdateNewProc(
+//                  companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo,17L, statusDescription, new Date());
+//            log.info("inboundLine Status updated using Stored Procedure ");
 
             return createdGRLines;
         } catch (Exception e) {

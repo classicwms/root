@@ -307,7 +307,7 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
     );
 
     @Transactional
-    @Procedure(procedureName = "staging_line_update_new_proc")
+    @Procedure(procedureName = "amghara_staging_line_update_new_proc")
     public void updateStagingLineUpdateNewProc(
             @Param("companyCodeId") String companyCodeId,
             @Param("plantId") String plantId,
@@ -315,6 +315,9 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
             @Param("warehouseId") String warehouseId,
             @Param("refDocNumber") String refDocNumber,
             @Param("preInboundNo") String preInboundNo,
+            @Param("lineNumber") Long lineNumber,
+            @Param("itmCode") String itmCode,
+            @Param("mfrName") String mfrName,
             @Param("updatedOn") Date updatedOn
     );
 
