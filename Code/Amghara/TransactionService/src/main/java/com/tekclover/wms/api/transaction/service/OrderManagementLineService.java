@@ -1957,6 +1957,7 @@ public class OrderManagementLineService extends BaseService {
         Set<String> preOutboundNoList = new HashSet<>();
         Set<String> warehouseIdList = new HashSet<>();
         List<OrderManagementLineV2> orderManagementLineList = new ArrayList<>();
+        List<PickupHeaderV2> pickupHeaders = new ArrayList<>();
 
         // Iterating over AssignPicker
         for (AssignPickerV2 assignPicker : assignPickers) {
@@ -2091,6 +2092,7 @@ public class OrderManagementLineService extends BaseService {
                     // REF_FIELD_1
                     pickupHeader.setReferenceField1(dbOrderManagementLine.getReferenceField1());
                     PickupHeaderV2 pickup = pickupHeaderV2Repository.save(pickupHeader);
+                    pickupHeaders.add(pickup);
                     log.info("pickupHeader created : " + pickup);
 
                     dbOrderManagementLine.setPickupNumber(PU_NO);
@@ -2101,11 +2103,12 @@ public class OrderManagementLineService extends BaseService {
             }
         }
         //push notification separated from pickup header and consolidated notification sent
-        if(preOutboundNoList != null && !preOutboundNoList.isEmpty() && warehouseIdList != null && !warehouseIdList.isEmpty()) {
-            sendPushNotification(preOutboundNoList, warehouseIdList);
-        } else {
-            sendPushNotification();
-        }
+//        if(preOutboundNoList != null && !preOutboundNoList.isEmpty() && warehouseIdList != null && !warehouseIdList.isEmpty()) {
+//            sendPushNotification(preOutboundNoList, warehouseIdList);
+            sendPushNotification(pickupHeaders);
+//        } else {
+//            sendPushNotification();
+//        }
         return orderManagementLineList;
     }
 
@@ -2171,6 +2174,31 @@ public class OrderManagementLineService extends BaseService {
         } catch (Exception e) {
 //            e.printStackTrace();
             }
+    }
+
+    /**
+     *
+     * @param pickupHeaders
+     */
+    public void sendPushNotification(List<PickupHeaderV2> pickupHeaders) {
+        try {
+            for (PickupHeaderV2 pickupHeaderV2 : pickupHeaders) {
+                List<String> deviceToken = pickupHeaderV2Repository.getDeviceToken(
+                        pickupHeaderV2.getAssignedPickerId(), pickupHeaderV2.getWarehouseId());
+                if (deviceToken != null && !deviceToken.isEmpty()) {
+                    String title = "PICKING";
+                    String message = pickupHeaderV2.getReferenceDocumentType() + " ORDER - " + pickupHeaderV2.getRefDocNumber() + " - IS RECEIVED ";
+                    String response = pushNotificationService.sendPushNotification(deviceToken, title, message);
+                    if (response.equals("OK")) {
+                        pickupHeaderV2Repository.updateNotificationStatus(
+                                pickupHeaderV2.getAssignedPickerId(), pickupHeaderV2.getRefDocNumber(), pickupHeaderV2.getWarehouseId());
+                        log.info("status update successfully");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.info("Push Notification pickupheader create exception : " + e.toString());
+        }
     }
 
     /**

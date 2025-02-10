@@ -92,4 +92,7 @@ public class GrLineV2 extends GrLine {
 
     @Column(name = "AMS_SUP_INV", columnDefinition = "nvarchar(50)")
     private String AMSSupplierInvoiceNo;
+
+    @Column(name = "IS_PA_HEADER_CTD")
+    private Long isPutAwayHeaderCreated;
 }
