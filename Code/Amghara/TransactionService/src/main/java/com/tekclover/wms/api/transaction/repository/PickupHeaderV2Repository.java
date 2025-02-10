@@ -434,14 +434,33 @@ public interface PickupHeaderV2Repository extends JpaRepository<PickupHeaderV2, 
                                                         @Param("endDate") Date endDate);
 
 
-    @Query(value = "select token_id as tokenId from tblhhtnotification where usr_id = :userId and \n" +
-            " wh_id = :warehouseId and is_deleted = 0", nativeQuery = true)
+    @Query(value = "select top 1 token_id as tokenId from tblhhtnotification where usr_id = :userId and \n" +
+            " wh_id = :warehouseId and is_deleted = 0 order by ctd_on desc", nativeQuery = true)
     public List<String> getDeviceToken(@Param("userId")String userId,
                                        @Param("warehouseId")String warehouseId);
 
     PickupHeaderV2 findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndManufacturerNameAndStatusIdAndOutboundOrderTypeIdAndDeletionIndicatorOrderByPickupCreatedOn(
             String companyCodeId, String plantId, String languageId, String warehouseId, String itemCode,
             String manufacturerName, Long statusId, Long outboundOrderTypeId, Long deletionIndicator);
+
+    PickupHeaderV2 findTopByIsPickupHeaderCreatedAndDeletionIndicatorOrderByPickupCreatedOn(long isPickupHeaderCreated, long deletionIndicator);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("Update PickupHeaderV2 ob SET ob.isPickupHeaderCreated = :isPickupHeaderCreated \r\n "
+            + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND \r\n"
+            + " ob.pickupNumber = :pickupNumber AND ob.preOutboundNo = :preOutboundNo AND ob.lineNumber = :lineNumber AND ob.itemCode = :itemCode AND \r\n"
+            + " ob.proposedStorageBin = :proposedStorageBin AND ob.proposedPackBarCode = :proposedPackBarCode")
+    public void updatePickupHeaderStatusV2(@Param("companyCodeId") String companyCodeId,
+                                           @Param("plantId") String plantId,
+                                           @Param("languageId") String languageId,
+                                           @Param("warehouseId") String warehouseId,
+                                           @Param("preOutboundNo") String preOutboundNo,
+                                           @Param("pickupNumber") String pickupNumber,
+                                           @Param("lineNumber") Long lineNumber,
+                                           @Param("itemCode") String itemCode,
+                                           @Param("proposedStorageBin") String proposedStorageBin,
+                                           @Param("proposedPackBarCode") String proposedPackBarCode,
+                                           @Param("isPickupHeaderCreated") Long isPickupHeaderCreated);
 
 //     @Query(value = "select token_id as tokenId from tblhhtnotification where usr_id = :userId and \n" +
 //                " c_id = :companyId and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and is_deleted = 0", nativeQuery = true)

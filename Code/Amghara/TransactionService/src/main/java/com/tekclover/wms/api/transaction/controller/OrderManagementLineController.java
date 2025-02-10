@@ -9,6 +9,7 @@ import javax.validation.Valid;
 
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.v2.AssignPickerV2;
+import com.tekclover.wms.api.transaction.model.outbound.ordermangement.v2.OrderManagementLineImpl;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.v2.OrderManagementLineV2;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.v2.SearchOrderManagementLineV2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -247,7 +248,7 @@ public class OrderManagementLineController {
     @ApiOperation(response = OrderManagementLineV2.class, value = "Allocate") // label for swagger
     @PatchMapping("/v2/assignPicker")
     public ResponseEntity<?> assignPickerV2(@RequestBody List<AssignPickerV2> assignPicker, @RequestParam String assignedPickerId,
-                                            @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException, FirebaseMessagingException {
+                                            @RequestParam String loginUserID) throws Exception {
         List<OrderManagementLineV2> updatedOrderManagementLine =
                 ordermangementlineService.doAssignPickerV2(assignPicker, assignedPickerId, loginUserID);
         return new ResponseEntity<>(updatedOrderManagementLine, HttpStatus.OK);
@@ -296,5 +297,13 @@ public class OrderManagementLineController {
     public ResponseEntity<?> updateRefFieldsV2() {
         ordermangementlineService.updateRef9ANDRef10();
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    //==========================================================================================================================
+    //find Order management line for assignment tab
+    @ApiOperation(response = OrderManagementLineImpl.class, value = "Search OrderManagementLineV2 for assignment tab") // label for swagger
+    @PostMapping("/v2/findOrderManagementLines")
+    public List<OrderManagementLineImpl> findOrderManagementLinesV2(@RequestBody SearchOrderManagementLineV2 searchOrderManagementLine) throws Exception {
+        return ordermangementlineService.findOrderManagementLinesV2(searchOrderManagementLine);
     }
 }

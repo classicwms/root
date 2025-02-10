@@ -101,4 +101,7 @@ public class PickupHeaderV2 extends PickupHeader {
 	@Column(name = "CUSTOMER_NAME", columnDefinition = "nvarchar(150)")
 	private String customerName;
 
+	@Column(name = "IS_PI_HEADER_CTD")
+	private Long isPickupHeaderCreated;
+
 }

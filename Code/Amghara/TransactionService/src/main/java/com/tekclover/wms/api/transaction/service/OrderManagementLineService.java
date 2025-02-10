@@ -12,12 +12,15 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import com.tekclover.wms.api.transaction.config.PropertiesConfig;
 import com.tekclover.wms.api.transaction.model.dto.*;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.IInventoryImpl;
+import com.tekclover.wms.api.transaction.model.outbound.ordermangement.v2.*;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.v2.OutboundIntegrationHeaderV2;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
@@ -33,10 +36,6 @@ import com.tekclover.wms.api.transaction.model.outbound.ordermangement.OrderMana
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.OrderManagementLine;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.SearchOrderManagementLine;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.UpdateOrderManagementLine;
-import com.tekclover.wms.api.transaction.model.outbound.ordermangement.v2.AssignPickerV2;
-import com.tekclover.wms.api.transaction.model.outbound.ordermangement.v2.OrderManagementHeaderV2;
-import com.tekclover.wms.api.transaction.model.outbound.ordermangement.v2.OrderManagementLineV2;
-import com.tekclover.wms.api.transaction.model.outbound.ordermangement.v2.SearchOrderManagementLineV2;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupHeader;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickupHeaderV2;
 import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2;
@@ -134,6 +133,9 @@ public class OrderManagementLineService extends BaseService {
 
     @Autowired
     PropertiesConfig propertiesConfig;
+
+    @Autowired
+    PickupHeaderService pickupHeaderService;
 
     String statusDescription = null;
     //------------------------------------------------------------------------------------------------------
@@ -1940,7 +1942,9 @@ public class OrderManagementLineService extends BaseService {
      * @return
      */
     public List<OrderManagementLineV2> doAssignPickerV2(List<AssignPickerV2> assignPickers, String assignedPickerId,
-                                                        String loginUserID) throws java.text.ParseException, FirebaseMessagingException {
+                                                        String loginUserID) throws Exception {
+        try {
+            log.info("PickupHeader Create Initiated : ---> " + assignPickers.size());
         String companyCodeId = null;
         String plantId = null;
         String languageId = null;
@@ -1956,11 +1960,15 @@ public class OrderManagementLineService extends BaseService {
         //push Notification
         Set<String> preOutboundNoList = new HashSet<>();
         Set<String> warehouseIdList = new HashSet<>();
+            String notificationPreOutboundNo = null;
+            String notificationWarehouseId = null;
         List<OrderManagementLineV2> orderManagementLineList = new ArrayList<>();
         List<PickupHeaderV2> pickupHeaders = new ArrayList<>();
+            List<AssignPickerV2> sortedList = assignPickers.stream().sorted(Comparator.comparing(AssignPickerV2::getPreOutboundNo)).collect(Collectors.toList());
+            AuthToken authTokenForIdmasterService = authTokenService.getIDMasterServiceAuthToken();
 
         // Iterating over AssignPicker
-        for (AssignPickerV2 assignPicker : assignPickers) {
+            for (AssignPickerV2 assignPicker : sortedList) {
             companyCodeId = assignPicker.getCompanyCodeId();
             plantId = assignPicker.getPlantId();
             languageId = assignPicker.getLanguageId();
@@ -1992,47 +2000,47 @@ public class OrderManagementLineService extends BaseService {
 
                 log.info("orderManagementLine: " + dbOrderManagementLine);
 
-//                AuthToken idmasterAuthToken = authTokenService.getIDMasterServiceAuthToken();
-//                StatusId idStatus = idmasterService.getStatus(48L, warehouseId, idmasterAuthToken.getAccess_token());
+    //                AuthToken idmasterAuthToken = authTokenService.getIDMasterServiceAuthToken();
+    //                StatusId idStatus = idmasterService.getStatus(48L, warehouseId, idmasterAuthToken.getAccess_token());
                 statusDescription = stagingLineV2Repository.getStatusDescription(48L, languageId);
 
-                dbOrderManagementLine.setAssignedPickerId(assignedPickerId);
-                dbOrderManagementLine.setStatusId(48L);                        // 2. Update STATUS_ID = 48
-//                dbOrderManagementLine.setReferenceField7(statusDescription);
-                dbOrderManagementLine.setStatusDescription(statusDescription);
-                dbOrderManagementLine.setPickupUpdatedBy(loginUserID);            // Ref_field_7
-                dbOrderManagementLine.setPickupUpdatedOn(new Date());
-                dbOrderManagementLine = orderManagementLineV2Repository.save(dbOrderManagementLine);
-                log.info("dbOrderManagementLine updated : " + dbOrderManagementLine);
+//                    dbOrderManagementLine.setAssignedPickerId(assignedPickerId);
+//                    dbOrderManagementLine.setStatusId(48L);                        // 2. Update STATUS_ID = 48
+    //                dbOrderManagementLine.setReferenceField7(statusDescription);
+//                    dbOrderManagementLine.setStatusDescription(statusDescription);
+//                    dbOrderManagementLine.setPickupUpdatedBy(loginUserID);            // Ref_field_7
+//                    dbOrderManagementLine.setPickupUpdatedOn(new Date());
+//                    dbOrderManagementLine = orderManagementLineV2Repository.save(dbOrderManagementLine);
+//                    log.info("dbOrderManagementLine updated : " + dbOrderManagementLine);
 
                 /*
                  * Update ORDERMANAGEMENTHEADER --------------------------------- Pass the
                  * Selected WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/OB_LINE_NO/ITM_CODE in
                  * OUTBOUNDLINE table and update SATATU_ID as 48
                  */
-                OutboundLineV2 outboundLine = outboundLineService.getOutboundLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber,
-                        partnerCode, lineNumber, itemCode);
-                outboundLine.setStatusId(48L);
-                outboundLine.setStatusDescription(statusDescription);
-                outboundLine.setAssignedPickerId(assignedPickerId);
-                outboundLine = outboundLineV2Repository.save(outboundLine);
-                log.info("outboundLine updated : " + outboundLine);
-
-                // OutboundHeader Update
+    //                OutboundLineV2 outboundLine = outboundLineService.getOutboundLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber,
+    //                        partnerCode, lineNumber, itemCode);
+    //                outboundLine.setStatusId(48L);
+    //                outboundLine.setStatusDescription(statusDescription);
+    //                outboundLine.setAssignedPickerId(assignedPickerId);
+    //                outboundLine = outboundLineV2Repository.save(outboundLine);
+    //                log.info("outboundLine updated : " + outboundLine);
+    //
+    //                // OutboundHeader Update
                 OutboundHeaderV2 outboundHeader = outboundHeaderService.getOutboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo,
                         refDocNumber, partnerCode);
-                outboundHeader.setStatusId(48L);
-                outboundHeader.setStatusDescription(statusDescription);
-                outboundHeaderV2Repository.save(outboundHeader);
-                log.info("outboundHeader updated : " + outboundHeader);
-
-                // ORDERMANAGEMENTHEADER Update
-                OrderManagementHeaderV2 orderManagementHeader = orderManagementHeaderService
-                        .getOrderManagementHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode);
-                orderManagementHeader.setStatusId(48L);
-                orderManagementHeader.setStatusDescription(statusDescription);
-                orderManagementHeaderV2Repository.save(orderManagementHeader);
-                log.info("orderManagementHeader updated : " + orderManagementHeader);
+    //                outboundHeader.setStatusId(48L);
+    //                outboundHeader.setStatusDescription(statusDescription);
+    //                outboundHeaderV2Repository.save(outboundHeader);
+    //                log.info("outboundHeader updated : " + outboundHeader);
+    //
+    //                // ORDERMANAGEMENTHEADER Update
+    //                OrderManagementHeaderV2 orderManagementHeader = orderManagementHeaderService
+    //                        .getOrderManagementHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode);
+    //                orderManagementHeader.setStatusId(48L);
+    //                orderManagementHeader.setStatusDescription(statusDescription);
+    //                orderManagementHeaderV2Repository.save(orderManagementHeader);
+    //                log.info("orderManagementHeader updated : " + orderManagementHeader);
 
                 // Create Pickup TO Number
                 /*
@@ -2047,8 +2055,6 @@ public class OrderManagementLineService extends BaseService {
                 log.info("dbOrderManagementLine.getPickupNumber() -----> : " + dbOrderManagementLine.getPickupNumber());
                 if (dbOrderManagementLine.getPickupNumber() == null) {
 
-                    AuthToken authTokenForIdmasterService = authTokenService.getIDMasterServiceAuthToken();
-
                     long NUM_RAN_CODE = 10;
                     String PU_NO = getNextRangeNumber(NUM_RAN_CODE, dbOrderManagementLine.getCompanyCodeId(), dbOrderManagementLine.getPlantId(),
                             dbOrderManagementLine.getLanguageId(), dbOrderManagementLine.getWarehouseId(), authTokenForIdmasterService.getAccess_token());
@@ -2058,6 +2064,7 @@ public class OrderManagementLineService extends BaseService {
                     PickupHeaderV2 pickupHeader = new PickupHeaderV2();
                     BeanUtils.copyProperties(dbOrderManagementLine, pickupHeader, CommonUtils.getNullPropertyNames(dbOrderManagementLine));
 
+                        pickupHeader.setAssignedPickerId(assignedPickerId);
                     // PU_NO
                     pickupHeader.setPickupNumber(PU_NO);
 
@@ -2069,7 +2076,7 @@ public class OrderManagementLineService extends BaseService {
 
                     // STATUS_ID
                     pickupHeader.setStatusId(48L);
-//                    pickupHeader.setReferenceField7(idStatus.getStatus());
+    //                    pickupHeader.setReferenceField7(idStatus.getStatus());
                     pickupHeader.setStatusDescription(statusDescription);
 
                     // ProposedPackbarcode
@@ -2079,15 +2086,15 @@ public class OrderManagementLineService extends BaseService {
                     pickupHeader.setPickupCreatedOn(new Date());
 
                     //customerName
-                    String customerCode = outboundHeader != null ? outboundHeader.getCustomerCode() : orderManagementHeader.getCustomerCode();
-                    if(customerCode != null) {
+                        if(outboundHeader.getCustomerCode() != null) {
                         String customerName = getCustomerName(pickupHeader.getCompanyCodeId(), pickupHeader.getPlantId(),
-                                                              pickupHeader.getLanguageId(), pickupHeader.getWarehouseId(), customerCode);
+                                                                  pickupHeader.getLanguageId(), pickupHeader.getWarehouseId(), outboundHeader.getCustomerCode());
                         if (customerName != null) {
                             pickupHeader.setCustomerName(customerName);
                         }
                     }
-                    pickupHeader.setCustomerCode(customerCode);
+                        pickupHeader.setCustomerCode(outboundHeader.getCustomerCode());
+                        pickupHeader.setIsPickupHeaderCreated(0l);
 
                     // REF_FIELD_1
                     pickupHeader.setReferenceField1(dbOrderManagementLine.getReferenceField1());
@@ -2095,9 +2102,26 @@ public class OrderManagementLineService extends BaseService {
                     pickupHeaders.add(pickup);
                     log.info("pickupHeader created : " + pickup);
 
-                    dbOrderManagementLine.setPickupNumber(PU_NO);
-                    dbOrderManagementLine = orderManagementLineV2Repository.save(dbOrderManagementLine);
-                    log.info("OrderManagementLine updated : " + dbOrderManagementLine);
+                        if(notificationPreOutboundNo == null) {
+                            notificationPreOutboundNo = assignPicker.getPreOutboundNo();
+                            notificationWarehouseId = assignPicker.getWarehouseId();
+                            log.info("1.Send Push Notification Initiated..! ---> " + notificationPreOutboundNo);
+                            sendPushNotification(notificationPreOutboundNo, notificationWarehouseId);
+                        }
+                        boolean pass = notificationPreOutboundNo != null && notificationPreOutboundNo.equalsIgnoreCase(assignPicker.getPreOutboundNo());
+                        if(!pass) {
+                            log.info("2.Send Push Notification Initiated..! ---> " + notificationPreOutboundNo);
+                            notificationPreOutboundNo = assignPicker.getPreOutboundNo();
+                            notificationWarehouseId = assignPicker.getWarehouseId();
+                            sendPushNotification(notificationPreOutboundNo, notificationWarehouseId);
+                        }
+
+//                        dbOrderManagementLine.setPickupNumber(PU_NO);
+//                        dbOrderManagementLine = orderManagementLineV2Repository.save(dbOrderManagementLine);
+                        orderManagementLineV2Repository.updateOrderManagementLineV2(
+                                companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode,
+                                lineNumber, itemCode, 48L, statusDescription, assignedPickerId, PU_NO, loginUserID, new Date());
+                        log.info("OrderManagementLine updated..! ");
                 }
                 orderManagementLineList.add(dbOrderManagementLine);
             }
@@ -2105,11 +2129,62 @@ public class OrderManagementLineService extends BaseService {
         //push notification separated from pickup header and consolidated notification sent
 //        if(preOutboundNoList != null && !preOutboundNoList.isEmpty() && warehouseIdList != null && !warehouseIdList.isEmpty()) {
 //            sendPushNotification(preOutboundNoList, warehouseIdList);
-            sendPushNotification(pickupHeaders);
+//            sendPushNotification(pickupHeaders);
 //        } else {
 //            sendPushNotification();
 //        }
         return orderManagementLineList;
+        } catch (Exception e) {
+            log.info("Exception while PickupHeader Create : " + e.getMessage());
+            throw e;
+        }
+    }
+
+    /**
+     * update outbound header, line and order management header post pickup header creation
+     */
+    @Scheduled(fixedDelay = 5000)
+    private void postPickupHeaderStatusUpdateHeaderLine() {
+        PickupHeaderV2 dbPickupHeader = pickupHeaderService.getPickupHeaderV2();
+        log.info("PickupHeader create status update Initiated ---> " + dbPickupHeader);
+        if (dbPickupHeader != null) {
+            String companyCodeId = dbPickupHeader.getCompanyCodeId();
+            String plantId = dbPickupHeader.getPlantId();
+            String languageId = dbPickupHeader.getLanguageId();
+            String warehouseId = dbPickupHeader.getWarehouseId();
+            String preOutboundNo = dbPickupHeader.getPreOutboundNo();
+            String refDocNumber = dbPickupHeader.getRefDocNumber();
+            String partnerCode = dbPickupHeader.getPartnerCode();
+            Long lineNumber = dbPickupHeader.getLineNumber();
+            String itemCode = dbPickupHeader.getItemCode();
+            String assignedPickerId = dbPickupHeader.getAssignedPickerId();
+            String pickupNumber = dbPickupHeader.getPickupNumber();
+            Long STATUS_ID = 48l;
+
+            try {
+                statusDescription = stagingLineV2Repository.getStatusDescription(STATUS_ID, languageId);
+
+                outboundLineV2Repository.updateOutboundLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber,
+                        partnerCode, lineNumber, itemCode, STATUS_ID, statusDescription, assignedPickerId);
+                log.info("outboundLine updated..! ");
+
+                outboundHeaderV2Repository.updateOutboundHeaderStatusV2(companyCodeId, plantId, languageId, warehouseId,
+                        refDocNumber, preOutboundNo, STATUS_ID, statusDescription);
+                log.info("outboundHeader updated..! ");
+
+                orderManagementHeaderV2Repository.updateOrderManagementHeaderStatusV2(companyCodeId, plantId, languageId, warehouseId,
+                        refDocNumber, preOutboundNo, STATUS_ID, statusDescription);
+                log.info("orderManagementHeader updated..! ");
+
+                //update pickupheader status
+                pickupHeaderV2Repository.updatePickupHeaderStatusV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, pickupNumber,
+                        lineNumber, itemCode, dbPickupHeader.getProposedStorageBin(), dbPickupHeader.getProposedPackBarCode(), 10l);
+                log.info("post PickupHeader create status updated successfully...!");
+
+            } catch (Exception e) {
+                log.error("Exception while create pickupheader status update : " + e.getMessage());
+            }
+        }
     }
 
     /**
@@ -3155,5 +3230,78 @@ public class OrderManagementLineService extends BaseService {
                         companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 0L);
         log.info("PickList Cancellation - OrderManagementLine : " + orderManagementLine);
         return orderManagementLine;
+    }
+/**
+     *
+     * @param searchOrderManagementLine
+     * @return
+     * @throws Exception
+     */
+    public List<OrderManagementLineImpl> findOrderManagementLinesV2(SearchOrderManagementLineV2 searchOrderManagementLine) throws Exception {
+
+        if (searchOrderManagementLine.getStartRequiredDeliveryDate() != null
+                && searchOrderManagementLine.getEndRequiredDeliveryDate() != null) {
+            Date[] dates = DateUtils.addTimeToDatesForSearch(searchOrderManagementLine.getStartRequiredDeliveryDate(),
+                    searchOrderManagementLine.getEndRequiredDeliveryDate());
+            searchOrderManagementLine.setStartRequiredDeliveryDate(dates[0]);
+            searchOrderManagementLine.setEndRequiredDeliveryDate(dates[1]);
+        }
+
+        if (searchOrderManagementLine.getStartOrderDate() != null
+                && searchOrderManagementLine.getEndOrderDate() != null) {
+            Date[] dates = DateUtils.addTimeToDatesForSearch(searchOrderManagementLine.getStartOrderDate(),
+                    searchOrderManagementLine.getEndOrderDate());
+            searchOrderManagementLine.setStartOrderDate(dates[0]);
+            searchOrderManagementLine.setEndOrderDate(dates[1]);
+        }
+
+        if(searchOrderManagementLine.getCompanyCodeId() != null && searchOrderManagementLine.getCompanyCodeId().isEmpty()) {
+            searchOrderManagementLine.setCompanyCodeId(null);
+        }
+        if(searchOrderManagementLine.getPlantId() != null && searchOrderManagementLine.getPlantId().isEmpty()) {
+            searchOrderManagementLine.setPlantId(null);
+        }
+        if(searchOrderManagementLine.getLanguageId() != null && searchOrderManagementLine.getLanguageId().isEmpty()) {
+            searchOrderManagementLine.setLanguageId(null);
+        }
+        if(searchOrderManagementLine.getWarehouseId() != null && searchOrderManagementLine.getWarehouseId().isEmpty()) {
+            searchOrderManagementLine.setWarehouseId(null);
+        }
+        if(searchOrderManagementLine.getRefDocNumber() != null && searchOrderManagementLine.getRefDocNumber().isEmpty()) {
+            searchOrderManagementLine.setRefDocNumber(null);
+        }
+        if(searchOrderManagementLine.getPreOutboundNo() != null && searchOrderManagementLine.getPreOutboundNo().isEmpty()) {
+            searchOrderManagementLine.setPreOutboundNo(null);
+        }
+        if(searchOrderManagementLine.getPartnerCode() != null && searchOrderManagementLine.getPartnerCode().isEmpty()) {
+            searchOrderManagementLine.setPartnerCode(null);
+        }
+        if(searchOrderManagementLine.getItemCode() != null && searchOrderManagementLine.getItemCode().isEmpty()) {
+            searchOrderManagementLine.setItemCode(null);
+        }
+        if(searchOrderManagementLine.getManufacturerName() != null && searchOrderManagementLine.getManufacturerName().isEmpty()) {
+            searchOrderManagementLine.setManufacturerName(null);
+        }
+        if(searchOrderManagementLine.getOutboundOrderTypeId() != null && searchOrderManagementLine.getOutboundOrderTypeId().isEmpty()) {
+            searchOrderManagementLine.setOutboundOrderTypeId(null);
+        }
+        if(searchOrderManagementLine.getSoType() != null && searchOrderManagementLine.getSoType().isEmpty()) {
+            searchOrderManagementLine.setSoType(null);
+        }
+        if(searchOrderManagementLine.getStatusId() != null && searchOrderManagementLine.getStatusId().isEmpty()) {
+            searchOrderManagementLine.setStatusId(null);
+        }
+        if(searchOrderManagementLine.getDescription() != null && searchOrderManagementLine.getDescription().isEmpty()) {
+            searchOrderManagementLine.setDescription(null);
+        }
+
+        log.info("Assignment Tab searchOrderManagementLine Input: " + searchOrderManagementLine);
+        return orderManagementLineV2Repository.findOrderManagementLine(searchOrderManagementLine.getCompanyCodeId(),
+                searchOrderManagementLine.getPlantId(), searchOrderManagementLine.getLanguageId(), searchOrderManagementLine.getWarehouseId(),
+                searchOrderManagementLine.getRefDocNumber(), searchOrderManagementLine.getPreOutboundNo(), searchOrderManagementLine.getPartnerCode(),
+                searchOrderManagementLine.getItemCode(), searchOrderManagementLine.getManufacturerName(), searchOrderManagementLine.getDescription(),
+                searchOrderManagementLine.getOutboundOrderTypeId(), searchOrderManagementLine.getStatusId(), searchOrderManagementLine.getSoType(),
+                searchOrderManagementLine.getStartRequiredDeliveryDate(), searchOrderManagementLine.getEndRequiredDeliveryDate(),
+                searchOrderManagementLine.getStartOrderDate(), searchOrderManagementLine.getEndOrderDate());
     }
 }

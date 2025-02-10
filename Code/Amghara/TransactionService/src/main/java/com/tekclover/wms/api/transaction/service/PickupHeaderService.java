@@ -1522,4 +1522,12 @@ public class PickupHeaderService extends BaseService {
         }
         return pickupHeaders;
     }
+
+    /**
+     * get pickupHeader for scheduler
+     * @return
+     */
+    public PickupHeaderV2 getPickupHeaderV2() {
+        return pickupHeaderV2Repository.findTopByIsPickupHeaderCreatedAndDeletionIndicatorOrderByPickupCreatedOn(0l, 0l);
+    }
 }
