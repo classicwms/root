@@ -322,7 +322,7 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
     @Query("UPDATE OrderManagementLineV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription, ob.pickupUpdatedOn = :updatedOn, ob.pickupUpdatedBy = :pickupUpdatedBy, \r\n"
             + " ob.assignedPickerId = :assignedPickerId, ob.pickupNumber = :pickupNumber \r\n "
             + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND \r\n "
-            + " ob.partnerCode = :partnerCode AND ob.itemCode = :itemCode AND \r\n "
+            + " ob.partnerCode = :partnerCode AND ob.itemCode = :itemCode AND  ob.proposedStorageBin = :proposedStorageBin AND \r\n "   //26_02_2025_update uniqueOrderManagementLine stBin added
             + " ob.refDocNumber = :refDocNumber AND ob.preOutboundNo = :preOutboundNo AND ob.lineNumber = :lineNumber")
     void updateOrderManagementLineV2(@Param("companyCodeId") String companyCodeId,
                                      @Param("plantId") String plantId,
@@ -338,5 +338,6 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
                                      @Param("assignedPickerId") String assignedPickerId,
                                      @Param("pickupNumber") String pickupNumber,
                                      @Param("pickupUpdatedBy") String pickupUpdatedBy,
+                                     @Param("proposedStorageBin") String proposedStorageBin,        //26_02_2025_update uniqueOrderManagementLine stBin added
                                      @Param("updatedOn") Date updatedOn);
 }

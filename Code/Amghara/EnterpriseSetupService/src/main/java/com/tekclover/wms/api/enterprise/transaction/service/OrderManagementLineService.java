@@ -2472,6 +2472,8 @@ public class OrderManagementLineService extends BaseService {
         OrderManagementLineV2 newOrderManagementLine = null;
         int invQtyByLevelIdCount = 0;
         int invQtyGroupByLevelIdCount = 0;
+        double actualOrderQty = ORD_QTY;        //26_02_2025_partial allocation in different bin bugFix
+        double actualAllocatedQty = 0;          //26_02_2025_partial allocation in different bin bugFix
         List<IInventoryImpl> stockType1InventoryList =
                 inventoryService.getInventoryForOrderManagementV2(orderManagementLine.getCompanyCodeId(),
                         orderManagementLine.getPlantId(), orderManagementLine.getLanguageId(),
@@ -2628,6 +2630,7 @@ public class OrderManagementLineService extends BaseService {
 
                             if (ORD_QTY > ALLOC_QTY) {
                                 ORD_QTY = ORD_QTY - ALLOC_QTY;
+                                actualAllocatedQty = actualAllocatedQty + ALLOC_QTY;        //26_02_2025_partial allocation in different bin bugFix
                             }
 
                             if (allocatedQtyFromOrderMgmt > 0) {
@@ -2673,8 +2676,9 @@ public class OrderManagementLineService extends BaseService {
                                 log.info("-----Inventory2 updated-------: " + inventoryV2);
                             }
 
-                            if (ORD_QTY == ALLOC_QTY) {
-                                log.info("ORD_QTY fully allocated: " + ORD_QTY);
+//                            if (ORD_QTY == ALLOC_QTY) {
+                            if (actualOrderQty == actualAllocatedQty) {                     //26_02_2025_partial allocation in different bin bugFix
+                                log.info("ORD_QTY fully allocated: " + actualOrderQty);
                                 break outerloop1; // If the Inventory satisfied the Ord_qty
                             }
 //                        }
@@ -2869,6 +2873,7 @@ public class OrderManagementLineService extends BaseService {
 
                 if (ORD_QTY > ALLOC_QTY) {
                     ORD_QTY = ORD_QTY - ALLOC_QTY;
+                    actualAllocatedQty = actualAllocatedQty + ALLOC_QTY;                //26_02_2025_partial allocation in different bin bugFix
                 }
 
                 if (allocatedQtyFromOrderMgmt > 0) {
@@ -2916,8 +2921,9 @@ public class OrderManagementLineService extends BaseService {
                     log.info("-----Inventory2 updated-------: " + inventoryV2);
                 }
 
-                if (ORD_QTY == ALLOC_QTY) {
-                    log.info("ORD_QTY fully allocated: " + ORD_QTY);
+//                if (ORD_QTY == ALLOC_QTY) {
+                if (actualOrderQty == actualAllocatedQty) {                         //26_02_2025_partial allocation in different bin bugFix
+                    log.info("ORD_QTY fully allocated: " + actualOrderQty);
                     break outerloop; // If the Inventory satisfied the Ord_qty
                 }
 //            }
