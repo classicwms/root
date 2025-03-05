@@ -463,12 +463,24 @@ public class TransactionService extends BaseService{
 //    }
 
     //-------------------------------------------------------------------Outbound warehouse amghara---------------------------------------------------------------
-    public synchronized WarehouseApiResponse processAmgharaOutboundOrder() throws IllegalAccessException, InvocationTargetException, ParseException {
+    public WarehouseApiResponse processAmgharaOutboundOrder() throws IllegalAccessException, InvocationTargetException, ParseException {
         WarehouseApiResponse warehouseApiResponse = new WarehouseApiResponse();
-        if (outboundList == null || outboundList.isEmpty()) {
+//        if (outboundList == null || outboundList.isEmpty()) {
             List<OutboundOrderV2> sqlOutboundList = outboundOrderV2Repository.findTopByProcessedStatusIdAndWarehouseIDOrderByOrderReceivedOn(0L, WAREHOUSE_ID_100);
             log.info("amghara ob header list: " + sqlOutboundList);
-            outboundList = new ArrayList<>();
+
+        // Set Process_status_id = 1
+        sqlOutboundList.stream().forEach(outbound -> {
+            try {
+                orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID(), 1L);
+                log.info("Update Process StatusId 1 Successfully");
+            } catch (Exception e) {
+                log.info("Update Order Process StatusId 1 Failed" + e.getMessage());
+                throw new RuntimeException(e);
+            }
+        });
+//            outboundList = new ArrayList<>();
+        List<OutboundIntegrationHeaderV2> outboundList = new ArrayList<>();
             for (OutboundOrderV2 dbOBOrder : sqlOutboundList) {
                 log.info("amghara OB Process Initiated : " + dbOBOrder.getOrderId());
                 OutboundIntegrationHeaderV2 outboundIntegrationHeader = new OutboundIntegrationHeaderV2();
@@ -534,20 +546,20 @@ public class TransactionService extends BaseService{
                 outboundIntegrationHeader.setOutboundIntegrationLines(outboundIntegrationLineList);
                 outboundList.add(outboundIntegrationHeader);
             }
-            spOutboundList = new CopyOnWriteArrayList<OutboundIntegrationHeaderV2>(outboundList);
-            log.info("There is no record found to process (sql) amghara ...Waiting..");
-        }
+//        spOutboundList = new CopyOnWriteArrayList<OutboundIntegrationHeaderV2>(outboundList);
+//        log.info("There is no record found to process (sql) amghara ...Waiting..");
+//    }
 
-        if (outboundList != null) {
+//        if(outboundList !=null){
             log.info("Latest amghara OutboundOrder found: " + outboundList);
-            for (OutboundIntegrationHeaderV2 outbound : spOutboundList) {
+        for (OutboundIntegrationHeaderV2 outbound : outboundList) {
                 try {
                     log.info("amghara OutboundOrder ID : " + outbound.getRefDocumentNo());
                     OutboundHeaderV2 outboundHeader = preOutboundHeaderService.processOutboundReceivedV2(outbound);
                     if (outboundHeader != null) {
                         // Updating the Processed Status
                         orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID(),  10L);
-                        outboundList.remove(outbound);
+//                    outboundList.remove(outbound);
                         warehouseApiResponse.setStatusCode("200");
                         warehouseApiResponse.setMessage("Success");
                     }
@@ -603,7 +615,7 @@ public class TransactionService extends BaseService{
                         warehouseApiResponse.setMessage("Failure");
                     } else {
                     // Updating the Processed Status
-                    orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID(),100L);
+                    orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID(), 100L);
 
                     //============================================================================================
                     //Sending Failed Details through Mail
@@ -614,18 +626,18 @@ public class TransactionService extends BaseService{
                     inboundOrderCancelInput.setReferenceField1(getOutboundOrderTypeTable(outbound.getOutboundOrderTypeID()));
                     String errorDesc = null;
                     try {
-                        if(e.toString().contains("message")) {
+                        if (e.toString().contains("message")) {
                             errorDesc = e.toString().substring(e.toString().indexOf("message") + 9);
                             errorDesc = errorDesc.replaceAll("}]", "");
                         }
-                        if(e.toString().contains("DataIntegrityViolationException") || e.toString().contains("ConstraintViolationException")) {
+                        if (e.toString().contains("DataIntegrityViolationException") || e.toString().contains("ConstraintViolationException")) {
                             errorDesc = "Null Pointer Exception";
                         }
                             if (e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException") ||
                                     e.toString().contains("SQLServerException") || e.toString().contains("UnexpectedRollbackException")) {
                                 errorDesc = "SQLServerException";
                         }
-                        if(e.toString().contains("BadRequestException")){
+                        if (e.toString().contains("BadRequestException")) {
                             errorDesc = e.toString().substring(e.toString().indexOf("BadRequestException:") + 20);
                         }
                     } catch (Exception ex) {
@@ -648,7 +660,7 @@ public class TransactionService extends BaseService{
                 }
             }
         }
-        }
+//    }
         return warehouseApiResponse;
     }
 
