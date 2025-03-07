@@ -1,16 +1,20 @@
 package com.tekclover.wms.api.transaction.repository;
 
-import com.tekclover.wms.api.transaction.model.IKeyValuePair;
-import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickupHeaderV2;
-import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
-import org.springframework.data.jpa.repository.*;
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
+import com.tekclover.wms.api.transaction.model.IKeyValuePair;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickupHeaderV2;
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 
 @Repository
 @Transactional
@@ -108,6 +112,19 @@ public interface PickupHeaderV2Repository extends JpaRepository<PickupHeaderV2, 
             @Param("updatedBy") String updatedBy,
             @Param("updatedOn") Date updatedOn
     );
+    
+    // -----New one-----------
+    @Modifying
+    @Query(value = "UPDATE tblpickupheader\r\n"
+    		+ "	SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, \r\n"
+    		+ "	PICK_UTD_ON = :updatedOn, PICK_CNF_ON = :updatedOn, PICK_UTD_BY = :updatedBy, PICK_CNF_BY = :updatedBy\r\n"
+    		+ "	WHERE REF_DOC_NO = :refDocNumber AND PU_NO = :pickupNumber AND IS_DELETED = 0", nativeQuery = true)
+    public void updatePickupheader( @Param("refDocNumber") String refDocNumber,
+    		@Param("pickupNumber") String pickupNumber,
+            @Param("statusId") Long statusId,
+            @Param("statusDescription") String statusDescription,
+            @Param("updatedBy") String updatedBy,
+            @Param("updatedOn") Date updatedOn);
 
     PickupHeaderV2 findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndAssignedPickerIdAndStatusIdAndPickupCreatedOnBetweenAndDeletionIndicatorOrderByPickupCreatedOn(
             String companyCodeId, String plantId, String languageId, String warehouseId, String assignedPickerId,

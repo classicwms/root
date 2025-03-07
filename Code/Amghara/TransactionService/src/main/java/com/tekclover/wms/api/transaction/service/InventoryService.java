@@ -1,26 +1,14 @@
 package com.tekclover.wms.api.transaction.service;
 
-import com.microsoft.sqlserver.jdbc.SQLServerException;
-import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
-import com.tekclover.wms.api.transaction.model.auditlog.AuditLog;
-import com.tekclover.wms.api.transaction.model.dto.IInventory;
-import com.tekclover.wms.api.transaction.model.dto.Warehouse;
-import com.tekclover.wms.api.transaction.model.errorlog.ErrorLog;
-import com.tekclover.wms.api.transaction.model.impl.InventoryImpl;
-import com.tekclover.wms.api.transaction.model.inbound.gr.v2.GrLineV2;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.*;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.IInventoryImpl;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.SearchInventoryV2;
-import com.tekclover.wms.api.transaction.repository.ErrorLogRepository;
-import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
-import com.tekclover.wms.api.transaction.repository.InventoryRepository;
-import com.tekclover.wms.api.transaction.repository.InventoryV2Repository;
-import com.tekclover.wms.api.transaction.repository.specification.InventorySpecification;
-import com.tekclover.wms.api.transaction.repository.specification.InventoryV2Specification;
-import com.tekclover.wms.api.transaction.util.CommonUtils;
-import com.tekclover.wms.api.transaction.util.DateUtils;
-import lombok.extern.slf4j.Slf4j;
+import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.persistence.EntityNotFoundException;
+
 import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,13 +24,32 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
-import java.lang.reflect.InvocationTargetException;
-import java.sql.SQLException;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import com.microsoft.sqlserver.jdbc.SQLServerException;
+import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
+import com.tekclover.wms.api.transaction.model.auditlog.AuditLog;
+import com.tekclover.wms.api.transaction.model.dto.IInventory;
+import com.tekclover.wms.api.transaction.model.dto.Warehouse;
+import com.tekclover.wms.api.transaction.model.errorlog.ErrorLog;
+import com.tekclover.wms.api.transaction.model.impl.InventoryImpl;
+import com.tekclover.wms.api.transaction.model.inbound.gr.v2.GrLineV2;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.AddInventory;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.SearchInventory;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.UpdateInventory;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.IInventoryImpl;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.SearchInventoryV2;
+import com.tekclover.wms.api.transaction.repository.ErrorLogRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryV2Repository;
+import com.tekclover.wms.api.transaction.repository.specification.InventorySpecification;
+import com.tekclover.wms.api.transaction.repository.specification.InventoryV2Specification;
+import com.tekclover.wms.api.transaction.util.CommonUtils;
+import com.tekclover.wms.api.transaction.util.DateUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -2310,11 +2317,19 @@ public class InventoryService extends BaseService {
         if(dbInventory != null) {
             InventoryV2 newInventory = new InventoryV2();
             BeanUtils.copyProperties(dbInventory, newInventory, CommonUtils.getNullPropertyNames(dbInventory));
+            log.info("-----1---------Inventory for Update ----> : " + newInventory);
+            
             BeanUtils.copyProperties(updateInventory, newInventory, CommonUtils.getNullPropertyNames(updateInventory));
+            log.info("-----2---------Inventory for Update ----> : " + newInventory);
+            
             newInventory.setUpdatedBy(loginUserID);
             newInventory.setUpdatedOn(new Date());
             newInventory.setInventoryId(System.currentTimeMillis());
-            return inventoryV2Repository.save(newInventory);
+            log.info("-----3---------Inventory for Update ----> : " + newInventory);
+            
+            InventoryV2 createdInventory = inventoryV2Repository.save(newInventory);
+            log.info("-----4---------Inventory for Update ----> : " + createdInventory);
+            return createdInventory;
         }
         return null;
     }

@@ -1,17 +1,53 @@
 package com.tekclover.wms.api.transaction.service;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.persistence.EntityNotFoundException;
+import javax.validation.Valid;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.ParseException;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
-import com.tekclover.wms.api.transaction.model.dto.*;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.*;
+import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
+import com.tekclover.wms.api.transaction.model.dto.ImBasicData;
+import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
+import com.tekclover.wms.api.transaction.model.dto.ImPartner;
+import com.tekclover.wms.api.transaction.model.dto.StatusId;
+import com.tekclover.wms.api.transaction.model.dto.StorageBin;
+import com.tekclover.wms.api.transaction.model.dto.StorageBinV2;
+import com.tekclover.wms.api.transaction.model.dto.UpdateBarcodeInput;
+import com.tekclover.wms.api.transaction.model.dto.Warehouse;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.AddInventory;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.AddInventoryMovement;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.UpdateInventory;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.IInventoryImpl;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.v2.OrderManagementLineV2;
-import com.tekclover.wms.api.transaction.model.outbound.pickup.*;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.AddPickupLine;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupHeader;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupLine;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.SearchPickupLine;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.UpdatePickupLine;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickupHeaderV2;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickupLineV2;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.SearchPickupLineV2;
@@ -22,25 +58,27 @@ import com.tekclover.wms.api.transaction.model.outbound.quality.QualityHeader;
 import com.tekclover.wms.api.transaction.model.outbound.quality.v2.QualityHeaderV2;
 import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2;
 import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundLineV2;
-import com.tekclover.wms.api.transaction.repository.*;
+import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
+import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryV2Repository;
+import com.tekclover.wms.api.transaction.repository.OutboundHeaderRepository;
+import com.tekclover.wms.api.transaction.repository.OutboundHeaderV2Repository;
+import com.tekclover.wms.api.transaction.repository.OutboundLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.PickupHeaderRepository;
+import com.tekclover.wms.api.transaction.repository.PickupHeaderV2Repository;
+import com.tekclover.wms.api.transaction.repository.PickupLineRepository;
+import com.tekclover.wms.api.transaction.repository.PickupLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.PreOutboundHeaderRepository;
+import com.tekclover.wms.api.transaction.repository.PreOutboundHeaderV2Repository;
+import com.tekclover.wms.api.transaction.repository.StagingLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.StorageBinRepository;
 import com.tekclover.wms.api.transaction.repository.specification.PickupLineSpecification;
 import com.tekclover.wms.api.transaction.repository.specification.PickupLineV2Specification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.expression.ParseException;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
-import javax.validation.Valid;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -2137,27 +2175,20 @@ public class PickupLineService extends BaseService {
             } else {
                 STATUS_ID = 50L;
             }
+            
             //------------------------UpdateLock-Applied------------------------------------------------------------
-        for (PickupLineV2 dbPickupLine : createdPickupLineList) {
-                statusDescription = stagingLineV2Repository.getStatusDescription(STATUS_ID, languageId);
-                pickupHeaderV2Repository.updatePickupheaderStatusUpdateProc(
-                        companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, dbPickupLine.getItemCode(), dbPickupLine.getManufacturerName(),
-                        partnerCode, dbPickupLine.getPickupNumber(), STATUS_ID, statusDescription, loginUserID, new Date());
-                log.info("PickupNumber: " + dbPickupLine.getPickupNumber());
-            }
-            log.info("PickUpHeader status updated through stored procedure");
-//            PickupHeaderV2 pickupHeader = pickupHeaderService.getPickupHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber,
-//                    partnerCode, pickupNumber);
-//            pickupHeader.setStatusId(STATUS_ID);
-//
-//            statusDescription = stagingLineV2Repository.getStatusDescription(STATUS_ID, languageId);
-//            pickupHeader.setReferenceField7(statusDescription);        // tblpickupheader REF_FIELD_7
-//            pickupHeader.setStatusDescription(statusDescription);
-//
-//            pickupHeader.setPickUpdatedBy(loginUserID);
-//            pickupHeader.setPickUpdatedOn(new Date());
-//            pickupHeader = pickupHeaderV2Repository.save(pickupHeader);
-//            log.info("PickupHeader updated: " + pickupHeader);
+//            for (PickupLineV2 dbPickupLine : createdPickupLineList) {
+//                statusDescription = stagingLineV2Repository.getStatusDescription(STATUS_ID, languageId);
+//                pickupHeaderV2Repository.updatePickupheaderStatusUpdateProc(
+//                        companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, dbPickupLine.getItemCode(), dbPickupLine.getManufacturerName(),
+//                        partnerCode, dbPickupLine.getPickupNumber(), STATUS_ID, statusDescription, loginUserID, new Date());
+//            }
+//            log.info("PickUpHeader status updated through stored procedure");
+            
+            // Prod Issue @Amghara
+            log.info("PickupNumber: " + pickupNumber);
+            pickupHeaderV2Repository.updatePickupheader(refDocNumber, pickupNumber, STATUS_ID, statusDescription, loginUserID, new Date());
+            log.info("PickUpHeader status updated....");
         } catch (Exception e) {
             e.printStackTrace();
             log.info("PickupHeader update error: " + e.toString());
