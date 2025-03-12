@@ -2324,7 +2324,7 @@ public class InventoryService extends BaseService {
             
             newInventory.setUpdatedBy(loginUserID);
             newInventory.setUpdatedOn(new Date());
-            newInventory.setInventoryId(System.currentTimeMillis());
+            newInventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 9));
             log.info("-----3---------Inventory for Update ----> : " + newInventory);
             
             InventoryV2 createdInventory = inventoryV2Repository.save(newInventory);

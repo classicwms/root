@@ -113,7 +113,7 @@ public interface PickupHeaderV2Repository extends JpaRepository<PickupHeaderV2, 
             @Param("updatedOn") Date updatedOn
     );
     
-    // -----New one-----------
+    // -----New one----by-Muru-------
     @Modifying
     @Query(value = "UPDATE tblpickupheader\r\n"
     		+ "	SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, \r\n"

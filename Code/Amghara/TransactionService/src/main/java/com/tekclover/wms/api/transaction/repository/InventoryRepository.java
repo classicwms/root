@@ -1,10 +1,11 @@
 package com.tekclover.wms.api.transaction.repository;
 
-import com.tekclover.wms.api.transaction.model.dto.IInventory;
-import com.tekclover.wms.api.transaction.model.impl.InventoryImpl;
-import com.tekclover.wms.api.transaction.model.impl.StockReportImpl;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
-import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
+import java.util.List;
+import java.util.Optional;
+
+import javax.persistence.LockModeType;
+import javax.persistence.QueryHint;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -16,10 +17,11 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.LockModeType;
-import javax.persistence.QueryHint;
-import java.util.List;
-import java.util.Optional;
+import com.tekclover.wms.api.transaction.model.dto.IInventory;
+import com.tekclover.wms.api.transaction.model.impl.InventoryImpl;
+import com.tekclover.wms.api.transaction.model.impl.StockReportImpl;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 
 @Repository
 @Transactional
@@ -307,7 +309,6 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
             "(COALESCE(:binClassId, null) IS NULL OR (iv.bin_cl_id IN (:binClassId))) and\n" +
             "(COALESCE(:description, null) IS NULL OR (iv.text IN (:description))) and iv.is_deleted = 0", nativeQuery = true)
     List<InventoryImpl> findInventory(
-//	Stream<InventoryImpl> findInventory (
             @Param(value = "warehouseId") List<String> warehouseId,
             @Param(value = "packBarcodes") List<String> packBarcodes,
             @Param(value = "itemCode") List<String> itemCode,
@@ -325,4 +326,5 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
             "where \n" +
             "iv.MVT_TYP_ID = 4 and iv.SUB_MVT_TYP_ID = 1 and STR_NO = 1  and iv.is_deleted = 0", nativeQuery = true)
     String findMovementDocumentNo();
+    
 }
