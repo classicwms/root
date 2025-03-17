@@ -17,54 +17,12 @@ public class ScheduleAsyncService {
     @Autowired
     TransactionService transactionService;
 
-    //-------------------------------------------------------------------Inbound---------------------------------------------------------------
-    @Async("asyncTaskExecutor")
-    public CompletableFuture<WarehouseApiResponse> processInboundOrder() throws InterruptedException, InvocationTargetException, IllegalAccessException, ParseException{
-
-        WarehouseApiResponse inboundOrder = transactionService.processInboundOrder();
-        return CompletableFuture.completedFuture(inboundOrder);
-
-    }
-
     //-------------------------------------------------------------------Outbound---------------------------------------------------------------
     @Async("asyncTaskExecutor")
     public CompletableFuture<WarehouseApiResponse> processOutboundOrder() throws InterruptedException, InvocationTargetException, IllegalAccessException, ParseException {
 
         WarehouseApiResponse outboundOrder = transactionService.processOutboundOrder();
         return CompletableFuture.completedFuture(outboundOrder);
-
-    }
-    //-------------------------------------------------------------------StockCount---------------------------------------------------------------
-    @Async("asyncTaskExecutor")
-    public CompletableFuture<WarehouseApiResponse> processPerpetualStockCountOrder() throws InterruptedException, InvocationTargetException, IllegalAccessException, ParseException {
-
-        WarehouseApiResponse perpetualStockCountOrder = transactionService.processPerpetualStockCountOrder();
-        return CompletableFuture.completedFuture(perpetualStockCountOrder);
-
-    }
-
-    @Async("asyncTaskExecutor")
-    public CompletableFuture<WarehouseApiResponse> processPeriodicStockCountOrder() throws InterruptedException, InvocationTargetException, IllegalAccessException, ParseException {
-
-        WarehouseApiResponse periodicStockCountOrder = transactionService.processPeriodicStockCountOrder();
-        return CompletableFuture.completedFuture(periodicStockCountOrder);
-
-    }
-
-    //-------------------------------------------------------------------StockAdjustment---------------------------------------------------------------
-    @Async("asyncTaskExecutor")
-    public CompletableFuture<WarehouseApiResponse> processStockAdjustmentOrder() throws InterruptedException, InvocationTargetException, IllegalAccessException, ParseException {
-
-        WarehouseApiResponse stockAdjustmentOrder = transactionService.processStockAdjustmentOrder();
-        return CompletableFuture.completedFuture(stockAdjustmentOrder);
-    }
-
-    //-------------------------------------------------------------------Inbound-Failed-Order-------------------------------------------------------------
-    @Async("asyncTaskExecutor")
-    public CompletableFuture<WarehouseApiResponse> processInboundFailedOrder() throws InterruptedException {
-
-        WarehouseApiResponse inboundFailedOrder = transactionService.processInboundFailedOrder();
-        return CompletableFuture.completedFuture(inboundFailedOrder);
 
     }
 

@@ -38,6 +38,7 @@ import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.PutAwayLineV2;
 import com.tekclover.wms.api.transaction.model.inbound.v2.InboundHeaderEntityV2;
 import com.tekclover.wms.api.transaction.model.inbound.v2.InboundHeaderV2;
+import com.tekclover.wms.api.transaction.model.inbound.v2.InboundLinePartialConfirm;
 import com.tekclover.wms.api.transaction.model.inbound.v2.InboundLineV2;
 import com.tekclover.wms.api.transaction.model.inbound.v2.InboundOrderCancelInput;
 import com.tekclover.wms.api.transaction.model.inbound.v2.SearchInboundHeaderV2;
@@ -68,6 +69,7 @@ import com.tekclover.wms.api.transaction.repository.GrHeaderV2Repository;
 import com.tekclover.wms.api.transaction.repository.GrLineV2Repository;
 import com.tekclover.wms.api.transaction.repository.InboundHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.InboundHeaderV2Repository;
+import com.tekclover.wms.api.transaction.repository.InboundLinePartialConfirmRepository;
 import com.tekclover.wms.api.transaction.repository.InboundLineRepository;
 import com.tekclover.wms.api.transaction.repository.InboundLineV2Repository;
 import com.tekclover.wms.api.transaction.repository.InboundOrderLinesV2Repository;
@@ -185,6 +187,9 @@ public class InboundHeaderService extends BaseService {
 
     @Autowired
     private InboundLineV2Repository inboundLineV2Repository;
+    
+    @Autowired
+    private InboundLinePartialConfirmRepository inboundLinePartialConfirmRepository;
 
     @Autowired
     private InboundHeaderV2Repository inboundHeaderV2Repository;
@@ -1725,49 +1730,28 @@ public class InboundHeaderService extends BaseService {
 
 			AXApiResponse axapiResponse = new AXApiResponse();
 			statusDescription = stagingLineV2Repository.getStatusDescription(24L, languageId);
-			log.info("InboundLine List: " + inboundLineList.size());
-			List<PutAwayLineV2> putAwayLineList = null;
-			if (inboundLineList != null && !inboundLineList.isEmpty()) {
+//			log.info("InboundLine List: " + inboundLineList.size());
+//			if (inboundLineList != null && !inboundLineList.isEmpty()) {
 				for (InboundLineV2 inboundLine : inboundLineList) {
-					log.info("Input InboundLine : " + inboundLine);
-					if (inboundLine.getStatusId() == 20L) {
-//						InboundLineV2 inboundLineV2 = inboundLineService
-//								.getInboundLineForInboundConfirmPartialConfirmV2(companyCode, plantId, languageId,
-//										warehouseId, refDocNumber, inboundLine.getPreInboundNo(),
-//										inboundLine.getItemCode(), inboundLine.getManufacturerName(),
-//										inboundLine.getLineNo());
-//						if (inboundLineV2 != null) {
-							putAwayLineList = putAwayLineService.getPutAwayLineForInboundConfirmV2(companyCode, plantId,
-									languageId, warehouseId, refDocNumber, inboundLine.getItemCode(),
-									inboundLine.getManufacturerName(), inboundLine.getLineNo(),
-									inboundLine.getPreInboundNo());
-							log.info("PutawayLine List: " + putAwayLineList.size());
-							
-							if (putAwayLineList != null) {
-								for (PutAwayLineV2 putAwayLine : putAwayLineList) {
-									boolean createdInventory = createInventoryNonCBMV2(putAwayLine);
-								}
-								
-								log.info("Inventory Created Successfully -----> for Inbound Line ----> "
-										+ inboundLine.getItemCode() + ", " + inboundLine.getManufacturerName() + ", "
-										+ inboundLine.getLineNo());
-							}
-						//}
-					}
-					
 					inboundLineV2Repository.updateInboundLineStatusUpdateInboundConfirmIndividualItemProc(companyCode,
 							plantId, languageId, warehouseId, refDocNumber, preInboundNo, inboundLine.getItemCode(),
 							inboundLine.getManufacturerName(), inboundLine.getLineNo(), 24L, statusDescription,
 							loginUserID, new Date());
-					log.info("InboundLine status updated: " + inboundLine.getItemCode() + ", "
+					log.info("-----updateInboundHeaderPartialConfirmNewV2----InboundLine-status-updated: " + inboundLine.getItemCode() + ", "
 							+ inboundLine.getManufacturerName() + ", " + inboundLine.getLineNo());
-
-					putAwayLineV2Repository.updatePutawayLineStatusUpdateInboundConfirmProc(companyCode, plantId,
+					
+			    	putAwayLineV2Repository.updatePutawayLineStatusUpdateInboundConfirmProc(companyCode, plantId,
 							languageId, warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID,
 							new Date());
-					log.info("putAwayLine updated");
+					log.info("-----updateInboundHeaderPartialConfirmNewV2----putAwayLine-updated----");
+					
+					InboundLinePartialConfirm newInboundLinePartialConfirm = new InboundLinePartialConfirm();
+					BeanUtils.copyProperties(inboundLine, newInboundLinePartialConfirm, CommonUtils.getNullPropertyNames(inboundLine));
+					newInboundLinePartialConfirm.setIsExecuted(0L);
+					inboundLinePartialConfirmRepository.save(newInboundLinePartialConfirm);
+					log.info("----newInboundLinePartialConfirm--created---> : " + newInboundLinePartialConfirm);
 				}
-			}
+//			}
 
 //        putAwayHeaderV2Repository.updatepaheaderStatusUpdateInboundConfirmProc(
 //                companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
@@ -1851,6 +1835,49 @@ public class InboundHeaderService extends BaseService {
 			throw new BadRequestException("Inbound confirmation : Exception ----> " + e.toString());
 		}
 	}
+    
+    @Scheduled(fixedDelayString = "PT1M", initialDelayString = "PT2M")
+    private void scheduleInboundLinePartialConfirmation () {
+    	List<InboundLinePartialConfirm> inboundLinePartialConfirmList = 
+    			inboundLinePartialConfirmRepository.findByStatusIdAndIsExecuted(20L, 0L);
+    	String languageId = null;
+    	String plantId = null;
+    	String companyCode = null;
+    	String warehouseId = null;
+    	String refDocNumber = null;
+    	String preInboundNo = null;
+    	String loginUserID = null;
+    	
+    	List<PutAwayLineV2> putAwayLineList = null;
+    	for (InboundLinePartialConfirm inboundLine : inboundLinePartialConfirmList) {
+    		log.info("-----scheduleInboundLinePartialConfirmation---->: " + inboundLine);
+    		
+			putAwayLineList = putAwayLineService.getPutAwayLineForInboundConfirmV2(inboundLine.getCompanyCode(),
+					inboundLine.getPlantId(), inboundLine.getLanguageId(), inboundLine.getWarehouseId(), 
+					inboundLine.getRefDocNumber(), inboundLine.getItemCode(), inboundLine.getManufacturerName(), 
+					inboundLine.getLineNo(), inboundLine.getPreInboundNo());
+			log.info("PutawayLine List: " + putAwayLineList.size());
+			
+			languageId = inboundLine.getLanguageId();
+			companyCode = inboundLine.getCompanyCode();
+			plantId = inboundLine.getPlantId();
+			warehouseId = inboundLine.getWarehouseId();
+			refDocNumber = inboundLine.getRefDocNumber();
+			preInboundNo = inboundLine.getPreInboundNo();
+			loginUserID = inboundLine.getUpdatedBy();
+			if (putAwayLineList != null) {
+				for (PutAwayLineV2 putAwayLine : putAwayLineList) {
+					try {
+						boolean createdInventory = createInventoryNonCBMV2(putAwayLine);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				inboundLinePartialConfirmRepository.updateInboundLinePartialConfirmExecutedStatus (languageId, plantId, companyCode, 
+						warehouseId, refDocNumber, 1L);
+			}
+		}
+    }
 
     /**
      * @param putAwayLine

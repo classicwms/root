@@ -19,6 +19,7 @@ public interface OutboundOrderV2Repository extends JpaRepository<OutboundOrderV2
         JpaSpecificationExecutor<OutboundOrderV2>,
         StreamableJpaSpecificationRepository<OutboundOrderV2> {
 
+    List<OutboundOrderV2> findTopByProcessedStatusIdAndWarehouseIDOrderByOrderReceivedOn(long l, String warehouseId200);
 
     OutboundOrderV2 findByRefDocumentNo(String orderId);
     OutboundOrderV2 findByRefDocumentNoAndOutboundOrderTypeID(String orderId, Long outboundOrderTypeID);

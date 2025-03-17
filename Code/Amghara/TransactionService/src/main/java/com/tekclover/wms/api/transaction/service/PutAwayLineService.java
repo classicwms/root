@@ -1,41 +1,66 @@
 package com.tekclover.wms.api.transaction.service;
 
-import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
-import com.tekclover.wms.api.transaction.model.IKeyValuePair;
-import com.tekclover.wms.api.transaction.model.auth.AuthToken;
-import com.tekclover.wms.api.transaction.model.dto.*;
-import com.tekclover.wms.api.transaction.model.inbound.InboundLine;
-import com.tekclover.wms.api.transaction.model.inbound.gr.StorageBinPutAway;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.IInventoryImpl;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
-import com.tekclover.wms.api.transaction.model.inbound.putaway.*;
-import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.PutAwayHeaderV2;
-import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.PutAwayLineV2;
-import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.SearchPutAwayLineV2;
-import com.tekclover.wms.api.transaction.model.inbound.staging.v2.StagingLineEntityV2;
-import com.tekclover.wms.api.transaction.model.inbound.v2.InboundLineV2;
-import com.tekclover.wms.api.transaction.model.inbound.v2.PutAwayLineImpl;
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.confirmation.AXApiResponse;
-import com.tekclover.wms.api.transaction.repository.*;
-import com.tekclover.wms.api.transaction.repository.specification.PutAwayLineSpecification;
-import com.tekclover.wms.api.transaction.repository.specification.PutAwayLineV2Specification;
-import com.tekclover.wms.api.transaction.util.CommonUtils;
-import com.tekclover.wms.api.transaction.util.DateUtils;
-import lombok.extern.slf4j.Slf4j;
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.persistence.EntityNotFoundException;
+import javax.validation.Valid;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
-import javax.validation.Valid;
-import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
+import com.tekclover.wms.api.transaction.model.IKeyValuePair;
+import com.tekclover.wms.api.transaction.model.auth.AuthToken;
+import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
+import com.tekclover.wms.api.transaction.model.dto.ImBasicData;
+import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
+import com.tekclover.wms.api.transaction.model.dto.StorageBin;
+import com.tekclover.wms.api.transaction.model.dto.StorageBinV2;
+import com.tekclover.wms.api.transaction.model.dto.Warehouse;
+import com.tekclover.wms.api.transaction.model.inbound.InboundLine;
+import com.tekclover.wms.api.transaction.model.inbound.gr.StorageBinPutAway;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.IInventoryImpl;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
+import com.tekclover.wms.api.transaction.model.inbound.putaway.AddPutAwayLine;
+import com.tekclover.wms.api.transaction.model.inbound.putaway.PutAwayHeader;
+import com.tekclover.wms.api.transaction.model.inbound.putaway.PutAwayLine;
+import com.tekclover.wms.api.transaction.model.inbound.putaway.SearchPutAwayLine;
+import com.tekclover.wms.api.transaction.model.inbound.putaway.UpdatePutAwayLine;
+import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.PutAwayHeaderV2;
+import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.PutAwayLineV2;
+import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.SearchPutAwayLineV2;
+import com.tekclover.wms.api.transaction.model.inbound.staging.v2.StagingLineEntityV2;
+import com.tekclover.wms.api.transaction.model.inbound.v2.InboundLineV2;
+import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
+import com.tekclover.wms.api.transaction.repository.InboundLineRepository;
+import com.tekclover.wms.api.transaction.repository.InboundLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryV2Repository;
+import com.tekclover.wms.api.transaction.repository.PutAwayHeaderRepository;
+import com.tekclover.wms.api.transaction.repository.PutAwayHeaderV2Repository;
+import com.tekclover.wms.api.transaction.repository.PutAwayLineRepository;
+import com.tekclover.wms.api.transaction.repository.PutAwayLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.StagingLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.StorageBinRepository;
+import com.tekclover.wms.api.transaction.repository.specification.PutAwayLineSpecification;
+import com.tekclover.wms.api.transaction.repository.specification.PutAwayLineV2Specification;
+import com.tekclover.wms.api.transaction.util.CommonUtils;
+import com.tekclover.wms.api.transaction.util.DateUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -1083,7 +1108,7 @@ public class PutAwayLineService extends BaseService {
                         itemCode,
                         manufacturerName,
                         lineNumber,
-                        20L,
+                        24L,
                         0L);
         if (putAwayLine == null) {
             return null;

@@ -32,7 +32,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 @Slf4j
 @Service
-public class TransactionService extends BaseService{
+public class TransactionService extends BaseService {
 
     @Autowired
     PreInboundHeaderService preinboundheaderService;
@@ -220,18 +220,18 @@ public class TransactionService extends BaseService{
                     inboundOrderCancelInput.setReferenceField1(getInboundOrderTypeTable(inbound.getInboundOrderTypeId()));
                     String errorDesc = null;
                     try {
-                        if(e.toString().contains("message")) {
+                            if (e.toString().contains("message")) {
                             errorDesc = e.toString().substring(e.toString().indexOf("message") + 9);
                             errorDesc = errorDesc.replaceAll("}]", "");
                         }
-                        if(e.toString().contains("DataIntegrityViolationException") || e.toString().contains("ConstraintViolationException")) {
+                            if (e.toString().contains("DataIntegrityViolationException") || e.toString().contains("ConstraintViolationException")) {
                             errorDesc = "Null Pointer Exception";
                         }
                             if (e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException") ||
                                     e.toString().contains("SQLServerException") || e.toString().contains("UnexpectedRollbackException")) {
                                 errorDesc = "SQLServerException";
                         }
-                        if(e.toString().contains("BadRequestException")){
+                            if (e.toString().contains("BadRequestException")) {
                             errorDesc = e.toString().substring(e.toString().indexOf("BadRequestException:") + 20);
                         }
                     } catch (Exception ex) {
@@ -260,12 +260,23 @@ public class TransactionService extends BaseService{
     }
 
     //-------------------------------------------------------------------Outbound---------------------------------------------------------------
-    public synchronized WarehouseApiResponse processOutboundOrder() throws IllegalAccessException, InvocationTargetException, ParseException {
+    public WarehouseApiResponse processOutboundOrder() throws IllegalAccessException, InvocationTargetException, ParseException {
         WarehouseApiResponse warehouseApiResponse = new WarehouseApiResponse();
-        if (outboundList == null || outboundList.isEmpty()) {
-            List<OutboundOrderV2> sqlOutboundList = outboundOrderV2Repository.findTopByProcessedStatusIdOrderByOrderReceivedOn(0L);
+//        if (outboundList == null || outboundList.isEmpty()) {
+        List<OutboundOrderV2> sqlOutboundList = outboundOrderV2Repository.findTopByProcessedStatusIdAndWarehouseIDOrderByOrderReceivedOn(0L, WAREHOUSE_ID_200);
             log.info("ob header list: " + sqlOutboundList);
-            outboundList = new ArrayList<>();
+
+        // Set Process_status_id = 1
+        sqlOutboundList.stream().forEach(outbound -> {
+            try {
+                orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID(), 1L);
+                log.info("Update Process StatusId 1 Successfully");
+            } catch (Exception e) {
+                log.info("Update Order Process StatusId 1 Failed" + e.getMessage());
+                throw new RuntimeException(e);
+            }
+        });
+
             for (OutboundOrderV2 dbOBOrder : sqlOutboundList) {
                 log.info("OB Process Initiated : " + dbOBOrder.getOrderId());
                 OutboundIntegrationHeaderV2 outboundIntegrationHeader = new OutboundIntegrationHeaderV2();
@@ -329,13 +340,14 @@ public class TransactionService extends BaseService{
                 outboundIntegrationHeader.setOutboundIntegrationLines(outboundIntegrationLineList);
                 outboundList.add(outboundIntegrationHeader);
             }
-            spOutboundList = new CopyOnWriteArrayList<OutboundIntegrationHeaderV2>(outboundList);
-            log.info("There is no record found to process (sql) ...Waiting..");
-        }
+//        spOutboundList = new CopyOnWriteArrayList<OutboundIntegrationHeaderV2>(outboundList);
+//        log.info("There is no record found to process (sql) ...Waiting..");
+//    }
 
-        if (outboundList != null) {
+//        if(outboundList !=null)
+//    {
             log.info("Latest OutboundOrder found: " + outboundList);
-            for (OutboundIntegrationHeaderV2 outbound : spOutboundList) {
+        for (OutboundIntegrationHeaderV2 outbound : outboundList) {
                 try {
                     log.info("OutboundOrder ID : " + outbound.getRefDocumentNo());
                     OutboundHeaderV2 outboundHeader = preOutboundHeaderService.processOutboundReceivedV2(outbound);
@@ -398,7 +410,7 @@ public class TransactionService extends BaseService{
                         warehouseApiResponse.setMessage("Failure");
                     } else {
                     // Updating the Processed Status
-                    orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID(),100L);
+                    orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID(), 100L);
 
                     //============================================================================================
                     //Sending Failed Details through Mail
@@ -409,18 +421,18 @@ public class TransactionService extends BaseService{
                     inboundOrderCancelInput.setReferenceField1(getOutboundOrderTypeTable(outbound.getOutboundOrderTypeID()));
                     String errorDesc = null;
                     try {
-                        if(e.toString().contains("message")) {
+                        if (e.toString().contains("message")) {
                             errorDesc = e.toString().substring(e.toString().indexOf("message") + 9);
                             errorDesc = errorDesc.replaceAll("}]", "");
                         }
-                        if(e.toString().contains("DataIntegrityViolationException") || e.toString().contains("ConstraintViolationException")) {
+                        if (e.toString().contains("DataIntegrityViolationException") || e.toString().contains("ConstraintViolationException")) {
                             errorDesc = "Null Pointer Exception";
                         }
                             if (e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException") ||
                                     e.toString().contains("SQLServerException") || e.toString().contains("UnexpectedRollbackException")) {
                                 errorDesc = "SQLServerException";
                         }
-                        if(e.toString().contains("BadRequestException")){
+                        if (e.toString().contains("BadRequestException")) {
                             errorDesc = e.toString().substring(e.toString().indexOf("BadRequestException:") + 20);
                         }
                     } catch (Exception ex) {
@@ -443,9 +455,9 @@ public class TransactionService extends BaseService{
                 }
             }
         }
-        }
+//    }
         return warehouseApiResponse;
-    }
+}
 
     //=====================================================================StockCount=============================================================================
     // PerpetualCount
@@ -487,17 +499,17 @@ public class TransactionService extends BaseService{
                     inboundOrderCancelInput.setReferenceField1("PERPETUALHEADER");
                     String errorDesc = null;
                     try {
-                        if(e.toString().contains("message")) {
+                        if (e.toString().contains("message")) {
                             errorDesc = e.toString().substring(e.toString().indexOf("message") + 9);
                             errorDesc = errorDesc.replaceAll("}]", "");
                         }
-                        if(e.toString().contains("DataIntegrityViolationException") || e.toString().contains("ConstraintViolationException")) {
+                        if (e.toString().contains("DataIntegrityViolationException") || e.toString().contains("ConstraintViolationException")) {
                             errorDesc = "Null Pointer Exception";
                         }
-                        if(e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException") || e.toString().contains("SQLServerException")) {
+                        if (e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException") || e.toString().contains("SQLServerException")) {
                             errorDesc = "SQLServerException";
                         }
-                        if(e.toString().contains("BadRequestException")){
+                        if (e.toString().contains("BadRequestException")) {
                             errorDesc = e.toString().substring(e.toString().indexOf("BadRequestException:") + 20);
                         }
                     } catch (Exception ex) {
@@ -557,17 +569,17 @@ public class TransactionService extends BaseService{
                     inboundOrderCancelInput.setReferenceField1("PERIODICHEADER");
                     String errorDesc = null;
                     try {
-                        if(e.toString().contains("message")) {
+                        if (e.toString().contains("message")) {
                             errorDesc = e.toString().substring(e.toString().indexOf("message") + 9);
                             errorDesc = errorDesc.replaceAll("}]", "");
                         }
-                        if(e.toString().contains("DataIntegrityViolationException") || e.toString().contains("ConstraintViolationException")) {
+                        if (e.toString().contains("DataIntegrityViolationException") || e.toString().contains("ConstraintViolationException")) {
                             errorDesc = "Null Pointer Exception";
                         }
-                        if(e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException") || e.toString().contains("SQLServerException")) {
+                        if (e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException") || e.toString().contains("SQLServerException")) {
                             errorDesc = "SQLServerException";
                         }
-                        if(e.toString().contains("BadRequestException")){
+                        if (e.toString().contains("BadRequestException")) {
                             errorDesc = e.toString().substring(e.toString().indexOf("BadRequestException:") + 20);
                         }
                     } catch (Exception ex) {
@@ -629,17 +641,17 @@ public class TransactionService extends BaseService{
                     inboundOrderCancelInput.setReferenceField1("STOCKADJUSTMENT");
                     String errorDesc = null;
                     try {
-                        if(e.toString().contains("message")) {
+                        if (e.toString().contains("message")) {
                             errorDesc = e.toString().substring(e.toString().indexOf("message") + 9);
                             errorDesc = errorDesc.replaceAll("}]", "");
                         }
-                        if(e.toString().contains("DataIntegrityViolationException") || e.toString().contains("ConstraintViolationException")) {
+                        if (e.toString().contains("DataIntegrityViolationException") || e.toString().contains("ConstraintViolationException")) {
                             errorDesc = "Null Pointer Exception";
                         }
-                        if(e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException") || e.toString().contains("SQLServerException")) {
+                        if (e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException") || e.toString().contains("SQLServerException")) {
                             errorDesc = "SQLServerException";
                         }
-                        if(e.toString().contains("BadRequestException")){
+                        if (e.toString().contains("BadRequestException")) {
                             errorDesc = e.toString().substring(e.toString().indexOf("BadRequestException:") + 20);
                         }
                     } catch (Exception ex) {

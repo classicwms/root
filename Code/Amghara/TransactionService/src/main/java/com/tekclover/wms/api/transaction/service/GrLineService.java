@@ -1,12 +1,46 @@
 package com.tekclover.wms.api.transaction.service;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.persistence.EntityNotFoundException;
+import javax.validation.Valid;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.ParseException;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
-import com.tekclover.wms.api.transaction.model.dto.*;
+import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
+import com.tekclover.wms.api.transaction.model.dto.ImBasicData;
+import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
+import com.tekclover.wms.api.transaction.model.dto.StatusId;
+import com.tekclover.wms.api.transaction.model.dto.StorageBin;
+import com.tekclover.wms.api.transaction.model.dto.StorageBinV2;
+import com.tekclover.wms.api.transaction.model.errorlog.ErrorLog;
 import com.tekclover.wms.api.transaction.model.impl.GrLineImpl;
 import com.tekclover.wms.api.transaction.model.inbound.InboundLine;
-import com.tekclover.wms.api.transaction.model.inbound.gr.*;
+import com.tekclover.wms.api.transaction.model.inbound.gr.AddGrLine;
+import com.tekclover.wms.api.transaction.model.inbound.gr.GrHeader;
+import com.tekclover.wms.api.transaction.model.inbound.gr.GrLine;
+import com.tekclover.wms.api.transaction.model.inbound.gr.PackBarcode;
+import com.tekclover.wms.api.transaction.model.inbound.gr.SearchGrLine;
+import com.tekclover.wms.api.transaction.model.inbound.gr.StorageBinPutAway;
+import com.tekclover.wms.api.transaction.model.inbound.gr.UpdateGrLine;
 import com.tekclover.wms.api.transaction.model.inbound.gr.v2.AddGrLineV2;
 import com.tekclover.wms.api.transaction.model.inbound.gr.v2.GrHeaderV2;
 import com.tekclover.wms.api.transaction.model.inbound.gr.v2.GrLineV2;
@@ -22,28 +56,31 @@ import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.PutAwayLineV2;
 import com.tekclover.wms.api.transaction.model.inbound.staging.StagingLineEntity;
 import com.tekclover.wms.api.transaction.model.inbound.staging.v2.StagingLineEntityV2;
 import com.tekclover.wms.api.transaction.model.inbound.v2.InboundLineV2;
-import com.tekclover.wms.api.transaction.model.errorlog.ErrorLog;
 import com.tekclover.wms.api.transaction.model.inbound.v2.InboundOrderCancelInput;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickupLineV2;
-import com.tekclover.wms.api.transaction.repository.*;
+import com.tekclover.wms.api.transaction.repository.ErrorLogRepository;
+import com.tekclover.wms.api.transaction.repository.GrHeaderRepository;
+import com.tekclover.wms.api.transaction.repository.GrHeaderV2Repository;
+import com.tekclover.wms.api.transaction.repository.GrLineRepository;
+import com.tekclover.wms.api.transaction.repository.GrLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
+import com.tekclover.wms.api.transaction.repository.InboundLineRepository;
+import com.tekclover.wms.api.transaction.repository.InboundLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryV2Repository;
+import com.tekclover.wms.api.transaction.repository.PutAwayHeaderRepository;
+import com.tekclover.wms.api.transaction.repository.PutAwayHeaderV2Repository;
+import com.tekclover.wms.api.transaction.repository.PutAwayLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.StagingLineRepository;
+import com.tekclover.wms.api.transaction.repository.StagingLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.StorageBinRepository;
 import com.tekclover.wms.api.transaction.repository.specification.GrLineSpecification;
 import com.tekclover.wms.api.transaction.repository.specification.GrLineV2Specification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.expression.ParseException;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
-import javax.validation.Valid;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -1679,17 +1716,15 @@ public class GrLineService extends BaseService {
 //                    boolean createGrLineError = false;
                     //validate to check if grline is already exists
 //                    if (oldGrLine == null || oldGrLine.isEmpty()) {
-//                        try {
-                            createdGRLine = grLineV2Repository.saveAndFlush(dbGrLine);
-//                        } catch (Exception e) {
-//                            createGrLineError = true;
-//
-//                            //Exception Log
-//                            createGrLineLog7(dbGrLine, e.toString());
-//
-//                            throw e;
-//                        }
-                        log.info("createdGRLine : " + createdGRLine);
+                        try {
+                        	log.info("-----b4-----createGRLine : " + dbGrLine);
+                        	dbGrLine.setIsPutAwayHeaderCreated(9L);
+                        	createdGRLine = grLineV2Repository.saveAndFlush(dbGrLine);
+                            log.info("---after---createdGRLine : " + createdGRLine);
+                        } catch (Exception e) {
+                        	e.printStackTrace();
+                        }
+                        
                         createdGRLines.add(createdGRLine);
 
 //                        if (createdGRLine != null && !createGrLineError) {
@@ -1927,16 +1962,15 @@ public class GrLineService extends BaseService {
                 //putaway header successfully created - changing flag to 10
                 grLineV2Repository.updateGrLineStatusV2(createdGRLine.getCompanyCode(), createdGRLine.getPlantId(), createdGRLine.getLanguageId(), createdGRLine.getWarehouseId(), createdGRLine.getPreInboundNo(),
                         createdGRLine.getCreatedOn(), createdGRLine.getLineNo(), createdGRLine.getItemCode(), 10L);
-                log.info("GrLine status 10 updated..! ");
-
+                log.info("GrLine status 10 updated..! ");   
             } catch (Exception e) {
-
-                //putaway header create failed - changing flag to 100
+            	e.printStackTrace();
+            	log.info("GrLine status 100 updated - putaway header create - failed..! ");
+                log.error("Exception occurred while create putaway header " + e.toString());
+                
+            	//putaway header create failed - changing flag to 100
                 grLineV2Repository.updateGrLineStatusV2(createdGRLine.getCompanyCode(), createdGRLine.getPlantId(), createdGRLine.getLanguageId(), createdGRLine.getWarehouseId(), createdGRLine.getPreInboundNo(),
                         createdGRLine.getCreatedOn(), createdGRLine.getLineNo(), createdGRLine.getItemCode(), 100L);
-                log.info("GrLine status 100 updated - putaway header create - failed..! ");
-
-                log.error("Exception occurred while create putaway header " + e.toString());
                 sendMail(companyCode, plantId, languageId, warehouseId, refDocNumber, getInboundOrderTypeTable(inboundOrderTypeId), e.toString());
             }
         }
@@ -4718,7 +4752,7 @@ public class GrLineService extends BaseService {
      * @return
      */
     public GrLineV2 getGrLineV2() {
-        GrLineV2 grLine = grLineV2Repository.findTopByIsPutAwayHeaderCreatedAndDeletionIndicatorOrderByCreatedOn(0L, 0L);
+        GrLineV2 grLine = grLineV2Repository.findTopByIsPutAwayHeaderCreatedAndDeletionIndicatorOrderByCreatedOn(9L, 0L);
         log.info("GRLine for putaway header : " + grLine);
         if (grLine != null) {
             grLineV2Repository.updateGrLineStatusV2(grLine.getCompanyCode(), grLine.getPlantId(), grLine.getLanguageId(), grLine.getWarehouseId(), grLine.getPreInboundNo(),
