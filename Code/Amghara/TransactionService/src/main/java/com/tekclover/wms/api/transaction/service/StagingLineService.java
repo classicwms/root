@@ -1,9 +1,26 @@
 package com.tekclover.wms.api.transaction.service;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.ParseException;
+import org.springframework.stereotype.Service;
+
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
-import com.tekclover.wms.api.transaction.model.dto.*;
+import com.tekclover.wms.api.transaction.model.dto.ImBasicData;
+import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
+import com.tekclover.wms.api.transaction.model.dto.ImPartner;
+import com.tekclover.wms.api.transaction.model.dto.StatusId;
+import com.tekclover.wms.api.transaction.model.dto.Warehouse;
 import com.tekclover.wms.api.transaction.model.errorlog.ErrorLog;
 import com.tekclover.wms.api.transaction.model.inbound.InboundLine;
 import com.tekclover.wms.api.transaction.model.inbound.UpdateInboundLine;
@@ -17,28 +34,30 @@ import com.tekclover.wms.api.transaction.model.inbound.preinbound.PreInboundLine
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.v2.PreInboundLineEntityV2;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.PutAwayHeaderV2;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.PutAwayLineV2;
-import com.tekclover.wms.api.transaction.model.inbound.staging.*;
+import com.tekclover.wms.api.transaction.model.inbound.staging.AddStagingLine;
+import com.tekclover.wms.api.transaction.model.inbound.staging.AssignHHTUser;
+import com.tekclover.wms.api.transaction.model.inbound.staging.CaseConfirmation;
+import com.tekclover.wms.api.transaction.model.inbound.staging.SearchStagingLine;
+import com.tekclover.wms.api.transaction.model.inbound.staging.StagingHeader;
+import com.tekclover.wms.api.transaction.model.inbound.staging.StagingLine;
+import com.tekclover.wms.api.transaction.model.inbound.staging.StagingLineEntity;
+import com.tekclover.wms.api.transaction.model.inbound.staging.UpdateStagingHeader;
+import com.tekclover.wms.api.transaction.model.inbound.staging.UpdateStagingLine;
 import com.tekclover.wms.api.transaction.model.inbound.staging.v2.SearchStagingLineV2;
 import com.tekclover.wms.api.transaction.model.inbound.staging.v2.StagingHeaderV2;
 import com.tekclover.wms.api.transaction.model.inbound.staging.v2.StagingLineEntityV2;
 import com.tekclover.wms.api.transaction.model.inbound.v2.InboundLineV2;
-import com.tekclover.wms.api.transaction.repository.*;
+import com.tekclover.wms.api.transaction.repository.ErrorLogRepository;
+import com.tekclover.wms.api.transaction.repository.GrHeaderV2Repository;
+import com.tekclover.wms.api.transaction.repository.GrLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.PreInboundLineRepository;
+import com.tekclover.wms.api.transaction.repository.PreInboundLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.StagingLineRepository;
+import com.tekclover.wms.api.transaction.repository.StagingLineV2Repository;
 import com.tekclover.wms.api.transaction.repository.specification.StagingLineSpecification;
 import com.tekclover.wms.api.transaction.repository.specification.StagingLineV2Specification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.expression.ParseException;
-import org.springframework.stereotype.Service;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -78,6 +97,9 @@ public class StagingLineService extends BaseService {
     @Autowired
     private GrHeaderV2Repository grHeaderV2Repository;
 
+    @Autowired
+    private GrLineV2Repository grLineV2Repository;
+    
     @Autowired
     private GrLineService grLineService;
 
@@ -2058,6 +2080,44 @@ public class StagingLineService extends BaseService {
 //        List<GrLineV2> createGrLine = grLineService.createGrLineV2(newGrLineList, grHeader.getCreatedBy());
         List<GrLineV2> createGrLine = grLineService.createGrLineNonCBMV2(newGrLineList, grHeader.getCreatedBy());
         log.info("GrLine Created Successfully: " + createGrLine);
+        
+        /*
+         * If the OrderType = 5 then, process the PutAwayHeader automatically without Scheduler
+         * Then, update the respective record in GRLine status as '1'
+         */
+        if (grHeader.getInboundOrderTypeId() == 5L) {
+        	for (GrLineV2 grLine : createGrLine) {
+	        	if (grLine != null) {
+	        		String companyCode = grLine.getCompanyCode();
+                    String plantId = grLine.getPlantId();
+                    String languageId = grLine.getLanguageId();
+                    String warehouseId = grLine.getWarehouseId();
+                    String refDocNumber = grLine.getRefDocNumber();
+                    Long inboundOrderTypeId = grLine.getInboundOrderTypeId();
+	                 try {
+	                	 log.info("----createPutAwayHeaderNonCBMV2---1--- " + grLine);
+	                	 grLineService.createPutAwayHeaderNonCBMV2(grLine, grLine.getCreatedBy());
+	                	 log.info("----createPutAwayHeaderNonCBMV2---2--- ");
+	
+	                     //putaway header successfully created - changing flag to 10
+	                     grLineV2Repository.updateGrLineStatusV2(grLine.getCompanyCode(), grLine.getPlantId(), grLine.getLanguageId(), grLine.getWarehouseId(), grLine.getPreInboundNo(),
+	                             grLine.getCreatedOn(), grLine.getLineNo(), grLine.getItemCode(), 10L);
+	                     log.info("-----GrLine status 10 updated..! "); 
+	                 } catch (Exception e) {
+	                 	e.printStackTrace();
+	                 	log.info("GrLine status 100 updated - putaway header create - failed..! ");
+	                    log.error("Exception occurred while create putaway header " + e.toString());	                     
+	                    grLineV2Repository.updateGrLineStatusV2(grLine.getCompanyCode(), grLine.getPlantId(), grLine.getLanguageId(), grLine.getWarehouseId(), grLine.getPreInboundNo(),
+	                             grLine.getCreatedOn(), grLine.getLineNo(), grLine.getItemCode(), 100L);
+	                    grLineService.sendMail(companyCode, plantId, languageId, warehouseId, refDocNumber, getInboundOrderTypeTable(inboundOrderTypeId), e.toString());
+	                 }
+	                 
+	                 grLineV2Repository.updateGrLineStatusV2(grLine.getCompanyCode(), grLine.getPlantId(), grLine.getLanguageId(), grLine.getWarehouseId(), grLine.getPreInboundNo(),
+	 	                    grLine.getCreatedOn(), grLine.getLineNo(), grLine.getItemCode(), 1L);
+	                 log.info("-------GrLine status updated---------"); 
+	            }
+        	}
+        }
 
         List<PutAwayLineV2> createdPutawayLine = null;
         //putaway Confirm

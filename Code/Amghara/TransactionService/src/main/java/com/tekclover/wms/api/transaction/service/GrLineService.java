@@ -1945,10 +1945,12 @@ public class GrLineService extends BaseService {
         }
     }
 
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedDelay = 30000)
     private void schedulePostGRLineProcessV2() {
         log.info("Create PutawayHeader Schedule Initiated : " + new Date());
         GrLineV2 createdGRLine = getGrLineV2();
+        log.info("----schedulePostGRLineProcessV2-----createdGRLine------> " + createdGRLine);
+        
         if (createdGRLine != null) {
             String companyCode = createdGRLine.getCompanyCode();
             String plantId = createdGRLine.getPlantId();
@@ -1981,7 +1983,7 @@ public class GrLineService extends BaseService {
      * @param createdGRLine
      * @param loginUserID
      */
-    private void createPutAwayHeaderNonCBMV2(GrLineV2 createdGRLine, String loginUserID) throws Exception {
+    public void createPutAwayHeaderNonCBMV2(GrLineV2 createdGRLine, String loginUserID) throws Exception {
         try {
         String itemCode = createdGRLine.getItemCode();
         String companyCode = createdGRLine.getCompanyCode();
