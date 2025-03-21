@@ -1776,7 +1776,7 @@ public class GrLineService extends BaseService {
 	/**
 	 * 
 	 */
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedDelay = 30000)
     private void schedulePostGRLineProcessV2() {
         log.info("Create PutawayHeader Schedule Initiated : " + new Date());
         GrLineV2 createdGRLine = getGrLineV2();
@@ -1800,10 +1800,12 @@ public class GrLineService extends BaseService {
             	log.info("GrLine status 100 updated - putaway header create - failed..! ");
                 log.error("Exception occurred while create putaway header " + e.toString());
 
-                //putaway header create failed - changing flag to 100
-                grLineV2Repository.updateGrLineStatusV2(createdGRLine.getCompanyCode(), createdGRLine.getPlantId(), createdGRLine.getLanguageId(), createdGRLine.getWarehouseId(), createdGRLine.getPreInboundNo(),
+				// putaway header create failed - changing flag to 100
+				grLineV2Repository.updateGrLineStatusV2(createdGRLine.getCompanyCode(), createdGRLine.getPlantId(),
+						createdGRLine.getLanguageId(), createdGRLine.getWarehouseId(), createdGRLine.getPreInboundNo(),
                         createdGRLine.getCreatedOn(), createdGRLine.getLineNo(), createdGRLine.getItemCode(), 100L);
-                sendMail(companyCode, plantId, languageId, warehouseId, refDocNumber, getInboundOrderTypeTable(inboundOrderTypeId), e.toString());
+				sendMail(companyCode, plantId, languageId, warehouseId, refDocNumber,
+						getInboundOrderTypeTable(inboundOrderTypeId), e.toString());
                         }
                     }
                 }
@@ -2230,7 +2232,7 @@ public class GrLineService extends BaseService {
      * @param createdGRLine
      * @param loginUserID
      */
-    private void createPutAwayHeaderNonCBMV2(GrLineV2 createdGRLine, String loginUserID) throws java.text.ParseException {
+    public void createPutAwayHeaderNonCBMV2(GrLineV2 createdGRLine, String loginUserID) throws java.text.ParseException {
         String itemCode = createdGRLine.getItemCode();
         String companyCode = createdGRLine.getCompanyCode();
         String plantId = createdGRLine.getPlantId();
