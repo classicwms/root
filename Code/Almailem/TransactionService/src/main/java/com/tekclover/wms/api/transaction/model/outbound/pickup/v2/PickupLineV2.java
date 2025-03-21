@@ -1,11 +1,12 @@
 package com.tekclover.wms.api.transaction.model.outbound.pickup.v2;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+
 import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupLine;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-
-import javax.persistence.*;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -90,4 +91,7 @@ public class PickupLineV2 extends PickupLine {
 
 	@Column(name = "IMS_SALE_TYP_CODE")
 	private Integer imsSaleTypeCode;
+	
+	@Column(name = "IS_PI_LINE_CTD")
+	private Long isPickupLineCreated;
 }

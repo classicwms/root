@@ -2373,7 +2373,7 @@ public class InventoryService extends BaseService {
         InventoryV2 dbInventory = new InventoryV2();
         log.info("newInventory : " + newInventory);
         BeanUtils.copyProperties(newInventory, dbInventory, CommonUtils.getNullPropertyNames(newInventory));
-        dbInventory.setInventoryId(System.currentTimeMillis());
+        dbInventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 9));
         dbInventory.setDeletionIndicator(0L);
         dbInventory.setCreatedBy(loginUserID);
         dbInventory.setCreatedOn(new Date());

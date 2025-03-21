@@ -1,21 +1,23 @@
 package com.tekclover.wms.api.transaction.repository;
 
-import com.tekclover.wms.api.transaction.model.dto.IInventory;
-import com.tekclover.wms.api.transaction.model.impl.StockReportImpl;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.IInventoryImpl;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
-import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import com.tekclover.wms.api.transaction.model.dto.IInventory;
+import com.tekclover.wms.api.transaction.model.impl.StockReportImpl;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.IInventoryImpl;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 
 @Repository
 @Transactional
@@ -2448,4 +2450,20 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
 
     List<InventoryV2> findAllByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndManufacturerNameAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String itemCode, String manufacturerName, Long deletionIndicator);
+
+    //------Added-by--Murugavel--on--10/03---for---InventoryTrans-----------
+   	@Modifying(clearAutomatically = true)
+   	@Query(" UPDATE Inventory inv \r\n"
+   			+ " SET inv.inventoryQuantity = :inventoryQuantity, \r\n"
+   			+ " inv.allocatedQuantity = :allocatedQuantity \r\n"
+   			+ " WHERE inv.warehouseId = :warehouseId \r\n"
+   			+ " AND inv.packBarcodes = :packBarcodes \r\n"
+   			+ " AND inv.itemCode = :itemCode \r\n"
+   			+ " AND inv.storageBin = :storageBin AND inv.deletionIndicator = 0")
+   	void updateInventory(@Param ("warehouseId") String warehouseId,
+   			@Param ("packBarcodes") String packBarcodes,
+   			@Param ("itemCode") String itemCode,
+   			@Param ("storageBin") String storageBin,
+   			@Param ("inventoryQuantity") Double inventoryQuantity,
+   			@Param ("allocatedQuantity") Double allocatedQuantity);
 }

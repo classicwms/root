@@ -1,12 +1,46 @@
 package com.tekclover.wms.api.transaction.service;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.persistence.EntityNotFoundException;
+import javax.validation.Valid;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.ParseException;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
-import com.tekclover.wms.api.transaction.model.dto.*;
+import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
+import com.tekclover.wms.api.transaction.model.dto.ImBasicData;
+import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
+import com.tekclover.wms.api.transaction.model.dto.StatusId;
+import com.tekclover.wms.api.transaction.model.dto.StorageBin;
+import com.tekclover.wms.api.transaction.model.dto.StorageBinV2;
+import com.tekclover.wms.api.transaction.model.errorlog.ErrorLog;
 import com.tekclover.wms.api.transaction.model.impl.GrLineImpl;
 import com.tekclover.wms.api.transaction.model.inbound.InboundLine;
-import com.tekclover.wms.api.transaction.model.inbound.gr.*;
+import com.tekclover.wms.api.transaction.model.inbound.gr.AddGrLine;
+import com.tekclover.wms.api.transaction.model.inbound.gr.GrHeader;
+import com.tekclover.wms.api.transaction.model.inbound.gr.GrLine;
+import com.tekclover.wms.api.transaction.model.inbound.gr.PackBarcode;
+import com.tekclover.wms.api.transaction.model.inbound.gr.SearchGrLine;
+import com.tekclover.wms.api.transaction.model.inbound.gr.StorageBinPutAway;
+import com.tekclover.wms.api.transaction.model.inbound.gr.UpdateGrLine;
 import com.tekclover.wms.api.transaction.model.inbound.gr.v2.AddGrLineV2;
 import com.tekclover.wms.api.transaction.model.inbound.gr.v2.GrHeaderV2;
 import com.tekclover.wms.api.transaction.model.inbound.gr.v2.GrLineV2;
@@ -22,26 +56,30 @@ import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.PutAwayLineV2;
 import com.tekclover.wms.api.transaction.model.inbound.staging.StagingLineEntity;
 import com.tekclover.wms.api.transaction.model.inbound.staging.v2.StagingLineEntityV2;
 import com.tekclover.wms.api.transaction.model.inbound.v2.InboundLineV2;
-import com.tekclover.wms.api.transaction.model.errorlog.ErrorLog;
+import com.tekclover.wms.api.transaction.model.inbound.v2.InboundOrderCancelInput;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickupLineV2;
-import com.tekclover.wms.api.transaction.repository.*;
+import com.tekclover.wms.api.transaction.repository.ErrorLogRepository;
+import com.tekclover.wms.api.transaction.repository.GrHeaderRepository;
+import com.tekclover.wms.api.transaction.repository.GrHeaderV2Repository;
+import com.tekclover.wms.api.transaction.repository.GrLineRepository;
+import com.tekclover.wms.api.transaction.repository.GrLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
+import com.tekclover.wms.api.transaction.repository.InboundLineRepository;
+import com.tekclover.wms.api.transaction.repository.InboundLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryV2Repository;
+import com.tekclover.wms.api.transaction.repository.PutAwayHeaderRepository;
+import com.tekclover.wms.api.transaction.repository.PutAwayHeaderV2Repository;
+import com.tekclover.wms.api.transaction.repository.PutAwayLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.StagingLineRepository;
+import com.tekclover.wms.api.transaction.repository.StagingLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.StorageBinRepository;
 import com.tekclover.wms.api.transaction.repository.specification.GrLineSpecification;
 import com.tekclover.wms.api.transaction.repository.specification.GrLineV2Specification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.expression.ParseException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.EntityNotFoundException;
-import javax.validation.Valid;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -1507,8 +1545,30 @@ public class GrLineService extends BaseService {
         return packBarcodes;
     }
 
-    @Transactional
-    public List<GrLineV2> createGrLineNonCBMV2(@Valid List<AddGrLineV2> newGrLines, String loginUserID) throws java.text.ParseException {
+    /**
+    *
+    * @return
+    */
+   public GrLineV2 getGrLineV2() {
+       GrLineV2 grLine = grLineV2Repository.findTopByIsPutAwayHeaderCreatedAndDeletionIndicatorOrderByCreatedOn(0L, 0L);
+       log.info("GRLine for putaway header : " + grLine);
+       if (grLine != null) {
+           grLineV2Repository.updateGrLineStatusV2(grLine.getCompanyCode(), grLine.getPlantId(), grLine.getLanguageId(), grLine.getWarehouseId(), grLine.getPreInboundNo(),
+                   grLine.getCreatedOn(), grLine.getLineNo(), grLine.getItemCode(), 1L);
+           return grLine;
+       }
+       return null;
+   }
+   
+    /**
+     * 
+     * @param newGrLines
+     * @param loginUserID
+     * @return
+     * @throws Exception
+     */
+	public List<GrLineV2> createGrLineNonCBMV2(@Valid List<AddGrLineV2> newGrLines, String loginUserID)
+			throws Exception {
         List<GrLineV2> createdGRLines = new ArrayList<>();
         String companyCode = null;
         String plantId = null;
@@ -1521,7 +1581,7 @@ public class GrLineService extends BaseService {
 
             // Inserting multiple records
             for (AddGrLineV2 newGrLine : newGrLines) {
-                if(newGrLine.getPackBarcodes() == null || newGrLine.getPackBarcodes().isEmpty()) {
+				if (newGrLine.getPackBarcodes() == null || newGrLine.getPackBarcodes().isEmpty()) {
                     throw new BadRequestException("Enter either Accept Qty or Damage Qty");
                 }
                 /*------------Inserting based on the PackBarcodes -----------*/
@@ -1550,35 +1610,37 @@ public class GrLineService extends BaseService {
                     dbGrLine.setPackBarcodes(packBarcode.getBarcode());
                     dbGrLine.setStatusId(14L);
 
-                    //12-03-2024 - Ticket No. ALM/2024/006
-                    if(dbGrLine.getGoodReceiptQty() < 0){
+					// 12-03-2024 - Ticket No. ALM/2024/006
+					if (dbGrLine.getGoodReceiptQty() < 0) {
                         throw new BadRequestException("Gr Quantity Cannot be Negative");
                     }
                     log.info("StatusId: " + newGrLine.getStatusId());
-                    if(newGrLine.getStatusId() == 24L){
+					if (newGrLine.getStatusId() == 24L) {
                         throw new BadRequestException("GrLine is already Confirmed");
                     }
 
-                    //GoodReceipt Qty should be less than or equal to ordered qty---> if GrQty > OrdQty throw Exception
-                    Double dbGrQty = grLineV2Repository.getGrLineQuantity(
-                            newGrLine.getCompanyCode(), newGrLine.getPlantId(), newGrLine.getLanguageId(), newGrLine.getWarehouseId(),
-                            newGrLine.getRefDocNumber(), newGrLine.getPreInboundNo(), newGrLine.getGoodsReceiptNo(), newGrLine.getPalletCode(),
-                            newGrLine.getCaseCode(), newGrLine.getItemCode(), newGrLine.getManufacturerName(), newGrLine.getLineNo());
-                    log.info("dbGrQty, newGrQty, OrdQty: " + dbGrQty + ", " + dbGrLine.getGoodReceiptQty() + ", " + newGrLine.getOrderQty());
-                    if(dbGrQty != null) {
+					// GoodReceipt Qty should be less than or equal to ordered qty---> if GrQty >
+					// OrdQty throw Exception
+					Double dbGrQty = grLineV2Repository.getGrLineQuantity(newGrLine.getCompanyCode(),
+							newGrLine.getPlantId(), newGrLine.getLanguageId(), newGrLine.getWarehouseId(),
+							newGrLine.getRefDocNumber(), newGrLine.getPreInboundNo(), newGrLine.getGoodsReceiptNo(),
+							newGrLine.getPalletCode(), newGrLine.getCaseCode(), newGrLine.getItemCode(),
+							newGrLine.getManufacturerName(), newGrLine.getLineNo());
+					log.info("dbGrQty, newGrQty, OrdQty: " + dbGrQty + ", " + dbGrLine.getGoodReceiptQty() + ", "
+							+ newGrLine.getOrderQty());
+					if (dbGrQty != null) {
                         Double totalGrQty = dbGrQty + dbGrLine.getGoodReceiptQty();
-                        if (newGrLine.getOrderQty() < totalGrQty){
+						if (newGrLine.getOrderQty() < totalGrQty) {
                             throw new BadRequestException("Total Gr Qty is greater than Order Qty ");
                         }
                     }
 
-                    //V2 Code
+					// V2 Code
                     IKeyValuePair description = stagingLineV2Repository.getDescription(newGrLine.getCompanyCode(),
-                            newGrLine.getLanguageId(),
-                            newGrLine.getPlantId(),
-                            newGrLine.getWarehouseId());
+							newGrLine.getLanguageId(), newGrLine.getPlantId(), newGrLine.getWarehouseId());
 
-                    statusDescription = stagingLineV2Repository.getStatusDescription(dbGrLine.getStatusId(), newGrLine.getLanguageId());
+					statusDescription = stagingLineV2Repository.getStatusDescription(dbGrLine.getStatusId(),
+							newGrLine.getLanguageId());
                     dbGrLine.setStatusDescription(statusDescription);
 
                     if (description != null) {
@@ -1611,15 +1673,10 @@ public class GrLineService extends BaseService {
                         damageQty = newGrLine.getDamageQty();
                     }
 
-                    StagingLineEntityV2 dbStagingLineEntity = stagingLineService.getStagingLineForPutAwayLineV2(newGrLine.getCompanyCode(),
-                            newGrLine.getPlantId(),
-                            newGrLine.getLanguageId(),
-                            newGrLine.getWarehouseId(),
-                            newGrLine.getPreInboundNo(),
-                            newGrLine.getRefDocNumber(),
-                            newGrLine.getLineNo(),
-                            newGrLine.getItemCode(),
-                            newGrLine.getManufacturerName());
+					StagingLineEntityV2 dbStagingLineEntity = stagingLineService.getStagingLineForPutAwayLineV2(
+							newGrLine.getCompanyCode(), newGrLine.getPlantId(), newGrLine.getLanguageId(),
+							newGrLine.getWarehouseId(), newGrLine.getPreInboundNo(), newGrLine.getRefDocNumber(),
+							newGrLine.getLineNo(), newGrLine.getItemCode(), newGrLine.getManufacturerName());
                     log.info("StagingLine: " + dbStagingLineEntity);
 
                     if (dbStagingLineEntity != null) {
@@ -1638,7 +1695,8 @@ public class GrLineService extends BaseService {
 
                     if (variance == 0D) {
                         dbGrLine.setStatusId(17L);
-                        statusDescription = stagingLineV2Repository.getStatusDescription(17L, newGrLine.getLanguageId());
+						statusDescription = stagingLineV2Repository.getStatusDescription(17L,
+								newGrLine.getLanguageId());
                         dbGrLine.setStatusDescription(statusDescription);
                     }
 
@@ -1650,6 +1708,7 @@ public class GrLineService extends BaseService {
                     dbGrLine.setTransferOrderNo(newGrLine.getTransferOrderNo());
                     dbGrLine.setIsCompleted(newGrLine.getIsCompleted());
 
+					dbGrLine.setIsPutAwayHeaderCreated(0L);
                     dbGrLine.setBarcodeId(newGrLine.getBarcodeId());
                     dbGrLine.setDeletionIndicator(0L);
                     dbGrLine.setCreatedBy(loginUserID);
@@ -1667,235 +1726,504 @@ public class GrLineService extends BaseService {
                     preInboundNo = dbGrLine.getPreInboundNo();
                     goodsReceiptNo = dbGrLine.getGoodsReceiptNo();
 
-                    List<GrLineV2> oldGrLine = grLineV2Repository.findByGoodsReceiptNoAndItemCodeAndLineNoAndLanguageIdAndCompanyCodeAndPlantIdAndRefDocNumberAndPackBarcodesAndWarehouseIdAndPreInboundNoAndCaseCodeAndCreatedOnAndDeletionIndicator(
-                            goodsReceiptNo, dbGrLine.getItemCode(), dbGrLine.getLineNo(),
-                            languageId, companyCode, plantId,
-                            refDocNumber, dbGrLine.getPackBarcodes(), warehouseId,
-                            preInboundNo, dbGrLine.getCaseCode(), dbGrLine.getCreatedOn(), 0L);
                     GrLineV2 createdGRLine = null;
-                    boolean createGrLineError = false;
-                    //validate to check if grline is already exists
-                    if (oldGrLine == null || oldGrLine.isEmpty()) {
                         try {
-                            createdGRLine = grLineV2Repository.save(dbGrLine);
+						log.info("-----b4-----createGRLine : " + dbGrLine);
+						dbGrLine.setIsPutAwayHeaderCreated(0L);
+						createdGRLine = grLineV2Repository.saveAndFlush(dbGrLine);
+						log.info("---after---createdGRLine : " + createdGRLine);
                         } catch (Exception e) {
-                            createGrLineError = true;
+						e.printStackTrace();
+					}
 
-                            //Exception Log
-                            createGrLineLog7(dbGrLine, e.toString());
+					createdGRLines.add(createdGRLine);
 
+					// Update staging Line using stored Procedure
+					log.info(companyCode + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + refDocNumber
+							+ "|" + preInboundNo + "|" + createdGRLine.getLineNo() + "|" + createdGRLine.getItemCode()
+							+ "|" + createdGRLine.getManufacturerName());
+					
+					stagingLineV2Repository.updateStagingLineUpdateNewProc(companyCode, plantId, languageId,
+							warehouseId, refDocNumber, preInboundNo, createdGRLine.getLineNo(),
+							createdGRLine.getItemCode(), createdGRLine.getManufacturerName(), new Date());
+					log.info("stagingLine Status updated using Stored Procedure ");
+
+					// Update InboundLine using Stored Procedure
+					inboundLineV2Repository.updateInboundLineStatusUpdateNewProc(companyCode, plantId, languageId,
+							warehouseId, refDocNumber, preInboundNo, createdGRLine.getLineNo(),
+							createdGRLine.getItemCode(), createdGRLine.getManufacturerName(), 17L, statusDescription,
+							new Date());
+					log.info("inboundLine Status updated using Stored Procedure ");
+				}
+				log.info("Records were inserted successfully...");
+			}
+
+			// Update GrHeader using stored Procedure
+			statusDescription = stagingLineV2Repository.getStatusDescription(17L,
+					createdGRLines.get(0).getLanguageId());
+			grHeaderV2Repository.updateGrheaderStatusUpdateProc(companyCode, plantId, languageId, warehouseId,
+					refDocNumber, preInboundNo, goodsReceiptNo, 17L, statusDescription, new Date());
+			log.info("GrHeader Status 17 Updating Using Stored Procedure when condition met");
+			return createdGRLines;
+		} catch (Exception e) {
+			// Exception Log
+			createGrLineLog10(newGrLines, e.toString());
+			e.printStackTrace();
                             throw e;
                         }
-                        log.info("createdGRLine : " + createdGRLine);
-                        createdGRLines.add(createdGRLine);
+	}
 
-                        if (createdGRLine != null && !createGrLineError) {
-                            // Record Insertion in PUTAWAYHEADER table
-                            createPutAwayHeaderNonCBMV2(createdGRLine, loginUserID);
+	/**
+	 * 
+	 */
+    @Scheduled(fixedDelay = 10000)
+    private void schedulePostGRLineProcessV2() {
+        log.info("Create PutawayHeader Schedule Initiated : " + new Date());
+        GrLineV2 createdGRLine = getGrLineV2();
+        if (createdGRLine != null) {
+            String companyCode = createdGRLine.getCompanyCode();
+            String plantId = createdGRLine.getPlantId();
+            String languageId = createdGRLine.getLanguageId();
+            String warehouseId = createdGRLine.getWarehouseId();
+            String refDocNumber = createdGRLine.getRefDocNumber();
+            Long inboundOrderTypeId = createdGRLine.getInboundOrderTypeId();
+            try {
+                createPutAwayHeaderNonCBMV2(createdGRLine, createdGRLine.getCreatedBy());
+
+                //putaway header successfully created - changing flag to 10
+                grLineV2Repository.updateGrLineStatusV2(createdGRLine.getCompanyCode(), createdGRLine.getPlantId(), createdGRLine.getLanguageId(), createdGRLine.getWarehouseId(), createdGRLine.getPreInboundNo(),
+                        createdGRLine.getCreatedOn(), createdGRLine.getLineNo(), createdGRLine.getItemCode(), 10L);
+                log.info("GrLine status 10 updated..! ");
+
+            } catch (Exception e) {
+            	e.printStackTrace();
+            	log.info("GrLine status 100 updated - putaway header create - failed..! ");
+                log.error("Exception occurred while create putaway header " + e.toString());
+
+                //putaway header create failed - changing flag to 100
+                grLineV2Repository.updateGrLineStatusV2(createdGRLine.getCompanyCode(), createdGRLine.getPlantId(), createdGRLine.getLanguageId(), createdGRLine.getWarehouseId(), createdGRLine.getPreInboundNo(),
+                        createdGRLine.getCreatedOn(), createdGRLine.getLineNo(), createdGRLine.getItemCode(), 100L);
+                sendMail(companyCode, plantId, languageId, warehouseId, refDocNumber, getInboundOrderTypeTable(inboundOrderTypeId), e.toString());
                         }
                     }
                 }
-                log.info("Records were inserted successfully...");
-            }
 
-            // STATUS updates
-            /*
-             * Pass WH_ID/PRE_IB_NO/REF_DOC_NO/GR_NO/IB_LINE_NO/ITM_CODE in GRLINE table and
-             * validate STATUS_ID of the all the filtered line items = 17 , if yes
+    /**
+     * 
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param refDocNumber
+     * @param referenceField
+     * @param error
              */
-//            List<StagingLineEntityV2> stagingLineList =
-//                    stagingLineService.getStagingLineForGrConfirmV2(
-//                            createdGRLines.get(0).getCompanyCode(),
-//                            createdGRLines.get(0).getPlantId(),
-//                            createdGRLines.get(0).getLanguageId(),
-//                            createdGRLines.get(0).getWarehouseId(),
-//                            createdGRLines.get(0).getRefDocNumber(),
-//                            createdGRLines.get(0).getPreInboundNo());
-//
-//            Long createdStagingLinesCount = 0L;
-//            Long createdGRLinesStatusId17Count = 0L;
-//
-//            if (stagingLineList != null) {
-//                createdStagingLinesCount = stagingLineList.stream().count();
-//            }
-//            createdGRLinesStatusId17Count = grLineV2Repository.getGrLineStatus17Count(createdGRLines.get(0).getCompanyCode(),
-//                    createdGRLines.get(0).getPlantId(),
-//                    createdGRLines.get(0).getLanguageId(),
-//                    createdGRLines.get(0).getWarehouseId(),
-//                    createdGRLines.get(0).getRefDocNumber(),
-//                    createdGRLines.get(0).getPreInboundNo(), 17L);
-//            log.info("createdGRLinesStatusId17Count: " + createdGRLinesStatusId17Count);
+	public void sendMail(String companyCodeId, String plantId, String languageId, String warehouseId,
+			String refDocNumber, String referenceField, String error) {
+		try {
+			InboundOrderCancelInput inboundOrderCancelInput = new InboundOrderCancelInput();
+			inboundOrderCancelInput.setCompanyCodeId(companyCodeId);
+			inboundOrderCancelInput.setPlantId(plantId);
+			inboundOrderCancelInput.setLanguageId(languageId);
+			inboundOrderCancelInput.setWarehouseId(warehouseId);
+			inboundOrderCancelInput.setRefDocNumber(refDocNumber);
+			inboundOrderCancelInput.setReferenceField1(referenceField);
+			inboundOrderCancelInput.setRemarks(error);
+			mastersService.sendMail(inboundOrderCancelInput);
+		} catch (Exception ex) {
+			log.error("Exception occurred while Sending Mail " + ex.toString());
+		}
+	}
 
-//            log.info("createdStagingLinesCount, createdGRLinesStatusId17Count: " + createdStagingLinesCount + ", " + createdGRLinesStatusId17Count);
+//    @Transactional
+//    public List<GrLineV2> createGrLineNonCBMV2(@Valid List<AddGrLineV2> newGrLines, String loginUserID) throws java.text.ParseException {
+//        List<GrLineV2> createdGRLines = new ArrayList<>();
+//        String companyCode = null;
+//        String plantId = null;
+//        String languageId = null;
+//        String warehouseId = null;
+//        String refDocNumber = null;
+//        String preInboundNo = null;
+//        String goodsReceiptNo = null;
+//        try {
+//
+//            // Inserting multiple records
+//            for (AddGrLineV2 newGrLine : newGrLines) {
+//                if(newGrLine.getPackBarcodes() == null || newGrLine.getPackBarcodes().isEmpty()) {
+//                    throw new BadRequestException("Enter either Accept Qty or Damage Qty");
+//                }
+//                /*------------Inserting based on the PackBarcodes -----------*/
+//                for (PackBarcode packBarcode : newGrLine.getPackBarcodes()) {
+//                    GrLineV2 dbGrLine = new GrLineV2();
+//                    log.info("newGrLine : " + newGrLine);
+//                    BeanUtils.copyProperties(newGrLine, dbGrLine, CommonUtils.getNullPropertyNames(newGrLine));
+//                    dbGrLine.setCompanyCode(newGrLine.getCompanyCode());
+//
+//                    // GR_QTY
+//                    if (packBarcode.getQuantityType().equalsIgnoreCase("A")) {
+//                        Double grQty = newGrLine.getAcceptedQty();
+//                        dbGrLine.setGoodReceiptQty(grQty);
+//                        dbGrLine.setAcceptedQty(grQty);
+//                        dbGrLine.setDamageQty(0D);
+//                        log.info("A-------->: " + dbGrLine);
+//                    } else if (packBarcode.getQuantityType().equalsIgnoreCase("D")) {
+//                        Double grQty = newGrLine.getDamageQty();
+//                        dbGrLine.setGoodReceiptQty(grQty);
+//                        dbGrLine.setDamageQty(newGrLine.getDamageQty());
+//                        dbGrLine.setAcceptedQty(0D);
+//                        log.info("D-------->: " + dbGrLine);
+//                    }
+//
+//                    dbGrLine.setQuantityType(packBarcode.getQuantityType());
+//                    dbGrLine.setPackBarcodes(packBarcode.getBarcode());
+//                    dbGrLine.setStatusId(14L);
+//
+//                    //12-03-2024 - Ticket No. ALM/2024/006
+//                    if(dbGrLine.getGoodReceiptQty() < 0){
+//                        throw new BadRequestException("Gr Quantity Cannot be Negative");
+//                    }
+//                    log.info("StatusId: " + newGrLine.getStatusId());
+//                    if(newGrLine.getStatusId() == 24L){
+//                        throw new BadRequestException("GrLine is already Confirmed");
+//                    }
+//
+//                    //GoodReceipt Qty should be less than or equal to ordered qty---> if GrQty > OrdQty throw Exception
+//                    Double dbGrQty = grLineV2Repository.getGrLineQuantity(
+//                            newGrLine.getCompanyCode(), newGrLine.getPlantId(), newGrLine.getLanguageId(), newGrLine.getWarehouseId(),
+//                            newGrLine.getRefDocNumber(), newGrLine.getPreInboundNo(), newGrLine.getGoodsReceiptNo(), newGrLine.getPalletCode(),
+//                            newGrLine.getCaseCode(), newGrLine.getItemCode(), newGrLine.getManufacturerName(), newGrLine.getLineNo());
+//                    log.info("dbGrQty, newGrQty, OrdQty: " + dbGrQty + ", " + dbGrLine.getGoodReceiptQty() + ", " + newGrLine.getOrderQty());
+//                    if(dbGrQty != null) {
+//                        Double totalGrQty = dbGrQty + dbGrLine.getGoodReceiptQty();
+//                        if (newGrLine.getOrderQty() < totalGrQty){
+//                            throw new BadRequestException("Total Gr Qty is greater than Order Qty ");
+//                        }
+//                    }
+//
+//                    //V2 Code
+//                    IKeyValuePair description = stagingLineV2Repository.getDescription(newGrLine.getCompanyCode(),
+//                            newGrLine.getLanguageId(),
+//                            newGrLine.getPlantId(),
+//                            newGrLine.getWarehouseId());
+//
+//                    statusDescription = stagingLineV2Repository.getStatusDescription(dbGrLine.getStatusId(), newGrLine.getLanguageId());
+//                    dbGrLine.setStatusDescription(statusDescription);
+//
+//                    if (description != null) {
+//                        dbGrLine.setCompanyDescription(description.getCompanyDesc());
+//                        dbGrLine.setPlantDescription(description.getPlantDesc());
+//                        dbGrLine.setWarehouseDescription(description.getWarehouseDesc());
+//                    }
+//
+//                    dbGrLine.setMiddlewareId(newGrLine.getMiddlewareId());
+//                    dbGrLine.setMiddlewareHeaderId(newGrLine.getMiddlewareHeaderId());
+//                    dbGrLine.setMiddlewareTable(newGrLine.getMiddlewareTable());
+//                    dbGrLine.setManufacturerFullName(newGrLine.getManufacturerFullName());
+//                    dbGrLine.setReferenceDocumentType(newGrLine.getReferenceDocumentType());
+//                    dbGrLine.setPurchaseOrderNumber(newGrLine.getPurchaseOrderNumber());
+//
+//                    Double recAcceptQty = 0D;
+//                    Double recDamageQty = 0D;
+//                    Double variance = 0D;
+//                    Double invoiceQty = 0D;
+//                    Double acceptQty = 0D;
+//                    Double damageQty = 0D;
+//
+//                    if (newGrLine.getOrderQty() != null) {
+//                        invoiceQty = newGrLine.getOrderQty();
+//                    }
+//                    if (newGrLine.getAcceptedQty() != null) {
+//                        acceptQty = newGrLine.getAcceptedQty();
+//                    }
+//                    if (newGrLine.getDamageQty() != null) {
+//                        damageQty = newGrLine.getDamageQty();
+//                    }
+//
+//                    StagingLineEntityV2 dbStagingLineEntity = stagingLineService.getStagingLineForPutAwayLineV2(newGrLine.getCompanyCode(),
+//                            newGrLine.getPlantId(),
+//                            newGrLine.getLanguageId(),
+//                            newGrLine.getWarehouseId(),
+//                            newGrLine.getPreInboundNo(),
+//                            newGrLine.getRefDocNumber(),
+//                            newGrLine.getLineNo(),
+//                            newGrLine.getItemCode(),
+//                            newGrLine.getManufacturerName());
+//                    log.info("StagingLine: " + dbStagingLineEntity);
+//
+//                    if (dbStagingLineEntity != null) {
+//                        if (dbStagingLineEntity.getRec_accept_qty() != null) {
+//                            recAcceptQty = dbStagingLineEntity.getRec_accept_qty();
+//                        }
+//                        if (dbStagingLineEntity.getRec_damage_qty() != null) {
+//                            recDamageQty = dbStagingLineEntity.getRec_damage_qty();
+//                        }
+//                        dbGrLine.setOrderUom(dbStagingLineEntity.getOrderUom());
+//                        dbGrLine.setGrUom(dbStagingLineEntity.getOrderUom());
+//                    }
+//
+//                    variance = invoiceQty - (acceptQty + damageQty + recAcceptQty + recDamageQty);
+//                    log.info("Variance: " + variance);
+//
+//                    if (variance == 0D) {
+//                        dbGrLine.setStatusId(17L);
+//                        statusDescription = stagingLineV2Repository.getStatusDescription(17L, newGrLine.getLanguageId());
+//                        dbGrLine.setStatusDescription(statusDescription);
+//                    }
+//
+//                    if (variance < 0D) {
+//                        throw new BadRequestException("Variance Qty cannot be Less than 0");
+//                    }
+//                    dbGrLine.setConfirmedQty(dbGrLine.getGoodReceiptQty());
+//                    dbGrLine.setBranchCode(newGrLine.getBranchCode());
+//                    dbGrLine.setTransferOrderNo(newGrLine.getTransferOrderNo());
+//                    dbGrLine.setIsCompleted(newGrLine.getIsCompleted());
+//
+//                    dbGrLine.setBarcodeId(newGrLine.getBarcodeId());
+//                    dbGrLine.setDeletionIndicator(0L);
+//                    dbGrLine.setCreatedBy(loginUserID);
+//                    dbGrLine.setUpdatedBy(loginUserID);
+//                    dbGrLine.setConfirmedBy(loginUserID);
+//                    dbGrLine.setCreatedOn(new Date());
+//                    dbGrLine.setUpdatedOn(new Date());
+//                    dbGrLine.setConfirmedOn(new Date());
+//
+//                    companyCode = dbGrLine.getCompanyCode();
+//                    plantId = dbGrLine.getPlantId();
+//                    languageId = dbGrLine.getLanguageId();
+//                    warehouseId = dbGrLine.getWarehouseId();
+//                    refDocNumber = dbGrLine.getRefDocNumber();
+//                    preInboundNo = dbGrLine.getPreInboundNo();
+//                    goodsReceiptNo = dbGrLine.getGoodsReceiptNo();
+//
+//                    List<GrLineV2> oldGrLine = grLineV2Repository.findByGoodsReceiptNoAndItemCodeAndLineNoAndLanguageIdAndCompanyCodeAndPlantIdAndRefDocNumberAndPackBarcodesAndWarehouseIdAndPreInboundNoAndCaseCodeAndCreatedOnAndDeletionIndicator(
+//                            goodsReceiptNo, dbGrLine.getItemCode(), dbGrLine.getLineNo(),
+//                            languageId, companyCode, plantId,
+//                            refDocNumber, dbGrLine.getPackBarcodes(), warehouseId,
+//                            preInboundNo, dbGrLine.getCaseCode(), dbGrLine.getCreatedOn(), 0L);
+//                    GrLineV2 createdGRLine = null;
+//                    boolean createGrLineError = false;
+//                    //validate to check if grline is already exists
+//                    if (oldGrLine == null || oldGrLine.isEmpty()) {
+//                        try {
+//                            createdGRLine = grLineV2Repository.save(dbGrLine);
+//                        } catch (Exception e) {
+//                            createGrLineError = true;
+//
+//                            //Exception Log
+//                            createGrLineLog7(dbGrLine, e.toString());
+//
+//                            throw e;
+//                        }
+//                        log.info("createdGRLine : " + createdGRLine);
+//                        createdGRLines.add(createdGRLine);
+//
+//                        if (createdGRLine != null && !createGrLineError) {
+//                            // Record Insertion in PUTAWAYHEADER table
+//                            createPutAwayHeaderNonCBMV2(createdGRLine, loginUserID);
+//                    }
+//                }
+//                    }
+//                log.info("Records were inserted successfully...");
+//                }
+//
+//            // STATUS updates
+//            /*
+//             * Pass WH_ID/PRE_IB_NO/REF_DOC_NO/GR_NO/IB_LINE_NO/ITM_CODE in GRLINE table and
+//             * validate STATUS_ID of the all the filtered line items = 17 , if yes
+//             */
+////            List<StagingLineEntityV2> stagingLineList =
+////                    stagingLineService.getStagingLineForGrConfirmV2(
+////                            createdGRLines.get(0).getCompanyCode(),
+////                            createdGRLines.get(0).getPlantId(),
+////                            createdGRLines.get(0).getLanguageId(),
+////                            createdGRLines.get(0).getWarehouseId(),
+////                            createdGRLines.get(0).getRefDocNumber(),
+////                            createdGRLines.get(0).getPreInboundNo());
+////
+////            Long createdStagingLinesCount = 0L;
+////            Long createdGRLinesStatusId17Count = 0L;
+////
+////            if (stagingLineList != null) {
+////                createdStagingLinesCount = stagingLineList.stream().count();
+////            }
+////            createdGRLinesStatusId17Count = grLineV2Repository.getGrLineStatus17Count(createdGRLines.get(0).getCompanyCode(),
+////                    createdGRLines.get(0).getPlantId(),
+////                    createdGRLines.get(0).getLanguageId(),
+////                    createdGRLines.get(0).getWarehouseId(),
+////                    createdGRLines.get(0).getRefDocNumber(),
+////                    createdGRLines.get(0).getPreInboundNo(), 17L);
+////            log.info("createdGRLinesStatusId17Count: " + createdGRLinesStatusId17Count);
+//
+////            log.info("createdStagingLinesCount, createdGRLinesStatusId17Count: " + createdStagingLinesCount + ", " + createdGRLinesStatusId17Count);
+////            statusDescription = stagingLineV2Repository.getStatusDescription(17L, createdGRLines.get(0).getLanguageId());
+////            grHeaderV2Repository.updateGrheaderStatusUpdateProc(
+////                    createdGRLines.get(0).getCompanyCode(),
+////                    createdGRLines.get(0).getPlantId(),
+////                    createdGRLines.get(0).getLanguageId(),
+////                    createdGRLines.get(0).getWarehouseId(),
+////                    createdGRLines.get(0).getRefDocNumber(),
+////                    createdGRLines.get(0).getPreInboundNo(),
+////                    createdGRLines.get(0).getGoodsReceiptNo(),
+////                    17L,
+////                    statusDescription,
+////                    new Date());
+////            log.info("GrHeader Status 17 Updating Using Stored Procedure when condition met");
+////            for (GrLineV2 grLine : createdGRLines) {
+//                /*
+//                 * 1. Update GRHEADER table with STATUS_ID=17 by Passing WH_ID/GR_NO/CASE_CODE/REF_DOC_NO and
+//                 * GR_CNF_BY with USR_ID and GR_CNF_ON with Server time
+//                 */
+////                if (createdStagingLinesCount.equals(createdGRLinesStatusId17Count)) {
+////                    log.info("Updating GrHeader with StatusId 17 Initiated");
+////                    GrHeaderV2 grHeader = grHeaderService.getGrHeaderV2(
+////                            grLine.getWarehouseId(),
+////                            grLine.getGoodsReceiptNo(),
+////                            grLine.getCaseCode(),
+////                            grLine.getCompanyCode(),
+////                            grLine.getLanguageId(),
+////                            grLine.getPlantId(),
+////                            grLine.getRefDocNumber());
+////                    if(grHeader != null) {
+////                        if (grHeader.getCompanyCode() == null) {
+////                            grHeader.setCompanyCode(grLine.getCompanyCode());
+////                        }
+////                        grHeader.setStatusId(17L);
+////                        statusDescription = stagingLineV2Repository.getStatusDescription(17L, grLine.getLanguageId());
+////                        grHeader.setStatusDescription(statusDescription);
+////                        grHeader.setCreatedBy(loginUserID);
+////                        grHeader.setUpdatedOn(new Date());
+////                        grHeader.setConfirmedOn(new Date());
+////                        grHeader = grHeaderV2Repository.save(grHeader);
+////                        log.info("grHeader updated: " + grHeader);
+////                    }
+////                }
+//                /*
+//                 * '2. 'Pass WH_ID/PRE_IB_NO/REF_DOC_NO/IB_LINE_NO/ITM_CODE/CASECODE in STAGINIGLINE table and
+//                 * update STATUS_ID as 17
+//                 */
+//
+////                log.info("Updating StagingLine and InboundLine with StatusId 17 Initiated");
+////                if (grLine.getAcceptedQty() == null) {
+////                    grLine.setAcceptedQty(0D);
+////                }
+////                if (grLine.getDamageQty() == null) {
+////                    grLine.setDamageQty(0D);
+////                }
+////                stagingLineV2Repository.updateStagingLineUpdateProc(
+////                                grLine.getCompanyCode(),
+////                                grLine.getPlantId(),
+////                                grLine.getLanguageId(),
+////                                grLine.getWarehouseId(),
+////                                grLine.getRefDocNumber(),
+////                                grLine.getPreInboundNo(),
+////                                grLine.getItemCode(),
+////                                grLine.getManufacturerName(),
+////                                grLine.getLineNo(),
+////                                new Date(),
+////                                grLine.getAcceptedQty(),
+////                                grLine.getDamageQty());
+////                log.info("stagingLineEntity updated through Stored Procedure: ");
+////                List<StagingLineEntityV2> stagingLineEntityList =
+////                        stagingLineService.getStagingLineV2(
+////                                grLine.getCompanyCode(),
+////                                grLine.getPlantId(),
+////                                grLine.getLanguageId(),
+////                                grLine.getWarehouseId(),
+////                                grLine.getRefDocNumber(),
+////                                grLine.getPreInboundNo(),
+////                                grLine.getLineNo(),
+////                                grLine.getItemCode(),
+////                                grLine.getCaseCode());
+////                for (StagingLineEntityV2 stagingLineEntity : stagingLineEntityList) {
+////
+////                    //v2 code
+////                    if (stagingLineEntity.getRec_accept_qty() == null) {
+////                        stagingLineEntity.setRec_accept_qty(0D);
+////                    }
+////                    if (grLine.getAcceptedQty() == null) {
+////                        grLine.setAcceptedQty(0D);
+////                    }
+////                    if (stagingLineEntity.getRec_damage_qty() == null) {
+////                        stagingLineEntity.setRec_damage_qty(0D);
+////                    }
+////                    if (grLine.getDamageQty() == null) {
+////                        grLine.setDamageQty(0D);
+////                    }
+////
+////                    Double rec_accept_qty = stagingLineEntity.getRec_accept_qty() + grLine.getAcceptedQty();
+////                    Double rec_damage_qty = stagingLineEntity.getRec_damage_qty() + grLine.getDamageQty();
+////
+////                    stagingLineEntity.setRec_accept_qty(rec_accept_qty);
+////                    stagingLineEntity.setRec_damage_qty(rec_damage_qty);
+////
+////                    if (grLine.getStatusId() == 17L) {
+////                        stagingLineEntity.setStatusId(17L);
+////                        statusDescription = stagingLineV2Repository.getStatusDescription(17L, grLine.getLanguageId());
+////                        stagingLineEntity.setStatusDescription(statusDescription);
+////                    }
+////                    stagingLineEntity = stagingLineV2Repository.save(stagingLineEntity);
+////                    log.info("stagingLineEntity updated: " + stagingLineEntity);
+////                }
+//
+//                /*
+//                 * 3. Then Pass WH_ID/PRE_IB_NO/REF_DOC_NO/IB_LINE_NO/ITM_CODE in INBOUNDLINE table and
+//                 * updated STATUS_ID as 17
+//                 */
+////                if (grLine.getStatusId() == 17L) {
+////                    inboundLineV2Repository.updateInboundLineStatusUpdateProc(
+////                            grLine.getCompanyCode(),
+////                            grLine.getPlantId(),
+////                            grLine.getLanguageId(),
+////                            grLine.getWarehouseId(),
+////                            grLine.getRefDocNumber(),
+////                            grLine.getPreInboundNo(),
+////                            grLine.getItemCode(),
+////                            grLine.getManufacturerName(),
+////                            grLine.getLineNo(),
+////                            17L,
+////                            statusDescription,
+////                            new Date()
+////                    );
+////                    log.info("inboundLine Status updated : ");
+////                    InboundLineV2 inboundLine = inboundLineV2Repository.getInboundLineV2(grLine.getWarehouseId(),
+////                            grLine.getLineNo(),
+////                            grLine.getPreInboundNo(),
+////                            grLine.getItemCode(),
+////                            grLine.getCompanyCode(),
+////                            grLine.getPlantId(),
+////                            grLine.getLanguageId(),
+////                            grLine.getRefDocNumber());
+////                    inboundLine.setStatusId(17L);
+////                    inboundLine.setStatusDescription(statusDescription);
+////                    inboundLine = inboundLineV2Repository.save(inboundLine);
+////                    log.info("inboundLine updated : " + inboundLine);
+////                }
+////            }
+//
+//            //Update GrHeader using stored Procedure
 //            statusDescription = stagingLineV2Repository.getStatusDescription(17L, createdGRLines.get(0).getLanguageId());
 //            grHeaderV2Repository.updateGrheaderStatusUpdateProc(
-//                    createdGRLines.get(0).getCompanyCode(),
-//                    createdGRLines.get(0).getPlantId(),
-//                    createdGRLines.get(0).getLanguageId(),
-//                    createdGRLines.get(0).getWarehouseId(),
-//                    createdGRLines.get(0).getRefDocNumber(),
-//                    createdGRLines.get(0).getPreInboundNo(),
-//                    createdGRLines.get(0).getGoodsReceiptNo(),
-//                    17L,
-//                    statusDescription,
-//                    new Date());
+//                    companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, goodsReceiptNo, 17L, statusDescription, new Date());
 //            log.info("GrHeader Status 17 Updating Using Stored Procedure when condition met");
-//            for (GrLineV2 grLine : createdGRLines) {
-                /*
-                 * 1. Update GRHEADER table with STATUS_ID=17 by Passing WH_ID/GR_NO/CASE_CODE/REF_DOC_NO and
-                 * GR_CNF_BY with USR_ID and GR_CNF_ON with Server time
-                 */
-//                if (createdStagingLinesCount.equals(createdGRLinesStatusId17Count)) {
-//                    log.info("Updating GrHeader with StatusId 17 Initiated");
-//                    GrHeaderV2 grHeader = grHeaderService.getGrHeaderV2(
-//                            grLine.getWarehouseId(),
-//                            grLine.getGoodsReceiptNo(),
-//                            grLine.getCaseCode(),
-//                            grLine.getCompanyCode(),
-//                            grLine.getLanguageId(),
-//                            grLine.getPlantId(),
-//                            grLine.getRefDocNumber());
-//                    if(grHeader != null) {
-//                        if (grHeader.getCompanyCode() == null) {
-//                            grHeader.setCompanyCode(grLine.getCompanyCode());
-//                        }
-//                        grHeader.setStatusId(17L);
-//                        statusDescription = stagingLineV2Repository.getStatusDescription(17L, grLine.getLanguageId());
-//                        grHeader.setStatusDescription(statusDescription);
-//                        grHeader.setCreatedBy(loginUserID);
-//                        grHeader.setUpdatedOn(new Date());
-//                        grHeader.setConfirmedOn(new Date());
-//                        grHeader = grHeaderV2Repository.save(grHeader);
-//                        log.info("grHeader updated: " + grHeader);
-//                    }
-//                }
-                /*
-                 * '2. 'Pass WH_ID/PRE_IB_NO/REF_DOC_NO/IB_LINE_NO/ITM_CODE/CASECODE in STAGINIGLINE table and
-                 * update STATUS_ID as 17
-                 */
-
-//                log.info("Updating StagingLine and InboundLine with StatusId 17 Initiated");
-//                if (grLine.getAcceptedQty() == null) {
-//                    grLine.setAcceptedQty(0D);
-//                }
-//                if (grLine.getDamageQty() == null) {
-//                    grLine.setDamageQty(0D);
-//                }
-//                stagingLineV2Repository.updateStagingLineUpdateProc(
-//                                grLine.getCompanyCode(),
-//                                grLine.getPlantId(),
-//                                grLine.getLanguageId(),
-//                                grLine.getWarehouseId(),
-//                                grLine.getRefDocNumber(),
-//                                grLine.getPreInboundNo(),
-//                                grLine.getItemCode(),
-//                                grLine.getManufacturerName(),
-//                                grLine.getLineNo(),
-//                                new Date(),
-//                                grLine.getAcceptedQty(),
-//                                grLine.getDamageQty());
-//                log.info("stagingLineEntity updated through Stored Procedure: ");
-//                List<StagingLineEntityV2> stagingLineEntityList =
-//                        stagingLineService.getStagingLineV2(
-//                                grLine.getCompanyCode(),
-//                                grLine.getPlantId(),
-//                                grLine.getLanguageId(),
-//                                grLine.getWarehouseId(),
-//                                grLine.getRefDocNumber(),
-//                                grLine.getPreInboundNo(),
-//                                grLine.getLineNo(),
-//                                grLine.getItemCode(),
-//                                grLine.getCaseCode());
-//                for (StagingLineEntityV2 stagingLineEntity : stagingLineEntityList) {
 //
-//                    //v2 code
-//                    if (stagingLineEntity.getRec_accept_qty() == null) {
-//                        stagingLineEntity.setRec_accept_qty(0D);
-//                    }
-//                    if (grLine.getAcceptedQty() == null) {
-//                        grLine.setAcceptedQty(0D);
-//                    }
-//                    if (stagingLineEntity.getRec_damage_qty() == null) {
-//                        stagingLineEntity.setRec_damage_qty(0D);
-//                    }
-//                    if (grLine.getDamageQty() == null) {
-//                        grLine.setDamageQty(0D);
-//                    }
+//            //Update staging Line using stored Procedure
+//            stagingLineV2Repository.updateStagingLineUpdateNewProc(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo,new Date());
+//            log.info("stagingLine Status updated using Stored Procedure ");
 //
-//                    Double rec_accept_qty = stagingLineEntity.getRec_accept_qty() + grLine.getAcceptedQty();
-//                    Double rec_damage_qty = stagingLineEntity.getRec_damage_qty() + grLine.getDamageQty();
+//            //Update InboundLine using Stored Procedure
+//            inboundLineV2Repository.updateInboundLineStatusUpdateNewProc(
+//                    companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo,17L, statusDescription, new Date());
+//            log.info("inboundLine Status updated using Stored Procedure ");
 //
-//                    stagingLineEntity.setRec_accept_qty(rec_accept_qty);
-//                    stagingLineEntity.setRec_damage_qty(rec_damage_qty);
+//            return createdGRLines;
+//        } catch (Exception e) {
+//            //Exception Log
+//            createGrLineLog10(newGrLines, e.toString());
 //
-//                    if (grLine.getStatusId() == 17L) {
-//                        stagingLineEntity.setStatusId(17L);
-//                        statusDescription = stagingLineV2Repository.getStatusDescription(17L, grLine.getLanguageId());
-//                        stagingLineEntity.setStatusDescription(statusDescription);
-//                    }
-//                    stagingLineEntity = stagingLineV2Repository.save(stagingLineEntity);
-//                    log.info("stagingLineEntity updated: " + stagingLineEntity);
-//                }
-
-                /*
-                 * 3. Then Pass WH_ID/PRE_IB_NO/REF_DOC_NO/IB_LINE_NO/ITM_CODE in INBOUNDLINE table and
-                 * updated STATUS_ID as 17
-                 */
-//                if (grLine.getStatusId() == 17L) {
-//                    inboundLineV2Repository.updateInboundLineStatusUpdateProc(
-//                            grLine.getCompanyCode(),
-//                            grLine.getPlantId(),
-//                            grLine.getLanguageId(),
-//                            grLine.getWarehouseId(),
-//                            grLine.getRefDocNumber(),
-//                            grLine.getPreInboundNo(),
-//                            grLine.getItemCode(),
-//                            grLine.getManufacturerName(),
-//                            grLine.getLineNo(),
-//                            17L,
-//                            statusDescription,
-//                            new Date()
-//                    );
-//                    log.info("inboundLine Status updated : ");
-//                    InboundLineV2 inboundLine = inboundLineV2Repository.getInboundLineV2(grLine.getWarehouseId(),
-//                            grLine.getLineNo(),
-//                            grLine.getPreInboundNo(),
-//                            grLine.getItemCode(),
-//                            grLine.getCompanyCode(),
-//                            grLine.getPlantId(),
-//                            grLine.getLanguageId(),
-//                            grLine.getRefDocNumber());
-//                    inboundLine.setStatusId(17L);
-//                    inboundLine.setStatusDescription(statusDescription);
-//                    inboundLine = inboundLineV2Repository.save(inboundLine);
-//                    log.info("inboundLine updated : " + inboundLine);
+//            e.printStackTrace();
+//            throw e;
 //                }
 //            }
-
-            //Update GrHeader using stored Procedure
-            statusDescription = stagingLineV2Repository.getStatusDescription(17L, createdGRLines.get(0).getLanguageId());
-            grHeaderV2Repository.updateGrheaderStatusUpdateProc(
-                    companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, goodsReceiptNo, 17L, statusDescription, new Date());
-            log.info("GrHeader Status 17 Updating Using Stored Procedure when condition met");
-
-            //Update staging Line using stored Procedure
-            stagingLineV2Repository.updateStagingLineUpdateNewProc(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo,new Date());
-            log.info("stagingLine Status updated using Stored Procedure ");
-
-            //Update InboundLine using Stored Procedure
-            inboundLineV2Repository.updateInboundLineStatusUpdateNewProc(
-                    companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo,17L, statusDescription, new Date());
-            log.info("inboundLine Status updated using Stored Procedure ");
-
-            return createdGRLines;
-        } catch (Exception e) {
-            //Exception Log
-            createGrLineLog10(newGrLines, e.toString());
-
-            e.printStackTrace();
-            throw e;
-        }
-    }
 
 
     /**

@@ -1,9 +1,26 @@
 package com.tekclover.wms.api.transaction.service;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.ParseException;
+import org.springframework.stereotype.Service;
+
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
-import com.tekclover.wms.api.transaction.model.dto.*;
+import com.tekclover.wms.api.transaction.model.dto.ImBasicData;
+import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
+import com.tekclover.wms.api.transaction.model.dto.ImPartner;
+import com.tekclover.wms.api.transaction.model.dto.StatusId;
+import com.tekclover.wms.api.transaction.model.dto.Warehouse;
 import com.tekclover.wms.api.transaction.model.errorlog.ErrorLog;
 import com.tekclover.wms.api.transaction.model.inbound.InboundLine;
 import com.tekclover.wms.api.transaction.model.inbound.UpdateInboundLine;
@@ -17,28 +34,29 @@ import com.tekclover.wms.api.transaction.model.inbound.preinbound.PreInboundLine
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.v2.PreInboundLineEntityV2;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.PutAwayHeaderV2;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.PutAwayLineV2;
-import com.tekclover.wms.api.transaction.model.inbound.staging.*;
+import com.tekclover.wms.api.transaction.model.inbound.staging.AddStagingLine;
+import com.tekclover.wms.api.transaction.model.inbound.staging.AssignHHTUser;
+import com.tekclover.wms.api.transaction.model.inbound.staging.CaseConfirmation;
+import com.tekclover.wms.api.transaction.model.inbound.staging.SearchStagingLine;
+import com.tekclover.wms.api.transaction.model.inbound.staging.StagingHeader;
+import com.tekclover.wms.api.transaction.model.inbound.staging.StagingLine;
+import com.tekclover.wms.api.transaction.model.inbound.staging.StagingLineEntity;
+import com.tekclover.wms.api.transaction.model.inbound.staging.UpdateStagingHeader;
+import com.tekclover.wms.api.transaction.model.inbound.staging.UpdateStagingLine;
 import com.tekclover.wms.api.transaction.model.inbound.staging.v2.SearchStagingLineV2;
 import com.tekclover.wms.api.transaction.model.inbound.staging.v2.StagingHeaderV2;
 import com.tekclover.wms.api.transaction.model.inbound.staging.v2.StagingLineEntityV2;
 import com.tekclover.wms.api.transaction.model.inbound.v2.InboundLineV2;
-import com.tekclover.wms.api.transaction.repository.*;
+import com.tekclover.wms.api.transaction.repository.ErrorLogRepository;
+import com.tekclover.wms.api.transaction.repository.GrHeaderV2Repository;
+import com.tekclover.wms.api.transaction.repository.PreInboundLineRepository;
+import com.tekclover.wms.api.transaction.repository.PreInboundLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.StagingLineRepository;
+import com.tekclover.wms.api.transaction.repository.StagingLineV2Repository;
 import com.tekclover.wms.api.transaction.repository.specification.StagingLineSpecification;
 import com.tekclover.wms.api.transaction.repository.specification.StagingLineV2Specification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.expression.ParseException;
-import org.springframework.stereotype.Service;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -1044,14 +1062,13 @@ public class StagingLineService extends BaseService {
      * @param languageId
      * @param loginUserID
      * @return
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
+     * @throws Exception 
      */
     public List<StagingLineEntityV2> createStagingLineV2(List<PreInboundLineEntityV2> inputPreInboundLines,
                                                          String stagingNo, String warehouseId,
                                                          String companyCodeId, String plantId, String languageId,
                                                          String loginUserID)
-            throws IllegalAccessException, InvocationTargetException, java.text.ParseException {
+            throws Exception {
         List<StagingLineEntityV2> stagingLineEntityList = new ArrayList<>();
         String preInboundNo = null;
         String refDocNumber = null;
@@ -1773,13 +1790,12 @@ public class StagingLineService extends BaseService {
      * @param caseCode
      * @param loginUserID
      * @return
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
+     * @throws Exception 
      */
     public List<StagingLineEntityV2> caseConfirmationV2(List<CaseConfirmation> caseConfirmations,
                                                         String caseCode, String companyCodeId, String plantId,
                                                         String languageId, String loginUserID)
-            throws IllegalAccessException, InvocationTargetException, java.text.ParseException {
+            throws Exception {
 
         log.info("caseConfirmation--called----> : " + caseConfirmations);
 
@@ -1934,8 +1950,9 @@ public class StagingLineService extends BaseService {
 
     /**
      * @param grHeader
+     * @throws Exception 
      */
-    public void createGrLine(GrHeaderV2 grHeader) throws InvocationTargetException, IllegalAccessException, java.text.ParseException {
+    public void createGrLine(GrHeaderV2 grHeader) throws Exception {
 
         List<StagingLineEntityV2> stagingLineEntityList = getStagingLineForGrLine(grHeader.getCompanyCode(),
                 grHeader.getPlantId(), grHeader.getLanguageId(), grHeader.getWarehouseId(),

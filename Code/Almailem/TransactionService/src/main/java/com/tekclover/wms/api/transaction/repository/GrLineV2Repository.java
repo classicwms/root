@@ -1,19 +1,21 @@
 package com.tekclover.wms.api.transaction.repository;
 
-import com.tekclover.wms.api.transaction.model.impl.GrLineImpl;
-import com.tekclover.wms.api.transaction.model.inbound.gr.v2.GrLineV2;
-import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import com.tekclover.wms.api.transaction.model.impl.GrLineImpl;
+import com.tekclover.wms.api.transaction.model.inbound.gr.v2.GrLineV2;
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 
 @Repository
 @Transactional
@@ -280,4 +282,19 @@ public interface GrLineV2Repository extends JpaRepository<GrLineV2, Long>, JpaSp
             @Param("updatedBy") String updatedBy,
             @Param("updatedOn") Date updatedOn
     );
+    
+    GrLineV2 findTopByIsPutAwayHeaderCreatedAndDeletionIndicatorOrderByCreatedOn(Long isPutAwayHeaderCreated, Long deletionIndicator);
+    
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("Update GrLineV2 ob SET ob.isPutAwayHeaderCreated = :isPutAwayHeaderCreated \r\n "
+            + " WHERE ob.companyCode = :companyCode AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND ob.createdOn = :createdOn AND ob.preInboundNo = :preInboundNo AND ob.lineNo = :lineNo AND ob.itemCode = :itemCode")
+    public void updateGrLineStatusV2(@Param("companyCode") String companyCode,
+                                     @Param("plantId") String plantId,
+                                     @Param("languageId") String languageId,
+                                     @Param("warehouseId") String warehouseId,
+                                     @Param("preInboundNo") String preInboundNo,
+                                     @Param("createdOn") Date createdOn,
+                                     @Param("lineNo") Long lineNo,
+                                     @Param("itemCode") String itemCode,
+                                     @Param("isPutAwayHeaderCreated") Long isPutAwayHeaderCreated);
 }

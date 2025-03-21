@@ -123,9 +123,6 @@ public interface PutAwayLineV2Repository extends JpaRepository<PutAwayLineV2, Lo
     List<PutAwayLineV2> findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndItemCodeAndManufacturerNameAndLineNoAndStatusIdAndPackBarcodesAndDeletionIndicator(
             String languageId, String companyCode, String plantId, String warehouseId, String refDocNumber,
             String preInboundNo, String itemCode, String manufacturerName, Long lineNumber, Long statusId, String packBarcodes, Long deletionIndicator);
-    List<PutAwayLineV2> findByCompanyCodeAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndItemCodeAndManufacturerNameAndLineNoAndStatusIdAndDeletionIndicator(
-            String companyCode, String languageId, String plantId, String warehouseId, String refDocNumber, String preInboundNo,
-            String itemCode, String manufacturerName, Long lineNumber, Long statusId, Long deletionIndicator);
 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE PutAwayLineV2 ib SET ib.statusId = :statusId, ib.statusDescription = :statusDescription \n" +
@@ -191,4 +188,8 @@ public interface PutAwayLineV2Repository extends JpaRepository<PutAwayLineV2, Lo
 PutAwayLineV2 findTopByCompanyCodeAndPlantIdAndWarehouseIdAndLanguageIdAndItemCodeAndManufacturerNameAndStatusIdAndDeletionIndicatorOrderByCreatedOn(
             String companyCodeId, String plantId, String warehouseId, String languageId,
             String itemCode, String manufacturerName, Long statusId, Long deletionIndicator);
+
+List<PutAwayLineV2> findByCompanyCodeAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndItemCodeAndManufacturerNameAndLineNoAndStatusIdInAndDeletionIndicator(
+		String companyCode, String languageId, String plantId, String warehouseId, String refDocNumber,
+		String preInboundNo, String itemCode, String manufacturerName, Long lineNumber, Long[] statusIds, long l);
 }

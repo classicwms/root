@@ -2313,7 +2313,7 @@ public class InventoryService extends BaseService {
             BeanUtils.copyProperties(updateInventory, newInventory, CommonUtils.getNullPropertyNames(updateInventory));
             newInventory.setUpdatedBy(loginUserID);
             newInventory.setUpdatedOn(new Date());
-            newInventory.setInventoryId(System.currentTimeMillis());
+            newInventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 9));
             return inventoryV2Repository.save(newInventory);
         }
         return null;
@@ -2358,7 +2358,7 @@ public class InventoryService extends BaseService {
         InventoryV2 dbInventory = new InventoryV2();
         log.info("newInventory : " + newInventory);
         BeanUtils.copyProperties(newInventory, dbInventory, CommonUtils.getNullPropertyNames(newInventory));
-        dbInventory.setInventoryId(System.currentTimeMillis());
+        dbInventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 9));
         dbInventory.setDeletionIndicator(0L);
         dbInventory.setCreatedBy(loginUserID);
         dbInventory.setCreatedOn(new Date());

@@ -7,10 +7,6 @@ import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.transaction.model.dto.*;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.IInventoryImpl;
-import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickupLineV2;
-import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.SearchPickupLineV2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,11 +21,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tekclover.wms.api.transaction.model.dto.ImPartner;
+import com.tekclover.wms.api.transaction.model.dto.UpdateBarcodeInput;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.IInventoryImpl;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.AddPickupLine;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupLine;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.SearchPickupLine;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.UpdatePickupLine;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickupLineV2;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.SearchPickupLineV2;
 import com.tekclover.wms.api.transaction.service.PickupLineService;
 
 import io.swagger.annotations.Api;
@@ -162,7 +163,7 @@ public class PickupLineController {
     @ApiOperation(response = PickupLineV2.class, value = "Create PickupLine") // label for swagger
     @PostMapping("/v2")
     public ResponseEntity<?> postPickupLineV2(@Valid @RequestBody List<AddPickupLine> newPickupLine, @RequestParam String loginUserID)
-            throws IllegalAccessException, InvocationTargetException, ParseException {
+            throws Exception {
 //        List<PickupLineV2> createdPickupLine = pickuplineService.createPickupLineV2(newPickupLine, loginUserID);
         List<PickupLineV2> createdPickupLine = pickuplineService.createPickupLineNonCBMV2(newPickupLine, loginUserID);
         return new ResponseEntity<>(createdPickupLine, HttpStatus.OK);

@@ -1,17 +1,19 @@
 package com.tekclover.wms.api.transaction.repository;
 
-import com.tekclover.wms.api.transaction.model.impl.StockMovementReportImpl;
-import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickupLineV2;
-import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
+import java.util.Date;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
+import com.tekclover.wms.api.transaction.model.impl.StockMovementReportImpl;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickupLineV2;
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 
 @Repository
 @Transactional
@@ -200,4 +202,24 @@ public interface PickupLineV2Repository extends JpaRepository<PickupLineV2, Long
 
     PickupLineV2 findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndManufacturerNameAndDeletionIndicatorAndPickedStorageBinNotOrderByPickupConfirmedOnDesc(
             String companyCodeId, String plantId, String languageId, String warehouseId, String itemCode, String manufacturerName, Long deletionIndicator, String storageBin);
+
+    PickupLineV2 findTopByIsPickupLineCreatedAndDeletionIndicatorOrderByPickupCreatedOn(Long isPickupLineCreated, Long deletionIndicator);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("Update PickupLineV2 ob SET ob.isPickupLineCreated = :isPickupLineCreated \r\n "
+            + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND \r\n"
+            + " ob.pickupNumber = :pickupNumber AND ob.preOutboundNo = :preOutboundNo AND ob.lineNumber = :lineNumber AND ob.itemCode = :itemCode AND \r\n"
+            + " ob.actualHeNo = :actualHeNo AND ob.pickedStorageBin = :pickedStorageBin AND ob.pickedPackCode = :pickedPackCode")
+    public void updatePickupLineStatusV2(@Param("companyCodeId") String companyCodeId,
+                                         @Param("plantId") String plantId,
+                                         @Param("languageId") String languageId,
+                                         @Param("warehouseId") String warehouseId,
+                                         @Param("preOutboundNo") String preOutboundNo,
+                                         @Param("pickupNumber") String pickupNumber,
+                                         @Param("lineNumber") Long lineNumber,
+                                         @Param("itemCode") String itemCode,
+                                         @Param("actualHeNo") String actualHeNo,
+                                         @Param("pickedStorageBin") String pickedStorageBin,
+                                         @Param("pickedPackCode") String pickedPackCode,
+                                         @Param("isPickupLineCreated") Long isPickupLineCreated);
 }
