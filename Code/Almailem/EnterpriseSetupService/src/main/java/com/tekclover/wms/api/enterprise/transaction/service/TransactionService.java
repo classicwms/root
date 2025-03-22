@@ -276,7 +276,7 @@ public class TransactionService extends BaseService {
                 throw new RuntimeException(e);
             }
         });
-
+        List<OutboundIntegrationHeaderV2> outboundAutoLabList = new ArrayList<>();
             for (OutboundOrderV2 dbOBOrder : sqlOutboundList) {
                 log.info("OB Process Initiated : " + dbOBOrder.getOrderId());
                 OutboundIntegrationHeaderV2 outboundIntegrationHeader = new OutboundIntegrationHeaderV2();
@@ -338,7 +338,7 @@ public class TransactionService extends BaseService {
                     outboundIntegrationLineList.add(outboundIntegrationLine);
                 }
                 outboundIntegrationHeader.setOutboundIntegrationLines(outboundIntegrationLineList);
-                outboundList.add(outboundIntegrationHeader);
+                outboundAutoLabList.add(outboundIntegrationHeader);
             }
 //        spOutboundList = new CopyOnWriteArrayList<OutboundIntegrationHeaderV2>(outboundList);
 //        log.info("There is no record found to process (sql) ...Waiting..");
@@ -346,15 +346,15 @@ public class TransactionService extends BaseService {
 
 //        if(outboundList !=null)
 //    {
-            log.info("Latest OutboundOrder found: " + outboundList);
-        for (OutboundIntegrationHeaderV2 outbound : outboundList) {
+            log.info("Latest OutboundOrder found: " + outboundAutoLabList);
+        for (OutboundIntegrationHeaderV2 outbound : outboundAutoLabList) {
                 try {
                     log.info("OutboundOrder ID : " + outbound.getRefDocumentNo());
                     OutboundHeaderV2 outboundHeader = preOutboundHeaderService.processOutboundReceivedV2(outbound);
                     if (outboundHeader != null) {
                         // Updating the Processed Status
                         orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID(),  10L);
-                        outboundList.remove(outbound);
+                        outboundAutoLabList.remove(outbound);
                         warehouseApiResponse.setStatusCode("200");
                         warehouseApiResponse.setMessage("Success");
                     }
@@ -401,9 +401,9 @@ public class TransactionService extends BaseService {
 
                         try {
                             preOutboundHeaderService.createOutboundIntegrationLogV2(outbound, e.toString());
-                            outboundList.remove(outbound);
+                            outboundAutoLabList.remove(outbound);
                         } catch (Exception ex) {
-                            outboundList.remove(outbound);
+                            outboundAutoLabList.remove(outbound);
                             throw new RuntimeException(ex);
                         }
                         warehouseApiResponse.setStatusCode("1400");
@@ -445,9 +445,9 @@ public class TransactionService extends BaseService {
 
                     try {
                         preOutboundHeaderService.createOutboundIntegrationLogV2(outbound, e.toString());
-                        outboundList.remove(outbound);
+                        outboundAutoLabList.remove(outbound);
                     } catch (Exception ex) {
-                        outboundList.remove(outbound);
+                        outboundAutoLabList.remove(outbound);
                         throw new RuntimeException(ex);
                     }
                     warehouseApiResponse.setStatusCode("1400");
