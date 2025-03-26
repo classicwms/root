@@ -1562,6 +1562,26 @@ public class GrLineService extends BaseService {
    
     /**
      * 
+    * @return
+    */
+   public List<GrLineV2> getGrLineV2List() {
+       List<GrLineV2> grLineList = grLineV2Repository.findByIsPutAwayHeaderCreatedAndDeletionIndicatorOrderByCreatedOn(0L, 0L);
+       log.info("GRLine for putaway header with 0 falg : " + grLineList);
+       if (grLineList == null) {
+    	   return null;
+       }
+       for (GrLineV2 grLine : grLineList) {
+    	   if (grLine != null) {
+               grLineV2Repository.updateGrLineStatusV2(grLine.getCompanyCode(), grLine.getPlantId(), grLine.getLanguageId(), grLine.getWarehouseId(), grLine.getPreInboundNo(),
+                       grLine.getCreatedOn(), grLine.getLineNo(), grLine.getItemCode(), 1L);
+           }
+       }
+      
+       return grLineList;
+   }
+   
+    /**
+     * 
      * @param newGrLines
      * @param loginUserID
      * @return
@@ -1776,10 +1796,13 @@ public class GrLineService extends BaseService {
 	/**
 	 * 
 	 */
-    @Scheduled(fixedDelay = 30000)
+    @Scheduled(fixedDelay = 15000)
     private void schedulePostGRLineProcessV2() {
         log.info("Create PutawayHeader Schedule Initiated : " + new Date());
-        GrLineV2 createdGRLine = getGrLineV2();
+//        GrLineV2 createdGRLine = getGrLineV2();
+        List<GrLineV2> createdGRLines = getGrLineV2List ();
+        if (createdGRLines != null) {
+        	createdGRLines.stream().forEach(createdGRLine -> {
         if (createdGRLine != null) {
             String companyCode = createdGRLine.getCompanyCode();
             String plantId = createdGRLine.getPlantId();
@@ -1808,6 +1831,8 @@ public class GrLineService extends BaseService {
 						getInboundOrderTypeTable(inboundOrderTypeId), e.toString());
                         }
                     }
+        	});       	
+        }
                 }
 
     /**

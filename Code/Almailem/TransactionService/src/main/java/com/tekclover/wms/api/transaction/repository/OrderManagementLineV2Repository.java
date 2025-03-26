@@ -1,7 +1,8 @@
 package com.tekclover.wms.api.transaction.repository;
 
-import com.tekclover.wms.api.transaction.model.outbound.ordermangement.v2.OrderManagementLineV2;
-import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
+import java.util.Date;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -11,8 +12,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
+import com.tekclover.wms.api.transaction.model.outbound.ordermangement.v2.OrderManagementLineV2;
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 
 @Repository
 @Transactional
@@ -74,7 +75,7 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
     @Modifying(clearAutomatically = true)
     @Query("UPDATE OrderManagementLineV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription \n" +
             "WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId \n" +
-            "AND ob.refDocNumber = :refDocNumber AND ob.preOutboundNo = :preOutboundNo")
+            "AND ob.refDocNumber = :refDocNumber AND ob.preOutboundNo = :preOutboundNo AND ob.statusId <> 47")
     void updateOrderManagementLineStatus(@Param("companyCodeId") String companyCodeId,
                                          @Param("plantId") String plantId,
                                          @Param("languageId") String languageId,

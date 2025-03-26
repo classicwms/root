@@ -284,6 +284,7 @@ public interface GrLineV2Repository extends JpaRepository<GrLineV2, Long>, JpaSp
     );
     
     GrLineV2 findTopByIsPutAwayHeaderCreatedAndDeletionIndicatorOrderByCreatedOn(Long isPutAwayHeaderCreated, Long deletionIndicator);
+    List<GrLineV2> findByIsPutAwayHeaderCreatedAndDeletionIndicatorOrderByCreatedOn(Long isPutAwayHeaderCreated, Long deletionIndicator);
     
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("Update GrLineV2 ob SET ob.isPutAwayHeaderCreated = :isPutAwayHeaderCreated \r\n "

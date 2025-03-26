@@ -1,17 +1,50 @@
 package com.tekclover.wms.api.enterprise.transaction.service;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.persistence.EntityNotFoundException;
+import javax.validation.Valid;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.ParseException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.google.firebase.messaging.FirebaseMessagingException;
-import com.tekclover.wms.api.enterprise.transaction.config.PropertiesConfig;
 import com.tekclover.wms.api.enterprise.controller.exception.BadRequestException;
+import com.tekclover.wms.api.enterprise.transaction.config.PropertiesConfig;
 import com.tekclover.wms.api.enterprise.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.enterprise.transaction.model.auth.AuthToken;
-import com.tekclover.wms.api.enterprise.transaction.model.dto.*;
+import com.tekclover.wms.api.enterprise.transaction.model.dto.IInventory;
+import com.tekclover.wms.api.enterprise.transaction.model.dto.ImBasicData;
+import com.tekclover.wms.api.enterprise.transaction.model.dto.ImBasicData1;
+import com.tekclover.wms.api.enterprise.transaction.model.dto.StatusId;
+import com.tekclover.wms.api.enterprise.transaction.model.dto.StorageBin;
+import com.tekclover.wms.api.enterprise.transaction.model.dto.StorageBinV2;
 import com.tekclover.wms.api.enterprise.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.enterprise.transaction.model.inbound.inventory.v2.IInventoryImpl;
 import com.tekclover.wms.api.enterprise.transaction.model.inbound.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.OutboundHeader;
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.OutboundLine;
-import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.*;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.AddOrderManagementLine;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.AssignPicker;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.OrderManagementHeader;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.OrderManagementLine;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.SearchOrderManagementLine;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.UpdateOrderManagementLine;
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.v2.AssignPickerV2;
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.v2.OrderManagementHeaderV2;
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.v2.OrderManagementLineV2;
@@ -21,26 +54,28 @@ import com.tekclover.wms.api.enterprise.transaction.model.outbound.pickup.v2.Pic
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.v2.OutboundIntegrationHeaderV2;
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.v2.OutboundHeaderV2;
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.v2.OutboundLineV2;
-import com.tekclover.wms.api.enterprise.transaction.repository.*;
+import com.tekclover.wms.api.enterprise.transaction.repository.ImBasicData1Repository;
+import com.tekclover.wms.api.enterprise.transaction.repository.InventoryRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.InventoryTransRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.InventoryV2Repository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OrderManagementHeaderRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OrderManagementHeaderV2Repository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OrderManagementLineRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OrderManagementLineV2Repository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OutboundHeaderRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OutboundHeaderV2Repository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OutboundLineRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OutboundLineV2Repository;
+import com.tekclover.wms.api.enterprise.transaction.repository.PickupHeaderRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.PickupHeaderV2Repository;
+import com.tekclover.wms.api.enterprise.transaction.repository.StagingLineV2Repository;
 import com.tekclover.wms.api.enterprise.transaction.repository.specification.OrderManagementLineSpecification;
 import com.tekclover.wms.api.enterprise.transaction.repository.specification.OrderManagementLineV2Specification;
 import com.tekclover.wms.api.enterprise.transaction.util.CommonUtils;
 import com.tekclover.wms.api.enterprise.transaction.util.DateUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.expression.ParseException;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import com.tekclover.wms.api.transaction.model.trans.InventoryTrans;
 
-import javax.persistence.EntityNotFoundException;
-import javax.validation.Valid;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -113,6 +148,10 @@ public class OrderManagementLineService extends BaseService {
 
     @Autowired
     PropertiesConfig propertiesConfig;
+    
+    // Inventory Prod Issue Fix
+ 	@Autowired
+ 	private InventoryTransRepository inventoryTransRepository;
 
     String statusDescription = null;
     //------------------------------------------------------------------------------------------------------
@@ -2606,7 +2645,7 @@ public class OrderManagementLineService extends BaseService {
 
                             //V2 Code
                             IKeyValuePair description = stagingLineV2Repository.getDescription(orderManagementLine.getCompanyCodeId(),
-                        orderManagementLine.getLanguageId(),
+                            		orderManagementLine.getLanguageId(),
                                     orderManagementLine.getPlantId(),
                                     orderManagementLine.getWarehouseId());
 
@@ -2664,20 +2703,39 @@ public class OrderManagementLineService extends BaseService {
                                 inventoryForUpdate.setInventoryQuantity(inventoryQty);
                                 inventoryForUpdate.setAllocatedQuantity(allocatedQty);
                                 inventoryForUpdate.setReferenceField4(inventoryQty + allocatedQty);
-                                // Create new Inventory Record
-                                InventoryV2 inventoryV2 = new InventoryV2();
-                                BeanUtils.copyProperties(inventoryForUpdate, inventoryV2, CommonUtils.getNullPropertyNames(inventoryForUpdate));
-                                inventoryV2.setUpdatedOn(new Date());
-                                inventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 2));
-                                inventoryV2 = inventoryV2Repository.save(inventoryV2);
-                                log.info("-----Inventory2 updated-------: " + inventoryV2);
+                                
+                                try {
+									// Create new Inventory Record
+									InventoryV2 inventoryV2 = new InventoryV2();
+									BeanUtils.copyProperties(inventoryForUpdate, inventoryV2, CommonUtils.getNullPropertyNames(inventoryForUpdate));
+									inventoryV2.setUpdatedOn(new Date());
+									inventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 2));
+									inventoryV2 = inventoryV2Repository.save(inventoryV2);
+									log.info("-----Inventory2 updated-------: " + inventoryV2);
+								} catch (Exception e) {
+									log.error("--ERROR--OrderProcessing--inventory--error--1--> :" + e.toString());
+									e.printStackTrace();
+									
+									// Inventory Error Handling
+									InventoryTrans newInventoryTrans = new InventoryTrans();
+									BeanUtils.copyProperties(inventoryForUpdate, newInventoryTrans, CommonUtils.getNullPropertyNames(inventoryForUpdate));
+									
+									newInventoryTrans.setWarehouseId(inventoryForUpdate.getWarehouseId());	
+									newInventoryTrans.setPackBarcodes(inventoryForUpdate.getPackBarcodes());
+									newInventoryTrans.setItemCode(inventoryForUpdate.getItemCode());	
+									newInventoryTrans.setStorageBin(inventoryForUpdate.getStorageBin());			
+									newInventoryTrans.setInventoryQuantity(inventoryQty);
+									newInventoryTrans.setAllocatedQuantity(allocatedQty);
+									newInventoryTrans.setReRun(0L);	
+									InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+									log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
+								}
                             }
 
                             if (ORD_QTY == ALLOC_QTY) {
                                 log.info("ORD_QTY fully allocated: " + ORD_QTY);
                                 break outerloop1; // If the Inventory satisfied the Ord_qty
                             }
-//                        }
                     }
                     log.info("newOrderManagementLine updated ---#--->" + newOrderManagementLine);
                     return newOrderManagementLine;
@@ -2901,19 +2959,37 @@ public class OrderManagementLineService extends BaseService {
                     if (inventoryQty < 0) {
                         inventoryQty = 0;
                     }
+                    
                     // End
                     inventoryForUpdate.setInventoryQuantity(inventoryQty);
                     inventoryForUpdate.setAllocatedQuantity(allocatedQty);
                     inventoryForUpdate.setReferenceField4(inventoryQty + allocatedQty);
-//                    inventoryForUpdate = inventoryV2Repository.save(inventoryForUpdate);
-//                    log.info("inventoryForUpdate updated: " + inventoryForUpdate);
                     // Create new Inventory Record
-                    InventoryV2 inventoryV2 = new InventoryV2();
-                    BeanUtils.copyProperties(inventoryForUpdate, inventoryV2, CommonUtils.getNullPropertyNames(inventoryForUpdate));
-                    inventoryV2.setUpdatedOn(new Date());
-                    inventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 2));
-                    inventoryV2 = inventoryV2Repository.save(inventoryV2);
-                    log.info("-----Inventory2 updated-------: " + inventoryV2);
+                    try {
+						InventoryV2 inventoryV2 = new InventoryV2();
+						BeanUtils.copyProperties(inventoryForUpdate, inventoryV2, CommonUtils.getNullPropertyNames(inventoryForUpdate));
+						inventoryV2.setUpdatedOn(new Date());
+						inventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 2));
+						inventoryV2 = inventoryV2Repository.save(inventoryV2);
+						log.info("-----Inventory2 updated-------: " + inventoryV2);
+					} catch (Exception e) {
+						log.error("--ERROR--OrderProcessing--inventory--error----> :" + e.toString());
+						e.printStackTrace();
+						
+						// Inventory Error Handling
+						InventoryTrans newInventoryTrans = new InventoryTrans();
+						BeanUtils.copyProperties(inventoryForUpdate, newInventoryTrans, CommonUtils.getNullPropertyNames(inventoryForUpdate));
+						
+						newInventoryTrans.setWarehouseId(inventoryForUpdate.getWarehouseId());	
+						newInventoryTrans.setPackBarcodes(inventoryForUpdate.getPackBarcodes());
+						newInventoryTrans.setItemCode(inventoryForUpdate.getItemCode());	
+						newInventoryTrans.setStorageBin(inventoryForUpdate.getStorageBin());			
+						newInventoryTrans.setInventoryQuantity(inventoryQty);
+						newInventoryTrans.setAllocatedQuantity(allocatedQty);
+						newInventoryTrans.setReRun(0L);	
+						InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+						log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
+					}
                 }
 
                 if (ORD_QTY == ALLOC_QTY) {
@@ -2925,6 +3001,24 @@ public class OrderManagementLineService extends BaseService {
         log.info("newOrderManagementLine updated ---#--->" + newOrderManagementLine);
         return newOrderManagementLine;
     }
+    
+    /**
+     * 
+     */
+	@Scheduled(fixedDelayString = "PT1M", initialDelayString = "PT2M")
+	private void updateErroredOutInventory () {
+		List<InventoryTrans> inventoryTransList = inventoryTransRepository.findByReRun(0L);
+		inventoryTransList.stream().forEach( it -> {
+			log.info("----updateErroredOutInventory-->: " + it);
+			inventoryV2Repository.updateInventory(it.getWarehouseId(),
+					it.getPackBarcodes(), it.getItemCode(),
+					it.getStorageBin(), it.getInventoryQuantity(), it.getAllocatedQuantity());
+			it.setReRun(1L);
+			inventoryTransRepository.save(it);		
+			log.info("----updateInventoryTrans-is-done-->: " + it);
+		});
+	}
+	
     /**
      * @param orderManagementLine
      * @return
