@@ -8546,7 +8546,7 @@ public class TransactionService {
         }
     }
     // PATCH - Partial Confirm - with InboundLines input
-    public AXApiResponse updateInboundHeaderWithIbLinePartialConfirmV2(List<InboundLineV2> inboundLineList, String companyCode, String plantId,
+    public String updateInboundHeaderWithIbLinePartialConfirmV2(List<InboundLineV2> inboundLineList, String companyCode, String plantId,
                                                                        String languageId, String warehouseId, String preInboundNo, String refDocNumber,
                                                                        String loginUserID, String authToken) {
         try {
@@ -8568,8 +8568,8 @@ public class TransactionService {
                     .queryParam("preInboundNo", preInboundNo)
                     .queryParam("refDocNumber", refDocNumber)
                     .queryParam("loginUserID", loginUserID);
-            ResponseEntity<AXApiResponse> result = restTemplate.exchange(builder.toUriString(), HttpMethod.POST, entity,
-                    AXApiResponse.class);
+            ResponseEntity<String> result = restTemplate.exchange(builder.toUriString(), HttpMethod.POST, entity,
+                    String.class);
             log.info("result : " + result.getStatusCode());
             return result.getBody();
         } catch (Exception e) {
