@@ -211,7 +211,6 @@ public class InboundHeaderService extends BaseService {
   	private InventoryTransRepository inventoryTransRepository;
   	
     String statusDescription = null;
-    long inventoryErrorCount = 0;
     //----------------------------------------------------------------------------------------------
 
     /**
@@ -1540,7 +1539,7 @@ public class InboundHeaderService extends BaseService {
                     if (putAwayLineList != null) {
                         for(PutAwayLineV2 putAwayLine : putAwayLineList) {
                             InventoryV2 createdInventory = createInventoryV2(putAwayLine, grLine.getQuantityType());
-                            createInventoryMovementV2(putAwayLine);
+//                            createInventoryMovementV2(putAwayLine);
                             log.info("All Inbound Line --> Inventory Created Successfully");
                         }
                     }
@@ -1598,30 +1597,33 @@ public class InboundHeaderService extends BaseService {
         try {
             log.info("DSR--->Partial Confirmation Process Initiated Order Number -----> " + refDocNumber);
         // PutawayHeader Validation
-			long putAwayHeaderStatusIdCount = putAwayHeaderService.getPutawayHeaderByStatusIdV2(companyCode, plantId,
-					warehouseId, preInboundNo, refDocNumber);
+        long putAwayHeaderStatusIdCount = putAwayHeaderService.getPutawayHeaderByStatusIdV2(companyCode, plantId, warehouseId, preInboundNo, refDocNumber);
         log.info("PutAwayHeader status----> : " + putAwayHeaderStatusIdCount);
 
         if (putAwayHeaderStatusIdCount != 0) {
-				throw new BadRequestException(
-						"Error on Inbound Confirmation: PutAwayHeader are NOT processed completely ---> OrderNumber: "
-								+ refDocNumber);
+            throw new BadRequestException("Error on Inbound Confirmation: PutAwayHeader are NOT processed completely ---> OrderNumber: "  + refDocNumber);
         }
 
         AXApiResponse axapiResponse = new AXApiResponse();
-			List<InboundLineV2> inboundLineList = inboundLineService.getInboundLineForInboundConfirmPartialAllocationV2(
-					companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
+
+        List<InboundLineV2> inboundLineList = inboundLineService.getInboundLineForInboundConfirmPartialAllocationV2(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
 
         if (inboundLineList != null) {
             for (InboundLineV2 inboundLine : inboundLineList) {
-					List<GrLineV2> grLineList = grLineService.getGrLineForInboundConformV2(companyCode, plantId,
-							languageId, warehouseId, refDocNumber, inboundLine.getItemCode(),
-							inboundLine.getManufacturerName(), inboundLine.getLineNo(), inboundLine.getPreInboundNo());
+                List<GrLineV2> grLineList = grLineService.getGrLineForInboundConformV2(
+                        companyCode, plantId, languageId, warehouseId, refDocNumber,
+                        inboundLine.getItemCode(),
+                        inboundLine.getManufacturerName(),
+                        inboundLine.getLineNo(),
+                        inboundLine.getPreInboundNo());
                 log.info("GrLine List: " + grLineList.size());
                     for (GrLineV2 grLine : grLineList) {
-						List<PutAwayLineV2> putAwayLineList = putAwayLineService.getPutAwayLineForInboundConfirmV2(
-								companyCode, plantId, languageId, warehouseId, refDocNumber, grLine.getItemCode(),
-								grLine.getManufacturerName(), grLine.getLineNo(), grLine.getPreInboundNo(),
+                    List<PutAwayLineV2> putAwayLineList = putAwayLineService.
+                            getPutAwayLineForInboundConfirmV2(companyCode, plantId, languageId, warehouseId, refDocNumber,
+                                    grLine.getItemCode(),
+                                    grLine.getManufacturerName(),
+                                    grLine.getLineNo(),
+                                    grLine.getPreInboundNo(),
                                     grLine.getPackBarcodes());
                     log.info("PutawayLine List: " + putAwayLineList.size());
                     if (putAwayLineList != null) {
@@ -1636,25 +1638,38 @@ public class InboundHeaderService extends BaseService {
         }
         statusDescription = stagingLineV2Repository.getStatusDescription(24L, languageId);
 
-			inboundLineV2Repository.updateInboundLineStatusUpdateInboundConfirmProc(companyCode, plantId, languageId,
-					warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
+        inboundLineV2Repository.updateInboundLineStatusUpdateInboundConfirmProc(
+                companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
         log.info("InboundLine updated");
 
-			putAwayLineV2Repository.updatePutawayLineStatusUpdateInboundConfirmProc(companyCode, plantId, languageId,
-					warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
+        putAwayLineV2Repository.updatePutawayLineStatusUpdateInboundConfirmProc(
+                companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
         log.info("putAwayLine updated");
 
-			String statusDescription17 = stagingLineV2Repository.getStatusDescription(17L, languageId);
+	//        putAwayHeaderV2Repository.updatepaheaderStatusUpdateInboundConfirmProc(
+	//                companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
+	//        log.info("PutAwayHeader Updated");
+	
+	//        preInboundLineV2Repository.updatePreInboundLineStatusUpdateInboundConfirmProc(
+	//                companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
+	//                log.info("PreInboundLine updated");
 
-			// Multiple Stored Procedure replaced with Single Procedure Call
-			inboundHeaderV2Repository.updatePahGrlStglPiblStatusInboundConfirmProcedure(companyCode, plantId,
-					languageId, warehouseId, refDocNumber, preInboundNo, 24L, 17L, statusDescription,
-					statusDescription17, loginUserID, new Date());
+			String statusDescription17 = stagingLineV2Repository.getStatusDescription(17L, languageId);
+	//        stagingLineV2Repository.updateStagingLineStatusUpdateInboundConfirmProc(
+	//                companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 17L, statusDescription17, loginUserID, new Date());
+	//                log.info("StagingLine updated");
+
+	//        grLineV2Repository.updateGrLineStatusUpdateInboundConfirmProc(
+	//                companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
+	//                log.info("GrLine updated");
+
+            //Multiple Stored Procedure replaced with Single Procedure Call
+            inboundHeaderV2Repository.updatePahGrlStglPiblStatusInboundConfirmProcedure(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo,
+                                                                                        24L, 17L, statusDescription, statusDescription17, loginUserID, new Date());
             log.info("PutawayHeader, GrLine, Stg Line, PreIbLine Status updated using stored procedure");
 
-			Long inboundLinesV2CountForInboundConfirmWithStatusId = inboundLineV2Repository
-					.getInboundLinesV2CountForInboundConfirmWithStatusId(companyCode, plantId, languageId, warehouseId,
-							refDocNumber, preInboundNo, 24L);
+        Long inboundLinesV2CountForInboundConfirmWithStatusId = inboundLineV2Repository.getInboundLinesV2CountForInboundConfirmWithStatusId(
+                companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L);
         Long inboundLinesV2CountForInboundConfirm = inboundLineV2Repository.getInboundLinesV2CountForInboundConfirm(
                 companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
             if (inboundLinesV2CountForInboundConfirmWithStatusId == null) {
@@ -1664,12 +1679,10 @@ public class InboundHeaderService extends BaseService {
             inboundLinesV2CountForInboundConfirm = 0L;
         }
         boolean isConditionMet = inboundLinesV2CountForInboundConfirmWithStatusId.equals(inboundLinesV2CountForInboundConfirm);
-			log.info("Inbound Line 24_StatusCount, Line Count: " + isConditionMet + ", "
-					+ inboundLinesV2CountForInboundConfirmWithStatusId + ", " + inboundLinesV2CountForInboundConfirm);
+        log.info("Inbound Line 24_StatusCount, Line Count: " + isConditionMet + ", " + inboundLinesV2CountForInboundConfirmWithStatusId + ", " + inboundLinesV2CountForInboundConfirm);
             if (isConditionMet) {
-				// Multiple Stored Procedure replaced with Single Procedure Call
-				inboundHeaderV2Repository.updateHeaderStatusInboundConfirmProcedure(companyCode, plantId, languageId,
-						warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
+                //Multiple Stored Procedure replaced with Single Procedure Call
+                inboundHeaderV2Repository.updateHeaderStatusInboundConfirmProcedure(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
                 log.info("Header Status updated using stored procedure");
         }
 			axapiResponse.setStatusCode("200"); // HardCoded
@@ -1693,7 +1706,7 @@ public class InboundHeaderService extends BaseService {
      * @param loginUserID
      * @return
      */
-    public AXApiResponse updateInboundHeaderPartialConfirmNewV2(List<InboundLineV2> inboundLineList, String companyCode,
+    public void updateInboundHeaderPartialConfirmNewV2(List<InboundLineV2> inboundLineList, String companyCode,
 			String plantId, String languageId, String warehouseId, String preInboundNo, String refDocNumber,
 			String loginUserID) {
 		try {
@@ -1709,10 +1722,7 @@ public class InboundHeaderService extends BaseService {
 								+ refDocNumber);
 			}
 
-			AXApiResponse axapiResponse = new AXApiResponse();
 			statusDescription = stagingLineV2Repository.getStatusDescription(24L, languageId);
-			log.info(loginUserID);
-			
 				for (InboundLineV2 inboundLine : inboundLineList) {
 				try {
 					inboundLineV2Repository.updateInboundLineStatusUpdateInboundConfirmIndividualItemProc(companyCode,
@@ -1736,6 +1746,7 @@ public class InboundHeaderService extends BaseService {
 					inboundLinePartialConfirmRepository.save(newInboundLinePartialConfirm);
 					log.info("----newInboundLinePartialConfirm--created---> : " + newInboundLinePartialConfirm);
 				} catch (Exception e) {
+					log.error("Exception while InboundLine status update: " + e.toString());
 					e.printStackTrace();
 				}
 				}
@@ -1747,12 +1758,11 @@ public class InboundHeaderService extends BaseService {
 				log.info("PutawayHeader, GrLine, Stg Line, PreIbLine Status updated using stored procedure");
 
 				Long inboundLinesV2CountForInboundConfirmWithStatusId = inboundLineV2Repository
-						.getInboundLinesV2CountForInboundConfirmWithStatusId(companyCode, plantId, languageId,
-								warehouseId, refDocNumber, preInboundNo, 24L);
+					.getInboundLinesV2CountForInboundConfirmWithStatusId(companyCode, plantId, languageId, warehouseId,
+							refDocNumber, preInboundNo, 24L);
 
-				Long inboundLinesV2CountForInboundConfirm = inboundLineV2Repository
-						.getInboundLinesV2CountForInboundConfirm(companyCode, plantId, languageId, warehouseId,
-								refDocNumber, preInboundNo);
+			Long inboundLinesV2CountForInboundConfirm = inboundLineV2Repository.getInboundLinesV2CountForInboundConfirm(
+					companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
 
 				if (inboundLinesV2CountForInboundConfirmWithStatusId == null) {
 					inboundLinesV2CountForInboundConfirmWithStatusId = 0L;
@@ -1765,19 +1775,12 @@ public class InboundHeaderService extends BaseService {
 				boolean isConditionMet = inboundLinesV2CountForInboundConfirmWithStatusId
 						.equals(inboundLinesV2CountForInboundConfirm);
 				log.info("Inbound Line 24_StatusCount, Line Count: " + refDocNumber + ", " + isConditionMet + ", "
-						+ inboundLinesV2CountForInboundConfirmWithStatusId + ", "
-						+ inboundLinesV2CountForInboundConfirm);
+					+ inboundLinesV2CountForInboundConfirmWithStatusId + ", " + inboundLinesV2CountForInboundConfirm);
 				if (isConditionMet) {
-					inboundHeaderV2Repository.updateHeaderStatusInboundConfirmProcedure(companyCode, plantId,
-							languageId, warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID,
-							new Date());
+				inboundHeaderV2Repository.updateHeaderStatusInboundConfirmProcedure(companyCode, plantId, languageId,
+						warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
 					log.info("Header Status updated using stored procedure");
 				}
-			
-			axapiResponse.setStatusCode("200"); // HardCoded
-			axapiResponse.setMessage("Success"); // HardCoded
-			log.info("axapiResponse: " + axapiResponse);
-			return axapiResponse;
 		} catch (Exception e) {
 			throw new BadRequestException("Inbound confirmation : Exception ----> " + e.toString());
 		}
@@ -1787,7 +1790,7 @@ public class InboundHeaderService extends BaseService {
 	 * 
 	 */
 //	@Scheduled(fixedDelayString = "PT1M", initialDelayString = "PT2M")
-	@Scheduled(fixedDelay = 30000)
+	@Scheduled(fixedDelay = 15000)
 	private void scheduleInboundLinePartialConfirmation() {
 		log.info("-----scheduleInboundLinePartialConfirmation--1-->: ");
     	List<InboundLinePartialConfirm> inboundLinePartialConfirmList = 
@@ -1800,6 +1803,7 @@ public class InboundHeaderService extends BaseService {
     	String warehouseId = null;
     	String refDocNumber = null;
     	String preInboundNo = null;
+		Long lineNo = 0L;
     	String loginUserID = null;
     	
     	List<PutAwayLineV2> putAwayLineList = null;
@@ -1817,18 +1821,22 @@ public class InboundHeaderService extends BaseService {
 			plantId = inboundLine.getPlantId();
 			warehouseId = inboundLine.getWarehouseId();
 			refDocNumber = inboundLine.getRefDocNumber();
+			lineNo = inboundLine.getLineNo();
 			preInboundNo = inboundLine.getPreInboundNo();
 			loginUserID = inboundLine.getUpdatedBy();
 			if (putAwayLineList != null) {
 				for (PutAwayLineV2 putAwayLine : putAwayLineList) {
 					try {
 						boolean createdInventory = createInventoryNonCBMV2(putAwayLine);
+						log.info("----createdInventory-------flag---> : " + createdInventory);
+						if (createdInventory) {
+							inboundLinePartialConfirmRepository.updateInboundLinePartialConfirmExecutedStatus(languageId, plantId,
+									companyCode, warehouseId, preInboundNo, refDocNumber, lineNo, 1L);
+						}
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				}
-				inboundLinePartialConfirmRepository.updateInboundLinePartialConfirmExecutedStatus(languageId, plantId,
-						companyCode, warehouseId, refDocNumber, 1L);
 			}
 		}
     }
@@ -1842,14 +1850,11 @@ public class InboundHeaderService extends BaseService {
         String palletCode = null;
         String caseCode = null;
         try {
-            InventoryV2 existinginventory = inventoryV2Repository.findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndManufacturerNameAndPackBarcodesAndBinClassIdAndDeletionIndicatorOrderByInventoryIdDesc(
-                    putAwayLine.getCompanyCode(),
-                    putAwayLine.getPlantId(),
-                    putAwayLine.getLanguageId(),
-                    putAwayLine.getWarehouseId(),
-                    putAwayLine.getItemCode(),
-                    putAwayLine.getManufacturerName(),
-                    "99999", 3L,0L);
+			InventoryV2 existinginventory = inventoryV2Repository
+					.findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndManufacturerNameAndPackBarcodesAndBinClassIdAndDeletionIndicatorOrderByInventoryIdDesc(
+							putAwayLine.getCompanyCode(), putAwayLine.getPlantId(), putAwayLine.getLanguageId(),
+							putAwayLine.getWarehouseId(), putAwayLine.getItemCode(), putAwayLine.getManufacturerName(),
+							"99999", 3L, 0L);
 
             if (existinginventory != null) {
                 log.info("Create Inventory bin Class Id 3 Initiated: " + new Date());
@@ -1859,12 +1864,14 @@ public class InboundHeaderService extends BaseService {
                 if (INV_QTY >= 0) {
 
                     InventoryV2 inventory2 = new InventoryV2();
-                    BeanUtils.copyProperties(existinginventory, inventory2, CommonUtils.getNullPropertyNames(existinginventory));
+					BeanUtils.copyProperties(existinginventory, inventory2,
+							CommonUtils.getNullPropertyNames(existinginventory));
                     String stockTypeDesc = getStockTypeDesc(putAwayLine.getCompanyCode(), putAwayLine.getPlantId(),
-                            putAwayLine.getLanguageId(), putAwayLine.getWarehouseId(), existinginventory.getStockTypeId());
+							putAwayLine.getLanguageId(), putAwayLine.getWarehouseId(),
+							existinginventory.getStockTypeId());
                     inventory2.setStockTypeDescription(stockTypeDesc);
                     inventory2.setInventoryQuantity(INV_QTY);
-                    inventory2.setReferenceField4(INV_QTY);         //Allocated Qty is always 0 for BinClassId 3
+					inventory2.setReferenceField4(INV_QTY); // Allocated Qty is always 0 for BinClassId 3
                     log.info("INV_QTY---->TOT_QTY---->: " + INV_QTY + ", " + INV_QTY);
 
                     palletCode = existinginventory.getPalletCode();
@@ -1899,25 +1906,6 @@ public class InboundHeaderService extends BaseService {
             inventory.setBarcodeId(putAwayLine.getBarcodeId());
             inventory.setManufacturerName(putAwayLine.getManufacturerName());
 
-//            Long binClassId = 0L;
-//            if ((putAwayLine.getInboundOrderTypeId() == 1 ||
-//                    putAwayLine.getInboundOrderTypeId() == 3 ||
-//                    putAwayLine.getInboundOrderTypeId() == 4 ||
-//                    putAwayLine.getInboundOrderTypeId() == 5) &&
-//                    (quantityType.equalsIgnoreCase("A"))) {
-//                binClassId = 1L;
-//            }
-//            if ((putAwayLine.getInboundOrderTypeId() == 1 ||
-//                    putAwayLine.getInboundOrderTypeId() == 3 ||
-//                    putAwayLine.getInboundOrderTypeId() == 4 ||
-//                    putAwayLine.getInboundOrderTypeId() == 5) &&
-//                    (quantityType.equalsIgnoreCase("D"))) {
-//                binClassId = 7L;
-//            }
-//            if (putAwayLine.getInboundOrderTypeId() == 2) {
-//                binClassId = 7L;
-//            }
-
             // ST_BIN ---Pass WH_ID/BIN_CL_ID=3 in STORAGEBIN table and fetch ST_BIN value and update
             AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
             StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
@@ -1929,7 +1917,8 @@ public class InboundHeaderService extends BaseService {
 
             StorageBinV2 storageBin = null;
             try {
-                storageBin = mastersService.getaStorageBinV2(storageBinPutAway, authTokenForMastersService.getAccess_token());
+				storageBin = mastersService.getaStorageBinV2(storageBinPutAway,
+						authTokenForMastersService.getAccess_token());
             } catch (Exception e) {
                 throw new BadRequestException("Invalid StorageBin");
             }
@@ -1942,7 +1931,8 @@ public class InboundHeaderService extends BaseService {
             imBasicData.setWarehouseId(putAwayLine.getWarehouseId());
             imBasicData.setItemCode(putAwayLine.getItemCode());
             imBasicData.setManufacturerName(putAwayLine.getManufacturerName());
-            ImBasicData1 itemCodeCapacityCheck = mastersService.getImBasicData1ByItemCodeV2(imBasicData, authTokenForMastersService.getAccess_token());
+			ImBasicData1 itemCodeCapacityCheck = mastersService.getImBasicData1ByItemCodeV2(imBasicData,
+					authTokenForMastersService.getAccess_token());
             log.info("ImbasicData1 : " + itemCodeCapacityCheck);
 
             if (itemCodeCapacityCheck != null) {
@@ -1968,28 +1958,23 @@ public class InboundHeaderService extends BaseService {
                 inventory.setCaseCode(caseCode);
                 log.info("PalletCode, CaseCode: " + palletCode + ", " + caseCode);
 
-            // STCK_TYP_ID
+// STCK_TYP_ID
             inventory.setStockTypeId(1L);
-            String stockTypeDesc = getStockTypeDesc(putAwayLine.getCompanyCode(), putAwayLine.getPlantId(), putAwayLine.getLanguageId(), putAwayLine.getWarehouseId(), 1L);
+			String stockTypeDesc = getStockTypeDesc(putAwayLine.getCompanyCode(), putAwayLine.getPlantId(),
+					putAwayLine.getLanguageId(), putAwayLine.getWarehouseId(), 1L);
             inventory.setStockTypeDescription(stockTypeDesc);
             log.info("StockTypeDescription: " + stockTypeDesc);
 
-            // SP_ST_IND_ID
+// SP_ST_IND_ID
             inventory.setSpecialStockIndicatorId(1L);
 
             InventoryV2 existingInventory = inventoryService.getInventoryForInhouseTransferV2(
-                    putAwayLine.getCompanyCode(),
-                    putAwayLine.getPlantId(),
-                    putAwayLine.getLanguageId(),
-                    putAwayLine.getWarehouseId(),
-                    "99999",
-                    putAwayLine.getItemCode(),
-                    putAwayLine.getManufacturerName(),
-                    putAwayLine.getConfirmedStorageBin()
-            );
+					putAwayLine.getCompanyCode(), putAwayLine.getPlantId(), putAwayLine.getLanguageId(),
+					putAwayLine.getWarehouseId(), "99999", putAwayLine.getItemCode(), putAwayLine.getManufacturerName(),
+					putAwayLine.getConfirmedStorageBin());
 
             Double ALLOC_QTY = 0D;
-            if(existingInventory != null) {
+			if (existingInventory != null) {
                 if (existingInventory.getAllocatedQuantity() != null) {
                     ALLOC_QTY = existingInventory.getAllocatedQuantity();
                     inventory.setAllocatedQuantity(ALLOC_QTY);
@@ -1999,10 +1984,12 @@ public class InboundHeaderService extends BaseService {
                 }
                 log.info("Inventory Allocated Qty: " + ALLOC_QTY);
             }
-            // INV_QTY
+// INV_QTY
             if (existingInventory != null) {
-                inventory.setInventoryQuantity(existingInventory.getInventoryQuantity() + putAwayLine.getPutawayConfirmedQty());
-                log.info("Inventory Qty = inv_qty + pa_cnf_qty: " + existingInventory.getInventoryQuantity() + ", " + putAwayLine.getPutawayConfirmedQty());
+				inventory.setInventoryQuantity(
+						existingInventory.getInventoryQuantity() + putAwayLine.getPutawayConfirmedQty());
+				log.info("Inventory Qty = inv_qty + pa_cnf_qty: " + existingInventory.getInventoryQuantity() + ", "
+						+ putAwayLine.getPutawayConfirmedQty());
                 Double totalQty = inventory.getInventoryQuantity() + inventory.getAllocatedQuantity();
                 inventory.setReferenceField4(totalQty);
                 log.info("Inventory Total Qty: " + totalQty);
@@ -2015,14 +2002,8 @@ public class InboundHeaderService extends BaseService {
                 log.info("Inventory Total Qty: " + totalQty);
             }
 
-            //packbarcode
-            /*
-             * Hardcoding Packbarcode as 99999
-             */
-//            inventory.setPackBarcodes(createdGRLine.getPackBarcodes());
             inventory.setPackBarcodes("99999");
 
-            // INV_UOM
             if (putAwayLine.getPutAwayUom() != null) {
                 inventory.setInventoryUom(putAwayLine.getPutAwayUom());
                 log.info("PA UOM: " + putAwayLine.getPutAwayUom());
@@ -2035,10 +2016,10 @@ public class InboundHeaderService extends BaseService {
             Double cbm = 0D;
             Double cbmPerQty = 0D;
             Double invCbm = 0D;
-            if(itemCodeCapacityCheck != null) {
+			if (itemCodeCapacityCheck != null) {
                 if (itemCodeCapacityCheck.getCapacityCheck() != null) {
                     log.info("CBM Check");
-                    capacityCheck = itemCodeCapacityCheck.getCapacityCheck();               //Capacity Check for putaway item
+					capacityCheck = itemCodeCapacityCheck.getCapacityCheck(); // Capacity Check for putaway item
                 }
             }
             log.info("CapacityCheck -----------> : " + capacityCheck);
@@ -2071,10 +2052,10 @@ public class InboundHeaderService extends BaseService {
             inventory.setReferenceOrderNo(putAwayLine.getRefDocNumber());
             inventory.setDeletionIndicator(0L);
 
-            if(existingInventory != null) {
+			if (existingInventory != null) {
                 inventory.setCreatedOn(existingInventory.getCreatedOn());
             }
-            if(existingInventory == null) {
+			if (existingInventory == null) {
                 inventory.setCreatedOn(new Date());
             }
             inventory.setUpdatedOn(new Date());
@@ -2092,11 +2073,12 @@ public class InboundHeaderService extends BaseService {
      *
      * @param putAwayLine
      * @return
+	 * @throws Exception
      */
-    @Transactional(rollbackFor = {Exception.class, Throwable.class})
-//    @Retryable(value = Exception.class, maxAttempts = 3, backoff = @Backoff(delay = 5000, multiplier = 2))
 	private boolean createInventoryNonCBMV2(PutAwayLineV2 putAwayLine) throws Exception {
-		log.info("Create Inventory Initiated ---> alreadyExecuted ---> " + new Date());
+        log.info("-------createInventoryNonCBMV2---called-----");
+
+        boolean isInventoryCreated = false;
 		String palletCode = null;
 		String caseCode = null;
 		try {
@@ -2104,10 +2086,9 @@ public class InboundHeaderService extends BaseService {
 					putAwayLine.getCompanyCode(), putAwayLine.getPlantId(), putAwayLine.getLanguageId(),
 					putAwayLine.getWarehouseId(), putAwayLine.getItemCode(), "99999", 3L,
 					putAwayLine.getManufacturerName());
+			log.info("----existinginventory------CLASS-3----> " + existinginventory);
 
 			if (existinginventory != null) {
-				log.info("Create Inventory bin Class Id 3 Initiated: " + new Date());
-				
 				double INV_QTY = existinginventory.getInventoryQuantity() - putAwayLine.getPutawayConfirmedQty();
 				double INV_QTY_ERR = INV_QTY;
 				log.info("INV_QTY : " + INV_QTY);
@@ -2132,32 +2113,34 @@ public class InboundHeaderService extends BaseService {
 							inventory2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 8));
 							InventoryV2 createdInventoryV2 = inventoryV2Repository.save(inventory2);
 							log.info("----existinginventory--createdInventoryV2--------> : " + createdInventoryV2);
+						isInventoryCreated = true;
 					} catch (Exception e) {
 						log.error("--ERROR--createInventoryNonCBMV2 ----level1--inventory--error----> :" + e.toString());
 						e.printStackTrace();
 						
 						// Inventory Error Handling
 						InventoryTrans newInventoryTrans = new InventoryTrans();
-						BeanUtils.copyProperties(inventory2, newInventoryTrans, CommonUtils.getNullPropertyNames(inventory2));
+						BeanUtils.copyProperties(inventory2, newInventoryTrans,
+								CommonUtils.getNullPropertyNames(inventory2));
 						newInventoryTrans.setInventoryQuantity(INV_QTY_ERR);
 						newInventoryTrans.setReRun(0L);	
 						InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
 						log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
+						isInventoryCreated = false;
 					}
 				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.info("Existing Inventory---Error-----> : " + e.toString());
+			isInventoryCreated = false;
 		}
 
 		try {
-			log.info("Create Inventory bin Class Id 1 Initiated---->alreadyExecuted---> " + new Date());
+			log.info("-------Create Inventory bin Class Id 1 Initiated-----");
 			InventoryV2 inventory = new InventoryV2();
 			BeanUtils.copyProperties(putAwayLine, inventory, CommonUtils.getNullPropertyNames(putAwayLine));
 			inventory.setCompanyCodeId(putAwayLine.getCompanyCode());
-
-			// VAR_ID, VAR_SUB_ID, STR_MTD, STR_NO ---> Hard coded as '1'
 			inventory.setVariantCode(1L); // VAR_ID
 			inventory.setVariantSubCode("1"); // VAR_SUB_ID
 			inventory.setStorageMethod("1"); // STR_MTD
@@ -2183,12 +2166,11 @@ public class InboundHeaderService extends BaseService {
 
 			StorageBinV2 storageBin = null;
 			try {
-				storageBin = mastersService.getaStorageBinV2(storageBinPutAway,
-						authTokenForMastersService.getAccess_token());
+				storageBin = mastersService.getaStorageBinV2(storageBinPutAway, authTokenForMastersService.getAccess_token());
+				log.info("storageBin: " + storageBin);
 			} catch (Exception e) {
 				throw new BadRequestException("Invalid StorageBin");
 			}
-			log.info("storageBin: " + storageBin);
 
 			if (storageBin != null) {
 				inventory.setReferenceField10(storageBin.getStorageSectionId());
@@ -2263,8 +2245,8 @@ public class InboundHeaderService extends BaseService {
 				inventory.setInventoryUom(putAwayLine.getPutAwayUom());
 				log.info("PA UOM: " + putAwayLine.getPutAwayUom());
 			}
+            inventory.setCreatedBy(putAwayLine.getCreatedBy());
 			
-			inventory.setCreatedBy(putAwayLine.getCreatedBy());
 			inventory.setReferenceDocumentNo(putAwayLine.getRefDocNumber());
 			inventory.setReferenceOrderNo(putAwayLine.getRefDocNumber());
 			inventory.setDeletionIndicator(0L);
@@ -2282,6 +2264,8 @@ public class InboundHeaderService extends BaseService {
 				inventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 1));
 				try {
 					createdinventory = inventoryV2Repository.save(inventory);
+				log.error("----createdinventory--------- :" + createdinventory);
+				isInventoryCreated = true;
 				} catch (Exception e) {
 					log.error("--ERROR--createInventoryNonCBMV2 ----level1--inventory--error----> :" + e.toString());
 					e.printStackTrace();
@@ -2292,27 +2276,26 @@ public class InboundHeaderService extends BaseService {
 					newInventoryTrans.setReRun(0L);	
 					InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
 					log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
+				isInventoryCreated = false;
 				}
-			log.info("created inventory : executed" + createdinventory);
-			return false;
+			
+            log.info("created inventory : executed" + createdinventory + " -----> ");
 		} catch (Exception e) {
+        	log.error("Error While Creating Inventory ---> " + e.toString());
 			e.printStackTrace();
-			inventoryErrorCount++;
-			log.error("Error While Creating Inventory --> errorCount ---> " + inventoryErrorCount);
-			if (inventoryErrorCount == 3) {
+            isInventoryCreated = false;
 				sendMail(putAwayLine, e.getLocalizedMessage());
-			}
 			throw e;
 		}
+        return isInventoryCreated;
 	}
     
 	@Scheduled(fixedDelayString = "PT1M", initialDelayString = "PT2M")
-	private void updateErroredOutInventory () {
+	private void updateErroredOutInventory() {
 		List<InventoryTrans> inventoryTransList = inventoryTransRepository.findByReRun(0L);
-		inventoryTransList.stream().forEach( it -> {
+		inventoryTransList.stream().forEach(it -> {
 			log.info("----updateErroredOutInventory-->: " + it);
-			inventoryV2Repository.updateInventory(it.getWarehouseId(),
-					it.getPackBarcodes(), it.getItemCode(),
+			inventoryV2Repository.updateInventory(it.getWarehouseId(), it.getPackBarcodes(), it.getItemCode(),
 					it.getStorageBin(), it.getInventoryQuantity(), it.getAllocatedQuantity());
 			it.setReRun(1L);
 			inventoryTransRepository.save(it);		

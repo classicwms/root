@@ -7,10 +7,6 @@ import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.transaction.model.impl.GrLineImpl;
-import com.tekclover.wms.api.transaction.model.inbound.gr.v2.AddGrLineV2;
-import com.tekclover.wms.api.transaction.model.inbound.gr.v2.GrLineV2;
-import com.tekclover.wms.api.transaction.model.inbound.gr.v2.SearchGrLineV2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,11 +21,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tekclover.wms.api.transaction.model.impl.GrLineImpl;
 import com.tekclover.wms.api.transaction.model.inbound.gr.AddGrLine;
 import com.tekclover.wms.api.transaction.model.inbound.gr.GrLine;
 import com.tekclover.wms.api.transaction.model.inbound.gr.PackBarcode;
 import com.tekclover.wms.api.transaction.model.inbound.gr.SearchGrLine;
 import com.tekclover.wms.api.transaction.model.inbound.gr.UpdateGrLine;
+import com.tekclover.wms.api.transaction.model.inbound.gr.v2.AddGrLineV2;
+import com.tekclover.wms.api.transaction.model.inbound.gr.v2.GrLineV2;
+import com.tekclover.wms.api.transaction.model.inbound.gr.v2.SearchGrLineV2;
 import com.tekclover.wms.api.transaction.service.GrLineService;
 
 import io.swagger.annotations.Api;
@@ -171,8 +171,7 @@ public class GrLineController {
 	@ApiOperation(response = GrLineV2.class, value = "Create GrLine V2") // label for swagger
 	@PostMapping("/v2")
 	public ResponseEntity<?> postGrLineV2(@Valid @RequestBody List<AddGrLineV2> newGrLine,
-										  @RequestParam String loginUserID)
-			throws IllegalAccessException, InvocationTargetException, ParseException {
+										  @RequestParam String loginUserID) throws Exception {
 //		List<GrLineV2> createdGrLine = grlineService.createGrLineV2(newGrLine, loginUserID);
 		List<GrLineV2> createdGrLine = grlineService.createGrLineNonCBMV2(newGrLine, loginUserID);
 		return new ResponseEntity<>(createdGrLine, HttpStatus.OK);

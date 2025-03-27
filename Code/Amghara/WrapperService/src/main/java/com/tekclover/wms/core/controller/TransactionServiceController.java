@@ -2505,9 +2505,8 @@ public class TransactionServiceController {
                                                                                 @RequestParam String preInboundNo, @RequestParam String companyCode, @RequestParam String plantId,
                                                                                 @RequestParam String languageId, @RequestParam String refDocNumber,
                                                                                 @RequestParam String loginUserID, @RequestParam String authToken) {
-        AXApiResponse createdInboundHeaderResponse =
                 transactionService.updateInboundHeaderWithIbLinePartialConfirmV2(inboundLineList, companyCode, plantId, languageId, warehouseId, preInboundNo, refDocNumber, loginUserID, authToken);
-        return new ResponseEntity<>(createdInboundHeaderResponse, HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @ApiOperation(response = InboundHeaderV2.class, value = "Update InboundHeader V2") // label for swagger

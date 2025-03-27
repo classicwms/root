@@ -1945,7 +1945,10 @@ public class GrLineService extends BaseService {
         }
     }
 
-    @Scheduled(fixedDelay = 30000)
+	/**
+	 * 
+	 */
+    @Scheduled(fixedDelay = 15000)
     private void schedulePostGRLineProcessV2() {
         log.info("Create PutawayHeader Schedule Initiated : " + new Date());
         GrLineV2 createdGRLine = getGrLineV2();

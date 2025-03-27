@@ -22,13 +22,15 @@ public interface InboundLinePartialConfirmRepository extends JpaRepository<Inbou
 	
 	@Modifying(clearAutomatically = true)
     @Query("UPDATE InboundLinePartialConfirm ib SET ib.isExecuted = :isExecuted \n" +
-            "WHERE ib.warehouseId = :warehouseId AND ib.refDocNumber = :refDocNumber \n" +
-    		"and ib.companyCode = :companyCode and ib.plantId = :plantId and ib.languageId = :languageId")
+            "WHERE ib.warehouseId = :warehouseId AND ib.refDocNumber = :refDocNumber and ib.preInboundNo = :preInboundNo \n" +
+    		"and ib.lineNo = :lineNo and ib.companyCode = :companyCode and ib.plantId = :plantId and ib.languageId = :languageId")
     void updateInboundLinePartialConfirmExecutedStatus(@Param("languageId") String languageId,
 						            @Param("plantId") String plantId,
 						            @Param("companyCode") String companyCode,
 						            @Param("warehouseId") String warehouseId,
+	                                @Param("preInboundNo") String preInboundNo,
 	                                @Param("refDocNumber") String refDocNumber,
+	                                @Param("lineNo") Long lineNo,
 	                                @Param("isExecuted") Long isExecuted);   
 }
 

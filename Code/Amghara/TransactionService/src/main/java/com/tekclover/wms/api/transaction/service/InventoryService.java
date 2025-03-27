@@ -2317,19 +2317,11 @@ public class InventoryService extends BaseService {
         if(dbInventory != null) {
             InventoryV2 newInventory = new InventoryV2();
             BeanUtils.copyProperties(dbInventory, newInventory, CommonUtils.getNullPropertyNames(dbInventory));
-            log.info("-----1---------Inventory for Update ----> : " + newInventory);
-            
             BeanUtils.copyProperties(updateInventory, newInventory, CommonUtils.getNullPropertyNames(updateInventory));
-            log.info("-----2---------Inventory for Update ----> : " + newInventory);
-            
             newInventory.setUpdatedBy(loginUserID);
             newInventory.setUpdatedOn(new Date());
             newInventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 9));
-            log.info("-----3---------Inventory for Update ----> : " + newInventory);
-            
-            InventoryV2 createdInventory = inventoryV2Repository.save(newInventory);
-            log.info("-----4---------Inventory for Update ----> : " + createdInventory);
-            return createdInventory;
+            return inventoryV2Repository.save(newInventory);
         }
         return null;
     }
