@@ -1427,7 +1427,7 @@ public class InhouseTransferHeaderService extends BaseService {
                     newInventoryV2_1.setReferenceField4(inventoryTargetItemCode.getInventoryQuantity() + inventoryTargetItemCode.getAllocatedQuantity());
                     newInventoryV2_1.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 4));
                     try {
-    					InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventoryV2);
+    					InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventoryV2_1);
                     log.info("InventoryV2 created : " + createdInventoryV2);
     					log.info("transferTypeId: " + transferTypeId);
     				} catch (Exception e) {
