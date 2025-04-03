@@ -82,12 +82,12 @@ public class AuthTokenService {
 			throw new BadRequestException("The given URL is not available. Quiting");
 		}
 
-		log.info("Access token url: " + accessTokenUrl);
+//		log.info("Access token url: " + accessTokenUrl);
 		accessTokenUrl += "?grant_type=" + grantType + "&username=" + oauthUserName + "&password=" + oauthPassword;
 		log.info("accessTokenUrl : " + accessTokenUrl);
 
 		ResponseEntity<AuthToken> response = restTemplate.exchange(accessTokenUrl, HttpMethod.POST, request, AuthToken.class);
-		log.info("Access Token Response ---------" + response.getBody());
+//		log.info("Access Token Response ---------" + response.getBody());
 		return response.getBody();
 	}
 

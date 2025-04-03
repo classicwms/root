@@ -26,7 +26,7 @@ public class BatchJobScheduler {
         CompletableFuture<WarehouseApiResponse> inboundOrder = scheduleAsyncService.processInboundOrder();
 //        CompletableFuture<WarehouseApiResponse> outboundOrder = scheduleAsyncService.processOutboundOrder();
         CompletableFuture<WarehouseApiResponse> perpetualStockCountOrder = scheduleAsyncService.processPerpetualStockCountOrder();
-        //CompletableFuture<WarehouseApiResponse> periodicStockCountOrder = scheduleAsyncService.processPeriodicStockCountOrder();
+//        CompletableFuture<WarehouseApiResponse> periodicStockCountOrder = scheduleAsyncService.processPeriodicStockCountOrder();
         CompletableFuture<WarehouseApiResponse> stockAdjustmentOrder = scheduleAsyncService.processStockAdjustmentOrder();
         CompletableFuture<WarehouseApiResponse> inboundFailedOrder = scheduleAsyncService.processInboundFailedOrder();
 //        CompletableFuture<WarehouseApiResponse> outboundFailedOrder = scheduleAsyncService.processOutboundFailedOrder();
