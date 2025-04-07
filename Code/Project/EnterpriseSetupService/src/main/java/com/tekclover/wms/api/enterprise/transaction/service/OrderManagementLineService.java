@@ -1,5 +1,21 @@
 package com.tekclover.wms.api.enterprise.transaction.service;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.persistence.EntityNotFoundException;
+import javax.validation.Valid;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.ParseException;
+import org.springframework.stereotype.Service;
+
 import com.tekclover.wms.api.enterprise.controller.exception.BadRequestException;
 import com.tekclover.wms.api.enterprise.transaction.config.PropertiesConfig;
 import com.tekclover.wms.api.enterprise.transaction.model.auth.AuthToken;
@@ -9,28 +25,27 @@ import com.tekclover.wms.api.enterprise.transaction.model.dto.StorageBin;
 import com.tekclover.wms.api.enterprise.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.OutboundHeader;
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.OutboundLine;
-import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.*;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.AddOrderManagementLine;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.AssignPicker;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.OrderManagementHeader;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.OrderManagementLine;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.OrderManagementLineV2;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.SearchOrderManagementLine;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.UpdateOrderManagementLine;
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.pickup.PickupHeader;
-import com.tekclover.wms.api.enterprise.transaction.repository.*;
+import com.tekclover.wms.api.enterprise.transaction.repository.InventoryRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OrderManagementHeaderRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OrderManagementLineRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OrderManagementLineV2Repository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OutboundHeaderRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OutboundLineRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.PickupHeaderRepository;
 import com.tekclover.wms.api.enterprise.transaction.repository.specification.OrderManagementLineSpecification;
 import com.tekclover.wms.api.enterprise.transaction.repository.specification.OrderManagementLineV2Specification;
 import com.tekclover.wms.api.enterprise.transaction.util.CommonUtils;
 import com.tekclover.wms.api.enterprise.transaction.util.DateUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.expression.ParseException;
-import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityNotFoundException;
-import javax.validation.Valid;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -933,6 +948,8 @@ public class OrderManagementLineService extends BaseService {
 						CommonUtils.getNullPropertyNames(orderManagementLine));
 				newOrderManagementLine.setProposedStorageBin(stBinInventory.getStorageBin());
 				newOrderManagementLine.setProposedPackBarCode(stBinInventory.getPackBarcodes());
+				newOrderManagementLine.setStorageSectionId(stBinInventory.getReferenceField10()); // Storage_Sec_ID				
+				
 				OrderManagementLine createdOrderManagementLine = orderManagementLineRepository
 						.save(newOrderManagementLine);
 				log.info("--else---createdOrderManagementLine newly created------: " + createdOrderManagementLine);
