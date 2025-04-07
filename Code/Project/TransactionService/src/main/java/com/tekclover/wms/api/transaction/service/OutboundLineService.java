@@ -929,28 +929,28 @@ public class OutboundLineService extends BaseService {
 			/*---------------------AXAPI-integration----------------------------------------------------------*/
 			
 			// if OB_ORD_TYP_ID = 0 in OUTBOUNDHEADER table - call Shipment Confirmation
-//			if (confirmedOutboundHeader.getOutboundOrderTypeId() == 0L && confirmedOutboundLines != null) {
-//				axapiResponse = postShipment (confirmedOutboundHeader, confirmedOutboundLines);
-//				log.info("AXApiResponse: " + axapiResponse);
-//			}
-//
-//			// if OB_ORD_TYP_ID = 1 in OUTBOUNDHEADER table - Interwarehouse Shipment Confirmation
-//			if (confirmedOutboundHeader.getOutboundOrderTypeId() == 1L && confirmedOutboundLines != null) {
-//				axapiResponse = postInterwarehouseShipment (confirmedOutboundHeader, confirmedOutboundLines);
-//				log.info("AXApiResponse: " + axapiResponse);
-//			}
-//
-//			//  if OB_ORD_TYP_ID = 2 in OUTBOUNDHEADER table - Return PO Confirmation
-//			if (confirmedOutboundHeader.getOutboundOrderTypeId() == 2L && confirmedOutboundLines != null) {
-//				axapiResponse = postReturnPO (confirmedOutboundHeader, confirmedOutboundLines);
-//				log.info("AXApiResponse: " + axapiResponse);
-//			}
-//
-//			// if OB_ORD_TYP_ID = 3 in OUTBOUNDHEADER table - Sale Order Confirmation - True Express
-//			if (confirmedOutboundHeader.getOutboundOrderTypeId() == 3L && confirmedOutboundLines != null) {
-//				axapiResponse = postSalesOrder (confirmedOutboundHeader, confirmedOutboundLines);
-//				log.info("AXApiResponse: " + axapiResponse);
-//			}
+			if (confirmedOutboundHeader.getOutboundOrderTypeId() == 0L && confirmedOutboundLines != null) {
+				axapiResponse = postShipment (confirmedOutboundHeader, confirmedOutboundLines);
+				log.info("AXApiResponse: " + axapiResponse);
+			}
+
+			// if OB_ORD_TYP_ID = 1 in OUTBOUNDHEADER table - Interwarehouse Shipment Confirmation
+			if (confirmedOutboundHeader.getOutboundOrderTypeId() == 1L && confirmedOutboundLines != null) {
+				axapiResponse = postInterwarehouseShipment (confirmedOutboundHeader, confirmedOutboundLines);
+				log.info("AXApiResponse: " + axapiResponse);
+			}
+
+			//  if OB_ORD_TYP_ID = 2 in OUTBOUNDHEADER table - Return PO Confirmation
+			if (confirmedOutboundHeader.getOutboundOrderTypeId() == 2L && confirmedOutboundLines != null) {
+				axapiResponse = postReturnPO (confirmedOutboundHeader, confirmedOutboundLines);
+				log.info("AXApiResponse: " + axapiResponse);
+			}
+
+			// if OB_ORD_TYP_ID = 3 in OUTBOUNDHEADER table - Sale Order Confirmation - True Express
+			if (confirmedOutboundHeader.getOutboundOrderTypeId() == 3L && confirmedOutboundLines != null) {
+				axapiResponse = postSalesOrder (confirmedOutboundHeader, confirmedOutboundLines);
+				log.info("AXApiResponse: " + axapiResponse);
+			}
 			axapiResponse = new AXApiResponse();
 			axapiResponse.setStatusCode("200");
 		}
