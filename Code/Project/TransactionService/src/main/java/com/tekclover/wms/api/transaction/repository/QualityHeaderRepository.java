@@ -62,4 +62,12 @@ public interface QualityHeaderRepository extends JpaRepository<QualityHeader,Lon
 			+ " WHERE qh.qualityInspectionNo = :qualityInspectionNo")
 	public void updateQualityHeader (@Param ("referenceField10") String referenceField10,
 			@Param ("qualityInspectionNo") String qualityInspectionNo);
+
+	@Modifying(clearAutomatically = true, flushAutomatically = true)
+	@Query("UPDATE QualityHeader qh SET qh.statusId = :statusId, qh.referenceField10 = :referenceField10, qh.qualityReversedBy = :qualityReversedBy \r\n"
+			+ " WHERE qh.qualityInspectionNo = :qualityInspectionNo")
+	public void updateQualityHeaderReversal (@Param ("statusId") Long statusId,
+											 @Param ("referenceField10") String referenceField10,
+											 @Param ("referenceField10") String qualityReversedBy,
+											 @Param ("qualityInspectionNo") String qualityInspectionNo);
 }

@@ -164,4 +164,7 @@ public class OutboundLine {
 
 	@Transient
 	private String mfrPartNumber;
+
+	@Column(name = "QC_STATUS")
+	private Long isQualityChecked;
 }

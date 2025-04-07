@@ -242,41 +242,41 @@ public class InhouseTransferHeaderService extends BaseService {
 				 * If TR_TYP_ID = 01, insert 2 records in INVENTORYMOVEMENT table. 
 				 * One record with STCK_TYP_ID = SRCE_STCK_TYP_ID and other record with STCK_TYP_ID = TGT_STCK_TYP_ID
 				 */
-//				if (transferTypeId == 1L) {
-//					// Row insertion for Source
-//					Long stockTypeId = createdInhouseTransferLine.getSourceStockTypeId();
-//					String movementQtyValue = "N";
-//					String itemCode = createdInhouseTransferLine.getSourceItemCode();
-//					String storageBin = createdInhouseTransferLine.getSourceStorageBin();
-//					createInventoryMovement (createdInhouseTransferLine, transferTypeId, stockTypeId, itemCode, storageBin,
-//							movementQtyValue, loginUserID);
-//					
-//					// Row insertion for Target
-//					stockTypeId = createdInhouseTransferLine.getTargetStockTypeId();
-//					movementQtyValue = "P";
-//					createInventoryMovement (createdInhouseTransferLine, transferTypeId, stockTypeId, itemCode, storageBin,
-//							movementQtyValue, loginUserID);
-//				}
+				if (transferTypeId == 1L) {
+					// Row insertion for Source
+					Long stockTypeId = createdInhouseTransferLine.getSourceStockTypeId();
+					String movementQtyValue = "N";
+					String itemCode = createdInhouseTransferLine.getSourceItemCode();
+					String storageBin = createdInhouseTransferLine.getSourceStorageBin();
+					createInventoryMovement (createdInhouseTransferLine, transferTypeId, stockTypeId, itemCode, storageBin,
+							movementQtyValue, loginUserID);
+
+					// Row insertion for Target
+					stockTypeId = createdInhouseTransferLine.getTargetStockTypeId();
+					movementQtyValue = "P";
+					createInventoryMovement (createdInhouseTransferLine, transferTypeId, stockTypeId, itemCode, storageBin,
+							movementQtyValue, loginUserID);
+				}
 				
 				/*
 				 * "1. If TR_TYP_ID = 02, insert 2 records in INVENTORYMOVEMENT table. 
 				 * One record with ITM_CODE = SRCE_ITM_CODE and other record with ITM_CODE = TGT_ITM_CODE  
 				 */
-//				if (transferTypeId == 2L) {
-//					// Row insertion for Source
-//					Long stockTypeId = createdInhouseTransferLine.getSourceStockTypeId();
-//					String storageBin = createdInhouseTransferLine.getSourceStorageBin();
-//					String movementQtyValue = "N";
-//					String itemCode = createdInhouseTransferLine.getSourceItemCode();
-//					createInventoryMovement (createdInhouseTransferLine, transferTypeId, stockTypeId, itemCode, storageBin,
-//							movementQtyValue, loginUserID);
-//					
-//					// Row insertion for Target
-//					movementQtyValue = "P";
-//					itemCode = createdInhouseTransferLine.getTargetItemCode();
-//					createInventoryMovement (createdInhouseTransferLine, transferTypeId, stockTypeId, itemCode, storageBin,
-//							movementQtyValue, loginUserID);
-//				}
+				if (transferTypeId == 2L) {
+					// Row insertion for Source
+					Long stockTypeId = createdInhouseTransferLine.getSourceStockTypeId();
+					String storageBin = createdInhouseTransferLine.getSourceStorageBin();
+					String movementQtyValue = "N";
+					String itemCode = createdInhouseTransferLine.getSourceItemCode();
+					createTransferInventoryMovement (createdInhouseTransferLine, transferTypeId, stockTypeId, itemCode, storageBin,
+							movementQtyValue, loginUserID);
+
+					// Row insertion for Target
+					movementQtyValue = "P";
+					itemCode = createdInhouseTransferLine.getTargetItemCode();
+					createTransferInventoryMovement (createdInhouseTransferLine, transferTypeId, stockTypeId, itemCode, storageBin,
+							movementQtyValue, loginUserID);
+				}
 				
 				/*
 				 * If TR_TYP_ID = 03, insert 2 records in INVENTORYMOVEMENT table. 
@@ -330,15 +330,16 @@ public class InhouseTransferHeaderService extends BaseService {
 		 * Pass WH_ID/ITM_CODE in INVENTORY TABLE and update STCK_TYP_ID with TGT_STCK_TYP_ID
 		 */
 		if (transferTypeId == 1L && transferMethod.equalsIgnoreCase(ONESTEP)) {
-			List<Inventory> inventoryList = inventoryService.getInventory(warehouseId, itemCode);
-			log.info("-------------------inventoryList----------------- : " + inventoryList);
-			for (Inventory inventory : inventoryList) {
-				log.info("inventory: " + inventory);
-				inventory.setStockTypeId(createdInhouseTransferLine.getTargetStockTypeId());
-				Inventory updatedInventory = inventoryRepository.save(inventory);
-				log.info("transferTypeId: " + transferTypeId);
-				log.info("updatedInventory : " + updatedInventory);
-			}
+			updateTransferInventory(warehouseId, transferTypeId, createdInhouseTransferLine, loginUserID);
+//			List<Inventory> inventoryList = inventoryService.getInventory(warehouseId, itemCode);
+//			log.info("-------------------inventoryList----------------- : " + inventoryList);
+//			for (Inventory inventory : inventoryList) {
+//				log.info("inventory: " + inventory);
+//				inventory.setStockTypeId(createdInhouseTransferLine.getTargetStockTypeId());
+//				Inventory updatedInventory = inventoryRepository.save(inventory);
+//				log.info("transferTypeId: " + transferTypeId);
+//				log.info("updatedInventory : " + updatedInventory);
+//			}
 		}
 		
 		/*
@@ -347,20 +348,21 @@ public class InhouseTransferHeaderService extends BaseService {
 		 * E_ITM_CODE with TGT_ITM_CODE
 		 */
 		if (transferTypeId == 2L && transferMethod.equalsIgnoreCase(ONESTEP)) {
-			List<Inventory> inventoryList = inventoryService.getInventory(warehouseId, createdInhouseTransferLine.getSourceItemCode());
-			for (Inventory dbInventory : inventoryList) {
-				
-				// insert a record with target item code and delete the old record in Inventory table
-				Inventory newInventory = new Inventory();
-				BeanUtils.copyProperties(dbInventory, newInventory, CommonUtils.getNullPropertyNames(dbInventory));
-				newInventory.setItemCode(createdInhouseTransferLine.getTargetItemCode());
-				Inventory createdNewInventory = inventoryRepository.save(newInventory);
-				log.info("createdNewInventory : " + createdNewInventory);
-				
-				// Delete the old record
-				inventoryRepository.delete(dbInventory);
-				log.info("dbInventory deleted.");
-			}
+			updateTransferInventory(warehouseId, transferTypeId, createdInhouseTransferLine, loginUserID);
+//			List<Inventory> inventoryList = inventoryService.getInventory(warehouseId, createdInhouseTransferLine.getSourceItemCode());
+//			for (Inventory dbInventory : inventoryList) {
+//
+//				// insert a record with target item code and delete the old record in Inventory table
+//				Inventory newInventory = new Inventory();
+//				BeanUtils.copyProperties(dbInventory, newInventory, CommonUtils.getNullPropertyNames(dbInventory));
+//				newInventory.setItemCode(createdInhouseTransferLine.getTargetItemCode());
+//				Inventory createdNewInventory = inventoryRepository.save(newInventory);
+//				log.info("createdNewInventory : " + createdNewInventory);
+//
+//				// Delete the old record
+//				inventoryRepository.delete(dbInventory);
+//				log.info("dbInventory deleted.");
+//			}
 		}
 		
 		/*
@@ -469,6 +471,140 @@ public class InhouseTransferHeaderService extends BaseService {
 	}
 
 	/**
+	 *
+	 * @param warehouseId
+	 * @param transferTypeId
+	 * @param createdInhouseTransferLine
+	 * @param loginUserID
+	 */
+	private void updateTransferInventory(String warehouseId, Long transferTypeId, InhouseTransferLine createdInhouseTransferLine, String loginUserID) {
+		Long sourceStockTypeId = createdInhouseTransferLine.getSourceStockTypeId() != null ? createdInhouseTransferLine.getSourceStockTypeId() : 1L;
+		Long targetStockTypeId = createdInhouseTransferLine.getTargetStockTypeId() != null ? createdInhouseTransferLine.getTargetStockTypeId() : 1L;
+		Inventory inventorySourceItemCode =
+				getTransferInventory(warehouseId, createdInhouseTransferLine.getPackBarcodes(),
+						createdInhouseTransferLine.getSourceItemCode(), createdInhouseTransferLine.getSourceStorageBin(),
+						sourceStockTypeId, transferTypeId);
+		log.info("---------source inventory----------> : " + transferTypeId + "|" + inventorySourceItemCode);
+		if (inventorySourceItemCode != null) {
+			Double inventoryQty = inventorySourceItemCode.getInventoryQuantity();
+			Double transferConfirmedQty = createdInhouseTransferLine.getTransferConfirmedQty();
+			transferConfirmedQty = transferConfirmedQty <= inventoryQty ? transferConfirmedQty : inventoryQty;
+			double INV_QTY = inventoryQty - transferConfirmedQty;
+
+			log.info("-----Source----INV_QTY after transfer-----------> : " + INV_QTY);
+			inventorySourceItemCode.setInventoryQuantity(INV_QTY);
+			Inventory updatedInventory = inventoryRepository.save(inventorySourceItemCode);
+			log.info("--------source---inventory-----updated----->" + updatedInventory);
+
+			if (INV_QTY == 0 && (inventorySourceItemCode.getAllocatedQuantity() == null || inventorySourceItemCode.getAllocatedQuantity() == 0D)) {
+				// Deleting record
+				inventoryRepository.delete(inventorySourceItemCode);
+				log.info("---------source inventory-----deleted-----");
+				emptyStorageBin(warehouseId, inventorySourceItemCode.getStorageBin(), loginUserID);
+			}
+
+			// Pass WH_ID/ TGT_ITM_CODE/PACK_BARCODE/TGT_ST_BIN in INVENTORY TABLE validate for a record.
+			Inventory inventoryTargetItemCode = getTransferInventory(warehouseId, createdInhouseTransferLine.getPackBarcodes(),
+					createdInhouseTransferLine.getTargetItemCode(), createdInhouseTransferLine.getTargetStorageBin(), targetStockTypeId, transferTypeId);
+			log.info("---------Target inventory----------> : " + transferTypeId + "|" + inventorySourceItemCode);
+			if (inventoryTargetItemCode != null) {
+				// update INV_QTY value (INV_QTY + TR_CNF_QTY)
+				inventoryQty = inventoryTargetItemCode.getInventoryQuantity();
+				INV_QTY = inventoryQty + transferConfirmedQty;
+				log.info("-----Target----INV_QTY-----------> : " + INV_QTY);
+
+				inventoryTargetItemCode.setInventoryQuantity(INV_QTY);
+				Inventory targetUpdatedInventory = inventoryRepository.save(inventoryTargetItemCode);
+				log.info("------->updatedInventory : " + targetUpdatedInventory);
+			} else {
+				createInventory(createdInhouseTransferLine, transferConfirmedQty, loginUserID);
+			}
+		}
+	}
+
+	/**
+	 * @param createdInhouseTransferLine
+	 * @param transferConfirmedQty
+	 * @param loginUserID
+	 */
+	private void createInventory(InhouseTransferLine createdInhouseTransferLine, Double transferConfirmedQty, String loginUserID) {
+		try {
+			log.info("Create Transfer type Inventory Initiated..!");
+			AddInventory newInventory = new AddInventory();
+			BeanUtils.copyProperties(createdInhouseTransferLine, newInventory, CommonUtils.getNullPropertyNames(createdInhouseTransferLine));
+			newInventory.setItemCode(createdInhouseTransferLine.getTargetItemCode());
+			newInventory.setPalletCode(createdInhouseTransferLine.getPalletCode());
+			newInventory.setPackBarcodes(createdInhouseTransferLine.getPackBarcodes());
+			newInventory.setStorageBin(createdInhouseTransferLine.getTargetStorageBin());
+			newInventory.setCaseCode(createdInhouseTransferLine.getCaseCode());
+			newInventory.setStockTypeId(createdInhouseTransferLine.getTargetStockTypeId());
+
+			if (createdInhouseTransferLine.getSpecialStockIndicatorId() == null) {
+				newInventory.setSpecialStockIndicatorId(1L);
+			} else {
+				newInventory.setSpecialStockIndicatorId(createdInhouseTransferLine.getSpecialStockIndicatorId());
+			}
+
+			newInventory.setInventoryQuantity(transferConfirmedQty);
+			newInventory.setInventoryUom(createdInhouseTransferLine.getTransferUom());
+
+			List<IImbasicData1> imbasicdata1 = imbasicdata1Repository.findByItemCode(newInventory.getItemCode());
+			if (imbasicdata1 != null && !imbasicdata1.isEmpty()) {
+				newInventory.setReferenceField8(imbasicdata1.get(0).getDescription());
+				newInventory.setReferenceField9(imbasicdata1.get(0).getManufacturePart());
+			}
+			StorageBin storageBin = getStorageBin(createdInhouseTransferLine.getWarehouseId(), createdInhouseTransferLine.getTargetStorageBin());
+			if (storageBin != null) {
+				newInventory.setBinClassId(storageBin.getBinClassId());
+				newInventory.setReferenceField10(storageBin.getStorageSectionId());
+				newInventory.setReferenceField5(storageBin.getAisleNumber());
+				newInventory.setReferenceField6(storageBin.getShelfId());
+				newInventory.setReferenceField7(storageBin.getRowId());
+			}
+
+			Inventory createdInventory = inventoryService.createInventory(newInventory, loginUserID);
+			log.info("createdInventory------> : " + createdInventory);
+		} catch (Exception e) {
+			log.error("Exception while creating Inventory while Transfer method----> " + e.getMessage());
+		}
+	}
+
+	/**
+	 * @param warehouseId
+	 * @param storageBin
+	 * @param loginUserID
+	 */
+	public void emptyStorageBin(String warehouseId, String storageBin, String loginUserID) {
+		try {
+			StorageBin dbStorageBin = getStorageBin(warehouseId, storageBin);
+			dbStorageBin.setStatusId(0L);
+			dbStorageBin.setUpdatedBy(loginUserID);
+			dbStorageBin.setUpdatedOn(new Date());
+			storageBinRepository.save(dbStorageBin);
+			log.info("---------source storage bin updated/Emptied------- ", dbStorageBin);
+		} catch (Exception e) {
+			log.error("---------source storagebin-update error----- ", e);
+		}
+	}
+
+	/**
+	 * @param warehouseId
+	 * @param packBarcodes
+	 * @param itemCode
+	 * @param storageBin
+	 * @param transferTypeId
+	 * @param stockTypeId
+	 * @return
+	 */
+	public Inventory getTransferInventory(String warehouseId, String packBarcodes, String itemCode, String storageBin, Long stockTypeId, Long transferTypeId) {
+		log.info("Get Transfer Inventory--> " + warehouseId + "|" + packBarcodes + "|" + itemCode + "|" + storageBin + "|" + transferTypeId + "|" + stockTypeId);
+		if (transferTypeId == 1L) {
+			return inventoryService.getTransferInventory(warehouseId, packBarcodes, itemCode, storageBin, stockTypeId);
+		}
+		return inventoryService.getInventory(warehouseId, packBarcodes, itemCode, storageBin);
+	}
+
+	/**
 	 * getStorageBin
 	 * @param storageBin
 	 * @return
@@ -563,6 +699,98 @@ public class InhouseTransferHeaderService extends BaseService {
 		// IM_CTD_BY
 		inventoryMovement.setCreatedBy(createdInhouseTransferLine.getCreatedBy());
 		
+		// IM_CTD_ON
+		inventoryMovement.setCreatedOn(createdInhouseTransferLine.getCreatedOn());
+		inventoryMovement.setDeletionIndicator(0L);
+		inventoryMovement = inventoryMovementRepository.save(inventoryMovement);
+		log.info("inventoryMovement created: for transferTypeId : " + transferTypeId + "---" + inventoryMovement);
+	}
+
+	/**
+	 *
+	 * @param createdInhouseTransferLine
+	 * @param transferTypeId
+	 * @param stockTypeId
+	 * @param itemCode
+	 * @param storageBin
+	 * @param movementQtyValue
+	 * @param loginUserID
+	 */
+	private void createTransferInventoryMovement(InhouseTransferLine createdInhouseTransferLine, Long transferTypeId,
+												 Long stockTypeId, String itemCode, String storageBin, String movementQtyValue, String loginUserID) {
+		InventoryMovement inventoryMovement = new InventoryMovement();
+		BeanUtils.copyProperties(createdInhouseTransferLine, inventoryMovement,
+				CommonUtils.getNullPropertyNames(createdInhouseTransferLine));
+
+		// CASE_CODE
+		inventoryMovement.setCaseCode(createdInhouseTransferLine.getCaseCode());
+
+		// PAL_CODE
+		inventoryMovement.setPalletCode(createdInhouseTransferLine.getPalletCode());
+
+		// MVT_TYP_ID
+		inventoryMovement.setMovementType(4L);
+
+		// SUB_MVT_TYP_ID
+		/*
+		 * "Pass WH_ID/MVT_TYP_ID=02  in SUBMOVEMENTTYPEID table
+		 * 1. If TR_TYP_ID = 01 and fetch SUB_MVT_TYP_ID=01 and Autofill
+		 * 2. If TR_TYP_ID = 02 and fetch SUB_MVT_TYP_ID=02 and Autofill
+		 * 3.If TR_TYP_ID = 03 and fetch SUB_MVT_TYP_ID=03 and Autofill"
+		 */
+		inventoryMovement.setSubmovementType(1L);
+
+		// VAR_ID
+		inventoryMovement.setVariantCode(1L);
+
+		// VAR_SUB_ID
+		inventoryMovement.setVariantSubCode("1");
+
+		// STR_MTD
+		inventoryMovement.setStorageMethod("1");
+
+		// STR_NO
+		inventoryMovement.setBatchSerialNumber("1");
+
+		// ITM_CODE
+		inventoryMovement.setItemCode(itemCode);
+
+		// MVT_DOC_NO
+		inventoryMovement.setMovementDocumentNo(createdInhouseTransferLine.getTransferNumber());
+
+		// ST_BIN
+		inventoryMovement.setStorageBin(storageBin);
+
+		// STCK_TYP_ID
+		inventoryMovement.setStockTypeId(stockTypeId);
+
+		// SP_ST_IND_ID
+		inventoryMovement.setSpecialStockIndicator(createdInhouseTransferLine.getSpecialStockIndicatorId());
+
+		// MVT_QTY
+		Double transferQty = createdInhouseTransferLine.getTransferConfirmedQty();
+		if(movementQtyValue.equalsIgnoreCase("N") && transferQty != null) {
+			transferQty = (-1) * transferQty;
+		}
+		inventoryMovement.setMovementQty(transferQty);
+
+		// MVT_QTY_VAL
+		inventoryMovement.setMovementQtyValue(movementQtyValue);
+
+		// MVT_UOM
+		inventoryMovement.setInventoryUom(createdInhouseTransferLine.getTransferUom());
+
+		/*
+		 * BAL_OH_QTY
+		 * -------------
+		 * During Inhouse transfer for transfer type ID -3 and insertion of record Inventorymovement table,
+		 *  append BAL_OH_QTY field Zero
+		 */
+		inventoryMovement.setBalanceOHQty(0D);
+
+		// IM_CTD_BY
+		inventoryMovement.setCreatedBy(loginUserID);
+
 		// IM_CTD_ON
 		inventoryMovement.setCreatedOn(createdInhouseTransferLine.getCreatedOn());
 		inventoryMovement.setDeletionIndicator(0L);

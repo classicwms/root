@@ -13,8 +13,7 @@ import javax.validation.Valid;
 
 import com.lowagie.text.DocumentException;
 import com.tekclover.wms.core.exception.BadRequestException;
-import com.tekclover.wms.core.model.transaction.PreOutboundHeader;
-import com.tekclover.wms.core.model.transaction.SearchPreOutboundHeader;
+import com.tekclover.wms.core.model.transaction.*;
 import com.tekclover.wms.core.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -81,6 +80,10 @@ public class WrapperServiceController {
 	
     @Autowired
     TransactionService transactionService;
+	
+    @Autowired
+    EmailService emailService;
+	
 	
 	@ApiOperation(response = Optional.class, value = "TestAXAPI") // label for swagger
 	@PostMapping("/testAXAPI")
@@ -413,53 +416,71 @@ public class WrapperServiceController {
         reportService.export(response, preOutboundHeader, searchPreOutboundHeader1);
     }
 
-//    @Scheduled(cron = "0 0 15 * * ?")
-//    @ApiOperation(response = Optional.class, value = "Email Sending")
-//    @PostMapping("/send-report")
-//    public String sendReport() throws Exception {
-//
-//        SearchPreOutboundHeader searchPreOutboundHeader = new SearchPreOutboundHeader();
-//
-//        // Set the startOrderDate to 12:00 AM and endOrderDate to 11:59 PM of the current day
-//        Calendar calendar = Calendar.getInstance();
-//
-//        // Set startOrderDate to 12:00 AM
-//        calendar.set(Calendar.HOUR_OF_DAY, 0);
-//        calendar.set(Calendar.MINUTE, 0);
-//        calendar.set(Calendar.SECOND, 0);
-//        calendar.set(Calendar.MILLISECOND, 0);
-//        searchPreOutboundHeader.setStartOrderDate(calendar.getTime());
-//
-//        // Set endOrderDate to 11:59 PM
-//        calendar.set(Calendar.HOUR_OF_DAY, 23);
-//        calendar.set(Calendar.MINUTE, 59);
-//        calendar.set(Calendar.SECOND, 59);
-//        calendar.set(Calendar.MILLISECOND, 999);
-//        searchPreOutboundHeader.setEndOrderDate(calendar.getTime());
-//
-//        // Generate the PDF report
-//        PreOutboundHeader[] preOutboundHeaders = transactionService.findPreOutboundHeaderPdf(searchPreOutboundHeader);
-//        File pdfFile = new File("Shipment_Report.pdf");
-//        try (FileOutputStream fos = new FileOutputStream(pdfFile)) {
-//            reportService.exportEmail(fos, preOutboundHeaders); // Adjust `export` to accept OutputStream
-//        }
-//
-//        // Send the PDF via email
-//        try {
-//            emailService.sendEmailWithAttachment(
-//                    "keyan7786@gmail.com",            // Replace with the recipient's email
-//                    "Shipment Dispatch Report",        // Subject
-//                    "Please find the attached report.", // Email body
-//                    pdfFile                             // Attachment
-//            );
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return "Failed to send email";
-//        }
-//
-//        // Clean up the file after sending the email
-//        pdfFile.delete();
-//
-//        return "Email sent successfully with the report!";
+    //PDF Generate
+    @PostMapping("/pickerDenial-report/pdf")
+    private void generatePickerDenialReport(HttpServletResponse response, @RequestBody SearchPickupLine searchPickupLine) throws Exception {
+
+        response.setContentType("report/pdf");
+        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd:hh:mm:ss");
+        String currentDateTime = dateFormatter.format(new Date());
+
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=WMS_Picker_Denial_Report" + currentDateTime + ".pdf";
+        response.setHeader(headerKey, headerValue);
+
+        // Generate the PDF report
+        PickerDenialReport pickerDenialReport = transactionService.pickerDenialReportDownloadPdf(searchPickupLine);
+        reportService.export(response, pickerDenialReport, searchPickupLine); // Adjust `export` to accept OutputStream
+    }
+
+    //PDF Generate
+    @GetMapping("/deliveryConfirmation/pdf")
+    public void generateDeliveryConfirmationPDF(HttpServletResponse response, @RequestParam String warehouseId,
+                                                @RequestParam(required = false) String fromDeliveryDate,
+                                                @RequestParam(required = false) String toDeliveryDate,
+                                                @RequestParam(required = false) String storeCode,
+                                                @RequestParam(required = false) List<String> soType,
+                                                @RequestParam String preOutboundNo,
+                                                @RequestParam String refDocNumber,
+                                                @RequestParam String partnerCode,
+                                                @RequestParam String loginUserID,
+                                                @RequestParam(required = false) Boolean webPortal) throws Exception {
+
+        int count = 0;
+
+            try {
+                log.info("..............Delivery Confirmation Started...........");
+                OutboundLine[] createdOutboundLine =
+                transactionService.deliveryConfirmationPdf(warehouseId, preOutboundNo, refDocNumber,
+                                partnerCode, loginUserID, webPortal);
+
+                log.info("..............Delivery Confirmation Completed -----------> " + createdOutboundLine);
+            } catch (Exception e) {
+                log.info("Log for Delivery Confirmation ----> " + e.getMessage());
+            }
+
+//            if (createdOutboundLine != null || createdOutboundLine.length == 0) {
+
+                log.info("..............ShipmentDelivery Report Started...........");
+                ShipmentDeliveryReport[] shipmentDeliveryList = transactionService.getShipmentDeliveryReportPdf(warehouseId,
+                        fromDeliveryDate, toDeliveryDate, storeCode, soType, refDocNumber);
+                log.info("..............ShipmentDelivery Report Completed --------------> " + shipmentDeliveryList);
+
+                response.setContentType("report/pdf");
+                DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd:hh:mm:ss");
+                String currentDateTime = dateFormatter.format(new Date());
+
+                String headerKey = "Content-Disposition";
+                String headerValue = "attachment; filename=110_TV_Delivery_Confirmation_" + currentDateTime + ".pdf";
+                response.setHeader(headerKey, headerValue);
+
+                log.info("PDF ShipmentDeliveryReport started.....");
+                reportService.exportShipmentDeliveryReport(response, shipmentDeliveryList);
+                log.info("PDF ShipmentDeliveryReport Completed.....");
+//            } else {
+//                log.info("");
+//                throw new BadRequestException("Delivery Confirmation Error!!");
 //    }
+
+    }
 }

@@ -88,9 +88,15 @@ public class OrderManagementLineV2 {
 	@Column(name = "ALLOC_QTY")
 	private Double allocatedQty;
 	
+	@Column(name = "ST_SEC_ID", columnDefinition = "nvarchar(50)")
+	private String storageSectionId;
+	
 	@Column(name = "REQ_DEL_DATE")
 	private Date requiredDeliveryDate;
 	
+	@Column(name = "REF_FIELD_1")
+	private String referenceField1;
+
 	@Column(name = "REF_FIELD_7")
 	private String referenceField7;
 	@Column(name = "IS_DELETED")

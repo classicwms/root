@@ -57,6 +57,7 @@ public class AddPickupLine {
 	private Date pickupupdatedOn = new Date();
 	private String pickupReversedBy;
 	private Date pickupReversedOn = new Date();
+	private String remarks;
 	
 	/**
 	 * 

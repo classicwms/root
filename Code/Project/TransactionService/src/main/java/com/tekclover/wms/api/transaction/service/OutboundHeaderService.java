@@ -296,13 +296,16 @@ public class OutboundHeaderService {
             if(searchOutboundHeader.getStatusId() == null || searchOutboundHeader.getStatusId().isEmpty()) {
                 searchOutboundHeader.setStatusId(null);
             }
+			if(searchOutboundHeader.getPdfPrint() == null) {
+				searchOutboundHeader.setPdfPrint(null);
+			}
 
             return outboundHeaderRepository.findAllOutBoundHeaderV2(searchOutboundHeader.getWarehouseId(), searchOutboundHeader.getRefDocNumber(),
 																	searchOutboundHeader.getPartnerCode(), searchOutboundHeader.getOutboundOrderTypeId(),
                                                                     searchOutboundHeader.getStatusId(), searchOutboundHeader.getSoType(),
                                                                     searchOutboundHeader.getStartRequiredDeliveryDate(), searchOutboundHeader.getEndRequiredDeliveryDate(),
                                                                     searchOutboundHeader.getStartDeliveryConfirmedOn(), searchOutboundHeader.getEndDeliveryConfirmedOn(),
-                                                                    searchOutboundHeader.getStartOrderDate(), searchOutboundHeader.getEndOrderDate());
+                                                                    searchOutboundHeader.getStartOrderDate(), searchOutboundHeader.getEndOrderDate(), searchOutboundHeader.getPdfPrint());
         } catch (Exception e) {
 			log.error("Exception while outbound header Find operation...!");
             throw new BadRequestException("Exception : " + e.toString());
@@ -445,13 +448,15 @@ public class OutboundHeaderService {
 		if(searchOutboundHeader.getStatusId() == null || searchOutboundHeader.getStatusId().isEmpty()) {
 			searchOutboundHeader.setStatusId(null);
 		}
-
+		if(searchOutboundHeader.getPdfPrint() == null) {
+			searchOutboundHeader.setPdfPrint(null);
+		}
 		List<OutboundHeader> headerSearchResults = outboundHeaderRepository.findAllOutBoundHeaderDataForRFD (searchOutboundHeader.getWarehouseId(),
 				searchOutboundHeader.getRefDocNumber(),searchOutboundHeader.getPartnerCode(),searchOutboundHeader.getOutboundOrderTypeId(),
 				searchOutboundHeader.getStatusId(),searchOutboundHeader.getSoType(),
 				searchOutboundHeader.getStartRequiredDeliveryDate(),searchOutboundHeader.getEndRequiredDeliveryDate(),
 				searchOutboundHeader.getStartDeliveryConfirmedOn(),searchOutboundHeader.getEndDeliveryConfirmedOn(),
-				searchOutboundHeader.getStartOrderDate(),searchOutboundHeader.getEndOrderDate());
+				searchOutboundHeader.getStartOrderDate(),searchOutboundHeader.getEndOrderDate(), searchOutboundHeader.getPdfPrint());
 		headerSearchResults.stream().forEach(oh -> {
 			Long sumOfOrderedQty = preOutboundLineRepository.getSumofOrderedQty(oh.getRefDocNumber());
 			Long countOfOrderedQty = preOutboundLineRepository.getCountOfOrderedQty(oh.getRefDocNumber());
@@ -527,13 +532,16 @@ public class OutboundHeaderService {
 		if (searchOutboundHeader.getStatusId() == null || searchOutboundHeader.getStatusId().isEmpty()) {
 			searchOutboundHeader.setStatusId(null);
 		}
+		if(searchOutboundHeader.getPdfPrint() == null) {
+			searchOutboundHeader.setPdfPrint(null);
+		}
 
 		Stream<OutboundHeaderStream> spec = outboundHeaderRepository.findAllOutBoundHeader(searchOutboundHeader.getWarehouseId(),
 				searchOutboundHeader.getRefDocNumber(), searchOutboundHeader.getPartnerCode(), searchOutboundHeader.getOutboundOrderTypeId(),
 				searchOutboundHeader.getStatusId(), searchOutboundHeader.getSoType(),
 				searchOutboundHeader.getStartRequiredDeliveryDate(), searchOutboundHeader.getEndRequiredDeliveryDate(),
 				searchOutboundHeader.getStartDeliveryConfirmedOn(), searchOutboundHeader.getEndDeliveryConfirmedOn(),
-				searchOutboundHeader.getStartOrderDate(), searchOutboundHeader.getEndOrderDate());
+				searchOutboundHeader.getStartOrderDate(), searchOutboundHeader.getEndOrderDate(), searchOutboundHeader.getPdfPrint());
 
 		List<OutboundHeaderStream> outboundHeaderList = spec.collect(Collectors.toList());
 
@@ -685,6 +693,16 @@ public class OutboundHeaderService {
 		} else {
 			throw new EntityNotFoundException("Error in deleting Id: " + preOutboundNo);
 		}
+	}
+
+	/**
+	 *
+	 * @param warehouseId
+	 * @return
+	 */
+	public long getOutboundHeaderCount (String warehouseId) {
+		List<OutboundHeader> outboundHeader = outboundHeaderRepository.findByWarehouseIdAndStatusIdAndDeletionIndicator(warehouseId, 57l, 0L);
+		return outboundHeader.size();
 	}
 	//-------------------------------------------Streaming-------------------------------------------------------
 	/**

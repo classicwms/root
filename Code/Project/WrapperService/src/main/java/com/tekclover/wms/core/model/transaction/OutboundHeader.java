@@ -42,4 +42,5 @@ public class OutboundHeader {
 	private String reversedBy;
 	private Date reversedOn;
 	private String statusDescription;
+	private Boolean pdfPrint;
 }

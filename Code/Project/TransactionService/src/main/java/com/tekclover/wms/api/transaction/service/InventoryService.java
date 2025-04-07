@@ -983,6 +983,36 @@ public class InventoryService extends BaseService {
 			throw new EntityNotFoundException("Error in deleting Id: " + e.toString());
 		}
 	}
+
+	/**
+	 *
+	 * @param warehouseId
+	 * @param packBarcodes
+	 * @param itemCode
+	 * @param storageBin
+	 * @param stockTypeId
+	 * @return
+	 */
+	public Inventory getTransferInventory (String warehouseId, String packBarcodes, String itemCode, String storageBin, Long stockTypeId) {
+		log.info("getInventory----------> : " + warehouseId + "," + packBarcodes + "," + itemCode + "," + storageBin + "," + stockTypeId);
+		Optional<Inventory> inventory =
+				inventoryRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPackBarcodesAndItemCodeAndStorageBinAndStockTypeIdAndDeletionIndicator(
+						getLanguageId(),
+						getCompanyCode(),
+						getPlantId(),
+						warehouseId,
+						packBarcodes,
+						itemCode,
+						storageBin,
+						stockTypeId,
+						0L);
+		if (inventory.isEmpty()) {
+			log.error ("---------Inventory is null-----------");
+			return null;
+		}
+		log.info("getInventory record----------> : " + inventory.get());
+		return inventory.get();
+	}
 	
 	/*
 	 * -------------------------Audit Log----------------------------------------------------------------

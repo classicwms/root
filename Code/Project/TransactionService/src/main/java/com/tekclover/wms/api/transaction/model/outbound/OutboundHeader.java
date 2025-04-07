@@ -136,4 +136,7 @@ public class OutboundHeader {
 	
 	@Column(name = "DLV_REV_ON") 
 	private Date reversedOn;
+
+	@Column(name = "PDF_PRINT")
+	private Boolean pdfPrint;
 }

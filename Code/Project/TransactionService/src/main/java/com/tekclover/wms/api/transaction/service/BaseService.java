@@ -13,6 +13,14 @@ public class BaseService {
 	protected static final String WAREHOUSE_ID_110 = "110";
 	protected static final String WAREHOUSE_ID_111 = "111";
 	
+	protected static final String OUT_OF_STOCK = "Out of Stock";
+	protected static final String OUTOF_STOCK = "Outof Stock";
+	protected static final String OUTOFSTOCK = "OutofStock";
+	protected static final String SHORT_QTY = "Short Qty";
+	protected static final String DAMAGE = "Damage";
+	protected static final String AISLE_BLOCK = "Aisle Block";
+	protected static final String NON_PACK_QTY = "Non-Pack Qty";
+
 	@Autowired
 	protected IDMasterService idmasterService;
 	

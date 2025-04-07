@@ -509,7 +509,7 @@ public class GrLineService extends BaseService {
 			 * 
 			 * If WH_ID=111, fetch ST_BIN values of ST_SEC_ID= ZT and sort the latest and insert
 			 */
-			List<String> storageSectionIds = Arrays.asList("ZB","ZG","ZD","ZC","ZT");
+			List<String> storageSectionIds = Arrays.asList("ZBU", "ZBL", "ZCU", "ZCL", "ZGU", "ZGL", "ZDU", "ZDL", "ZT");
 			
 			// Discussed to remove this condition
 //			if (createdGRLine.getWarehouseId().equalsIgnoreCase(WAREHOUSEID_111)) {

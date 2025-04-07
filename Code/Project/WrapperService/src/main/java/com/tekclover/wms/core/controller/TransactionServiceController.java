@@ -9,6 +9,8 @@ import java.util.concurrent.ExecutionException;
 
 import javax.validation.Valid;
 
+import com.tekclover.wms.core.exception.BadRequestException;
+import com.tekclover.wms.core.util.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.expression.ParseException;
@@ -1096,6 +1098,40 @@ public class TransactionServiceController {
 			@RequestParam String authToken) throws Exception {
 		return transactionService.findPreOutboundHeaderNew(searchPreOutboundHeader, authToken);
 	}
+
+	//Stream
+	@ApiOperation(response = PreOutboundHeader.class, value = "Search PreOutboundHeader New") // label for swagger
+	@PostMapping("/preoutboundheader/findPreOutboundHeaderExcel")
+	public PreOutboundHeader[] findPreOutboundHeaderNewExcel(@RequestBody SearchPreOutboundHeader searchPreOutboundHeader,
+														@RequestParam String authToken) throws Exception {
+
+		SearchPreOutboundHeader searchPreOutboundHeader1 = new SearchPreOutboundHeader();
+		searchPreOutboundHeader1.setWarehouseId(searchPreOutboundHeader.getWarehouseId());
+
+		Date fromDate = null;
+		Date toDate = null;
+
+		try {
+			if (searchPreOutboundHeader.getStStartDate().indexOf("T") > 0) {
+				fromDate = DateUtils.convertStringToDateWithT(searchPreOutboundHeader.getStStartDate());
+				toDate = DateUtils.convertStringToDateWithT(searchPreOutboundHeader.getStEndDate());
+			} else {
+				fromDate = DateUtils.addTimeToDate(searchPreOutboundHeader.getStStartDate(), 14, 0, 0);
+				toDate = DateUtils.addTimeToDate(searchPreOutboundHeader.getStEndDate(), 13, 59, 59);
+			}
+			log.info("Date: " + fromDate + "," + toDate);
+
+		} catch (Exception e) {
+			throw new BadRequestException("Date should be in yyyy-MM-dd format.");
+		}
+
+		searchPreOutboundHeader1.setStartOrderDate(fromDate);
+		searchPreOutboundHeader1.setEndOrderDate(toDate);
+
+
+		return transactionService.findPreOutboundHeaderNew(searchPreOutboundHeader1, authToken);
+	}
+
 	//Patch
 	@ApiOperation(response = PreOutboundHeader.class, value = "Update PreOutboundHeader") // label for swagger
 	@PatchMapping("/preoutboundheader/{preOutboundNo}")
@@ -1147,8 +1183,7 @@ public class TransactionServiceController {
 	//Streaming - V2 [Limited Fields]
 	@ApiOperation(response = OrderManagementLineV2.class, value = "Search OrderMangementLine V2 Limited Fields") // label for swagger
 	@PostMapping("/ordermanagementline/findOrderManagementLineV2")
-	public OrderManagementLineV2[] findOrderManagementLineV2(@RequestBody SearchOrderManagementLine searchOrderMangementLine,
-			@RequestParam String authToken) throws Exception {
+	public OrderManagementLineV2[] findOrderManagementLineV2(@RequestBody SearchOrderManagementLine searchOrderMangementLine, @RequestParam String authToken) throws Exception {
 		return transactionService.findOrderManagementLineV2(searchOrderMangementLine, authToken);
 	}
 	
@@ -1563,10 +1598,11 @@ public class TransactionServiceController {
     @GetMapping("/outboundline/delivery/confirmation")
 	public ResponseEntity<?> deliveryConfirmation (@RequestParam String warehouseId, @RequestParam String preOutboundNo, 
 			@RequestParam String refDocNumber, @RequestParam String partnerCode, @RequestParam String loginUserID,
-			@RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+												   @RequestParam(required = false) Boolean webPortal, @RequestParam String authToken)
+			throws IllegalAccessException, InvocationTargetException {
 		OutboundLine[] createdOutboundLine = 
 				transactionService.deliveryConfirmation(warehouseId, preOutboundNo, refDocNumber, 
-						partnerCode, loginUserID, authToken);
+						partnerCode, loginUserID, webPortal, authToken);
 		return new ResponseEntity<>(createdOutboundLine , HttpStatus.OK);
 	}
     
@@ -2216,5 +2252,28 @@ public class TransactionServiceController {
 	public ResponseEntity<?> findStreamStorageBin() throws ExecutionException, InterruptedException {
 		StreamingResponseBody responseBody = transactionService.findStreamStorageBin();
 		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(responseBody);
+	}
+
+	//PickerDenialReport
+	@ApiOperation(response = PickerDenialReport.class, value = "Search PickerDenialReport") // label for swagger
+	@PostMapping("/pickupline/findPickerDenialReport")
+	public PickerDenialReport findPickerDenialReport(@RequestBody SearchPickupLine searchPickupLine, @RequestParam String authToken) throws Exception {
+		return transactionService.pickerDenialReport(searchPickupLine, authToken);
+	}
+
+	//cancelQualityLine
+	@ApiOperation(response = QualityLine.class, value = "Cancel QualityLine") // label for swagger
+	@PostMapping("/qualityline/cancelQualityLine")
+	public ResponseEntity<?> cancelQualityLine(@Valid @RequestBody List<ReversalInput> reversalInputList, @RequestParam String loginUserID, @RequestParam String authToken) throws Exception {
+		WarehouseApiResponse response = transactionService.batchQualityReversalV2(reversalInputList, loginUserID, authToken);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+
+	//OrderManagementLineGroupByItem
+	@ApiOperation(response = OrderManagementLineGroupByItem.class, value = "OrderManagement Line Order Group by Item") // label for swagger
+	@GetMapping("//ordermanagementline/getItemList")
+	public ResponseEntity<?> getItemCodeList(@RequestParam String warehouseId, @RequestParam String authToken) {
+		OrderManagementLineGroupByItem[] orders = transactionService.getItemCodeList(warehouseId, authToken);
+		return new ResponseEntity<>(orders, HttpStatus.OK);
 	}
 }

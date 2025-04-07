@@ -216,4 +216,7 @@ public class OrderManagementLine {
 	
 	@Column(name = "PICKER_REASSIGN_ON") 
 	private Date pickerReassignedOn = new Date();
+
+	@Column(name = "ST_SEC_ID", columnDefinition = "nvarchar(50)")
+	private String storageSectionId;
 }

@@ -433,4 +433,8 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 			@Param("inventoryQty") Double inventoryQty
 	);
 
+	Optional<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPackBarcodesAndItemCodeAndStorageBinAndStockTypeIdAndDeletionIndicator(
+			String languageId, String companyCode, String plantId, String warehouseId, String packBarcodes,
+			String itemCode, String storageBin, Long stockTypeId, Long deletionIndicator);
+
 }

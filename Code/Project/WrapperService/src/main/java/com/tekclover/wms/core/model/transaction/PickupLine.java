@@ -64,4 +64,5 @@ public class PickupLine {
 	private Date pickupUpdatedOn;
 	private String pickupReversedBy;
 	private Date pickupReversedOn;
+	private String remarks;
 }

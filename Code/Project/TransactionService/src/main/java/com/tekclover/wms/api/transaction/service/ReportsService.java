@@ -1914,6 +1914,9 @@ public class ReportsService extends BaseService {
         long quality = qualityHeader.stream().count();
         outboundCount.setQuality(quality);
 
+        long quality2 = outboundHeaderService.getOutboundHeaderCount(warehouseId);
+        outboundCount.setQuality2(quality2);
+
         /*--------------StockCount--------------------------------*/
         MobileDashboard.StockCount stockCount = mobileDashboard.new StockCount();
 

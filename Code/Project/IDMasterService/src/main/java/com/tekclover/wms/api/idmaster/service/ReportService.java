@@ -39,10 +39,10 @@ public class ReportService {
 
         PdfPTable table = new PdfPTable(6);
         table.setWidthPercentage(105f);
-        table.setWidths(new float[] {2.0f, 1.5f, 1.5f, 2.0f, 1.5f, 3.0f});
+        table.setWidths(new float[] {2.5f, 1.5f, 1.5f, 1.5f, 1.5f, 3.0f});
         table.setSpacingBefore(10);
 
-        Paragraph paragraph = new Paragraph("Daily Order Report", fontTitle);
+        Paragraph paragraph = new Paragraph("WMS Daily Order Report", fontTitle);
         paragraph.setAlignment(Paragraph.ALIGN_CENTER);
         paragraph.setSpacingAfter(3.0f);
 
@@ -116,6 +116,7 @@ public class ReportService {
         font.setStyle(Font.NORMAL);
 
         SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy");
+        SimpleDateFormat dateFormatWithTime = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 
         int rowCount = 0; // Track the number of rows
         int maxRowsPerPage = 30; // Define the maximum number of rows per page
@@ -128,7 +129,7 @@ public class ReportService {
             cell.setPaddingBottom(10);
             cell.setBorderWidthBottom(1);
 
-            String formattedOrderDate = dateFormatter.format(header.getRefDocDate());
+            String formattedOrderDate = dateFormatWithTime.format(header.getRefDocDate());
             String formattedReceivedDate = dateFormatter.format(header.getRequiredDeliveryDate());
 
             cell.setPhrase(new Phrase(formattedOrderDate, font));
@@ -185,7 +186,7 @@ public class ReportService {
         Font fontParagraph = FontFactory.getFont(FontFactory.HELVETICA);
         fontParagraph.setSize(8);
 
-        Paragraph paragraph = new Paragraph("Daily Order Report", fontTitle);
+        Paragraph paragraph = new Paragraph("WMS Daily Order Report", fontTitle);
         paragraph.setAlignment(Paragraph.ALIGN_CENTER);
 
         SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy h:mm a");

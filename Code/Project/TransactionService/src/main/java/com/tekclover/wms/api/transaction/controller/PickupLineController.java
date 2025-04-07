@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.model.report.PickerDenialReport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -112,5 +113,12 @@ public class PickupLineController {
     	pickuplineService.deletePickupLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, 
     			pickupNumber, itemCode, actualHeNo, pickedStorageBin, pickedPackCode, loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
+    @ApiOperation(response = PickerDenialReport.class, value = "PickerDenialReport") // label for swagger
+	@PostMapping("/pickerDenialReport")
+	public ResponseEntity<?> generatePickerDenialReport(@RequestBody SearchPickupLine searchPickupLine) throws Exception {
+		PickerDenialReport pickerDenialReport = pickuplineService.findPickerDenialReport(searchPickupLine);
+		return new ResponseEntity<>(pickerDenialReport, HttpStatus.OK);
 	}
 }

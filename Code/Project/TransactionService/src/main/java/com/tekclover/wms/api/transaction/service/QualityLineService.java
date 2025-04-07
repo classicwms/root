@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.model.outbound.quality.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -30,11 +31,6 @@ import com.tekclover.wms.api.transaction.model.outbound.OutboundLineInterim;
 import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupLine;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.PreOutboundLine;
-import com.tekclover.wms.api.transaction.model.outbound.quality.AddQualityLine;
-import com.tekclover.wms.api.transaction.model.outbound.quality.QualityHeader;
-import com.tekclover.wms.api.transaction.model.outbound.quality.QualityLine;
-import com.tekclover.wms.api.transaction.model.outbound.quality.SearchQualityLine;
-import com.tekclover.wms.api.transaction.model.outbound.quality.UpdateQualityLine;
 import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
 import com.tekclover.wms.api.transaction.repository.InventoryRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundLineInterimRepository;
@@ -1126,6 +1122,64 @@ public class QualityLineService extends BaseService {
 			return qualityLineRepository.save(dbQualityLine);
 		} else {
 			throw new EntityNotFoundException("Error in deleting Id: " + lineNumber);
+		}
+	}
+
+	/**
+	 *
+	 * @param companyCodeId
+	 * @param plantId
+	 * @param languageId
+	 * @param warehouseId
+	 * @param refDocNumber
+	 * @param preOutboundNo
+	 * @param itemCode
+	 * @param partnerCode
+	 * @param lineNumber
+	 * @param loginUserID
+	 * @throws Exception
+	 */
+	public void qualityLineReversal(String companyCodeId, String plantId, String languageId, String warehouseId,
+									String refDocNumber, String preOutboundNo, String itemCode, String partnerCode,
+									Long lineNumber, Long statusId, Long statusId50, String statusDescription, String loginUserID) throws Exception {
+		try {
+
+			List<QualityLine> qualityLines = getQualityLineForReversal(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode);
+			log.info("QualityLine--------for cancel-------> : " + qualityLines.size());
+			if (qualityLines != null && !qualityLines.isEmpty()) {
+				for(QualityLine qualityLine : qualityLines) {
+					qualityHeaderRepository.updateQualityHeaderReversal(statusId, statusDescription, loginUserID, qualityLine.getQualityInspectionNo());
+					outboundLineRepository.updateOutboundLineStatus (warehouseId, refDocNumber, statusId50, lineNumber);
+					qualityLineRepository.delete(qualityLine);
+				}
+			}
+			log.info("Quality Line reversal finished !");
+		} catch (Exception e) {
+			log.error("Exception while quality line reversal process : " + e.getMessage());
+			throw e;
+		}
+	}
+
+	/**
+	 *
+	 * @param qualityReversalInputList
+	 * @param loginUserID
+	 * @return
+	 * @throws Exception
+	 */
+	public void batchQualityReversalV2(List<ReversalInput> qualityReversalInputList, String loginUserID) throws Exception {
+		log.info("OutboundReversal Input: " + qualityReversalInputList);
+		if(qualityReversalInputList != null && !qualityReversalInputList.isEmpty()) {
+			AuthToken authTokenForIDService = authTokenService.getIDMasterServiceAuthToken();
+			Long STATUS_ID = 55L;
+			Long STATUS_ID_50 = 50L;
+			for (ReversalInput outboundReversalInput : qualityReversalInputList){
+				StatusId idStatus = idmasterService.getStatus(STATUS_ID, outboundReversalInput.getWarehouseId(), authTokenForIDService.getAccess_token());
+				String statusDescription = idStatus.getStatus();
+				qualityLineReversal(outboundReversalInput.getCompanyCodeId(), outboundReversalInput.getPlantId(), outboundReversalInput.getLanguageId(), outboundReversalInput.getWarehouseId(),
+						outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), outboundReversalInput.getItemCode(), outboundReversalInput.getPartnerCode(),
+						outboundReversalInput.getLineReference(), STATUS_ID, STATUS_ID_50, statusDescription, loginUserID);
+			}
 		}
 	}
 }

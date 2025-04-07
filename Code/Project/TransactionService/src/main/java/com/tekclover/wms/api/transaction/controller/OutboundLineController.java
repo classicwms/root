@@ -109,10 +109,10 @@ public class OutboundLineController {
     @ApiOperation(response = OutboundLine.class, value = "Update OutboundLine") // label for swagger
     @GetMapping("/delivery/confirmation")
 	public ResponseEntity<?> deliveryConfirmation (@RequestParam String warehouseId, @RequestParam String preOutboundNo, 
-			@RequestParam String refDocNumber, @RequestParam String partnerCode, @RequestParam String loginUserID) 
+			@RequestParam String refDocNumber, @RequestParam String partnerCode, @RequestParam String loginUserID, @RequestParam(required = false) Boolean webPortal)
 			throws IllegalAccessException, InvocationTargetException {
 		List<OutboundLine> createdOutboundLine = 
-				outboundlineService.deliveryConfirmation(warehouseId, preOutboundNo, refDocNumber, partnerCode, loginUserID);
+				outboundlineService.deliveryConfirmation(warehouseId, preOutboundNo, refDocNumber, partnerCode, loginUserID, webPortal);
 		return new ResponseEntity<>(createdOutboundLine , HttpStatus.OK);
 	}
     

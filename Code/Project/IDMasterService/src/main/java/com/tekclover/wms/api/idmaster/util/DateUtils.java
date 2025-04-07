@@ -293,14 +293,15 @@ public class DateUtils {
 	/**
 	 * 
 	 * @param inputDate
-	 * @param numberOfDays
+	 * @param hours
+	 * @param minutes
 	 * @return
-	 * @throws ParseException
+	 * @throws Exception
 	 */
-	public static Date addTimeToDate (Date inputDate, int numberOfDays) throws ParseException {
+	public static Date addTimeToDate (Date inputDate, int hours, int minutes) throws Exception {
 		try {
 			LocalDateTime localDateTime = LocalDateTime.ofInstant(inputDate.toInstant(), ZoneId.systemDefault());
-			localDateTime = localDateTime.minusHours(numberOfDays);
+			localDateTime = localDateTime.minusHours(hours).minusMinutes(minutes);
 			
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 			String sConvertedDateTime = formatter.format(localDateTime);

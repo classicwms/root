@@ -30,4 +30,13 @@ public class SearchOrderManagementLine {
 	private Date startCreatedOnDate;
 	private Date endCreatedOnDate;
 
+	private List<String> storageSectionId;
+	private String sStartRequiredDeliveryDate;
+	private String sEndRequiredDeliveryDate;
+	private String sStartOrderDate;
+	private String sEndOrderDate;
+
+	private String sStartCreatedOnDate;
+	private String sEndCreatedOnDate;
+
 }

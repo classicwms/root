@@ -4,6 +4,8 @@ import java.util.Date;
 
 import lombok.Data;
 
+import javax.persistence.Column;
+
 @Data
 public class UpdateOutboundHeader {
 
@@ -40,4 +42,5 @@ public class UpdateOutboundHeader {
 	private Date updatedOn;
 	private String reversedBy;
 	private Date reversedOn;
+	private Boolean pdfPrint;
 }

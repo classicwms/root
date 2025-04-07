@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import com.tekclover.wms.api.transaction.model.report.PickerDenialReportImpl;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -63,4 +64,12 @@ public interface OrderManagementLineRepository extends JpaRepository<OrderManage
 	@Query("UPDATE OrderManagementLine ob SET ob.requiredDeliveryDate = :requiredDeliveryDate WHERE ob.warehouseId = :warehouseId AND ob.refDocNumber = :refDocNumber")
 	void updateOrderManagementLineRequiredDeliveryDate(@Param ("warehouseId") String warehouseId,
 			@Param ("refDocNumber") String refDocNumber, @Param ("requiredDeliveryDate") Date requiredDeliveryDate);
+
+	@Query(value = "SELECT itm_code itemCode,item_text description, \r\n"
+			+ " (case when count(ref_doc_no) > 1 then 'Multiple' else 'Single' end) type \r\n"
+			+ " FROM tblordermangementline \r\n"
+			+ " WHERE WH_ID = :warehouseId AND IS_DELETED = 0 and status_id in :statusIds \r\n"
+			+ " GROUP BY itm_code,item_text", nativeQuery = true)
+	public List<PickerDenialReportImpl> getItemCodeList(@Param("warehouseId") String warehouseId,
+														@Param("statusIds") List<Long> statusIds);
 }

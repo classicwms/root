@@ -185,4 +185,8 @@ public class PickupLine {
 	
 	@Column(name = "PICK_REV_ON")
 	private Date pickupReversedOn = new Date();
+
+	//Picker Denial Report
+	@Column(name = "REMARK", columnDefinition = "nvarchar(255)")
+	private String remarks;
 }

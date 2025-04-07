@@ -247,7 +247,7 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 	@Query(value="select ob.c_id,ob.itm_code,ob.lang_id,ob.ob_line_no,ob.partner_code,ob.plant_id,ob.pre_ob_no,ob.ref_doc_no,ob.wh_id,ob.str_no,ob.dlv_ctd_by,\n" +
 			"ob.dlv_ctd_on,ob.is_deleted,ob.dlv_cnf_by,ob.dlv_cnf_on,ob.dlv_ord_no,ob.dlv_qty,ob.dlv_uom,ob.item_text,ob.ord_qty,ob.ord_uom,ob.ob_ord_typ_id,\n" +
 			"ob.ref_field_1,ob.ref_field_2,ob.ref_field_3,ob.ref_field_4,ob.ref_field_5,ob.ref_field_6,ob.ref_field_7,ob.ref_field_8,\n" +
-			"ob.dlv_rev_by,ob.dlv_rev_on,ob.sp_st_ind_id,ob.status_id,ob.stck_typ_id,ob.dlv_utd_by,ob.dlv_utd_on,ob.var_id,ob.var_sub_id,\n" +
+			"ob.dlv_rev_by,ob.dlv_rev_on,ob.sp_st_ind_id,ob.status_id,ob.stck_typ_id,ob.dlv_utd_by,ob.dlv_utd_on,ob.var_id,ob.var_sub_id,ob.QC_STATUS,\n" +
 			"(select SUM(p.PICK_CNF_QTY) from tblpickupline p \n" +
 			"where \n" +
 			"p.wh_id = ob.wh_id and p.PRE_OB_NO = ob.PRE_OB_NO and p.OB_LINE_NO = ob.OB_LINE_NO and p.itm_code = ob.itm_code and p.ref_doc_no = ob.ref_doc_no and p.is_deleted = 0 \n" +
@@ -270,7 +270,7 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 			"group by ob.c_id,ob.itm_code,ob.lang_id,ob.ob_line_no,ob.partner_code,ob.plant_id,ob.pre_ob_no,ob.ref_doc_no,ob.wh_id,ob.str_no,ob.dlv_ctd_by,\n" +
 			"ob.dlv_ctd_on,ob.is_deleted,ob.dlv_cnf_by,ob.dlv_cnf_on,ob.dlv_ord_no,ob.dlv_qty,ob.dlv_uom,ob.item_text,ob.ord_qty,ob.ord_uom,ob.ob_ord_typ_id,\n" +
 			"ob.ref_field_1,ob.ref_field_2,ob.ref_field_3,ob.ref_field_4,ob.ref_field_5,ob.ref_field_6,ob.ref_field_7,ob.ref_field_8,ob.ref_field_9,ob.ref_field_10,\n" +
-			"ob.dlv_rev_by,ob.dlv_rev_on,ob.sp_st_ind_id,ob.status_id,ob.stck_typ_id,ob.dlv_utd_by,ob.dlv_utd_on,ob.var_id,ob.var_sub_id\n", nativeQuery = true)
+			"ob.dlv_rev_by,ob.dlv_rev_on,ob.sp_st_ind_id,ob.status_id,ob.stck_typ_id,ob.dlv_utd_by,ob.dlv_utd_on,ob.var_id,ob.var_sub_id,ob.qc_status\n", nativeQuery = true)
 	public List<OutboundLine> findOutboundLineNew(@Param ("warehouseId") List<String> warehouseId,
 												  @Param ("fromDeliveryDate") Date fromDeliveryDate,
 												  @Param ("toDeliveryDate") Date toDeliveryDate,
@@ -415,4 +415,14 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine,Long>
 //	@Query("UPDATE OutboundLine ob SET ob.requiredDeliveryDate = :requiredDeliveryDate WHERE ob.warehouseId = :warehouseId AND ob.refDocNumber = :refDocNumber")
 //	void updateOutboundHeaderRequiredDeliveryDate(@Param ("warehouseId") String warehouseId,
 //			@Param ("refDocNumber") String refDocNumber, @Param ("requiredDeliveryDate") Date requiredDeliveryDate);
+
+	@Modifying(clearAutomatically = true, flushAutomatically = true)
+	@Query("UPDATE OutboundLine ob SET ob.statusId = :statusId, ob.isQualityChecked = 1 \r\n"
+			+ " WHERE ob.warehouseId = :warehouseId AND \r\n "
+			+ " ob.refDocNumber = :refDocNumber AND ob.lineNumber = :lineNumber")
+	public void updateOutboundLineStatus(@Param ("warehouseId") String warehouseId,
+										 @Param ("refDocNumber") String refDocNumber,
+										 @Param ("statusId") Long statusId,
+										 @Param ("lineNumber") Long lineNumber);
+
 }

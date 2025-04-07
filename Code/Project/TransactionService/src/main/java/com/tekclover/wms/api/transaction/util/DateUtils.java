@@ -593,4 +593,37 @@ public class DateUtils {
 		}
 		return null;
 	}
+
+	/**
+	 *
+	 * @param fromDate
+	 * @param toDate
+	 * @return
+	 * @throws Exception
+	 */
+	public static Date[] addTimeToDatesForSearch (String fromDate, String toDate) throws Exception {
+
+		fromDate = fromDate + " 00:00:00";
+		toDate = toDate + " 23:59:00";
+		Date startDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(fromDate);
+		Date endDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(toDate);
+		LocalDate sLocalDate =  LocalDate.ofInstant(startDate.toInstant(), ZoneId.systemDefault());
+		LocalDate eLocalDate =  LocalDate.ofInstant(endDate.toInstant(), ZoneId.systemDefault());
+
+		LocalDateTime sLocalDateTime = sLocalDate.atTime(0, 0, 0);
+		LocalDateTime eLocalDateTime = eLocalDate.atTime(23, 59, 0);
+
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+
+		String sConvertedDateTime = formatter.format(sLocalDateTime);
+		String eConvertedDateTime = formatter.format(eLocalDateTime);
+
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		Date sDate = dateFormatter.parse(sConvertedDateTime);
+		Date eDate = dateFormatter.parse(eConvertedDateTime);
+
+		Date[] dates = new Date[] { sDate, eDate };
+		log.info("StartDate, EndDate : " + sDate + " | " + eDate);
+		return dates;
+	}
 }

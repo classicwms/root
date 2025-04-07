@@ -213,7 +213,7 @@ public class SendMailService {
 			}
 		}
 		String localDate = DateUtils.getCurrentDateWithoutTimestamp();
-		String emailSubject = propertiesConfig.getEmailSubject() + "Daily Order Report - True Value and True Express - "+localDate;
+		String emailSubject = "WMS Daily Order Report - True Value and True Express - "+localDate;
 
 //		FileNameForEmail fileNameForEmail = fileNameForEmailService.getFileNameForEmailByDate(localDate);
 
@@ -221,7 +221,7 @@ public class SendMailService {
 
 		email.setSenderName("IWE Express-Support");
 		email.setSubject(emailSubject);
-		email.setBodyText("Dear IW Express team,<br><br>"+"Please find the attached Daily Order Report for your reference<br><br>Regards<br>WMS IT Team");
+		email.setBodyText("Dear IW Express team,<br><br>"+"Please find the attached WMS Daily Order Report for your reference<br><br>Regards<br>WMS IT Team");
 		email.setToAddress(toAddress);
 		email.setCcAddress(ccAddress);
 		sendTvReportMail(email,fileName, fileName2);
@@ -294,12 +294,12 @@ public class SendMailService {
 			helper.setText(email.getBodyText(), true);
 
 			javaMailSender.send(msg);
-			log.info("Scheduled Mail sent successful---> " + fileNameForEmail);
+			log.info("Report - Scheduled Mail sent successful---> " + fileNameForEmail);
 		}else {
 			helper.setFrom(propertiesConfig.getEmailFromAddress());
 			helper.setTo("raj@tekclover.com");
 			helper.setCc("senthil.v@tekclover.com");
-			String subject = propertiesConfig.getEmailSubject()+"Sending Report Through eMail Failed";
+			String subject = propertiesConfig.getEmailSubject()+"TV-Sending Report Through eMail Failed";
 			helper.setSubject(subject);
 			helper.setText("Attachment not found, Sending Report Through eMail Failed", true);
 			javaMailSender.send(msg);
@@ -451,5 +451,45 @@ public class SendMailService {
 			log.info("Failed Order Detail Mail sent Unsuccessful");
 			throw new BadRequestException("Mail Sent Failed" + e.toString());
 		}
+	}
+
+	/**
+	 *
+	 * @param fileName110
+	 * @param fileName111
+	 * @throws MessagingException
+	 * @throws IOException
+	 */
+	public void sendPickerDenialReportMail(String fileName110, String fileName111) throws MessagingException, IOException {
+
+		//Send Email
+		log.info("Scheduling the TV Picker Denial Report Mail Started at "+ new Date());
+
+		List<EMailDetails> userEMail = eMailDetailsService.getReportEMailDetailsList();
+
+		String toAddress = "";
+		String ccAddress = "";
+
+		for(EMailDetails eMailDetails: userEMail){
+
+			if(eMailDetails.getToAddress()!=null) {
+				toAddress = eMailDetails.getToAddress() + "," + toAddress;
+			}
+
+			if(eMailDetails.getCcAddress()!=null) {
+				ccAddress = eMailDetails.getCcAddress() + "," + ccAddress;
+			}
+		}
+		String localDate = DateUtils.getCurrentDateWithoutTimestamp();
+		String emailSubject = "WMS PickerDenial Report - True Value and True Express - "+localDate;
+
+		EMailDetails email = new EMailDetails();
+
+		email.setSenderName("IWE Express-Support");
+		email.setSubject(emailSubject);
+		email.setBodyText("Dear IW Express team,<br><br>"+"Please find the attached WMS Picker Denial Report for your reference<br><br>Regards<br>WMS IT Team");
+		email.setToAddress(toAddress);
+		email.setCcAddress(ccAddress);
+		sendTvReportMail(email,fileName110, fileName111);
 	}
 }

@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.model.report.PickerDenialReportImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -298,24 +299,32 @@ public class OrderManagementLineService extends BaseService {
 	}
 
 	//Streaming - V2 [Limited Fields]
-	public Stream<OrderManagementLineV2> findOrderManagementLineV2(SearchOrderManagementLine searchOrderManagementLine)
-			throws ParseException, java.text.ParseException {
+	public Stream<OrderManagementLineV2> findOrderManagementLineV2(SearchOrderManagementLine searchOrderManagementLine) throws Exception {
 
-		if (searchOrderManagementLine.getStartRequiredDeliveryDate() != null
-				&& searchOrderManagementLine.getEndRequiredDeliveryDate() != null) {
-			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOrderManagementLine.getStartRequiredDeliveryDate(),
-					searchOrderManagementLine.getEndRequiredDeliveryDate());
+		if (searchOrderManagementLine.getSStartRequiredDeliveryDate() != null
+				&& searchOrderManagementLine.getSEndRequiredDeliveryDate() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOrderManagementLine.getSStartRequiredDeliveryDate(),
+					searchOrderManagementLine.getSEndRequiredDeliveryDate());
 			searchOrderManagementLine.setStartRequiredDeliveryDate(dates[0]);
 			searchOrderManagementLine.setEndRequiredDeliveryDate(dates[1]);
 		}
 
-		if (searchOrderManagementLine.getStartOrderDate() != null
-				&& searchOrderManagementLine.getEndOrderDate() != null) {
-			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOrderManagementLine.getStartOrderDate(),
-					searchOrderManagementLine.getEndOrderDate());
+		if (searchOrderManagementLine.getSStartOrderDate() != null
+				&& searchOrderManagementLine.getSEndOrderDate() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOrderManagementLine.getSStartOrderDate(),
+					searchOrderManagementLine.getSEndOrderDate());
 			searchOrderManagementLine.setStartOrderDate(dates[0]);
 			searchOrderManagementLine.setEndOrderDate(dates[1]);
 		}
+
+		if (searchOrderManagementLine.getStartCreatedOnDate() != null
+				&& searchOrderManagementLine.getSEndCreatedOnDate() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchOrderManagementLine.getSStartCreatedOnDate(),
+					searchOrderManagementLine.getSEndCreatedOnDate());
+			searchOrderManagementLine.setStartCreatedOnDate(dates[0]);
+			searchOrderManagementLine.setEndCreatedOnDate(dates[1]);
+		}
+		log.info("OrderManagementLine search Input V2 --> " + searchOrderManagementLine);
 		OrderManagementLineV2Specification spec = new OrderManagementLineV2Specification(searchOrderManagementLine);
 
         return orderManagementLineV2Repository.stream(spec, OrderManagementLineV2.class);
@@ -493,13 +502,14 @@ public class OrderManagementLineService extends BaseService {
 		Double ORD_QTY = dbOrderManagementLine.getOrderQty();
 
 		if (OB_ORD_TYP_ID == 0L || OB_ORD_TYP_ID == 1L || OB_ORD_TYP_ID == 3L) {
-			List<String> storageSectionIds = Arrays.asList("ZB", "ZC", "ZG", "ZT"); // ZB,ZC,ZG,ZT
+//			List<String> storageSectionIds = Arrays.asList("ZB", "ZC", "ZG", "ZT"); // ZB,ZC,ZG,ZT
+			List<String> storageSectionIds = Arrays.asList("ZBU", "ZBL", "ZCU", "ZCL", "ZGU", "ZGL", "ZT");    // ZBU,ZBL,ZC,ZGU,ZGL,ZT
 			dbOrderManagementLine = updateAllocation(dbOrderManagementLine, storageSectionIds, ORD_QTY, warehouseId,
 					itemCode, loginUserID);
 		}
 
 		if (OB_ORD_TYP_ID == 2L) {
-			List<String> storageSectionIds = Arrays.asList("ZD"); // ZD
+			List<String> storageSectionIds = Arrays.asList("ZDU", "ZDL"); // ZD
 			dbOrderManagementLine = updateAllocation(dbOrderManagementLine, storageSectionIds, ORD_QTY, warehouseId,
 					itemCode, loginUserID);
 
@@ -937,6 +947,17 @@ public class OrderManagementLineService extends BaseService {
 				orderManagementLine.setPickupUpdatedBy(loginUserID);
 				orderManagementLine.setPickupUpdatedOn(new Date());
 
+                try {
+					//CR_07_10_2024 get storage bin and set floor and levelId(SpanId)
+					StorageBin dbStorageBin = mastersService.getStorageBin(stBinInventory.getStorageBin(), stBinInventory.getWarehouseId(), authTokenForMastersService.getAccess_token());
+					if(dbStorageBin != null) {
+						orderManagementLine.setReferenceField2(dbStorageBin.getSpanId());				//LevelId
+						orderManagementLine.setReferenceField3(String.valueOf(dbStorageBin.getFloorId()));
+					}
+                } catch (Exception e) {
+                    log.error("Invalid Bin : " + stBinInventory.getStorageBin() + ", " + stBinInventory.getWarehouseId());
+                }
+
 				double allocatedQtyFromOrderMgmt = 0.0;
 
 				/*
@@ -948,6 +969,7 @@ public class OrderManagementLineService extends BaseService {
 						CommonUtils.getNullPropertyNames(orderManagementLine));
 				newOrderManagementLine.setProposedStorageBin(stBinInventory.getStorageBin());
 				newOrderManagementLine.setProposedPackBarCode(stBinInventory.getPackBarcodes());
+				newOrderManagementLine.setStorageSectionId(stBinInventory.getReferenceField10());
 				OrderManagementLine createdOrderManagementLine = orderManagementLineRepository
 						.save(newOrderManagementLine);
 				log.info("--else---createdOrderManagementLine newly created------: " + createdOrderManagementLine);
@@ -1159,13 +1181,14 @@ public class OrderManagementLineService extends BaseService {
 			Double ORD_QTY = dbOrderManagementLine.getOrderQty();
 
 			if (OB_ORD_TYP_ID == 0L || OB_ORD_TYP_ID == 1L || OB_ORD_TYP_ID == 3L) {
-				List<String> storageSectionIds = Arrays.asList("ZB", "ZC", "ZG", "ZT"); // ZB,ZC,ZG,ZT
+//				List<String> storageSectionIds = Arrays.asList("ZB", "ZC", "ZG", "ZT"); // ZB,ZC,ZG,ZT
+				List<String> storageSectionIds = Arrays.asList("ZBU", "ZBL", "ZCU", "ZCL", "ZGU", "ZGL", "ZT");    // ZBU,ZBL,ZC,ZGU,ZGL,ZT
 				dbOrderManagementLine = updateAllocation(dbOrderManagementLine, storageSectionIds, ORD_QTY, orderManagementLine.getWarehouseId(),
 						orderManagementLine.getItemCode(), loginUserID);
 			}
 
 			if (OB_ORD_TYP_ID == 2L) {
-				List<String> storageSectionIds = Arrays.asList("ZD"); // ZD
+				List<String> storageSectionIds = Arrays.asList("ZDU", "ZDL"); // ZD
 				dbOrderManagementLine = updateAllocation(dbOrderManagementLine, storageSectionIds, ORD_QTY, orderManagementLine.getWarehouseId(),
 						orderManagementLine.getItemCode(), loginUserID);
 
@@ -1259,5 +1282,17 @@ public class OrderManagementLineService extends BaseService {
 			}
 		}
 		return orderManagementLineV2s;
+	}
+
+	/**
+	 * get List of itemCode group by order
+	 * @param warehouseId
+	 * @return
+	 * @throws Exception
+	 */
+	public List<PickerDenialReportImpl> getGroupItemCodeList(String warehouseId) throws Exception {
+		log.info("Group ItemCode List : " + warehouseId);
+		List<Long> statusIds = Arrays.asList(42l, 43l);
+		return orderManagementLineRepository.getItemCodeList(warehouseId, statusIds);
 	}
 }

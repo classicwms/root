@@ -3,6 +3,8 @@ package com.tekclover.wms.api.idmaster.controller;
 import com.tekclover.wms.api.idmaster.model.email.*;
 import com.tekclover.wms.api.idmaster.model.outboundheader.PreOutboundHeader;
 import com.tekclover.wms.api.idmaster.model.outboundheader.SearchPreOutboundHeader;
+import com.tekclover.wms.api.idmaster.model.pickerdenial.PickerDenialReport;
+import com.tekclover.wms.api.idmaster.model.pickerdenial.SearchPickupLine;
 import com.tekclover.wms.api.idmaster.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -27,6 +29,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Validated
@@ -146,27 +149,41 @@ public class EMailController {
 		log.info("EndCreatedOn ------> {}", searchPreOutboundHeader.getEndOrderDate());
 
 		searchPreOutboundHeader.setWarehouseId(Collections.singletonList("110"));
+		PreOutboundHeader[] sortedPreOutboundHeaders = null;
+		PreOutboundHeader[] sortedPreOutboundHeaders111 = null;
 
 		// Generate the PDF report for WH_ID 110
 		PreOutboundHeader[] preOutboundHeaders = transactionService.findPreOutboundHeaderPdf(searchPreOutboundHeader);
+		if(preOutboundHeaders != null && preOutboundHeaders.length > 0) {
+			sortedPreOutboundHeaders = Arrays.stream(preOutboundHeaders)
+					.filter(n -> n.getRefDocDate() != null)
+					.sorted(Comparator.comparing(PreOutboundHeader::getRefDocDate))
+					.toArray(PreOutboundHeader[]::new);
+		}
 
 		searchPreOutboundHeader.setWarehouseId(Collections.singletonList("111"));
 
 		// Generate the Pdf Report for WH_ID 111
 		PreOutboundHeader[] preOutboundHeaders1 = transactionService.findPreOutboundHeaderPdf(searchPreOutboundHeader);
+		if(preOutboundHeaders1 != null && preOutboundHeaders1.length > 0) {
+			sortedPreOutboundHeaders111 = Arrays.stream(preOutboundHeaders1)
+					.filter(n -> n.getRefDocDate() != null)
+					.sorted(Comparator.comparing(PreOutboundHeader::getRefDocDate))
+					.toArray(PreOutboundHeader[]::new);
+		}
 
-		File pdfFile = new File("Daily_Order_Report_110.pdf");
+		File pdfFile = new File("WMS_Daily_Order_Report_110.pdf");
 		try (FileOutputStream fos = new FileOutputStream(pdfFile)) {
-			reportService.exportEmail(fos, preOutboundHeaders, searchPreOutboundHeader, startOrderDate); // Adjust `export` to accept OutputStream
+			reportService.exportEmail(fos, sortedPreOutboundHeaders, searchPreOutboundHeader, startOrderDate); // Adjust `export` to accept OutputStream
 		}
 
-		File pdfFile1 = new File("Daily_Order_Report_111.pdf");
+		File pdfFile1 = new File("WMS_Daily_Order_Report_111.pdf");
 		try (FileOutputStream fos = new FileOutputStream(pdfFile1)) {
-			reportService.exportEmail(fos, preOutboundHeaders1, searchPreOutboundHeader, startOrderDate); // Adjust `export` to accept OutputStream
+			reportService.exportEmail(fos, sortedPreOutboundHeaders111, searchPreOutboundHeader, startOrderDate); // Adjust `export` to accept OutputStream
 		}
 
-		String fileName1 = "Daily_Order_Report_110.pdf";
-		String fileName2 = "Daily_Order_Report_111.pdf";
+		String fileName1 = "WMS_Daily_Order_Report_110.pdf";
+		String fileName2 = "WMS_Daily_Order_Report_111.pdf";
 
 		// Convert the File to MultipartFile
 		try (FileInputStream fileInputStream = new FileInputStream(pdfFile)) {
@@ -205,5 +222,13 @@ public class EMailController {
 		sendMailService.sendTvReportMail(fileName1, fileName2);
 
 		return ResponseEntity.ok("Email sent successfully: " + fileName1 + "and" + fileName2);
+	}
+
+	//PickerDenialReport
+	@ApiOperation(response = PickerDenialReport.class, value = "Search PickerDenialReport") // label for swagger
+	@PostMapping("/pickupline/findPickerDenialReport")
+	public PickerDenialReport findPickerDenialReport(@RequestBody SearchPickupLine searchPickupLine) throws Exception {
+		return transactionService.pickerDenialReport(searchPickupLine);
+
 	}
 }

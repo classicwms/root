@@ -74,4 +74,5 @@ public class OrderManagementLine {
 	private Date pickerAssignedOn = new Date();
 	private String pickerReassignedBy;
 	private Date pickerReassignedOn = new Date();
+	private String storageSectionId;
 }

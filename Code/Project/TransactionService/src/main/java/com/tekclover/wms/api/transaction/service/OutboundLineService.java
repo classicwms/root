@@ -1,7 +1,6 @@
 package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -857,7 +856,7 @@ public class OutboundLineService extends BaseService {
 	 * @throws InvocationTargetException
 	 */
 	public List<OutboundLine> deliveryConfirmation (String warehouseId, String preOutboundNo, String refDocNumber, 
-			String partnerCode, String loginUserID) throws IllegalAccessException, InvocationTargetException {
+			String partnerCode, String loginUserID, Boolean webPortal) throws IllegalAccessException, InvocationTargetException {
 		log.info("-----deliveryConfirmation--------called-----> : " + warehouseId + "," + 
 			preOutboundNo + "," + refDocNumber + "," + partnerCode);
 		
@@ -922,31 +921,38 @@ public class OutboundLineService extends BaseService {
 			List<Long> lineNumbers = outboundLines.stream().map(OutboundLine::getLineNumber).collect(Collectors.toList());	
 			List<String> itemCodes = outboundLines.stream().map(OutboundLine::getItemCode).collect(Collectors.toList());	
 			
+			// WebPortal value true is coming Outbound_Header Update Pdf_Print value false
+			if(webPortal){
+				log.info("WebPortal value is " + webPortal);
+				outboundHeaderRepository.updatePdfPrintOutboundHeader(warehouseId, preOutboundNo, refDocNumber);
+			}
 			/*---------------------AXAPI-integration----------------------------------------------------------*/
 			
 			// if OB_ORD_TYP_ID = 0 in OUTBOUNDHEADER table - call Shipment Confirmation
-			if (confirmedOutboundHeader.getOutboundOrderTypeId() == 0L && confirmedOutboundLines != null) {
-				axapiResponse = postShipment (confirmedOutboundHeader, confirmedOutboundLines);
-				log.info("AXApiResponse: " + axapiResponse);
-			}
-			
-			// if OB_ORD_TYP_ID = 1 in OUTBOUNDHEADER table - Interwarehouse Shipment Confirmation
-			if (confirmedOutboundHeader.getOutboundOrderTypeId() == 1L && confirmedOutboundLines != null) {
-				axapiResponse = postInterwarehouseShipment (confirmedOutboundHeader, confirmedOutboundLines);
-				log.info("AXApiResponse: " + axapiResponse);
-			}
-			
-			//  if OB_ORD_TYP_ID = 2 in OUTBOUNDHEADER table - Return PO Confirmation
-			if (confirmedOutboundHeader.getOutboundOrderTypeId() == 2L && confirmedOutboundLines != null) {
-				axapiResponse = postReturnPO (confirmedOutboundHeader, confirmedOutboundLines);
-				log.info("AXApiResponse: " + axapiResponse);
-			}
-			
-			// if OB_ORD_TYP_ID = 3 in OUTBOUNDHEADER table - Sale Order Confirmation - True Express
-			if (confirmedOutboundHeader.getOutboundOrderTypeId() == 3L && confirmedOutboundLines != null) {
-				axapiResponse = postSalesOrder (confirmedOutboundHeader, confirmedOutboundLines);
-				log.info("AXApiResponse: " + axapiResponse);
-			}
+//			if (confirmedOutboundHeader.getOutboundOrderTypeId() == 0L && confirmedOutboundLines != null) {
+//				axapiResponse = postShipment (confirmedOutboundHeader, confirmedOutboundLines);
+//				log.info("AXApiResponse: " + axapiResponse);
+//			}
+//
+//			// if OB_ORD_TYP_ID = 1 in OUTBOUNDHEADER table - Interwarehouse Shipment Confirmation
+//			if (confirmedOutboundHeader.getOutboundOrderTypeId() == 1L && confirmedOutboundLines != null) {
+//				axapiResponse = postInterwarehouseShipment (confirmedOutboundHeader, confirmedOutboundLines);
+//				log.info("AXApiResponse: " + axapiResponse);
+//			}
+//
+//			//  if OB_ORD_TYP_ID = 2 in OUTBOUNDHEADER table - Return PO Confirmation
+//			if (confirmedOutboundHeader.getOutboundOrderTypeId() == 2L && confirmedOutboundLines != null) {
+//				axapiResponse = postReturnPO (confirmedOutboundHeader, confirmedOutboundLines);
+//				log.info("AXApiResponse: " + axapiResponse);
+//			}
+//
+//			// if OB_ORD_TYP_ID = 3 in OUTBOUNDHEADER table - Sale Order Confirmation - True Express
+//			if (confirmedOutboundHeader.getOutboundOrderTypeId() == 3L && confirmedOutboundLines != null) {
+//				axapiResponse = postSalesOrder (confirmedOutboundHeader, confirmedOutboundLines);
+//				log.info("AXApiResponse: " + axapiResponse);
+//			}
+			axapiResponse = new AXApiResponse();
+			axapiResponse.setStatusCode("200");
 		}
 	
 		if (axapiResponse.getStatusCode() != null && axapiResponse.getStatusCode().equalsIgnoreCase("200")) {

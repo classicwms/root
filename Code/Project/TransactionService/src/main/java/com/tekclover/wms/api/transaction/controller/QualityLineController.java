@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.model.outbound.quality.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,10 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tekclover.wms.api.transaction.model.outbound.quality.AddQualityLine;
-import com.tekclover.wms.api.transaction.model.outbound.quality.QualityLine;
-import com.tekclover.wms.api.transaction.model.outbound.quality.SearchQualityLine;
-import com.tekclover.wms.api.transaction.model.outbound.quality.UpdateQualityLine;
 import com.tekclover.wms.api.transaction.service.QualityLineService;
 
 import io.swagger.annotations.Api;
@@ -88,5 +85,12 @@ public class QualityLineController {
     	qualitylineService.deleteQualityLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, 
 				lineNumber, qualityInspectionNo, itemCode, loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
+	@ApiOperation(response = QualityLine.class, value = "Cancel QualityLine") // label for swagger
+	@PostMapping("/cancelQualityLine")
+	public ResponseEntity<?> cancelQualityLine(@Valid @RequestBody List<ReversalInput> reversalInputList, @RequestParam String loginUserID) throws Exception {
+		qualitylineService.batchQualityReversalV2(reversalInputList, loginUserID);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 }

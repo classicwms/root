@@ -1,30 +1,54 @@
 package com.tekclover.wms.api.enterprise.transaction.service;
 
-import com.tekclover.wms.api.enterprise.controller.exception.BadRequestException;
-import com.tekclover.wms.api.enterprise.transaction.model.auth.AuthToken;
-import com.tekclover.wms.api.enterprise.transaction.model.dto.*;
-import com.tekclover.wms.api.enterprise.transaction.model.inbound.inventory.Inventory;
-import com.tekclover.wms.api.enterprise.transaction.model.outbound.OutboundHeader;
-import com.tekclover.wms.api.enterprise.transaction.model.outbound.OutboundLine;
-import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.OrderManagementHeader;
-import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.OrderManagementLine;
-import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.*;
-import com.tekclover.wms.api.enterprise.transaction.repository.*;
-import com.tekclover.wms.api.enterprise.transaction.repository.specification.PreOutboundHeaderSpecification;
-import com.tekclover.wms.api.enterprise.transaction.util.CommonUtils;
-import com.tekclover.wms.api.enterprise.transaction.util.DateUtils;
-import lombok.extern.slf4j.Slf4j;
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.persistence.EntityNotFoundException;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
-import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import com.tekclover.wms.api.enterprise.controller.exception.BadRequestException;
+import com.tekclover.wms.api.enterprise.transaction.model.auth.AuthToken;
+import com.tekclover.wms.api.enterprise.transaction.model.dto.BomHeader;
+import com.tekclover.wms.api.enterprise.transaction.model.dto.BomLine;
+import com.tekclover.wms.api.enterprise.transaction.model.dto.ImBasicData1;
+import com.tekclover.wms.api.enterprise.transaction.model.dto.StatusId;
+import com.tekclover.wms.api.enterprise.transaction.model.dto.Warehouse;
+import com.tekclover.wms.api.enterprise.transaction.model.inbound.inventory.Inventory;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.OutboundHeader;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.OutboundLine;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.OrderManagementHeader;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.OrderManagementLine;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.AddPreOutboundHeader;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.OutboundIntegrationHeader;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.OutboundIntegrationLine;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.OutboundIntegrationLog;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.PreOutboundHeader;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.PreOutboundLine;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.SearchPreOutboundHeader;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.UpdatePreOutboundHeader;
+import com.tekclover.wms.api.enterprise.transaction.repository.InventoryRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OrderManagementHeaderRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OrderManagementLineRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OutboundHeaderRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OutboundIntegrationLogRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OutboundLineRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.PreOutboundHeaderRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.PreOutboundLineRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.specification.PreOutboundHeaderSpecification;
+import com.tekclover.wms.api.enterprise.transaction.util.CommonUtils;
+import com.tekclover.wms.api.enterprise.transaction.util.DateUtils;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -716,7 +740,7 @@ public class PreOutboundHeaderService extends BaseService {
 		
 		Long OB_ORD_TYP_ID = outboundIntegrationHeader.getOutboundOrderTypeID();
 		if (OB_ORD_TYP_ID == 0L || OB_ORD_TYP_ID == 1L || OB_ORD_TYP_ID == 3L) {
-			List<String> storageSectionIds = Arrays.asList("ZB","ZC","ZG","ZT"); //ZB,ZC,ZG,ZT
+			List<String> storageSectionIds = Arrays.asList("ZB", "ZC", "ZG", "ZT", "ZBL", "ZBU", "ZCL", "ZCU", "ZDL", "ZDU", "ZGL", "ZGU"); //ZB,ZC,ZG,ZT
 			orderManagementLine = createOrderManagement (storageSectionIds, orderManagementLine, preOutboundLine.getWarehouseId(), 
 					preOutboundLine.getItemCode(), preOutboundLine.getOrderQty());
 		}

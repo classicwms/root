@@ -51,4 +51,5 @@ public class OutboundLine {
 	private Date reversedOn;
 	private String itemText;
 	private String mfrPartNumber;
+	private String statusDescription;
 }

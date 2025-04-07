@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.model.outbound.pickup.*;
+import com.tekclover.wms.api.transaction.model.report.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -27,11 +29,6 @@ import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundLine;
-import com.tekclover.wms.api.transaction.model.outbound.pickup.AddPickupLine;
-import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupHeader;
-import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupLine;
-import com.tekclover.wms.api.transaction.model.outbound.pickup.SearchPickupLine;
-import com.tekclover.wms.api.transaction.model.outbound.pickup.UpdatePickupLine;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.PreOutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.quality.AddQualityHeader;
 import com.tekclover.wms.api.transaction.model.outbound.quality.QualityHeader;
@@ -332,7 +329,8 @@ public class PickupLineService extends BaseService {
 		log.info("---OB_ORD_TYP_ID--------> : " + OB_ORD_TYP_ID);
 
 		if (OB_ORD_TYP_ID == 0L || OB_ORD_TYP_ID == 1L || OB_ORD_TYP_ID == 3L) {
-			List<String> storageSectionIds = Arrays.asList("ZB", "ZC", "ZG", "ZT"); // ZB,ZC,ZG,ZT
+//			List<String> storageSectionIds = Arrays.asList("ZB", "ZC", "ZG", "ZT"); // ZB,ZC,ZG,ZT
+			List<String> storageSectionIds = Arrays.asList("ZBU", "ZBL", "ZCU", "ZCL", "ZGU", "ZGL", "ZT");    // ZBU,ZBL,ZC,ZGU,ZGL,ZT
 			List<Inventory> inventoryAdditionalBins = fetchAdditionalBins(storageSectionIds, warehouseId, itemCode,
 					proposedPackBarCode, proposedStorageBin);
 			return inventoryAdditionalBins;
@@ -345,7 +343,7 @@ public class PickupLineService extends BaseService {
 		 * display
 		 */
 		if (OB_ORD_TYP_ID == 2L) {
-			List<String> storageSectionIds = Arrays.asList("ZD"); // ZD
+			List<String> storageSectionIds = Arrays.asList("ZDU", "ZDL"); // ZD
 			List<Inventory> inventoryAdditionalBins = fetchAdditionalBinsForOB2(storageSectionIds, warehouseId,
 					itemCode, proposedPackBarCode, proposedStorageBin);
 			return inventoryAdditionalBins;
@@ -1089,6 +1087,159 @@ public class PickupLineService extends BaseService {
 		listInventory = listInventory.stream().filter(i -> !i.getStorageBin().equalsIgnoreCase(proposedStorageBin))
 				.collect(Collectors.toList());
 		return listInventory;
+	}
+
+	public PickerDenialReport findPickerDenialReport(SearchPickupLine searchPickupLine) throws Exception {
+
+		if (searchPickupLine.getSFromPickConfirmedOn() != null && searchPickupLine.getSToPickConfirmedOn() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchPickupLine.getSFromPickConfirmedOn(),
+					searchPickupLine.getSToPickConfirmedOn());
+			searchPickupLine.setFromPickConfirmedOn(dates[0]);
+			searchPickupLine.setToPickConfirmedOn(dates[1]);
+		}
+		PickerDenialReport pickerDenialReport = new PickerDenialReport();
+		List<PickerDenialReportImpl> partnerCodeList = getUniquePartnerCodeList(searchPickupLine.getWarehouseId(),
+				searchPickupLine.getFromPickConfirmedOn(), searchPickupLine.getToPickConfirmedOn());
+		log.info("PartnerCodeList : " + partnerCodeList.size());
+
+		List<PickerDenialReportImpl> partnerCodeSummaryList = getPartnerCodeSummaryList(searchPickupLine.getWarehouseId(),
+				searchPickupLine.getFromPickConfirmedOn(), searchPickupLine.getToPickConfirmedOn());
+		log.info("partnerCodeSummaryList : " + partnerCodeSummaryList.size());
+
+		if(partnerCodeList != null && !partnerCodeList.isEmpty()) {
+			List<PickerDenialHeader> headers = getHeaderList(partnerCodeList, searchPickupLine.getWarehouseId(),
+					searchPickupLine.getFromPickConfirmedOn(), searchPickupLine.getToPickConfirmedOn());
+			pickerDenialReport.setHeaders(headers);
+		}
+		if(partnerCodeSummaryList != null && !partnerCodeSummaryList.isEmpty()) {
+			List<PickerDenialSummary> summaryList = getSummaryList(partnerCodeSummaryList, searchPickupLine.getWarehouseId(),
+					searchPickupLine.getFromPickConfirmedOn(), searchPickupLine.getToPickConfirmedOn());
+			pickerDenialReport.setSummaryList(summaryList);
+		}
+		return pickerDenialReport;
+	}
+
+	/**
+	 *
+	 * @param warehouseIds
+	 * @param fromDate
+	 * @param toDate
+	 * @return
+	 */
+	private List<PickerDenialReportImpl> getUniquePartnerCodeList (List<String> warehouseIds, Date fromDate, Date toDate) {
+		return pickupLineRepository.getPartnerCodeList(warehouseIds, fromDate, toDate);
+	}
+
+	/**
+	 *
+	 * @param warehouseIds
+	 * @param fromDate
+	 * @param toDate
+	 * @return
+	 */
+	private List<PickerDenialReportImpl> getPartnerCodeSummaryList (List<String> warehouseIds, Date fromDate, Date toDate) {
+		return pickupLineRepository.getPartnerCodeSummaryList(warehouseIds, fromDate, toDate);
+	}
+
+	/**
+	 *
+	 * @param partnerCodeList
+	 * @param warehouseIds
+	 * @param fromDate
+	 * @param toDate
+	 * @return
+	 */
+	private List<PickerDenialHeader> getHeaderList (List<PickerDenialReportImpl> partnerCodeList, List<String> warehouseIds, Date fromDate, Date toDate) {
+		List<PickerDenialHeader> headers = new ArrayList<>();
+		for(PickerDenialReportImpl partnerCode : partnerCodeList) {
+			log.info("PartnerCode : " + partnerCode);
+			PickerDenialHeader pickerDenialReport = getDenialReportHeader(
+					partnerCode.getPartnerCode(), partnerCode.getRefDocNumber(), partnerCode.getOrderType(), warehouseIds, fromDate, toDate);
+			if(pickerDenialReport != null) {
+				headers.add(pickerDenialReport);
+			}
+		}
+		return headers;
+	}
+
+	/**
+	 *
+	 * @param partnerCodeList
+	 * @param warehouseIds
+	 * @param fromDate
+	 * @param toDate
+	 * @return
+	 */
+	private List<PickerDenialSummary> getSummaryList (List<PickerDenialReportImpl> partnerCodeList, List<String> warehouseIds, Date fromDate, Date toDate) {
+		List<PickerDenialSummary> denialSummaryList = new ArrayList<>();
+		for(PickerDenialReportImpl denialReport : partnerCodeList) {
+			List<PickerDenialReportImpl> summaryList = pickupLineRepository.getSummaryList(denialReport.getPartnerCode(), denialReport.getOrderType(), warehouseIds, fromDate, toDate);
+			log.info("Report Summary List : " + summaryList.size());
+			if(summaryList != null && !summaryList.isEmpty()) {
+				PickerDenialSummary pickerDenialSummary = new PickerDenialSummary();
+				long totalSKU = summaryList.stream().filter(n -> n.getRemarks() != null).mapToLong(PickerDenialReportImpl::getDenialCount).sum();
+				pickerDenialSummary.setTotalSKU(totalSKU);
+				pickerDenialSummary.setPartnerCode(denialReport.getPartnerCode());
+				pickerDenialSummary.setOrderType(summaryList.get(0).getOrderType());
+				pickerDenialSummary.setPartnerName(summaryList.get(0).getPartnerName());
+				for(PickerDenialReportImpl summary : summaryList) {
+					if(summary.getRemarks() != null && (summary.getRemarks().contains(OUT_OF_STOCK) ||summary.getRemarks().contains(OUTOF_STOCK) ||summary.getRemarks().contains(OUTOFSTOCK))) {
+						pickerDenialSummary.setOutOfStock(summary.getDenialCount());
+					}
+					if(summary.getRemarks() != null && summary.getRemarks().contains(SHORT_QTY)) {
+						pickerDenialSummary.setShortQty(summary.getDenialCount());
+					}
+					if(summary.getRemarks() != null && summary.getRemarks().contains(DAMAGE)) {
+						pickerDenialSummary.setDamage(summary.getDenialCount());
+					}
+					if(summary.getRemarks() != null && summary.getRemarks().contains(AISLE_BLOCK)) {
+						pickerDenialSummary.setAisleBlock(summary.getDenialCount());
+					}
+					if(summary.getRemarks() != null && summary.getRemarks().contains(NON_PACK_QTY)) {
+						pickerDenialSummary.setNonPackQty(summary.getDenialCount());
+					}
+				}
+				denialSummaryList.add(pickerDenialSummary);
+			}
+		}
+		return denialSummaryList;
+	}
+
+	/**
+	 *
+	 * @param partnerCode
+	 * @param refDocNumber
+	 * @param orderType
+	 * @param warehouseIds
+	 * @param fromDate
+	 * @param toDate
+	 * @return
+	 */
+	private PickerDenialHeader getDenialReportHeader (String partnerCode, String refDocNumber, String orderType, List<String> warehouseIds, Date fromDate, Date toDate) {
+		PickerDenialReportImpl pickerDenialReport = pickupLineRepository.getReportHeader(partnerCode, refDocNumber, orderType, warehouseIds, fromDate, toDate);
+		if(pickerDenialReport != null) {
+			List<PickerDenialReportImpl> lineList = getDenialReportLines (partnerCode, refDocNumber, orderType, warehouseIds, fromDate, toDate);
+			PickerDenialHeader pickerDenialHeader = new PickerDenialHeader();
+			BeanUtils.copyProperties(pickerDenialReport, pickerDenialHeader);
+			pickerDenialHeader.setLines(lineList);
+			return pickerDenialHeader;
+		}
+		return null;
+	}
+
+	/**
+	 *
+	 * @param partnerCode
+	 * @param refDocNumber
+	 * @param orderType
+	 * @param warehouseIds
+	 * @param fromDate
+	 * @param toDate
+	 * @return
+	 */
+	private List<PickerDenialReportImpl> getDenialReportLines (String partnerCode, String refDocNumber, String orderType, List<String> warehouseIds, Date fromDate, Date toDate) {
+//		return pickupLineRepository.getReportLines(partnerCode, refDocNumber, orderType, warehouseIds, fromDate, toDate);
+		return pickupLineRepository.getReportLines(partnerCode, refDocNumber, orderType, warehouseIds);
 	}
 
 //	private List<Inventory> fetchAdditionalBins (List<String> stBins, List<String> storageSectionIds, 

@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.model.report.PickerDenialReportImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -181,5 +182,13 @@ public class OrderManagementLineController {
 		List<OrderManagementLine> updatedOrderManagementLine =
 				ordermangementlineService.doUnAllocation(orderManagementLineV2, loginUserID);
 		return new ResponseEntity<>(updatedOrderManagementLine, HttpStatus.OK);
+	}
+
+	//=======================================================================================================================
+	@ApiOperation(response = PickerDenialReportImpl.class, value = "Get Group by ItemCode List ") // label for swagger
+	@GetMapping("/itemCodeList")
+	public ResponseEntity<?> getGroupByItemCodeList(@RequestParam String warehouseId) throws Exception {
+		List<PickerDenialReportImpl> list = ordermangementlineService.getGroupItemCodeList(warehouseId);
+		return new ResponseEntity<>(list, HttpStatus.OK);
 	}
 }

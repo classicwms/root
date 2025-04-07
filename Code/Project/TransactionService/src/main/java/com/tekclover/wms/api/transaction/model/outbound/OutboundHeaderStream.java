@@ -95,4 +95,5 @@ public interface OutboundHeaderStream {
 	public String getReversedBy();
 	public Date getReversedOn();
 	public String getStatusDescription();
+	public Boolean getPdfPrint();
 }

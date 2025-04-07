@@ -21,7 +21,9 @@ public class OrderManagementLineV2 {
 	private Double inventoryQty;
 	private Double allocatedQty;
 	private Date requiredDeliveryDate;
+	private String referenceField1;
 	private String referenceField7;
 	private String warehouseId;
 	private Date pickupCreatedOn;
+	private String storageSectionId;
 }

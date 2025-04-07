@@ -3496,8 +3496,7 @@ public class TransactionService {
 	}
 
 	// POST - findOrderManagementLineV2 - Stream [Limited Fields]
-	public OrderManagementLineV2[] findOrderManagementLineV2(SearchOrderManagementLine searchOrderManagementLine,
-			String authToken) throws ParseException {
+	public OrderManagementLineV2[] findOrderManagementLineV2(SearchOrderManagementLine searchOrderManagementLine, String authToken) throws Exception {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -4738,7 +4737,7 @@ public class TransactionService {
 
 	// GET - /outboundline/delivery/confirmation
 	public OutboundLine[] deliveryConfirmation(String warehouseId, String preOutboundNo, String refDocNumber,
-			String partnerCode, String loginUserID, String authToken) {
+			String partnerCode, String loginUserID, Boolean webPortal, String authToken) {
 		try {
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -4749,7 +4748,34 @@ public class TransactionService {
 					.fromHttpUrl(getTransactionServiceApiUrl() + "outboundline/delivery/confirmation")
 					.queryParam("warehouseId", warehouseId).queryParam("preOutboundNo", preOutboundNo)
 					.queryParam("refDocNumber", refDocNumber).queryParam("partnerCode", partnerCode)
-					.queryParam("loginUserID", loginUserID);
+					.queryParam("loginUserID", loginUserID).queryParam("webPortal", webPortal);
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<OutboundLine[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET,
+					entity, OutboundLine[].class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	// GET - /outboundline/delivery/confirmation
+	public OutboundLine[] deliveryConfirmationPdf(String warehouseId, String preOutboundNo, String refDocNumber,
+											   String partnerCode, String loginUserID, Boolean webPortal) {
+		try {
+			AuthToken interAuthToken = authTokenService.getTransactionServiceAuthToken();
+			String authToken = interAuthToken.getAccess_token();
+
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "outboundline/delivery/confirmation")
+					.queryParam("warehouseId", warehouseId).queryParam("preOutboundNo", preOutboundNo)
+					.queryParam("refDocNumber", refDocNumber).queryParam("partnerCode", partnerCode)
+					.queryParam("loginUserID", loginUserID).queryParam("webPortal", webPortal);
 			HttpEntity<?> entity = new HttpEntity<>(headers);
 			ResponseEntity<OutboundLine[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET,
 					entity, OutboundLine[].class);
@@ -5341,6 +5367,45 @@ public class TransactionService {
 			String toDeliveryDate, String storeCode, List<String> soType, String orderNumber, String authToken)
 			throws Exception {
 		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "reports/shipmentDelivery")
+					.queryParam("warehouseId", warehouseId).queryParam("fromDeliveryDate", fromDeliveryDate)
+					.queryParam("toDeliveryDate", toDeliveryDate).queryParam("storeCode", storeCode)
+					.queryParam("orderNumber", orderNumber).queryParam("soType", soType);
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<ShipmentDeliveryReport[]> result = getRestTemplate().exchange(builder.toUriString(),
+					HttpMethod.GET, entity, ShipmentDeliveryReport[].class);
+
+			List<ShipmentDeliveryReport> shipmentDeliveryReportList = new ArrayList<>();
+			for (ShipmentDeliveryReport shipmentDeliveryReport : result.getBody()) {
+				if (shipmentDeliveryReport.getDeliveryDate() != null) {
+					shipmentDeliveryReport
+							.setDeliveryDate(DateUtils.addTimeToDate(shipmentDeliveryReport.getDeliveryDate(), 3));
+					shipmentDeliveryReportList.add(shipmentDeliveryReport);
+				}
+			}
+
+			return shipmentDeliveryReportList.toArray(new ShipmentDeliveryReport[shipmentDeliveryReportList.size()]);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	// GET - ShipmentDelivery
+	public ShipmentDeliveryReport[] getShipmentDeliveryReportPdf(String warehouseId, String fromDeliveryDate,
+																 String toDeliveryDate, String storeCode, List<String> soType, String orderNumber)
+			throws Exception {
+		try {
+
+			AuthToken interAuthToken = authTokenService.getTransactionServiceAuthToken();
+			String authToken = interAuthToken.getAccess_token();
+
 			HttpHeaders headers = new HttpHeaders();
 			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 			headers.add("User-Agent", "ClassicWMS RestTemplate");
@@ -7835,6 +7900,86 @@ public class TransactionService {
 			}
 			return obList.toArray(new PreOutboundHeader[obList.size()]);
 		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	// POST - PickerDenialReport
+	public PickerDenialReport pickerDenialReport(SearchPickupLine searchPickupLine, String authToken) throws Exception {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "pickupline/pickerDenialReport");
+			HttpEntity<?> entity = new HttpEntity<>(searchPickupLine, headers);
+			ResponseEntity<PickerDenialReport> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PickerDenialReport.class);
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	// POST - QualityLineCancel
+	public WarehouseApiResponse batchQualityReversalV2(List<ReversalInput> qualityReversalInputList, String loginUserID, String authToken) throws Exception {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "qualityline/cancelQualityLine").queryParam("loginUserID", loginUserID);;
+			HttpEntity<?> entity = new HttpEntity<>(qualityReversalInputList, headers);
+			ResponseEntity<WarehouseApiResponse> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse.class);
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	// GET - OrderManagementLineGroupByItem
+	public OrderManagementLineGroupByItem[] getItemCodeList(String warehouseId, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "ordermanagementline/itemCodeList").queryParam("warehouseId", warehouseId);
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<OrderManagementLineGroupByItem[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, OrderManagementLineGroupByItem[].class);
+			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	// POST - PickerDenialReport
+	public PickerDenialReport pickerDenialReportDownloadPdf(SearchPickupLine searchPickupLine) throws Exception {
+		try {
+
+			AuthToken interAuthToken = authTokenService.getTransactionServiceAuthToken();
+			String authToken = interAuthToken.getAccess_token();
+
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "pickupline/pickerDenialReport");
+			HttpEntity<?> entity = new HttpEntity<>(searchPickupLine, headers);
+			ResponseEntity<PickerDenialReport> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PickerDenialReport.class);
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
 			throw e;
 		}
 	}

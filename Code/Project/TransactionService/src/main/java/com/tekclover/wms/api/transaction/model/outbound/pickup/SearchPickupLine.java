@@ -34,4 +34,7 @@ public class SearchPickupLine {
 	private List<Long> statusId;
 	private Date fromPickConfirmedOn;
 	private Date toPickConfirmedOn;
+
+	private String sFromPickConfirmedOn;
+	private String sToPickConfirmedOn;
 }
