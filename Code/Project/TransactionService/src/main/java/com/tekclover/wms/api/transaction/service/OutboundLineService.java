@@ -922,10 +922,10 @@ public class OutboundLineService extends BaseService {
 			List<String> itemCodes = outboundLines.stream().map(OutboundLine::getItemCode).collect(Collectors.toList());	
 			
 			// WebPortal value true is coming Outbound_Header Update Pdf_Print value false
-			if(webPortal){
-				log.info("WebPortal value is " + webPortal);
-				outboundHeaderRepository.updatePdfPrintOutboundHeader(warehouseId, preOutboundNo, refDocNumber);
-			}
+//			if(webPortal){
+//				log.info("WebPortal value is " + webPortal);
+//				outboundHeaderRepository.updatePdfPrintOutboundHeader(warehouseId, preOutboundNo, refDocNumber);
+//			}
 			/*---------------------AXAPI-integration----------------------------------------------------------*/
 			
 			// if OB_ORD_TYP_ID = 0 in OUTBOUNDHEADER table - call Shipment Confirmation
