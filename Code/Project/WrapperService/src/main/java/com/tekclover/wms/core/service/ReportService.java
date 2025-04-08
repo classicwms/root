@@ -1107,7 +1107,9 @@ public class ReportService {
 		// Convert array to list
         List<ShipmentDeliveryReport> reportList = null;
         try {
-            reportList = Arrays.asList(shipmentDeliveryReports);
+			reportList = Arrays.stream(shipmentDeliveryReports)
+					.filter(r -> r.getQuantity() != null && r.getQuantity() > 0)
+					.collect(Collectors.toList());
 
 			SimpleDateFormat dateFormatter1 = new SimpleDateFormat("d-MMM-yyyy h:mm");
 			String date1 = dateFormatter1.format(new Date());
@@ -1143,7 +1145,7 @@ public class ReportService {
 			document.add(deliveryDate);
 
 			writeTableHeaderSd(table);
-			writeTableDataSd(table, document, image, shipmentDeliveryReports);
+			writeTableDataSd(table, document, image, reportList);
 
 			writeTableDataTotal(table, shipmentDeliveryReports);
 
@@ -1213,7 +1215,7 @@ public class ReportService {
 
 	}
 
-	private void writeTableDataSd(PdfPTable table, Document document, Image image, ShipmentDeliveryReport[] shipmentDeliveryReports) throws ParseException, DocumentException, IOException {
+	private void writeTableDataSd(PdfPTable table, Document document, Image image, List<ShipmentDeliveryReport> shipmentDeliveryReports) throws ParseException, DocumentException, IOException {
 
 		Font font = FontFactory.getFont(FontFactory.HELVETICA);
 		font.setSize(8.5f);
@@ -1276,7 +1278,7 @@ public class ReportService {
 
 	}
 
-	private void addPageHeaderSd(Document document, ShipmentDeliveryReport[] shipmentDeliveryReports) throws DocumentException, IOException {
+	private void addPageHeaderSd(Document document, List<ShipmentDeliveryReport> reportList) throws DocumentException, IOException {
 
 		document.open();
 		Font fontTitle = FontFactory.getFont(FontFactory.HELVETICA_BOLD);
@@ -1296,7 +1298,7 @@ public class ReportService {
 		fontParagraph.setSize(9);
 
 		// Convert array to list
-		List<ShipmentDeliveryReport> reportList = Arrays.asList(shipmentDeliveryReports);
+//		List<ShipmentDeliveryReport> reportList = Arrays.asList(shipmentDeliveryReports);
 
 		SimpleDateFormat dateFormatter1 = new SimpleDateFormat("d-MMM-yyyy h:mm");
 		String date1 = dateFormatter1.format(new Date());
@@ -1342,7 +1344,9 @@ public class ReportService {
 		cell.setPaddingBottom(10);
 
 		// Convert array to list
-		List<ShipmentDeliveryReport> reportList = Arrays.asList(shipmentDeliveryReports);
+		List<ShipmentDeliveryReport> reportList = Arrays.stream(shipmentDeliveryReports)
+				.filter(r -> r.getQuantity() != null && r.getQuantity() > 0)
+				.collect(Collectors.toList());
 
 //		Fetch total value from the first object
 		Double totalValue = reportList.get(0).getTotal();
