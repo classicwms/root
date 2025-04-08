@@ -48,6 +48,7 @@ import com.tekclover.wms.api.enterprise.transaction.repository.PreOutboundLineRe
 import com.tekclover.wms.api.enterprise.transaction.repository.specification.PreOutboundHeaderSpecification;
 import com.tekclover.wms.api.enterprise.transaction.util.CommonUtils;
 import com.tekclover.wms.api.enterprise.transaction.util.DateUtils;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -740,13 +741,13 @@ public class PreOutboundHeaderService extends BaseService {
 		
 		Long OB_ORD_TYP_ID = outboundIntegrationHeader.getOutboundOrderTypeID();
 		if (OB_ORD_TYP_ID == 0L || OB_ORD_TYP_ID == 1L || OB_ORD_TYP_ID == 3L) {
-			List<String> storageSectionIds = Arrays.asList("ZB", "ZC", "ZG", "ZT", "ZBL", "ZBU", "ZCL", "ZCU", "ZDL", "ZDU", "ZGL", "ZGU"); //ZB,ZC,ZG,ZT
+			List<String> storageSectionIds = Arrays.asList("ZB", "ZC", "ZG", "ZT", "ZBL", "ZBU", "ZCL", "ZCU", "ZGL", "ZGU"); //ZB,ZC,ZG,ZT
 			orderManagementLine = createOrderManagement (storageSectionIds, orderManagementLine, preOutboundLine.getWarehouseId(), 
 					preOutboundLine.getItemCode(), preOutboundLine.getOrderQty());
 		}
 		
 		if (OB_ORD_TYP_ID == 2L) {
-			List<String> storageSectionIds = Arrays.asList("ZD"); //ZD
+			List<String> storageSectionIds = Arrays.asList("ZD", "ZDL", "ZDU"); //ZD
 			orderManagementLine = createOrderManagement (storageSectionIds, orderManagementLine, preOutboundLine.getWarehouseId(), 
 					preOutboundLine.getItemCode(), preOutboundLine.getOrderQty());
 		}
