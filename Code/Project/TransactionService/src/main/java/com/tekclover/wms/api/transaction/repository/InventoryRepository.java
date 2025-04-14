@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -21,6 +20,7 @@ import com.tekclover.wms.api.transaction.model.dto.IInventory;
 import com.tekclover.wms.api.transaction.model.impl.InventoryImpl;
 import com.tekclover.wms.api.transaction.model.impl.StockReportImpl;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 
 @Repository
 @Transactional
@@ -218,15 +218,18 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 	@Query(value = "select itemCode,warehouseId,manufacturerSKU,itemText,onHandQty,damageQty,holdQty,(COALESCE(onHandQty ,0) + COALESCE(damageQty,0) + COALESCE(holdQty,0)) as availableQty from \r\n"
 			+ "(select i.itm_code as itemCode,i.wh_id as warehouseId ,im.mfr_part as manufacturerSKU , im.text as itemText , \r\n"
 			+ "(case \r\n"
-			+ "WHEN :stockTypeText in ('ALL','ONHAND') THEN (select sum(CASE WHEN inv_qty > 0 THEN inv_qty ELSE 0 END) + sum(COALESCE(alloc_qty,0)) from tblinventory where wh_id IN (:warehouseIds) and itm_code = i.itm_code and IS_DELETED = 0 and ref_field_10 in ('ZB', 'ZG', 'ZC', 'ZT'))\r\n"
+			+ "WHEN :stockTypeText in ('ALL','ONHAND') THEN (select sum(CASE WHEN inv_qty > 0 THEN inv_qty ELSE 0 END) + sum(COALESCE(alloc_qty,0)) "
+			+ "from tblinventory where wh_id IN (:warehouseIds) and itm_code = i.itm_code and IS_DELETED = 0 and ref_field_10 in ('ZBU','ZBL','ZGL','ZGU', 'ZCL','ZCU', 'ZT'))\r\n"
 			+ "ELSE 0\r\n"
 			+ "END ) as onHandQty,\r\n"
 			+ "(case \r\n"
-			+ "WHEN :stockTypeText in ('ALL','DAMAGED') THEN (select sum(CASE WHEN inv_qty > 0 THEN inv_qty ELSE 0 END) + sum(COALESCE(alloc_qty,0)) from tblinventory where wh_id IN (:warehouseIds) and itm_code = i.itm_code and IS_DELETED = 0 and ref_field_10 in ('ZD'))\r\n"
+			+ "WHEN :stockTypeText in ('ALL','DAMAGED') THEN (select sum(CASE WHEN inv_qty > 0 THEN inv_qty ELSE 0 END) + sum(COALESCE(alloc_qty,0)) "
+			+ "from tblinventory where wh_id IN (:warehouseIds) and itm_code = i.itm_code and IS_DELETED = 0 and ref_field_10 in ('ZD', 'ZDU','ZDL'))\r\n"
 			+ "ELSE 0\r\n"
 			+ "END ) as damageQty,\r\n"
 			+ "(case \r\n"
-			+ "WHEN :stockTypeText in ('ALL','HOLD') THEN (select sum(CASE WHEN inv_qty > 0 THEN inv_qty ELSE 0 END) + sum(COALESCE(alloc_qty,0)) from tblinventory where wh_id IN (:warehouseIds) and itm_code = i.itm_code and IS_DELETED = 0 and ref_field_10 in ('ZH', 'ZO'))\r\n"
+			+ "WHEN :stockTypeText in ('ALL','HOLD') THEN (select sum(CASE WHEN inv_qty > 0 THEN inv_qty ELSE 0 END) + sum(COALESCE(alloc_qty,0)) "
+			+ "from tblinventory where wh_id IN (:warehouseIds) and itm_code = i.itm_code and IS_DELETED = 0 and ref_field_10 in ('ZH', 'ZO'))\r\n"
 			+ "ELSE 0\r\n"
 			+ "END ) as holdQty\r\n"
 			+ "from tblinventory i \r\n"

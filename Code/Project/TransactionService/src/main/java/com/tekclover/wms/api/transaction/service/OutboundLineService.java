@@ -860,7 +860,7 @@ public class OutboundLineService extends BaseService {
 		log.info("-----deliveryConfirmation--------called-----> : " + warehouseId + "," + 
 			preOutboundNo + "," + refDocNumber + "," + partnerCode);
 		
-		/*--------------------OutboundLine-Check---------------------------------------------------------------------------*/
+		/*--------------------OutboundLine-Check---STATUS-59---------------------------------------------------------------*/
 		List<Long> statusIds = Arrays.asList(59L);
 		long outboundLineProcessedCount = getOutboundLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, statusIds);
 		log.info("outboundLineProcessedCount : " + outboundLineProcessedCount);
@@ -868,6 +868,16 @@ public class OutboundLineService extends BaseService {
 		log.info("outboundLineProcessed Already Processed? : " + isAlreadyProcessed);
 		if (isAlreadyProcessed) {
 			throw new BadRequestException("Order is already processed.");
+		}
+		
+		/*--------------------OutboundLine-Check--STATUS-50----------------------------------------------------------------*/
+		statusIds = Arrays.asList(50L);
+		long outboundLineUnprocessedCount = getOutboundLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, statusIds);
+		log.info("outboundLineUnprocessedCount : " + outboundLineUnprocessedCount);
+		boolean isNotProcessed = (outboundLineUnprocessedCount > 0 ? true : false);
+		log.info("outboundLine is not processed : " + isNotProcessed);
+		if (isNotProcessed) {
+			throw new BadRequestException("Quality Line is not created.");
 		}
 		
 		/*--------------------OrderManagementLine-Check---------------------------------------------------------------------*/
