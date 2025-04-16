@@ -1,0 +1,49 @@
+pipeline {
+    agent any
+
+    environment {
+        GIT_CREDENTIALS = 'git-credentials'
+        DOCKER_CREDENTIALS = 'docker-hub-credentials'
+        GIT_REPO_URL = 'https://github.com/tekclover/root.git'
+        DOCKER_USERNAME = 'bharathibaaru'
+        DOCKER_PASSWORD = 'bharathi3755'
+        DOCKER_IMAGE_NAME = 'transactionservice'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout source code from Git repository
+                git branch: 'master', credentialsId: GIT_CREDENTIALS, url: GIT_REPO_URL
+            }
+        }
+
+        stage('Build') {
+            steps {
+                // Build Java project using Gradle
+                sh './gradlew clean build'
+            }
+        }
+
+        stage('Docker Build & Push') {
+            steps {
+                // Build Docker image
+                script {
+                    docker.build(DOCKER_IMAGE_NAME)
+                }
+
+                // Log in to Docker Hub
+                withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh "docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
+                }
+
+                // Push Docker image to Docker Hub
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDENTIALS) {
+                        docker.image(DOCKER_IMAGE_NAME).push('latest')
+                    }
+                }
+            }
+        }
+    }
+}
