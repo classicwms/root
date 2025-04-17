@@ -13,6 +13,7 @@ import javax.persistence.EntityNotFoundException;
 import com.tekclover.wms.api.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.transaction.model.outbound.packing.*;
+import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundLineV2;
 import com.tekclover.wms.api.transaction.model.threepl.pricelist.PriceList;
 import com.tekclover.wms.api.transaction.repository.*;
 import com.tekclover.wms.api.transaction.repository.specification.PackingLineSpecification;
@@ -35,8 +36,8 @@ public class PackingLineService extends BaseService {
     @Autowired
     private PackingHeaderRepository packingHeaderRepository;
 
-   @Autowired
-   private OutboundHeaderService outboundHeaderService;
+    @Autowired
+    private OutboundHeaderService outboundHeaderService;
     @Autowired
     private StagingLineV2Repository stagingLineV2Repository;
 
@@ -199,11 +200,13 @@ public class PackingLineService extends BaseService {
             statusDescription = stagingLineV2Repository.getStatusDescription(67L, dbPackingLine.getLanguageId());
             dbPackingLine.setStatusDescription(statusDescription);
             // Outbound_Header_Update
+
             try {
                 outboundHeaderService.updateOutboundHeaderV2(dbPackingLine.getCompanyCodeId(), dbPackingLine.getPlantId(), dbPackingLine.getLanguageId(),
                         dbPackingLine.getWarehouseId(), dbPackingLine.getPreOutboundNo(), dbPackingLine.getRefDocNumber(), dbPackingLine.getPartnerCode(), loginUserID);
-            } catch (Exception e){
-                log.info("Exception throw OutboundHeader Status Update 57 ----------------------------------> ");
+
+            } catch (Exception e) {
+                log.info("Exception throw OutboundHeader Status Update 59 ----------------------------------> ");
             }
             // Update_Packing_Header
             packingHeaderRepository.updatePackingHeader(67L, statusDescription, dbPackingLine.getRefDocNumber());

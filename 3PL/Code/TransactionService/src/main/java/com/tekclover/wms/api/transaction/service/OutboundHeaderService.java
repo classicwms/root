@@ -1123,9 +1123,9 @@ public class OutboundHeaderService {
         if (dbOutboundHeader != null) {
             dbOutboundHeader.setUpdatedBy(loginUserID);
             dbOutboundHeader.setUpdatedOn(new Date());
-            dbOutboundHeader.setStatusId(57L);
+            dbOutboundHeader.setStatusId(59L);
 //            if (dbOutboundHeader.getStatusId() != null) {
-            statusDescription = stagingLineV2Repository.getStatusDescription(57L, dbOutboundHeader.getLanguageId());
+            statusDescription = stagingLineV2Repository.getStatusDescription(59L, dbOutboundHeader.getLanguageId());
             dbOutboundHeader.setStatusDescription(statusDescription);
 //            }
             log.info("dbOutboundHeader.getCreatedOn(), ref_doc_date :--->" + ctdOn + ", " + refDocDate);

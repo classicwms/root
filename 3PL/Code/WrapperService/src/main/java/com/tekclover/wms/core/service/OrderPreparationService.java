@@ -351,7 +351,8 @@ public class OrderPreparationService {
                     } else {
                         soHeader.setOrderType("3");
                     }
-                    if (listUploadedData.size() > 12 && listUploadedData.get(13) != null && !listUploadedData.get(13).isBlank()) {
+                    if (!listUploadedData.get(12).isEmpty() && listUploadedData.size() > 12 && listUploadedData.get(13) != null &&
+                            !listUploadedData.get(13).isBlank() && !listUploadedData.get(13).isEmpty()) {
                         soHeader.setTokenNumber(listUploadedData.get(13));
                     }
                     soHeader.setSalesOrderNumber(listUploadedData.get(1));
@@ -381,7 +382,8 @@ public class OrderPreparationService {
                     soLine.setManufacturerName(listUploadedData.get(11));
                     soLine.setManufacturerCode(listUploadedData.get(11));
                 }
-                if (listUploadedData.size() > 11 && listUploadedData.get(12) != null && !listUploadedData.get(12).isBlank()) {
+                if (listUploadedData.size() > 11 && listUploadedData.get(12) != null
+                        && !listUploadedData.get(12).isBlank() && !listUploadedData.get(12).isEmpty()) {
                     soLine.setStorageSectionId(listUploadedData.get(12));
                 }
                 soLines.add(soLine);

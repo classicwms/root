@@ -2464,11 +2464,25 @@ public class WarehouseService extends BaseService {
 			apiHeader.setMiddlewareId(salesOrderHeader.getMiddlewareId());
 			apiHeader.setMiddlewareTable(salesOrderHeader.getMiddlewareTable());
 
-			try {
-				Date reqDate = DateUtils.convertStringToDate2(salesOrderHeader.getRequiredDeliveryDate());
-				apiHeader.setRequiredDeliveryDate(reqDate);
-			} catch (Exception e) {
-				throw new OutboundOrderRequestException("Date format should be MM-dd-yyyy");
+			if (salesOrderHeader.getRequiredDeliveryDate().contains("/")) {
+				// EA_DATE
+				try {
+					ZoneId defaultZoneId = ZoneId.systemDefault();
+					String sdate = salesOrderHeader.getRequiredDeliveryDate();
+					String firstHalf = sdate.substring(0, sdate.lastIndexOf("/"));
+					String secondHalf = sdate.substring(sdate.lastIndexOf("/") + 1);
+					secondHalf = "/20" + secondHalf;
+					sdate = firstHalf + secondHalf;
+					log.info("sdate--------> : " + sdate);
+
+					LocalDate localDate = DateUtils.dateConv2(sdate);
+					log.info("localDate--------> : " + localDate);
+					Date date = Date.from(localDate.atStartOfDay(defaultZoneId).toInstant());
+					apiHeader.setRequiredDeliveryDate(date);
+				} catch (Exception e) {
+					e.printStackTrace();
+					throw new InboundOrderRequestException("Date format should be MM-dd-yyyy");
+				}
 			}
 
 			IKeyValuePair iKeyValuePair = outboundOrderV2Repository.getV2Description(

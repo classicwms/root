@@ -888,7 +888,9 @@ public class FileStorageService {
             line.setUom(listUploadedData.get(13));
             line.setOrigin(listUploadedData.get(14));
             line.setSupplierName(listUploadedData.get(15));
-            line.setBrand(listUploadedData.get(16));
+            if(!listUploadedData.get(16).trim().isEmpty()) {
+                line.setBrand(listUploadedData.get(16));
+            }
 
             if (!listUploadedData.get(17).trim().isEmpty()) {
                 line.setPackQty(Double.valueOf(listUploadedData.get(17)));
