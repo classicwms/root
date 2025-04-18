@@ -128,6 +128,7 @@ public class OrderPreparationService {
 
     /**
      * Upload Multiple Order - PickList / SalesOrder
+     *
      * @param companyCodeId
      * @param plantId
      * @param languageId
@@ -137,7 +138,7 @@ public class OrderPreparationService {
      * @return
      */
     public List<SalesOrderV2> prepSalesOrderMultipleData(String companyCodeId, String plantId, String languageId,
-                                                          String warehouseId, String loginUserId, List<List<String>> allRowsList) {
+                                                         String warehouseId, String loginUserId, List<List<String>> allRowsList) {
         List<SalesOrderV2> salesOrderList = new ArrayList<>();
         SalesOrderHeaderV2 soHeader = null;
         List<SalesOrderLineV2> soLines = new ArrayList<>();
@@ -236,7 +237,7 @@ public class OrderPreparationService {
      * @return
      */
     public List<SalesOrderV2> prepSalesOrderData(String companyCodeId, String plantId, String languageId,
-                                                  String warehouseId, String loginUserId, List<List<String>> allRowsList) {
+                                                 String warehouseId, String loginUserId, List<List<String>> allRowsList) {
         List<SalesOrderV2> salesOrderList = new ArrayList<>();
         SalesOrderHeaderV2 soHeader = null;
         List<SalesOrderLineV2> soLines = new ArrayList<>();
@@ -306,7 +307,7 @@ public class OrderPreparationService {
      * @return
      */
     public List<SalesOrderV2> prepSalesOrderDataV3(String companyCodeId, String plantId, String languageId,
-                                                    String warehouseId, String loginUserId, List<List<String>> allRowsList) {
+                                                   String warehouseId, String loginUserId, List<List<String>> allRowsList) {
         List<SalesOrderV2> salesOrderList = new ArrayList<>();
         SalesOrderHeaderV2 soHeader = null;
         List<SalesOrderLineV2> soLines = new ArrayList<>();
@@ -343,49 +344,35 @@ public class OrderPreparationService {
                     soHeader.setWarehouseId(warehouseId);
                     soHeader.setLoginUserId(loginUserId);
                     soHeader.setPickListNumber(listUploadedData.get(0));
-                    soHeader.setCustomerId(listUploadedData.get(2));
-                    soHeader.setCustomerName(listUploadedData.get(3));
-                    soHeader.setRequiredDeliveryDate(listUploadedData.get(9));
-                    if (listUploadedData.size() > 13 && listUploadedData.get(14) != null && !listUploadedData.get(14).isBlank()) {
-                        soHeader.setOrderType(listUploadedData.get(14));
-                    } else {
-                        soHeader.setOrderType("3");
-                    }
-                    if (!listUploadedData.get(12).isEmpty() && listUploadedData.size() > 12 && listUploadedData.get(13) != null &&
-                            !listUploadedData.get(13).isBlank() && !listUploadedData.get(13).isEmpty()) {
-                        soHeader.setTokenNumber(listUploadedData.get(13));
-                    }
-                    soHeader.setSalesOrderNumber(listUploadedData.get(1));
+                    soHeader.setCustomerId(listUploadedData.get(1));
+                    soHeader.setCustomerName(listUploadedData.get(2));
+                    soHeader.setRequiredDeliveryDate(listUploadedData.get(7));
+//                    if (listUploadedData.size() > 13 && listUploadedData.get(14) != null && !listUploadedData.get(14).isBlank()) {
+//                        soHeader.setOrderType(listUploadedData.get(14));
+//                    } else {
+                    soHeader.setOrderType("3");
+//                    }
+                    soHeader.setSalesOrderNumber(listUploadedData.get(0));
                 }
                 oneTimeAllow = false;
 
                 // Line
                 SalesOrderLineV2 soLine = new SalesOrderLineV2();
-                if (listUploadedData.size() > 13 && listUploadedData.get(14) != null && !listUploadedData.get(14).isBlank()) {
-                    soLine.setOrderType(listUploadedData.get(14));
-                } else {
-                    soLine.setOrderType("3");
-                }
-                soLine.setLineReference(Long.valueOf(listUploadedData.get(4)));
-                soLine.setOrderedQty(Double.valueOf(listUploadedData.get(8)));
-                soLine.setSku(listUploadedData.get(6));
-                if (listUploadedData.size() > 9 && listUploadedData.get(10) != null && !listUploadedData.get(10).isBlank()) {
-                    soLine.setUom(listUploadedData.get(10));
+                soLine.setOrderType("3");
+                soLine.setLineReference(Long.valueOf(listUploadedData.get(3)));
+                soLine.setOrderedQty(Double.valueOf(listUploadedData.get(6)));
+                soLine.setSku(listUploadedData.get(4));
+                if (listUploadedData.size() > 7 && listUploadedData.get(8) != null && !listUploadedData.get(8).isBlank()) {
+                    soLine.setUom(listUploadedData.get(8));
                 } else {
                     soLine.setUom(UOM);
                 }
                 soLine.setPickListNo(listUploadedData.get(0));
-                soLine.setSalesOrderNo(listUploadedData.get(1));
-                soLine.setSkuDescription(listUploadedData.get(7));
-                soLine.setBarcodeId(listUploadedData.get(5));
-                if (listUploadedData.size() > 10 && listUploadedData.get(11) != null && !listUploadedData.get(11).isBlank()) {
-                    soLine.setManufacturerName(listUploadedData.get(11));
-                    soLine.setManufacturerCode(listUploadedData.get(11));
-                }
-                if (listUploadedData.size() > 11 && listUploadedData.get(12) != null
-                        && !listUploadedData.get(12).isBlank() && !listUploadedData.get(12).isEmpty()) {
-                    soLine.setStorageSectionId(listUploadedData.get(12));
-                }
+                soLine.setSalesOrderNo(listUploadedData.get(0));
+                soLine.setSkuDescription(listUploadedData.get(5));
+//                soLine.setBarcodeId(listUploadedData.get(5));
+                soLine.setManufacturerName("3PL");
+                soLine.setManufacturerCode("3PL");
                 soLines.add(soLine);
             }
 
@@ -413,8 +400,8 @@ public class OrderPreparationService {
      * @return
      */
     public List<ASNV2> prepAsnMultipleDataV4(String companyCodeId, String plantId,
-                                              String languageId, String warehouseId, String loginUserId,
-                                              List<InboundOrderProcessV4> allRowsList) {
+                                             String languageId, String warehouseId, String loginUserId,
+                                             List<InboundOrderProcessV4> allRowsList) {
         List<ASNV2> orderList = new ArrayList<>();
         String orderNumber = null;
         boolean oneTimeAllow = true;
@@ -485,8 +472,8 @@ public class OrderPreparationService {
      * @return
      */
     public List<InterWarehouseTransferInV2> prepInterwareHouseInDataV4(String companyCodeId, String plantId,
-                                                                        String languageId, String warehouseId, String loginUserId,
-                                                                        List<InboundOrderProcessV4> allRowsList) {
+                                                                       String languageId, String warehouseId, String loginUserId,
+                                                                       List<InboundOrderProcessV4> allRowsList) {
         List<InterWarehouseTransferInV2> whOrderList = new ArrayList<>();
         String orderNumber = null;
         boolean oneTimeAllow = true;
@@ -555,8 +542,8 @@ public class OrderPreparationService {
      * @return
      */
     public List<SaleOrderReturnV2> prepSaleOrderReturnDataV4(String companyCodeId, String plantId,
-                                                              String languageId, String warehouseId, String loginUserId,
-                                                              List<InboundOrderProcessV4> allRowsList) {
+                                                             String languageId, String warehouseId, String loginUserId,
+                                                             List<InboundOrderProcessV4> allRowsList) {
         List<SaleOrderReturnV2> orderList = new ArrayList<>();
         String orderNumber = null;
         boolean oneTimeAllow = true;
@@ -619,7 +606,6 @@ public class OrderPreparationService {
     //==================================================IMPEX - V4=====OUTBOUND===============================================================
 
     /**
-     *
      * @param companyCodeId
      * @param plantId
      * @param languageId
@@ -695,7 +681,6 @@ public class OrderPreparationService {
     }
 
     /**
-     *
      * @param companyCodeId
      * @param plantId
      * @param languageId
@@ -764,7 +749,6 @@ public class OrderPreparationService {
     }
 
     /**
-     *
      * @param companyCodeId
      * @param plantId
      * @param languageId

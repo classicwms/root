@@ -1,8 +1,8 @@
 package com.tekclover.wms.core.model.spark;
 
 import lombok.Data;
+import org.apache.poi.hpsf.Decimal;
 
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 
@@ -65,7 +65,7 @@ public class InventoryV3 {
     private String tpl_uom;
     private Double rate;
     private String currency;
-    private BigDecimal tpl_cbm_per_qty;
+    private Double tpl_cbm_per_qty;
     private Double tpl_rate_per_qty;
     private Double total_tpl_cbm;
     private Double total_rate;

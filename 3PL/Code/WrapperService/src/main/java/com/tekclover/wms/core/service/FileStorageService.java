@@ -847,7 +847,7 @@ public class FileStorageService {
         Map<String, ASNV2> asnMap = new HashMap<>(); // Store ASN headers and associated lines
 
         for (List<String> listUploadedData : allRowsList) {
-            String asnNumber = listUploadedData.get(2); // Extract ASN Number
+            String asnNumber = listUploadedData.get(0); // Extract ASN Number
 
             ASNV2 asnOrder;
             List<ASNLineV2> asnLines;
@@ -859,8 +859,8 @@ public class FileStorageService {
             } else {
                 // Create new ASN entry
                 ASNHeaderV2 header = new ASNHeaderV2();
-                header.setBranchCode(listUploadedData.get(0));
-                header.setCompanyCode(listUploadedData.get(1));
+                header.setBranchCode("1100");
+                header.setCompanyCode("1000");
                 header.setAsnNumber(asnNumber);
 
                 asnLines = new ArrayList<>(); // New list for ASN lines
@@ -875,25 +875,25 @@ public class FileStorageService {
 
             // Create and add line item
             ASNLineV2 line = new ASNLineV2();
-            line.setLineReference(Long.valueOf(listUploadedData.get(3)));
-            line.setSku(listUploadedData.get(4));
-            line.setSkuDescription(listUploadedData.get(5));
-            line.setContainerNumber(listUploadedData.get(6));
-            line.setSupplierCode(listUploadedData.get(7));
-            line.setSupplierPartNumber(listUploadedData.get(8));
-            line.setManufacturerName(listUploadedData.get(9));
-            line.setManufacturerCode(listUploadedData.get(10));
-            line.setExpectedDate(listUploadedData.get(11));
-            line.setExpectedQty(Double.valueOf(listUploadedData.get(12)));
-            line.setUom(listUploadedData.get(13));
-            line.setOrigin(listUploadedData.get(14));
-            line.setSupplierName(listUploadedData.get(15));
-            if(!listUploadedData.get(16).trim().isEmpty()) {
-                line.setBrand(listUploadedData.get(16));
-            }
+            line.setLineReference(Long.valueOf(listUploadedData.get(1)));
+            line.setSku(listUploadedData.get(2));
+            line.setSkuDescription(listUploadedData.get(3));
+            line.setContainerNumber(listUploadedData.get(4));
+            line.setSupplierCode(listUploadedData.get(5));
+            line.setSupplierPartNumber(listUploadedData.get(6));
+            line.setManufacturerName("3PL");
+            line.setManufacturerCode("3PL");
+            line.setExpectedDate(listUploadedData.get(7));
+            line.setExpectedQty(Double.valueOf(listUploadedData.get(8)));
+            line.setUom(listUploadedData.get(9));
+//            line.setOrigin(listUploadedData.get(14));
+            line.setSupplierName(listUploadedData.get(10));
+//            if(!listUploadedData.get(16).trim().isEmpty()) {
+//                line.setBrand(listUploadedData.get(16));
+//            }
 
-            if (!listUploadedData.get(17).trim().isEmpty()) {
-                line.setPackQty(Double.valueOf(listUploadedData.get(17)));
+            if (!listUploadedData.get(11).trim().isEmpty()) {
+                line.setPackQty(Double.valueOf(listUploadedData.get(11)));
             }
 
             asnLines.add(line); // Add line to ASN
@@ -1572,8 +1572,9 @@ public class FileStorageService {
                                 validateStringCell(cell, rowIndex, colIndex, header, errors);
                                 break;
 
-                            case "suppliercode":
+                            case "partnercode":
                             case "suppliername":
+                            case "partnername":
                             case "origin":
                                 nullValidateStringCell(cell, rowIndex, colIndex, header, errors);
                                 break;
