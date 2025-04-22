@@ -1,11 +1,12 @@
 package com.tekclover.wms.api.enterprise.transaction.model.outbound.quality.v2;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.quality.QualityHeader;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-
-import javax.persistence.*;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -62,6 +63,6 @@ public class QualityHeaderV2 extends QualityHeader {
 	private String customerCode;
 
 	@Column(name = "TFR_REQ_TYP", columnDefinition = "nvarchar(50)")
-	private String TransferRequestType;
+	private String transferRequestType;
 
 }

@@ -3,7 +3,6 @@ package com.tekclover.wms.api.transaction.repository;
 import java.util.List;
 import java.util.Optional;
 
-import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -13,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tekclover.wms.api.transaction.model.outbound.quality.QualityHeader;
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 
 @Repository
 @Transactional
@@ -69,21 +69,21 @@ public interface QualityHeaderRepository extends JpaRepository<QualityHeader, Lo
             @Param("warehouseId") String warehouseId,
             @Param("statusId") Long statusId);
 
-    @Query(value = "SELECT COUNT(ref_doc_no) as count FROM (\n"
-            + "select distinct ref_doc_no from \n"
-            + "tblqualityheader qh WHERE \n"
-            + "(:companyCode IS NULL OR qh.c_id IN (:companyCode)) AND \n"
-            + "(:plantId IS NULL OR qh.plant_id IN (:plantId)) AND \n"
-            + "(:languageId IS NULL OR qh.lang_id IN (:languageId)) AND \n"
-            + "(:warehouseId IS NULL OR qh.wh_id IN (:warehouseId)) AND \n"
-            + "(qh.status_id IN (:statusId)) AND \n"
-            + "qh.is_deleted = 0) x ", nativeQuery = true)
+    @Query(value = "SELECT COUNT(DISTINCT ref_doc_no) count \r\n"
+    		+ " FROM tblqualityheader qh \r\n"
+    		+ "	WHERE qh.c_id IN (:companyCode) AND \r\n"
+    		+ "		qh.plant_id IN (:plantId) AND \r\n"
+    		+ "		qh.lang_id IN (:languageId) AND \r\n"
+    		+ "		qh.wh_id IN (:warehouseId) AND \r\n"
+    		+ "		qh.status_id IN (:statusId) AND\r\n"
+    		+ "		qh.ob_ord_typ_id in (:obOrderTypeId) AND\r\n"
+    		+ "		qh.is_deleted = 0 ", nativeQuery = true)
     public Long getQualityCount(
             @Param("companyCode") List<String> companyCode,
             @Param("plantId") List<String> plantId,
             @Param("languageId") List<String> languageId,
             @Param("warehouseId") List<String> warehouseId,
-            @Param("statusId") Long statusId);
-
+            @Param("statusId") Long statusId,
+            @Param("obOrderTypeId") Long[] obOrderTypeId);
 
 }

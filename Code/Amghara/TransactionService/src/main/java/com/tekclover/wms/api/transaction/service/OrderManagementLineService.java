@@ -1,32 +1,40 @@
 package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
-import com.google.firebase.messaging.FirebaseMessagingException;
-import com.tekclover.wms.api.transaction.config.PropertiesConfig;
-import com.tekclover.wms.api.transaction.model.dto.*;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.IInventoryImpl;
-import com.tekclover.wms.api.transaction.model.outbound.ordermangement.v2.*;
-import com.tekclover.wms.api.transaction.model.outbound.preoutbound.v2.OutboundIntegrationHeaderV2;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.tekclover.wms.api.transaction.config.PropertiesConfig;
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
+import com.tekclover.wms.api.transaction.model.dto.IInventory;
+import com.tekclover.wms.api.transaction.model.dto.ImBasicData;
+import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
+import com.tekclover.wms.api.transaction.model.dto.StatusId;
+import com.tekclover.wms.api.transaction.model.dto.StorageBin;
+import com.tekclover.wms.api.transaction.model.dto.StorageBinV2;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.IInventoryImpl;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundLine;
@@ -36,10 +44,14 @@ import com.tekclover.wms.api.transaction.model.outbound.ordermangement.OrderMana
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.OrderManagementLine;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.SearchOrderManagementLine;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.UpdateOrderManagementLine;
+import com.tekclover.wms.api.transaction.model.outbound.ordermangement.v2.AssignPickerV2;
+import com.tekclover.wms.api.transaction.model.outbound.ordermangement.v2.OrderManagementLineImpl;
+import com.tekclover.wms.api.transaction.model.outbound.ordermangement.v2.OrderManagementLineV2;
+import com.tekclover.wms.api.transaction.model.outbound.ordermangement.v2.SearchOrderManagementLineV2;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupHeader;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickupHeaderV2;
+import com.tekclover.wms.api.transaction.model.outbound.preoutbound.v2.OutboundIntegrationHeaderV2;
 import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2;
-import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundLineV2;
 import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
 import com.tekclover.wms.api.transaction.repository.InventoryRepository;
 import com.tekclover.wms.api.transaction.repository.InventoryV2Repository;
@@ -60,7 +72,6 @@ import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -1957,14 +1968,15 @@ public class OrderManagementLineService extends BaseService {
         String proposedStorageBin = null;
         String proposedPackCode = null;
 
-        //push Notification
+			// push Notification
         Set<String> preOutboundNoList = new HashSet<>();
         Set<String> warehouseIdList = new HashSet<>();
             String notificationPreOutboundNo = null;
             String notificationWarehouseId = null;
         List<OrderManagementLineV2> orderManagementLineList = new ArrayList<>();
         List<PickupHeaderV2> pickupHeaders = new ArrayList<>();
-            List<AssignPickerV2> sortedList = assignPickers.stream().sorted(Comparator.comparing(AssignPickerV2::getPreOutboundNo)).collect(Collectors.toList());
+			List<AssignPickerV2> sortedList = assignPickers.stream()
+					.sorted(Comparator.comparing(AssignPickerV2::getPreOutboundNo)).collect(Collectors.toList());
             AuthToken authTokenForIdmasterService = authTokenService.getIDMasterServiceAuthToken();
 
         // Iterating over AssignPicker
@@ -1981,7 +1993,7 @@ public class OrderManagementLineService extends BaseService {
             proposedStorageBin = assignPicker.getProposedStorageBin();
             proposedPackCode = assignPicker.getProposedPackCode();
 
-            //push notification
+				// push notification
             preOutboundNoList.add(assignPicker.getPreOutboundNo());
             warehouseIdList.add(assignPicker.getWarehouseId());
 
@@ -1990,18 +2002,20 @@ public class OrderManagementLineService extends BaseService {
              */
             PickupHeaderV2 dupPickupHeader = pickupHeaderV2Repository
                     .findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndProposedStorageBinAndProposedPackBarCodeAndDeletionIndicator(
-                            companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode,
-                            lineNumber, itemCode, proposedStorageBin, proposedPackCode, 0L);
+								companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber,
+								partnerCode, lineNumber, itemCode, proposedStorageBin, proposedPackCode, 0L);
             log.info("duplicatePickUpHeader: " + dupPickupHeader);
 
             if (dupPickupHeader == null) {
-                OrderManagementLineV2 dbOrderManagementLine = getOrderManagementLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber,
-                        partnerCode, lineNumber, itemCode, proposedStorageBin, proposedPackCode);
+					OrderManagementLineV2 dbOrderManagementLine = getOrderManagementLineV2(companyCodeId, plantId,
+							languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode,
+							proposedStorageBin, proposedPackCode);
 
                 log.info("orderManagementLine: " + dbOrderManagementLine);
 
     //                AuthToken idmasterAuthToken = authTokenService.getIDMasterServiceAuthToken();
-    //                StatusId idStatus = idmasterService.getStatus(48L, warehouseId, idmasterAuthToken.getAccess_token());
+					// StatusId idStatus = idmasterService.getStatus(48L, warehouseId,
+					// idmasterAuthToken.getAccess_token());
                 statusDescription = stagingLineV2Repository.getStatusDescription(48L, languageId);
 
 //                    dbOrderManagementLine.setAssignedPickerId(assignedPickerId);
@@ -2018,7 +2032,9 @@ public class OrderManagementLineService extends BaseService {
                  * Selected WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/OB_LINE_NO/ITM_CODE in
                  * OUTBOUNDLINE table and update SATATU_ID as 48
                  */
-    //                OutboundLineV2 outboundLine = outboundLineService.getOutboundLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber,
+					// OutboundLineV2 outboundLine =
+					// outboundLineService.getOutboundLineV2(companyCodeId, plantId, languageId,
+					// warehouseId, preOutboundNo, refDocNumber,
     //                        partnerCode, lineNumber, itemCode);
     //                outboundLine.setStatusId(48L);
     //                outboundLine.setStatusDescription(statusDescription);
@@ -2027,8 +2043,8 @@ public class OrderManagementLineService extends BaseService {
     //                log.info("outboundLine updated : " + outboundLine);
     //
     //                // OutboundHeader Update
-                OutboundHeaderV2 outboundHeader = outboundHeaderService.getOutboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo,
-                        refDocNumber, partnerCode);
+					OutboundHeaderV2 outboundHeader = outboundHeaderService.getOutboundHeaderV2(companyCodeId, plantId,
+							languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode);
     //                outboundHeader.setStatusId(48L);
     //                outboundHeader.setStatusDescription(statusDescription);
     //                outboundHeaderV2Repository.save(outboundHeader);
@@ -2036,7 +2052,8 @@ public class OrderManagementLineService extends BaseService {
     //
     //                // ORDERMANAGEMENTHEADER Update
     //                OrderManagementHeaderV2 orderManagementHeader = orderManagementHeaderService
-    //                        .getOrderManagementHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode);
+					// .getOrderManagementHeaderV2(companyCodeId, plantId, languageId, warehouseId,
+					// preOutboundNo, refDocNumber, partnerCode);
     //                orderManagementHeader.setStatusId(48L);
     //                orderManagementHeader.setStatusDescription(statusDescription);
     //                orderManagementHeaderV2Repository.save(orderManagementHeader);
@@ -2052,12 +2069,14 @@ public class OrderManagementLineService extends BaseService {
                  * and add +1 and then update in ORDERMANAGEMENTLINE table by passing
                  * WH_ID/PRE_OB_NO/OB_LINE_NO/REF_DOC_NO/ITM_CODE
                  */
-                log.info("dbOrderManagementLine.getPickupNumber() -----> : " + dbOrderManagementLine.getPickupNumber());
+					log.info("dbOrderManagementLine.getPickupNumber() -----> : "
+							+ dbOrderManagementLine.getPickupNumber());
                 if (dbOrderManagementLine.getPickupNumber() == null) {
 
                     long NUM_RAN_CODE = 10;
-                    String PU_NO = getNextRangeNumber(NUM_RAN_CODE, dbOrderManagementLine.getCompanyCodeId(), dbOrderManagementLine.getPlantId(),
-                            dbOrderManagementLine.getLanguageId(), dbOrderManagementLine.getWarehouseId(), authTokenForIdmasterService.getAccess_token());
+						String PU_NO = getNextRangeNumber(NUM_RAN_CODE, dbOrderManagementLine.getCompanyCodeId(),
+								dbOrderManagementLine.getPlantId(), dbOrderManagementLine.getLanguageId(),
+								dbOrderManagementLine.getWarehouseId(), authTokenForIdmasterService.getAccess_token());
                     log.info("PU_NO : " + PU_NO);
 
                     // Insertion of Record in PICKUPHEADER tables
@@ -2081,14 +2100,15 @@ public class OrderManagementLineService extends BaseService {
 
                     // ProposedPackbarcode
                     pickupHeader.setProposedPackBarCode(dbOrderManagementLine.getProposedPackBarCode());
-
+						pickupHeader.setTransferRequestType(outboundHeader.getTransferRequestType());	
                     pickupHeader.setPickupCreatedBy(loginUserID);
                     pickupHeader.setPickupCreatedOn(new Date());
 
-                    //customerName
-                        if(outboundHeader.getCustomerCode() != null) {
-                        String customerName = getCustomerName(pickupHeader.getCompanyCodeId(), pickupHeader.getPlantId(),
-                                                                  pickupHeader.getLanguageId(), pickupHeader.getWarehouseId(), outboundHeader.getCustomerCode());
+						// customerName
+						if (outboundHeader.getCustomerCode() != null) {
+							String customerName = getCustomerName(pickupHeader.getCompanyCodeId(),
+									pickupHeader.getPlantId(), pickupHeader.getLanguageId(),
+									pickupHeader.getWarehouseId(), outboundHeader.getCustomerCode());
                         if (customerName != null) {
                             pickupHeader.setCustomerName(customerName);
                         }
@@ -2102,14 +2122,15 @@ public class OrderManagementLineService extends BaseService {
                     pickupHeaders.add(pickup);
                     log.info("pickupHeader created : " + pickup);
 
-                        if(notificationPreOutboundNo == null) {
+						if (notificationPreOutboundNo == null) {
                             notificationPreOutboundNo = assignPicker.getPreOutboundNo();
                             notificationWarehouseId = assignPicker.getWarehouseId();
                             log.info("1.Send Push Notification Initiated..! ---> " + notificationPreOutboundNo);
                             sendPushNotification(notificationPreOutboundNo, notificationWarehouseId);
                         }
-                        boolean pass = notificationPreOutboundNo != null && notificationPreOutboundNo.equalsIgnoreCase(assignPicker.getPreOutboundNo());
-                        if(!pass) {
+						boolean pass = notificationPreOutboundNo != null
+								&& notificationPreOutboundNo.equalsIgnoreCase(assignPicker.getPreOutboundNo());
+						if (!pass) {
                             log.info("2.Send Push Notification Initiated..! ---> " + notificationPreOutboundNo);
                             notificationPreOutboundNo = assignPicker.getPreOutboundNo();
                             notificationWarehouseId = assignPicker.getWarehouseId();
@@ -2118,15 +2139,17 @@ public class OrderManagementLineService extends BaseService {
 
 //                        dbOrderManagementLine.setPickupNumber(PU_NO);
 //                        dbOrderManagementLine = orderManagementLineV2Repository.save(dbOrderManagementLine);
-                        orderManagementLineV2Repository.updateOrderManagementLineV2(
-                                companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode,
-                                lineNumber, itemCode, 48L, statusDescription, assignedPickerId, PU_NO, loginUserID, proposedStorageBin, new Date());//26_02_2025_update uniqueOrderManagementLine stBin added
+						orderManagementLineV2Repository.updateOrderManagementLineV2(companyCodeId, plantId, languageId,
+								warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode, 48L,
+								statusDescription, assignedPickerId, PU_NO, loginUserID, proposedStorageBin,
+								new Date());// 26_02_2025_update uniqueOrderManagementLine stBin added
                         log.info("OrderManagementLine updated..! ");
                 }
                 orderManagementLineList.add(dbOrderManagementLine);
             }
         }
-        //push notification separated from pickup header and consolidated notification sent
+			// push notification separated from pickup header and consolidated notification
+			// sent
 //        if(preOutboundNoList != null && !preOutboundNoList.isEmpty() && warehouseIdList != null && !warehouseIdList.isEmpty()) {
 //            sendPushNotification(preOutboundNoList, warehouseIdList);
 //            sendPushNotification(pickupHeaders);

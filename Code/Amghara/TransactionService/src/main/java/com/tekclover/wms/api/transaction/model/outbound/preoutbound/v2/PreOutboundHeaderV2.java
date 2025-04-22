@@ -1,12 +1,14 @@
 package com.tekclover.wms.api.transaction.model.outbound.preoutbound.v2;
 
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.PreOutboundHeader;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-
-import javax.persistence.*;
-import java.util.Date;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -68,6 +70,6 @@ public class PreOutboundHeaderV2 extends PreOutboundHeader {
 	private String customerCode;
 
 	@Column(name = "TFR_REQ_TYP", columnDefinition = "nvarchar(50)")
-	private String TransferRequestType;
+	private String transferRequestType;
 
 }

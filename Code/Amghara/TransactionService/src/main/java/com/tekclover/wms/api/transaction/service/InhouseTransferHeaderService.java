@@ -1,26 +1,5 @@
 package com.tekclover.wms.api.transaction.service;
 
-import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
-import com.tekclover.wms.api.transaction.model.IKeyValuePair;
-import com.tekclover.wms.api.transaction.model.auth.AuthToken;
-import com.tekclover.wms.api.transaction.model.dto.*;
-import com.tekclover.wms.api.transaction.model.inbound.gr.StorageBinPutAway;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.AddInventory;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
-import com.tekclover.wms.api.transaction.model.mnc.*;
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.WarehouseApiResponse;
-import com.tekclover.wms.api.transaction.repository.*;
-import com.tekclover.wms.api.transaction.repository.specification.InhouseTransferHeaderSpecification;
-import com.tekclover.wms.api.transaction.util.CommonUtils;
-import com.tekclover.wms.api.transaction.util.DateUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -29,6 +8,49 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
+import com.tekclover.wms.api.transaction.model.IKeyValuePair;
+import com.tekclover.wms.api.transaction.model.auth.AuthToken;
+import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
+import com.tekclover.wms.api.transaction.model.dto.ImBasicData;
+import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
+import com.tekclover.wms.api.transaction.model.dto.StorageBin;
+import com.tekclover.wms.api.transaction.model.dto.StorageBinV2;
+import com.tekclover.wms.api.transaction.model.inbound.gr.StorageBinPutAway;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.AddInventory;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
+import com.tekclover.wms.api.transaction.model.mnc.AddInhouseTransferHeader;
+import com.tekclover.wms.api.transaction.model.mnc.AddInhouseTransferLine;
+import com.tekclover.wms.api.transaction.model.mnc.InhouseTransferHeader;
+import com.tekclover.wms.api.transaction.model.mnc.InhouseTransferHeaderEntity;
+import com.tekclover.wms.api.transaction.model.mnc.InhouseTransferLine;
+import com.tekclover.wms.api.transaction.model.mnc.InhouseTransferLineEntity;
+import com.tekclover.wms.api.transaction.model.mnc.InhouseTransferUpload;
+import com.tekclover.wms.api.transaction.model.mnc.SearchInhouseTransferHeader;
+import com.tekclover.wms.api.transaction.model.trans.InventoryTrans;
+import com.tekclover.wms.api.transaction.model.warehouse.inbound.WarehouseApiResponse;
+import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
+import com.tekclover.wms.api.transaction.repository.InhouseTransferHeaderRepository;
+import com.tekclover.wms.api.transaction.repository.InhouseTransferLineRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryTransRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryV2Repository;
+import com.tekclover.wms.api.transaction.repository.StagingLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.StorageBinRepository;
+import com.tekclover.wms.api.transaction.repository.specification.InhouseTransferHeaderSpecification;
+import com.tekclover.wms.api.transaction.util.CommonUtils;
+import com.tekclover.wms.api.transaction.util.DateUtils;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -67,6 +89,10 @@ public class InhouseTransferHeaderService extends BaseService {
 
     @Autowired
     private MastersService mastersService;
+
+    // Inventory Prod Issue Fix
+   	@Autowired
+   	private InventoryTransRepository inventoryTransRepository;
 
     /**
      * getInHouseTransferHeaders
@@ -1213,9 +1239,22 @@ public class InhouseTransferHeaderService extends BaseService {
                 InventoryV2 newInventoryV2 = new InventoryV2();
                 BeanUtils.copyProperties(inventory, newInventoryV2, CommonUtils.getNullPropertyNames(inventory));
                 newInventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 4));
+				try {
                 InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventoryV2);
                 log.info("InventoryV2 created : " + createdInventoryV2);
                 log.info("transferTypeId: " + transferTypeId);
+				} catch (Exception e) {
+					log.error("--ERROR--createInventoryNonCBMV2 ----level1--inventory--error----> :" + e.toString());
+					e.printStackTrace();
+					
+					// Inventory Error Handling
+					InventoryTrans newInventoryTrans = new InventoryTrans();
+					BeanUtils.copyProperties(newInventoryV2, newInventoryTrans, CommonUtils.getNullPropertyNames(newInventoryV2));
+					newInventoryTrans.setInventoryQuantity(newInventoryV2.getInventoryQuantity());
+					newInventoryTrans.setReRun(0L);	
+					InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+					log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
+				}
             }
         }
 
@@ -1234,8 +1273,22 @@ public class InhouseTransferHeaderService extends BaseService {
                 BeanUtils.copyProperties(dbInventory, newInventory, CommonUtils.getNullPropertyNames(dbInventory));
                 newInventory.setItemCode(createdInhouseTransferLine.getTargetItemCode());
                 newInventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 4));
-                Inventory createdNewInventory = inventoryV2Repository.save(newInventory);
-                log.info("createdNewInventory : " + createdNewInventory);
+                try {
+					InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventory);
+					log.info("InventoryV2 created : " + createdInventoryV2);
+					log.info("transferTypeId: " + transferTypeId);
+				} catch (Exception e) {
+					log.error("--ERROR--createInventoryNonCBMV2 ----level1--inventory--error----> :" + e.toString());
+					e.printStackTrace();
+					
+					// Inventory Error Handling
+					InventoryTrans newInventoryTrans = new InventoryTrans();
+					BeanUtils.copyProperties(newInventory, newInventoryTrans, CommonUtils.getNullPropertyNames(newInventory));
+					newInventoryTrans.setInventoryQuantity(newInventory.getInventoryQuantity());
+					newInventoryTrans.setReRun(0L);	
+					InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+					log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
+				}
 
                 // Delete the old record
                 inventoryV2Repository.delete(dbInventory);
@@ -1281,15 +1334,25 @@ public class InhouseTransferHeaderService extends BaseService {
                 Double totalQty = inventorySourceItemCode.getInventoryQuantity() + inventorySourceItemCode.getAllocatedQuantity();
                 newInventoryV2.setReferenceField4(totalQty);
                 newInventoryV2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 4));
+                try {
                 InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventoryV2);
                 log.info("InventoryV2 created : " + createdInventoryV2);
+					log.info("transferTypeId: " + transferTypeId);
+				} catch (Exception e) {
+					log.error("--ERROR--createInventoryNonCBMV2 ----level1--inventory--error----> :" + e.toString());
+					e.printStackTrace();
+					
+					// Inventory Error Handling
+					InventoryTrans newInventoryTrans = new InventoryTrans();
+					BeanUtils.copyProperties(newInventoryV2, newInventoryTrans, CommonUtils.getNullPropertyNames(newInventoryV2));
+					newInventoryTrans.setInventoryQuantity(newInventoryV2.getInventoryQuantity());
+					newInventoryTrans.setReRun(0L);	
+					InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+					log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
+				}
 
                 AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
                 if (INV_QTY == 0 && (inventorySourceItemCode.getAllocatedQuantity() == null || inventorySourceItemCode.getAllocatedQuantity() == 0D)) {
-//                if (INV_QTY == 0) {
-                    // Deleting record
-//                    inventoryV2Repository.delete(inventorySourceItemCode);
-
                     InventoryV2 deleteInventoryV2 = new InventoryV2();
                     BeanUtils.copyProperties(inventorySourceItemCode, deleteInventoryV2, CommonUtils.getNullPropertyNames(inventorySourceItemCode));
                     deleteInventoryV2.setUpdatedOn(new Date());
@@ -1330,6 +1393,8 @@ public class InhouseTransferHeaderService extends BaseService {
                                 createdInhouseTransferLine.getTargetItemCode(),
                                 createdInhouseTransferLine.getManufacturerName(),
                                 createdInhouseTransferLine.getTargetStorageBin());
+                log.info("--------inventoryTargetItemCode-------------->>>>>>>> : " + inventoryTargetItemCode);               
+                
                 if (inventoryTargetItemCode != null) {
                     // update INV_QTY value (INV_QTY + TR_CNF_QTY)
                     inventoryQty = inventoryTargetItemCode.getInventoryQuantity();
@@ -1361,8 +1426,22 @@ public class InhouseTransferHeaderService extends BaseService {
                     newInventoryV2_1.setUpdatedOn(new Date());
                     newInventoryV2_1.setReferenceField4(inventoryTargetItemCode.getInventoryQuantity() + inventoryTargetItemCode.getAllocatedQuantity());
                     newInventoryV2_1.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 4));
-                    createdInventoryV2 = inventoryV2Repository.save(newInventoryV2_1);
+                    try {
+    					InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventoryV2);
                     log.info("InventoryV2 created : " + createdInventoryV2);
+    					log.info("transferTypeId: " + transferTypeId);
+    				} catch (Exception e) {
+    					log.error("--ERROR--createInventoryNonCBMV2 ----level1--inventory--error----> :" + e.toString());
+    					e.printStackTrace();
+    					
+    					// Inventory Error Handling
+    					InventoryTrans newInventoryTrans = new InventoryTrans();
+    					BeanUtils.copyProperties(newInventoryV2, newInventoryTrans, CommonUtils.getNullPropertyNames(newInventoryV2));
+    					newInventoryTrans.setInventoryQuantity(newInventoryV2.getInventoryQuantity());
+    					newInventoryTrans.setReRun(0L);	
+    					InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+    					log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
+    				}
                 } else {
                     /*
                      * Fetch from INHOUSETRANSFERLINE table and insert in INVENTORY table as
@@ -1439,7 +1518,7 @@ public class InhouseTransferHeaderService extends BaseService {
                     imBasicData.setItemCode(itemCode);
                     imBasicData.setManufacturerName(createdInhouseTransferLine.getManufacturerName());
                     ImBasicData1 imbasicdata1 = mastersService.getImBasicData1ByItemCodeV2(imBasicData, authTokenForMastersService.getAccess_token());
-                    log.info("ImBasicData1 : " + imbasicdata1);
+//                    log.info("ImBasicData1 : " + imbasicdata1);
 //                    ImBasicData1 imbasicdata1 = mastersService.getImBasicData1ByItemCodeV2(itemCode, languageId, companyCode, plantId, warehouseId,
 //                            createdInhouseTransferLine.getManufacturerName(), authTokenForMastersService.getAccess_token());
 
@@ -1463,8 +1542,22 @@ public class InhouseTransferHeaderService extends BaseService {
                     newInventory.setCreatedOn(new Date());
                     newInventory.setUpdatedOn(new Date());
                     newInventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 4));
-                    InventoryV2 createdInventory = inventoryV2Repository.save(newInventory);
-                    log.info("createdInventory------> : " + createdInventory);
+                    try {
+    					InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventory);
+    					log.info("InventoryV2 created : " + createdInventoryV2);
+    					log.info("transferTypeId: " + transferTypeId);
+    				} catch (Exception e) {
+    					log.error("--ERROR--createInventoryNonCBMV2 ----level1--inventory--error----> :" + e.toString());
+    					e.printStackTrace();
+    					
+    					// Inventory Error Handling
+    					InventoryTrans newInventoryTrans = new InventoryTrans();
+    					BeanUtils.copyProperties(newInventoryV2, newInventoryTrans, CommonUtils.getNullPropertyNames(newInventoryV2));
+    					newInventoryTrans.setInventoryQuantity(newInventoryV2.getInventoryQuantity());
+    					newInventoryTrans.setReRun(0L);	
+    					InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+    					log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
+    				}
                 }
             }
         }

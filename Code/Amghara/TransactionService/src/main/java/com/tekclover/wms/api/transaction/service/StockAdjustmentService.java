@@ -1,5 +1,20 @@
 package com.tekclover.wms.api.transaction.service;
 
+import static java.lang.Math.abs;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Stream;
+
+import javax.transaction.Transactional;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.ParseException;
+import org.springframework.stereotype.Service;
+
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.v2.PerpetualLineV2;
@@ -12,27 +27,16 @@ import com.tekclover.wms.api.transaction.model.inbound.gr.StorageBinPutAway;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.IInventoryImpl;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
+import com.tekclover.wms.api.transaction.model.trans.InventoryTrans;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryTransRepository;
 import com.tekclover.wms.api.transaction.repository.InventoryV2Repository;
 import com.tekclover.wms.api.transaction.repository.StagingLineV2Repository;
 import com.tekclover.wms.api.transaction.repository.StockAdjustmentRepository;
 import com.tekclover.wms.api.transaction.repository.specification.StockAdjustmentSpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.expression.ParseException;
-import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Stream;
-
-import static java.lang.Math.abs;
 
 @Slf4j
 @Service
@@ -55,6 +59,10 @@ public class StockAdjustmentService extends BaseService {
 
     @Autowired
     MastersService mastersService;
+
+    // Inventory Prod Issue Fix
+  	@Autowired
+  	private InventoryTransRepository inventoryTransRepository;
 
     String statusDescription = null;
     String LANG_ID = "EN";
@@ -373,7 +381,21 @@ public class StockAdjustmentService extends BaseService {
                         stkInventory.setDeletionIndicator(0L);
                         stkInventory.setUpdatedOn(new Date());
                         stkInventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 5));
-                        inventoryV2Repository.save(stkInventory);
+                        try {
+                        	stkInventory = inventoryV2Repository.save(stkInventory);
+							log.info("-----Inventory2 created-------: " + stkInventory);
+						} catch (Exception e) {
+							log.error("--ERROR--createInventoryNonCBMV2 ----level1--inventory--error----> :" + e.toString());
+							e.printStackTrace();
+							
+							// Inventory Error Handling
+							InventoryTrans newInventoryTrans = new InventoryTrans();
+							BeanUtils.copyProperties(stkInventory, newInventoryTrans, CommonUtils.getNullPropertyNames(stkInventory));
+							newInventoryTrans.setInventoryQuantity(INV_QTY);
+							newInventoryTrans.setReRun(0L);	
+							InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+							log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
+						}
 
                         //Insert New Record in StockAdjustment
                         StockAdjustment createStockAdjustment = createStockAdjustment(stkInventory, inventoryList.get(0).getReferenceField4(), inventoryList.get(0).getReferenceField8(), stockAdjustment);
@@ -422,7 +444,21 @@ public class StockAdjustmentService extends BaseService {
                         stkInventory.setReferenceField4(TOT_QTY);
                         stkInventory.setDeletionIndicator(0L);
                         stkInventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 5));
-                        inventoryV2Repository.save(stkInventory);
+                        try {
+                        	stkInventory = inventoryV2Repository.save(stkInventory);
+							log.info("-----Inventory2 created-------: " + stkInventory);
+						} catch (Exception e) {
+							log.error("--ERROR--createInventoryNonCBMV2 ----level1--inventory--error----> :" + e.toString());
+							e.printStackTrace();
+							
+							// Inventory Error Handling
+							InventoryTrans newInventoryTrans = new InventoryTrans();
+							BeanUtils.copyProperties(stkInventory, newInventoryTrans, CommonUtils.getNullPropertyNames(stkInventory));
+							newInventoryTrans.setInventoryQuantity(INV_QTY);
+							newInventoryTrans.setReRun(0L);	
+							InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+							log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
+						}
 
                         //Insert New Record in StockAdjustment
                         StockAdjustment createStockAdjustment = createStockAdjustment(stkInventory, inventory.getReferenceField4(), inventory.getReferenceField8(), stockAdjustment);
@@ -544,7 +580,21 @@ public class StockAdjustmentService extends BaseService {
                         stkInventory.setReferenceField4(TOT_QTY);
                         stkInventory.setDeletionIndicator(0L);
                         stkInventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 5));
-                        inventoryV2Repository.save(stkInventory);
+                        try {
+                        	stkInventory = inventoryV2Repository.save(stkInventory);
+							log.info("-----Inventory2 created-------: " + stkInventory);
+						} catch (Exception e) {
+							log.error("--ERROR--createInventoryNonCBMV2 ----level1--inventory--error----> :" + e.toString());
+							e.printStackTrace();
+							
+							// Inventory Error Handling
+							InventoryTrans newInventoryTrans = new InventoryTrans();
+							BeanUtils.copyProperties(stkInventory, newInventoryTrans, CommonUtils.getNullPropertyNames(stkInventory));
+							newInventoryTrans.setInventoryQuantity(INV_QTY);
+							newInventoryTrans.setReRun(0L);	
+							InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+							log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
+						}
 
                         //Insert New Record in StockAdjustment
                         StockAdjustment createStockAdjustment = createStockAdjustment(stkInventory, dbInventory.getReferenceField4(), dbInventory.getReferenceField8(), stockAdjustment);
@@ -714,7 +764,21 @@ public class StockAdjustmentService extends BaseService {
                                 stkInventory.setReferenceField4(TOT_QTY);
                                 stkInventory.setDeletionIndicator(0L);
                                 stkInventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 5));
-                                inventoryV2Repository.save(stkInventory);
+                                try {
+                                	stkInventory = inventoryV2Repository.save(stkInventory);
+        							log.info("-----Inventory2 created-------: " + stkInventory);
+        						} catch (Exception e) {
+        							log.error("--ERROR--createInventoryNonCBMV2 ----level1--inventory--error----> :" + e.toString());
+        							e.printStackTrace();
+        							
+        							// Inventory Error Handling
+        							InventoryTrans newInventoryTrans = new InventoryTrans();
+        							BeanUtils.copyProperties(stkInventory, newInventoryTrans, CommonUtils.getNullPropertyNames(stkInventory));
+        							newInventoryTrans.setInventoryQuantity(INV_QTY);
+        							newInventoryTrans.setReRun(0L);	
+        							InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+        							log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
+        						}
 
                                 //Insert New Record in StockAdjustment
                                 StockAdjustment createStockAdjustment = createStockAdjustment(stkInventory, inventory.getReferenceField4(), inventory.getReferenceField8(), stockAdjustment);
@@ -828,7 +892,21 @@ public class StockAdjustmentService extends BaseService {
                             stkInventory.setReferenceField4(TOT_QTY);
                             stkInventory.setDeletionIndicator(0L);
                             stkInventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 5));
-                            inventoryV2Repository.save(stkInventory);
+                            try {
+                            	stkInventory = inventoryV2Repository.save(stkInventory);
+    							log.info("-----Inventory2 created-------: " + stkInventory);
+    						} catch (Exception e) {
+    							log.error("--ERROR--createInventoryNonCBMV2 ----level1--inventory--error----> :" + e.toString());
+    							e.printStackTrace();
+    							
+    							// Inventory Error Handling
+    							InventoryTrans newInventoryTrans = new InventoryTrans();
+    							BeanUtils.copyProperties(stkInventory, newInventoryTrans, CommonUtils.getNullPropertyNames(stkInventory));
+    							newInventoryTrans.setInventoryQuantity(INV_QTY);
+    							newInventoryTrans.setReRun(0L);	
+    							InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+    							log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
+    						}
 
                             //Insert New Record in StockAdjustment
                             StockAdjustment createStockAdjustment = createStockAdjustment(stkInventory, inventory.getReferenceField4(), inventory.getReferenceField8(), stockAdjustment);

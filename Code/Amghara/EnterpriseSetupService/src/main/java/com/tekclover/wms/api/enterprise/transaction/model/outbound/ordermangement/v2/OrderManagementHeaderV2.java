@@ -1,13 +1,14 @@
 package com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.v2;
 
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.OrderManagementHeader;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import java.util.Date;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -69,6 +70,6 @@ public class OrderManagementHeaderV2 extends OrderManagementHeader {
     private String customerCode;
 
     @Column(name = "TFR_REQ_TYP", columnDefinition = "nvarchar(50)")
-    private String TransferRequestType;
+    private String transferRequestType;
 
 }

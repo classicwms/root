@@ -1,13 +1,9 @@
 package com.tekclover.wms.api.idmaster.model.hhtuser;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
+
+import lombok.Data;
 
 @Data
 public class HhtUserOutput {
@@ -57,4 +53,6 @@ public class HhtUserOutput {
 	private Date endDate;
 	private String userPresent;
 	private String noOfDaysLeave;
+	
+	private Boolean transferQc;
 }

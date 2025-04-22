@@ -1,13 +1,18 @@
 package com.tekclover.wms.api.transaction.model.warehouse.inbound.v2;
 
+import java.util.Date;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.InboundOrder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-
-import javax.persistence.*;
-import java.util.Date;
-import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -33,8 +38,8 @@ public class InboundOrderV2 extends InboundOrder {
     private String middlewareTable;
     private Long numberOfAttempts;
     private String customerCode;
-    private String TransferRequestType;
-    private String AMSSupplierInvoiceNo;
+    private String transferRequestType;
+    private String amsSupplierInvoiceNo;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "INBOUND_ORDER_HEADER_ID",referencedColumnName = "INBOUND_ORDER_HEADER_ID")

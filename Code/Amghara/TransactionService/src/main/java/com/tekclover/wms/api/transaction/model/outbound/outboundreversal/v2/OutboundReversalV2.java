@@ -1,11 +1,12 @@
 package com.tekclover.wms.api.transaction.model.outbound.outboundreversal.v2;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+
 import com.tekclover.wms.api.transaction.model.outbound.outboundreversal.OutboundReversal;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-
-import javax.persistence.*;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -65,6 +66,6 @@ public class OutboundReversalV2 extends OutboundReversal {
 	private String customerCode;
 
 	@Column(name = "TFR_REQ_TYP", columnDefinition = "nvarchar(50)")
-	private String TransferRequestType;
+	private String transferRequestType;
 
 }

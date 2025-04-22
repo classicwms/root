@@ -1,12 +1,14 @@
 package com.tekclover.wms.api.enterprise.transaction.model.outbound.pickup.v2;
 
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.pickup.PickupHeader;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-
-import javax.persistence.*;
-import java.util.Date;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -96,7 +98,7 @@ public class PickupHeaderV2 extends PickupHeader {
 	private String customerCode;
 
 	@Column(name = "TFR_REQ_TYP", columnDefinition = "nvarchar(50)")
-	private String TransferRequestType;
+	private String transferRequestType;
 
 	@Column(name = "CUSTOMER_NAME", columnDefinition = "nvarchar(150)")
 	private String customerName;

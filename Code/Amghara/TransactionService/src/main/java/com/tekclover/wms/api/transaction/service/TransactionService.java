@@ -98,6 +98,7 @@ public class TransactionService extends BaseService{
                 inboundIntegrationHeader.setSourceCompanyCode(dbOBOrder.getSourceCompanyCode());
                 inboundIntegrationHeader.setCustomerCode(dbOBOrder.getCustomerCode());
                 inboundIntegrationHeader.setTransferRequestType(dbOBOrder.getTransferRequestType());
+                inboundIntegrationHeader.setAmsSupplierInvoiceNo(dbOBOrder.getAmsSupplierInvoiceNo());
 
 //                List<InboundOrderLinesV2> sqlInboundLineList = inboundOrderLinesV2Repository.getOrderLinesByOrderTypeId(dbOBOrder.getOrderId(), dbOBOrder.getInboundOrderTypeId());
                 log.info("ib line list: " + dbOBOrder.getLine().size());

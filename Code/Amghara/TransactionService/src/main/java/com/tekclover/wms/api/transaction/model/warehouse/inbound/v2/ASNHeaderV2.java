@@ -1,10 +1,11 @@
 package com.tekclover.wms.api.transaction.model.warehouse.inbound.v2;
 
-import lombok.Data;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.validation.constraints.NotBlank;
-import java.util.Date;
+
+import lombok.Data;
 
 @Data
 public class ASNHeaderV2  {
@@ -20,7 +21,7 @@ public class ASNHeaderV2  {
 	@Column(nullable = false)
 	@NotBlank(message = "ASN number is mandatory")
 	private String asnNumber;
-	private String AMSSupplierInvoiceNo;
+	private String amsSupplierInvoiceNo;
 
 	//almailem fields
 //	private String purchaseOrderNumber;

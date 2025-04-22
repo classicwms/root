@@ -1,9 +1,9 @@
 package com.tekclover.wms.api.transaction.model.inbound.preinbound;
 
-import lombok.Data;
-
 import java.util.Date;
 import java.util.List;
+
+import lombok.Data;
 
 @Data
 public class InboundIntegrationHeader {
@@ -24,7 +24,7 @@ public class InboundIntegrationHeader {
     private String isCompleted;
     private Date updatedOn;
     private String isCancelled;
-    private String AMSSupplierInvoiceNo;
+    private String amsSupplierInvoiceNo;
 
     private String middlewareId;
     private String middlewareTable;
@@ -33,7 +33,7 @@ public class InboundIntegrationHeader {
     private String sourceBranchCode;
     private String sourceCompanyCode;
     private String customerCode;
-    private String TransferRequestType;
+    private String transferRequestType;
 
     private List<InboundIntegrationLine> inboundIntegrationLine;
 

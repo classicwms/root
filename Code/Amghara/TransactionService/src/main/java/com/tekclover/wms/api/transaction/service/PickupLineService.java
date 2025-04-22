@@ -2435,8 +2435,7 @@ public class PickupLineService extends BaseService {
 								dbPickupLine.getPartnerCode(), dbPickupLine.getPickupNumber());
 
 						QualityHeaderV2 newQualityHeader = new QualityHeaderV2();
-						BeanUtils.copyProperties(dbPickupLine, newQualityHeader,
-								CommonUtils.getNullPropertyNames(dbPickupLine));
+						BeanUtils.copyProperties(dbPickupLine, newQualityHeader, CommonUtils.getNullPropertyNames(dbPickupLine));
 
 						// QC_NO
 						/*
