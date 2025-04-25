@@ -21,6 +21,7 @@ public class MobileDashboard {
 		private Long quality;
 		private Long reversals;
 		private Long tracking;
+		private Long transferQC;
 	}
 	
 	@Data

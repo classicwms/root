@@ -44,4 +44,5 @@ public class PreInboundHeaderV2 {
     private String middlewareTable;
     private String manufacturerFullName;
     private String statusDescription;
+    private String amsSupplierInvoiceNo;
 }

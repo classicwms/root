@@ -59,4 +59,5 @@ public class QualityHeaderV2 {
     private String manufacturerName;
     private String targetBranchCode;
     private Integer imsSaleTypeCode;
+    private String transferRequestType;
 }

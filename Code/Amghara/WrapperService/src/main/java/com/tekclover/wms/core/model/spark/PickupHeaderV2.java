@@ -77,6 +77,6 @@ public class PickupHeaderV2 {
 
     private Long notificationStatus;
     private String customerCode;
-    private String TransferRequestType;
+    private String transferRequestType;
     private String customerName;
 }
