@@ -2383,8 +2383,10 @@ public class PickupLineService extends BaseService {
 					loginUserID, new Date());
 			log.info("PickUpHeader status updated....");
 		} catch (Exception e) {
-			e.printStackTrace();
+			pickupHeaderV2Repository.updatePickupheader(refDocNumber, pickupNumber, STATUS_ID, statusDescription,
+					loginUserID, new Date());
 			log.info("PickupHeader update error: " + e.toString());
+			e.printStackTrace();
             }
 		return createdPickupLineList;
         }
@@ -2623,6 +2625,12 @@ public class PickupLineService extends BaseService {
 						PickupHeaderV2 dbPickupHeader = pickupHeaderService.getPickupHeaderV2(companyCode, plantId,
 								languageId, warehouseId, dbPickupLine.getPreOutboundNo(), refDocNumber,
 								dbPickupLine.getPartnerCode(), dbPickupLine.getPickupNumber());
+						if (dbPickupHeader.getStatusId() == 50L) {
+							log.info("----dbPickupHeader.getStatusId()--NOT DONE--SO--UPDATEING-1--> : " + dbPickupHeader);
+							pickupHeaderV2Repository.updatePickupheader(refDocNumber, 
+									dbPickupLine.getPickupNumber(), dbPickupLine.getStatusId(), statusDescription,
+									loginUserID, new Date());
+						}
 
                     QualityHeaderV2 newQualityHeader = new QualityHeaderV2();
 						BeanUtils.copyProperties(dbPickupLine, newQualityHeader,
@@ -2689,7 +2697,8 @@ public class PickupLineService extends BaseService {
 			} catch (Exception ex) {
 				ex.printStackTrace();
 				log.info("PickupLine status 100 updated - Quality header create - failed..! ");
-				log.error("Exception occurred while create quality header/pickupline inventory confirm " + ex.toString());
+				log.error(
+						"Exception occurred while create quality header/pickupline inventory confirm " + ex.toString());
 				
 				// pickupline 100 status - failure update
 				pickupLineV2Repository.updatePickupLineStatusV2(companyCode, plantId, languageId, warehouseId,

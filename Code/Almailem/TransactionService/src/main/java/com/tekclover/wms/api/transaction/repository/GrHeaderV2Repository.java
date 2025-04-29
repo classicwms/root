@@ -1,7 +1,9 @@
 package com.tekclover.wms.api.transaction.repository;
 
-import com.tekclover.wms.api.transaction.model.inbound.gr.v2.GrHeaderV2;
-import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -11,9 +13,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import com.tekclover.wms.api.transaction.model.inbound.gr.v2.GrHeaderV2;
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 
 @Repository
 @Transactional
@@ -110,4 +111,24 @@ public interface GrHeaderV2Repository extends JpaRepository<GrHeaderV2, Long>, J
 
     GrHeaderV2 findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
             String languageId, String companyCode, String plantId, String warehouseId, String refDocNumber, String preInboundNo, Long deletionIndicator);
+
+    //-----------------------Added---By---Muru--------------------------------------------------------------
+    @Modifying(clearAutomatically = true)
+    @Query(value = "UPDATE tblgrheader \r\n"
+    		+ "	SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, \r\n"
+    		+ "	GR_CNF_BY = :updatedBy, GR_CNF_ON = :updatedOn\r\n"
+    		+ "	WHERE IS_DELETED = 0 AND \r\n"
+    		+ "			C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId AND \r\n"
+    		+ "			REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo", nativeQuery = true)
+    void updateGRHeaderStatusOnPartialConfirmation(
+    		@Param("companyCodeId") String companyCode,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preInboundNo") String preInboundNo,
+            @Param("statusId") Long statusId,
+            @Param("statusDescription") String statusDescription,
+            @Param("updatedBy") String updatedBy,
+            @Param("updatedOn") Date updatedOn);
 }

@@ -1800,7 +1800,7 @@ public class GrLineService extends BaseService {
     private void schedulePostGRLineProcessV2() {
         log.info("Create PutawayHeader Schedule Initiated : " + new Date());
 //        GrLineV2 createdGRLine = getGrLineV2();
-        List<GrLineV2> createdGRLines = getGrLineV2List ();
+		List<GrLineV2> createdGRLines = getGrLineV2List();
         if (createdGRLines != null) {
         	createdGRLines.stream().forEach(createdGRLine -> {
         if (createdGRLine != null) {
@@ -1813,9 +1813,12 @@ public class GrLineService extends BaseService {
             try {
                 createPutAwayHeaderNonCBMV2(createdGRLine, createdGRLine.getCreatedBy());
 
-                //putaway header successfully created - changing flag to 10
-                grLineV2Repository.updateGrLineStatusV2(createdGRLine.getCompanyCode(), createdGRLine.getPlantId(), createdGRLine.getLanguageId(), createdGRLine.getWarehouseId(), createdGRLine.getPreInboundNo(),
-                        createdGRLine.getCreatedOn(), createdGRLine.getLineNo(), createdGRLine.getItemCode(), 10L);
+						// putaway header successfully created - changing flag to 10
+						grLineV2Repository.updateGrLineStatusV2(createdGRLine.getCompanyCode(),
+								createdGRLine.getPlantId(), createdGRLine.getLanguageId(),
+								createdGRLine.getWarehouseId(), createdGRLine.getPreInboundNo(),
+								createdGRLine.getCreatedOn(), createdGRLine.getLineNo(), createdGRLine.getItemCode(),
+								10L);
                 log.info("GrLine status 10 updated..! ");
 
             } catch (Exception e) {
@@ -1824,9 +1827,11 @@ public class GrLineService extends BaseService {
                 log.error("Exception occurred while create putaway header " + e.toString());
 
 				// putaway header create failed - changing flag to 100
-				grLineV2Repository.updateGrLineStatusV2(createdGRLine.getCompanyCode(), createdGRLine.getPlantId(),
-						createdGRLine.getLanguageId(), createdGRLine.getWarehouseId(), createdGRLine.getPreInboundNo(),
-                        createdGRLine.getCreatedOn(), createdGRLine.getLineNo(), createdGRLine.getItemCode(), 100L);
+						grLineV2Repository.updateGrLineStatusV2(createdGRLine.getCompanyCode(),
+								createdGRLine.getPlantId(), createdGRLine.getLanguageId(),
+								createdGRLine.getWarehouseId(), createdGRLine.getPreInboundNo(),
+								createdGRLine.getCreatedOn(), createdGRLine.getLineNo(), createdGRLine.getItemCode(),
+								100L);
 				sendMail(companyCode, plantId, languageId, warehouseId, refDocNumber,
 						getInboundOrderTypeTable(inboundOrderTypeId), e.toString());
                         }
