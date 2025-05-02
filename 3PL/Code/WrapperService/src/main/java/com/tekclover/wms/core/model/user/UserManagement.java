@@ -20,6 +20,7 @@ public class UserManagement {
 	private String firstName;
 	private String lastName;
 	private String password;
+	private String customerId;
 	private Long statusId;
 	private Long dateFormatId;
 	private Long currencyDecimal;

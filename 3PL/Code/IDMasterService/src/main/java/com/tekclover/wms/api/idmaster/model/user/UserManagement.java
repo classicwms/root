@@ -87,6 +87,9 @@ public class UserManagement {
     
     @Column(name = "FST_NM")
     private String firstName;
+
+    @Column(name = "CUSTOMER_ID")
+    private String customerId;
     
     @Column(name = "LST_NM")
     private String lastName;

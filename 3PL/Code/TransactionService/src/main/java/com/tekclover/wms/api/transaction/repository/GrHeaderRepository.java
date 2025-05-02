@@ -93,6 +93,9 @@ public interface GrHeaderRepository extends JpaRepository<GrHeader, Long>, JpaSp
                        @Param("statusId") Long statusId);
 
 
+    @Query(value = "SELECT TOP 1 PARTNER_NM FROM TBLBUSINESSPARTNER WHERE PARTNER_CODE = :partnerId AND IS_DELETED = 0", nativeQuery = true)
+    String getPartnerName(@Param("partnerId") String partnerId);
+
     List<GrHeader> findByWarehouseIdAndStatusIdAndDeletionIndicator(String warehouseId, Long statusId ,Long deletionIndicator);
 
     List<GrHeader> findByCompanyCodeAndLanguageIdAndPlantIdAndWarehouseIdAndStatusIdInAndDeletionIndicator(

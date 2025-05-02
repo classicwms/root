@@ -13,4 +13,5 @@ public class SearchStockReportInput {
 	private String manufacturerName;
 	private String itemText;
 	private String stockTypeText;
+	private String partnerCode;
 }

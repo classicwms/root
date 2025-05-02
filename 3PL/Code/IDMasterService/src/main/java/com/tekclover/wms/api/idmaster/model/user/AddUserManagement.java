@@ -27,6 +27,7 @@ public class AddUserManagement {
     private String lastName;
     private Long statusId;
     private Boolean createHhtUser;
+    private String customerId;
     //	private Boolean isLoggedIn;
     private Boolean portalLoggedIn;
     private Boolean hhtLoggedIn;

@@ -125,4 +125,6 @@ public class ImBasicData1 {
 	//MiddleWare Fields
 	private Long middlewareId;
 	private String middlewareTable;
+
+	private Long selfLife;
 }

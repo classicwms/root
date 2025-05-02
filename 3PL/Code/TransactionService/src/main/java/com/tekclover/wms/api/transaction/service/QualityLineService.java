@@ -1401,9 +1401,9 @@ public class QualityLineService extends BaseService {
             //PackingHeader Create
             for (AddQualityLineV2 dbQualityLine : newQualityLines) {
                 log.info("Packing Header Create Stating ------------------------------------------------------> " + dbQualityLine.getPartnerCode());
-                String partnerCode = dbQualityLine.getPartnerCode();
-                Long PARTNER_CODE = qualityLineRepository.getPartnerInd(Long.valueOf(partnerCode));
-                if (PARTNER_CODE == null || PARTNER_CODE == 0) {
+//                String partnerCode = dbQualityLine.getPartnerCode();
+//                Long PARTNER_CODE = qualityLineRepository.getPartnerInd(Long.valueOf(partnerCode));
+//                if (PARTNER_CODE == null || PARTNER_CODE == 0) {
                     PackingHeader packingHeader = new PackingHeader();
                     BeanUtils.copyProperties(dbQualityLine, packingHeader, CommonUtils.getNullPropertyNames(dbQualityLine));
                     String packingNo = getNextRangeNumber(16L, dbQualityLine.getCompanyCodeId(), dbQualityLine.getPlantId(),
@@ -1436,7 +1436,7 @@ public class QualityLineService extends BaseService {
                     packingHeaderRepository.save(packingHeader);
 //                packingHeader.setPackingNo(dbQualityLine.getPackingMaterialNo());
                     log.info("PackingHeaderSave Successfully");
-                }
+//                }
             }
 
             postDeliveryConfirm(createdQualityLineList, loginUserID);

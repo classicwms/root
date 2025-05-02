@@ -18,6 +18,7 @@ public class AddUserManagement {
     private String userName;
     private String firstName;
     private String lastName;
+	private String customerId;
 	private Long statusId;
    	private Long dateFormatId;
    	private Long currencyDecimal;

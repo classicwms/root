@@ -395,6 +395,42 @@ public class FileStorageService {
 //		}
 //		return null;
 //	}
+//    private List<List<String>> readExcelData(File file) {
+//        try {
+//            Workbook workbook = new XSSFWorkbook(file);
+//            workbook.setMissingCellPolicy(Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+//            org.apache.poi.ss.usermodel.Sheet sheet = workbook.getSheetAt(0);
+//
+//            List<List<String>> allRowsList = new ArrayList<>();
+//            DataFormatter fmt = new DataFormatter();
+//            for (int rn = sheet.getFirstRowNum() + 2; rn <= sheet.getLastRowNum(); rn++) {
+//                Row row = sheet.getRow(rn);
+//                log.info("Row:  " + row.getRowNum());
+//                if (row == null) {
+//                    // There is no data in this row, handle as needed
+//                } else if (row.getRowNum() != 0) {
+//                    List<String> listUploadData = new ArrayList<String>();
+//                    for (int cn = 0; cn <= row.getLastCellNum(); cn++) {
+//                        Cell cell = row.getCell(cn);
+//                        if (cell == null) {
+//                            log.info("cell empty: " + cell);
+//                            listUploadData.add("");
+//                        } else {
+//                            String cellStr = fmt.formatCellValue(cell);
+//                            log.info("cellStr: " + cellStr);
+//                            listUploadData.add(cellStr);
+//                        }
+//                    }
+//                    allRowsList.add(listUploadData);
+//                }
+//            }
+//            log.info("list data: " + allRowsList);
+//            return allRowsList;
+//        } catch (Exception ioe) {
+//            ioe.printStackTrace();
+//        }
+//        return null;
+//    }
     private List<List<String>> readExcelData(File file) {
         try {
             Workbook workbook = new XSSFWorkbook(file);
@@ -405,10 +441,13 @@ public class FileStorageService {
             DataFormatter fmt = new DataFormatter();
             for (int rn = sheet.getFirstRowNum() + 2; rn <= sheet.getLastRowNum(); rn++) {
                 Row row = sheet.getRow(rn);
+                if (row != null) {
                 log.info("Row:  " + row.getRowNum());
-                if (row == null) {
-                    // There is no data in this row, handle as needed
-                } else if (row.getRowNum() != 0) {
+                    if (isRowEmpty1(row)) {
+                        log.info("this row is empty" + row.getRowNum());
+                        continue;
+                    }
+                    if (row.getRowNum() != 0) {
                     List<String> listUploadData = new ArrayList<String>();
                     for (int cn = 0; cn <= row.getLastCellNum(); cn++) {
                         Cell cell = row.getCell(cn);
@@ -424,43 +463,7 @@ public class FileStorageService {
                     allRowsList.add(listUploadData);
                 }
             }
-
-//			Iterator<Row> iterator = sheet.iterator();
-//			List<List<String>> allRowsList = new ArrayList<>();
-//			while (iterator.hasNext()) {
-//				Row currentRow = iterator.next();
-//				Iterator<Cell> cellIterator = currentRow.iterator();
-//
-//				// Moving to data row instead of header row
-//				currentRow = iterator.next();
-//				cellIterator = currentRow.iterator();
-//
-//				List<String> listUploadData = new ArrayList<String>();
-//				while (cellIterator.hasNext()) {
-//					Cell currentCell = cellIterator.next();
-//					log.info("===currentCell===== " + currentCell);
-//					if (currentCell.getColumnIndex() == 7) {
-//						listUploadData.add(" ");
-//						log.info("=#= " + listUploadData.size());
-//					}
-//					if (currentCell.getCellType() == CellType.STRING) {
-//						log.info(currentCell.getStringCellValue() + "*****");
-//						if (currentCell.getStringCellValue() != null
-//								&& !currentCell.getStringCellValue().trim().isEmpty()) {
-//							listUploadData.add(currentCell.getStringCellValue());
-////							log.info("== " + listUploadData.size());
-//						} else {
-//							listUploadData.add(" ");
-////							log.info("=#= " + listUploadData.size());
-//						}
-//					} else if (currentCell.getCellType() == CellType.NUMERIC) {
-////						log.info(currentCell.getNumericCellValue() + "--");
-//						listUploadData.add(String.valueOf(currentCell.getNumericCellValue()));
-//					}
-//				}
-//				log.info("=#= " + listUploadData);
-//				allRowsList.add(listUploadData);
-//			}
+            }
             log.info("list data: " + allRowsList);
             return allRowsList;
         } catch (Exception ioe) {
@@ -605,15 +608,15 @@ public class FileStorageService {
             }
         }
 
-        List<String> validationErrors = validationInboundDynamically(file);
-        if (!validationErrors.isEmpty()) {
-            List<Error> errors = validationFormatInbound(validationErrors);
-            ObjectMapper objectMapper = new ObjectMapper();
-            String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(errors);
-            Map<String, String> mapFileProps = new HashMap<>();
-            mapFileProps.put("errors", jsonResponse);
-            return mapFileProps;
-        }
+//        List<String> validationErrors = validationInboundDynamically(file);
+//        if (!validationErrors.isEmpty()) {
+//            List<Error> errors = validationFormatInbound(validationErrors);
+//            ObjectMapper objectMapper = new ObjectMapper();
+//            String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(errors);
+//            Map<String, String> mapFileProps = new HashMap<>();
+//            mapFileProps.put("errors", jsonResponse);
+//            return mapFileProps;
+//        }
 
 
         log.info("loca : " + fileStorageLocation);
@@ -1563,7 +1566,7 @@ public class FileStorageService {
                             case "companycode":
                             case "manufacturername":
                             case "manufacturercode":
-                            case "containernumber":
+//                            case "containernumber":
                             case "brand":
                             case "sku":
                             case "skudescription":
@@ -1743,6 +1746,44 @@ public class FileStorageService {
         return true;
     }
 
+    // Helper method to check if a row is completely empty (ignoring visually blank cells)
+    private boolean isRowEmpty1(Row row) {
+        if (row == null) {
+            return true;
+        }
+
+        for (int colIndex = row.getFirstCellNum(); colIndex < row.getLastCellNum(); colIndex++) {
+            Cell cell = row.getCell(colIndex, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
+            if (cell != null && !isCellEmpty(cell)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Helper method to check if a cell is considered empty
+    private boolean isCellEmpty(Cell cell) {
+        if (cell == null) {
+            return true;
+        }
+
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue().trim().isEmpty();
+            case NUMERIC:
+                return false;  // numeric cells with values are not empty
+            case BOOLEAN:
+                return false;  // boolean cells with values are not empty
+            case FORMULA:
+                return cell.getCellFormula().trim().isEmpty();  // consider formula content
+            case BLANK:
+            case _NONE:
+            case ERROR:
+                return true;
+            default:
+                return true;
+        }
+    }
 
     public static void validateStringCell(Cell cell, int rowIndex, int colIndex, String header, List<String> errors) {
         // Check if cell is blank

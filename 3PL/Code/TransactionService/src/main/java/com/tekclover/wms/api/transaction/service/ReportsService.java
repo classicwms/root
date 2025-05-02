@@ -1437,7 +1437,8 @@ public class ReportsService extends BaseService {
                 // Obtain Partner Name
 //                BusinessPartner partner = mastersService.getBusinessPartner(outboundLine.getPartnerCode(),
 //                        authTokenForMastersService.getAccess_token());
-                shipmentDelivery.setPartnerName(outboundLine.getCustomerId() + " - " + outboundLine.getCustomerName());
+                String partnerName = grHeaderRepository.getPartnerName(outboundLine.getPartnerCode());
+                shipmentDelivery.setPartnerName(outboundLine.getPartnerCode() + " - " + partnerName);
                 shipmentDelivery.setTargetBranch(outboundLine.getTargetBranchCode());
 
                 /*
