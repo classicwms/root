@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.tekclover.wms.api.transaction.model.inbound.InboundHeader;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -248,14 +247,14 @@ public class InhouseTransferHeaderService extends BaseService {
 					String movementQtyValue = "N";
 					String itemCode = createdInhouseTransferLine.getSourceItemCode();
 					String storageBin = createdInhouseTransferLine.getSourceStorageBin();
-					createInventoryMovement (createdInhouseTransferLine, transferTypeId, stockTypeId, itemCode, storageBin,
-							movementQtyValue, loginUserID);
+//					createInventoryMovement (createdInhouseTransferLine, transferTypeId, stockTypeId, itemCode, storageBin,
+//							movementQtyValue, loginUserID);
 
 					// Row insertion for Target
 					stockTypeId = createdInhouseTransferLine.getTargetStockTypeId();
 					movementQtyValue = "P";
-					createInventoryMovement (createdInhouseTransferLine, transferTypeId, stockTypeId, itemCode, storageBin,
-							movementQtyValue, loginUserID);
+//					createInventoryMovement (createdInhouseTransferLine, transferTypeId, stockTypeId, itemCode, storageBin,
+//							movementQtyValue, loginUserID);
 				}
 				
 				/*
