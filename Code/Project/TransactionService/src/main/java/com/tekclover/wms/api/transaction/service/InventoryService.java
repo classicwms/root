@@ -193,6 +193,30 @@ public class InventoryService extends BaseService {
 	/**
 	 * 
 	 * @param warehouseId
+	 * @param itemCode
+	 * @param stockTypeId
+	 * @param binClassId
+	 * @return
+	 */
+	public List<Inventory> getInventoryForInhouseTransder(String warehouseId, String itemCode, Long stockTypeId, Long[] binClassId) {
+		List<Inventory> inventory = 
+				inventoryRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndAndStockTypeIdAndBinClassIdInAndInventoryQuantityGreaterThanAndDeletionIndicator(
+						getLanguageId(),
+						getCompanyCode(),
+						getPlantId(),
+						warehouseId, 
+						itemCode, 
+						stockTypeId,
+						binClassId,
+						0D,
+						0L
+						);
+		return inventory;
+	}
+	
+	/**
+	 * 
+	 * @param warehouseId
 	 * @param packBarcodes
 	 * @param itemCode
 	 * @return

@@ -520,6 +520,64 @@ public class InhouseTransferHeaderService extends BaseService {
 			}
 		}
 	}
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param transferTypeId
+	 * @param createdInhouseTransferLine
+	 * @param loginUserID
+	 */
+	private void updateTransferInventoryForTransferOrderType1(String warehouseId, Long transferTypeId, InhouseTransferLine createdInhouseTransferLine, String loginUserID) {
+		Long sourceStockTypeId = createdInhouseTransferLine.getSourceStockTypeId() != null ? createdInhouseTransferLine.getSourceStockTypeId() : 1L;
+		Long targetStockTypeId = createdInhouseTransferLine.getTargetStockTypeId() != null ? createdInhouseTransferLine.getTargetStockTypeId() : 1L;
+		List<Inventory> inventorySourceItemCodeList =
+				getTransferInventory(warehouseId, createdInhouseTransferLine.getSourceItemCode(), sourceStockTypeId, transferTypeId);
+		for (Inventory inventorySourceItemCode : inventorySourceItemCodeList) {
+			log.info("---------source inventory----------> : " + transferTypeId + "|" + inventorySourceItemCode);
+			if (inventorySourceItemCode != null) {
+				Double inventoryQty = inventorySourceItemCode.getInventoryQuantity();
+				Double transferConfirmedQty = createdInhouseTransferLine.getTransferConfirmedQty();
+				transferConfirmedQty = transferConfirmedQty <= inventoryQty ? transferConfirmedQty : inventoryQty;
+				double INV_QTY = inventoryQty - transferConfirmedQty;
+
+				log.info("-----Source----INV_QTY after transfer-----------> : " + INV_QTY);
+				inventorySourceItemCode.setInventoryQuantity(INV_QTY);
+				Inventory updatedInventory = inventoryRepository.save(inventorySourceItemCode);
+				log.info("--------source---inventory-----updated----->" + updatedInventory);
+
+				if (INV_QTY == 0 && (inventorySourceItemCode.getAllocatedQuantity() == null
+						|| inventorySourceItemCode.getAllocatedQuantity() == 0D)) {
+					// Deleting record
+					inventoryRepository.delete(inventorySourceItemCode);
+					log.info("---------source inventory-----deleted-----");
+					emptyStorageBin(warehouseId, inventorySourceItemCode.getStorageBin(), loginUserID);
+				}
+
+				// Pass WH_ID/ TGT_ITM_CODE/PACK_BARCODE/TGT_ST_BIN in INVENTORY TABLE validate
+				// for a record.
+				List<Inventory> inventoryTargetItemCodeList = getTransferInventory(warehouseId,
+						createdInhouseTransferLine.getTargetItemCode(),targetStockTypeId, transferTypeId);
+				log.info("---------Target inventory----------> : " + transferTypeId + "|" + inventorySourceItemCode);
+				if (inventoryTargetItemCodeList != null) {
+					for (Inventory inventoryTargetItemCode : inventoryTargetItemCodeList) {
+						if (inventoryTargetItemCode != null) {
+							// update INV_QTY value (INV_QTY + TR_CNF_QTY)
+							inventoryQty = inventoryTargetItemCode.getInventoryQuantity();
+							INV_QTY = inventoryQty + transferConfirmedQty;
+							log.info("-----Target----INV_QTY-----------> : " + INV_QTY);
+
+							inventoryTargetItemCode.setInventoryQuantity(INV_QTY);
+							Inventory targetUpdatedInventory = inventoryRepository.save(inventoryTargetItemCode);
+							log.info("------->updatedInventory : " + targetUpdatedInventory);
+						} else {
+							createInventory(createdInhouseTransferLine, transferConfirmedQty, loginUserID);
+						}
+					}
+				}
+			}
+		}
+	}
 
 	/**
 	 * @param createdInhouseTransferLine
@@ -597,10 +655,25 @@ public class InhouseTransferHeaderService extends BaseService {
 	 */
 	public Inventory getTransferInventory(String warehouseId, String packBarcodes, String itemCode, String storageBin, Long stockTypeId, Long transferTypeId) {
 		log.info("Get Transfer Inventory--> " + warehouseId + "|" + packBarcodes + "|" + itemCode + "|" + storageBin + "|" + transferTypeId + "|" + stockTypeId);
-		if (transferTypeId == 1L) {
-			return inventoryService.getTransferInventory(warehouseId, packBarcodes, itemCode, storageBin, stockTypeId);
-		}
 		return inventoryService.getInventory(warehouseId, packBarcodes, itemCode, storageBin);
+	}
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param packBarcodes
+	 * @param itemCode
+	 * @param storageBin
+	 * @param stockTypeId
+	 * @param transferTypeId
+	 * @return
+	 */
+	public List<Inventory> getTransferInventory(String warehouseId, String itemCode, Long stockTypeId, Long transferTypeId) {
+		log.info("Get Transfer Inventory--> " + warehouseId + "|" + itemCode + "|" + transferTypeId + "|" + stockTypeId);
+		if (transferTypeId == 1L) {
+			return inventoryService.getInventoryForInhouseTransder(warehouseId, itemCode, stockTypeId, new Long[] {1L, 7L});
+		}
+		return null;
 	}
 
 	/**
