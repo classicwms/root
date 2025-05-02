@@ -1831,7 +1831,7 @@ public class InboundHeaderService extends BaseService {
 					inboundLine.getPlantId(), inboundLine.getLanguageId(), inboundLine.getWarehouseId(),
 					inboundLine.getRefDocNumber(), inboundLine.getItemCode(), inboundLine.getManufacturerName(),
 					inboundLine.getLineNo(), inboundLine.getPreInboundNo());
-			log.info("PutawayLine List: " + putAwayLineList.size());
+			log.info("PutawayLine List: " + putAwayLineList);
 
 			languageId = inboundLine.getLanguageId();
 			companyCode = inboundLine.getCompanyCode();
@@ -1841,16 +1841,23 @@ public class InboundHeaderService extends BaseService {
 			lineNo = inboundLine.getLineNo();
 			preInboundNo = inboundLine.getPreInboundNo();
 			loginUserID = inboundLine.getUpdatedBy();
-			if (putAwayLineList != null) {
+			
+			if (putAwayLineList == null) {
+				log.info("----createdInventory----3---flag---> : ");
+				inboundLinePartialConfirmRepository.updateInboundLinePartialConfirmExecutedStatus(languageId, plantId,
+						companyCode, warehouseId, preInboundNo, refDocNumber, lineNo, 1L);
+			} else {
 				for (PutAwayLineV2 putAwayLine : putAwayLineList) {
 					try {
 						boolean createdInventory = createInventoryNonCBMV2(putAwayLine);
-						log.info("----createdInventory-------flag---> : " + createdInventory);
+						log.info("----createdInventory---1----flag---> : " + createdInventory);
 						if (createdInventory) {
+							log.info("----createdInventory----2---flag---> : " + createdInventory);
 							inboundLinePartialConfirmRepository.updateInboundLinePartialConfirmExecutedStatus(languageId, plantId,
 									companyCode, warehouseId, preInboundNo, refDocNumber, lineNo, 1L);
 						}
 					} catch (Exception e) {
+						log.error("----scheduleInboundLinePartialConfirmation----Error---> : " + e.toString());
 						e.printStackTrace();
 					}
 				}
