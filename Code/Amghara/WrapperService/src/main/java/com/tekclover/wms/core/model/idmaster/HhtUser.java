@@ -56,4 +56,5 @@ public class HhtUser {
 	private Date endDate;
 	private String userPresent;
 	private String noOfDaysLeave;
+	private Boolean transferQc;
 }

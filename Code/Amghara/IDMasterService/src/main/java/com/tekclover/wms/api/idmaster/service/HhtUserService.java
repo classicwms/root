@@ -1,23 +1,38 @@
 package com.tekclover.wms.api.idmaster.service;
 
-import com.tekclover.wms.api.idmaster.controller.exception.BadRequestException;
-import com.tekclover.wms.api.idmaster.model.IKeyValuePair;
-import com.tekclover.wms.api.idmaster.model.hhtuser.*;
-import com.tekclover.wms.api.idmaster.model.outboundordertypeid.OutboundOrderTypeId;
-import com.tekclover.wms.api.idmaster.repository.*;
-import com.tekclover.wms.api.idmaster.repository.Specification.HhtUserSpecification;
-import com.tekclover.wms.api.idmaster.util.CommonUtils;
-import com.tekclover.wms.api.idmaster.util.DateUtils;
-import lombok.extern.slf4j.Slf4j;
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.persistence.EntityNotFoundException;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityNotFoundException;
-import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.tekclover.wms.api.idmaster.controller.exception.BadRequestException;
+import com.tekclover.wms.api.idmaster.model.IKeyValuePair;
+import com.tekclover.wms.api.idmaster.model.hhtuser.AddHhtUser;
+import com.tekclover.wms.api.idmaster.model.hhtuser.FindHhtUser;
+import com.tekclover.wms.api.idmaster.model.hhtuser.HhtUser;
+import com.tekclover.wms.api.idmaster.model.hhtuser.HhtUserOutput;
+import com.tekclover.wms.api.idmaster.model.hhtuser.OrderTypeId;
+import com.tekclover.wms.api.idmaster.model.hhtuser.UpdateHhtUser;
+import com.tekclover.wms.api.idmaster.model.outboundordertypeid.OutboundOrderTypeId;
+import com.tekclover.wms.api.idmaster.repository.CompanyIdRepository;
+import com.tekclover.wms.api.idmaster.repository.HhtUserRepository;
+import com.tekclover.wms.api.idmaster.repository.LevelIdRepository;
+import com.tekclover.wms.api.idmaster.repository.OrderTypeIdRepository;
+import com.tekclover.wms.api.idmaster.repository.PlantIdRepository;
+import com.tekclover.wms.api.idmaster.repository.WarehouseRepository;
+import com.tekclover.wms.api.idmaster.util.CommonUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -270,6 +285,7 @@ public class HhtUserService {
         dbHhtUser.setUpdatedBy(loginUserID);
         dbHhtUser.setCreatedOn(new Date());
         dbHhtUser.setUpdatedOn(new Date());
+        dbHhtUser.setTransferQc(newHhtUser.getTransferQc());;
         HhtUser savedHhtUser = hhtUserRepository.save(dbHhtUser);
 
         savedHhtUser.setOrderTypeIds(new HashSet<>());
@@ -318,6 +334,7 @@ public class HhtUserService {
         Optional<HhtUser> dbHhtUser = hhtUserRepository.findByUserIdAndWarehouseIdAndCompanyCodeIdAndPlantIdAndLanguageIdAndDeletionIndicator(
                 userId, warehouseId, companyCodeId, plantId, languageId, 0L);
         BeanUtils.copyProperties(updateHhtUser, dbHhtUser.get(), CommonUtils.getNullPropertyNames(updateHhtUser));
+        dbHhtUser.get().setTransferQc(updateHhtUser.getTransferQc());
 
         if (updateHhtUser.getStartDate() == null) {
             dbHhtUser.get().setStartDate(null);
