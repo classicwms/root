@@ -12,8 +12,6 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.transaction.model.outbound.pickup.*;
-import com.tekclover.wms.api.transaction.model.report.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -29,9 +27,18 @@ import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundLine;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.AddPickupLine;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupHeader;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupLine;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.SearchPickupLine;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.UpdatePickupLine;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.PreOutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.quality.AddQualityHeader;
 import com.tekclover.wms.api.transaction.model.outbound.quality.QualityHeader;
+import com.tekclover.wms.api.transaction.model.report.PickerDenialHeader;
+import com.tekclover.wms.api.transaction.model.report.PickerDenialReport;
+import com.tekclover.wms.api.transaction.model.report.PickerDenialReportImpl;
+import com.tekclover.wms.api.transaction.model.report.PickerDenialSummary;
 import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
 import com.tekclover.wms.api.transaction.repository.InventoryRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundHeaderRepository;
@@ -397,6 +404,7 @@ public class PickupLineService extends BaseService {
 
 			if (isQtyAvail) {
 				STATUS_ID = 50L;
+				dbPickupLine.setRemarks(null);
 			} else {
 				STATUS_ID = 51L;
 			}

@@ -165,7 +165,7 @@ public interface PickupLineRepository extends JpaRepository<PickupLine,Long>, Jp
 					"from tblpickupline tpl\n" +
 					"WHERE tpl.WH_ID IN :warehouseId AND tpl.IS_DELETED = 0 and tpl.pu_no in (select * from #pickupNumberList)\r\n" +
 //					"AND tpl.PICK_CNF_ON BETWEEN :dateFrom AND :dateTo " +
-					"and tpl.remark is not null \n" +
+					"and tpl.remark is not null and tpl.status_id = 51 \n" +
 					"group by wh_id,pu_no,itm_code,item_text,ass_picker_id,ob_line_no,pick_pack_barcode,pick_st_bin,remark", nativeQuery = true)
 	public List<PickerDenialReportImpl> getReportLines(@Param("partnerCode") String partnerCode,
 													   @Param("refDocNumber") String refDocNumber,
