@@ -27,6 +27,7 @@ public interface StockReportOutputRepository extends JpaRepository<StockReportOu
             @Param("itemCode") String itemCode,
             @Param("manufacturerName") String manufacturerName,
             @Param("itemText") String itemText,
-            @Param("stockTypeText") String stockTypeText
+            @Param("stockTypeText") String stockTypeText,
+            @Param("partnerCode") String partnerCode
     );
 }

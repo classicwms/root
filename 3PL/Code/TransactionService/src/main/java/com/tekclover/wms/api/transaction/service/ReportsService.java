@@ -505,6 +505,9 @@ public class ReportsService extends BaseService {
         if (searchStockReport.getItemText() == null) {
             searchStockReport.setItemText("0");
         }
+        if(searchStockReport.getPartnerCode() == null) {
+            searchStockReport.setPartnerCode("0");
+        }
         log.info("Strock Report Search Input: " + searchStockReport);
         log.info("Stock Report Generate Initiated: " + new Date());
         stockReportOutputRepository.updateSpStockReport(
@@ -515,7 +518,8 @@ public class ReportsService extends BaseService {
                 searchStockReport.getItemCode(),
                 searchStockReport.getManufacturerName(),
                 searchStockReport.getItemText(),
-                searchStockReport.getStockTypeText()
+                searchStockReport.getStockTypeText(),
+                searchStockReport.getPartnerCode()
         );
         log.info("Report Generated successfully through Stored Procedure");
         StockReportOutputSpecification specification = new StockReportOutputSpecification();

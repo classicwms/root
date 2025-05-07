@@ -4502,7 +4502,7 @@ public class GrLineService extends BaseService {
                 }
                 inventory.setThreePLStockIndicator(0L);
                 inventory.setThreePLGrDate(new Date());
-                inventory.setThreePLUom(createdGRLine.getThreePLUom());
+                inventory.setThreePLUom("CBM");
                 inventory.setThreePLCbm(createdGRLine.getThreePLCbm());
 
                 Double threePLUom = createdGRLine.getThreePLCbm();
@@ -4574,7 +4574,7 @@ public class GrLineService extends BaseService {
                 }
                 inventory.setThreePLStockIndicator(0L);
                 inventory.setThreePLGrDate(new Date());
-                inventory.setThreePLUom(createdGRLine.getThreePLUom());
+                inventory.setThreePLUom("CBM");
                 inventory.setThreePLCbm(createdGRLine.getThreePLCbm());
 
 //                Double threePLCbm = createdGRLine.getThreePLUom();

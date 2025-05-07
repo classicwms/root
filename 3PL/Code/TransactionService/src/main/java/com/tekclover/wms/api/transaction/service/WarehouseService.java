@@ -33,6 +33,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -1051,6 +1052,15 @@ public class WarehouseService extends BaseService {
 			for (ASNLineV2 asnLineV2 : asnLineV2s) {
 				InboundOrderLinesV2 apiLine = new InboundOrderLinesV2();
 				BeanUtils.copyProperties(asnLineV2, apiLine, CommonUtils.getNullPropertyNames(asnLineV2));
+//
+//				String manufacturerCode = (asnLineV2.getManufacturerName() != null && !asnLineV2.getManufacturerName().isBlank())
+//						? asnLineV2.getManufacturerName()
+//						: MFR_NAME;
+//				apiLine.setManufacturerCode(manufacturerCode);
+//				apiLine.setManufacturerName(manufacturerCode);
+
+
+
 				apiLine.setLineReference(asnLineV2.getLineReference());            // IB_LINE_NO
 				apiLine.setItemCode(asnLineV2.getSku());                            // ITM_CODE
 				apiLine.setItemText(asnLineV2.getSkuDescription());                // ITEM_TEXT
@@ -1061,10 +1071,21 @@ public class WarehouseService extends BaseService {
 				} else {
 					apiLine.setSupplierCode(asnV2Header.getSupplierCode());
 				}
-				apiLine.setSupplierPartNumber(asnLineV2.getSupplierPartNumber());  // PARTNER_ITM_CODE
-				apiLine.setManufacturerName(MFR_NAME);        // BRAND_NM
+
+				if (asnLineV2.getManufacturerName() != null && !asnLineV2.getManufacturerName().isEmpty()) {
+					apiLine.setManufacturerName(asnLineV2.getManufacturerName());        // BRAND_NM
+				  apiLine.setManufacturerCode(asnLineV2.getManufacturerName());
+				apiLine.setManufacturerPartNo(asnLineV2.getManufacturerName());
+				} else {
+					apiLine.setManufacturerName(MFR_NAME);        // BRAND_NM
 				apiLine.setManufacturerCode(MFR_NAME);
 				apiLine.setManufacturerPartNo(MFR_NAME);
+				}
+
+				apiLine.setSupplierPartNumber(asnLineV2.getSupplierPartNumber());  // PARTNER_ITM_CODE
+//				apiLine.setManufacturerName(MFR_NAME);        // BRAND_NM
+//				apiLine.setManufacturerCode(MFR_NAME);
+//				apiLine.setManufacturerPartNo(MFR_NAME);
 				apiLine.setOrigin(asnLineV2.getOrigin());
 				apiLine.setCompanyCode(asnLineV2.getCompanyCode());
 				apiLine.setBranchCode(asnLineV2.getBranchCode());

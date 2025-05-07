@@ -59,4 +59,5 @@ public class StockReportOutput {
 	@Column(name = "PARTNER_CODE",columnDefinition = "nvarchar(255)")
 	private String partnerCode;
 
+
 }
