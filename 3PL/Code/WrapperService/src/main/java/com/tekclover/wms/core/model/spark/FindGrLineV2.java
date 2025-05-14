@@ -37,4 +37,5 @@ public class FindGrLineV2 {
     private List<Double> threePLLength;
     private List<Double> threePLHeight;
     private List<Double> threePLWidth;
+    private List<String> businessPartnerCode;
 }

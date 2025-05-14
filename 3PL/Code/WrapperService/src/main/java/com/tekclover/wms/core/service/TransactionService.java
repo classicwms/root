@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.CSVWriter;
 import com.tekclover.wms.core.config.PropertiesConfig;
+import com.tekclover.wms.core.model.dto.BinVolume;
 import com.tekclover.wms.core.model.enterprise.SearchWarehouse;
 import com.tekclover.wms.core.model.enterprise.Warehouse;
 import com.tekclover.wms.core.model.masters.*;
@@ -10732,6 +10733,32 @@ public class TransactionService {
             throw e;
         }
     }
+/*----------------------------------------Inventory--------------------------*/
+public List<BinVolume> getBinVolumes(String companyCodeId, String plantId, String languageId, String warehouseId, String authToken) {
+    try {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.add("User-Agent", "ClassicWMS RestTemplate");
+        headers.add("Authorization", "Bearer " + authToken);
+
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromHttpUrl(getTransactionServiceApiUrl() + "inventory/bin/volume")
+                .queryParam("companyCodeId", companyCodeId)
+                .queryParam("plantId", plantId)
+                .queryParam("languageId", languageId)
+                .queryParam("warehouseId", warehouseId);
+
+        HttpEntity<?> entity = new HttpEntity<>(headers);
+        ResponseEntity<BinVolume[]> result = getRestTemplate().exchange(
+                builder.toUriString(), HttpMethod.GET, entity, BinVolume[].class);
+
+        log.info("result : " + result.getStatusCode());
+        return Arrays.asList(result.getBody());
+    } catch (Exception e) {
+        e.printStackTrace();
+        throw e;
+    }
+}
 
     //SEARCH
     public DeliveryLineCount findDeliveryLineCount(FindDeliveryLineCount findDeliveryLineCount, String authToken) {

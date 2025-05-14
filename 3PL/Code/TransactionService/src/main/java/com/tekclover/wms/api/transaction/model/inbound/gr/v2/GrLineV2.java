@@ -127,4 +127,7 @@ public class GrLineV2 extends GrLine {
 
     @Column(name = "GR_INVOICE")
     private Long grInvoice = 0L;
+
+    @Column(name = "PARTNER_TEXT")
+    private String partnerText;
 }

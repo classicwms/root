@@ -684,12 +684,12 @@ public class InhouseTransferHeaderService extends BaseService {
                 manufacturerName,
                 itemCode);
         log.info("BalanceOhQty: " + sumOfInvQty);
-        if(sumOfInvQty != null) {
-        inventoryMovement.setBalanceOHQty(sumOfInvQty);
+        if (sumOfInvQty != null) {
+            inventoryMovement.setBalanceOHQty(sumOfInvQty);
             Double openQty = sumOfInvQty;                                           //Inv Qty unchanged
             inventoryMovement.setReferenceField2(String.valueOf(openQty));          //Qty before inventory Movement occur
         }
-        if(sumOfInvQty == null) {
+        if (sumOfInvQty == null) {
             inventoryMovement.setBalanceOHQty(0D);
             inventoryMovement.setReferenceField2("0");          //Qty before inventory Movement occur
         }
@@ -795,10 +795,10 @@ public class InhouseTransferHeaderService extends BaseService {
         List<InhouseTransferLineEntity> responseLines = new ArrayList<>();
         for (AddInhouseTransferLine newInhouseTransferLine : newInhouseTransferHeader.getInhouseTransferLine()) {
 
-            if(newInhouseTransferLine.getSourceStorageBin().equalsIgnoreCase(newInhouseTransferLine.getTargetStorageBin())){
+            if (newInhouseTransferLine.getSourceStorageBin().equalsIgnoreCase(newInhouseTransferLine.getTargetStorageBin())) {
                 throw new BadRequestException("Source Bin and Target Bin cannot be same");
             }
-            if(newInhouseTransferLine.getTransferOrderQty() <= 0L || newInhouseTransferLine.getTransferConfirmedQty() <= 0L){
+            if (newInhouseTransferLine.getTransferOrderQty() <= 0L || newInhouseTransferLine.getTransferConfirmedQty() <= 0L) {
                 throw new BadRequestException("Transfer Qty must be greater than zero");
             }
 
@@ -824,7 +824,7 @@ public class InhouseTransferHeaderService extends BaseService {
             } catch (Exception e) {
                 throw new BadRequestException("Invalid StorageBin");
             }
-            if(dbSourceStorageBin != null && dbSourceStorageBin.getBinClassId() == 3L) {
+            if (dbSourceStorageBin != null && dbSourceStorageBin.getBinClassId() == 3L) {
                 throw new BadRequestException("Source Bin must be a Live Location - Either BinClassId 1 or 7");
             }
 
@@ -1212,7 +1212,7 @@ public class InhouseTransferHeaderService extends BaseService {
 //                Inventory updatedInventory = inventoryV2Repository.save(inventory);
                 InventoryV2 newInventoryV2 = new InventoryV2();
                 BeanUtils.copyProperties(inventory, newInventoryV2, CommonUtils.getNullPropertyNames(inventory));
-              //  newInventoryV2.(Long.valueOf(System.currentTimeMillis() + "" + 4));
+                //  newInventoryV2.(Long.valueOf(System.currentTimeMillis() + "" + 4));
                 InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventoryV2);
                 log.info("InventoryV2 created : " + createdInventoryV2);
                 log.info("transferTypeId: " + transferTypeId);
@@ -1233,7 +1233,7 @@ public class InhouseTransferHeaderService extends BaseService {
                 InventoryV2 newInventory = new InventoryV2();
                 BeanUtils.copyProperties(dbInventory, newInventory, CommonUtils.getNullPropertyNames(dbInventory));
                 newInventory.setItemCode(createdInhouseTransferLine.getTargetItemCode());
-               // newInventory.(Long.valueOf(System.currentTimeMillis() + "" + 4));
+                // newInventory.(Long.valueOf(System.currentTimeMillis() + "" + 4));
                 Inventory createdNewInventory = inventoryV2Repository.save(newInventory);
                 log.info("createdNewInventory : " + createdNewInventory);
 
@@ -1273,6 +1273,20 @@ public class InhouseTransferHeaderService extends BaseService {
                 log.info("-----Source----ALLOC_QTY-----------> : " + ALLOC_QTY);
                 inventorySourceItemCode.setInventoryQuantity(INV_QTY);
                 inventorySourceItemCode.setAllocatedQuantity(ALLOC_QTY);
+
+
+
+                double targetCBM = inventorySourceItemCode.getThreePLCbmPerQty() * transferConfirmedQty;
+                double sourceCBM = inventorySourceItemCode.getTotalThreePLCbm() != null ? inventorySourceItemCode.getTotalThreePLCbm() : 0.0;
+                double targetRate = inventorySourceItemCode.getThreePLRatePerQty() * transferConfirmedQty;
+                double sourceRate = inventorySourceItemCode.getTotalRate() != null ? inventorySourceItemCode.getTotalRate() : 0.0;;
+
+                inventorySourceItemCode.setThreePLCbm(sourceCBM - targetCBM);
+                inventorySourceItemCode.setTotalThreePLCbm(sourceCBM - targetCBM);
+                inventorySourceItemCode.setRate(sourceRate - targetRate);
+                inventorySourceItemCode.setTotalRate(sourceRate - targetRate);
+                log.info("SourceItem ThreePLCBM ------------> " + inventorySourceItemCode.getThreePLCbm());
+                log.info("SourceItem ThreePLRate -----------> " + inventorySourceItemCode.getTotalRate());
 //                InventoryV2 updatedInventory = inventoryV2Repository.save(inventorySourceItemCode);
 //                log.info("--------source---inventory-----updated----->" + updatedInventory);
                 InventoryV2 newInventoryV2 = new InventoryV2();
@@ -1280,7 +1294,7 @@ public class InhouseTransferHeaderService extends BaseService {
                 newInventoryV2.setUpdatedOn(new Date());
                 Double totalQty = inventorySourceItemCode.getInventoryQuantity() + inventorySourceItemCode.getAllocatedQuantity();
                 newInventoryV2.setReferenceField4(totalQty);
-               // newInventoryV2.//  .setInventoryIdLong.valueOf(System.currentTimeMillis() + "" + 4));
+                // newInventoryV2.//  .setInventoryIdLong.valueOf(System.currentTimeMillis() + "" + 4));
                 InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventoryV2);
                 log.info("InventoryV2 created : " + createdInventoryV2);
 
@@ -1325,10 +1339,12 @@ public class InhouseTransferHeaderService extends BaseService {
                 // Pass WH_ID/ TGT_ITM_CODE/PACK_BARCODE/TGT_ST_BIN in INVENTORY TABLE validate for a record.
                 InventoryV2 inventoryTargetItemCode =
                         inventoryService.getInventoryForInhouseTransferV2(companyCode, plantId, languageId, warehouseId,
-                                createdInhouseTransferLine.getPackBarcodes(),
+                                "99999",
                                 createdInhouseTransferLine.getTargetItemCode(),
                                 createdInhouseTransferLine.getManufacturerName(),
                                 createdInhouseTransferLine.getTargetStorageBin());
+
+                log.info("Target Inventory  --------- > " + inventoryTargetItemCode);
                 if (inventoryTargetItemCode != null) {
                     // update INV_QTY value (INV_QTY + TR_CNF_QTY)
                     inventoryQty = inventoryTargetItemCode.getInventoryQuantity();
@@ -1339,9 +1355,9 @@ public class InhouseTransferHeaderService extends BaseService {
                     transferConfirmedQty = createdInhouseTransferLine.getTransferConfirmedQty();
                     log.info("sourceInventoryQty,transferConfirmedQty,inventoryQty : " + sourceInventoryQty + ", " + transferConfirmedQty + "," + inventoryQty);
                     if (sourceInventoryQty > 0L) {                  //Checking source Inventory Qty - only update if source inventory qty present else leave it as it is
-                        if(sourceInventoryQty >= transferConfirmedQty) {
-                        INV_QTY = inventoryQty + transferConfirmedQty;
-                    } else {
+                        if (sourceInventoryQty >= transferConfirmedQty) {
+                            INV_QTY = inventoryQty + transferConfirmedQty;
+                        } else {
                             INV_QTY = inventoryQty + sourceInventoryQty;
                         }
                     } else {
@@ -1350,8 +1366,24 @@ public class InhouseTransferHeaderService extends BaseService {
                     log.info("-----Target----INV_QTY-----------> : " + INV_QTY);
                     log.info("-----Target----ALLOC_QTY-----------> : " + ALLOC_QTY);
 
+
+                    double T_CBM = inventorySourceItemCode.getThreePLCbmPerQty() * transferConfirmedQty;
+                    double T_RATE = inventorySourceItemCode.getThreePLRatePerQty() * transferConfirmedQty;
+                    log.info("T_CBM Value is ---------------> " + T_CBM);
+
+                    inventoryTargetItemCode.setThreePLCbm(T_CBM);
+                    inventoryTargetItemCode.setTotalThreePLCbm(T_CBM);
+                    inventoryTargetItemCode.setRate(T_RATE);
+                    inventoryTargetItemCode.setTotalRate(T_RATE);
                     inventoryTargetItemCode.setInventoryQuantity(INV_QTY);
                     inventoryTargetItemCode.setAllocatedQuantity(ALLOC_QTY);
+                    inventoryTargetItemCode.setThreePLPartnerId(inventorySourceItemCode.getThreePLPartnerId());
+                    inventoryTargetItemCode.setThreePLPartnerText(inventorySourceItemCode.getThreePLPartnerText());
+                    inventoryTargetItemCode.setCurrency(inventorySourceItemCode.getCurrency());
+                    inventoryTargetItemCode.setReferenceDocumentNo(inventorySourceItemCode.getReferenceDocumentNo());
+                    inventoryTargetItemCode.setThreePLCbmPerQty(inventorySourceItemCode.getThreePLCbmPerQty());
+                    inventoryTargetItemCode.setThreePLRatePerQty(inventorySourceItemCode.getThreePLRatePerQty());
+                    inventoryTargetItemCode.setThreePLUom("CBM");
                     inventoryTargetItemCode.setBarcodeId(inventorySourceItemCode.getBarcodeId());
 //                    InventoryV2 targetUpdatedInventory = inventoryV2Repository.save(inventoryTargetItemCode);
 //                    log.info("------->updatedInventory : " + targetUpdatedInventory);
@@ -1411,7 +1443,7 @@ public class InhouseTransferHeaderService extends BaseService {
 
                     log.info("sourceInventoryQty,transferConfirmedQty : " + sourceInventoryQty + ", " + transferConfirmedQty);
                     if (sourceInventoryQty > 0L) {                  //Checking source Inventory Qty - only update if source inventory qty present else leave it as it is
-                        if(sourceInventoryQty >= transferConfirmedQty) {
+                        if (sourceInventoryQty >= transferConfirmedQty) {
                             INV_QTY = transferConfirmedQty;
                         } else {
                             INV_QTY = sourceInventoryQty;
@@ -1420,6 +1452,24 @@ public class InhouseTransferHeaderService extends BaseService {
                         INV_QTY = 0L;
                     }
 
+                    double T_CBM = inventorySourceItemCode.getThreePLCbmPerQty() * transferConfirmedQty;
+                    double T_RATE = inventorySourceItemCode.getThreePLRatePerQty() * transferConfirmedQty;
+                    log.info("T_CBM Value is ---------------> " + T_CBM);
+
+                    newInventory.setThreePLCbm(T_CBM);
+                    newInventory.setTotalThreePLCbm(T_CBM);
+                    newInventory.setRate(T_RATE);
+                    newInventory.setTotalRate(T_RATE);
+                    newInventory.setInventoryQuantity(INV_QTY);
+                    newInventory.setAllocatedQuantity(ALLOC_QTY);
+                    newInventory.setThreePLPartnerId(inventorySourceItemCode.getThreePLPartnerId());
+                    newInventory.setThreePLPartnerText(inventorySourceItemCode.getThreePLPartnerText());
+                    newInventory.setCurrency(inventorySourceItemCode.getCurrency());
+                    newInventory.setReferenceDocumentNo(inventorySourceItemCode.getReferenceDocumentNo());
+                    newInventory.setThreePLCbmPerQty(inventorySourceItemCode.getThreePLCbmPerQty());
+                    newInventory.setThreePLRatePerQty(inventorySourceItemCode.getThreePLRatePerQty());
+                    newInventory.setThreePLUom("CBM");
+                    newInventory.setBarcodeId(inventorySourceItemCode.getBarcodeId());
                     newInventory.setInventoryQuantity(INV_QTY);
                     newInventory.setAllocatedQuantity(0D);
                     newInventory.setReferenceField4(newInventory.getInventoryQuantity() + newInventory.getAllocatedQuantity());

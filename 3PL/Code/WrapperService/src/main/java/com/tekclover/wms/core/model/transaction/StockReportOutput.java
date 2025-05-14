@@ -19,5 +19,8 @@ public class StockReportOutput {
 	private String plantDescription;
 	private String warehouseDescription;
 	private String partnerCode;
+//	private String partnerDescription;
+//	private String partnerId;
+	private String partnerText;
 
 }

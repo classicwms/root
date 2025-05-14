@@ -1,6 +1,7 @@
 package com.tekclover.wms.core.controller;
 
 import com.tekclover.wms.core.batch.scheduler.BatchJobScheduler;
+import com.tekclover.wms.core.model.dto.BinVolume;
 import com.tekclover.wms.core.model.enterprise.SearchWarehouse;
 import com.tekclover.wms.core.model.enterprise.Warehouse;
 import com.tekclover.wms.core.model.masters.BomHeader;
@@ -3436,6 +3437,20 @@ public class TransactionServiceController {
         DeliveryLineCount dbDeliveryLine = transactionService.getDeliveryLineCount(companyCodeId, plantId, languageId, warehouseId, driverId, authToken);
         return new ResponseEntity<>(dbDeliveryLine, HttpStatus.OK);
     }
+
+    // GET
+    @ApiOperation(response = BinVolume.class, value = "Get Bin Occupancy Volumes") // label for Swagger
+    @GetMapping("inventory/bin/volume")
+    public ResponseEntity<?> getBinOccupancyVolumes(@RequestParam String companyCodeId,
+                                                    @RequestParam String languageId,
+                                                    @RequestParam String plantId,
+                                                    @RequestParam String warehouseId,
+                                                    @RequestParam String authToken) {
+
+        List<BinVolume> binOccupancyVolumes = transactionService.getBinVolumes(companyCodeId, plantId, languageId, warehouseId, authToken);
+        return new ResponseEntity<>(binOccupancyVolumes, HttpStatus.OK);
+    }
+
 
     //FIND
     @ApiOperation(response = DeliveryLineCount.class, value = "Find DeliveryLineCount")//label for swagger

@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.transaction.repository;
 
 import com.tekclover.wms.api.transaction.model.IKeyValuePair;
+import com.tekclover.wms.api.transaction.model.dto.BinVolume;
 import com.tekclover.wms.api.transaction.model.dto.IInventory;
 import com.tekclover.wms.api.transaction.model.impl.InventoryImpl;
 import com.tekclover.wms.api.transaction.model.impl.StockReportImpl;
@@ -9,10 +10,7 @@ import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Lock;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.QueryHints;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -377,5 +375,53 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
                                           @Param("partnerId") String partnerId,
                                           @Param("fromDate")Date fromDate,
                                           @Param("toDate")Date toDate);
+
+//    @Query(value = "SELECT " +
+//            "inv.st_bin AS storageBin, " +
+//            "SUM(inv.total_tpl_cbm) AS occupiedVolume, " +
+//            "bin.occ_vol AS occupancyVolume, " +
+//            "inv.c_text AS companyDescription, " +
+//            "inv.plant_text AS plantDescription, " +
+//            "inv.wh_text AS warehouseDescription " +
+//            "FROM tblinventory inv " +
+//            "JOIN tblstoragebin bin ON inv.st_bin = bin.st_bin " +
+//            "WHERE inv.c_id = :companyCodeId " +
+//            "AND inv.plant_id = :plantId " +
+//            "AND inv.lang_id = :languageId " +
+//            "AND inv.wh_id = :warehouseId " +
+//            "AND inv.is_deleted = 0 " +
+//            "GROUP BY inv.st_bin, bin.occ_vol, inv.c_text, inv.plant_text, inv.wh_text",
+//            nativeQuery = true)
+//    List<BinVolume> getVolumes(
+//            @Param("companyCodeId") String companyCodeId,
+//            @Param("plantId") String plantId,
+//            @Param("languageId") String languageId,
+//            @Param("warehouseId") String warehouseId);
+
+
+    @Query(value = "SELECT inv.st_bin AS storageBin, \n" +
+            "SUM(inv.total_tpl_cbm) AS occupiedVolume, \n" +
+            "sb.occ_vol AS occupancyVolume, \n" +
+            "MAX(sb.c_text) AS companyDescription, \n" +
+            "MAX(sb.plant_text) AS plantDescription, \n " +
+            "MAX(sb.wh_text) AS warehouseDescription \n " +
+            "FROM tblinventory inv \n" +
+            "JOIN tblstoragebin sb \n" +
+            "ON inv.st_bin = sb.st_bin AND inv.c_id = sb.c_id \n" +
+            "AND inv.plant_id = sb.plant_id AND inv.lang_id = sb.lang_id \n" +
+            "AND inv.wh_id = sb.wh_id AND sb.is_deleted = 0 \n " +
+            "WHERE inv.is_deleted = 0 \n" +
+            "AND inv.ref_field_4 > 0 \n" +
+            "AND inv.inv_id IN (SELECT MAX(inv_id) FROM tblinventory WHERE is_deleted = 0 and BIN_CL_ID = 1 GROUP BY itm_code, st_bin, plant_id, wh_id, c_id, lang_id) \n" +
+            "AND inv.c_id = :companyCodeId \n" +
+            "AND inv.plant_id = :plantId \n" +
+            "AND inv.lang_id = :languageId \n" +
+            "AND inv.wh_id = :warehouseId \n" +
+            "GROUP BY inv.st_bin, sb.occ_vol ", nativeQuery = true)
+    List<BinVolume> getVolumes(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId);
 
 }
