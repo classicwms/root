@@ -1519,9 +1519,10 @@ public class PreOutboundHeaderService extends BaseService {
 //        //for wh_id = 200 ---> ob_type_id=3 && wh_id = 100 ---> ob_type_id=0,1,3
 //        if ((warehouseId.equalsIgnoreCase("200") && outboundIntegrationHeader.getOutboundOrderTypeID() == 3L) ||
 //                (warehouseId.equalsIgnoreCase("100") && (outboundIntegrationHeader.getOutboundOrderTypeID() == 0L || outboundIntegrationHeader.getOutboundOrderTypeID() == 1L || outboundIntegrationHeader.getOutboundOrderTypeID() == 3L))) {
-////            updateStatusAs48ForPickupHeaderCreateSuccess(companyCodeId, plantId, languageId, warehouseId, outboundIntegrationHeader, preOutboundNo, outboundHeader.getRefDocNumber(), outboundHeader.getPartnerCode());
-////            updateStatusAs48ForPickupHeader(companyCodeId, plantId, languageId, warehouseId, outboundIntegrationHeader, preOutboundNo, outboundHeader.getRefDocNumber(), outboundHeader.getPartnerCode());
-////            createPickUpHeaderAssignPicker(companyCodeId, plantId, languageId, warehouseId, outboundIntegrationHeader, preOutboundNo, outboundHeader.getRefDocNumber(), outboundHeader.getPartnerCode());
+
+    /// /            updateStatusAs48ForPickupHeaderCreateSuccess(companyCodeId, plantId, languageId, warehouseId, outboundIntegrationHeader, preOutboundNo, outboundHeader.getRefDocNumber(), outboundHeader.getPartnerCode());
+    /// /            updateStatusAs48ForPickupHeader(companyCodeId, plantId, languageId, warehouseId, outboundIntegrationHeader, preOutboundNo, outboundHeader.getRefDocNumber(), outboundHeader.getPartnerCode());
+    /// /            createPickUpHeaderAssignPicker(companyCodeId, plantId, languageId, warehouseId, outboundIntegrationHeader, preOutboundNo, outboundHeader.getRefDocNumber(), outboundHeader.getPartnerCode());
 //            createPickUpHeaderAssignPickerModified(companyCodeId, plantId, languageId, warehouseId, outboundIntegrationHeader,
 //                    preOutboundNo, outboundHeader.getRefDocNumber(), outboundHeader.getPartnerCode());
 //        }
@@ -4239,6 +4240,11 @@ public class PreOutboundHeaderService extends BaseService {
         preOutboundHeader.setPreOutboundNo(preOutboundNo);                                                // PRE_OB_NO
         preOutboundHeader.setPartnerCode(outboundIntegrationHeader.getPartnerCode());
         preOutboundHeader.setOutboundOrderTypeId(outboundIntegrationHeader.getOutboundOrderTypeID());    // Hardcoded value "0"
+        List<String> partnername = stagingLineV2Repository.getPartnerName(outboundIntegrationHeader.getPartnerCode(), companyCodeId, plantId,warehouseId, languageId);
+        if(partnername != null && !partnername.isEmpty()){
+            preOutboundHeader.setReferenceField6(partnername.get(0));
+        }
+
 //        preOutboundHeader.setReferenceDocumentType("SO");                                                // Hardcoded value "SO"
 
         /*
@@ -4456,6 +4462,8 @@ public class PreOutboundHeaderService extends BaseService {
         // PARTNER_CODE
         preOutboundLine.setPartnerCode(outboundIntegrationHeader.getPartnerCode());
 
+
+
         // IB__LINE_NO
         preOutboundLine.setLineNumber(outboundIntegrationLine.getLineReference());
 
@@ -4473,6 +4481,11 @@ public class PreOutboundHeaderService extends BaseService {
 
         // SP_ST_IND_ID
         preOutboundLine.setSpecialStockIndicatorId(1L);
+
+        List<String> partnername = stagingLineV2Repository.getPartnerName(outboundIntegrationHeader.getPartnerCode(), companyCodeId, plantId,warehouseId, languageId);
+        if(partnername != null && !partnername.isEmpty()){
+            preOutboundLine.setReferenceField6(partnername.get(0));
+        }
 
         preOutboundLine.setManufacturerName(outboundIntegrationLine.getManufacturerName());
 
@@ -4594,6 +4607,12 @@ public class PreOutboundHeaderService extends BaseService {
         if (barcode != null && !barcode.isEmpty()) {
             orderManagementLine.setBarcodeId(barcode.get(0));
             orderManagementLine.setItemBarcode(barcode.get(0));
+        }
+        List<String> manufactureName = stagingLineV2Repository.getMfrName(preOutboundLine.getItemCode(), preOutboundLine.getCompanyCodeId(), preOutboundLine.getPlantId(), preOutboundLine.getWarehouseId(), preOutboundLine.getLanguageId());
+        log.info("ManufatureName : " + manufactureName);
+        if (manufactureName != null && !manufactureName.isEmpty()) {
+            orderManagementLine.setManufacturerName(manufactureName.get(0));
+            orderManagementLine.setManufacturerCode(manufactureName.get(0));
         }
 
         orderManagementLine.setTransferOrderNo(preOutboundLine.getTransferOrderNo());

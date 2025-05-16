@@ -139,6 +139,7 @@ public class TransactionService extends BaseService{
                     inboundIntegrationLine.setManufacturerFullName(line.getManufacturerFullName());
                     inboundIntegrationLine.setPurchaseOrderNumber(line.getPurchaseOrderNumber());
                     inboundIntegrationLine.setContainerNumber(line.getContainerNumber());
+                    inboundIntegrationHeader.setCustomerCode(line.getSupplierCode());
                     inboundIntegrationHeader.setContainerNo(line.getContainerNumber());
 
                     inboundIntegrationLineList.add(inboundIntegrationLine);

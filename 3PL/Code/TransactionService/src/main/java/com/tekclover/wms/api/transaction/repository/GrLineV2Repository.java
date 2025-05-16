@@ -305,4 +305,8 @@ public interface GrLineV2Repository extends JpaRepository<GrLineV2, Long>, JpaSp
     @Query(value = "select top 1 partner_nm from tblbusinesspartner where partner_code =:partnerCode and is_Deleted = 0", nativeQuery = true)
      String getPartnerName(@Param("partnerCode") String partnerCode);
 
+
+    @Query(value = "select partner_nm from tblbusinesspartner where partner_code =:partnerCode and is_Deleted = 0", nativeQuery = true)
+    String getPartnerText(@Param("partnerCode") String partnerCode);
+
 }

@@ -1894,6 +1894,7 @@ public class PreInboundHeaderService extends BaseService {
         preInboundHeader.setIsCompleted(inboundIntegrationHeader.getIsCompleted());
         preInboundHeader.setIsCancelled(inboundIntegrationHeader.getIsCancelled());
         preInboundHeader.setMUpdatedOn(inboundIntegrationHeader.getUpdatedOn());
+        preInboundHeader.setCustomerCode(inboundIntegrationHeader.getCustomerCode());
 
         preInboundHeader.setDeletionIndicator(0L);
         preInboundHeader.setCreatedBy("MW_AMS");

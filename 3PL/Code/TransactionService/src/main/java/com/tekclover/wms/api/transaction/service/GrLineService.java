@@ -1801,7 +1801,7 @@ public class GrLineService extends BaseService {
 
                         log.info("ThreePL Logic completed -----------------------------------------> ");
                         try {
-                            String partnerText = grLineV2Repository.getPartnerName(dbGrLine.getBusinessPartnerCode());
+                            String partnerText = grLineV2Repository.getPartnerText(dbGrLine.getBusinessPartnerCode());
                             if(partnerText != null && !partnerText.isEmpty()) {
                                 dbGrLine.setPartnerText(partnerText);
                             }
