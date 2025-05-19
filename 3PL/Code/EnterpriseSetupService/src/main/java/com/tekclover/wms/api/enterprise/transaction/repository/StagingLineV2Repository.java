@@ -154,7 +154,7 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
     //get ManufactureName
     @Query(value = "Select MFR_NAME from tblinventory " +
             "where itm_code in (:itemCode) and c_id in (:companyCodeId) and plant_id in (:plantId) and wh_id in (:warehouseId) and " +
-            "lang_id in (:languageId) and is_deleted = 0 ", nativeQuery = true)
+            "lang_id in (:languageId) and is_deleted = 0 order by inv_id desc", nativeQuery = true)
     public List<String> getMfrName(@Param(value = "itemCode") String itemCode,
                                    @Param(value = "companyCodeId") String companyCodeId,
                                    @Param(value = "plantId") String plantId,
