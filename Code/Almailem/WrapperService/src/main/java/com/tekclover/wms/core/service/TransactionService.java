@@ -13615,4 +13615,25 @@ public class TransactionService {
         log.info("result : " + result.getStatusCode());
         return result.getBody();
     }
+
+    public TransactionHistoryReportV2[] getTransactionHistoryReportV2(FindImBasicData1 findImBasicData1, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getTransactionServiceApiUrl() + "reports/transactionHistoryReportV2");
+
+            HttpEntity<?> entity = new HttpEntity<>(findImBasicData1, headers);
+            ResponseEntity<TransactionHistoryReportV2[]> result = getRestTemplate().exchange(builder.toUriString(),
+                    HttpMethod.POST, entity, TransactionHistoryReportV2[].class);
+            log.info("result : " + result.getBody());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
 }
