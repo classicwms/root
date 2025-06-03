@@ -4370,4 +4370,11 @@ public class TransactionServiceController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @ApiOperation(response = Optional.class, value = "Get Audit Report")
+    @PostMapping("/reports/auditReport")
+    public ResponseEntity<?> getTransactionHistoryReportV2(@RequestBody FindImBasicData1 findImBasicData1,
+                                                           @RequestParam String authToken) throws java.text.ParseException {
+        TransactionHistoryReportV2[] inventoryReportList = transactionService.getTransactionHistoryReportV2(findImBasicData1, authToken);
+        return new ResponseEntity<>(inventoryReportList, HttpStatus.OK);
+    }
 }

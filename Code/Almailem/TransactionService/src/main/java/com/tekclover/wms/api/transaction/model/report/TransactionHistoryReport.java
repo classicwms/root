@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Data
 @Entity
@@ -48,4 +49,7 @@ public class TransactionHistoryReport {
     private Double stockAdjustmentQty;
 
     private Double systemInventory;
+    private String refDocNumber;
+    private Date confirmedOn;
+    private Double acceptedQty;
 }

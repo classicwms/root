@@ -235,4 +235,7 @@ public interface TransactionHistoryResultRepository extends JpaRepository<Transa
     void SP_THR(String companyCodeId,String plantId,String languageId,String warehouseId, String itemCode, String manufacturerName,
                 Date openingStockDateFrom, Date openingStockDateTo, Date closingStockDateFrom, Date closingStockDateTo);
 
+
+    @Procedure
+    void UpdateTransactionHistoryResults();
 }

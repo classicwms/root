@@ -3523,6 +3523,124 @@ public class ReportsService extends BaseService {
     }
 
 
+    /**
+     * @param searchImBasicData1
+     * @return
+     */
+    public List<TransactionHistoryReport> getTransactionHistoryReportV2(FindImBasicData1 searchImBasicData1) {
+        try {
+            if (searchImBasicData1.getFromCreatedOn() != null && searchImBasicData1.getToCreatedOn() != null) {
+                Date[] dates = DateUtils.addTimeToDatesForSearch(searchImBasicData1.getFromCreatedOn(),
+                        searchImBasicData1.getToCreatedOn());
+                searchImBasicData1.setFromCreatedOn(dates[0]);
+                searchImBasicData1.setToCreatedOn(dates[1]);
+            }
+
+            Date openingStockDateFrom = null;
+            Date openingStockDateTo = null;
+            Date closingStockDateFrom = null;
+            Date closingStockDateTo = null;
+
+            String itemCode = "0";
+            String manufacturerName = "0";
+
+            try {
+                openingStockDateFrom = DateUtils.convertStringToDateByYYYYMMDD("2022-06-20");
+                Date[] dates = DateUtils.addTimeToDatesForSearch(openingStockDateFrom, searchImBasicData1.getFromCreatedOn());
+                openingStockDateFrom = dates[0];
+                openingStockDateTo = DateUtils.dateSubtract(dates[1]);
+                log.info("----Opening Stock----> dateFrom & dateTo---> : " + openingStockDateFrom + "," + openingStockDateTo);
+            } catch (java.text.ParseException e) {
+                e.printStackTrace();
+            }
+
+            try {
+                Date[] dates = DateUtils.addTimeToDatesForSearch(searchImBasicData1.getFromCreatedOn(),
+                        searchImBasicData1.getToCreatedOn());
+                closingStockDateFrom = dates[0];
+                closingStockDateTo = dates[1];
+                log.info("----Closing Stock----> dateFrom & dateTo---> : " + closingStockDateFrom + "," + closingStockDateTo);
+            } catch (java.text.ParseException e) {
+                e.printStackTrace();
+            }
+
+            if (searchImBasicData1 != null) {
+                if (searchImBasicData1.getItemCode() == null || searchImBasicData1.getItemCode().isEmpty()) {
+                    itemCode = "0";
+                }
+                if (searchImBasicData1.getItemCode() != null && !searchImBasicData1.getItemCode().isEmpty() && searchImBasicData1.getItemCode().size() == 1) {
+                    itemCode = searchImBasicData1.getItemCode().get(0);
+                }
+                if (searchImBasicData1.getItemCode() != null && searchImBasicData1.getItemCode().size() > 1) {
+                    throw new RuntimeException("Item Code can be null or Single");
+                }
+            }
+
+            if (searchImBasicData1 != null) {
+                if (searchImBasicData1.getManufacturerName() == null) {
+                    manufacturerName = "0";
+                }
+                if (searchImBasicData1.getManufacturerName() != null) {
+                    manufacturerName = searchImBasicData1.getManufacturerName();
+                }
+            }
+
+            /*
+             * Pass ITM_CODE values into INVENTORY_STOCK table and fetch sum of INV_QTY+ ALLOC_QTY where BIN_CL_ID=1 and Sum by ITM_CODE
+             * This is stock for 20-06-2022 (A)
+             */
+
+            /*
+             * Pass ITM_CODE values and From date 20-06-2022 and to date as From date of selection parameters
+             * into PUTAWAYLINE table where status_ID = 20 and IS_DELETED = 0
+             * Fetch SUM of PA_CNF_QTY and group by ITM_CODE(B)
+             */
+
+            /*
+             * Pass ITM_CODE values and From date 20-06-2022 and to date as From date of selection parameters into PICKUPLINE table
+             * where status_ID=50 and IS_DELETED=0
+             * Fetch SUM of PU_QTY and group by ITM_CODE{C}
+             */
+
+            /*
+             * Pass ITM_CODE values and From date 20-06-2022 and to date as From date of selection parameters into INVENTORYMOVEMENT table
+             * where MVT_TYP_ID=4, SUB_MVT_TYP_ID=1 and IS_DELETED=0
+             * Fetch SUM of MVT_QTY and group by ITM_CODE(D)
+             */
+
+            // Opening stock - 3 column - E [openingStock = ((sumOfInvQty_AllocQty + sumOfPAConfirmQty + sumOfMvtQty) - sumOfPickupLineQty);]
+
+            //--------------------------------------------------------------closing stock---------------------------------------------------------------------
+
+            // Output Column - 7 - (E+F+H) - G [closingStock = ((openingStock + sumOfPAConfirmQty_4 + sumOfMvtQty_6) - sumOfPickupLineQty_5);]
+
+            transactionHistoryResultRepository.SP_THR(
+                    searchImBasicData1.getCompanyCodeId(),
+                    searchImBasicData1.getPlantId(),
+                    searchImBasicData1.getLanguageId(),
+                    searchImBasicData1.getWarehouseId(),
+                    itemCode,
+                    manufacturerName,
+                    openingStockDateFrom,
+                    openingStockDateTo,
+                    closingStockDateFrom,
+                    closingStockDateTo);
+            log.info("Report Generated successfully through Stored Procedure");
+
+            transactionHistoryResultRepository.UpdateTransactionHistoryResults();
+            log.info("Transaction History Report Inbound Line Updated Successfully in StoredProcedure ");
+
+            TransactionHistoryReportSpecification specification = new TransactionHistoryReportSpecification();
+            List<TransactionHistoryReport> inventoryStockList = transactionHistoryReportRepository.stream(specification, TransactionHistoryReport.class).collect(Collectors.toList());
+            log.info("TransactionHistoryReport -----> Output");
+
+            return inventoryStockList;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 
 }
