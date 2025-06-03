@@ -43,7 +43,7 @@ public class BaseService {
      * @return
      */
     protected String getPlantId() {
-        return "1001";
+        return "1100";
     }
 
     protected String getMasterAuthToken() {

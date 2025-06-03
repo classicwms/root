@@ -27,11 +27,11 @@ public class ASNLineV2 {
     private String supplierPartNumber;
 
     @Column(nullable = false)
-    @NotBlank(message = "Manufacturer Name is mandatory")
+//    @NotBlank(message = "Manufacturer Name is mandatory")
     private String manufacturerName;
 
     @Column(nullable = false)
-    @NotBlank(message = "Manufacturer Code is mandatory")
+//    @NotBlank(message = "Manufacturer Code is mandatory")
     private String manufacturerCode;
 
     @Column(nullable = false)

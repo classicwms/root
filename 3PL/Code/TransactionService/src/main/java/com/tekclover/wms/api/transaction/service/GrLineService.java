@@ -1654,9 +1654,9 @@ public class GrLineService extends BaseService {
                         dbGrLine.setStatusDescription(statusDescription);
                     }
 
-                    if (variance < 0D) {
-                        throw new BadRequestException("Variance Qty cannot be Less than 0");
-                    }
+//                    if (variance < 0D) {
+//                        throw new BadRequestException("Variance Qty cannot be Less than 0");
+//                    }
                     dbGrLine.setConfirmedQty(dbGrLine.getGoodReceiptQty());
                     dbGrLine.setBranchCode(newGrLine.getBranchCode());
                     dbGrLine.setTransferOrderNo(newGrLine.getTransferOrderNo());
@@ -1801,6 +1801,10 @@ public class GrLineService extends BaseService {
 
                         log.info("ThreePL Logic completed -----------------------------------------> ");
                         try {
+                            String partnerText = grLineV2Repository.getPartnerText(dbGrLine.getBusinessPartnerCode());
+                            if(partnerText != null && !partnerText.isEmpty()) {
+                                dbGrLine.setPartnerText(partnerText);
+                            }
                             createdGRLine = grLineV2Repository.save(dbGrLine);
                         } catch (Exception e) {
                             createGrLineError = true;
@@ -4502,7 +4506,7 @@ public class GrLineService extends BaseService {
                 }
                 inventory.setThreePLStockIndicator(0L);
                 inventory.setThreePLGrDate(new Date());
-                inventory.setThreePLUom(createdGRLine.getThreePLUom());
+                inventory.setThreePLUom("CBM");
                 inventory.setThreePLCbm(createdGRLine.getThreePLCbm());
 
                 Double threePLUom = createdGRLine.getThreePLCbm();
@@ -4574,7 +4578,7 @@ public class GrLineService extends BaseService {
                 }
                 inventory.setThreePLStockIndicator(0L);
                 inventory.setThreePLGrDate(new Date());
-                inventory.setThreePLUom(createdGRLine.getThreePLUom());
+                inventory.setThreePLUom("CBM");
                 inventory.setThreePLCbm(createdGRLine.getThreePLCbm());
 
 //                Double threePLCbm = createdGRLine.getThreePLUom();

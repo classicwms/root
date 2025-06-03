@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.masters.service;
 
 import com.tekclover.wms.api.masters.exception.BadRequestException;
+import com.tekclover.wms.api.masters.model.IKeyValuePair;
 import com.tekclover.wms.api.masters.model.businesspartner.AddBusinessPartner;
 import com.tekclover.wms.api.masters.model.businesspartner.BusinessPartner;
 import com.tekclover.wms.api.masters.model.businesspartner.SearchBusinessPartner;
@@ -238,7 +239,9 @@ public class BusinessPartnerService {
         if (!duplicateBusinessPartner.isEmpty()) {
             throw new EntityNotFoundException("Record is Getting Duplicated");
         } else {
+            IKeyValuePair iKeyValuePair = businesspartnerRepository.getPartnerCodeAndDescription(newBusinessPartner.getPartnerCode(), newBusinessPartner.getLanguageId(), newBusinessPartner.getCompanyCodeId(), newBusinessPartner.getPlantId(), newBusinessPartner.getWarehouseId(), newBusinessPartner.getBusinessPartnerType());
             BeanUtils.copyProperties(newBusinessPartner, dbBusinessPartner, CommonUtils.getNullPropertyNames(newBusinessPartner));
+            dbBusinessPartner.setPartnerName(iKeyValuePair.getPartnerCode() +" - " +iKeyValuePair.getDescription());
             dbBusinessPartner.setDeletionIndicator(0L);
             dbBusinessPartner.setCreatedBy(loginUserId);
             dbBusinessPartner.setUpdatedBy(loginUserId);

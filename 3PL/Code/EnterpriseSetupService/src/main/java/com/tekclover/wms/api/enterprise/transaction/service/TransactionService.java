@@ -314,8 +314,8 @@ public class TransactionService extends BaseService{
                     BeanUtils.copyProperties(line, outboundIntegrationLine, CommonUtils.getNullPropertyNames(line));
                     outboundIntegrationLine.setCompanyCode(line.getFromCompanyCode());
                     outboundIntegrationLine.setBranchCode(line.getSourceBranchCode());
-                    outboundIntegrationLine.setManufacturerName(line.getManufacturerName());
-                    outboundIntegrationLine.setManufacturerCode(line.getManufacturerName());
+//                    outboundIntegrationLine.setManufacturerName(line.getManufacturerName());
+//                    outboundIntegrationLine.setManufacturerCode(line.getManufacturerName());
                     outboundIntegrationLine.setMiddlewareId(line.getMiddlewareId());
                     outboundIntegrationLine.setMiddlewareHeaderId(line.getMiddlewareHeaderId());
                     outboundIntegrationLine.setMiddlewareTable(line.getMiddlewareTable());

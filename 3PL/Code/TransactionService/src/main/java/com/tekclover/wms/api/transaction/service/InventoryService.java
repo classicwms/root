@@ -3,6 +3,7 @@ package com.tekclover.wms.api.transaction.service;
 import com.microsoft.sqlserver.jdbc.SQLServerException;
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auditlog.AuditLog;
+import com.tekclover.wms.api.transaction.model.dto.BinVolume;
 import com.tekclover.wms.api.transaction.model.dto.IInventory;
 import com.tekclover.wms.api.transaction.model.dto.Warehouse;
 import com.tekclover.wms.api.transaction.model.errorlog.ErrorLog;
@@ -328,8 +329,8 @@ public class InventoryService extends BaseService {
      */
     public Inventory getInventory(String warehouseId, String packBarcodes, String itemCode, String storageBin) {
         log.info("getInventory----------> : " + warehouseId + "," + packBarcodes + "," + itemCode + "," + storageBin);
-        Optional<Inventory> inventory =
-                inventoryRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPackBarcodesAndItemCodeAndStorageBinAndDeletionIndicator(
+        List<InventoryV2> inventory =
+                inventoryV2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPackBarcodesAndItemCodeAndStorageBinAndDeletionIndicatorOrderByInventoryIdDesc(
                         getLanguageId(),
                         getCompanyCode(),
                         getPlantId(),
@@ -343,8 +344,8 @@ public class InventoryService extends BaseService {
             log.error("---------Inventory is null-----------");
             return null;
         }
-        log.info("getInventory record----------> : " + inventory.get());
-        return inventory.get();
+        log.info("getInventory record----------> : " + inventory.get(0));
+        return inventory.get(0);
     }
 
     /**
@@ -369,6 +370,19 @@ public class InventoryService extends BaseService {
         return inventory.get();
     }
 
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @return
+     */
+    public List<BinVolume> getVolumes(String companyCodeId, String plantId,
+                                      String languageId, String warehouseId) {
+        return inventoryRepository.getVolumes(companyCodeId, plantId, languageId, warehouseId);
+    }
     /**
      * @param warehouseId
      * @param itemCode
@@ -1997,7 +2011,7 @@ public class InventoryService extends BaseService {
      * @param storageBin
      * @return
      */
-    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class, LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 2000))
+//    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class, LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 2000))
     public InventoryV2 getInventoryForInhouseTransferV2(String companyCode, String plantId, String languageId, String warehouseId,
                                                         String packBarcodes, String itemCode, String manufacturerName, String storageBin) {
         try {
@@ -2025,6 +2039,8 @@ public class InventoryService extends BaseService {
             throw new BadRequestException("Error While Inventory Get : " + e);
         }
     }
+
+
 
     /**
      * @param companyCode

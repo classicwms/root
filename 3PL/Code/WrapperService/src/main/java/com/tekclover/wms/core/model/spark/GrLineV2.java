@@ -107,4 +107,5 @@ public class GrLineV2 {
     private String currency;
     private Double totalThreePLCbm;
     private Double totalRate;
+    private String partnerText;
 }

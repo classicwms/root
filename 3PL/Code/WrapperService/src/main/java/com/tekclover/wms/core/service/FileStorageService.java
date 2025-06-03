@@ -448,21 +448,21 @@ public class FileStorageService {
                         continue;
                     }
                     if (row.getRowNum() != 0) {
-                    List<String> listUploadData = new ArrayList<String>();
-                    for (int cn = 0; cn <= row.getLastCellNum(); cn++) {
-                        Cell cell = row.getCell(cn);
-                        if (cell == null) {
-                            log.info("cell empty: " + cell);
-                            listUploadData.add("");
-                        } else {
-                            String cellStr = fmt.formatCellValue(cell);
-                            log.info("cellStr: " + cellStr);
-                            listUploadData.add(cellStr);
+                        List<String> listUploadData = new ArrayList<String>();
+                        for (int cn = 0; cn <= row.getLastCellNum(); cn++) {
+                            Cell cell = row.getCell(cn);
+                            if (cell == null) {
+                                log.info("cell empty: " + cell);
+                                listUploadData.add("");
+                            } else {
+                                String cellStr = fmt.formatCellValue(cell);
+                                log.info("cellStr: " + cellStr);
+                                listUploadData.add(cellStr);
+                            }
                         }
+                        allRowsList.add(listUploadData);
                     }
-                    allRowsList.add(listUploadData);
                 }
-            }
             }
             log.info("list data: " + allRowsList);
             return allRowsList;
@@ -884,8 +884,7 @@ public class FileStorageService {
             line.setContainerNumber(listUploadedData.get(4));
             line.setSupplierCode(listUploadedData.get(5));
             line.setSupplierPartNumber(listUploadedData.get(6));
-            line.setManufacturerName("3PL");
-            line.setManufacturerCode("3PL");
+
             line.setExpectedDate(listUploadedData.get(7));
             line.setExpectedQty(Double.valueOf(listUploadedData.get(8)));
             line.setUom(listUploadedData.get(9));
@@ -898,6 +897,17 @@ public class FileStorageService {
             if (!listUploadedData.get(11).trim().isEmpty()) {
                 line.setPackQty(Double.valueOf(listUploadedData.get(11)));
             }
+
+//            if(listUploadedData.get(12) != null) {
+                if (listUploadedData.size() > 12) {
+                    if (listUploadedData.get(12) != null && !listUploadedData.get(12).isBlank()) {
+
+                        line.setManufacturerCode(listUploadedData.get(12));
+                        line.setManufacturerName(listUploadedData.get(12));
+                    }
+                }
+
+
 
             asnLines.add(line); // Add line to ASN
         }

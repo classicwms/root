@@ -119,11 +119,11 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
             "ip.mfr_name in (:manufactureName) and \n" +
             "ip.is_deleted = 0) x", nativeQuery = true)
     public String getItemBarcode(@Param(value = "itemCode") String itemCode,
-                                        @Param(value = "companyCode") String companyCode,
-                                        @Param(value = "plantId") String plantId,
-                                        @Param(value = "warehouseId") String warehouseId,
-                                        @Param(value = "manufactureName") String manufactureName,
-                                        @Param(value = "languageId") String languageId);
+                                 @Param(value = "companyCode") String companyCode,
+                                 @Param(value = "plantId") String plantId,
+                                 @Param(value = "warehouseId") String warehouseId,
+                                 @Param(value = "manufactureName") String manufactureName,
+                                 @Param(value = "languageId") String languageId);
 
     //Partner_item_barcode - almailem
     @Query(value = "select partner_itm_bar from tblimpartner ip \n" +
@@ -140,6 +140,26 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
                                               @Param(value = "warehouseId") String warehouseId,
                                               @Param(value = "manufactureName") String manufactureName,
                                               @Param(value = "languageId") String languageId);
+
+//get ManufactureName
+    @Query(value = "Select partner_nm from tblbusinesspartner " +
+            "where partner_code in (:partnerCode) and c_id in (:companyCodeId) and plant_id in (:plantId) and wh_id in (:warehouseId) and " +
+            "lang_id in (:languageId) and is_deleted = 0 ", nativeQuery = true)
+    public List<String> getPartnerName(@Param(value = "partnerCode") String partnerCode,
+                             @Param(value = "companyCodeId") String companyCodeId,
+                             @Param(value = "plantId") String plantId,
+                             @Param(value = "warehouseId") String warehouseId,
+                             @Param(value = "languageId") String languageId);
+
+    //get ManufactureName
+    @Query(value = "Select MFR_NAME from tblinventory " +
+            "where itm_code in (:itemCode) and c_id in (:companyCodeId) and plant_id in (:plantId) and wh_id in (:warehouseId) and " +
+            "lang_id in (:languageId) and is_deleted = 0 order by inv_id desc", nativeQuery = true)
+    public List<String> getMfrName(@Param(value = "itemCode") String itemCode,
+                                   @Param(value = "companyCodeId") String companyCodeId,
+                                   @Param(value = "plantId") String plantId,
+                                   @Param(value = "warehouseId") String warehouseId,
+                                   @Param(value = "languageId") String languageId);
 
     //Partner_item_barcode - almailem - interim only
     @Query(value = "select string_agg(barcode,', ') from (select distinct barcode from tblinterimbarcodeid ip \n" +
@@ -275,6 +295,7 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
     StagingLineEntityV2 findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndItemCodeAndManufacturerNameAndCaseCodeAndPalletCodeAndDeletionIndicator(
             String languageId, String companyCode, String plantId, String warehouseId, String refDocNumber,
             String preInboundNo, String itemCode, String manufacturerName, String caseCode, String palletCode, Long deletionIndicator);
+
     StagingLineEntityV2 findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndItemCodeAndManufacturerNameAndCaseCodeAndPalletCodeAndLineNoAndDeletionIndicator(
             String languageId, String companyCode, String plantId, String warehouseId, String refDocNumber,
             String preInboundNo, String itemCode, String manufacturerName, String caseCode, String palletCode, Long lineNo, Long deletionIndicator);

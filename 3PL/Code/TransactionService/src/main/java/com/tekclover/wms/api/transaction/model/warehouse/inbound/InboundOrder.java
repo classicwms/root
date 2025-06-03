@@ -27,6 +27,8 @@ public class InboundOrder {
 	private Date orderReceivedOn;
 	private Date orderProcessedOn;
 	private Long processedStatusId;
+	private String manufacturerCode;
+
 
 	private String purchaseOrderNumber;
 	

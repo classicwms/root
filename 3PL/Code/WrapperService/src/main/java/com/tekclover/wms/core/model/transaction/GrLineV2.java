@@ -3,6 +3,8 @@ package com.tekclover.wms.core.model.transaction;
 import lombok.Data;
 import lombok.ToString;
 
+import javax.persistence.Column;
+
 @Data
 @ToString(callSuper = true)
 public class GrLineV2 extends GrLine {
@@ -48,4 +50,6 @@ public class GrLineV2 extends GrLine {
     private Double totalThreePLCbm;
     private Double totalRate;
     private Long grInvoice = 0L;
+    private String partnerText;
+
 }

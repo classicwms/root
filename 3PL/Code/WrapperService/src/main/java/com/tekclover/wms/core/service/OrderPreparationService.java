@@ -371,8 +371,8 @@ public class OrderPreparationService {
                 soLine.setSalesOrderNo(listUploadedData.get(0));
                 soLine.setSkuDescription(listUploadedData.get(5));
 //                soLine.setBarcodeId(listUploadedData.get(5));
-                soLine.setManufacturerName("3PL");
-                soLine.setManufacturerCode("3PL");
+//                soLine.setManufacturerName("3PL");
+//                soLine.setManufacturerCode("3PL");
                 soLines.add(soLine);
             }
 

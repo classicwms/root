@@ -1457,6 +1457,15 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             String languageId, String companyCode, String plantId, String warehouseId, String packBarcodes,
             String itemCode, String manufacturerName, String storageBin, Long deletionIndicator);
 
+    @Query(value = "SELECT * FROM tblinventory where c_id = :companyId and plant_id = :plantId and wh_id = :warehouseId and lang_id = :languageId " +
+            "and itm_code = :itemCode and pack_barcode = :packBarcode and st_bin = :storageBin and is_Deleted =0 and mfr_code = '3PL' order by inv_id desc", nativeQuery = true)
+    public List<InventoryV2> getTargetInventory(@Param("companyId") String companyId,
+                                                @Param("plantId") String plantId,
+                                                @Param("warehouseId") String warehouseId,
+                                                @Param("languageId") String languageId,
+                                                @Param("itemCode") String itemCode,
+                                                @Param("packBarcode") String barcodeId,
+                                                @Param("storageBin") String storageBin);
     List<InventoryV2> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerCodeAndDeletionIndicatorOrderByInventoryIdDesc(
             String languageId, String companyCode, String plantId, String warehouseId, String itemCode, String manufacturerName, Long deletionIndicator);
 

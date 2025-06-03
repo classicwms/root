@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.model.dto.BinVolume;
 import com.tekclover.wms.api.transaction.model.impl.InventoryImpl;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.IInventoryImpl;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
@@ -74,8 +75,18 @@ public class InventoryController {
     	log.info("Inventory : " + inventory);
 		return new ResponseEntity<>(inventory, HttpStatus.OK);
 	}
-    
-    @ApiOperation(response = Inventory.class, value = "Search Inventory") // label for swagger
+
+	@ApiOperation(response = BinVolume.class, value = "Get Occupancy Volume per Bin")
+	@GetMapping("/bin/volume")
+	public ResponseEntity<?> getBinVolumes(@RequestParam String companyCodeId, @RequestParam String plantId,
+													@RequestParam String languageId, @RequestParam String warehouseId) {
+		List<BinVolume> result = inventoryService.getVolumes(
+				companyCodeId, plantId, languageId, warehouseId);
+		return ResponseEntity.ok(result);
+	}
+
+
+	@ApiOperation(response = Inventory.class, value = "Search Inventory") // label for swagger
 	@PostMapping("/findInventory/pagination")
 	public Page<Inventory> findInventory(@RequestBody SearchInventory searchInventory,
 			@RequestParam(defaultValue = "0") Integer pageNo,
