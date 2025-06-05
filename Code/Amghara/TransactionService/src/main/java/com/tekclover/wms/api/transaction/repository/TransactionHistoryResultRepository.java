@@ -237,5 +237,5 @@ public interface TransactionHistoryResultRepository extends JpaRepository<Transa
 
 
     @Procedure
-    void UpdateTransactionHistoryResults();
+    void UpdateTransactionHistoryResults(Date fromDate, Date toDate);
 }
