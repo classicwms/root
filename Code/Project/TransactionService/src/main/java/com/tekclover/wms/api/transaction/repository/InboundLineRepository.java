@@ -79,7 +79,7 @@ public interface InboundLineRepository extends JpaRepository<InboundLine,Long>, 
 																		  @Param ("warehouseId") List<String> warehouseId,
 																		  @Param ("statusId") List<Long> statusId);
 	
-	@Query(value="Select top 1 PA_CNF_ON from tblputawayline where ref_doc_no = :refDocNo and itm_code = :itemCode order by PA_CNF_ON DESC", 
+	@Query(value="Select top 1 PA_CNF_ON from tblputawayline where ref_doc_no = :refDocNo and itm_code = :itemCode order by PA_CNF_ON", 
 			nativeQuery=true)
 	public Date findDateFromPutawayLine(@Param("refDocNo") String refDocNo, @Param("itemCode") String itemCode);
 
