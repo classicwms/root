@@ -3627,7 +3627,7 @@ public class ReportsService extends BaseService {
                     closingStockDateTo);
             log.info("Report Generated successfully through Stored Procedure");
 
-            transactionHistoryResultRepository.UpdateTransactionHistoryResults();
+            transactionHistoryResultRepository.UpdateTransactionHistoryResults(closingStockDateFrom, closingStockDateTo);
             log.info("Transaction History Report Inbound Line Updated Successfully in StoredProcedure ");
 
             TransactionHistoryReportSpecification specification = new TransactionHistoryReportSpecification();
