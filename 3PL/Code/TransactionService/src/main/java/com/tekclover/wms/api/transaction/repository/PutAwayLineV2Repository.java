@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import com.tekclover.wms.api.transaction.model.report.CBMUtilization;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -240,4 +241,20 @@ public interface PutAwayLineV2Repository extends JpaRepository<PutAwayLineV2, Lo
     PutAwayLineV2 findTopByCompanyCodeAndPlantIdAndWarehouseIdAndLanguageIdAndItemCodeAndManufacturerNameAndStatusIdAndDeletionIndicatorOrderByCreatedOn(
             String companyCodeId, String plantId, String warehouseId, String languageId,
             String itemCode, String manufacturerName, Long statusId, Long deletionIndicator);
+
+    @Query(value = "select pal.pa_cnf_qty as inboundConfirmedQty,pal.total_tpl_cbm as inboundTotalThreePLCbm,pal.partner_code as partnerCode, paName.partnerName as partnerName, totals.totalConfirmty as totalConfirmedQty, totals.totalCbm as totalCbm from tblputawayline pal \n" +
+            "join (select partner_code, sum(pa_cnf_qty) as totalConfirmty, sum(total_tpl_cbm) totalCbm from tblputawayline \n" +
+            "where partner_code = :businessPartnerCode and c_id = :companyCode and plant_id = :plantId and wh_id = :warehouseId and lang_id = :languageId  and pa_ctd_on between :fromDate and :toDate and is_deleted = 0  \n" +
+            "group by partner_code) totals on pal.partner_code = totals.partner_code join(select partner_nm as partnerName, partner_code as partnerCode from tblbusinesspartner where partner_code =:businessPartnerCode) paName on pal.partner_code = paName.partnerCode where pal.partner_code = :businessPartnerCode and pal.is_deleted =0",nativeQuery = true)
+    List<CBMUtilization> findByPartnerCode(@Param("companyCode") String companyCode,
+                                            @Param("plantId") String plantId,
+                                            @Param("warehouseId") String warehouseId,
+                                            @Param("languageId") String languageId,
+                                            @Param("businessPartnerCode") String businessPartnerCode,
+                                           @Param("fromDate") Date fromDate,
+                                           @Param("toDate") Date toDate);
+
+
+
+
 }

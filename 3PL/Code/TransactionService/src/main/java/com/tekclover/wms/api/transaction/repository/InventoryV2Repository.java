@@ -4,6 +4,7 @@ import com.tekclover.wms.api.transaction.model.dto.IInventory;
 import com.tekclover.wms.api.transaction.model.impl.StockReportImpl;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.IInventoryImpl;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
+import com.tekclover.wms.api.transaction.model.report.CBMBinReport;
 import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -2455,4 +2456,23 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
 
     List<InventoryV2> findAllByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndManufacturerNameAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String itemCode, String manufacturerName, Long deletionIndicator);
+
+    @Query(value = "select count(st_bin) numbersOfBin, count(total_tpl_cbm) numbersOfCBM from tblinventory where\n" +
+            "inv_id in (select max(inv_id) from tblinventory where is_deleted = 0 and ref_field_4 > 0 and bin_cl_id = 1 and c_id = :companyCode and plant_id = :plantId and wh_id = :warehouseId and lang_id = :languageId \n" +
+            "group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) and tpl_partner_id = :threePLPartnerId ",nativeQuery = true)
+    CBMBinReport getNoOfBin(@Param("companyCode") String companyCode,
+                            @Param("plantId") String plantId,
+                            @Param("warehouseId") String warehouseId,
+                            @Param("languageId") String languageId,
+                            @Param("threePLPartnerId") String threePLPartnerId);
+
+    @Query(value = "select count(st_bin) as occupiedBin from tblinventory where\n" +
+            "inv_id in (select max(inv_id) from tblinventory where is_deleted = 0 and ref_field_4 > 1 and bin_cl_id = 1 \n" +
+            "and c_id = :companyCode and plant_id = :plantId and wh_id = :warehouseId and lang_id = :languageId \n" +
+            "group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) and (COALESCE(:threePLPartnerId, null) IS NULL OR (tpl_partner_id IN (:threePLPartnerId))) ",nativeQuery = true)
+    public Long getTotalStorageBin(@Param("companyCode") String companyCode,
+                                   @Param("plantId") String plantId,
+                                   @Param("warehouseId") String warehouseId,
+                                   @Param("languageId") String languageId,
+                                   @Param("threePLPartnerId") String threePLPartnerId);
 }

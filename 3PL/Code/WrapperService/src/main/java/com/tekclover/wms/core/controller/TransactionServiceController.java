@@ -4936,4 +4936,25 @@ public class TransactionServiceController {
         return transactionService.findDashBoard(findDashBoard, authToken);
 
     }
+
+    @ApiOperation(response = CBMUtilizationReport.class, value = "CBMUtilizationReport")//label for swagger
+    @PostMapping("/reports/cbmUtilizationReport")
+    public CBMUtilizationReport[] cbmUtilizationReport(@RequestBody CBMUtilizationReportInput input,
+                                                     @RequestParam String authToken) throws Exception {
+        return transactionService.cbmUtilizationReport(input, authToken);
+    }
+
+    @ApiOperation(response = CBMBinReport.class, value = "CBMBinReport")//label for swagger
+    @PostMapping("/reports/cbmBinReport")
+    public CBMBinReport cbmBinReport(@RequestBody CBMBinReportInput input,
+                                     @RequestParam String authToken) throws Exception {
+        return transactionService.cbmBinReport(input, authToken);
+    }
+
+    @ApiOperation(response = OccupancyBinReport.class, value = "OccupancyBinReport")//label for swagger
+    @PostMapping("/reports/occupancyBinReport")
+    public OccupancyBinReport occupancyBinReport(@RequestBody OccupancyBinReportInput input,
+                                                 @RequestParam String authToken) throws Exception {
+        return transactionService.occupancyBinReport(input, authToken);
+    }
 }

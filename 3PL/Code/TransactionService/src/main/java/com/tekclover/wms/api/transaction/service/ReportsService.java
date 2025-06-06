@@ -3842,4 +3842,51 @@ public class ReportsService extends BaseService {
         dashBoardList.add(newDashBoard);
         return dashBoardList;
     }
+    //-----------------------------------------------------------------------------------------------
+
+    public List<CBMUtilization> cbmUtilizationReport(CBMUtilizationReportInput input) throws java.text.ParseException {
+
+        List<CBMUtilization> reportV2 = new ArrayList<>();
+
+        if (input.getFromDate() != null && input.getToDate() != null) {
+            Date[] dates = DateUtils.addTimeToDatesForSearch(input.getFromDate(), input.getToDate());
+            input.setFromDate(dates[0]);
+            input.setToDate(dates[1]);
+        }
+        List<CBMUtilization> putAwayLineV2 = putAwayLineV2Repository.findByPartnerCode(input.getCompanyCode(),input.getPlantId(),input.getWarehouseId(),
+                input.getLanguageId(),input.getBusinessPartnerCode(),input.getFromDate(), input.getToDate());
+
+        List<CBMUtilization> pickupLineV2 = pickupLineV2Repository.findByPartnerCode(input.getCompanyCode(),input.getPlantId(),input.getWarehouseId(),
+                input.getLanguageId(),input.getBusinessPartnerCode(), input.getFromDate(), input.getToDate());
+
+        reportV2.addAll(putAwayLineV2);
+        reportV2.addAll(pickupLineV2);
+
+        return  reportV2;
+    }
+
+
+    public CBMBinReport cbmBinReport(CBMBinReportInput input){
+
+        CBMBinReport binReport = inventoryV2Repository.getNoOfBin(input.getCompanyCode(),input.getPlantId(),input.getWarehouseId(),
+                input.getLanguageId(),input.getThreePLPartnerId());
+        return binReport;
+    }
+
+    public OccupancyBinReport occupancyBinReport(OccupancyBinReportInput input){
+
+        Long totalBin = storagebinRepository.getTotalStorageBin(input.getCompanyCode(),input.getPlantId(),input.getWarehouseId(),
+                input.getLanguageId());
+
+        Long occupiedBin = inventoryV2Repository.getTotalStorageBin(input.getCompanyCode(),input.getPlantId(),input.getWarehouseId(),
+                input.getLanguageId(),input.getThreePLPartnerId());
+        OccupancyBinReport occupancyBinReport = new OccupancyBinReport();
+
+        occupancyBinReport.setTotalBin(totalBin);
+        occupancyBinReport.setOccupiedBin(occupiedBin);
+        occupancyBinReport.setEmptyBin(totalBin - occupiedBin);
+
+        return occupancyBinReport;
+    }
+
 }

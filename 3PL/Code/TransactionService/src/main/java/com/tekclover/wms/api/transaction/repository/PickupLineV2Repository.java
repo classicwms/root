@@ -3,6 +3,7 @@ package com.tekclover.wms.api.transaction.repository;
 import com.tekclover.wms.api.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.transaction.model.impl.StockMovementReportImpl;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickupLineV2;
+import com.tekclover.wms.api.transaction.model.report.CBMUtilization;
 import com.tekclover.wms.api.transaction.model.report.PickingProductivityImpl;
 import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -268,4 +269,17 @@ public interface PickupLineV2Repository extends JpaRepository<PickupLineV2, Long
                          @Param("startCreatedOn") @Temporal(TemporalType.TIMESTAMP) Date startCreatedOn,
                          @Param("endCreatedOn") @Temporal(TemporalType.TIMESTAMP) Date endCreatedOn);
 
+    @Query(value = "select pick.pick_cnf_qty as outboundConfirmedQty, pick.tpl_cbm as outboundTotalThreePLCbm, pick.partner_code as partnerCode, paName.partnerName as partnerName, total.totalCbm as totalCbm, total.totalCnfQty as totalConfirmedQty from tblpickupline pick \n" +
+            "join(select partner_code, sum(pick_cnf_qty) as totalCnfQty, sum(tpl_cbm) totalCbm from tblpickupline\n" +
+            "where partner_code = :businessPartnerCode and c_id = :companyCode and plant_id = :plantId and wh_id = :warehouseId " +
+            "and lang_id = :languageId and pick_ctd_on between :fromDate and :toDate group by partner_code) total on pick.partner_code = total.partner_code join(select partner_nm as partnerName, partner_code as partnerCode from tblbusinesspartner where partner_code =:businessPartnerCode) paName on pick.partner_code = paName.partnerCode where pick.partner_code = :businessPartnerCode and pick.is_deleted =0",nativeQuery = true)
+    List<CBMUtilization> findByPartnerCode(@Param("companyCode") String companyCode,
+                                             @Param("plantId") String plantId,
+                                             @Param("warehouseId") String warehouseId,
+                                             @Param("languageId") String languageId,
+                                             @Param("businessPartnerCode") String businessPartnerCode,
+                                           @Param("fromDate") Date fromDate,
+                                           @Param("toDate") Date toDate);
+
 }
+

@@ -15003,4 +15003,61 @@ public List<BinVolume> getBinVolumes(String companyCodeId, String plantId, Strin
             throw e;
         }
     }
+
+    public CBMUtilizationReport[] cbmUtilizationReport(CBMUtilizationReportInput input, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "reports/cbmUtilizationReport");
+            HttpEntity<?> entity = new HttpEntity<>(input, headers);
+            ResponseEntity<CBMUtilizationReport[]> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, CBMUtilizationReport[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public CBMBinReport cbmBinReport(CBMBinReportInput input, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "reports/cbmBinReport");
+            HttpEntity<?> entity = new HttpEntity<>(input, headers);
+            ResponseEntity<CBMBinReport> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, CBMBinReport.class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+
+    public OccupancyBinReport occupancyBinReport(OccupancyBinReportInput input, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "reports/occupancyBinReport");
+            HttpEntity<?> entity = new HttpEntity<>(input, headers);
+            ResponseEntity<OccupancyBinReport> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, OccupancyBinReport.class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+
 }

@@ -324,4 +324,26 @@ public class ReportsController {
         List<DashBoard> dashboards = reportsService.findDashBoard(findDashBoard);
         return new ResponseEntity<>(dashboards,HttpStatus.OK);
     }
+    //---------------------------------------------------------------------------------------------------
+
+    @ApiOperation(response = CBMUtilizationReport.class,value = "CBMUtilizationReport")
+    @PostMapping("/cbmUtilizationReport")
+    public ResponseEntity<?> cbmUtilizationReport(@RequestBody CBMUtilizationReportInput input) throws java.text.ParseException {
+       List<CBMUtilization> report = reportsService.cbmUtilizationReport(input);
+        return new ResponseEntity<>(report,HttpStatus.OK);
+    }
+
+    @ApiOperation(response = CBMBinReport.class,value = "CBMBinReport")
+    @PostMapping("/cbmBinReport")
+    public ResponseEntity<?> cbmBinReport(@RequestBody CBMBinReportInput input) {
+        CBMBinReport report = reportsService.cbmBinReport(input);
+        return new ResponseEntity<>(report,HttpStatus.OK);
+    }
+
+    @ApiOperation(response = OccupancyBinReport.class,value = "OccupancyBinReport")
+    @PostMapping("/occupancyBinReport")
+    public ResponseEntity<?> occupancyBinReport(@RequestBody OccupancyBinReportInput input) {
+        OccupancyBinReport report = reportsService.occupancyBinReport(input);
+        return new ResponseEntity<>(report,HttpStatus.OK);
+    }
 }
