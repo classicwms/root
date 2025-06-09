@@ -3889,4 +3889,33 @@ public class ReportsService extends BaseService {
         return occupancyBinReport;
     }
 
+    //----------------------------------------------------------------------------------------------------------------------
+
+    public List<CBMBinReport> cbmBinReportV2(CBMBinReportInput input){
+
+        List<CBMBinReport> binReport = inventoryV2Repository.getNoOfBinV2(input.getCompanyCode(),input.getPlantId(),input.getWarehouseId(),
+                input.getLanguageId(),input.getThreePLPartnerId());
+        return binReport;
+    }
+
+    public List<OccupancyBinReport> occupancyBinReportV2(OccupancyBinReportInput input){
+
+        Long totalBin = storagebinRepository.getTotalStorageBin(input.getCompanyCode(),input.getPlantId(),input.getWarehouseId(),
+                input.getLanguageId());
+
+        List<OccupancyBinReportResponse> bins = inventoryV2Repository.getTotalStorageBinV2(input.getCompanyCode(),input.getPlantId(),input.getWarehouseId(),
+                input.getLanguageId(),input.getThreePLPartnerId());
+        List<OccupancyBinReport> report = new ArrayList<>();
+        for (OccupancyBinReportResponse bin : bins) {
+            OccupancyBinReport occupancyBinReport = new OccupancyBinReport();
+            occupancyBinReport.setPartnerId(bin.getPartnerId());
+            occupancyBinReport.setPartnerName(bin.getPartnerName());
+            occupancyBinReport.setTotalBin(totalBin);
+            occupancyBinReport.setOccupiedBin(bin.getOccupiedBin());
+            occupancyBinReport.setEmptyBin(totalBin - bin.getOccupiedBin());
+            report.add(occupancyBinReport);
+        }
+        return report;
+    }
+
 }

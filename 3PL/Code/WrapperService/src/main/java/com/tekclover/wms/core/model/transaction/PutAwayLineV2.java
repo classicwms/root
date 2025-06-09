@@ -44,4 +44,5 @@ public class PutAwayLineV2 extends PutAwayLine {
 	private String businessPartnerCode;
 	private Double totalThreePLCbm;
 	private Double totalRate;
+
 }

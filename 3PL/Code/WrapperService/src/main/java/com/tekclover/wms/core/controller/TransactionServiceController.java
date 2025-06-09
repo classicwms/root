@@ -4944,17 +4944,31 @@ public class TransactionServiceController {
         return transactionService.cbmUtilizationReport(input, authToken);
     }
 
+//    @ApiOperation(response = CBMBinReport.class, value = "CBMBinReport")//label for swagger
+//    @PostMapping("/reports/cbmBinReport")
+//    public CBMBinReport cbmBinReport(@RequestBody CBMBinReportInput input,
+//                                     @RequestParam String authToken) throws Exception {
+//        return transactionService.cbmBinReport(input, authToken);
+//    }
+//
+//    @ApiOperation(response = OccupancyBinReport.class, value = "OccupancyBinReport")//label for swagger
+//    @PostMapping("/reports/occupancyBinReport")
+//    public OccupancyBinReport occupancyBinReport(@RequestBody OccupancyBinReportInput input,
+//                                                 @RequestParam String authToken) throws Exception {
+//        return transactionService.occupancyBinReport(input, authToken);
+//    }
+
     @ApiOperation(response = CBMBinReport.class, value = "CBMBinReport")//label for swagger
     @PostMapping("/reports/cbmBinReport")
-    public CBMBinReport cbmBinReport(@RequestBody CBMBinReportInput input,
+    public CBMBinReport[] cbmBinReportV2(@RequestBody CBMBinReportInput input,
                                      @RequestParam String authToken) throws Exception {
-        return transactionService.cbmBinReport(input, authToken);
+        return transactionService.cbmBinReportV2(input, authToken);
     }
 
     @ApiOperation(response = OccupancyBinReport.class, value = "OccupancyBinReport")//label for swagger
     @PostMapping("/reports/occupancyBinReport")
-    public OccupancyBinReport occupancyBinReport(@RequestBody OccupancyBinReportInput input,
+    public OccupancyBinReport[] occupancyBinReportV2(@RequestBody OccupancyBinReportInput input,
                                                  @RequestParam String authToken) throws Exception {
-        return transactionService.occupancyBinReport(input, authToken);
+        return transactionService.occupancyBinReportV2(input, authToken);
     }
 }

@@ -346,4 +346,18 @@ public class ReportsController {
         OccupancyBinReport report = reportsService.occupancyBinReport(input);
         return new ResponseEntity<>(report,HttpStatus.OK);
     }
+
+    @ApiOperation(response = CBMBinReport.class,value = "CBMBinReport")
+    @PostMapping("/cbmBinReportV2")
+    public ResponseEntity<?> cbmBinReportV2(@RequestBody CBMBinReportInput input) {
+        List<CBMBinReport> report = reportsService.cbmBinReportV2(input);
+        return new ResponseEntity<>(report,HttpStatus.OK);
+    }
+
+    @ApiOperation(response = OccupancyBinReport.class,value = "OccupancyBinReport")
+    @PostMapping("/occupancyBinReportV2")
+    public ResponseEntity<?> occupancyBinReportV2(@RequestBody OccupancyBinReportInput input) {
+        List<OccupancyBinReport> report = reportsService.occupancyBinReportV2(input);
+        return new ResponseEntity<>(report,HttpStatus.OK);
+    }
 }

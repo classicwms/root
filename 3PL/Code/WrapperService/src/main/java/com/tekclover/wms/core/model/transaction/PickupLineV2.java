@@ -3,6 +3,8 @@ package com.tekclover.wms.core.model.transaction;
 import lombok.Data;
 import lombok.ToString;
 
+import java.util.Date;
+
 @Data
 @ToString(callSuper = true)
 public class PickupLineV2 extends PickupLine {
@@ -43,4 +45,5 @@ public class PickupLineV2 extends PickupLine {
     private Double totalThreePLCbm;
     private Double totalRate;
     private Long pickingInvoice = 0L;
+
 }

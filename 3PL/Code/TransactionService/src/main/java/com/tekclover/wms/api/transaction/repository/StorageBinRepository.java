@@ -134,7 +134,8 @@ public interface StorageBinRepository extends JpaRepository<StorageBin, Long>,
 
 
     @Query(value = "select count(st_bin) as totalBin from tblstoragebin where bin_cl_id =1 and " +
-            " is_deleted =0 and c_id = :companyCode and plant_id = :plantId and wh_id = :warehouseId and lang_id = :languageId ",nativeQuery = true)
+            " is_deleted =0 and (COALESCE(:companyCode, null) IS NULL OR (c_id IN (:companyCode))) and (COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) \n" +
+            " and (COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and (COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) ",nativeQuery = true)
     public Long getTotalStorageBin(@Param("companyCode") String companyCode,
                                    @Param("plantId") String plantId,
                                    @Param("warehouseId") String warehouseId,
