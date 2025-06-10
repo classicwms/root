@@ -399,9 +399,9 @@ public class PerpetualHeaderService extends BaseService {
     public PerpetualHeaderEntity createPerpetualHeader(AddPerpetualHeader newPerpetualHeader, String loginUserID)
             throws IllegalAccessException, InvocationTargetException {
         PerpetualHeader dbPerpetualHeader = new PerpetualHeader();
-        dbPerpetualHeader.setLanguageId(getLanguageId());
-        dbPerpetualHeader.setCompanyCodeId(getCompanyCode());
-        dbPerpetualHeader.setPlantId(getPlantId());
+//        dbPerpetualHeader.setLanguageId(getLanguageId());
+//        dbPerpetualHeader.setCompanyCodeId(getCompanyCode());
+//        dbPerpetualHeader.setPlantId(getPlantId());
 
         log.info("newPerpetualHeader : " + newPerpetualHeader);
         BeanUtils.copyProperties(newPerpetualHeader, dbPerpetualHeader, CommonUtils.getNullPropertyNames(newPerpetualHeader));
@@ -442,9 +442,9 @@ public class PerpetualHeaderService extends BaseService {
 
             PerpetualLine dbPerpetualLine = new PerpetualLine();
             BeanUtils.copyProperties(newPerpetualLine, dbPerpetualLine, CommonUtils.getNullPropertyNames(newPerpetualLine));
-            dbPerpetualLine.setLanguageId(getLanguageId());
-            dbPerpetualLine.setCompanyCodeId(getCompanyCode());
-            dbPerpetualLine.setPlantId(getPlantId());
+//            dbPerpetualLine.setLanguageId(getLanguageId());
+//            dbPerpetualLine.setCompanyCodeId(getCompanyCode());
+//            dbPerpetualLine.setPlantId(getPlantId());
             dbPerpetualLine.setWarehouseId(createdPerpetualHeader.getWarehouseId());
             dbPerpetualLine.setCycleCountNo(createdPerpetualHeader.getCycleCountNo());
             dbPerpetualLine.setStatusId(70L);

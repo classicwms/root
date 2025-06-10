@@ -242,15 +242,33 @@ public interface PutAwayLineV2Repository extends JpaRepository<PutAwayLineV2, Lo
             String companyCodeId, String plantId, String warehouseId, String languageId,
             String itemCode, String manufacturerName, Long statusId, Long deletionIndicator);
 
-    @Query(value = "select pal.pa_cnf_qty as inboundConfirmedQty,pal.total_tpl_cbm as inboundTotalThreePLCbm,pal.partner_code as partnerCode, paName.partnerName as partnerName, totals.totalConfirmty as totalConfirmedQty, totals.totalCbm as totalCbm from tblputawayline pal \n" +
-            "join (select partner_code, sum(pa_cnf_qty) as totalConfirmty, sum(total_tpl_cbm) totalCbm from tblputawayline \n" +
-            "where partner_code = :businessPartnerCode and c_id = :companyCode and plant_id = :plantId and wh_id = :warehouseId and lang_id = :languageId  and pa_ctd_on between :fromDate and :toDate and is_deleted = 0  \n" +
-            "group by partner_code) totals on pal.partner_code = totals.partner_code join(select partner_nm as partnerName, partner_code as partnerCode from tblbusinesspartner where partner_code =:businessPartnerCode) paName on pal.partner_code = paName.partnerCode where pal.partner_code = :businessPartnerCode and pal.is_deleted =0",nativeQuery = true)
+//    @Query(value = "select sum(pal.pa_cnf_qty) as inboundConfirmedQty, sum(pal.total_tpl_cbm) as inboundTotalThreePLCbm,pal.partner_code as partnerCode, paName.partnerName as partnerName, totals.totalConfirmty as totalConfirmedQty, totals.totalCbm as totalCbm from tblputawayline pal \n" +
+//            "join (select partner_code, sum(pa_cnf_qty) as totalConfirmty, sum(total_tpl_cbm) totalCbm from tblputawayline \n" +
+//            "where partner_code = :businessPartnerCode and c_id = :companyCode and plant_id = :plantId and wh_id = :warehouseId and lang_id = :languageId  and pa_ctd_on between :fromDate and :toDate and is_deleted = 0  \n" +
+//            "group by partner_code) totals on pal.partner_code = totals.partner_code join(select partner_nm as partnerName, partner_code as partnerCode from tblbusinesspartner where partner_code =:businessPartnerCode) paName on pal.partner_code = paName.partnerCode where pal.partner_code = :businessPartnerCode and pal.is_deleted =0",nativeQuery = true)
+//    List<CBMUtilization> findByPartnerCode(@Param("companyCode") String companyCode,
+//                                            @Param("plantId") String plantId,
+//                                            @Param("warehouseId") String warehouseId,
+//                                            @Param("languageId") String languageId,
+//                                            @Param("businessPartnerCode") String businessPartnerCode,
+//                                           @Param("fromDate") Date fromDate,
+//                                           @Param("toDate") Date toDate);
+
+    @Query(value = "select pal.partner_code as partnerCode, paName.partnerName as partnerName,sum(pal.pa_cnf_qty) as inboundConfirmedQty,sum(pal.total_tpl_cbm) as inboundTotalThreePLCbm,\n" +
+            " totals.totalConfirmty as totalConfirmedQty,totals.totalCbm as totalCbm from tblputawayline pal\n" +
+            " join (select partner_code,sum(pa_cnf_qty) as totalConfirmty,sum(total_tpl_cbm) as totalCbm from tblputawayline where \n" +
+            " (COALESCE(:businessPartnerCode, null) IS NULL OR (partner_code IN (:businessPartnerCode))) and (COALESCE(:companyCode, null) IS NULL OR (c_id IN (:companyCode))) and (COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) \n" +
+            " and (COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and (COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n" +
+            " pa_ctd_on between :fromDate and :toDate and is_deleted = 0  \n" +
+            " group by partner_code) totals on pal.partner_code = totals.partner_code\n" +
+            " join (select partner_nm as partnerName,partner_code as partnerCode from tblbusinesspartner where (COALESCE(:businessPartnerCode, null) IS NULL OR (partner_code IN (:businessPartnerCode)))) paName \n" +
+            " on pal.partner_code = paName.partnerCode where (COALESCE(:businessPartnerCode, null) IS NULL OR (pal.partner_code IN (:businessPartnerCode))) and pal.is_deleted = 0 group by  pal.partner_code,\n" +
+            " paName.partnerName,totals.totalConfirmty,totals.totalCbm ",nativeQuery = true)
     List<CBMUtilization> findByPartnerCode(@Param("companyCode") String companyCode,
-                                            @Param("plantId") String plantId,
-                                            @Param("warehouseId") String warehouseId,
-                                            @Param("languageId") String languageId,
-                                            @Param("businessPartnerCode") String businessPartnerCode,
+                                           @Param("plantId") String plantId,
+                                           @Param("warehouseId") String warehouseId,
+                                           @Param("languageId") String languageId,
+                                           @Param("businessPartnerCode") String businessPartnerCode,
                                            @Param("fromDate") Date fromDate,
                                            @Param("toDate") Date toDate);
 

@@ -2468,10 +2468,10 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                             @Param("languageId") String languageId,
                             @Param("threePLPartnerId") String threePLPartnerId);
 
-    @Query(value = "select count(st_bin) numbersOfBin, count(total_tpl_cbm) numbersOfCBM, tpl_partner_id as partnerId, TPL_PARTNER_TEXT as partnerName from tblinventory inv1 join \n" +
+    @Query(value = "select count(st_bin) numbersOfBin, count(total_tpl_cbm) numbersOfCBM, tpl_partner_id as partnerId, MAX(TPL_PARTNER_TEXT) as partnerName from tblinventory inv1 join \n" +
             " (select max(inv_id) as max_inv from tblinventory where is_deleted = 0 and ref_field_4 > 0 and bin_cl_id = 1 and (COALESCE(:companyCode, null) IS NULL OR (c_id IN (:companyCode))) and (COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) \n" +
             " and (COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and (COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) \n" +
-            " group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) as inv2 ON inv1.inv_id = inv2.max_inv where (COALESCE(:threePLPartnerId, null) IS NULL OR (inv1.tpl_partner_id IN (:threePLPartnerId))) group by inv1.tpl_partner_id,inv1.tpl_partner_text ",nativeQuery = true)
+            " group by st_bin,plant_id,wh_id,c_id,lang_id) as inv2 ON inv1.inv_id = inv2.max_inv where (COALESCE(:threePLPartnerId, null) IS NULL OR (inv1.tpl_partner_id IN (:threePLPartnerId))) group by inv1.tpl_partner_id ",nativeQuery = true)
     List<CBMBinReport> getNoOfBinV2(@Param("companyCode") String companyCode,
                             @Param("plantId") String plantId,
                             @Param("warehouseId") String warehouseId,
@@ -2489,10 +2489,10 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                    @Param("languageId") String languageId,
                                    @Param("threePLPartnerId") String threePLPartnerId);
 
-    @Query(value = "select count(inv1.st_bin) as occupiedBin,inv1.tpl_partner_id as partnerId,inv1.tpl_partner_text as partnerName from tblinventory inv1 \n" +
+    @Query(value = "select count(inv1.st_bin) as occupiedBin,inv1.tpl_partner_id as partnerId,MAX(inv1.tpl_partner_text) as partnerName from tblinventory inv1 \n" +
             " join (select max(inv_id) as max_inv from tblinventory where is_deleted =0 AND ref_field_4 > 0  AND bin_cl_id = 1 AND (COALESCE(:companyCode, null) IS NULL OR (c_id IN (:companyCode))) and (COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) \n" +
-            " and (COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and (COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) group by itm_code, mfr_name, st_bin, plant_id, wh_id, c_id, lang_id) \n" +
-            " as inv2 ON inv1.inv_id = inv2.max_inv where (COALESCE(:threePLPartnerId, null) IS NULL OR (inv1.tpl_partner_id IN (:threePLPartnerId))) group by inv1.tpl_partner_id,inv1.tpl_partner_text",nativeQuery = true)
+            " and (COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and (COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) group by  st_bin, plant_id, wh_id, c_id, lang_id) \n" +
+            " as inv2 ON inv1.inv_id = inv2.max_inv where (COALESCE(:threePLPartnerId, null) IS NULL OR (inv1.tpl_partner_id IN (:threePLPartnerId))) group by inv1.tpl_partner_id",nativeQuery = true)
     public List<OccupancyBinReportResponse> getTotalStorageBinV2(@Param("companyCode") String companyCode,
                                                            @Param("plantId") String plantId,
                                                            @Param("warehouseId") String warehouseId,
