@@ -2564,13 +2564,28 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                    @Param("languageId") String languageId,
                                    @Param("threePLPartnerId") String threePLPartnerId);
 
-    @Query(value = "select count(inv1.st_bin) as occupiedBin,inv1.tpl_partner_id as partnerId,inv1.tpl_partner_text as partnerName from tblinventory inv1 \n" +
-            " join (select max(inv_id) as max_inv from tblinventory where is_deleted =0 AND ref_field_4 > 0  AND bin_cl_id = 1 AND (COALESCE(:companyCode, null) IS NULL OR (c_id IN (:companyCode))) and (COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) \n" +
-            " and (COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and (COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) group by st_bin, plant_id, wh_id, c_id, lang_id,tpl_partner_id) \n" +
-            " as inv2 ON inv1.inv_id = inv2.max_inv where (COALESCE(:threePLPartnerId, null) IS NULL OR (inv1.tpl_partner_id IN (:threePLPartnerId))) group by inv1.tpl_partner_id,inv1.tpl_partner_text",nativeQuery = true)
+//    @Query(value = "select count(inv1.st_bin) as occupiedBin,inv1.tpl_partner_id as partnerId,inv1.tpl_partner_text as partnerName from tblinventory inv1 \n" +
+//            " join (select max(inv_id) as max_inv from tblinventory where is_deleted =0 AND ref_field_4 > 0  AND bin_cl_id = 1 AND (COALESCE(:companyCode, null) IS NULL OR (c_id IN (:companyCode))) and (COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) \n" +
+//            " and (COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and (COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) group by st_bin, plant_id, wh_id, c_id, lang_id,tpl_partner_id) \n" +
+//            " as inv2 ON inv1.inv_id = inv2.max_inv where (COALESCE(:threePLPartnerId, null) IS NULL OR (inv1.tpl_partner_id IN (:threePLPartnerId))) group by inv1.tpl_partner_id,inv1.tpl_partner_text",nativeQuery = true)
+//    public List<OccupancyBinReportResponse> getTotalStorageBinV2(@Param("companyCode") String companyCode,
+//                                                           @Param("plantId") String plantId,
+//                                                           @Param("warehouseId") String warehouseId,
+//                                                           @Param("languageId") String languageId,
+//                                                           @Param("threePLPartnerId") String threePLPartnerId);
+
+    @Query(value = "SELECT \n" +
+            "    COUNT(iv.st_bin) AS occupiedBin , \n" +
+            "    iv.tpl_partner_id AS partnerId, \n" +
+            "    MAX(iv.tpl_partner_text) AS partnerName\n" +
+            "    \n" +
+            "FROM tblinventory iv \n" +
+            "WHERE iv.is_deleted = 0 and (COALESCE(:companyCode, null) IS NULL OR (c_id IN (:companyCode))) and (COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) \n" +
+            " and (COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and (COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) AND iv.ref_field_4 > 0  and iv.inv_id in (select max(inv_id) from tblinventory where is_deleted = 0 \n" +
+            "\t  group by tpl_partner_id,st_bin,plant_id,wh_id,c_id,lang_id) and (COALESCE(:threePLPartnerId, null) IS NULL OR (tpl_partner_id IN (:threePLPartnerId))) group by tpl_partner_id",nativeQuery = true)
     public List<OccupancyBinReportResponse> getTotalStorageBinV2(@Param("companyCode") String companyCode,
-                                                           @Param("plantId") String plantId,
-                                                           @Param("warehouseId") String warehouseId,
-                                                           @Param("languageId") String languageId,
-                                                           @Param("threePLPartnerId") String threePLPartnerId);
+                                                                 @Param("plantId") String plantId,
+                                                                 @Param("warehouseId") String warehouseId,
+                                                                 @Param("languageId") String languageId,
+                                                                 @Param("threePLPartnerId") String threePLPartnerId);
 }

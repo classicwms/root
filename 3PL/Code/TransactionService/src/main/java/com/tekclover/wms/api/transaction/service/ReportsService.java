@@ -3913,6 +3913,11 @@ public class ReportsService extends BaseService {
 
     //----------------------------------------------------------------------------------------------------------------------
 
+    /**
+     *
+     * @param input
+     * @return
+     */
     public List<CBMBinReport> cbmBinReportV2(CBMBinReportInput input){
 
         List<CBMBinReport> reports = new ArrayList<>();
@@ -3934,6 +3939,11 @@ public class ReportsService extends BaseService {
     }
 
 
+    /**
+     *
+     * @param input
+     * @return
+     */
     public List<OccupancyBinReport> occupancyBinReportV2(OccupancyBinReportInput input){
 
         Long totalBin = storagebinRepository.getTotalStorageBin(input.getCompanyCode(),input.getPlantId(),input.getWarehouseId(),
@@ -3955,6 +3965,12 @@ public class ReportsService extends BaseService {
     }
 
 
+    /**
+     *
+     * @param input
+     * @return
+     * @throws java.text.ParseException
+     */
     public List<CBMUtilization> cbmUtilizationReportV2(CBMUtilizationReportInput input) throws java.text.ParseException {
 
         List<CBMUtilization> reportV2 = new ArrayList<>();
