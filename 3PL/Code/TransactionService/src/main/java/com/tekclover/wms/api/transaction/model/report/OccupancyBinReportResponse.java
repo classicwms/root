@@ -2,9 +2,21 @@ package com.tekclover.wms.api.transaction.model.report;
 
 public interface OccupancyBinReportResponse {
 
-    public String getPartnerId();
+     String getPartnerId();
 
-    public String getPartnerName();
+     String getPartnerName();
     
-    public Long getOccupiedBin();
+     Long getOccupiedBin();
+
+    String getPartnerCode();
+  //  String getPartnerName();
+//    Double getTotalCbm();
+//    Double getTotalConfirmedQty();
+
+    Double getInboundConfirmedQty();
+    Double getInboundTotalThreePLCbm();
+    Double getOutboundConfirmedQty();
+    Double getOutboundTotalThreePLCbm();
+
+
 }

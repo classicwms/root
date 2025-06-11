@@ -329,7 +329,7 @@ public class ReportsController {
     @ApiOperation(response = CBMUtilizationReport.class,value = "CBMUtilizationReport")
     @PostMapping("/cbmUtilizationReport")
     public ResponseEntity<?> cbmUtilizationReport(@RequestBody CBMUtilizationReportInput input) throws java.text.ParseException {
-       List<CBMUtilization> report = reportsService.cbmUtilizationReport(input);
+       List<CBMUtilization> report = reportsService.cbmUtilizationReportV2(input);
         return new ResponseEntity<>(report,HttpStatus.OK);
     }
 
