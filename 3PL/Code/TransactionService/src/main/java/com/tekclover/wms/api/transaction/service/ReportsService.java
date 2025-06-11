@@ -3890,7 +3890,6 @@ public class ReportsService extends BaseService {
 
 
     public CBMBinReport cbmBinReport(CBMBinReportInput input){
-
         CBMBinReport binReport = inventoryV2Repository.getNoOfBin(input.getCompanyCode(),input.getPlantId(),input.getWarehouseId(),
                 input.getLanguageId(),input.getThreePLPartnerId());
         return binReport;
@@ -3916,10 +3915,22 @@ public class ReportsService extends BaseService {
 
     public List<CBMBinReport> cbmBinReportV2(CBMBinReportInput input){
 
-        List<CBMBinReport> binReport = inventoryV2Repository.getNoOfBinV2(input.getCompanyCode(),input.getPlantId(),input.getWarehouseId(),
-                input.getLanguageId(),input.getThreePLPartnerId());
+        List<CBMBinReport> reports = new ArrayList<>();
 
-        return binReport;
+        List<OccupancyBinReportResponse> response = inventoryV2Repository.getCbm(input.getCompanyCode(),input.getPlantId(),input.getWarehouseId(),
+                input.getLanguageId(),input.getThreePLPartnerId());
+        for(OccupancyBinReportResponse bins : response) {
+            CBMBinReport cbmBinReport = new CBMBinReport();
+            OccupancyBinReportResponse bin = inventoryV2Repository.getNoOfBinV2(bins.getPartnerId());
+
+            cbmBinReport.setPartnerId(bins.getPartnerId());
+            cbmBinReport.setPartnerName(bin !=null && bin.getPartnerName() !=null ? bin.getPartnerName():"0");
+            cbmBinReport.setNumbersOfCBM(bins.getNumbersOfCBM());
+            cbmBinReport.setNumbersOfBin(bin !=null && bin.getNumbersOfBin() !=null ? bin.getNumbersOfBin():0);
+            reports.add(cbmBinReport);
+        }
+
+        return reports;
     }
 
 

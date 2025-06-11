@@ -1,11 +1,13 @@
 package com.tekclover.wms.api.transaction.model.report;
 
+import lombok.Data;
 
-public interface CBMBinReport {
+@Data
+public class CBMBinReport {
 
-    public String getPartnerId();
-    public String getPartnerName();
-    public Long getNumbersOfBin();
-    public Long getNumbersOfCBM();
+    public String partnerId;
+    public String partnerName;
+    public Long numbersOfBin;
+    public Long numbersOfCBM;
 
 }

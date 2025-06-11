@@ -18,5 +18,8 @@ public interface OccupancyBinReportResponse {
     Double getOutboundConfirmedQty();
     Double getOutboundTotalThreePLCbm();
 
+    public Long getNumbersOfBin();
+    public Long getNumbersOfCBM();
+
 
 }
