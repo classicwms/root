@@ -2528,7 +2528,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "        tpl_partner_id AS partnerId \n" +
             "    FROM tblinventory \n" +
             "    WHERE (COALESCE(:threePLPartnerId, null) IS NULL OR (tpl_partner_id IN (:threePLPartnerId))) AND \n" +
-            "     is_deleted = 0 \n" +
+            "     is_deleted = 0 and inv_qty > 0 \n" +
             "      AND (COALESCE(:companyCode, null) IS NULL OR (c_id IN (:companyCode)))  \n" +
             "      AND (COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId)))  \n" +
             "      AND (COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId)))  \n" +
