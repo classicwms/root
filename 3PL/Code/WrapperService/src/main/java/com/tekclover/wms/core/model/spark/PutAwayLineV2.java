@@ -95,4 +95,6 @@ public class PutAwayLineV2 {
     private String transferOrderNo;
     private String isCompleted;
     private String AMSSupplierInvoiceNo;
+    private String businessPartnerCode;
+
 }
