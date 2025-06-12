@@ -14,6 +14,7 @@ public class RunPerpetualHeader {
 	 */
 	private Date dateFrom;
 	private Date dateTo;
+	private List<String> warehouseId;
 	private List<Long> movementTypeId;
 	private List<Long> subMovementTypeId;
 }

@@ -273,4 +273,13 @@ public class BaseService {
     }
 
     protected static final Long OB_PL_ORD_TYP_ID = 3L;
+
+
+    //-----------------------------------------------------------------------------
+    protected String getNextRangeNumberV2(long NUM_RAN_CODE, String warehouseId, String companyCodeId, String plantId,
+                                        String languageId, String accessToken) {
+        int FISCALYEAR = Year.now().getValue();
+        String nextNumberRange = idmasterService.getNextNumberRange(NUM_RAN_CODE, FISCALYEAR, warehouseId, companyCodeId, plantId, languageId, accessToken);
+        return nextNumberRange;
+    }
 }

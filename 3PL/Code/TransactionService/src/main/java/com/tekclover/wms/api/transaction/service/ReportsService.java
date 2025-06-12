@@ -3853,21 +3853,43 @@ public class ReportsService extends BaseService {
             input.setFromDate(dates[0]);
             input.setToDate(dates[1]);
         }
-        List<CBMUtilization> putAwayLineV2 = putAwayLineV2Repository.findByPartnerCode(input.getCompanyCode(),input.getPlantId(),input.getWarehouseId(),
+        List<OccupancyBinReportResponse> putAwayLineV2 = putAwayLineV2Repository.findByPartnerCode(input.getCompanyCode(),input.getPlantId(),input.getWarehouseId(),
                 input.getLanguageId(),input.getBusinessPartnerCode(),input.getFromDate(), input.getToDate());
 
-        List<CBMUtilization> pickupLineV2 = pickupLineV2Repository.findByPartnerCode(input.getCompanyCode(),input.getPlantId(),input.getWarehouseId(),
-                input.getLanguageId(),input.getBusinessPartnerCode(), input.getFromDate(), input.getToDate());
+        for (OccupancyBinReportResponse cbm : putAwayLineV2){
 
-        reportV2.addAll(putAwayLineV2);
-        reportV2.addAll(pickupLineV2);
+            CBMUtilization report = new CBMUtilization();
+
+            OccupancyBinReportResponse pickupLineV2 = pickupLineV2Repository.findByPartnerCode(input.getCompanyCode(),input.getPlantId(),input.getWarehouseId(),
+                    input.getLanguageId(),cbm.getPartnerCode(), input.getFromDate(), input.getToDate());
+
+            report.setPartnerCode(cbm.getPartnerCode());
+            report.setPartnerName(cbm.getPartnerName() != null ? cbm.getPartnerName() : "0");
+            report.setInboundConfirmedQty(cbm.getInboundConfirmedQty() != null ? cbm.getInboundConfirmedQty() : 0.0);
+            report.setInboundTotalThreePLCbm(cbm.getInboundTotalThreePLCbm() != null ? cbm.getInboundTotalThreePLCbm() : 0.0);
+            if(pickupLineV2 != null && pickupLineV2.getOutboundConfirmedQty() !=null) {
+                report.setOutboundConfirmedQty(pickupLineV2.getOutboundConfirmedQty());
+            }else {
+                report.setOutboundConfirmedQty(0.0);
+            }
+
+            if(pickupLineV2 != null && pickupLineV2.getOutboundTotalThreePLCbm() != null) {
+                report.setOutboundTotalThreePLCbm(pickupLineV2.getOutboundTotalThreePLCbm());
+            }else {
+                report.setOutboundTotalThreePLCbm(0.0);
+            }
+
+            report.setTotalConfirmedQty((cbm.getInboundConfirmedQty() != null ? cbm.getInboundConfirmedQty() : 0.0) + (pickupLineV2 != null && pickupLineV2.getOutboundConfirmedQty() != null ? pickupLineV2.getOutboundConfirmedQty() : 0.0));
+            report.setTotalCbm((cbm.getInboundTotalThreePLCbm() != null ? cbm.getInboundTotalThreePLCbm() : 0.0) + (pickupLineV2 != null && pickupLineV2.getOutboundTotalThreePLCbm() != null ? pickupLineV2.getOutboundTotalThreePLCbm() :0.0));
+
+            reportV2.add(report);
+        }
 
         return  reportV2;
     }
 
 
     public CBMBinReport cbmBinReport(CBMBinReportInput input){
-
         CBMBinReport binReport = inventoryV2Repository.getNoOfBin(input.getCompanyCode(),input.getPlantId(),input.getWarehouseId(),
                 input.getLanguageId(),input.getThreePLPartnerId());
         return binReport;
@@ -3888,5 +3910,98 @@ public class ReportsService extends BaseService {
 
         return occupancyBinReport;
     }
+
+    //----------------------------------------------------------------------------------------------------------------------
+
+    /**
+     *
+     * @param input
+     * @return
+     */
+    public List<CBMBinReport> cbmBinReportV2(CBMBinReportInput input){
+
+        List<CBMBinReport> reports = new ArrayList<>();
+
+        List<OccupancyBinReportResponse> response = inventoryV2Repository.getCbm(input.getCompanyCode(),input.getPlantId(),input.getWarehouseId(),
+                input.getLanguageId(),input.getThreePLPartnerId());
+        for(OccupancyBinReportResponse bins : response) {
+            CBMBinReport cbmBinReport = new CBMBinReport();
+            OccupancyBinReportResponse bin = inventoryV2Repository.getNoOfBinV2(bins.getPartnerId());
+
+            cbmBinReport.setPartnerId(bins.getPartnerId());
+            cbmBinReport.setPartnerName(bin !=null && bin.getPartnerName() !=null ? bin.getPartnerName():"0");
+            cbmBinReport.setNumbersOfCBM(bins.getNumbersOfCBM());
+            cbmBinReport.setNumbersOfBin(bin !=null && bin.getNumbersOfBin() !=null ? bin.getNumbersOfBin():0);
+            reports.add(cbmBinReport);
+        }
+
+        return reports;
+    }
+
+
+    /**
+     *
+     * @param input
+     * @return
+     */
+    public List<OccupancyBinReport> occupancyBinReportV2(OccupancyBinReportInput input){
+
+        Long totalBin = storagebinRepository.getTotalStorageBin(input.getCompanyCode(),input.getPlantId(),input.getWarehouseId(),
+                input.getLanguageId());
+
+        List<OccupancyBinReportResponse> bins = inventoryV2Repository.getTotalStorageBinV2(input.getCompanyCode(),input.getPlantId(),input.getWarehouseId(),
+                input.getLanguageId(),input.getThreePLPartnerId());
+        List<OccupancyBinReport> report = new ArrayList<>();
+        for (OccupancyBinReportResponse bin : bins) {
+            OccupancyBinReport occupancyBinReport = new OccupancyBinReport();
+            occupancyBinReport.setPartnerId(bin.getPartnerId());
+            occupancyBinReport.setPartnerName(bin.getPartnerName());
+            occupancyBinReport.setTotalBin(totalBin);
+            occupancyBinReport.setOccupiedBin(bin.getOccupiedBin());
+            occupancyBinReport.setEmptyBin(totalBin - bin.getOccupiedBin());
+            report.add(occupancyBinReport);
+        }
+        return report;
+    }
+
+
+    /**
+     *
+     * @param input
+     * @return
+     * @throws java.text.ParseException
+     */
+    public List<CBMUtilization> cbmUtilizationReportV2(CBMUtilizationReportInput input) throws java.text.ParseException {
+
+        List<CBMUtilization> reportV2 = new ArrayList<>();
+
+        if (input.getFromDate() != null && input.getToDate() != null) {
+            Date[] dates = DateUtils.addTimeToDatesForSearch(input.getFromDate(), input.getToDate());
+            input.setFromDate(dates[0]);
+            input.setToDate(dates[1]);
+        }
+        List<OccupancyBinReportResponse> putAwayLineV2 = putAwayLineV2Repository.findByPartnerCodeV2(input.getCompanyCode(),input.getPlantId(),input.getWarehouseId(),
+                input.getLanguageId(),input.getBusinessPartnerCode(),input.getFromDate(), input.getToDate());
+
+        for (OccupancyBinReportResponse cbm : putAwayLineV2){
+
+            CBMUtilization report = new CBMUtilization();
+
+            report.setPartnerCode(cbm.getPartnerCode() != null ? cbm.getPartnerCode() : "0");
+            report.setPartnerName(cbm.getPartnerName() != null ? cbm.getPartnerName() : "0");
+            report.setInboundConfirmedQty(cbm.getInboundConfirmedQty() != null ? cbm.getInboundConfirmedQty() : 0.0);
+            report.setInboundTotalThreePLCbm(cbm.getInboundTotalThreePLCbm() != null ? cbm.getInboundTotalThreePLCbm() : 0.0);
+            report.setOutboundConfirmedQty(cbm.getOutboundConfirmedQty() !=null ? cbm.getOutboundConfirmedQty() :0.0);
+            report.setOutboundTotalThreePLCbm(cbm.getOutboundTotalThreePLCbm() != null ? cbm.getOutboundTotalThreePLCbm() : 0.0);
+
+            report.setTotalConfirmedQty((cbm.getInboundConfirmedQty() != null ? cbm.getInboundConfirmedQty() : 0.0) + (cbm.getOutboundConfirmedQty() != null ? cbm.getOutboundConfirmedQty() : 0.0));
+            report.setTotalCbm((cbm.getInboundTotalThreePLCbm() != null ? cbm.getInboundTotalThreePLCbm() : 0.0) + (cbm.getOutboundTotalThreePLCbm() != null ? cbm.getOutboundTotalThreePLCbm() :0.0));
+
+            reportV2.add(report);
+        }
+
+        return  reportV2;
+    }
+
 
 }

@@ -330,4 +330,34 @@ public class IDMasterService {
 			throw new BadRequestException(e.getLocalizedMessage());
 		}
 	}
+
+	//-------------------------------------------------------------------------------------------------------------------
+	// GET - PerpetualHeader
+	public String getNextNumberRange(Long numberRangeCode, int fiscalYear, String warehouseId, String companyCodeId, String plantId,
+									 String languageId, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "Classic WMS's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponentsBuilder builder =
+					UriComponentsBuilder.fromHttpUrl(getIDMasterServiceApiUrl() +
+									"numberrange/nextNumberRange/" + numberRangeCode)
+							.queryParam("fiscalYear", fiscalYear)
+							.queryParam("warehouseId", warehouseId)
+							.queryParam("companyCodeId", companyCodeId)
+							.queryParam("plantId", plantId)
+							.queryParam("languageId", languageId);
+
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<String> result =
+					getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET, entity, String.class);
+			log.info("result : " + result.getBody());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new BadRequestException(e.getLocalizedMessage());
+		}
+	}
 }

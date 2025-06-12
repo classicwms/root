@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.tekclover.wms.api.transaction.model.report.CBMUtilization;
+import com.tekclover.wms.api.transaction.model.report.OccupancyBinReportResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -242,11 +243,21 @@ public interface PutAwayLineV2Repository extends JpaRepository<PutAwayLineV2, Lo
             String companyCodeId, String plantId, String warehouseId, String languageId,
             String itemCode, String manufacturerName, Long statusId, Long deletionIndicator);
 
-    @Query(value = "select pal.pa_cnf_qty as inboundConfirmedQty,pal.total_tpl_cbm as inboundTotalThreePLCbm,pal.partner_code as partnerCode, paName.partnerName as partnerName, totals.totalConfirmty as totalConfirmedQty, totals.totalCbm as totalCbm from tblputawayline pal \n" +
-            "join (select partner_code, sum(pa_cnf_qty) as totalConfirmty, sum(total_tpl_cbm) totalCbm from tblputawayline \n" +
-            "where partner_code = :businessPartnerCode and c_id = :companyCode and plant_id = :plantId and wh_id = :warehouseId and lang_id = :languageId  and pa_ctd_on between :fromDate and :toDate and is_deleted = 0  \n" +
-            "group by partner_code) totals on pal.partner_code = totals.partner_code join(select partner_nm as partnerName, partner_code as partnerCode from tblbusinesspartner where partner_code =:businessPartnerCode) paName on pal.partner_code = paName.partnerCode where pal.partner_code = :businessPartnerCode and pal.is_deleted =0",nativeQuery = true)
-    List<CBMUtilization> findByPartnerCode(@Param("companyCode") String companyCode,
+    @Query(value = "select \n" +
+            "    pal.partner_code as partnerCode, \n" +
+            "    sum(pal.pa_cnf_qty) as inboundConfirmedQty, \n" +
+            "    sum(pal.total_tpl_cbm) as inboundTotalThreePLCbm, \n" +
+            "    bp.partner_nm as partnerName\n" +
+            "from tblputawayline pal\n" +
+            "left join tblbusinesspartner bp on pal.partner_code = bp.partner_code\n" +
+            "where  \n" +
+            " (COALESCE(:businessPartnerCode, null) IS NULL OR (pal.partner_code IN (:businessPartnerCode))) and \n" +
+            " (COALESCE(:companyCode, null) IS NULL OR (pal.c_id IN (:companyCode))) and (COALESCE(:plantId, null) IS NULL OR (pal.plant_id IN (:plantId))) and (COALESCE(:warehouseId, null) IS NULL OR (pal.wh_id IN (:warehouseId))) and (COALESCE(:languageId, null) IS NULL OR (pal.lang_id IN (:languageId)))  and \n" +
+            "    pal.pa_ctd_on between :fromDate and :toDate and \n" +
+            "    pal.is_deleted = 0\n" +
+            "group by \n" +
+            "    pal.partner_code, bp.partner_nm",nativeQuery = true)
+    List<OccupancyBinReportResponse> findByPartnerCode(@Param("companyCode") String companyCode,
                                             @Param("plantId") String plantId,
                                             @Param("warehouseId") String warehouseId,
                                             @Param("languageId") String languageId,
@@ -254,7 +265,78 @@ public interface PutAwayLineV2Repository extends JpaRepository<PutAwayLineV2, Lo
                                            @Param("fromDate") Date fromDate,
                                            @Param("toDate") Date toDate);
 
+//    @Query(value = "select pal.partner_code as partnerCode, paName.partnerName as partnerName,sum(pal.pa_cnf_qty) as inboundConfirmedQty,sum(pal.total_tpl_cbm) as inboundTotalThreePLCbm,\n" +
+//            " totals.totalConfirmty as totalConfirmedQty,totals.totalCbm as totalCbm from tblputawayline pal\n" +
+//            " join (select partner_code,sum(pa_cnf_qty) as totalConfirmty,sum(total_tpl_cbm) as totalCbm from tblputawayline where \n" +
+//            " (COALESCE(:businessPartnerCode, null) IS NULL OR (partner_code IN (:businessPartnerCode))) and (COALESCE(:companyCode, null) IS NULL OR (c_id IN (:companyCode))) and (COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) \n" +
+//            " and (COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and (COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n" +
+//            " pa_ctd_on between :fromDate and :toDate and is_deleted = 0  \n" +
+//            " group by partner_code) totals on pal.partner_code = totals.partner_code\n" +
+//            " join (select partner_nm as partnerName,partner_code as partnerCode from tblbusinesspartner where (COALESCE(:businessPartnerCode, null) IS NULL OR (partner_code IN (:businessPartnerCode)))) paName \n" +
+//            " on pal.partner_code = paName.partnerCode where (COALESCE(:businessPartnerCode, null) IS NULL OR (pal.partner_code IN (:businessPartnerCode))) and pal.is_deleted = 0 group by  pal.partner_code,\n" +
+//            " paName.partnerName,totals.totalConfirmty,totals.totalCbm ",nativeQuery = true)
+//    List<CBMUtilization> findByPartnerCode(@Param("companyCode") String companyCode,
+//                                           @Param("plantId") String plantId,
+//                                           @Param("warehouseId") String warehouseId,
+//                                           @Param("languageId") String languageId,
+//                                           @Param("businessPartnerCode") String businessPartnerCode,
+//                                           @Param("fromDate") Date fromDate,
+//                                           @Param("toDate") Date toDate);
 
 
+    @Query(value = "WITH InboundData AS (\n" +
+            "    SELECT\n" +
+            "        partner_code,\n" +
+            "        SUM(pa_cnf_qty) AS inboundConfirmedQty,\n" +
+            "        SUM(total_tpl_cbm) AS inboundTotalThreePLCbm\n" +
+            "    FROM\n" +
+            "        tblputawayline\n" +
+            "    WHERE\n" +
+            "        (COALESCE(:businessPartnerCode, null) IS NULL OR (partner_code IN (:businessPartnerCode)))\n" +
+            "        AND (COALESCE(:companyCode, null) IS NULL OR (c_id IN (:companyCode)))\n" +
+            "        AND (COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId)))\n" +
+            "        AND (COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId)))\n" +
+            "        AND (COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId)))\n" +
+            "        AND pa_ctd_on BETWEEN :fromDate AND :toDate\n" +
+            "        AND is_deleted = 0\n" +
+            "    GROUP BY\n" +
+            "        partner_code\n" +
+            "),\n" +
+            "OutboundData AS (\n" +
+            "    SELECT\n" +
+            "        partner_code,\n" +
+            "        SUM(pick_cnf_qty) AS outboundConfirmedQty,\n" +
+            "        SUM(tpl_cbm) AS outboundTotalThreePLCbm\n" +
+            "    FROM\n" +
+            "        tblpickupline\n" +
+            "    WHERE\n" +
+            "       (COALESCE(:businessPartnerCode, null) IS NULL OR (partner_code IN (:businessPartnerCode)))\n" +
+            "        AND (COALESCE(:companyCode, null) IS NULL OR (c_id IN (:companyCode)))\n" +
+            "        AND (COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId)))\n" +
+            "        AND (COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId)))\n" +
+            "        AND (COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId)))\n" +
+            "        AND pick_ctd_on BETWEEN :fromDate AND :toDate \n" +
+            "        AND is_deleted = 0\n" +
+            "    GROUP BY\n" +
+            "        partner_code\n" +
+            ")\n" +
+            "SELECT\n" +
+            "    COALESCE(ID.partner_code, OD.partner_code) AS partnerCode,\n" +
+            "    (SELECT partner_nm FROM tblbusinesspartner WHERE partner_code = COALESCE(ID.partner_code, OD.partner_code)) AS partnerName,\n" +
+            "    ID.inboundConfirmedQty AS inboundConfirmedQty,\n" +
+            "    ID.inboundTotalThreePLCbm AS inboundTotalThreePLCbm,\n" +
+            "    OD.outboundConfirmedQty AS outboundConfirmedQty,\n" +
+            "    OD.outboundTotalThreePLCbm AS outboundTotalThreePLCbm\n" +
+            "FROM\n" +
+            "    InboundData ID\n" +
+            "FULL OUTER JOIN\n" +
+            "    OutboundData OD ON ID.partner_code = OD.partner_code;",nativeQuery = true)
+    List<OccupancyBinReportResponse> findByPartnerCodeV2(@Param("companyCode") String companyCode,
+                                                       @Param("plantId") String plantId,
+                                                       @Param("warehouseId") String warehouseId,
+                                                       @Param("languageId") String languageId,
+                                                       @Param("businessPartnerCode") String businessPartnerCode,
+                                                       @Param("fromDate") Date fromDate,
+                                                       @Param("toDate") Date toDate);
 
 }

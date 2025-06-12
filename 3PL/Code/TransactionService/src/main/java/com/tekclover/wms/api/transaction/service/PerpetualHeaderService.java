@@ -354,10 +354,9 @@ public class PerpetualHeaderService extends BaseService {
             runPerpetualHeader.setDateTo(dates[1]);
         }
 
-        Stream<PerpetualLineEntityImpl> runResponseList = inventoryMovementRepository.getRecordsForRunPerpetualCountStream(
-                runPerpetualHeader.getMovementTypeId(), runPerpetualHeader.getSubMovementTypeId(),
+        Stream<PerpetualLineEntityImpl> runResponseList = inventoryMovementRepository.getRecordsForRunPerpetualCountStreamV2(
+                runPerpetualHeader.getMovementTypeId(), runPerpetualHeader.getSubMovementTypeId(), runPerpetualHeader.getWarehouseId(),
                 runPerpetualHeader.getDateFrom(), runPerpetualHeader.getDateTo());
-
         Set<PerpetualLineEntityImpl> responseList = new HashSet<>();
 
         runResponseList.forEach(n -> {
@@ -400,9 +399,9 @@ public class PerpetualHeaderService extends BaseService {
     public PerpetualHeaderEntity createPerpetualHeader(AddPerpetualHeader newPerpetualHeader, String loginUserID)
             throws IllegalAccessException, InvocationTargetException {
         PerpetualHeader dbPerpetualHeader = new PerpetualHeader();
-        dbPerpetualHeader.setLanguageId(getLanguageId());
-        dbPerpetualHeader.setCompanyCodeId(getCompanyCode());
-        dbPerpetualHeader.setPlantId(getPlantId());
+//        dbPerpetualHeader.setLanguageId(getLanguageId());
+//        dbPerpetualHeader.setCompanyCodeId(getCompanyCode());
+//        dbPerpetualHeader.setPlantId(getPlantId());
 
         log.info("newPerpetualHeader : " + newPerpetualHeader);
         BeanUtils.copyProperties(newPerpetualHeader, dbPerpetualHeader, CommonUtils.getNullPropertyNames(newPerpetualHeader));
@@ -415,9 +414,11 @@ public class PerpetualHeaderService extends BaseService {
          */
         AuthToken authTokenForIDMasterService = authTokenService.getIDMasterServiceAuthToken();
         long NUM_RAN_ID = 14;
-        String nextRangeNumber = getNextRangeNumber(NUM_RAN_ID, newPerpetualHeader.getWarehouseId(),
+      //  String nextRangeNumber = getNextRangeNumber(NUM_RAN_ID, newPerpetualHeader.getWarehouseId(),authTokenForIDMasterService.getAccess_token());
+
+        String nextRangeNumber1 = getNextRangeNumberV2(NUM_RAN_ID, newPerpetualHeader.getWarehouseId(),newPerpetualHeader.getCompanyCodeId(), newPerpetualHeader.getPlantId(), newPerpetualHeader.getLanguageId(),
                 authTokenForIDMasterService.getAccess_token());
-        dbPerpetualHeader.setCycleCountNo(nextRangeNumber);
+        dbPerpetualHeader.setCycleCountNo(nextRangeNumber1);
 
         // CC_TYP_ID
         dbPerpetualHeader.setCycleCountTypeId(1L);
@@ -441,9 +442,9 @@ public class PerpetualHeaderService extends BaseService {
 
             PerpetualLine dbPerpetualLine = new PerpetualLine();
             BeanUtils.copyProperties(newPerpetualLine, dbPerpetualLine, CommonUtils.getNullPropertyNames(newPerpetualLine));
-            dbPerpetualLine.setLanguageId(getLanguageId());
-            dbPerpetualLine.setCompanyCodeId(getCompanyCode());
-            dbPerpetualLine.setPlantId(getPlantId());
+//            dbPerpetualLine.setLanguageId(getLanguageId());
+//            dbPerpetualLine.setCompanyCodeId(getCompanyCode());
+//            dbPerpetualLine.setPlantId(getPlantId());
             dbPerpetualLine.setWarehouseId(createdPerpetualHeader.getWarehouseId());
             dbPerpetualLine.setCycleCountNo(createdPerpetualHeader.getCycleCountNo());
             dbPerpetualLine.setStatusId(70L);
@@ -673,7 +674,7 @@ public class PerpetualHeaderService extends BaseService {
                         "REF_FIELD_3, REF_FIELD_4, REF_FIELD_5, REF_FIELD_6, \n" +
                         "REF_FIELD_7, REF_FIELD_8, REF_FIELD_9, REF_FIELD_10, \n" +
                         "IS_DELETED, CC_CTD_BY, CC_CTD_ON, CC_CNF_BY, \n" +
-                        "CC_CNF_ON, CC_CNT_BY, CC_CNT_ON) \n" +
+                        "CC_CNF_ON, CC_CNT_BY, CC_CNT_ON, dtype, SC_LINE_NO, MFR_NAME) \n" +
                         "values(?,?,?,?, \n" +
                         "?,?,?,?, \n" +
                         "?,?,?,?, \n" +
@@ -685,7 +686,8 @@ public class PerpetualHeaderService extends BaseService {
                         "?,?,?,?, \n" +
                         "?,?,?,?, \n" +
                         "?,?,?,?, \n" +
-                        "?,?,?)", perpetualLineList, batchSize,
+                        "?,?,?,?, \n" +
+                        "?,?)", perpetualLineList, batchSize,
                 new ParameterizedPreparedStatementSetter<PerpetualLine>() {
                     public void setValues(PreparedStatement ps, PerpetualLine perpetualLine) throws SQLException {
                         ps.setString(1, perpetualLine.getLanguageId());
@@ -799,7 +801,17 @@ public class PerpetualHeaderService extends BaseService {
                             ps.setDate(47, new java.sql.Date(new Date().getTime()));
                         }
 
+                        ps.setString(48, "PerpetualLineV2");
+
+                        ps.setLong(49, 1L);
+
+                        if (perpetualLine.getManufacturerName() != null){
+                            ps.setString(50, perpetualLine.getManufacturerName());
+                        }else {
+                            ps.setString(50,"3PL");
+                        }
                     }
+
                 });
         return updateCounts;
     }

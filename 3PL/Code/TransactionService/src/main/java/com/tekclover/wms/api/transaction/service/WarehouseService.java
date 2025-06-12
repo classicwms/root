@@ -2527,9 +2527,9 @@ public class WarehouseService extends BaseService {
 				apiLine.setSourceBranchCode(salesOrderHeader.getStoreID());
 				apiLine.setCountryOfOrigin(soLine.getCountryOfOrigin());
 				apiLine.setFromCompanyCode(salesOrderHeader.getCompanyCode());
-				apiLine.setManufacturerName(MFR_NAME);        // BRAND_NM
-				apiLine.setManufacturerCode(MFR_NAME);
-				apiLine.setManufacturerFullName(soLine.getManufacturerFullName());
+//				apiLine.setManufacturerName(MFR_NAME);        // BRAND_NM
+//				apiLine.setManufacturerCode(MFR_NAME);
+//				apiLine.setManufacturerFullName(soLine.getManufacturerFullName());
 				apiLine.setStoreID(salesOrderHeader.getStoreID());
 				apiLine.setRefField1ForOrderType(soLine.getOrderType());
 				apiLine.setCustomerType("INVOICE");                                //HardCoded
