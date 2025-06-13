@@ -2276,4 +2276,37 @@ public class TransactionServiceController {
 		OrderManagementLineGroupByItem[] orders = transactionService.getItemCodeList(warehouseId, authToken);
 		return new ResponseEntity<>(orders, HttpStatus.OK);
 	}
+
+	//=========================================Update=====================================
+
+	@ApiOperation(response = InboundOrder.class, value = "Update InboundOrder details")
+	@PatchMapping("/orders/update/inboundOrder")
+	public ResponseEntity<?> updateInboundOrder(@RequestParam String orderId, @RequestBody UpdateInboundOrder updateInboundOrder, @RequestParam String authToken) throws Exception {
+		InboundOrder inboundOrder = transactionService.updateInboundOrder(orderId, updateInboundOrder, authToken);
+		return new ResponseEntity<>(inboundOrder, HttpStatus.OK);
+	}
+
+
+	@ApiOperation(response = OutboundOrder.class, value = "Update OutboundOrder details")
+	@PatchMapping("/orders/update/outboundOrder")
+	public ResponseEntity<?> updateOutboundOrder(@RequestParam String orderId, @RequestBody UpdateOutboundOrder updateOutboundOrder, @RequestParam String authToken) throws Exception {
+		OutboundOrder outboundOrder = transactionService.updateOutboundOrder(orderId, updateOutboundOrder, authToken);
+		return new ResponseEntity<>(outboundOrder, HttpStatus.OK);
+	}
+
+	//==================================================Delete=========================================================
+
+	@ApiOperation(response = InboundOrder.class, value = " Delete InboundOrder details")
+	@DeleteMapping("/orders/delete/inboundOrder")
+	public ResponseEntity<?> deleteInboundOrder(@RequestParam String orderId, @RequestParam String authToken) throws Exception {
+		transactionService.deleteInboundOrder(orderId, authToken);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
+	@ApiOperation(response = OutboundOrder.class, value = " Delete OutboundOrder details")
+	@DeleteMapping("/orders/delete/outboundOrder")
+	public ResponseEntity<?> deleteOutboundOrder(@RequestParam String orderId, @RequestParam String authToken) throws Exception {
+		transactionService.deleteOutboundOrder(orderId, authToken);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
 }

@@ -7,19 +7,15 @@ import java.util.List;
 import java.util.Set;
 
 import com.tekclover.wms.api.transaction.model.warehouse.cyclecount.CycleCountHeader;
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.FindInboundOrderLineV2;
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.FindInboundOrderV2;
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.InboundOrderLinesV2;
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.InboundOrderV2;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.FindOutboundOrderLineV2;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.FindOutboundOrderV2;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.OutboundOrderLineV2;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.OutboundOrderV2;
+import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.*;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.*;
 import com.tekclover.wms.api.transaction.repository.*;
 import com.tekclover.wms.api.transaction.repository.specification.InboundOrderLineV2Specification;
 import com.tekclover.wms.api.transaction.repository.specification.InboundOrderV2Specification;
 import com.tekclover.wms.api.transaction.repository.specification.OuboundOrderLineV2Specification;
 import com.tekclover.wms.api.transaction.repository.specification.OuboundOrderV2Specification;
+import com.tekclover.wms.api.transaction.util.CommonUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -78,6 +74,9 @@ public class OrderService {
 
 	@Autowired
 	private OutboundOrderLinesV2Repository outboundOrderLinesV2Repository;
+
+	@Autowired
+	private InboundOrderLinesRepository inboundOrderLinesRepository;
 
 
 	//------------------------------------------------------------------------------------------------
@@ -557,6 +556,66 @@ public class OrderService {
 		OuboundOrderLineV2Specification spec = new OuboundOrderLineV2Specification(findOutboundOrderLineV2);
 		List<OutboundOrderLineV2> results = outboundOrderLinesV2Repository.findAll(spec);
 		return results;
+	}
 
+	//========================================Update==========================================
+
+	/**
+	 * Update OutboundOrder
+	 *
+	 * @param orderId
+	 * @return
+	 */
+	public InboundOrder updateInboundOrder(String orderId, UpdateInboundOrder updateInboundOrder) {
+		InboundOrder dbInboundOrder = getOrderById(orderId);
+		BeanUtils.copyProperties(updateInboundOrder, dbInboundOrder, CommonUtils.getNullPropertyNames(updateInboundOrder));
+		dbInboundOrder.setOrderProcessedOn(new Date());
+		log.info("record is updated successfully");
+		return inboundOrderRepository.save(dbInboundOrder);
+
+	}
+
+
+	/**
+	 * Update InboundOrder
+	 *
+	 * @param orderId
+	 * @return
+	 */
+	public OutboundOrder updateOutboundOrder(String orderId, UpdateOutboundOrder updateOutboundOrder) {
+		OutboundOrder dbOutboundOrder = getOBOrderById(orderId);
+		BeanUtils.copyProperties(updateOutboundOrder, dbOutboundOrder, CommonUtils.getNullPropertyNames(updateOutboundOrder));
+		dbOutboundOrder.setOrderProcessedOn(new Date());
+		log.info("record is updated successfully");
+		return outboundOrderRepository.save(dbOutboundOrder);
+	}
+
+
+	/**
+	 * Delete InboundOrder
+	 *
+	 * @param orderId
+	 */
+	public void deleteInboundOrder(String orderId) {
+		InboundOrder delete = getOrderById(orderId);
+		if (delete == null) {
+			throw new BadRequestException(" Order : " + orderId + " doesn't exist.");
+		}
+		inboundOrderLinesRepository.deleteAll(delete.getLines());
+		inboundOrderRepository.delete(delete);
+	}
+
+	/**
+	 * Delete OutboundOrder
+	 *
+	 * @param orderId
+	 */
+	public void deleteOutboundOrder(String orderId) {
+		OutboundOrder delete = getOBOrderById(orderId);
+		if (delete == null) {
+			throw new BadRequestException(" Order : " + orderId + " doesn't exist.");
+		}
+		outboundOrderLinesRepository.deleteAll(delete.getLines());
+		outboundOrderRepository.delete(delete);
 	}
 }

@@ -4,26 +4,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.List;
 
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.FindInboundOrderLineV2;
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.FindInboundOrderV2;
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.InboundOrderLinesV2;
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.InboundOrderV2;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.FindOutboundOrderLineV2;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.FindOutboundOrderV2;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.OutboundOrderLineV2;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.OutboundOrderV2;
+import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.*;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.tekclover.wms.api.transaction.model.inbound.gr.GrHeader;
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.InboundIntegrationLog;
@@ -180,5 +167,38 @@ public class OrderController {
 		List<OutboundOrderLineV2> outboundOrderLineV2List = orderService.findOutboundOrderLineV2(findOutboundOrderLineV2);
 		return new ResponseEntity<>(outboundOrderLineV2List, HttpStatus.OK);
 	}
+
+	//=============================================Update===========================================================
+	@ApiOperation(response = InboundOrder.class, value = "Update InboundOrder details")
+	@PatchMapping("update/inbound")
+	public ResponseEntity<?>updateInboundOrder(@RequestParam String orderId,@RequestBody UpdateInboundOrder updateInboundOrder){
+		InboundOrder inboundOrders = orderService.updateInboundOrder(orderId, updateInboundOrder);
+		return new ResponseEntity<>(inboundOrders,HttpStatus.OK);
+	}
+
+	@ApiOperation(response = OutboundOrder.class, value = "Update OutboundOrder details")
+	@PatchMapping("update/outbound")
+	public ResponseEntity<?>updateOutboundOrder(@RequestParam String orderId, @RequestBody UpdateOutboundOrder updateOutboundOrder){
+		OutboundOrder outboundOrders = orderService.updateOutboundOrder(orderId, updateOutboundOrder);
+		return new ResponseEntity<>(outboundOrders,HttpStatus.OK);
+	}
+
+
+	//=======================================Delete=====================================================
+
+	@ApiOperation(response = InboundOrder.class, value = "Delete InboundOrder details")
+	@DeleteMapping("delete/inbound")
+	public ResponseEntity<?> deleteInboundOrder(@RequestParam String orderId){
+		orderService.deleteInboundOrder(orderId);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
+	@ApiOperation(response = OutboundOrder.class, value = "Delete OutboundOrder details")
+	@DeleteMapping("delete/outbound")
+	public ResponseEntity<?> deleteOutboundOrder(@RequestParam String orderId){
+		orderService.deleteOutboundOrder(orderId);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
 
 }
