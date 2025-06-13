@@ -239,9 +239,8 @@ public class BusinessPartnerService {
         if (!duplicateBusinessPartner.isEmpty()) {
             throw new EntityNotFoundException("Record is Getting Duplicated");
         } else {
-            IKeyValuePair iKeyValuePair = businesspartnerRepository.getPartnerCodeAndDescription(newBusinessPartner.getPartnerCode(), newBusinessPartner.getLanguageId(), newBusinessPartner.getCompanyCodeId(), newBusinessPartner.getPlantId(), newBusinessPartner.getWarehouseId(), newBusinessPartner.getBusinessPartnerType());
             BeanUtils.copyProperties(newBusinessPartner, dbBusinessPartner, CommonUtils.getNullPropertyNames(newBusinessPartner));
-            dbBusinessPartner.setPartnerName(iKeyValuePair.getPartnerCode() +" - " +iKeyValuePair.getDescription());
+            dbBusinessPartner.setPartnerName(newBusinessPartner.getPartnerCode() +" - " + newBusinessPartner.getPartnerName());
             dbBusinessPartner.setDeletionIndicator(0L);
             dbBusinessPartner.setCreatedBy(loginUserId);
             dbBusinessPartner.setUpdatedBy(loginUserId);
