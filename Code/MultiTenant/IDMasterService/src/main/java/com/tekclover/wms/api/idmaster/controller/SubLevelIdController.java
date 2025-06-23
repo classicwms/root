@@ -52,7 +52,7 @@ public class SubLevelIdController {
 	public ResponseEntity<?> getSubLevelId(@PathVariable String subLevelId,
 										   @RequestParam String warehouseId, @RequestParam Long levelId, @RequestParam String companyCodeId, @RequestParam String languageId, @RequestParam String plantId) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -71,7 +71,7 @@ public class SubLevelIdController {
 	public ResponseEntity<?> postSubLevelId(@Valid @RequestBody AddSubLevelId newSubLevelId,
 											@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newSubLevelId.getCompanyCodeId(), newSubLevelId.getPlantId(), newSubLevelId.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -90,7 +90,7 @@ public class SubLevelIdController {
 			@Valid @RequestBody UpdateSubLevelId updateSubLevelId, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -108,7 +108,7 @@ public class SubLevelIdController {
 	public ResponseEntity<?> deleteSubLevelId(@PathVariable String subLevelId,
 											  @RequestParam String warehouseId, @RequestParam Long levelId, @RequestParam String companyCodeId, @RequestParam String languageId, @RequestParam String plantId, @RequestParam String loginUserID) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -125,7 +125,7 @@ public class SubLevelIdController {
 	@PostMapping("/find")
 	public ResponseEntity<?> findSubLevelId(@Valid @RequestBody FindSubLevelId findSubLevelId) throws Exception {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(findSubLevelId.getCompanyCodeId(), findSubLevelId.getPlantId(), findSubLevelId.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();

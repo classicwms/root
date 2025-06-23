@@ -59,7 +59,7 @@ public class ImBasicData2Controller {
 	@GetMapping("/{itemCode}")
 	public ResponseEntity<?> getImBasicData2(@PathVariable String itemCode,@RequestParam String companyCodeId,@RequestParam String plantId,@RequestParam String warehouseId,@RequestParam String languageId) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -78,7 +78,7 @@ public class ImBasicData2Controller {
 	public List<ImBasicData2> findImBasicData2(@RequestBody SearchImBasicData2 searchImBasicData2)
 			throws ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbNameList(searchImBasicData2.getCompanyCodeId(), searchImBasicData2.getPlantId(), searchImBasicData2.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -95,7 +95,7 @@ public class ImBasicData2Controller {
 	public ResponseEntity<?> postImBasicData2(@Valid @RequestBody AddImBasicData2 newImBasicData2, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newImBasicData2.getCompanyCodeId(), newImBasicData2.getPlantId(), newImBasicData2.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -114,7 +114,7 @@ public class ImBasicData2Controller {
 			@Valid @RequestBody UpdateImBasicData2 updateImBasicData2, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -131,7 +131,7 @@ public class ImBasicData2Controller {
 	@DeleteMapping("/{itemCode}")
 	public ResponseEntity<?> deleteImBasicData2(@PathVariable String itemCode,@RequestParam String companyCodeId,@RequestParam String plantId,@RequestParam String warehouseId,@RequestParam String languageId,@RequestParam String loginUserID) throws ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();

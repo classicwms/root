@@ -64,7 +64,7 @@ public class BarcodeSubTypeIdController {
 												 @RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId ) {
 
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -91,7 +91,7 @@ public class BarcodeSubTypeIdController {
 	public ResponseEntity<?> postBarcodeSubTypeId(@Valid @RequestBody AddBarcodeSubTypeId newBarcodeSubTypeId, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newBarcodeSubTypeId.getCompanyCodeId(), newBarcodeSubTypeId.getPlantId(), newBarcodeSubTypeId.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -111,7 +111,7 @@ public class BarcodeSubTypeIdController {
 			@Valid @RequestBody UpdateBarcodeSubTypeId updateBarcodeSubTypeId, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -130,7 +130,7 @@ public class BarcodeSubTypeIdController {
 	public ResponseEntity<?> deleteBarcodeSubTypeId(@RequestParam String warehouseId, @RequestParam Long barcodeTypeId, @PathVariable Long barcodeSubTypeId, @RequestParam String companyCodeId,
 													@RequestParam String languageId,@RequestParam String plantId, @RequestParam String loginUserID) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -147,7 +147,7 @@ public class BarcodeSubTypeIdController {
 	@PostMapping("/find")
 	public ResponseEntity<?> findBarcodeSubTypeId(@Valid @RequestBody FindBarcodeSubTypeId findBarcodeSubTypeId) throws Exception {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(findBarcodeSubTypeId.getCompanyCodeId(), findBarcodeSubTypeId.getPlantId(), findBarcodeSubTypeId.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();

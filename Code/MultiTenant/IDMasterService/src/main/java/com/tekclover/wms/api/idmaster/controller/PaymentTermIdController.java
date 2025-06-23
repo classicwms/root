@@ -46,7 +46,7 @@ public class PaymentTermIdController {
     public ResponseEntity<?> getPaymentTermId(@RequestParam String warehouseId, @PathVariable Long paymentTermId,@RequestParam String companyCodeId,
                                               @RequestParam String languageId,@RequestParam String plantId) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -65,7 +65,7 @@ public class PaymentTermIdController {
     public ResponseEntity<?> postPaymentTermId(@Valid @RequestBody AddPaymentTermId newPaymentTermId,
                                            @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newPaymentTermId.getCompanyCodeId(), newPaymentTermId.getPlantId(), newPaymentTermId.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -83,7 +83,7 @@ public class PaymentTermIdController {
                                                 @Valid @RequestBody UpdatePaymentTermId updatePaymentTermId, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -102,7 +102,7 @@ public class PaymentTermIdController {
                                              @RequestParam String warehouseId,@RequestParam String companyCodeId,
                                                  @RequestParam String languageId,@RequestParam String plantId,@RequestParam String loginUserID) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -119,7 +119,7 @@ public class PaymentTermIdController {
     @PostMapping("/find")
     public ResponseEntity<?> findPaymentTermId(@Valid @RequestBody FindPaymentTermId findPaymentTermId) throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(findPaymentTermId.getCompanyCodeId(), findPaymentTermId.getPlantId(), findPaymentTermId.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

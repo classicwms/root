@@ -70,7 +70,7 @@ public class PeriodicLineController {
 	public Stream<PeriodicLine> findPeriodicLineStream (@RequestBody SearchPeriodicLine searchPeriodicLine)
 			throws Exception {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(searchPeriodicLine.getCompanyCode(), searchPeriodicLine.getPlantId(), searchPeriodicLine.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -88,7 +88,7 @@ public class PeriodicLineController {
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
 		try {
 			for (AssignHHTUserCC assignHHTUserc : assignHHTUser) {
-				DataBaseContextHolder.setCurrentDb("IMF");
+				DataBaseContextHolder.setCurrentDb("MT");
 				String routingDb = dbConfigRepository.getDbName(assignHHTUserc.getCompanyCodeId(), assignHHTUserc.getPlantId(), assignHHTUserc.getWarehouseId());
 				log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 				DataBaseContextHolder.clear();
@@ -108,7 +108,7 @@ public class PeriodicLineController {
 												  @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
         try {
             for (AssignHHTUserCC assignHHTUserc : assignHHTUser) {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbName(assignHHTUserc.getCompanyCodeId(), assignHHTUserc.getPlantId(), assignHHTUserc.getWarehouseId());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
@@ -129,7 +129,7 @@ public class PeriodicLineController {
 		try {
 			log.info("updatePeriodicLine -----> {}", updatePeriodicLine);
 			for (UpdatePeriodicLine updatePeriodicLine1:updatePeriodicLine) {
-				DataBaseContextHolder.setCurrentDb("IMF");
+				DataBaseContextHolder.setCurrentDb("MT");
 				String routingDb = dbConfigRepository.getDbName(updatePeriodicLine1.getCompanyCode(), updatePeriodicLine1.getPlantId(), updatePeriodicLine1.getWarehouseId());
 				log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 				DataBaseContextHolder.clear();
@@ -151,7 +151,7 @@ public class PeriodicLineController {
 												 @RequestParam String loginUserID) throws Exception {
         try {
             for (PeriodicLineV2 updatePeriodicLine1:updatePeriodicLine) {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbName(updatePeriodicLine1.getCompanyCode(), updatePeriodicLine1.getPlantId(), updatePeriodicLine1.getWarehouseId());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
@@ -174,7 +174,7 @@ public class PeriodicLineController {
 	public List<PeriodicLineV2> findPeriodicLineV2(@RequestBody SearchPeriodicLineV2 searchPeriodicLineV2)
 			throws Exception {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbList(searchPeriodicLineV2.getCompanyCode(), searchPeriodicLineV2.getPlantId(), searchPeriodicLineV2.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -192,7 +192,7 @@ public class PeriodicLineController {
 												  @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
 		try {
 			for (AssignHHTUserCC assignHHTUsercc : assignHHTUser) {
-				DataBaseContextHolder.setCurrentDb("IMF");
+				DataBaseContextHolder.setCurrentDb("MT");
 				String routingDb = dbConfigRepository.getDbName(assignHHTUsercc.getCompanyCodeId(), assignHHTUsercc.getPlantId(), assignHHTUsercc.getWarehouseId());
 				log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 				DataBaseContextHolder.clear();
@@ -213,7 +213,7 @@ public class PeriodicLineController {
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
 			for (PeriodicLineV2 updatePeriodicline :updatePeriodicLine) {
-				DataBaseContextHolder.setCurrentDb("IMF");
+				DataBaseContextHolder.setCurrentDb("MT");
 				String routingDb = dbConfigRepository.getDbName(updatePeriodicline.getCompanyCode(), updatePeriodicline.getPlantId(), updatePeriodicline.getWarehouseId());
 				log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 				DataBaseContextHolder.clear();
@@ -235,7 +235,7 @@ public class PeriodicLineController {
 			throws IllegalAccessException, InvocationTargetException {
 		try {
 			for (PeriodicLineV2 updatePerpetualline :updatePerpetualLine) {
-				DataBaseContextHolder.setCurrentDb("IMF");
+				DataBaseContextHolder.setCurrentDb("MT");
 				String routingDb = dbConfigRepository.getDbName(updatePerpetualline.getCompanyCode(), updatePerpetualline.getPlantId(), updatePerpetualline.getWarehouseId());
 				log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 				DataBaseContextHolder.clear();
@@ -257,7 +257,7 @@ public class PeriodicLineController {
 	public ResponseEntity<?> createPeriodicLineV2(@RequestBody List<PeriodicZeroStockLine> updatePeriodicLine, @RequestParam String loginUserID) {
 		try {
 			for (PeriodicZeroStockLine updatePeriodicline :updatePeriodicLine) {
-				DataBaseContextHolder.setCurrentDb("IMF");
+				DataBaseContextHolder.setCurrentDb("MT");
 				String routingDb = dbConfigRepository.getDbName(updatePeriodicline.getCompanyCode(), updatePeriodicline.getPlantId(), updatePeriodicline.getWarehouseId());
 				log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 				DataBaseContextHolder.clear();
@@ -280,7 +280,7 @@ public class PeriodicLineController {
 														@RequestParam String loginUserID) throws Exception {
 
 		for (PeriodicLineV2 updatePerpetualline :updatePerpetualLine) {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(updatePerpetualline.getCompanyCode(), updatePerpetualline.getPlantId(), updatePerpetualline.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -297,7 +297,7 @@ public class PeriodicLineController {
 	public List<PeriodicLineV2> executeStockCount(@RequestParam String companyCodeId, @RequestParam String plantId,
 												  @RequestParam String languageId, @RequestParam String warehouseId,
 												  @RequestBody ExecuteStockCountInput executeStockCountInput) throws Exception {
-		DataBaseContextHolder.setCurrentDb("IMF");
+		DataBaseContextHolder.setCurrentDb("MT");
 		String routingDb = dbConfigRepository.getDbList(executeStockCountInput.getCompanyCodeId(), executeStockCountInput.getPlantId(), executeStockCountInput.getWarehouseId());
 		log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 		DataBaseContextHolder.clear();

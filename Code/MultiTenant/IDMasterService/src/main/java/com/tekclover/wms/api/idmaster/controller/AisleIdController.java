@@ -48,7 +48,7 @@ public class AisleIdController {
 	public ResponseEntity<?> getAisleId(@RequestParam String warehouseId,@PathVariable String aisleId,@RequestParam Long floorId,@RequestParam String storageSectionId,
 										@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -68,7 +68,7 @@ public class AisleIdController {
 	public ResponseEntity<?> postAisleId(@Valid @RequestBody AddAisleId newAisleId, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newAisleId.getCompanyCodeId(), newAisleId.getPlantId(), newAisleId.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -88,7 +88,7 @@ public class AisleIdController {
 										  @Valid @RequestBody UpdateAisleId updateAisleId)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -107,7 +107,7 @@ public class AisleIdController {
 	public ResponseEntity<?> deleteAisleId(@RequestParam String warehouseId,@PathVariable String aisleId,@RequestParam Long floorId, @RequestParam String storageSectionId,
 			                               @RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId,@RequestParam String loginUserID) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -124,7 +124,7 @@ public class AisleIdController {
 	@PostMapping("/find")
 	public ResponseEntity<?> findAisleId(@Valid @RequestBody FindAisleId findAisleId) throws Exception {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(findAisleId.getCompanyCodeId(), findAisleId.getPlantId(), findAisleId.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();

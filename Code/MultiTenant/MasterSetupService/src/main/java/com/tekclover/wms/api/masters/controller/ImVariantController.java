@@ -48,7 +48,7 @@ public class ImVariantController {
                                              @RequestParam String plantId, @RequestParam String warehouseId,
                                              @RequestParam String languageId) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -67,7 +67,7 @@ public class ImVariantController {
     public List<ImVariant> findImVariant(@RequestBody SearchImVariant searchImVariant)
             throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbNameList(searchImVariant.getCompanyCodeId(), searchImVariant.getPlantId(), searchImVariant.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -85,7 +85,7 @@ public class ImVariantController {
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
             for (AddImVariant newImvariant : newImVariant) {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbName(newImvariant.getCompanyCodeId(), newImvariant.getPlantId(), newImvariant.getWarehouseId());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
@@ -107,7 +107,7 @@ public class ImVariantController {
                                             @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -127,7 +127,7 @@ public class ImVariantController {
                                              @RequestParam String plantId,@RequestParam String warehouseId,
                                              @RequestParam String languageId,@RequestParam String loginUserID) throws ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

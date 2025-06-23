@@ -61,7 +61,7 @@ public class InboundOrderController {
             throws Exception {
         try {
             DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             // OrderProcess Table Save Records
             supplierInvoiceService.saveASNV6(asn);
 //            String routingDb = dbConfigRepository.getDbName(asn.getAsnHeader().getCompanyCode(), asn.getAsnHeader().getBranchCode(), asn.getAsnHeader().getWarehouseId());
@@ -102,7 +102,7 @@ public class InboundOrderController {
             throws Exception {
         try {
 //            for (StockReceipt stock : stk) {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbNameWithoutWhId(stk.get(0).getStockReceiptHeader().getCompanyCode(), stk.get(0).getStockReceiptHeader().getBranchCode());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
@@ -122,7 +122,7 @@ public class InboundOrderController {
             throws Exception {
         try {
             for (SaleOrderReturnV2 saleOrderReturnV2 : sor) {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbNameWithoutWhId(saleOrderReturnV2.getSoReturnHeader().getCompanyCode(), saleOrderReturnV2.getSoReturnHeader().getBranchCode());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
@@ -141,7 +141,7 @@ public class InboundOrderController {
     public ResponseEntity<?> postB2bTransferInv2(@Valid @RequestBody List<B2bTransferIn> b2bTransferIn) {
         try {
             for (B2bTransferIn b2bTransferIn1 : b2bTransferIn) {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbNameWithoutWhId(b2bTransferIn1.getB2bTransferInHeader().getCompanyCode(), b2bTransferIn1.getB2bTransferInHeader().getBranchCode());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
@@ -162,7 +162,7 @@ public class InboundOrderController {
     public ResponseEntity<?> postInterWarehouseTransferIn(@Valid @RequestBody List<InterWarehouseTransferInV2> inV2s) {
         try {
 //            for (InterWarehouseTransferInV2 inV2 : interWarehouseTransferInV2) {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbNameWithoutWhId(inV2s.get(0).getInterWarehouseTransferInHeader().getToCompanyCode(), inV2s.get(0).getInterWarehouseTransferInHeader().getToBranchCode());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
@@ -188,7 +188,7 @@ public class InboundOrderController {
             for (ASNV2 asnv2 : asnv2List) {
                 InboundOrderV2 createdInterWarehouseTransferInV2 = null;
                 asnv2.getAsnHeader().setParentProductionOrderNo(inboundSetNumber);
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String profile = dbConfigRepository.getDbName(asnv2.getAsnHeader().getCompanyCode(), asnv2.getAsnHeader().getBranchCode(), asnv2.getAsnHeader().getWarehouseId());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", profile);
                 if (profile != null) {
@@ -239,7 +239,7 @@ public class InboundOrderController {
             for (ASNV2 asnv2 : asnv2List) {
                 InboundOrderV2 createdInterWarehouseTransferInV2 = null;
                 asnv2.getAsnHeader().setParentProductionOrderNo(inboundSetNumber);
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String profile = dbConfigRepository.getDbName(asnv2.getAsnHeader().getCompanyCode(), asnv2.getAsnHeader().getBranchCode(), asnv2.getAsnHeader().getWarehouseId());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", profile);
                 if (profile != null) {
@@ -274,7 +274,7 @@ public class InboundOrderController {
             WarehouseApiResponse response = new WarehouseApiResponse();
             for(SaleOrderReturnV2 soReturnV2 : soReturns) {
                 InboundOrderV2 createdInterWarehouseTransferInV2 = null;
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 InboundOrderV2 createdSoReturnV2 = null;
                 String profile = dbConfigRepository.getDbName(soReturnV2.getSoReturnHeader().getCompanyCode(), soReturnV2.getSoReturnHeader().getBranchCode(), soReturnV2.getSoReturnHeader().getWarehouseId());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", profile);
@@ -317,7 +317,7 @@ public class InboundOrderController {
         try {
             List<WarehouseApiResponse> responseList = new ArrayList<>();
             for (InterWarehouseTransferInV2 interWarehouseTransferInV2 : interWarehouseTransferInV2List) {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String profile = dbConfigRepository.getDbName(interWarehouseTransferInV2.getInterWarehouseTransferInHeader().getSourceCompanyCode(), interWarehouseTransferInV2.getInterWarehouseTransferInHeader().getSourceBranchCode(), interWarehouseTransferInV2.getInterWarehouseTransferInHeader().getSourceWarehouseCode());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", profile);
                 InboundOrderV2 createdInterWarehouseTransferInV2 =

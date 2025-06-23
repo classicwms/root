@@ -64,7 +64,7 @@ public class InhouseTransferLineController {
 	public ResponseEntity<?> findInhouseTransferLine(@RequestBody SearchInhouseTransferLine searchInhouseTransferLine)
 			throws Exception {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbList(searchInhouseTransferLine.getCompanyCodeId(), searchInhouseTransferLine.getPlantId(), searchInhouseTransferLine.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -82,7 +82,7 @@ public class InhouseTransferLineController {
 	public ResponseEntity<?> postInhouseTransferLine(@Valid @RequestBody AddInhouseTransferLine newInhouseTransferLine, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newInhouseTransferLine.getCompanyCodeId(), newInhouseTransferLine.getPlantId(), newInhouseTransferLine.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();

@@ -50,7 +50,7 @@ public class CycleCountSchedulerController {
                                                     @RequestParam String plantId, @RequestParam Long levelId,@RequestParam String schedulerNumber,
                                                     @RequestParam String warehouseId) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -69,7 +69,7 @@ finally {
     public ResponseEntity<?> postCycleCountScheduler(@Valid @RequestBody AddCycleCountScheduler addCycleCountScheduler, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(addCycleCountScheduler.getCompanyCodeId(), addCycleCountScheduler.getPlantId(), addCycleCountScheduler.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -88,7 +88,7 @@ finally {
                                                       @Valid @RequestBody UpdateCycleCountScheduler updateCycleCountScheduler, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -105,7 +105,7 @@ finally {
     @DeleteMapping("/{cycleCountTypeId}")
     public ResponseEntity<?> deleteCycleCountScheduler(@PathVariable Long cycleCountTypeId, @RequestParam String companyCodeId, @RequestParam String languageId, @RequestParam String plantId,@RequestParam String schedulerNumber,@RequestParam Long levelId, @RequestParam String warehouseId,@RequestParam String loginUserID) throws ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -122,7 +122,7 @@ finally {
     @PostMapping("/find")
     public ResponseEntity<?> findCycleCountScheduler(@Valid @RequestBody SearchCycleCountScheduler searchCycleCountScheduler) throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbNameList(searchCycleCountScheduler.getCompanyCodeId(), searchCycleCountScheduler.getPlantId(), searchCycleCountScheduler.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

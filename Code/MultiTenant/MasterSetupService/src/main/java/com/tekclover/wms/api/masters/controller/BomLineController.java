@@ -63,7 +63,7 @@ public class BomLineController {
                                         @RequestParam String languageId, @RequestParam String plantId,
                                         @RequestParam String warehouseId, @RequestParam String childItemCode) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -82,7 +82,7 @@ finally {
                                         @RequestParam String companyCode, @RequestParam String languageId,
                                         @RequestParam String plantId) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -101,7 +101,7 @@ finally {
     public ResponseEntity<?> postBomLine(@Valid @RequestBody BomLine newBomLine, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newBomLine.getCompanyCode(), newBomLine.getPlantId(), newBomLine.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -122,7 +122,7 @@ finally {
                                           @Valid @RequestBody BomLine updateBomLine, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -143,7 +143,7 @@ finally {
                                            @RequestParam String plantId, @RequestParam String childItemCode,
                                            @RequestParam String loginUserID) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -160,7 +160,7 @@ finally {
     @PostMapping("/findBomLine")
     public ResponseEntity<?> findBomLine(@Valid @RequestBody SearchBomLine searchBomLine) throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbNameList(searchBomLine.getCompanyCode(), searchBomLine.getPlantId(), searchBomLine.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

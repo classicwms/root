@@ -63,7 +63,7 @@ public class WarehouseController {
 	@GetMapping("/{warehouseId}")
 	public ResponseEntity<?> getWarehouse(@PathVariable String warehouseId,@RequestParam String companyCodeId,@RequestParam String plantId,@RequestParam String languageId) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -91,7 +91,7 @@ public class WarehouseController {
 	public ResponseEntity<?> postWarehouse(@Valid @RequestBody AddWarehouse newWarehouse, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newWarehouse.getCompanyCodeId(), newWarehouse.getPlantId(), newWarehouse.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -110,7 +110,7 @@ public class WarehouseController {
 			@Valid @RequestBody UpdateWarehouse updateWarehouse, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -129,7 +129,7 @@ public class WarehouseController {
 	public ResponseEntity<?> deleteWarehouse(@PathVariable String warehouseId, @RequestParam String companyCodeId,@RequestParam String plantId,@RequestParam String languageId,
 			@RequestParam String loginUserID) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -147,7 +147,7 @@ public class WarehouseController {
 	@PostMapping("/find")
 	public ResponseEntity<?> findWarehouse(@Valid @RequestBody FindWarehouse findWarehouse) throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbNameByCompany(findWarehouse.getCompanyCodeId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

@@ -68,7 +68,7 @@ public class PeriodicHeaderController {
 	public ResponseEntity<?> getPeriodicHeader(@PathVariable String cycleCountNo, @RequestParam String companyCodeId, 
 		@RequestParam String plantId, @RequestParam String warehouseId, @RequestParam Long cycleCountTypeId) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -87,7 +87,7 @@ public class PeriodicHeaderController {
 	public ResponseEntity<?> findPeriodicHeader(@RequestBody SearchPeriodicHeader searchPeriodicHeader)
 			throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbList(searchPeriodicHeader.getCompanyCode(), searchPeriodicHeader.getPlantId()
                     , searchPeriodicHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
@@ -106,7 +106,7 @@ public class PeriodicHeaderController {
 	public ResponseEntity<?> findPeriodicHeaderStream(@RequestBody SearchPeriodicHeader searchPeriodicHeader)
 			throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbList(searchPeriodicHeader.getCompanyCode(), searchPeriodicHeader.getPlantId()
                     , searchPeriodicHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
@@ -138,7 +138,7 @@ public class PeriodicHeaderController {
 	public ResponseEntity<?> postPeriodicHeader(@Valid @RequestBody AddPeriodicHeader newPeriodicHeader, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newPeriodicHeader.getCompanyCodeId(), newPeriodicHeader.getPalntId(), newPeriodicHeader.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -158,7 +158,7 @@ public class PeriodicHeaderController {
 			@RequestParam Long cycleCountTypeId, @Valid @RequestBody UpdatePeriodicHeader updatePeriodicHeader, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(updatePeriodicHeader.getCompanyCodeId(), updatePeriodicHeader.getPalntId(), warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -178,7 +178,7 @@ public class PeriodicHeaderController {
 			@RequestParam String plantId, @RequestParam String warehouseId, @RequestParam Long cycleCountTypeId,
 			@RequestParam String loginUserID) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -206,7 +206,7 @@ public class PeriodicHeaderController {
 												  @RequestParam String languageId, @RequestParam String warehouseId,
 												  @RequestParam Long cycleCountTypeId) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -225,7 +225,7 @@ public class PeriodicHeaderController {
 	public List<PeriodicHeaderV2> findPeriodicHeader(@RequestBody SearchPeriodicHeaderV2 searchPeriodicHeader)
 			throws Exception {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbList(searchPeriodicHeader.getCompanyCodeId(), searchPeriodicHeader.getPlantId(), searchPeriodicHeader.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -242,7 +242,7 @@ public class PeriodicHeaderController {
 	public List<PeriodicHeaderEntityV2> findPeriodicHeaderEntity(@RequestBody SearchPeriodicHeaderV2 searchPeriodicHeader)
 			throws Exception {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = null;
             if (searchPeriodicHeader.getCompanyCodeId() != null) {
                 routingDb = dbConfigRepository.getDbList(searchPeriodicHeader.getCompanyCodeId(), searchPeriodicHeader.getPlantId(), searchPeriodicHeader.getWarehouseId());
@@ -265,7 +265,7 @@ public class PeriodicHeaderController {
 			throws Exception {
 		try {
 			log.info("searchPeriodicHeader v6 ----> {}", searchPeriodicHeader);
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbList(searchPeriodicHeader.getCompanyCode(), searchPeriodicHeader.getPlantId(), searchPeriodicHeader.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -282,7 +282,7 @@ public class PeriodicHeaderController {
 	public ResponseEntity<?> postPeriodicHeaderV2(@Valid @RequestBody PeriodicHeaderEntityV2 newPerpetualHeader,
 												   @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newPerpetualHeader.getCompanyCode(), newPerpetualHeader.getPlantId(), newPerpetualHeader.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -311,7 +311,7 @@ finally {
 												 @Valid @RequestBody PeriodicHeaderEntityV2 updatePeriodicHeader, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -332,7 +332,7 @@ finally {
 													 @RequestParam String languageId, @RequestParam String warehouseId,
 													 @RequestParam Long cycleCountTypeId, @RequestParam String loginUserID) throws ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -354,7 +354,7 @@ finally {
 												  @Valid @RequestBody List<PeriodicLineV2> periodicLines,
 												  @RequestParam String loginUserID) throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

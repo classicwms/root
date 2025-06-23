@@ -60,7 +60,7 @@ public class InhouseTransferHeaderController {
             throws Exception {
 
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             List<InhouseTransferHeader> inhouseTransferHeader = null;
             String routingDb = dbConfigRepository.getDbList(searchInHouseTransferHeader.getCompanyCodeId(), searchInHouseTransferHeader.getPlantId(), searchInHouseTransferHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
@@ -89,7 +89,7 @@ public class InhouseTransferHeaderController {
     public ResponseEntity<?> postInHouseTransferHeader(@Valid @RequestBody AddInhouseTransferHeader newInHouseTransferHeader, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newInHouseTransferHeader.getCompanyCodeId(), newInHouseTransferHeader.getPlantId(), newInHouseTransferHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -109,7 +109,7 @@ public class InhouseTransferHeaderController {
     public ResponseEntity<?> postInHouseTransferHeaderV2(@RequestBody AddInhouseTransferHeader newInHouseTransferHeader, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             InhouseTransferHeaderEntity transferHeaderEntity = null;
             String routingDb = dbConfigRepository.getDbName(newInHouseTransferHeader.getCompanyCodeId(), newInHouseTransferHeader.getPlantId(), newInHouseTransferHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);

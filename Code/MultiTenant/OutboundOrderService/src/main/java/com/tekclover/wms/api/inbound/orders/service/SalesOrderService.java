@@ -3263,7 +3263,7 @@ public class SalesOrderService extends BaseService{
                 apiHeader.setProcessedStatusId(0L);
                 log.info("apiHeader : " + apiHeader);
                 DataBaseContextHolder.clear();
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 OutboundOrderV2 createdOrder = orderService.createOutboundOrdersV2(apiHeader);
                 log.info("SalesOrder Order Success: " + createdOrder);
                 return apiHeader;

@@ -48,7 +48,7 @@ public class TransactionService {
     //-------------------------------------------------------------------Outbound warehouse amghara---------------------------------------------------------------
     public WarehouseApiResponse processAmgharaOutboundOrder() throws IllegalAccessException, InvocationTargetException, ParseException {
         WarehouseApiResponse warehouseApiResponse = new WarehouseApiResponse();
-        DataBaseContextHolder.setCurrentDb("IMF");
+        DataBaseContextHolder.setCurrentDb("MT");
         List<OutboundOrderV2> sqlOutboundList = outboundOrderV2Repository.findTopByProcessedStatusIdOrderByOrderReceivedOn(0L);
         log.info("amghara ob header list: " + sqlOutboundList);
 

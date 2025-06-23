@@ -76,7 +76,7 @@ public class RoleAccessController {
 											  @RequestParam String companyCodeId, @RequestParam String languageId,
 											  @RequestParam String plantId) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -106,7 +106,7 @@ public class RoleAccessController {
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
 			for(AddRoleAccess roleAccess : newRoleAccess) {
-				DataBaseContextHolder.setCurrentDb("IMF");
+				DataBaseContextHolder.setCurrentDb("MT");
 				String routingDb = dbConfigRepository.getDbName(roleAccess.getCompanyCodeId(), roleAccess.getPlantId(), roleAccess.getWarehouseId());
 				log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 				DataBaseContextHolder.clear();
@@ -128,7 +128,7 @@ public class RoleAccessController {
 											 @Valid @RequestBody List<AddRoleAccess> updateRoleAccess )
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -150,7 +150,7 @@ public class RoleAccessController {
 											  @RequestParam String companyCodeId, @RequestParam String languageId,
 											  @RequestParam String plantId, @RequestParam String loginUserID) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -169,7 +169,7 @@ public class RoleAccessController {
 	public ResponseEntity<?> findRoleAccess(@Valid @RequestBody FindRoleAccess findRoleAccess) throws Exception {
 
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbNameList(findRoleAccess.getCompanyCodeId(), findRoleAccess.getPlantId(), findRoleAccess.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();

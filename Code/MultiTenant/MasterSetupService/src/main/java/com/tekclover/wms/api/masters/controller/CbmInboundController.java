@@ -47,7 +47,7 @@ public class CbmInboundController {
     public ResponseEntity<?> getCbmInbound(@RequestParam String warehouseId,@PathVariable String itemCode,@RequestParam String companyCodeId,
                                            @RequestParam String languageId,@RequestParam String plantId) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -68,7 +68,7 @@ public class CbmInboundController {
     public ResponseEntity<?> postCbmInbound(@Valid @RequestBody AddCbmInbound newCbmInbound,
                                          @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newCbmInbound.getCompanyCodeId(), newCbmInbound.getPlantId(), newCbmInbound.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -88,7 +88,7 @@ public class CbmInboundController {
                                           @Valid @RequestBody UpdateCbmInbound updateCbmInbound, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -108,7 +108,7 @@ public class CbmInboundController {
                                               @RequestParam String languageId,@RequestParam String plantId,
                                             @RequestParam String loginUserID) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -125,7 +125,7 @@ public class CbmInboundController {
     @PostMapping("/find")
     public ResponseEntity<?> findCbmInbound(@Valid @RequestBody FindCbmInbound findCbmInbound) throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(findCbmInbound.getCompanyCodeId(), findCbmInbound.getPlantId(), findCbmInbound.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

@@ -64,7 +64,7 @@ public class UserManagementController {
 											   @RequestParam String plantId,
 											   @RequestParam Long userRoleId) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -84,7 +84,7 @@ public class UserManagementController {
 			throws IllegalAccessException, InvocationTargetException {
 		try {
 			try {
-				DataBaseContextHolder.setCurrentDb("IMF");
+				DataBaseContextHolder.setCurrentDb("MT");
 				String routingDb = dbConfigRepository.getDbName(newUserManagement.getCompanyCode(), newUserManagement.getPlantId(), newUserManagement.getWarehouseId());
 				log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 				DataBaseContextHolder.clear();
@@ -107,7 +107,7 @@ public class UserManagementController {
 			@RequestBody UpdateUserManagement updateUserManagement, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -130,7 +130,7 @@ public class UserManagementController {
 												  @RequestParam Long userRoleId,
 												  @RequestParam String loginUserID) throws ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -148,7 +148,7 @@ public class UserManagementController {
 	@PostMapping("/findUserManagement")
 	public ResponseEntity<?> findUserManagement(@Valid @RequestBody FindUserManagement findUserManagement) throws Exception {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbNameList(findUserManagement.getCompanyCode(),findUserManagement.getPlantId(),findUserManagement.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();

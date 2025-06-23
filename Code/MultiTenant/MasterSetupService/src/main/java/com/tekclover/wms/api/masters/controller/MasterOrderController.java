@@ -51,7 +51,7 @@ public class MasterOrderController {
         try {
 //            ImBasicData1V2 createdItem = masterOrderService.postItem(item);
             log.info("Item -----> {}", item);
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbNameWithoutWhId(item.getCompanyCode(), item.getBranchCode());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -82,7 +82,7 @@ public class MasterOrderController {
         try {
 //            BusinessPartnerV2 createdCustomer = masterOrderService.postCustomer(customer);
             log.info("Customer -----> {}", customer);
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbNameWithoutWhId(customer.getCompanyCode(), customer.getBranchCode());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

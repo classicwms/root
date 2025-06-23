@@ -54,7 +54,7 @@ public class StorageBinController {
     @GetMapping("/{storageBin}")
     public ResponseEntity<?> getStorageBin(@PathVariable String storageBin, @RequestParam String companyCodeId, @RequestParam String plantId, @RequestParam String warehouseId, @RequestParam String languageId) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -110,7 +110,7 @@ public class StorageBinController {
                                                                @RequestParam String warehouseId)
             throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -127,7 +127,7 @@ public class StorageBinController {
     public List<StorageBinListImpl> getStorageBinLikeSearchV2(@Valid @RequestBody LikeSearchInput likeSearchInput)
             throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(likeSearchInput.getCompanyCodeId(), likeSearchInput.getPlantId(), likeSearchInput.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -142,7 +142,7 @@ public class StorageBinController {
     @PostMapping("/putaway")
     public ResponseEntity<?> getStorageBin(@RequestBody StorageBinPutAway storageBinPutAway) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(storageBinPutAway.getCompanyCodeId(), storageBinPutAway.getPlantId(), storageBinPutAway.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -179,7 +179,7 @@ public class StorageBinController {
         try {
             log.info("SearchStorageBin ------> {}", searchStorageBin);
             String routingDb = null;
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             Warehouse warehouseName = warehouseRepository.findTop1ByWarehouseIdAndDeletionIndicator(searchStorageBin.getWarehouseId().get(0), 0L);
             routingDb = dbConfigRepository.getDbName(warehouseName.getCompanyCodeId(), warehouseName.getPlantId(), warehouseName.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
@@ -197,7 +197,7 @@ public class StorageBinController {
     public Stream<StorageBin> findStorageBinStream(@RequestBody SearchStorageBin searchStorageBin)
             throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbNameList(searchStorageBin.getCompanyCodeId(), searchStorageBin.getPlantId(), searchStorageBin.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -213,7 +213,7 @@ public class StorageBinController {
     public ResponseEntity<?> postStorageBin(@Valid @RequestBody AddStorageBin newStorageBin, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newStorageBin.getCompanyCodeId(), newStorageBin.getPlantId(), newStorageBin.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -232,7 +232,7 @@ public class StorageBinController {
                                              @Valid @RequestBody UpdateStorageBin updateStorageBin, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -259,7 +259,7 @@ public class StorageBinController {
                                              @RequestParam String companyCode, @RequestParam String plantId,
                                              @RequestParam String languageId) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -279,7 +279,7 @@ public class StorageBinController {
                                                      @RequestParam String companyCode, @RequestParam String plantId,
                                                      @RequestParam String languageId) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -298,7 +298,7 @@ public class StorageBinController {
                                              @RequestParam String companyCode, @RequestParam String plantId,
                                              @RequestParam String languageId) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -329,7 +329,7 @@ public class StorageBinController {
     @PostMapping("/putaway/v2")
     public ResponseEntity<?> getStorageBinV2(@RequestBody StorageBinPutAway storageBinPutAway) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(storageBinPutAway.getCompanyCodeId(), storageBinPutAway.getPlantId(), storageBinPutAway.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -346,7 +346,7 @@ public class StorageBinController {
     @PostMapping("/bin/v2")
     public ResponseEntity<?> getaStorageBinV2(@RequestBody StorageBinPutAway storageBinPutAway) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(storageBinPutAway.getCompanyCodeId(), storageBinPutAway.getPlantId(), storageBinPutAway.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -363,7 +363,7 @@ public class StorageBinController {
     @PostMapping("/putaway/cbm/v2")
     public ResponseEntity<?> getStorageBinCBMV2(@RequestBody StorageBinPutAway storageBinPutAway) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(storageBinPutAway.getCompanyCodeId(), storageBinPutAway.getPlantId(), storageBinPutAway.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -380,7 +380,7 @@ public class StorageBinController {
     @PostMapping("/putaway/cbmPerQty/v2")
     public ResponseEntity<?> getStorageBinCbmPerQtyV2(@RequestBody StorageBinPutAway storageBinPutAway) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(storageBinPutAway.getCompanyCodeId(), storageBinPutAway.getPlantId(), storageBinPutAway.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -397,7 +397,7 @@ public class StorageBinController {
     @PostMapping("/putaway/nonCbm/v2")
     public ResponseEntity<?> getStorageBinNonCbm(@RequestBody StorageBinPutAway storageBinPutAway) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(storageBinPutAway.getCompanyCodeId(), storageBinPutAway.getPlantId(), storageBinPutAway.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -414,7 +414,7 @@ public class StorageBinController {
     @PostMapping("/putaway/nonCbm/existing/v2")
     public ResponseEntity<?> getExistingStorageBinNonCbm(@RequestBody StorageBinPutAway storageBinPutAway) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(storageBinPutAway.getCompanyCodeId(), storageBinPutAway.getPlantId(), storageBinPutAway.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -432,7 +432,7 @@ public class StorageBinController {
     @PostMapping("/putaway/nonCbm/lastPicked/v2")
     public ResponseEntity<?> getStorageBinNonCbmLastPicked(@RequestBody StorageBinPutAway storageBinPutAway) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(storageBinPutAway.getCompanyCodeId(), storageBinPutAway.getPlantId(), storageBinPutAway.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -449,7 +449,7 @@ public class StorageBinController {
     @PostMapping("/putaway/cbm/lastPicked/v2")
     public ResponseEntity<?> getProposedStorageBinCBMLastPicked(@RequestBody StorageBinPutAway storageBinPutAway) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(storageBinPutAway.getCompanyCodeId(), storageBinPutAway.getPlantId(), storageBinPutAway.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -467,7 +467,7 @@ public class StorageBinController {
     @PostMapping("/putaway/cbmPerQty/lastPicked/v2")
     public ResponseEntity<?> getProposedStorageBinCBMPerQtyLastPicked(@RequestBody StorageBinPutAway storageBinPutAway) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(storageBinPutAway.getCompanyCodeId(), storageBinPutAway.getPlantId(), storageBinPutAway.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -484,7 +484,7 @@ public class StorageBinController {
     @PostMapping("/putaway/binClass/v2")
     public ResponseEntity<?> getStorageBinBinClassId7(@RequestBody StorageBinPutAway storageBinPutAway) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(storageBinPutAway.getCompanyCodeId(), storageBinPutAway.getPlantId(), storageBinPutAway.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -502,7 +502,7 @@ public class StorageBinController {
     @PostMapping("/putaway/binClassId/v2")
     public ResponseEntity<?> getStorageBinBinClassId1(@RequestBody StorageBinPutAway storageBinPutAway) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(storageBinPutAway.getCompanyCodeId(), storageBinPutAway.getPlantId(), storageBinPutAway.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -520,7 +520,7 @@ public class StorageBinController {
     public ResponseEntity<?> postStorageBinV2(@Valid @RequestBody StorageBinV2 newStorageBin, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newStorageBin.getCompanyCodeId(), newStorageBin.getPlantId(), newStorageBin.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -538,7 +538,7 @@ public class StorageBinController {
                                                @Valid @RequestBody StorageBinV2 updateStorageBin, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -555,7 +555,7 @@ public class StorageBinController {
     @DeleteMapping("/{storageBin}")
     public ResponseEntity<?> deleteStorageBin(@PathVariable String storageBin, @RequestParam String loginUserID, @RequestParam String warehouseId, @RequestParam String companyCodeId, @RequestParam String plantId, @RequestParam String languageId) throws ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -574,7 +574,7 @@ public class StorageBinController {
                                            @RequestParam String companyCodeId, @RequestParam String plantId,
                                            @RequestParam String languageId) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -594,7 +594,7 @@ public class StorageBinController {
                                            @Valid @RequestBody StorageBinV2 storageBinV2, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -613,7 +613,7 @@ public class StorageBinController {
                                             @RequestParam String warehouseId, @RequestParam String companyCodeId,
                                             @RequestParam String plantId, @RequestParam String languageId) throws ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

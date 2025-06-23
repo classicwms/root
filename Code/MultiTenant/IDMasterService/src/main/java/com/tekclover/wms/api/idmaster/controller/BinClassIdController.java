@@ -59,7 +59,7 @@ public class BinClassIdController {
 	@GetMapping("/{binClassId}")
 	public ResponseEntity<?> getBinClassId(@RequestParam String warehouseId, @PathVariable Long binClassId, @RequestParam String companyCodeId, @RequestParam String languageId, @RequestParam String plantId) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -77,7 +77,7 @@ public class BinClassIdController {
 	public ResponseEntity<?> postBinClassId(@Valid @RequestBody AddBinClassId newBinClassId, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newBinClassId.getCompanyCodeId(), newBinClassId.getPlantId(), newBinClassId.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -95,7 +95,7 @@ public class BinClassIdController {
 											 @Valid @RequestBody UpdateBinClassId updateBinClassId, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -113,7 +113,7 @@ public class BinClassIdController {
 	public ResponseEntity<?> deleteBinClassId(@RequestParam String warehouseId, @PathVariable Long binClassId, @RequestParam String companyCodeId, @RequestParam String languageId, @RequestParam String plantId,
 											  @RequestParam String loginUserID) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -130,7 +130,7 @@ public class BinClassIdController {
 	@PostMapping("/find")
 	public ResponseEntity<?> findBinClassId(@Valid @RequestBody FindBinClassId findBinClassId) throws Exception {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(findBinClassId.getCompanyCodeId(), findBinClassId.getPlantId(), findBinClassId.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();

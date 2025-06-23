@@ -48,7 +48,7 @@ public class ImBatchSerialController {
     @GetMapping("/{storageMethod}")
     public ResponseEntity<?> getImBasicData2(@PathVariable String storageMethod, @RequestParam String companyCodeId, @RequestParam String plantId, @RequestParam String warehouseId, @RequestParam String languageId,@RequestParam String itemCode) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -67,7 +67,7 @@ public class ImBatchSerialController {
     public List<ImBatchSerial> findImBatchSerial(@RequestBody SearchImBatchSerial searchImBatchSerial)
             throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbNameList(searchImBatchSerial.getCompanyCodeId(), searchImBatchSerial.getPlantId(), searchImBatchSerial.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -84,7 +84,7 @@ public class ImBatchSerialController {
     public ResponseEntity<?> postImBatchSerial(@Valid @RequestBody AddImBatchSerial newImBatchSerial, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newImBatchSerial.getCompanyCodeId(), newImBatchSerial.getPlantId(), newImBatchSerial.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -103,7 +103,7 @@ public class ImBatchSerialController {
                                                 @Valid @RequestBody UpdateImBatchSerial updateImBatchSerial, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -120,7 +120,7 @@ public class ImBatchSerialController {
     @DeleteMapping("/{storageMethod}")
     public ResponseEntity<?> deleteImBatchSerial(@PathVariable String storageMethod,@RequestParam String companyCodeId,@RequestParam String plantId,@RequestParam String warehouseId,@RequestParam String languageId,@RequestParam String itemCode,@RequestParam String loginUserID) throws ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

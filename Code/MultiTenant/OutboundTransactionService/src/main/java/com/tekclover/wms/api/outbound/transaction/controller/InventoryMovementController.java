@@ -68,7 +68,7 @@ public class InventoryMovementController {
 	public Stream<InventoryMovement> findInventoryMovement(@RequestBody SearchInventoryMovement searchInventoryMovement)
 			throws Exception {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbList(searchInventoryMovement.getCompanyCodeId(), searchInventoryMovement.getPlantId(), searchInventoryMovement.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -84,7 +84,7 @@ public class InventoryMovementController {
 	public ResponseEntity<?> postInventoryMovement(@Valid @RequestBody AddInventoryMovement newInventoryMovement, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newInventoryMovement.getCompanyCodeId(), newInventoryMovement.getPlantId(), newInventoryMovement.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -104,7 +104,7 @@ public class InventoryMovementController {
                                                     @Valid @RequestBody UpdateInventoryMovement updateInventoryMovement, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(updateInventoryMovement.getCompanyCodeId(), updateInventoryMovement.getPlantId(), warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();

@@ -121,7 +121,7 @@ public class OrderService extends BaseService {
      */
     public InboundOrderV2 getOrderByIdV2(String orderId, Long inboundOrderTypeId) {
         DataBaseContextHolder.clear();
-        DataBaseContextHolder.setCurrentDb("IMF");
+        DataBaseContextHolder.setCurrentDb("MT");
         InboundOrderV2 dbInboundOrder = inboundOrderV2Repository.findByRefDocumentNoAndInboundOrderTypeId(orderId, inboundOrderTypeId);
         if (dbInboundOrder != null) {
             return dbInboundOrder;
@@ -147,7 +147,7 @@ public class OrderService extends BaseService {
         InboundOrderV2 dbInboundOrder = getOrderByIdV2(orderId, inboundOrderTypeId);
         log.info("orderId : " + orderId);
         log.info("dbInboundOrder : " + dbInboundOrder);
-        DataBaseContextHolder.setCurrentDb("IMF");
+        DataBaseContextHolder.setCurrentDb("MT");
         InboundOrderV2 dbInboundOrder1 = getOrder(orderId);
         dbInboundOrder1.setProcessedStatusId(processStatusId);
         dbInboundOrder1.setOrderProcessedOn(new Date());

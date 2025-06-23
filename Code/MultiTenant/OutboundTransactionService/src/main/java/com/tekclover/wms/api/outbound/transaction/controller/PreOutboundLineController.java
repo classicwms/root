@@ -64,7 +64,7 @@ public class PreOutboundLineController {
     public ResponseEntity<?> postPreOutboundLine(@Valid @RequestBody AddPreOutboundLine newPreOutboundLine, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newPreOutboundLine.getCompanyCodeId(), newPreOutboundLine.getPlantId(), newPreOutboundLine.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -107,7 +107,7 @@ public class PreOutboundLineController {
     public Stream<PreOutboundLineV2> findPreOutboundLineV2(@RequestBody SearchPreOutboundLineV2 searchPreOutboundLine)
             throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbList(searchPreOutboundLine.getCompanyCodeId(), searchPreOutboundLine.getPlantId(), searchPreOutboundLine.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -124,7 +124,7 @@ public class PreOutboundLineController {
     public ResponseEntity<?> postPreOutboundLineV2(@Valid @RequestBody PreOutboundLineV2 newPreOutboundLine, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newPreOutboundLine.getCompanyCodeId(), newPreOutboundLine.getPlantId(), newPreOutboundLine.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -145,7 +145,7 @@ public class PreOutboundLineController {
                                                     @Valid @RequestBody UpdatePreOutboundLine updatePreOutboundLine, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -167,7 +167,7 @@ public class PreOutboundLineController {
                                                      @RequestParam String preOutboundNo, @RequestParam String partnerCode, @RequestParam String itemCode,
                                                      @RequestParam String loginUserID) throws ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

@@ -68,7 +68,7 @@ public class HhtUserController {
                                         @RequestParam String companyCodeId, @RequestParam String languageId,
                                         @RequestParam String plantId) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -96,7 +96,7 @@ public class HhtUserController {
     public ResponseEntity<?> postHhtUser(@Valid @RequestBody AddHhtUser newHhtUser, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newHhtUser.getCompanyCodeId(), newHhtUser.getPlantId(), newHhtUser.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -117,7 +117,7 @@ public class HhtUserController {
                                           @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -138,7 +138,7 @@ public class HhtUserController {
                                            @RequestParam String languageId, @RequestParam String plantId,
                                            @RequestParam String warehouseId, @RequestParam String loginUserID) throws ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -159,21 +159,21 @@ public class HhtUserController {
             String routingDb = null;
             log.info("FindHhtUser ------> {}", findHhtUser);
             if (findHhtUser.getWarehouseId() != null) {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 Warehouse warehouseName = warehouseRepository.findTop1ByWarehouseIdAndDeletionIndicator(findHhtUser.getWarehouseId().get(0), 0L);
                 routingDb = dbConfigRepository.getDbName(warehouseName.getCompanyCodeId(), warehouseName.getPlantId(), warehouseName.getWarehouseId());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
                 DataBaseContextHolder.setCurrentDb(routingDb);
             } else {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 HhtUser user = null;
 
                 user = hhtUserRepository.getUserDetails(findHhtUser.getUserId().get(0));
                 log.info("HHTUser -----> {}", user);
 
                 if (user != null) {
-                    log.info("hhtuser from imf -----> {}", user);
+                    log.info("hhtuser from MT -----> {}", user);
                     log.info("Inputs : companyCodeId ---> " + user.getCompanyCodeId() + ", plantId ---> " + user.getPlantId() + ", warehouseId ---> " + user.getWarehouseId());
                     routingDb = dbConfigRepository.getDbName(user.getCompanyCodeId(),user.getPlantId(),user.getWarehouseId());
                     log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}",routingDb);

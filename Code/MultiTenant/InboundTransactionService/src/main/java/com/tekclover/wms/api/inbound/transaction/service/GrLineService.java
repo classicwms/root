@@ -5333,7 +5333,7 @@ public class GrLineService extends BaseService {
     private void fireBaseNotification(GrLineV2 grLineV2, String putAwayNumber, String loginUserID) {
         try {
 //            try {
-//                DataBaseContextHolder.setCurrentDb("IMF");
+//                DataBaseContextHolder.setCurrentDb("MT");
 //                String profile = dbConfigRepository.getDbName(putAwayLine.getCompanyCode(), putAwayLine.getPlantId(), putAwayLine.getWarehouseId());
 //                log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", profile);
 //                DataBaseContextHolder.clear();

@@ -63,7 +63,7 @@ public class VariantIdController {
 	public ResponseEntity<?> getVariantId(@PathVariable String variantCode, 
 			@RequestParam String warehouseId, @RequestParam String variantType, @RequestParam String variantSubCode,@RequestParam String companyCodeId,@RequestParam String plantId,@RequestParam String languageId) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -89,7 +89,7 @@ public class VariantIdController {
 	public ResponseEntity<?> postVariantId(@Valid @RequestBody AddVariantId newVariantId, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newVariantId.getCompanyCodeId(), newVariantId.getPlantId(), newVariantId.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -109,7 +109,7 @@ public class VariantIdController {
 			@Valid @RequestBody UpdateVariantId updateVariantId, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -128,7 +128,7 @@ public class VariantIdController {
 	public ResponseEntity<?> deleteVariantId(@PathVariable String variantCode, 
 			@RequestParam String warehouseId, @RequestParam String variantType, @RequestParam String variantSubCode,@RequestParam String companyCodeId,@RequestParam String plantId,@RequestParam String languageId,@RequestParam String loginUserID) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -145,7 +145,7 @@ public class VariantIdController {
 	@PostMapping("/find")
 	public ResponseEntity<?> findVariantId(@Valid @RequestBody FindVariantId findVariantId) throws Exception {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(findVariantId.getCompanyCodeId(), findVariantId.getPlantId(), findVariantId.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();

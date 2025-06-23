@@ -121,7 +121,7 @@ public class InventoryController {
 	public ResponseEntity<?> postInventory(@Valid @RequestBody AddInventory newInventory, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newInventory.getCompanyCodeId(), newInventory.getPlantId(), newInventory.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -141,7 +141,7 @@ public class InventoryController {
 			@RequestParam Long specialStockIndicatorId, @Valid @RequestBody UpdateInventory updateInventory,
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(updateInventory.getCompanyCodeId(), updateInventory.getPlantId(), warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -171,7 +171,7 @@ public class InventoryController {
 	public List<InventoryV2> findInventoryV2(@RequestBody SearchInventoryV2 searchInventory)
 			throws Exception {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbList(searchInventory.getCompanyCodeId(), searchInventory.getPlantId(), searchInventory.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -190,7 +190,7 @@ public class InventoryController {
 		try {
 			log.info("SearchInventoryV2 ------> {}", searchInventory);
 			String routingDb = null;
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			Warehouse warehouseName = warehouseRepository.findTop1ByWarehouseIdAndDeletionIndicator(searchInventory.getWarehouseId().get(0), 0L);
 			routingDb = dbConfigRepository.getDbName(warehouseName.getCompanyCodeId(), warehouseName.getPlantId(), warehouseName.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
@@ -209,7 +209,7 @@ public class InventoryController {
 			throws IllegalAccessException, InvocationTargetException {
 
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newInventory.getCompanyCodeId(), newInventory.getPlantId(), newInventory.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -230,7 +230,7 @@ public class InventoryController {
 											  @RequestParam Long specialStockIndicatorId, @Valid @RequestBody InventoryV2 updateInventory,
 											  @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -253,7 +253,7 @@ public class InventoryController {
 											   @RequestParam String packBarcodes, @RequestParam String itemCode, @RequestParam String storageBin,
 											   @RequestParam Long specialStockIndicatorId, @RequestParam String loginUserID) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();

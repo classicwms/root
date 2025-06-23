@@ -3947,7 +3947,7 @@ public class PutAwayLineService extends BaseService {
     private void fireBaseNotification(PutAwayLineV2 putAwayLine, String loginUserID) {
         try {
 //            try {
-//                DataBaseContextHolder.setCurrentDb("IMF");
+//                DataBaseContextHolder.setCurrentDb("MT");
 //                String profile = dbConfigRepository.getDbName(putAwayLine.getCompanyCode(), putAwayLine.getPlantId(), putAwayLine.getWarehouseId());
 //                log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", profile);
 //                DataBaseContextHolder.clear();

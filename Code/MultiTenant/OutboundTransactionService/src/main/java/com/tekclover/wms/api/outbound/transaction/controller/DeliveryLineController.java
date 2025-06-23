@@ -54,7 +54,7 @@ public class DeliveryLineController {
                                              @RequestParam String itemCode, @RequestParam Long lineNumber,
                                              @RequestParam String warehouseId) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -80,7 +80,7 @@ public class DeliveryLineController {
         try {
             for (AddDeliveryLine newDeliveryline : newDeliveryLine) {
 
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbName(newDeliveryline.getCompanyCodeId(), newDeliveryline.getPlantId(), newDeliveryline.getWarehouseId());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
@@ -102,7 +102,7 @@ public class DeliveryLineController {
                                                 @RequestParam String loginUserID ) throws IllegalAccessException, InvocationTargetException {
         try {
             for(UpdateDeliveryLine updateDeliveryline :updateDeliveryLine) {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbName(updateDeliveryline.getCompanyCodeId(), updateDeliveryline.getPlantId(), updateDeliveryline.getWarehouseId());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
@@ -125,7 +125,7 @@ public class DeliveryLineController {
                                                 @RequestParam String languageId, @RequestParam String loginUserID,
                                                 @RequestParam String refDocNumber, @RequestParam String invoiceNumber) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -144,7 +144,7 @@ public class DeliveryLineController {
     @PostMapping("/findDeliveryLine")
     public ResponseEntity<?> findDeliveryLine(@Valid @RequestBody SearchDeliveryLine searchDeliveryLine) throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbList(searchDeliveryLine.getCompanyCodeId(), searchDeliveryLine.getPlantId(), searchDeliveryLine.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -166,7 +166,7 @@ public class DeliveryLineController {
                                                   @RequestParam String plantId, @RequestParam String warehouseId,
                                                   @RequestParam String driverId) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -185,7 +185,7 @@ public class DeliveryLineController {
     @PostMapping("/findDeliveryLineCount")
     public ResponseEntity<?> findDeliveryLineCount(@Valid @RequestBody FindDeliveryLineCount findDeliveryLineCount) throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(findDeliveryLineCount.getCompanyCodeId(), findDeliveryLineCount.getPlantId(), findDeliveryLineCount.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

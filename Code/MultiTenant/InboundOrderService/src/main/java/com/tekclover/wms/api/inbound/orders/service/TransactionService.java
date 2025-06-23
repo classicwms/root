@@ -44,7 +44,7 @@ public class TransactionService {
     public WarehouseApiResponse processInboundOrder() throws IllegalAccessException, InvocationTargetException, ParseException {
         WarehouseApiResponse warehouseApiResponse = new WarehouseApiResponse();
         DataBaseContextHolder.clear();
-        DataBaseContextHolder.setCurrentDb("IMF");
+        DataBaseContextHolder.setCurrentDb("MT");
         List<InboundOrderV2> sqlInboundList = inboundOrderV2Repository.findTopByProcessedStatusIdOrderByOrderReceivedOn(0L);
         log.info("ib sql header list: " + sqlInboundList);
 

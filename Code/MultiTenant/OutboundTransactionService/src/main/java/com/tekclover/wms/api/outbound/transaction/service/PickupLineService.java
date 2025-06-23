@@ -4849,7 +4849,7 @@ public class PickupLineService extends BaseService {
         PickupLineV2 dbPickUpLine = pickupLineV2Repository.findTopByIsPickupLineCreatedAndDeletionIndicatorOrderByPickupCreatedOn(0L, 0L);
         log.info("PickupLine for Quality header create : " + dbPickUpLine);
         if (dbPickUpLine != null) {
-            log.info("PickupLine Update For QualityHeader In Common DB IMF");
+            log.info("PickupLine Update For QualityHeader In Common DB MT");
             pickupLineV2Repository.updatePickupLineStatusV2(
                     dbPickUpLine.getCompanyCodeId(), dbPickUpLine.getPlantId(), dbPickUpLine.getLanguageId(), dbPickUpLine.getWarehouseId(),
                     dbPickUpLine.getPreOutboundNo(), dbPickUpLine.getPickupNumber(), dbPickUpLine.getLineNumber(), dbPickUpLine.getItemCode(),

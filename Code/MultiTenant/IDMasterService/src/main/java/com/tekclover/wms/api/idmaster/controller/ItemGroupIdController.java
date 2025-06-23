@@ -60,7 +60,7 @@ public class ItemGroupIdController {
 	public ResponseEntity<?> getItemGroupId(@PathVariable Long itemGroupId, 
 			@RequestParam String warehouseId, @RequestParam Long itemTypeId,@RequestParam String companyCodeId,@RequestParam String plantId,@RequestParam String languageId) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -87,7 +87,7 @@ public class ItemGroupIdController {
 	public ResponseEntity<?> postItemGroupId(@Valid @RequestBody AddItemGroupId newItemGroupId, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newItemGroupId.getCompanyCodeId(), newItemGroupId.getPlantId(), newItemGroupId.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -108,7 +108,7 @@ public class ItemGroupIdController {
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -127,7 +127,7 @@ public class ItemGroupIdController {
 	public ResponseEntity<?> deleteItemGroupId(@PathVariable Long itemGroupId, 
 			@RequestParam String warehouseId, @RequestParam Long itemTypeId,@RequestParam String companyCodeId,@RequestParam String plantId,@RequestParam String languageId,@RequestParam String loginUserID) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -144,7 +144,7 @@ public class ItemGroupIdController {
 	@PostMapping("/find")
 	public ResponseEntity<?> findItemGroupId(@Valid @RequestBody FindItemGroupId findItemGroupId) throws Exception {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(findItemGroupId.getCompanyCodeId(), findItemGroupId.getPlantId(), findItemGroupId.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();

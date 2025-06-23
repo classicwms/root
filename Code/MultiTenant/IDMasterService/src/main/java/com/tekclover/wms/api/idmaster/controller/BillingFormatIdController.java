@@ -46,7 +46,7 @@ public class BillingFormatIdController {
     public ResponseEntity<?> getBillingFormatId(@RequestParam String warehouseId, @PathVariable Long billFormatId,@RequestParam String companyCodeId,
                                                 @RequestParam String languageId,String plantId) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -65,7 +65,7 @@ public class BillingFormatIdController {
     public ResponseEntity<?> postBillingFormatId(@Valid @RequestBody AddBillingFormatId newBillingFormatId,
                                                @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newBillingFormatId.getCompanyCodeId(), newBillingFormatId.getPlantId(), newBillingFormatId.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -84,7 +84,7 @@ public class BillingFormatIdController {
                                                   @Valid @RequestBody UpdateBillingFormatId updateBillingFormatId, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -102,7 +102,7 @@ public class BillingFormatIdController {
     public ResponseEntity<?> deleteBillingFormatId(@PathVariable Long billFormatId,
                                                  @RequestParam String warehouseId,@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId, @RequestParam String loginUserID) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -120,7 +120,7 @@ public class BillingFormatIdController {
     public ResponseEntity<?> findBillingFormatId(@Valid @RequestBody FindBillingFormatId findBillingFormatId) throws Exception {
 
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(findBillingFormatId.getCompanyCodeId(), findBillingFormatId.getPlantId(), findBillingFormatId.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

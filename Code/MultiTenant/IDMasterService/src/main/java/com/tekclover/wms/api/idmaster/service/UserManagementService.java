@@ -207,7 +207,7 @@ public class UserManagementService {
 		String languageId = userLoginInput.getLanguageId();
 		String warehouseId = userLoginInput.getWarehouseId();
 
-		DataBaseContextHolder.setCurrentDb("IMF");
+		DataBaseContextHolder.setCurrentDb("MT");
 		UserManagement user = userManagementRepository.getUserDetails(userLoginInput.getUserId());
 		log.info("user -----> {}", user);
 
@@ -228,7 +228,7 @@ public class UserManagementService {
 			throw new BadRequestException("Password is must!");
 		}
 
-//		DataBaseContextHolder.setCurrentDb("IMF");
+//		DataBaseContextHolder.setCurrentDb("MT");
 //		String routingDb = dbConfigRepository.getDbName(companyCodeId,plantId,warehouseId);
 //		log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}",routingDb);
 ////
@@ -252,7 +252,7 @@ public class UserManagementService {
 		for (UserManagement userManagement : userManagementList) {
 			isSuccess = passwordEncoder.matches(loginPassword, userManagement.getPassword());
 			if (isSuccess) {
-				DataBaseContextHolder.setCurrentDb("IMF");
+				DataBaseContextHolder.setCurrentDb("MT");
 				routingDb = dbConfigRepository.getDbName(userManagement.getCompanyCode(),userManagement.getPlantId(),userManagement.getWarehouseId());
 				log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}",routingDb);
 //
@@ -303,7 +303,7 @@ public class UserManagementService {
 		String userId = userLoginInput.getUserId();
 		String loginPassword = userLoginInput.getLoginPassword();
 
-		DataBaseContextHolder.setCurrentDb("IMF");
+		DataBaseContextHolder.setCurrentDb("MT");
 		UserManagement user = userManagementRepository.getUserDetails(userLoginInput.getUserId());
 
 		log.info("user -----> {}", user);
@@ -346,7 +346,7 @@ public class UserManagementService {
 		for (UserManagement userManagement : userManagementList) {
 			isSuccess = passwordEncoder.matches(loginPassword, userManagement.getPassword());
 			if (isSuccess) {
-				DataBaseContextHolder.setCurrentDb("IMF");
+				DataBaseContextHolder.setCurrentDb("MT");
 				routingDb = dbConfigRepository.getDbName(userManagement.getCompanyCode(),userManagement.getPlantId(),userManagement.getWarehouseId());
 				log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}",routingDb);
 //
@@ -394,7 +394,7 @@ public class UserManagementService {
 	 */
 	public UserManagement validateUser (String userId, String loginPassword, String version) {
 
-		DataBaseContextHolder.setCurrentDb("IMF");
+		DataBaseContextHolder.setCurrentDb("MT");
 		UserManagement user = userManagementRepository.getUserDetails(userId);
 
 		log.info("user ----> {}", user);
@@ -488,7 +488,7 @@ public class UserManagementService {
 				// Saving to Common DB
 				try {
 					DataBaseContextHolder.clear();
-					DataBaseContextHolder.setCurrentDb("IMF");
+					DataBaseContextHolder.setCurrentDb("MT");
 					log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", DataBaseContextHolder.getCurrentDb());
 					UserManagement saveImf = userManagementRepository.save(dbUserManagement);
 					log.info("Hhtuser saved in common DB : savedHhtUserImf ");

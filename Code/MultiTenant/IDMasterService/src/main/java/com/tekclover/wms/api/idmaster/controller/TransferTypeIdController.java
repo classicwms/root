@@ -49,7 +49,7 @@ public class TransferTypeIdController {
 	public ResponseEntity<?> getTransferTypeId(@RequestParam String warehouseId,@PathVariable String transferTypeId,
 											   @RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -69,7 +69,7 @@ public class TransferTypeIdController {
 	public ResponseEntity<?> postTransferTypeId(@Valid @RequestBody AddTransferTypeId newTransferTypeId, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newTransferTypeId.getCompanyCodeId(), newTransferTypeId.getPlantId(), newTransferTypeId.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -89,7 +89,7 @@ public class TransferTypeIdController {
 			@Valid @RequestBody UpdateTransferTypeId updateTransferTypeId, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -108,7 +108,7 @@ public class TransferTypeIdController {
 	public ResponseEntity<?> deleteTransferTypeId(@RequestParam String warehouseId,@PathVariable String transferTypeId,
 			@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId, @RequestParam String loginUserID) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -125,7 +125,7 @@ public class TransferTypeIdController {
 	@PostMapping("/find")
 	public ResponseEntity<?> findTransferTypeId(@Valid @RequestBody FindTransferTypeId findTransferTypeId) throws Exception {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(findTransferTypeId.getCompanyCodeId(), findTransferTypeId.getPlantId(), findTransferTypeId.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();

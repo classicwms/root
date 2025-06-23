@@ -36,7 +36,7 @@ public class InvoiceCancellationController {
 	public Stream<PickListHeader> findPickListHeader(@RequestBody SearchPickListHeader searchPickListHeader)
 			throws Exception {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbList(searchPickListHeader.getCompanyCodeId(), searchPickListHeader.getPlantId(), searchPickListHeader.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();

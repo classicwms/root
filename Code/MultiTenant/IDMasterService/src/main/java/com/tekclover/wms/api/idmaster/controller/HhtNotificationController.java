@@ -49,7 +49,7 @@ public class HhtNotificationController {
 	public ResponseEntity<?> createHhtNotification(@Valid @RequestBody HhtNotification newHhtNotification,
 										@RequestParam String loginUserID) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newHhtNotification.getCompanyId(), newHhtNotification.getPlantId(), newHhtNotification.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -66,7 +66,7 @@ public class HhtNotificationController {
 	public ResponseEntity<?> getHhtNotification(@RequestParam String warehouseId,@RequestParam String companyCodeId,@RequestParam String languageId,
 												@RequestParam String plantId ,@RequestParam String deviceId,@RequestParam String userId,@RequestParam String tokenId) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();

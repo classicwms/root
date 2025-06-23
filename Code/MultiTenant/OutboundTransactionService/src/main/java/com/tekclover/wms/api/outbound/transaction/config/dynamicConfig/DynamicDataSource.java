@@ -11,7 +11,7 @@ public class DynamicDataSource extends AbstractRoutingDataSource {
         logger.info("Routing to database: " + db);
         if (db == null || db.isEmpty()) {
             // If no context is set, use the default database key
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
         }
         return db;
     }

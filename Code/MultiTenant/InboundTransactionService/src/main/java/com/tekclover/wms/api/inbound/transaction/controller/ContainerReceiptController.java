@@ -87,7 +87,7 @@ public class ContainerReceiptController {
 			@RequestParam String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newContainerReceipt.getCompanyCodeId(), newContainerReceipt.getPlantId(), newContainerReceipt.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -106,7 +106,7 @@ public class ContainerReceiptController {
 			@Valid @RequestBody UpdateContainerReceipt updateContainerReceipt, @RequestParam String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(updateContainerReceipt.getCompanyCodeId(), updateContainerReceipt.getPlantId(), updateContainerReceipt.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -135,7 +135,7 @@ public class ContainerReceiptController {
 												   @RequestParam String plantId, @RequestParam String languageId,
 												   @RequestParam String warehouseId) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -156,7 +156,7 @@ public class ContainerReceiptController {
 												   @RequestParam String warehouseId, @RequestParam String preInboundNo,
 												   @RequestParam String refDocNumber) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -183,7 +183,7 @@ public class ContainerReceiptController {
 													@RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newContainerReceipt.getCompanyCodeId(), newContainerReceipt.getPlantId(), newContainerReceipt.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -203,7 +203,7 @@ public class ContainerReceiptController {
 													 @Valid @RequestBody ContainerReceiptV2 updateContainerReceipt, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(updateContainerReceipt.getCompanyCodeId(), updateContainerReceipt.getPlantId(), updateContainerReceipt.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -224,7 +224,7 @@ public class ContainerReceiptController {
 													  @RequestParam String preInboundNo, @RequestParam String refDocNumber,
 													  @RequestParam String warehouseId, @RequestParam String loginUserID) throws ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();

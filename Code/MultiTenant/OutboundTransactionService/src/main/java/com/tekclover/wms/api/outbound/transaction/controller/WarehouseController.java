@@ -255,7 +255,7 @@ public class WarehouseController {
 			log.info("------------salesOrders : " + salesOrders);
 			WarehouseApiResponse response = new WarehouseApiResponse();
 			for (SalesOrderV2 salesOrder : salesOrders) {
-				DataBaseContextHolder.setCurrentDb("IMF");
+				DataBaseContextHolder.setCurrentDb("MT");
 				OutboundOrderV2 createdSalesOrder = warehouseService.postSalesOrderV5(salesOrder);
 				if (createdSalesOrder != null) {
 					response.setStatusCode("200");
@@ -281,7 +281,7 @@ public class WarehouseController {
 			log.info("------------salesOrders : " + salesOrders);
 			WarehouseApiResponse response = new WarehouseApiResponse();
 			for (SalesOrderV2 salesOrder : salesOrders) {
-				DataBaseContextHolder.setCurrentDb("IMF");
+				DataBaseContextHolder.setCurrentDb("MT");
 				OutboundOrderV2 createdSalesOrder = warehouseService.emptyCrateOrderV5(salesOrder);
 				if (createdSalesOrder != null) {
 					response.setStatusCode("200");
@@ -307,7 +307,7 @@ public class WarehouseController {
 			log.info("------------salesOrders : " + salesOrders);
 			WarehouseApiResponse response = new WarehouseApiResponse();
 			for (SalesOrderV2 salesOrder : salesOrders) {
-				DataBaseContextHolder.setCurrentDb("IMF");
+				DataBaseContextHolder.setCurrentDb("MT");
 				OutboundOrderV2 createdSalesOrder = warehouseService.saveSalesOrderV7(salesOrder);
 				if (createdSalesOrder != null) {
 					response.setStatusCode("200");
@@ -333,7 +333,7 @@ public class WarehouseController {
 			log.info("------------ReturnPOV2 : " + returnPOV2s);
 			WarehouseApiResponse response = new WarehouseApiResponse();
 			for (ReturnPOV2 returnPOV2 : returnPOV2s) {
-				DataBaseContextHolder.setCurrentDb("IMF");
+				DataBaseContextHolder.setCurrentDb("MT");
 				ReturnPOV2 createdPurchaseReturnOrder = warehouseService.postReturnPOV2(returnPOV2);
 				if (createdPurchaseReturnOrder != null) {
 					response.setStatusCode("200");
@@ -361,7 +361,7 @@ public class WarehouseController {
 			List<WarehouseApiResponse> responseList = new ArrayList<>();
 			WarehouseApiResponse response = new WarehouseApiResponse();
 			for (InterWarehouseTransferInV2 interWarehouseTransferInV2 : interWarehouseTransferInV2List) {
-				DataBaseContextHolder.setCurrentDb("IMF");
+				DataBaseContextHolder.setCurrentDb("MT");
 				String routingDb = dbConfigRepository.getDbName(interWarehouseTransferInV2.getInterWarehouseTransferInHeader().getSourceCompanyCode(), interWarehouseTransferInV2.getInterWarehouseTransferInHeader().getSourceBranchCode(), String.valueOf(interWarehouseTransferInV2.getInterWarehouseTransferInHeader().getMiddlewareId()));
 				log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 				DataBaseContextHolder.clear();

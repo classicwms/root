@@ -112,7 +112,7 @@ public class GrLineController {
 //			throws IllegalAccessException, InvocationTargetException {
 //		try {
 //			for (AddGrLine grLine : newGrLine) {
-//				DataBaseContextHolder.setCurrentDb("IMF");
+//				DataBaseContextHolder.setCurrentDb("MT");
 //				String routingDb = dbConfigRepository.getDbName(grLine.getCompanyCode(), grLine.getPlantId(), grLine.getWarehouseId());
 //				log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 //				DataBaseContextHolder.clear();
@@ -133,7 +133,7 @@ public class GrLineController {
                                          @RequestParam String itemCode, @Valid @RequestBody UpdateGrLine updateGrLine,
                                          @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(updateGrLine.getCompanyCodeId(), updateGrLine.getPlantId(), updateGrLine.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -178,7 +178,7 @@ public class GrLineController {
                                          @RequestParam String palletCode, @RequestParam String caseCode, @RequestParam String packBarcodes,
                                          @RequestParam String itemCode) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -211,7 +211,7 @@ public class GrLineController {
         log.info("SearchGrLineV2 ------> {}", searchGrLine);
         String warehouse = searchGrLine.getWarehouseId().get(0);
         String routingDb = null;
-        DataBaseContextHolder.setCurrentDb("IMF");
+        DataBaseContextHolder.setCurrentDb("MT");
         Warehouse warehouseName = warehouseRepository.findTop1ByWarehouseIdAndDeletionIndicator(warehouse, 0L);
         routingDb = dbConfigRepository.getDbName(warehouseName.getCompanyCodeId(), warehouseName.getPlantId(), warehouseName.getWarehouseId());
         log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
@@ -236,7 +236,7 @@ public class GrLineController {
 ////		List<GrLineV2> createdGrLine = grlineService.createGrLineV2(newGrLine, loginUserID);
 //		try {
 //			for (AddGrLineV2 grLineV2 : newGrLine) {
-//				DataBaseContextHolder.setCurrentDb("IMF");
+//				DataBaseContextHolder.setCurrentDb("MT");
 //				String routingDb = dbConfigRepository.getDbName(grLineV2.getCompanyCode(), grLineV2.getPlantId(), grLineV2.getWarehouseId());
 //				log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 //				DataBaseContextHolder.clear();
@@ -258,7 +258,7 @@ public class GrLineController {
 //		List<GrLineV2> createdGrLine = grlineService.createGrLineV2(newGrLine, loginUserID);
         try {
             log.info("AddGrLineV2 -----> {}", newGrLine);
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String profile = dbConfigRepository.getDbName(newGrLine.get(0).getCompanyCode(), newGrLine.get(0).getPlantId(), newGrLine.get(0).getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", profile);
             DataBaseContextHolder.clear();
@@ -300,7 +300,7 @@ public class GrLineController {
                                            @RequestParam String itemCode, @Valid @RequestBody GrLineV2 updateGrLine,
                                            @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -323,7 +323,7 @@ public class GrLineController {
                                             @RequestParam String caseCode, @RequestParam String packBarcodes, @RequestParam String itemCode,
                                             @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -355,7 +355,7 @@ public class GrLineController {
                                               @RequestParam String plantId, @RequestParam String languageId,
                                               @RequestParam String loginUserID) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -376,7 +376,7 @@ public class GrLineController {
                                                    @RequestParam String loginUserID)
             throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newGrLine.getGrLineV2List().get(0).getCompanyCode(),
                     newGrLine.getGrLineV2List().get(0).getPlantId(), newGrLine.getGrLineV2List().get(0).getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
@@ -394,7 +394,7 @@ public class GrLineController {
     public ResponseEntity<?> crossDock(@RequestBody MultiDbInput input) {
         try {
             log.info("CrossDock find input -----> {}", input);
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(input.getCompanyCode(), input.getPlantId(), input.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

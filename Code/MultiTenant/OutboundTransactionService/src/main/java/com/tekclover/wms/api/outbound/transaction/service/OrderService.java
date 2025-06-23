@@ -389,7 +389,7 @@ public class OrderService {
 			OutboundOrderV2 inboundOrderV2 = outboundOrderV2Repository.save(newOutboundOrderV2);
 			log.info("inboundOrderV2 ----> {}", inboundOrderV2);
 			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 
 			OutboundOrderV2 imdDB = outboundOrderV2Repository.save(newOutboundOrderV2);
 			log.info("imdDB ----> {}", imdDB);

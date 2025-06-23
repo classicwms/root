@@ -79,7 +79,7 @@ public class ReportsController {
     @PostMapping("/v2/stockReportSP")
     public ResponseEntity<?> getAllStockReportV2SP(@Valid @RequestBody SearchStockReportInput searchStockReport) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(searchStockReport.getCompanyCodeId(), searchStockReport.getPlantId(), searchStockReport.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -135,7 +135,7 @@ public class ReportsController {
     public ResponseEntity<?> getOrderStatusReport(@RequestBody SearchOrderStatusReport request)
             throws ParseException, java.text.ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(request.getCompanyCodeId(), request.getPlantId(), request.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -161,7 +161,7 @@ public class ReportsController {
                                                        @RequestParam String orderNumber) throws ParseException, java.text.ParseException {
 
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -187,7 +187,7 @@ public class ReportsController {
                                                        @RequestParam String orderNumber) throws ParseException, java.text.ParseException {
 
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -210,7 +210,7 @@ public class ReportsController {
                                                          @RequestParam(required = false) List<String> soType,
                                                          @RequestParam String orderNumber, @RequestParam String preOutboundNo) throws ParseException, java.text.ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -235,7 +235,7 @@ public class ReportsController {
                                                        @RequestParam String plantId, @RequestParam String languageId)
             throws ParseException, java.text.ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -271,7 +271,7 @@ public class ReportsController {
     @PostMapping("/transactionHistoryReport")
     public ResponseEntity<?> getTransactionHistoryReport(@RequestBody FindImBasicData1 searchImBasicData1) throws java.text.ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(searchImBasicData1.getCompanyCodeId(), searchImBasicData1.getPlantId(), searchImBasicData1.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -309,7 +309,7 @@ public class ReportsController {
     public ResponseEntity<?> findMobileDashBoard(@Valid @RequestBody FindMobileDashBoard findMobileDashBoard) throws Exception {
 
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = null;
             if (findMobileDashBoard.getCompanyCode() == null || findMobileDashBoard.getPlantId() == null) {
                 Warehouse warehouseName = warehouseRepository.findTop1ByWarehouseIdAndDeletionIndicator(findMobileDashBoard.getWarehouseId().get(0), 0L);

@@ -92,7 +92,7 @@ public class GrHeaderController {
 	public ResponseEntity<?> postGrHeader(@Valid @RequestBody AddGrHeader newGrHeader, @RequestParam String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newGrHeader.getCompanyCodeId(), newGrHeader.getPlantId(), newGrHeader.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -112,7 +112,7 @@ public class GrHeaderController {
 			@Valid @RequestBody UpdateGrHeader updateGrHeader, @RequestParam String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(updateGrHeader.getCompanyCodeId(), updateGrHeader.getPlantId(), updateGrHeader.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -156,7 +156,7 @@ public class GrHeaderController {
         try {
 			log.info("searchGrHeader ------> {}", searchGrHeader);
 			String routingDb = null;
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			Warehouse warehouseName = warehouseRepository.findTop1ByWarehouseIdAndDeletionIndicator(searchGrHeader.getWarehouseId().get(0), 0L);
 			routingDb = dbConfigRepository.getDbName(warehouseName.getCompanyCodeId(), warehouseName.getPlantId(), warehouseName.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
@@ -175,7 +175,7 @@ public class GrHeaderController {
 										   @RequestParam String preInboundNo, @RequestParam String refDocNumber, @RequestParam String stagingNo,
 										   @RequestParam String palletCode, @RequestParam String caseCode) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCode,plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -201,7 +201,7 @@ public class GrHeaderController {
 	public ResponseEntity<?> postGrHeaderV2(@Valid @RequestBody GrHeaderV2 newGrHeader, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newGrHeader.getCompanyCode(), newGrHeader.getPlantId(), newGrHeader.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -222,7 +222,7 @@ public class GrHeaderController {
 											 @Valid @RequestBody GrHeaderV2 updateGrHeader, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -243,7 +243,7 @@ public class GrHeaderController {
 											  @RequestParam String preInboundNo, @RequestParam String refDocNumber, @RequestParam String stagingNo,
 											  @RequestParam String palletCode, @RequestParam String caseCode, @RequestParam String loginUserID) throws ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();

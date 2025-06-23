@@ -53,7 +53,7 @@ public class ProcessIdController {
 	public ResponseEntity<?> getProcessId(@RequestParam String warehouseId,@PathVariable String processId,@RequestParam String companyCodeId,
 										  @RequestParam String languageId,@RequestParam String plantId ) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -73,7 +73,7 @@ public class ProcessIdController {
 	public ResponseEntity<?> postProcessId(@Valid @RequestBody AddProcessId newProcessId, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newProcessId.getCompanyCodeId(), newProcessId.getPlantId(), newProcessId.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -92,7 +92,7 @@ public class ProcessIdController {
 											@Valid @RequestBody UpdateProcessId updateProcessId, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -111,7 +111,7 @@ public class ProcessIdController {
 	public ResponseEntity<?> deleteProcessId(@RequestParam String warehouseId, @PathVariable String processId, @RequestParam String companyCodeId,
 											 @RequestParam String languageId, @RequestParam String plantId,@RequestParam String loginUserID) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -128,7 +128,7 @@ public class ProcessIdController {
 	@PostMapping("/find")
 	public ResponseEntity<?> findProcessId(@Valid @RequestBody FindProcessId findProcessId) throws Exception {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(findProcessId.getCompanyCodeId(), findProcessId.getPlantId(), findProcessId.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();

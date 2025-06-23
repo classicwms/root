@@ -59,7 +59,7 @@ public class DeliveryHeaderController {
                                                @RequestParam String languageId,@RequestParam String plantId,
                                                @RequestParam String warehouseId){
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -82,7 +82,7 @@ public class DeliveryHeaderController {
                                                 @RequestParam String loginUserID) throws
             IllegalAccessException, InvocationTargetException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newDeliveryHeader.getCompanyCodeId(), newDeliveryHeader.getPlantId(), newDeliveryHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -106,7 +106,7 @@ public class DeliveryHeaderController {
                                                  @Valid @RequestBody UpdateDeliveryHeader updateDeliveryHeader)
             throws IllegalAccessException,InvocationTargetException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -130,7 +130,7 @@ public class DeliveryHeaderController {
                                            @RequestParam String languageId,@RequestParam String loginUserID){
 
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -150,7 +150,7 @@ public class DeliveryHeaderController {
     @PostMapping("/findDeliveryHeader")
     public ResponseEntity<?> findDeliveryHeader(@Valid @RequestBody SearchDeliveryHeader searchDeliveryHeader) throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbList(searchDeliveryHeader.getCompanyCodeId(), searchDeliveryHeader.getPlantId(), searchDeliveryHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

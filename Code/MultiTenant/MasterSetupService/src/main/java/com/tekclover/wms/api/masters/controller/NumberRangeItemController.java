@@ -55,7 +55,7 @@ public class NumberRangeItemController {
     public ResponseEntity<?> getNumberRangeItem(@PathVariable Long itemTypeId, @RequestParam String companyCodeId, @RequestParam String languageId,
                                                     @RequestParam String plantId, @RequestParam Long sequenceNo, @RequestParam String warehouseId) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -75,7 +75,7 @@ public class NumberRangeItemController {
     public ResponseEntity<?> postNumberRangeItem(@Valid @RequestBody AddNumberRangeItem addNumberRangeItem, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(addNumberRangeItem.getCompanyCodeId(), addNumberRangeItem.getPlantId(), addNumberRangeItem.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -95,7 +95,7 @@ public class NumberRangeItemController {
                                                       @Valid @RequestBody UpdateNumberRangeItem updateNumberRangeItem, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -113,7 +113,7 @@ public class NumberRangeItemController {
     public ResponseEntity<?> deleteNumberRangeItem(@PathVariable Long itemTypeId, @RequestParam String companyCodeId, @RequestParam String languageId, @RequestParam String plantId,@RequestParam Long sequenceNo,
                                                    @RequestParam String warehouseId,@RequestParam String loginUserID) throws ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -130,7 +130,7 @@ public class NumberRangeItemController {
     @PostMapping("/find")
     public ResponseEntity<?> findNumberRangeItem(@Valid @RequestBody SearchNumberRangeItem searchNumberRangeItem) throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbNameList(searchNumberRangeItem.getCompanyCodeId(), searchNumberRangeItem.getPlantId(), searchNumberRangeItem.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

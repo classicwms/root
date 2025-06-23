@@ -51,7 +51,7 @@ public class HandlingEquipmentController {
                                                                @RequestParam String companyCodeId, @RequestParam String languageId, @RequestParam String plantId) {
 //    	HandlingEquipment handlingequipment = handlingequipmentService.getHandlingEquipmentByWarehouseId(warehouseId, handlingEquipmentId);
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -73,7 +73,7 @@ public class HandlingEquipmentController {
             try {
                 log.info("HandlingEquipment get inputs : heBarcode ----> " + heBarcode + ", warehouseId -----> " + warehouseId + ", companyCodeId ----> " +
                         companyCodeId + ", languageId -----> " + languageId + ", plantId ------> " + plantId);
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
@@ -101,7 +101,7 @@ public class HandlingEquipmentController {
     public List<HandlingEquipment> findHandlingEquipment(@RequestBody SearchHandlingEquipment searchHandlingEquipment)
             throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbNameList(searchHandlingEquipment.getCompanyCodeId(), searchHandlingEquipment.getPlantId(), searchHandlingEquipment.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -118,7 +118,7 @@ finally {
                                                    @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newHandlingEquipment.getCompanyCodeId(), newHandlingEquipment.getPlantId(), newHandlingEquipment.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -138,7 +138,7 @@ finally {
                                                     @Valid @RequestBody UpdateHandlingEquipment updateHandlingEquipment, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -156,7 +156,7 @@ finally {
     @DeleteMapping("/{handlingEquipmentId}")
     public ResponseEntity<?> deleteHandlingEquipment(@PathVariable String handlingEquipmentId, @RequestParam String companyCodeId, @RequestParam String plantId, @RequestParam String warehouseId, @RequestParam String languageId, @RequestParam String loginUserID) throws ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

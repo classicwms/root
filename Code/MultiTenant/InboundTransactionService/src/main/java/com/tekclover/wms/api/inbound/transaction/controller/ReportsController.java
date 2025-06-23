@@ -114,7 +114,7 @@ public class ReportsController {
                                                            @RequestParam String plantId, @RequestParam String languageId, @RequestParam String warehouseId)
             throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId,plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -130,7 +130,7 @@ public class ReportsController {
     @GetMapping("/dashboard/get-count")
     public ResponseEntity<?> getDashboardCount(@RequestParam String warehouseId) throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName("1400", "2400", warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -148,7 +148,7 @@ public class ReportsController {
     public ResponseEntity<?> getStorageBinDashBoard(@RequestBody StorageBinDashBoardInput storageBinDashBoardInput) throws Exception {
         try {
             log.info("storageBinDashboard Input -----------> {}", storageBinDashBoardInput);
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(storageBinDashBoardInput.getCompanyCodeId(), storageBinDashBoardInput.getPlantId(), storageBinDashBoardInput.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -167,7 +167,7 @@ public class ReportsController {
     public ResponseEntity<?> inboundReversal(@RequestParam String companyCodeId,@RequestParam String plantId,
                                              @RequestParam String warehouseId,@RequestParam String refDocNumber,@RequestParam String preInboundNo){
 
-        DataBaseContextHolder.setCurrentDb("IMF");
+        DataBaseContextHolder.setCurrentDb("MT");
         String routingDb = dbConfigRepository.getDbName(companyCodeId,plantId,warehouseId);
         log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
         DataBaseContextHolder.clear();
@@ -175,7 +175,7 @@ public class ReportsController {
         reportsService.inboundReversal(companyCodeId,plantId,warehouseId,refDocNumber,preInboundNo);
 
         DataBaseContextHolder.clear();
-        DataBaseContextHolder.setCurrentDb("IMF");
+        DataBaseContextHolder.setCurrentDb("MT");
         reportsService.inboundOrderReversal(refDocNumber);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

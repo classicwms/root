@@ -62,7 +62,7 @@ public class MenuIdController {
 	public ResponseEntity<?> getMenuId(@PathVariable Long menuId, @RequestParam String warehouseId, 
 			@RequestParam Long subMenuId, @RequestParam Long authorizationObjectId,@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -88,7 +88,7 @@ public class MenuIdController {
 	public ResponseEntity<?> postMenuId(@Valid @RequestBody AddMenuId newMenuId, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newMenuId.getCompanyCodeId(), newMenuId.getPlantId(), newMenuId.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -109,7 +109,7 @@ public class MenuIdController {
 											  @RequestParam String loginUserID) throws Exception {
 		try {
 			for(AddMenuId menuId : newMenuId) {
-				DataBaseContextHolder.setCurrentDb("IMF");
+				DataBaseContextHolder.setCurrentDb("MT");
 				String routingDb = dbConfigRepository.getDbName(menuId.getCompanyCodeId(), menuId.getPlantId(), menuId.getWarehouseId());
 				log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 				DataBaseContextHolder.clear();
@@ -129,7 +129,7 @@ public class MenuIdController {
 			@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId,@Valid @RequestBody UpdateMenuId updateMenuId,
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -149,7 +149,7 @@ public class MenuIdController {
 			@RequestParam Long subMenuId, @RequestParam Long authorizationObjectId, @RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId,
 			@RequestParam String loginUserID) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -166,7 +166,7 @@ public class MenuIdController {
 	@PostMapping("/find")
 	public ResponseEntity<?> findMenuId(@Valid @RequestBody FindMenuId findMenuId) throws Exception {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(findMenuId.getCompanyCodeId(), findMenuId.getPlantId(), findMenuId.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();

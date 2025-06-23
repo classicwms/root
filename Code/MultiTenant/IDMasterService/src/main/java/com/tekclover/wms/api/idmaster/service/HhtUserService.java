@@ -283,7 +283,7 @@ public class HhtUserService {
         // Saving to Common DB
         try {
             DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", DataBaseContextHolder.getCurrentDb());
             HhtUser savedHhtUserImf = hhtUserRepository.save(dbHhtUser);
             log.info("Hhtuser saved in common DB : savedHhtUserImf ------> {}", savedHhtUserImf);

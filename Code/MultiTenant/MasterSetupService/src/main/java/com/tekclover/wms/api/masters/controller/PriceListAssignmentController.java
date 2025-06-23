@@ -48,7 +48,7 @@ public class PriceListAssignmentController {
                                         @RequestParam String warehouseId,@RequestParam String companyCodeId,
                                                     @RequestParam String languageId,@RequestParam String plantId) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -68,7 +68,7 @@ public class PriceListAssignmentController {
     public ResponseEntity<?> postPriceListAssignment(@Valid @RequestBody AddPriceListAssignment newPriceListAssignment,
                                          @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newPriceListAssignment.getCompanyCodeId(), newPriceListAssignment.getPlantId(), newPriceListAssignment.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -87,7 +87,7 @@ public class PriceListAssignmentController {
                                                       @Valid @RequestBody UpdatePriceListAssignment updatePriceListAssignment, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -106,7 +106,7 @@ finally {
                                            @RequestParam String warehouseId, @RequestParam String partnerCode,@RequestParam String companyCodeId,@RequestParam String languageId,
                                                        @RequestParam String plantId,@RequestParam String loginUserID) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -123,7 +123,7 @@ finally {
     @PostMapping("/find")
     public ResponseEntity<?> findPriceListAssignment(@Valid @RequestBody FindPriceListAssignment findPriceListAssignment) throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(findPriceListAssignment.getCompanyCodeId(), findPriceListAssignment.getPlantId(), findPriceListAssignment.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

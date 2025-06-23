@@ -115,7 +115,7 @@ public class OrderController {
 		log.info("FindOutboundOrderV2 details ------> {}", findOutboundOrderV2);
 		List<OutboundOrderV2> outboundOrderV2List = null;
 		DataBaseContextHolder.clear();
-		DataBaseContextHolder.setCurrentDb("IMF");
+		DataBaseContextHolder.setCurrentDb("MT");
 		String routingDb = dbConfigRepository.getDbList(findOutboundOrderV2.getCompanyCode(),
 				findOutboundOrderV2.getPlantId(),findOutboundOrderV2.getWarehouseId());
 		log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
@@ -139,7 +139,7 @@ public class OrderController {
 	@PatchMapping("update/outbound")
 	public ResponseEntity<?>updateOutboundOrder(@RequestParam String orderId, @RequestBody UpdateOutboundOrder updateOutboundOrder){
 		DataBaseContextHolder.clear();
-		DataBaseContextHolder.setCurrentDb("IMF");
+		DataBaseContextHolder.setCurrentDb("MT");
 		OutboundOrder outboundOrders = orderService.updateOutboundOrder(orderId, updateOutboundOrder);
 		return new ResponseEntity<>(outboundOrders,HttpStatus.OK);
 	}
@@ -150,7 +150,7 @@ public class OrderController {
 	@DeleteMapping("delete/outbound")
 	public ResponseEntity<?> deleteOutboundOrder(@RequestParam String orderId){
 		DataBaseContextHolder.clear();
-		DataBaseContextHolder.setCurrentDb("IMF");
+		DataBaseContextHolder.setCurrentDb("MT");
 		orderService.deleteOutboundOrder(orderId);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}

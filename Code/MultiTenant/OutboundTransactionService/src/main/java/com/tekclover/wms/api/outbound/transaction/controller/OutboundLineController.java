@@ -64,7 +64,7 @@ public class OutboundLineController {
     public List<OutboundLine> findOutboundLine(@RequestBody SearchOutboundLine searchOutboundLine)
             throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbList(searchOutboundLine.getCompanyCodeId(), searchOutboundLine.getPlantId(), searchOutboundLine.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -81,7 +81,7 @@ public class OutboundLineController {
     public List<OutboundLine> findOutboundLineNew(@RequestBody SearchOutboundLine searchOutboundLine)
             throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbList(searchOutboundLine.getCompanyCodeId(), searchOutboundLine.getPlantId(), searchOutboundLine.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -176,7 +176,7 @@ public class OutboundLineController {
                                                @RequestParam String plantId, @RequestParam String languageId,
                                                @RequestParam String preOutboundNo, @RequestParam String refDocNumber, @RequestParam String partnerCode) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -195,7 +195,7 @@ public class OutboundLineController {
     public List<OutboundLineV2> findOutboundLineV2(@RequestBody SearchOutboundLineV2 searchOutboundLine)
             throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbList(searchOutboundLine.getCompanyCodeId(), searchOutboundLine.getPlantId(), searchOutboundLine.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -211,7 +211,7 @@ public class OutboundLineController {
     public Stream<OutboundLineV2> findOutboundLineNewStreamV2(@RequestBody SearchOutboundLineV2 searchOutboundLine)
             throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbList(searchOutboundLine.getCompanyCodeId(), searchOutboundLine.getPlantId(), searchOutboundLine.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -235,7 +235,7 @@ public class OutboundLineController {
     public List<OutboundLineOutput> findOutboundLineNewV2(@RequestBody SearchOutboundLineV2 searchOutboundLine)
             throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbList(searchOutboundLine.getCompanyCodeId(), searchOutboundLine.getPlantId(), searchOutboundLine.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -273,7 +273,7 @@ public class OutboundLineController {
     public ResponseEntity<?> postOutboundLineV2(@Valid @RequestBody OutboundLineV2 newOutboundLine, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newOutboundLine.getCompanyCodeId(), newOutboundLine.getPlantId(), newOutboundLine.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -293,7 +293,7 @@ public class OutboundLineController {
                                                     @RequestParam String partnerCode, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -328,7 +328,7 @@ public class OutboundLineController {
             throws IllegalAccessException, InvocationTargetException, ParseException {
 
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -349,7 +349,7 @@ public class OutboundLineController {
                                                 @RequestParam String warehouseId, @RequestParam String preOutboundNo, @RequestParam String refDocNumber,
                                                 @RequestParam String partnerCode, @RequestParam String itemCode, @RequestParam String loginUserID) throws ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -368,7 +368,7 @@ public class OutboundLineController {
     public List<StockMovementReport> findLinesForStockMovementV2(@RequestBody SearchOutboundLineV2 searchOutboundLine)
             throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbList(searchOutboundLine.getCompanyCodeId(), searchOutboundLine.getPlantId(), searchOutboundLine.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -395,7 +395,7 @@ public class OutboundLineController {
                                                @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
             for (InboundReversalInput inboundReversalInput1 : outboundReversalInput) {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbName(inboundReversalInput1.getCompanyCodeId(), inboundReversalInput1.getPlantId(), inboundReversalInput1.getWarehouseId());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();

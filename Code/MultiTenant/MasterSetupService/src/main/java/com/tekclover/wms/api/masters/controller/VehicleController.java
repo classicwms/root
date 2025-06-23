@@ -56,7 +56,7 @@ public class VehicleController {
     public ResponseEntity<?> getVehicle(@PathVariable String vehicleNumber, @RequestParam String companyCodeId, @RequestParam String plantId,
                                         @RequestParam String warehouseId,@RequestParam String languageId) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId,warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -76,7 +76,7 @@ public class VehicleController {
     public List<Vehicle> findVehicle(@RequestBody SearchVehicle searchVehicle)
             throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbNameList(searchVehicle.getCompanyCodeId(), searchVehicle.getPlantId(),searchVehicle.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -95,7 +95,7 @@ public class VehicleController {
     public ResponseEntity<?> postVehicle(@Valid @RequestBody AddVehicle newVehicle, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newVehicle.getCompanyCodeId(), newVehicle.getPlantId(), newVehicle.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -115,7 +115,7 @@ finally {
                                             @Valid @RequestBody UpdateVehicle updateVehicle, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId,warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -134,7 +134,7 @@ finally {
     public ResponseEntity<?> deleteVehicleNumber(@PathVariable String vehicleNumber,@RequestParam String companyCodeId,@RequestParam String plantId,
                                                  @RequestParam String warehouseId,@RequestParam String languageId,@RequestParam String loginUserID) throws ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId,warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

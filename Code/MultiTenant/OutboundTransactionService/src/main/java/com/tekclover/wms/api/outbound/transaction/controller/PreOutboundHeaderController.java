@@ -83,7 +83,7 @@ public class PreOutboundHeaderController {
     public ResponseEntity<?> postPreOutboundHeader(@Valid @RequestBody AddPreOutboundHeader newPreOutboundHeader, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newPreOutboundHeader.getCompanyCodeId(), newPreOutboundHeader.getPlantId(), newPreOutboundHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -126,7 +126,7 @@ public class PreOutboundHeaderController {
     public ResponseEntity<?> getPreOutboundHeaderV2(@PathVariable String preOutboundNo, String companyCodeId, String plantId, String languageId,
                                                     @RequestParam String warehouseId, @RequestParam String refDocNumber, @RequestParam String partnerCode) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -147,7 +147,7 @@ public class PreOutboundHeaderController {
     public Stream<PreOutboundHeaderV2> findPreOutboundHeaderV2(@RequestBody SearchPreOutboundHeaderV2 searchPreOutboundHeader)
             throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbList(searchPreOutboundHeader.getCompanyCodeId(), searchPreOutboundHeader.getPlantId(), searchPreOutboundHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -164,7 +164,7 @@ public class PreOutboundHeaderController {
     public ResponseEntity<?> postPreOutboundHeaderV2(@Valid @RequestBody PreOutboundHeaderV2 newPreOutboundHeader, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newPreOutboundHeader.getCompanyCodeId(), newPreOutboundHeader.getPlantId(), newPreOutboundHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -183,7 +183,7 @@ public class PreOutboundHeaderController {
                                                       @Valid @RequestBody PreOutboundHeaderV2 updatePreOutboundHeader, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -203,7 +203,7 @@ finally {
                                                        @RequestParam String plantId, @RequestParam String warehouseId, @RequestParam String refDocNumber,
                                                        @RequestParam String partnerCode, @RequestParam String loginUserID) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -219,7 +219,7 @@ finally {
     @PostMapping("/v2/orderCancellation")
     public ResponseEntity<?> orderCancellation(@RequestBody OutboundOrderCancelInput outboundOrderCancelInput, @RequestParam String loginUserID) throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(outboundOrderCancelInput.getCompanyCodeId(), outboundOrderCancelInput.getPlantId(), outboundOrderCancelInput.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

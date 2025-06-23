@@ -48,7 +48,7 @@ public class InvoiceHeaderController {
                                               @RequestParam String languageId, @RequestParam String companyCodeId,
                                               @RequestParam String plantId, @RequestParam String warehouseId) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -68,7 +68,7 @@ public class InvoiceHeaderController {
     public ResponseEntity<?> postInvoiceHeader(@Valid @RequestBody AddInvoiceHeader newInvoiceHeader,
                                                @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newInvoiceHeader.getCompanyCodeId(), newInvoiceHeader.getPlantId(), newInvoiceHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -88,7 +88,7 @@ public class InvoiceHeaderController {
                                                 @Valid @RequestBody UpdateInvoiceHeader updateInvoiceHeader, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -108,7 +108,7 @@ public class InvoiceHeaderController {
                                                  @RequestParam String plantId,
                                                  @RequestParam String warehouseId, @RequestParam String partnerCode, @RequestParam String loginUserID) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

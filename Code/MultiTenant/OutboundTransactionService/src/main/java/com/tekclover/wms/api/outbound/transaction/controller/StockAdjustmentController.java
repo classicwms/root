@@ -40,7 +40,7 @@ public class StockAdjustmentController {
 												@RequestParam String plantId, @RequestParam String warehouseId, @RequestParam String itemCode,
 												@RequestParam String manufacturerName, @RequestParam String storageBin) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -61,7 +61,7 @@ public class StockAdjustmentController {
 	public Stream<StockAdjustment> findStockAdjustment(@RequestBody SearchStockAdjustment searchInventory)
 			throws Exception {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbList(searchInventory.getCompanyCodeId(), searchInventory.getPlantId(), searchInventory.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -81,7 +81,7 @@ public class StockAdjustmentController {
 												  @RequestBody List<StockAdjustment> updateStockAdjustment)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -101,7 +101,7 @@ public class StockAdjustmentController {
 												   @RequestParam String plantId, @RequestParam String warehouseId, @RequestParam String itemCode,
 												   @RequestParam String manufacturerName, @RequestParam String storageBin, @RequestParam String loginUserId) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();

@@ -60,7 +60,7 @@ public class StorageBinTypeIdController {
 	public ResponseEntity<?> getStorageBinTypeId(@RequestParam String warehouseId,@PathVariable Long storageBinTypeId,
 			 @RequestParam Long storageClassId,@RequestParam Long storageTypeId,@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -87,7 +87,7 @@ public class StorageBinTypeIdController {
 	public ResponseEntity<?> postStorageBinTypeId(@Valid @RequestBody AddStorageBinTypeId newStorageBinTypeId, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newStorageBinTypeId.getCompanyCodeId(), newStorageBinTypeId.getPlantId(), newStorageBinTypeId.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -107,7 +107,7 @@ public class StorageBinTypeIdController {
 													@Valid @RequestBody UpdateStorageBinTypeId updateStorageBinTypeId)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -128,7 +128,7 @@ public class StorageBinTypeIdController {
 													@RequestParam Long storageTypeId, @RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId,
 			@RequestParam String loginUserID) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -145,7 +145,7 @@ public class StorageBinTypeIdController {
 	@PostMapping("/find")
 	public ResponseEntity<?> findStorageBinTypeId(@Valid @RequestBody FindStorageBinTypeId findStorageBinTypeId) throws Exception {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(findStorageBinTypeId.getCompanyCodeId(), findStorageBinTypeId.getPlantId(), findStorageBinTypeId.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();

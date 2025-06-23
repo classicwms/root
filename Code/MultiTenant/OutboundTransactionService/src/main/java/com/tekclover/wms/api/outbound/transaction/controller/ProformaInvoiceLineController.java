@@ -50,7 +50,7 @@ public class ProformaInvoiceLineController {
                                                     @RequestParam String languageId, @RequestParam String companyCodeId,
                                                     @RequestParam String plantId, @RequestParam String warehouseId) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -70,7 +70,7 @@ public class ProformaInvoiceLineController {
     public ResponseEntity<?> postProformaInvoiceLine(@Valid @RequestBody AddProformaInvoiceLine newProformaInvoiceLine,
                                                      @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newProformaInvoiceLine.getCompanyCodeId(), newProformaInvoiceLine.getPlantId(), newProformaInvoiceLine.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -92,7 +92,7 @@ public class ProformaInvoiceLineController {
                                                       @Valid @RequestBody UpdateProformaInvoiceLine updateProformaInvoiceLine)
             throws IllegalAccessException, InvocationTargetException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -111,7 +111,7 @@ public class ProformaInvoiceLineController {
     public ResponseEntity<?> deleteProformaInvoiceLine(@PathVariable Long lineNumber, @RequestParam String languageId, @RequestParam String companyCodeId, @RequestParam String plantId,
                                                        @RequestParam String warehouseId, @RequestParam String proformaBillNo, @RequestParam String partnerCode, @RequestParam String loginUserID) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

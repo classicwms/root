@@ -102,7 +102,7 @@ public class PutAwayLineController {
 	public ResponseEntity<?> postPutAwayLine(@Valid @RequestBody AddPutAwayLine newPutAwayLine, @RequestParam String loginUserID) 
 			throws IllegalAccessException, InvocationTargetException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newPutAwayLine.getCompanyCode(), newPutAwayLine.getPlantId(), newPutAwayLine.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -121,7 +121,7 @@ public class PutAwayLineController {
    			throws IllegalAccessException, InvocationTargetException {
 		try {
 			for (AddPutAwayLine putAwayLine : newPutAwayLine) {
-				DataBaseContextHolder.setCurrentDb("IMF");
+				DataBaseContextHolder.setCurrentDb("MT");
 				String routingDb = dbConfigRepository.getDbName(putAwayLine.getCompanyCode(), putAwayLine.getPlantId(), putAwayLine.getWarehouseId());
 				log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 				DataBaseContextHolder.clear();
@@ -143,7 +143,7 @@ public class PutAwayLineController {
 			@RequestParam String proposedStorageBin, @Valid @RequestBody UpdatePutAwayLine updatePutAwayLine, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(updatePutAwayLine.getCompanyCodeId(), updatePutAwayLine.getPlantId(), updatePutAwayLine.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -161,7 +161,7 @@ public class PutAwayLineController {
 	@DeleteMapping("/{confirmedStorageBin}")
 	public ResponseEntity<?> deletePutAwayLine(@PathVariable String confirmedStorageBin, @RequestParam String languageId, @RequestParam String companyCodeId, @RequestParam String plantId, @RequestParam String warehouseId, @RequestParam String goodsReceiptNo, @RequestParam String preInboundNo, @RequestParam String refDocNumber, @RequestParam String putAwayNumber, @RequestParam Long lineNo, @RequestParam String itemCode, @RequestParam String proposedStorageBin, @RequestParam String loginUserID) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -183,7 +183,7 @@ public class PutAwayLineController {
 											  @RequestParam String putAwayNumber, @RequestParam Long lineNo, @RequestParam String itemCode,
 											  @RequestParam String proposedStorageBin) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -205,7 +205,7 @@ public class PutAwayLineController {
 															@RequestParam String companyCode, @RequestParam String plantId, @RequestParam String languageId,
 															@RequestParam String refDocNumber, @RequestParam String preInboundNo, @RequestParam String itemCode) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCode,plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -234,7 +234,7 @@ public class PutAwayLineController {
 													  @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String profile = dbConfigRepository.getDbName(newPutAwayLine.get(0).getCompanyCode(), newPutAwayLine.get(0).getPlantId(), newPutAwayLine.get(0).getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", profile);
 			DataBaseContextHolder.clear();
@@ -272,7 +272,7 @@ public class PutAwayLineController {
 //
 //		try {
 //			for(PutAwayLineV2 lineV2 : newPutAwayLine) {
-//				DataBaseContextHolder.setCurrentDb("IMF");
+//				DataBaseContextHolder.setCurrentDb("MT");
 //				String routingDb = dbConfigRepository.getDbName(lineV2.getCompanyCode(), lineV2.getPlantId(), lineV2.getWarehouseId());
 //				log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 //				DataBaseContextHolder.clear();
@@ -294,7 +294,7 @@ public class PutAwayLineController {
 	public List<PutAwayLineV2> findPutAwayLineV2(@RequestBody SearchPutAwayLineV2 searchPutAwayLine)
 			throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName1(searchPutAwayLine.getCompanyCodeId(), searchPutAwayLine.getPlantId(), searchPutAwayLine.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -310,7 +310,7 @@ public class PutAwayLineController {
 	public ResponseEntity<?> postPutAwayLineV2(@Valid @RequestBody PutAwayLineV2 newPutAwayLine, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newPutAwayLine.getCompanyCode(), newPutAwayLine.getPlantId(), newPutAwayLine.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -331,7 +331,7 @@ public class PutAwayLineController {
 												@RequestParam String proposedStorageBin, @Valid @RequestBody PutAwayLineV2 updatePutAwayLine,
 												@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -355,7 +355,7 @@ public class PutAwayLineController {
 												 @RequestParam String putAwayNumber, @RequestParam Long lineNo,
 												 @RequestParam String itemCode, @RequestParam String proposedStorageBin, @RequestParam String loginUserID) throws ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -375,7 +375,7 @@ public class PutAwayLineController {
 	public ResponseEntity<?> getInboundConfirmV7(@RequestParam String companyCode, @RequestParam String plantId, @RequestParam String languageId,
 												 @RequestParam String warehouseId, @RequestParam String refDocNumber,@RequestParam String preInboundNo,@RequestParam String loginUserID) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();

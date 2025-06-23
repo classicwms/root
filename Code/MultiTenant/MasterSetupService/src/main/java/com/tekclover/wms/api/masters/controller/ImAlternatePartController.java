@@ -50,7 +50,7 @@ public class ImAlternatePartController {
                                                 @RequestParam String languageId, @RequestParam String plantId,
                                                 @PathVariable String itemCode, @RequestParam String warehouseId) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -70,7 +70,7 @@ finally {
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
             for (AddImAlternatePart newImAlternatepart : newImAlternatePart) {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbName(newImAlternatepart.getCompanyCodeId(), newImAlternatepart.getPlantId(), newImAlternatepart.getWarehouseId());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
@@ -92,7 +92,7 @@ finally {
                                                @Valid @RequestBody List<AddImAlternatePart> updateImAlternatePart)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -112,7 +112,7 @@ finally {
                                                 @RequestParam String languageId, @RequestParam String plantId,
                                                  @RequestParam String warehouseId,@RequestParam String loginUserID) throws ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -129,7 +129,7 @@ finally {
     @PostMapping("/find")
     public ResponseEntity<?> findAisleId(@Valid @RequestBody SearchImAlternateParts findImAlternateParts) throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbNameList(findImAlternateParts.getCompanyCodeId(), findImAlternateParts.getPlantId(), findImAlternateParts.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

@@ -123,7 +123,7 @@
 //        Map<Object, Object> targetDataSources = new HashMap<>();
 //
 //        // Example data source configurations (replace with actual configuration)
-//        DataSource db = createDataSource("IMF");
+//        DataSource db = createDataSource("MT");
 //        DataSource db1 = createDataSource("IMPEX");
 //        DataSource db2 = createDataSource("WK");
 //        DataSource db3 = createDataSource("ALM");
@@ -131,7 +131,7 @@
 //        DataSource db5 = createDataSource("REEFERON");
 //        DataSource db7 = createDataSource("FAHAHEEL");
 //
-//        targetDataSources.put("IMF",db);
+//        targetDataSources.put("MT",db);
 //        targetDataSources.put("IMPEX", db1);
 //        targetDataSources.put("WK", db2);
 //        targetDataSources.put("ALM",db3);
@@ -149,7 +149,7 @@
 //        DriverManagerDataSource dataSource = new DriverManagerDataSource();
 //        // Configure database connection here
 //        switch (dbName) {
-//            case "IMF":
+//            case "MT":
 //                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
 //                dataSource.setUrl("jdbc:sqlserver://3.111.203.218;databaseName=wms_imf");
 //                dataSource.setUsername("sa");

@@ -91,7 +91,7 @@ public class OutboundHeaderController {
                                                 @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newOutboundHeader.getCompanyCodeId(), newOutboundHeader.getPlantId(), newOutboundHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -112,7 +112,7 @@ public class OutboundHeaderController {
             throws IllegalAccessException, InvocationTargetException {
 
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(updateOutboundHeader.getCompanyCodeId(), updateOutboundHeader.getPlantId(), warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -151,7 +151,7 @@ public class OutboundHeaderController {
                                                  @RequestParam String plantId, @RequestParam String languageId, @RequestParam String warehouseId,
                                                  @RequestParam String refDocNumber, @RequestParam String partnerCode) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -173,7 +173,7 @@ public class OutboundHeaderController {
     public Stream<OutboundHeaderV2> findOutboundHeaderV2(@RequestBody SearchOutboundHeaderV2 searchOutboundHeader)
             throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbList(searchOutboundHeader.getCompanyCodeId(), searchOutboundHeader.getPlantId(), searchOutboundHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -191,7 +191,7 @@ public class OutboundHeaderController {
     public List<OutboundHeaderV2Stream> findOutboundHeaderStreamV2(@RequestBody SearchOutboundHeaderV2 searchOutboundHeader)
             throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbList(searchOutboundHeader.getCompanyCodeId(), searchOutboundHeader.getPlantId(), searchOutboundHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -209,7 +209,7 @@ public class OutboundHeaderController {
     public List<OutboundHeaderV2Stream> findOutboundHeaderDelivery(@RequestBody SearchOutboundHeaderV2 searchOutboundHeader)
             throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbList(searchOutboundHeader.getCompanyCodeId(), searchOutboundHeader.getPlantId(), searchOutboundHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -226,7 +226,7 @@ public class OutboundHeaderController {
     public List<OutboundHeaderV2Stream> findOutboundHeaderrfdV2(@RequestBody SearchOutboundHeaderV2 searchOutboundHeader)
             throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbList(searchOutboundHeader.getCompanyCodeId(), searchOutboundHeader.getPlantId(), searchOutboundHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -244,7 +244,7 @@ public class OutboundHeaderController {
                                                   @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newOutboundHeader.getCompanyDescription(), newOutboundHeader.getPlantId(), newOutboundHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -265,7 +265,7 @@ public class OutboundHeaderController {
                                                    @Valid @RequestBody OutboundHeaderV2 updateOutboundHeader, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -287,7 +287,7 @@ public class OutboundHeaderController {
                                                   @RequestParam String warehouseId, @RequestParam String refDocNumber,
                                                   @RequestParam String partnerCode, @RequestParam String loginUserID) throws ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

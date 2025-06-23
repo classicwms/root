@@ -145,7 +145,7 @@ public class WarehouseController {
 //	public ResponseEntity<?> postASNV2 (@Valid @RequestBody ASNV2 asn)
 //			throws IllegalAccessException, InvocationTargetException {
 //		try {
-//			DataBaseContextHolder.setCurrentDb("IMF");
+//			DataBaseContextHolder.setCurrentDb("MT");
 //			String routingDb = dbConfigRepository.getDbName(asn.getAsnHeader().getCompanyCode(), asn.getAsnHeader().getBranchCode(), String.valueOf(asn.getAsnHeader().getMiddlewareId()));
 //			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 //			DataBaseContextHolder.clear();
@@ -178,7 +178,7 @@ public class WarehouseController {
             throws IllegalAccessException, InvocationTargetException {
 
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String profile = dbConfigRepository.getDbName(asn.getAsnHeader().getCompanyCode(), asn.getAsnHeader().getBranchCode(), asn.getAsnHeader().getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", profile);
 //            DataBaseContextHolder.clear();
@@ -223,7 +223,7 @@ public class WarehouseController {
     public ResponseEntity<?> postStockReceipt(@Valid @RequestBody StockReceiptHeader stockReceipt)
             throws IllegalAccessException, InvocationTargetException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(stockReceipt.getCompanyCode(), stockReceipt.getBranchCode(), String.valueOf(stockReceipt.getMiddlewareId()));
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -257,7 +257,7 @@ public class WarehouseController {
             List<WarehouseApiResponse> responseList = new ArrayList<>();
             for (ASNV2 asnv2 : asnv2List) {
                 InboundOrderV2 inboundOrderV2 = null;
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbName(asnv2.getAsnHeader().getCompanyCode(), asnv2.getAsnHeader().getBranchCode(), String.valueOf(asnv2.getAsnHeader().getMiddlewareId()));
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
@@ -291,7 +291,7 @@ public class WarehouseController {
             throws IllegalAccessException, InvocationTargetException {
 
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             log.info("soReturn -------> {}", soReturnV2);
             String profile = dbConfigRepository.getDbName2(soReturnV2.getSoReturnHeader().getCompanyCode(), soReturnV2.getSoReturnHeader().getBranchCode());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", profile);
@@ -338,7 +338,7 @@ public class WarehouseController {
     public ResponseEntity<?> postInterWarehouseTransferInV2(@Valid @RequestBody InterWarehouseTransferInV2 interWarehouseTransferInV2)
             throws IllegalAccessException, InvocationTargetException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(interWarehouseTransferInV2.getInterWarehouseTransferInHeader().getSourceCompanyCode(), interWarehouseTransferInV2.getInterWarehouseTransferInHeader().getSourceBranchCode(), String.valueOf(interWarehouseTransferInV2.getInterWarehouseTransferInHeader().getMiddlewareId()));
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -373,7 +373,7 @@ public class WarehouseController {
         try {
             List<WarehouseApiResponse> responseList = new ArrayList<>();
             for (InterWarehouseTransferInV2 interWarehouseTransferInV2 : interWarehouseTransferInV2List) {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbName(interWarehouseTransferInV2.getInterWarehouseTransferInHeader().getSourceCompanyCode(), interWarehouseTransferInV2.getInterWarehouseTransferInHeader().getSourceBranchCode(), String.valueOf(interWarehouseTransferInV2.getInterWarehouseTransferInHeader().getMiddlewareId()));
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
@@ -407,7 +407,7 @@ public class WarehouseController {
     public ResponseEntity<?> postB2bTransferIn(@Valid @RequestBody B2bTransferIn b2bTransferIn)
             throws IllegalAccessException, InvocationTargetException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(b2bTransferIn.getB2bTransferInHeader().getCompanyCode(), b2bTransferIn.getB2bTransferInHeader().getBranchCode(), String.valueOf(b2bTransferIn.getB2bTransferInHeader().getMiddlewareId()));
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

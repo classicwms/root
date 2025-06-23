@@ -1344,7 +1344,7 @@ public class OrderService {
         outboundOrderV2Repository.save(orderV2);
 
         DataBaseContextHolder.clear();
-        DataBaseContextHolder.setCurrentDb("IMF");
+        DataBaseContextHolder.setCurrentDb("MT");
         outboundOrderV2Repository.save(orderV2);
         return orderV2;
     }
@@ -1413,7 +1413,7 @@ public class OrderService {
      */
     public OutboundOrderV2 getOBOrderByIdV2(String orderId, Long outboundOrderTypeID) {
         DataBaseContextHolder.clear();
-        DataBaseContextHolder.setCurrentDb("IMF");
+        DataBaseContextHolder.setCurrentDb("MT");
         OutboundOrderV2 dbOutboundOrder = outboundOrderV2Repository.findByRefDocumentNoAndOutboundOrderTypeID (orderId, outboundOrderTypeID);
 
         if(dbOutboundOrder!= null) {

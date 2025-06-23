@@ -48,7 +48,7 @@ public class WorkCenterController {
     @GetMapping("/{workCenterId}")
     public ResponseEntity<?> getWorkCenter(@PathVariable Long workCenterId,@RequestParam String companyCodeId,@RequestParam String plantId,@RequestParam String warehouseId,@RequestParam String languageId,@RequestParam String workCenterType) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId,warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -68,7 +68,7 @@ public class WorkCenterController {
     public List<WorkCenter> findWorkCenter(@RequestBody SearchWorkCenter searchWorkCenter)
             throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbNameList(searchWorkCenter.getCompanyCodeId(), searchWorkCenter.getPlantId(),searchWorkCenter.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -85,7 +85,7 @@ public class WorkCenterController {
     public ResponseEntity<?> postWorkCenter(@Valid @RequestBody AddWorkCenter newWorkCenter, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newWorkCenter.getCompanyCodeId(), newWorkCenter.getPlantId(), newWorkCenter.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -104,7 +104,7 @@ public class WorkCenterController {
                                              @Valid @RequestBody UpdateWorkCenter updateWorkCenter, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId,warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -121,7 +121,7 @@ public class WorkCenterController {
     @DeleteMapping("/{workCenterId}")
     public ResponseEntity<?> deleteWorkCenter(@PathVariable Long workCenterId, @RequestParam String loginUserID, @RequestParam String warehouseId,@RequestParam String companyCodeId,@RequestParam String plantId,@RequestParam String workCenterType,@RequestParam String languageId) throws ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId,warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

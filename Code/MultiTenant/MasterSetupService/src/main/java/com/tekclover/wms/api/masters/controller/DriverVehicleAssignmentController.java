@@ -53,7 +53,7 @@ public class DriverVehicleAssignmentController {
                                        @RequestParam String companyCodeId, @RequestParam String languageId,
                                        @RequestParam String plantId, @RequestParam String warehouseId) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -75,7 +75,7 @@ finally {
                                                          @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newDriverVehicleAssignment.getCompanyCodeId(), newDriverVehicleAssignment.getPlantId(), newDriverVehicleAssignment.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -98,7 +98,7 @@ finally {
                                                           @Valid @RequestBody UpdateDriverVehicleAssignment updateDriverVehicleAssignment)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -122,7 +122,7 @@ finally {
                                                            @RequestParam String languageId, @RequestParam String plantId,
                                                            @RequestParam String warehouseId,@RequestParam String loginUserID) throws ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -142,7 +142,7 @@ finally {
     public ResponseEntity<?> findDriverVehicleAssignment(@Valid @RequestBody SearchDriverVehicleAssignment
                                                                      searchDriverVehicleAssignment) throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbNameList(searchDriverVehicleAssignment.getCompanyCodeId(), searchDriverVehicleAssignment.getPlantId(), searchDriverVehicleAssignment.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

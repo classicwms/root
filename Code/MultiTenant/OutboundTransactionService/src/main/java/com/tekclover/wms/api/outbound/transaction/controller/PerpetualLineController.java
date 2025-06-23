@@ -67,7 +67,7 @@ public class PerpetualLineController {
                                                 @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
         try {
             for (AssignHHTUserCC assignHHTuser :assignHHTUser){
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(assignHHTuser.getCompanyCodeId(), assignHHTuser.getPlantId(), assignHHTuser.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -88,7 +88,7 @@ public class PerpetualLineController {
             throws IllegalAccessException, InvocationTargetException {
         try {
             for (UpdatePerpetualLine updatePerpetualLine1 : updatePerpetualLine){
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbName(updatePerpetualLine1.getCompanyCodeId(), updatePerpetualLine1.getPlantId(), updatePerpetualLine1.getWarehouseId());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
@@ -119,7 +119,7 @@ public class PerpetualLineController {
                                                   @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
         try {
             for (AssignHHTUserCC assignHHTuser :assignHHTUser){
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbName(assignHHTuser.getCompanyCodeId(), assignHHTuser.getPlantId(), assignHHTuser.getWarehouseId());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
@@ -140,7 +140,7 @@ public class PerpetualLineController {
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
             for (PerpetualLineV2 updatePerpetualLine1 : updatePerpetualLine){
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbName(updatePerpetualLine1.getCompanyCodeId(), updatePerpetualLine1.getPlantId(), updatePerpetualLine1.getWarehouseId());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
@@ -173,7 +173,7 @@ public class PerpetualLineController {
             throws IllegalAccessException, InvocationTargetException {
         try {
             for (PerpetualLineV2 updatePerpetualLine1 :updatePerpetualLine){
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbName(updatePerpetualLine1.getCompanyCodeId(), updatePerpetualLine1.getPlantId(), updatePerpetualLine1.getWarehouseId());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();

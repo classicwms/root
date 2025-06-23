@@ -96,7 +96,7 @@ public class OrderManagementLineController {
     public ResponseEntity<?> postOrderManagementLine(@Valid @RequestBody AddOrderManagementLine newOrderManagementLine, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newOrderManagementLine.getCompanyCodeId(), newOrderManagementLine.getPlantId(), newOrderManagementLine.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -116,7 +116,7 @@ public class OrderManagementLineController {
                                                            @RequestParam String itemCode, @RequestParam String proposedStorageBin, @RequestParam String proposedPackBarCode,
                                                            @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbByWarehouse(warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -137,7 +137,7 @@ public class OrderManagementLineController {
                                                          @RequestParam String itemCode, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbByWarehouse(warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -171,7 +171,7 @@ public class OrderManagementLineController {
                                                      @Valid @RequestBody UpdateOrderManagementLine updateOrderMangementLine, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(updateOrderMangementLine.getCompanyCodeId(), updateOrderMangementLine.getPlantId(),
                     warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
@@ -223,7 +223,7 @@ public class OrderManagementLineController {
                                                       @RequestParam String preOutboundNo, @RequestParam String partnerCode, @RequestParam Long lineNumber,
                                                       @RequestParam String itemCode, @RequestParam String proposedStorageBin, @RequestParam String proposedPackCode) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -245,7 +245,7 @@ public class OrderManagementLineController {
     public Stream<OrderManagementLineV2> findOrderManagementLineV2(@RequestBody SearchOrderManagementLineV2 searchOrderManagementLine)
             throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbList(searchOrderManagementLine.getCompanyCodeId(), searchOrderManagementLine.getPlantId(), searchOrderManagementLine.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -261,7 +261,7 @@ public class OrderManagementLineController {
     public ResponseEntity<?> postOrderManagementLineV2(@Valid @RequestBody OrderManagementLineV2 newOrderManagementLine, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newOrderManagementLine.getCompanyCodeId(), newOrderManagementLine.getPlantId(), newOrderManagementLine.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -279,7 +279,7 @@ public class OrderManagementLineController {
     public ResponseEntity<?> unallocateOrderManagementLineV2(@Valid @RequestBody List<OrderManagementLineV2> orderManagementLineV2, @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
             for (OrderManagementLineV2 orderManagementlineV2 : orderManagementLineV2) {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbName(orderManagementlineV2.getCompanyCodeId(), orderManagementlineV2.getPlantId(), orderManagementlineV2.getWarehouseId());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
@@ -301,7 +301,7 @@ public class OrderManagementLineController {
                                                              @RequestParam String itemCode, @RequestParam String proposedStorageBin, @RequestParam String proposedPackBarCode,
                                                              @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -322,7 +322,7 @@ public class OrderManagementLineController {
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
             for (OrderManagementLineV2 orderManagementlineV : orderManagementLineV2) {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbName(orderManagementlineV.getCompanyCodeId(), orderManagementlineV.getPlantId(), orderManagementlineV.getWarehouseId());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
@@ -344,7 +344,7 @@ public class OrderManagementLineController {
                                                            @RequestParam String itemCode, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -363,7 +363,7 @@ public class OrderManagementLineController {
     public ResponseEntity<?> assignPickerV2(@RequestBody List<AssignPickerV2> assignPicker, @RequestParam String assignedPickerId,
                                             @RequestParam String loginUserID) throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(assignPicker.get(0).getCompanyCodeId(), assignPicker.get(0).getPlantId(), assignPicker.get(0).getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -404,7 +404,7 @@ public class OrderManagementLineController {
                                                        @Valid @RequestBody OrderManagementLineV2 updateOrderMangementLine, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -427,7 +427,7 @@ public class OrderManagementLineController {
                                                    @RequestParam String itemCode, @RequestParam String proposedStorageBin,
                                                    @RequestParam String proposedPackCode, @RequestParam String loginUserID) throws ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -446,7 +446,7 @@ public class OrderManagementLineController {
                                                    @RequestParam String languageId, @RequestParam String refDocNumber,
                                                    @RequestParam Long outboundOrderTypeId) throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -473,7 +473,7 @@ public class OrderManagementLineController {
     @PostMapping("/v2/findOrderManagementLines")
     public List<OrderManagementLineImpl> findOrderManagementLinesV2(@RequestBody SearchOrderManagementLineV2 searchOrderManagementLine) throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbList(searchOrderManagementLine.getCompanyCodeId(), searchOrderManagementLine.getPlantId(), searchOrderManagementLine.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

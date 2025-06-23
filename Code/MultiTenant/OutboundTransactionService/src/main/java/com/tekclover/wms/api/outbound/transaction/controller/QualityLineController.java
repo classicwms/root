@@ -73,7 +73,7 @@ public class QualityLineController {
             throws IllegalAccessException, InvocationTargetException {
         try {
             for (AddQualityLine newQualityline : newQualityLine) {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbName(newQualityline.getCompanyCodeId(), newQualityline.getPlantId(), newQualityline.getWarehouseId());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
@@ -96,7 +96,7 @@ public class QualityLineController {
                                               @Valid @RequestBody UpdateQualityLine updateQualityLine, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(updateQualityLine.getCompanyCodeId(), updateQualityLine.getPlantId(), warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -147,7 +147,7 @@ public class QualityLineController {
         try {
             log.info("AddQualityLineV2 -----> {}", newQualityLine);
             for (AddQualityLineV2  newQualityline :newQualityLine) {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbName(newQualityline.getCompanyCodeId(), newQualityline.getPlantId(), newQualityline.getWarehouseId());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
@@ -171,7 +171,7 @@ public class QualityLineController {
                                                 @Valid @RequestBody QualityLineV2 updateQualityLine, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -194,7 +194,7 @@ public class QualityLineController {
                                                  @RequestParam String refDocNumber, @RequestParam Long lineNumber,
                                                  @RequestParam String qualityInspectionNo, @RequestParam String itemCode, @RequestParam String loginUserID) throws ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

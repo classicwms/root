@@ -83,11 +83,11 @@ public class OrderController {
         log.info("FindInboundOrderV2 details ------> {}", findInboundOrderV2);
         List<InboundOrderV2> inboundOrderV2List = null;
         DataBaseContextHolder.clear();
-        DataBaseContextHolder.setCurrentDb("IMF");
+        DataBaseContextHolder.setCurrentDb("MT");
         String routingDb = dbConfigRepository.getDbName1(findInboundOrderV2.getCompanyCode(),
                 findInboundOrderV2.getPlantId(),findInboundOrderV2.getWarehouseId());
         log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-//        DataBaseContextHolder.setCurrentDb("IMF");
+//        DataBaseContextHolder.setCurrentDb("MT");
         DataBaseContextHolder.clear();
         DataBaseContextHolder.setCurrentDb(routingDb);
         inboundOrderV2List = orderService.findInboundOrderV2(findInboundOrderV2);
@@ -111,7 +111,7 @@ public class OrderController {
     public ResponseEntity<?>updateInboundOrder(@RequestParam String orderId,@RequestBody UpdateInboundOrder updateInboundOrder){
 
         DataBaseContextHolder.clear();
-        DataBaseContextHolder.setCurrentDb("IMF");
+        DataBaseContextHolder.setCurrentDb("MT");
         InboundOrder inboundOrders = orderService.updateInboundOrder(orderId, updateInboundOrder);
         return new ResponseEntity<>(inboundOrders,HttpStatus.OK);
     }
@@ -124,7 +124,7 @@ public class OrderController {
     public ResponseEntity<?> deleteInboundOrder(@RequestParam String orderId){
 
         DataBaseContextHolder.clear();
-        DataBaseContextHolder.setCurrentDb("IMF");
+        DataBaseContextHolder.setCurrentDb("MT");
         orderService.deleteInboundOrder(orderId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

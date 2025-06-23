@@ -56,7 +56,7 @@ public class DriverRemarkController {
                                            @RequestParam String loginUserID) throws Exception {
 
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newDriverRemark.getCompanyCodeId(), newDriverRemark.getPlantId(), newDriverRemark.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -77,7 +77,7 @@ public class DriverRemarkController {
             throws Exception {
 
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(driverRemark.getCompanyCodeId(), driverRemark.getPlantId(), driverRemark.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -95,7 +95,7 @@ public class DriverRemarkController {
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteDriverRemark(@RequestBody DriverRemark driverRemark, @RequestParam String preOutboundNo , @RequestParam String refDocNumber) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(driverRemark.getCompanyCodeId(), driverRemark.getPlantId(), driverRemark.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -112,7 +112,7 @@ public class DriverRemarkController {
     @PostMapping("/find")
     public ResponseEntity<?> findDriverRemark(@RequestBody SearchDriverRemark searchDriverRemark) throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbList(searchDriverRemark.getCompanyCodeId(), searchDriverRemark.getPlantId(), searchDriverRemark.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

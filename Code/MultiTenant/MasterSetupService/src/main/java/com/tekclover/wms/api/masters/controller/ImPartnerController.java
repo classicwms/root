@@ -62,7 +62,7 @@ public class ImPartnerController {
 	public ResponseEntity<?> getImPartner(@PathVariable String itemCode, @RequestParam String companyCodeId, @RequestParam String manufacturerName,
 										  @RequestParam String plantId, @RequestParam String languageId, @RequestParam String warehouseId, @RequestParam String partnerItemBarcode) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -83,7 +83,7 @@ public class ImPartnerController {
 		try {
 			log.info("SearchImPartner ------> {}", searchImPartner);
 			String routingDb = null;
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			Warehouse warehouseName = warehouseRepository.findTop1ByWarehouseIdAndDeletionIndicator(searchImPartner.getWarehouseId().get(0), 0L);
 			routingDb = dbConfigRepository.getDbName(warehouseName.getCompanyCodeId(), warehouseName.getPlantId(), warehouseName.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
@@ -103,7 +103,7 @@ public class ImPartnerController {
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
 			for (AddImPartner newImpartner : newImPartner) {
-				DataBaseContextHolder.setCurrentDb("IMF");
+				DataBaseContextHolder.setCurrentDb("MT");
 				String routingDb = dbConfigRepository.getDbName(newImpartner.getCompanyCodeId(), newImpartner.getPlantId(), newImpartner.getWarehouseId());
 				log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 				DataBaseContextHolder.clear();
@@ -125,7 +125,7 @@ public class ImPartnerController {
 											@RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -146,7 +146,7 @@ public class ImPartnerController {
 											 @RequestParam String languageId, @RequestParam String warehouseId, @RequestParam String partnerItemBarcode,
 											 @RequestParam String loginUserID) throws ParseException, InvocationTargetException, IllegalAccessException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -162,7 +162,7 @@ public class ImPartnerController {
 	@PostMapping("/v2/get")
 	public ResponseEntity<?> getImPartnerV2(@RequestBody ImPartnerInput imPartnerInput) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(imPartnerInput.getCompanyCodeId(), imPartnerInput.getPlantId(), imPartnerInput.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -182,7 +182,7 @@ public class ImPartnerController {
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
 			for (AddImPartner updateImpartner : updateImPartner) {
-				DataBaseContextHolder.setCurrentDb("IMF");
+				DataBaseContextHolder.setCurrentDb("MT");
 				String routingDb = dbConfigRepository.getDbName(updateImpartner.getCompanyCodeId(), updateImpartner.getPlantId(), updateImpartner.getWarehouseId());
 				log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 				DataBaseContextHolder.clear();
@@ -203,7 +203,7 @@ public class ImPartnerController {
 			throws ParseException, InvocationTargetException, IllegalAccessException {
 		try {
 			for (ImPartnerInput impartnerInput : imPartnerInput) {
-				DataBaseContextHolder.setCurrentDb("IMF");
+				DataBaseContextHolder.setCurrentDb("MT");
 				String routingDb = dbConfigRepository.getDbName(impartnerInput.getCompanyCodeId(), impartnerInput.getPlantId(), impartnerInput.getWarehouseId());
 				log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 				DataBaseContextHolder.clear();

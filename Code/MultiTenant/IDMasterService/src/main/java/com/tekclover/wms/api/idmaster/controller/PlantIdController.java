@@ -70,7 +70,7 @@ public class PlantIdController {
 	@ApiOperation(response = PlantId.class, value = "Get a PlantId") // label for swagger
 	@GetMapping("/branchCode")
 	public ResponseEntity<?> getPlantIdForAlmailem(@RequestParam String companyCodeId,@RequestParam String languageId) {
-		DataBaseContextHolder.setCurrentDb("IMF");
+		DataBaseContextHolder.setCurrentDb("MT");
 		String routingDb = dbConfigRepository.getDbNameByCompany(companyCodeId);
 		log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 		DataBaseContextHolder.clear();

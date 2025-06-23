@@ -56,7 +56,7 @@ public class OutboundOrderController {
             throws IllegalAccessException, InvocationTargetException {
         try {
             for (SalesOrderV2 salesOrderV2 : salesOrder) {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbNameWithoutWhId(salesOrderV2.getSalesOrderHeader().getCompanyCode(), salesOrderV2.getSalesOrderHeader().getBranchCode());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
@@ -76,7 +76,7 @@ public class OutboundOrderController {
             throws IllegalAccessException, InvocationTargetException {
         try {
             for (SalesInvoice salesInvoice1 : salesInvoice) {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbNameWithoutWhId(salesInvoice1.getCompanyCode(), salesInvoice1.getBranchCode());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
@@ -95,7 +95,7 @@ public class OutboundOrderController {
     public ResponseEntity<?> postReturnPOList(@Valid @RequestBody List<ReturnPOV2> returnPO)
             throws IllegalAccessException, InvocationTargetException {
         try {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbNameWithoutWhId(returnPO.get(0).getReturnPOHeader().getCompanyCode(), returnPO.get(0).getReturnPOHeader().getBranchCode());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
@@ -114,7 +114,7 @@ public class OutboundOrderController {
             throws IllegalAccessException, InvocationTargetException {
         try {
 //            for (ShipmentOrderV2 shipmentOrderV2 : shipmenOrder) {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbNameWithoutWhId(shipmenOrder.get(0).getSoHeader().getCompanyCode(), shipmenOrder.get(0).getSoHeader().getBranchCode());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
@@ -136,7 +136,7 @@ public class OutboundOrderController {
         try {
             log.info("InterWarehouseTransferOutV2 --------> {}", itw);
 //            for (InterWarehouseTransferOutV2 itw : interWarehouseTransfer) {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbNameWithoutWhId(itw.get(0).getInterWarehouseTransferOutHeader().getFromCompanyCode(),
                         itw.get(0).getInterWarehouseTransferOutHeader().getFromBranchCode());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
@@ -158,7 +158,7 @@ public class OutboundOrderController {
             log.info("------------salesOrders : " + salesOrders);
             WarehouseApiResponse response = new WarehouseApiResponse();
             for (SalesOrderV2 salesOrder : salesOrders) {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 SalesOrderV2 createdSalesOrder = salesOrderService.postSalesOrderV2(salesOrder);
                 if (createdSalesOrder != null) {
                     response.setStatusCode("200");
@@ -182,7 +182,7 @@ public class OutboundOrderController {
     public ResponseEntity<?> postSalesOrderV4(@Valid @RequestBody SalesOrderV2 salesOrder)
             throws IllegalAccessException, InvocationTargetException {
               try {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbName(salesOrder.getSalesOrderHeader().getCompanyCode(),
                         salesOrder.getSalesOrderHeader().getBranchCode(), salesOrder.getSalesOrderHeader().getWarehouseId());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
@@ -203,7 +203,7 @@ public class OutboundOrderController {
 //            log.info("------------salesOrders : " + salesOrders);
 //            WarehouseApiResponse response = new WarehouseApiResponse();
 //            for (SalesOrderV2 salesOrder : salesOrders) {
-//                DataBaseContextHolder.setCurrentDb("IMF");
+//                DataBaseContextHolder.setCurrentDb("MT");
 //                OutboundOrderV2 createdSalesOrder = salesOrderService.postSalesOrderV5(salesOrder);
 //                if (createdSalesOrder != null) {
 //                    response.setStatusCode("200");
@@ -227,7 +227,7 @@ public class OutboundOrderController {
     public ResponseEntity<?> postSalesOrderV4(@Valid @RequestBody Perpetual perpetual)
             throws IllegalAccessException, InvocationTargetException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(perpetual.getPerpetualHeaderV1().getCompanyCode(), perpetual.getPerpetualHeaderV1().getBranchCode(), "300");
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

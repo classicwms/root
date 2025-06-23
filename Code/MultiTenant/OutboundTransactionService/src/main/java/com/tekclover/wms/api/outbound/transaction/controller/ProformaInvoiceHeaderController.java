@@ -49,7 +49,7 @@ public class ProformaInvoiceHeaderController {
                                                       @RequestParam String companyCodeId, @RequestParam String plantId,
                                                       @RequestParam String languageId, @RequestParam String warehouseId) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -69,7 +69,7 @@ public class ProformaInvoiceHeaderController {
     public ResponseEntity<?> postProformaInvoiceHeader(@Valid @RequestBody AddProformaInvoiceHeader newProformaInvoiceHeader,
                                                        @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newProformaInvoiceHeader.getCompanyCodeId(), newProformaInvoiceHeader.getPlantId(), newProformaInvoiceHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -89,7 +89,7 @@ public class ProformaInvoiceHeaderController {
                                                         @Valid @RequestBody UpdateProformaInvoiceHeader updateProformaInvoiceHeader, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -108,7 +108,7 @@ public class ProformaInvoiceHeaderController {
     public ResponseEntity<?> deleteProformaInvoiceHeader(@PathVariable String proformaBillNo, @RequestParam String companyCodeId, @RequestParam String plantId,
                                                          @RequestParam String languageId, @RequestParam String warehouseId, @RequestParam String partnerCode, @RequestParam String loginUserID) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

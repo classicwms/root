@@ -70,7 +70,7 @@ public class AuditLogController {
 	public Stream<AuditLog> findAuditLog(@RequestBody SearchAuditLog searchAuditLog)
 			throws Exception {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbNameList(searchAuditLog.getCompanyCodeId(), searchAuditLog.getPlantId(), searchAuditLog.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -87,7 +87,7 @@ public class AuditLogController {
 	public ResponseEntity<?> postAuditLog(@Valid @RequestBody AddAuditLog newAuditLog, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newAuditLog.getCompanyCodeId(), newAuditLog.getPlantId(), newAuditLog.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -107,7 +107,7 @@ public class AuditLogController {
 										   	@RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(updateAuditLog.getCompanyCodeId(), updateAuditLog.getPlantId(), updateAuditLog.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();

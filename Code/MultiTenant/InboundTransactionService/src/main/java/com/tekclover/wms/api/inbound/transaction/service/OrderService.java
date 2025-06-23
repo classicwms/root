@@ -177,7 +177,7 @@ public class OrderService {
                 throw new BadRequestException("Order is getting Duplicated");
             }
             DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newInboundOrderV2.getCompanyCode(), newInboundOrderV2.getBranchCode(), newInboundOrderV2.getWarehouseID());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -185,7 +185,7 @@ public class OrderService {
             InboundOrderV2 inboundOrderV2 = inboundOrderV2Repository.save(newInboundOrderV2);
             log.info("inboundOrderV2 ----> {}", inboundOrderV2);
             DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
 
             InboundOrderV2 imdDB = inboundOrderV2Repository.save(newInboundOrderV2);
             log.info("imdDB ----> {}", imdDB);

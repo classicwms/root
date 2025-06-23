@@ -51,7 +51,7 @@ public class NumberRangeStorageBinController {
                                                       @RequestParam String rowId,@RequestParam String aisleNumber,@RequestParam String companyCodeId,
                                                       @RequestParam String languageId, @RequestParam String plantId) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -73,7 +73,7 @@ public class NumberRangeStorageBinController {
     public ResponseEntity<?> postNumberRangeStorageBin(@Valid @RequestBody AddNumberRangeStorageBin newNumberRangeStorageBin,
                                             @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newNumberRangeStorageBin.getCompanyCodeId(), newNumberRangeStorageBin.getPlantId(), newNumberRangeStorageBin.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -94,7 +94,7 @@ public class NumberRangeStorageBinController {
                                              @Valid @RequestBody UpdateNumberRangeStorageBin updateNumberRangeStorageBin, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -116,7 +116,7 @@ public class NumberRangeStorageBinController {
                                                          @RequestParam String companyCodeId,@RequestParam String languageId,
                                                          @RequestParam String plantId,@RequestParam String loginUserID) throws ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -134,7 +134,7 @@ public class NumberRangeStorageBinController {
     @PostMapping("/findNumberRangeStorageBin")
     public ResponseEntity<?> findNumberRangeStorageSection(@Valid @RequestBody SearchNumberRangeStorageBin searchNumberRangeStorageBin) throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbNameList(searchNumberRangeStorageBin.getCompanyCodeId(), searchNumberRangeStorageBin.getPlantId(), searchNumberRangeStorageBin.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

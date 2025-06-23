@@ -74,7 +74,7 @@ public class OutboundReversalController {
 	public ResponseEntity<?> postOutboundReversal(@Valid @RequestBody AddOutboundReversal newOutboundReversal, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newOutboundReversal.getCompanyCodeId(), newOutboundReversal.getPlantId(), newOutboundReversal.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -119,7 +119,7 @@ public class OutboundReversalController {
 	public ResponseEntity<?> postOutboundReversalV2(@Valid @RequestBody OutboundReversalV2 newOutboundReversal, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newOutboundReversal.getCompanyCodeId(), newOutboundReversal.getPlantId(), newOutboundReversal.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();

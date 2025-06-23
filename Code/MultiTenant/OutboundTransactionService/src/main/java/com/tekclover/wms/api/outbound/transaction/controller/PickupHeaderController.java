@@ -85,7 +85,7 @@ public class PickupHeaderController {
     public List<PickupHeader> findPickupHeader(@RequestBody SearchPickupHeader searchPickupHeader)
             throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbList(searchPickupHeader.getCompanyCodeId(), searchPickupHeader.getPlantId(), searchPickupHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -101,7 +101,7 @@ public class PickupHeaderController {
     public List<PickupHeaderGroupByDto> findPickupHeaderNamratha(@RequestBody FindPickupHeaderNamratha searchPickupHeader)
             throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbList(searchPickupHeader.getCompanyCodeId(), searchPickupHeader.getPlantId(), searchPickupHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -126,7 +126,7 @@ public class PickupHeaderController {
     public ResponseEntity<?> postPickupHeader(@Valid @RequestBody AddPickupHeader newPickupHeader, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newPickupHeader.getCompanyCodeId(), newPickupHeader.getPlantId(), newPickupHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -148,7 +148,7 @@ public class PickupHeaderController {
 
         try {
             log.info("UpdatePickupHeader -----> {}", updatePickupHeader);
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(updatePickupHeader.getCompanyCodeId(), updatePickupHeader.getPlantId(), warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -170,7 +170,7 @@ public class PickupHeaderController {
             throws IllegalAccessException, InvocationTargetException {
         try {
             for (UpdatePickupHeader updatePickupHeaderlist : updatePickupHeaderList) {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbName(updatePickupHeaderlist.getCompanyCodeId(), updatePickupHeaderlist.getPlantId(), updatePickupHeaderlist.getWarehouseId());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
@@ -214,7 +214,7 @@ public class PickupHeaderController {
                                                @RequestParam String warehouseId, @RequestParam String preOutboundNo, @RequestParam String refDocNumber,
                                                @RequestParam String partnerCode, @RequestParam Long lineNumber, @RequestParam String itemCode) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -234,7 +234,7 @@ public class PickupHeaderController {
     public Stream<PickupHeaderV2> findPickupHeaderV2(@RequestBody SearchPickupHeaderV2 searchPickupHeader)
             throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbList(searchPickupHeader.getCompanyCodeId(), searchPickupHeader.getPlantId(), searchPickupHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -252,7 +252,7 @@ public class PickupHeaderController {
         try {
             log.info("SearchPickupHeaderV2 ------> {}", searchPickupHeader);
             String routingDb = null;
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             Warehouse warehouseName = warehouseRepository.findTop1ByWarehouseIdAndDeletionIndicator(searchPickupHeader.getWarehouseId().get(0), 0L);
             routingDb = dbConfigRepository.getDbName(warehouseName.getCompanyCodeId(), warehouseName.getPlantId(), warehouseName.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
@@ -269,7 +269,7 @@ public class PickupHeaderController {
     public ResponseEntity<?> postPickupHeaderV2(@Valid @RequestBody PickupHeaderV2 newPickupHeader, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException, FirebaseMessagingException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newPickupHeader.getCompanyCodeId(), newPickupHeader.getPlantId(), newPickupHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -290,7 +290,7 @@ public class PickupHeaderController {
                                                  @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException, FirebaseMessagingException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -326,7 +326,7 @@ public class PickupHeaderController {
             log.info("updatePickupHeaderList ------> {}", updatePickupHeaderList);
             String routingDb = null;
             for (PickupHeaderV2 updatepickupHeaderlist : updatePickupHeaderList) {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 routingDb = dbConfigRepository.getDbName(updatepickupHeaderlist.getCompanyCodeId(), updatepickupHeaderlist.getPlantId(), updatepickupHeaderlist.getWarehouseId());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
@@ -366,7 +366,7 @@ public class PickupHeaderController {
                                                   @RequestParam String proposedPackCode, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -384,7 +384,7 @@ public class PickupHeaderController {
     public PickUpHeaderReport findPickupHeaderWithStatus(@RequestBody FindPickUpHeader searchPickupHeader)
             throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbList(searchPickupHeader.getCompanyCodeId(), searchPickupHeader.getPlantId(), searchPickupHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

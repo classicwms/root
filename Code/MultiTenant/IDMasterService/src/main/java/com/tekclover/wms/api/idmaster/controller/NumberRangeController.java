@@ -57,7 +57,7 @@ public class NumberRangeController {
 			@RequestParam String plantId, @RequestParam String languageId) {
 		try {
 			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -78,7 +78,7 @@ public class NumberRangeController {
 			@RequestParam String companyCodeId, @RequestParam String plantId, @RequestParam String languageId) {
        try {
 		   DataBaseContextHolder.clear();
-		   DataBaseContextHolder.setCurrentDb("IMF");
+		   DataBaseContextHolder.setCurrentDb("MT");
 		   String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 		   log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 		   DataBaseContextHolder.clear();
@@ -104,7 +104,7 @@ public class NumberRangeController {
 											  @RequestParam String companyCodeId,@RequestParam String languageId, @RequestParam String plantId) {
 		try {
 			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -132,7 +132,7 @@ public class NumberRangeController {
 
 		try {
 			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(addNumberRange.getCompanyCodeId(), addNumberRange.getPlantId(), addNumberRange.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -154,7 +154,7 @@ public class NumberRangeController {
 
 		try {
 			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -176,7 +176,7 @@ public class NumberRangeController {
 												 @RequestParam String loginUserID) {
 		try {
 			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -194,7 +194,7 @@ public class NumberRangeController {
 	public ResponseEntity<?> findNumberRange(@Valid @RequestBody FindNumberRange findNumberRange) throws Exception {
 		try {
 			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(findNumberRange.getCompanyCodeId(), findNumberRange.getPlantId(), findNumberRange.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();

@@ -77,7 +77,7 @@ public class StagingLineController {
     public List<StagingLineEntityV2> findStagingLine(@RequestBody SearchStagingLineV2 searchStagingLine) throws Exception {
         log.info("searchStagingline ------> {}", searchStagingLine);
         String routingDb = null;
-        DataBaseContextHolder.setCurrentDb("IMF");
+        DataBaseContextHolder.setCurrentDb("MT");
         Warehouse warehouseName = warehouseRepository.findTop1ByWarehouseIdAndDeletionIndicator(searchStagingLine.getWarehouseId().get(0), 0L);
         routingDb = dbConfigRepository.getDbName(warehouseName.getCompanyCodeId(), warehouseName.getPlantId(), warehouseName.getWarehouseId());
         log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
@@ -111,7 +111,7 @@ public class StagingLineController {
             throws IllegalAccessException, InvocationTargetException {
         try {
             for(AddStagingLine stagingLine : newStagingLine) {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbName(stagingLine.getCompanyCode(), stagingLine.getPlantId(), stagingLine.getWarehouseId());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
@@ -132,7 +132,7 @@ public class StagingLineController {
                                               @Valid @RequestBody UpdateStagingLine updateStagingLine, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(updateStagingLine.getCompanyCode(), updateStagingLine.getPlantId(), updateStagingLine.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -204,7 +204,7 @@ public class StagingLineController {
                                               @RequestParam String refDocNumber, @RequestParam String stagingNo, @RequestParam String palletCode,
                                               @RequestParam String caseCode, @RequestParam String preInboundNo, @RequestParam String itemCode) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -227,7 +227,7 @@ public class StagingLineController {
                                                             @RequestParam String warehouseId, @RequestParam String refDocNumber,
                                                             @RequestParam String preInboundNo, @RequestParam String itemCode) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -261,7 +261,7 @@ public class StagingLineController {
             log.info("StagingLine update params inputs: companyCode -----> " + companyCode + ", plantId ----> " + plantId + ", warehouseId -----> " + warehouseId +
                     ", refDocNumber ----> " + refDocNumber + ", stagingNo ----> " + stagingNo + ", palletCode -----> " + palletCode + ", caseCode -----> " + caseCode +
                     ", preInboundNo ------> " + preInboundNo + ", itemCode -----> " + itemCode + ", lineNo -----> " + lineNo + ", languageId ------> " + languageId);
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(updateStagingLine.getCompanyCode(), updateStagingLine.getPlantId(), updateStagingLine.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -281,7 +281,7 @@ public class StagingLineController {
                                                          @RequestParam String languageId, @RequestParam String manufacturerName, @RequestParam String barcodeId,
                                                          @RequestParam String itemCode, @RequestParam String loginUserID) {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -314,7 +314,7 @@ public class StagingLineController {
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
             for(CaseConfirmation caseConf : caseConfirmations) {
-                DataBaseContextHolder.setCurrentDb("IMF");
+                DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbName(companyCode, plantId, caseConf.getWarehouseId());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
@@ -337,7 +337,7 @@ public class StagingLineController {
                                                  @RequestParam String caseCode, @RequestParam String preInboundNo,
                                                  @RequestParam String itemCode, @RequestParam String loginUserID) throws ParseException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCode, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

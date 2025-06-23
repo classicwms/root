@@ -72,7 +72,7 @@ public class PerpetualHeaderController {
     public ResponseEntity<?> postPerpetualHeader(@Valid @RequestBody AddPerpetualHeader newPerpetualHeader,
                                                  @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newPerpetualHeader.getCompanyCodeId(), newPerpetualHeader.getPlantId(), newPerpetualHeader.getPlantId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -116,7 +116,7 @@ public class PerpetualHeaderController {
                                                   @Valid @RequestBody UpdatePerpetualHeader updatePerpetualHeader, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException {
         try {
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(updatePerpetualHeader.getCompanyCodeId(), updatePerpetualHeader.getPlantId(), warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -160,7 +160,7 @@ public class PerpetualHeaderController {
             log.info("Get a PerpetualHeader Inputs : cycleCountNo -----> " + cycleCountNo + ", companyCodeId -----> " + companyCodeId + ", plantId -----> " + plantId +
                     ", languageId -----> " + languageId + ", warehouseId ------> " + warehouseId + ", cycleCountTypeId ------> " + cycleCountTypeId + ", movementTypeId -----> " +
                     movementTypeId + ", subMovementTypeId ------> " + subMovementTypeId);
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -181,7 +181,7 @@ public class PerpetualHeaderController {
             throws Exception {
         try {
             log.info("SearchPerpetualHeaderV2 ------> {}", searchPerpetualHeader);
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbList(searchPerpetualHeader.getCompanyCodeId(), searchPerpetualHeader.getPlantId(), searchPerpetualHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -199,7 +199,7 @@ public class PerpetualHeaderController {
             throws Exception {
         try {
             log.info("SearchPerpetualHeaderV2 ----> {}", searchPerpetualHeader);
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbList(searchPerpetualHeader.getCompanyCodeId(), searchPerpetualHeader.getPlantId(), searchPerpetualHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -217,7 +217,7 @@ public class PerpetualHeaderController {
                                                    @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
             log.info("PerpetualHeaderEntityV2 ------> {}", newPerpetualHeader);
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(newPerpetualHeader.getCompanyCodeId(), newPerpetualHeader.getPlantId(), newPerpetualHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -242,7 +242,7 @@ public class PerpetualHeaderController {
 
         try {
             log.info("RunPerpetualHeader input ------> {}", runPerpetualHeader);
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(runPerpetualHeader.getCompanyCodeId(), runPerpetualHeader.getPlantId(), runPerpetualHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -261,7 +261,7 @@ public class PerpetualHeaderController {
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
             log.info("RunPerpetualHeader input ------> {}", runPerpetualHeader);
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(runPerpetualHeader.getCompanyCodeId(), runPerpetualHeader.getPlantId(), runPerpetualHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -286,7 +286,7 @@ public class PerpetualHeaderController {
                     movementTypeId + ", subMovementTypeId ------> " + subMovementTypeId);
 
             log.info("PerpetualHeaderEntityV2 Input -----> {}", updatePerpetualHeader);
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -311,7 +311,7 @@ public class PerpetualHeaderController {
             log.info("Delete PerpetualHeader Inputs : cycleCountNo -----> " + cycleCountNo + ", companyCodeId -----> " + companyCodeId + ", plantId -----> " + plantId +
                     ", languageId -----> " + languageId + ", warehouseId ------> " + warehouseId + ", cycleCountTypeId ------> " + cycleCountTypeId + ", movementTypeId -----> " +
                     movementTypeId + ", subMovementTypeId ------> " + subMovementTypeId);
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();

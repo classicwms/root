@@ -48,7 +48,7 @@ public class RefDocTypeIdController {
 	@GetMapping("/{referenceDocumentTypeId}")
 	public ResponseEntity<?> getRefDocTypeId(@RequestParam String warehouseId,@PathVariable String referenceDocumentTypeId,@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -67,7 +67,7 @@ public class RefDocTypeIdController {
 	public ResponseEntity<?> postRefDocTypeId(@Valid @RequestBody AddRefDocTypeId newRefDocTypeId, 
 			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(newRefDocTypeId.getCompanyCodeId(), newRefDocTypeId.getPlantId(), newRefDocTypeId.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -86,7 +86,7 @@ public class RefDocTypeIdController {
 			@Valid @RequestBody UpdateRefDocTypeId updateRefDocTypeId, @RequestParam String loginUserID)
 			throws IllegalAccessException, InvocationTargetException, ParseException {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -105,7 +105,7 @@ public class RefDocTypeIdController {
 	public ResponseEntity<?> deleteRefDocTypeId(@PathVariable String referenceDocumentTypeId,
 			@RequestParam String warehouseId, @RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId,@RequestParam String loginUserID) {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
@@ -122,7 +122,7 @@ public class RefDocTypeIdController {
 	@PostMapping("/find")
 	public ResponseEntity<?> findRefDocTypeId(@Valid @RequestBody FindRefDocTypeId findRefDocTypeId) throws Exception {
 		try {
-			DataBaseContextHolder.setCurrentDb("IMF");
+			DataBaseContextHolder.setCurrentDb("MT");
 			String routingDb = dbConfigRepository.getDbName(findRefDocTypeId.getCompanyCodeId(), findRefDocTypeId.getPlantId(), findRefDocTypeId.getWarehouseId());
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();

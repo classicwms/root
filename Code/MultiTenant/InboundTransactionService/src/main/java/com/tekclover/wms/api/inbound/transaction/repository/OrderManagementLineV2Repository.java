@@ -130,7 +130,7 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
             String companyCodeId, String plantId, String languageId, String warehouseId,
             String refDocNumber, Long lineNumber, String itemCode, Long deletionIndicator);
 
-    //====IMF-Barcode get
+    //====MT-Barcode get
     OrderManagementLineV2 findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndItemCodeAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId,
             String refDocNumber, String itemCode, Long deletionIndicator);

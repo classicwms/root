@@ -50,7 +50,7 @@ public class NotificationMessageController {
 
         try {
             log.info("findNotification input ------> {}", findNotificationMessage);
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbNameList(findNotificationMessage.getCompanyId(), findNotificationMessage.getPlantId(), findNotificationMessage.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -94,7 +94,7 @@ public class NotificationMessageController {
 
         try {
             log.info("findNotification input ------> {}", findNotificationMessage);
-            DataBaseContextHolder.setCurrentDb("IMF");
+            DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbNameList(findNotificationMessage.getCompanyId(), findNotificationMessage.getPlantId(), findNotificationMessage.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
@@ -119,7 +119,7 @@ public class NotificationMessageController {
     @PostMapping("/create")
     public ResponseEntity<?> postMessage(@Valid @RequestBody NotificationMessage addNotification, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException {
-        DataBaseContextHolder.setCurrentDb("IMF");
+        DataBaseContextHolder.setCurrentDb("MT");
         String routingDb = dbConfigRepository.getDbName(addNotification.getCompanyCodeId(), addNotification.getPlantId(), addNotification.getWarehouseId());
         log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
         DataBaseContextHolder.clear();
