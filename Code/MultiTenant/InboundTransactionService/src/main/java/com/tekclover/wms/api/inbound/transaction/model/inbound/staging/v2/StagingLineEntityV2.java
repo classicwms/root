@@ -153,4 +153,34 @@ public class StagingLineEntityV2 extends StagingLineEntity {
 
     @Column(name = "PRINT_LABEL", columnDefinition = "nvarchar(50)")
     private String printLabel;
+
+    @Column(name = "PIECE_QTY")
+    private Double pieceQty;
+
+    @Column(name = "CASE_QTY")
+    private Double caseQty;
+
+    /*-------------------------------------------Reeferon-----------------------------------*/
+
+    @Column(name = "QTY_IN_CASE")
+    private Double qtyInCase;
+
+    @Column(name = "QTY_IN_PIECE")
+    private Double qtyInPiece;
+
+    @Column(name = "QTY_IN_CREATE")
+    private Double qtyInCreate;
+
+    @Column(name = "VEHICLE_NO", columnDefinition = "nvarchar(50)")
+    private String vehicleNo;
+
+    @Column(name = "VEHICLE_REPORTING_DATE")
+    private Date vehicleReportingDate;
+
+    @Column(name = "VEHICLE_UNLOADING_DATE")
+    private Date vehicleUnloadingDate;
+
+    @Column(name = "EXP_DATE")
+    private Date expiryDate;
+
 }
