@@ -85,4 +85,7 @@ public class NotificationMessage {
     @Column(name = "REF_DOC_NO", columnDefinition = "nvarchar(50)")
     private String referenceNumber;
 
+    @Column(name = "status", columnDefinition = "bit default '0'")
+    private Boolean status = false;
+
 }

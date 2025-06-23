@@ -130,6 +130,7 @@ public class PushNotificationService {
         notificationMessage.setCreatedBy(notification.getCreatedBy());
         notificationMessage.setStorageBin(notification.getStorageBin());
         notificationMessage.setNewCreated(true);
+        notificationMessage.setStatus(false);
         notificationMessageRepository.save(notificationMessage);
         log.info("{} Notification Message saved successfully ", notification.getDocumentNumber());
     }
