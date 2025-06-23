@@ -28,14 +28,7 @@ public class DataSourceConfig {
 
         // Example data source configurations (replace with actual configuration)
         DataSource db = createDataSource("MT");
-        DataSource db1 = createDataSource("IMPEX");
-        DataSource db2 = createDataSource("WK");
-        DataSource db3 = createDataSource("REEFERON");
-
         targetDataSources.put("MT",db);
-        targetDataSources.put("IMPEX", db1);
-        targetDataSources.put("WK", db2);
-        targetDataSources.put("REEFERON", db3);
 
         DynamicDataSource dataSource = new DynamicDataSource();
         dataSource.setTargetDataSources(targetDataSources);
@@ -58,29 +51,6 @@ public class DataSourceConfig {
         }
         return dataSource;
     }
-
-//    @Bean
-//    public LocalContainerEntityManagerFactoryBean entityManagerFactory(EntityManagerFactoryBuilder builder, DataSource dataSource) {
-//        return builder
-//                .dataSource(dataSource)
-//                .packages("com.tekclover.wms.api.transaction.model")
-//                .persistenceUnit("primary")
-//                .properties(hibernateProperties())
-//                .build();
-//    }
-//
-//    @Bean
-//    public PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
-//        return new JpaTransactionManager(entityManagerFactory);
-//    }
-//
-//    private Map<String, Object> hibernateProperties() {
-//        Map<String, Object> properties = new HashMap<>();
-//        properties.put("hibernate.dialect", "org.hibernate.dialect.SQLServer2012Dialect");
-//        properties.put("hibernate.show_sql", "true");
-//        properties.put("hibernate.format_sql", "true");
-//        return properties;
-//    }
 
     @Bean(name = "entityManager")
     public LocalContainerEntityManagerFactoryBean entityManager() throws PropertyVetoException {
