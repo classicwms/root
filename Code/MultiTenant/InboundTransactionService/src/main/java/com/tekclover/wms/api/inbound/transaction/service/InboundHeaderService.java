@@ -2061,7 +2061,7 @@ public class InboundHeaderService extends BaseService {
 //    }
 
 
-    @Scheduled(fixedDelayString = "PT1M", initialDelayString = "PT2M")
+//    @Scheduled(fixedDelayString = "PT1M", initialDelayString = "PT2M")
     private void updateErroredOutInventory() {
         DataBaseContextHolder.clear();
         DataBaseContextHolder.setCurrentDb("FAHAHEEL");
@@ -2089,7 +2089,7 @@ public class InboundHeaderService extends BaseService {
      * Code Modify for Fahaheel and AutoLap (28-05-25)
      *
      */
-    @Async("asyncExecutor")
+//    @Async("asyncExecutor")
     private void updateErrorOutOfInventory() {
         List<InventoryTrans> inventoryTransList = inventoryTransRepository.findByReRun(0L);
         inventoryTransList.stream().forEach(it -> {

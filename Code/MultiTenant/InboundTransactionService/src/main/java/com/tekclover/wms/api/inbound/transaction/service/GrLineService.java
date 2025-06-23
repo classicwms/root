@@ -3284,7 +3284,7 @@ public class GrLineService extends BaseService {
 //    }
 
 
-    @Scheduled(fixedDelay = 15000)
+//    @Scheduled(fixedDelay = 15000)
     private void schedulePostGRLineProcessV2() {
 
         DataBaseContextHolder.clear();
