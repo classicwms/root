@@ -69,9 +69,9 @@ dependencies {
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 }
 
-bootRun {
-	jvmArgs(['-XX:+UseSerialGC', '-Xss512k', '-XX:MaxRAM=72m'])
-}
+//bootRun {
+//	jvmArgs(['-XX:+UseSerialGC', '-Xss512k', '-XX:MaxRAM=72m'])
+//}
 
 test {
 	useJUnitPlatform()
