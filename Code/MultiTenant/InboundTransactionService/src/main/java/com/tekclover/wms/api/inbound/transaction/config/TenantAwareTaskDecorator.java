@@ -1,6 +1,6 @@
 package com.tekclover.wms.api.inbound.transaction.config;
 
-import com.tekclover.wms.api.inbound.orders.config.dynamicConfig.DataBaseContextHolder;
+import com.tekclover.wms.api.inbound.transaction.config.dynamicConfig.DataBaseContextHolder;
 import org.springframework.core.task.TaskDecorator;
 
 public class TenantAwareTaskDecorator implements TaskDecorator {
