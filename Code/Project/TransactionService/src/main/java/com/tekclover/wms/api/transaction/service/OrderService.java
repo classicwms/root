@@ -6,6 +6,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import com.tekclover.wms.api.transaction.model.warehouse.inbound.UpdateInboundOrder;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.*;
+import com.tekclover.wms.api.transaction.repository.*;
+import com.tekclover.wms.api.transaction.util.CommonUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,17 +19,6 @@ import com.tekclover.wms.api.transaction.model.inbound.preinbound.InboundIntegra
 import com.tekclover.wms.api.transaction.model.integration.IntegrationApiResponse;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.OutboundIntegrationLog;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.InboundOrder;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.OutboundOrder;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.OutboundOrderLine;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.SOHeader;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.SOLine;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.ShipmentOrder;
-import com.tekclover.wms.api.transaction.repository.InboundIntegrationLogRepository;
-import com.tekclover.wms.api.transaction.repository.InboundOrderRepository;
-import com.tekclover.wms.api.transaction.repository.IntegrationApiResponseRepository;
-import com.tekclover.wms.api.transaction.repository.OutboundIntegrationLogRepository;
-import com.tekclover.wms.api.transaction.repository.OutboundOrderLinesRepository;
-import com.tekclover.wms.api.transaction.repository.OutboundOrderRepository;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -53,6 +47,9 @@ public class OrderService {
 	
 	@Autowired
 	WarehouseService warehouseService;
+	
+	@Autowired
+	private InboundOrderLinesRepository inboundOrderLinesRepository;
 	
 	/**
 	 * 
@@ -270,4 +267,66 @@ public class OrderService {
 	public List<IntegrationApiResponse> getConfirmationOrder(String orderId) {
 		return integrationApiResponseRepository.findByOrderNumber (orderId);
 	}
+
+	//========================================Update==========================================
+
+	/**
+	 * Update OutboundOrder
+	 *
+	 * @param orderId
+	 * @return
+	 */
+	public InboundOrder updateInboundOrder(String orderId, UpdateInboundOrder updateInboundOrder) {
+		InboundOrder dbInboundOrder = getOrderById(orderId);
+		BeanUtils.copyProperties(updateInboundOrder, dbInboundOrder, CommonUtils.getNullPropertyNames(updateInboundOrder));
+		dbInboundOrder.setOrderProcessedOn(new Date());
+		log.info("record is updated successfully");
+		return inboundOrderRepository.save(dbInboundOrder);
+
+	}
+
+
+	/**
+	 * Update InboundOrder
+	 *
+	 * @param orderId
+	 * @return
+	 */
+	public OutboundOrder updateOutboundOrder(String orderId, UpdateOutboundOrder updateOutboundOrder) {
+		OutboundOrder dbOutboundOrder = getOBOrderById(orderId);
+		BeanUtils.copyProperties(updateOutboundOrder, dbOutboundOrder, CommonUtils.getNullPropertyNames(updateOutboundOrder));
+		dbOutboundOrder.setOrderProcessedOn(new Date());
+		log.info("record is updated successfully");
+		return outboundOrderRepository.save(dbOutboundOrder);
+	}
+
+
+	/**
+	 * Delete InboundOrder
+	 *
+	 * @param orderId
+	 */
+	public void deleteInboundOrder(String orderId) {
+		InboundOrder delete = getOrderById(orderId);
+		if (delete == null) {
+			throw new BadRequestException(" Order : " + orderId + " doesn't exist.");
+		}
+		inboundOrderLinesRepository.deleteAll(delete.getLines());
+		inboundOrderRepository.delete(delete);
+	}
+
+	/**
+	 * Delete OutboundOrder
+	 *
+	 * @param orderId
+	 */
+	public void deleteOutboundOrder(String orderId) {
+		OutboundOrder delete = getOBOrderById(orderId);
+		if (delete == null) {
+			throw new BadRequestException(" Order : " + orderId + " doesn't exist.");
+		}
+		outboundOrderLinesRepository.deleteAll(delete.getLines());
+		outboundOrderRepository.delete(delete);
+	}
+
 }

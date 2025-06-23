@@ -7983,4 +7983,126 @@ public class TransactionService {
 			throw e;
 		}
 	}
+
+	/**
+	 *
+	 * @param orderId
+	 * @param updateInboundOrder
+	 * @param authToken
+	 * @return
+	 */
+	public InboundOrder updateInboundOrder(String orderId, UpdateInboundOrder updateInboundOrder, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS-Almailem RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			HttpEntity<?> entity = new HttpEntity<>(updateInboundOrder, headers);
+
+			HttpClient client = HttpClients.createDefault();
+			RestTemplate restTemplate = getRestTemplate();
+			restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "/orders/update/inbound" )
+					.queryParam("orderId", orderId);
+
+			ResponseEntity<InboundOrder> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH,
+					entity, InboundOrder.class);
+//			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	/**
+	 *
+	 * @param orderId
+	 * @param updateOutboundOrder
+	 * @param authToken
+	 * @return
+	 */
+	public OutboundOrder updateOutboundOrder(String orderId, UpdateOutboundOrder updateOutboundOrder, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS-Almailem RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			HttpEntity<?> entity = new HttpEntity<>(updateOutboundOrder, headers);
+
+			HttpClient client = HttpClients.createDefault();
+			RestTemplate restTemplate = getRestTemplate();
+			restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "/orders/update/outbound" )
+					.queryParam("orderId", orderId);
+
+			ResponseEntity<OutboundOrder> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH,
+					entity, OutboundOrder.class);
+//			log.info("result : " + result.getStatusCode());
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	/**
+	 *
+	 * @param orderId
+	 * @param authToken
+	 * @return
+	 */
+	public boolean deleteInboundOrder(String orderId, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS-Almailem RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "/orders/delete/inbound")
+					.queryParam("orderId", orderId);
+			ResponseEntity<String> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity,
+					String.class);
+//			log.info("result : " + result);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	/**
+	 *
+	 * @param orderId
+	 * @param authToken
+	 * @return
+	 */
+	public boolean deleteOutboundOrder(String orderId, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS-Almailem RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "/orders/delete/outbound")
+					.queryParam("orderId", orderId);
+			ResponseEntity<String> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity,
+					String.class);
+//			log.info("result : " + result);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
 }
