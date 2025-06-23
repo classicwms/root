@@ -31,7 +31,7 @@ public class DatabaseConnectionUtil {
     public static Properties getCoreDatabaseConnectionProperties() {
         Properties connProp = new Properties();
         connProp.put("user", "sa");
-        connProp.put("password", "30NcyBuK");
+        connProp.put("password", "hyPIznYE4ajeeeAj");
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }
@@ -44,7 +44,7 @@ public class DatabaseConnectionUtil {
     public static Properties getIMFCoreDatabaseConnectionProperties() {
         Properties connProp = new Properties();
         connProp.put("user", "sa");
-        connProp.put("password", "Do1cavIFK4^$pQ^zZYsX");
+        connProp.put("password", "hyPIznYE4ajeeeAj");
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }
