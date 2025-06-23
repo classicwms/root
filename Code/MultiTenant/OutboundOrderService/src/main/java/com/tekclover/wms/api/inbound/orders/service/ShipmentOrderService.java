@@ -80,8 +80,8 @@ public class ShipmentOrderService {
     OrderManagementHeaderV2Repository orderManagementHeaderV2Repository;
     @Autowired
     OrderManagementLineService orderManagementLineService;
-    @Autowired
-    PushNotificationService pushNotificationService;
+//    @Autowired
+//    PushNotificationService pushNotificationService;
     @Autowired
     PickupHeaderV2Repository pickupHeaderV2Repository;
     @Autowired
@@ -1217,7 +1217,7 @@ public class ShipmentOrderService {
             }
 
             //push notification separated from pickup header and consolidated notification sent
-            pushNotificationService.sendPushNotification(preOutboundNo, warehouseId);
+//            pushNotificationService.sendPushNotification(preOutboundNo, warehouseId);
 
             outboundHeaderV2Repository.updateOutboundHeaderStatusV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 48L, statusDescription);
             orderManagementHeaderV2Repository.updateOrderManagementHeaderStatusV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 48L, statusDescription);

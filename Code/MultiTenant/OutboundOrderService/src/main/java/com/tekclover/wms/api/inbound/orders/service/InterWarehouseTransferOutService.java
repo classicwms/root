@@ -84,8 +84,8 @@ public class InterWarehouseTransferOutService {
     PickupHeaderV2Repository pickupHeaderV2Repository;
     @Autowired
     OrderService orderService;
-    @Autowired
-    PushNotificationService pushNotificationService;
+//    @Autowired
+//    PushNotificationService pushNotificationService;
     @Autowired
     OrderManagementLineV2Repository orderManagementLineV2Repository;
     @Autowired
@@ -1235,7 +1235,7 @@ public class InterWarehouseTransferOutService {
             }
 
             //push notification separated from pickup header and consolidated notification sent
-            pushNotificationService.sendPushNotification(preOutboundNo, warehouseId);
+//            pushNotificationService.sendPushNotification(preOutboundNo, warehouseId);
 
             outboundHeaderV2Repository.updateOutboundHeaderStatusV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 48L, statusDescription);
             orderManagementHeaderV2Repository.updateOrderManagementHeaderStatusV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 48L, statusDescription);
