@@ -962,6 +962,9 @@ public class SupplierInvoiceServiceV4 extends BaseService {
             itemText = imBasicData1.getDescription();
         }
 
+        if(itemText == null) {
+            itemText = asnLineV2.getSkuDescription();
+        }
         // Collect PreInboundLine
         List<PreInboundLineEntityV2> preInboundLine = createPreInboundLineV2(companyCode, plantId, languageId,
                 preInboundHeader.getPreInboundNo(), headerV2, asnLineV2, warehouseId, preInboundHeader.getCompanyDescription(),
