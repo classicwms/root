@@ -2120,7 +2120,7 @@ public class GrLineService extends BaseService {
      * @param loginUserID
      * @throws Exception
      */
-    @Async("asyncExecutor")
+//    @Async("asyncExecutor")
     public void createPutAwayHeaderNonCBMV4(String company, String plant, String language,
                                              String warehouse, String item, String manufactureName,
                                              String preInbound, String refDocNo,
