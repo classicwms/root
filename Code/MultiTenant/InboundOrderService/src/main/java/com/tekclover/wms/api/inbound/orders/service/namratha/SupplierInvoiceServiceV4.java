@@ -951,6 +951,9 @@ public class SupplierInvoiceServiceV4 extends BaseService {
             imBasicData1.setPlantId(plantId);
             imBasicData1.setItemCode(asnLineV2.getSku());
             imBasicData1.setUomId(asnLineV2.getUom());
+            imBasicData1.setCompanyDescription(preInboundHeader.getCompanyDescription());
+            imBasicData1.setPlantDescription(preInboundHeader.getPlantDescription());
+            imBasicData1.setWarehouseDescription(preInboundHeader.getWarehouseDescription());
             imBasicData1.setDescription(asnLineV2.getSkuDescription());
             imBasicData1.setManufacturerPartNo(asnLineV2.getManufacturerName());
             imBasicData1.setManufacturerName(asnLineV2.getManufacturerName());
