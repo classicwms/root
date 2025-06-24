@@ -148,8 +148,8 @@ public class GrLineService extends BaseService {
 
     @Autowired
     InventoryTransRepository inventoryTransRepository;
-    @Autowired
-    InboundProcessingService inboundProcessingService;
+//    @Autowired
+//    InboundProcessingService inboundProcessingService;
 
     @Autowired
     InboundQualityHeaderService inboundQualityHeaderService;
