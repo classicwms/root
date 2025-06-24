@@ -1960,21 +1960,20 @@ public class InboundHeaderService extends BaseService {
 //    }
 
 
-    @Scheduled(fixedDelay = 10000)
-    private void scheduleInboundLinePartialConfirmation() {
-        DataBaseContextHolder.clear();
-        DataBaseContextHolder.setCurrentDb("FAHAHEEL");
-        log.info("Update Error Inventory Call Fahaheel");
-        DataBaseContextHolder.setCurrentDb(DataBaseContextHolder.getCurrentDb());
-        inboundLineConfirmPartial();
+//    @Scheduled(fixedDelay = 10000)
+//    private void scheduleInboundLinePartialConfirmation() {
+//        DataBaseContextHolder.clear();
+//        DataBaseContextHolder.setCurrentDb("FAHAHEEL");
+//        log.info("Update Error Inventory Call Fahaheel");
+//        DataBaseContextHolder.setCurrentDb(DataBaseContextHolder.getCurrentDb());
+//        inboundLineConfirmPartial();
 
 //        DataBaseContextHolder.clear();
 //        DataBaseContextHolder.setCurrentDb("AUTO_LAP");
 //        log.info("Update Error Inventory Call AutoLap");
 //        DataBaseContextHolder.setCurrentDb(DataBaseContextHolder.getCurrentDb());
 //        inboundLineConfirmPartial();
-
-    }
+//    }
 
 
     /**

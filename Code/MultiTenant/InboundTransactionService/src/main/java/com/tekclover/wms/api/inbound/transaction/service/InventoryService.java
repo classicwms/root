@@ -2341,12 +2341,12 @@ public class InventoryService extends BaseService {
     }
 
 
-    @Scheduled(cron = "0 0 0 * * ?")  // Every day at 12 AM
-    @Transactional
-    public void updateShelfLifeDaily() {
-        DataBaseContextHolder.setCurrentDb("REEFERON");
-        int updatedCount = inventoryRepository.updateShelfLife();
-        log.info("Updated shelf life for " + updatedCount + " records at " + java.time.LocalDateTime.now());
-    }
+//    @Scheduled(cron = "0 0 0 * * ?")  // Every day at 12 AM
+//    @Transactional
+//    public void updateShelfLifeDaily() {
+//        DataBaseContextHolder.setCurrentDb("REEFERON");
+//        int updatedCount = inventoryRepository.updateShelfLife();
+//        log.info("Updated shelf life for " + updatedCount + " records at " + java.time.LocalDateTime.now());
+//    }
 
 }
