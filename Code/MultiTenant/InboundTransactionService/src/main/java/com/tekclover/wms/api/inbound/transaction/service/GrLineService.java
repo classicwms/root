@@ -148,6 +148,8 @@ public class GrLineService extends BaseService {
 
     @Autowired
     InventoryTransRepository inventoryTransRepository;
+    @Autowired
+    InboundProcessingService inboundProcessingService;
 
     @Autowired
     InboundQualityHeaderService inboundQualityHeaderService;
@@ -156,6 +158,7 @@ public class GrLineService extends BaseService {
     protected IKeyValuePair description = null;
 
     protected static final String MFR_NAME = "NAMRATHA";
+
 
     //----------------------------------------------------------------------------------------------------
 
@@ -2088,7 +2091,7 @@ public class GrLineService extends BaseService {
             }
 
             if (createdGRLines != null) {
-                createPutAwayHeaderNonCBMV4(companyCode, plantId, languageId, warehouseId, itemCode, manufacturerName, preInboundNo, refDocNumber, createdGRLines, loginUserID);
+                inboundProcessingService.createPutAwayHeaderNonCBMV4(companyCode, plantId, languageId, warehouseId, itemCode, manufacturerName, preInboundNo, refDocNumber, createdGRLines, loginUserID);
             }
 
             //GrHeader Status 17 Updating Using Stored Procedure when condition met - multiple procedure combined to single procedure
