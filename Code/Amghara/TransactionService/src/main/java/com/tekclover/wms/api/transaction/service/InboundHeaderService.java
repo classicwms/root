@@ -1723,7 +1723,7 @@ public class InboundHeaderService extends BaseService {
 			}
 
 			statusDescription = stagingLineV2Repository.getStatusDescription(24L, languageId);
-				for (InboundLineV2 inboundLine : inboundLineList) {
+			for (InboundLineV2 inboundLine : inboundLineList) {
 				try {
 					inboundLineV2Repository.updateInboundLineStatusUpdateInboundConfirmIndividualItemProc(companyCode,
 							plantId, languageId, warehouseId, refDocNumber, preInboundNo, inboundLine.getItemCode(),
@@ -1732,55 +1732,62 @@ public class InboundHeaderService extends BaseService {
 					log.info("-----updateInboundHeaderPartialConfirmNewV2----InboundLine-status-updated: "
 							+ inboundLine.getItemCode() + ", " + inboundLine.getManufacturerName() + ", "
 							+ inboundLine.getLineNo());
-					
-			    	putAwayLineV2Repository.updatePutawayLineStatusUpdateInboundConfirmProc(companyCode, plantId,
+
+					putAwayLineV2Repository.updatePutawayLineStatusUpdateInboundConfirmProc(companyCode, plantId,
 							languageId, warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID,
 							new Date());
 					log.info("-----updateInboundHeaderPartialConfirmNewV2----putAwayLine-updated----");
-					
+
 					InboundLinePartialConfirm newInboundLinePartialConfirm = new InboundLinePartialConfirm();
 					BeanUtils.copyProperties(inboundLine, newInboundLinePartialConfirm,
 							CommonUtils.getNullPropertyNames(inboundLine));
-					newInboundLinePartialConfirm.setStatusId(24L);	
+					newInboundLinePartialConfirm.setStatusId(24L);
 					newInboundLinePartialConfirm.setIsExecuted(0L);
-					inboundLinePartialConfirmRepository.save(newInboundLinePartialConfirm);
-					log.info("----newInboundLinePartialConfirm--created---> : " + newInboundLinePartialConfirm);
+					
+					InboundLinePartialConfirm inboundLinePartExistingRecord = 
+							inboundLinePartialConfirmRepository.findByCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndLineNoAndItemCode (
+							companyCode, plantId, warehouseId, refDocNumber, preInboundNo, inboundLine.getLineNo(), inboundLine.getItemCode());
+					log.info("----inboundLinePartExistingRecord--###---> : " + inboundLinePartExistingRecord);
+					if (inboundLinePartExistingRecord == null) {
+						inboundLinePartialConfirmRepository.save(newInboundLinePartialConfirm);
+						log.info("----newInboundLinePartialConfirm--created---> : " + newInboundLinePartialConfirm);
+					}
 				} catch (Exception e) {
 					log.error("Exception while InboundLine status update: " + e.toString());
 					e.printStackTrace();
 				}
-				}
-			
-				String statusDescription17 = stagingLineV2Repository.getStatusDescription(17L, languageId);
-				inboundHeaderV2Repository.updatePahGrlStglPiblStatusInboundConfirmProcedure(companyCode, plantId,
-						languageId, warehouseId, refDocNumber, preInboundNo, 24L, 17L, statusDescription,
-						statusDescription17, loginUserID, new Date());
-				log.info("PutawayHeader, GrLine, Stg Line, PreIbLine Status updated using stored procedure");
+			}
 
-				Long inboundLinesV2CountForInboundConfirmWithStatusId = inboundLineV2Repository
+			String statusDescription17 = stagingLineV2Repository.getStatusDescription(17L, languageId);
+			inboundHeaderV2Repository.updatePahGrlStglPiblStatusInboundConfirmProcedure(companyCode, plantId,
+					languageId, warehouseId, refDocNumber, preInboundNo, 24L, 17L, statusDescription,
+					statusDescription17, loginUserID, new Date());
+			log.info("PutawayHeader, GrLine, Stg Line, PreIbLine Status updated using stored procedure");
+
+			Long inboundLinesV2CountForInboundConfirmWithStatusId = inboundLineV2Repository
 					.getInboundLinesV2CountForInboundConfirmWithStatusId(companyCode, plantId, languageId, warehouseId,
 							refDocNumber, preInboundNo, 24L);
 
 			Long inboundLinesV2CountForInboundConfirm = inboundLineV2Repository.getInboundLinesV2CountForInboundConfirm(
 					companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
 
-				if (inboundLinesV2CountForInboundConfirmWithStatusId == null) {
-					inboundLinesV2CountForInboundConfirmWithStatusId = 0L;
-				}
+			if (inboundLinesV2CountForInboundConfirmWithStatusId == null) {
+				inboundLinesV2CountForInboundConfirmWithStatusId = 0L;
+			}
 
-				if (inboundLinesV2CountForInboundConfirm == null) {
-					inboundLinesV2CountForInboundConfirm = 0L;
-				}
+			if (inboundLinesV2CountForInboundConfirm == null) {
+				inboundLinesV2CountForInboundConfirm = 0L;
+			}
 
-				boolean isConditionMet = inboundLinesV2CountForInboundConfirmWithStatusId
-						.equals(inboundLinesV2CountForInboundConfirm);
-				log.info("Inbound Line 24_StatusCount, Line Count: " + refDocNumber + ", " + isConditionMet + ", "
+			boolean isConditionMet = inboundLinesV2CountForInboundConfirmWithStatusId
+					.equals(inboundLinesV2CountForInboundConfirm);
+			log.info("Inbound Line 24_StatusCount, Line Count: " + refDocNumber + ", " + isConditionMet + ", "
 					+ inboundLinesV2CountForInboundConfirmWithStatusId + ", " + inboundLinesV2CountForInboundConfirm);
-				if (isConditionMet) {
+			if (isConditionMet) {
 				inboundHeaderV2Repository.updateHeaderStatusInboundConfirmProcedure(companyCode, plantId, languageId,
 						warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
-					log.info("Header Status updated using stored procedure");
-				}
+				log.info("Header Status updated using stored procedure");
+			}
 		} catch (Exception e) {
 			throw new BadRequestException("Inbound confirmation : Exception ----> " + e.toString());
 		}
