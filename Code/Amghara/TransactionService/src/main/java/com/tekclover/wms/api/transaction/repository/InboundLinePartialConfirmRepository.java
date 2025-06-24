@@ -20,6 +20,10 @@ public interface InboundLinePartialConfirmRepository extends JpaRepository<Inbou
 
 	public List<InboundLinePartialConfirm> findByStatusIdAndIsExecuted (Long statusId, Long isExecuted);
 	
+	public InboundLinePartialConfirm findByCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndLineNoAndItemCode (String companyCode, 
+			String plantId, String warehouseId, String refDocNumber, String preInboundNo, Long lineNo, String itemCode);
+	
+	
 	@Modifying(clearAutomatically = true)
     @Query("UPDATE InboundLinePartialConfirm ib SET ib.isExecuted = :isExecuted \n" +
             "WHERE ib.warehouseId = :warehouseId AND ib.refDocNumber = :refDocNumber and ib.preInboundNo = :preInboundNo \n" +
