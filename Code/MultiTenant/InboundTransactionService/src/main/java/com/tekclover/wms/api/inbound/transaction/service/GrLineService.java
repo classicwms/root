@@ -2091,7 +2091,7 @@ public class GrLineService extends BaseService {
             }
 
             if (createdGRLines != null) {
-                inboundProcessingService.createPutAwayHeaderNonCBMV4(companyCode, plantId, languageId, warehouseId, itemCode, manufacturerName, preInboundNo, refDocNumber, createdGRLines, loginUserID);
+                createPutAwayHeaderNonCBMV4(companyCode, plantId, languageId, warehouseId, itemCode, manufacturerName, preInboundNo, refDocNumber, createdGRLines, loginUserID);
             }
 
             //GrHeader Status 17 Updating Using Stored Procedure when condition met - multiple procedure combined to single procedure
