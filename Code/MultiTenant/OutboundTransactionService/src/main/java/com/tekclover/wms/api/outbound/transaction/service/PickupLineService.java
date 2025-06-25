@@ -3200,7 +3200,7 @@ public class PickupLineService extends BaseService {
         return createdPickupLineList;
     }
 
-    @Scheduled(fixedDelay = 10000)
+//    @Scheduled(fixedDelay = 10000)
     private void schedulePostPickupLineProcessV2() {
         DataBaseContextHolder.clear();
         DataBaseContextHolder.setCurrentDb("FAHAHEEL");
