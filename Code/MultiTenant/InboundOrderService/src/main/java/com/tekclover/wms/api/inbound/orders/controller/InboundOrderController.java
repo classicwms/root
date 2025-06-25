@@ -63,17 +63,30 @@ public class InboundOrderController {
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb("MT");
             // OrderProcess Table Save Records
-            supplierInvoiceService.saveASNV6(asn);
+            InboundOrderV2 saveInbound = supplierInvoiceService.saveASNV6(asn);
 //            String routingDb = dbConfigRepository.getDbName(asn.getAsnHeader().getCompanyCode(), asn.getAsnHeader().getBranchCode(), asn.getAsnHeader().getWarehouseId());
 //            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb("NAMRATHA");
-           supplierInvoiceService.processInboundReceivedV2(asn);
-            return new ResponseEntity<>(asn, HttpStatus.OK);
+            supplierInvoiceService.processInboundReceivedV2(asn);
+
+            WarehouseApiResponse response = null;
+            if (saveInbound != null) {
+                response = new WarehouseApiResponse();
+                response.setStatusCode("200");
+                response.setMessage("Success");
+            }
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            WarehouseApiResponse response = new WarehouseApiResponse();
+            response.setStatusCode("1400");
+            response.setMessage("Not Success: " + e.getLocalizedMessage());
+            return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
         } finally {
             DataBaseContextHolder.clear();
         }
     }
+
 
     // ASN V2
     @ApiOperation(response = ASNV2.class, value = "ASN V8") // label for swagger
@@ -89,7 +102,7 @@ public class InboundOrderController {
 //            DataBaseContextHolder.setCurrentDb("FAHAHEEL");
             List<ASNV2> createdASNHeader = supplierInvoiceService.processInboundReceivedV8(asn);
             return new ResponseEntity<>(createdASNHeader, HttpStatus.OK);
-        }  finally {
+        } finally {
             DataBaseContextHolder.clear();
         }
     }
@@ -102,11 +115,11 @@ public class InboundOrderController {
             throws Exception {
         try {
 //            for (StockReceipt stock : stk) {
-                DataBaseContextHolder.setCurrentDb("MT");
-                String routingDb = dbConfigRepository.getDbNameWithoutWhId(stk.get(0).getStockReceiptHeader().getCompanyCode(), stk.get(0).getStockReceiptHeader().getBranchCode());
-                log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-                DataBaseContextHolder.clear();
-                DataBaseContextHolder.setCurrentDb(routingDb);
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbNameWithoutWhId(stk.get(0).getStockReceiptHeader().getCompanyCode(), stk.get(0).getStockReceiptHeader().getBranchCode());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
 //            }
             List<StockReceipt> createdHeader = stockReceiptService.processInboundReceivedV2(stk);
             return new ResponseEntity<>(createdHeader, HttpStatus.OK);
@@ -162,11 +175,11 @@ public class InboundOrderController {
     public ResponseEntity<?> postInterWarehouseTransferIn(@Valid @RequestBody List<InterWarehouseTransferInV2> inV2s) {
         try {
 //            for (InterWarehouseTransferInV2 inV2 : interWarehouseTransferInV2) {
-                DataBaseContextHolder.setCurrentDb("MT");
-                String routingDb = dbConfigRepository.getDbNameWithoutWhId(inV2s.get(0).getInterWarehouseTransferInHeader().getToCompanyCode(), inV2s.get(0).getInterWarehouseTransferInHeader().getToBranchCode());
-                log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-                DataBaseContextHolder.clear();
-                DataBaseContextHolder.setCurrentDb(routingDb);
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbNameWithoutWhId(inV2s.get(0).getInterWarehouseTransferInHeader().getToCompanyCode(), inV2s.get(0).getInterWarehouseTransferInHeader().getToBranchCode());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
 //            }
             log.info("db check -->{}", DataBaseContextHolder.getCurrentDb());
             List<InterWarehouseTransferInV2> createdHeader = interWarehouseService.processInboundReceivedV2(inV2s);
@@ -243,7 +256,7 @@ public class InboundOrderController {
                 String profile = dbConfigRepository.getDbName(asnv2.getAsnHeader().getCompanyCode(), asnv2.getAsnHeader().getBranchCode(), asnv2.getAsnHeader().getWarehouseId());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", profile);
                 if (profile != null) {
-                            createdInterWarehouseTransferInV2 = warehouseService.postWarehouseEmptyCrateV5(asnv2);
+                    createdInterWarehouseTransferInV2 = warehouseService.postWarehouseEmptyCrateV5(asnv2);
                 }
                 if (createdInterWarehouseTransferInV2 != null) {
                     WarehouseApiResponse response = new WarehouseApiResponse();
@@ -272,13 +285,13 @@ public class InboundOrderController {
             throws IllegalAccessException, InvocationTargetException {
         try {
             WarehouseApiResponse response = new WarehouseApiResponse();
-            for(SaleOrderReturnV2 soReturnV2 : soReturns) {
+            for (SaleOrderReturnV2 soReturnV2 : soReturns) {
                 InboundOrderV2 createdInterWarehouseTransferInV2 = null;
                 DataBaseContextHolder.setCurrentDb("MT");
                 InboundOrderV2 createdSoReturnV2 = null;
                 String profile = dbConfigRepository.getDbName(soReturnV2.getSoReturnHeader().getCompanyCode(), soReturnV2.getSoReturnHeader().getBranchCode(), soReturnV2.getSoReturnHeader().getWarehouseId());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", profile);
-                if(profile != null){
+                if (profile != null) {
                     switch (profile) {
                         case "REEFERON":
                             createdSoReturnV2 = warehouseService.postSOReturnV5(soReturnV2);
@@ -310,7 +323,8 @@ public class InboundOrderController {
     }
 
     // WH2WH Transfer Order
-    @ApiOperation(response = InterWarehouseTransferInV2.class, value = "Upload Inter Warehouse Transfer V2") // label for swagger
+    @ApiOperation(response = InterWarehouseTransferInV2.class, value = "Upload Inter Warehouse Transfer V2")
+    // label for swagger
     @PostMapping("/inbound/interWarehouseTransferIn/upload/v2")
     public ResponseEntity<?> postInterWarehouseTransferInUploadV2(@RequestBody List<InterWarehouseTransferInV2> interWarehouseTransferInV2List)
             throws Exception {
