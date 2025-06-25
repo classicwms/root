@@ -7255,7 +7255,7 @@ public class InboundTransactionService {
     }
 
     // POST - SO
-    public ASNV2 postASNV4(@Valid ASNV2 asnv2, String oauth) {
+    public WarehouseApiResponse postASNV4(@Valid ASNV2 asnv2, String oauth) {
         HttpHeaders headers = new HttpHeaders();
         AuthToken authToken = authTokenService.getInboundOrderServiceAuthToken();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -7267,8 +7267,8 @@ public class InboundTransactionService {
 //                        .queryParam("plantId", plantId)
 //                        .queryParam("warehouseId", warehouseId);
         HttpEntity<?> entity = new HttpEntity<>(asnv2, headers);
-        ResponseEntity<ASNV2> result =
-                getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, ASNV2.class);
+        ResponseEntity<WarehouseApiResponse> result =
+                getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse.class);
         log.info("result : " + result.getStatusCode());
         return result.getBody();
     }

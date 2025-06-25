@@ -1814,7 +1814,7 @@ public class InboundTransactionServiceController {
     public ResponseEntity<?> postASN_V4(@Valid @RequestBody ASNV2 asnv2, @RequestParam String authToken)
             throws IllegalAccessException, InvocationTargetException {
         try {
-            ASNV2 createdSO = transactionService.postASNV4(asnv2, authToken);
+            WarehouseApiResponse createdSO  = transactionService.postASNV4(asnv2, authToken);
             return new ResponseEntity<>(createdSO, HttpStatus.OK);
         } catch (Exception e) {
             log.error("Exception while Inbound Order Post : " + e.toString());
