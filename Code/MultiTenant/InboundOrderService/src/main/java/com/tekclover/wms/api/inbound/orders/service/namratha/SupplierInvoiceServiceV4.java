@@ -1315,6 +1315,7 @@ public class SupplierInvoiceServiceV4 extends BaseService {
             return preInboundLines.stream().map(preInboundLine -> {
                 InboundLineV2 inboundLine = new InboundLineV2();
                 BeanUtils.copyProperties(preInboundLine, inboundLine, CommonUtils.getNullPropertyNames(preInboundLine));
+                inboundLine.setDescription(preInboundLine.getItemDescription());
                 inboundLine.setStatusId(statusId);
                 inboundLine.setStatusDescription(statusDesc);
                 return inboundLine;
