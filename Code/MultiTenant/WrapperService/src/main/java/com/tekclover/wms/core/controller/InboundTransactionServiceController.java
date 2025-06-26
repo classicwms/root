@@ -1456,7 +1456,7 @@ public class InboundTransactionServiceController {
     //--------------------Almailem--Orders------------------------------------------------------------------
 
     @ApiOperation(response = ASNV2.class, value = "Create ASNV2 Order") // label for swagger
-    @PostMapping("/warehouse/inbound/asn/v4")
+    @PostMapping("/warehouse/inbound/asn/v2")
     public ResponseEntity<?> postASN(@Valid @RequestBody ASNV2 asnv2, @RequestParam String authToken)
             throws IllegalAccessException, InvocationTargetException {
         try {
@@ -1810,7 +1810,7 @@ public class InboundTransactionServiceController {
 //    }
 
     @ApiOperation(response = ASNV2.class, value = "Create ASNV2 Order") // label for swagger
-    @PostMapping("/warehouse/inbound/asn/v2")
+    @PostMapping("/warehouse/inbound/asn/v4")
     public ResponseEntity<?> postASN_V4(@Valid @RequestBody ASNV2 asnv2, @RequestParam String authToken)
             throws IllegalAccessException, InvocationTargetException {
         try {
