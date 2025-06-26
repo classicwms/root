@@ -6,6 +6,7 @@ import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.IInventoryIm
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.transaction.model.report.CBMBinReport;
 import com.tekclover.wms.api.transaction.model.report.OccupancyBinReportResponse;
+import com.tekclover.wms.api.transaction.model.report.StorageBinDashBoardImpl;
 import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -358,6 +359,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                                                @Param("storageBin") String storageBin,
                                                                @Param("stockTypeId") Long stockTypeId,
                                                                @Param("binClassId") Long binClassId);
+
     @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n"
             + "WHERE is_deleted = 0 group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
@@ -441,6 +443,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                                                @Param("stockTypeId") Long stockTypeId,
                                                                @Param("binClassId") Long binClassId,
                                                                @Param("levelId") Long levelId);
+
     @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n"
             + "WHERE is_deleted = 0 group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
@@ -522,6 +525,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                                                @Param("storageBin") String storageBin,
                                                                @Param("stockTypeId") Long stockTypeId,
                                                                @Param("binClassId") Long binClassId);
+
     @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n"
             + "WHERE is_deleted = 0 group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
@@ -601,6 +605,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                                                @Param("manufacturerName") String manufacturerName,
                                                                @Param("stockTypeId") Long stockTypeId,
                                                                @Param("binClassId") Long binClassId);
+
     @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n"
             + "WHERE is_deleted = 0 group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
@@ -2588,4 +2593,74 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                                                  @Param("warehouseId") String warehouseId,
                                                                  @Param("languageId") String languageId,
                                                                  @Param("threePLPartnerId") String threePLPartnerId);
+
+    //---------
+    //dashBoard API
+    @Query(value =
+            "create table #stBinDashBoard \n" +
+                    "(companyCodeId NVARCHAR(10), \n" +
+                    "plantId NVARCHAR(10), \n" +
+                    "languageId NVARCHAR(10), \n" +
+                    "warehouseId NVARCHAR(10), \n" +
+                    "storageBin NVARCHAR(25), \n" +
+                    "statusId NVARCHAR(5), \n" +
+                    "binClassId NVARCHAR(5), \n" +
+                    "quantity FLOAT, \n" +
+                    "PRIMARY KEY (companyCodeId,plantId,languageId,warehouseId,storageBin)); \n" +
+
+                    //storageBin from tblstoragebin to temp table
+                    "INSERT INTO #stBinDashBoard(companyCodeId,plantId,languageId,warehouseId,storageBin,statusId,binClassId) \n" +
+                    "SELECT C_ID,PLANT_ID,LANG_ID,WH_ID,ST_BIN,STATUS_ID,BIN_CL_ID FROM tblstoragebin \n" +
+                    "WHERE \n" +
+                    "IS_DELETED = 0 AND \n" +
+                    "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and\n" +
+                    "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and\n" +
+                    "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and\n" +
+                    "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and\n" +
+                    "(COALESCE(:storageBin, null) IS NULL OR (st_bin IN (:storageBin))) and\n" +
+                    "(COALESCE(:binClassId, null) IS NULL OR (bin_cl_id IN (:binClassId))) \n" +
+
+                    "select max(inv_id) inventoryId into #inv from tblinventory WHERE is_deleted = 0 and \n" +
+                    "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and\n" +
+                    "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and\n" +
+                    "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and\n" +
+                    "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) \n" +
+                    "group by itm_code,barcode_id,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id \n" +
+
+                    // inv_qty from tblinventory to temp table
+                    "UPDATE TH SET TH.quantity = X.TOT_QTY FROM #stBinDashBoard TH INNER JOIN \n" +
+                    "(select c_id, plant_id, lang_id, wh_id, st_bin, ISNULL(sum(REF_FIELD_4),0) TOT_QTY\n"+
+                    "from tblinventory \r\n"+
+                    "where is_deleted = 0 and \r\n"+
+                    "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and\n" +
+                    "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and\n" +
+                    "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and\n" +
+                    "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and\n" +
+                    "inv_id in (select inventoryId from #inv) \r\n"+
+                    "group by st_bin,plant_id,wh_id,c_id,lang_id) X ON \n" +
+                    "X.C_ID = TH.companyCodeId AND X.PLANT_ID = TH.plantId AND X.WH_ID = TH.warehouseId AND X.LANG_ID = TH.languageId AND \n" +
+                    "X.ST_BIN = TH.storageBin \n" +
+
+                    "select \n" +
+                    "storageBin, \n" +
+                    "statusId, \n" +
+                    "(case when quantity > 0 then 'Occupied' else 'Empty' end) statusDescription, \n" +
+                    "quantity \n" +
+                    "from  \n" +
+                    "#stBinDashBoard ", nativeQuery = true)
+    List<StorageBinDashBoardImpl> getStorageBinDashBoardV3(@Param(value = "companyCodeId") String companyCodeId,
+                                                           @Param(value = "plantId") String plantId,
+                                                           @Param(value = "languageId") String languageId,
+                                                           @Param(value = "warehouseId") String warehouseId,
+                                                           @Param(value = "storageBin") List<String> storageBin,
+                                                           @Param(value = "binClassId") Long binClassId);
+
+
+    @Query(value = "select PARTNER_CODE as partnerCode from tblpickupline where c_id = :companyId and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and \n" +
+            "partner_code = :partnerCode and is_deleted = 0", nativeQuery = true)
+    public Double getpartnerCode(@Param("companyId") String companyId,
+                               @Param("plantId") String plantId,
+                               @Param("languageId") String languageId,
+                               @Param("warehouseId") String warehouseId,
+                               @Param("partnerCode") String partnerCode);
 }

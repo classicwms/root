@@ -14,6 +14,8 @@ public class PerpetualLineEntity {
 	private String storageBin;
 	private String itemCode;
 	private String itemDesc;
+	private String manufacturerName;
+	private String barcodeId;
 	private String packBarcodes;
 	private Long variantCode;
 	private String variantSubCode;
@@ -53,4 +55,7 @@ public class PerpetualLineEntity {
 	private Date confirmedOn;
 	private String countedBy;
 	private Date countedOn = new Date();
+	private String companyDescription;
+	private String plantDescription;
+	private String warehouseDescription;
 }

@@ -4003,5 +4003,23 @@ public class ReportsService extends BaseService {
         return  reportV2;
     }
 
+    //-----------------------------------------------------------------------------------------------------------------
+
+    public List<StorageBinDashBoardImpl> getStorageBinDashBoardCount(StorageBinDashBoardInput storageBinDashBoardInput) throws Exception {
+        try {
+            Long binClassId = storageBinDashBoardInput.getBinClassId() != null ? storageBinDashBoardInput.getBinClassId() : 1L;
+            return inventoryV2Repository.getStorageBinDashBoardV3(
+                    storageBinDashBoardInput.getCompanyCodeId(),
+                    storageBinDashBoardInput.getPlantId(),
+                    storageBinDashBoardInput.getLanguageId(),
+                    storageBinDashBoardInput.getWarehouseId(),
+                    storageBinDashBoardInput.getStorageBin(),
+                    binClassId);
+        } catch (Exception e) {
+            log.error("Exception while storageBinDashboard Count : " + storageBinDashBoardInput);
+            throw e;
+        }
+    }
+
 
 }

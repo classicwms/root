@@ -360,4 +360,12 @@ public class ReportsController {
         List<OccupancyBinReport> report = reportsService.occupancyBinReportV2(input);
         return new ResponseEntity<>(report,HttpStatus.OK);
     }
+
+    //--------
+    @ApiOperation(response = StorageBinDashBoardImpl.class, value = "Get Storage Bin Dashboard count")    // label for swagger
+    @PostMapping("/storageBinDashboard")
+    public ResponseEntity<?> getStorageBinDashBoard(@RequestBody StorageBinDashBoardInput storageBinDashBoardInput) throws Exception {
+        List<StorageBinDashBoardImpl> storageBinDashBoardList = reportsService.getStorageBinDashBoardCount(storageBinDashBoardInput);
+        return new ResponseEntity<>(storageBinDashBoardList, HttpStatus.OK);
+    }
 }

@@ -35,6 +35,9 @@ public class PerpetualLineEntity {
 	private String approvalLevel;
 	private String approverCode;
 	private String approvalStatus;
+	private String companyDescription;
+	private String plantDescription;
+	private String warehouseDescription;
 	private String remarks;
 	private String referenceField1;
 	private String referenceField2;
@@ -52,5 +55,7 @@ public class PerpetualLineEntity {
 	private String confirmedBy;
 	private Date confirmedOn;
 	private String countedBy;
+	private String manufacturerName;
+	private String barcodeId;
 	private Date countedOn = new Date();
 }

@@ -58,15 +58,15 @@ public class PerpetualHeaderController {
             throws Exception {
         return perpetualheaderService.findPerpetualHeader(searchPerpetualHeader);
     }
-
-    @ApiOperation(response = PerpetualHeader.class, value = "Create PerpetualHeader") // label for swagger
-    @PostMapping("")
-    public ResponseEntity<?> postPerpetualHeader(@Valid @RequestBody AddPerpetualHeader newPerpetualHeader,
-                                                 @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
-        PerpetualHeaderEntity createdPerpetualHeader =
-                perpetualheaderService.createPerpetualHeader(newPerpetualHeader, loginUserID);
-        return new ResponseEntity<>(createdPerpetualHeader, HttpStatus.OK);
-    }
+//
+//    @ApiOperation(response = PerpetualHeader.class, value = "Create PerpetualHeader") // label for swagger
+//    @PostMapping("")
+//    public ResponseEntity<?> postPerpetualHeader(@Valid @RequestBody AddPerpetualHeader newPerpetualHeader,
+//                                                 @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
+//        PerpetualHeaderEntity createdPerpetualHeader =
+//                perpetualheaderService.createPerpetualHeader(newPerpetualHeader, loginUserID);
+//        return new ResponseEntity<>(createdPerpetualHeader, HttpStatus.OK);
+//    }
 
     /*
      * Pass From and To dates entered in Header screen into INVENOTRYMOVEMENT tables in IM_CTD_BY field
@@ -132,7 +132,7 @@ public class PerpetualHeaderController {
 
     @ApiOperation(response = PerpetualHeaderV2.class, value = "Search PerpetualHeader") // label for swagger
     @PostMapping("/v2/findPerpetualHeader")
-    public Stream<PerpetualHeaderV2> findPerpetualHeaderV2(@RequestBody SearchPerpetualHeaderV2 searchPerpetualHeader)
+    public List<PerpetualHeaderV2> findPerpetualHeaderV2(@RequestBody SearchPerpetualHeaderV2 searchPerpetualHeader)
             throws Exception {
         return perpetualheaderService.findPerpetualHeaderV2(searchPerpetualHeader);
     }
@@ -195,5 +195,13 @@ public class PerpetualHeaderController {
         perpetualheaderService.deletePerpetualHeaderV2(companyCodeId, plantId, languageId, warehouseId, cycleCountTypeId,
                 cycleCountNo, movementTypeId, subMovementTypeId, loginUserID);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+    @ApiOperation(response = PerpetualHeader.class, value = "Create PerpetualHeader") // label for swagger
+    @PostMapping("")
+    public ResponseEntity<?> postPerpetualHeader(@Valid @RequestBody AddPerpetualHeader newPerpetualHeader,
+                                                 @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
+        PerpetualHeaderEntityV2 createdPerpetualHeader =
+                perpetualheaderService.createNewPerpetualHeader(newPerpetualHeader, loginUserID);
+        return new ResponseEntity<>(createdPerpetualHeader, HttpStatus.OK);
     }
 }

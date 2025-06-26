@@ -53,5 +53,10 @@ public class AddPerpetualLine {
 	private Date confirmedOn = new Date();
 	private String countedBy;
 	private Date countedOn = new Date();
+	private String manufacturerName;
+	private String companyDescription;
+	private String plantDescription;
+	private String warehouseDescription;
+	private String barcodeId;
 
 }

@@ -15,4 +15,11 @@ public interface PerpetualLineEntityImpl {
 	String getItemDesc();
 	String getManufacturerPartNo();
 	String getStorageSectionId();
+	String getManufacturerName();
+	String getDescription();
+	String getCompanyDescription();
+	String getPlantDescription();
+	String getWarehouseDescription();
+	String getCycleCountNo();
+	String getBarcodeId();
 }

@@ -5677,22 +5677,22 @@ public class TransactionService {
             throw e;
         }
     }
-
-    // POST - CREATE
-    public PerpetualHeader createPerpetualHeader(@Valid AddPerpetualHeader newPerpetualHeader, String loginUserID,
-                                                 String authToken) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        headers.add("User-Agent", "ClassicWMS RestTemplate");
-        headers.add("Authorization", "Bearer " + authToken);
-        UriComponentsBuilder builder = UriComponentsBuilder
-                .fromHttpUrl(getTransactionServiceApiUrl() + "perpetualheader").queryParam("loginUserID", loginUserID);
-        HttpEntity<?> entity = new HttpEntity<>(newPerpetualHeader, headers);
-        ResponseEntity<PerpetualHeader> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
-                entity, PerpetualHeader.class);
-        log.info("result : " + result.getStatusCode());
-        return result.getBody();
-    }
+//
+//    // POST - CREATE
+//    public PerpetualHeader createPerpetualHeader(@Valid AddPerpetualHeader newPerpetualHeader, String loginUserID,
+//                                                 String authToken) {
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+//        headers.add("User-Agent", "ClassicWMS RestTemplate");
+//        headers.add("Authorization", "Bearer " + authToken);
+//        UriComponentsBuilder builder = UriComponentsBuilder
+//                .fromHttpUrl(getTransactionServiceApiUrl() + "perpetualheader").queryParam("loginUserID", loginUserID);
+//        HttpEntity<?> entity = new HttpEntity<>(newPerpetualHeader, headers);
+//        ResponseEntity<PerpetualHeader> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
+//                entity, PerpetualHeader.class);
+//        log.info("result : " + result.getStatusCode());
+//        return result.getBody();
+//    }
 
     // POST - RUN
     public PerpetualLineEntity[] runPerpetualHeader(@Valid RunPerpetualHeader runPerpetualHeader, String authToken) {
@@ -15096,5 +15096,40 @@ public List<BinVolume> getBinVolumes(String companyCodeId, String plantId, Strin
         }
     }
 
+    //--------------------------------
+    //SEARCH
+    public StorageBinDashBoardImpl[] getStorageBinDashBoard(StorageBinDashBoardInput storageBinDashBoardInput, String authToken) throws Exception {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl() + "reports/storageBinDashboard");
+            HttpEntity<?> entity = new HttpEntity<>(storageBinDashBoardInput, headers);
+            ResponseEntity<StorageBinDashBoardImpl[]> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, StorageBinDashBoardImpl[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    // POST - CREATE
+    public PerpetualHeaderV2 createPerpetualHeader(@Valid AddPerpetualHeader newPerpetualHeader, String loginUserID,
+                                                   String authToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.add("User-Agent", "ClassicWMS RestTemplate");
+        headers.add("Authorization", "Bearer " + authToken);
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromHttpUrl(getTransactionServiceApiUrl() + "perpetualheader").queryParam("loginUserID", loginUserID);
+        HttpEntity<?> entity = new HttpEntity<>(newPerpetualHeader, headers);
+        ResponseEntity<PerpetualHeaderV2> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
+                entity, PerpetualHeaderV2.class);
+        log.info("result : " + result.getStatusCode());
+        return result.getBody();
+    }
 
 }

@@ -1054,8 +1054,8 @@ public class PerpetualLineService extends BaseService {
                      * Fetch CNT_QTY of the selected ITM_CODE and Pass WH_ID/ITM_CODE/ST_BIN/PACK_BARCODE values in INVENTORY table
                      * and replace INV_QTY as CNT_QTY
                      */
-//                    updateInventoryV2(updatedPerpetualLine);
-//                    createInventoryMovementV2(updatedPerpetualLine);
+                    updateInventoryV2(updatedPerpetualLine);
+                    createInventoryMovementV2(updatedPerpetualLine);
                 }
 
 
@@ -1255,6 +1255,20 @@ public class PerpetualLineService extends BaseService {
             InventoryV2 createInventory = new InventoryV2();
             BeanUtils.copyProperties(inventory, createInventory, CommonUtils.getNullPropertyNames(inventory));
             createInventory.setInventoryQuantity(updatePerpetualLine.getCountedQty());
+            log.info("INV_QTY---->" + createInventory.getInventoryQuantity());
+            log.info("ALLOC_QTY---->" + inventory.getAllocatedQuantity());
+
+
+            Double ALC_QTY = 0.0;
+            Double total =0.0;
+            if(createInventory.getAllocatedQuantity() == null || createInventory.getAllocatedQuantity() == 0){
+                createInventory.setAllocatedQuantity(ALC_QTY);
+                 total = (createInventory.getInventoryQuantity() + createInventory.getAllocatedQuantity());
+                log.info("INV_QTY---->" + createInventory.getAllocatedQuantity());
+            } else {
+                 total = (createInventory.getInventoryQuantity() + inventory.getAllocatedQuantity());
+            }
+            createInventory.setReferenceField4(total);
             InventoryV2 updatedInventory = inventoryV2Repository.save(createInventory);
             log.info("updatedInventory : " + updatedInventory);
             return updatedInventory;

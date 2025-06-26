@@ -17,4 +17,7 @@ public class RunPerpetualHeader {
 	private List<String> warehouseId;
 	private List<Long> movementTypeId;
 	private List<Long> subMovementTypeId;
+	private List<String> languageId;
+	private List<String> companyCodeId;
+	private List<String> plantId;
 }

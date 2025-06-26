@@ -1894,15 +1894,15 @@ public class TransactionServiceController {
                                                        @RequestParam String authToken) throws Exception {
         return transactionService.findPerpetualHeader(searchPerpetualHeader, authToken);
     }
-
-    @ApiOperation(response = PerpetualHeader.class, value = "Create PerpetualHeader") // label for swagger
-    @PostMapping("/perpetualheader")
-    public ResponseEntity<?> postPerpetualHeader(@Valid @RequestBody AddPerpetualHeader newPerpetualHeader,
-                                                 @RequestParam String loginUserID, @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
-        PerpetualHeader createdPerpetualHeader =
-                transactionService.createPerpetualHeader(newPerpetualHeader, loginUserID, authToken);
-        return new ResponseEntity<>(createdPerpetualHeader, HttpStatus.OK);
-    }
+//
+//    @ApiOperation(response = PerpetualHeader.class, value = "Create PerpetualHeader") // label for swagger
+//    @PostMapping("/perpetualheader")
+//    public ResponseEntity<?> postPerpetualHeader(@Valid @RequestBody AddPerpetualHeader newPerpetualHeader,
+//                                                 @RequestParam String loginUserID, @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+//        PerpetualHeader createdPerpetualHeader =
+//                transactionService.createPerpetualHeader(newPerpetualHeader, loginUserID, authToken);
+//        return new ResponseEntity<>(createdPerpetualHeader, HttpStatus.OK);
+//    }
 
     /*
      * Pass From and To dates entered in Header screen into INVENOTRYMOVEMENT tables in IM_CTD_BY field
@@ -4970,5 +4970,25 @@ public class TransactionServiceController {
     public OccupancyBinReport[] occupancyBinReportV2(@RequestBody OccupancyBinReportInput input,
                                                  @RequestParam String authToken) throws Exception {
         return transactionService.occupancyBinReportV2(input, authToken);
+    }
+
+
+    //--------------------
+    //Find
+    @ApiOperation(response = StorageBinDashBoardImpl.class, value = "Get Storage Bin Dashboard count")
+    // label for swagger
+    @PostMapping("/dashBoard/storageBinDashboard")
+    public StorageBinDashBoardImpl[] getStorageBinDashBoard(@RequestBody StorageBinDashBoardInput storageBinDashBoardInput,
+                                                            @RequestParam String authToken) throws Exception {
+        return transactionService.getStorageBinDashBoard(storageBinDashBoardInput, authToken);
+    }
+
+    @ApiOperation(response = PerpetualHeader.class, value = "Create PerpetualHeader") // label for swagger
+    @PostMapping("/perpetualheader")
+    public ResponseEntity<?> postPerpetualHeader(@Valid @RequestBody AddPerpetualHeader newPerpetualHeader,
+                                                 @RequestParam String loginUserID, @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+        PerpetualHeaderV2 createdPerpetualHeader =
+                transactionService.createPerpetualHeader(newPerpetualHeader, loginUserID, authToken);
+        return new ResponseEntity<>(createdPerpetualHeader, HttpStatus.OK);
     }
 }
