@@ -449,29 +449,8 @@ public class SupplierInvoiceServiceV4 extends BaseService {
             List<StagingLineEntityV2> stagingLineList = Collections.synchronizedList(new ArrayList<>());
 
             String partBarCode = generateBarCodeId(grHeader.getRefDocNumber());
-
-            // Step 1: Group and reduce lines by SKU (with summed noBags)
-            List<ASNLineV2> groupedWithSummedNoBags = lineV2List.stream()
-                    .collect(Collectors.toMap(
-                            ASNLineV2::getSku,
-                            line -> {
-                                ASNLineV2 group = new ASNLineV2();
-                                group.setSku(line.getSku());
-                                group.setNoBags(line.getNoBags());
-                                // Set other fields from line if needed
-                                return group;
-                            },
-                            (line1, line2) -> {
-                                line1.setNoBags(line1.getNoBags() + line2.getNoBags());
-                                return line1;
-                            }
-                    ))
-                    .values()
-                    .stream()
-                    .collect(Collectors.toList());
-
             // Process lines in parallel
-            List<CompletableFuture<Void>> futures = groupedWithSummedNoBags.stream()
+            List<CompletableFuture<Void>> futures = lineV2List.stream()
                     .map(asnLineV2 -> CompletableFuture.runAsync(() -> {
                         try {
                             processSingleASNLine(asnv2, asnLineV2, preInboundHeader, inboundHeader, stagingHeader, grHeader,
