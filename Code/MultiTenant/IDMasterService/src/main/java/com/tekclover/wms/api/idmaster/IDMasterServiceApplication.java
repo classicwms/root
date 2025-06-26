@@ -36,7 +36,7 @@ public class IDMasterServiceApplication {
 //	}
 
 	public static void main(String[] args) {
-		TimeZone.setDefault(TimeZone.getTimeZone("GMT+3"));
+//		TimeZone.setDefault(TimeZone.getTimeZone("GMT+3"));
 		SpringApplication.run(IDMasterServiceApplication.class, args);
 	}
 }

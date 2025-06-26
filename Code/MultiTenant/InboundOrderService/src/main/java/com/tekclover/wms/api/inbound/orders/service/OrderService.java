@@ -518,6 +518,7 @@ public class OrderService extends BaseService {
                 InboundLineV2 inboundLine = new InboundLineV2();
                 BeanUtils.copyProperties(preInboundLine, inboundLine, CommonUtils.getNullPropertyNames(preInboundLine));
                 inboundLine.setDescription(preInboundLine.getItemDescription());
+                log.info("Description ------> {}", inboundLine.getDescription());
                 return inboundLine;
             }).collect(Collectors.toList());
             inboundOrderProcess.setInboundLines(inboundLines);

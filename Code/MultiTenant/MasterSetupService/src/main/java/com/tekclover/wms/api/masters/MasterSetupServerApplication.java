@@ -21,7 +21,7 @@ import java.util.TimeZone;
 public class MasterSetupServerApplication {
 
 	public static void main(String[] args) {
-		TimeZone.setDefault(TimeZone.getTimeZone("GMT+3"));
+//		TimeZone.setDefault(TimeZone.getTimeZone("GMT+3"));
 		SpringApplication.run(MasterSetupServerApplication.class, args);
 		}
 }
