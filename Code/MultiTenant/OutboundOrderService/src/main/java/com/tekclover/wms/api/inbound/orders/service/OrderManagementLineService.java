@@ -729,7 +729,7 @@ public class OrderManagementLineService extends BaseService {
      * @return
      */
     public synchronized List<IInventoryImpl> getInventoryForOrderManagementV7(String companyCodeId, String plantId, String languageId, String warehouseId,
-                                                                 String itemCode, Long stockTypeId, Long binClassId, String manufacturerName) {
+                                                                              String itemCode, Long stockTypeId, Long binClassId, String manufacturerName) {
         if (companyCodeId == null || plantId == null || languageId == null || warehouseId == null ||
                 itemCode == null || stockTypeId == null || binClassId == null || manufacturerName == null) {
             throw new BadRequestException("Parameter cannot be null: C_ID, PlantId, Lang_Id, WhId, itm_code, stockTypeId, bin_cl_id, mfr_name---> "
@@ -878,13 +878,11 @@ public class OrderManagementLineService extends BaseService {
             log.info("The Given Values for getting InventoryQty : companyCodeId ---> " + companyCodeId + " plantId ----> " + plantId + " languageId ----> " + languageId +
                     ", warehouseId -----> " + warehouseId + "itemCode -----> " + itemCode + " refDocumentNo -----> " + orderManagementLine.getRefDocNumber() + " barcodeId -------> " + orderManagementLine.getBarcodeId());
 
-//            Double INV_QTY = inventoryV2Repository.getCurrentCaseQty1(companyCodeId, plantId, languageId, warehouseId, itemCode);
-
-//            Double INV_QTY1 = inventoryV2Repository.getInvCaseQty(companyCodeId, plantId, languageId, warehouseId, itemCode, binClassId, ORD_QTY);
-//            log.info("Queried invQty1 -------------> {}", INV_QTY1);
-
             Double INV_QTY = inventoryV2Repository.getInvCaseQty2(companyCodeId, plantId, languageId, warehouseId, itemCode, binClassId, ORD_QTY);
             log.info("Queried invQty2 ----------> {}", INV_QTY);
+            if(INV_QTY == null) {
+                INV_QTY = 0.0;
+            }
 
             log.info("Group By LeveId: " + levelIdList.size());
             List<String> invQtyByLevelIdList = new ArrayList<>();
@@ -897,6 +895,10 @@ public class OrderManagementLineService extends BaseService {
                 log.info("INV_QTY queired 1 -------------> {}", INV_QTY);
                 if (ORD_QTY == INV_QTY) {
                     log.info("Closed Case Allocation started !!");
+                    fullQtyAllocation(iInventory, companyCodeId, plantId, languageId, warehouseId, itemCode,
+                            manufacturerName, stockTypeId, binClassId, alternateUom, loginUserID, ORD_QTY, orderManagementLine);
+                } else if (ORD_QTY <= iInventory.getInventoryQty()) {
+                    log.info("InventoryQty {}, OrderQty {} is equal ", iInventory.getInventoryQty(), ORD_QTY);
                     fullQtyAllocation(iInventory, companyCodeId, plantId, languageId, warehouseId, itemCode,
                             manufacturerName, stockTypeId, binClassId, alternateUom, loginUserID, ORD_QTY, orderManagementLine);
                 } else if (ORD_QTY < iInventory.getInventoryQty()) {
@@ -917,18 +919,18 @@ public class OrderManagementLineService extends BaseService {
                     invQtyByLevelIdList.add("True");
                 }
             }
-            invQtyByLevelIdCount = levelIdList.size();
-            invQtyGroupByLevelIdCount = invQtyByLevelIdList.size();
-            log.info("invQtyByLevelIdCount, invQtyGroupByLevelIdCount" + invQtyByLevelIdCount + ", " + invQtyGroupByLevelIdCount);
-            if (invQtyByLevelIdCount != invQtyGroupByLevelIdCount) {
-                log.info("newOrderManagementLine updated ---#--->" + newOrderManagementLine);
-                return newOrderManagementLine;
-            }
-            if (invQtyByLevelIdCount == invQtyGroupByLevelIdCount) {
-                orderBy = "iv.LEVEL_ID";
-                finalInventoryList = inventoryService.getInventoryForOrderManagementOrderByLevelIdV4(companyCodeId, plantId, languageId, warehouseId, itemCode,
-                        manufacturerName, stockTypeId, binClassId, alternateUom);
-            }
+//            invQtyByLevelIdCount = levelIdList.size();
+//            invQtyGroupByLevelIdCount = invQtyByLevelIdList.size();
+//            log.info("invQtyByLevelIdCount, invQtyGroupByLevelIdCount" + invQtyByLevelIdCount + ", " + invQtyGroupByLevelIdCount);
+//            if (invQtyByLevelIdCount != invQtyGroupByLevelIdCount) {
+//                log.info("newOrderManagementLine updated ---#--->" + newOrderManagementLine);
+//                return newOrderManagementLine;
+//            }
+//            if (invQtyByLevelIdCount == invQtyGroupByLevelIdCount) {
+//                orderBy = "iv.LEVEL_ID";
+//                finalInventoryList = inventoryService.getInventoryForOrderManagementOrderByLevelIdV4(companyCodeId, plantId, languageId, warehouseId, itemCode,
+//                        manufacturerName, stockTypeId, binClassId, alternateUom);
+//            }
         }
         log.info("finalInventoryList Inventory ---->: " + finalInventoryList.size() + "\n");
 

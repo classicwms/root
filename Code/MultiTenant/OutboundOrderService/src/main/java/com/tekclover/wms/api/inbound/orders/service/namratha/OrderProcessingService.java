@@ -128,46 +128,6 @@ public class OrderProcessingService extends BaseService {
             String preOutboundNo = getPreOutboundNo(warehouseId, companyCodeId, plantId, languageId);
             String refField1ForOrderType = null;
 
-//            List<PreOutboundLineV2> overallCreatedPreoutboundLineList = new ArrayList<>();
-//            for (OutboundIntegrationLineV2 outboundIntegrationLine : outboundIntegrationHeader.getOutboundIntegrationLines()) {
-//                log.info("outboundIntegrationLine : " + outboundIntegrationLine);
-//
-//                /*-------------Insertion of BOM item in preOutboundLine table---------------------------------------------------------*/
-//                BomHeader bomHeader = mastersService.getBomHeader(outboundIntegrationLine.getItemCode(), companyCodeId, plantId, languageId, warehouseId, masterAuthToken);
-//                if (bomHeader != null) {
-//                    BomLine[] bomLine = mastersService.getBomLine(bomHeader.getBomNumber(), companyCodeId, plantId, languageId, warehouseId, masterAuthToken);
-//                    List<PreOutboundLineV2> toBeCreatedpreOutboundLineList = new ArrayList<>();
-//                    for (BomLine dbBomLine : bomLine) {
-//                        toBeCreatedpreOutboundLineList.add(createPreOutboundLineBOMBasedV2(companyCodeId, plantId, languageId, preOutboundNo,
-//                                outboundIntegrationHeader, dbBomLine, outboundIntegrationLine, MW_AMS));
-//                    }
-//
-//                    // Batch Insert - preOutboundLines
-//                    if (!toBeCreatedpreOutboundLineList.isEmpty()) {
-//                        List<PreOutboundLineV2> createdpreOutboundLine = preOutboundLineV2Repository.saveAll(toBeCreatedpreOutboundLineList);
-//                        log.info("createdpreOutboundLine [BOM] : " + createdpreOutboundLine);
-//                        overallCreatedPreoutboundLineList.addAll(createdpreOutboundLine);
-//                    }
-//                }
-//                refField1ForOrderType = outboundIntegrationLine.getRefField1ForOrderType();
-//            }
-
-            /*
-             * Inserting BOM Line records in OutboundLine and OrderManagementLine
-             */
-//            if (!overallCreatedPreoutboundLineList.isEmpty()) {
-//                for (PreOutboundLineV2 preOutboundLine : overallCreatedPreoutboundLineList) {
-////                 OrderManagementLine
-//                    OrderManagementLineV2 orderManagementLine = createOrderManagementLineV2(companyCodeId, plantId, languageId,
-//                            preOutboundNo, outboundIntegrationHeader, preOutboundLine, MW_AMS);
-//                    log.info("orderManagementLine created---BOM---> : " + orderManagementLine);
-//                }
-
-            /*------------------Record Insertion in OUTBOUNDLINE table--for BOM---------*/
-//                List<OutboundLineV2> createOutboundLineListForBOM = createOutboundLineV2(overallCreatedPreoutboundLineList, outboundIntegrationHeader, MW_AMS);
-//                log.info("createOutboundLine created : " + createOutboundLineListForBOM);
-//            }
-
             /*
              * Append PREOUTBOUNDLINE table through below logic
              */
