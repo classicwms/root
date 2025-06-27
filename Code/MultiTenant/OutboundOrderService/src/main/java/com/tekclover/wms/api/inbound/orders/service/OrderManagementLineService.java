@@ -29,6 +29,7 @@ import com.tekclover.wms.api.inbound.orders.repository.specification.QualityHead
 import com.tekclover.wms.api.inbound.orders.util.CommonUtils;
 import com.tekclover.wms.api.inbound.orders.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -895,11 +896,11 @@ public class OrderManagementLineService extends BaseService {
                 log.info("INV_QTY queired 1 -------------> {}", INV_QTY);
                 if (Objects.equals(ORD_QTY, INV_QTY)) {
                     log.info("Closed Case Allocation started !!");
-                    fullQtyAllocation(iInventory, companyCodeId, plantId, languageId, warehouseId, itemCode,
+                    newOrderManagementLine = fullQtyAllocation(iInventory, companyCodeId, plantId, languageId, warehouseId, itemCode,
                             manufacturerName, stockTypeId, binClassId, alternateUom, loginUserID, ORD_QTY, orderManagementLine);
                 } else if (Objects.equals(ORD_QTY, iInventory.getInventoryQty())) {
                     log.info("InventoryQty {}, OrderQty {} is equal ", iInventory.getInventoryQty(), ORD_QTY);
-                    fullQtyAllocation(iInventory, companyCodeId, plantId, languageId, warehouseId, itemCode,
+                    newOrderManagementLine = fullQtyAllocation(iInventory, companyCodeId, plantId, languageId, warehouseId, itemCode,
                             manufacturerName, stockTypeId, binClassId, alternateUom, loginUserID, ORD_QTY, orderManagementLine);
                 } else if (ORD_QTY < iInventory.getInventoryQty()) {
                     orderBy = "iv.LEVEL_ID";
@@ -912,12 +913,15 @@ public class OrderManagementLineService extends BaseService {
                     log.info("newOrderManagementLine updated ---#--->" + newOrderManagementLine);
                     return newOrderManagementLine;
                 }
-                if (ORD_QTY > iInventory.getInventoryQty()) {
-                    toBeIncluded = false;
-                }
-                if (!toBeIncluded) {
-                    invQtyByLevelIdList.add("True");
-                }
+//                if (ORD_QTY > iInventory.getInventoryQty()) {
+//                    toBeIncluded = false;
+//                }
+//                if (!toBeIncluded) {
+//                    invQtyByLevelIdList.add("True");
+//                }
+            }
+            if(newOrderManagementLine != null) {
+                return newOrderManagementLine;
             }
 //            invQtyByLevelIdCount = levelIdList.size();
 //            invQtyGroupByLevelIdCount = invQtyByLevelIdList.size();
@@ -935,7 +939,7 @@ public class OrderManagementLineService extends BaseService {
         log.info("finalInventoryList Inventory ---->: " + finalInventoryList.size() + "\n");
 
         // If the finalInventoryList is EMPTY then we set STATUS_ID as 47 and return from the processing
-        if (finalInventoryList != null && finalInventoryList.isEmpty()) {
+        if (finalInventoryList.isEmpty()) {
             return updateOrderManagementLineV2(orderManagementLine);
         }
 
@@ -1290,7 +1294,7 @@ public class OrderManagementLineService extends BaseService {
                     inventoryV2.setReferenceOrderNo(orderManagementLine.getRefDocNumber());
                     inventoryV2.setUpdatedOn(new Date());
                     try {
-                        inventoryV2 = inventoryV2Repository.save(inventoryV2);
+//                        inventoryV2 = inventoryV2Repository.save(inventoryV2);
                         log.info("-----Inventory2 updated-------: " + inventoryV2);
                     } catch (Exception e) {
                         log.error("--ERROR--updateInventoryV3----level1--inventory--error----> :" + e.toString());
@@ -1472,9 +1476,9 @@ public class OrderManagementLineService extends BaseService {
      * @param ORD_QTY
      * @param orderManagementLine
      */
-    public void fullQtyAllocation(IInventory iInventory, String companyCodeId, String plantId, String languageId, String warehouseId,
-                                  String itemCode, String manufacturerName, Long stockTypeId, Long binClassId, String alternateUom, String loginUserID,
-                                  Double ORD_QTY, OrderManagementLineV2 orderManagementLine) {
+    public OrderManagementLineV2 fullQtyAllocation(IInventory iInventory, String companyCodeId, String plantId, String languageId, String warehouseId,
+                                String itemCode, String manufacturerName, Long stockTypeId, Long binClassId, String alternateUom, String loginUserID,
+                                Double ORD_QTY, OrderManagementLineV2 orderManagementLine) {
 
         List<IInventoryImpl> finalInventoryList = null;
         OrderManagementLineV2 newOrderManagementLine = null;
@@ -1488,6 +1492,7 @@ public class OrderManagementLineService extends BaseService {
         newOrderManagementLine = orderAllocationV4(companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName,
                 binClassId, ORD_QTY, orderManagementLine, finalInventoryList, loginUserID);
         log.info("newOrderManagementLine updated Closed Case ---#--->" + newOrderManagementLine);
+        return newOrderManagementLine;
     }
 
     /**
