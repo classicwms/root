@@ -1801,36 +1801,29 @@ public class InboundTransactionServiceController {
 //        return transactionService.findPeriodicHeaderEntityV2(searchPeriodicHeader, authToken);
 //    }
 
+
 //    @ApiOperation(response = ASNV2.class, value = "Create ASNV2 Order") // label for swagger
 //    @PostMapping("/warehouse/inbound/asn/v4")
-//    public ResponseEntity<?> postASN(@Valid @RequestBody ASNV2 asnv2, @RequestParam String authToken)
+//    public ResponseEntity<?> postASN_V4(@Valid @RequestBody ASNV2 asnv2, @RequestParam String authToken)
 //            throws IllegalAccessException, InvocationTargetException {
-//        ASNV2 createdSO = transactionService.postASNV2(asnv2, authToken);
-//        return new ResponseEntity<>(createdSO, HttpStatus.OK);
+//        try {
+//            WarehouseApiResponse createdSO  = transactionService.postASNV4(asnv2, authToken);
+//            return new ResponseEntity<>(createdSO, HttpStatus.OK);
+//        } catch (Exception e) {
+//            log.error("Exception while Inbound Order Post : " + e.toString());
+//            CustomErrorResponse customErrorResponse = new CustomErrorResponse();
+//            String[] err = commonService.removeUnwantedString(e.getLocalizedMessage().toString());
+//            if(err.length > 1) {
+//                customErrorResponse.setError(err[0]);
+//                customErrorResponse.setErrorDescription(err[1]);
+//            } else {
+//                customErrorResponse.setError(err[0]);
+//            }
+//            customErrorResponse.setStatus(400);
+//            customErrorResponse.setTimestamp(LocalDateTime.now());
+//            return new ResponseEntity<>(customErrorResponse, HttpStatus.OK);
+//        }
 //    }
-
-    @ApiOperation(response = ASNV2.class, value = "Create ASNV2 Order") // label for swagger
-    @PostMapping("/warehouse/inbound/asn/v4")
-    public ResponseEntity<?> postASN_V4(@Valid @RequestBody ASNV2 asnv2, @RequestParam String authToken)
-            throws IllegalAccessException, InvocationTargetException {
-        try {
-            WarehouseApiResponse createdSO  = transactionService.postASNV4(asnv2, authToken);
-            return new ResponseEntity<>(createdSO, HttpStatus.OK);
-        } catch (Exception e) {
-            log.error("Exception while Inbound Order Post : " + e.toString());
-            CustomErrorResponse customErrorResponse = new CustomErrorResponse();
-            String[] err = commonService.removeUnwantedString(e.getLocalizedMessage().toString());
-            if(err.length > 1) {
-                customErrorResponse.setError(err[0]);
-                customErrorResponse.setErrorDescription(err[1]);
-            } else {
-                customErrorResponse.setError(err[0]);
-            }
-            customErrorResponse.setStatus(400);
-            customErrorResponse.setTimestamp(LocalDateTime.now());
-            return new ResponseEntity<>(customErrorResponse, HttpStatus.OK);
-        }
-    }
 
     //----------------------------------------Notification---------------------------------------------------------//
 
