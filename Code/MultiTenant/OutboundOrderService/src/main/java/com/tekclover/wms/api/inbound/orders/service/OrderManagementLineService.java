@@ -893,11 +893,11 @@ public class OrderManagementLineService extends BaseService {
                 log.info("Order Qty --------> {}", ORD_QTY);
                 log.info("BagSize ------------> {}", orderManagementLine.getBagSize());
                 log.info("INV_QTY queired 1 -------------> {}", INV_QTY);
-                if (ORD_QTY == INV_QTY) {
+                if (Objects.equals(ORD_QTY, INV_QTY)) {
                     log.info("Closed Case Allocation started !!");
                     fullQtyAllocation(iInventory, companyCodeId, plantId, languageId, warehouseId, itemCode,
                             manufacturerName, stockTypeId, binClassId, alternateUom, loginUserID, ORD_QTY, orderManagementLine);
-                } else if (ORD_QTY == iInventory.getInventoryQty()) {
+                } else if (Objects.equals(ORD_QTY, iInventory.getInventoryQty())) {
                     log.info("InventoryQty {}, OrderQty {} is equal ", iInventory.getInventoryQty(), ORD_QTY);
                     fullQtyAllocation(iInventory, companyCodeId, plantId, languageId, warehouseId, itemCode,
                             manufacturerName, stockTypeId, binClassId, alternateUom, loginUserID, ORD_QTY, orderManagementLine);
