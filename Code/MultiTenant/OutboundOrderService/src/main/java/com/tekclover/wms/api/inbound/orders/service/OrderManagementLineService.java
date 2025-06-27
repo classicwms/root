@@ -897,7 +897,7 @@ public class OrderManagementLineService extends BaseService {
                     log.info("Closed Case Allocation started !!");
                     fullQtyAllocation(iInventory, companyCodeId, plantId, languageId, warehouseId, itemCode,
                             manufacturerName, stockTypeId, binClassId, alternateUom, loginUserID, ORD_QTY, orderManagementLine);
-                } else if (ORD_QTY <= iInventory.getInventoryQty()) {
+                } else if (ORD_QTY == iInventory.getInventoryQty()) {
                     log.info("InventoryQty {}, OrderQty {} is equal ", iInventory.getInventoryQty(), ORD_QTY);
                     fullQtyAllocation(iInventory, companyCodeId, plantId, languageId, warehouseId, itemCode,
                             manufacturerName, stockTypeId, binClassId, alternateUom, loginUserID, ORD_QTY, orderManagementLine);
