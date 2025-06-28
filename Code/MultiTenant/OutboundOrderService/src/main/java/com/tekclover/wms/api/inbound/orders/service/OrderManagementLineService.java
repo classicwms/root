@@ -922,6 +922,8 @@ public class OrderManagementLineService extends BaseService {
             }
             if(newOrderManagementLine != null) {
                 return newOrderManagementLine;
+            } else {
+                return updateOrderManagementLineV2(orderManagementLine);
             }
 //            invQtyByLevelIdCount = levelIdList.size();
 //            invQtyGroupByLevelIdCount = invQtyByLevelIdList.size();
@@ -937,15 +939,15 @@ public class OrderManagementLineService extends BaseService {
 //            }
         }
 //        assert finalInventoryList != null;
-//        log.info("finalInventoryList Inventory ---->: " + finalInventoryList.size() + "\n");
+//        log.info("finalInventoryList Inventory ---->: " + finalInventoryList + "\n");
 
         // If the finalInventoryList is EMPTY then we set STATUS_ID as 47 and return from the processing
-        if (finalInventoryList == null && finalInventoryList.isEmpty()) {
-            return updateOrderManagementLineV2(orderManagementLine);
-        }
+//        if (newOrderManagementLine == null) {
+//            return updateOrderManagementLineV2(orderManagementLine);
+//        }
 
-        newOrderManagementLine = orderAllocationV7(companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName,
-                binClassId, ORD_QTY, orderManagementLine, finalInventoryList, loginUserID);
+//        newOrderManagementLine = orderAllocationV7(companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName,
+//                binClassId, ORD_QTY, orderManagementLine, finalInventoryList, loginUserID);
 
         log.info("newOrderManagementLine updated ---#--->" + newOrderManagementLine);
         return newOrderManagementLine;
