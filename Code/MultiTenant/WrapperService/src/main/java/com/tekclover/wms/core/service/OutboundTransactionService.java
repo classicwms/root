@@ -1255,6 +1255,29 @@ public class OutboundTransactionService {
         }
     }
 
+    // DELETE
+    public boolean deleteOutboundHeader(String warehouseId, String preOutboundNo, String refDocNumber,
+                                        String partnerCode, String loginUserID, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS-Almailem RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+            HttpEntity<?> entity = new HttpEntity<>(headers);
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "outboundheader/" + preOutboundNo)
+                    .queryParam("warehouseId", warehouseId).queryParam("refDocNumber", refDocNumber)
+                    .queryParam("partnerCode", partnerCode).queryParam("loginUserID", loginUserID);
+            ResponseEntity<String> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity,
+                    String.class);
+            log.info("result : " + result);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
     // PATCH
     public PreOutboundHeaderV2 updatePreOutboundHeader(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                        String refDocNumber, String preOutboundNo, String partnerCode,
@@ -1282,29 +1305,6 @@ public class OutboundTransactionService {
                     entity, PreOutboundHeaderV2.class);
             log.info("result : " + result.getStatusCode());
             return result.getBody();
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
-    }
-
-    // DELETE
-    public boolean deleteOutboundHeader(String warehouseId, String preOutboundNo, String refDocNumber,
-                                        String partnerCode, String loginUserID, String authToken) {
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-            headers.add("User-Agent", "ClassicWMS-Almailem RestTemplate");
-            headers.add("Authorization", "Bearer " + authToken);
-            HttpEntity<?> entity = new HttpEntity<>(headers);
-            UriComponentsBuilder builder = UriComponentsBuilder
-                    .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "outboundheader/" + preOutboundNo)
-                    .queryParam("warehouseId", warehouseId).queryParam("refDocNumber", refDocNumber)
-                    .queryParam("partnerCode", partnerCode).queryParam("loginUserID", loginUserID);
-            ResponseEntity<String> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity,
-                    String.class);
-            log.info("result : " + result);
-            return true;
         } catch (Exception e) {
             e.printStackTrace();
             throw e;

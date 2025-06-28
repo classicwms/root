@@ -1448,7 +1448,7 @@ public class GrLineService extends BaseService {
         List<PackBarcode> packBarcodes = new ArrayList<>();
 
         // Accept Qty
-        if (acceptQty != 0.0) {
+        if (acceptQty != null && acceptQty != 0.0) {
             String nextRangeNumber = getNextRangeNumber(NUM_RAN_ID, companyCode, plantId, languageId, warehouseId, authTokenForIDMasterService.getAccess_token());
             PackBarcode acceptQtyPackBarcode = new PackBarcode();
             acceptQtyPackBarcode.setQuantityType("A");
@@ -1457,7 +1457,7 @@ public class GrLineService extends BaseService {
         }
 
         // Damage Qty
-        if (damageQty != 0.0) {
+        if (damageQty != null && damageQty != 0.0) {
             String nextRangeNumber = getNextRangeNumber(NUM_RAN_ID, companyCode, plantId, languageId, warehouseId, authTokenForIDMasterService.getAccess_token());
             PackBarcode damageQtyPackBarcode = new PackBarcode();
             damageQtyPackBarcode.setQuantityType("D");
@@ -2124,7 +2124,7 @@ public class GrLineService extends BaseService {
      * @throws Exception
      */
 //    @Async("asyncExecutor")
-    public void createPutAwayHeaderNonCBMV4(String company, String plant, String language,
+    private void createPutAwayHeaderNonCBMV4(String company, String plant, String language,
                                              String warehouse, String item, String manufactureName,
                                              String preInbound, String refDocNo,
                                              List<GrLineV2> createdGRLines, String loginUserID) throws Exception {

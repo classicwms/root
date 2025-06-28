@@ -1301,6 +1301,7 @@ public class PreOutboundHeaderService extends BaseService {
         BeanUtils.copyProperties(updatePreOutboundHeader, dbPreOutboundHeader, CommonUtils.getNullPropertyNames(updatePreOutboundHeader));
         dbPreOutboundHeader.setUpdatedBy(loginUserID);
         dbPreOutboundHeader.setUpdatedOn(new Date());
+        preOutboundHeaderV2Repository.delete(dbPreOutboundHeader);
         return preOutboundHeaderV2Repository.save(dbPreOutboundHeader);
     }
 

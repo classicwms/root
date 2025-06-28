@@ -927,7 +927,16 @@ public class OutboundTransactionServiceController {
         return new ResponseEntity<>(createdOutboundHeader, HttpStatus.OK);
     }
 
-    @ApiOperation(response = OutboundHeader.class, value = "Update PreOutboundHeader") // label for swagger
+    @ApiOperation(response = OutboundHeader.class, value = "Delete OutboundHeader") // label for swagger
+    @DeleteMapping("/outboundheader/{preOutboundNo}")
+    public ResponseEntity<?> deleteOutboundHeader(@PathVariable String preOutboundNo,
+                                                  @RequestParam String warehouseId, @RequestParam String refDocNumber, @RequestParam String partnerCode,
+                                                  @RequestParam String loginUserID, @RequestParam String authToken) {
+        outboundTransactionService.deleteOutboundHeader(warehouseId, preOutboundNo, refDocNumber, partnerCode, loginUserID, authToken);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @ApiOperation(response = PreOutboundHeaderV2.class, value = "Update PreOutboundHeader") // label for swagger
     @PatchMapping("/preoutboundheader/{preOutboundNo}")
     public ResponseEntity<?> patchOutboundHeader(@PathVariable String preOutboundNo, @RequestParam String languageId, @RequestParam String companyCodeId,
                                                  @RequestParam String plantId, @RequestParam String warehouseId, @RequestParam String refDocNumber,
@@ -938,16 +947,6 @@ public class OutboundTransactionServiceController {
                 outboundTransactionService.updatePreOutboundHeader(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo,
                         partnerCode, loginUserID, updatePreOutboundHeader, authToken);
         return new ResponseEntity<>(createdOutboundHeader, HttpStatus.OK);
-    }
-
-
-    @ApiOperation(response = OutboundHeader.class, value = "Delete OutboundHeader") // label for swagger
-    @DeleteMapping("/outboundheader/{preOutboundNo}")
-    public ResponseEntity<?> deleteOutboundHeader(@PathVariable String preOutboundNo,
-                                                  @RequestParam String warehouseId, @RequestParam String refDocNumber, @RequestParam String partnerCode,
-                                                  @RequestParam String loginUserID, @RequestParam String authToken) {
-        outboundTransactionService.deleteOutboundHeader(warehouseId, preOutboundNo, refDocNumber, partnerCode, loginUserID, authToken);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     /*

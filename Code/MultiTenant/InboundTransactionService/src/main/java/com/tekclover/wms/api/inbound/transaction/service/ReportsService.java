@@ -151,7 +151,6 @@ public class ReportsService extends BaseService {
     GrHeaderService grHeaderService;
 
 
-
     /**
      * Stock Report ---------------------
      *
@@ -373,7 +372,6 @@ public class ReportsService extends BaseService {
     }
 
     /**
-     *
      * @param searchStockReport
      * @return
      */
@@ -635,7 +633,6 @@ public class ReportsService extends BaseService {
     }
 
 
-
     /**
      * @param asnNumber
      * @return
@@ -781,7 +778,7 @@ public class ReportsService extends BaseService {
         if (asnNumber == null) {
             throw new BadRequestException("ASNNumber can't be blank");
         }
-        if (preInboundNo == null || companyCodeId == null || plantId ==null || languageId == null || warehouseId == null) {
+        if (preInboundNo == null || companyCodeId == null || plantId == null || languageId == null || warehouseId == null) {
             throw new BadRequestException("paramenters can't be blank");
         }
 
@@ -802,12 +799,13 @@ public class ReportsService extends BaseService {
             log.info("c_id, plant_id, lang_id, wh_id, preInboundNo, ref_doc_no: " +
                     companyCodeId + ", " + plantId + ", " + languageId + ", " + warehouseId + ", " + asnNumber + ", " + preInboundNo);
             List<InboundLineV2> inboundLineSearchResults = inboundLineService.getInboundLineForReportV2(asnNumber, preInboundNo, companyCodeId, plantId, languageId, warehouseId);
-			log.info("inboundLineSearchResults ------>: " + inboundLineSearchResults.size());
+            log.info("inboundLineSearchResults ------>: " + inboundLineSearchResults.size());
 
             double sumTotalOfExpectedQty = 0.0;
             double sumTotalOfAccxpectedQty = 0.0;
             double sumTotalOfDamagedQty = 0.0;
             double sumTotalOfMissingORExcess = 0.0;
+            double sumOfNoOfBags = 0;
             List<Receipt> receiptList = new ArrayList<>();
             log.info("inboundLine---------> : " + inboundLineSearchResults.size());
             if (!inboundLineSearchResults.isEmpty()) {
@@ -872,6 +870,14 @@ public class ReportsService extends BaseService {
                     log.info("damageQty------#--> : " + damageQty);
                 }
 
+                double noOfBags = 0;
+                if (inboundLine.getNoBags() != null) {
+                    noOfBags = inboundLine.getNoBags();
+                    receipt.setNoOfBags(noOfBags);
+                    sumOfNoOfBags += noOfBags;
+                    log.info("expQty------#--> : " + noOfBags);
+                }
+
                 // Missing/Excess - SUM(Accepted + Damaged) - Expected
                 double missingORExcessSum = (acceptQty + damageQty) - expQty;
                 sumTotalOfMissingORExcess += missingORExcessSum;
@@ -913,17 +919,25 @@ public class ReportsService extends BaseService {
                         newReceipt.setSku(r.getSku());
                         newReceipt.setDescription(r.getDescription());
                         newReceipt.setMfrSku(r.getMfrSku());
-                        newReceipt.setExpectedQty(r.getExpectedQty() != null ? r.getExpectedQty() : 0.0);
-                        newReceipt.setAcceptedQty(r.getAcceptedQty() != null ? r.getAcceptedQty() : 0.0);
-                        newReceipt.setDamagedQty(r.getDamagedQty() != null ? r.getDamagedQty() : 0.0);
+                        newReceipt.setExpectedQty(round1(r.getExpectedQty()));
+                        newReceipt.setAcceptedQty(round1(r.getAcceptedQty()));
+                        newReceipt.setDamagedQty(round1(r.getDamagedQty()));
+//                        newReceipt.setExpectedQty(r.getExpectedQty() != null ? r.getExpectedQty() : 0.0);
+//                        newReceipt.setAcceptedQty(r.getAcceptedQty() != null ? r.getAcceptedQty() : 0.0);
+//                        newReceipt.setDamagedQty(r.getDamagedQty() != null ? r.getDamagedQty() : 0.0);
                         newReceipt.setMissingORExcess(r.getMissingORExcess() != null ? r.getMissingORExcess() : 0.0);
                         newReceipt.setStatus(r.getStatus());
+                        newReceipt.setNoOfBags(r.getNoOfBags() != null ? r.getNoOfBags() : 0.0);
                         return newReceipt;
                     } else {
-                        existing.setExpectedQty((existing.getExpectedQty() != null ? existing.getExpectedQty() : 0.0) + (r.getExpectedQty() != null ? r.getExpectedQty() : 0.0));
-                        existing.setAcceptedQty((existing.getAcceptedQty() != null ? existing.getAcceptedQty() : 0.0) + (r.getAcceptedQty() != null ? r.getAcceptedQty() : 0.0));
-                        existing.setDamagedQty((existing.getDamagedQty() != null ? existing.getDamagedQty() : 0.0) + (r.getDamagedQty() != null ? r.getDamagedQty() : 0.0));
+                        existing.setExpectedQty(round1(existing.getExpectedQty()) + round1(r.getExpectedQty()));
+                        existing.setAcceptedQty(round1(existing.getAcceptedQty()) + round1(r.getAcceptedQty()));
+                        existing.setDamagedQty(round1(existing.getDamagedQty()) + round1(r.getDamagedQty()));
+//                        existing.setExpectedQty((existing.getExpectedQty() != null ? existing.getExpectedQty() : 0.0) + (r.getExpectedQty() != null ? r.getExpectedQty() : 0.0));
+//                        existing.setAcceptedQty((existing.getAcceptedQty() != null ? existing.getAcceptedQty() : 0.0) + (r.getAcceptedQty() != null ? r.getAcceptedQty() : 0.0));
+//                        existing.setDamagedQty((existing.getDamagedQty() != null ? existing.getDamagedQty() : 0.0) + (r.getDamagedQty() != null ? r.getDamagedQty() : 0.0));
                         existing.setMissingORExcess((existing.getMissingORExcess() != null ? existing.getMissingORExcess() : 0.0) + (r.getMissingORExcess() != null ? r.getMissingORExcess() : 0.0));
+                        existing.setNoOfBags((existing.getNoOfBags() != null ? existing.getNoOfBags() : 0.0) + (r.getNoOfBags() != null ? r.getNoOfBags() : 0.0));
                         return existing;
                     }
                 });
@@ -933,6 +947,7 @@ public class ReportsService extends BaseService {
             receiptHeader.setAcceptedQtySum(sumTotalOfAccxpectedQty);
             receiptHeader.setDamagedQtySum(sumTotalOfDamagedQty);
             receiptHeader.setMissingORExcessSum(sumTotalOfMissingORExcess);
+            receiptHeader.setNoOfBagsSum(sumOfNoOfBags);
 
             receiptConfimation.setReceiptHeader(receiptHeader);
             //  receiptConfimation.setReceiptList(receiptList);
@@ -944,7 +959,6 @@ public class ReportsService extends BaseService {
         }
         return null;
     }
-
 
 
     /**
@@ -992,9 +1006,6 @@ public class ReportsService extends BaseService {
         }
         return 0;
     }
-
-
-
 
 
     /**
@@ -1070,10 +1081,6 @@ public class ReportsService extends BaseService {
     }
 
 
-
-
-
-
     /**
      * @param os
      * @return
@@ -1102,8 +1109,6 @@ public class ReportsService extends BaseService {
             k++;
         }
     }
-
-
 
 
     /**
@@ -1231,7 +1236,6 @@ public class ReportsService extends BaseService {
 //		}
 //		return null;
 //	}
-
 
 
     /**
@@ -1417,8 +1421,8 @@ public class ReportsService extends BaseService {
     //---------------------------------------------Inbound Reversal------------------------------------------------------------
 
 
-    public void inboundReversal(String companyCodeId,String plantId,String warehouseId,
-                                String refDocNumber,String preInboundNo){
+    public void inboundReversal(String companyCodeId, String plantId, String warehouseId,
+                                String refDocNumber, String preInboundNo) {
 
         if (refDocNumber != null && preInboundNo != null) {
 
@@ -1455,10 +1459,10 @@ public class ReportsService extends BaseService {
 //            if (grHeader != null) {
 //                log.info("GR Header found. Processing GR lines for deletion and inventory adjustment...");
 
-                List<GrLineV2> grLine = grLineV2Repository.findByRefDocNumberAndPreInboundNo(refDocNumber,preInboundNo);
+            List<GrLineV2> grLine = grLineV2Repository.findByRefDocNumberAndPreInboundNo(refDocNumber, preInboundNo);
 
-                if (!grLine.isEmpty()) {
-                    log.info("Processing GR lines for deletion and inventory adjustment...");
+            if (!grLine.isEmpty()) {
+                log.info("Processing GR lines for deletion and inventory adjustment...");
                 for (GrLineV2 grLineV2 : grLine) {
 
                     putAwayHeaderV2Repository.softDeleteByRefDocNo(grLineV2.getRefDocNumber(), grLineV2.getPreInboundNo(), grLineV2.getBarcodeId());
@@ -1504,7 +1508,7 @@ public class ReportsService extends BaseService {
     }
 
 
-    public void inboundOrderReversal(String refDocNumber){
+    public void inboundOrderReversal(String refDocNumber) {
 
         List<InboundOrderV2> inboundOrderList = inboundOrderV2Repository.findByRefDocumentNo(refDocNumber);
 
