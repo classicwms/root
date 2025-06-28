@@ -943,9 +943,9 @@ public class ReportsService extends BaseService {
                 });
             }
 //---------------------------------------------------------------------------------------
-            receiptHeader.setExpectedQtySum(sumTotalOfExpectedQty);
-            receiptHeader.setAcceptedQtySum(sumTotalOfAccxpectedQty);
-            receiptHeader.setDamagedQtySum(sumTotalOfDamagedQty);
+            receiptHeader.setExpectedQtySum(round1(sumTotalOfExpectedQty));
+            receiptHeader.setAcceptedQtySum(round1(sumTotalOfAccxpectedQty));
+            receiptHeader.setDamagedQtySum(round1(sumTotalOfDamagedQty));
             receiptHeader.setMissingORExcessSum(sumTotalOfMissingORExcess);
             receiptHeader.setNoOfBagsSum(sumOfNoOfBags);
 
