@@ -936,10 +936,11 @@ public class OrderManagementLineService extends BaseService {
 //                        manufacturerName, stockTypeId, binClassId, alternateUom);
 //            }
         }
-        log.info("finalInventoryList Inventory ---->: " + finalInventoryList.size() + "\n");
+//        assert finalInventoryList != null;
+//        log.info("finalInventoryList Inventory ---->: " + finalInventoryList.size() + "\n");
 
         // If the finalInventoryList is EMPTY then we set STATUS_ID as 47 and return from the processing
-        if (finalInventoryList.isEmpty()) {
+        if (finalInventoryList == null && finalInventoryList.isEmpty()) {
             return updateOrderManagementLineV2(orderManagementLine);
         }
 
