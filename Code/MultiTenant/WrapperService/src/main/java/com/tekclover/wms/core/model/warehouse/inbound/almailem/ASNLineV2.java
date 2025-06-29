@@ -9,10 +9,10 @@ import java.util.Date;
 @Data
 public class ASNLineV2 {
 
-    @NotNull(message = "Line Reference is mandatory")
+//    @NotNull(message = "Line Reference is mandatory")
     private Long lineReference;
 
-    @NotBlank(message = "sku is mandatory")
+//    @NotBlank(message = "sku is mandatory")
     private String sku;
 
 //    @NotBlank(message = "sku description is mandatory")

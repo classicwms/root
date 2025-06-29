@@ -1460,6 +1460,7 @@ public class InboundTransactionServiceController {
     public ResponseEntity<?> postASN(@Valid @RequestBody ASNV2 asnv2, @RequestParam String authToken)
             throws IllegalAccessException, InvocationTargetException {
         try {
+            log.info("Inbound ASN Order ------------------ {} ", asnv2);
             WarehouseApiResponse createdSO = transactionService.postASNV2(asnv2, authToken);
             return new ResponseEntity<>(createdSO, HttpStatus.OK);
         } catch (Exception e) {
