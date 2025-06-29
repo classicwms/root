@@ -3458,8 +3458,12 @@ public class PutAwayLineService extends BaseService {
 
                     PutAwayLineV2 createdPutAwayLine = putAwayLineV2Repository.save(dbPutAwayLine);
                     log.info("---------->NewPutAwayLine created: " + createdPutAwayLine);
-                    fireBaseNotification(createdPutAwayLine, loginUserID);
-
+                    try {
+                        fireBaseNotification(createdPutAwayLine, loginUserID);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        log.info("FireBaseNotification Error in PutAwayLine " + e.getMessage());
+                    }
                     createdPutAwayLines.add(createdPutAwayLine);
 
                     if (createdPutAwayLine != null && createdPutAwayLine.getPutawayConfirmedQty() > 0L) {
