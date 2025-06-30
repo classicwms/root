@@ -1583,8 +1583,11 @@ public class InventoryService extends BaseService {
                                          String storageBin, Long stockTypeId, Long specialStockIndicatorId,
                                          InventoryV2 updateInventory, String loginUserID)
             throws IllegalAccessException, InvocationTargetException {
-        InventoryV2 dbInventory = inventoryV2Repository.findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPackBarcodesAndItemCodeAndManufacturerNameAndStorageBinAndStockTypeIdAndSpecialStockIndicatorIdAndDeletionIndicatorOrderByInventoryIdDesc(
-                companyCodeId, plantId, languageId, warehouseId, packBarcodes, itemCode, manufacturerName, storageBin, stockTypeId, specialStockIndicatorId, 0L);
+        if(updateInventory.getBarcodeId() == null) {
+            throw new RuntimeException("BarcodeId is mandatory");
+        }
+        InventoryV2 dbInventory = inventoryV2Repository.findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPackBarcodesAndItemCodeAndManufacturerNameAndStorageBinAndStockTypeIdAndSpecialStockIndicatorIdAndBarcodeIdAndDeletionIndicatorOrderByInventoryIdDesc(
+                companyCodeId, plantId, languageId, warehouseId, packBarcodes, itemCode, manufacturerName, storageBin, stockTypeId, specialStockIndicatorId, updateInventory.getBarcodeId(), 0L);
         log.info("Inventory for Update: " + dbInventory);
         if (dbInventory != null) {
             InventoryV2 newInventory = new InventoryV2();

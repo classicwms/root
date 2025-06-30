@@ -1330,11 +1330,13 @@ public class PutAwayHeaderService extends BaseService {
         List<PutAwayHeaderV2> putAwayHeaderV2List = new ArrayList<>();
 
         for (PutAwayHeaderV2 putAwayHeaderV2 : updatePutAwayHeader) {
-            PutAwayHeaderV2 dbPutAwayHeader = putAwayHeaderV2Repository.findByPutAwayNumberAndDeletionIndicator(putAwayHeaderV2.getPutAwayNumber(), 0L);
+            PutAwayHeaderV2 dbPutAwayHeader = putAwayHeaderV2Repository.findByPutAwayNumberAndBarcodeIdAndDeletionIndicator(putAwayHeaderV2.getPutAwayNumber(), putAwayHeaderV2.getBarcodeId(),0L);
             if (dbPutAwayHeader != null) {
                 BeanUtils.copyProperties(putAwayHeaderV2, dbPutAwayHeader, CommonUtils.getNullPropertyNames(putAwayHeaderV2));
                 dbPutAwayHeader.setUpdatedBy(loginUserID);
                 dbPutAwayHeader.setUpdatedOn(new Date());
+                dbPutAwayHeader.setAssignedUserId(putAwayHeaderV2.getAssignedUserId());
+                putAwayHeaderV2Repository.delete(dbPutAwayHeader);
                 PutAwayHeaderV2 savePutAway = putAwayHeaderV2Repository.save(dbPutAwayHeader);
                 putAwayHeaderV2List.add(savePutAway);
             }

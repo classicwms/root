@@ -33,6 +33,10 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             String companyCode, String plantId, String languageId, String warehouseId, String itemCode,
             String barcodeId, String manufacturerName, String packbarcode, Long binClassId, Long deletionIndicator);
 
+    InventoryV2 findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPackBarcodesAndItemCodeAndManufacturerNameAndStorageBinAndStockTypeIdAndSpecialStockIndicatorIdAndBarcodeIdAndDeletionIndicatorOrderByInventoryIdDesc(
+            String companyCodeId, String plantId, String languageId, String warehouseId, String packBarcodes,
+            String itemCode, String manufacturerName, String storageBin, Long stockTypeId, Long specialStockIndicatorId, String barcodeId, Long deletionIndicator);
+
     List<InventoryV2> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPackBarcodesAndItemCodeAndBarcodeIdAndManufacturerNameAndStorageBinAndDeletionIndicatorOrderByInventoryIdDesc(
             String languageId, String companyCode, String plantId, String warehouseId, String packBarcodes,
             String itemCode, String barcodeId, String manufacturerName, String storageBin, Long deletionIndicator);
