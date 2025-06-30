@@ -942,7 +942,8 @@ public class OrderProcessingService {
                 soLine.setQtyInPiece(listUploadedData.getQtyInPiece());
                 soLine.setExpectedQtyInCases(listUploadedData.getQtyInCase());
                 soLine.setExpectedQtyInPieces(listUploadedData.getQtyInPiece());
-
+                soLine.setManufacturerName(listUploadedData.getManufacturerName());
+                soLine.setManufacturerCode(listUploadedData.getManufacturerName());
                 soLines.add(soLine);
             }
 
@@ -1026,6 +1027,8 @@ public class OrderProcessingService {
                 line.setUom("PIECE");
                 line.setSkuDescription(listUploadedData.getSkuDescription());
                 line.setExpectedDate(DateUtils.date2String_YYYYMMDD(new Date()));
+                line.setManufacturerName(line.getManufacturerName());
+                line.setManufacturerCode(line.getManufacturerName());
                 lineReference++;
                 lisAsnLine.add(line);
             }
@@ -1104,6 +1107,8 @@ public class OrderProcessingService {
                 line.setExpectedQty(listUploadedData.getExpectedQtyInPieces());
                 line.setExpectedQtyInPieces(listUploadedData.getExpectedQtyInPieces());
                 line.setExpectedQtyInCases(listUploadedData.getExpectedQtyInCases());
+                line.setManufacturerName(line.getManufacturerName());
+                line.setManufacturerCode(line.getManufacturerName());
                 line.setUom("PIECE");
 
                 lineReference++;
