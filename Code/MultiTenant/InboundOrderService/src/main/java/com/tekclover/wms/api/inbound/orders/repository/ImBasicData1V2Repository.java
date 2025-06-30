@@ -53,6 +53,11 @@ public interface ImBasicData1V2Repository extends PagingAndSortingRepository<ImB
 	ImBasicData1V2 findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId,
 			String itemCode, Long deletionIndicator);
+
+
+	ImBasicData1V2 findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerNameAndDeletionIndicator(
+			String languageId, String companyCode, String plantId, String warehouseId,
+			String itemCode, String manufacturerName, Long deletionIndicator);
 //	@Query(value = "SELECT * FROM tblimbasicdata1 WHERE LANG_ID = ?1 AND C_ID = ?2 AND PLANT_ID = ?3 AND WH_ID = ?4 AND ITM_CODE = ?5 AND MFR_PART = ?6 AND IS_DELETED = ?7",
 //			nativeQuery = true)
 //	ImBasicData1V2 findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerPartNoAndDeletionIndicator(String languageId, String companyCode, String plantId,

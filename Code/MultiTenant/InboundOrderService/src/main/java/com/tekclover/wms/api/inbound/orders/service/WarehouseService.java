@@ -704,9 +704,12 @@ public class WarehouseService extends BaseService {
                     apiLine.setSupplierCode(asnV2Header.getSupplierCode());
                 }
                 apiLine.setSupplierPartNumber(asnLineV2.getSupplierPartNumber());  // PARTNER_ITM_CODE
-                apiLine.setManufacturerName(MRF_NAME_V7);
-                apiLine.setManufacturerCode(MRF_NAME_V7);
-                apiLine.setManufacturerPartNo(MRF_NAME_V7);
+                apiLine.setManufacturerCode(asnLineV2.getManufacturerName());
+                apiLine.setManufacturerName(asnLineV2.getManufacturerName());
+                apiLine.setManufacturerPartNo(asnLineV2.getManufacturerName());
+//                apiLine.setManufacturerName(MRF_NAME_V7);
+//                apiLine.setManufacturerCode(MRF_NAME_V7);
+//                apiLine.setManufacturerPartNo(MRF_NAME_V7);
                 apiLine.setOrigin(asnLineV2.getOrigin());
                 apiLine.setCompanyCode(asnLineV2.getCompanyCode());
                 apiLine.setBranchCode(asnLineV2.getBranchCode());
@@ -1100,10 +1103,13 @@ public class WarehouseService extends BaseService {
                     apiLine.setBagSize(soReturnLineV2.getExpectedQty());         // 25
                 }
 
+                apiLine.setManufacturerCode(soReturnLineV2.getManufacturerName());
+                apiLine.setManufacturerName(soReturnLineV2.getManufacturerName());
+                apiLine.setManufacturerPartNo(soReturnLineV2.getManufacturerName());
 
-                apiLine.setManufacturerCode(MFR_NAME);
-                apiLine.setManufacturerName(MFR_NAME);
-                apiLine.setManufacturerPartNo(MFR_NAME);
+//                apiLine.setManufacturerCode(MFR_NAME);
+//                apiLine.setManufacturerName(MFR_NAME);
+//                apiLine.setManufacturerPartNo(MFR_NAME);
                 apiLine.setBrand(soReturnLineV2.getBrand());
                 orderLinesV2.add(apiLine);
             }
@@ -1208,6 +1214,9 @@ public class WarehouseService extends BaseService {
                         apiLine.setManufacturerName(getMfrName(KW_COMPANY_CODE));
                     }
                 }
+                apiLine.setManufacturerCode(iwhTransferLineV2.getManufacturerName());
+                apiLine.setManufacturerName(iwhTransferLineV2.getManufacturerName());
+                apiLine.setManufacturerPartNo(iwhTransferLineV2.getManufacturerName());
                 apiLine.setBrand(iwhTransferLineV2.getBrand());
                 apiLine.setOrderId(apiHeader.getOrderId());
                 apiLine.setInboundOrderTypeId(2L);

@@ -647,9 +647,9 @@ public class OrderService extends BaseService {
             List<PreInboundLineEntityV2> toBeCreatedPreInboundLineList = new ArrayList<>();
             long lineNumber = 1;
             for (InboundIntegrationLine inboundIntegrationLine : inboundIntegrationHeader.getInboundIntegrationLine()) {
-                ImBasicData1V2 imBasicData1 = imBasicData1V2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndDeletionIndicator(
+                ImBasicData1V2 imBasicData1 = imBasicData1V2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerNameAndDeletionIndicator(
                         languageId, companyCodeId, plantId, warehouseId,
-                        inboundIntegrationLine.getItemCode(), 0L);
+                        inboundIntegrationLine.getItemCode(), inboundIntegrationLine.getManufacturerName(), 0L);
                 log.info("imBasicData1 exists: " + imBasicData1);
                 if (imBasicData1 != null) {
                     if (inboundIntegrationLine.getItemText() == null) {
