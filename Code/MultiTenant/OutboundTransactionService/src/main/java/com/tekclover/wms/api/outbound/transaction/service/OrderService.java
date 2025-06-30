@@ -21,10 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -56,6 +53,9 @@ public class OrderService {
 
 	@Autowired
 	DbConfigRepository dbConfigRepository;
+
+	@Autowired
+	PickupHeaderV2Repository pickupHeaderV2Repository;
 
 
 	//-----------------------------Outbound-------------------------------------------
@@ -341,6 +341,28 @@ public class OrderService {
 		return outboundOrder;
 	}
 
+	/**
+	 *
+	 * @param newOutboundOrder outboundOrder Saved Process (Same Order is coming PickUpLine is already created throw error)
+	 * @return
+	 * @throws ParseException exception
+	 */
+	public OutboundOrderV2 createOutboundOrdersV4(OutboundOrderV2 newOutboundOrder) throws ParseException {
+		newOutboundOrder.setUpdatedOn(new Date());
+		OutboundOrderV2 outboundOrder = outboundOrderV2Repository.save(newOutboundOrder);
+		String routingDb = dbConfigRepository.getDbName(newOutboundOrder.getCompanyCode(), newOutboundOrder.getBranchCode(), newOutboundOrder.getWarehouseID());
+		DataBaseContextHolder.clear();
+		DataBaseContextHolder.setCurrentDb(routingDb);
+		List<Long> statusIdList = Arrays.asList(57L, 50L);
+		boolean pickUpConfirm = pickupHeaderV2Repository.existsByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndStatusIdInAndDeletionIndicator(
+				newOutboundOrder.getCompanyCode(), newOutboundOrder.getBranchCode(), newOutboundOrder.getWarehouseID(), newOutboundOrder.getOrderId(), statusIdList, 0L);
+		log.info("PickupHeader Status Checking " + pickUpConfirm);
+		if (pickUpConfirm) {
+			throw new BadRequestException("This Order Already PickList Confirm --------> RefDocNo is " + newOutboundOrder.getOrderId());
+		}
+		outboundOrderV2Repository.save(newOutboundOrder);
+		return outboundOrder;
+	}
 
 	//Find OutboundOrder
 	public List<OutboundOrderV2> findOutboundOrderV2(FindOutboundOrderV2 findOutboundOrderV2) throws ParseException {

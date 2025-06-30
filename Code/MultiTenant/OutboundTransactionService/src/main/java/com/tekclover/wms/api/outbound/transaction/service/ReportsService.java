@@ -431,10 +431,10 @@ public class ReportsService extends BaseService {
         if (searchStockReport.getStockTypeText() == null || searchStockReport.getStockTypeText().equalsIgnoreCase("ALL")) {
             searchStockReport.setStockTypeText("0");
         }
-        if (searchStockReport.getStockTypeText().equalsIgnoreCase("ONHAND")) {
+        if (searchStockReport.getStockTypeText().equalsIgnoreCase("ONHAND") || searchStockReport.getStockTypeText().equalsIgnoreCase("OnHand")) {
             searchStockReport.setStockTypeText("1");
         }
-        if (searchStockReport.getStockTypeText().equalsIgnoreCase("DAMAGED")) {
+        if (searchStockReport.getStockTypeText().equalsIgnoreCase("DAMAGED") || searchStockReport.getStockTypeText().equalsIgnoreCase("Damaged")) {
             searchStockReport.setStockTypeText("7");
         }
         if (searchStockReport.getItemCode() == null) {

@@ -150,11 +150,10 @@ public class StockAdjustmentService extends BaseService {
      * @return
      * @throws ParseException
      */
-    public Stream<StockAdjustment> findStockAdjustment(SearchStockAdjustment searchStockAdjustment)
+    public List<StockAdjustment> findStockAdjustment(SearchStockAdjustment searchStockAdjustment)
             throws ParseException {
         StockAdjustmentSpecification spec = new StockAdjustmentSpecification(searchStockAdjustment);
-        Stream<StockAdjustment> results = stockAdjustmentRepository.stream(spec, StockAdjustment.class);
-//        List<StockAdjustment> results = stockAdjustmentRepository.findAll(spec);
+                List<StockAdjustment> results = stockAdjustmentRepository.findAll(spec);
         return results;
     }
 

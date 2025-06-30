@@ -58,7 +58,7 @@ public class StockAdjustmentController {
 	//V2
 	@ApiOperation(response = StockAdjustment.class, value = "Search StockAdjustment") // label for swagger
 	@PostMapping("/findStockAdjustment")
-	public Stream<StockAdjustment> findStockAdjustment(@RequestBody SearchStockAdjustment searchInventory)
+	public List<StockAdjustment> findStockAdjustment(@RequestBody SearchStockAdjustment searchInventory)
 			throws Exception {
 		try {
 			DataBaseContextHolder.setCurrentDb("MT");
@@ -66,8 +66,9 @@ public class StockAdjustmentController {
 			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 			DataBaseContextHolder.clear();
 			DataBaseContextHolder.setCurrentDb(routingDb);
-		return stockAdjustmentService.findStockAdjustment(searchInventory);
-	}
+			return stockAdjustmentService.findStockAdjustment(searchInventory);
+
+		}
 		finally {
 			DataBaseContextHolder.clear();
 		}

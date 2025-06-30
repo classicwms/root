@@ -43,7 +43,7 @@ public class PreOutboundHeaderController {
     PreOutboundHeaderService preoutboundheaderService;
 
     @Autowired
-    DbConfigRepository dbConfigRepository;
+    DbConfigRepository  dbConfigRepository;
 
     @ApiOperation(response = PreOutboundHeader.class, value = "Get all PreOutboundHeader details") // label for swagger
     @GetMapping("")
@@ -88,12 +88,13 @@ public class PreOutboundHeaderController {
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
-            PreOutboundHeader createdPreOutboundHeader = preoutboundheaderService.createPreOutboundHeader(newPreOutboundHeader, loginUserID);
-            return new ResponseEntity<>(createdPreOutboundHeader, HttpStatus.OK);
-        } finally {
+        PreOutboundHeader createdPreOutboundHeader = preoutboundheaderService.createPreOutboundHeader(newPreOutboundHeader, loginUserID);
+        return new ResponseEntity<>(createdPreOutboundHeader, HttpStatus.OK);
+    }
+        finally {
             DataBaseContextHolder.clear();
         }
-    }
+        }
 
 //    @ApiOperation(response = PreOutboundHeader.class, value = "Update PreOutboundHeader") // label for swagger
 //    @PatchMapping("/{preOutboundNo}")
@@ -113,8 +114,7 @@ public class PreOutboundHeaderController {
 //	}
 
     //=======================================================V2============================================================
-    @ApiOperation(response = PreOutboundHeaderV2.class, value = "Get all PreOutboundHeader details")
-    // label for swagger
+    @ApiOperation(response = PreOutboundHeaderV2.class, value = "Get all PreOutboundHeader details")    // label for swagger
     @GetMapping("/v2")
     public ResponseEntity<?> getAllPreOutboundHeaderV2() {
         List<PreOutboundHeaderV2> preoutboundheaderList = preoutboundheaderService.getPreOutboundHeadersV2();
@@ -131,14 +131,15 @@ public class PreOutboundHeaderController {
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
-            PreOutboundHeaderV2 preoutboundheader =
-                    preoutboundheaderService.getPreOutboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, partnerCode);
-            log.info("PreOutboundHeader : " + preoutboundheader);
-            return new ResponseEntity<>(preoutboundheader, HttpStatus.OK);
-        } finally {
+        PreOutboundHeaderV2 preoutboundheader =
+                preoutboundheaderService.getPreOutboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, partnerCode);
+        log.info("PreOutboundHeader : " + preoutboundheader);
+        return new ResponseEntity<>(preoutboundheader, HttpStatus.OK);
+    }
+        finally {
             DataBaseContextHolder.clear();
         }
-    }
+        }
 
     //Stream - JPA
     @ApiOperation(response = PreOutboundHeaderV2.class, value = "Search PreOutboundHeader New") // label for swagger
@@ -151,11 +152,12 @@ public class PreOutboundHeaderController {
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
-            return preoutboundheaderService.findPreOutboundHeaderV2(searchPreOutboundHeader);
-        } finally {
+        return preoutboundheaderService.findPreOutboundHeaderV2(searchPreOutboundHeader);
+    }
+        finally {
             DataBaseContextHolder.clear();
         }
-    }
+        }
 
     @ApiOperation(response = PreOutboundHeaderV2.class, value = "Create PreOutboundHeader") // label for swagger
     @PostMapping("/v2")
@@ -167,18 +169,17 @@ public class PreOutboundHeaderController {
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
-            PreOutboundHeaderV2 createdPreOutboundHeader = preoutboundheaderService.createPreOutboundHeaderV2(newPreOutboundHeader, loginUserID);
-            return new ResponseEntity<>(createdPreOutboundHeader, HttpStatus.OK);
-        } finally {
+        PreOutboundHeaderV2 createdPreOutboundHeader = preoutboundheaderService.createPreOutboundHeaderV2(newPreOutboundHeader, loginUserID);
+        return new ResponseEntity<>(createdPreOutboundHeader, HttpStatus.OK);
+    }
+        finally {
             DataBaseContextHolder.clear();
         }
-    }
+        }
 
     @ApiOperation(response = PreOutboundHeaderV2.class, value = "Update PreOutboundHeader") // label for swagger
     @PatchMapping("/v2/{preOutboundNo}")
-    public ResponseEntity<?> patchPreOutboundHeaderV2(@PathVariable String preOutboundNo, @RequestParam String languageId, @RequestParam String companyCodeId,
-                                                      @RequestParam String plantId, @RequestParam String warehouseId, @RequestParam String refDocNumber,
-                                                      @RequestParam String partnerCode,
+    public ResponseEntity<?> patchPreOutboundHeaderV2(@PathVariable String preOutboundNo, @RequestParam String languageId, @RequestParam String companyCodeId, @RequestParam String plantId, @RequestParam String warehouseId, @RequestParam String refDocNumber, @RequestParam String partnerCode,
                                                       @Valid @RequestBody PreOutboundHeaderV2 updatePreOutboundHeader, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
@@ -187,15 +188,15 @@ public class PreOutboundHeaderController {
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
-            PreOutboundHeaderV2 createdPreOutboundHeader =
-                    preoutboundheaderService.updatePreOutboundHeaderV2(companyCodeId, plantId, languageId, warehouseId,
-                            refDocNumber, preOutboundNo, partnerCode, loginUserID, updatePreOutboundHeader);
-            return new ResponseEntity<>(createdPreOutboundHeader, HttpStatus.OK);
-        } finally {
+        PreOutboundHeaderV2 createdPreOutboundHeader =
+                preoutboundheaderService.updatePreOutboundHeaderV2(companyCodeId, plantId, languageId, warehouseId,
+                        refDocNumber, preOutboundNo, partnerCode, loginUserID, updatePreOutboundHeader);
+        return new ResponseEntity<>(createdPreOutboundHeader, HttpStatus.OK);
+    }
+finally {
             DataBaseContextHolder.clear();
         }
-    }
-
+        }
     @ApiOperation(response = PreOutboundHeaderV2.class, value = "Delete PreOutboundHeader") // label for swagger
     @DeleteMapping("/v2/{preOutboundNo}")
     public ResponseEntity<?> deletePreOutboundHeaderV2(@PathVariable String preOutboundNo, @RequestParam String languageId, @RequestParam String companyCodeId,
@@ -207,13 +208,13 @@ public class PreOutboundHeaderController {
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
-            preoutboundheaderService.deletePreOutboundHeaderV2(languageId, companyCodeId, plantId, warehouseId, refDocNumber, preOutboundNo, partnerCode, loginUserID);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } finally {
+        preoutboundheaderService.deletePreOutboundHeaderV2(languageId, companyCodeId, plantId, warehouseId, refDocNumber, preOutboundNo, partnerCode, loginUserID);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+        finally {
             DataBaseContextHolder.clear();
         }
-    }
-
+        }
     @ApiOperation(response = PickListHeader.class, value = "Cancel Order") // label for swagger
     @PostMapping("/v2/orderCancellation")
     public ResponseEntity<?> orderCancellation(@RequestBody OutboundOrderCancelInput outboundOrderCancelInput, @RequestParam String loginUserID) throws Exception {
@@ -223,10 +224,11 @@ public class PreOutboundHeaderController {
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
-            PreOutboundHeaderV2 orderCancelled = preoutboundheaderService.orderCancellation(outboundOrderCancelInput, loginUserID);
-            return new ResponseEntity<>(orderCancelled, HttpStatus.OK);
-        } finally {
+        PreOutboundHeaderV2 orderCancelled = preoutboundheaderService.orderCancellation(outboundOrderCancelInput, loginUserID);
+        return new ResponseEntity<>(orderCancelled, HttpStatus.OK);
+    }
+        finally {
             DataBaseContextHolder.clear();
         }
-    }
+        }
 }

@@ -37,6 +37,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -638,6 +639,7 @@ public class WarehouseService extends BaseService {
 	}
 
 	// POST
+	@Transactional
 	private OutboundOrderV2 saveSalesOrderV2(@Valid SalesOrderV2 salesOrder) {
 		try {
 			SalesOrderHeaderV2 salesOrderHeader = salesOrder.getSalesOrderHeader();
@@ -682,12 +684,6 @@ public class WarehouseService extends BaseService {
 			} else {
 				apiHeader.setOutboundOrderTypeID(OB_PL_ORD_TYP_ID);
 			}
-//			apiHeader.setOutboundOrderTypeID(3L);                                   // Hardcoded Value "3"
-//			apiHeader.setRefDocumentType("PICK LIST");                              // Hardcoded value "SaleOrder"
-//            apiHeader.setRefDocumentType(getOutboundOrderTypeDesc(apiHeader.getCompanyCode(), apiHeader.getBranchCode(),
-//                                                                  apiHeader.getLanguageId(), apiHeader.getWarehouseID(),
-//                                                                  apiHeader.getOutboundOrderTypeID()));
-
 			apiHeader.setRefDocumentType("SALES ORDER");
 			apiHeader.setCustomerType("INVOICE");                                //HardCoded
 			apiHeader.setOrderReceivedOn(new Date());
@@ -753,23 +749,6 @@ public class WarehouseService extends BaseService {
 				apiLine.setMiddlewareHeaderId(soLine.getMiddlewareHeaderId());
 				apiLine.setMiddlewareTable(soLine.getMiddlewareTable());
 
-//                if(soLine.getUom() != null) {
-//                    AlternateUomImpl alternateUom = getUom(apiHeader.getCompanyCode(), apiHeader.getBranchCode(), apiHeader.getLanguageId(),
-//                                                           apiHeader.getWarehouseID(), apiLine.getItemCode(), soLine.getUom());
-//                    if(alternateUom == null) {
-//                        throw new BadRequestException("AlternateUom is not available for this item : " + apiLine.getItemCode());
-//                    }
-//                    if (alternateUom != null) {
-//                        apiLine.setUom(alternateUom.getUom());
-//                        apiLine.setAlternateUom(alternateUom.getAlternateUom());
-//                        apiLine.setBagSize(alternateUom.getAlternateUomQty());
-//                        apiLine.setNoBags(soLine.getOrderedQty());
-////                        double orderQty = getQuantity(soLine.getOrderedQty(), alternateUom.getAlternateUomQty());
-////                        apiLine.setExpectedQty(orderQty);
-////                        apiLine.setOrderedQty(orderQty);
-//                    }
-//                }
-
 				log.info("The Given Values for getting InventoryQty : companyCodeId ---> " + apiHeader.getCompanyCode() + " plantId ----> " + apiHeader.getBranchCode() + " languageId ----> " + apiHeader.getLanguageId() +
 						", warehouseId -----> " + apiHeader.getWarehouseID() + "itemCode -----> " + apiLine.getItemCode() + " refDocumentNo -----> " + apiHeader.getRefDocumentNo());
 
@@ -782,12 +761,16 @@ public class WarehouseService extends BaseService {
 				apiLine.setExpectedQty(soLine.getExpectedQtyInPieces());     // 25
 				apiLine.setOrderedQty(soLine.getExpectedQtyInPieces());      // 25
 				apiLine.setBagSize(INV_QTY);         // 25
-				if (soLine.getNoBags() != null) {
-					apiLine.setNoBags(soLine.getNoBags());
-				} else {
+//				if (soLine.getNoBags() != null) {
+//					apiLine.setNoBags(soLine.getNoBags());
+//				} else {
+//					apiLine.setNoBags(soLine.getExpectedQtyInCases());
+//				}
+				if(soLine.getExpectedQtyInCases() != null) {
 					apiLine.setNoBags(soLine.getExpectedQtyInCases());
+				} else {
+					apiLine.setNoBags(soLine.getNoBags());
 				}
-
 				orderLines.add(apiLine);
 			}
 			apiHeader.setLine(orderLines);
@@ -796,7 +779,7 @@ public class WarehouseService extends BaseService {
 			if (salesOrder.getSalesOrderLine() != null && !salesOrder.getSalesOrderLine().isEmpty()) {
 				apiHeader.setProcessedStatusId(0L);
 				log.info("apiHeader : " + apiHeader);
-				OutboundOrderV2 createdOrder = orderService.createOutboundOrdersV2(apiHeader);
+				OutboundOrderV2 createdOrder = orderService.createOutboundOrdersV4(apiHeader);
 				log.info("SalesOrder Order Success: " + createdOrder);
 				return apiHeader;
 			} else if (salesOrder.getSalesOrderLine() == null || salesOrder.getSalesOrderLine().isEmpty()) {
