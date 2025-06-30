@@ -24,12 +24,6 @@ public class ScheduleAsyncService {
         return CompletableFuture.completedFuture(inboundOrder);
     }
 
-    //-------------------------------------------------------------------Outbound---------------------------------------------------------------
-//    @Async("asyncTaskExecutor")
-//    public CompletableFuture<WarehouseApiResponse> processOutboundOrder() throws InterruptedException, InvocationTargetException, IllegalAccessException, ParseException {
-//        WarehouseApiResponse outboundOrder = transactionService.processOutboundOrder();
-//        return CompletableFuture.completedFuture(outboundOrder);
-//    }
     
     //-------------------------------------------------------------------StockCount---------------------------------------------------------------
     @Async("asyncTaskExecutor") // YES
@@ -38,11 +32,6 @@ public class ScheduleAsyncService {
         return CompletableFuture.completedFuture(perpetualStockCountOrder);
     }
 
-//    @Async("asyncTaskExecutor")
-//    public CompletableFuture<WarehouseApiResponse> processPeriodicStockCountOrder() throws InterruptedException, InvocationTargetException, IllegalAccessException, ParseException {
-//        WarehouseApiResponse periodicStockCountOrder = transactionService.processPeriodicStockCountOrder();
-//        return CompletableFuture.completedFuture(periodicStockCountOrder);
-//    }
 
     //-------------------------------------------------------------------StockAdjustment---------------------------------------------------------------
     @Async("asyncTaskExecutor") // YES
@@ -58,10 +47,4 @@ public class ScheduleAsyncService {
         return CompletableFuture.completedFuture(inboundFailedOrder);
     }
 
-    //-------------------------------------------------------------------Outbound-Failed-Order---------------------------------------------------------------
-//    @Async("asyncTaskExecutor")
-//    public CompletableFuture<WarehouseApiResponse> processOutboundFailedOrder() throws InterruptedException {
-//        WarehouseApiResponse outboundFailedOrder = transactionService.processOutboundFailedOrder();
-//        return CompletableFuture.completedFuture(outboundFailedOrder);
-//    }
 }

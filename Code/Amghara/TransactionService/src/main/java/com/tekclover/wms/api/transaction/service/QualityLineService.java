@@ -1,10 +1,37 @@
 package com.tekclover.wms.api.transaction.service;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.persistence.EntityNotFoundException;
+import javax.validation.Valid;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.ParseException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.stereotype.Service;
+
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
-import com.tekclover.wms.api.transaction.model.dto.*;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.*;
+import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
+import com.tekclover.wms.api.transaction.model.dto.StatusId;
+import com.tekclover.wms.api.transaction.model.dto.StorageBin;
+import com.tekclover.wms.api.transaction.model.dto.Warehouse;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.AddInventory;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.AddInventoryMovement;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.UpdateInventory;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundLineInterim;
@@ -13,26 +40,40 @@ import com.tekclover.wms.api.transaction.model.outbound.ordermangement.v2.OrderM
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.v2.SearchOrderManagementLineV2;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickupHeaderV2;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.SearchPickupHeaderV2;
-import com.tekclover.wms.api.transaction.model.outbound.quality.*;
-import com.tekclover.wms.api.transaction.model.outbound.quality.v2.*;
-import com.tekclover.wms.api.transaction.model.outbound.v2.*;
-import com.tekclover.wms.api.transaction.repository.*;
+import com.tekclover.wms.api.transaction.model.outbound.quality.AddQualityLine;
+import com.tekclover.wms.api.transaction.model.outbound.quality.QualityHeader;
+import com.tekclover.wms.api.transaction.model.outbound.quality.QualityLine;
+import com.tekclover.wms.api.transaction.model.outbound.quality.SearchQualityLine;
+import com.tekclover.wms.api.transaction.model.outbound.quality.UpdateQualityHeader;
+import com.tekclover.wms.api.transaction.model.outbound.quality.UpdateQualityLine;
+import com.tekclover.wms.api.transaction.model.outbound.quality.v2.AddQualityLineV2;
+import com.tekclover.wms.api.transaction.model.outbound.quality.v2.QualityHeaderV2;
+import com.tekclover.wms.api.transaction.model.outbound.quality.v2.QualityLineV2;
+import com.tekclover.wms.api.transaction.model.outbound.quality.v2.SearchQualityHeaderV2;
+import com.tekclover.wms.api.transaction.model.outbound.quality.v2.SearchQualityLineV2;
+import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2;
+import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2Stream;
+import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundLineOutput;
+import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundLineV2;
+import com.tekclover.wms.api.transaction.model.outbound.v2.SearchOutboundHeaderV2;
+import com.tekclover.wms.api.transaction.model.outbound.v2.SearchOutboundLineV2;
+import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
+import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryV2Repository;
+import com.tekclover.wms.api.transaction.repository.OrderManagementLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.OutboundLineInterimRepository;
+import com.tekclover.wms.api.transaction.repository.OutboundLineRepository;
+import com.tekclover.wms.api.transaction.repository.OutboundLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.PickupLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.QualityHeaderV2Repository;
+import com.tekclover.wms.api.transaction.repository.QualityLineRepository;
+import com.tekclover.wms.api.transaction.repository.QualityLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.StagingLineV2Repository;
 import com.tekclover.wms.api.transaction.repository.specification.QualityLineSpecification;
 import com.tekclover.wms.api.transaction.repository.specification.QualityLineV2Specification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.expression.ParseException;
-import org.springframework.stereotype.Service;
-
-import javax.persistence.EntityNotFoundException;
-import javax.transaction.Transactional;
-import javax.validation.Valid;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -669,6 +710,7 @@ public class QualityLineService extends BaseService {
      * @param dbQualityLine
      * @param DLV_ORD_NO
      */
+    @Retryable(value = Exception.class, maxAttempts = 3, backoff = @Backoff(delay = 5000, multiplier = 2))
     private void updateOutboundLine(QualityLine dbQualityLine, String DLV_ORD_NO) {
         try {
             Double deliveryQty = outboundLineInterimRepository.getSumOfDeliveryLine(dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(),
@@ -1723,6 +1765,7 @@ public class QualityLineService extends BaseService {
      * @param dbQualityLine
      * @param DLV_ORD_NO
      */
+    @Retryable(value = {Exception.class}, maxAttempts = 2, backoff = @Backoff(delay = 2000))
     private void updateOutboundLineV2(QualityLineV2 dbQualityLine, String DLV_ORD_NO) {
         try {
             Double deliveryQty = outboundLineInterimRepository.getSumOfDeliveryLine(dbQualityLine.getWarehouseId(), dbQualityLine.getPreOutboundNo(),

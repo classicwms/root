@@ -3634,6 +3634,16 @@ public class ReportsService extends BaseService {
             List<TransactionHistoryReport> inventoryStockList = transactionHistoryReportRepository.stream(specification, TransactionHistoryReport.class).collect(Collectors.toList());
             log.info("TransactionHistoryReport -----> Output");
 
+
+//            for (TransactionHistoryReport report: inventoryStockList){
+//            DataResponse ibLine = inboundLineRepository.getUniqueItem(report.getItemCode());
+//            if(ibLine != null) {
+//                report.setAcceptedQty(ibLine.getAcceptedQty());
+//                report.setConfirmedOn(ibLine.getConfirmedOn());
+//                report.setRefDocNumber(ibLine.getRefDocNumber());
+//            }
+//            }
+
             return inventoryStockList;
 
         } catch (Exception e) {
