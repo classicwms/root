@@ -300,4 +300,6 @@ public interface PreOutboundHeaderV2Repository extends JpaRepository<PreOutbound
                                        @Param("warehouseId") String warehouseId,
                                        @Param("salesOrderNumber") String salesOrderNumber);
 
+    void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+            String companyCodeId, String plantId, String warehouseId, String refDocNumber, Long deletionIndicator);
 }

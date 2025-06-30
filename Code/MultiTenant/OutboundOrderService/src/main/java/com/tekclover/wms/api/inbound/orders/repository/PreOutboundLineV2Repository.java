@@ -72,6 +72,9 @@ public interface PreOutboundLineV2Repository extends JpaRepository<PreOutboundLi
     List<PreOutboundLineV2> findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber, String preOutboundNo, Long deletionIndicator);
 
+    void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+            String companyCodeId, String plantId, String warehouseId, String refDocNumber, Long deletionIndicator);
+
 //    @Query(value = "SELECT SUM(PICK_CNF_QTY) FROM tblpickupline \r\n"
 //    + "WHERE REF_DOC_NO = :refDocNumber \r\n"
 //    + "GROUP BY REF_DOC_NO", nativeQuery = true)

@@ -22,6 +22,8 @@ public interface OutboundOrderV2Repository extends JpaRepository<OutboundOrderV2
 
     OutboundOrderV2 findByRefDocumentNo(String orderId);
     OutboundOrderV2 findByRefDocumentNoAndOutboundOrderTypeID(String orderId, Long outboundOrderTypeID);
+
+    OutboundOrderV2 findByRefDocumentNoAndOutboundOrderTypeIDAndProcessedStatusId(String orderId, Long outboundOrderTypeID, Long statusId);
     OutboundOrderV2 findByRefDocumentNoAndProcessedStatusIdOrderByOrderReceivedOn(String orderId, Long deletionIndicator);
 
     @Modifying

@@ -884,10 +884,7 @@ public class OrderManagementLineService extends BaseService {
             if(INV_QTY == null) {
                 INV_QTY = 0.0;
             }
-
             log.info("Group By LeveId: " + levelIdList.size());
-            List<String> invQtyByLevelIdList = new ArrayList<>();
-            boolean toBeIncluded = true;
             for (IInventory iInventory : levelIdList) {
                 log.info("ORD_QTY, INV_QTY_TOTAL : " + ORD_QTY + ", " + iInventory.getInventoryQty());
 
@@ -903,7 +900,6 @@ public class OrderManagementLineService extends BaseService {
                     newOrderManagementLine = fullQtyAllocation(iInventory, companyCodeId, plantId, languageId, warehouseId, itemCode,
                             manufacturerName, stockTypeId, binClassId, alternateUom, loginUserID, ORD_QTY, orderManagementLine);
                 } else if (ORD_QTY < iInventory.getInventoryQty()) {
-                    orderBy = "iv.LEVEL_ID";
                     finalInventoryList = inventoryService.getInventoryForOrderManagementLevelIdV6(companyCodeId, plantId, languageId, warehouseId, itemCode,
                             manufacturerName, stockTypeId, binClassId, alternateUom,
                             iInventory.getLevelId());
@@ -913,42 +909,13 @@ public class OrderManagementLineService extends BaseService {
                     log.info("newOrderManagementLine updated ---#--->" + newOrderManagementLine);
                     return newOrderManagementLine;
                 }
-//                if (ORD_QTY > iInventory.getInventoryQty()) {
-//                    toBeIncluded = false;
-//                }
-//                if (!toBeIncluded) {
-//                    invQtyByLevelIdList.add("True");
-//                }
             }
             if(newOrderManagementLine != null) {
                 return newOrderManagementLine;
             } else {
                 return updateOrderManagementLineV2(orderManagementLine);
             }
-//            invQtyByLevelIdCount = levelIdList.size();
-//            invQtyGroupByLevelIdCount = invQtyByLevelIdList.size();
-//            log.info("invQtyByLevelIdCount, invQtyGroupByLevelIdCount" + invQtyByLevelIdCount + ", " + invQtyGroupByLevelIdCount);
-//            if (invQtyByLevelIdCount != invQtyGroupByLevelIdCount) {
-//                log.info("newOrderManagementLine updated ---#--->" + newOrderManagementLine);
-//                return newOrderManagementLine;
-//            }
-//            if (invQtyByLevelIdCount == invQtyGroupByLevelIdCount) {
-//                orderBy = "iv.LEVEL_ID";
-//                finalInventoryList = inventoryService.getInventoryForOrderManagementOrderByLevelIdV4(companyCodeId, plantId, languageId, warehouseId, itemCode,
-//                        manufacturerName, stockTypeId, binClassId, alternateUom);
-//            }
         }
-//        assert finalInventoryList != null;
-//        log.info("finalInventoryList Inventory ---->: " + finalInventoryList + "\n");
-
-        // If the finalInventoryList is EMPTY then we set STATUS_ID as 47 and return from the processing
-//        if (newOrderManagementLine == null) {
-//            return updateOrderManagementLineV2(orderManagementLine);
-//        }
-
-//        newOrderManagementLine = orderAllocationV7(companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName,
-//                binClassId, ORD_QTY, orderManagementLine, finalInventoryList, loginUserID);
-
         log.info("newOrderManagementLine updated ---#--->" + newOrderManagementLine);
         return newOrderManagementLine;
     }
@@ -1254,6 +1221,8 @@ public class OrderManagementLineService extends BaseService {
                 if (stBinInventory.getLevelId() != null) {
                     newOrderManagementLine.setLevelId(stBinInventory.getLevelId());
                 }
+                newOrderManagementLine.setNoBags(stBinInventory.getNoBags() != null ? stBinInventory.getNoBags() : 0.0);
+                newOrderManagementLine.setBagSize(stBinInventory.getBagSize() != null ? stBinInventory.getBagSize() : 0.0);
                 newOrderManagementLine.setProposedPackBarCode(stBinInventory.getPackBarcodes());
                 newOrderManagementLine.setProposedBatchSerialNumber(stBinInventory.getBatchSerialNumber());
                 newOrderManagementLine.setMrp(stBinInventory.getMrp());
@@ -1296,18 +1265,18 @@ public class OrderManagementLineService extends BaseService {
                     inventoryV2.setReferenceDocumentNo(orderManagementLine.getRefDocNumber());
                     inventoryV2.setReferenceOrderNo(orderManagementLine.getRefDocNumber());
                     inventoryV2.setUpdatedOn(new Date());
-                    try {
-//                        inventoryV2 = inventoryV2Repository.save(inventoryV2);
-                        log.info("-----Inventory2 updated-------: " + inventoryV2);
-                    } catch (Exception e) {
-                        log.error("--ERROR--updateInventoryV3----level1--inventory--error----> :" + e.toString());
-                        e.printStackTrace();
-                        InventoryTrans newInventoryTrans = new InventoryTrans();
-                        BeanUtils.copyProperties(inventoryV2, newInventoryTrans, CommonUtils.getNullPropertyNames(inventoryV2));
-                        newInventoryTrans.setReRun(0L);
-                        InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
-                        log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
-                    }
+//                    try {
+////                        inventoryV2 = inventoryV2Repository.save(inventoryV2);
+//                        log.info("-----Inventory2 updated-------: " + inventoryV2);
+//                    } catch (Exception e) {
+//                        log.error("--ERROR--updateInventoryV3----level1--inventory--error----> :" + e.toString());
+//                        e.printStackTrace();
+//                        InventoryTrans newInventoryTrans = new InventoryTrans();
+//                        BeanUtils.copyProperties(inventoryV2, newInventoryTrans, CommonUtils.getNullPropertyNames(inventoryV2));
+//                        newInventoryTrans.setReRun(0L);
+//                        InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+//                        log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
+//                    }
                 }
 
                 log.info("ORD_QTY == ALLOC_QTY Check for Breaking Loop | " + ORD_QTY + " | " + ALLOC_QTY);
@@ -1390,6 +1359,8 @@ public class OrderManagementLineService extends BaseService {
                     }
                 }
 
+                orderManagementLine.setNoBags(stBinInventory.getNoBags() != null ? stBinInventory.getNoBags() : 0.0);
+                orderManagementLine.setBagSize(stBinInventory.getBagSize() != null ? stBinInventory.getBagSize() : 0.0);
                 orderManagementLine.setAllocatedQty(ALLOC_QTY);
                 orderManagementLine.setReAllocatedQty(ALLOC_QTY);
 
@@ -1480,8 +1451,8 @@ public class OrderManagementLineService extends BaseService {
      * @param orderManagementLine
      */
     public OrderManagementLineV2 fullQtyAllocation(IInventory iInventory, String companyCodeId, String plantId, String languageId, String warehouseId,
-                                String itemCode, String manufacturerName, Long stockTypeId, Long binClassId, String alternateUom, String loginUserID,
-                                Double ORD_QTY, OrderManagementLineV2 orderManagementLine) {
+                                                   String itemCode, String manufacturerName, Long stockTypeId, Long binClassId, String alternateUom, String loginUserID,
+                                                   Double ORD_QTY, OrderManagementLineV2 orderManagementLine) {
 
         List<IInventoryImpl> finalInventoryList = null;
         OrderManagementLineV2 newOrderManagementLine = null;
@@ -1602,20 +1573,20 @@ public class OrderManagementLineService extends BaseService {
                     log.info("Inventory totQty: " + totQty);
 
                     // Create new Inventory Record
-                    InventoryV2 inventoryV2 = new InventoryV2();
-                    BeanUtils.copyProperties(inventory, inventoryV2, CommonUtils.getNullPropertyNames(inventory));
-                    try {
-                        inventoryV2 = inventoryV2Repository.save(inventoryV2);
-                        log.info("-----InventoryV2 created-------: " + inventoryV2);
-                    } catch (Exception e) {
-                        log.error("--ERROR--updateInventoryV3----level1--inventory--error----> :" + e.toString());
-                        e.printStackTrace();
-                        InventoryTrans newInventoryTrans = new InventoryTrans();
-                        BeanUtils.copyProperties(inventoryV2, newInventoryTrans, CommonUtils.getNullPropertyNames(inventoryV2));
-                        newInventoryTrans.setReRun(0L);
-                        InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
-                        log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
-                    }
+//                    InventoryV2 inventoryV2 = new InventoryV2();
+//                    BeanUtils.copyProperties(inventory, inventoryV2, CommonUtils.getNullPropertyNames(inventory));
+//                    try {
+//                        inventoryV2 = inventoryV2Repository.save(inventoryV2);
+//                        log.info("-----InventoryV2 created-------: " + inventoryV2);
+//                    } catch (Exception e) {
+//                        log.error("--ERROR--updateInventoryV3----level1--inventory--error----> :" + e.toString());
+//                        e.printStackTrace();
+//                        InventoryTrans newInventoryTrans = new InventoryTrans();
+//                        BeanUtils.copyProperties(inventoryV2, newInventoryTrans, CommonUtils.getNullPropertyNames(inventoryV2));
+//                        newInventoryTrans.setReRun(0L);
+//                        InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+//                        log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
+//                    }
                 }
                 log.info("Rollback---> 1.Inventory restoration Finished ----> " + refDocNo + ", " + outboundOrderTypeId);
             }

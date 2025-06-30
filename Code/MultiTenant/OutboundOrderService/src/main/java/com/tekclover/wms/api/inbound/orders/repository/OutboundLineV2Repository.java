@@ -658,5 +658,8 @@ public interface OutboundLineV2Repository extends JpaRepository<OutboundLineV2, 
                                            @Param("statusDescription") String statusDescription,
                                            @Param("lineNumber") Long lineNumber,
                                            @Param("itemCode") String itemCode);
-//                                           @Param("assignedPickerId") String assignedPickerId);
+
+    void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+            String companyCodeId, String plantId, String warehouseId, String refDocNumber, Long deletionIndicator);
+
 }

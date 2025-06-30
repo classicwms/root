@@ -20,7 +20,6 @@ import com.tekclover.wms.api.inbound.orders.model.outbound.quality.v2.QualityLin
 import com.tekclover.wms.api.inbound.orders.model.outbound.quality.v2.SearchQualityHeaderV2;
 import com.tekclover.wms.api.inbound.orders.model.outbound.v2.*;
 import com.tekclover.wms.api.inbound.orders.model.trans.InventoryTrans;
-import com.tekclover.wms.api.inbound.orders.model.warehouse.inbound.v2.InboundOrderV2;
 import com.tekclover.wms.api.inbound.orders.model.warehouse.outbound.v2.OutboundOrderV2;
 import com.tekclover.wms.api.inbound.orders.repository.*;
 import com.tekclover.wms.api.inbound.orders.util.CommonUtils;
@@ -1338,16 +1337,17 @@ public class OrderService {
         OutboundOrderV2 dbOutboundOrder = getOBOrderByIdV2(orderId, outboundOrderTypeID);
         log.info("orderId : " + orderId);
         log.info("dbOutBoundOrder : " + dbOutboundOrder);
-        OutboundOrderV2 orderV2 = getOrder(orderId);
-        orderV2.setProcessedStatusId(processStatusId);
-        orderV2.setOrderProcessedOn(new Date());
-        outboundOrderV2Repository.save(orderV2);
+//        OutboundOrderV2 orderV2 = getOrder(orderId);
+        dbOutboundOrder.setProcessedStatusId(processStatusId);
+        dbOutboundOrder.setOrderProcessedOn(new Date());
+        outboundOrderV2Repository.save(dbOutboundOrder);
 
         DataBaseContextHolder.clear();
         DataBaseContextHolder.setCurrentDb("MT");
-        outboundOrderV2Repository.save(orderV2);
-        return orderV2;
+        outboundOrderV2Repository.save(dbOutboundOrder);
+        return dbOutboundOrder;
     }
+
 
     /**
      *
@@ -1414,7 +1414,7 @@ public class OrderService {
     public OutboundOrderV2 getOBOrderByIdV2(String orderId, Long outboundOrderTypeID) {
         DataBaseContextHolder.clear();
         DataBaseContextHolder.setCurrentDb("MT");
-        OutboundOrderV2 dbOutboundOrder = outboundOrderV2Repository.findByRefDocumentNoAndOutboundOrderTypeID (orderId, outboundOrderTypeID);
+        OutboundOrderV2 dbOutboundOrder = outboundOrderV2Repository.findByRefDocumentNoAndOutboundOrderTypeIDAndProcessedStatusId(orderId, outboundOrderTypeID, 1L);
 
         if(dbOutboundOrder!= null) {
             return dbOutboundOrder;

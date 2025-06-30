@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.inbound.orders.service.namratha;
 
+import com.tekclover.wms.api.inbound.orders.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.inbound.orders.controller.BadRequestException;
 import com.tekclover.wms.api.inbound.orders.model.dto.BomLine;
 import com.tekclover.wms.api.inbound.orders.model.dto.ImBasicData1V2;
@@ -17,16 +18,15 @@ import com.tekclover.wms.api.inbound.orders.repository.*;
 import com.tekclover.wms.api.inbound.orders.service.*;
 import com.tekclover.wms.api.inbound.orders.util.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.criterion.Order;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -58,6 +58,8 @@ public class OrderProcessingService extends BaseService {
     OrderManagementHeaderV2Repository orderManagementHeaderV2Repository;
     @Autowired
     OrderManagementLineV2Repository orderManagementLineV2Repository;
+    @Autowired
+    PickupHeaderV2Repository pickupHeaderV2Repository;
 
     protected static final Long OB_PL_ORD_TYP_ID = 3L;          //Production Order creation
     protected static final Long OB_IPL_ORD_TYP_ID_SFG = 5L;          //Production Order create - semi-finished goods Picklist
@@ -85,23 +87,13 @@ public class OrderProcessingService extends BaseService {
             String languageId = outboundIntegrationHeader.getLanguageId() != null ? outboundIntegrationHeader.getLanguageId() : LANG_ID;
             String refDocNumber = outboundIntegrationHeader.getRefDocumentNo();
 
-            Optional<PreOutboundHeaderV2> orderProcessedStatus =
-                    preOutboundHeaderV2Repository.findByRefDocNumberAndOutboundOrderTypeIdAndDeletionIndicator(
-                            refDocNumber, outboundIntegrationHeader.getOutboundOrderTypeID(), 0L);
-
-            if (!orderProcessedStatus.isEmpty()) {
-                throw new BadRequestException("Order :" + outboundIntegrationHeader.getRefDocumentNo() + " already processed. Reprocessing can't be allowed.");
-            }
-
-            String masterAuthToken = getMasterAuthToken();
-
             if (warehouseId == null) {
                 try {
                     Optional<Warehouse> warehouse =
                             warehouseRepository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndDeletionIndicator(
                                     outboundIntegrationHeader.getCompanyCode(), outboundIntegrationHeader.getBranchCode(), LANG_ID, 0L);
                     log.info("warehouse : " + warehouse);
-                    if (warehouse != null && !warehouse.isEmpty()) {
+                    if (warehouse.isPresent()) {
                         log.info("warehouse : " + warehouse.get().getWarehouseId());
                         warehouseId = warehouse.get().getWarehouseId();
                     } else {
@@ -114,6 +106,24 @@ public class OrderProcessingService extends BaseService {
                 }
             }
 
+            Optional<PreOutboundHeaderV2> orderProcessedStatus =
+                    preOutboundHeaderV2Repository.findByRefDocNumberAndOutboundOrderTypeIdAndDeletionIndicator(
+                            refDocNumber, outboundIntegrationHeader.getOutboundOrderTypeID(), 0L);
+
+            if (orderProcessedStatus.isPresent()) {
+                log.info("PickListCancellation Starting -----------> companyId {}, PlantId {}, WarehouseId {}, RefDocNo {} ", companyCodeId, plantId, warehouseId, refDocNumber);
+                List<Long> statusIdList = Arrays.asList(57L, 50L);
+                boolean pickUpConfirm = pickupHeaderV2Repository.existsByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndStatusIdInAndDeletionIndicator(
+                        companyCodeId, plantId, warehouseId, refDocNumber, statusIdList, 0L);
+                log.info("PickupHeader Status Checking " + pickUpConfirm);
+                if (pickUpConfirm) {
+                    throw new BadRequestException("This Order Already PickList Confirm --------> RefDocNo is " + refDocNumber);
+                }
+                // PickListCancellation Delete all tables
+                pickListCancellation(companyCodeId, plantId, warehouseId, refDocNumber);
+            }
+
+            // ORD_TYP_ID == 4
             if (outboundIntegrationHeader.getOutboundOrderTypeID() == 4 ||
                     (outboundIntegrationHeader.getReferenceDocumentType() != null && outboundIntegrationHeader.getReferenceDocumentType().equalsIgnoreCase("Sales Invoice"))) {
                 OutboundHeaderV2 updateOutboundHeaderAndLine = updateOutboundHeaderForSalesInvoice(outboundIntegrationHeader, warehouseId);
@@ -152,8 +162,11 @@ public class OrderProcessingService extends BaseService {
             createOrderManagementLine(companyCodeId, plantId, languageId, preOutboundNo, outboundIntegrationHeader, createdPreOutboundLineList, MW_AMS);
 
             /*------------------Record Insertion in OUTBOUNDLINE tables-----------*/
-            List<OutboundLineV2> createOutboundLineList = createOutboundLineV2(createdPreOutboundLineList, outboundIntegrationHeader, MW_AMS);
-            log.info("createOutboundLine created : " + createOutboundLineList);
+//            List<OutboundLineV2> createOutboundLineList = createOutboundLineV2(createdPreOutboundLineList, outboundIntegrationHeader, MW_AMS);
+//            log.info("createOutboundLine created : " + createOutboundLineList);
+
+            // OutboundLines Created
+            createOutboundLine(companyCodeId, plantId, warehouseId, languageId, preOutboundNo);
 
             /*------------------Insert into PreOutboundHeader table-----------------------------*/
             PreOutboundHeaderV2 createdPreOutboundHeader = createPreOutboundHeaderV2(companyCodeId, plantId, languageId, warehouseId,
@@ -184,7 +197,6 @@ public class OrderProcessingService extends BaseService {
             log.info("Rollback Initiated...!" + outboundIntegrationHeader.getRefDocumentNo());
             orderManagementLineService.rollback(outboundIntegrationHeader);
             orderService.updateProcessedOrderV2(outboundIntegrationHeader.getRefDocumentNo(), outboundIntegrationHeader.getOutboundOrderTypeID());
-
             throw e;
         }
     }
@@ -310,7 +322,6 @@ public class OrderProcessingService extends BaseService {
             throw e;
         }
     }
-
 
 
     /**
@@ -610,6 +621,30 @@ public class OrderProcessingService extends BaseService {
         return outboundLines;
     }
 
+
+    /**
+     *
+     * @param companyCodeId c_id
+     * @param plantId plant_id
+     * @param warehouseId wh_id
+     * @param languageId lang_id
+     * @param preOutboundNo pre_out_no
+     */
+    public void createOutboundLine(String companyCodeId, String plantId, String warehouseId, String languageId, String preOutboundNo) {
+
+        List<OrderManagementLineV2> orderManagementLinList = orderManagementLineV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndDeletionIndicator(
+                companyCodeId, plantId, languageId, warehouseId, preOutboundNo, 0L);
+
+        Long lineNo = 1L;
+        for(OrderManagementLineV2 orderManagementLine : orderManagementLinList) {
+            OutboundLineV2 newOutboundLine = new OutboundLineV2();
+            BeanUtils.copyProperties(orderManagementLine, newOutboundLine, CommonUtils.getNullPropertyNames(orderManagementLine));
+            newOutboundLine.setLineNumber(orderManagementLine.getLineNumber());
+            outboundLineV2Repository.delete(newOutboundLine);
+            outboundLineV2Repository.save(newOutboundLine);
+            lineNo ++;
+        }
+    }
     /**
      * @param companyCodeId
      * @param plantId
@@ -701,14 +736,44 @@ public class OrderProcessingService extends BaseService {
                                           OutboundIntegrationHeaderV2 outboundIntegrationHeader, List<PreOutboundLineV2> preOutboundLineList, String loginUserId) throws Exception {
         OrderManagementLineV2 orderManagementLine = null;
         try {
-            for (PreOutboundLineV2 preOutboundLine : preOutboundLineList) {
-                orderManagementLine = createOrderManagementLineV2(companyCodeId, plantId, languageId, preOutboundNo, outboundIntegrationHeader, preOutboundLine, loginUserId);
+
+            log.info("Total PreOutboundLines received :{}", preOutboundLineList.size());
+
+            // 1. Group By ItemCode and Sum Of OrderQty
+            Map<String, Double> itemCodeToTotalQty = preOutboundLineList.stream()
+                    .collect(Collectors.groupingBy(PreOutboundLineV2::getItemCode,Collectors.summingDouble(line -> line.getOrderQty() == null ? 0.0 : line.getOrderQty())));
+            log.info("Grouped item codes found: {}", itemCodeToTotalQty.keySet());
+
+            // 2.Loop Over Grouped By Result
+            for(Map.Entry<String, Double> entry : itemCodeToTotalQty.entrySet()) {
+                String itemCode = entry.getKey();
+                Double totalQty = entry.getValue();
+
+                PreOutboundLineV2 preOutboundLineV2 = preOutboundLineList.stream()
+                        .filter(p -> p.getItemCode().equals(itemCode))
+                        .findFirst()
+                        .orElseThrow(() -> new RuntimeException(" ItemCode not found in list: " + itemCode));
+
+                // Create new PreOutboundLine
+                PreOutboundLineV2 newPreOutboundLine = new PreOutboundLineV2();
+                BeanUtils.copyProperties(preOutboundLineV2, newPreOutboundLine, CommonUtils.getNullPropertyNames(preOutboundLineV2));
+                newPreOutboundLine.setItemCode(itemCode);
+                newPreOutboundLine.setOrderQty(totalQty);
+
+                // Log creation step
+                log.info(" Create OrderManagementLine is Start for ItemCode: {} | TotalQty: {}", itemCode, totalQty);
+                // Create OrderManagementLine
+                orderManagementLine = createOrderManagementLineV2(companyCodeId, plantId, languageId, preOutboundNo,
+                        outboundIntegrationHeader, newPreOutboundLine, loginUserId);
+
+                log.debug("Created OrderManagementLine Created: -----------------------------> |||||||||||");
             }
+            log.info(" All OrderManagementLines created successfully for PreOutboundNo: {}", preOutboundNo);
+
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
-        log.info("orderManagementLine created---1---> : " + orderManagementLine);
     }
 
     /**
@@ -723,7 +788,7 @@ public class OrderProcessingService extends BaseService {
      */
     @Transactional
     public void createOrderManagementLineV7(String companyCodeId, String plantId, String languageId, String preOutboundNo,
-                                          OutboundIntegrationHeaderV2 outboundIntegrationHeader, List<PreOutboundLineV2> preOutboundLineList, String loginUserId) throws Exception {
+                                            OutboundIntegrationHeaderV2 outboundIntegrationHeader, List<PreOutboundLineV2> preOutboundLineList, String loginUserId) throws Exception {
         OrderManagementLineV2 orderManagementLine = null;
         try {
             for (PreOutboundLineV2 preOutboundLine : preOutboundLineList) {
@@ -860,6 +925,8 @@ public class OrderProcessingService extends BaseService {
         String PU_NO = getNextRangeNumber(NUM_RAN_CODE, companyCodeId, plantId, languageId, warehouseId);
         log.info("----------New PU_NO--------> : " + PU_NO);
 
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb("NAMRATHA");
         if (orderManagementLines != null && !orderManagementLines.isEmpty()) {
             for (OrderManagementLineV2 orderManagementLine : orderManagementLines) {
                 PickupHeaderV2 newPickupHeader = new PickupHeaderV2();
@@ -963,5 +1030,44 @@ public class OrderProcessingService extends BaseService {
         } else {
             return null;
         }
+    }
+
+    /**
+     *
+     * @param companyCodeId c_id
+     * @param plantId plant_id
+     * @param warehouseId w_id
+     * @param refDocNumber ref_doc_no
+     *                 PickListCancellation code [27-06-25]
+     */
+    public void pickListCancellation(String companyCodeId, String plantId, String warehouseId, String refDocNumber) {
+
+        preOutboundHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                companyCodeId, plantId, warehouseId, refDocNumber, 0L);
+        log.info("PreOutboundHeader Deleted Successfully ---> RefDocNo is {}", refDocNumber);
+
+        outboundHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                companyCodeId, plantId, warehouseId, refDocNumber, 0L);
+        log.info("OutboundHeader Deleted Successfully ---> RefDocNo is {}", refDocNumber);
+
+        orderManagementHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                companyCodeId, plantId, warehouseId, refDocNumber, 0L);
+        log.info("OrderManagementHeader Deleted Successfully ---> RefDocNo is {}", refDocNumber);
+
+        pickupHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                companyCodeId, plantId, warehouseId, refDocNumber, 0L);
+        log.info("PickupHeader Deleted Successfully ---> RefDocNo is {}", refDocNumber);
+
+        preOutboundLineV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                companyCodeId, plantId, warehouseId, refDocNumber, 0L);
+        log.info("PreOutboundLine Deleted Successfully ---> RefDocNo is {}", refDocNumber);
+
+        orderManagementLineV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                companyCodeId, plantId, warehouseId, refDocNumber, 0L);
+        log.info("OrderManagementLine Deleted Successfully ---> RefDocNo is {}", refDocNumber);
+
+        outboundLineV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                companyCodeId, plantId, warehouseId, refDocNumber, 0L);
+        log.info("OrderManagementLine Deleted Successfully ---> RefDocNo is {}", refDocNumber);
     }
 }

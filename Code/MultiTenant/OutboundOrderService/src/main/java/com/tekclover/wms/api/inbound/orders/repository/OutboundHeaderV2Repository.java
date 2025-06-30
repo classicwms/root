@@ -777,4 +777,7 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
                                              @Param("preOutboundNo") String preOutboundNo,
                                              @Param("statusId") Long statusId,
                                              @Param("statusDescription") String statusDescription);
+
+    void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+            String companyCodeId, String plantId, String warehouseId, String refDocNumber, Long deletionIndicator);
 }

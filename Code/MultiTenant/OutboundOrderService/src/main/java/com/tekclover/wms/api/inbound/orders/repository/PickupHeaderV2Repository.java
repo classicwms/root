@@ -472,6 +472,12 @@ public interface PickupHeaderV2Repository extends JpaRepository<PickupHeaderV2, 
                                            @Param("proposedPackBarCode") String proposedPackBarCode,
                                            @Param("isPickupHeaderCreated") Long isPickupHeaderCreated);
 
+    boolean existsByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndStatusIdInAndDeletionIndicator(
+            String companyCodeId, String plantId, String warehouseId, String refDocNumber, List<Long> statusId, Long deletionIndicator);
+
+    void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+            String companyCodeId, String plantId, String warehouseId, String refDocNumber, Long deletionIndicator);
+
 //     @Query(value = "select token_id as tokenId from tblhhtnotification where usr_id = :userId and \n" +
 //                " c_id = :companyId and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and is_deleted = 0", nativeQuery = true)
 //        public List<String> getDeviceToken(@Param("userId")String userId,

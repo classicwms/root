@@ -73,4 +73,7 @@ public interface OrderManagementHeaderV2Repository extends JpaRepository<OrderMa
                                                     @Param("preOutboundNo") String preOutboundNo,
                                                     @Param("statusId") Long statusId,
                                                     @Param("statusDescription") String statusDescription);
+
+    void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+            String companyCodeId, String plantId, String warehouseId, String refDocNumber, Long deletionIndicator);
 }

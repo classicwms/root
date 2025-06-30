@@ -399,4 +399,13 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
                                      @Param("statusId") Long statusId,
                                      @Param("statusDescription") String statusDescription,
                                      @Param("pickupUpdatedOn") Date pickupUpdatedOn);
+
+    void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+            String companyCodeId, String plantId, String warehouseId, String refDocNumber, Long deletionIndicator);
+
+    List<OrderManagementLineV2> findAllByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndDeletionIndicator(
+            String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo, Long deletionIndicator);
+
+    List<OrderManagementLineV2> findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndDeletionIndicator(
+            String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo, Long deletionIndicator);
 }
