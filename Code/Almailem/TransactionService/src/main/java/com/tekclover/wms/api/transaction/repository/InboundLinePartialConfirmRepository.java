@@ -31,6 +31,9 @@ public interface InboundLinePartialConfirmRepository extends JpaRepository<Inbou
 	                                @Param("preInboundNo") String preInboundNo,
 	                                @Param("refDocNumber") String refDocNumber,
 	                                @Param("lineNo") Long lineNo,
-	                                @Param("isExecuted") Long isExecuted);   
+	                                @Param("isExecuted") Long isExecuted);
+
+	public InboundLinePartialConfirm findByCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndLineNoAndItemCode (String companyCode, 
+			String plantId, String warehouseId, String refDocNumber, String preInboundNo, Long lineNo, String itemCode);
 }
 
