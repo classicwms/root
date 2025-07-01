@@ -1838,6 +1838,7 @@ public class InboundHeaderService extends BaseService {
 				});
 			}
 			
+			statusDescription = stagingLineV2Repository.getStatusDescription(24L, inboundLine.getLanguageId());
 			putAwayLineV2Repository.updatePutawayLineStatusUpdateInboundConfirmProc(inboundLine.getCompanyCode(),
 					inboundLine.getPlantId(), inboundLine.getLanguageId(), inboundLine.getWarehouseId(),
 					inboundLine.getRefDocNumber(), inboundLine.getPreInboundNo(), 24L, statusDescription,
