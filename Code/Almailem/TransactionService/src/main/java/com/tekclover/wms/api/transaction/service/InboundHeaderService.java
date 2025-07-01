@@ -1810,12 +1810,10 @@ public class InboundHeaderService extends BaseService {
 
 		inboundLinePartialConfirmList.stream().forEach(inboundLine -> {
 			log.info("-----scheduleInboundLinePartialConfirmation---->: " + inboundLine);
-
-			putAwayLineV2Repository.updatePutawayLineStatusUpdateInboundConfirmProc(inboundLine.getCompanyCode(),
-					inboundLine.getPlantId(), inboundLine.getLanguageId(), inboundLine.getWarehouseId(),
-					inboundLine.getRefDocNumber(), inboundLine.getPreInboundNo(), 24L, statusDescription,
-					inboundLine.getUpdatedBy(), new Date());
-			log.info("-----updateInboundHeaderPartialConfirmNewV2----putAwayLine-updated----");
+			String updatedBy = inboundLine.getUpdatedBy();
+			if (inboundLine.getUpdatedBy() == null) {
+				updatedBy = inboundLine.getCreatedBy();
+			}
 
 			List<PutAwayLineV2> putAwayLineList = putAwayLineService.getPutAwayLineForInboundConfirmV2(
 					inboundLine.getCompanyCode(), inboundLine.getPlantId(), inboundLine.getLanguageId(),
@@ -1839,6 +1837,12 @@ public class InboundHeaderService extends BaseService {
 					}
 				});
 			}
+			
+			putAwayLineV2Repository.updatePutawayLineStatusUpdateInboundConfirmProc(inboundLine.getCompanyCode(),
+					inboundLine.getPlantId(), inboundLine.getLanguageId(), inboundLine.getWarehouseId(),
+					inboundLine.getRefDocNumber(), inboundLine.getPreInboundNo(), 24L, statusDescription,
+					updatedBy, new Date());
+			log.info("-----updateInboundHeaderPartialConfirmNewV2----putAwayLine-updated----");
 		});
 	}
 

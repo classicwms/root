@@ -1804,40 +1804,47 @@ public class InboundHeaderService extends BaseService {
 	@Scheduled(fixedDelay = 15000)
 	private void scheduleInboundLinePartialConfirmation() {
 		log.info("-----scheduleInboundLinePartialConfirmation--1-->: ");
-    	List<InboundLinePartialConfirm> inboundLinePartialConfirmList = 
-				inboundLinePartialConfirmRepository.findByStatusIdAndIsExecuted(24L, 0L);
+		List<InboundLinePartialConfirm> inboundLinePartialConfirmList = inboundLinePartialConfirmRepository
+				.findByStatusIdAndIsExecuted(24L, 0L);
 		log.info("-----scheduleInboundLinePartialConfirmation--2-->: " + inboundLinePartialConfirmList);
-		
-    	inboundLinePartialConfirmList.stream().forEach(inboundLine -> {
-    		log.info("-----scheduleInboundLinePartialConfirmation---->: " + inboundLine);
-    		
-			putAwayLineV2Repository.updatePutawayLineStatusUpdateInboundConfirmProc(inboundLine.getCompanyCode(), inboundLine.getPlantId(),
-					inboundLine.getLanguageId(), inboundLine.getWarehouseId(), inboundLine.getRefDocNumber(), inboundLine.getPreInboundNo(), 24L, 
-					statusDescription, inboundLine.getUpdatedBy(), new Date());
-			log.info("-----updateInboundHeaderPartialConfirmNewV2----putAwayLine-updated----");
-			
-			List<PutAwayLineV2> putAwayLineList = putAwayLineService.getPutAwayLineForInboundConfirmV2(inboundLine.getCompanyCode(),
-					inboundLine.getPlantId(), inboundLine.getLanguageId(), inboundLine.getWarehouseId(), 
-					inboundLine.getRefDocNumber(), inboundLine.getItemCode(), inboundLine.getManufacturerName(), 
-					inboundLine.getLineNo(), inboundLine.getPreInboundNo());
+
+		inboundLinePartialConfirmList.stream().forEach(inboundLine -> {
+			log.info("-----scheduleInboundLinePartialConfirmation---->: " + inboundLine);
+			String updatedBy = inboundLine.getUpdatedBy();
+			if (inboundLine.getUpdatedBy() == null) {
+				updatedBy = inboundLine.getCreatedBy();
+			}
+
+			List<PutAwayLineV2> putAwayLineList = putAwayLineService.getPutAwayLineForInboundConfirmV2(
+					inboundLine.getCompanyCode(), inboundLine.getPlantId(), inboundLine.getLanguageId(),
+					inboundLine.getWarehouseId(), inboundLine.getRefDocNumber(), inboundLine.getItemCode(),
+					inboundLine.getManufacturerName(), inboundLine.getLineNo(), inboundLine.getPreInboundNo());
 			log.info("PutawayLine List: " + putAwayLineList.size());
-			
+
 			if (putAwayLineList != null) {
 				putAwayLineList.stream().forEach(putAwayLine -> {
 					try {
 						boolean createdInventory = createInventoryNonCBMV2(putAwayLine);
 						log.info("----createdInventory-------flag---> : " + createdInventory);
 						if (createdInventory) {
-							inboundLinePartialConfirmRepository.updateInboundLinePartialConfirmExecutedStatus(inboundLine.getLanguageId(), inboundLine.getPlantId(),
-							inboundLine.getCompanyCode(), inboundLine.getWarehouseId(), inboundLine.getPreInboundNo(), inboundLine.getRefDocNumber(), inboundLine.getLineNo(), 1L);
+							inboundLinePartialConfirmRepository.updateInboundLinePartialConfirmExecutedStatus(
+									inboundLine.getLanguageId(), inboundLine.getPlantId(), inboundLine.getCompanyCode(),
+									inboundLine.getWarehouseId(), inboundLine.getPreInboundNo(),
+									inboundLine.getRefDocNumber(), inboundLine.getLineNo(), 1L);
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				});
 			}
+			
+			putAwayLineV2Repository.updatePutawayLineStatusUpdateInboundConfirmProc(inboundLine.getCompanyCode(),
+					inboundLine.getPlantId(), inboundLine.getLanguageId(), inboundLine.getWarehouseId(),
+					inboundLine.getRefDocNumber(), inboundLine.getPreInboundNo(), 24L, statusDescription,
+					updatedBy, new Date());
+			log.info("-----updateInboundHeaderPartialConfirmNewV2----putAwayLine-updated----");
 		});
-    }
+	}
 
     /**
      * @param putAwayLine
