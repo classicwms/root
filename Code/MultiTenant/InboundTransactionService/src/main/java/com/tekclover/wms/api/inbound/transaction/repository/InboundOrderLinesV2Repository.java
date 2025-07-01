@@ -34,5 +34,5 @@ public interface InboundOrderLinesV2Repository extends JpaRepository<InboundOrde
     @Query(value = "SELECT b.barcode_id FROM tbliborderlines2 b WHERE b.barcode_id IN :barcodeIds", nativeQuery = true)
     List<String> findAllByBarcodeIdIn(@Param("barcodeIds") List<String> barcodeIds);
 
-    InboundOrderLinesV2 findByOrderIdAndInboundOrderHeaderId(String orderId,Long inboundOrderHeaderId);
+    List<InboundOrderLinesV2> findByOrderIdAndInboundOrderHeaderId(String orderId,Long inboundOrderHeaderId);
 }
