@@ -354,7 +354,7 @@ public class OrderService {
 		DataBaseContextHolder.clear();
 		DataBaseContextHolder.setCurrentDb(routingDb);
 		List<Long> statusIdList = Arrays.asList(57L, 50L);
-		boolean pickUpConfirm = pickupHeaderV2Repository.existsByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndStatusIdInAndDeletionIndicator(
+		boolean pickUpConfirm = pickupHeaderV2Repository.existsByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndStatusIdInAndDeletionIndicatorAndAssignedPickerIdIsNotNull(
 				newOutboundOrder.getCompanyCode(), newOutboundOrder.getBranchCode(), newOutboundOrder.getWarehouseID(), newOutboundOrder.getOrderId(), statusIdList, 0L);
 		log.info("PickupHeader Status Checking " + pickUpConfirm);
 		if (pickUpConfirm) {

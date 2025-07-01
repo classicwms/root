@@ -1516,11 +1516,11 @@ public class ReportsService extends BaseService {
             throw new RuntimeException("No inbound orders found for RefDocNumber");
         }
         for (InboundOrderV2 order : inboundOrderList) {
-            InboundOrderLinesV2 inboundOrderLines = inboundOrderLinesV2Repository.findByOrderIdAndInboundOrderHeaderId(
+            List<InboundOrderLinesV2> inboundOrderLines = inboundOrderLinesV2Repository.findByOrderIdAndInboundOrderHeaderId(
                     order.getOrderId(), order.getInboundOrderHeaderId());
 
             if (inboundOrderLines != null) {
-                inboundOrderLinesV2Repository.delete(inboundOrderLines);
+                inboundOrderLinesV2Repository.deleteAll(inboundOrderLines);
             }
         }
         inboundOrderV2Repository.deleteAll(inboundOrderList);

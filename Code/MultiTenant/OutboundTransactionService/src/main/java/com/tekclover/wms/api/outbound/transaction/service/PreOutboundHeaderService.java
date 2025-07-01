@@ -1297,12 +1297,18 @@ public class PreOutboundHeaderService extends BaseService {
                                                          String refDocNumber, String preOutboundNo, String partnerCode,
                                                          String loginUserID, PreOutboundHeaderV2 updatePreOutboundHeader)
             throws IllegalAccessException, InvocationTargetException, ParseException {
-        PreOutboundHeaderV2 dbPreOutboundHeader = getPreOutboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, partnerCode);
-        BeanUtils.copyProperties(updatePreOutboundHeader, dbPreOutboundHeader, CommonUtils.getNullPropertyNames(updatePreOutboundHeader));
-        dbPreOutboundHeader.setUpdatedBy(loginUserID);
-        dbPreOutboundHeader.setUpdatedOn(new Date());
-        preOutboundHeaderV2Repository.delete(dbPreOutboundHeader);
-        return preOutboundHeaderV2Repository.save(dbPreOutboundHeader);
+       
+        Optional<PreOutboundHeaderV2> preOutboundHeader = preOutboundHeaderV2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndPartnerCodeAndDeletionIndicator(
+                languageId, companyCodeId, plantId, warehouseId, refDocNumber, preOutboundNo,partnerCode, 0L);
+        if (preOutboundHeader.isEmpty()) {
+            throw new RuntimeException("PreoutboundHeader Values Doesn't Exist");
+        }
+        PreOutboundHeaderV2 preoutbound = preOutboundHeader.get();
+        BeanUtils.copyProperties(updatePreOutboundHeader, preoutbound, CommonUtils.getNullPropertyNames(updatePreOutboundHeader));
+        preoutbound.setUpdatedBy(loginUserID);
+        preoutbound.setUpdatedOn(new Date());
+        preOutboundHeaderV2Repository.delete(preoutbound);
+        return preOutboundHeaderV2Repository.save(preoutbound);
     }
 
     /**

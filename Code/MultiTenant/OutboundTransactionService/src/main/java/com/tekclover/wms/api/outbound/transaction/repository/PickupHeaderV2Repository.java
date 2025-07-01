@@ -591,6 +591,6 @@ public interface PickupHeaderV2Repository extends JpaRepository<PickupHeaderV2, 
                                             @Param("statusId") Long statusId,
                                             @Param("preOutboundNo") String preOutboundNo);
 
-    boolean existsByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndStatusIdInAndDeletionIndicator(
+    boolean existsByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndStatusIdInAndDeletionIndicatorAndAssignedPickerIdIsNotNull(
             String companyCodeId, String plantId, String warehouseId, String refDocNumber, List<Long> statusId, Long deletionIndicator);
 }

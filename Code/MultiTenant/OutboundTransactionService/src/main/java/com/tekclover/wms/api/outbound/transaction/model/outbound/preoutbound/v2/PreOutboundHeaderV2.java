@@ -70,4 +70,16 @@ public class PreOutboundHeaderV2 extends PreOutboundHeader {
 	@Column(name = "TFR_REQ_TYP", columnDefinition = "nvarchar(50)")
 	private String TransferRequestType;
 
+	@Column(name = "CUSTOMER_ID", columnDefinition = "nvarchar(150)")
+	private String customerId;
+
+	@Column(name = "CUSTOMER_NAME", columnDefinition = "nvarchar(150)")
+	private String customerName;
+
+	@Column(name = "CONSIGNMENT", columnDefinition = "nvarchar(50)")
+	private String consignment;
+
+	@Column(name = "TRANS_NM", columnDefinition = "nvarchar(50)")
+	private String transportName;
+
 }
