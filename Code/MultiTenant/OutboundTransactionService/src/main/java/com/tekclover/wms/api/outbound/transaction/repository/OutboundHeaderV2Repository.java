@@ -67,7 +67,7 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
                                              @Param("statusDescription") String statusDescription);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query(value ="Update tbloutboundheader SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, DLV_CNF_ON = :deliveryConfirmedOn \r\n "
+    @Query(value = "Update tbloutboundheader SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, DLV_CNF_ON = :deliveryConfirmedOn \r\n "
             + " WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND \r\n"
             + "LANG_ID = :languageId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND PRE_OB_NO = :preOutboundNo", nativeQuery = true)
     public void updateOutboundHeaderStatusNewV2(@Param("companyCodeId") String companyCodeId,
@@ -339,7 +339,7 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
 //            @Param(value = "endOrderDate") Date endOrderDate);
 
     @Query(value =
-                    "SELECT C_ID,PLANT_ID,LANG_ID,WH_ID,REF_DOC_NO,PRE_OB_NO,DLV_QTY,ORD_QTY,STATUS_ID into #obl FROM tbloutboundline WHERE is_deleted = 0 and \n" +
+            "SELECT C_ID,PLANT_ID,LANG_ID,WH_ID,REF_DOC_NO,PRE_OB_NO,DLV_QTY,ORD_QTY,STATUS_ID into #obl FROM tbloutboundline WHERE is_deleted = 0 and \n" +
                     "(COALESCE(:refDocNo, null) IS NULL OR (ref_doc_no IN (:refDocNo))) AND\n" +
                     "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and \n" +
                     "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
@@ -399,30 +399,30 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
 
                     "COALESCE((select sum(DLV_QTY) totQty from #obl where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no \n" +
                     "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id and STATUS_ID = 59),0) \n" +
-                    "as referenceField7, \n"+
+                    "as referenceField7, \n" +
 
                     "(select COUNT(PRE_OB_NO) from #obl \n" +
                     "where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no \n" +
                     "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id and STATUS_ID = 59) \n" +
-                    "as referenceField8, \n"+
+                    "as referenceField8, \n" +
 
                     "COALESCE((select sum(ORD_QTY) totQty from #obl where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no \n" +
                     "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id),0) \n" +
-                    "as referenceField9, \n"+
+                    "as referenceField9, \n" +
 
                     "(select COUNT(PRE_OB_NO) from #obl \n" +
                     "where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no \n" +
                     "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id) \n" +
-                    "as referenceField10, \n"+
+                    "as referenceField10, \n" +
 
                     "COALESCE((select sum(PICK_CNF_QTY) totQty from #pil where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no AND STATUS_ID = 50\n" +
                     "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id),0) \n" +
-                    "as sumOfPickedQty, \n"+
+                    "as sumOfPickedQty, \n" +
 
                     "(select COUNT(PRE_OB_NO) from #pil \n" +
                     "where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no AND STATUS_ID = 50\n" +
                     "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id) \n" +
-                    "as countOfPickedLine \n"+
+                    "as countOfPickedLine \n" +
 
                     "from tbloutboundheader oh\n" +
                     "where oh.is_deleted = 0 and \n" +
@@ -439,7 +439,7 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
                     "(COALESCE(:soType, null) IS NULL OR (oh.ref_field_1 IN (:soType))) and\n" +
                     "(COALESCE(CONVERT(VARCHAR(255), :startRequiredDeliveryDate), null) IS NULL OR (oh.REQ_DEL_DATE between COALESCE(CONVERT(VARCHAR(255), :startRequiredDeliveryDate), null) and COALESCE(CONVERT(VARCHAR(255), :endRequiredDeliveryDate), null))) and\n" +
                     "(COALESCE(CONVERT(VARCHAR(255), :startDeliveryConfirmedOn), null) IS NULL OR (oh.DLV_CNF_ON between COALESCE(CONVERT(VARCHAR(255), :startDeliveryConfirmedOn), null) and COALESCE(CONVERT(VARCHAR(255), :endDeliveryConfirmedOn), null))) and\n" +
-                    "(COALESCE(CONVERT(VARCHAR(255), :startOrderDate), null) IS NULL OR (oh.DLV_CTD_ON between COALESCE(CONVERT(VARCHAR(255), :startOrderDate), null) and COALESCE(CONVERT(VARCHAR(255), :endOrderDate), null)))" , nativeQuery = true)
+                    "(COALESCE(CONVERT(VARCHAR(255), :startOrderDate), null) IS NULL OR (oh.DLV_CTD_ON between COALESCE(CONVERT(VARCHAR(255), :startOrderDate), null) and COALESCE(CONVERT(VARCHAR(255), :endOrderDate), null)))", nativeQuery = true)
     List<OutboundHeaderV2Stream> findAllOutBoundHeaderForRFD(
             @Param(value = "companyCodeId") List<String> companyCodeId,
             @Param(value = "plantId") List<String> plantId,
@@ -461,7 +461,7 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
 
     @QueryHints(@javax.persistence.QueryHint(name = "org.hibernate.fetchSize", value = "1000"))
     @Query(value =
-                    "SELECT C_ID,PLANT_ID,LANG_ID,WH_ID,REF_DOC_NO,PRE_OB_NO,DLV_QTY,ORD_QTY,STATUS_ID into #obl FROM tbloutboundline WHERE is_deleted = 0 and \n" +
+            "SELECT C_ID,PLANT_ID,LANG_ID,WH_ID,REF_DOC_NO,PRE_OB_NO,DLV_QTY,ORD_QTY,STATUS_ID into #obl FROM tbloutboundline WHERE is_deleted = 0 and \n" +
                     "(COALESCE(:refDocNo, null) IS NULL OR (ref_doc_no IN (:refDocNo))) AND\n" +
                     "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and \n" +
                     "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
@@ -508,24 +508,25 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
                     "oh.CUSTOMER_TYPE customerType,\n" +
                     "oh.ref_field_1 referenceField1,oh.ref_field_2 referenceField2,oh.ref_field_3 referenceField3, \n" +
                     "oh.ref_field_4 referenceField4,oh.ref_field_5 referenceField5,oh.ref_field_6 referenceField6,\n" +
+                    "oh.DRIVER_NAME driverName, oh.VEHICLE_NO vehicleNO, \n" +
 
                     "COALESCE((select sum(DLV_QTY) totQty from #obl where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no \n" +
                     "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id and STATUS_ID = 59),0) \n" +
-                    "as referenceField7, \n"+
+                    "as referenceField7, \n" +
 
                     "(select COUNT(PRE_OB_NO) from #obl \n" +
                     "where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no \n" +
                     "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id and STATUS_ID = 59) \n" +
-                    "as referenceField8, \n"+
+                    "as referenceField8, \n" +
 
                     "COALESCE((select sum(ORD_QTY) totQty from #obl where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no \n" +
                     "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id),0) \n" +
-                    "as referenceField9, \n"+
+                    "as referenceField9, \n" +
 
                     "(select COUNT(PRE_OB_NO) from #obl \n" +
                     "where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no \n" +
                     "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id) \n" +
-                    "as referenceField10 \n"+
+                    "as referenceField10 \n" +
 
                     "from tbloutboundheader oh\n" +
                     "where oh.is_deleted = 0 and \n" +
@@ -614,21 +615,21 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
 
                     "COALESCE((select sum(DLV_QTY) totQty from #obl where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no \n" +
                     "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id and STATUS_ID = 59),0) \n" +
-                    "as referenceField7, \n"+
+                    "as referenceField7, \n" +
 
                     "(select COUNT(PRE_OB_NO) from #obl \n" +
                     "where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no \n" +
                     "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id and STATUS_ID = 59) \n" +
-                    "as referenceField8, \n"+
+                    "as referenceField8, \n" +
 
                     "COALESCE((select sum(ORD_QTY) totQty from #obl where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no \n" +
                     "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id),0) \n" +
-                    "as referenceField9, \n"+
+                    "as referenceField9, \n" +
 
                     "(select COUNT(PRE_OB_NO) from #obl \n" +
                     "where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no \n" +
                     "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id) \n" +
-                    "as referenceField10 \n"+
+                    "as referenceField10 \n" +
 
                     "from tbloutboundheader oh\n" +
                     "where oh.is_deleted = 0 and \n" +
@@ -716,10 +717,10 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
                     "oh.CUSTOMER_TYPE customerType,\n" +
                     "oh.ref_field_1 referenceField1,oh.ref_field_2 referenceField2,oh.ref_field_3 referenceField3, \n" +
                     "oh.ref_field_4 referenceField4,oh.ref_field_5 referenceField5,oh.ref_field_6 referenceField6,\n" +
-                    "oh.ref_field_7 as referenceField7, \n"+
-                    "ol.linesCount as referenceField8, \n"+
-                    "oh.ref_field_9 as referenceField9, \n"+
-                    "oh.ref_field_10 as referenceField10 \n"+
+                    "oh.ref_field_7 as referenceField7, \n" +
+                    "ol.linesCount as referenceField8, \n" +
+                    "oh.ref_field_9 as referenceField9, \n" +
+                    "oh.ref_field_10 as referenceField10 \n" +
                     "from tbloutboundheader oh\n" +
                     "Left Join #obl ol on ol.REF_DOC_NO = oh.REF_DOC_NO AND ol.PRE_OB_NO = oh.pre_ob_no AND ol.c_id = oh.c_id AND ol.plant_id = oh.plant_id AND ol.lang_id = oh.lang_id AND ol.wh_id = oh.wh_id\n" +
                     "where oh.is_deleted = 0 and \n" +
@@ -766,6 +767,7 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
 
     OutboundHeaderV2 findByCompanyCodeIdAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndStatusIdAndDeletionIndicator(
             String companyCodeId, String languageId, String plantId, String warehouseId, String oldPickListNumber, Long statusId, Long deletionIndicator);
+
     OutboundHeaderV2 findByCompanyCodeIdAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
             String companyCodeId, String languageId, String plantId, String warehouseId, String oldPickListNumber, Long deletionIndicator);
 
@@ -774,6 +776,7 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
 
     OutboundHeaderV2 findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber, Long deletionIndicator);
+
     OutboundHeaderV2 findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber, String preOutboundNo, Long deletionIndicator);
 
@@ -956,6 +959,8 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
                                              @Param("statusId") Long statusId,
                                              @Param("statusDescription") String statusDescription);
 
+    void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+            String companyCodeId, String plantId, String warehouseId, String refDocNumber, String preOutboundNo, Long deletionIndicator);
 
 
 }

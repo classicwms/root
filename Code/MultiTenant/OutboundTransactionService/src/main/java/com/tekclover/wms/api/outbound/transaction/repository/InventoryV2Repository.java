@@ -1917,6 +1917,33 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                           @Param("warehouseId") String warehouseId,
                                           @Param("storageBin") String storageBin);
 
+    @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n" +
+            "WHERE \n" +
+            "(COALESCE(:storageBin, null) IS NULL OR (ST_BIN IN (:storageBin))) and \n" +
+            "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and \n" +
+            "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n" +
+            "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
+            "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
+            "is_deleted = 0 \n" +
+            "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,st_bin,plant_id,wh_id,c_id,lang_id \n" +
+
+            "SELECT \n" +
+            "SUM(REF_FIELD_4)\n" +
+            "from tblinventory iv\n" +
+            "where \n" +
+            "iv.inv_id in (select inventoryId from #inv) and \n" +
+            "(COALESCE(:companyCodeId, null) IS NULL OR (iv.c_id IN (:companyCodeId))) and \n" +
+            "(COALESCE(:plantId, null) IS NULL OR (iv.plant_id IN (:plantId))) and \n" +
+            "(COALESCE(:languageId, null) IS NULL OR (iv.lang_id IN (:languageId))) and \n" +
+            "(COALESCE(:warehouseId, null) IS NULL OR (iv.wh_id IN (:warehouseId))) and \n" +
+            "(COALESCE(:storageBin, null) IS NULL OR (iv.ST_BIN IN (:storageBin))) and\n" +
+            "iv.is_deleted = 0 group by st_bin,plant_id,wh_id,c_id,lang_id having SUM(REF_FIELD_4) > 0 \n", nativeQuery = true)
+    public Double getInventoryBinStatusV7(@Param("companyCodeId") String companyCodeId,
+                                          @Param("plantId") String plantId,
+                                          @Param("languageId") String languageId,
+                                          @Param("warehouseId") String warehouseId,
+                                          @Param("storageBin") String storageBin);
+
     InventoryV2 findTopByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPackBarcodesAndItemCodeAndManufacturerNameAndStorageBinAndBarcodeIdAndStockTypeIdAndDeletionIndicatorOrderByInventoryIdDesc(
             String languageId, String companyCode, String plantId, String warehouseId, String packBarcodes,
             String itemCode, String manufacturerName, String storageBin, String barcodeId, Long stockTypeId, Long deletionIndicator);

@@ -58,9 +58,22 @@ public class ReportsService extends BaseService {
     private OutboundHeaderV2Repository outboundHeaderV2Repository;
     @Autowired
     private PeriodicHeaderRepository periodicHeaderRepository;
-
+    @Autowired
+    private PickupHeaderV2Repository pickupHeaderV2Repository;
     @Autowired
     InventoryService inventoryService;
+    @Autowired
+    PreOutboundHeaderV2Repository preOutboundHeaderV2Repository;
+    @Autowired
+    PreOutboundLineV2Repository preOutboundLineV2Repository;
+    @Autowired
+    OrderManagementHeaderV2Repository orderManagementHeaderV2Repository;
+    @Autowired
+    OrderManagementLineV2Repository orderManagementLineV2Repository;
+    @Autowired
+    OutboundOrderV2Repository outboundOrderV2Repository;
+    @Autowired
+    OutboundOrderLinesV2Repository outboundOrderLinesV2Repository;
 
     @Autowired
     OutboundHeaderService outboundHeaderService;
@@ -2804,5 +2817,69 @@ public class ReportsService extends BaseService {
     }
 
 
+//--------------------------------------------------------Outbound Reversal------------------------------------------------------
+
+        public void outboundReversal(OutboundReversalInput  outboundReversalInput){
+
+            List<Long> statusIdList = Arrays.asList(57L, 50L);
+            boolean pickUpConfirm = pickupHeaderV2Repository.existsByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndStatusIdInAndDeletionIndicatorAndAssignedPickerIdIsNotNull(
+                 outboundReversalInput.getCompanyCodeId(),outboundReversalInput.getPlantId(),outboundReversalInput.getWarehouseId(),
+                 outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), statusIdList, 0L);
+            log.info("PickupHeader Status Checking " + pickUpConfirm);
+            if (pickUpConfirm) {
+                throw new BadRequestException("This Order Already PickList Confirm --------> RefDocNo is " + outboundReversalInput.getRefDocNumber());
+            }
+
+                preOutboundHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                        outboundReversalInput.getCompanyCodeId(),outboundReversalInput.getPlantId(),outboundReversalInput.getWarehouseId(),
+                        outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
+                log.info("PreOutboundHeader Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
+
+                preOutboundLineV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                        outboundReversalInput.getCompanyCodeId(),outboundReversalInput.getPlantId(),outboundReversalInput.getWarehouseId(),
+                        outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
+                log.info("PreOutboundLine Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
+
+                outboundHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                        outboundReversalInput.getCompanyCodeId(),outboundReversalInput.getPlantId(),outboundReversalInput.getWarehouseId(),
+                        outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
+                log.info("OutboundHeader Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
+
+                outboundLineV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                        outboundReversalInput.getCompanyCodeId(),outboundReversalInput.getPlantId(),outboundReversalInput.getWarehouseId(),
+                        outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
+                log.info("OrderManagementLine Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
+
+                orderManagementHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                        outboundReversalInput.getCompanyCodeId(),outboundReversalInput.getPlantId(),outboundReversalInput.getWarehouseId(),
+                        outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
+                log.info("OrderManagementHeader Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
+
+                orderManagementLineV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                        outboundReversalInput.getCompanyCodeId(),outboundReversalInput.getPlantId(),outboundReversalInput.getWarehouseId(),
+                        outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
+                log.info("OrderManagementLine Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
+
+
+                pickupHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                        outboundReversalInput.getCompanyCodeId(),outboundReversalInput.getPlantId(),outboundReversalInput.getWarehouseId(),
+                        outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
+                log.info("PickupHeader Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
+
+                obOrderReversal(outboundReversalInput.getRefDocNumber());
+
+        }
+
+
+        public void obOrderReversal(String refDocNumber){
+
+        if(refDocNumber != null){
+
+            outboundOrderLinesV2Repository.deleteByOrderId(refDocNumber);
+            outboundOrderV2Repository.deleteByOrderId(refDocNumber);
+
+        }
+
+    }
 
 }

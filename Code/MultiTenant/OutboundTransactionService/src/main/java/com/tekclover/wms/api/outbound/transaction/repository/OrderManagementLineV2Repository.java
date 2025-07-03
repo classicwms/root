@@ -510,4 +510,7 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
     @Query(value = "SELECT STATUS_TEXT from tblstatusid where status_id = :statusId", nativeQuery = true)
     String getStatusDesc(@Param("statusId") Long statusId);
 
+    void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+            String companyCodeId, String plantId, String warehouseId, String refDocNumber, String preOutboundNo, Long deletionIndicator);
+
 }

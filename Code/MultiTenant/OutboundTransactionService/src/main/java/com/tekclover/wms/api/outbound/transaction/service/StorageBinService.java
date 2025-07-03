@@ -398,6 +398,7 @@ public class StorageBinService extends BaseService {
         BeanUtils.copyProperties(updateStorageBin, dbStorageBin, CommonUtils.getNullPropertyNames(updateStorageBin));
         dbStorageBin.setUpdatedBy(loginUserID);
         dbStorageBin.setUpdatedOn(new Date());
+        storageBinV2Repository.delete(dbStorageBin);
         return storageBinV2Repository.save(dbStorageBin);
     }
 
