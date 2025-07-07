@@ -215,6 +215,7 @@ public class OrderService {
 
         InboundOrderV2Specification spec = new InboundOrderV2Specification(findInboundOrder);
         List<InboundOrderV2> results = inboundOrderV2Repository.findAll(spec);
+        log.info("InboundOrders Results ----> {}", results);
         return results;
 
     }

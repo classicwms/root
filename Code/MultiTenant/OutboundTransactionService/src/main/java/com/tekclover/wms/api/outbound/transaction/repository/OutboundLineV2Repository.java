@@ -601,7 +601,7 @@ public interface OutboundLineV2Repository extends JpaRepository<OutboundLineV2, 
             "p.pcQty referenceField9,\n" +
             "p.noBags noBags, \n" +
             "p.ref_field_1 reasons, \n" +
-            "q.qcQty referenceField10\n" +
+            "ROUND(q.qcQty, 2) AS referenceField10\n" +  // Rounding off 2 decimal places - Aakash Vinayak, 04/07/2025
             "from tbloutboundline ob \n" +
             "left join #tpl p on p.wh_id = ob.wh_id and p.c_id = ob.c_id and p.plant_id=ob.plant_id and p.lang_id = ob.lang_id and \n" +
             "p.PRE_OB_NO = ob.PRE_OB_NO and p.OB_LINE_NO = ob.OB_LINE_NO and p.itm_code = ob.itm_code and p.ref_doc_no = ob.ref_doc_no \n" +

@@ -61,6 +61,10 @@ public interface PickupHeaderV2Repository extends JpaRepository<PickupHeaderV2, 
             String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo,
             String refDocNumber, String partnerCode, String pickupNumber, String barcodeId, Long deletionIndicator);
 
+    PickupHeaderV2 findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndBarcodeIdAndDeletionIndicator(
+            String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo,
+            String refDocNumber, String barcodeId, Long deletionIndicator);
+
     public List<PickupHeaderV2> findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndStatusIdAndOutboundOrderTypeIdInAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, Long statusId, List<Long> outboundOrderTypeId, Long deletionIndicator);
 

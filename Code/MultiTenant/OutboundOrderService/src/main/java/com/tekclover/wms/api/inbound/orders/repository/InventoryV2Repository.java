@@ -1172,26 +1172,38 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                                           @Param("binClassId") Long binClassId,
                                                           @Param("alternateUom") String alternateUom);
 
-    @Query(value = "SELECT TOP 1 iv.INV_QTY " +
-            "FROM tblinventory iv " +
-            "WHERE iv.is_deleted = 0 " +
-            "AND iv.LOOSE_PACK = 0 " +
-            "AND iv.INV_QTY = :orderQty " +
-            "AND (:companyCodeId IS NULL OR iv.c_id = :companyCodeId) " +
-            "AND (:plantId IS NULL OR iv.plant_id = :plantId) " +
-            "AND (:languageId IS NULL OR iv.lang_id = :languageId) " +
-            "AND (:warehouseId IS NULL OR iv.wh_id = :warehouseId) " +
-            "AND (:itemCode IS NULL OR iv.ITM_CODE = :itemCode) " +
-            "AND (:binClassId IS NULL OR iv.BIN_CL_ID = :binClassId) " +
-            "ORDER BY iv.LOOSE_PACK DESC",  // No need for LIMIT in SQL Server
+//    @Query(value = "SELECT TOP 1 iv.INV_QTY " +
+//            "FROM tblinventory iv " +
+//            "WHERE iv.is_deleted = 0 " +
+//            "AND iv.LOOSE_PACK = 0 " +
+//            "AND iv.INV_QTY = :orderQty " +
+//            "AND (:companyCodeId IS NULL OR iv.c_id = :companyCodeId) " +
+//            "AND (:plantId IS NULL OR iv.plant_id = :plantId) " +
+//            "AND (:languageId IS NULL OR iv.lang_id = :languageId) " +
+//            "AND (:warehouseId IS NULL OR iv.wh_id = :warehouseId) " +
+//            "AND (:itemCode IS NULL OR iv.ITM_CODE = :itemCode) " +
+//            "AND (:binClassId IS NULL OR iv.BIN_CL_ID = :binClassId) " +
+//            "ORDER BY iv.LOOSE_PACK DESC",  // No need for LIMIT in SQL Server
+//            nativeQuery = true)
+//    Double getInvCaseQty2(@Param("companyCodeId") String companyCodeId,
+//                          @Param("plantId") String plantId,
+//                          @Param("languageId") String languageId,
+//                          @Param("warehouseId") String warehouseId,
+//                          @Param("itemCode") String itemCode,
+//                          @Param("binClassId") Long binClassId,
+//                          @Param("orderQty") Double orderQty);
+
+    @Query(value = "select top 1 inv_qty from tblinventory where inv_id in (select max(inv_id) inventoryId from tblinventory \n" +
+            "where is_deleted = 0 group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id) \n" +
+            "and ref_field_4 > 0 and loose_pack = 1 \n" +
+            "and (:companyCodeId IS NULL OR c_id = :companyCodeId) and (:languageId IS NULL OR lang_id = :languageId) \n" +
+            "and (:plantId IS NULL OR plant_id = :plantId) and (:warehouseId IS NULL OR wh_id = :warehouseId)\n" +
+            "order by inv_id desc",  // No need for LIMIT in SQL Server
             nativeQuery = true)
     Double getInvCaseQty2(@Param("companyCodeId") String companyCodeId,
                           @Param("plantId") String plantId,
                           @Param("languageId") String languageId,
-                          @Param("warehouseId") String warehouseId,
-                          @Param("itemCode") String itemCode,
-                          @Param("binClassId") Long binClassId,
-                          @Param("orderQty") Double orderQty);
+                          @Param("warehouseId") String warehouseId);
 
     @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n" +
             "WHERE \n" +
@@ -1628,7 +1640,8 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "iv.BAG_SIZE bagSize, \n" +
             "iv.MRP mrp, \n" +
             "iv.ITM_GRP itemGroup, \n" +
-            "iv.STATUS_TEXT statusDescription\n" +
+            "iv.STATUS_TEXT statusDescription, \n" +
+            "iv.loose_pack loosePack \n" +
             "from tblinventory iv\n" +
             "where \n" +
             "iv.inv_id in (select inventoryId from #inv) and \n" +

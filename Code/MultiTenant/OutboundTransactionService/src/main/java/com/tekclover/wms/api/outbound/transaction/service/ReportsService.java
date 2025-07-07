@@ -34,6 +34,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -1303,7 +1305,10 @@ public class ReportsService extends BaseService {
 //                    shipmentDelivery.setManfCode(imBasicData1.getManufacturerPartNo());
 //                }
 
-                shipmentDelivery.setQuantity(outboundLine.getDeliveryQty()); // DLV_QTY
+                // Setting Quantity as rounding off 2 decimal places - Aakash vinayak, 04/07/2025
+                shipmentDelivery.setQuantity(BigDecimal.valueOf(outboundLine.getDeliveryQty()).setScale(2, RoundingMode.HALF_UP).doubleValue());
+
+//                shipmentDelivery.setQuantity(outboundLine.getDeliveryQty()); // DLV_QTY
                 shipmentDelivery.setTotal(total);
                 shipmentDeliveryList.add(shipmentDelivery);
             }

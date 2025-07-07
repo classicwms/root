@@ -1752,7 +1752,8 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                     "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and\n" +
                     "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and\n" +
                     "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) \n" +
-                    "group by itm_code,barcode_id,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id \n" +
+                   "group by itm_code,barcode_id,mfr_name,pack_barcode,alt_uom,bag_size,st_bin,plant_id,wh_id,c_id,lang_id \n" +
+//                    "group by itm_code,barcode_id,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
                     // inv_qty from tblinventory to temp table
                     "UPDATE TH SET TH.quantity = X.TOT_QTY FROM #stBinDashBoard TH INNER JOIN \n" +

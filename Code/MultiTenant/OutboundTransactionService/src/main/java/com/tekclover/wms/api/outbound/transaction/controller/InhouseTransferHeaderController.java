@@ -3,12 +3,15 @@ package com.tekclover.wms.api.outbound.transaction.controller;
 import com.tekclover.wms.api.outbound.transaction.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.outbound.transaction.model.mnc.*;
 import com.tekclover.wms.api.outbound.transaction.repository.DbConfigRepository;
+import com.tekclover.wms.api.outbound.transaction.service.AsyncService;
 import com.tekclover.wms.api.outbound.transaction.service.InhouseTransferHeaderService;
+import com.tekclover.wms.api.outbound.transaction.util.CommonUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +38,9 @@ public class InhouseTransferHeaderController {
 
     @Autowired
     DbConfigRepository dbConfigRepository;
+
+    @Autowired
+    AsyncService asyncService;
 
     @ApiOperation(response = InhouseTransferHeader.class, value = "Get all InHouseTransferHeader details")
     // label for swagger
@@ -108,25 +114,40 @@ public class InhouseTransferHeaderController {
     @PostMapping("/v2")
     public ResponseEntity<?> postInHouseTransferHeaderV2(@RequestBody AddInhouseTransferHeader newInHouseTransferHeader, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
+//        try {
+//            DataBaseContextHolder.setCurrentDb("MT");
+//            InhouseTransferHeaderEntity transferHeaderEntity = null;
+//            String routingDb = dbConfigRepository.getDbName(newInHouseTransferHeader.getCompanyCodeId(), newInHouseTransferHeader.getPlantId(), newInHouseTransferHeader.getWarehouseId());
+//            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+//            DataBaseContextHolder.clear();
+//            DataBaseContextHolder.setCurrentDb(routingDb);
+//            if (routingDb != null){
+//                switch (routingDb){
+//                    case "REEFERON":
+//                        transferHeaderEntity = inHouseTransferHeaderService.createInHouseTransferHeaderV5(newInHouseTransferHeader, loginUserID);
+//                        break;
+//                    default:
+//                        transferHeaderEntity= inHouseTransferHeaderService.createInHouseTransferHeaderV2(newInHouseTransferHeader, loginUserID);
+//                }
+//            }
+//            return new ResponseEntity<>(transferHeaderEntity, HttpStatus.OK);
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
         try {
-            DataBaseContextHolder.setCurrentDb("MT");
-            InhouseTransferHeaderEntity transferHeaderEntity = null;
-            String routingDb = dbConfigRepository.getDbName(newInHouseTransferHeader.getCompanyCodeId(), newInHouseTransferHeader.getPlantId(), newInHouseTransferHeader.getWarehouseId());
-            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-            DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb(routingDb);
-            if (routingDb != null){
-                switch (routingDb){
-                    case "REEFERON":
-                        transferHeaderEntity = inHouseTransferHeaderService.createInHouseTransferHeaderV5(newInHouseTransferHeader, loginUserID);
-                        break;
-                    default:
-                        transferHeaderEntity= inHouseTransferHeaderService.createInHouseTransferHeaderV2(newInHouseTransferHeader, loginUserID);
-                }
-            }
-            return new ResponseEntity<>(transferHeaderEntity, HttpStatus.OK);
+            InhouseTransferHeaderEntity createdInHouseTransferHeader = new InhouseTransferHeaderEntity();
+
+            BeanUtils.copyProperties(newInHouseTransferHeader, createdInHouseTransferHeader, CommonUtils.getNullPropertyNames(newInHouseTransferHeader));
+
+            // Return early response
+            ResponseEntity<?> response = new ResponseEntity<>(createdInHouseTransferHeader, HttpStatus.ACCEPTED);
+
+            asyncService.processInhouseTransferHeaderAsync(newInHouseTransferHeader, loginUserID);
+
+            return response;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.error("Error processing InhouseTransferHeader async", e);
+            return new ResponseEntity<>("Failed to start InhouseTransferHeader process", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
