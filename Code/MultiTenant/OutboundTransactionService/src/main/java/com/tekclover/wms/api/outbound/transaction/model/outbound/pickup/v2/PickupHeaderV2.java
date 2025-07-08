@@ -167,4 +167,7 @@ public class PickupHeaderV2 extends PickupHeader {
 
 	@Column(name = "REMAINING_DAYS")
 	private String remainingDays;
+
+	@Column(name = "LOOSE_PACK")
+	private Long loosePack = 0L;
 }

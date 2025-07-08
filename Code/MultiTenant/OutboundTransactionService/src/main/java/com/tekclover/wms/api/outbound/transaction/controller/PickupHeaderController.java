@@ -13,6 +13,7 @@ import javax.validation.Valid;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.tekclover.wms.api.outbound.transaction.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.outbound.transaction.model.cyclecount.perpetual.UpdatePerpetualLine;
+import com.tekclover.wms.api.outbound.transaction.model.dto.PickListTransaction;
 import com.tekclover.wms.api.outbound.transaction.model.dto.PickupHeaderGroupByDto;
 import com.tekclover.wms.api.outbound.transaction.model.inventory.Inventory;
 import com.tekclover.wms.api.outbound.transaction.model.mnc.InhouseTransferHeaderEntity;
@@ -122,7 +123,7 @@ public class PickupHeaderController {
 
     @ApiOperation(response = PickupHeader.class, value = "Search PickupHeader") // label for swagger
     @PostMapping("/groupby/findPickupHeader")
-    public List<PickupHeaderGroupByDto> findPickupHeaderNamratha(@RequestBody FindPickupHeaderNamratha searchPickupHeader)
+    public PickListTransaction findPickupHeaderNamratha(@RequestBody FindPickupHeaderNamratha searchPickupHeader)
             throws Exception {
         try {
             DataBaseContextHolder.setCurrentDb("MT");
@@ -130,7 +131,7 @@ public class PickupHeaderController {
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
-            return pickupheaderService.getPickupHeaderGroupByNamratha(searchPickupHeader);
+            return pickupheaderService.getPickListCancellation(searchPickupHeader);
         } finally {
             DataBaseContextHolder.clear();
         }

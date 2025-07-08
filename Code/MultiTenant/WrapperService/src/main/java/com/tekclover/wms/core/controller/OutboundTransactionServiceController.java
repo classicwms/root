@@ -175,9 +175,9 @@ public class OutboundTransactionServiceController {
         return outboundTransactionService.findPickupHeader(searchPickupHeader, authToken);
     }
 
-    @ApiOperation(response = PickupHeaderGroupByDto.class, value = "Search PickupHeader") // label for swagger
+    @ApiOperation(response = PickListTransaction.class, value = "Search PickupHeader") // label for swagger
     @PostMapping("/pickupheader/groupby/findPickupHeader")
-    public PickupHeaderGroupByDto[] findPickupHeaderNamratha(@RequestBody FindPickupHeaderNamratha searchPickupHeader,
+    public PickListTransaction findPickupHeaderNamratha(@RequestBody FindPickupHeaderNamratha searchPickupHeader,
                                            @RequestParam String authToken) throws Exception {
         return outboundTransactionService.findPickupHeaderNamratha(searchPickupHeader, authToken);
     }

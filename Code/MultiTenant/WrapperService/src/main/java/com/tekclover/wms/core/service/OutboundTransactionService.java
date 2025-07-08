@@ -479,7 +479,7 @@ public class OutboundTransactionService {
     }
 
     // POST - Finder
-    public PickupHeaderGroupByDto[] findPickupHeaderNamratha(FindPickupHeaderNamratha searchPickupHeader, String authToken) throws ParseException {
+    public PickListTransaction findPickupHeaderNamratha(FindPickupHeaderNamratha searchPickupHeader, String authToken) throws ParseException {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -488,25 +488,9 @@ public class OutboundTransactionService {
             UriComponentsBuilder builder = UriComponentsBuilder
                     .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "pickupheader/groupby/findPickupHeader");
             HttpEntity<?> entity = new HttpEntity<>(searchPickupHeader, headers);
-            ResponseEntity<PickupHeaderGroupByDto[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
-                    entity, PickupHeaderGroupByDto[].class);
+            ResponseEntity<PickListTransaction> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
+                    entity, PickListTransaction.class);
             log.info("result : " + result.getBody());
-
-//            List<PickupHeader> obList = new ArrayList<>();
-////            for (PickupHeader obHeader : result.getBody()) {
-////                if (obHeader.getPickupReversedOn() != null) {
-////                    obHeader.setPickupReversedOn(DateUtils.addTimeToDate(obHeader.getPickupReversedOn(), 3));
-////                }
-////                if (obHeader.getPickupCreatedOn() != null) {
-////                    obHeader.setPickupCreatedOn(DateUtils.addTimeToDate(obHeader.getPickupCreatedOn(), 3));
-////                }
-////                if (obHeader.getPickUpdatedOn() != null) {
-////                    obHeader.setPickUpdatedOn(DateUtils.addTimeToDate(obHeader.getPickUpdatedOn(), 3));
-////                }
-////                obList.add(obHeader);
-////            }
-//            return obList.toArray(new PickupHeader[obList.size()]);
-
             return result.getBody();
 
         } catch (Exception e) {
