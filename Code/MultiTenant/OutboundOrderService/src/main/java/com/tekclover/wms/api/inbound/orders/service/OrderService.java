@@ -1337,14 +1337,21 @@ public class OrderService {
         OutboundOrderV2 dbOutboundOrder = getOBOrderByIdV2(orderId, outboundOrderTypeID);
         log.info("orderId : " + orderId);
         log.info("dbOutBoundOrder : " + dbOutboundOrder);
-//        OutboundOrderV2 orderV2 = getOrder(orderId);
-        dbOutboundOrder.setProcessedStatusId(processStatusId);
-        dbOutboundOrder.setOrderProcessedOn(new Date());
-        outboundOrderV2Repository.save(dbOutboundOrder);
-
-        DataBaseContextHolder.clear();
         DataBaseContextHolder.setCurrentDb("MT");
-        outboundOrderV2Repository.save(dbOutboundOrder);
+        OutboundOrderV2 orderV2 = getOrder(orderId);
+        orderV2.setProcessedStatusId(processStatusId);
+        orderV2.setOrderProcessedOn(new Date());
+        outboundOrderV2Repository.save(orderV2);
+
+        try {
+            String routingDb = dbConfigRepository.getDbName(orderV2.getCompanyCode(), orderV2.getBranchCode(), orderV2.getWarehouseID());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            outboundOrderV2Repository.updateObOrderStatus(orderV2.getCompanyCode(), orderV2.getBranchCode(), orderV2.getWarehouseID(),
+                    orderV2.getRefDocumentNo(), processStatusId);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
         return dbOutboundOrder;
     }
 

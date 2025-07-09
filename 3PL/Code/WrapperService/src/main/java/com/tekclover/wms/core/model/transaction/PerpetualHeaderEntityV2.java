@@ -42,6 +42,6 @@ public class PerpetualHeaderEntityV2 {
 	private String middlewareTable;
 	private String referenceDocumentType;
 	private String referenceCycleCountNo;
-	
+
 	private List<PerpetualLineV2> perpetualLine;
 }

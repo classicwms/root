@@ -50,5 +50,9 @@ public interface IKeyValuePair {
     public String getSku();
     String getSkuDescription();
 
+    String getChargeUnit();
+    Double getPricePerChargeUnit();
+    Double getChargeRangeTo();
+
 
 }

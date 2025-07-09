@@ -58,5 +58,7 @@ public class AddPerpetualLine {
 	private String plantDescription;
 	private String warehouseDescription;
 	private String barcodeId;
+	private String threePLPartnerId;
+	private String threePLPartnerText;
 
 }

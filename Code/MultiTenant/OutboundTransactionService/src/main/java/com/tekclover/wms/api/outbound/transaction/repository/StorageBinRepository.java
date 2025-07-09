@@ -5,6 +5,7 @@ import com.tekclover.wms.api.outbound.transaction.model.dto.StorageBinV2;
 import com.tekclover.wms.api.outbound.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -131,6 +132,16 @@ public interface StorageBinRepository extends JpaRepository<StorageBin, Long>,
                                                   @Param(value = "warehouseId") String warehouseId,
                                                   @Param(value = "binClassId") Long binClassId,
                                                   @Param(value = "storageBin") String storageBin);
+
+    @Modifying
+    @Query(value = "UPDATE tblstoragebin set status_id = :statusId WHERE \n " +
+            "st_bin = :storageBin AND c_id = :companyCodeId AND plant_id = :plantId \n" +
+            "AND wh_id = :warehouseId", nativeQuery = true)
+    void updateEmptyBinStatus(@Param("storageBin") String storageBin,
+                              @Param("companyCodeId") String companyCodeId,
+                              @Param("plantId") String plantId,
+                              @Param("warehouseId") String warehouseId,
+                              @Param("statusId") Long statusId);
 }
 
 

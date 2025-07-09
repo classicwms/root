@@ -3,6 +3,7 @@ package com.tekclover.wms.api.outbound.transaction.controller;
 import com.tekclover.wms.api.outbound.transaction.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.outbound.transaction.model.deliveryline.DeliveryLine;
 import com.tekclover.wms.api.outbound.transaction.model.inventory.Inventory;
+import com.tekclover.wms.api.outbound.transaction.model.outbound.OutboundReversalInput;
 import com.tekclover.wms.api.outbound.transaction.model.report.*;
 import com.tekclover.wms.api.outbound.transaction.model.warehouse.Warehouse;
 import com.tekclover.wms.api.outbound.transaction.repository.DbConfigRepository;
@@ -330,4 +331,22 @@ public class ReportsController {
             DataBaseContextHolder.clear();
         }
     }
+
+//--------------------------------------------Outbound Reversal--------------------------------------------
+
+
+    @ApiOperation(response = MobileDashboard.class, value = "Outbound Reversal") // label for swagger
+    @PostMapping("/outboundreversal")
+    public ResponseEntity<?> outboundReversal(@RequestBody OutboundReversalInput outboundReversalInput){
+        String routingDb = dbConfigRepository.getDbName(outboundReversalInput.getCompanyCodeId(),outboundReversalInput.getPlantId(),outboundReversalInput.getWarehouseId());
+        log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb(routingDb);
+        reportsService.outboundReversal(outboundReversalInput);
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb("MT");
+        reportsService.obOrderReversal(outboundReversalInput.getRefDocNumber());
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
 }

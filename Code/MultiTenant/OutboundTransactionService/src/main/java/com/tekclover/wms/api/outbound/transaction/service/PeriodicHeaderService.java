@@ -195,12 +195,12 @@ public class PeriodicHeaderService extends BaseService {
 
             PeriodicHeaderEntity periodicheaderEntity = new PeriodicHeaderEntity();
             BeanUtils.copyProperties(periodicheader, periodicheaderEntity, CommonUtils.getNullPropertyNames(periodicheader));
-            periodicheaderEntity.setCompanyDescription("KNOWELL");
-            periodicheaderEntity.setPlantDescription("KNOWELL PLANT");
+//            periodicheaderEntity.setCompanyDescription("KNOWELL");
+//            periodicheaderEntity.setPlantDescription("KNOWELL PLANT");
 
             String statusText = periodicHeaderV2Repository.getPeriodicStatusText(periodicheaderEntity.getStatusId(), periodicheaderEntity.getCycleCountNo());
             periodicheaderEntity.setStatusDescription(statusText);
-            periodicheaderEntity.setWarehouseDescription("KNOWELL WAREHOUSE");
+//            periodicheaderEntity.setWarehouseDescription("KNOWELL WAREHOUSE");
 
             log.info("periodicheaderEntity -------> {}", periodicheaderEntity);
             periodicheaderEntity.setPeriodicLine(listPeriodicLineEntity);

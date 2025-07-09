@@ -2445,7 +2445,7 @@ public class MastersService {
             headers.add("User-Agent", "Classic WMS's RestTemplate");
             headers.add("Authorization", "Bearer " + authToken);
 
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "storagebin")
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "storagebin/v2")
                     .queryParam("loginUserID", loginUserID);
 
             HttpEntity<?> entity = new HttpEntity<>(storagebin, headers);

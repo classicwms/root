@@ -167,4 +167,8 @@ public class OrderManagementLineV2 extends OrderManagementLine {
 
     @Column(name = "EXP_DATE")
     private Date expiryDate;
+
+    @Column(name = "LOOSE_PACK")
+    private Long loosePack = 0L;
+
 }

@@ -110,7 +110,7 @@ public class PreOutboundHeader {
 	private String createdBy;
 	
 	@Column(name = "PRE_OB_CTD_ON") 
-	private Date createdOn = new Date();
+	private Date createdOn;
 	
 	@Column(name = "PRE_OB_UTD_BY") 
 	private String updatedBy;

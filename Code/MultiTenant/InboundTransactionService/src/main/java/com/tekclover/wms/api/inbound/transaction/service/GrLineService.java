@@ -2524,7 +2524,7 @@ public class GrLineService extends BaseService {
                     if (stBinInventoryList != null && !stBinInventoryList.isEmpty()) {
                         inventoryStorageBinList = stBinInventoryList.stream().map(IInventoryImpl::getStorageBin).collect(Collectors.toList());
                     }
-                    log.info("Inventory StorageBin List: " + inventoryStorageBinList);
+//                    log.info("Inventory StorageBin List: " + inventoryStorageBinList);
 
                     if (createdGRLine.getInterimStorageBin() != null) {                         //Direct Stock Receipt - Fixed Bin - Inbound OrderTypeId - 5
                         storageBinPutAway.setBinClassId(binClassId);
@@ -3414,7 +3414,7 @@ public class GrLineService extends BaseService {
                 if (stBinInventoryList != null && !stBinInventoryList.isEmpty()) {
                     inventoryStorageBinList = stBinInventoryList.stream().map(IInventoryImpl::getStorageBin).collect(Collectors.toList());
                 }
-                log.info("Inventory StorageBin List: " + inventoryStorageBinList);
+//                log.info("Inventory StorageBin List: " + inventoryStorageBinList);
 
                 if (createdGRLine.getInterimStorageBin() != null) {                         //Direct Stock Receipt - Fixed Bin - Inbound OrderTypeId - 5
                     storageBinPutAway.setBinClassId(binClassId);
@@ -4564,7 +4564,7 @@ public class GrLineService extends BaseService {
                     if (stBinInventoryList != null && !stBinInventoryList.isEmpty()) {
                         inventoryStorageBinList = stBinInventoryList.stream().map(IInventoryImpl::getStorageBin).collect(Collectors.toList());
                     }
-                    log.info("Inventory StorageBin List: " + inventoryStorageBinList);
+//                    log.info("Inventory StorageBin List: " + inventoryStorageBinList);
 
                     if (createdGRLine.getInterimStorageBin() != null) {                         //Direct Stock Receipt - Fixed Bin - Inbound OrderTypeId - 5
                         storageBinPutAway.setBinClassId(binClassId);

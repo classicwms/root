@@ -67,4 +67,9 @@ public class PerpetualLineV2 extends PerpetualLine {
 	@Column(name = "AMS_VAR_QTY")
 	private Double amsVarianceQty;
 
+	private String threePLPartnerId;
+
+	private String threePLPartnerText;
+
+
 }

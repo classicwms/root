@@ -10,7 +10,10 @@ import javax.persistence.EntityNotFoundException;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.tekclover.wms.api.outbound.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.outbound.transaction.model.IKeyValuePair;
+import com.tekclover.wms.api.outbound.transaction.model.dto.PickListLoosePack;
+import com.tekclover.wms.api.outbound.transaction.model.dto.PickListTransaction;
 import com.tekclover.wms.api.outbound.transaction.model.dto.PickupHeaderGroupByDto;
+import com.tekclover.wms.api.outbound.transaction.model.dto.PickupHeaderGroupByItemCode;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.pickup.AddPickupHeader;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.pickup.PickupHeader;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.pickup.SearchPickupHeader;
@@ -1739,12 +1742,53 @@ public class PickupHeaderService extends BaseService {
      * @return
      */
     public List<PickupHeaderGroupByDto> getPickupHeaderGroupByNamratha(FindPickupHeaderNamratha findPickupHeaderNamratha) {
-        List<PickupHeaderGroupByDto> pickupHeaderGroupByDto = pickupHeaderV2Repository.findPickupHeaderGroupByNamratha(
+
+        return pickupHeaderV2Repository.findPickupHeaderGroupByNamratha(
                 findPickupHeaderNamratha.getPickupNumber(), findPickupHeaderNamratha.getLanguageId(),
                 findPickupHeaderNamratha.getCompanyCodeId(), findPickupHeaderNamratha.getPlantId(),
                 findPickupHeaderNamratha.getWarehouseId()
         );
+    }
 
-        return pickupHeaderGroupByDto;
+
+    /**
+     *
+     * @param findPickupHeaderNamratha groupBy ItemCode and LoosePack Records
+     * @return
+     */
+    public PickListTransaction getPickListCancellation(FindPickupHeaderNamratha findPickupHeaderNamratha) {
+
+        PickListTransaction pickListTransaction = new PickListTransaction();
+        List<PickupHeaderGroupByItemCode> itemCodeArrayList = new ArrayList<>();
+        List<PickListLoosePack> loosePackList = new ArrayList<>();
+
+        log.info("PickupListTransaction Inputs -------------------> {}", findPickupHeaderNamratha);
+
+        // Find GroupBy ItemCode and Qty and Bin
+        List<PickupHeaderGroupByDto> pickup = pickupHeaderV2Repository.findPickupHeaderGroupByNamratha(
+                findPickupHeaderNamratha.getPickupNumber(), findPickupHeaderNamratha.getLanguageId(),
+                findPickupHeaderNamratha.getCompanyCodeId(), findPickupHeaderNamratha.getPlantId(),
+                findPickupHeaderNamratha.getWarehouseId());
+        log.info("GroupBy ItemCode and Bin Records Size {}", pickup);
+        pickup.stream().forEach(pick -> {
+            PickupHeaderGroupByItemCode groupByItemCode = new PickupHeaderGroupByItemCode();
+            BeanUtils.copyProperties(pick, groupByItemCode, CommonUtils.getNullPropertyNames(pick));
+            itemCodeArrayList.add(groupByItemCode);
+        });
+        pickListTransaction.setPickupHeaderGroupByItemCodeList(itemCodeArrayList);
+
+        // Find Only LoosePack = 1 Value only
+        List<PickupHeaderGroupByDto> loosePacks = pickupHeaderV2Repository.findPickupHeaderLoosePack(
+                findPickupHeaderNamratha.getPickupNumber(), findPickupHeaderNamratha.getLanguageId(),
+                findPickupHeaderNamratha.getCompanyCodeId(), findPickupHeaderNamratha.getPlantId(),
+                findPickupHeaderNamratha.getWarehouseId());
+        log.info("LoosePack Values size is {}", loosePacks);
+        loosePacks.stream().forEach(loosePack -> {
+            PickListLoosePack newLoosePack = new PickListLoosePack();
+            BeanUtils.copyProperties(loosePack, newLoosePack, CommonUtils.getNullPropertyNames(loosePack));
+            loosePackList.add(newLoosePack);
+        });
+        pickListTransaction.setPickListLoosePackList(loosePackList);
+        return pickListTransaction;
     }
 }

@@ -3,6 +3,7 @@ package com.tekclover.wms.api.outbound.transaction.controller;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.validation.Valid;
@@ -19,7 +20,10 @@ import com.tekclover.wms.api.outbound.transaction.model.outbound.pickup.v2.Searc
 import com.tekclover.wms.api.outbound.transaction.model.warehouse.Warehouse;
 import com.tekclover.wms.api.outbound.transaction.repository.DbConfigRepository;
 import com.tekclover.wms.api.outbound.transaction.repository.WarehouseRepository;
+import com.tekclover.wms.api.outbound.transaction.service.AsyncService;
+import com.tekclover.wms.api.outbound.transaction.util.CommonUtils;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -61,6 +65,9 @@ public class PickupLineController {
 
     @Autowired
     WarehouseRepository warehouseRepository;
+
+    @Autowired
+    AsyncService asyncService;
 
     @ApiOperation(response = PickupLine.class, value = "Get all PickupLine details") // label for swagger
     @GetMapping("")
@@ -216,34 +223,57 @@ public class PickupLineController {
     @PostMapping("/v2")
     public ResponseEntity<?> postPickupLineV2(@Valid @RequestBody List<AddPickupLine> newPickupLine, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
+//        try {
+//            log.info("AddPickupLine -----> {}", newPickupLine);
+//            DataBaseContextHolder.setCurrentDb("MT");
+//            String routingDb = dbConfigRepository.getDbName(String.valueOf(newPickupLine.get(0).getCompanyCodeId()), newPickupLine.get(0).getPlantId(), newPickupLine.get(0).getWarehouseId());
+//            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+//            DataBaseContextHolder.clear();
+//            DataBaseContextHolder.setCurrentDb(routingDb);
+//            List<PickupLineV2> createdPickupLine = null;
+//            switch (routingDb) {
+//                case "FAHAHEEL":
+//                case "AUTO_LAP":
+//                    createdPickupLine = pickuplineService.createPickupLineNonCBMV2(newPickupLine, loginUserID);
+//                    break;
+//                case "NAMRATHA":
+//                    createdPickupLine = pickuplineService.createPickupLineNonCBMV4(newPickupLine, loginUserID);
+//                    break;
+//                case "REEFERON":
+//                    createdPickupLine = pickuplineService.createPickupLineV5(newPickupLine, loginUserID);
+//                    break;
+//                case "KNOWELL":
+//                    createdPickupLine = pickuplineService.createPickupLineNonCBMV7(newPickupLine, loginUserID);
+//                    break;
+//            }
+//            return new ResponseEntity<>(createdPickupLine, HttpStatus.OK);
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        } finally {
+//            DataBaseContextHolder.clear();
+//        }
+
         try {
-            log.info("AddPickupLine -----> {}", newPickupLine);
-            DataBaseContextHolder.setCurrentDb("MT");
-            String routingDb = dbConfigRepository.getDbName(String.valueOf(newPickupLine.get(0).getCompanyCodeId()), newPickupLine.get(0).getPlantId(), newPickupLine.get(0).getWarehouseId());
-            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-            DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb(routingDb);
-            List<PickupLineV2> createdPickupLine = null;
-            switch (routingDb) {
-                case "FAHAHEEL":
-                case "AUTO_LAP":
-                    createdPickupLine = pickuplineService.createPickupLineNonCBMV2(newPickupLine, loginUserID);
-                    break;
-                case "NAMRATHA":
-                    createdPickupLine = pickuplineService.createPickupLineNonCBMV4(newPickupLine, loginUserID);
-                    break;
-                case "REEFERON":
-                    createdPickupLine = pickuplineService.createPickupLineV5(newPickupLine, loginUserID);
-                    break;
-                case "KNOWELL":
-                    createdPickupLine = pickuplineService.createPickupLineNonCBMV7(newPickupLine, loginUserID);
-                    break;
-            }
-            return new ResponseEntity<>(createdPickupLine, HttpStatus.OK);
+            log.info("newPickupLine -----> {}", newPickupLine);
+
+            List<PickupLineV2> createPickUpLineResponse = newPickupLine.stream()
+                    .map(item -> {
+                        PickupLineV2 copy = new PickupLineV2();
+                        BeanUtils.copyProperties(item, copy, CommonUtils.getNullPropertyNames(item));
+                        return copy;
+                    })
+                    .collect(Collectors.toList());
+
+            // Return early response
+            ResponseEntity<?> response = new ResponseEntity<>(createPickUpLineResponse, HttpStatus.ACCEPTED);
+
+            // Fire async processing
+            asyncService.processPickupLineAsync(newPickupLine, loginUserID);
+
+            return response;
         } catch (Exception e) {
-            throw new RuntimeException(e);
-        } finally {
-            DataBaseContextHolder.clear();
+            log.error("Error processing GR line async", e);
+            return new ResponseEntity<>("Failed to start GR Line process", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

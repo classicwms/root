@@ -574,7 +574,7 @@ public class SalesOrderServiceV4 extends BaseService {
 //            Double INV_QTY1 = inventoryV2Repository.getInvCaseQty(companyCodeId, plantId, languageId, warehouseId, itemCode, binClassId, ORD_QTY);
 //            log.info("Queried invQty1 -------------> {}", INV_QTY1);
 
-            Double INV_QTY = repo.inventoryV2Repository.getInvCaseQty2(companyCodeId, plantId, languageId, warehouseId, itemCode, binClassId, ORD_QTY);
+            Double INV_QTY = repo.inventoryV2Repository.getInvCaseQty2(companyCodeId, plantId, languageId, warehouseId);
             log.info("Queried invQty2 ----------> {}", INV_QTY);
 
             log.info("Group By LeveId: " + levelIdList.size());

@@ -58,4 +58,6 @@ public class PerpetualLineEntity {
 	private String companyDescription;
 	private String plantDescription;
 	private String warehouseDescription;
+	private String threePLPartnerId;
+	private String threePLPartnerText;
 }

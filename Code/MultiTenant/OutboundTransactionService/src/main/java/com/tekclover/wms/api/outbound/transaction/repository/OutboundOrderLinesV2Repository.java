@@ -16,4 +16,7 @@ public interface OutboundOrderLinesV2Repository extends JpaRepository<OutboundOr
         StreamableJpaSpecificationRepository<OutboundOrderLineV2> {
     List<OutboundOrderLineV2> findAllByOrderIdAndOutboundOrderTypeID(String orderId, Long outboundOrderTypeID);
 
+    void deleteByOrderId(String orderId);
+
+
 }

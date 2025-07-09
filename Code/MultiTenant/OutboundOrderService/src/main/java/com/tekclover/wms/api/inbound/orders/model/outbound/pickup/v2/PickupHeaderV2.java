@@ -150,8 +150,8 @@ public class PickupHeaderV2 extends PickupHeader {
 	@Column(name = "IS_PI_HEADER_CTD")
 	private Long isPickupHeaderCreated;
 
-
-
+	@Column(name = "LOOSE_PACK")
+	private Long loosePack = 0L;
 
 
 }
