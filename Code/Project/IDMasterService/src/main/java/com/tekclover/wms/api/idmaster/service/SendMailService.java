@@ -513,21 +513,21 @@ public class SendMailService {
 		//Send Email
 		log.info("Scheduling the TV Shipment Delivery Report Mail Started at "+ new Date());
 
-//		List<EMailDetails> userEMail = eMailDetailsService.getReportEMailDetailsList();
+		List<EMailDetails> userEMail = eMailDetailsService.getReportEMailDetailsList();
 
-		String toAddress = "raj@tekclover.com";
-		String ccAddress = "yogesh.m@tekclover.com";
+		String toAddress = "";
+		String ccAddress = "";
 
-//		for(EMailDetails eMailDetails: userEMail){
-//
-//			if(eMailDetails.getToAddress()!=null) {
-//				toAddress = eMailDetails.getToAddress() + "," + toAddress;
-//			}
-//
-//			if(eMailDetails.getCcAddress()!=null) {
-//				ccAddress = eMailDetails.getCcAddress() + "," + ccAddress;
-//			}
-//		}
+		for(EMailDetails eMailDetails: userEMail){
+
+			if(eMailDetails.getToAddress()!=null) {
+				toAddress = eMailDetails.getToAddress() + "," + toAddress;
+			}
+
+			if(eMailDetails.getCcAddress()!=null) {
+				ccAddress = eMailDetails.getCcAddress() + "," + ccAddress;
+			}
+		}
 		String localDate = DateUtils.getCurrentDateWithoutTimestamp();
 		String emailSubject = "WMS Shipment Delivery Report - True Value and True Express - "+localDate;
 
