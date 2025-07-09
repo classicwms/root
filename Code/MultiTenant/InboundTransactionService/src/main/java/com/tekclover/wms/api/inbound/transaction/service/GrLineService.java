@@ -2195,7 +2195,7 @@ public class GrLineService extends BaseService {
 //                List<String> inventoryStorageBinList = inventoryService.getPutAwayHeaderCreateInventoryV4(companyCode, plantId, languageId, warehouseId, itemCode, manufacturerName, createdGRLine.getBarcodeId(), createdGRLine.getBatchSerialNumber(), packBarCode, alternateUom, bagSize, binClassId);
                     List<String> inventoryStorageBinList = inventoryService.getPutAwayHeaderCreateInventoryV4(companyCode, plantId, languageId, warehouseId, itemCode,
                             manufacturerName, alternateUom, bagSize, binClassId);
-//                    log.info("Inventory StorageBin List: " + inventoryStorageBinList.size() + " | ----> " + inventoryStorageBinList);
+                    log.info("Inventory StorageBin List: " + inventoryStorageBinList.size() + " | ----> " + inventoryStorageBinList);
 
                     if (createdGRLine.getInterimStorageBin() != null) {                         //Direct Stock Receipt - Fixed Bin - Inbound OrderTypeId - 5
                         storageBinPutAway.setBinClassId(binClassId);
