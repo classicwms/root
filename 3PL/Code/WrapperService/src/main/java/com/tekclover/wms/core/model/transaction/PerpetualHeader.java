@@ -43,5 +43,5 @@ public class PerpetualHeader {
 	private String confirmedBy;
 	private Date confirmedOn;
 
-	private List<PerpetualLine> perpetualLine;
+	private List<PerpetualLineV2> perpetualLine;
 }

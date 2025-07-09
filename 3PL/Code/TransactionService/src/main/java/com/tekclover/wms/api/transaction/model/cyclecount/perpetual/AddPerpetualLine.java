@@ -55,4 +55,6 @@ public class AddPerpetualLine {
 	private Date confirmedOn = new Date();
 	private String countedBy;
 	private Date countedOn = new Date();
+	private String threePLPartnerId;
+	private String threePLPartnerText;
 }

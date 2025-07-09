@@ -22,4 +22,7 @@ public interface PerpetualLineEntityImpl {
 	String getWarehouseDescription();
 	String getCycleCountNo();
 	String getBarcodeId();
+	String getApprovalLevel();
+	String getThreePLPartnerId();
+	String getThreePLPartnerText();
 }

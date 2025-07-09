@@ -30,4 +30,6 @@ public class PerpetualLineV2 extends PerpetualLine {
 	private String levelId;
 	private Double amsVarianceQty;
 	private Long lineNo;
+	private String threePLPartnerId;
+	private String threePLPartnerText;
 }

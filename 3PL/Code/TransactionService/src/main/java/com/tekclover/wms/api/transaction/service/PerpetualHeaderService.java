@@ -2002,6 +2002,8 @@ public class PerpetualHeaderService extends BaseService {
             dbPerpetualLine.setLineNo(lineNo);
             dbPerpetualLine.setBarcodeId(newPerpetualLine.getBarcodeId());
             dbPerpetualLine.setManufacturerName(newPerpetualLine.getManufacturerName());
+            dbPerpetualLine.setThreePLPartnerId(newPerpetualLine.getThreePLPartnerId());
+            dbPerpetualLine.setThreePLPartnerText(newPerpetualLine.getThreePLPartnerText());
             perpetualLines.add(dbPerpetualLine);
             lineNo++;
         }
