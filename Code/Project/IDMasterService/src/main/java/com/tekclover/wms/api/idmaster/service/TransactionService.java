@@ -4,6 +4,8 @@ import com.tekclover.wms.api.idmaster.config.PropertiesConfig;
 import com.tekclover.wms.api.idmaster.model.auth.AuthToken;
 import com.tekclover.wms.api.idmaster.model.outboundheader.PreOutboundHeader;
 import com.tekclover.wms.api.idmaster.model.outboundheader.SearchPreOutboundHeader;
+import com.tekclover.wms.api.idmaster.model.pdfreport.ShipmentDeliverySummary;
+import com.tekclover.wms.api.idmaster.model.pdfreport.ShipmentDeliverySummaryReport;
 import com.tekclover.wms.api.idmaster.model.pickerdenial.PickerDenialReport;
 import com.tekclover.wms.api.idmaster.model.pickerdenial.SearchPickupLine;
 import com.tekclover.wms.api.idmaster.util.DateUtils;
@@ -104,6 +106,46 @@ public class TransactionService {
             HttpEntity<?> entity = new HttpEntity<>(searchPickupLine, headers);
             ResponseEntity<PickerDenialReport> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PickerDenialReport.class);
             return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    // GET - ShipmentDeliverySummary
+    public ShipmentDeliverySummaryReport getShipmentDeliverySummaryReportPdf(String fromDeliveryDate,
+                                                                             String toDeliveryDate, List<String> customerCode, String warehouseId) throws Exception {
+        try {
+            AuthToken interAuthToken = authTokenService.getTransactionServiceAuthToken();
+            String authToken = interAuthToken.getAccess_token();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getTransactionServiceApiUrl() + "reports/shipmentDeliverySummary")
+                    .queryParam("fromDeliveryDate", fromDeliveryDate).queryParam("toDeliveryDate", toDeliveryDate)
+                    .queryParam("customerCode", customerCode).queryParam("warehouseId", warehouseId);
+
+            HttpEntity<?> entity = new HttpEntity<>(headers);
+            ResponseEntity<ShipmentDeliverySummaryReport> result = getRestTemplate().exchange(builder.toUriString(),
+                    HttpMethod.GET, entity, ShipmentDeliverySummaryReport.class);
+            ShipmentDeliverySummaryReport summaryReport = result.getBody();
+
+            for (ShipmentDeliverySummary shipmentDeliverySummary : summaryReport.getShipmentDeliverySummary()) {
+                if (shipmentDeliverySummary.getExpectedDeliveryDate() != null) {
+                    shipmentDeliverySummary.setExpectedDeliveryDate(
+                            DateUtils.addTimeToDate(shipmentDeliverySummary.getExpectedDeliveryDate(), 3));
+                }
+
+                if (shipmentDeliverySummary.getDeliveryDateTime() != null) {
+                    shipmentDeliverySummary.setDeliveryDateTime(
+                            DateUtils.addTimeToDate(shipmentDeliverySummary.getDeliveryDateTime(), 3));
+                }
+            }
+            return summaryReport;
         } catch (Exception e) {
             e.printStackTrace();
             throw e;

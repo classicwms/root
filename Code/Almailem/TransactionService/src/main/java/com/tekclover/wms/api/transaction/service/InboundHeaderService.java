@@ -2081,49 +2081,50 @@ public class InboundHeaderService extends BaseService {
      * @return
 	 * @throws Exception
      */
-    private boolean createInventoryNonCBMV2(PutAwayLineV2 putAwayLine) throws Exception {
-        log.info("-------createInventoryNonCBMV2---called-----");
+	private boolean createInventoryNonCBMV2(PutAwayLineV2 putAwayLine) throws Exception {
+		log.info("-------createInventoryNonCBMV2---called-----");
 
-        boolean isInventoryCreated = false;
-        String palletCode = null;
-        String caseCode = null;
-        try {
-            InventoryV2 existinginventory = inventoryService.getInventoryForStockAdjustmentDamageV2(
+		boolean isInventoryCreated = false;
+		String palletCode = null;
+		String caseCode = null;
+		try {
+			InventoryV2 existinginventory = inventoryService.getInventoryForStockAdjustmentDamageV2(
 					putAwayLine.getCompanyCode(), putAwayLine.getPlantId(), putAwayLine.getLanguageId(),
 					putAwayLine.getWarehouseId(), putAwayLine.getItemCode(), "99999", 3L,
-                    putAwayLine.getManufacturerName());
+					putAwayLine.getManufacturerName());
 			log.info("----existinginventory------CLASS-3----> " + existinginventory);
 
-            if (existinginventory != null) {
-                double INV_QTY = existinginventory.getInventoryQuantity() - putAwayLine.getPutawayConfirmedQty();
+			if (existinginventory != null) {
+				double INV_QTY = existinginventory.getInventoryQuantity() - putAwayLine.getPutawayConfirmedQty();
 				double INV_QTY_ERR = INV_QTY;
-                log.info("INV_QTY : " + INV_QTY);
+				log.info("INV_QTY : " + INV_QTY);
 
-                if (INV_QTY >= 0) {
+				if (INV_QTY >= 0) {
 
-                    InventoryV2 inventory2 = new InventoryV2();
+					InventoryV2 inventory2 = new InventoryV2();
 					try {
 						BeanUtils.copyProperties(existinginventory, inventory2,
 								CommonUtils.getNullPropertyNames(existinginventory));
-                    String stockTypeDesc = getStockTypeDesc(putAwayLine.getCompanyCode(), putAwayLine.getPlantId(),
+						String stockTypeDesc = getStockTypeDesc(putAwayLine.getCompanyCode(), putAwayLine.getPlantId(),
 								putAwayLine.getLanguageId(), putAwayLine.getWarehouseId(),
 								existinginventory.getStockTypeId());
-                    inventory2.setStockTypeDescription(stockTypeDesc);
-                    inventory2.setInventoryQuantity(INV_QTY);
+						inventory2.setStockTypeDescription(stockTypeDesc);
+						inventory2.setInventoryQuantity(INV_QTY);
 						inventory2.setReferenceField4(INV_QTY); // Allocated Qty is always 0 for BinClassId 3
-                    log.info("INV_QTY---->TOT_QTY---->: " + INV_QTY + ", " + INV_QTY);
+						log.info("INV_QTY---->TOT_QTY---->: " + INV_QTY + ", " + INV_QTY);
 
-                    palletCode = existinginventory.getPalletCode();
-                    caseCode = existinginventory.getCaseCode();
+						palletCode = existinginventory.getPalletCode();
+						caseCode = existinginventory.getCaseCode();
 
-                    inventory2.setCreatedOn(existinginventory.getCreatedOn());
-                    inventory2.setUpdatedOn(new Date());
-                    inventory2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 8));
-                    InventoryV2 createdInventoryV2 = inventoryV2Repository.save(inventory2);
-                    log.info("----existinginventory--createdInventoryV2--------> : " + createdInventoryV2);
+						inventory2.setCreatedOn(existinginventory.getCreatedOn());
+						inventory2.setUpdatedOn(new Date());
+						inventory2.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 8));
+						InventoryV2 createdInventoryV2 = inventoryV2Repository.save(inventory2);
+						log.info("----existinginventory--createdInventoryV2--------> : " + createdInventoryV2);
 						isInventoryCreated = true;
 					} catch (Exception e) {
-						log.error("--ERROR--createInventoryNonCBMV2 ----level1--inventory--error----> :" + e.toString());
+						log.error(
+								"--ERROR--createInventoryNonCBMV2 ----level1--inventory--error----> :" + e.toString());
 						e.printStackTrace();
 
 						// Inventory Error Handling
@@ -2135,166 +2136,167 @@ public class InboundHeaderService extends BaseService {
 						InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
 						log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
 						isInventoryCreated = false;
-                }
-            }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.info("Existing Inventory---Error-----> : " + e.toString());
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info("Existing Inventory---Error-----> : " + e.toString());
 			isInventoryCreated = false;
-        }
+		}
 
-        try {
+		try {
 			log.info("-------Create Inventory bin Class Id 1 Initiated-----");
-            InventoryV2 inventory = new InventoryV2();
-            BeanUtils.copyProperties(putAwayLine, inventory, CommonUtils.getNullPropertyNames(putAwayLine));
+			InventoryV2 inventory = new InventoryV2();
+			BeanUtils.copyProperties(putAwayLine, inventory, CommonUtils.getNullPropertyNames(putAwayLine));
 
-            inventory.setCompanyCodeId(putAwayLine.getCompanyCode());
-            inventory.setVariantCode(1L);                // VAR_ID
-            inventory.setVariantSubCode("1");            // VAR_SUB_ID
-            inventory.setStorageMethod("1");            // STR_MTD
-            inventory.setBatchSerialNumber("1");        // STR_NO
-            inventory.setBatchSerialNumber(putAwayLine.getBatchSerialNumber());
-            inventory.setStorageBin(putAwayLine.getConfirmedStorageBin());
-            inventory.setBarcodeId(putAwayLine.getBarcodeId());
-            inventory.setManufacturerName(putAwayLine.getManufacturerName());
-            inventory.setManufacturerCode(putAwayLine.getManufacturerName());
-            inventory.setReferenceField9(putAwayLine.getManufacturerName());
-            inventory.setDescription(putAwayLine.getDescription());
-            inventory.setReferenceField8(putAwayLine.getDescription());
+			inventory.setCompanyCodeId(putAwayLine.getCompanyCode());
+			inventory.setVariantCode(1L); // VAR_ID
+			inventory.setVariantSubCode("1"); // VAR_SUB_ID
+			inventory.setStorageMethod("1"); // STR_MTD
+			inventory.setBatchSerialNumber("1"); // STR_NO
+			inventory.setBatchSerialNumber(putAwayLine.getBatchSerialNumber());
+			inventory.setStorageBin(putAwayLine.getConfirmedStorageBin());
+			inventory.setBarcodeId(putAwayLine.getBarcodeId());
+			inventory.setManufacturerName(putAwayLine.getManufacturerName());
+			inventory.setManufacturerCode(putAwayLine.getManufacturerName());
+			inventory.setReferenceField9(putAwayLine.getManufacturerName());
+			inventory.setDescription(putAwayLine.getDescription());
+			inventory.setReferenceField8(putAwayLine.getDescription());
 
 			// ST_BIN ---Pass WH_ID/BIN_CL_ID=3 in STORAGEBIN table and fetch ST_BIN value
 			// and update
-            AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-            StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
-            storageBinPutAway.setCompanyCodeId(putAwayLine.getCompanyCode());
-            storageBinPutAway.setPlantId(putAwayLine.getPlantId());
-            storageBinPutAway.setLanguageId(putAwayLine.getLanguageId());
-            storageBinPutAway.setWarehouseId(putAwayLine.getWarehouseId());
-            storageBinPutAway.setBin(putAwayLine.getConfirmedStorageBin());
+			AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+			StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
+			storageBinPutAway.setCompanyCodeId(putAwayLine.getCompanyCode());
+			storageBinPutAway.setPlantId(putAwayLine.getPlantId());
+			storageBinPutAway.setLanguageId(putAwayLine.getLanguageId());
+			storageBinPutAway.setWarehouseId(putAwayLine.getWarehouseId());
+			storageBinPutAway.setBin(putAwayLine.getConfirmedStorageBin());
 
-            StorageBinV2 storageBin = null;
-            try {
-				storageBin = mastersService.getaStorageBinV2(storageBinPutAway, authTokenForMastersService.getAccess_token());
+			StorageBinV2 storageBin = null;
+			try {
+				storageBin = mastersService.getaStorageBinV2(storageBinPutAway,
+						authTokenForMastersService.getAccess_token());
 				log.info("storageBin: " + storageBin);
-            } catch (Exception e) {
-                throw new BadRequestException("Invalid StorageBin");
-            }
+			} catch (Exception e) {
+				throw new BadRequestException("Invalid StorageBin");
+			}
 
-            if (storageBin != null) {
-                inventory.setReferenceField10(storageBin.getStorageSectionId());
-                inventory.setReferenceField5(storageBin.getAisleNumber());
-                inventory.setReferenceField6(storageBin.getShelfId());
-                inventory.setReferenceField7(storageBin.getRowId());
-                inventory.setLevelId(String.valueOf(storageBin.getFloorId()));
-                inventory.setBinClassId(storageBin.getBinClassId());
-            }
+			if (storageBin != null) {
+				inventory.setReferenceField10(storageBin.getStorageSectionId());
+				inventory.setReferenceField5(storageBin.getAisleNumber());
+				inventory.setReferenceField6(storageBin.getShelfId());
+				inventory.setReferenceField7(storageBin.getRowId());
+				inventory.setLevelId(String.valueOf(storageBin.getFloorId()));
+				inventory.setBinClassId(storageBin.getBinClassId());
+			}
 
-            inventory.setCompanyDescription(putAwayLine.getCompanyDescription());
-            inventory.setPlantDescription(putAwayLine.getPlantDescription());
-            inventory.setWarehouseDescription(putAwayLine.getWarehouseDescription());
+			inventory.setCompanyDescription(putAwayLine.getCompanyDescription());
+			inventory.setPlantDescription(putAwayLine.getPlantDescription());
+			inventory.setWarehouseDescription(putAwayLine.getWarehouseDescription());
 
-                inventory.setPalletCode(palletCode);
-                inventory.setCaseCode(caseCode);
-                log.info("PalletCode, CaseCode: " + palletCode + ", " + caseCode);
+			inventory.setPalletCode(palletCode);
+			inventory.setCaseCode(caseCode);
+			log.info("PalletCode, CaseCode: " + palletCode + ", " + caseCode);
 
-            // STCK_TYP_ID
-            inventory.setStockTypeId(1L);
+			// STCK_TYP_ID
+			inventory.setStockTypeId(1L);
 			String stockTypeDesc = getStockTypeDesc(putAwayLine.getCompanyCode(), putAwayLine.getPlantId(),
 					putAwayLine.getLanguageId(), putAwayLine.getWarehouseId(), 1L);
-            inventory.setStockTypeDescription(stockTypeDesc);
-            log.info("StockTypeDescription: " + stockTypeDesc);
+			inventory.setStockTypeDescription(stockTypeDesc);
+			log.info("StockTypeDescription: " + stockTypeDesc);
 
-            // SP_ST_IND_ID
-            inventory.setSpecialStockIndicatorId(1L);
+			// SP_ST_IND_ID
+			inventory.setSpecialStockIndicatorId(1L);
 
-            InventoryV2 existingInventory = inventoryService.getInventoryForInhouseTransferV2(
+			InventoryV2 existingInventory = inventoryService.getInventoryForInhouseTransferV2(
 					putAwayLine.getCompanyCode(), putAwayLine.getPlantId(), putAwayLine.getLanguageId(),
 					putAwayLine.getWarehouseId(), "99999", putAwayLine.getItemCode(), putAwayLine.getManufacturerName(),
 					putAwayLine.getConfirmedStorageBin());
 
-            Double ALLOC_QTY = 0D;
+			Double ALLOC_QTY = 0D;
 			if (existingInventory != null) {
-                if (existingInventory.getAllocatedQuantity() != null) {
-                    ALLOC_QTY = existingInventory.getAllocatedQuantity();
-                    inventory.setAllocatedQuantity(ALLOC_QTY);
-                }
-                if (existingInventory.getAllocatedQuantity() == null) {
-                    inventory.setAllocatedQuantity(ALLOC_QTY);
-                }
-                log.info("Inventory Allocated Qty: " + ALLOC_QTY);
-            }
-            // INV_QTY
-            if (existingInventory != null) {
+				if (existingInventory.getAllocatedQuantity() != null) {
+					ALLOC_QTY = existingInventory.getAllocatedQuantity();
+					inventory.setAllocatedQuantity(ALLOC_QTY);
+				}
+				if (existingInventory.getAllocatedQuantity() == null) {
+					inventory.setAllocatedQuantity(ALLOC_QTY);
+				}
+				log.info("Inventory Allocated Qty: " + ALLOC_QTY);
+			}
+			// INV_QTY
+			if (existingInventory != null) {
 				inventory.setInventoryQuantity(
 						existingInventory.getInventoryQuantity() + putAwayLine.getPutawayConfirmedQty());
 				log.info("Inventory Qty = inv_qty + pa_cnf_qty: " + existingInventory.getInventoryQuantity() + ", "
 						+ putAwayLine.getPutawayConfirmedQty());
-                Double totalQty = inventory.getInventoryQuantity() + inventory.getAllocatedQuantity();
-                inventory.setReferenceField4(totalQty);
-                log.info("Inventory Total Qty: " + totalQty);
-            }
-            if (existingInventory == null) {
-                inventory.setInventoryQuantity(putAwayLine.getPutawayConfirmedQty());
-                log.info("Inventory Qty = pa_cnf_qty: " + putAwayLine.getPutawayConfirmedQty());
-                Double totalQty = putAwayLine.getPutawayConfirmedQty() + ALLOC_QTY;
-                inventory.setReferenceField4(totalQty);
-                log.info("Inventory Total Qty: " + totalQty);
-            }
+				Double totalQty = inventory.getInventoryQuantity() + inventory.getAllocatedQuantity();
+				inventory.setReferenceField4(totalQty);
+				log.info("Inventory Total Qty: " + totalQty);
+			}
+			if (existingInventory == null) {
+				inventory.setInventoryQuantity(putAwayLine.getPutawayConfirmedQty());
+				log.info("Inventory Qty = pa_cnf_qty: " + putAwayLine.getPutawayConfirmedQty());
+				Double totalQty = putAwayLine.getPutawayConfirmedQty() + ALLOC_QTY;
+				inventory.setReferenceField4(totalQty);
+				log.info("Inventory Total Qty: " + totalQty);
+			}
 
-            /*
-             * Hardcoding Packbarcode as 99999
-             */
-            inventory.setPackBarcodes("99999");
+			/*
+			 * Hardcoding Packbarcode as 99999
+			 */
+			inventory.setPackBarcodes("99999");
 
-            // INV_UOM
-            if (putAwayLine.getPutAwayUom() != null) {
-                inventory.setInventoryUom(putAwayLine.getPutAwayUom());
-                log.info("PA UOM: " + putAwayLine.getPutAwayUom());
-            }
-            inventory.setCreatedBy(putAwayLine.getCreatedBy());
+			// INV_UOM
+			if (putAwayLine.getPutAwayUom() != null) {
+				inventory.setInventoryUom(putAwayLine.getPutAwayUom());
+				log.info("PA UOM: " + putAwayLine.getPutAwayUom());
+			}
+			inventory.setCreatedBy(putAwayLine.getCreatedBy());
 
-            inventory.setReferenceDocumentNo(putAwayLine.getRefDocNumber());
-            inventory.setReferenceOrderNo(putAwayLine.getRefDocNumber());
-            inventory.setDeletionIndicator(0L);
+			inventory.setReferenceDocumentNo(putAwayLine.getRefDocNumber());
+			inventory.setReferenceOrderNo(putAwayLine.getRefDocNumber());
+			inventory.setDeletionIndicator(0L);
 
 			if (existingInventory != null) {
-                inventory.setCreatedOn(existingInventory.getCreatedOn());
-            }
-			
+				inventory.setCreatedOn(existingInventory.getCreatedOn());
+			}
+
 			if (existingInventory == null) {
-                inventory.setCreatedOn(new Date());
-            }
-            inventory.setUpdatedOn(new Date());
-            InventoryV2 createdinventory = null;
-            inventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 1));
+				inventory.setCreatedOn(new Date());
+			}
+			inventory.setUpdatedOn(new Date());
+			InventoryV2 createdinventory = null;
+			inventory.setInventoryId(Long.valueOf(System.currentTimeMillis() + "" + 1));
 			try {
-            createdinventory = inventoryV2Repository.save(inventory);
+				createdinventory = inventoryV2Repository.save(inventory);
 				log.error("----createdinventory--------- :" + createdinventory);
 				isInventoryCreated = true;
 			} catch (Exception e) {
 				log.error("--ERROR--createInventoryNonCBMV2 ----level1--inventory--error----> :" + e.toString());
 				e.printStackTrace();
-				
+
 				// Inventory Error Handling
 				InventoryTrans newInventoryTrans = new InventoryTrans();
 				BeanUtils.copyProperties(inventory, newInventoryTrans, CommonUtils.getNullPropertyNames(inventory));
-				newInventoryTrans.setReRun(0L);	
+				newInventoryTrans.setReRun(0L);
 				InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
 				log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
 				isInventoryCreated = false;
-            }
-			
-            log.info("created inventory : executed" + createdinventory + " -----> ");
-        } catch (Exception e) {
-        	log.error("Error While Creating Inventory ---> " + e.toString());
-            e.printStackTrace();
-            isInventoryCreated = false;
-                sendMail(putAwayLine, e.getLocalizedMessage());
-            throw e;
-            }
-        return isInventoryCreated;
-        }
+			}
+
+			log.info("created inventory : executed" + createdinventory + " -----> ");
+		} catch (Exception e) {
+			log.error("Error While Creating Inventory ---> " + e.toString());
+			e.printStackTrace();
+			isInventoryCreated = false;
+			sendMail(putAwayLine, e.getLocalizedMessage());
+			throw e;
+		}
+		return isInventoryCreated;
+	}
 
 	@Scheduled(fixedDelayString = "PT1M", initialDelayString = "PT2M")
 	private void updateErroredOutInventory() {

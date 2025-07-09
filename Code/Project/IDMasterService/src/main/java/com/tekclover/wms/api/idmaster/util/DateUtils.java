@@ -315,4 +315,30 @@ public class DateUtils {
 		}
 		return null;
 	}
+
+	/**
+	 * Created for ReportPdf - 04/07/2025
+	 * Aakash Vinayak
+	 * @param inputDate
+	 * @param numberOfDays
+	 * @return
+	 * @throws ParseException
+	 */
+	public static Date addTimeToDate(Date inputDate, int numberOfDays) throws ParseException {
+		try {
+			LocalDateTime localDateTime = LocalDateTime.ofInstant(inputDate.toInstant(), ZoneId.systemDefault());
+			localDateTime = localDateTime.plusHours(numberOfDays);
+
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+			String sConvertedDateTime = formatter.format(localDateTime);
+
+			SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+			Date sDate = dateFormatter.parse(sConvertedDateTime);
+			return sDate;
+		} catch (Exception e) {
+			log.info("Exception in DateUtils: " + e);
+			e.printStackTrace();
+		}
+		return null;
+	}
 }

@@ -1,11 +1,17 @@
 package com.tekclover.wms.api.idmaster.service;
 
-import com.tekclover.wms.api.idmaster.config.PropertiesConfig;
-import com.tekclover.wms.api.idmaster.controller.exception.BadRequestException;
-import com.tekclover.wms.api.idmaster.model.email.*;
-import com.tekclover.wms.api.idmaster.repository.FileNameForEmailRepository;
-import com.tekclover.wms.api.idmaster.util.DateUtils;
-import lombok.extern.slf4j.Slf4j;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Date;
+import java.util.List;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -13,33 +19,34 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import com.tekclover.wms.api.idmaster.config.PropertiesConfig;
+import com.tekclover.wms.api.idmaster.controller.exception.BadRequestException;
+import com.tekclover.wms.api.idmaster.model.email.EMailDetails;
+import com.tekclover.wms.api.idmaster.model.email.FileNameForEmail;
+import com.tekclover.wms.api.idmaster.model.email.OrderFailedInput;
+import com.tekclover.wms.api.idmaster.repository.FileNameForEmailRepository;
+import com.tekclover.wms.api.idmaster.util.DateUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
 public class SendMailService {
 	
 	private static final String ACCESS_TOKEN = null;
+	
 	@Autowired
 	private JavaMailSender javaMailSender;
+	
 	@Autowired
 	private PropertiesConfig propertiesConfig;
+	
 	@Autowired
 	private EMailDetailsService eMailDetailsService;
+	
 	@Autowired
 	private FileNameForEmailService fileNameForEmailService;
+	
 	@Autowired
 	private FileNameForEmailRepository fileNameForEmailRepository;
 
@@ -491,5 +498,112 @@ public class SendMailService {
 		email.setToAddress(toAddress);
 		email.setCcAddress(ccAddress);
 		sendTvReportMail(email,fileName110, fileName111);
+	}
+
+	/**
+	 * Method for Sending the File in Email
+	 * Aakash Vinayak - 04/07/2025
+	 *
+	 * @param fileName110
+	 * @throws MessagingException
+	 * @throws IOException
+	 */
+	public void sendShipmentDeliveryReport(String fileName110) throws MessagingException, IOException {
+
+		//Send Email
+		log.info("Scheduling the TV Shipment Delivery Report Mail Started at "+ new Date());
+
+//		List<EMailDetails> userEMail = eMailDetailsService.getReportEMailDetailsList();
+
+		String toAddress = "raj@tekclover.com";
+		String ccAddress = "yogesh.m@tekclover.com";
+
+//		for(EMailDetails eMailDetails: userEMail){
+//
+//			if(eMailDetails.getToAddress()!=null) {
+//				toAddress = eMailDetails.getToAddress() + "," + toAddress;
+//			}
+//
+//			if(eMailDetails.getCcAddress()!=null) {
+//				ccAddress = eMailDetails.getCcAddress() + "," + ccAddress;
+//			}
+//		}
+		String localDate = DateUtils.getCurrentDateWithoutTimestamp();
+		String emailSubject = "WMS Shipment Delivery Report - True Value and True Express - "+localDate;
+
+		EMailDetails email = new EMailDetails();
+
+		email.setSenderName("IWE Express-Support");
+		email.setSubject(emailSubject);
+		email.setBodyText("Dear IW Express team,<br><br>"+"Please find the attached WMS Shipment Delivery Report for your reference<br><br>Regards<br>WMS IT Team");
+		email.setToAddress(toAddress);
+		email.setCcAddress(ccAddress);
+		sendShipmentDeliveryReport(email,fileName110);
+	}
+
+	/**
+	 * sendMail attachement shipmentDeliveryReport generated pdf
+	 * Aakash Vinayak - 04/07/2025
+	 *
+	 * @param email
+	 * @throws MessagingException
+	 * @throws IOException
+	 */
+	public void sendShipmentDeliveryReport (EMailDetails email, String fileNameForEmail) throws MessagingException, IOException {
+
+		MimeMessage msg = javaMailSender.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(msg, true);
+
+		String basePath = propertiesConfig.getDocStorageBasePath() + "/";
+		String filePath = basePath + fileNameForEmail;
+
+		if (fileNameForEmail != null && !fileNameForEmail.isEmpty()) {
+			File file = new File(filePath);
+			if (!file.exists()) {
+				throw new MessagingException("Attachment file not found: " + filePath);
+			}
+
+			Path path = Paths.get(file.getAbsolutePath());
+			ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
+
+			helper.addAttachment(fileNameForEmail, resource);
+
+			// Set From Address
+			if (email.getFromAddress() != null && !email.getFromAddress().isEmpty()) {
+				helper.setFrom(email.getFromAddress());
+			} else {
+				helper.setFrom(propertiesConfig.getEmailFromAddress());
+			}
+
+			// Set To Address
+			helper.setTo(InternetAddress.parse(email.getToAddress()));
+			log.info("Email: To Address - " + email.getToAddress());
+
+			// Set CC Address
+			if (email.getCcAddress() != null && !email.getCcAddress().isEmpty()) {
+				helper.setCc(InternetAddress.parse(email.getCcAddress()));
+				log.info("Email: Cc Address - " + email.getCcAddress());
+			} else {
+				helper.setCc(InternetAddress.parse(email.getToAddress()));
+			}
+
+			helper.setSubject(email.getSubject());
+			helper.setText(email.getBodyText(), true);
+
+			javaMailSender.send(msg);
+			log.info("Scheduled mail sent successfully with attachment: " + fileNameForEmail);
+
+		} else {
+			// Fallback: Attachment missing
+			helper.setFrom(propertiesConfig.getEmailFromAddress());
+			helper.setTo("raj@tekclover.com");
+			helper.setCc("senthil.v@tekclover.com");
+			helper.setSubject(propertiesConfig.getEmailSubject() + "TV - Sending Report Through Email Failed");
+			helper.setText("Attachment not found. Sending Report Through Email Failed.", true);
+			javaMailSender.send(msg);
+
+			log.info("Scheduled mail failed due to missing attachment: " + fileNameForEmail);
+			throw new MessagingException("Attachment not found. Email send failed.");
+		}
 	}
 }
