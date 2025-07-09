@@ -1156,7 +1156,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             + "SELECT LEVEL_ID AS levelId, SUM(INV_QTY) AS inventoryQty FROM tblinventory \r\n"
             + "WHERE WH_ID = :warehouseId and ITM_CODE = :itemCode AND BIN_CL_ID = :binClassId AND STCK_TYP_ID = :stockTypeId \r\n"
             + "AND C_ID = :companyCodeId and PLANT_ID = :plantId AND LANG_ID = :languageId \r\n"
-            + "AND MFR_NAME = :manufacturerName AND IS_DELETED = 0 AND \r\n"
+            + "AND MFR_NAME = :manufacturerName AND IS_DELETED = 0 AND REF_FIELD_4 > 0 AND \r\n"
             + "(COALESCE(:alternateUom, null) IS NULL OR (ALT_UOM IN (:alternateUom))) \n"
             + "AND INV_ID in (select inventoryId from #inv) \r\n"
             + "GROUP BY LEVEL_ID, ITM_CODE, MFR_NAME, PLANT_ID, WH_ID, C_ID, LANG_ID \r\n"
