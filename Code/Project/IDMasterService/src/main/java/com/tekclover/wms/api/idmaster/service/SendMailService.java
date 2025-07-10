@@ -513,7 +513,7 @@ public class SendMailService {
 		//Send Email
 		log.info("Scheduling the TV Shipment Delivery Report Mail Started at "+ new Date());
 
-		List<EMailDetails> userEMail = eMailDetailsService.getReportEMailDetailsList();
+		List<EMailDetails> userEMail = eMailDetailsService.getDailyReportEMailDetailsList();
 
 		String toAddress = "";
 		String ccAddress = "";
