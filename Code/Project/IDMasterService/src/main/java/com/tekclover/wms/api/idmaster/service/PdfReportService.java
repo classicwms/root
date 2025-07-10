@@ -43,7 +43,7 @@ public class PdfReportService {
     @Autowired
     SendMailService sendMailService;
 
-    @Scheduled(cron = "0 0 3 * * ?")
+    @Scheduled(cron = "0 0 15 * * ?")
     //@Scheduled(cron = "0 */10 * * * ?")
     private void generateShipmentDeliveryReport() throws Exception {
 
