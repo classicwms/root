@@ -54,6 +54,7 @@ public class OutboundTransactionService {
     private String getOutboundOrderServiceApiUrl() {
         return propertiesConfig.getOutboundOrderServiceUrl();
     }
+
     /**
      * @return
      */
@@ -71,7 +72,6 @@ public class OutboundTransactionService {
     private String getOutboundTransactionServiceApiUrl() {
         return propertiesConfig.getOutboundTransactionServiceUrl();
     }
-
 
 
     /*
@@ -637,7 +637,7 @@ public class OutboundTransactionService {
     /*--------------------------PickupLine----------------------------------------------------*/
     // GET
     public InventoryV2[] getAdditionalBins(String warehouseId, String itemCode, Long obOrdertypeId,
-                                         String proposedPackBarCode, String proposedStorageBin, String authToken) {
+                                           String proposedPackBarCode, String proposedStorageBin, String authToken) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -3267,32 +3267,32 @@ public class OutboundTransactionService {
     public PerpetualHeaderEntityV2 getPerpetualHeaderV2(String companyCodeId, String plantId, String languageId,
                                                         String warehouseId, Long cycleCountTypeId, String cycleCountNo, Long movementTypeId, Long subMovementTypeId, String authToken) {
         try {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        headers.add("User-Agent", "ClassicWMS RestTemplate");
-        headers.add("Authorization", "Bearer " + authToken);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
 
-        UriComponentsBuilder builder = UriComponentsBuilder
-                .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "perpetualheader/v2/" + cycleCountNo)
-                .queryParam("companyCodeId", companyCodeId)
-                .queryParam("plantId", plantId)
-                .queryParam("languageId", languageId)
-                .queryParam("warehouseId", warehouseId)
-                .queryParam("cycleCountTypeId", cycleCountTypeId)
-                .queryParam("movementTypeId", movementTypeId)
-                .queryParam("subMovementTypeId", subMovementTypeId);
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "perpetualheader/v2/" + cycleCountNo)
+                    .queryParam("companyCodeId", companyCodeId)
+                    .queryParam("plantId", plantId)
+                    .queryParam("languageId", languageId)
+                    .queryParam("warehouseId", warehouseId)
+                    .queryParam("cycleCountTypeId", cycleCountTypeId)
+                    .queryParam("movementTypeId", movementTypeId)
+                    .queryParam("subMovementTypeId", subMovementTypeId);
 
-        HttpEntity<?> entity = new HttpEntity<>(headers);
-        ResponseEntity<PerpetualHeaderEntityV2> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET,
-                entity, PerpetualHeaderEntityV2.class);
-        log.info("result : " + result.getStatusCode());
-        return result.getBody();
+            HttpEntity<?> entity = new HttpEntity<>(headers);
+            ResponseEntity<PerpetualHeaderEntityV2> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.GET,
+                    entity, PerpetualHeaderEntityV2.class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
 
-    } catch (Exception e) {
-        e.printStackTrace();
-        throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
-}
 
     // FIND ALL - findPerpetualHeader
     public PerpetualHeaderEntityV2[] findPerpetualHeaderV2(SearchPerpetualHeaderV2 searchPerpetualHeader, String authToken) throws ParseException {
@@ -5846,7 +5846,6 @@ public class OutboundTransactionService {
 
 
     /**
-     *
      * @param requestData
      * @param authToken
      * @return
@@ -5882,7 +5881,6 @@ public class OutboundTransactionService {
     }
 
     /**
-     *
      * @param outboundOrderCancelInput
      * @param loginUserID
      * @param authToken
@@ -6124,6 +6122,7 @@ public class OutboundTransactionService {
         log.info("result: " + result.getStatusCode());
         return result.getBody();
     }
+
     //Post EmptyCrate - Upload
     public WarehouseApiResponse emptyCrateOrderV5(@Valid List<SalesOrderV2> salesOrderV2, String authToken) {
         HttpHeaders headers = new HttpHeaders();
@@ -6190,7 +6189,6 @@ public class OutboundTransactionService {
     }
 
     /**
-     *
      * @param returnPO
      * @return
      */
@@ -6248,7 +6246,7 @@ public class OutboundTransactionService {
             restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
 
             UriComponentsBuilder builder = UriComponentsBuilder
-                    .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "/orders/update/outbound" )
+                    .fromHttpUrl(getOutboundTransactionServiceApiUrl() + "/orders/update/outbound")
                     .queryParam("orderId", orderId);
 
             ResponseEntity<OutboundOrder> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH,
@@ -6261,8 +6259,9 @@ public class OutboundTransactionService {
         }
     }
     //==================================================Delete=========================================================
+
     /**
-     *Delete OutboundOrder
+     * Delete OutboundOrder
      *
      * @param orderId
      * @param authToken
@@ -6287,6 +6286,21 @@ public class OutboundTransactionService {
             e.printStackTrace();
             throw e;
         }
+    }
+
+//--------------------------------------------Outbound Reversal----------------------------------------------
+
+    public WarehouseApiResponse outboundReversal(OutboundReversalInput outboundReversalInput, String authToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.add("User-Agent", "RestTemplate");
+        headers.add("Authorization", "Bearer " + authToken);
+        UriComponentsBuilder builder =
+                UriComponentsBuilder.fromHttpUrl(getOutboundTransactionServiceApiUrl() + "reports/outboundreversal");
+        HttpEntity<?> entity = new HttpEntity<>(outboundReversalInput, headers);
+        ResponseEntity<WarehouseApiResponse> result =
+                getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse.class);
+        return result.getBody();
     }
 
 }

@@ -2159,4 +2159,14 @@ public class OutboundTransactionServiceController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    //--------------------------------------------Outbound Reversal--------------------------------------------
+
+
+    @ApiOperation(response = OutboundOrder.class, value = "Outbound Reversal") // label for swagger
+    @PostMapping("/order/outboundreversal")
+    public ResponseEntity<?> outboundReversal(@RequestBody OutboundReversalInput outboundReversalInput, @RequestParam String authToken){
+        WarehouseApiResponse response = outboundTransactionService.outboundReversal(outboundReversalInput,authToken);
+        return new ResponseEntity<>(response,HttpStatus.OK);
+    }
+
 }

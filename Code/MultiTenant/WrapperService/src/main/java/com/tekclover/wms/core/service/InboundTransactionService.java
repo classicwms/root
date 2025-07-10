@@ -3395,7 +3395,6 @@ public class InboundTransactionService {
     }
 
     /**
-     *
      * @param authToken
      * @return
      */
@@ -4017,7 +4016,6 @@ public class InboundTransactionService {
     }
 
     /**
-     *
      * @param searchPreInboundLine
      * @param authToken
      * @return
@@ -4584,6 +4582,7 @@ public class InboundTransactionService {
             throw e;
         }
     }
+
     // PATCH - Partial Confirm - with InboundLines input
     public AXApiResponse updateInboundHeaderWithIbLinePartialConfirmV2(List<InboundLineV2> inboundLineList, String companyCode, String plantId,
                                                                        String languageId, String warehouseId, String preInboundNo, String refDocNumber,
@@ -4615,6 +4614,7 @@ public class InboundTransactionService {
             throw e;
         }
     }
+
     // DELETE
     public boolean deleteInboundHeaderV2(String companyCode, String plantId, String languageId, String warehouseId,
                                          String refDocNumber, String preInboundNo, String loginUserID, String authToken) {
@@ -5226,7 +5226,6 @@ public class InboundTransactionService {
     }
 
 
-
     // DELETE
     public boolean deleteCasesV2(String preInboundNo, Long lineNo, String itemCode, String caseCode, String loginUserID, String authToken) {
         try {
@@ -5573,6 +5572,7 @@ public class InboundTransactionService {
 //        }
 //        return grLineList.toArray(new GrLineV2[grLineList.size()]);
     }
+
     // POST - findGrLine SQL Method
     public GrLineV2[] findGrLineSQLV2(SearchGrLineV2 searchGrLine, String authToken) throws ParseException {
         HttpHeaders headers = new HttpHeaders();
@@ -6683,7 +6683,6 @@ public class InboundTransactionService {
     }
 
 
-
     //----------------------Orders------------------------------------------------------------------
 
     // POST - ASN V2 upload
@@ -6953,6 +6952,7 @@ public class InboundTransactionService {
             throw e;
         }
     }
+
     //FindOutboundOrder
     public OutboundOrderV2[] findOutboundOrderV2(FindOutboundOrderV2 findOutboundOrderV2, String authToken) {
         try {
@@ -7013,7 +7013,6 @@ public class InboundTransactionService {
     }
 
     /**
-     *
      * @param outboundOrderCancelInput
      * @param loginUserID
      * @param authToken
@@ -7229,7 +7228,7 @@ public class InboundTransactionService {
     }
 
     // PATCH
-    public StagingLineUpdate[] updateExpiryMfr(List<StagingLineUpdate> lineUpdateList , String authToken) {
+    public StagingLineUpdate[] updateExpiryMfr(List<StagingLineUpdate> lineUpdateList, String authToken) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -7244,7 +7243,7 @@ public class InboundTransactionService {
 
             UriComponentsBuilder builder = UriComponentsBuilder
                     .fromHttpUrl(getInboundTransactionServiceApiUrl() + "stagingline/update/ExpiryMfr");
-            ResponseEntity <StagingLineUpdate[]> result = restTemplate.exchange(builder.toUriString(), HttpMethod.POST, entity,
+            ResponseEntity<StagingLineUpdate[]> result = restTemplate.exchange(builder.toUriString(), HttpMethod.POST, entity,
                     StagingLineUpdate[].class);
             log.info("result : " + result.getStatusCode());
             return result.getBody();
@@ -7296,7 +7295,7 @@ public class InboundTransactionService {
 
     //  ----------------------------------------------KNOWELL - V7-------------------------------------------------
 
-    public PutAwayLine  getinboundConfirmValidationV7(String companyCode, String plantId, String languageId, String warehouseId,
+    public PutAwayLine getinboundConfirmValidationV7(String companyCode, String plantId, String languageId, String warehouseId,
                                                      String refDocNumber, String preInboundNo, String loginUserID) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -7332,11 +7331,11 @@ public class InboundTransactionService {
         log.info("result : " + result.getStatusCode());
         return result.getBody();
     }
-    
-     //---------------------------------------------Inbound Reversal------------------------------------------------------------
 
-    public void inboundReversal(String companyCodeId,String plantId,String warehouseId,
-                                String refDocNumber,String preInboundNo, String authToken) {
+    //---------------------------------------------Inbound Reversal------------------------------------------------------------
+
+    public WarehouseApiResponse inboundReversal(String companyCodeId, String plantId, String warehouseId,
+                                                String refDocNumber, String preInboundNo, String authToken) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -7356,9 +7355,10 @@ public class InboundTransactionService {
                             .queryParam("refDocNumber", refDocNumber)
                             .queryParam("preInboundNo", preInboundNo);
 
-            ResponseEntity<String> result =
-                    restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, String.class);
+            ResponseEntity<WarehouseApiResponse> result =
+                    restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, WarehouseApiResponse.class);
             log.info("result : " + result.getStatusCode());
+            return result.getBody();
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -7368,7 +7368,6 @@ public class InboundTransactionService {
     //=========================================Update=========================================================
 
     /**
-     *
      * @param orderId
      * @param updateInboundOrder
      * @param authToken
@@ -7388,7 +7387,7 @@ public class InboundTransactionService {
             restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
 
             UriComponentsBuilder builder = UriComponentsBuilder
-                    .fromHttpUrl(getInboundTransactionServiceApiUrl() + "/orders/update/inbound" )
+                    .fromHttpUrl(getInboundTransactionServiceApiUrl() + "/orders/update/inbound")
                     .queryParam("orderId", orderId);
 
             ResponseEntity<InboundOrder> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH,
@@ -7404,7 +7403,6 @@ public class InboundTransactionService {
     //==================================================Delete=========================================================
 
     /**
-     *
      * @param orderId
      * @param authToken
      * @return

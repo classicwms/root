@@ -427,7 +427,6 @@ public class InboundTransactionServiceController {
     }
 
 
-
     /*
      * --------------------------------InHouseTransferHeader---------------------------------
      */
@@ -775,7 +774,8 @@ public class InboundTransactionServiceController {
         return new ResponseEntity<>(createdInboundHeaderResponse, HttpStatus.OK);
     }
 
-    @ApiOperation(response = InboundHeaderV2.class, value = "Inbound Header & Line Partial Confirm") // label for swagger
+    @ApiOperation(response = InboundHeaderV2.class, value = "Inbound Header & Line Partial Confirm")
+    // label for swagger
     @PatchMapping("/inboundheader/partialConfirmIndividual")
     public ResponseEntity<?> patchInboundHeaderPartialConfirmV2(@RequestParam String warehouseId, @RequestParam String preInboundNo,
                                                                 @RequestParam String companyCode, @RequestParam String plantId,
@@ -786,7 +786,8 @@ public class InboundTransactionServiceController {
         return new ResponseEntity<>(createdInboundHeaderResponse, HttpStatus.OK);
     }
 
-    @ApiOperation(response = InboundHeaderV2.class, value = "Inbound Header & Line Partial Confirm with InboundLines Input") // label for swagger
+    @ApiOperation(response = InboundHeaderV2.class, value = "Inbound Header & Line Partial Confirm with InboundLines Input")
+    // label for swagger
     @PostMapping("/inboundheader/confirmIndividual/partial")
     public ResponseEntity<?> patchInboundHeaderPartialWithInboundLinesConfirmV2(@RequestBody List<InboundLineV2> inboundLineList, @RequestParam String warehouseId,
                                                                                 @RequestParam String preInboundNo, @RequestParam String companyCode, @RequestParam String plantId,
@@ -867,6 +868,7 @@ public class InboundTransactionServiceController {
                         preInboundNo, lineNo, itemCode, loginUserID, updateInboundLine, authToken);
         return new ResponseEntity<>(updatedInboundLine, HttpStatus.OK);
     }
+
     //Batch Update Process
     @ApiOperation(response = InboundLineV2.class, value = "Batch Update InboundLines V2") // label for swagger
     @RequestMapping(value = "/inboundline/batchUpdateInboundLines", method = RequestMethod.PATCH)
@@ -968,7 +970,7 @@ public class InboundTransactionServiceController {
         return new ResponseEntity<>(dbStagingLine, HttpStatus.OK);
     }
 
-//    Find
+    //    Find
     @ApiOperation(response = StagingLineEntityV2.class, value = "Search StagingLine V2") // label for swagger
     @PostMapping("/stagingline/findStagingLine")
     public StagingLineEntityV2[] findStagingLineV2(@RequestBody SearchStagingLineV2 searchStagingLine,
@@ -1008,10 +1010,10 @@ public class InboundTransactionServiceController {
     //Update
     @ApiOperation(response = StagingLineUpdate.class, value = "Update ExpiryMfr")
     @PostMapping(value = "/stagingline/updateExpiryMfr")
-    public ResponseEntity<?>updateExpiryMfr(@RequestBody List<StagingLineUpdate> input, @RequestParam String authToken){
-      StagingLineUpdate[] updatedStagingLine=
-              transactionService.updateExpiryMfr(input, authToken);
-      return  new ResponseEntity<>(updatedStagingLine, HttpStatus.OK);
+    public ResponseEntity<?> updateExpiryMfr(@RequestBody List<StagingLineUpdate> input, @RequestParam String authToken) {
+        StagingLineUpdate[] updatedStagingLine =
+                transactionService.updateExpiryMfr(input, authToken);
+        return new ResponseEntity<>(updatedStagingLine, HttpStatus.OK);
     }
 
 
@@ -1174,6 +1176,7 @@ public class InboundTransactionServiceController {
             throws Exception {
         return transactionService.findGrLineV2(searchGrLine, authToken);
     }
+
     //Find
     @ApiOperation(response = GrLineV2.class, value = "Search GrLine - SQL for report V2") // label for swagger
     @PostMapping("/grline/findGrLineNew")
@@ -1423,7 +1426,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = InventoryV2.class, value = "Create Inventory V2") // label for swagger
     @PostMapping("/inventory")
     public ResponseEntity<?> postInventoryV2(@Valid @RequestBody InventoryV2 newInventory, @RequestParam String loginUserID,
-                                           @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+                                             @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
         InventoryV2 createdInventory = transactionService.createInventoryV2(newInventory, loginUserID, authToken);
         return new ResponseEntity<>(createdInventory, HttpStatus.OK);
     }
@@ -1467,7 +1470,7 @@ public class InboundTransactionServiceController {
             log.error("Exception while Inbound Order Post : " + e.toString());
             CustomErrorResponse customErrorResponse = new CustomErrorResponse();
             String[] err = commonService.removeUnwantedString(e.getLocalizedMessage().toString());
-            if(err.length > 1) {
+            if (err.length > 1) {
                 customErrorResponse.setError(err[0]);
                 customErrorResponse.setErrorDescription(err[1]);
             } else {
@@ -1494,20 +1497,18 @@ public class InboundTransactionServiceController {
                                                              @RequestParam String languageId, @RequestParam String warehouseId,
                                                              @RequestParam String loginUserID, @RequestParam Long inboundOrderTypeId,
                                                              @RequestParam("file") MultipartFile file) throws Exception {
-        Map<String, String> response=null;
+        Map<String, String> response = null;
         String profile = companyCodeId;
-        log.info("Inbound Upload In {}",profile);
-        if(profile != null){
-            if(companyCodeId.equals("21")){
-                response = fileStorageService.processAsnOrders(companyCodeId, plantId, languageId, warehouseId, inboundOrderTypeId, loginUserID,file);
-            }
-            else if(companyCodeId.equals("1400")){
-                 response = fileStorageService.processAsnOrdersV6(companyCodeId, plantId, languageId, warehouseId, loginUserID, file);
-            }
-            else if(companyCodeId.equals("1500")){
+        log.info("Inbound Upload In {}", profile);
+        if (profile != null) {
+            if (companyCodeId.equals("21")) {
+                response = fileStorageService.processAsnOrders(companyCodeId, plantId, languageId, warehouseId, inboundOrderTypeId, loginUserID, file);
+            } else if (companyCodeId.equals("1400")) {
+                response = fileStorageService.processAsnOrdersV6(companyCodeId, plantId, languageId, warehouseId, loginUserID, file);
+            } else if (companyCodeId.equals("1500")) {
                 response = fileStorageService.processInboundOrdersV5(companyCodeId, plantId, languageId, warehouseId, inboundOrderTypeId, loginUserID, file);
             } else if (companyCodeId.equals("2000")) {
-                response = fileStorageService.processInboundOrdersV7(companyCodeId, plantId, languageId, warehouseId, inboundOrderTypeId,loginUserID, file);
+                response = fileStorageService.processInboundOrdersV7(companyCodeId, plantId, languageId, warehouseId, inboundOrderTypeId, loginUserID, file);
             }
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -1534,7 +1535,7 @@ public class InboundTransactionServiceController {
             log.error("Exception while Inbound Return Order Post : " + e.toString());
             CustomErrorResponse customErrorResponse = new CustomErrorResponse();
             String[] err = commonService.removeUnwantedString(e.getLocalizedMessage().toString());
-            if(err.length > 1) {
+            if (err.length > 1) {
                 customErrorResponse.setError(err[0]);
                 customErrorResponse.setErrorDescription(err[1]);
             } else {
@@ -1725,9 +1726,9 @@ public class InboundTransactionServiceController {
     // GET
     @ApiOperation(response = DeliveryLineCount.class, value = "Get a DeliveryLine Count") // label for swagger
     @GetMapping("/deliveryline/count")
-    public ResponseEntity<?> getDeliveryLineCount( @RequestParam String companyCodeId, @RequestParam String languageId,
-                                                   @RequestParam String plantId, @RequestParam String warehouseId,
-                                                   @RequestParam String driverId, @RequestParam String authToken) {
+    public ResponseEntity<?> getDeliveryLineCount(@RequestParam String companyCodeId, @RequestParam String languageId,
+                                                  @RequestParam String plantId, @RequestParam String warehouseId,
+                                                  @RequestParam String driverId, @RequestParam String authToken) {
 
         DeliveryLineCount dbDeliveryLine = transactionService.getDeliveryLineCount(companyCodeId, plantId, languageId, warehouseId, driverId, authToken);
         return new ResponseEntity<>(dbDeliveryLine, HttpStatus.OK);
@@ -1737,7 +1738,7 @@ public class InboundTransactionServiceController {
     @ApiOperation(response = DeliveryLineCount.class, value = "Find DeliveryLineCount")//label for swagger
     @PostMapping("/deliveryline/findDeliveryLineCount")
     public DeliveryLineCount findDeliveryLineCount(@RequestBody FindDeliveryLineCount findDeliveryLineCount,
-                                               @RequestParam String authToken) throws Exception {
+                                                   @RequestParam String authToken) throws Exception {
         return transactionService.findDeliveryLineCount(findDeliveryLineCount, authToken);
     }
 
@@ -1759,8 +1760,8 @@ public class InboundTransactionServiceController {
     }
 
 
-
-    @ApiOperation(response = ReceiptConfimationReport.class, value = "Get ReceiptConfimation Report")    // label for swagger
+    @ApiOperation(response = ReceiptConfimationReport.class, value = "Get ReceiptConfimation Report")
+    // label for swagger
     @GetMapping("/reports/receiptConfirmation")
     public ResponseEntity<?> getReceiptConfimationReportNew(@RequestParam String asnNumber, @RequestParam String preInboundNo, @RequestParam String companyCodeId,
                                                             @RequestParam String plantId, @RequestParam String languageId, @RequestParam String warehouseId,
@@ -1829,7 +1830,8 @@ public class InboundTransactionServiceController {
     //----------------------------------------Notification---------------------------------------------------------//
 
     //Find
-    @ApiOperation(response = StorageBinDashBoardImpl.class, value = "Get Storage Bin Dashboard count - walkaroo V3") // label for swagger
+    @ApiOperation(response = StorageBinDashBoardImpl.class, value = "Get Storage Bin Dashboard count - walkaroo V3")
+    // label for swagger
     @PostMapping("/dashBoard/storageBinDashboard")
     public StorageBinDashBoardImpl[] getStorageBinDashBoard(@RequestBody StorageBinDashBoardInput storageBinDashBoardInput,
                                                             @RequestParam String authToken) throws Exception {
@@ -1840,8 +1842,8 @@ public class InboundTransactionServiceController {
 
     @ApiOperation(response = PutAwayLine.class, value = "InboundConfirmValidation") // label for swagger
     @GetMapping("/inboundManualConfirmation")
-    public ResponseEntity<?> getInboundConfirmationV7(@RequestParam String companyCode, @RequestParam String plantId, @RequestParam String languageId,@RequestParam String warehouseId,
-                                                      @RequestParam String refDocNumber,@RequestParam String preInboundNo,@RequestParam String loginUserID) throws Exception {
+    public ResponseEntity<?> getInboundConfirmationV7(@RequestParam String companyCode, @RequestParam String plantId, @RequestParam String languageId, @RequestParam String warehouseId,
+                                                      @RequestParam String refDocNumber, @RequestParam String preInboundNo, @RequestParam String loginUserID) throws Exception {
         PutAwayLine putAwayLine =
                 transactionService.getinboundConfirmValidationV7(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, loginUserID);
         log.info("PutAwayline : " + putAwayLine);
@@ -1849,22 +1851,24 @@ public class InboundTransactionServiceController {
     }
 
     //Find InboundHeader with Line
-    @ApiOperation(response = InboundHeaderEntityV2.class, value = "Search InboundHeader And InboundLine V2") // label for swagger
+    @ApiOperation(response = InboundHeaderEntityV2.class, value = "Search InboundHeader And InboundLine V2")
+    // label for swagger
     @PostMapping("/inboundheader/findInboundHeaderWithLines/v2")
     public InboundHeaderEntityV2[] findInboundHeaderWithLinesV2(@RequestBody SearchInboundHeaderV2 searchInboundHeader,
                                                                 @RequestParam String authToken) throws Exception {
         return transactionService.findInboundHeaderWithLinesV2(searchInboundHeader, authToken);
     }
-    
-        //---------------------------------------------Inbound Reversal------------------------------------------------------------
 
-    //Update
+    //---------------------------------------------Inbound Reversal------------------------------------------------------------
+
+
     @ApiOperation(response = PutAwayLineV2.class, value = "Inbound Reversal") // label for swagger
     @PatchMapping("/reports/inboundReversal")
-    public ResponseEntity<?> inboundReversal(@RequestParam String companyCodeId,@RequestParam String plantId,
-                                             @RequestParam String warehouseId,@RequestParam String refDocNumber,@RequestParam String preInboundNo, @RequestParam String authToken) {
-        transactionService.inboundReversal(companyCodeId, plantId, warehouseId, refDocNumber, preInboundNo, authToken);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    public ResponseEntity<?> inboundReversal(@RequestParam String companyCodeId, @RequestParam String plantId,
+                                             @RequestParam String warehouseId, @RequestParam String refDocNumber,
+                                             @RequestParam String preInboundNo, @RequestParam String authToken) {
+        WarehouseApiResponse response = transactionService.inboundReversal(companyCodeId, plantId, warehouseId, refDocNumber, preInboundNo, authToken);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     //=========================================Update=====================================================================
@@ -1883,5 +1887,5 @@ public class InboundTransactionServiceController {
         transactionService.deleteInboundOrder(orderId, authToken);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-    
+
 }

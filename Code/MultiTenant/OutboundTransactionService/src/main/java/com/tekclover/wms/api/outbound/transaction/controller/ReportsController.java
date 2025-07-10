@@ -6,6 +6,7 @@ import com.tekclover.wms.api.outbound.transaction.model.inventory.Inventory;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.OutboundReversalInput;
 import com.tekclover.wms.api.outbound.transaction.model.report.*;
 import com.tekclover.wms.api.outbound.transaction.model.warehouse.Warehouse;
+import com.tekclover.wms.api.outbound.transaction.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.api.outbound.transaction.repository.DbConfigRepository;
 import com.tekclover.wms.api.outbound.transaction.repository.WarehouseRepository;
 import com.tekclover.wms.api.outbound.transaction.service.ReportsService;
@@ -338,15 +339,27 @@ public class ReportsController {
     @ApiOperation(response = MobileDashboard.class, value = "Outbound Reversal") // label for swagger
     @PostMapping("/outboundreversal")
     public ResponseEntity<?> outboundReversal(@RequestBody OutboundReversalInput outboundReversalInput){
-        String routingDb = dbConfigRepository.getDbName(outboundReversalInput.getCompanyCodeId(),outboundReversalInput.getPlantId(),outboundReversalInput.getWarehouseId());
-        log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-        DataBaseContextHolder.clear();
-        DataBaseContextHolder.setCurrentDb(routingDb);
-        reportsService.outboundReversal(outboundReversalInput);
-        DataBaseContextHolder.clear();
-        DataBaseContextHolder.setCurrentDb("MT");
-        reportsService.obOrderReversal(outboundReversalInput.getRefDocNumber());
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        WarehouseApiResponse response = new WarehouseApiResponse();
+        try {
+            String routingDb = dbConfigRepository.getDbName(outboundReversalInput.getCompanyCodeId(),outboundReversalInput.getPlantId(),outboundReversalInput.getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            reportsService.outboundReversal(outboundReversalInput);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb("MT");
+            reportsService.obOrderReversal(outboundReversalInput.getRefDocNumber());
+
+            response.setStatusCode("200");
+            response.setMessage("Outbound Reversed Successfully");
+            return new ResponseEntity<>(response,HttpStatus.OK);
+
+        } catch (Exception e) {
+
+            response.setStatusCode("400");
+            response.setMessage("Outbound Not Reversed " + e.getMessage());
+            return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+        }
     }
 
 }
