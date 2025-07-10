@@ -1760,7 +1760,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                     "UPDATE TH SET TH.quantity = X.TOT_QTY FROM #stBinDashBoard TH INNER JOIN \n" +
                     "(select c_id, plant_id, lang_id, wh_id, st_bin, ISNULL(sum(REF_FIELD_4),0) TOT_QTY\n" +
                     "from tblinventory \r\n" +
-                    "where is_deleted = 0 and \r\n" +
+                    "where is_deleted = 0 and ref_field_4 > 0 and \r\n" +
                     "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and\n" +
                     "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and\n" +
                     "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and\n" +

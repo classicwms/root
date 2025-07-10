@@ -2824,6 +2824,10 @@ public class ReportsService extends BaseService {
 
 //--------------------------------------------------------Outbound Reversal------------------------------------------------------
 
+    /**
+     *
+     * @param outboundReversalInput
+     */
         public void outboundReversal(OutboundReversalInput  outboundReversalInput){
 
             List<Long> statusIdList = Arrays.asList(57L, 50L);
@@ -2875,14 +2879,15 @@ public class ReportsService extends BaseService {
 
         }
 
-
-        public void obOrderReversal(String refDocNumber){
-
+    /**
+     *
+     * @param refDocNumber orderId
+     */
+    public void obOrderReversal(String refDocNumber){
         if(refDocNumber != null){
-
+            log.info("------- OutboundOrder -------- OutboundOrderLines ----------> Deleted ---OrderId is {} --> ", refDocNumber);
             outboundOrderLinesV2Repository.deleteByOrderId(refDocNumber);
             outboundOrderV2Repository.deleteByOrderId(refDocNumber);
-
         }
 
     }

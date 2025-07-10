@@ -6,6 +6,7 @@ import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.Invento
 import com.tekclover.wms.api.inbound.transaction.model.inbound.putaway.v2.PutAwayLineV2;
 import com.tekclover.wms.api.inbound.transaction.model.report.*;
 
+import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.api.inbound.transaction.repository.DbConfigRepository;
 import com.tekclover.wms.api.inbound.transaction.service.ReportsService;
 import io.swagger.annotations.Api;
@@ -167,18 +168,27 @@ public class ReportsController {
     public ResponseEntity<?> inboundReversal(@RequestParam String companyCodeId,@RequestParam String plantId,
                                              @RequestParam String warehouseId,@RequestParam String refDocNumber,@RequestParam String preInboundNo){
 
-        DataBaseContextHolder.setCurrentDb("MT");
-        String routingDb = dbConfigRepository.getDbName(companyCodeId,plantId,warehouseId);
-        log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-        DataBaseContextHolder.clear();
-        DataBaseContextHolder.setCurrentDb(routingDb);
-        reportsService.inboundReversal(companyCodeId,plantId,warehouseId,refDocNumber,preInboundNo);
+        WarehouseApiResponse response = new WarehouseApiResponse();
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(companyCodeId,plantId,warehouseId);
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            reportsService.inboundReversal(companyCodeId,plantId,warehouseId,refDocNumber,preInboundNo);
 
-        DataBaseContextHolder.clear();
-        DataBaseContextHolder.setCurrentDb("MT");
-        reportsService.inboundOrderReversal(refDocNumber);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb("MT");
+            reportsService.inboundOrderReversal(refDocNumber);
 
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            response.setStatusCode("200");
+            response.setMessage("Inbound Reversed Successfully");
+            return new ResponseEntity<>(response,HttpStatus.OK);
+        } catch (Exception e) {
+            response.setStatusCode("400");
+            response.setMessage("Inbound Not Reversed " +e.getMessage());
+            return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+        }
     }
 
 }
