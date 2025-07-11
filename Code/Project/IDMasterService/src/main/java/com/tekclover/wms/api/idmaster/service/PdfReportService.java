@@ -57,36 +57,36 @@ public class PdfReportService {
         String fromDeliveryDate = getFormatDate(startDateTime);
         String toDeliveryDate = getFormatDate(endDateTime);
 
-//        ZoneId zoneId = ZoneId.of("Asia/Kuwait"); // or your actual time zone
-//        ZonedDateTime now = ZonedDateTime.now(zoneId);
-//
-//        // fromDeliveryDate = today at 2:00:00 AM
-//        ZonedDateTime fromDateTime = now.withHour(2).withMinute(0).withSecond(0).withNano(0);
-//
-//        // toDeliveryDate = tomorrow at 1:59:59 AM
-//        ZonedDateTime toDateTime = fromDateTime.plusDays(1).withHour(1).withMinute(59).withSecond(59);
-//
-//        // Format to "MM-dd-yyyy'T'HH:mm:ss"
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy'T'HH:mm:ss");
-//
-//        String fromDeliveryDate = fromDateTime.format(formatter);
-//        String toDeliveryDate  = toDateTime.format(formatter);
         List<String> customerCode = new ArrayList<>();
-        String warehouseId = "110";
+        String warehouseId_110 = "110";
+        String warehouseId_111 = "111";
 
-        ShipmentDeliverySummaryReport shipmentDeliverySummaryReport =
-                transactionService.getShipmentDeliverySummaryReportPdf(fromDeliveryDate, toDeliveryDate, customerCode, warehouseId);
+        ShipmentDeliverySummaryReport shipmentDeliverySummaryReport_110 =
+                transactionService.getShipmentDeliverySummaryReportPdf(fromDeliveryDate, toDeliveryDate, customerCode, warehouseId_110);
 
-        log.info("ShipmentDeliverySummaryReport: {}", shipmentDeliverySummaryReport);
+        log.info("ShipmentDeliverySummaryReport 110 : {}", shipmentDeliverySummaryReport_110);
 
-        File pdfFile110 = new File("WMS_Shipment_Delivery_Report_110.pdf");
+        ShipmentDeliverySummaryReport shipmentDeliverySummaryReport_111 =
+                transactionService.getShipmentDeliverySummaryReportPdf(fromDeliveryDate, toDeliveryDate, customerCode, warehouseId_111);
+
+        log.info("ShipmentDeliverySummaryReport 111 : {}", shipmentDeliverySummaryReport_111);
+
+        File pdfFile110 = new File("110_Delivery_Report_" + fromDeliveryDate + ".pdf");
+        File pdfFile111 = new File("111_Delivery_Report_" + fromDeliveryDate + ".pdf");
 
         try (FileOutputStream fos = new FileOutputStream(pdfFile110)) {
-            deliveryExport(fos, shipmentDeliverySummaryReport, fromDeliveryDate, toDeliveryDate);
+            deliveryExport(fos, shipmentDeliverySummaryReport_110, fromDeliveryDate, toDeliveryDate);
+        }
+
+        try (FileOutputStream fos = new FileOutputStream(pdfFile111)) {
+            deliveryExport(fos, shipmentDeliverySummaryReport_111, fromDeliveryDate, toDeliveryDate);
         }
 
         String fileName110 = pdfFile110.getName();
         log.info("ShipmentDelivery Report fileName ----> {}", fileName110);
+
+        String fileName111 = pdfFile111.getName();
+        log.info("ShipmentDelivery Report fileName -----> {}", fileName111);
 
         //Convert the File to MultipartFile
         try (FileInputStream fileInputStream = new FileInputStream(pdfFile110)) {
@@ -104,7 +104,23 @@ public class PdfReportService {
             e.printStackTrace();
         }
 
-        sendMailService.sendShipmentDeliveryReport(fileName110);
+        //Convert the File to MultipartFile
+        try (FileInputStream fileInputStream = new FileInputStream(pdfFile111)) {
+            MultipartFile multipartFile = new MockMultipartFile(
+                    "file",             // Original file name
+                    fileName111,              // File name
+                    "application/pdf",        // Content type
+                    fileInputStream           // File content as InputStream
+            );
+
+            // Use the existing storeFile method
+            fileStorageService.storeFile(multipartFile);
+        } catch (Exception e) {
+            log.error("110 save exception..!");
+            e.printStackTrace();
+        }
+
+        sendMailService.sendShipmentDeliveryReport(fileName110, fileName111);
     }
 
     //------------------------------------------------------------Delivery Report-------------------------------------------------------------//
