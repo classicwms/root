@@ -1,17 +1,11 @@
 package com.tekclover.wms.api.idmaster.service;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Date;
-import java.util.List;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-
+import com.tekclover.wms.api.idmaster.config.PropertiesConfig;
+import com.tekclover.wms.api.idmaster.controller.exception.BadRequestException;
+import com.tekclover.wms.api.idmaster.model.email.*;
+import com.tekclover.wms.api.idmaster.repository.FileNameForEmailRepository;
+import com.tekclover.wms.api.idmaster.util.DateUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -19,15 +13,19 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import com.tekclover.wms.api.idmaster.config.PropertiesConfig;
-import com.tekclover.wms.api.idmaster.controller.exception.BadRequestException;
-import com.tekclover.wms.api.idmaster.model.email.EMailDetails;
-import com.tekclover.wms.api.idmaster.model.email.FileNameForEmail;
-import com.tekclover.wms.api.idmaster.model.email.OrderFailedInput;
-import com.tekclover.wms.api.idmaster.repository.FileNameForEmailRepository;
-import com.tekclover.wms.api.idmaster.util.DateUtils;
-
-import lombok.extern.slf4j.Slf4j;
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -508,7 +506,7 @@ public class SendMailService {
 	 * @throws MessagingException
 	 * @throws IOException
 	 */
-	public void sendShipmentDeliveryReport(String fileName110) throws MessagingException, IOException {
+	public void sendShipmentDeliveryReport(String fileName110, String fileName111) throws MessagingException, IOException {
 
 		//Send Email
 		log.info("Scheduling the TV Shipment Delivery Report Mail Started at "+ new Date());
@@ -529,16 +527,16 @@ public class SendMailService {
 		}
 		
 		String localDate = DateUtils.getCurrentDateWithoutTimestamp();
-		String emailSubject = "WMS Shipment Delivery Report - True Value and True Express - "+localDate;
+		String emailSubject = "GRC - Amghara - Daily Shipment Delivery Report - " + localDate;
 
 		EMailDetails email = new EMailDetails();
 
 		email.setSenderName("IWE Express-Support");
 		email.setSubject(emailSubject);
-		email.setBodyText("Dear IW Express team,<br><br>"+"Please find the attached WMS Shipment Delivery Report for your reference<br><br>Regards<br>WMS IT Team");
+		email.setBodyText("Dear GRC Team,<br><br>"+"Please find the attached Shipment Delivery Report for your reference<br><br>Regards<br>Operations Team - InnerWorks");
 		email.setToAddress(toAddress);
 		email.setCcAddress(ccAddress);
-		sendShipmentDeliveryReport(email,fileName110);
+		sendTvReportMail(email,fileName110, fileName111);
 	}
 
 	/**
