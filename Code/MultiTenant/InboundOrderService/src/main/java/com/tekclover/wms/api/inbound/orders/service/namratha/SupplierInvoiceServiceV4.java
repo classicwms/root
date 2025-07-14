@@ -1112,6 +1112,7 @@ public class SupplierInvoiceServiceV4 extends BaseService {
                 } else {
                     barcodeId = generateBarCodeId(asnLineV2.getSku(), partBarCode, i);
                 }
+                barcodeId = barcodeId + lineNumber;
                 preInboundLine.setBarcodeId(barcodeId);
 
             } catch (Exception e) {

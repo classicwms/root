@@ -462,7 +462,11 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
                                             @Param("uomId") String uomId,
                                             @Param("altUom") String altUom);
 
-
+    @Query(value = "SELECT COUNT(*) + 1 FROM tblstagingline WHERE LANG_ID ='EN' \n" +
+            "AND ITM_CODE = :itemCode and st_ctd_on between :fromDate and :toDate ", nativeQuery = true)
+    public long getStagingLineCount(@Param("itemCode") String itemCode,
+                                    @Param("fromDate") Date fromDate,
+                                    @Param("toDate") Date toDate);
 
 
 }
