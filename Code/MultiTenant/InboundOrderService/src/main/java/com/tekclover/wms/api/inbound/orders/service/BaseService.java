@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -435,12 +436,19 @@ public class BaseService {
      * @param bagNumber
      * @return
      */
-    public String generateBarCodeId (String itemCode, String partBarCode, long bagNumber) {
+    public String generateBarCodeId (String itemCode, String partBarCode, long bagNumber) throws ParseException {
         itemCode = itemCode.trim().toUpperCase().replaceAll("\\s+", "");
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(itemCode);
         stringBuilder.append(partBarCode);
         stringBuilder.append(bagNumber);
+        Date currentDate = DateUtils.getCurrentDateTimeAsDate();
+        Date[] dates = DateUtils.addTimeToDatesForSearch(currentDate, currentDate);
+        Date fromDate = dates[0];
+        Date toDate = dates[1];
+        log.info("Barcode Generate ---> Logic ---> Started");
+        Long lineNo = stagingLineV2Repository.getStagingLineCount(itemCode, fromDate, toDate);
+        stringBuilder.append(lineNo);
         return stringBuilder.toString();
     }
 

@@ -132,6 +132,10 @@ public class DateUtils {
         return dates;
     }
 
+    public static Date getCurrentDateTimeAsDate() {
+        return new Date(); // returns current date-time
+    }
+
     /**
      * @param startDate
      * @param endDate

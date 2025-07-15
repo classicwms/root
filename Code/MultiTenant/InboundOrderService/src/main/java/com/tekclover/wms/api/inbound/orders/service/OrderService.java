@@ -452,6 +452,7 @@ public class OrderService extends BaseService {
                         } else {
                             barcodeId = generateBarCodeId(newInboundIntegrationLine.getItemCode(), partBarCode, i);
                         }
+                        barcodeId = barcodeId + lineNumber;
                         newInboundIntegrationLine.setBarcodeId(barcodeId);
                     } catch (Exception e) {
                         throw new RuntimeException("Failed to generate barcode for item code: "
