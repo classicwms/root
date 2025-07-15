@@ -57,6 +57,7 @@ import com.tekclover.wms.api.transaction.repository.StagingLineV2Repository;
 import com.tekclover.wms.api.transaction.repository.specification.StagingLineSpecification;
 import com.tekclover.wms.api.transaction.repository.specification.StagingLineV2Specification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -1066,14 +1067,13 @@ public class StagingLineService extends BaseService {
      * @param languageId
      * @param loginUserID
      * @return
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
+     * @throws Exception 
      */
     public List<StagingLineEntityV2> createStagingLineV2(List<PreInboundLineEntityV2> inputPreInboundLines,
                                                          String stagingNo, String warehouseId,
                                                          String companyCodeId, String plantId, String languageId,
                                                          String loginUserID)
-            throws IllegalAccessException, InvocationTargetException, java.text.ParseException {
+            throws Exception {
         List<StagingLineEntityV2> stagingLineEntityList = new ArrayList<>();
         String preInboundNo = null;
         String refDocNumber = null;
@@ -1798,13 +1798,12 @@ public class StagingLineService extends BaseService {
      * @param caseCode
      * @param loginUserID
      * @return
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
+     * @throws Exception 
      */
     public List<StagingLineEntityV2> caseConfirmationV2(List<CaseConfirmation> caseConfirmations,
                                                         String caseCode, String companyCodeId, String plantId,
                                                         String languageId, String loginUserID)
-            throws IllegalAccessException, InvocationTargetException, java.text.ParseException {
+            throws Exception {
 
         log.info("caseConfirmation--called----> : " + caseConfirmations);
 
@@ -1961,8 +1960,9 @@ public class StagingLineService extends BaseService {
 
     /**
      * @param grHeader
+     * @throws Exception 
      */
-    public void createGrLine(GrHeaderV2 grHeader) throws InvocationTargetException, IllegalAccessException, java.text.ParseException {
+    public void createGrLine(GrHeaderV2 grHeader) throws Exception {
 
         List<StagingLineEntityV2> stagingLineEntityList = getStagingLineForGrLine(grHeader.getCompanyCode(),
                 grHeader.getPlantId(), grHeader.getLanguageId(), grHeader.getWarehouseId(),
