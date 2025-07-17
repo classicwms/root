@@ -6,8 +6,6 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.PutAwayLineV2;
-import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.SearchPutAwayLineV2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +25,8 @@ import com.tekclover.wms.api.transaction.model.inbound.putaway.PutAwayHeader;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.PutAwayLine;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.SearchPutAwayLine;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.UpdatePutAwayLine;
+import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.PutAwayLineV2;
+import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.SearchPutAwayLineV2;
 import com.tekclover.wms.api.transaction.service.PutAwayLineService;
 
 import io.swagger.annotations.Api;
@@ -170,7 +170,7 @@ public class PutAwayLineController {
 	@PostMapping("/confirm/v2")
 	public ResponseEntity<?> postPutAwayLineConfirmV2(@Valid @RequestBody List<PutAwayLineV2> newPutAwayLine,
 													  @RequestParam String loginUserID)
-			throws IllegalAccessException, InvocationTargetException, ParseException {
+			throws Exception {
 		log.info("Request for putAwayLines to confirm : " + newPutAwayLine);
 		List<PutAwayLineV2> createdPutAwayLine = putawaylineService.putAwayLineConfirmV2(newPutAwayLine, loginUserID);
 		return new ResponseEntity<>(createdPutAwayLine, HttpStatus.OK);
