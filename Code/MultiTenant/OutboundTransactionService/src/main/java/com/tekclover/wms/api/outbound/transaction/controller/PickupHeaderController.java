@@ -346,59 +346,12 @@ public class PickupHeaderController {
     // label for swagger
     @PatchMapping("/v2/update-assigned-picker")
     public ResponseEntity<?> patchAssignedPickerIdInPickupHeaderV2(@Valid @RequestBody List<PickupHeaderV2> updatePickupHeaderList) {
-//        try {
-//            log.info("updatePickupHeaderList ------> {}", updatePickupHeaderList);
-//            String routingDb = null;
-//            for (PickupHeaderV2 updatepickupHeaderlist : updatePickupHeaderList) {
-//                DataBaseContextHolder.setCurrentDb("MT");
-//                routingDb = dbConfigRepository.getDbName(updatepickupHeaderlist.getCompanyCodeId(), updatepickupHeaderlist.getPlantId(), updatepickupHeaderlist.getWarehouseId());
-//                log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-//                DataBaseContextHolder.clear();
-//                DataBaseContextHolder.setCurrentDb(routingDb);
-//            }
-//
-//            List<PickupHeaderV2> updatedPickupHeader = new ArrayList<>();
-//            if (routingDb != null) {
-//                switch (routingDb) {
-//                    case "NAMRATHA":
-//                         updatedPickupHeader =
-//                                pickupheaderService.patchAssignedPickerIdInPickupHeaderV6(updatePickupHeaderList);
-//                        break;
-//                    case "KNOWELL":
-//                        updatedPickupHeader =
-//                                pickupheaderService.patchAssignedPickerIdInPickupHeaderV2(updatePickupHeaderList);
-//                        break;
-//                    case "FAHAHEEL":
-//                        updatedPickupHeader =
-//                                pickupheaderService.patchAssignedPickerIdInPickupHeaderV2(updatePickupHeaderList);
-//                        break;
-//                }
-//            }
-//            return new ResponseEntity<>(updatedPickupHeader, HttpStatus.OK);
-//        } finally {
-//            DataBaseContextHolder.clear();
-//        }
         try {
-            log.info("PickupHeaderV2 List -----> {}", updatePickupHeaderList);
-
-            List<PickupHeaderV2> createdPickupHeader = updatePickupHeaderList.stream()
-                    .map(item -> {
-                        PickupHeaderV2 copy = new PickupHeaderV2();
-                        BeanUtils.copyProperties(item, copy, CommonUtils.getNullPropertyNames(item));
-                        return copy;
-                    })
-                    .collect(Collectors.toList());
-
-            // Return early response
-            ResponseEntity<?> response = new ResponseEntity<>(createdPickupHeader, HttpStatus.ACCEPTED);
-
-            // Fire async processing
-            asyncService.processPatchAssignedPickerIdInPickupHeaderAsync(updatePickupHeaderList);
-
-            return response;
-        } catch (Exception e) {
-            log.error("Error processing PutAwayLine line async", e);
-            return new ResponseEntity<>("Failed to start PutAwayLine Line process", HttpStatus.INTERNAL_SERVER_ERROR);
+            List<PickupHeaderV2> createdPickupHeader =
+                    pickupheaderService.patchAssignedPickerIdInPickupHeaderV2(updatePickupHeaderList);
+            return new ResponseEntity<>(createdPickupHeader, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
         }
     }
 

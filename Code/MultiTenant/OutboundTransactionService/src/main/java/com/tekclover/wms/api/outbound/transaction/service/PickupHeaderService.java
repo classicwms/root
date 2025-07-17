@@ -2,12 +2,17 @@ package com.tekclover.wms.api.outbound.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.persistence.EntityNotFoundException;
 
 import com.google.firebase.messaging.FirebaseMessagingException;
+import com.tekclover.wms.api.outbound.transaction.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.outbound.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.outbound.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.outbound.transaction.model.dto.PickListLoosePack;
@@ -20,10 +25,7 @@ import com.tekclover.wms.api.outbound.transaction.model.outbound.pickup.SearchPi
 import com.tekclover.wms.api.outbound.transaction.model.outbound.pickup.UpdatePickupHeader;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.pickup.v2.*;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.v2.OutboundLineV2;
-import com.tekclover.wms.api.outbound.transaction.repository.OutboundLineV2Repository;
-import com.tekclover.wms.api.outbound.transaction.repository.PickupHeaderRepository;
-import com.tekclover.wms.api.outbound.transaction.repository.PickupHeaderV2Repository;
-import com.tekclover.wms.api.outbound.transaction.repository.PickupLineRepository;
+import com.tekclover.wms.api.outbound.transaction.repository.*;
 import com.tekclover.wms.api.outbound.transaction.repository.specification.PickHeaderV2Specification;
 import com.tekclover.wms.api.outbound.transaction.repository.specification.PickupHeaderSpecification;
 import com.tekclover.wms.api.outbound.transaction.repository.specification.PickupHeaderV2Specification;
@@ -60,6 +62,9 @@ public class PickupHeaderService extends BaseService {
 
     @Autowired
     PushNotificationService pushNotificationService;
+
+    @Autowired
+    DbConfigRepository dbConfigRepository;
     //------------------------------------------------------------------------------------------------------
 
     /**
@@ -1359,75 +1364,53 @@ public class PickupHeaderService extends BaseService {
         }
         return null;
     }
-	
-	//API changed without parameters - only request body is required to update picker
-    //11-03-2024 Ticket No. ALM/2024/002
-    
+
     /**
      *
-     * @param updatePickupHeaderList
+     * @param updatePickupHeaderList updatePickupHeader
      * @return
      */
-//    public List<PickupHeaderV2> patchAssignedPickerIdInPickupHeaderV2(String companyCodeId, String plantId, String languageId, String warehouseId, String loginUserID,
-//                                                                      List<PickupHeaderV2> updatePickupHeaderList) throws IllegalAccessException, InvocationTargetException {
-//        List<PickupHeaderV2> pickupHeaderList = new ArrayList<>();
-//        try {
-//            log.info("Process start to update Assigned Picker Id in PickupHeader: " + updatePickupHeaderList);
-//            for (PickupHeaderV2 data : updatePickupHeaderList) {
-//                log.info("PickupHeader object to update : " + data);
-//                PickupHeaderV2 dbPickupHeader = getPickupHeaderForUpdateV2(
-//                        companyCodeId, plantId, languageId,
-//                        warehouseId, data.getPreOutboundNo(), data.getRefDocNumber(), data.getPartnerCode(),
-//                        data.getPickupNumber(), data.getLineNumber(), data.getItemCode());
-//                log.info("Old PickupHeader object from db : " + data);
-//                if (dbPickupHeader != null) {
-//                    dbPickupHeader.setAssignedPickerId(data.getAssignedPickerId());
-//                    dbPickupHeader.setPickUpdatedBy(loginUserID);
-//                    dbPickupHeader.setPickUpdatedOn(new Date());
-//                    PickupHeaderV2 pickupHeader = pickupHeaderV2Repository.save(dbPickupHeader);
-//                    pickupHeaderList.add(pickupHeader);
-//                } else {
-//                    log.info("No record for PickupHeader object from db for data : " + data);
-//                    throw new BadRequestException("Error in data");
-//                }
-//            }
-//            return pickupHeaderList;
-//        } catch (Exception e) {
-//            log.error("Update Assigned Picker Id in PickupHeader failed for : " + updatePickupHeaderList);
-//            throw new BadRequestException("Error in data");
-//        }
-//    }
-
     public List<PickupHeaderV2> patchAssignedPickerIdInPickupHeaderV2(List<PickupHeaderV2> updatePickupHeaderList) {
-        List<PickupHeaderV2> pickupHeaderList = new ArrayList<>();
-        try {
-            log.info("Process start to update Assigned Picker Id in PickupHeader: " + updatePickupHeaderList);
-            for (PickupHeaderV2 data : updatePickupHeaderList) {
-                log.info("PickupHeader object to update : " + data);
-                PickupHeaderV2 dbPickupHeader = getPickupHeaderForUpdatePickerV2(
-                        data.getCompanyCodeId(), data.getPlantId(), data.getLanguageId(),
-                        data.getWarehouseId(), data.getPreOutboundNo(), data.getRefDocNumber(), data.getPartnerCode(),
-                        data.getPickupNumber(), data.getLineNumber(), data.getItemCode(), data.getManufacturerName());
-                log.info("Old PickupHeader object from db : " + data);
-                if (dbPickupHeader != null) {
-                    dbPickupHeader.setAssignedPickerId(data.getAssignedPickerId());
-                    dbPickupHeader.setPickUpdatedBy(data.getPickupCreatedBy());
-                    dbPickupHeader.setPickUpdatedOn(new Date());
-                    pickupHeaderV2Repository.delete(dbPickupHeader);
-                    PickupHeaderV2 pickupHeader = pickupHeaderV2Repository.save(dbPickupHeader);
+        log.info("Process start to update Assigned Picker Id in PickupHeader: " + updatePickupHeaderList);
 
-                    //Send Notification
-                    sendNotificationForUpdate(data.getRefDocNumber(),data.getAssignedPickerId(), data.getWarehouseId(), data.getReferenceDocumentType());
-                    pickupHeaderList.add(pickupHeader);
-                } else {
-                    log.info("No record for PickupHeader object from db for data : " + data);
-                    throw new BadRequestException("Error in pickupheader data");
-                }
-            }
-            return pickupHeaderList;
+        // Create a thread pool
+        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        try {
+            List<CompletableFuture<PickupHeaderV2>> futures = updatePickupHeaderList.stream()
+                    .map(data -> CompletableFuture.supplyAsync(() -> {
+                        try {
+                            log.info("PickupHeader object to update : " + data);
+                            DataBaseContextHolder.clear();
+                            DataBaseContextHolder.setCurrentDb("MT");
+                            String routingDb = dbConfigRepository.getDbName(data.getCompanyCodeId(), data.getPlantId(), data.getWarehouseId());
+                            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+                            DataBaseContextHolder.clear();
+                            DataBaseContextHolder.setCurrentDb(routingDb);
+
+                            pickupHeaderV2Repository.updatePickerId(data.getAssignedPickerId(), data.getPickUpdatedBy(), data.getCompanyCodeId(),
+                                    data.getPlantId(), data.getWarehouseId(), data.getPickupNumber());
+                            log.info("Assign PickerId Updated Successfully ------> PickupNumber is -- {}", data.getPickupNumber());
+                            // Send Notification
+                            sendNotificationForUpdate(data.getRefDocNumber(), data.getAssignedPickerId(), data.getWarehouseId(), data.getReferenceDocumentType());
+
+                            return data;
+                        } catch (Exception ex) {
+                            log.error("Error processing PickupHeaderV2: " + data, ex);
+                            throw new CompletionException(ex);
+                        }
+                    }, executor))
+                    .collect(Collectors.toList());
+
+            // Wait for all futures to complete
+            List<PickupHeaderV2> result = futures.stream()
+                    .map(CompletableFuture::join) // join will throw if any future completed exceptionally
+                    .collect(Collectors.toList());
+            return result;
         } catch (Exception e) {
-            log.error("Update Assigned Picker Id in PickupHeader failed for : " + updatePickupHeaderList);
+            log.error("Update Assigned Picker Id in PickupHeader failed for : " + updatePickupHeaderList, e);
             throw new BadRequestException("Error in data");
+        } finally {
+            executor.shutdown();
         }
     }
 
