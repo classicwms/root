@@ -49,6 +49,10 @@ public interface ImBasicData1V2Repository extends PagingAndSortingRepository<ImB
 			String languageId, String companyCode, String plantId, String warehouseId,
 			String itemCode, String manufacturerName, Long deletionIndicator);
 
+	ImBasicData1V2 findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndDeletionIndicator(
+			String languageId, String companyCode, String plantId, String warehouseId,
+			String itemCode, Long deletionIndicator);
+
 	Optional<ImBasicData1V2> findByItemCodeAndCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndManufacturerPartNoAndDeletionIndicator(
 			String itemCode, String companyCodeId, String plantId, String languageId,
 			String warehouseId, String manufacturerName, Long deletionIndicator);
