@@ -27,7 +27,4 @@ public class SearchOutboundHeader {
 	private Date startOrderDate;
 	private Date endOrderDate;
 	
-	// Added for Reports
-//	private String refField1;
-
 }
