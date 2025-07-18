@@ -370,4 +370,10 @@ public interface GrLineV2Repository extends JpaRepository<GrLineV2, Long>, JpaSp
                                        @Param("warehouseId")String warehouseId,
                                        @Param("userId")String userId);
 
+    @Modifying
+    @Query(value = "delete tblgrline where ref_doc_no = :refDocNo and pre_ib_no = :preInboundNo and barcode_id = :barcodeId ", nativeQuery = true)
+    void rollPackGrLine(@Param("refDocNo") String refDocNo,
+                        @Param("preInboundNo") String preInboundNo,
+                        @Param("barcodeId") String barcodeId);
+
 }

@@ -279,6 +279,9 @@ public class GrLineController {
                     case "KNOWELL":
                         createGrLineResponse = grlineService.createGrLineNonCBMV7(newGrLine, loginUserID);
                         break;
+//                    case "BP":
+//                        createGrLineResponse = grlineService.createGrLineNonCBMV6(newGrLine, loginUserID);
+//                        break;
                 }
             }
             return new ResponseEntity<>(createGrLineResponse, HttpStatus.OK);

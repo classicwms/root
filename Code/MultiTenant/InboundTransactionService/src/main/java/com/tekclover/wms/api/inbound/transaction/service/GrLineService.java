@@ -38,6 +38,7 @@ import org.springframework.expression.ParseException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
@@ -158,6 +159,9 @@ public class GrLineService extends BaseService {
     protected IKeyValuePair description = null;
 
     protected static final String MFR_NAME = "NAMRATHA";
+
+    @Autowired
+    PutAwayHeaderAsyncProcessService putAwayHeaderAsyncProcessService;
 
     //----------------------------------------------------------------------------------------------------
 
@@ -1880,7 +1884,13 @@ public class GrLineService extends BaseService {
         }
     }
 
-    @Transactional
+    /**
+     * @param newGrLines  grLine Input Namratha
+     * @param loginUserID userId
+     * @return
+     * @throws Exception
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public List<GrLineV2> createGrLineNonCBMV4(@Valid List<AddGrLineV2> newGrLines, String loginUserID) throws Exception {
 
         List<GrLineV2> createdGRLines = new ArrayList<>();
@@ -1892,17 +1902,14 @@ public class GrLineService extends BaseService {
         String preInboundNo = null;
         String goodsReceiptNo = null;
         String itemCode = null;
-        String manufacturerName = null;
         String packBarcodes = "99999";
 
         try {
             // Inserting multiple records
             for (AddGrLineV2 newGrLine : newGrLines) {
-
                 if (newGrLine.getPackBarcodes() == null || newGrLine.getPackBarcodes().isEmpty()) {
                     throw new BadRequestException("Enter either Accept Qty or Damage Qty");
                 }
-
                 /*------------Inserting based on the PackBarcodes -----------*/
                 for (PackBarcode packBarcode : newGrLine.getPackBarcodes()) {
                     GrLineV2 dbGrLine = new GrLineV2();
@@ -1915,15 +1922,7 @@ public class GrLineService extends BaseService {
                         dbGrLine.setAcceptedQty(grQty);
                         dbGrLine.setDamageQty(0D);
                         log.info("Accept (A)-------->: " + dbGrLine);
-                    } else if (packBarcode.getQuantityType().equalsIgnoreCase("D")) {
-                        Double grQty = newGrLine.getDamageQty();
-                        dbGrLine.setGoodReceiptQty(grQty);
-                        dbGrLine.setDamageQty(grQty);
-                        dbGrLine.setOrderQty(grQty);
-                        dbGrLine.setAcceptedQty(0D);
-                        log.info("Damage (D)-------->: " + dbGrLine);
                     }
-
                     dbGrLine.setQuantityType(packBarcode.getQuantityType());
                     dbGrLine.setPackBarcodes(packBarcodes);
                     dbGrLine.setGrUom(newGrLine.getOrderUom());
@@ -1948,18 +1947,6 @@ public class GrLineService extends BaseService {
                     preInboundNo = dbGrLine.getPreInboundNo();
                     goodsReceiptNo = dbGrLine.getGoodsReceiptNo();
                     itemCode = dbGrLine.getItemCode();
-                    manufacturerName = dbGrLine.getManufacturerName();
-
-                    //GoodReceipt Qty should be less than or equal to ordered qty---> if GrQty > OrdQty throw Exception
-                    Double dbGrQty = grLineV2Repository.getGrLineQuantity(
-                            companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, goodsReceiptNo, newGrLine.getPalletCode(),
-                            newGrLine.getCaseCode(), itemCode, manufacturerName, newGrLine.getLineNo(), dbGrLine.getGoodReceiptQty());
-                    log.info("dbGrQty+newGrQty, OrdQty: " + dbGrQty + ", " + newGrLine.getOrderQty());
-//                    if (dbGrQty != null) {
-//                        if (newGrLine.getOrderQty() < dbGrQty) {
-//                            throw new BadRequestException("Total Gr Qty is greater than Order Qty ");
-//                        }
-//                    }
 
                     description = getDescription(companyCode, plantId, languageId, warehouseId);
                     if (description != null) {
@@ -1974,42 +1961,6 @@ public class GrLineService extends BaseService {
                     Double invoiceQty = newGrLine.getOrderQty() != null ? newGrLine.getOrderQty() : 0D;
                     Double acceptQty = newGrLine.getAcceptedQty() != null ? newGrLine.getAcceptedQty() : 0D;
                     Double damageQty = newGrLine.getDamageQty() != null ? newGrLine.getDamageQty() : 0D;
-
-                    StagingLineEntityV2 dbStagingLineEntity = stagingLineService.getStagingLineForPutAwayLineV2(companyCode, plantId, languageId, warehouseId,
-                            preInboundNo, refDocNumber, newGrLine.getLineNo(),
-                            itemCode, manufacturerName);
-                    log.info("StagingLine: " + dbStagingLineEntity);
-
-                    if (dbStagingLineEntity == null) {
-                        dbStagingLineEntity = createLines(dbGrLine, loginUserID);
-                    }
-
-                    if (dbStagingLineEntity != null) {
-                        if (dbStagingLineEntity.getRec_accept_qty() != null) {
-                            recAcceptQty = dbStagingLineEntity.getRec_accept_qty();
-                        }
-                        if (dbStagingLineEntity.getRec_damage_qty() != null) {
-                            recDamageQty = dbStagingLineEntity.getRec_damage_qty();
-                        }
-                        if (newGrLine.getAlternateUom() == null || newGrLine.getBagSize() == null || newGrLine.getAlternateUom().isBlank()) {
-                            dbGrLine.setAlternateUom(dbStagingLineEntity.getAlternateUom());
-                            dbGrLine.setNoBags(dbStagingLineEntity.getNoBags());
-                            dbGrLine.setBagSize(dbStagingLineEntity.getBagSize());
-                            dbGrLine.setMrp(dbStagingLineEntity.getMrp());
-                            dbGrLine.setItemType(dbStagingLineEntity.getItemType());
-                            dbGrLine.setItemGroup(dbStagingLineEntity.getItemGroup());
-                            dbGrLine.setSize(dbStagingLineEntity.getSize());
-                            dbGrLine.setBrand(dbStagingLineEntity.getBrand());
-                        }
-                    }
-                    //Calculate No of Bags for Damage Qty
-                    if (dbGrLine.getQuantityType().equalsIgnoreCase("D")) {
-//                        double actualQty = getQuantity(dbGrLine.getGoodReceiptQty(), dbGrLine.getBagSize());
-                        double actualQty = dbGrLine.getGoodReceiptQty();
-                        double NO_OF_BAGS = actualQty / dbGrLine.getBagSize();
-                        dbGrLine.setNoBags(roundUp(NO_OF_BAGS));
-                    }
-
                     variance = invoiceQty - (acceptQty + damageQty + recAcceptQty + recDamageQty);
                     log.info("Variance: " + variance);
 
@@ -2035,8 +1986,6 @@ public class GrLineService extends BaseService {
                             goodsReceiptNo, itemCode, dbGrLine.getLineNo(), languageId, companyCode, plantId,
                             refDocNumber, dbGrLine.getPackBarcodes(), warehouseId, preInboundNo,
                             dbGrLine.getCaseCode(), dbGrLine.getCreatedOn(), 0L);
-                    GrLineV2 createdGRLine = null;
-                    boolean createGrLineError = false;
                     //validate to check if grline is already exists
                     if (oldGrLine == null || oldGrLine.isEmpty()) {
                         // Lead Time
@@ -2060,37 +2009,28 @@ public class GrLineService extends BaseService {
                         }
 
                         try {
-                            createdGRLine = grLineV2Repository.save(dbGrLine);
-
-                            if (createdGRLine != null && createdGRLine.getBarcodeId() != null) {
-                                stagingLineV2Repository.updateBarCode(
-                                        createdGRLine.getBarcodeId(),
-                                        createdGRLine.getCompanyCode(),
-                                        createdGRLine.getPlantId(),
-                                        createdGRLine.getLanguageId(),
-                                        createdGRLine.getWarehouseId(),
-                                        createdGRLine.getRefDocNumber(),
-                                        createdGRLine.getPreInboundNo(),
-                                        createdGRLine.getLineNo(),
-                                        createdGRLine.getItemCode());
-                                log.info(" Updated StagingLine PARTNER_ITEM_BARCODE with barcode: " + createdGRLine.getBarcodeId());
-                            }
+                            stagingLineV2Repository.updateBarCode(dbGrLine.getBarcodeId(), dbGrLine.getCompanyCode(), dbGrLine.getPlantId(),
+                                    dbGrLine.getLanguageId(), dbGrLine.getWarehouseId(), dbGrLine.getRefDocNumber(),
+                                    dbGrLine.getPreInboundNo(), dbGrLine.getLineNo(), dbGrLine.getItemCode());
+                            log.info(" Updated StagingLine PARTNER_ITEM_BARCODE with barcode: " + dbGrLine.getBarcodeId());
                         } catch (Exception e) {
-                            createGrLineError = true;
                             //Exception Log
-                            createGrLineLog7(dbGrLine, e.toString());
                             throw e;
                         }
-                        log.info("createdGRLine : " + createdGRLine);
-                        createdGRLines.add(createdGRLine);
+                        log.info("createdGRLine : " + dbGrLine);
+                        createdGRLines.add(dbGrLine);
                     }
                 }
-
-                log.info("Records were inserted successfully...");
             }
 
-            if (createdGRLines != null) {
-                createPutAwayHeaderNonCBMV4(companyCode, plantId, languageId, warehouseId, itemCode, manufacturerName, preInboundNo, refDocNumber, createdGRLines, loginUserID);
+            if (!createdGRLines.isEmpty()) {
+                grLineV2Repository.saveAll(createdGRLines);
+            } else {
+                throw new BadRequestException("GrLine Create -----------------------> Data Is Empty");
+            }
+            log.info("Records were inserted successfully...");
+            if (!createdGRLines.isEmpty()) {
+                putAwayHeaderAsyncProcessService.createGrLineAsyncProcessV4(companyCode, plantId, languageId, warehouseId, createdGRLines, loginUserID);
             }
 
             //GrHeader Status 17 Updating Using Stored Procedure when condition met - multiple procedure combined to single procedure
@@ -2101,8 +2041,12 @@ public class GrLineService extends BaseService {
 
             return createdGRLines;
         } catch (Exception e) {
-            //Exception Log
-            createGrLineLog10(newGrLines, e.toString());
+
+            log.info("RollBack for Status Update 16 Using Stored Procedure ---> GrHeader, StagingLine, InboundLine Initiated...!!");
+            statusDescription = stagingLineV2Repository.getStatusDescription(16L, languageId);
+            grHeaderV2Repository.updateStatusProc(
+                    companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, goodsReceiptNo, 16L, statusDescription, new Date());
+            log.info("Status Update 16 Using Stored Procedure ---> GrHeader, StagingLine, InboundLine");
 
             e.printStackTrace();
             throw e;
@@ -5332,7 +5276,7 @@ public class GrLineService extends BaseService {
     /**
      * @param grLineV2
      */
-    private void fireBaseNotification(GrLineV2 grLineV2, String putAwayNumber, String loginUserID) {
+    public void fireBaseNotification(GrLineV2 grLineV2, String putAwayNumber, String loginUserID) {
         try {
 //            try {
 //                DataBaseContextHolder.setCurrentDb("MT");

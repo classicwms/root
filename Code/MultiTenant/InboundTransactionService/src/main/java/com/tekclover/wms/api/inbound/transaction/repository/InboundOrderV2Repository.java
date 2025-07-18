@@ -32,4 +32,10 @@ public interface InboundOrderV2Repository extends JpaRepository<InboundOrderV2, 
 
     public List<InboundOrderV2> findByRefDocumentNo(String orderId);
 
+   @Modifying(clearAutomatically = true, flushAutomatically = true)
+   @Query(value = "update tbliborder2 set putaway_header = 1, order_text = :text where " +
+           "inbound_order_type_id = :inboundHeaderId and ref_document_no = :refDocNo", nativeQuery = true)
+   void updatePutawayHeader(@Param("inboundHeaderId") Long inboundHeaderId,
+                            @Param("refDocNo") String refDocNo,
+                            @Param("text") String text);
 }

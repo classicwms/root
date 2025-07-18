@@ -226,4 +226,11 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
     boolean existsByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndStorageBinAndBinClassIdInAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String storageBin, List<Long> binClassIds, Long deletionIndicator);
 
+    @Query(value = "SELECT top 1 * from tblstoragebin WHERE \n " +
+            "(st_bin LIKE 'E-%' OR st_bin LIKE 'P-%') AND c_id = :companyCodeId \n" +
+            "AND plant_id = :plantId AND wh_id = :warehouseId and status_id = 0 \n" +
+            "AND is_deleted = 0", nativeQuery = true)
+    StorageBinV2 getEorPBin(@Param("companyCodeId") String companyCodeId,
+                            @Param("plantId") String plantId,
+                            @Param("warehouseId") String warehouseId);
 }
