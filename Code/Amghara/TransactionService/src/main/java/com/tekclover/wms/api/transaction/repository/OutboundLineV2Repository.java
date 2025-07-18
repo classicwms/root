@@ -1,10 +1,8 @@
 package com.tekclover.wms.api.transaction.repository;
 
-import com.tekclover.wms.api.transaction.model.impl.OutBoundLineImpl;
-import com.tekclover.wms.api.transaction.model.impl.StockMovementReportImpl;
-import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundLineOutput;
-import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundLineV2;
-import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
+import java.util.Date;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -14,8 +12,11 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
+import com.tekclover.wms.api.transaction.model.impl.OutBoundLineImpl;
+import com.tekclover.wms.api.transaction.model.impl.StockMovementReportImpl;
+import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundLineOutput;
+import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundLineV2;
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 
 @Repository
 @Transactional
@@ -494,23 +495,23 @@ public interface OutboundLineV2Repository extends JpaRepository<OutboundLineV2, 
                                                      @Param("orderType") List<String> orderType,
                                                      @Param("partnerCode") List<String> partnerCode);
 
-    @Transactional
-    @Procedure(procedureName = "obline_update_qlcreate_proc")
-    public void updateOBlineByQLCreateProcedure(
-            @Param("companyCodeId") String companyCodeId,
-            @Param("plantId") String plantId,
-            @Param("languageId") String languageId,
-            @Param("warehouseId") String warehouseId,
-            @Param("preOutboundNo") String preOutboundNo,
-            @Param("refDocNumber") String refDocNumber,
-            @Param("partnerCode") String partnerCode,
-            @Param("lineNumber") Long lineNumber,
-            @Param("itmCode") String itmCode,
-            @Param("deliveryQty") Double deliveryQty,
-            @Param("deliveryOrderNo") String deliveryOrderNo,
-            @Param("statusDescription") String statusDescription,
-            @Param("statusId") Long statusId
-    );
+//    @Transactional
+//    @Procedure(procedureName = "obline_update_qlcreate_proc")
+//    public void updateOBlineByQLCreateProcedure(
+//            @Param("companyCodeId") String companyCodeId,
+//            @Param("plantId") String plantId,
+//            @Param("languageId") String languageId,
+//            @Param("warehouseId") String warehouseId,
+//            @Param("preOutboundNo") String preOutboundNo,
+//            @Param("refDocNumber") String refDocNumber,
+//            @Param("partnerCode") String partnerCode,
+//            @Param("lineNumber") Long lineNumber,
+//            @Param("itmCode") String itmCode,
+//            @Param("deliveryQty") Double deliveryQty,
+//            @Param("deliveryOrderNo") String deliveryOrderNo,
+//            @Param("statusDescription") String statusDescription,
+//            @Param("statusId") Long statusId
+//    );
 
     @Query(value = "select ol.wh_id as warehouseId,ol.c_id as companyCodeId,ol.plant_id as plantId,ol.lang_id as languageId, ol.itm_code as itemCode , \n" +
             " ol.wh_text as warehouseDescription,ol.c_text as companyDescription,ol.plant_text as plantDescription,ol.status_text as statusDescription,\n" +
@@ -642,4 +643,27 @@ public interface OutboundLineV2Repository extends JpaRepository<OutboundLineV2, 
                               @Param("statusId") Long statusId,
                               @Param("statusDescription") String statusDescription,
                               @Param("assignedPickerId") String assignedPickerId);
+    
+    /*
+     * deliveryQty, DLV_ORD_NO, 57L
+     */
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE OutboundLineV2 ob \r\n"
+    		+ " SET ob.statusId = :statusId, ob.statusDescription = :statusDescription, \r\n"
+            + " ob.deliveryQty = :deliveryQty \r\n "
+            + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND \r\n "
+            + " ob.partnerCode = :partnerCode AND ob.itemCode = :itemCode AND \r\n "
+            + " ob.refDocNumber = :refDocNumber AND ob.preOutboundNo = :preOutboundNo AND ob.lineNumber = :lineNumber")
+    void updateOutboundLineV2ForQuality(@Param("companyCodeId") String companyCodeId,
+                              @Param("plantId") String plantId,
+                              @Param("languageId") String languageId,
+                              @Param("warehouseId") String warehouseId,
+                              @Param("preOutboundNo") String preOutboundNo,
+                              @Param("refDocNumber") String refDocNumber,
+                              @Param("partnerCode") String partnerCode,
+                              @Param("lineNumber") Long lineNumber,
+                              @Param("itemCode") String itemCode,
+                              @Param("statusId") Long statusId,
+                              @Param("statusDescription") String statusDescription,
+                              @Param("deliveryQty") Double deliveryQty);
 }

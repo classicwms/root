@@ -7,9 +7,6 @@ import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.transaction.model.outbound.quality.v2.AddQualityLineV2;
-import com.tekclover.wms.api.transaction.model.outbound.quality.v2.QualityLineV2;
-import com.tekclover.wms.api.transaction.model.outbound.quality.v2.SearchQualityLineV2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +25,9 @@ import com.tekclover.wms.api.transaction.model.outbound.quality.AddQualityLine;
 import com.tekclover.wms.api.transaction.model.outbound.quality.QualityLine;
 import com.tekclover.wms.api.transaction.model.outbound.quality.SearchQualityLine;
 import com.tekclover.wms.api.transaction.model.outbound.quality.UpdateQualityLine;
+import com.tekclover.wms.api.transaction.model.outbound.quality.v2.AddQualityLineV2;
+import com.tekclover.wms.api.transaction.model.outbound.quality.v2.QualityLineV2;
+import com.tekclover.wms.api.transaction.model.outbound.quality.v2.SearchQualityLineV2;
 import com.tekclover.wms.api.transaction.service.QualityLineService;
 
 import io.swagger.annotations.Api;
@@ -114,8 +114,7 @@ public class QualityLineController {
     @ApiOperation(response = QualityLineV2.class, value = "Create QualityLine") // label for swagger
     @PostMapping("/v2")
     public ResponseEntity<?> postQualityLineV2(@Valid @RequestBody List<AddQualityLineV2> newQualityLine,
-                                               @RequestParam String loginUserID)
-            throws IllegalAccessException, InvocationTargetException, ParseException {
+    @RequestParam String loginUserID) throws Exception {
         List<QualityLineV2> createdQualityLine = qualitylineService.createQualityLineV2(newQualityLine, loginUserID);
         return new ResponseEntity<>(createdQualityLine, HttpStatus.OK);
     }

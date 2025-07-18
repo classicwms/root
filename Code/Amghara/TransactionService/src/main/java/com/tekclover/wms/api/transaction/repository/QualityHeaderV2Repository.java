@@ -1,19 +1,18 @@
 package com.tekclover.wms.api.transaction.repository;
 
-import com.tekclover.wms.api.transaction.model.outbound.quality.v2.QualityHeaderV2;
-import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import com.tekclover.wms.api.transaction.model.outbound.quality.v2.QualityHeaderV2;
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 
 @Repository
 @Transactional
@@ -52,21 +51,21 @@ public interface QualityHeaderV2Repository extends JpaRepository<QualityHeaderV2
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE QualityHeaderV2 qh SET qh.statusId = 55, qh.referenceField10 = :referenceField10, qh.statusDescription = :referenceField10 \r\n"
-            + " WHERE qh.qualityInspectionNo = :qualityInspectionNo")
+            + " WHERE qh.qualityInspectionNo in (= :qualityInspectionNo) ")
     public void updateQualityHeader (@Param ("referenceField10") String referenceField10,
-                                     @Param ("qualityInspectionNo") String qualityInspectionNo);
+                                     @Param ("qualityInspectionNo") List<String> qualityInspectionNo);
 
-    @Transactional
-    @Procedure(procedureName = "quality_header_update_proc")
-    public void updateQualityHeaderStatusUpdateProc(
-            @Param("companyCodeId") String companyCodeId,
-            @Param("plantId") String plantId,
-            @Param("languageId") String languageId,
-            @Param("warehouseId") String warehouseId,
-            @Param("qualityInspectionNo") String qualityInspectionNo,
-            @Param("statusId") Long statusId,
-            @Param("statusDescription") String statusDescription,
-            @Param("@created") String created);
+//    @Transactional
+//    @Procedure(procedureName = "quality_header_update_proc")
+//    public void updateQualityHeaderStatusUpdateProc(
+//            @Param("companyCodeId") String companyCodeId,
+//            @Param("plantId") String plantId,
+//            @Param("languageId") String languageId,
+//            @Param("warehouseId") String warehouseId,
+//            @Param("qualityInspectionNo") String qualityInspectionNo,
+//            @Param("statusId") Long statusId,
+//            @Param("statusDescription") String statusDescription,
+//            @Param("@created") String created);
 
     List<QualityHeaderV2> findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber, Long deletionIndicator);

@@ -1,11 +1,32 @@
 package com.tekclover.wms.api.transaction.service;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.persistence.EntityNotFoundException;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.ParseException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.tekclover.wms.api.transaction.config.PropertiesConfig;
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.transaction.model.auth.AXAuthToken;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
-import com.tekclover.wms.api.transaction.model.dto.*;
+import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
+import com.tekclover.wms.api.transaction.model.dto.StatusId;
+import com.tekclover.wms.api.transaction.model.dto.StorageBin;
+import com.tekclover.wms.api.transaction.model.dto.StorageBinV2;
+import com.tekclover.wms.api.transaction.model.dto.Warehouse;
 import com.tekclover.wms.api.transaction.model.impl.OrderStatusReportImpl;
 import com.tekclover.wms.api.transaction.model.impl.OutBoundLineImpl;
 import com.tekclover.wms.api.transaction.model.impl.ShipmentDispatchSummaryReportImpl;
@@ -15,7 +36,14 @@ import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMoveme
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.InboundReversalInput;
 import com.tekclover.wms.api.transaction.model.integration.IntegrationApiResponse;
-import com.tekclover.wms.api.transaction.model.outbound.*;
+import com.tekclover.wms.api.transaction.model.outbound.AddOutboundLine;
+import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
+import com.tekclover.wms.api.transaction.model.outbound.OutboundLine;
+import com.tekclover.wms.api.transaction.model.outbound.OutboundLineInterim;
+import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundLine;
+import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundLineReport;
+import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundLineReportV2;
+import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.OrderManagementLine;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.UpdateOrderManagementLine;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.v2.OrderManagementLineV2;
@@ -41,23 +69,51 @@ import com.tekclover.wms.api.transaction.model.report.SearchOrderStatusReport;
 import com.tekclover.wms.api.transaction.model.report.StockMovementReport;
 import com.tekclover.wms.api.transaction.model.report.StockMovementReport1;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.confirmation.AXApiResponse;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.*;
-import com.tekclover.wms.api.transaction.repository.*;
-import com.tekclover.wms.api.transaction.repository.specification.*;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.InterWarehouseShipment;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.InterWarehouseShipmentHeader;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.InterWarehouseShipmentLine;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.ReturnPO;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.ReturnPOHeader;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.ReturnPOLine;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.SalesOrder;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.SalesOrderHeader;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.SalesOrderLine;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.Shipment;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.ShipmentHeader;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.ShipmentLine;
+import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
+import com.tekclover.wms.api.transaction.repository.InboundLineRepository;
+import com.tekclover.wms.api.transaction.repository.InboundLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.IntegrationApiResponseRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryV2Repository;
+import com.tekclover.wms.api.transaction.repository.OrderManagementLineRepository;
+import com.tekclover.wms.api.transaction.repository.OrderManagementLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.OutboundHeaderRepository;
+import com.tekclover.wms.api.transaction.repository.OutboundHeaderV2Repository;
+import com.tekclover.wms.api.transaction.repository.OutboundLineInterimRepository;
+import com.tekclover.wms.api.transaction.repository.OutboundLineRepository;
+import com.tekclover.wms.api.transaction.repository.OutboundLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.PickupLineRepository;
+import com.tekclover.wms.api.transaction.repository.PickupLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.PreOutboundHeaderRepository;
+import com.tekclover.wms.api.transaction.repository.PreOutboundHeaderV2Repository;
+import com.tekclover.wms.api.transaction.repository.PreOutboundLineRepository;
+import com.tekclover.wms.api.transaction.repository.PreOutboundLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.QualityLineRepository;
+import com.tekclover.wms.api.transaction.repository.QualityLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.StagingLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.StockMovementReport1Repository;
+import com.tekclover.wms.api.transaction.repository.specification.ImBasicData1Specification;
+import com.tekclover.wms.api.transaction.repository.specification.OutboundLineReportSpecification;
+import com.tekclover.wms.api.transaction.repository.specification.OutboundLineReportV2Specification;
+import com.tekclover.wms.api.transaction.repository.specification.OutboundLineSpecification;
+import com.tekclover.wms.api.transaction.repository.specification.OutboundLineV2Specification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.expression.ParseException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -939,136 +995,6 @@ public class OutboundLineService extends BaseService {
             throw new BadRequestException("Error from AX: " + errorFromAXAPI);
         }
         return null;
-
-        ////////////////////////////////////////////OLD_CODE////////////////////////////////////////////////////////////////////////
-        /*
-         * Pass the selected WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/ITEM_CODE/OB_LINE_NO values in OUTBOUNDLINE table and
-         * Validate STATUS_ID = 55 or 47 or 51, if yes
-         */
-//		List<OutboundLine> responseOutboundLineList = new ArrayList<>();
-//		for (OutboundLine outboundLine : outboundLineList) {
-//			if (outboundLine.getStatusId() == 57L || outboundLine.getStatusId() == 47L || outboundLine.getStatusId() == 51L
-//					|| outboundLine.getStatusId() == 41L) {
-//				/*---------------------AXAPI-integration----------------------------------------------------------*/
-//				// Checking the AX-API response
-//				if (axapiResponse.getStatusCode() != null && axapiResponse.getStatusCode().equalsIgnoreCase("200")) {
-//					if (outboundLine.getStatusId() == 57L) {
-//						try {
-//							// Pass the above values in OUTBOUNDHEADER and OUTBOUNDLINE tables and update STATUS_ID as "59"
-//							try {
-//								outboundLine.setStatusId(59L);
-//								outboundLine.setUpdatedBy(loginUserID);
-//								outboundLine.setUpdatedOn(new Date());
-//								outboundLine = outboundLineRepository.save(outboundLine);
-//								log.info("outboundLine updated : " + outboundLine);
-//								responseOutboundLineList.add(outboundLine);
-//							} catch (Exception e) {
-//								e.printStackTrace();
-//								log.error("deliveryConfirmation---OutboundLine update error: " + outboundLine);
-//							}
-//							
-//							// OUTBOUNDHEADER update
-//							try {
-//								UpdateOutboundHeader updateOutboundHeader = new UpdateOutboundHeader();
-//								updateOutboundHeader.setStatusId(59L);
-//								updateOutboundHeader.setDeliveryConfirmedOn(new Date());
-//								updateOutboundHeader.setUpdatedOn(new Date());
-//								updateOutboundHeader.setUpdatedBy(loginUserID);
-//								OutboundHeader updatedOutboundHeader = 
-//										outboundHeaderService.updateOutboundHeader(warehouseId, preOutboundNo, refDocNumber, partnerCode, updateOutboundHeader, loginUserID);
-//								log.info("updatedOutboundHeader updated : " + updatedOutboundHeader);
-//							} catch (Exception e) {
-//								e.printStackTrace();
-//								log.error("deliveryConfirmation---UpdateOutboundHeader update error: [args]" + preOutboundNo + "," + refDocNumber + "," + partnerCode);
-//							}
-//							
-//							//---------------------------------------------------------------------------------------------------------------------------
-//							// QUALITYLINE - NOT REQUIRED TO UPDATE THE STATUS
-//							try {
-//								List<QualityLine> dbQualityLine = 
-//										qualityLineService.getQualityLineForUpdateForDeliverConformation(warehouseId, preOutboundNo, refDocNumber, partnerCode, outboundLine.getLineNumber(), outboundLine.getItemCode());
-//								
-//								/*-----------------Inventory Updates---------------------------*/
-//								// String warehouseId, String itemCode, Long binClassId
-//								Long BIN_CL_ID = 5L;
-//								for(QualityLine qualityLine : dbQualityLine) {
-//									List<Inventory> inventoryList = inventoryService.getInventoryForDeliveryConfirmtion (outboundLine.getWarehouseId(),
-//											outboundLine.getItemCode(), qualityLine.getPickPackBarCode(), BIN_CL_ID); //pack_bar_code
-//									for(Inventory inventory : inventoryList) {
-//										Double INV_QTY = inventory.getInventoryQuantity() - qualityLine.getQualityQty();
-//
-//										if (INV_QTY < 0) {
-//											INV_QTY = 0D;
-//										}
-//
-//										if (INV_QTY >= 0) {
-//											inventory.setInventoryQuantity(INV_QTY);
-//
-//											// INV_QTY > 0 then, update Inventory Table
-//											inventory = inventoryRepository.save(inventory);
-//										}
-//									}
-//								}
-//							} catch (Exception e) {
-//								e.printStackTrace();
-//								log.info("ERROR: Update QualityHeader & line error: [args] " + warehouseId  + "," + preOutboundNo  + "," + refDocNumber  + "," + partnerCode  + "," + 
-//										outboundLine.getLineNumber()  + "," +  outboundLine.getItemCode());
-//							}
-//							
-//							try {
-//								// PREOUTBOUNDLINE
-//								UpdatePreOutboundLine updatePreOutboundLine = new UpdatePreOutboundLine();
-//								updatePreOutboundLine.setStatusId(59L);
-//								PreOutboundLine updatedPreOutboundLine = preOutboundLineService.updatePreOutboundLine(warehouseId, refDocNumber,
-//										preOutboundNo, partnerCode, loginUserID, updatePreOutboundLine);
-//							} catch (Exception e) {
-//								e.printStackTrace();
-//								log.info("Update PreOutboundLine error: [args] " + warehouseId  + "," + preOutboundNo  + "," + refDocNumber  + "," + partnerCode );
-//							}
-//							
-//							try {
-//								// PREOUTBOUNDHEADER
-//								UpdatePreOutboundHeader updatePreOutboundHeader = new UpdatePreOutboundHeader();
-//								updatePreOutboundHeader.setStatusId(59L);
-//								PreOutboundHeader updatedPreOutboundHeader = preOutboundHeaderService.updatePreOutboundHeader(warehouseId, refDocNumber, 
-//										preOutboundNo, partnerCode, loginUserID, updatePreOutboundHeader);
-//								log.info("updatedPreOutboundHeader updated : " + updatedPreOutboundHeader);
-//							} catch (Exception e) {
-//								e.printStackTrace();
-//								log.info("Update PreOutboundHeader error: [args] " + warehouseId  + "," + preOutboundNo  + "," + refDocNumber  + "," + partnerCode );
-//							}
-//							
-//							/*-------------------Inserting record in InventoryMovement-------------------------------------*/
-//							Long BIN_CLASS_ID = 5L;
-//							AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-//							StorageBin storageBin = mastersService.getStorageBin(outboundLine.getWarehouseId(), BIN_CLASS_ID, 
-//									authTokenForMastersService.getAccess_token());
-//							
-//							String movementDocumentNo = outboundLine.getRefDocNumber();
-//							String stBin = storageBin.getStorageBin();
-//							String movementQtyValue = "N";
-//							List<PickupLine> dbPickupLine = 
-//									pickupLineService.getPickupLineForUpdateConfirmation (warehouseId, preOutboundNo, refDocNumber, partnerCode, outboundLine.getLineNumber(), outboundLine.getItemCode());
-//							if(dbPickupLine != null) {
-//								for(PickupLine pickupLine : dbPickupLine ){
-//									InventoryMovement inventoryMovement = createInventoryMovement(pickupLine, movementDocumentNo, stBin,
-//											movementQtyValue, loginUserID, true);
-//									log.info("InventoryMovement created : " + inventoryMovement);
-//								}
-//							}
-//						} catch (Exception e) {
-//							log.info("Updating respective tables having Error : " + e.getLocalizedMessage());
-//						}
-//					}
-//				} else {
-//					String errorFromAXAPI = axapiResponse.getMessage();
-//					throw new BadRequestException("Error from AX: " + errorFromAXAPI);
-//				}
-//			} else {
-//				throw new BadRequestException("Order is not completely Processed.");
-//			}
-//		}
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     }
 
     /**
@@ -1116,7 +1042,7 @@ public class OutboundLineService extends BaseService {
         }
         return outboundLines;
     }
-
+    
     /**
      * deleteOutboundLine
      *
@@ -1432,77 +1358,7 @@ public class OutboundLineService extends BaseService {
         return outboundReversalList;
     }
 
-    /**
-     * @param pickupLine
-     * @param movementDocumentNo
-     * @param storageBin
-     * @param movementQtyValue
-     * @param loginUserID
-     * @param isFromDelivery
-     * @return
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
-     */
-//	private InventoryMovement createInventoryMovement (PickupLine pickupLine, 
-//			String movementDocumentNo, String storageBin, String movementQtyValue, String loginUserID, boolean isFromDelivery ) 
-//					throws IllegalAccessException, InvocationTargetException {
-//		// Flag "isFromDelivery" is not used anywhere. 
-//		AddInventoryMovement inventoryMovement = new AddInventoryMovement();
-//		BeanUtils.copyProperties(pickupLine, inventoryMovement, CommonUtils.getNullPropertyNames(pickupLine));
-//		
-//		// MVT_TYP_ID
-//		inventoryMovement.setMovementType(3L);
-//		
-//		// SUB_MVT_TYP_ID
-//		inventoryMovement.setSubmovementType(5L);
-//		
-//		// PACK_BARCODE
-//		inventoryMovement.setPackBarcodes(pickupLine.getPickedPackCode());
-//		
-//		// VAR_ID
-//		inventoryMovement.setVariantCode(1L);
-//		
-//		// VAR_SUB_ID
-//		inventoryMovement.setVariantSubCode("1");
-//		
-//		// STR_MTD
-//		inventoryMovement.setStorageMethod("1");
-//		
-//		// STR_NO
-//		inventoryMovement.setBatchSerialNumber("1");
-//		
-//		// MVT_DOC_NO
-//		inventoryMovement.setMovementDocumentNo(movementDocumentNo);
-//		
-//		// ST_BIN
-//		inventoryMovement.setStorageBin(storageBin);
-//		
-//		// MVT_QTY_VAL
-//		inventoryMovement.setMovementQtyValue(movementQtyValue);
-//		
-//		// MVT_QTY
-//		inventoryMovement.setMovementQty(pickupLine.getPickConfirmQty());
-//		
-//		// MVT_UOM
-//		inventoryMovement.setInventoryUom(pickupLine.getPickUom());
-//		
-//		// BAL_OH_QTY
-//		// PASS WH_ID/ITM_CODE/BIN_CL_ID and sum the INV_QTY for all selected inventory
-//		List<Inventory> inventoryList = 
-//				inventoryService.getInventory (pickupLine.getWarehouseId(), pickupLine.getItemCode(), 1L);
-//		double sumOfInvQty = inventoryList.stream().mapToDouble(a->a.getInventoryQuantity()).sum();
-//		inventoryMovement.setBalanceOHQty(sumOfInvQty);
-//	
-//		// IM_CTD_BY
-//		inventoryMovement.setCreatedBy(pickupLine.getPickupConfirmedBy());
-//		
-//		// IM_CTD_ON
-//		inventoryMovement.setCreatedOn(pickupLine.getPickupCreatedOn());
-//
-//		InventoryMovement createdInventoryMovement = 
-//				inventoryMovementService.createInventoryMovement(inventoryMovement, loginUserID);
-//		return createdInventoryMovement;
-//	}
+    
     private InventoryMovement createInventoryMovement(PickupLine pickupLine,
                                                       String movementDocumentNo, String storageBin, String movementQtyValue, String loginUserID, boolean isFromDelivery)
             throws IllegalAccessException, InvocationTargetException {
@@ -2839,6 +2695,37 @@ public class OutboundLineService extends BaseService {
         }
         return outboundLines;
     }
+    
+    /**
+     * 
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param preOutboundNo
+     * @param refDocNumber
+     * @param partnerCode
+     * @param loginUserID
+     * @param updateOutboundLine
+     * @return
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     * @throws java.text.ParseException
+     */
+	public List<OutboundLineV2> updateOutboundLinesV2(String companyCodeId, String plantId, String languageId,
+			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, String loginUserID,
+			OutboundLineV2 updateOutboundLine)
+			throws IllegalAccessException, InvocationTargetException, Exception {
+		List<OutboundLineV2> outboundLines = getOutboundLineV2(companyCodeId, plantId, languageId, warehouseId,
+				preOutboundNo, refDocNumber, partnerCode);
+		for (OutboundLine outboundLine : outboundLines) {
+			BeanUtils.copyProperties(updateOutboundLine, outboundLine, CommonUtils.getNullPropertyNames(updateOutboundLine));
+			outboundLine.setUpdatedBy(loginUserID);
+			outboundLine.setUpdatedOn(new Date());
+//			outboundLineRepository.save(outboundLine);
+		}
+		return outboundLines;
+	}
 
     /**
      * deleteOutboundLine
@@ -3946,16 +3833,16 @@ public class OutboundLineService extends BaseService {
      * @throws IllegalAccessException
      * @throws InvocationTargetException
      */
-    public boolean updateOutboundLineByQLCreateProc(String companyCodeId, String plantId, String languageId, String warehouseId,
-                                                    String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
-                                                    String itemCode, Double deliveryQty, String deliveryOrderNo, Long statusId, String statusDescription)
-            throws IllegalAccessException, InvocationTargetException {
-        outboundLineV2Repository.updateOBlineByQLCreateProcedure(companyCodeId, plantId, languageId, warehouseId,
-                preOutboundNo, refDocNumber, partnerCode, lineNumber,
-                itemCode, deliveryQty, deliveryOrderNo, statusDescription, statusId);
-        log.info("------updateOutboundLineByProc-------> : " + statusId + " updated...");
-        return true;
-    }
+//    public boolean updateOutboundLineByQLCreateProc(String companyCodeId, String plantId, String languageId, String warehouseId,
+//                                                    String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
+//                                                    String itemCode, Double deliveryQty, String deliveryOrderNo, Long statusId, String statusDescription)
+//            throws IllegalAccessException, InvocationTargetException {
+//        outboundLineV2Repository.updateOBlineByQLCreateProcedure(companyCodeId, plantId, languageId, warehouseId,
+//                preOutboundNo, refDocNumber, partnerCode, lineNumber,
+//                itemCode, deliveryQty, deliveryOrderNo, statusDescription, statusId);
+//        log.info("------updateOutboundLineByProc-------> : " + statusId + " updated...");
+//        return true;
+//    }
 
     /**
      * @param searchOutboundLine
@@ -4046,158 +3933,250 @@ public class OutboundLineService extends BaseService {
      * @throws InvocationTargetException
      */
     public List<OutboundLineV2> deliveryConfirmationV2(String companyCodeId, String plantId, String languageId, String warehouseId,
-                                                       String preOutboundNo, String refDocNumber, String partnerCode, String loginUserID)
+           String preOutboundNo, String refDocNumber, String partnerCode, String loginUserID, List<Long> lineNumbers)
             throws IllegalAccessException, InvocationTargetException {
-        /*--------------------OutboundLine-Check---------------------------------------------------------------------------*/
-        List<Long> statusIds = Arrays.asList(59L);
-        long outboundLineProcessedCount = getOutboundLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, statusIds);
-        log.info("outboundLineProcessedCount : " + outboundLineProcessedCount);
-        boolean isAlreadyProcessed = (outboundLineProcessedCount > 0 ? true : false);
-        log.info("outboundLineProcessed Already Processed? : " + isAlreadyProcessed);
-        if (isAlreadyProcessed) {
-            throw new BadRequestException("Order is already processed.");
-        }
-
-        /*--------------------OrderManagementLine-Check---------------------------------------------------------------------*/
-        // OrderManagementLine checking for STATUS_ID - 42L, 43L
-        long orderManagementLineCount = orderManagementLineService.getOrderManagementLineV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, Arrays.asList(42L, 43L));
-        boolean isConditionMet = (orderManagementLineCount > 0 ? true : false);
-        log.info("orderManagementLineCount ---- isConditionMet : " + isConditionMet);
-        if (isConditionMet) {
-            throw new BadRequestException("OrderManagementLine is not completely Processed.");
-        }
-
-        /*--------------------PickupHeader-Check---------------------------------------------------------------------*/
-        // PickupHeader checking for STATUS_ID - 48
-        long pickupHeaderCount = pickupHeaderService.getPickupHeaderCountForDeliveryConfirmationV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 48L);
-        isConditionMet = (pickupHeaderCount > 0 ? true : false);
-        log.info("pickupHeaderCount ---- isConditionMet : " + isConditionMet);
-        if (isConditionMet) {
-            throw new BadRequestException("Pickup is not completely Processed.");
-        }
-
-        // QualityHeader checking for STATUS_ID - 54
-        long qualityHeaderCount = qualityHeaderService.getQualityHeaderCountForDeliveryConfirmationV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 54L);
-        isConditionMet = (qualityHeaderCount > 0 ? true : false);
-        log.info("qualityHeaderCount ---- isConditionMet : " + isConditionMet);
-        if (isConditionMet) {
-            throw new BadRequestException("Quality check is not completely Processed.");
-        }
-
-        //----------------------------------------------------------------------------------------------------------
-//        List<Long> statusIdsToBeChecked = Arrays.asList(57L, 47L, 51L, 41L);
-        List<Long> statusIdsToBeChecked = Arrays.asList(57L, 47L, 51L);
-        long outboundLineListCount = getOutboundLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, statusIdsToBeChecked);
-        log.info("outboundLineListCount : " + outboundLineListCount);
-        isConditionMet = (outboundLineListCount > 0 ? true : false);
-        log.info("isConditionMet : " + isConditionMet);
-
-        if (!isConditionMet) {
-            throw new BadRequestException("OutboundLine: Order is not completely Processed.");
-        } else {
-            log.info("Order can be Processed.");
-        }
-
-            try {
-                Long STATUS_ID_59 = 59L;
-                List<Long> statusId57 = Arrays.asList(57L);
-                statusDescription = stagingLineV2Repository.getStatusDescription(STATUS_ID_59, languageId);
-                List<OutboundLineV2> outboundLineByStatus57List = findOutboundLineByStatusV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, statusId57);
-
-                // ----------------OutboundLine update-----------------------------------------------------------------------------------------
-                List<Long> lineNumbers = outboundLineByStatus57List.stream().map(OutboundLine::getLineNumber).collect(Collectors.toList());
-                List<String> itemCodes = outboundLineByStatus57List.stream().map(OutboundLine::getItemCode).collect(Collectors.toList());
-                Date deliveryConfirmedOn = new Date();
-                outboundLineV2Repository.updateOutboundLineStatusV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription, lineNumbers, deliveryConfirmedOn);
-                log.info("OutboundLine updated ");
-
-                //----------------Outbound Header update----------------------------------------------------------------------------------------
-                log.info("c_id, plant_id, lang_id, wh_id, ref_doc_no, status_id, Status_desc, date:---->OBH Update----> "
-                        + companyCodeId + "," + plantId + "," + languageId + "," + warehouseId + "," + refDocNumber + "," + STATUS_ID_59 + "," + statusDescription + "," + new Date());
-                outboundHeaderV2Repository.updateOutboundHeaderStatusNewV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription, new Date());
-                OutboundHeaderV2 isOrderConfirmedOutboundHeader = outboundHeaderService.getOutboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber);
-                log.info("OutboundHeader updated----1---> : " + isOrderConfirmedOutboundHeader.getRefDocNumber() + "---" + isOrderConfirmedOutboundHeader.getStatusId());
-                if (isOrderConfirmedOutboundHeader.getStatusId() != 59L) {
-                    log.info("OutboundHeader is still updated not updated.");
-                    log.info("Updating again OutboundHeader.");
-                    isOrderConfirmedOutboundHeader.setStatusId(STATUS_ID_59);
-                    isOrderConfirmedOutboundHeader.setStatusDescription(statusDescription);
-                    isOrderConfirmedOutboundHeader.setUpdatedBy(loginUserID);
-                    isOrderConfirmedOutboundHeader.setUpdatedOn(new Date());
-                    isOrderConfirmedOutboundHeader.setDeliveryConfirmedOn(new Date());
-                    outboundHeaderV2Repository.saveAndFlush(isOrderConfirmedOutboundHeader);
-                    log.info("OutboundHeader updated---2---> : " + isOrderConfirmedOutboundHeader.getRefDocNumber() + "---" + isOrderConfirmedOutboundHeader.getStatusId());
-                }
-
-                //----------------Preoutbound Line----------------------------------------------------------------------------------------------
-                preOutboundLineV2Repository.updatePreOutboundLineStatusV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription);
-                log.info("PreOutbound Line updated");
-
-                //----------------Preoutbound Header--------------------------------------------------------------------------------------------
-                preOutboundHeaderV2Repository.updatePreOutboundHeaderStatusV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription);
-                log.info("PreOutbound Header updated");
-
-                //----------------OrderManagement Line--------------------------------------------------------------------------------------------
-                orderManagementLineV2Repository.updateOrderManagementLineStatus(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription);
-                log.info("OrderManagement Line updated");
-
-                /*-----------------Inventory Updates---------------------------*/
-//                List<QualityLineV2> dbQualityLine = qualityLineService.getQualityLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumbers, itemCodes);
-//                Long BIN_CL_ID = 5L;
-//                for (QualityLineV2 qualityLine : dbQualityLine) {
-//                    //------------Update Lock applied---------------------------------------------------------------------------------
-//                    List<InventoryV2> inventoryList = inventoryService.getInventoryForDeliveryConfirmationV2(
-//                            qualityLine.getCompanyCodeId(), qualityLine.getPlantId(), qualityLine.getLanguageId(), qualityLine.getWarehouseId(),
-//                            qualityLine.getItemCode(), qualityLine.getPickPackBarCode(), BIN_CL_ID);
-//                    for (InventoryV2 inventory : inventoryList) {
-//                        Double INV_QTY = inventory.getInventoryQuantity() - qualityLine.getQualityQty();
+//        /*--------------------OutboundLine-Check---------------------------------------------------------------------------*/
+//        List<Long> statusIds = Arrays.asList(59L);
+//        long outboundLineProcessedCount = getOutboundLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, statusIds);
+//        log.info("outboundLineProcessedCount : " + outboundLineProcessedCount);
+//        boolean isAlreadyProcessed = (outboundLineProcessedCount > 0 ? true : false);
+//        log.info("outboundLineProcessed Already Processed? : " + isAlreadyProcessed);
+//        if (isAlreadyProcessed) {
+//            throw new BadRequestException("Order is already processed.");
+//        }
 //
-//                        if (INV_QTY < 0) {
-//                            INV_QTY = 0D;
-//                        }
+//        /*--------------------OrderManagementLine-Check---------------------------------------------------------------------*/
+//        // OrderManagementLine checking for STATUS_ID - 42L, 43L
+//        long orderManagementLineCount = orderManagementLineService.getOrderManagementLineV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, Arrays.asList(42L, 43L));
+//        boolean isConditionMet = (orderManagementLineCount > 0 ? true : false);
+//        log.info("orderManagementLineCount ---- isConditionMet : " + isConditionMet);
+//        if (isConditionMet) {
+//            throw new BadRequestException("OrderManagementLine is not completely Processed.");
+//        }
 //
-//                        if (INV_QTY >= 0) {
-//                            inventory.setInventoryQuantity(INV_QTY);
-//                            // INV_QTY > 0 then, update Inventory Table
-////                            inventory = inventoryV2Repository.save(inventory);
-//                            InventoryV2 newInventoryV2 = new InventoryV2();
-//                            BeanUtils.copyProperties(inventory, newInventoryV2, CommonUtils.getNullPropertyNames(inventory));
-//                            newInventoryV2.setInventoryId(System.currentTimeMillis());
-//                            InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventoryV2);
-//                            log.info("InventoryV2 created : " + createdInventoryV2);
-//                        }
-//                    }
-//                    log.info("Inventory updated");
-//                }
+//        /*--------------------PickupHeader-Check---------------------------------------------------------------------*/
+//        // PickupHeader checking for STATUS_ID - 48
+//        long pickupHeaderCount = pickupHeaderService.getPickupHeaderCountForDeliveryConfirmationV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 48L);
+//        isConditionMet = (pickupHeaderCount > 0 ? true : false);
+//        log.info("pickupHeaderCount ---- isConditionMet : " + isConditionMet);
+//        if (isConditionMet) {
+//            throw new BadRequestException("Pickup is not completely Processed.");
+//        }
+//
+//        // QualityHeader checking for STATUS_ID - 54
+//        long qualityHeaderCount = qualityHeaderService.getQualityHeaderCountForDeliveryConfirmationV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 54L);
+//        isConditionMet = (qualityHeaderCount > 0 ? true : false);
+//        log.info("qualityHeaderCount ---- isConditionMet : " + isConditionMet);
+//        if (isConditionMet) {
+//            throw new BadRequestException("Quality check is not completely Processed.");
+//        }
+//
+//        //----------------------------------------------------------------------------------------------------------
+////        List<Long> statusIdsToBeChecked = Arrays.asList(57L, 47L, 51L, 41L);
+//        List<Long> statusIdsToBeChecked = Arrays.asList(57L, 47L, 51L);
+//        long outboundLineListCount = getOutboundLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, statusIdsToBeChecked);
+//        log.info("outboundLineListCount : " + outboundLineListCount);
+//        isConditionMet = (outboundLineListCount > 0 ? true : false);
+//        log.info("isConditionMet : " + isConditionMet);
+//
+//        if (!isConditionMet) {
+//            throw new BadRequestException("OutboundLine: Order is not completely Processed.");
+//        } else {
+//            log.info("Order can be Processed.");
+//        }
 
-                /*-------------------Inserting record in InventoryMovement-------------------------------------*/
-//                Long BIN_CLASS_ID = 5L;
-//                AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-//                StorageBinV2 storageBin = mastersService.getStorageBin(companyCodeId, plantId, languageId, warehouseId, BIN_CLASS_ID, authTokenForMastersService.getAccess_token());
-//                String movementDocumentNo = refDocNumber;
-//                String stBin = storageBin.getStorageBin();
-//                String movementQtyValue = "N";
+		try {
+			Long STATUS_ID_59 = 59L;
+			List<Long> statusId57 = Arrays.asList(57L);
+			statusDescription = stagingLineV2Repository.getStatusDescription(STATUS_ID_59, languageId);
+			List<OutboundLineV2> outboundLineByStatus57List = findOutboundLineByStatusV2(companyCodeId, plantId,
+					languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, statusId57);
 
-//                List<PickupLineV2> dbPickupLine = pickupLineService.getPickupLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumbers, itemCodes);
-//                log.info("dbPickupLine: " + dbPickupLine.size());
-//                if (dbPickupLine != null) {
-//                    List<InventoryMovement> newInventoryMovementList = new ArrayList<>();
-//                    for (PickupLineV2 pickupLine : dbPickupLine) {
-//                        InventoryMovement inventoryMovement = createInventoryMovementV2(pickupLine, movementDocumentNo, stBin,
-//                                movementQtyValue, loginUserID, true);
-//                        newInventoryMovementList.add(inventoryMovement);
-//                    }
-//                    if (newInventoryMovementList.size() > 0) {
-//                        inventoryMovementRepository.saveAll(newInventoryMovementList);
-//                        log.info("InventoryMovement list created.");
-//                    }
-//                }
-                return outboundLineByStatus57List;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+			// ----------------OutboundLine update-----------------------------------------------------------------------------------------
+//			List<Long> lineNumbers = outboundLineByStatus57List.stream().map(OutboundLine::getLineNumber)
+//					.collect(Collectors.toList());
+//			List<String> itemCodes = outboundLineByStatus57List.stream().map(OutboundLine::getItemCode)
+//					.collect(Collectors.toList());
+			Date deliveryConfirmedOn = new Date();
+			outboundLineV2Repository.updateOutboundLineStatusV2(companyCodeId, plantId, languageId, warehouseId,
+					refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription, lineNumbers, deliveryConfirmedOn);
+			log.info("OutboundLine updated ");
+
+			// ----------------Outbound-Header-update----------------------------------------------------------------------------------------
+			log.info("c_id, plant_id, lang_id, wh_id, ref_doc_no, status_id, Status_desc, date:---->OBH Update----> "
+					+ companyCodeId + "," + plantId + "," + languageId + "," + warehouseId + "," + refDocNumber + ","
+					+ STATUS_ID_59 + "," + statusDescription + "," + new Date());
+			outboundHeaderV2Repository.updateOutboundHeaderStatusNewV2(companyCodeId, plantId, languageId, warehouseId,
+					refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription, new Date());
+			
+			OutboundHeaderV2 isOrderConfirmedOutboundHeader = outboundHeaderService.getOutboundHeaderV2(companyCodeId,
+					plantId, languageId, warehouseId, preOutboundNo, refDocNumber);
+			log.info("OutboundHeader updated----1---> : " + isOrderConfirmedOutboundHeader.getRefDocNumber() + "---"
+					+ isOrderConfirmedOutboundHeader.getStatusId());
+			
+			if (isOrderConfirmedOutboundHeader.getStatusId() != 59L) {
+				log.info("OutboundHeader is still updated not updated.");
+				log.info("Updating again OutboundHeader.");
+				isOrderConfirmedOutboundHeader.setStatusId(STATUS_ID_59);
+				isOrderConfirmedOutboundHeader.setStatusDescription(statusDescription);
+				isOrderConfirmedOutboundHeader.setUpdatedBy(loginUserID);
+				isOrderConfirmedOutboundHeader.setUpdatedOn(new Date());
+				isOrderConfirmedOutboundHeader.setDeliveryConfirmedOn(new Date());
+				outboundHeaderV2Repository.saveAndFlush(isOrderConfirmedOutboundHeader);
+				log.info("OutboundHeader updated---2---> : " + isOrderConfirmedOutboundHeader.getRefDocNumber() + "---"
+						+ isOrderConfirmedOutboundHeader.getStatusId());
+			}
+
+			// ----------------Preoutbound-Line----------------------------------------------------------------------------------------------
+			preOutboundLineV2Repository.updatePreOutboundLineStatusV2(companyCodeId, plantId, languageId, warehouseId,
+					refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription);
+			log.info("PreOutbound Line updated");
+
+			// ----------------Preoutbound-Header--------------------------------------------------------------------------------------------
+			preOutboundHeaderV2Repository.updatePreOutboundHeaderStatusV2(companyCodeId, plantId, languageId,
+					warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription);
+			log.info("PreOutbound Header updated");
+
+			// ----------------OrderManagement-Line--------------------------------------------------------------------------------------------
+			orderManagementLineV2Repository.updateOrderManagementLineStatus(companyCodeId, plantId, languageId,
+					warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription);
+			log.info("OrderManagement Line updated");
+			
+			return outboundLineByStatus57List;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
         return null;
     }
+    
+    /**
+     * 
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param preOutboundNo
+     * @param refDocNumber
+     * @param partnerCode
+     * @param loginUserID
+     * @return
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
+    public List<OutboundLineV2> deliveryConfirmationV2(String companyCodeId, String plantId, String languageId, String warehouseId,
+            String preOutboundNo, String refDocNumber, String partnerCode, String loginUserID)
+             throws IllegalAccessException, InvocationTargetException {
+         /*--------------------OutboundLine-Check---------------------------------------------------------------------------*/
+         List<Long> statusIds = Arrays.asList(59L);
+         long outboundLineProcessedCount = getOutboundLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, statusIds);
+         log.info("outboundLineProcessedCount : " + outboundLineProcessedCount);
+         boolean isAlreadyProcessed = (outboundLineProcessedCount > 0 ? true : false);
+         log.info("outboundLineProcessed Already Processed? : " + isAlreadyProcessed);
+         if (isAlreadyProcessed) {
+             throw new BadRequestException("Order is already processed.");
+         }
+ 
+         /*--------------------OrderManagementLine-Check---------------------------------------------------------------------*/
+         // OrderManagementLine checking for STATUS_ID - 42L, 43L
+         long orderManagementLineCount = orderManagementLineService.getOrderManagementLineV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, Arrays.asList(42L, 43L));
+         boolean isConditionMet = (orderManagementLineCount > 0 ? true : false);
+         log.info("orderManagementLineCount ---- isConditionMet : " + isConditionMet);
+         if (isConditionMet) {
+             throw new BadRequestException("OrderManagementLine is not completely Processed.");
+         }
+ 
+         /*--------------------PickupHeader-Check---------------------------------------------------------------------*/
+         // PickupHeader checking for STATUS_ID - 48
+         long pickupHeaderCount = pickupHeaderService.getPickupHeaderCountForDeliveryConfirmationV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 48L);
+         isConditionMet = (pickupHeaderCount > 0 ? true : false);
+         log.info("pickupHeaderCount ---- isConditionMet : " + isConditionMet);
+         if (isConditionMet) {
+             throw new BadRequestException("Pickup is not completely Processed.");
+         }
+ 
+         // QualityHeader checking for STATUS_ID - 54
+         long qualityHeaderCount = qualityHeaderService.getQualityHeaderCountForDeliveryConfirmationV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 54L);
+         isConditionMet = (qualityHeaderCount > 0 ? true : false);
+         log.info("qualityHeaderCount ---- isConditionMet : " + isConditionMet);
+         if (isConditionMet) {
+             throw new BadRequestException("Quality check is not completely Processed.");
+         }
+ 
+         //----------------------------------------------------------------------------------------------------------
+//         List<Long> statusIdsToBeChecked = Arrays.asList(57L, 47L, 51L, 41L);
+         List<Long> statusIdsToBeChecked = Arrays.asList(57L, 47L, 51L);
+         long outboundLineListCount = getOutboundLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, statusIdsToBeChecked);
+         log.info("outboundLineListCount : " + outboundLineListCount);
+         isConditionMet = (outboundLineListCount > 0 ? true : false);
+         log.info("isConditionMet : " + isConditionMet);
+ 
+         if (!isConditionMet) {
+             throw new BadRequestException("OutboundLine: Order is not completely Processed.");
+         } else {
+             log.info("Order can be Processed.");
+         }
+
+ 		try {
+ 			Long STATUS_ID_59 = 59L;
+ 			List<Long> statusId57 = Arrays.asList(57L);
+ 			statusDescription = stagingLineV2Repository.getStatusDescription(STATUS_ID_59, languageId);
+ 			List<OutboundLineV2> outboundLineByStatus57List = findOutboundLineByStatusV2(companyCodeId, plantId,
+ 					languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, statusId57);
+
+ 			// ----------------OutboundLine update-----------------------------------------------------------------------------------------
+ 			List<Long> lineNumbers = outboundLineByStatus57List.stream().map(OutboundLine::getLineNumber)
+ 					.collect(Collectors.toList());
+ 			Date deliveryConfirmedOn = new Date();
+ 			outboundLineV2Repository.updateOutboundLineStatusV2(companyCodeId, plantId, languageId, warehouseId,
+ 					refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription, lineNumbers, deliveryConfirmedOn);
+ 			log.info("OutboundLine updated ");
+
+ 			// ----------------Outbound-Header-update----------------------------------------------------------------------------------------
+ 			log.info("c_id, plant_id, lang_id, wh_id, ref_doc_no, status_id, Status_desc, date:---->OBH Update----> "
+ 					+ companyCodeId + "," + plantId + "," + languageId + "," + warehouseId + "," + refDocNumber + ","
+ 					+ STATUS_ID_59 + "," + statusDescription + "," + new Date());
+ 			outboundHeaderV2Repository.updateOutboundHeaderStatusNewV2(companyCodeId, plantId, languageId, warehouseId,
+ 					refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription, new Date());
+ 			
+ 			OutboundHeaderV2 isOrderConfirmedOutboundHeader = outboundHeaderService.getOutboundHeaderV2(companyCodeId,
+ 					plantId, languageId, warehouseId, preOutboundNo, refDocNumber);
+ 			log.info("OutboundHeader updated----1---> : " + isOrderConfirmedOutboundHeader.getRefDocNumber() + "---"
+ 					+ isOrderConfirmedOutboundHeader.getStatusId());
+ 			
+ 			if (isOrderConfirmedOutboundHeader.getStatusId() != 59L) {
+ 				log.info("OutboundHeader is still updated not updated.");
+ 				log.info("Updating again OutboundHeader.");
+ 				isOrderConfirmedOutboundHeader.setStatusId(STATUS_ID_59);
+ 				isOrderConfirmedOutboundHeader.setStatusDescription(statusDescription);
+ 				isOrderConfirmedOutboundHeader.setUpdatedBy(loginUserID);
+ 				isOrderConfirmedOutboundHeader.setUpdatedOn(new Date());
+ 				isOrderConfirmedOutboundHeader.setDeliveryConfirmedOn(new Date());
+ 				outboundHeaderV2Repository.saveAndFlush(isOrderConfirmedOutboundHeader);
+ 				log.info("OutboundHeader updated---2---> : " + isOrderConfirmedOutboundHeader.getRefDocNumber() + "---"
+ 						+ isOrderConfirmedOutboundHeader.getStatusId());
+ 			}
+
+ 			// ----------------Preoutbound-Line----------------------------------------------------------------------------------------------
+ 			preOutboundLineV2Repository.updatePreOutboundLineStatusV2(companyCodeId, plantId, languageId, warehouseId,
+ 					refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription);
+ 			log.info("PreOutbound Line updated");
+
+ 			// ----------------Preoutbound-Header--------------------------------------------------------------------------------------------
+ 			preOutboundHeaderV2Repository.updatePreOutboundHeaderStatusV2(companyCodeId, plantId, languageId,
+ 					warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription);
+ 			log.info("PreOutbound Header updated");
+
+ 			// ----------------OrderManagement-Line--------------------------------------------------------------------------------------------
+ 			orderManagementLineV2Repository.updateOrderManagementLineStatus(companyCodeId, plantId, languageId,
+ 					warehouseId, refDocNumber, preOutboundNo, STATUS_ID_59, statusDescription);
+ 			log.info("OrderManagement Line updated");
+ 			
+ 			return outboundLineByStatus57List;
+ 		} catch (Exception e) {
+ 			e.printStackTrace();
+ 		}
+         return null;
+     }
 
     /**
      *

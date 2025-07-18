@@ -174,4 +174,7 @@ public class OutboundLineInterim {
 
 	@Transient
 	private String mfrPartNumber;
+	
+	@Column(name = "IS_OB_LINE_UTD")
+	private Long isOutboundLineUpdated;
 }
