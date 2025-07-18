@@ -1826,12 +1826,12 @@ public class InboundHeaderService extends BaseService {
 					try {
 						boolean createdInventory = createInventoryNonCBMV2(putAwayLine);
 						log.info("----createdInventory-------flag---> : " + createdInventory);
-						if (createdInventory) {
+//						if (createdInventory) {
 							inboundLinePartialConfirmRepository.updateInboundLinePartialConfirmExecutedStatus(
 									inboundLine.getLanguageId(), inboundLine.getPlantId(), inboundLine.getCompanyCode(),
 									inboundLine.getWarehouseId(), inboundLine.getPreInboundNo(),
 									inboundLine.getRefDocNumber(), inboundLine.getLineNo(), 1L);
-						}
+//						}
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
