@@ -1,19 +1,26 @@
 package com.tekclover.wms.api.transaction.repository;
 
-import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2;
-import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2Stream;
-import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
-import org.springframework.data.jpa.repository.*;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Stream;
+
+import javax.persistence.LockModeType;
+import javax.persistence.QueryHint;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.LockModeType;
-import javax.persistence.QueryHint;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Stream;
+import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2;
+import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2Stream;
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 
 @Repository
 @Transactional
@@ -423,6 +430,7 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
                     "as countOfPickedLine \n"+
 
                     "from tbloutboundheader oh\n" +
+                    "Left Join tblpreoutboundheader poh on oh.REF_DOC_NO = poh.REF_DOC_NO AND oh.PRE_OB_NO = poh.pre_ob_no AND oh.c_id = poh.c_id AND oh.plant_id = poh.plant_id AND oh.lang_id = poh.lang_id AND oh.wh_id = poh.wh_id\n" +
                     "where oh.is_deleted = 0 and \n" +
                     "(COALESCE(:companyCodeId, null) IS NULL OR (oh.c_id IN (:companyCodeId))) and \n" +
                     "(COALESCE(:plantId, null) IS NULL OR (oh.plant_id IN (:plantId))) and \n" +
@@ -435,8 +443,9 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
                     "(COALESCE(:outboundOrderTypeId, null) IS NULL OR (oh.ob_ord_typ_id IN (:outboundOrderTypeId))) and \n" +
                     "(COALESCE(:statusId, null) IS NULL OR (oh.status_id IN (:statusId))) and \n" +
                     "(COALESCE(:soType, null) IS NULL OR (oh.ref_field_1 IN (:soType))) and\n" +
-                    "(COALESCE(CONVERT(VARCHAR(255), :startRequiredDeliveryDate), null) IS NULL OR (oh.REQ_DEL_DATE between COALESCE(CONVERT(VARCHAR(255), :startRequiredDeliveryDate), null) and COALESCE(CONVERT(VARCHAR(255), :endRequiredDeliveryDate), null))) and\n" +
-                    "(COALESCE(CONVERT(VARCHAR(255), :startDeliveryConfirmedOn), null) IS NULL OR (oh.DLV_CNF_ON between COALESCE(CONVERT(VARCHAR(255), :startDeliveryConfirmedOn), null) and COALESCE(CONVERT(VARCHAR(255), :endDeliveryConfirmedOn), null))) and\n" +
+                    "(COALESCE(CONVERT(VARCHAR(255), :startRequiredDeliveryDate), null) IS NULL OR (oh.REQ_DEL_DATE between COALESCE(CONVERT(VARCHAR(255), :startRequiredDeliveryDate), null) and COALESCE(CONVERT(VARCHAR(255), :endRequiredDeliveryDate), null))) and \n" +
+                    "(COALESCE(CONVERT(VARCHAR(255), :startDeliveryConfirmedOn), null) IS NULL OR (oh.DLV_CNF_ON between COALESCE(CONVERT(VARCHAR(255), :startDeliveryConfirmedOn), null) and COALESCE(CONVERT(VARCHAR(255), :endDeliveryConfirmedOn), null))) and \n" +
+                    "(COALESCE(CONVERT(VARCHAR(255), :startCtdOn), null) IS NULL OR (poh.PRE_OB_CTD_ON between COALESCE(CONVERT(VARCHAR(255), :startCtdOn), null) and COALESCE(CONVERT(VARCHAR(255), :endCtdOn), null))) and \n" +
                     "(COALESCE(CONVERT(VARCHAR(255), :startOrderDate), null) IS NULL OR (oh.DLV_CTD_ON between COALESCE(CONVERT(VARCHAR(255), :startOrderDate), null) and COALESCE(CONVERT(VARCHAR(255), :endOrderDate), null)))" , nativeQuery = true)
     List<OutboundHeaderV2Stream> findAllOutBoundHeaderForRFD(
             @Param(value = "companyCodeId") List<String> companyCodeId,
@@ -455,7 +464,9 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
             @Param(value = "startDeliveryConfirmedOn") Date startDeliveryConfirmedOn,
             @Param(value = "endDeliveryConfirmedOn") Date endDeliveryConfirmedOn,
             @Param(value = "startOrderDate") Date startOrderDate,
-            @Param(value = "endOrderDate") Date endOrderDate);
+            @Param(value = "endOrderDate") Date endOrderDate,
+            @Param(value = "startCtdOn") Date startCtdOn,
+            @Param(value = "endCtdOn") Date endCtdOn);
 
     @QueryHints(@javax.persistence.QueryHint(name = "org.hibernate.fetchSize", value = "1000"))
     @Query(value =

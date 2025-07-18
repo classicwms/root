@@ -1,18 +1,13 @@
 package com.tekclover.wms.api.transaction.service;
 
-import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
-import com.tekclover.wms.api.transaction.model.IKeyValuePair;
-import com.tekclover.wms.api.transaction.model.outbound.*;
-import com.tekclover.wms.api.transaction.model.outbound.preoutbound.v2.OutboundIntegrationHeaderV2;
-import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2;
-import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2Stream;
-import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundLineV2;
-import com.tekclover.wms.api.transaction.model.outbound.v2.SearchOutboundHeaderV2;
-import com.tekclover.wms.api.transaction.repository.*;
-import com.tekclover.wms.api.transaction.repository.specification.OutboundHeaderV2Specification;
-import com.tekclover.wms.api.transaction.util.CommonUtils;
-import com.tekclover.wms.api.transaction.util.DateUtils;
-import lombok.extern.slf4j.Slf4j;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.persistence.EntityNotFoundException;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -20,12 +15,28 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
+import com.tekclover.wms.api.transaction.model.IKeyValuePair;
+import com.tekclover.wms.api.transaction.model.outbound.AddOutboundHeader;
+import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
+import com.tekclover.wms.api.transaction.model.outbound.OutboundHeaderStream;
+import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundHeader;
+import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundHeader;
+import com.tekclover.wms.api.transaction.model.outbound.preoutbound.v2.OutboundIntegrationHeaderV2;
+import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2;
+import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2Stream;
+import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundLineV2;
+import com.tekclover.wms.api.transaction.model.outbound.v2.SearchOutboundHeaderV2;
+import com.tekclover.wms.api.transaction.repository.OutboundHeaderRepository;
+import com.tekclover.wms.api.transaction.repository.OutboundHeaderV2Repository;
+import com.tekclover.wms.api.transaction.repository.OutboundLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.PreOutboundLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.StagingLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.specification.OutboundHeaderV2Specification;
+import com.tekclover.wms.api.transaction.util.CommonUtils;
+import com.tekclover.wms.api.transaction.util.DateUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -915,13 +926,11 @@ public class OutboundHeaderService {
         }
 
         if (searchOutboundHeader.getStartDeliveryConfirmedOn() != null && searchOutboundHeader.getEndDeliveryConfirmedOn() != null) {
-
             Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartDeliveryConfirmedOn(), searchOutboundHeader.getEndDeliveryConfirmedOn());
             searchOutboundHeader.setStartDeliveryConfirmedOn(dates[0]);
             searchOutboundHeader.setEndDeliveryConfirmedOn(dates[1]);
 
         } else {
-
             searchOutboundHeader.setStartDeliveryConfirmedOn(null);
             searchOutboundHeader.setEndDeliveryConfirmedOn(null);
 
@@ -973,8 +982,6 @@ public class OutboundHeaderService {
         if (searchOutboundHeader.getStatusId() == null || searchOutboundHeader.getStatusId().isEmpty()) {
             searchOutboundHeader.setStatusId(null);
         }
-
-
 
         List<OutboundHeaderV2Stream> headerSearchResults = outboundHeaderV2Repository.findAllOutBoundHeaderForRFD(
                 searchOutboundHeader.getCompanyCodeId(),
