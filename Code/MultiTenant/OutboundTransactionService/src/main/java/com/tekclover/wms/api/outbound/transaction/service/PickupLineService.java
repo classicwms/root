@@ -5548,11 +5548,17 @@ public class PickupLineService extends BaseService {
      */
     public void updateStorageBinEmptyStatus(String companyCodeId, String plantId, String languageId,
                                             String warehouseId, String storageBin, String loginUserID) {
-        StorageBinV2 dbStorageBin = storageBinService.getStorageBinV2(companyCodeId, plantId, languageId, warehouseId, storageBin);
-        if (dbStorageBin != null) {
-            dbStorageBin.setStatusId(0L);
-            StorageBinV2 updateStorageBin = storageBinService.updateStorageBinV2(storageBin, dbStorageBin, companyCodeId, plantId, languageId, warehouseId, loginUserID);
-            log.info("Bin Emptied Update Success----> " + updateStorageBin);
+        try {
+            StorageBinV2 dbStorageBin = storageBinService.getStorageBinV2(companyCodeId, plantId, languageId, warehouseId, storageBin);
+            if (dbStorageBin != null) {
+                dbStorageBin.setStatusId(0L);
+
+                storageBinRepository.updateEmptyBinStatus(storageBin, companyCodeId, plantId, warehouseId, 0L);
+//            StorageBinV2 updateStorageBin = storageBinService.updateStorageBinV2(storageBin, dbStorageBin, companyCodeId, plantId, languageId, warehouseId, loginUserID);
+//            log.info("Bin Emptied Update Success----> " + updateStorageBin);
+            }
+        } catch (Exception e) {
+            log.info("StorageBin Empty Status Update Error throw ---------------> ");
         }
     }
 

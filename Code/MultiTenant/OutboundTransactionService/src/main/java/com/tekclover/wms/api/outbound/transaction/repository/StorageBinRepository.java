@@ -136,7 +136,7 @@ public interface StorageBinRepository extends JpaRepository<StorageBin, Long>,
     @Modifying
     @Query(value = "UPDATE tblstoragebin set status_id = :statusId WHERE \n " +
             "st_bin = :storageBin AND c_id = :companyCodeId AND plant_id = :plantId \n" +
-            "AND wh_id = :warehouseId", nativeQuery = true)
+            "AND wh_id = :warehouseId AND is_deleted =0", nativeQuery = true)
     void updateEmptyBinStatus(@Param("storageBin") String storageBin,
                               @Param("companyCodeId") String companyCodeId,
                               @Param("plantId") String plantId,
