@@ -231,7 +231,7 @@ public class BaseService {
      * @param accessToken
      * @return
      */
-    protected String getNextRangeNumber(Long NUM_RAN_CODE, String companyCodeId, String plantId,
+    protected synchronized String getNextRangeNumber(Long NUM_RAN_CODE, String companyCodeId, String plantId,
                                         String languageId, String warehouseId, String accessToken) {
         String nextNumberRange = idmasterService.getNextNumberRange(NUM_RAN_CODE, warehouseId, companyCodeId, plantId, languageId, accessToken);
         return nextNumberRange;
