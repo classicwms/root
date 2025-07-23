@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 @ToString(callSuper = true)
+@Data
 public class SearchOutboundHeaderV2 extends SearchOutboundHeader {
 
 	private List<String> languageId;
@@ -14,9 +15,6 @@ public class SearchOutboundHeaderV2 extends SearchOutboundHeader {
 	private List<String> plantId;
 	private List<String> targetBranchCode;
 	
-	private Date startOrderDate;
-	private Date endOrderDate;
-
 	private Date startCreatedOn;
 	private Date endCreatedOn;
 }
