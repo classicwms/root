@@ -6,6 +6,7 @@ import lombok.ToString;
 import java.util.Date;
 import java.util.List;
 
+@Data
 @ToString(callSuper = true)
 public class SearchOutboundHeaderV2 extends SearchOutboundHeader {
 

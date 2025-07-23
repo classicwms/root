@@ -936,11 +936,9 @@ public class OutboundHeaderService {
 
         }
         if (searchOutboundHeader.getStartDeliveryConfirmedOn() != null && searchOutboundHeader.getEndDeliveryConfirmedOn() != null) {
-//            if (flag != 1) {
-                Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartDeliveryConfirmedOn(), searchOutboundHeader.getEndDeliveryConfirmedOn());
-                searchOutboundHeader.setStartDeliveryConfirmedOn(dates[0]);
-                searchOutboundHeader.setEndDeliveryConfirmedOn(dates[1]);
-//            }
+            Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartDeliveryConfirmedOn(), searchOutboundHeader.getEndDeliveryConfirmedOn());
+            searchOutboundHeader.setStartDeliveryConfirmedOn(dates[0]);
+            searchOutboundHeader.setEndDeliveryConfirmedOn(dates[1]);
         } else {
             searchOutboundHeader.setStartDeliveryConfirmedOn(null);
             searchOutboundHeader.setEndDeliveryConfirmedOn(null);
@@ -953,6 +951,15 @@ public class OutboundHeaderService {
         } else {
             searchOutboundHeader.setStartOrderDate(null);
             searchOutboundHeader.setEndOrderDate(null);
+        }
+        
+        if (searchOutboundHeader.getStartCreatedOn() != null && searchOutboundHeader.getEndCreatedOn() != null) {
+            Date[] dates = DateUtils.addTimeToDatesForSearch(searchOutboundHeader.getStartCreatedOn(), searchOutboundHeader.getEndCreatedOn());
+            searchOutboundHeader.setStartCreatedOn(dates[0]);
+            searchOutboundHeader.setEndCreatedOn(dates[1]);
+        } else {
+            searchOutboundHeader.setStartCreatedOn(null);
+            searchOutboundHeader.setEndCreatedOn(null);
         }
 
         if (searchOutboundHeader.getCompanyCodeId() == null || searchOutboundHeader.getCompanyCodeId().isEmpty()) {
@@ -995,7 +1002,8 @@ public class OutboundHeaderService {
                 searchOutboundHeader.getStatusId(), searchOutboundHeader.getSoType(),
                 searchOutboundHeader.getStartRequiredDeliveryDate(), searchOutboundHeader.getEndRequiredDeliveryDate(),
                 searchOutboundHeader.getStartDeliveryConfirmedOn(), searchOutboundHeader.getEndDeliveryConfirmedOn(),
-                searchOutboundHeader.getStartOrderDate(), searchOutboundHeader.getEndOrderDate());
+                searchOutboundHeader.getStartOrderDate(), searchOutboundHeader.getEndOrderDate(),
+                searchOutboundHeader.getStartCreatedOn(), searchOutboundHeader.getEndCreatedOn());
 
 
 //        List<OutboundHeaderV2> headerSearchResults = outboundHeaderV2Repository.findOutboundHeaderV2(
@@ -1029,6 +1037,7 @@ public class OutboundHeaderService {
 
         return headerSearchResults;
     }
+
 
     /**
      * createOutboundHeader

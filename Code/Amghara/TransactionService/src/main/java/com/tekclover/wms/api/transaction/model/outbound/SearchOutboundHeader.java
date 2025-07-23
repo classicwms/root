@@ -27,4 +27,7 @@ public class SearchOutboundHeader {
 	private Date startOrderDate;
 	private Date endOrderDate;
 	
+	private Date startCreatedOn;
+	private Date endCreatedOn;
+	
 }
