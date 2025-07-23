@@ -363,4 +363,28 @@ public interface PutAwayHeaderV2Repository extends JpaRepository<PutAwayHeaderV2
                               @Param("preInboundNo") String preInboundNo,
                               @Param("barcodeId") String barcodeId);
 
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update tblputawayheader SET status_Id = :statusId, status_text = :statusDescription " +
+            "WHERE wh_id = :warehouseId AND ref_doc_no = :refDocNumber and c_id = :companyCodeId and plant_id = :plantId and lang_id = :languageId ", nativeQuery = true)
+    void softUpdateStatusByRefDocNo(@Param("warehouseId") String warehouseId,
+                                    @Param("companyCodeId") String companyCodeId,
+                                    @Param("plantId") String plantId,
+                                    @Param("languageId") String languageId,
+                                    @Param("refDocNumber") String refDocNumber,
+                                    @Param("statusId") Long statusId,
+                                    @Param("statusDescription") String statusDescription);
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update tblputawayheader SET status_Id = :statusId, status_text = :statusDescription " +
+            "WHERE wh_id = :warehouseId AND ref_doc_no = :refDocNumber and c_id = :companyCodeId and plant_id = :plantId and " +
+            "lang_id = :languageId and PACK_BARCODE = :packBarcodeId", nativeQuery = true)
+    void updatePutAwayHeaderV4(@Param("warehouseId") String warehouseId,
+                               @Param("companyCodeId") String companyCodeId,
+                               @Param("plantId") String plantId,
+                               @Param("languageId") String languageId,
+                               @Param("refDocNumber") String refDocNumber,
+                               @Param("statusId") Long statusId,
+                               @Param("statusDescription") String statusDescription,
+                               @Param("packBarcodeId") String backBarcodeId);
+
 }

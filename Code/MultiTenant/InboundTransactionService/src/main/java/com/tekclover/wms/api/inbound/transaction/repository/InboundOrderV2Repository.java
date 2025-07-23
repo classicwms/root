@@ -38,4 +38,5 @@ public interface InboundOrderV2Repository extends JpaRepository<InboundOrderV2, 
    void updatePutawayHeader(@Param("inboundHeaderId") Long inboundHeaderId,
                             @Param("refDocNo") String refDocNo,
                             @Param("text") String text);
+
 }

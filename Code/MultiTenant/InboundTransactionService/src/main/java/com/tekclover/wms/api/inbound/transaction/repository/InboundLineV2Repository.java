@@ -289,5 +289,23 @@ public interface InboundLineV2Repository extends JpaRepository<InboundLineV2, Lo
     @Query(value = "update tblinboundline set is_deleted = 1 where REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo ",nativeQuery = true)
     void softDeleteByRefDocNo(@Param("refDocNumber") String refDocNumber,
                               @Param("preInboundNo") String preInboundNo);
+
+    @Modifying
+    @Query(value = "update tblinboundline set status_id = :statusId , status_text = :statusText, act_accept_qty =:actualAcceptQty, ACCEPT_QTY =:acceptQty, VAR_QTY =:varianceQty \n" +
+            "where c_id = :companyId and lang_id = :languageId and plant_id = :plantId and \n " +
+            "wh_id =:warehouseId and ref_doc_no = :refDocNo and pre_ib_no = :preInboundNo and ib_line_no = :lineNo and itm_code = :itemCode", nativeQuery = true)
+    void updateInboundLineStatusAndQuantity(@Param("companyId") String companyId,
+                                            @Param("plantId") String plantId,
+                                            @Param("languageId") String languageId,
+                                            @Param("warehouseId") String warehouseId,
+                                            @Param("refDocNo") String refDocNo,
+                                            @Param("preInboundNo") String preInboundNo,
+                                            @Param("lineNo") Long lineNo,
+                                            @Param("itemCode") String itemCode,
+                                            @Param("statusId") Long statusId,
+                                            @Param("statusText") String statusText,
+                                            @Param("actualAcceptQty") Double actualAcceptQty,
+                                            @Param("acceptQty") Double acceptQty,
+                                            @Param("varianceQty") Double varianceQty);
 }
 

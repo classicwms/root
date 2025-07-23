@@ -243,18 +243,25 @@ public class PutAwayLineController {
 			if (profile != null) {
 				switch (profile) {
 					case "FAHAHEEL":
- 					case "AUTO_LAP":
+					case "AUTO_LAP":
 						createdPutAwayLine = putawaylineService.putAwayLineConfirmV2(newPutAwayLine, loginUserID);
 						break;
 					case "NAMRATHA":
 						createdPutAwayLine = putawaylineService.putAwayLineConfirmNonCBMV4(newPutAwayLine, loginUserID);
 						break;
-					case "REEFERON":
-						createdPutAwayLine = putawaylineService.putAwayLineConfirmNonCBMV5(newPutAwayLine, loginUserID);
-						break;
-						case "KNOWELL":
+//					case "REEFERON":
+//						asyncService.processPutAwayLineAsync(newPutAwayLine, loginUserID);
+//						break;
+					case "KNOWELL":
 						createdPutAwayLine = putawaylineService.putAwayLineConfirmNonCBMV7(newPutAwayLine, loginUserID);
+						break;
+					case "BP":
+						createdPutAwayLine = putawaylineService.putAwayLineConfirmNonCBMV4(newPutAwayLine, loginUserID);
+						break;
 				}
+			}
+			if(createdPutAwayLine == null) {
+				createdPutAwayLine = newPutAwayLine;                  // for Reeferon
 			}
 			return new ResponseEntity<>(createdPutAwayLine, HttpStatus.OK);
 		} catch (Exception e) {
@@ -263,7 +270,6 @@ public class PutAwayLineController {
 			DataBaseContextHolder.clear();
 		}
 	}
-
 //	@ApiOperation(response = PutAwayLineV2.class, value = "Create PutAwayLine V2") // label for swagger
 //	@PostMapping("/confirm/v2")
 //	public ResponseEntity<?> postPutAwayLineConfirmV2(@Valid @RequestBody List<PutAwayLineV2> newPutAwayLine,

@@ -29,6 +29,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
@@ -36,6 +37,9 @@ import javax.validation.Valid;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -121,14 +125,14 @@ public class PutAwayLineService extends BaseService {
     @Autowired
     PushNotificationService pushNotificationService;
 
+    @Autowired
     PickupHeaderV2Repository pickupHeaderV2Repository;
 
     @Autowired
-    DbConfigRepository dbConfigRepository;
+    InventoryAsyncProcessService inventoryAsyncProcessService;
+
 
     String statusDescription = null;
-    String stockTypeDesc = null;
-
     boolean alreadyExecuted = true;
 
     //--------------------------------------------------------------------------------------------
@@ -3340,309 +3344,196 @@ public class PutAwayLineService extends BaseService {
 
 
     /**
-     * @param newPutAwayLines
-     * @param loginUserID
+     *
+     * @param newPutAwayLines putAwayLines
+     * @param loginUserID userID
      * @return
      */
-    @Transactional(rollbackFor = {Exception.class, Throwable.class})
     public List<PutAwayLineV2> putAwayLineConfirmNonCBMV4(@Valid List<PutAwayLineV2> newPutAwayLines, String loginUserID) {
-        List<PutAwayLineV2> createdPutAwayLines = new ArrayList<>();
-        log.info("newPutAwayLines to confirm : " + newPutAwayLines);
+        ExecutorService asyncExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-        String itemCode = null;
-        String companyCode = null;
-        String plantId = null;
-        String languageId = null;
-        String warehouseId = null;
-        String refDocNumber = null;
-        String preInboundNo = null;
-        String manufactureName = null;
-        String lineReferenceNo = null;
+        List<CompletableFuture<PutAwayLineV2>> futures = newPutAwayLines.stream().map(putAwayLineV2 -> CompletableFuture.supplyAsync(() -> {
+            try {
+                return createPutAwayLineProcessV4(putAwayLineV2, loginUserID);
+            } catch (Exception e) {
+                log.error("Error processing GRLine: {}", putAwayLineV2.getLineNo(), e);
+                return null; // or throw RuntimeException
+            }
+        }, asyncExecutor)).collect(Collectors.toList());
 
+        List<PutAwayLineV2> createdPutAwayLines = futures.stream()
+                .map(CompletableFuture::join)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+
+        log.info("PutAwayLine Value size is {}", createdPutAwayLines.size());
+        if (!createdPutAwayLines.isEmpty()) {
+            putAwayLineV2Repository.saveAll(createdPutAwayLines);
+        } else {
+            throw new BadRequestException("PutAwayLine List is Empty  ------------------> ");
+        }
+
+        PutAwayLineV2 putAwayLine = createdPutAwayLines.get(0);
+        putAwayLineV2Repository.updateInboundHeaderRxdLinesCountProc(putAwayLine.getCompanyCode(), putAwayLine.getPlantId(), putAwayLine.getLanguageId(),
+                putAwayLine.getWarehouseId(), putAwayLine.getRefDocNumber(), putAwayLine.getPreInboundNo());
+        log.info("InboundHeader received lines count updated: " + putAwayLine.getRefDocNumber());
+
+        log.info("Inventory Async Process Started -------------------> ");
+        inventoryAsyncProcessService.createInventoryAsyncProcessV4(createdPutAwayLines, loginUserID);
+
+        inboundConfirmValidation(putAwayLine.getCompanyCode(), putAwayLine.getPlantId(), putAwayLine.getLanguageId(), putAwayLine.getWarehouseId(),
+                putAwayLine.getRefDocNumber(), putAwayLine.getPreInboundNo(), loginUserID);
+        return createdPutAwayLines;
+
+    }
+
+
+    /**
+     * @param newPutAwayLine putAwayLine
+     * @param loginUserID userID
+     * @return
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+    public PutAwayLineV2 createPutAwayLineProcessV4(@Valid PutAwayLineV2 newPutAwayLine, String loginUserID) {
+//        List<PutAwayLineV2> createdPutAwayLines = new ArrayList<>();
+        log.info("newPutAwayLines to confirm : " + newPutAwayLine);
+
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb("NAMRATHA");
         try {
-            for (PutAwayLineV2 newPutAwayLine : newPutAwayLines) {
-                if (newPutAwayLine.getPutawayConfirmedQty() <= 0) {
-                    throw new BadRequestException("Putaway Confirm Qty cannot be zero or negative");
-                }
-                PutAwayLineV2 dbPutAwayLine = new PutAwayLineV2();
+            if (newPutAwayLine.getPutawayConfirmedQty() <= 0) {
+                throw new BadRequestException("Putaway Confirm Qty cannot be zero or negative");
+            }
 
-                itemCode = newPutAwayLine.getItemCode();
-                companyCode = newPutAwayLine.getCompanyCode();
-                plantId = newPutAwayLine.getPlantId();
-                languageId = newPutAwayLine.getLanguageId();
-                warehouseId = newPutAwayLine.getWarehouseId();
-                refDocNumber = newPutAwayLine.getRefDocNumber();
-                preInboundNo = newPutAwayLine.getPreInboundNo();
-                manufactureName = newPutAwayLine.getManufacturerName();
-                lineReferenceNo = String.valueOf(newPutAwayLine.getLineNo());
+            PutAwayLineV2 dbPutAwayLine = new PutAwayLineV2();
+            log.info("proposedBin, confirmedBin: " + newPutAwayLine.getProposedStorageBin() + ", " + newPutAwayLine.getConfirmedStorageBin());
 
-                log.info("proposedBin, confirmedBin: " + newPutAwayLine.getProposedStorageBin() + ", " + newPutAwayLine.getConfirmedStorageBin());
+            StorageBinV2 dbStorageBin = null;
+            try {
+                dbStorageBin = storageBinService.getStorageBinV2(newPutAwayLine.getCompanyCode(), newPutAwayLine.getPlantId(),
+                        newPutAwayLine.getLanguageId(), newPutAwayLine.getWarehouseId(), newPutAwayLine.getConfirmedStorageBin());
+            } catch (Exception e) {
+                throw new BadRequestException("Invalid StorageBin --> " + newPutAwayLine.getConfirmedStorageBin());
+            }
 
-                StorageBinV2 dbStorageBin = null;
+            if (dbStorageBin != null) {
+                dbPutAwayLine.setLevelId(String.valueOf(dbStorageBin.getFloorId()));
+            }
+            BeanUtils.copyProperties(newPutAwayLine, dbPutAwayLine, CommonUtils.getNullPropertyNames(newPutAwayLine));
+            dbPutAwayLine.setStatusId(20L);
+            statusDescription = getStatusDescription(20L, newPutAwayLine.getLanguageId());
+            dbPutAwayLine.setStatusDescription(statusDescription);
+            dbPutAwayLine.setDeletionIndicator(0L);
+            dbPutAwayLine.setCreatedBy(loginUserID);
+            dbPutAwayLine.setUpdatedBy(loginUserID);
+            dbPutAwayLine.setConfirmedBy(loginUserID);
+
+            PutAwayHeaderV2 putAwayHeader = putAwayHeaderService.fetchPutawayHeaderByItemV2(newPutAwayLine.getCompanyCode(), newPutAwayLine.getPlantId(), newPutAwayLine.getWarehouseId(),
+                    newPutAwayLine.getItemCode(), newPutAwayLine.getManufacturerName(), String.valueOf(newPutAwayLine.getLineNo()), newPutAwayLine.getLanguageId(), newPutAwayLine.getPutAwayNumber());
+            log.info("putawayHeader: " + putAwayHeader);
+
+            StagingLineEntityV2 dbStagingLineEntity = stagingLineService.getStagingLineForPutAwayLineV2(newPutAwayLine.getCompanyCode(), newPutAwayLine.getPlantId(), newPutAwayLine.getLanguageId(),
+                    newPutAwayLine.getWarehouseId(), newPutAwayLine.getPreInboundNo(), newPutAwayLine.getRefDocNumber(), newPutAwayLine.getLineNo(), newPutAwayLine.getItemCode(),
+                    newPutAwayLine.getManufacturerName());
+
+            Optional<PutAwayLineV2> existingPutAwayLine = putAwayLineV2Repository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndGoodsReceiptNoAndPreInboundNoAndRefDocNumberAndPutAwayNumberAndLineNoAndItemCodeAndProposedStorageBinAndConfirmedStorageBinInAndDeletionIndicator(
+                    newPutAwayLine.getLanguageId(), newPutAwayLine.getCompanyCode(), newPutAwayLine.getPlantId(), newPutAwayLine.getWarehouseId(), newPutAwayLine.getGoodsReceiptNo(), newPutAwayLine.getPreInboundNo(), newPutAwayLine.getRefDocNumber(),
+                    newPutAwayLine.getPutAwayNumber(), newPutAwayLine.getLineNo(), newPutAwayLine.getItemCode(), newPutAwayLine.getProposedStorageBin(),
+                    Arrays.asList(newPutAwayLine.getConfirmedStorageBin()), 0L);
+            log.info("Existing putawayline already created : " + existingPutAwayLine);
+
+            if (dbStagingLineEntity != null) {
+                log.info("StagingLine");
+                dbPutAwayLine.setManufacturerFullName(dbStagingLineEntity.getManufacturerFullName());
+                dbPutAwayLine.setPurchaseOrderNumber(dbStagingLineEntity.getPurchaseOrderNumber());
+                dbPutAwayLine.setReferenceDocumentType(dbStagingLineEntity.getReferenceDocumentType());
+                dbPutAwayLine.setPutAwayUom(dbStagingLineEntity.getOrderUom());
+                dbPutAwayLine.setDescription(dbStagingLineEntity.getItemDescription());
+                dbPutAwayLine.setCompanyDescription(dbStagingLineEntity.getCompanyDescription());
+                dbPutAwayLine.setPlantDescription(dbStagingLineEntity.getPlantDescription());
+                dbPutAwayLine.setWarehouseDescription(dbStagingLineEntity.getWarehouseDescription());
+                dbPutAwayLine.setMrp(dbStagingLineEntity.getMrp());
+                dbPutAwayLine.setItemType(dbStagingLineEntity.getItemType());
+                dbPutAwayLine.setItemGroup(dbStagingLineEntity.getItemGroup());
+                dbPutAwayLine.setSize(dbStagingLineEntity.getSize());
+                dbPutAwayLine.setBrand(dbStagingLineEntity.getBrand());
+                dbPutAwayLine.setBagSize(dbStagingLineEntity.getBagSize());
+            }
+
+            double actualInventoryQty = dbPutAwayLine.getPutawayConfirmedQty();
+            dbPutAwayLine.setActualInventoryQty(actualInventoryQty);
+            dbPutAwayLine.setCreatedOn(new Date());
+            dbPutAwayLine.setUpdatedOn(new Date());
+            dbPutAwayLine.setConfirmedOn(new Date());
+
+            if (existingPutAwayLine.isEmpty()) {
+                //Lead Time calculation
+                log.info("---------->NewPutAwayLine created: " + dbPutAwayLine);
                 try {
-                    dbStorageBin = storageBinService.getStorageBinV2(companyCode, plantId, languageId, warehouseId, newPutAwayLine.getConfirmedStorageBin());
+                    fireBaseNotification(dbPutAwayLine, loginUserID);
                 } catch (Exception e) {
-                    throw new BadRequestException("Invalid StorageBin --> " + newPutAwayLine.getConfirmedStorageBin());
+                    e.printStackTrace();
+                    log.info("FireBaseNotification Error in PutAwayLine " + e.getMessage());
                 }
+                if (dbPutAwayLine.getPutawayConfirmedQty() > 0L) {
 
-                PutAwayHeaderV2 putAwayHeader = putAwayHeaderService.fetchPutawayHeaderByItemV2(companyCode, plantId, warehouseId, itemCode, manufactureName, lineReferenceNo, languageId, newPutAwayLine.getPutAwayNumber());
-                log.info("putawayHeader: " + putAwayHeader);
-
-                if (dbStorageBin != null) {
-                    dbPutAwayLine.setLevelId(String.valueOf(dbStorageBin.getFloorId()));
-                }
-
-                StagingLineEntityV2 dbStagingLineEntity = stagingLineService.getStagingLineForPutAwayLineV2(companyCode, plantId, languageId, warehouseId, preInboundNo, refDocNumber,
-                        newPutAwayLine.getLineNo(), itemCode, newPutAwayLine.getManufacturerName());
-                log.info("StagingLine: " + dbStagingLineEntity);
-                if (dbStagingLineEntity != null) {
-                    newPutAwayLine.setManufacturerFullName(dbStagingLineEntity.getManufacturerFullName());
-                    newPutAwayLine.setMiddlewareId(dbStagingLineEntity.getMiddlewareId());
-                    newPutAwayLine.setMiddlewareHeaderId(dbStagingLineEntity.getMiddlewareHeaderId());
-                    newPutAwayLine.setMiddlewareTable(dbStagingLineEntity.getMiddlewareTable());
-                    newPutAwayLine.setPurchaseOrderNumber(dbStagingLineEntity.getPurchaseOrderNumber());
-                    newPutAwayLine.setReferenceDocumentType(dbStagingLineEntity.getReferenceDocumentType());
-                    newPutAwayLine.setPutAwayUom(dbStagingLineEntity.getOrderUom());
-                    newPutAwayLine.setDescription(dbStagingLineEntity.getItemDescription());
-                    newPutAwayLine.setCompanyDescription(dbStagingLineEntity.getCompanyDescription());
-                    newPutAwayLine.setPlantDescription(dbStagingLineEntity.getPlantDescription());
-                    newPutAwayLine.setWarehouseDescription(dbStagingLineEntity.getWarehouseDescription());
-                    newPutAwayLine.setMrp(dbStagingLineEntity.getMrp());
-                    newPutAwayLine.setItemType(dbStagingLineEntity.getItemType());
-                    newPutAwayLine.setItemGroup(dbStagingLineEntity.getItemGroup());
-                    newPutAwayLine.setSize(dbStagingLineEntity.getSize());
-                    newPutAwayLine.setBrand(dbStagingLineEntity.getBrand());
-                    newPutAwayLine.setBagSize(dbStagingLineEntity.getBagSize());
-                }
-
-                BeanUtils.copyProperties(newPutAwayLine, dbPutAwayLine, CommonUtils.getNullPropertyNames(newPutAwayLine));
-
-                dbPutAwayLine.setStatusId(20L);
-                statusDescription = getStatusDescription(20L, languageId);
-                dbPutAwayLine.setStatusDescription(statusDescription);
-                dbPutAwayLine.setDeletionIndicator(0L);
-                dbPutAwayLine.setCreatedBy(loginUserID);
-                dbPutAwayLine.setUpdatedBy(loginUserID);
-                dbPutAwayLine.setConfirmedBy(loginUserID);
-
-                if (putAwayHeader != null) {
-                    dbPutAwayLine.setCreatedOn(putAwayHeader.getCreatedOn());
-                    dbPutAwayLine.setPutAwayQuantity(putAwayHeader.getPutAwayQuantity());
-                    dbPutAwayLine.setInboundOrderTypeId(putAwayHeader.getInboundOrderTypeId());
-                    if (dbPutAwayLine.getBagSize() == null || dbPutAwayLine.getNoBags() == null) {
-                        dbPutAwayLine.setNoBags(putAwayHeader.getNoBags());
-                        dbPutAwayLine.setBagSize(putAwayHeader.getBagSize());
-                        dbPutAwayLine.setAlternateUom(putAwayHeader.getAlternateUom());
+                    storageBinV2Repository.updateEmptyBinStatus(dbPutAwayLine.getConfirmedStorageBin(), newPutAwayLine.getCompanyCode(),
+                            newPutAwayLine.getPlantId(), newPutAwayLine.getWarehouseId(), 1L);
+                    log.info("StorageBin status Updated Successfully");
+                    if (putAwayHeader != null) {
+                        if (newPutAwayLine.getManufacturerDate() == null) {
+                            dbPutAwayLine.setManufacturerDate(putAwayHeader.getManufacturerDate());
+                        }
+                        if (newPutAwayLine.getExpiryDate() == null) {
+                            dbPutAwayLine.setExpiryDate(putAwayHeader.getExpiryDate());
+                        }
+                        log.info("putawayConfirmQty, putawayQty: " + dbPutAwayLine.getPutawayConfirmedQty() + ", " + putAwayHeader.getPutAwayQuantity());
+                        putAwayHeaderV2Repository.updatePutAwayHeaderV4(putAwayHeader.getWarehouseId(), putAwayHeader.getCompanyCodeId(),
+                                putAwayHeader.getPlantId(), putAwayHeader.getLanguageId(), putAwayHeader.getRefDocNumber(), 20L, statusDescription, putAwayHeader.getPackBarcodes());
+                        log.info("putAwayHeader updated----> StatusId : " + putAwayHeader + " ---->----> " + putAwayHeader.getStatusId());
                     }
-                } else {
-                    dbPutAwayLine.setCreatedOn(new Date());
-                }
-                dbPutAwayLine.setUpdatedOn(new Date());
-                dbPutAwayLine.setConfirmedOn(new Date());
 
-                Optional<PutAwayLineV2> existingPutAwayLine = putAwayLineV2Repository.findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndGoodsReceiptNoAndPreInboundNoAndRefDocNumberAndPutAwayNumberAndLineNoAndItemCodeAndProposedStorageBinAndConfirmedStorageBinInAndDeletionIndicator(
-                        languageId, companyCode, plantId, warehouseId, newPutAwayLine.getGoodsReceiptNo(), preInboundNo, refDocNumber,
-                        newPutAwayLine.getPutAwayNumber(), newPutAwayLine.getLineNo(), itemCode, newPutAwayLine.getProposedStorageBin(),
-                        Arrays.asList(newPutAwayLine.getConfirmedStorageBin()), 0L);
-                log.info("Existing putawayline already created : " + existingPutAwayLine);
+                    /*--------------------- INBOUNDTABLE Updates ------------------------------------------*/
+                    double addedAcceptQty = 0.0;
+                    InboundLineV2 inboundLine = inboundLineService.getInboundLineV2(newPutAwayLine.getCompanyCode(), newPutAwayLine.getPlantId(),
+                            newPutAwayLine.getLanguageId(), newPutAwayLine.getWarehouseId(), dbPutAwayLine.getRefDocNumber(),
+                            dbPutAwayLine.getPreInboundNo(), dbPutAwayLine.getLineNo(), dbPutAwayLine.getItemCode());
+                    log.info("inboundLine----from--DB---------> " + inboundLine);
 
-//                double actualInventoryQty = getQuantity(dbPutAwayLine.getPutawayConfirmedQty(), dbPutAwayLine.getBagSize());
-                double actualInventoryQty = dbPutAwayLine.getPutawayConfirmedQty();
-                dbPutAwayLine.setActualInventoryQty(actualInventoryQty);
-
-                if (existingPutAwayLine.isEmpty()) {
-                    //Lead Time calculation
-                    String leadTime = putAwayLineV2Repository.getleadtimeV2(new Date(), putAwayHeader.getCreatedOn());
-                    dbPutAwayLine.setReferenceField1(leadTime);
-                    log.info("LeadTime: " + leadTime);
-
-                    PutAwayLineV2 createdPutAwayLine = putAwayLineV2Repository.save(dbPutAwayLine);
-                    log.info("---------->NewPutAwayLine created: " + createdPutAwayLine);
-                    try {
-                        fireBaseNotification(createdPutAwayLine, loginUserID);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        log.info("FireBaseNotification Error in PutAwayLine " + e.getMessage());
+                    // If QTY_TYPE = A, add PA_CNF_QTY with existing value in ACCEPT_QTY field
+                    if (dbPutAwayLine.getQuantityType().equalsIgnoreCase("A")) {
+                        if (inboundLine.getAcceptedQty() != null && inboundLine.getAcceptedQty() < inboundLine.getOrderQty()) {
+                            addedAcceptQty = inboundLine.getAcceptedQty() + dbPutAwayLine.getPutawayConfirmedQty();
+                        } else {
+                            addedAcceptQty = dbPutAwayLine.getPutawayConfirmedQty();
+                        }
+                        if (addedAcceptQty > inboundLine.getOrderQty()) {
+                            throw new BadRequestException("Accept qty cannot be greater than order qty");
+                        }
+                        double actualAcceptQty = addedAcceptQty;
+                        inboundLine.setActualAcceptedQty(actualAcceptQty);
+                        inboundLine.setAcceptedQty(addedAcceptQty);
+                        inboundLine.setVarianceQty(inboundLine.getOrderQty() - addedAcceptQty);
                     }
-                    createdPutAwayLines.add(createdPutAwayLine);
-
-                    if (createdPutAwayLine != null && createdPutAwayLine.getPutawayConfirmedQty() > 0L) {
-
-                        dbStorageBin.setStatusId(1L);
-                        storageBinService.updateStorageBinV2(dbPutAwayLine.getConfirmedStorageBin(), dbStorageBin, companyCode, plantId, languageId, warehouseId, loginUserID);
-
-                        if (putAwayHeader != null) {
-                            String confirmedStorageBin = createdPutAwayLine.getConfirmedStorageBin();
-                            String proposedStorageBin = putAwayHeader.getProposedStorageBin();
-                            log.info("putawayConfirmQty, putawayQty: " + createdPutAwayLine.getPutawayConfirmedQty() + ", " + putAwayHeader.getPutAwayQuantity());
-
-                            putAwayHeader.setStatusId(20L);
-                            putAwayHeader.setStatusDescription(statusDescription);
-                            putAwayHeader = putAwayHeaderV2Repository.save(putAwayHeader);
-                            log.info("putAwayHeader updated----> StatusId : " + putAwayHeader + " ---->----> " + putAwayHeader.getStatusId());
-
-                            if (createdPutAwayLine.getPutawayConfirmedQty() < putAwayHeader.getPutAwayQuantity()) {
-                                Double dbAssignedPutawayQty = 0D;
-                                if (putAwayHeader.getReferenceField2() != null) {
-                                    dbAssignedPutawayQty = Double.valueOf(putAwayHeader.getReferenceField2());
-                                }
-                                if (putAwayHeader.getReferenceField2() == null) {
-                                    dbAssignedPutawayQty = putAwayHeader.getPutAwayQuantity();
-                                }
-                                Double dbPutawayQty = putAwayLineV2Repository.getPutawayCnfQuantity(companyCode, plantId, languageId, warehouseId,
-                                        refDocNumber, preInboundNo, itemCode,
-                                        createdPutAwayLine.getManufacturerName(),
-                                        createdPutAwayLine.getLineNo());
-                                if (dbPutawayQty == null) {
-                                    dbPutawayQty = 0D;
-                                }
-
-                                log.info("NON CBM ---> tot_pa_cnf_qty,created_pa_line_cnf_qty,partial_pa_header_pa_qty,pa_header_pa_qty,RF2 : "
-                                        + dbPutawayQty + ", " + createdPutAwayLine.getPutawayConfirmedQty()
-                                        + ", " + putAwayHeader.getPutAwayQuantity() + ", " + putAwayHeader.getReferenceField2());
-                                if (dbPutawayQty > dbAssignedPutawayQty) {
-                                    throw new BadRequestException("sum of confirm Putaway line qty is greater than assigned putaway header qty");
-                                }
-                                if (dbPutawayQty <= dbAssignedPutawayQty) {
-//                                    if (proposedStorageBin.equalsIgnoreCase(confirmedStorageBin)) {
-                                    log.info("New PutawayHeader Create Initiated---> ");
-                                    PutAwayHeaderV2 newPutAwayHeader = new PutAwayHeaderV2();
-                                    BeanUtils.copyProperties(putAwayHeader, newPutAwayHeader, CommonUtils.getNullPropertyNames(putAwayHeader));
-
-                                    // PA_NO
-                                    long NUM_RAN_CODE = 7;
-                                    String nextPANumber = getNextRangeNumber(NUM_RAN_CODE, companyCode, plantId, languageId, warehouseId);
-                                    newPutAwayHeader.setPutAwayNumber(nextPANumber);                           //PutAway Number
-
-                                    newPutAwayHeader.setReferenceField1(String.valueOf(putAwayHeader.getPutAwayQuantity()));
-                                    if (putAwayHeader.getReferenceField4() == null) {
-                                        newPutAwayHeader.setReferenceField2(String.valueOf(putAwayHeader.getPutAwayQuantity()));
-                                        newPutAwayHeader.setReferenceField4("1");
-                                    }
-                                    Double putawaycnfQty = 0D;
-                                    if (newPutAwayHeader.getReferenceField3() != null) {
-                                        putawaycnfQty = Double.valueOf(newPutAwayHeader.getReferenceField3());
-                                    }
-                                    putawaycnfQty = putawaycnfQty + createdPutAwayLine.getPutawayConfirmedQty();
-                                    newPutAwayHeader.setReferenceField3(String.valueOf(putawaycnfQty));
-
-//                                    Double PUTAWAY_QTY = (putAwayHeader.getPutAwayQuantity() != null ? putAwayHeader.getPutAwayQuantity() : 0) - (createdPutAwayLine.getPutawayConfirmedQty() != null ? createdPutAwayLine.getPutawayConfirmedQty() : 0);
-                                    Double PUTAWAY_QTY = dbAssignedPutawayQty - dbPutawayQty;
-                                    if (PUTAWAY_QTY < 0) {
-                                        throw new BadRequestException("total confirm qty greater than putaway qty");
-                                    }
-                                    newPutAwayHeader.setPutAwayQuantity(PUTAWAY_QTY);
-                                    log.info("OrderQty ReCalcuated/Changed : " + PUTAWAY_QTY);
-                                    newPutAwayHeader.setStatusId(19L);
-                                    log.info("PutawayHeader StatusId : 19");
-                                    statusDescription = getStatusDescription(newPutAwayHeader.getStatusId(), languageId);
-                                    newPutAwayHeader.setStatusDescription(statusDescription);
-                                    newPutAwayHeader = putAwayHeaderV2Repository.save(newPutAwayHeader);
-                                    log.info("putAwayHeader created: " + newPutAwayHeader);
-//                                    }
-//                                    if (!proposedStorageBin.equalsIgnoreCase(confirmedStorageBin)) {
-//
-//                                        putAwayHeader.setReferenceField1(String.valueOf(putAwayHeader.getPutAwayQuantity()));
-//                                        if (putAwayHeader.getReferenceField4() == null) {
-//                                            putAwayHeader.setReferenceField2(String.valueOf(putAwayHeader.getPutAwayQuantity()));
-//                                            putAwayHeader.setReferenceField4("1");
-//                                        }
-//                                        Double PUTAWAY_QTY = dbAssignedPutawayQty - dbPutawayQty;
-//                                        if (PUTAWAY_QTY < 0) {
-//                                            throw new BadRequestException("total confirm qty greater than putaway qty");
-//                                        }
-//                                        putAwayHeader.setPutAwayQuantity(PUTAWAY_QTY);
-//                                        log.info("OrderQty ReCalcuated/Changed : " + PUTAWAY_QTY);
-//                                        putAwayHeader.setStatusId(19L);
-//                                        log.info("PutawayHeader StatusId : 19");
-//                                        statusDescription = getStatusDescription(putAwayHeader.getStatusId(), createdPutAwayLine.getLanguageId());
-//                                        putAwayHeader.setStatusDescription(statusDescription);
-//                                        putAwayHeader = putAwayHeaderV2Repository.save(putAwayHeader);
-//                                        log.info("putAwayHeader updated: " + putAwayHeader);
-//                                    }
-                                }
-                            }
-                        }
-
-                        /*--------------------- INBOUNDTABLE Updates ------------------------------------------*/
-                        // Pass WH_ID/PRE_IB_NO/REF_DOC_NO/IB_LINE_NO/ITM_CODE values in PUTAWAYLINE table and
-                        // fetch PA_CNF_QTY values and QTY_TYPE values and updated STATUS_ID as 20
-                        double addedAcceptQty = 0.0;
-                        double addedDamageQty = 0.0;
-
-                        InboundLineV2 inboundLine = inboundLineService.getInboundLineV2(companyCode, plantId, languageId, warehouseId,
-                                createdPutAwayLine.getRefDocNumber(),
-                                createdPutAwayLine.getPreInboundNo(),
-                                createdPutAwayLine.getLineNo(),
-                                createdPutAwayLine.getItemCode());
-                        log.info("inboundLine----from--DB---------> " + inboundLine);
-
-                        // If QTY_TYPE = A, add PA_CNF_QTY with existing value in ACCEPT_QTY field
-                        if (createdPutAwayLine.getQuantityType().equalsIgnoreCase("A")) {
-                            if (inboundLine.getAcceptedQty() != null && inboundLine.getAcceptedQty() < inboundLine.getOrderQty()) {
-                                addedAcceptQty = inboundLine.getAcceptedQty() + createdPutAwayLine.getPutawayConfirmedQty();
-                            } else {
-                                addedAcceptQty = createdPutAwayLine.getPutawayConfirmedQty();
-                            }
-                            if (addedAcceptQty > inboundLine.getOrderQty()) {
-                                throw new BadRequestException("Accept qty cannot be greater than order qty");
-                            }
-//                            double actualAcceptQty = getQuantity(addedAcceptQty, createdPutAwayLine.getBagSize());
-                            double actualAcceptQty = addedAcceptQty;
-                            inboundLine.setActualAcceptedQty(actualAcceptQty);
-                            inboundLine.setAcceptedQty(addedAcceptQty);
-                            inboundLine.setVarianceQty(inboundLine.getOrderQty() - addedAcceptQty);
-                        }
-
-                        // if QTY_TYPE = D, add PA_CNF_QTY with existing value in DAMAGE_QTY field
-                        if (createdPutAwayLine.getQuantityType().equalsIgnoreCase("D")) {
-                            if (inboundLine.getDamageQty() != null && inboundLine.getDamageQty() < inboundLine.getOrderQty()) {
-                                addedDamageQty = inboundLine.getDamageQty() + createdPutAwayLine.getPutawayConfirmedQty();
-                            } else {
-                                addedDamageQty = createdPutAwayLine.getPutawayConfirmedQty();
-                            }
-                            if (addedDamageQty > inboundLine.getOrderQty()) {
-                                throw new BadRequestException("Damage qty cannot be greater than order qty");
-                            }
-//                            double actualDamageQty = getQuantity(addedDamageQty, createdPutAwayLine.getBagSize());
-                            double actualDamageQty = addedDamageQty;
-                            inboundLine.setActualDamageQty(actualDamageQty);
-                            inboundLine.setDamageQty(addedDamageQty);
-                            inboundLine.setVarianceQty(inboundLine.getOrderQty() - addedDamageQty);
-                        }
-
-                        if (inboundLine.getInboundOrderTypeId() == 5L) {          //condition added for final Inbound confirm
-                            inboundLine.setReferenceField2("true");
-                        }
-
-                        inboundLine.setStatusId(20L);
-                        statusDescription = getStatusDescription(20L, languageId);
-                        inboundLine.setStatusDescription(statusDescription);
-                        inboundLine = inboundLineV2Repository.save(inboundLine);
-                        log.info("inboundLine updated : " + inboundLine);
-                    }
-                } else {
-                    log.info("Putaway Line already exist : " + existingPutAwayLine);
+                    statusDescription = getStatusDescription(20L, newPutAwayLine.getLanguageId());
+                    inboundLineV2Repository.updateInboundLineStatusAndQuantity(newPutAwayLine.getCompanyCode(), newPutAwayLine.getPlantId(),
+                            newPutAwayLine.getLanguageId(), newPutAwayLine.getWarehouseId(), dbPutAwayLine.getRefDocNumber(),
+                            dbPutAwayLine.getPreInboundNo(), dbPutAwayLine.getLineNo(), dbPutAwayLine.getItemCode(), 20L, statusDescription,
+                            inboundLine.getActualAcceptedQty(), inboundLine.getAcceptedQty(), inboundLine.getVarianceQty());
+                    log.info("inboundLine updated : " + inboundLine);
                 }
+            } else {
+                log.info("Putaway Line already exist : " + existingPutAwayLine);
             }
-            putAwayLineV2Repository.updateInboundHeaderRxdLinesCountProc(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
-            log.info("InboundHeader received lines count updated: " + refDocNumber);
-
-            if (createdPutAwayLines != null && !createdPutAwayLines.isEmpty()) {
-                for (PutAwayLineV2 putAwayLine : createdPutAwayLines) {
-                    createInventoryNonCBMV4(companyCode, plantId, languageId, warehouseId, putAwayLine.getItemCode(),
-                            putAwayLine.getManufacturerName(), refDocNumber, putAwayLine, loginUserID);
-                }
-                log.info("Inventory Created Successfully -----> for All Putaway Lines");
-            }
-
-            inboundConfirmValidation(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, loginUserID);
-            return createdPutAwayLines;
+            return dbPutAwayLine;
         } catch (Exception e) {
             e.printStackTrace();
             throw new BadRequestException("PutawayLine Create Exception");
         }
     }
+
+
 
     /**
      * @param newPutAwayLines

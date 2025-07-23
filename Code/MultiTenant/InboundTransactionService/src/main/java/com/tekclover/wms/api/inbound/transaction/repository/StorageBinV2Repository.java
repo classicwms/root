@@ -4,6 +4,7 @@ import com.tekclover.wms.api.inbound.transaction.model.dto.StorageBinV2;
 import com.tekclover.wms.api.inbound.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -226,6 +227,16 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
     boolean existsByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndStorageBinAndBinClassIdInAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String storageBin, List<Long> binClassIds, Long deletionIndicator);
 
+    @Modifying
+    @Query(value = "UPDATE tblstoragebin set status_id = :statusId WHERE \n " +
+            "st_bin = :storageBin AND c_id = :companyCodeId AND plant_id = :plantId \n" +
+            "AND wh_id = :warehouseId", nativeQuery = true)
+    void updateEmptyBinStatus(@Param("storageBin") String storageBin,
+                              @Param("companyCodeId") String companyCodeId,
+                              @Param("plantId") String plantId,
+                              @Param("warehouseId") String warehouseId,
+                              @Param("statusId") Long statusId);
+
     @Query(value = "SELECT top 1 * from tblstoragebin WHERE \n " +
             "(st_bin LIKE 'E-%' OR st_bin LIKE 'P-%') AND c_id = :companyCodeId \n" +
             "AND plant_id = :plantId AND wh_id = :warehouseId and status_id = 0 \n" +
@@ -233,4 +244,5 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
     StorageBinV2 getEorPBin(@Param("companyCodeId") String companyCodeId,
                             @Param("plantId") String plantId,
                             @Param("warehouseId") String warehouseId);
+
 }
