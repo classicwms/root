@@ -995,8 +995,38 @@ public class OutboundHeaderService {
                 searchOutboundHeader.getStatusId(), searchOutboundHeader.getSoType(),
                 searchOutboundHeader.getStartRequiredDeliveryDate(), searchOutboundHeader.getEndRequiredDeliveryDate(),
                 searchOutboundHeader.getStartDeliveryConfirmedOn(), searchOutboundHeader.getEndDeliveryConfirmedOn(),
-                searchOutboundHeader.getStartOrderDate(), searchOutboundHeader.getEndOrderDate(),
-                searchOutboundHeader.getStartCreatedOn(), searchOutboundHeader.getEndCreatedOn());
+                searchOutboundHeader.getStartOrderDate(), searchOutboundHeader.getEndOrderDate());
+
+
+//        List<OutboundHeaderV2> headerSearchResults = outboundHeaderV2Repository.findOutboundHeaderV2(
+//                searchOutboundHeader.getCompanyCodeId(),
+//                searchOutboundHeader.getPlantId(),
+//                searchOutboundHeader.getLanguageId(),
+//                searchOutboundHeader.getWarehouseId(),
+//                searchOutboundHeader.getRefDocNumber(),
+//                searchOutboundHeader.getPartnerCode(),
+//                searchOutboundHeader.getOutboundOrderTypeId(),
+//                searchOutboundHeader.getStatusId(), searchOutboundHeader.getSoType(),
+//                searchOutboundHeader.getStartRequiredDeliveryDate(), searchOutboundHeader.getEndRequiredDeliveryDate(),
+//                searchOutboundHeader.getStartDeliveryConfirmedOn(), searchOutboundHeader.getEndDeliveryConfirmedOn(),
+//                searchOutboundHeader.getStartOrderDate(), searchOutboundHeader.getEndOrderDate());
+
+//        headerSearchResults.stream().forEach(oh -> {
+//            Long sumOfOrderedQty = preOutboundLineV2Repository.getSumofOrderedQty(oh.getRefDocNumber());
+//            Long countOfOrderedQty = preOutboundLineV2Repository.getCountOfOrderedQty(oh.getRefDocNumber());
+//            Long lineOfCount = preOutboundLineV2Repository.getCountOfLine(oh.getRefDocNumber());
+//            Long sumOfPickedQty = preOutboundLineV2Repository.getCountOfPickedQty(oh.getRefDocNumber());
+
+//            log.info("sumOfOrderedQty------------> : " + sumOfOrderedQty + "," + countOfOrderedQty);
+//            log.info("LineOfCount------------> : " + lineOfCount + "," + sumOfPickedQty );
+
+//            oh.setReferenceField9((sumOfOrderedQty != null) ? String.valueOf(sumOfOrderedQty) : "0");
+//            oh.setReferenceField10((countOfOrderedQty != null) ? String.valueOf(countOfOrderedQty) : "0");
+//            oh.setCountOfPickedLine((lineOfCount != null) ? String.valueOf(lineOfCount) : "0");
+//            oh.setSumOfPickedQty((sumOfPickedQty != null) ? String.valueOf(sumOfPickedQty) : "0");
+//
+//        });
+
         return headerSearchResults;
     }
 
