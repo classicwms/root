@@ -23,11 +23,4 @@ public class SearchOutboundHeader {
 	
 	private Date startDeliveryConfirmedOn;
 	private Date endDeliveryConfirmedOn;
-	
-	private Date startOrderDate;
-	private Date endOrderDate;
-	
-	private Date startCreatedOn;
-	private Date endCreatedOn;
-	
 }
