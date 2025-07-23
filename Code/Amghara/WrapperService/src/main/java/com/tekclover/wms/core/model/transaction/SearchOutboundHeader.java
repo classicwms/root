@@ -26,13 +26,13 @@ public class SearchOutboundHeader {
 	private List<Long> statusId;
 	private List<String> soType; //referenceField1;
 
-	private Date startRequiredDeliveryDate;
-	private Date endRequiredDeliveryDate;
+	private String startRequiredDeliveryDate;
+	private String endRequiredDeliveryDate;
 	
-	private Date startDeliveryConfirmedOn;
-	private Date endDeliveryConfirmedOn;
+	private String startDeliveryConfirmedOn;
+	private String endDeliveryConfirmedOn;
 	
-	private Date startOrderDate;
-	private Date endOrderDate;
+	private String startOrderDate;
+	private String endOrderDate;
 
 }
