@@ -599,13 +599,16 @@ public class PdfReportService {
     //------------------------------------- Date Convertion Utils ---------------------------------------//
 
     /**
+     * Modified dateTime to yesterday 2.00pm
+     * Aakash Vinayak - 24/07/2025
+     *
      * @return
      */
     private Date getStartDateTime() throws Exception {
         // Set startOrderDate to 12:00 AM
         Calendar calendar = getPreviousDate();
 //        calendar.set(Calendar.YEAR, 2024);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.HOUR_OF_DAY, 14);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
@@ -613,12 +616,14 @@ public class PdfReportService {
     }
 
     /**
+     * Modified dateTime to yesterday 1.59pm
+     * Aakash Vinayak  - 24/07/2025
+     *
      * @return
      */
     private Date getEndDateTime() throws Exception {
-        // Set startOrderDate to 23:59 PM
-        Calendar calendar = getCurrentDate();
-        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        Calendar calendar = getCurrentDate(); // Today's date
+        calendar.set(Calendar.HOUR_OF_DAY, 13); // 1 PM = 13
         calendar.set(Calendar.MINUTE, 59);
         calendar.set(Calendar.SECOND, 59);
         calendar.set(Calendar.MILLISECOND, 999);

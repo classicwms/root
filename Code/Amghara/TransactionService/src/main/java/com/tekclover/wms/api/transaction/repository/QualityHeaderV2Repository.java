@@ -51,7 +51,7 @@ public interface QualityHeaderV2Repository extends JpaRepository<QualityHeaderV2
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE QualityHeaderV2 qh SET qh.statusId = 55, qh.referenceField10 = :referenceField10, qh.statusDescription = :referenceField10 \r\n"
-            + " WHERE qh.qualityInspectionNo in (= :qualityInspectionNo) ")
+            + " WHERE qh.qualityInspectionNo in :qualityInspectionNo ")
     public void updateQualityHeader (@Param ("referenceField10") String referenceField10,
                                      @Param ("qualityInspectionNo") List<String> qualityInspectionNo);
 
