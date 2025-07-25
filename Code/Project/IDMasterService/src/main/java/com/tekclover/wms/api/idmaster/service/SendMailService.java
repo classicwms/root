@@ -513,18 +513,22 @@ public class SendMailService {
 
 		List<EMailDetails> userEMail = eMailDetailsService.getDailyReportEMailDetailsList();
 
-		String toAddress = "";
-		String ccAddress = "";
+//		String toAddress = "";
+//		String ccAddress = "";
 
-		for(EMailDetails eMailDetails: userEMail){
-			if(eMailDetails.getToAddress()!=null) {
-				toAddress = eMailDetails.getToAddress() + "," + toAddress;
-			}
+		String toAddress = "raj@tekclover.com";
+		String ccAddress = "yogesh.m@tekclover.com";
 
-			if(eMailDetails.getCcAddress()!=null) {
-				ccAddress = eMailDetails.getCcAddress() + "," + ccAddress;
-			}
-		}
+//		for(EMailDetails eMailDetails: userEMail){
+//
+//			if(eMailDetails.getToAddress()!=null) {
+//				toAddress = eMailDetails.getToAddress() + "," + toAddress;
+//			}
+//
+//			if(eMailDetails.getCcAddress()!=null) {
+//				ccAddress = eMailDetails.getCcAddress() + "," + ccAddress;
+//			}
+//		}
 		
 		String localDate = DateUtils.getCurrentDateWithoutTimestamp();
 		String emailSubject = "GRC - Amghara - Daily Shipment Delivery Report - " + localDate;

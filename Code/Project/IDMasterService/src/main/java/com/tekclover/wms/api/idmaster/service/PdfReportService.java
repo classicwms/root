@@ -43,8 +43,8 @@ public class PdfReportService {
     @Autowired
     SendMailService sendMailService;
 
-    @Scheduled(cron = "0 0 15 * * ?")
-    //@Scheduled(cron = "0 */10 * * * ?")
+//    @Scheduled(cron = "0 0 3 * * ?")
+    @Scheduled(cron = "0 */10 * * * ?")
     private void generateShipmentDeliveryReport() throws Exception {
 
         // Converting StartDateTime and EndDateTime
@@ -605,10 +605,9 @@ public class PdfReportService {
      * @return
      */
     private Date getStartDateTime() throws Exception {
-        // Set startOrderDate to 12:00 AM
-        Calendar calendar = getPreviousDate();
-//        calendar.set(Calendar.YEAR, 2024);
-        calendar.set(Calendar.HOUR_OF_DAY, 14);
+        Calendar calendar = getPreviousDate(); // yesterday
+        calendar.set(Calendar.HOUR, 2); // 2 o'clock
+        calendar.set(Calendar.AM_PM, Calendar.PM); // PM
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
@@ -622,8 +621,9 @@ public class PdfReportService {
      * @return
      */
     private Date getEndDateTime() throws Exception {
-        Calendar calendar = getCurrentDate(); // Today's date
-        calendar.set(Calendar.HOUR_OF_DAY, 13); // 1 PM = 13
+        Calendar calendar = getCurrentDate(); // today
+        calendar.set(Calendar.HOUR, 1); // 1 o'clock
+        calendar.set(Calendar.AM_PM, Calendar.PM); // PM
         calendar.set(Calendar.MINUTE, 59);
         calendar.set(Calendar.SECOND, 59);
         calendar.set(Calendar.MILLISECOND, 999);
@@ -644,7 +644,7 @@ public class PdfReportService {
      */
     private Calendar getCurrentDate() throws Exception {
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DATE, -1);
+        calendar.add(Calendar.DATE, 0);
         return calendar;
     }
 
