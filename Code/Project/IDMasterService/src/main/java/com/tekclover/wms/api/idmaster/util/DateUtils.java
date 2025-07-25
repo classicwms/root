@@ -357,7 +357,7 @@ public class DateUtils {
 		startDateStr = startDateStr.replace("T", " ");
 		endDateStr = endDateStr.replace("T", " ");
 
-		DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("MM-dd-yyyy HH:mm:ss");
 		DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm a");
 
 		// Parse input strings to LocalDate
