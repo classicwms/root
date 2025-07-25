@@ -1,5 +1,7 @@
 package com.tekclover.wms.api.idmaster.util;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -7,8 +9,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DateUtils {
@@ -274,39 +274,12 @@ public class DateUtils {
 	}
 
 	public static void main(String[] args) throws ParseException {
-//		String str = "01-08-2022"; 
-//		str += " 00:00:00";
-//		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy HH:mm:ss"); 
-//		LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
-//		Date out = Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());
-//		log.info("dbMatterGenAcc--PriorityDate-------> : " + out);
-		
-		pdfReportDate (new Date(), new Date());
-	}
-
-	/**
-	 * 
-	 * @param startDate
-	 * @param endDate
-	 * @return
-	 */
-	public static String[] pdfReportDate (Date startDate, Date endDate) {
-		LocalDate sLocalDate =  LocalDate.ofInstant(startDate.toInstant(), ZoneId.systemDefault());
-		sLocalDate = sLocalDate.minusDays(1);
-		LocalDate eLocalDate =  LocalDate.ofInstant(endDate.toInstant(), ZoneId.systemDefault());
-		
-		LocalDateTime sLocalDateTime = sLocalDate.atTime(2, 0, 0);
-		LocalDateTime eLocalDateTime = eLocalDate.atTime(1, 59, 0);
-		
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
-		String sConvertedDateTime = formatter.format(sLocalDateTime).replace("T", " ");
-		String eConvertedDateTime = formatter.format(eLocalDateTime).replace("T", " ");
-		
-		log.info("---@--> " + sConvertedDateTime);
-		log.info("---@--> " + eConvertedDateTime);
-		
-		String[] sDateArr = new String [] {sConvertedDateTime, eConvertedDateTime};
-		return sDateArr;
+		String str = "01-08-2022"; 
+		str += " 00:00:00";
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy HH:mm:ss"); 
+		LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
+		Date out = Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());
+		log.info("dbMatterGenAcc--PriorityDate-------> : " + out);
 	}
 	
 	/**
@@ -370,5 +343,37 @@ public class DateUtils {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	/**
+	 * Converts input ISO date strings to custom time range strings (2 PM previous day to 1:59 PM current day)
+	 *
+	 * @param startDateStr
+	 * @param endDateStr
+	 * @return Formatted string array with time window
+	 */
+	public static String[] pdfReportDate(String startDateStr, String endDateStr) {
+		// Clean 'T' and parse input strings
+		startDateStr = startDateStr.replace("T", " ");
+		endDateStr = endDateStr.replace("T", " ");
+
+		DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm a");
+
+		// Parse input strings to LocalDate
+		LocalDate startLocalDate = LocalDateTime.parse(startDateStr, inputFormatter).toLocalDate();
+		LocalDate endLocalDate = LocalDateTime.parse(endDateStr, inputFormatter).toLocalDate();
+
+		// Adjust range: previous day at 2 PM to current day at 1:59 PM
+		LocalDateTime sDateTime = startLocalDate.minusDays(1).atTime(14, 0);
+		LocalDateTime eDateTime = endLocalDate.atTime(13, 59);
+
+		String formattedStart = outputFormatter.format(sDateTime);
+		String formattedEnd = outputFormatter.format(eDateTime);
+
+		log.info("PdfReport---@--> Start: " + formattedStart);
+		log.info("PdfReport---@--> End: " + formattedEnd);
+
+		return new String[] { formattedStart, formattedEnd };
 	}
 }
