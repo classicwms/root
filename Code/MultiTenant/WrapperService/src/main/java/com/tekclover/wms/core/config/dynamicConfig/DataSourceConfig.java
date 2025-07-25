@@ -151,13 +151,13 @@
 //        switch (dbName) {
 //            case "MT":
 //                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-//                dataSource.setUrl("jdbc:sqlserver://3.111.203.218;databaseName=wms_imf");
+//                dataSource.setUrl("jdbc:sqlserver://10.0.1.11;databaseName=wms_imf");
 //                dataSource.setUsername("sa");
 //                dataSource.setPassword("Do1cavIFK4^$pQ^zZYsX");
 //                break;
 //            case "ALM":
 //                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-//                dataSource.setUrl("jdbc:sqlserver://3.109.20.248;databaseName=WMS_ALMDEV_SPLIT");
+//                dataSource.setUrl("jdbc:sqlserver://10.0.1.11;databaseName=WMS_ALMDEV_SPLIT");
 //                dataSource.setUsername("sa");
 //                dataSource.setPassword("Do1cavIFK4^$pQ^zZYsX");
 //                break;
@@ -169,25 +169,25 @@
 //                break;
 //            case "IMPEX":
 //                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-//                dataSource.setUrl("jdbc:sqlserver://3.111.203.218;databaseName=WMS_IMPEX");
+//                dataSource.setUrl("jdbc:sqlserver://10.0.1.11;databaseName=WMS_IMPEX");
 //                dataSource.setUsername("sa");
 //                dataSource.setPassword("Do1cavIFK4^$pQ^zZYsX");
 //                break;
 //            case "WK":
 //                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-//                dataSource.setUrl("jdbc:sqlserver://3.111.203.218;databaseName=WMS_WK");
+//                dataSource.setUrl("jdbc:sqlserver://10.0.1.11;databaseName=WMS_WK");
 //                dataSource.setUsername("sa");
 //                dataSource.setPassword("Do1cavIFK4^$pQ^zZYsX");
 //                break;
 //            case "REEFERON":
 //                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-//                dataSource.setUrl("jdbc:sqlserver://3.111.203.218;databaseName=REEFERON_DEV");
+//                dataSource.setUrl("jdbc:sqlserver://10.0.1.11;databaseName=REEFERON_DEV");
 //                dataSource.setUsername("sa");
 //                dataSource.setPassword("Do1cavIFK4^$pQ^zZYsX");
 //                break;
 //                  case "FAHAHEEL":
 //                          dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-//                dataSource.setUrl("jdbc:sqlserver://3.109.20.248;databaseName=WMS_FAHAHEEL");
+//                dataSource.setUrl("jdbc:sqlserver://10.0.1.11;databaseName=WMS_FAHAHEEL");
 //                dataSource.setUsername("sa");
 //                dataSource.setPassword("Do1cavIFK4^$pQ^zZYsX");
 //                break;

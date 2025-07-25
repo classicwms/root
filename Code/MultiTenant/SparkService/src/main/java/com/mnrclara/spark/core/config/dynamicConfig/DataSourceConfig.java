@@ -42,7 +42,7 @@ public class DataSourceConfig {
         switch (dbName) {
             case "MT":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://43.205.6.177;databaseName=WMS_MT");
+                dataSource.setUrl("jdbc:sqlserver://10.0.1.11;databaseName=WMS_MT");
                 dataSource.setUsername("sa");
                 dataSource.setPassword("hyPIznYE4ajeeeAj");
                 break;
