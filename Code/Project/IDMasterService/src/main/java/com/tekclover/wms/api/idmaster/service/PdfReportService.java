@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -43,8 +44,8 @@ public class PdfReportService {
     @Autowired
     SendMailService sendMailService;
 
-//    @Scheduled(cron = "0 0 3 * * ?")
-    @Scheduled(cron = "0 */10 * * * ?")
+    @Scheduled(cron = "0 0 15 * * ?")
+    //@Scheduled(cron = "0 */10 * * * ?")
     private void generateShipmentDeliveryReport() throws Exception {
 
         // Converting StartDateTime and EndDateTime
@@ -163,8 +164,14 @@ public class PdfReportService {
         Font fontParagraph = FontFactory.getFont(FontFactory.HELVETICA);
         fontParagraph.setSize(8);
 
-        String formattedStartDate = fromDeliveryDate;
-        String formattedEndDate =  toDeliveryDate;
+        DateFormat isoParser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        DateFormat outputFormatter = new SimpleDateFormat("dd-MM-yyyy hh:mm a");
+
+        Date startDate = isoParser.parse(fromDeliveryDate);
+        Date endDate = isoParser.parse(toDeliveryDate);
+
+        String formattedStartDate = outputFormatter.format(startDate);
+        String formattedEndDate = outputFormatter.format(endDate);
 
 
         Paragraph paragraph2 = new Paragraph("Selection Date\n" + formattedStartDate + " - "  + formattedEndDate , fontParagraph);
@@ -663,6 +670,17 @@ public class PdfReportService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy'T'HH:mm:ss");
         return localDateTime.format(formatter);
     }
+
+    /**
+     *
+     * @param date
+     * @return
+     */
+    private String getFormat12HrsDate(Date date) {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy hh:mm a"); // 12-hour with AM/PM
+        return formatter.format(date);
+    }
+
 
 
 }
