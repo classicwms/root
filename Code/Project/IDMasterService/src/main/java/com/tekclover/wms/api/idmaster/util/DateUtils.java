@@ -365,7 +365,7 @@ public class DateUtils {
 		LocalDate endLocalDate = LocalDateTime.parse(endDateStr, inputFormatter).toLocalDate();
 
 		// Adjust range: previous day at 2 PM to current day at 1:59 PM
-		LocalDateTime sDateTime = startLocalDate.minusDays(1).atTime(14, 0);
+		LocalDateTime sDateTime = startLocalDate.atTime(14, 0);
 		LocalDateTime eDateTime = endLocalDate.atTime(13, 59);
 
 		String formattedStart = outputFormatter.format(sDateTime);
