@@ -25,6 +25,7 @@ public class DateUtils {
 		return output;
 	}
 
+	
 	/**
 	 * 
 	 * @return
@@ -59,6 +60,7 @@ public class DateUtils {
 		String currentDatetime = datetime.format(newPattern);
 		return currentDatetime;
 	}
+	
 	public static String getCurrentDateWithoutTimestamp () {
 		DateTimeFormatter newPattern = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 		LocalDateTime datetime = LocalDateTime.now();
@@ -67,6 +69,7 @@ public class DateUtils {
 		String currentDate = sLocalDate.format(newPattern);
 		return currentDate;
 	}
+	
 	public static Date convertStringToDateFormat(String strDate) {
 //		String str = "01-08-2022";
 		strDate += " 00:00:00";
@@ -278,7 +281,7 @@ public class DateUtils {
 		Date out = Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());
 		log.info("dbMatterGenAcc--PriorityDate-------> : " + out);
 	}
-
+	
 	/**
 	 *
 	 * @param strDate
@@ -340,5 +343,37 @@ public class DateUtils {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	/**
+	 * Converts input ISO date strings to custom time range strings (2 PM previous day to 1:59 PM current day)
+	 *
+	 * @param startDateStr
+	 * @param endDateStr
+	 * @return Formatted string array with time window
+	 */
+	public static String[] pdfReportDate(String startDateStr, String endDateStr) {
+		// Clean 'T' and parse input strings
+		startDateStr = startDateStr.replace("T", " ");
+		endDateStr = endDateStr.replace("T", " ");
+
+		DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm a");
+
+		// Parse input strings to LocalDate
+		LocalDate startLocalDate = LocalDateTime.parse(startDateStr, inputFormatter).toLocalDate();
+		LocalDate endLocalDate = LocalDateTime.parse(endDateStr, inputFormatter).toLocalDate();
+
+		// Adjust range: previous day at 2 PM to current day at 1:59 PM
+		LocalDateTime sDateTime = startLocalDate.minusDays(1).atTime(14, 0);
+		LocalDateTime eDateTime = endLocalDate.atTime(13, 59);
+
+		String formattedStart = outputFormatter.format(sDateTime);
+		String formattedEnd = outputFormatter.format(eDateTime);
+
+		log.info("PdfReport---@--> Start: " + formattedStart);
+		log.info("PdfReport---@--> End: " + formattedEnd);
+
+		return new String[] { formattedStart, formattedEnd };
 	}
 }

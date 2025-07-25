@@ -9,6 +9,7 @@ import com.tekclover.wms.api.idmaster.model.pdfreport.MetricsSummary;
 import com.tekclover.wms.api.idmaster.model.pdfreport.ShipmentDeliverySummary;
 import com.tekclover.wms.api.idmaster.model.pdfreport.ShipmentDeliverySummaryReport;
 import com.tekclover.wms.api.idmaster.model.pdfreport.SummaryMetrics;
+import com.tekclover.wms.api.idmaster.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
@@ -44,8 +45,8 @@ public class PdfReportService {
     @Autowired
     SendMailService sendMailService;
 
-    @Scheduled(cron = "0 0 15 * * ?")
-    //@Scheduled(cron = "0 */10 * * * ?")
+//    @Scheduled(cron = "0 0 15 * * ?")
+    @Scheduled(cron = "0 */10 * * * ?")
     private void generateShipmentDeliveryReport() throws Exception {
 
         // Converting StartDateTime and EndDateTime
@@ -164,15 +165,10 @@ public class PdfReportService {
         Font fontParagraph = FontFactory.getFont(FontFactory.HELVETICA);
         fontParagraph.setSize(8);
 
-        DateFormat isoParser = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        DateFormat outputFormatter = new SimpleDateFormat("dd-MM-yyyy hh:mm a");
+        String[] rangeDates = DateUtils.pdfReportDate(fromDeliveryDate, toDeliveryDate);
 
-        Date startDate = isoParser.parse(fromDeliveryDate);
-        Date endDate = isoParser.parse(toDeliveryDate);
-
-        String formattedStartDate = outputFormatter.format(startDate);
-        String formattedEndDate = outputFormatter.format(endDate);
-
+        String formattedStartDate = rangeDates[0];
+        String formattedEndDate = rangeDates[1];
 
         Paragraph paragraph2 = new Paragraph("Selection Date\n" + formattedStartDate + " - "  + formattedEndDate , fontParagraph);
         paragraph2.setAlignment(Paragraph.ALIGN_RIGHT);
