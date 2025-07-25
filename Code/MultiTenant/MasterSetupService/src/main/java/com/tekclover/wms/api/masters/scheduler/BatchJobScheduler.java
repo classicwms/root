@@ -62,7 +62,7 @@ public class BatchJobScheduler {
     static CopyOnWriteArrayList<ImBasicData1V2> spList = null;            // Inbound List
     static CopyOnWriteArrayList<BusinessPartnerV2> spCustomerList = null;    // Customer List
 
-    @Scheduled(fixedDelay = 20000)
+//    @Scheduled(fixedDelay = 20000)
     public void processInboundOrder() throws IllegalAccessException, InvocationTargetException, ParseException, MessagingException, IOException {
         if (inboundItemList == null || inboundItemList.isEmpty()) {
             DataBaseContextHolder.setCurrentDb("FAHAHEEL");
@@ -170,7 +170,7 @@ public class BatchJobScheduler {
     //=====================================================================V2=============================================================================
 
     // CustomerMaster
-    @Scheduled(fixedDelay = 30000)
+//    @Scheduled(fixedDelay = 30000)
     public void processCustomerMaster() throws IllegalAccessException, InvocationTargetException, ParseException, MessagingException, IOException {
         if (inboundCustomerList == null || inboundCustomerList.isEmpty()) {
             DataBaseContextHolder.setCurrentDb("FAHAHEEL");
