@@ -45,8 +45,8 @@ public class PdfReportService {
     @Autowired
     SendMailService sendMailService;
 
-//    @Scheduled(cron = "0 0 15 * * ?")
-    @Scheduled(cron = "0 */10 * * * ?")
+	@Scheduled(cron = "0 0 15 * * ?")
+    //@Scheduled(cron = "0 */10 * * * ?")
     private void generateShipmentDeliveryReport() throws Exception {
 
         // Converting StartDateTime and EndDateTime
@@ -411,11 +411,11 @@ public class PdfReportService {
      *
      * @param document
      * @param fromDeliveryDate
-     * @param toDeliveyDate
+     * @param toDeliveryDate
      * @throws DocumentException
      * @throws IOException
      */
-    private void addPageHeaderDR(Document document, String fromDeliveryDate, String toDeliveyDate) throws DocumentException, IOException {
+    private void addPageHeaderDR(Document document, String fromDeliveryDate, String toDeliveryDate) throws DocumentException, IOException {
         // Fonts
         Font fontTitle = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 15);
         Font fontParagraph = FontFactory.getFont(FontFactory.HELVETICA, 8);
@@ -427,8 +427,10 @@ public class PdfReportService {
         image.setAbsolutePosition(30, 780); // top-left position
         document.add(image);
 
-        String formattedStartDate = fromDeliveryDate;
-        String formattedEndDate =  toDeliveyDate;
+        String[] rangeDates = DateUtils.pdfReportDate(fromDeliveryDate, toDeliveryDate);
+
+        String formattedStartDate = rangeDates[0];
+        String formattedEndDate = rangeDates[1];
 
         Paragraph selectionDate = new Paragraph("Selection Date\n" + formattedStartDate + " - " + formattedEndDate, fontParagraph);
         selectionDate.setAlignment(Paragraph.ALIGN_RIGHT);
