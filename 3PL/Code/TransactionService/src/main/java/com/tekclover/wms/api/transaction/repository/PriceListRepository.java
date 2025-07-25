@@ -104,4 +104,22 @@ public interface PriceListRepository extends JpaRepository<PriceList,Long>, JpaS
                          @Param("languageId") String languageId,
                          @Param("warehouseId") String warehouseId,
                          @Param("partnerCode") String partnerCode);
+
+    @Query(value = "select charge_unit as chargeUnit, price_charge_unit as pricePerChargeUnit, CHARGE_RANGE_TO as chargeRangeTo from tblpricelist where c_id = :companyId and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and \n" +
+            "price_list_id = :priceListId and ser_typ_id = :serviceTypeId and is_deleted = 0", nativeQuery = true)
+    IKeyValuePair getChargeUnit(@Param("companyId") Long companyId,
+                                @Param("plantId") String plantId,
+                                @Param("languageId") String languageId,
+                                @Param("warehouseId") String warehouseId,
+                                @Param("priceListId") Long priceListId,
+                                @Param("serviceTypeId") Long serviceTypeId);
+
+    @Query(value = "select charge_unit as chargeUnit, price_charge_unit as pricePerChargeUnit, CHARGE_RANGE_TO as chargeRangeTo from tblpricelist where c_id = :companyId and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and \n" +
+            "price_list_id = :priceListId and ser_typ_id = :serviceTypeId and is_deleted = 0", nativeQuery = true)
+    IKeyValuePair getChargeUnitInv(@Param("companyId") String companyId,
+                                   @Param("plantId") String plantId,
+                                   @Param("languageId") String languageId,
+                                   @Param("warehouseId") String warehouseId,
+                                   @Param("priceListId") Long priceListId,
+                                   @Param("serviceTypeId") Long serviceTypeId);
 }
