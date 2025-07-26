@@ -23,7 +23,6 @@ import com.tekclover.wms.api.transaction.model.outbound.quality.v2.QualityHeader
 import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2;
 import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundLineV2;
 import com.tekclover.wms.api.transaction.model.threepl.pricelist.PriceList;
-import com.tekclover.wms.api.transaction.model.threepl.pricelist.PriceListAssignment;
 import com.tekclover.wms.api.transaction.repository.*;
 import com.tekclover.wms.api.transaction.repository.specification.PickupLineSpecification;
 import com.tekclover.wms.api.transaction.repository.specification.PickupLineV2Specification;
@@ -1727,100 +1726,74 @@ public class PickupLineService extends BaseService {
 //            InventoryV2 inventory = inventoryService.getInventoryV2(dbPickupLine.getCompanyCodeId(),
 //                    dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(),
 //                    dbPickupLine.getPickedPackCode(), dbPickupLine.getItemCode(), dbPickupLine.getPickedStorageBin());
-//            InventoryV2 inventory = inventoryService.getInventoryV2(dbPickupLine.getCompanyCodeId(),
-//                    dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(),
-//                    dbPickupLine.getPickedPackCode(), dbPickupLine.getItemCode(), dbPickupLine.getPickedStorageBin(), dbPickupLine.getManufacturerName());
-//            if (inventory.getThreePLCbmPerQty() != null) {
-//                if (dbPickupLine.getPickConfirmQty() != null) {
-//                    Double pickCbm = inventory.getThreePLCbmPerQty() * dbPickupLine.getPickConfirmQty();
-//                    dbPickupLine.setThreePLCbm(pickCbm);
-//                    dbPickupLine.setThreePLUom(inventory.getThreePLUom());
-//                }
-//            }
-//
+            InventoryV2 inventory = inventoryService.getInventoryV2(dbPickupLine.getCompanyCodeId(),
+                    dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(),
+                    dbPickupLine.getPickedPackCode(), dbPickupLine.getItemCode(), dbPickupLine.getPickedStorageBin(), dbPickupLine.getManufacturerName());
+            if (inventory.getThreePLCbmPerQty() != null) {
+                if (dbPickupLine.getPickConfirmQty() != null) {
+                    Double pickCbm = inventory.getThreePLCbmPerQty() * dbPickupLine.getPickConfirmQty();
+                    dbPickupLine.setThreePLCbm(pickCbm);
+                    dbPickupLine.setThreePLUom(inventory.getThreePLUom());
+                }
+            }
 
             // ThreePL
             log.info("ThreePL Logic Started --------------------------------> ");
-            PriceListAssignment priceAssign = priceListAssignmentRepository.getPartnerCode(newPickupLine.getCompanyCodeId(), newPickupLine.getPlantId(), newPickupLine.getWarehouseId(), newPickupLine.getLanguageId(), newPickupLine.getPartnerCode());
-            Long priceListId = priceAssign.getPriceListId();
-            log.info("PriceListAssignmentId----->" +priceListId);
-            IKeyValuePair priceList = priceListRepository.getChargeUnit(newPickupLine.getCompanyCodeId(), newPickupLine.getPlantId(), newPickupLine.getLanguageId(), newPickupLine.getWarehouseId(), priceAssign.getPriceListId(), 4L);
-            log.info("C_Id----->" +newPickupLine.getCompanyCodeId());
-            log.info("PlantId----->" +newPickupLine.getPlantId());
-            log.info("WH_Id----->" +newPickupLine.getWarehouseId());
-            log.info("PriceListId----->" +priceAssign.getPriceListId());
+            {
+                Optional.ofNullable(priceListAssignmentRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndPartnerCodeAndDeletionIndicator(
+                                String.valueOf(newPickupLine.getCompanyCodeId()), newPickupLine.getPlantId(), newPickupLine.getWarehouseId(), newPickupLine.getPartnerCode(), 0L))
+                        .ifPresentOrElse(priceListAssignment -> {
+                            List<PriceList> priceLists = priceListRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndPriceListIdAndServiceTypeIdAndDeletionIndicator(
+                                    priceListAssignment.getCompanyCodeId(), priceListAssignment.getPlantId(), priceListAssignment.getWarehouseId(), priceListAssignment.getPriceListId(), 4L, 0L);
+                            log.info("PriceList Values {}", priceLists);
 
-            log.info("PriceList------>" + priceList.getChargeUnit());
-            dbPickupLine.setRate(priceList.getPricePerChargeUnit());
-            dbPickupLine.setThreePLCbm(priceList.getChargeRangeTo());
-            log.info("TPLCBM----->" +dbPickupLine.getThreePLCbm());
+                            Double threePLCbm = dbPickupLine.getThreePLCbm(); // Given total CBM
+                            String currency = new String();
+//                            StringBuilder priceDescription = new StringBuilder();
+                            double chargeUnit = 0.0;
 
-//            {
-//                Optional.ofNullable(priceListAssignmentRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndPartnerCodeAndDeletionIndicator(
-//                                String.valueOf(newPickupLine.getCompanyCodeId()), newPickupLine.getPlantId(), newPickupLine.getWarehouseId(), newPickupLine.getPartnerCode(), 0L))
-//                        .ifPresentOrElse(priceListAssignment -> {
-//                            List<PriceList> priceLists = priceListRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndPriceListIdAndServiceTypeIdAndDeletionIndicator(
-//                                    priceListAssignment.getCompanyCodeId(), priceListAssignment.getPlantId(), priceListAssignment.getWarehouseId(), priceListAssignment.getPriceListId(), 4L, 0L);
-//                            log.info("PriceList Values {}", priceLists);
-//
-//                            Double threePLCbm = dbPickupLine.getThreePLCbm(); // Given total CBM
-//                            String currency = new String();
-//
-////                            StringBuilder priceDescription = new StringBuilder();
-//                            double chargeUnit = 0.0;
-//
-//                            // Sort the price list by chargeFrom so that lower ranges are processed first
-//                            priceLists.sort(Comparator.comparingDouble(PriceList::getChargeRangeFrom));
-//
-//                            Double cbmTo = null;
-//                            Double rate = null;
-//                            for (PriceList dbPrice : priceLists) {
-//                                double chargeFrom = dbPrice.getChargeRangeFrom() != null ? dbPrice.getChargeRangeFrom() : 0.0;
-//                                double chargeTo = dbPrice.getChargeRangeTo() != null ? dbPrice.getChargeRangeTo() : 0.0;
-//                                double chargePerUnit = dbPrice.getPricePerChargeUnit() != null ? dbPrice.getPricePerChargeUnit() : 0.0;
-////                                currency.append(dbPrice.getReferenceField4());
-//                                currency = dbPrice.getReferenceField4();
-////                                double dbpickupline = inventoryV2Repository.getpartnerCode(dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(), dbPickupLine.getPartnerCode());
-//                                cbmTo = dbPrice.getChargeRangeTo();
-//                                log.info("CBM------->" +cbmTo);
-//                                rate = dbPrice.getPricePerChargeUnit();
-//                                log.info("Rate------->"+rate);
-////                                priceDescription.append(dbPrice.getReferenceField1());
-//
-//                                log.info("ThreePL CBM Value {}, ChargeFrom Value {}, ChargeTo Value {}, ChargeUnit Value{} ", threePLCbm, chargeFrom, chargeTo, chargeUnit);
-//                                if (threePLCbm >= chargeFrom && threePLCbm >= chargeTo) {
-//                                    if (chargeUnit != 0.0) {
-//                                        chargeUnit = chargePerUnit;
-//                                    } else {
-//                                        chargeUnit = chargePerUnit;
-//                                    }
-//                                    threePLCbm -= chargeTo;
-//                                } else if (threePLCbm <= chargeTo) {
-//                                    if (chargeUnit != 0.0) {
-//                                        chargeUnit = chargePerUnit;
-//                                    } else {
-//                                        chargeUnit = chargePerUnit;
-//                                    }
-//                                    threePLCbm -= chargeTo;
-//                                }
-//                                if (threePLCbm <= 0) {
-//                                    break;
-//                                }
-//                            }
-//
-//                            double totalCbm = dbPickupLine.getTotalThreePLCbm() != null ? dbPickupLine.getTotalThreePLCbm() : 0;
-//                            log.info("Finally ThreePLUom Value is {}", chargeUnit);
-//                            dbPickupLine.setRate(chargeUnit);
-//                            dbPickupLine.setTotalThreePLCbm(totalCbm);
-//                            dbPickupLine.setTotalRate(totalCbm * chargeUnit);
-//                            dbPickupLine.setCurrency(String.valueOf(currency));
-//                            dbPickupLine.setThreePLCbmPerQty(cbmTo);
-//                            log.info("ThreePLCbmPerQty------->" +dbPickupLine.getThreePLCbmPerQty());
-//                            dbPickupLine.setThreePLRatePerQty(rate);
-//                            log.info("ThreePLCbmPerQty------->" +dbPickupLine.getThreePLRatePerQty());
-//                        }, () -> log.warn("PriceListAssignment not found for CompanyCode {}, PlantId {}, WarehouseId {}, PartnerCode {}",
-//                                dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(), dbPickupLine.getWarehouseId(), dbPickupLine.getPartnerCode()));
-//            }
+                            // Sort the price list by chargeFrom so that lower ranges are processed first
+                            priceLists.sort(Comparator.comparingDouble(PriceList::getChargeRangeFrom));
+
+                            for (PriceList dbPrice : priceLists) {
+                                double chargeFrom = dbPrice.getChargeRangeFrom() != null ? dbPrice.getChargeRangeFrom() : 0.0;
+                                double chargeTo = dbPrice.getChargeRangeTo() != null ? dbPrice.getChargeRangeTo() : 0.0;
+                                double chargePerUnit = dbPrice.getPricePerChargeUnit() != null ? dbPrice.getPricePerChargeUnit() : 0.0;
+//                                currency.append(dbPrice.getReferenceField4());
+                                currency = dbPrice.getReferenceField4();
+//                                priceDescription.append(dbPrice.getReferenceField1());
+
+                                log.info("ThreePL CBM Value {}, ChargeFrom Value {}, ChargeTo Value {}, ChargeUnit Value{} ", threePLCbm, chargeFrom, chargeTo, chargeUnit);
+                                if (threePLCbm >= chargeFrom && threePLCbm >= chargeTo) {
+                                    if (chargeUnit != 0.0) {
+                                        chargeUnit = chargePerUnit;
+                                    } else {
+                                        chargeUnit = chargePerUnit;
+                                    }
+                                    threePLCbm -= chargeTo;
+                                } else if (threePLCbm <= chargeTo) {
+                                    if (chargeUnit != 0.0) {
+                                        chargeUnit = chargePerUnit;
+                                    } else {
+                                        chargeUnit = chargePerUnit;
+                                    }
+                                    threePLCbm -= chargeTo;
+                                }
+                                if (threePLCbm <= 0) {
+                                    break;
+                                }
+                            }
+
+                            double totalCbm = dbPickupLine.getTotalThreePLCbm() != null ? dbPickupLine.getTotalThreePLCbm() : 0;
+                            log.info("Finally ThreePLUom Value is {}", chargeUnit);
+                            dbPickupLine.setRate(chargeUnit);
+                            dbPickupLine.setTotalThreePLCbm(totalCbm);
+                            dbPickupLine.setTotalRate(totalCbm * chargeUnit);
+                            dbPickupLine.setCurrency(String.valueOf(currency));
+
+                        }, () -> log.warn("PriceListAssignment not found for CompanyCode {}, PlantId {}, WarehouseId {}, PartnerCode {}",
+                                dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(), dbPickupLine.getWarehouseId(), dbPickupLine.getPartnerCode()));
+            }
 
             log.info("ThreePL Logic completed -----------------------------------------> ");
 
@@ -1923,29 +1896,10 @@ public class PickupLineService extends BaseService {
                         inventoryV2.setRate(RATE);
                         inventoryV2.setThreePLCbm(T_CBM);
                         inventoryV2.setTotalThreePLCbm(T_CBM);
-                        inventoryV2.setThreePLRatePerQty(dbPickupLine.getThreePLRatePerQty());
-                        log.info("ThreePLCbmPerQty------->" + inventoryV2.getThreePLRatePerQty());
-                        inventoryV2.setThreePLCbmPerQty(dbPickupLine.getThreePLCbmPerQty());
-                        log.info("ThreePLCbmPerQty------->" + inventoryV2.getThreePLCbmPerQty());
+//                        inventoryV2.setThreePLRatePerQty(threePLRatePerQty);
+//                        inventoryV2.setThreePLCbmPerQty(threePLCBMPerQty);
                         inventoryV2.setTotalThreePLCbm(threePLCBMPerQty * INV_QTY);
                         inventoryV2.setTotalRate(threePLRatePerQty * INV_QTY);
-
-                        PriceListAssignment priceAssign = priceListAssignmentRepository.getPartnerCodeInv(dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(), dbPickupLine.getWarehouseId(), dbPickupLine.getLanguageId(), dbPickupLine.getPartnerCode());
-                        Long priceListId = priceAssign.getPriceListId();
-                        log.info("PriceListAssignmentId----->" +priceListId);
-                        IKeyValuePair priceList = priceListRepository.getChargeUnitInv(dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(), priceAssign.getPriceListId(), 3L);
-                        log.info("PriceList------>" +priceList);
-                        inventoryV2.setThreePLCbmPerQty(priceList.getChargeRangeTo());
-                        inventoryV2.setThreePLRatePerQty(priceList.getPricePerChargeUnit());
-                        Double totalRate = inventoryV2.getThreePLRatePerQty() * inventoryV2.getReferenceField4();
-                        log.info("TotalRate----->" +totalRate);
-                        inventoryV2.setTotalRate(totalRate);
-                        inventoryV2.setRate(totalRate);
-                        Double CBM = inventoryV2.getThreePLCbmPerQty() * inventoryV2.getReferenceField4();
-                        log.info("CBM----->" +CBM);
-                        inventoryV2.setThreePLCbm(CBM);
-                        inventoryV2.setTotalThreePLCbm(CBM);
-
                         inventoryV2 = inventoryV2Repository.save(inventoryV2);
                         log.info("-----Inventory2 updated-------: " + inventoryV2);
 

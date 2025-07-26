@@ -2,7 +2,6 @@ package com.tekclover.wms.api.transaction.service;
 
 import com.tekclover.wms.api.transaction.config.PropertiesConfig;
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
-import com.tekclover.wms.api.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.transaction.model.auth.AXAuthToken;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.transaction.model.dto.ImBasicData;
@@ -20,7 +19,6 @@ import com.tekclover.wms.api.transaction.model.inbound.v2.InboundLineV2;
 import com.tekclover.wms.api.transaction.model.inbound.v2.SearchInboundHeaderV2;
 import com.tekclover.wms.api.transaction.model.integration.IntegrationApiResponse;
 import com.tekclover.wms.api.transaction.model.threepl.pricelist.PriceList;
-import com.tekclover.wms.api.transaction.model.threepl.pricelist.PriceListAssignment;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.confirmation.*;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.*;
 import com.tekclover.wms.api.transaction.repository.*;
@@ -2212,8 +2210,8 @@ public class InboundHeaderService extends BaseService {
             if (dbInventory != null) {
                 Double threePLCBM = dbInventory.getTotalThreePLCbm() + putAwayLine.getTotalThreePLCbm();
                 Double rate = dbInventory.getRate() + putAwayLine.getRate();
-//                inventory.setThreePLCbm(threePLCBM);
-//                inventory.setRate(rate);
+                inventory.setThreePLCbm(threePLCBM);
+                inventory.setRate(rate);
 
                 inventory.setThreePLPartnerId(dbInventory.getThreePLPartnerId());
                 //customerName
@@ -2224,10 +2222,10 @@ public class InboundHeaderService extends BaseService {
                         inventory.setThreePLPartnerText(customerName);
                     }
                 }
-//                inventory.setThreePLCbmPerQty(dbInventory.getThreePLCbmPerQty());
-//                inventory.setThreePLRatePerQty(dbInventory.getThreePLRatePerQty());
-//                inventory.setTotalThreePLCbm(threePLCBM);
-//                inventory.setTotalRate(dbInventory.getTotalRate());
+                inventory.setThreePLCbmPerQty(dbInventory.getThreePLCbmPerQty());
+                inventory.setThreePLRatePerQty(dbInventory.getThreePLRatePerQty());
+                inventory.setTotalThreePLCbm(threePLCBM);
+                inventory.setTotalRate(dbInventory.getTotalRate());
                 inventory.setCurrency(dbInventory.getCurrency());
                 log.info("ThreePLCBM {}, Rate {} ", threePLCBM, rate);
             } else {
@@ -2285,36 +2283,18 @@ public class InboundHeaderService extends BaseService {
                                 }
                             }
                             log.info("ThreePLCBM Value {}, InventoryQty {} ", putAwayLine.getTotalThreePLCbm(), inventory.getInventoryQuantity());
-//                            inventory.setThreePLCbmPerQty(putAwayLine.getTotalThreePLCbm() / inventory.getInventoryQuantity());
-//                            inventory.setTotalThreePLCbm(totalCbm);
-//                            inventory.setThreePLCbm(totalCbm);
-//                            inventory.setTotalRate(totalCbm * chargeUnit);
-//                            inventory.setRate(inventory.getTotalRate());
-//                            inventory.setThreePLRatePerQty(inventory.getTotalRate() / inventory.getInventoryQuantity());
-//                            log.info("ThreePLRatePerQty ------------------------> {}", inventory.getThreePLRatePerQty());
+                            inventory.setThreePLCbmPerQty(putAwayLine.getTotalThreePLCbm() / inventory.getInventoryQuantity());
+                            inventory.setTotalThreePLCbm(totalCbm);
+                            inventory.setThreePLCbm(totalCbm);
+                            inventory.setTotalRate(totalCbm * chargeUnit);
+                            inventory.setRate(inventory.getTotalRate());
+                            inventory.setThreePLRatePerQty(inventory.getTotalRate() / inventory.getInventoryQuantity());
+                            log.info("ThreePLRatePerQty ------------------------> {}", inventory.getThreePLRatePerQty());
                             log.info("Currency------>" + currency);
                             inventory.setCurrency(String.valueOf(currency));
                         }, () -> log.warn("PriceListAssignment not found for CompanyCode {}, PlantId {}, WarehouseId {}, PartnerCode {}",
                                 putAwayLine.getCompanyCode(), putAwayLine.getPlantId(), putAwayLine.getWarehouseId(), putAwayLine.getBusinessPartnerCode()));
             }
-
-
-            PriceListAssignment priceAssign = priceListAssignmentRepository.getPartnerCodeInv(putAwayLine.getCompanyCode(), putAwayLine.getPlantId(), putAwayLine.getWarehouseId(), putAwayLine.getLanguageId(), putAwayLine.getBusinessPartnerCode());
-            Long priceListId = priceAssign.getPriceListId();
-            log.info("PriceListAssignmentId----->" +priceListId);
-            IKeyValuePair priceList = priceListRepository.getChargeUnitInv(putAwayLine.getCompanyCode(), putAwayLine.getPlantId(), putAwayLine.getLanguageId(), putAwayLine.getWarehouseId(), priceAssign.getPriceListId(), 3L);
-            log.info("PriceList------>" +priceList);
-            inventory.setThreePLCbmPerQty(priceList.getChargeRangeTo());
-            inventory.setThreePLRatePerQty(priceList.getPricePerChargeUnit());
-            Double totalRate = inventory.getThreePLRatePerQty() * inventory.getReferenceField4();
-            log.info("TotalRate----->" +totalRate);
-            inventory.setTotalRate(totalRate);
-            inventory.setRate(totalRate);
-            Double CBM = inventory.getThreePLCbmPerQty() * inventory.getReferenceField4();
-            log.info("CBM----->" +CBM);
-            inventory.setThreePLCbm(CBM);
-            inventory.setTotalThreePLCbm(CBM);
-
 
             log.info("ThreePL Logic completed -----------------------------------------> ");
 

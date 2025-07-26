@@ -6,7 +6,6 @@ import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickupLineV2;
 import com.tekclover.wms.api.transaction.model.report.CBMUtilization;
 import com.tekclover.wms.api.transaction.model.report.OccupancyBinReportResponse;
 import com.tekclover.wms.api.transaction.model.report.PickingProductivityImpl;
-import com.tekclover.wms.api.transaction.model.threepl.pricelist.PriceListAssignment;
 import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
