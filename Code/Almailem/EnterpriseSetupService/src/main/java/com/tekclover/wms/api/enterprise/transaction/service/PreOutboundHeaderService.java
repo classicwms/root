@@ -1,10 +1,37 @@
 package com.tekclover.wms.api.enterprise.transaction.service;
 
+import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.persistence.EntityNotFoundException;
+
+import org.hibernate.exception.LockAcquisitionException;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.microsoft.sqlserver.jdbc.SQLServerException;
 import com.tekclover.wms.api.enterprise.controller.exception.BadRequestException;
 import com.tekclover.wms.api.enterprise.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.enterprise.transaction.model.auth.AuthToken;
-import com.tekclover.wms.api.enterprise.transaction.model.dto.*;
+import com.tekclover.wms.api.enterprise.transaction.model.dto.BomHeader;
+import com.tekclover.wms.api.enterprise.transaction.model.dto.BomLine;
+import com.tekclover.wms.api.enterprise.transaction.model.dto.HHTUser;
+import com.tekclover.wms.api.enterprise.transaction.model.dto.ImBasicData;
+import com.tekclover.wms.api.enterprise.transaction.model.dto.ImBasicData1;
+import com.tekclover.wms.api.enterprise.transaction.model.dto.StatusId;
+import com.tekclover.wms.api.enterprise.transaction.model.dto.Warehouse;
 import com.tekclover.wms.api.enterprise.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.enterprise.transaction.model.inbound.inventory.InventoryMovement;
 import com.tekclover.wms.api.enterprise.transaction.model.inbound.inventory.v2.IInventoryImpl;
@@ -19,33 +46,55 @@ import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangemen
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.pickup.AddPickupLine;
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.pickup.v2.PickupHeaderV2;
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.pickup.v2.PickupLineV2;
-import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.*;
-import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.v2.*;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.AddPreOutboundHeader;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.OutboundIntegrationHeader;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.OutboundIntegrationLine;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.OutboundIntegrationLog;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.PreOutboundHeader;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.PreOutboundLine;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.SearchPreOutboundHeader;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.UpdatePreOutboundHeader;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.v2.OutboundIntegrationHeaderV2;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.v2.OutboundIntegrationLineV2;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.v2.PreOutboundHeaderV2;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.v2.PreOutboundLineV2;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.v2.SearchPreOutboundHeaderV2;
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.quality.v2.AddQualityLineV2;
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.quality.v2.QualityHeaderV2;
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.quality.v2.QualityLineV2;
-import com.tekclover.wms.api.enterprise.transaction.model.outbound.v2.*;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.v2.OutboundHeaderV2;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.v2.OutboundLineV2;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.v2.OutboundOrderCancelInput;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.v2.PickListCancellation;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.v2.PickListHeader;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.v2.PickListLine;
 import com.tekclover.wms.api.enterprise.transaction.model.warehouse.WarehouseId;
-import com.tekclover.wms.api.enterprise.transaction.repository.*;
+import com.tekclover.wms.api.enterprise.transaction.repository.InventoryRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.InventoryV2Repository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OrderManagementHeaderRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OrderManagementHeaderV2Repository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OrderManagementLineRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OrderManagementLineV2Repository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OutboundHeaderRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OutboundHeaderV2Repository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OutboundIntegrationLogRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OutboundLineRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OutboundLineV2Repository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OutboundOrderV2Repository;
+import com.tekclover.wms.api.enterprise.transaction.repository.PickListHeaderRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.PickupHeaderV2Repository;
+import com.tekclover.wms.api.enterprise.transaction.repository.PreOutboundHeaderRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.PreOutboundHeaderV2Repository;
+import com.tekclover.wms.api.enterprise.transaction.repository.PreOutboundLineRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.PreOutboundLineV2Repository;
+import com.tekclover.wms.api.enterprise.transaction.repository.StagingLineV2Repository;
+import com.tekclover.wms.api.enterprise.transaction.repository.WarehouseIdRepository;
 import com.tekclover.wms.api.enterprise.transaction.repository.specification.PreOutboundHeaderSpecification;
 import com.tekclover.wms.api.enterprise.transaction.repository.specification.PreOutboundHeaderV2Specification;
 import com.tekclover.wms.api.enterprise.transaction.util.CommonUtils;
 import com.tekclover.wms.api.enterprise.transaction.util.DateUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.hibernate.exception.LockAcquisitionException;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.CannotAcquireLockException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
-import java.lang.reflect.InvocationTargetException;
-import java.sql.SQLException;
-import java.text.ParseException;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -1545,8 +1594,19 @@ public class PreOutboundHeaderService extends BaseService {
 //        return outboundHeader;
 //    }
 
-//    @Transactional(rollbackFor = {Exception.class, Throwable.class})
-//    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class, LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 3, backoff = @Backoff(delay = 5000))
+    /**
+     * 
+     * @param outboundIntegrationHeader
+     * @return
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     * @throws BadRequestException
+     * @throws SQLException
+     * @throws SQLServerException
+     * @throws CannotAcquireLockException
+     * @throws LockAcquisitionException
+     * @throws Exception
+     */
     public OutboundHeaderV2 processOutboundReceivedV2(OutboundIntegrationHeaderV2 outboundIntegrationHeader)
             throws IllegalAccessException, InvocationTargetException, BadRequestException,
             SQLException, SQLServerException, CannotAcquireLockException, LockAcquisitionException, Exception {
