@@ -59,6 +59,6 @@ test {
 bootJar {
    archiveName = 'EnterpriseSetupService.jar'
 }
-bootRun {
-	jvmArgs(['-XX:+UseSerialGC', '-Xss512k', '-XX:MaxRAM=72m'])
-}
+//bootRun {
+//	jvmArgs(['-XX:+UseSerialGC', '-Xss512k', '-XX:MaxRAM=72m'])
+//}
