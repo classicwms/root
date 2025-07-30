@@ -2,6 +2,10 @@ package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -1293,35 +1297,77 @@ public class PickupHeaderService extends BaseService {
 //        }
 //    }
 
+    /**
+     *
+     * @param updatePickupHeaderList update assignPicker
+     * @return
+     */
     public List<PickupHeaderV2> patchAssignedPickerIdInPickupHeaderV2(List<PickupHeaderV2> updatePickupHeaderList) {
-        List<PickupHeaderV2> pickupHeaderList = new ArrayList<>();
-        try {
-            log.info("Process start to update Assigned Picker Id in PickupHeader: " + updatePickupHeaderList);
-            for (PickupHeaderV2 data : updatePickupHeaderList) {
-                log.info("PickupHeader object to update : " + data);
-                PickupHeaderV2 dbPickupHeader = getPickupHeaderForUpdatePickerV2(
-                        data.getCompanyCodeId(), data.getPlantId(), data.getLanguageId(),
-                        data.getWarehouseId(), data.getPreOutboundNo(), data.getRefDocNumber(), data.getPartnerCode(),
-                        data.getPickupNumber(), data.getLineNumber(), data.getItemCode(), data.getManufacturerName());
-                log.info("Old PickupHeader object from db : " + data);
-                if (dbPickupHeader != null) {
-                    dbPickupHeader.setAssignedPickerId(data.getAssignedPickerId());
-                    dbPickupHeader.setPickUpdatedBy(data.getPickupCreatedBy());
-                    dbPickupHeader.setPickUpdatedOn(new Date());
-                    PickupHeaderV2 pickupHeader = pickupHeaderV2Repository.save(dbPickupHeader);
+        if (updatePickupHeaderList.isEmpty()) {
+            throw new RuntimeException("AssignPicker Input Values is Empty" + updatePickupHeaderList);
+        }
 
-                    //Send Notification
-                    sendNotificationForUpdate(data.getRefDocNumber(),data.getAssignedPickerId(), data.getWarehouseId(), data.getReferenceDocumentType());
-                    pickupHeaderList.add(pickupHeader);
-                } else {
-                    log.info("No record for PickupHeader object from db for data : " + data);
-                    throw new BadRequestException("Error in pickupheader data");
-                }
-            }
-            return pickupHeaderList;
+        log.info("Process start to update Assigned Picker Id in PickupHeader: " + updatePickupHeaderList);
+        // Create a thread pool
+        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        try {
+            List<CompletableFuture<PickupHeaderV2>> futures = updatePickupHeaderList.stream()
+                    .map(data -> CompletableFuture.supplyAsync(() -> {
+                        try {
+                            pickupHeaderV2Repository.updatePickerId(data.getAssignedPickerId(), data.getPickUpdatedBy(), data.getCompanyCodeId(),
+                                    data.getPlantId(), data.getWarehouseId(), data.getPickupNumber());
+                            log.info("Assign PickerId Updated Successfully ------> PickupNumber is -- {}", data.getPickupNumber());
+                            return data;
+                        } catch (Exception ex) {
+                            log.error("Error processing PickupHeaderV2: " + data, ex);
+                            throw new CompletionException(ex);
+                        }
+                    }, executor))
+                    .collect(Collectors.toList());
+
+            // Send Notification
+            sendNotificationForAssignPicker(updatePickupHeaderList.get(0).getRefDocNumber(), updatePickupHeaderList.get(0).getAssignedPickerId(),
+                    updatePickupHeaderList.get(0).getWarehouseId(), updatePickupHeaderList.get(0).getReferenceDocumentType());
+
+            // Wait for all futures to complete
+            List<PickupHeaderV2> result = futures.stream()
+                    .map(CompletableFuture::join) // join will throw if any future completed exceptionally
+                    .collect(Collectors.toList());
+            return result;
         } catch (Exception e) {
-            log.error("Update Assigned Picker Id in PickupHeader failed for : " + updatePickupHeaderList);
+            log.error("Update Assigned Picker Id in PickupHeader failed for : " + updatePickupHeaderList, e);
             throw new BadRequestException("Error in data");
+        } finally {
+            executor.shutdown();
+        }
+                }
+
+
+    /**
+     *
+     * @param refDocNo orderNo
+     * @param assignPickerId pickerID
+     * @param warehouseId warehouseId
+     * @param refDocType reference Type
+     * @throws FirebaseMessagingException
+     */
+    public void sendNotificationForAssignPicker(String refDocNo, String assignPickerId, String warehouseId, String refDocType)
+            throws FirebaseMessagingException {
+
+        log.info("Assign Picker Notification Input Values  -----------------> refDocNo - {}, AssignPickerId - {}, WarehouseId - {}, RefDocType - {} ",
+                refDocNo, assignPickerId, warehouseId, refDocType );
+        // get token
+        List<String> deviceToken = pickupHeaderV2Repository.getDeviceToken(assignPickerId, warehouseId);
+
+        log.info("Notification Token ----------> {} ", deviceToken );
+        if (deviceToken != null && !deviceToken.isEmpty()) {
+            String title = "PICKING";
+            String message = refDocType + " ORDER - " + refDocNo + " - IS RECEIVED ";
+            String response = pushNotificationService.sendPushNotification(deviceToken, title, message);
+            if (response.equals("OK")) {
+                pickupHeaderV2Repository.updateNotificationStatus(assignPickerId, refDocNo, warehouseId );
+                log.info("status update successfully");
+            }
         }
     }
 
@@ -1329,6 +1375,7 @@ public class PickupHeaderService extends BaseService {
     public void sendNotificationForUpdate(String refDocNo, String assignPickerId, String warehouseId, String refDocType)
             throws FirebaseMessagingException {
 
+        log.info("Assign Picker Notification Input Values  -----------------> refDocNo - {}, AssignPickerId - {}, WarehouseId - {}, RefDocType - {} ", refDocNo, assignPickerId, warehouseId, refDocType );
         //withoutInput
         List<IKeyValuePair> notification =
                 pickupHeaderV2Repository.findByStatusIdAndNotificationStatusAndDeletionIndicatorDistinctRefDocNo();
@@ -1336,6 +1383,7 @@ public class PickupHeaderService extends BaseService {
         // withInput get token
         List<String> deviceToken = pickupHeaderV2Repository.getDeviceToken(refDocNo, warehouseId);
 
+        log.info("Notification Token ----------> {} ", deviceToken );
         if (deviceToken != null && !deviceToken.isEmpty()) {
             String title = "PICKING";
             String message = refDocType + " ORDER - " + refDocNo + " - IS RECEIVED ";
@@ -1351,6 +1399,7 @@ public class PickupHeaderService extends BaseService {
                 List<String> token = pickupHeaderV2Repository.getDeviceToken(
                         pickupHeaderV2.getAssignPicker(), pickupHeaderV2.getWarehouseId());
 
+                log.info("Notification Token ----------> " + token);
                 if (token != null && !token.isEmpty()) {
                     String title = "PICKING";
                     String message = pickupHeaderV2.getRefDocType() + " ORDER - " + pickupHeaderV2.getRefDocNumber() + " - IS RECEIVED ";

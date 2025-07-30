@@ -487,4 +487,14 @@ public interface PickupHeaderV2Repository extends JpaRepository<PickupHeaderV2, 
 //                                           @Param("languageId")String languageId,
 //                                           @Param("warehouseId")String warehouseId);
 
+    @Modifying
+    @Query(value = "Update tblpickupheader set ASS_PICKER_ID = :pickerId, PICK_UTD_BY = :updatedBy, PICK_UTD_ON = getDate() " +
+            "where C_ID = :companyId and PLANT_ID = :plantId and WH_ID = :warehouseId and PU_NO = :pickupNumber and is_deleted = 0 ", nativeQuery = true)
+    void updatePickerId(@Param("pickerId") String pickerId,
+                        @Param("updatedBy") String updatedBy,
+                        @Param("companyId") String companyId,
+                        @Param("plantId") String plantId,
+                        @Param("warehouseId") String warehouseId,
+                        @Param("pickupNumber") String pickupNumber);
+
 }
