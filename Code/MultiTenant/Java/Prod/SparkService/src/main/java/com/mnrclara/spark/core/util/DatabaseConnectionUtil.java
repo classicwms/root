@@ -8,43 +8,43 @@ public class DatabaseConnectionUtil {
 
     //==========================================Almailem===========================================
     public static String getJdbcUrl() {
-        return "jdbc:sqlserver://10.0.1.11;databaseName=WMS_MT";
+        return "jdbc:sqlserver://10.0.1.237;databaseName=WMS_MT";
     }
 
     public static String getNamrathaJdbcUrl() {
-        return "jdbc:sqlserver://10.0.1.11;databaseName=WMS_NAMRATHA";
+        return "jdbc:sqlserver://10.0.1.237;databaseName=WMS_NAMRATHA";
     }
 
     public static Properties getDatabaseConnectionProperties() {
         Properties connProp = new Properties();
         connProp.put("user", "sa");
-        connProp.put("password", "MT34tS[Fa1e)JB/SyH1h8Q3=|s");
+        connProp.put("password", "30NcyBuK");
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }
 
     //==========================================WMS CORE==============================================
     public static String getCoreJdbcUrl() {
-        return "jdbc:sqlserver://10.0.1.11;databaseName=WMS_MT";
+        return "jdbc:sqlserver://10.0.1.237;databaseName=WMS_MT";
     }
 
     public static Properties getCoreDatabaseConnectionProperties() {
         Properties connProp = new Properties();
         connProp.put("user", "sa");
-        connProp.put("password", "MT34tS[Fa1e)JB/SyH1h8Q3=|s");
+        connProp.put("password", "30NcyBuK");
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }
 
     //============================================ WMS Indus Mega Food================================
     public static String getIMFCoreJdbcUrl() {
-        return "jdbc:sqlserver://10.0.1.11;databaseName=WMS_MT";
+        return "jdbc:sqlserver://10.0.1.237;databaseName=WMS_MT";
     }
 
     public static Properties getIMFCoreDatabaseConnectionProperties() {
         Properties connProp = new Properties();
         connProp.put("user", "sa");
-        connProp.put("password", "MT34tS[Fa1e)JB/SyH1h8Q3=|s");
+        connProp.put("password", "30NcyBuK");
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }
@@ -52,7 +52,7 @@ public class DatabaseConnectionUtil {
 
     //============================================ WMS Walkaroo V3================================
     public static String getWalkarooCoreJdbcUrl() {
-        return "jdbc:sqlserver://10.0.1.11;databaseName=WMS_MT";
+        return "jdbc:sqlserver://10.0.1.237;databaseName=WMS_MT";
     }
 
     public static Properties getWalkarooCoreDatabaseConnectionProperties() {
@@ -65,7 +65,7 @@ public class DatabaseConnectionUtil {
 
     //============================================ WMS Impex UAT V4================================
     public static String getImpexJdbcUrl() {
-        return "jdbc:sqlserver://10.0.1.11;databaseName=WMS_MT";
+        return "jdbc:sqlserver://10.0.1.237;databaseName=WMS_MT";
     }
 
     public static Properties getImpexDatabaseConnectionProperties() {
@@ -77,7 +77,7 @@ public class DatabaseConnectionUtil {
     }
     //============================================ WMS Impex Dev V4================================
     public static String getImpexDevJdbcUrl() {
-        return "jdbc:sqlserver://10.0.1.11;databaseName=WMS_MT";
+        return "jdbc:sqlserver://10.0.1.237;databaseName=WMS_MT";
     }
 
     public static Properties getImpexDevDatabaseConnectionProperties() {
@@ -91,7 +91,7 @@ public class DatabaseConnectionUtil {
     //==========================================Reeferon==============================================
 
     public static String getReeferonJdbcUrl() {
-        return "jdbc:sqlserver://10.0.1.11;databaseName=WMS_MT";
+        return "jdbc:sqlserver://10.0.1.237;databaseName=WMS_MT";
     }
 
     public static Properties getReeferonDatabaseConnectionProperties() {
@@ -105,7 +105,7 @@ public class DatabaseConnectionUtil {
     //==========================================Knowell==============================================
 
     public static String getKnowellJdbcUrl() {
-        return "jdbc:sqlserver://10.0.1.11;databaseName=WMS_MT";
+        return "jdbc:sqlserver://10.0.1.237;databaseName=WMS_MT";
     }
 
     public static Properties getKnowellDatabaseConnectionProperties() {
@@ -119,7 +119,7 @@ public class DatabaseConnectionUtil {
     //===============================================FAHAHEEL=======================================
 
     public static String getFahaeelJdbcUrl() {
-        return"jdbc:sqlserver://10.0.1.11;databaseName=WMS_MT";
+        return"jdbc:sqlserver://10.0.1.237;databaseName=WMS_MT";
     }
 
     public static Properties getFahaeelDatabaseConnectionProperties() {
@@ -133,7 +133,7 @@ public class DatabaseConnectionUtil {
     //===============================================AUTO_LAP=======================================
 
     public static String getAutoLapJdbcUrl() {
-        return"jdbc:sqlserver://10.0.1.11;databaseName=WMS_MT";
+        return"jdbc:sqlserver://10.0.1.237;databaseName=WMS_MT";
     }
 
     public static Properties getAutoLapDatabaseConnectionProperties() {
