@@ -43,7 +43,7 @@ public class InventoryAsyncProcessService extends BaseService{
      * @param putAwayLineV2List putAwayLine List
      * @param loginUserID userID
      */
-    @Async("asyncExecutor")
+//    @Async("asyncExecutor")
     public void createInventoryAsyncProcessV4(List<PutAwayLineV2> putAwayLineV2List, String loginUserID) {
         putAwayLineV2List.stream().forEach(putAwayLineV2 -> {
             createInventoryNonCBMV4(putAwayLineV2, loginUserID);
@@ -54,7 +54,7 @@ public class InventoryAsyncProcessService extends BaseService{
      * @param putAwayLine putAwayLine Input's
      * @return return
      */
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+//    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public void createInventoryNonCBMV4(PutAwayLineV2 putAwayLine, String loginUserId) {
         DataBaseContextHolder.clear();
         DataBaseContextHolder.setCurrentDb("NAMRATHA");

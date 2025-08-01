@@ -3394,7 +3394,7 @@ public class PutAwayLineService extends BaseService {
      * @param loginUserID userID
      * @return
      */
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+//    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public PutAwayLineV2 createPutAwayLineProcessV4(@Valid PutAwayLineV2 newPutAwayLine, String loginUserID) {
 //        List<PutAwayLineV2> createdPutAwayLines = new ArrayList<>();
         log.info("newPutAwayLines to confirm : " + newPutAwayLine);
