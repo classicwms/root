@@ -75,6 +75,9 @@ public class InventoryService extends BaseService {
     private InventoryTransRepository inventoryTransRepository;
 
     private static final long SELF_LIFE_DAYS = 180;
+
+    @Autowired
+    GrLineV2Repository grLineV2Repository;
     //================================================================================================
 
     /**
@@ -2344,12 +2347,27 @@ public class InventoryService extends BaseService {
     }
 
 
-//    @Scheduled(cron = "0 0 0 * * ?")  // Every day at 12 AM
-//    @Transactional
-//    public void updateShelfLifeDaily() {
-//        DataBaseContextHolder.setCurrentDb("REEFERON");
-//        int updatedCount = inventoryRepository.updateShelfLife();
-//        log.info("Updated shelf life for " + updatedCount + " records at " + java.time.LocalDateTime.now());
-//    }
+    @Scheduled(fixedDelay = 5000)
+    public void getInventoryCreate() {
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb("NAMRATHA");
+
+        List<GrLineV2> grLineV2s = grLineV2Repository.findByReferenceField4("0");
+        if(!grLineV2s.isEmpty()) {
+            log.info("Get GrLine Values Size is  {} ", grLineV2s.size());
+        }
+        for (GrLineV2 grLineV2 : grLineV2s) {
+            grLineV2Repository.updateGrLineRefField("10", grLineV2.getRefDocNumber(), grLineV2.getBarcodeId());
+            log.info("Grline Ref_field_10 updated BarcodeId is ---> {}", grLineV2.getBarcodeId());
+            String companyCodeId = grLineV2.getCompanyCode();
+            String plantId = grLineV2.getPlantId();
+            String languageId = grLineV2.getLanguageId();
+            String warehouseId = grLineV2.getWarehouseId();
+            String itemCode = grLineV2.getItemCode();
+            String mfrName = grLineV2.getManufacturerName();
+            String refDocNo = grLineV2.getRefDocNumber();
+            createInventoryNonCBMV4(companyCodeId, plantId, languageId, warehouseId, itemCode, mfrName, refDocNo, grLineV2);
+        }
+    }
 
 }

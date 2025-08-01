@@ -93,6 +93,8 @@ public interface GrLineV2Repository extends JpaRepository<GrLineV2, Long>, JpaSp
     List<GrLineV2> findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
             String companyCode, String plantId, String languageId, String warehouseId, String refDocNumber, String preInboundNo, Long deletionIndicator);
 
+    List<GrLineV2> findByReferenceField4(String refField4);
+
     @Query(value = "select count(*) \n" +
             "from tblgrline where c_id = :companyCode and plant_id = :plantId and lang_id = :languageId and \n" +
             "wh_id = :warehouseId and REF_DOC_NO = :refDocNumber and PRE_IB_NO = :preInboundNo and is_deleted = 0 and STATUS_ID = :statusId",nativeQuery = true)
@@ -376,4 +378,9 @@ public interface GrLineV2Repository extends JpaRepository<GrLineV2, Long>, JpaSp
                         @Param("preInboundNo") String preInboundNo,
                         @Param("barcodeId") String barcodeId);
 
+    @Modifying
+    @Query(value = "Update tblgrline set ref_field_4 = :status where ref_doc_no =:refDocNo and barcode_id = :barcodeId ", nativeQuery = true)
+    void updateGrLineRefField(@Param("status") String status,
+                              @Param("refDocNo") String refDocNo,
+                              @Param("barcodeId") String barcodeId);
 }
