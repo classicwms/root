@@ -165,7 +165,7 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
      * @param idMasterToken IDMasterToken
      * @throws Exception exception
      */
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+//    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public void processPutAwayHeaderV4(GrLineV2 createdGRLine, String nextPANumber, String loginUserID, String idMasterToken) throws Exception {
         try {
             DataBaseContextHolder.clear();
