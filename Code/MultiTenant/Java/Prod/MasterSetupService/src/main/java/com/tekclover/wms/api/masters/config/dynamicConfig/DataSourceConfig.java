@@ -62,55 +62,55 @@ public class DataSourceConfig {
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
                 dataSource.setUrl("jdbc:sqlserver://10.0.1.5;databaseName=wms_imf");
                 dataSource.setUsername("sa");
-                dataSource.setPassword("Do1cavIFK4^$pQ^zZYsX");
+                dataSource.setPassword("30NcyBuK");
                 break;
             case "ALM":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://10.0.1.237;databaseName=WMS_MT");
+                dataSource.setUrl("jdbc:sqlserver://10.0.1.5;databaseName=WMS_MT");
                 dataSource.setUsername("sa");
                 dataSource.setPassword("30NcyBuK");
                 break;
             case "NAMRATHA":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://10.0.1.237;databaseName=WMS_NAMRATHA");
+                dataSource.setUrl("jdbc:sqlserver://10.0.1.5;databaseName=WMS_NAMRATHA");
                 dataSource.setUsername("sa");
                 dataSource.setPassword("30NcyBuK");
                 break;
             case "IMPEX":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://10.0.1.237;databaseName=WMS_MT");
+                dataSource.setUrl("jdbc:sqlserver://10.0.1.5;databaseName=WMS_MT");
                 dataSource.setUsername("sa");
-                dataSource.setPassword("Do1cavIFK4^$pQ^zZYsX");
+                dataSource.setPassword("30NcyBuK");
                 break;
             case "WK":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://10.0.1.237;databaseName=WMS_MT");
+                dataSource.setUrl("jdbc:sqlserver://10.0.1.5;databaseName=WMS_MT");
                 dataSource.setUsername("sa");
-                dataSource.setPassword("Do1cavIFK4^$pQ^zZYsX");
+                dataSource.setPassword("30NcyBuK");
                 break;
             case "REEFERON":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://10.0.1.237;databaseName=WMS_MT");
+                dataSource.setUrl("jdbc:sqlserver://10.0.1.5;databaseName=WMS_MT");
                 dataSource.setUsername("sa");
-                dataSource.setPassword("Do1cavIFK4^$pQ^zZYsX");
+                dataSource.setPassword("30NcyBuK");
                 break;
             case "KNOWELL":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://10.0.1.237;databaseName=WMS_MT");
+                dataSource.setUrl("jdbc:sqlserver://10.0.1.5;databaseName=WMS_MT");
                 dataSource.setUsername("sa");
-                dataSource.setPassword("Do1cavIFK4^$pQ^zZYsX");
+                dataSource.setPassword("30NcyBuK");
                 break;
             case "FAHAHEEL":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://10.0.1.237;databaseName=WMS_MT");
+                dataSource.setUrl("jdbc:sqlserver://10.0.1.5;databaseName=WMS_MT");
                 dataSource.setUsername("sa");
-                dataSource.setPassword("Do1cavIFK4^$pQ^zZYsX");
+                dataSource.setPassword("30NcyBuK");
                 break;
             case "AUTO_LAP":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://10.0.1.237;databaseName=WMS_MT");
+                dataSource.setUrl("jdbc:sqlserver://10.0.1.5;databaseName=WMS_MT");
                 dataSource.setUsername("sa");
-                dataSource.setPassword("Do1cavIFK4^$pQ^zZYsX");
+                dataSource.setPassword("30NcyBuK");
                 break;
             default:
                 throw new IllegalArgumentException("Unknown database: " + dbName);

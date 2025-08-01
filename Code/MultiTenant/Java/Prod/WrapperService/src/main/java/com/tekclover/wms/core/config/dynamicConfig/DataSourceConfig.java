@@ -95,7 +95,7 @@
 ////        DataSource primaryDataSource = DataSourceBuilder.create()
 ////                .url("jdbc:sqlserver://3.111.134.239;databaseName=wms_imf")
 ////                .username("sa")
-////                .password("Do1cavIFK4^$pQ^zZYsX")
+////                .password("30NcyBuK")
 ////                .driverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver")
 ////                .build();
 ////
@@ -105,7 +105,7 @@
 ////        DataSource secondaryDataSource = DataSourceBuilder.create()
 ////                .url("jdbc:sqlserver://3.111.134.239;databaseName=WMS_IMPEX")
 ////                .username("sa")
-////                .password("Do1cavIFK4^$pQ^zZYsX")
+////                .password("30NcyBuK")
 ////                .driverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver")
 ////                .build();
 ////
@@ -151,15 +151,15 @@
 //        switch (dbName) {
 //            case "MT":
 //                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-//                dataSource.setUrl("jdbc:sqlserver://10.0.1.237;databaseName=wms_imf");
+//                dataSource.setUrl("jdbc:sqlserver://10.0.1.5;databaseName=wms_imf");
 //                dataSource.setUsername("sa");
-//                dataSource.setPassword("Do1cavIFK4^$pQ^zZYsX");
+//                dataSource.setPassword("30NcyBuK");
 //                break;
 //            case "ALM":
 //                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-//                dataSource.setUrl("jdbc:sqlserver://10.0.1.237;databaseName=WMS_ALMDEV_SPLIT");
+//                dataSource.setUrl("jdbc:sqlserver://10.0.1.5;databaseName=WMS_ALMDEV_SPLIT");
 //                dataSource.setUsername("sa");
-//                dataSource.setPassword("Do1cavIFK4^$pQ^zZYsX");
+//                dataSource.setPassword("30NcyBuK");
 //                break;
 //            case "NAMRATHA":
 //                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
@@ -169,27 +169,27 @@
 //                break;
 //            case "IMPEX":
 //                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-//                dataSource.setUrl("jdbc:sqlserver://10.0.1.237;databaseName=WMS_IMPEX");
+//                dataSource.setUrl("jdbc:sqlserver://10.0.1.5;databaseName=WMS_IMPEX");
 //                dataSource.setUsername("sa");
-//                dataSource.setPassword("Do1cavIFK4^$pQ^zZYsX");
+//                dataSource.setPassword("30NcyBuK");
 //                break;
 //            case "WK":
 //                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-//                dataSource.setUrl("jdbc:sqlserver://10.0.1.237;databaseName=WMS_WK");
+//                dataSource.setUrl("jdbc:sqlserver://10.0.1.5;databaseName=WMS_WK");
 //                dataSource.setUsername("sa");
-//                dataSource.setPassword("Do1cavIFK4^$pQ^zZYsX");
+//                dataSource.setPassword("30NcyBuK");
 //                break;
 //            case "REEFERON":
 //                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-//                dataSource.setUrl("jdbc:sqlserver://10.0.1.237;databaseName=REEFERON_DEV");
+//                dataSource.setUrl("jdbc:sqlserver://10.0.1.5;databaseName=REEFERON_DEV");
 //                dataSource.setUsername("sa");
-//                dataSource.setPassword("Do1cavIFK4^$pQ^zZYsX");
+//                dataSource.setPassword("30NcyBuK");
 //                break;
 //                  case "FAHAHEEL":
 //                          dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-//                dataSource.setUrl("jdbc:sqlserver://10.0.1.237;databaseName=WMS_FAHAHEEL");
+//                dataSource.setUrl("jdbc:sqlserver://10.0.1.5;databaseName=WMS_FAHAHEEL");
 //                dataSource.setUsername("sa");
-//                dataSource.setPassword("Do1cavIFK4^$pQ^zZYsX");
+//                dataSource.setPassword("30NcyBuK");
 //                break;
 //            default:
 //                throw new IllegalArgumentException("Unknown database: " + dbName);
