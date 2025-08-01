@@ -18,7 +18,7 @@ public class DatabaseConnectionUtil {
     public static Properties getDatabaseConnectionProperties() {
         Properties connProp = new Properties();
         connProp.put("user", "sa");
-        connProp.put("password", "30NcyBuK");
+        connProp.put("password", "Do1cavIFK4^$pQ^zZYsX");
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }
@@ -31,7 +31,7 @@ public class DatabaseConnectionUtil {
     public static Properties getCoreDatabaseConnectionProperties() {
         Properties connProp = new Properties();
         connProp.put("user", "sa");
-        connProp.put("password", "30NcyBuK");
+        connProp.put("password", "Do1cavIFK4^$pQ^zZYsX");
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }
@@ -44,7 +44,7 @@ public class DatabaseConnectionUtil {
     public static Properties getIMFCoreDatabaseConnectionProperties() {
         Properties connProp = new Properties();
         connProp.put("user", "sa");
-        connProp.put("password", "30NcyBuK");
+        connProp.put("password", "Do1cavIFK4^$pQ^zZYsX");
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }
@@ -58,7 +58,7 @@ public class DatabaseConnectionUtil {
     public static Properties getWalkarooCoreDatabaseConnectionProperties() {
         Properties connProp = new Properties();
         connProp.put("user", "sa");
-        connProp.put("password", "30NcyBuK");
+        connProp.put("password", "Do1cavIFK4^$pQ^zZYsX");
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }
@@ -71,7 +71,7 @@ public class DatabaseConnectionUtil {
     public static Properties getImpexDatabaseConnectionProperties() {
         Properties connProp = new Properties();
         connProp.put("user", "sa");
-        connProp.put("password", "30NcyBuK");
+        connProp.put("password", "Do1cavIFK4^$pQ^zZYsX");
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }
@@ -83,7 +83,7 @@ public class DatabaseConnectionUtil {
     public static Properties getImpexDevDatabaseConnectionProperties() {
         Properties connProp = new Properties();
         connProp.put("user", "sa");
-        connProp.put("password", "30NcyBuK");
+        connProp.put("password", "Do1cavIFK4^$pQ^zZYsX");
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }
@@ -97,7 +97,7 @@ public class DatabaseConnectionUtil {
     public static Properties getReeferonDatabaseConnectionProperties() {
         Properties connProp = new Properties();
         connProp.put("user", "sa");
-        connProp.put("password", "30NcyBuK");
+        connProp.put("password", "Do1cavIFK4^$pQ^zZYsX");
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }
@@ -111,7 +111,7 @@ public class DatabaseConnectionUtil {
     public static Properties getKnowellDatabaseConnectionProperties() {
         Properties connProp = new Properties();
         connProp.put("user", "sa");
-        connProp.put("password", "30NcyBuK");
+        connProp.put("password", "Do1cavIFK4^$pQ^zZYsX");
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }
@@ -125,7 +125,7 @@ public class DatabaseConnectionUtil {
     public static Properties getFahaeelDatabaseConnectionProperties() {
         Properties connProp = new Properties();
         connProp.put("user", "sa");
-        connProp.put("password", "30NcyBuK");
+        connProp.put("password", "Do1cavIFK4^$pQ^zZYsX");
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }
@@ -139,7 +139,7 @@ public class DatabaseConnectionUtil {
     public static Properties getAutoLapDatabaseConnectionProperties() {
         Properties connProp = new Properties();
         connProp.put("user", "sa");
-        connProp.put("password", "30NcyBuK");
+        connProp.put("password", "Do1cavIFK4^$pQ^zZYsX");
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }

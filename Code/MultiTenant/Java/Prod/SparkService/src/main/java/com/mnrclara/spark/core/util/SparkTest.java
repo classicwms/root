@@ -31,7 +31,7 @@ public class SparkTest {
 		val connProp = new Properties();
 		connProp.setProperty("driver", "com.mysql.cj.jdbc.Driver");
 		connProp.put("user", "root");
-		connProp.put("password", "30NcyBuK");
+		connProp.put("password", "Do1cavIFK4^$pQ^zZYsX");
 
 		// Read from MySQL Table
 //		val df = spark.read().jdbc("jdbc:mysql://35.154.84.178:3306/MNRCLARA", "tblmattergenaccid", connProp);
@@ -88,7 +88,7 @@ public class SparkTest {
 		val connProp = new Properties();
 		connProp.setProperty("driver", "com.mysql.cj.jdbc.Driver");
 		connProp.put("user", "root");
-		connProp.put("password", "30NcyBuK");
+		connProp.put("password", "Do1cavIFK4^$pQ^zZYsX");
 	
 		// Read from MySQL Table
 		val df2 = spark.read().jdbc("jdbc:mysql://35.154.84.178:3306/MNRCLARA", "tblinvoiceheader", connProp);
