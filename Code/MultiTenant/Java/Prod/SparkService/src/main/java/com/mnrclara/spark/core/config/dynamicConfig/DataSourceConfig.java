@@ -42,9 +42,9 @@ public class DataSourceConfig {
         switch (dbName) {
             case "MT":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://10.0.1.237;databaseName=WMS_MT");
+                dataSource.setUrl("jdbc:sqlserver://10.0.1.5;databaseName=wms_imf");
                 dataSource.setUsername("sa");
-                dataSource.setPassword("30NcyBuK");
+                dataSource.setPassword("Do1cavIFK4^$pQ^zZYsX");
                 break;
             default:
                 throw new IllegalArgumentException("Unknown database: " + dbName);
