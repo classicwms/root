@@ -2101,8 +2101,7 @@ public class InboundHeaderService extends BaseService {
 				if (INV_QTY >= 0) {
 					InventoryV2 inventory2 = new InventoryV2();
 					try {
-						BeanUtils.copyProperties(existinginventory, inventory2,
-								CommonUtils.getNullPropertyNames(existinginventory));
+						BeanUtils.copyProperties(existinginventory, inventory2, CommonUtils.getNullPropertyNames(existinginventory));
 						String stockTypeDesc = getStockTypeDesc(putAwayLine.getCompanyCode(), putAwayLine.getPlantId(),
 								putAwayLine.getLanguageId(), putAwayLine.getWarehouseId(),
 								existinginventory.getStockTypeId());

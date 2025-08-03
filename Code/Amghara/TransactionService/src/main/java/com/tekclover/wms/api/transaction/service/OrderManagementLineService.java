@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -2136,7 +2135,7 @@ public class OrderManagementLineService extends BaseService {
     /**
      * update outbound header, line and order management header post pickup header creation
      */
-    @Scheduled(fixedDelay = 5000)
+    //@Scheduled(fixedDelay = 5000)
     private void postPickupHeaderStatusUpdateHeaderLine() {
         PickupHeaderV2 dbPickupHeader = pickupHeaderService.getPickupHeaderV2();
         log.info("PickupHeader create status update Initiated ---> " + dbPickupHeader);
