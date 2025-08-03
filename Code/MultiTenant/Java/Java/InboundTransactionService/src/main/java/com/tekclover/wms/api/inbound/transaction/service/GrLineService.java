@@ -1890,7 +1890,7 @@ public class GrLineService extends BaseService {
      * @return
      * @throws Exception
      */
-//    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public List<GrLineV2> createGrLineNonCBMV4(@Valid List<AddGrLineV2> newGrLines, String loginUserID) throws Exception {
 
         List<GrLineV2> createdGRLines = new ArrayList<>();

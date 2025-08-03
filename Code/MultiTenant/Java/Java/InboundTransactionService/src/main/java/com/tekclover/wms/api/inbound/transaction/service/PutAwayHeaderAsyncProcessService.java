@@ -68,9 +68,9 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
      * @param createdGRLines grLine
      * @param loginUserID userId
      */
-//    @Async("asyncExecutor")
+    @Async("asyncExecutor")
     public void createGrLineAsyncProcessV4(String company, String plant, String language, String warehouse, List<GrLineV2> createdGRLines, String loginUserID) {
-//        ExecutorService asyncExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        ExecutorService asyncExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         String idMasterToken = getIDMasterAuthToken();
         //PA_NO
         NUMBER_RANGE_CODE = 7L;
@@ -78,22 +78,22 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
 
         log.info("PA number ----------------> {}", nextPANumber);
         grLineService.fireBaseNotification(createdGRLines.get(0),nextPANumber, loginUserID);
-//        List<CompletableFuture<Void>> futures = createdGRLines.stream().map(grLine -> CompletableFuture.runAsync(() -> {
-//                    try {
-//                        processPutAwayHeaderV4(grLine, nextPANumber, loginUserID, idMasterToken);
-//                    } catch (Exception e) {
-//                        log.error("Error processing GRLine: {}", grLine.getLineNo(), e);
-//                    }
-//                }, asyncExecutor)) // inject the ExecutorService
-//                .collect(Collectors.toList());
-//        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-        try {
-            for (GrLineV2 grLine : createdGRLines) {
-                processPutAwayHeaderV4(grLine, nextPANumber, loginUserID, idMasterToken);
-            }
-        } catch (Exception e) {
-            log.error("Error processing GRLine:" + e);
-        }
+        List<CompletableFuture<Void>> futures = createdGRLines.stream().map(grLine -> CompletableFuture.runAsync(() -> {
+                    try {
+                        processPutAwayHeaderV4(grLine, nextPANumber, loginUserID, idMasterToken);
+                    } catch (Exception e) {
+                        log.error("Error processing GRLine: {}", grLine.getLineNo(), e);
+                    }
+                }, asyncExecutor)) // inject the ExecutorService
+                .collect(Collectors.toList());
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+//        try {
+//            for (GrLineV2 grLine : createdGRLines) {
+//                processPutAwayHeaderV4(grLine, nextPANumber, loginUserID, idMasterToken);
+//            }
+//        } catch (Exception e) {
+//            log.error("Error processing GRLine:" + e);
+//        }
     }
 
     /**
@@ -165,7 +165,7 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
      * @param idMasterToken IDMasterToken
      * @throws Exception exception
      */
-//    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public void processPutAwayHeaderV4(GrLineV2 createdGRLine, String nextPANumber, String loginUserID, String idMasterToken) throws Exception {
         try {
             DataBaseContextHolder.clear();
@@ -338,7 +338,7 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
                     log.info("Updation of PutAwayNumber on GrLine Completed");
 
                     /*----------------Inventory tables Create---------------------------------------------*/
-//                    inventoryService.createInventoryNonCBMV4(companyCode, plantId, languageId, warehouseId, itemCode, manufacturerName, refDocNumber, createdGRLine);
+                    inventoryService.createInventoryNonCBMV4(companyCode, plantId, languageId, warehouseId, itemCode, manufacturerName, refDocNumber, createdGRLine);
 
                     //bypass quality header and line
                     inboundQualityHeaderService.createInboundQualityHeaderV4(createdGRLine, statusId, statusDescription, nextQualityNumber);
