@@ -22,6 +22,8 @@ import com.tekclover.wms.api.transaction.util.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
@@ -1302,45 +1304,61 @@ public class PickupHeaderService extends BaseService {
      * @param updatePickupHeaderList update assignPicker
      * @return
      */
+    @Retryable(value = Exception.class, maxAttempts = 3, backoff = @Backoff(delay = 5000, multiplier = 2))
     public List<PickupHeaderV2> patchAssignedPickerIdInPickupHeaderV2(List<PickupHeaderV2> updatePickupHeaderList) {
         if (updatePickupHeaderList.isEmpty()) {
             throw new RuntimeException("AssignPicker Input Values is Empty" + updatePickupHeaderList);
         }
+        List<PickupHeaderV2> pickupHeaderV2List = new ArrayList<>();
 
         log.info("Process start to update Assigned Picker Id in PickupHeader: " + updatePickupHeaderList);
         // Create a thread pool
-        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+//        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         try {
-            List<CompletableFuture<PickupHeaderV2>> futures = updatePickupHeaderList.stream()
-                    .map(data -> CompletableFuture.supplyAsync(() -> {
-                        try {
-                            pickupHeaderV2Repository.updatePickerId(data.getAssignedPickerId(), data.getPickUpdatedBy(), data.getCompanyCodeId(),
-                                    data.getPlantId(), data.getWarehouseId(), data.getPickupNumber());
-                            log.info("Assign PickerId Updated Successfully ------> PickupNumber is -- {}", data.getPickupNumber());
-                            return data;
-                        } catch (Exception ex) {
-                            log.error("Error processing PickupHeaderV2: " + data, ex);
-                            throw new CompletionException(ex);
-                        }
-                    }, executor))
-                    .collect(Collectors.toList());
+//            List<CompletableFuture<PickupHeaderV2>> futures = updatePickupHeaderList.stream()
+//                    .map(data -> CompletableFuture.supplyAsync(() -> {
+//                        try {
+//                            pickupHeaderV2Repository.updatePickerId(data.getAssignedPickerId(), data.getPickUpdatedBy(), data.getCompanyCodeId(),
+//                                    data.getPlantId(), data.getWarehouseId(), data.getPickupNumber());
+//                            log.info("Assign PickerId Updated Successfully ------> PickupNumber is -- {}", data.getPickupNumber());
+//                            return data;
+//                        } catch (Exception ex) {
+//                            log.error("Error processing PickupHeaderV2: " + data, ex);
+//                            throw new CompletionException(ex);
+//                        }
+//                    }, executor))
+//                    .collect(Collectors.toList());
+
+
+            for(PickupHeaderV2 data : updatePickupHeaderList) {
+                try {
+                    pickupHeaderV2Repository.updatePickerId(data.getAssignedPickerId(), data.getPickUpdatedBy(), data.getCompanyCodeId(),
+                            data.getPlantId(), data.getWarehouseId(), data.getPickupNumber());
+                    log.info("Assign PickerId Updated Successfully ------> PickupNumber is -- {}", data.getPickupNumber());
+                    pickupHeaderV2List.add(data);
+                } catch (Exception ex) {
+                    log.error("Error processing PickupHeaderV2: " + data, ex);
+                    throw new CompletionException(ex);
+                }
+            }
 
             // Send Notification
             sendNotificationForAssignPicker(updatePickupHeaderList.get(0).getRefDocNumber(), updatePickupHeaderList.get(0).getAssignedPickerId(),
                     updatePickupHeaderList.get(0).getWarehouseId(), updatePickupHeaderList.get(0).getReferenceDocumentType());
 
             // Wait for all futures to complete
-            List<PickupHeaderV2> result = futures.stream()
-                    .map(CompletableFuture::join) // join will throw if any future completed exceptionally
-                    .collect(Collectors.toList());
-            return result;
+//            List<PickupHeaderV2> result = futures.stream()
+//                    .map(CompletableFuture::join) // join will throw if any future completed exceptionally
+//                    .collect(Collectors.toList());
+            return pickupHeaderV2List;
         } catch (Exception e) {
             log.error("Update Assigned Picker Id in PickupHeader failed for : " + updatePickupHeaderList, e);
             throw new BadRequestException("Error in data");
-        } finally {
-            executor.shutdown();
         }
-                }
+//        finally {
+//            executor.shutdown();
+//        }
+    }
 
 
     /**
