@@ -338,7 +338,7 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
                     log.info("Updation of PutAwayNumber on GrLine Completed");
 
                     /*----------------Inventory tables Create---------------------------------------------*/
-//                    inventoryService.createInventoryNonCBMV4(companyCode, plantId, languageId, warehouseId, itemCode, manufacturerName, refDocNumber, createdGRLine);
+                    inventoryService.createInventoryNonCBMV4(companyCode, plantId, languageId, warehouseId, itemCode, manufacturerName, refDocNumber, createdGRLine);
 
                     //bypass quality header and line
 //                    inboundQualityHeaderService.createInboundQualityHeaderV4(createdGRLine, statusId, statusDescription, nextQualityNumber);
