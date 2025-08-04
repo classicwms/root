@@ -68,7 +68,7 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
      * @param createdGRLines grLine
      * @param loginUserID userId
      */
-    @Async("asyncExecutor")
+//    @Async("asyncExecutor")
     public void createGrLineAsyncProcessV4(String company, String plant, String language, String warehouse, List<GrLineV2> createdGRLines, String loginUserID) {
         ExecutorService asyncExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         String idMasterToken = getIDMasterAuthToken();
@@ -338,7 +338,7 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
                     log.info("Updation of PutAwayNumber on GrLine Completed");
 
                     /*----------------Inventory tables Create---------------------------------------------*/
-                    inventoryService.createInventoryNonCBMV4(companyCode, plantId, languageId, warehouseId, itemCode, manufacturerName, refDocNumber, createdGRLine);
+//                    inventoryService.createInventoryNonCBMV4(companyCode, plantId, languageId, warehouseId, itemCode, manufacturerName, refDocNumber, createdGRLine);
 
                     //bypass quality header and line
 //                    inboundQualityHeaderService.createInboundQualityHeaderV4(createdGRLine, statusId, statusDescription, nextQualityNumber);
