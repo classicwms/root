@@ -2349,7 +2349,7 @@ public class InventoryService extends BaseService {
     }
 
 
-//    @Scheduled(fixedDelay = 5000)
+    @Scheduled(fixedDelay = 5000)
     public void getInventoryCreate() {
         DataBaseContextHolder.clear();
         DataBaseContextHolder.setCurrentDb("NAMRATHA");
@@ -2358,9 +2358,11 @@ public class InventoryService extends BaseService {
         if(!grLineV2s.isEmpty()) {
             log.info("Get GrLine Values Size is  {} ", grLineV2s.size());
         }
-        for (GrLineV2 grLineV2 : grLineV2s) {
+        grLineV2s.stream().forEach(grLineV2 -> {
             grLineV2Repository.updateGrLineRefField("10", grLineV2.getRefDocNumber(), grLineV2.getBarcodeId());
             log.info("Grline Ref_field_10 updated BarcodeId is ---> {}", grLineV2.getBarcodeId());
+        });
+        grLineV2s.stream().forEach(grLineV2 -> {
             String companyCodeId = grLineV2.getCompanyCode();
             String plantId = grLineV2.getPlantId();
             String languageId = grLineV2.getLanguageId();
@@ -2369,7 +2371,7 @@ public class InventoryService extends BaseService {
             String mfrName = grLineV2.getManufacturerName();
             String refDocNo = grLineV2.getRefDocNumber();
             createInventoryNonCBMV4(companyCodeId, plantId, languageId, warehouseId, itemCode, mfrName, refDocNo, grLineV2);
-        }
+        });
     }
 
 }
