@@ -341,7 +341,7 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
                     inventoryService.createInventoryNonCBMV4(companyCode, plantId, languageId, warehouseId, itemCode, manufacturerName, refDocNumber, createdGRLine);
 
                     //bypass quality header and line
-                    inboundQualityHeaderService.createInboundQualityHeaderV4(createdGRLine, statusId, statusDescription, nextQualityNumber);
+//                    inboundQualityHeaderService.createInboundQualityHeaderV4(createdGRLine, statusId, statusDescription, nextQualityNumber);
                 }
 
         } catch (Exception e) {
