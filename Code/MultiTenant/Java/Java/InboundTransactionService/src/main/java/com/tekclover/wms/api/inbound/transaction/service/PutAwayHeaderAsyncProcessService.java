@@ -12,6 +12,8 @@ import com.tekclover.wms.api.inbound.transaction.util.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -86,7 +88,7 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
                     } catch (Exception e) {
                         log.error("Error processing GRLine: {}", grLine.getLineNo(), e);
                     }
-                }, asyncExecutor)) // inject the ExecutorService
+                })) // inject the ExecutorService
                 .collect(Collectors.toList());
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
 //        try {
@@ -172,6 +174,7 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
      * @throws Exception exception
      */
 //    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+    @Retryable(value = { org.springframework.dao.DeadlockLoserDataAccessException.class }, maxAttempts = 3, backoff = @Backoff(delay = 500))
     public void processPutAwayHeaderV4(GrLineV2 createdGRLine, String nextPANumber, String loginUserID, String idMasterToken) throws Exception {
         try {
             DataBaseContextHolder.clear();
