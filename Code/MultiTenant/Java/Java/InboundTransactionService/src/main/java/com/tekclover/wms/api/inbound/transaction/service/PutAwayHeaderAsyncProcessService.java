@@ -71,7 +71,7 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
      */
     @Async("asyncExecutor")
     public void createGrLineAsyncProcessV4(String company, String plant, String language, String warehouse, List<GrLineV2> createdGRLines, String loginUserID) {
-//        ExecutorService asyncExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        ExecutorService asyncExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         List<PutAwayHeaderV2> putAwayHeaderV2List = new ArrayList<>();
         String idMasterToken = getIDMasterAuthToken();
         //PA_NO
@@ -80,26 +80,26 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
 
         log.info("PA number ----------------> {}", nextPANumber);
         grLineService.fireBaseNotification(createdGRLines.get(0),nextPANumber, loginUserID);
-//        List<CompletableFuture<Void>> futures = createdGRLines.stream().map(grLine -> CompletableFuture.runAsync(() -> {
-//                    try {
-//                        processPutAwayHeaderV4(grLine, nextPANumber, loginUserID, idMasterToken);
-//                    } catch (Exception e) {
-//                        log.error("Error processing GRLine: {}", grLine.getLineNo(), e);
-//                    }
-//                }, asyncExecutor)) // inject the ExecutorService
-//                .collect(Collectors.toList());
-//        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-        try {
-            for (GrLineV2 grLine : createdGRLines) {
-                putAwayHeaderV2List.add(processPutAwayHeaderV4(grLine, nextPANumber, loginUserID, idMasterToken));
-            }
-            if(!putAwayHeaderV2List.isEmpty()) {
-             log.info("PutAwayHeader Saved List Size is {}", putAwayHeaderV2List.size());
-                putAwayHeaderV2Repository.saveAll(putAwayHeaderV2List);
-            }
-        } catch (Exception e) {
-            log.error("Error processing GRLine:" + e);
-        }
+        List<CompletableFuture<Void>> futures = createdGRLines.stream().map(grLine -> CompletableFuture.runAsync(() -> {
+                    try {
+                        processPutAwayHeaderV4(grLine, nextPANumber, loginUserID, idMasterToken);
+                    } catch (Exception e) {
+                        log.error("Error processing GRLine: {}", grLine.getLineNo(), e);
+                    }
+                }, asyncExecutor)) // inject the ExecutorService
+                .collect(Collectors.toList());
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+//        try {
+//            for (GrLineV2 grLine : createdGRLines) {
+//                processPutAwayHeaderV4(grLine, nextPANumber, loginUserID, idMasterToken);
+//            }
+//            if(!putAwayHeaderV2List.isEmpty()) {
+//             log.info("PutAwayHeader Saved List Size is {}", putAwayHeaderV2List.size());
+//                putAwayHeaderV2Repository.saveAll(putAwayHeaderV2List);
+//            }
+//        } catch (Exception e) {
+//            log.error("Error processing GRLine:" + e);
+//        }
     }
 
     /**
@@ -172,7 +172,7 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
      * @throws Exception exception
      */
 //    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-    public PutAwayHeaderV2 processPutAwayHeaderV4(GrLineV2 createdGRLine, String nextPANumber, String loginUserID, String idMasterToken) throws Exception {
+    public void processPutAwayHeaderV4(GrLineV2 createdGRLine, String nextPANumber, String loginUserID, String idMasterToken) throws Exception {
         try {
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb("NAMRATHA");
@@ -329,7 +329,7 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
             putAwayHeader.setCreatedOn(new Date());
             putAwayHeader.setUpdatedOn(new Date());
             putAwayHeader.setConfirmedOn(new Date());
-//                    putAwayHeader = putAwayHeaderV2Repository.save(putAwayHeader);
+                    putAwayHeader = putAwayHeaderV2Repository.save(putAwayHeader);
             log.info("putAwayHeader : " + putAwayHeader);
 
             // Updating Grline field -------------> PutAwayNumber
@@ -346,7 +346,7 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
 
             //bypass quality header and line
 //                    inboundQualityHeaderService.createInboundQualityHeaderV4(createdGRLine, statusId, statusDescription, nextQualityNumber);
-            return putAwayHeader;
+//            return putAwayHeader;
 
         } catch (Exception e) {
             log.info("RollPack In GrLine Input Values is RefDocNumber {}, PreInboundNo {}, BarcodeId {} ", createdGRLine.getRefDocNumber(), createdGRLine.getPreInboundNo(), createdGRLine.getBarcodeId());
