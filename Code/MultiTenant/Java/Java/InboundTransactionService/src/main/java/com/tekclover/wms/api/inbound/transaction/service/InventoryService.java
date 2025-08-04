@@ -1927,70 +1927,72 @@ public class InventoryService extends BaseService {
                                                String refDocNumber, GrLineV2 createdGRLine) {
         try {
             InventoryV2 createdinventory = null;
-            InventoryV2 dbInventory = getInventoryBinClassId3V4(companyCode, plantId, languageId, warehouseId, itemCode, manufacturerName,
-                    createdGRLine.getBarcodeId(), createdGRLine.getAlternateUom());
+//            InventoryV2 dbInventory = getInventoryBinClassId3V4(companyCode, plantId, languageId, warehouseId, itemCode, manufacturerName,
+//                    createdGRLine.getBarcodeId(), createdGRLine.getAlternateUom());
 
-            if (dbInventory != null) {
-                InventoryV2 inventory = new InventoryV2();
-                BeanUtils.copyProperties(dbInventory, inventory, CommonUtils.getNullPropertyNames(dbInventory));
+//            if (dbInventory != null) {
+//                InventoryV2 inventory = new InventoryV2();
+//                BeanUtils.copyProperties(dbInventory, inventory, CommonUtils.getNullPropertyNames(dbInventory));
+//
+//                Double INV_QTY = dbInventory.getInventoryQuantity() != null ? dbInventory.getInventoryQuantity() : 0D;
+//                Double ALLOC_QTY = dbInventory.getAllocatedQuantity() != null ? dbInventory.getAllocatedQuantity() : 0D;
+//
+//                log.info("Before - Inventory - INV_QTY,ALLOC_QTY,TOT_QTY,GrQty: " + INV_QTY + ", " + ALLOC_QTY + ", " + dbInventory.getReferenceField4() + ", " + createdGRLine.getGoodReceiptQty() + ", " + dbInventory.getNoBags());
+//                double physicalQty = createdGRLine.getGoodReceiptQty();
+//                INV_QTY = INV_QTY + physicalQty;
+//                Double TOT_QTY = INV_QTY + ALLOC_QTY;
+//
+//                double BAG_SIZE = dbInventory.getBagSize() != null ? dbInventory.getBagSize() : 0D;
+//                double NO_OF_BAGS = TOT_QTY / BAG_SIZE;
+//                double CASE_QTY = createdGRLine.getBagSize() / NO_OF_BAGS;
+//
+//                inventory.setInventoryQuantity(round(INV_QTY));
+//                inventory.setAllocatedQuantity(round(ALLOC_QTY));
+//                inventory.setCaseQty(round(CASE_QTY));
+//                if (inventory.getBagSize() > inventory.getInventoryQuantity()) {
+//                    inventory.setLoosePack(true);
+//                } else {
+//                    inventory.setLoosePack(false);
+//                }
+//                inventory.setReferenceField4(round(TOT_QTY));
+//                inventory.setNoBags(roundUp(NO_OF_BAGS));
+//                inventory.setBagSize(createdGRLine.getBagSize());
+//                inventory.setInventoryUom(createdGRLine.getOrderUom());
+//                inventory.setAlternateUom(createdGRLine.getAlternateUom());
+//                log.info("After - Inventory - INV_QTY,ALLOC_QTY,TOT_QTY: " + INV_QTY + ", " + ALLOC_QTY + ", " + TOT_QTY + ", " + inventory.getNoBags());
+//                if (createdGRLine.getBarcodeId() != null) {
+//                    inventory.setBarcodeId(createdGRLine.getBarcodeId());
+//                }
+//
+//                if (inventory.getItemType() == null) {
+//                    IKeyValuePair itemType = getItemTypeAndDesc(companyCode, plantId, languageId, warehouseId, itemCode);
+//                    if (itemType != null) {
+//                        inventory.setItemType(itemType.getItemType());
+//                        inventory.setItemTypeDescription(itemType.getItemTypeDescription());
+//                    }
+//                }
+//                inventory.setBatchSerialNumber(createdGRLine.getBatchSerialNumber());
+//                inventory.setManufacturerDate(createdGRLine.getManufacturerDate());
+//                inventory.setExpiryDate(createdGRLine.getExpiryDate());
+//                inventory.setBusinessPartnerCode(createdGRLine.getBusinessPartnerCode());
+//                inventory.setReferenceDocumentNo(refDocNumber);
+//                inventory.setReferenceOrderNo(refDocNumber);
+//                inventory.setCreatedOn(dbInventory.getCreatedOn());
+//                inventory.setUpdatedOn(new Date());
+//                try {
+//                    createdinventory = inventoryV2Repository.save(inventory);
+//                    log.info("created inventory[Existing] : " + createdinventory);
+//                } catch (Exception e1) {
+//                    InventoryTrans newInventoryTrans = new InventoryTrans();
+//                    BeanUtils.copyProperties(inventory, newInventoryTrans, CommonUtils.getNullPropertyNames(inventory));
+//                    newInventoryTrans.setReRun(0L);
+//                    InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+//                    log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
+//                }
+//            }
 
-                Double INV_QTY = dbInventory.getInventoryQuantity() != null ? dbInventory.getInventoryQuantity() : 0D;
-                Double ALLOC_QTY = dbInventory.getAllocatedQuantity() != null ? dbInventory.getAllocatedQuantity() : 0D;
-
-                log.info("Before - Inventory - INV_QTY,ALLOC_QTY,TOT_QTY,GrQty: " + INV_QTY + ", " + ALLOC_QTY + ", " + dbInventory.getReferenceField4() + ", " + createdGRLine.getGoodReceiptQty() + ", " + dbInventory.getNoBags());
-                double physicalQty = createdGRLine.getGoodReceiptQty();
-                INV_QTY = INV_QTY + physicalQty;
-                Double TOT_QTY = INV_QTY + ALLOC_QTY;
-
-                double BAG_SIZE = dbInventory.getBagSize() != null ? dbInventory.getBagSize() : 0D;
-                double NO_OF_BAGS = TOT_QTY / BAG_SIZE;
-                double CASE_QTY = createdGRLine.getBagSize() / NO_OF_BAGS;
-
-                inventory.setInventoryQuantity(round(INV_QTY));
-                inventory.setAllocatedQuantity(round(ALLOC_QTY));
-                inventory.setCaseQty(round(CASE_QTY));
-                if (inventory.getBagSize() > inventory.getInventoryQuantity()) {
-                    inventory.setLoosePack(true);
-                } else {
-                    inventory.setLoosePack(false);
-                }
-                inventory.setReferenceField4(round(TOT_QTY));
-                inventory.setNoBags(roundUp(NO_OF_BAGS));
-                inventory.setBagSize(createdGRLine.getBagSize());
-                inventory.setInventoryUom(createdGRLine.getOrderUom());
-                inventory.setAlternateUom(createdGRLine.getAlternateUom());
-                log.info("After - Inventory - INV_QTY,ALLOC_QTY,TOT_QTY: " + INV_QTY + ", " + ALLOC_QTY + ", " + TOT_QTY + ", " + inventory.getNoBags());
-                if (createdGRLine.getBarcodeId() != null) {
-                    inventory.setBarcodeId(createdGRLine.getBarcodeId());
-                }
-
-                if (inventory.getItemType() == null) {
-                    IKeyValuePair itemType = getItemTypeAndDesc(companyCode, plantId, languageId, warehouseId, itemCode);
-                    if (itemType != null) {
-                        inventory.setItemType(itemType.getItemType());
-                        inventory.setItemTypeDescription(itemType.getItemTypeDescription());
-                    }
-                }
-                inventory.setBatchSerialNumber(createdGRLine.getBatchSerialNumber());
-                inventory.setManufacturerDate(createdGRLine.getManufacturerDate());
-                inventory.setExpiryDate(createdGRLine.getExpiryDate());
-                inventory.setBusinessPartnerCode(createdGRLine.getBusinessPartnerCode());
-                inventory.setReferenceDocumentNo(refDocNumber);
-                inventory.setReferenceOrderNo(refDocNumber);
-                inventory.setCreatedOn(dbInventory.getCreatedOn());
-                inventory.setUpdatedOn(new Date());
-                try {
-                    createdinventory = inventoryV2Repository.save(inventory);
-                    log.info("created inventory[Existing] : " + createdinventory);
-                } catch (Exception e1) {
-                    InventoryTrans newInventoryTrans = new InventoryTrans();
-                    BeanUtils.copyProperties(inventory, newInventoryTrans, CommonUtils.getNullPropertyNames(inventory));
-                    newInventoryTrans.setReRun(0L);
-                    InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
-                    log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
-                }
-            }
-
+            InventoryV2 dbInventory = inventoryV2Repository.findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndBarcodeIdAndManufacturerNameAndPackBarcodesAndBinClassIdAndDeletionIndicatorOrderByInventoryIdDesc(
+                    createdGRLine.getCompanyCode(), createdGRLine.getPlantId(), createdGRLine.getLanguageId(),createdGRLine.getWarehouseId(), createdGRLine.getItemCode(), createdGRLine.getBarcodeId(), createdGRLine.getManufacturerName(), "99999", 3L, 0L);
 
             if (dbInventory == null) {
                 InventoryV2 inventory = new InventoryV2();
@@ -2347,7 +2349,7 @@ public class InventoryService extends BaseService {
     }
 
 
-    @Scheduled(fixedDelay = 5000)
+//    @Scheduled(fixedDelay = 5000)
     public void getInventoryCreate() {
         DataBaseContextHolder.clear();
         DataBaseContextHolder.setCurrentDb("NAMRATHA");
