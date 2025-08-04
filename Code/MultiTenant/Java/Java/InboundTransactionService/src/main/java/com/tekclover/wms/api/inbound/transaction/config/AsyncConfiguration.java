@@ -22,6 +22,7 @@ public class AsyncConfiguration {
         return executor;
     }
 
+
     @Bean(name = "asyncExecutorGrLine")
     public Executor asyncExecutorForGrLine() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
