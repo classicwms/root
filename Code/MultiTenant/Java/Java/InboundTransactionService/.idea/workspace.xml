@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5afe249f-c3a3-4622-bfd8-f19505156499" name="Changes" comment="" />
+    <list default="true" id="5afe249f-c3a3-4622-bfd8-f19505156499" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../../../../../Walkaroo/Java/WrapperService/src/main/resources/application-messages.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../../Walkaroo/Java/WrapperService/src/main/resources/application-messages.properties" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -28,7 +30,7 @@
     </system>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../../.." />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../../../.." />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 5
@@ -42,7 +44,7 @@
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "D:/GIT/ALL/root/Walkaroo/Code/Java/Prod_Merged/TransactionService"
+    "last_opened_file_path": "D:/GIT/Production/root/Code/MultiTenant/Java/Java/InboundTransactionService"
   }
 }]]></component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
