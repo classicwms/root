@@ -2253,7 +2253,7 @@ public class PickupLineService extends BaseService {
      * @return
      * @throws Exception
      */
-    @Transactional
+//    @Transactional
     public List<PickupLineV2> createPickupLineNonCBMV4(@Valid List<AddPickupLine> newPickupLines, String loginUserID) throws Exception {
         log.info("newPickupLines---> login UserId : {},{}", newPickupLines, loginUserID);
         Long STATUS_ID = 0L;

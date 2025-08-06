@@ -1,0 +1,128 @@
+package com.tekclover.wms.api.transaction.repository.specification;
+
+import com.tekclover.wms.api.transaction.model.inbound.v2.InboundLineV2;
+import com.tekclover.wms.api.transaction.model.inbound.v2.SearchInboundLineV2;
+import org.springframework.context.annotation.DeferredImportSelector;
+import org.springframework.data.jpa.domain.Specification;
+
+import javax.persistence.criteria.*;
+import java.util.ArrayList;
+import java.util.List;
+
+@SuppressWarnings("serial")
+public class InboundLineV2Specification implements Specification<InboundLineV2> {
+
+    SearchInboundLineV2 searchInboundLine;
+
+    public InboundLineV2Specification(SearchInboundLineV2 inputSearchParams) {
+        this.searchInboundLine = inputSearchParams;
+    }
+
+    @Override
+    public Predicate toPredicate(Root<InboundLineV2> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        List<Predicate> predicates = new ArrayList<Predicate>();
+
+        if (searchInboundLine.getWarehouseId() != null && !searchInboundLine.getWarehouseId().isEmpty()) {
+            final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("warehouseId");
+            predicates.add(group.in(searchInboundLine.getWarehouseId()));
+//            predicates.add(cb.equal(root.get("warehouseId"), searchInboundLine.getWarehouseId()));
+        }
+
+        if (searchInboundLine.getStartConfirmedOn() != null && searchInboundLine.getEndConfirmedOn() != null) {
+            predicates.add(cb.between(root.get("confirmedOn"), searchInboundLine.getStartConfirmedOn(),
+                    searchInboundLine.getEndConfirmedOn()));
+        }
+        if (searchInboundLine.getStartCreatedOn() != null && searchInboundLine.getEndCreatedOn() != null) {
+            predicates.add(cb.between(root.get("createdOn"), searchInboundLine.getStartCreatedOn(),
+                    searchInboundLine.getEndCreatedOn()));
+        }
+
+        if (searchInboundLine.getStatusId() != null && !searchInboundLine.getStatusId().isEmpty()) {
+            final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("statusId");
+            predicates.add(group.in(searchInboundLine.getStatusId()));
+        }
+
+        if (searchInboundLine.getCompanyCodeId() != null && !searchInboundLine.getCompanyCodeId().isEmpty()) {
+            final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("companyCode");
+            predicates.add(group.in(searchInboundLine.getCompanyCodeId()));
+        }
+
+        if (searchInboundLine.getItemCode() != null && !searchInboundLine.getItemCode().isEmpty()) {
+            final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("itemCode");
+            predicates.add(group.in(searchInboundLine.getItemCode()));
+        }
+
+        if (searchInboundLine.getRefDocNumber() != null && !searchInboundLine.getRefDocNumber().isEmpty()) {
+            final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("refDocNumber");
+            predicates.add(group.in(searchInboundLine.getRefDocNumber()));
+        }
+
+        if (searchInboundLine.getInboundOrderTypeId() != null && !searchInboundLine.getInboundOrderTypeId().isEmpty()) {
+            final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("inboundOrderTypeId");
+            predicates.add(group.in(searchInboundLine.getInboundOrderTypeId()));
+        }
+
+        if (searchInboundLine.getPlantId() != null && !searchInboundLine.getPlantId().isEmpty()) {
+            final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("plantId");
+            predicates.add(group.in(searchInboundLine.getPlantId()));
+        }
+
+        if (searchInboundLine.getSourceBranchCode() != null && !searchInboundLine.getSourceBranchCode().isEmpty()) {
+            final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("sourceBranchCode");
+            predicates.add(group.in(searchInboundLine.getSourceBranchCode()));
+        }
+
+        if (searchInboundLine.getSourceCompanyCode() != null && !searchInboundLine.getSourceCompanyCode().isEmpty()) {
+            final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("sourceCompanyCode");
+            predicates.add(group.in(searchInboundLine.getSourceCompanyCode()));
+        }
+
+        if (searchInboundLine.getLanguageId() != null && !searchInboundLine.getLanguageId().isEmpty()) {
+            final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("languageId");
+            predicates.add(group.in(searchInboundLine.getLanguageId()));
+        }
+
+        if (searchInboundLine.getMaterialNo() != null && !searchInboundLine.getMaterialNo().isEmpty()) {
+            final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("materialNo");
+            predicates.add(group.in(searchInboundLine.getMaterialNo()));
+        }
+
+        if (searchInboundLine.getPriceSegment() != null && !searchInboundLine.getPriceSegment().isEmpty()) {
+            final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("priceSegment");
+            predicates.add(group.in(searchInboundLine.getPriceSegment()));
+        }
+
+        if (searchInboundLine.getArticleNo() != null && !searchInboundLine.getArticleNo().isEmpty()) {
+            final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("articleNo");
+            predicates.add(group.in(searchInboundLine.getArticleNo()));
+        }
+        if (searchInboundLine.getGender() != null && !searchInboundLine.getGender().isEmpty()) {
+            final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("gender");
+            predicates.add(group.in(searchInboundLine.getGender()));
+        }
+
+        if (searchInboundLine.getColor() != null && !searchInboundLine.getColor().isEmpty()) {
+            final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("color");
+            predicates.add(group.in(searchInboundLine.getColor()));
+        }
+
+        if (searchInboundLine.getSize() != null && !searchInboundLine.getSize().isEmpty()) {
+            final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("size");
+            predicates.add(group.in(searchInboundLine.getSize()));
+        }
+        if (searchInboundLine.getNoPairs() != null && !searchInboundLine.getNoPairs().isEmpty()) {
+            final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("noPairs");
+            predicates.add(group.in(searchInboundLine.getNoPairs()));
+        }
+        if (searchInboundLine.getBarcodeId() != null && !searchInboundLine.getBarcodeId().isEmpty()) {
+            final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("barcodeId");
+            predicates.add(group.in(searchInboundLine.getBarcodeId()));
+        }
+
+        if (searchInboundLine.getReferenceField1() != null) {
+            predicates.add(cb.equal(root.get("referenceField1"), searchInboundLine.getReferenceField1()));
+        }
+        predicates.add(cb.equal(root.get("deletionIndicator"), 0L));
+        return cb.and(predicates.toArray(new Predicate[]{}));
+    }
+}

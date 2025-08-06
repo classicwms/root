@@ -35,6 +35,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -1890,7 +1892,8 @@ public class GrLineService extends BaseService {
      * @return
      * @throws Exception
      */
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+//    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+    @Retryable(value = { org.springframework.dao.DeadlockLoserDataAccessException.class }, maxAttempts = 3, backoff = @Backoff(delay = 500))
     public List<GrLineV2> createGrLineNonCBMV4(@Valid List<AddGrLineV2> newGrLines, String loginUserID) throws Exception {
 
         List<GrLineV2> createdGRLines = new ArrayList<>();
