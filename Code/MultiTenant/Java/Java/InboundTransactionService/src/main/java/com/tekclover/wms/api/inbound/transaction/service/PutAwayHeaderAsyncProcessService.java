@@ -337,10 +337,8 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
 
             // Updating Grline field -------------> PutAwayNumber
             log.info("Updation of PutAwayNumber on GrLine Started");
-            putAwayHeaderV2Repository.updatePutAwayNumber(putAwayHeader.getCompanyCodeId(), putAwayHeader.getPlantId(),
-                    putAwayHeader.getLanguageId(), putAwayHeader.getWarehouseId(), putAwayHeader.getRefDocNumber(),
-                    putAwayHeader.getPreInboundNo(), createdGRLine.getItemCode(), createdGRLine.getLineNo(), createdGRLine.getCreatedOn(),
-                    putAwayHeader.getPutAwayNumber());
+
+            updatePutAwayNumber(putAwayHeader, createdGRLine);
 
             log.info("Updation of PutAwayNumber on GrLine Completed");
 
@@ -357,6 +355,18 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
             log.error("Exception while creating Putaway Header----> " + e.toString());
             throw e;
         }
+    }
+
+    /**
+     * Updating PutawayNumber in grlines with retryable
+     *
+     */
+    @Retryable(value = { org.springframework.dao.DeadlockLoserDataAccessException.class }, maxAttempts = 3, backoff = @Backoff(delay = 500))
+    public void updatePutAwayNumber(PutAwayHeaderV2 putAwayHeader, GrLineV2 createdGRLine) {
+        putAwayHeaderV2Repository.updatePutAwayNumber(putAwayHeader.getCompanyCodeId(), putAwayHeader.getPlantId(),
+                putAwayHeader.getLanguageId(), putAwayHeader.getWarehouseId(), putAwayHeader.getRefDocNumber(),
+                putAwayHeader.getPreInboundNo(), createdGRLine.getItemCode(), createdGRLine.getLineNo(), createdGRLine.getCreatedOn(),
+                putAwayHeader.getPutAwayNumber());
     }
 
     /**

@@ -2061,22 +2061,22 @@ public class InboundHeaderService extends BaseService {
 //    }
 
 
-//    @Scheduled(fixedDelayString = "PT1M", initialDelayString = "PT2M")
+    @Scheduled(fixedDelayString = "PT1M", initialDelayString = "PT2M")
     private void updateErroredOutInventory() {
-        DataBaseContextHolder.clear();
-        DataBaseContextHolder.setCurrentDb("FAHAHEEL");
-        log.info("Update Error Inventory Call Fahaheel");
-        updateErrorOutOfInventory();
+//        DataBaseContextHolder.clear();
+//        DataBaseContextHolder.setCurrentDb("FAHAHEEL");
+//        log.info("Update Error Inventory Call Fahaheel");
+//        updateErrorOutOfInventory();
 
         DataBaseContextHolder.clear();
         DataBaseContextHolder.setCurrentDb("NAMRATHA");
         log.info("Update Error Inventory Call NAMRATHA");
         updateErrorOutOfInventory();
 
-        DataBaseContextHolder.clear();
-        DataBaseContextHolder.setCurrentDb("REEFERON");
-        log.info("Update Error Inventory Call REEFERON");
-        updateErrorOutOfInventory();
+//        DataBaseContextHolder.clear();
+//        DataBaseContextHolder.setCurrentDb("REEFERON");
+//        log.info("Update Error Inventory Call REEFERON");
+//        updateErrorOutOfInventory();
 
         DataBaseContextHolder.clear();
         DataBaseContextHolder.setCurrentDb("KNOWELL");
