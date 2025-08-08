@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -12,12 +13,18 @@ import java.util.stream.Stream;
 
 import javax.persistence.EntityNotFoundException;
 
+import com.microsoft.sqlserver.jdbc.SQLServerException;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.IInventoryImpl;
+import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.expression.ParseException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
@@ -3018,6 +3025,8 @@ public class OutboundLineService extends BaseService {
      * @throws IllegalAccessException
      * @throws InvocationTargetException
      */
+    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class,
+            LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 2000))
     public OutboundLineV2 updateOutboundLineV2(String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo, String refDocNumber,
                                                String partnerCode, Long lineNumber, String itemCode, String loginUserID, OutboundLineV2 updateOutboundLine)
             throws IllegalAccessException, InvocationTargetException, java.text.ParseException {

@@ -1374,10 +1374,10 @@ public class PickupHeaderService {
             PickupHeaderV2 pickup = pickupHeaderV2Repository.save(dbPickupHeader);
 
             // send Notification
-           if(pickup != null) {
-               sendNotificationForUpdate(pickup.getRefDocNumber(),
-                       pickup.getAssignedPickerId(), pickup.getWarehouseId(), pickup.getReferenceDocumentType());
-           }
+//           if(pickup != null) {
+//               sendNotificationForUpdate(pickup.getRefDocNumber(),
+//                       pickup.getAssignedPickerId(), pickup.getWarehouseId(), pickup.getReferenceDocumentType());
+//           }
             return pickup;
         }
         return null;
