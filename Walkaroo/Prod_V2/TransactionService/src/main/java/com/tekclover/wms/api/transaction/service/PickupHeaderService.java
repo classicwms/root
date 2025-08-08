@@ -1374,10 +1374,10 @@ public class PickupHeaderService {
             PickupHeaderV2 pickup = pickupHeaderV2Repository.save(dbPickupHeader);
 
             // send Notification
-//           if(pickup != null) {
-//               sendNotificationForUpdate(pickup.getRefDocNumber(),
-//                       pickup.getAssignedPickerId(), pickup.getWarehouseId(), pickup.getReferenceDocumentType());
-//           }
+           if(pickup != null) {
+               sendNotificationForUpdate(pickup.getRefDocNumber(),
+                       pickup.getAssignedPickerId(), pickup.getWarehouseId(), pickup.getReferenceDocumentType());
+           }
             return pickup;
         }
         return null;
@@ -1898,5 +1898,23 @@ public class PickupHeaderService {
                                                                          String warehouseId, String refDocNumber, String preOutboundNo, Long statusId) {
         return pickupHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndStatusIdAndDeletionIndicator(
                 companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, statusId, 0L);
+    }
+
+
+    /**
+     *
+     * @param pickupHeaderV2List pickupHeader Values
+     * @param loginUserID userID
+     * @return
+     */
+    public List<PickupHeaderV2> updatePickupHeaderForPrinted(List<PickupHeaderV2> pickupHeaderV2List, String loginUserID) {
+
+        log.info("PickupHeader Update Size is {} ", pickupHeaderV2List.size());
+        pickupHeaderV2List.forEach(pickup -> {
+            log.info("PickupHeader Update Started for PickupNumber {} , RefDocNumber {} ", pickup.getPickupNumber(), pickup.getRefDocNumber());
+            pickupHeaderV2Repository.updatedPickupHeader(pickup.getCompanyCodeId(), pickup.getPlantId(), pickup.getWarehouseId(), pickup.getRefDocNumber(),
+                    pickup.getPreOutboundNo(), pickup.getPickupNumber(), pickup.getReferenceField2(), loginUserID);
+        });
+        return pickupHeaderV2List;
     }
 }
