@@ -3718,6 +3718,18 @@ public class TransactionServiceController {
         return new ResponseEntity<>(updatedPickupHeader, HttpStatus.OK);
     }
 
+    @ApiOperation(response = PickupHeader.class, value = "Update PickupHeader for PrintConfim")
+    // label for swagger // label for swagger
+    @PatchMapping("/pickupheader/v2/assign-picker")
+    public ResponseEntity<?> updateAssignPickerForPrint(@Valid @RequestBody List<PickupHeaderV2> updatePickupHeaderList, @RequestParam String loginUserID,
+                                                        @RequestParam String authToken)
+            throws IllegalAccessException, InvocationTargetException {
+        PickupHeaderV2[] updatedPickupHeader =
+                transactionService.updateAssignPickerPrintConfirm(updatePickupHeaderList, loginUserID, authToken);
+        return new ResponseEntity<>(updatedPickupHeader, HttpStatus.OK);
+    }
+
+
     @ApiOperation(response = PickupHeaderV2.class, value = "Delete PickupHeader V2") // label for swagger
     @DeleteMapping("/pickupheader/v2/{pickupNumber}")
     public ResponseEntity<?> deletePickupHeaderV2(@PathVariable String pickupNumber, @RequestParam String companyCodeId, @RequestParam String plantId,

@@ -11601,6 +11601,38 @@ public class TransactionService {
         }
     }
 
+
+    /**
+     *
+     * @param updatePickupHeaderList
+     * @param authToken
+     * @return
+     */
+    public PickupHeaderV2[] updateAssignPickerPrintConfirm(@Valid List<PickupHeaderV2> updatePickupHeaderList, String loginUserID, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS-Almailem RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+            HttpEntity<?> entity = new HttpEntity<>(updatePickupHeaderList, headers);
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getTransactionServiceApiUrl() + "pickupheader/v2/assign-picker")
+                    .queryParam("loginUserID", loginUserID);
+            ResponseEntity<PickupHeaderV2[]> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH,
+                    entity, PickupHeaderV2[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+
     // DELETE
     public boolean deletePickupHeaderV2(String companyCodeId, String plantId, String languageId, String warehouseId,
                                         String preOutboundNo, String refDocNumber, String partnerCode, String pickupNumber,
