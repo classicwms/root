@@ -2078,10 +2078,10 @@ public class InboundHeaderService extends BaseService {
 //        log.info("Update Error Inventory Call REEFERON");
 //        updateErrorOutOfInventory();
 
-        DataBaseContextHolder.clear();
-        DataBaseContextHolder.setCurrentDb("KNOWELL");
-        log.info("Update Error Inventory Call KNOWELL");
-        updateErrorOutOfInventory();
+//        DataBaseContextHolder.clear();
+//        DataBaseContextHolder.setCurrentDb("KNOWELL");
+//        log.info("Update Error Inventory Call KNOWELL");
+//        updateErrorOutOfInventory();
     }
 
     /**
