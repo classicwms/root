@@ -2029,11 +2029,6 @@ public class GrLineService extends BaseService {
 
             if (!createdGRLines.isEmpty()) {
                 grLineV2Repository.saveAll(createdGRLines);
-            } else {
-                throw new BadRequestException("GrLine Create -----------------------> Data Is Empty");
-            }
-            log.info("Records were inserted successfully...");
-            if (!createdGRLines.isEmpty()) {
                 putAwayHeaderAsyncProcessService.createGrLineAsyncProcessV4(companyCode, plantId, languageId, warehouseId, createdGRLines, loginUserID);
             }
 

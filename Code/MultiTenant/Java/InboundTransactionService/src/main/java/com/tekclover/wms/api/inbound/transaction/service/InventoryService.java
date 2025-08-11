@@ -2003,13 +2003,8 @@ public class InventoryService extends BaseService {
                 inventory.setVariantCode(1L);
                 inventory.setVariantSubCode("1");
                 inventory.setStorageMethod("1");
-                if (createdGRLine.getBatchSerialNumber() != null) {
-                    inventory.setBatchSerialNumber(createdGRLine.getBatchSerialNumber());
-                    inventory.setPackBarcodes(createdGRLine.getBatchSerialNumber());
-                } else {
-                    inventory.setBatchSerialNumber("1");
-                    inventory.setPackBarcodes(PACK_BARCODE);
-                }
+                inventory.setBatchSerialNumber("1");
+                inventory.setPackBarcodes(PACK_BARCODE);
                 inventory.setBinClassId(3L);
                 inventory.setDeletionIndicator(0L);
                 inventory.setManufacturerCode(manufacturerName);
@@ -2045,9 +2040,8 @@ public class InventoryService extends BaseService {
                 inventory.setSpecialStockIndicatorId(1L);
 
 //                double physicalQty = getQuantity(createdGRLine.getGoodReceiptQty(), createdGRLine.getBagSize());
-                double physicalQty = createdGRLine.getGoodReceiptQty();
 
-                Double INV_QTY = physicalQty;
+                Double INV_QTY = createdGRLine.getGoodReceiptQty();
                 Double ALLOC_QTY = 0D;
                 Double TOT_QTY = INV_QTY + ALLOC_QTY;
 
