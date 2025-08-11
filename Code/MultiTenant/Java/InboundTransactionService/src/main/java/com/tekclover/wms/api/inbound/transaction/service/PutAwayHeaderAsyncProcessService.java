@@ -73,7 +73,7 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
      * @param createdGRLines grLine
      * @param loginUserID userId
      */
-    @Async("asyncExecutor")
+//    @Async("asyncExecutor")
     public void createGrLineAsyncProcessV4(String company, String plant, String language, String warehouse, List<GrLineV2> createdGRLines, String loginUserID) {
 //        ExecutorService asyncExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         List<PutAwayHeaderV2> putAwayHeaderV2List = new ArrayList<>();
