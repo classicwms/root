@@ -2465,7 +2465,7 @@ public class InventoryService extends BaseService {
         DataBaseContextHolder.clear();
         DataBaseContextHolder.setCurrentDb("NAMRATHA");
 
-        List<GrLineV2> grLineV2s = grLineV2Repository.findTopBy50ReferenceField4AndDeletionIndicatorOrderByCreatedOn("0", 0L);
+        List<GrLineV2> grLineV2s = grLineV2Repository.findTop50ByReferenceField4AndDeletionIndicatorOrderByCreatedOn("0", 0L);
         if (!grLineV2s.isEmpty()) {
             log.info("Get GrLine Values Size is  {} ", grLineV2s.size());
         }
