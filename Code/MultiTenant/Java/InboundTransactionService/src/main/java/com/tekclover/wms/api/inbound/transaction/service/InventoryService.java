@@ -2439,7 +2439,7 @@ public class InventoryService extends BaseService {
                 inventory.setCreatedOn(new Date());
                 inventory.setUpdatedOn(new Date());
                 try {
-//                    createdinventory = inventoryV2Repository.save(inventory);
+                    createdinventory = inventory;
 //                    log.info("created inventory : " + createdinventory);
                 } catch (Exception e1) {
                     InventoryTrans newInventoryTrans = new InventoryTrans();
