@@ -154,7 +154,7 @@ public interface GrHeaderV2Repository extends JpaRepository<GrHeaderV2, Long>, J
     @Modifying
     @Query(value = "UPDATE tblgrheader \n" +
             "SET status_id = :statusId, status_text = :statusText \n" +
-            "WHERE ref_doc_no = :refDocNo and c_id = :companyId and plant_id = :plantId and languageId = :lang_id and wh_id = :warehouseId \n" +
+            "WHERE ref_doc_no = :refDocNo and c_id = :companyId and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId \n" +
             "AND (SELECT COUNT(*) FROM tblgrline WHERE ref_doc_no = tblgrheader.ref_doc_no) = " +
             "(SELECT COUNT(*) FROM tblstagingline WHERE ref_doc_no = tblgrheader.ref_doc_no)", nativeQuery = true)
     void updateGrHeaderStatusV4(@Param("companyId") String companyId,
