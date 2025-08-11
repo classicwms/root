@@ -2454,12 +2454,12 @@ public class InventoryService extends BaseService {
     }
 
 
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedDelay = 5000)
     public void getInventoryCreate() {
         DataBaseContextHolder.clear();
         DataBaseContextHolder.setCurrentDb("NAMRATHA");
 
-        List<GrLineV2> grLineV2s = grLineV2Repository.findTop10ByReferenceField4AndDeletionIndicatorOrderByCreatedOn("0", 0L);
+        List<GrLineV2> grLineV2s = grLineV2Repository.findTopByReferenceField4AndDeletionIndicatorOrderByCreatedOn("0", 0L);
         if (!grLineV2s.isEmpty()) {
             log.info("Get GrLine Values Size is  {} ", grLineV2s.size());
         }
