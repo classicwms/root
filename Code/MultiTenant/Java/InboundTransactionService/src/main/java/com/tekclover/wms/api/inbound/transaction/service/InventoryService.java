@@ -2460,25 +2460,25 @@ public class InventoryService extends BaseService {
 
 
 
-    @Scheduled(fixedDelay = 20000)
+    @Scheduled(fixedDelay = 10000)
     public void getInventoryCreate() {
         DataBaseContextHolder.clear();
         DataBaseContextHolder.setCurrentDb("NAMRATHA");
 
-        List<GrLineV2> grLineV2s = grLineV2Repository.findByReferenceField4("0");
+        List<GrLineV2> grLineV2s = grLineV2Repository.findTopBy50ReferenceField4AndDeletionIndicatorOrderByCreatedOn("0", 0L);
         if (!grLineV2s.isEmpty()) {
             log.info("Get GrLine Values Size is  {} ", grLineV2s.size());
         }
-        grLineV2s.stream().forEach(grLineV2 -> {
-            grLineV2Repository.updateGrLineRefField("10", grLineV2.getRefDocNumber(), grLineV2.getBarcodeId());
-            log.info("Grline Ref_field_10 updated BarcodeId is ---> {}", grLineV2.getBarcodeId());
-        });
+//        grLineV2s.stream().forEach(grLineV2 -> {
+//            grLineV2Repository.updateGrLineRefField("10", grLineV2.getRefDocNumber(), grLineV2.getBarcodeId());
+//            log.info("Grline Ref_field_10 updated BarcodeId is ---> {}", grLineV2.getBarcodeId());
+//        });
 
         List<InventoryV2> inventoryV2List = new ArrayList<>();
         for (GrLineV2 grLineV2 : grLineV2s) {
 //            GrLineV2 grLineV2 = grLineV2Repository.findTopByReferenceField4AndDeletionIndicatorOrderByCreatedOn("0", 0L);
 //            if(grLineV2 != null) {
-//            grLineV2Repository.updateGrLineRefField("10", grLineV2.getRefDocNumber(), grLineV2.getBarcodeId());
+            grLineV2Repository.updateGrLineRefField("10", grLineV2.getRefDocNumber(), grLineV2.getBarcodeId());
             log.info("Grline Ref_field_10 updated BarcodeId is ---> {}", grLineV2.getBarcodeId());
             String companyCodeId = grLineV2.getCompanyCode();
             String plantId = grLineV2.getPlantId();
