@@ -474,7 +474,7 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
                               @Param("preInboundNo") String preInboundNo);
 
     @Modifying
-    @Query(value = "UPDATE tblstagingline SET PARTNER_ITEM_BARCODE = :partner_item_barcode " +
+    @Query(value = "UPDATE tblstagingline SET STATUS_ID = :statusId, status_text = :statusText, PARTNER_ITEM_BARCODE = :partner_item_barcode " +
             "WHERE C_ID = :companyCode AND PLANT_ID = :plantId AND LANG_ID = :languageId " +
             "AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo AND IB_LINE_NO = :lineNo AND ITM_CODE = :itemCode ", nativeQuery = true)
     void updateBarCode(@Param("partner_item_barcode") String partnerItemBarcode,
@@ -485,6 +485,24 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
                        @Param("refDocNumber") String refDocNumber,
                        @Param("preInboundNo") String preInboundNo,
                        @Param("lineNo") Long lineNo,
-                       @Param("itemCode") String itemCode);
+                       @Param("itemCode") String itemCode,
+                       @Param("statusId") Long statusId,
+                       @Param("statusText") String statustext);
+
+
+    @Modifying
+    @Query(value = "Update tblstagingline set status_id = :statusId, status_text = :statusText \n " +
+            "where lang_id = :languageId and c_id = :companyId and plant_id = :plantId and wh_id = :warehouseId and \n" +
+            "pre_ib_no = :preInboundNo and ref_doc_no = :refDocNumber and BARCODE_ID = :barcodeId and IB_LINE_NO = :lineNo ", nativeQuery = true)
+    public void updateStagingLineStatus(@Param("languageId") String languageId,
+                                        @Param("companyId") String companyId,
+                                        @Param("plantId") String plantId,
+                                        @Param("warehouseId") String warehouseId,
+                                        @Param("preInboundNo") String preInboundNo,
+                                        @Param("refDocNumber") String refDocNumber,
+                                        @Param("barcodeId") String barcodeId,
+                                        @Param("lineNo") Long lineNo,
+                                        @Param("statusId") Long statusId,
+                                        @Param("statusText") String statusText);
 
 }

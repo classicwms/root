@@ -2013,10 +2013,14 @@ public class GrLineService extends BaseService {
                         }
 
                         try {
+                            statusDescription = stagingLineV2Repository.getStatusDescription(17L, languageId);
                             stagingLineV2Repository.updateBarCode(dbGrLine.getBarcodeId(), dbGrLine.getCompanyCode(), dbGrLine.getPlantId(),
                                     dbGrLine.getLanguageId(), dbGrLine.getWarehouseId(), dbGrLine.getRefDocNumber(),
-                                    dbGrLine.getPreInboundNo(), dbGrLine.getLineNo(), dbGrLine.getItemCode());
-                            log.info(" Updated StagingLine PARTNER_ITEM_BARCODE with barcode: " + dbGrLine.getBarcodeId());
+                                    dbGrLine.getPreInboundNo(), dbGrLine.getLineNo(), dbGrLine.getItemCode(), 17L, statusDescription);
+                            inboundLineV2Repository.updateInboundLineStatus(dbGrLine.getCompanyCode(), dbGrLine.getPlantId(), dbGrLine.getLanguageId(),
+                                    dbGrLine.getWarehouseId(), dbGrLine.getRefDocNumber(), dbGrLine.getPreInboundNo(), dbGrLine.getLineNo(), dbGrLine.getItemCode(),
+                                    17L, statusDescription);
+                            log.info("StagingLine & InboundLine status Updated Successfully  --------------------->");
                         } catch (Exception e) {
                             //Exception Log
                             throw e;
@@ -2034,9 +2038,13 @@ public class GrLineService extends BaseService {
 
             //GrHeader Status 17 Updating Using Stored Procedure when condition met - multiple procedure combined to single procedure
             statusDescription = stagingLineV2Repository.getStatusDescription(17L, languageId);
-            grHeaderV2Repository.updateStatusProc(
-                    companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, goodsReceiptNo, 17L, statusDescription, new Date());
-            log.info("Status Update Using Stored Procedure ---> GrHeader, StagingLine, InboundLine");
+
+            log.info("GrHeader Status Updated Process -------------------> ");
+            grHeaderV2Repository.updateGrHeaderStatusV4(createdGRLines.get(0).getCompanyCode(), createdGRLines.get(0).getPlantId(),
+                    createdGRLines.get(0).getLanguageId(), createdGRLines.get(0).getWarehouseId(), createdGRLines.get(0).getRefDocNumber(), 17L, statusDescription);
+//            grHeaderV2Repository.updateStatusProc(
+//                    companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, goodsReceiptNo, 17L, statusDescription, new Date());
+//            log.info("Status Update Using Stored Procedure ---> GrHeader, StagingLine, InboundLine");
 
             return createdGRLines;
         } catch (Exception e) {

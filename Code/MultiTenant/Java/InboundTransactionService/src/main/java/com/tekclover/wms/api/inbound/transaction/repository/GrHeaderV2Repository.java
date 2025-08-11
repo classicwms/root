@@ -150,4 +150,18 @@ public interface GrHeaderV2Repository extends JpaRepository<GrHeaderV2, Long>, J
     @Query(value = "update tblgrheader set is_deleted = 1 where REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo",nativeQuery = true)
     void softDeleteByRefDocNo(@Param("refDocNumber") String refDocNumber,
                               @Param("preInboundNo") String preInboundNo);
+
+    @Modifying
+    @Query(value = "UPDATE tblgrheader \n" +
+            "SET status_id = :statusId, status_text = :statusText \n" +
+            "WHERE ref_doc_no = :refDocNo and c_id = :companyId and plant_id = :plantId and languageId = :lang_id and wh_id = :warehouseId \n" +
+            "AND (SELECT COUNT(*) FROM tblgrline WHERE ref_doc_no = tblgrheader.ref_doc_no) = " +
+            "(SELECT COUNT(*) FROM tblstagingline WHERE ref_doc_no = tblgrheader.ref_doc_no)", nativeQuery = true)
+    void updateGrHeaderStatusV4(@Param("companyId") String companyId,
+                                @Param("plantId") String plantId,
+                                @Param("languageId") String languageId,
+                                @Param("warehouseId") String warehouseId,
+                                @Param("refDocNo") String refDocNo,
+                                @Param("statusId") Long statusId,
+                                @Param("statusText") String statusText);
 }
