@@ -2343,7 +2343,7 @@ public class InventoryService extends BaseService {
     }
 
 
-    @Scheduled(fixedDelay = 20000)
+    @Scheduled(fixedDelay = 5000)
     public void getInventoryCreate() {
         DataBaseContextHolder.clear();
         DataBaseContextHolder.setCurrentDb("NAMRATHA");
