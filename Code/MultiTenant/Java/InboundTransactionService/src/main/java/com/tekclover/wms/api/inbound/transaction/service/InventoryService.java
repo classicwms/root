@@ -2358,16 +2358,20 @@ public class InventoryService extends BaseService {
 //        });
 //        grLineV2s.stream().forEach(grLineV2 -> {
             GrLineV2 grLineV2 = grLineV2Repository.findTopByReferenceField4AndDeletionIndicatorOrderByCreatedOn("0", 0L);
-            grLineV2Repository.updateGrLineRefField("10", grLineV2.getRefDocNumber(), grLineV2.getBarcodeId());
-            log.info("Grline Ref_field_10 updated BarcodeId is ---> {}", grLineV2.getBarcodeId());
-            String companyCodeId = grLineV2.getCompanyCode();
-            String plantId = grLineV2.getPlantId();
-            String languageId = grLineV2.getLanguageId();
-            String warehouseId = grLineV2.getWarehouseId();
-            String itemCode = grLineV2.getItemCode();
-            String mfrName = grLineV2.getManufacturerName();
-            String refDocNo = grLineV2.getRefDocNumber();
-            createInventoryNonCBMV4(companyCodeId, plantId, languageId, warehouseId, itemCode, mfrName, refDocNo, grLineV2);
+            if(grLineV2 != null) {
+                grLineV2Repository.updateGrLineRefField("10", grLineV2.getRefDocNumber(), grLineV2.getBarcodeId());
+                log.info("Grline Ref_field_10 updated BarcodeId is ---> {}", grLineV2.getBarcodeId());
+                String companyCodeId = grLineV2.getCompanyCode();
+                String plantId = grLineV2.getPlantId();
+                String languageId = grLineV2.getLanguageId();
+                String warehouseId = grLineV2.getWarehouseId();
+                String itemCode = grLineV2.getItemCode();
+                String mfrName = grLineV2.getManufacturerName();
+                String refDocNo = grLineV2.getRefDocNumber();
+                createInventoryNonCBMV4(companyCodeId, plantId, languageId, warehouseId, itemCode, mfrName, refDocNo, grLineV2);
+            } else {
+                log.info("GrLine Not Found");
+            }
 //        });
     }
 
