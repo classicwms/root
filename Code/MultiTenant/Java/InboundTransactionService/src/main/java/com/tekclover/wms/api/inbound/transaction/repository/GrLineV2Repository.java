@@ -306,6 +306,8 @@ public interface GrLineV2Repository extends JpaRepository<GrLineV2, Long>, JpaSp
 
     GrLineV2 findTopByIsPutAwayHeaderCreatedAndDeletionIndicatorOrderByCreatedOn(Long isPutAwayHeaderCreated, Long deletionIndicator);
 
+    GrLineV2 findTopByReferenceField4AndDeletionIndicatorOrderByCreatedOn(String referenceField4, Long deletionIndicator);
+
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("Update GrLineV2 ob SET ob.isPutAwayHeaderCreated = :isPutAwayHeaderCreated \r\n "
             + " WHERE ob.companyCode = :companyCode AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND ob.createdOn = :createdOn AND ob.preInboundNo = :preInboundNo AND ob.lineNo = :lineNo AND ob.itemCode = :itemCode")

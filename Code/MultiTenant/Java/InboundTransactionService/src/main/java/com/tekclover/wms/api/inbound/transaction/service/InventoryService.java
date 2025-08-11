@@ -2348,15 +2348,18 @@ public class InventoryService extends BaseService {
         DataBaseContextHolder.clear();
         DataBaseContextHolder.setCurrentDb("NAMRATHA");
 
-        List<GrLineV2> grLineV2s = grLineV2Repository.findByReferenceField4("0");
-        if(!grLineV2s.isEmpty()) {
-            log.info("Get GrLine Values Size is  {} ", grLineV2s.size());
-        }
-        grLineV2s.stream().forEach(grLineV2 -> {
+//        List<GrLineV2> grLineV2s = grLineV2Repository.findByReferenceField4("0");
+//        if(!grLineV2s.isEmpty()) {
+//            log.info("Get GrLine Values Size is  {} ", grLineV2s.size());
+//        }
+//        grLineV2s.stream().forEach(grLineV2 -> {
+//            grLineV2Repository.updateGrLineRefField("10", grLineV2.getRefDocNumber(), grLineV2.getBarcodeId());
+//            log.info("Grline Ref_field_10 updated BarcodeId is ---> {}", grLineV2.getBarcodeId());
+//        });
+//        grLineV2s.stream().forEach(grLineV2 -> {
+            GrLineV2 grLineV2 = grLineV2Repository.findTopByReferenceField4AndDeletionIndicatorOrderByCreatedOn("0", 0L);
             grLineV2Repository.updateGrLineRefField("10", grLineV2.getRefDocNumber(), grLineV2.getBarcodeId());
             log.info("Grline Ref_field_10 updated BarcodeId is ---> {}", grLineV2.getBarcodeId());
-        });
-        grLineV2s.stream().forEach(grLineV2 -> {
             String companyCodeId = grLineV2.getCompanyCode();
             String plantId = grLineV2.getPlantId();
             String languageId = grLineV2.getLanguageId();
@@ -2365,7 +2368,7 @@ public class InventoryService extends BaseService {
             String mfrName = grLineV2.getManufacturerName();
             String refDocNo = grLineV2.getRefDocNumber();
             createInventoryNonCBMV4(companyCodeId, plantId, languageId, warehouseId, itemCode, mfrName, refDocNo, grLineV2);
-        });
+//        });
     }
 
 }
