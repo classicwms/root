@@ -43,7 +43,7 @@ public class InventoryAsyncProcessService extends BaseService{
      * @param putAwayLineV2List putAwayLine List
      * @param loginUserID userID
      */
-//    @Async("asyncExecutor")
+    @Async("asyncExecutor")
     public void createInventoryAsyncProcessV4(List<PutAwayLineV2> putAwayLineV2List, String loginUserID) {
         putAwayLineV2List.stream().forEach(putAwayLineV2 -> {
             createInventoryNonCBMV4(putAwayLineV2, loginUserID);
