@@ -2454,38 +2454,42 @@ public class InventoryService extends BaseService {
     }
 
 
-    @Scheduled(fixedDelay = 5000)
+    @Scheduled(fixedDelay = 10000)
     public void getInventoryCreate() {
         DataBaseContextHolder.clear();
         DataBaseContextHolder.setCurrentDb("NAMRATHA");
 
-        List<GrLineV2> grLineV2s = grLineV2Repository.findTopByReferenceField4AndDeletionIndicatorOrderByCreatedOn("0", 0L);
-        if (!grLineV2s.isEmpty()) {
-            log.info("Get GrLine Values Size is  {} ", grLineV2s.size());
-        }
-        grLineV2s.forEach(grLineV2 -> {
-            grLineV2Repository.updateGrLineRefField("10", grLineV2.getRefDocNumber(), grLineV2.getBarcodeId());
-            log.info("Grline Ref_field_10 updated BarcodeId is ---> {}", grLineV2.getBarcodeId());
-        });
+        try {
+            List<GrLineV2> grLineV2s = grLineV2Repository.findTopByReferenceField4AndDeletionIndicatorOrderByCreatedOn("0", 0L);
+            if (!grLineV2s.isEmpty()) {
+                log.info("Get GrLine Values Size is  {} ", grLineV2s.size());
+            }
+//            grLineV2s.forEach(grLineV2 -> {
+//                grLineV2Repository.updateGrLineRefField("10", grLineV2.getRefDocNumber(), grLineV2.getBarcodeId());
+//                log.info("Grline Ref_field_10 updated BarcodeId is ---> {}", grLineV2.getBarcodeId());
+//            });
 
-        List<InventoryV2> inventoryV2List = new ArrayList<>();
-        for (GrLineV2 grLineV2 : grLineV2s) {
+            List<InventoryV2> inventoryV2List = new ArrayList<>();
+            for (GrLineV2 grLineV2 : grLineV2s) {
 //            GrLineV2 grLineV2 = grLineV2Repository.findTopByReferenceField4AndDeletionIndicatorOrderByCreatedOn("0", 0L);
 //            if(grLineV2 != null) {
-//            grLineV2Repository.updateGrLineRefField("10", grLineV2.getRefDocNumber(), grLineV2.getBarcodeId());
-//            log.info("Grline Ref_field_10 updated BarcodeId is ---> {}", grLineV2.getBarcodeId());
-            String companyCodeId = grLineV2.getCompanyCode();
-            String plantId = grLineV2.getPlantId();
-            String languageId = grLineV2.getLanguageId();
-            String warehouseId = grLineV2.getWarehouseId();
-            String itemCode = grLineV2.getItemCode();
-            String mfrName = grLineV2.getManufacturerName();
-            String refDocNo = grLineV2.getRefDocNumber();
-            inventoryV2List.add(createInventoryV4(companyCodeId, plantId, languageId, warehouseId, itemCode, mfrName, refDocNo, grLineV2));
-        }
-        if (inventoryV2List != null && !inventoryV2List.isEmpty()) {
-            log.info("Inventory Saved Successfully BinClassId : 3  ------------> Size is {} ", inventoryV2List.size());
-            inventoryV2Repository.saveAll(inventoryV2List);
+                grLineV2Repository.updateGrLineRefField("10", grLineV2.getRefDocNumber(), grLineV2.getBarcodeId());
+                log.info("Grline Ref_field_10 updated BarcodeId is ---> {}", grLineV2.getBarcodeId());
+                String companyCodeId = grLineV2.getCompanyCode();
+                String plantId = grLineV2.getPlantId();
+                String languageId = grLineV2.getLanguageId();
+                String warehouseId = grLineV2.getWarehouseId();
+                String itemCode = grLineV2.getItemCode();
+                String mfrName = grLineV2.getManufacturerName();
+                String refDocNo = grLineV2.getRefDocNumber();
+                inventoryV2List.add(createInventoryV4(companyCodeId, plantId, languageId, warehouseId, itemCode, mfrName, refDocNo, grLineV2));
+            }
+            if (inventoryV2List != null && !inventoryV2List.isEmpty()) {
+                log.info("Inventory Saved Successfully BinClassId : 3  ------------> Size is {} ", inventoryV2List.size());
+                inventoryV2Repository.saveAll(inventoryV2List);
+            }
+        } catch (Exception e) {
+            log.info("Inventory Schedule Exception  -------> " + e.getMessage());
         }
     }
 
