@@ -1984,7 +1984,7 @@ public class GrLineService extends BaseService {
                     dbGrLine.setCreatedOn(new Date());
                     dbGrLine.setUpdatedOn(new Date());
                     dbGrLine.setConfirmedOn(new Date());
-                    dbGrLine.setReferenceField4("0");
+                    dbGrLine.setReferenceField4("10");
 
                     List<GrLineV2> oldGrLine = grLineV2Repository.findByGoodsReceiptNoAndItemCodeAndLineNoAndLanguageIdAndCompanyCodeAndPlantIdAndRefDocNumberAndPackBarcodesAndWarehouseIdAndPreInboundNoAndCaseCodeAndCreatedOnAndDeletionIndicator(
                             goodsReceiptNo, itemCode, dbGrLine.getLineNo(), languageId, companyCode, plantId,
