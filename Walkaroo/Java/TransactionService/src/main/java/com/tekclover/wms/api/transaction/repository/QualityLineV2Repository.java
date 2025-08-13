@@ -1,15 +1,17 @@
 package com.tekclover.wms.api.transaction.repository;
 
-import com.tekclover.wms.api.transaction.model.outbound.quality.v2.QualityLineV2;
-import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import com.tekclover.wms.api.transaction.model.outbound.quality.v2.QualityLineV2;
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 
 @Repository
 @Transactional
@@ -63,4 +65,18 @@ public interface QualityLineV2Repository extends JpaRepository<QualityLineV2, Lo
     List<QualityLineV2> findAllByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndManufacturerNameAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo,
             String refDocNumber, String partnerCode, Long lineNumber, String itemCode, String manufacturerName, Long deletionIndicator);
+    
+    //============================PGIReversal================================================================
+    @Modifying(clearAutomatically = true)
+    @Query(value = "UPDATE tblqualityline SET STATUS_ID = :statusId, REF_FIELD_10 = :statusDescription, STATUS_TEXT = :statusDescription \n" +
+            "WHERE LANG_ID = :languageId AND C_ID = :companyCodeId AND \n" +
+            "PLANT_ID = :plantId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND ITM_CODE = :itemCode", nativeQuery = true)
+    void updateQualityLineStatusV3(@Param("companyCodeId") String companyCodeId,
+                                         @Param("plantId") String plantId,
+                                         @Param("languageId") String languageId,
+                                         @Param("warehouseId") String warehouseId,
+                                         @Param("refDocNumber") String refDocNumber,
+                                         @Param("itemCode") String itemCode,
+                                         @Param("statusId") Long statusId,
+                                         @Param("statusDescription") String statusDescription);
 }

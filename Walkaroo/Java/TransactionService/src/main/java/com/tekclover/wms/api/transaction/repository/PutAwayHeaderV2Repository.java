@@ -570,13 +570,16 @@ public interface PutAwayHeaderV2Repository extends JpaRepository<PutAwayHeaderV2
             " team_mem_5 as teamMember5 from tblhhtuser where usr_id = :userId " +
             "AND is_deleted = 0", nativeQuery = true)
     List<HHTUser> getHHtDetails(@Param("userId") String userId);
-
-	PutAwayHeaderV2 findByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndPutAwayNumberAndPreInboundNoAndBarcodeIdAndStatusIdAndDeletionIndicator(
-			String companyCodeId, String plantId, String warehouseId, String languageId, String putAwayNumber,
-			String preInboundNo, String barcodeId, Long statusId, long l);
+    
+    boolean existsByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndBarcodeIdAndDeletionIndicator(
+            String languageId, String companyCode, String plantId, String warehouseId, String refDocNumber, String barcodeId, Long deletionIndicator);
 
 	PutAwayHeaderV2 findByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndPutAwayNumberAndPreInboundNoAndBarcodeIdAndReferenceField9AndStatusIdAndDeletionIndicator(
 			String companyCodeId, String plantId, String warehouseId, String languageId, String putAwayNumber,
 			String preInboundNo, String barcodeId, String lineNumber, Long statusId, long l);
+
+	PutAwayHeaderV2 findByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndPutAwayNumberAndPreInboundNoAndBarcodeIdAndStatusIdAndDeletionIndicator(
+			String companyCodeId, String plantId, String warehouseId, String languageId, String putAwayNumber,
+			String preInboundNo, String barcodeId, Long statusId, long l);
 
 }

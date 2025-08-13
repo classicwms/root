@@ -1,12 +1,26 @@
 package com.tekclover.wms.api.transaction.service;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.DocumentNumber;
 import com.tekclover.wms.api.transaction.model.IKeyValuePair;
-import com.tekclover.wms.api.transaction.model.dto.BomHeader;
 import com.tekclover.wms.api.transaction.model.dto.BomLine;
 import com.tekclover.wms.api.transaction.model.dto.ImBasicData1V2;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.IInventoryImpl;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.transaction.model.notification.NotificationSave;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.v2.OrderManagementHeaderV2;
@@ -19,18 +33,20 @@ import com.tekclover.wms.api.transaction.model.outbound.preoutbound.v2.PreOutbou
 import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2;
 import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundLineV2;
 import com.tekclover.wms.api.transaction.model.warehouse.Warehouse;
-import com.tekclover.wms.api.transaction.repository.*;
+import com.tekclover.wms.api.transaction.repository.ImBasicData1V2Repository;
+import com.tekclover.wms.api.transaction.repository.InventoryV2Repository;
+import com.tekclover.wms.api.transaction.repository.OrderManagementHeaderV2Repository;
+import com.tekclover.wms.api.transaction.repository.OrderManagementLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.OutboundHeaderV2Repository;
+import com.tekclover.wms.api.transaction.repository.OutboundLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.OutboundOrderV2Repository;
+import com.tekclover.wms.api.transaction.repository.PickupHeaderV2Repository;
+import com.tekclover.wms.api.transaction.repository.PreOutboundHeaderV2Repository;
+import com.tekclover.wms.api.transaction.repository.PreOutboundLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.WarehouseRepository;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -110,7 +126,7 @@ public class OutboundOrderProcessingService extends BaseService {
             String refDocNumber = outboundIntegrationHeader.getRefDocumentNo();
             Long outboundOrderTypeId = outboundIntegrationHeader.getOutboundOrderTypeID();
             log.info("Outbound Process Initiated ------> : {}|{}|{}|{}|{}|{}", companyCodeId, plantId, languageId, warehouseId, refDocNumber, outboundOrderTypeId);
-            MW_AMS = outboundIntegrationHeader.getLoginUserId() != null ? outboundIntegrationHeader.getLoginUserId() : MW_AMS;
+            WK = outboundIntegrationHeader.getLoginUserId() != null ? outboundIntegrationHeader.getLoginUserId() : WK;
 
             String idMasterAuthToken = getIDMasterAuthToken();
             /*
@@ -165,7 +181,7 @@ public class OutboundOrderProcessingService extends BaseService {
 //                    List<PreOutboundLineV2> toBeCreatedpreOutboundLineList = new ArrayList<>();
 //                    for (BomLine dbBomLine : bomLine) {
 //                        toBeCreatedpreOutboundLineList.add(createPreOutboundLineBOMBasedV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo,
-//                                outboundIntegrationHeader, dbBomLine, outboundIntegrationLine, description, statusId, statusDescription, MW_AMS));
+//                                outboundIntegrationHeader, dbBomLine, outboundIntegrationLine, description, statusId, statusDescription, WK));
 //                    }
 //
 //                    // Batch Insert - preOutboundLines
@@ -184,7 +200,7 @@ public class OutboundOrderProcessingService extends BaseService {
 //            if (!overallCreatedPreoutboundLineList.isEmpty()) {
 //                for (PreOutboundLineV2 preOutboundLine : overallCreatedPreoutboundLineList) {
 ////                 OrderManagementLine
-//                    OrderManagementLineV2 orderManagementLine = createOrderManagementLineV2(companyCodeId, plantId, languageId, warehouseId, outboundIntegrationHeader, preOutboundLine, MW_AMS);
+//                    OrderManagementLineV2 orderManagementLine = createOrderManagementLineV2(companyCodeId, plantId, languageId, warehouseId, outboundIntegrationHeader, preOutboundLine, WK);
 //                    log.info("orderManagementLine created---BOM---> : " + orderManagementLine);
 //                }
 //
@@ -204,7 +220,7 @@ public class OutboundOrderProcessingService extends BaseService {
                     //=========================================================================================================//
 
                     PreOutboundLineV2 preOutboundLine = createPreOutboundLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo,
-                            outboundIntegrationHeader, outboundIntegrationLine, statusId, statusDescription, description, MW_AMS);
+                            outboundIntegrationHeader, outboundIntegrationLine, statusId, statusDescription, description, WK);
                     PreOutboundLineV2 createdPreOutboundLine = preOutboundLineV2Repository.save(preOutboundLine);
                     log.info("preOutboundLine created---1---> : " + createdPreOutboundLine);
                     createdPreOutboundLineList.add(createdPreOutboundLine);
@@ -216,7 +232,7 @@ public class OutboundOrderProcessingService extends BaseService {
             }
             log.info("Preoutboundline finished & ordermanagementLine started : " + new Date());
 
-            createOrderManagementLine(companyCodeId, plantId, languageId, warehouseId, outboundIntegrationHeader, createdPreOutboundLineList, MW_AMS);
+            createOrderManagementLine(companyCodeId, plantId, languageId, warehouseId, outboundIntegrationHeader, createdPreOutboundLineList, WK);
 
             /*------------------Record Insertion in OUTBOUNDLINE tables-----------*/
             log.info("outboundline started : " + new Date());
@@ -224,13 +240,13 @@ public class OutboundOrderProcessingService extends BaseService {
             log.info("createOutboundLine created : " + createOutboundLineList);
             log.info("outboundline finished & preoutbound header started : " + new Date());
 
-            PreOutboundHeaderV2 createdPreOutboundHeader = createPreOutboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, outboundIntegrationHeader, refField1ForOrderType, statusId, statusDescription, description, MW_AMS);
+            PreOutboundHeaderV2 createdPreOutboundHeader = createPreOutboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, outboundIntegrationHeader, refField1ForOrderType, statusId, statusDescription, description, WK);
             log.info("preOutboundHeader Created : {}", createdPreOutboundHeader);
 
             log.info("preobh finished & omh started : " + new Date());
             statusId = 41L;
             statusDescription = getStatusDescription(statusId, languageId);
-            OrderManagementHeaderV2 createdOrderManagementHeader = createOrderManagementHeaderV2(createdPreOutboundHeader, statusId, statusDescription, MW_AMS);
+            OrderManagementHeaderV2 createdOrderManagementHeader = createOrderManagementHeaderV2(createdPreOutboundHeader, statusId, statusDescription, WK);
             log.info("OrderMangementHeader Created : {}", createdOrderManagementHeader);
 
             log.info("omh finished & oh started : " + new Date());
@@ -243,7 +259,7 @@ public class OutboundOrderProcessingService extends BaseService {
             log.info("No stock status updated in preinbound header and line, outbound header using stored procedure when condition is satisfied");
 
             log.info("pickup header validation and create started : " + new Date());
-            validatePickupHeaderCreation(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, outboundHeader, MW_AMS);
+            validatePickupHeaderCreation(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, outboundHeader, WK);
             log.info("pickupheader finished : " + new Date());
 
             return outboundHeader;
@@ -718,7 +734,9 @@ public class OutboundOrderProcessingService extends BaseService {
 //        if (stockType1InventoryList.isEmpty()) {
 //            return createEMPTYOrderManagementLineV2(orderManagementLine);
 //        }
-        OrderManagementLineV2 createdOrderManagementLine = orderManagementLineService.updateAllocationV3(companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, binClassId, ORD_QTY, orderManagementLine, loginUserId);
+        OrderManagementLineV2 createdOrderManagementLine = 
+        		orderManagementLineService.updateAllocationV3(companyCodeId, plantId, languageId, warehouseId, itemCode, 
+        				manufacturerName, binClassId, ORD_QTY, orderManagementLine, loginUserId, false);
         return createdOrderManagementLine;
     }
 

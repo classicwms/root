@@ -7,6 +7,9 @@ import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.model.dto.PutAwayPalletGroupResponse;
+import com.tekclover.wms.api.transaction.model.impl.PutAwayHeaderImpl;
+import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,16 +24,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tekclover.wms.api.transaction.model.dto.PutAwayPalletGroupResponse;
-import com.tekclover.wms.api.transaction.model.impl.PutAwayHeaderImpl;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.AddPutAwayHeader;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.PutAwayHeader;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.SearchPutAwayHeader;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.UpdatePutAwayHeader;
-import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.InboundReversalInput;
-import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.PutAwayHeaderV2;
-import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.PutawayHeaderInt;
-import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.SearchPutAwayHeaderV2;
 import com.tekclover.wms.api.transaction.service.PutAwayHeaderService;
 
 import io.swagger.annotations.Api;
@@ -191,7 +188,6 @@ public class PutAwayHeaderController {
             throws Exception {
         return putawayheaderService.createPutawayHeaderv3(putawayHeaders);
     }
-    
     @ApiOperation(response = PutAwayHeaderV2.class, value = "Search PutAwayHeader V2") // label for swagger
     @PostMapping("/findPutAwayHeader/v2")
     public List<PutAwayHeaderImpl> findPutAwayHeaderV2(@RequestBody SearchPutAwayHeaderV2 searchPutAwayHeader)

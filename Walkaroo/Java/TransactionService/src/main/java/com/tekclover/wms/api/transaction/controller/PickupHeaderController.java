@@ -227,4 +227,14 @@ public class PickupHeaderController {
             throws Exception {
         return pickupheaderService.findPickUpHeaderWithStatusId(searchPickupHeader);
     }
+
+    @ApiOperation(response = PickupHeaderV2.class, value = "Update Assigned PickerId in PickupHeader")    // label for swagger
+    @PatchMapping("/v2/assign-picker")
+    public ResponseEntity<?> patchAssignedPickerIdInPickupHeaderV2(@Valid @RequestBody List<PickupHeaderV2> updatePickupHeaderList,
+                                                                   @RequestParam String loginUserID)
+            throws IllegalAccessException, InvocationTargetException {
+        List<PickupHeaderV2> createdPickupHeader =
+                pickupheaderService.updatePickupHeaderForPrinted(updatePickupHeaderList, loginUserID);
+        return new ResponseEntity<>(createdPickupHeader, HttpStatus.OK);
+    }
 }

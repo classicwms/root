@@ -60,6 +60,7 @@ import com.tekclover.wms.api.transaction.model.inbound.staging.v2.StagingHeaderV
 import com.tekclover.wms.api.transaction.model.inbound.staging.v2.StagingLineEntityV2;
 import com.tekclover.wms.api.transaction.model.inbound.v2.InboundHeaderV2;
 import com.tekclover.wms.api.transaction.model.inbound.v2.InboundLineV2;
+import com.tekclover.wms.api.transaction.model.outbound.ordermangement.v2.OrderManagementLineV2;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickupLineV2;
 import com.tekclover.wms.api.transaction.model.trans.InventoryTrans;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.v3.ReversalLineV3;
@@ -126,7 +127,7 @@ public class PutAwayHeaderService extends BaseService {
     private InboundLineRepository inboundLineRepository;
 
     @Autowired
-    InboundOrderV2Repository inboundOrderV2Repository;
+    private InboundOrderV2Repository inboundOrderV2Repository;
 
     @Autowired
     private PutAwayLineService putAwayLineService;
@@ -152,9 +153,6 @@ public class PutAwayHeaderService extends BaseService {
 
     @Autowired
     private PutAwayHeaderV2Repository putAwayHeaderV2Repository;
-    
-    @Autowired
-    private PutAwayHeaderIntRepository putAwayHeaderIntRepository;
 
     @Autowired
     private PutAwayLineV2Repository putAwayLineV2Repository;
@@ -205,6 +203,9 @@ public class PutAwayHeaderService extends BaseService {
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    @Autowired
+    PutAwayHeaderIntRepository putAwayHeaderIntRepository;
 
     //-------------------------------------------------------------------------------------------------
 
@@ -2957,16 +2958,21 @@ public class PutAwayHeaderService extends BaseService {
      * @param barcodeId
      * @return
      */
-    public PutAwayHeaderV2 getPutAwayHeaderV3(String companyCodeId, String plantId, String warehouseId, String languageId,
-                                              String putAwayNumber, String preInboundNo, String barcodeId, String lineNumber, Long statusId) {
-        if(lineNumber != null) {
-        	return putAwayHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndPutAwayNumberAndPreInboundNoAndBarcodeIdAndReferenceField9AndStatusIdAndDeletionIndicator(
-                companyCodeId, plantId, warehouseId, languageId, putAwayNumber, preInboundNo, barcodeId, lineNumber, statusId, 0L);
-        } else {
-            return putAwayHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndPutAwayNumberAndPreInboundNoAndBarcodeIdAndStatusIdAndDeletionIndicator(
-                    companyCodeId, plantId, warehouseId, languageId, putAwayNumber, preInboundNo, barcodeId, statusId, 0L);
-        }
-    }
+	public PutAwayHeaderV2 getPutAwayHeaderV3(String companyCodeId, String plantId, String warehouseId,
+			String languageId, String putAwayNumber, String preInboundNo, String barcodeId, String lineNumber,
+			Long statusId) {
+		if (lineNumber != null) {
+			return putAwayHeaderV2Repository
+					.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndPutAwayNumberAndPreInboundNoAndBarcodeIdAndReferenceField9AndStatusIdAndDeletionIndicator(
+							companyCodeId, plantId, warehouseId, languageId, putAwayNumber, preInboundNo, barcodeId,
+							lineNumber, statusId, 0L);
+		} else {
+			return putAwayHeaderV2Repository
+					.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndPutAwayNumberAndPreInboundNoAndBarcodeIdAndStatusIdAndDeletionIndicator(
+							companyCodeId, plantId, warehouseId, languageId, putAwayNumber, preInboundNo, barcodeId,
+							statusId, 0L);
+		}
+	}
 
     /**
      *

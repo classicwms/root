@@ -19,6 +19,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -27,6 +28,7 @@ import com.tekclover.wms.api.transaction.controller.exception.InboundOrderReques
 import com.tekclover.wms.api.transaction.controller.exception.OutboundOrderRequestException;
 import com.tekclover.wms.api.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.transaction.model.deliveryconfirmation.DeliveryConfirmation;
+import com.tekclover.wms.api.transaction.model.inbound.v2.InboundOrderCancelInput;
 import com.tekclover.wms.api.transaction.model.warehouse.Warehouse;
 import com.tekclover.wms.api.transaction.model.warehouse.cyclecount.CycleCountHeader;
 import com.tekclover.wms.api.transaction.model.warehouse.cyclecount.CycleCountLine;
@@ -97,6 +99,7 @@ import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.SalesOrderL
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.SalesOrderV2;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.ShipmentOrderV2;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.v3.DeliveryConfirmationLineV3;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.v3.DeliveryConfirmationSAP;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.v3.DeliveryConfirmationV3;
 import com.tekclover.wms.api.transaction.model.warehouse.stockAdjustment.StockAdjustment;
 import com.tekclover.wms.api.transaction.repository.DeliveryConfirmationRepository;
@@ -126,14 +129,21 @@ public class WarehouseService extends BaseService {
 
 	@Autowired
 	private StockAdjustmentMiddlewareService stockAdjustmentService;
+	
+    @Autowired
+    PreOutboundHeaderService preOutboundHeaderService;
 
 	@Autowired
 	InboundOrderLinesV2Repository inboundOrderLinesV2Repository;
 
 	@Autowired
 	DeliveryConfirmationRepository deliveryConfirmationRepository;
+	
 	@Autowired
 	InboundOrderProcessService inboundOrderProcessService;
+
+	@Autowired
+	MastersService mastersService;
 
 	/**
 	 * 
@@ -936,7 +946,7 @@ public class WarehouseService extends BaseService {
 			apiHeader.setIsCompleted(asnV2Header.getIsCompleted());
 			apiHeader.setUpdatedOn(asnV2Header.getUpdatedOn());
 			apiHeader.setReversalFlag(asnV2Header.getReversalFlag());
-			
+
 			//-------InboundUpload Vs SAP API------Differentiator----------------------------------------
 			
 			apiHeader.setIsSapOrder(asnV2Header.getIsSapOrder());
@@ -2099,6 +2109,21 @@ public class WarehouseService extends BaseService {
 	}
 
 	/**
+	 * 
+	 * @param deliveryConfirmationSAPList
+	 */
+	public void validateDeliveryOrders (@Valid List<DeliveryConfirmationSAP> deliveryConfirmationSAPList) throws BadRequestException{
+		List<String> salesOrderNumbers = deliveryConfirmationSAPList.stream()
+				.map(DeliveryConfirmationSAP::getSalesOrderNumber)
+				.collect(Collectors.toList());
+		List<String> validateDeliveryOrders = deliveryConfirmationRepository.validateDeliveryConfirmationOrders (salesOrderNumbers);
+		log.info("------DeliveryOrders------> : " + validateDeliveryOrders);
+		if (validateDeliveryOrders != null && validateDeliveryOrders.size() > 0){
+			throw new BadRequestException("Orders are getting duplicated -> " + salesOrderNumbers);
+		}
+	}
+	
+	/**
 	 * @param returnPO
 	 * @return
 	 */
@@ -2501,6 +2526,11 @@ public class WarehouseService extends BaseService {
 		return null;
 	}
 
+	/**
+	 * 
+	 * @param salesOrder
+	 * @return
+	 */
 	public OutboundOrderV2 postSalesOrderV3(@Valid SalesOrderV2 salesOrder) {
 		try {
 			SalesOrderHeaderV2 salesOrderHeader = salesOrder.getSalesOrderHeader();
@@ -2508,6 +2538,12 @@ public class WarehouseService extends BaseService {
 			OutboundOrderV2 apiHeader = new OutboundOrderV2();
 			BeanUtils.copyProperties(salesOrderHeader, apiHeader, CommonUtils.getNullPropertyNames(salesOrderHeader));
 
+			/**********************************************************************************************************
+			 *-------------------SAP Order-----------------------------------------------------------------------------
+			 *
+			 **********************************************************************************************************/
+			apiHeader.setIsSAPOrder(true);
+			
 			if (salesOrderHeader.getWarehouseId() != null && !salesOrderHeader.getWarehouseId().isBlank()) {
 				apiHeader.setWarehouseID(salesOrderHeader.getWarehouseId());
 			} else {
@@ -2622,6 +2658,139 @@ public class WarehouseService extends BaseService {
 	}
 
 	/**
+	 *
+	 * @param salesOrder
+	 * @return
+	 */
+	public OutboundOrderV2 postSalesOrderV4(@Valid SalesOrderV2 salesOrder) {
+		try {
+			SalesOrderHeaderV2 salesOrderHeader = salesOrder.getSalesOrderHeader();
+
+			OutboundOrderV2 apiHeader = new OutboundOrderV2();
+			BeanUtils.copyProperties(salesOrderHeader, apiHeader, CommonUtils.getNullPropertyNames(salesOrderHeader));
+
+			/**********************************************************************************************************
+			 *------------------NON - SAP Order-----------------------------------------------------------------------------
+			 *
+			 **********************************************************************************************************/
+			apiHeader.setIsSAPOrder(false);
+
+			if (salesOrderHeader.getWarehouseId() != null && !salesOrderHeader.getWarehouseId().isBlank()) {
+				apiHeader.setWarehouseID(salesOrderHeader.getWarehouseId());
+			} else {
+				Optional<Warehouse> warehouse =
+						warehouseRepository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndDeletionIndicator(
+								salesOrderHeader.getCompanyCode(), salesOrderHeader.getBranchCode(),
+								salesOrderHeader.getLanguageId() != null ? salesOrderHeader.getLanguageId() : LANG_ID,
+								0L);
+				apiHeader.setWarehouseID(warehouse.get().getWarehouseId());
+			}
+
+			apiHeader.setBranchCode(salesOrderHeader.getBranchCode());
+			apiHeader.setCompanyCode(salesOrderHeader.getCompanyCode());
+			apiHeader.setLanguageId(salesOrderHeader.getLanguageId() != null ? salesOrderHeader.getLanguageId() : LANG_ID);
+
+			apiHeader.setCustomerId(salesOrderHeader.getCustomerId());
+			apiHeader.setOrderId(salesOrderHeader.getPickListNumber());
+			apiHeader.setPartnerCode(salesOrderHeader.getCustomerId());
+			apiHeader.setPartnerName(salesOrderHeader.getCustomerName());
+			apiHeader.setPickListNumber(salesOrderHeader.getPickListNumber());
+			apiHeader.setPickListStatus(salesOrderHeader.getStatus());
+			apiHeader.setRefDocumentNo(salesOrderHeader.getPickListNumber());
+			if (salesOrderHeader.getOrderType() != null) {
+				apiHeader.setOutboundOrderTypeID(Long.valueOf(salesOrderHeader.getOrderType()));
+			} else {
+				apiHeader.setOutboundOrderTypeID(OB_PL_ORD_TYP_ID);
+			}
+
+			apiHeader.setRefDocumentType(getOutboundOrderTypeDesc(apiHeader.getCompanyCode(), apiHeader.getBranchCode(),
+					apiHeader.getLanguageId(), apiHeader.getWarehouseID(),
+					apiHeader.getOutboundOrderTypeID()));
+
+			apiHeader.setCustomerType("INVOICE");								//HardCoded
+			apiHeader.setOrderReceivedOn(new Date());
+			apiHeader.setSalesOrderNumber(salesOrderHeader.getSalesOrderNumber());
+			apiHeader.setTokenNumber(salesOrderHeader.getTokenNumber());
+
+			apiHeader.setMiddlewareId(salesOrderHeader.getMiddlewareId());
+			apiHeader.setMiddlewareTable(salesOrderHeader.getMiddlewareTable());
+
+			try {
+//				Date reqDate = DateUtils.convertStringToDate2(salesOrderHeader.getRequiredDeliveryDate());
+				Date reqDate = DateUtils.addTimeToDate (new Date());
+				apiHeader.setRequiredDeliveryDate(reqDate);
+			} catch (Exception e) {
+				throw new OutboundOrderRequestException("Date format should be MM-dd-yyyy");
+			}
+
+			List<SalesOrderLineV2> salesOrderLines = salesOrder.getSalesOrderLine();
+			Set<OutboundOrderLineV2> orderLines = new HashSet<>();
+			for (SalesOrderLineV2 soLine : salesOrderLines) {
+				OutboundOrderLineV2 apiLine = new OutboundOrderLineV2();
+				BeanUtils.copyProperties(soLine, apiLine, CommonUtils.getNullPropertyNames(soLine));
+				apiLine.setBrand(soLine.getBrand());
+				apiLine.setOrigin(soLine.getOrigin());
+				apiLine.setPackQty(soLine.getPackQty());
+				apiLine.setExpectedQty(soLine.getExpectedQty());
+				apiLine.setSupplierName(soLine.getSupplierName());
+				apiLine.setSourceBranchCode(salesOrderHeader.getStoreID());
+				apiLine.setCountryOfOrigin(soLine.getCountryOfOrigin());
+				apiLine.setFromCompanyCode(salesOrderHeader.getCompanyCode());
+				apiLine.setManufacturerCode(MFR_NAME);
+				apiLine.setManufacturerName(MFR_NAME);
+				apiLine.setManufacturerFullName(soLine.getManufacturerFullName());
+				apiLine.setStoreID(salesOrderHeader.getStoreID());
+				apiLine.setRefField1ForOrderType(soLine.getOrderType());
+				apiLine.setCustomerType("INVOICE");								//HardCoded
+				if (salesOrderHeader.getOrderType() != null) {
+					apiLine.setOutboundOrderTypeID(Long.valueOf(salesOrderHeader.getOrderType()));
+				} else {
+					apiLine.setOutboundOrderTypeID(OB_PL_ORD_TYP_ID);
+				}
+
+				apiLine.setLineReference(soLine.getLineReference());            // IB_LINE_NO
+				apiLine.setItemCode(soLine.getSku().trim());                    // ITM_CODE
+				apiLine.setItemText(soLine.getSkuDescription());                // ITEM_TEXT
+				apiLine.setOrderedQty(soLine.getOrderedQty());                    // ORD_QTY
+				apiLine.setUom(soLine.getUom());                                // ORD_UOM
+				apiLine.setRefField1ForOrderType(soLine.getOrderType());        // ORDER_TYPE
+				apiLine.setOrderId(apiHeader.getOrderId());
+				apiLine.setSalesOrderNo(soLine.getSalesOrderNo());
+				apiLine.setPickListNo(soLine.getPickListNo());
+				apiLine.setShipToCode(soLine.getShipToCode());
+				apiLine.setShipToParty(soLine.getShipToParty());
+
+				apiLine.setMiddlewareId(soLine.getMiddlewareId());
+				apiLine.setMiddlewareHeaderId(soLine.getMiddlewareHeaderId());
+				apiLine.setMiddlewareTable(soLine.getMiddlewareTable());
+
+				orderLines.add(apiLine);
+			}
+			apiHeader.setLine(orderLines);
+			apiHeader.setOrderProcessedOn(new Date());
+
+			if (salesOrder.getSalesOrderLine() != null && !salesOrder.getSalesOrderLine().isEmpty()) {
+				apiHeader.setProcessedStatusId(0L);
+				apiHeader.setExecuted(0L);
+				log.info("apiHeader : " + apiHeader);
+				OutboundOrderV2 createdOrder = orderService.createOutboundOrdersV2(apiHeader);
+				log.info("SalesOrder Order Success: " + createdOrder);
+				return apiHeader;
+			} else if (salesOrder.getSalesOrderLine() == null || salesOrder.getSalesOrderLine().isEmpty()) {
+				// throw the error as Lines are Empty and set the Indicator as '100'
+				apiHeader.setProcessedStatusId(100L);
+				log.info("apiHeader : " + apiHeader);
+				OutboundOrderV2 createdOrder = orderService.createOutboundOrdersV2(apiHeader);
+				log.info("SalesOrder Order Failed: " + createdOrder);
+				throw new BadRequestException("SalesOrder Order doesn't contain any Lines.");
+			}
+		} catch (Exception e) {
+			throw new BadRequestException("Exception while saving sales Order-PickList - " + e.toString());
+		}
+		return null;
+	}
+
+	/**
 	 * ----------------------------------WALKAROO CHANGES--------------------------------------------------------------------------
 	 * @param deliveryConfirmationV3
 	 * @return
@@ -2635,11 +2804,15 @@ public class WarehouseService extends BaseService {
 //			throw e;
 //		}
 //	}
+	
+	/**
+	 * 
+	 * @param deliveryConfirmationV3
+	 * @throws Exception
+	 */
 	private void saveDeliveryConfirmationV3 (@Valid DeliveryConfirmationV3 deliveryConfirmationV3) throws Exception {
 		try {
-
 			if(deliveryConfirmationV3 != null && deliveryConfirmationV3.getLines() != null && !deliveryConfirmationV3.getLines().isEmpty()) {
-
 				log.info("Delivery template post validation Initiated..!");
 				List<String> orderList = deliveryConfirmationV3.getLines().stream().filter(n -> n.getOutbound() != null).map(DeliveryConfirmationLineV3::getOutbound).distinct().collect(Collectors.toList());
 				List<String> validateDeliveryOrderNumber = deliveryConfirmationRepository.validateDeliveryConfirmation(orderList);
@@ -2668,10 +2841,190 @@ public class WarehouseService extends BaseService {
 
 				saveDeliveryConfirmation(deliveryConfirmations);
 			}
-
 		} catch (Exception e) {
 			log.info("Exception while delivery template validate...!");
 			throw e;
+		}
+	}
+
+	/**
+	 * Modified for SAP orders - 30/06/2025
+	 * Aakash Vinayak
+	 *
+	 * @param deliveryConfirmationV3
+	 * @throws Exception
+	 */
+	private void saveDeliveryConfirmationV4(@Valid DeliveryConfirmationV3 deliveryConfirmationV3) throws Exception {
+		try {
+			if(deliveryConfirmationV3 != null && deliveryConfirmationV3.getLines() != null && !deliveryConfirmationV3.getLines().isEmpty()) {
+				log.info("Delivery template post SAP validation Initiated..!");
+				List<String> orderList = deliveryConfirmationV3.getLines().stream().filter(n -> n.getOutbound() != null).map(DeliveryConfirmationLineV3::getOutbound).distinct().collect(Collectors.toList());
+				List<String> validateDeliveryOrderNumber = deliveryConfirmationRepository.validateDeliveryConfirmation(orderList);
+				List<String> validateOrderNumber = deliveryConfirmationRepository.validateDeliveryOrders(orderList);
+				log.info("Validate OrderNumber From SAP : " + orderList.size() + "|" + validateOrderNumber.size()+ "|" + validateDeliveryOrderNumber.size());
+
+				List<DeliveryConfirmation> deliveryConfirmations = deliveryConfirmationV3.getLines().stream().map(deliveryLine -> {
+					DeliveryConfirmation newDeliveryConfirmation = new DeliveryConfirmation();
+					BeanUtils.copyProperties(deliveryLine, newDeliveryConfirmation, CommonUtils.getNullPropertyNames(deliveryLine));
+					newDeliveryConfirmation.setCompanyCodeId(deliveryConfirmationV3.getCompanyCodeId());
+					newDeliveryConfirmation.setPlantId(deliveryConfirmationV3.getPlantId());
+					newDeliveryConfirmation.setLanguageId(deliveryConfirmationV3.getLanguageId());
+					newDeliveryConfirmation.setWarehouseId(deliveryConfirmationV3.getWarehouseId());
+					newDeliveryConfirmation.setLoginUserId(deliveryConfirmationV3.getLoginUserId());
+					newDeliveryConfirmation.setPriceSegment(deliveryLine.getPriceSegement());
+					newDeliveryConfirmation.setOrderReceivedOn(new Date());
+					newDeliveryConfirmation.setProcessedStatusId(9L);	// For SAP Delivery confirm orders
+					return newDeliveryConfirmation;
+				}).collect(toList());
+
+				saveDeliveryConfirmation(deliveryConfirmations);
+				log.info("DeliveryConfirmation saved from SAP ----> {}", deliveryConfirmations);
+			}
+		} catch (Exception e) {
+			log.info("Exception while delivery template validate...!");
+			throw e;
+		}
+	}
+	
+//	@Scheduled(cron = "0 */30 * * * ?")
+	@Scheduled(cron = "10 * * * * ?")
+	public void postSAPDeliveryConfirmation () throws Exception {
+		log.info("-------postSAPDeliveryConfirmation----------");
+		List<DeliveryConfirmation> deliveryConfirmations = 
+				deliveryConfirmationRepository.findByProcessedStatusIdOrderByOrderReceivedOn(9L);
+		log.info("delivery template list: " + deliveryConfirmations.size());
+		
+		if (deliveryConfirmations != null && !deliveryConfirmations.isEmpty()) {
+			List<Long> headerList = deliveryConfirmations.stream().map(DeliveryConfirmation::getDeliveryId)
+					.collect(Collectors.toList());
+			List<List<Long>> partitionedList = partitionList(headerList, SQL_SERVER_IN_CLAUSE_LIMIT);
+
+			for (List<Long> subList : partitionedList) {
+				deliveryConfirmationRepository.updateBatchExecuted(subList, 1L);
+				log.info("Updated executed flag for batch size: " + subList.size());
+				log.info("DeliveryConfirmation Executed flag updated for Order From SAP ---> " + headerList.size() + " |---> " + headerList);
+			}
+//			deliveryConfirmationRepository.updateBatchExecuted(headerList, 1L);
+//			log.info("DeliveryConfirmation Executed flag updated for Order From SAP ---> " + headerList.size()
+//					+ " |---> " + headerList);
+
+			List<DeliveryConfirmationLineV3> deliveryConfirmationLines = new ArrayList<>();
+			DeliveryConfirmationV3 deliveryConfirmation = new DeliveryConfirmationV3();
+			log.info("Delivery Confirmation Process Initiated For Order From SAP..! ");
+
+			for (DeliveryConfirmation dbOBOrder : deliveryConfirmations) {
+				DeliveryConfirmationLineV3 deliveryConfirmationLine = new DeliveryConfirmationLineV3();
+				BeanUtils.copyProperties(dbOBOrder, deliveryConfirmation, CommonUtils.getNullPropertyNames(dbOBOrder));
+				BeanUtils.copyProperties(dbOBOrder, deliveryConfirmationLine,
+						CommonUtils.getNullPropertyNames(dbOBOrder));
+				deliveryConfirmationLines.add(deliveryConfirmationLine);
+			}
+			deliveryConfirmation.setLines(deliveryConfirmationLines);
+
+			try {
+				outboundLineService.validateDeliveryConfirmationV4(deliveryConfirmation);
+				deliveryConfirmationRepository.updateProcessStatusId(headerList, 90L, new Date());
+				deliveryConfirmations = new ArrayList<>();
+			} catch (Exception e) {
+				log.error("Error on deliveryTemplate processing for Order From SAP : " + e.toString());
+				e.printStackTrace();
+				boolean deadlock = deadLockException(e.toString());
+				if (deadlock) {
+					deliveryConfirmationRepository.updateBatchExecuted(headerList, 900L);
+				} else {
+					deliveryConfirmationRepository.updateBatchExecuted(headerList, 100L);
+				}
+				deliveryConfirmations = new ArrayList<>();
+				sendMail(deliveryConfirmation.getCompanyCodeId(), deliveryConfirmation.getPlantId(),
+						deliveryConfirmation.getLanguageId(), deliveryConfirmation.getWarehouseId(),
+						"DeliveryConfirmation", "DeliveryConfirmation", e.toString());
+				throw e;
+			}
+		}
+	}
+
+	/**
+	 *
+	 * @param list  Utility method to partition the list into smaller sublists
+	 * @param size 2000 only at a time process
+	 * @return
+	 * @param <T> generic type
+	 */
+	private <T> List<List<T>> partitionList(List<T> list, int size) {
+		List<List<T>> partitions = new ArrayList<>();
+		for (int i = 0; i < list.size(); i += size) {
+			partitions.add(list.subList(i, Math.min(i + size, list.size())));
+		}
+		return partitions;
+	}
+
+	/**
+	 * deadlockErrorMessage
+	 *
+	 * @param errorDesc
+	 * @return
+	 */
+	private boolean deadLockException(String errorDesc) {
+		if ((errorDesc.contains("SQLState: 40001") || errorDesc.contains("SQL Error: 1205")) ||
+				errorDesc.contains("was deadlocked on lock") || errorDesc.contains("CannotAcquireLockException") ||
+				errorDesc.contains("LockAcquisitionException") || errorDesc.contains("UnexpectedRollbackException")) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * @param companyCodeId
+	 * @param plantId
+	 * @param languageId
+	 * @param warehouseId
+	 * @param refDocNumber
+	 * @param referenceField
+	 * @param error
+	 * @throws Exception
+	 */
+	private void sendMail(String companyCodeId, String plantId, String languageId, String warehouseId,
+						  String refDocNumber, String referenceField, String error) throws Exception {
+		try {
+			InboundOrderCancelInput inboundOrderCancelInput = new InboundOrderCancelInput();
+			inboundOrderCancelInput.setCompanyCodeId(companyCodeId);
+			inboundOrderCancelInput.setPlantId(plantId);
+			inboundOrderCancelInput.setLanguageId(languageId);
+			inboundOrderCancelInput.setWarehouseId(warehouseId);
+			inboundOrderCancelInput.setRefDocNumber(refDocNumber);
+			inboundOrderCancelInput.setReferenceField1(referenceField);
+			inboundOrderCancelInput.setRemarks(errorMessageExtraction(error));
+			mastersService.sendMail(inboundOrderCancelInput);
+		} catch (Exception ex) {
+			log.error("Exception occurred while Sending Mail " + ex.toString());
+			throw ex;
+		}
+	}
+
+	/**
+	 * @param error
+	 * @return
+	 */
+	private String errorMessageExtraction(String error) throws Exception {
+		String errorDesc = error;
+		try {
+			if (error.contains("message")) {
+				errorDesc = error.substring(error.indexOf("message") + 9);
+				errorDesc = errorDesc.replaceAll("}]", "");
+			}
+			if (error.contains("DataIntegrityViolationException") || error.contains("ConstraintViolationException")) {
+				errorDesc = "Null Pointer Exception";
+			}
+			if (error.contains("CannotAcquireLockException") || error.contains("LockAcquisitionException") ||
+					error.contains("SQLServerException") || error.contains("UnexpectedRollbackException")) {
+				errorDesc = "SQLServerException";
+			}
+			if (error.contains("BadRequestException")) {
+				errorDesc = error.substring(error.indexOf("BadRequestException:") + 20);
+			}
+			return errorDesc;
+		} catch (Exception ex) {
+			throw ex;
 		}
 	}
 

@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -49,6 +50,7 @@ import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMoveme
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.IInventoryImpl;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.v2.PreInboundHeaderV2;
+import com.tekclover.wms.api.transaction.model.inbound.preinbound.v2.PreInboundLineEntityV2;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.PutAwayHeader;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.PutAwayHeaderV2;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.PutAwayLineV2;
@@ -56,6 +58,30 @@ import com.tekclover.wms.api.transaction.model.inbound.staging.StagingLineEntity
 import com.tekclover.wms.api.transaction.model.inbound.staging.v2.StagingLineEntityV2;
 import com.tekclover.wms.api.transaction.model.inbound.v2.InboundLineV2;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickupLineV2;
+import com.tekclover.wms.api.transaction.repository.ErrorLogRepository;
+import com.tekclover.wms.api.transaction.repository.GrHeaderRepository;
+import com.tekclover.wms.api.transaction.repository.GrHeaderV2Repository;
+import com.tekclover.wms.api.transaction.repository.GrLineRepository;
+import com.tekclover.wms.api.transaction.repository.GrLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
+import com.tekclover.wms.api.transaction.repository.InboundHeaderV2Repository;
+import com.tekclover.wms.api.transaction.repository.InboundLineRepository;
+import com.tekclover.wms.api.transaction.repository.InboundLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.InboundOrderV2Repository;
+import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryV2Repository;
+import com.tekclover.wms.api.transaction.repository.PreInboundHeaderV2Repository;
+import com.tekclover.wms.api.transaction.repository.PreInboundLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.PreOutboundHeaderV2Repository;
+import com.tekclover.wms.api.transaction.repository.PutAwayHeaderRepository;
+import com.tekclover.wms.api.transaction.repository.PutAwayHeaderV2Repository;
+import com.tekclover.wms.api.transaction.repository.PutAwayLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.StagingHeaderV2Repository;
+import com.tekclover.wms.api.transaction.repository.StagingLineRepository;
+import com.tekclover.wms.api.transaction.repository.StagingLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.StorageBinRepository;
+import com.tekclover.wms.api.transaction.repository.StorageBinV2Repository;
 import com.tekclover.wms.api.transaction.repository.specification.GrLineSpecification;
 import com.tekclover.wms.api.transaction.repository.specification.GrLineV2Specification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
@@ -5532,7 +5558,13 @@ public class GrLineService extends BaseService {
         }
     }
 
-
+    /**
+     * 
+     * @param newGrLineList
+     * @param loginUserID
+     * @return
+     * @throws Exception
+     */
     public List<GrLineV2> createGrLinev3(List<AddGrLineV2> newGrLineList, String loginUserID) throws Exception {
         List<GrLineV2> createdGRLines;
         try {
@@ -5729,6 +5761,15 @@ public class GrLineService extends BaseService {
         });
     }
 
+    /**
+     * 
+     * @param companyCode
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param createdGRLine
+     * @param loginUserId
+     */
     @Transactional
     public void createInventoryNonCBMV3(String companyCode, String plantId, String languageId, String warehouseId, GrLineV2 createdGRLine, String loginUserId) {
         try {

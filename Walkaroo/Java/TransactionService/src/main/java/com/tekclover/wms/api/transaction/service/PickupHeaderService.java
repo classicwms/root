@@ -682,6 +682,42 @@ public class PickupHeaderService {
 
     /**
      *
+     * Additional Barcode filter
+     * 06/06/2025
+     *
+     * @param warehouseId
+     * @param preOutboundNo
+     * @param refDocNumber
+     * @param partnerCode
+     * @param pickupNumber
+     * @param lineNumber
+     * @param itemCode
+     * @return
+     */
+    public PickupHeaderV2 getPickupHeaderForUpdateV3(String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo, String refDocNumber,
+                                                     String partnerCode, String pickupNumber, Long lineNumber, String itemCode, String barcodeId) {
+        PickupHeaderV2 pickupHeader =
+                pickupHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndPickupNumberAndLineNumberAndItemCodeAndBarcodeIdAndDeletionIndicator(
+                        companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, pickupNumber,
+                        lineNumber, itemCode, barcodeId,0L);
+        if (pickupHeader != null) {
+            return pickupHeader;
+        }
+
+        throw new BadRequestException("The given PickupHeader ID : " +
+                "warehouseId : " + warehouseId +
+                ",preOutboundNo : " + preOutboundNo +
+                ",refDocNumber : " + refDocNumber +
+                ",partnerCode : " + partnerCode +
+                ",pickupNumber : " + pickupNumber +
+                ",lineNumber : " + lineNumber +
+                ",itemCode : " + itemCode +
+                ",barcodeId : " + barcodeId +
+                " doesn't exist.");
+    }
+
+    /**
+     *
      * @param companyCodeId
      * @param plantId
      * @param languageId
@@ -1312,8 +1348,8 @@ public class PickupHeaderService {
     public PickupHeaderV2 updatePickupHeaderV2(String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo, String refDocNumber,
                                                String partnerCode, String pickupNumber, Long lineNumber, String itemCode, String loginUserID,
                                                PickupHeaderV2 updatePickupHeader) throws IllegalAccessException, InvocationTargetException, java.text.ParseException, FirebaseMessagingException {
-        PickupHeaderV2 dbPickupHeader = getPickupHeaderForUpdateV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode,
-                pickupNumber, lineNumber, itemCode);
+        PickupHeaderV2 dbPickupHeader = getPickupHeaderForUpdateV3(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode,
+                pickupNumber, lineNumber, itemCode, updatePickupHeader.getBarcodeId());
         if (dbPickupHeader != null) {
             BeanUtils.copyProperties(updatePickupHeader, dbPickupHeader, CommonUtils.getNullPropertyNames(updatePickupHeader));
 
@@ -1862,5 +1898,23 @@ public class PickupHeaderService {
                                                                          String warehouseId, String refDocNumber, String preOutboundNo, Long statusId) {
         return pickupHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndStatusIdAndDeletionIndicator(
                 companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, statusId, 0L);
+    }
+
+
+    /**
+     *
+     * @param pickupHeaderV2List pickupHeader Values
+     * @param loginUserID userID
+     * @return
+     */
+    public List<PickupHeaderV2> updatePickupHeaderForPrinted(List<PickupHeaderV2> pickupHeaderV2List, String loginUserID) {
+
+        log.info("PickupHeader Update Size is {} ", pickupHeaderV2List.size());
+        pickupHeaderV2List.forEach(pickup -> {
+            log.info("PickupHeader Update Started for PickupNumber {} , RefDocNumber {} ", pickup.getPickupNumber(), pickup.getRefDocNumber());
+            pickupHeaderV2Repository.updatedPickupHeader(pickup.getCompanyCodeId(), pickup.getPlantId(), pickup.getWarehouseId(), pickup.getRefDocNumber(),
+                    pickup.getPreOutboundNo(), pickup.getPickupNumber(), pickup.getReferenceField2(), loginUserID);
+        });
+        return pickupHeaderV2List;
     }
 }

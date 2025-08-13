@@ -1,18 +1,19 @@
 package com.tekclover.wms.api.transaction.service;
 
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Stream;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.tekclover.wms.api.transaction.model.deliveryconfirmation.DeliveryConfirmation;
 import com.tekclover.wms.api.transaction.model.deliveryconfirmation.SearchDeliveryConfirmation;
 import com.tekclover.wms.api.transaction.repository.DeliveryConfirmationRepository;
 import com.tekclover.wms.api.transaction.repository.specification.DeliveryConfirmationSpecification;
 import com.tekclover.wms.api.transaction.util.DateUtils;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -20,7 +21,6 @@ public class DeliveryConfirmationService {
 
     @Autowired
     DeliveryConfirmationRepository deliveryConfirmationRepository;
-
 
     /**
      *
@@ -49,5 +49,4 @@ public class DeliveryConfirmationService {
     public void updateRemarks (List<Long> deliveryIds, Long processStatusId, String remark, Date processedDate) {
         deliveryConfirmationRepository.updateFailedProcessStatusId(deliveryIds, processStatusId, remark, processedDate);
     }
-
 }

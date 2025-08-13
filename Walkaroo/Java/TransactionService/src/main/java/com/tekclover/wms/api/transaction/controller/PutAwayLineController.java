@@ -251,4 +251,11 @@ public class PutAwayLineController {
 				lineNo, itemCode, proposedStorageBin, confirmedStorageBin, loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
+
+//	@ApiOperation(response = PutAwayLineV2.class, value = "Search PutAwayLine V2") // label for swagger
+//	@PostMapping("/findPutAwayLine/mobApp")
+//	public List<PutAwayPalletGroupResponse> findPutAwayLineMobApp(@RequestBody SearchPutAwayLineV2 searchPutAwayLine)
+//			throws Exception {
+//		return putawaylineService.findPutAwayLineMobApp(searchPutAwayLine);
+//	}
 }

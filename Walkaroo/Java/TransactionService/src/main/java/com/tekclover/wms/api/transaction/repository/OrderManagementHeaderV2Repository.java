@@ -75,4 +75,27 @@ public interface OrderManagementHeaderV2Repository extends JpaRepository<OrderMa
                                                     @Param("preOutboundNo") String preOutboundNo,
                                                     @Param("statusId") Long statusId,
                                                     @Param("statusDescription") String statusDescription);
+    
+    //============================PGIReversal================================================================
+    @Modifying(clearAutomatically = true)
+    @Query(value = "UPDATE tblordermangementheader SET STATUS_ID = :statusId, REF_FIELD_10 = :statusDescription, STATUS_TEXT = :statusDescription \n" +
+            "WHERE LANG_ID = :languageId AND C_ID = :companyCodeId AND \n" +
+            "PLANT_ID = :plantId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber", nativeQuery = true)
+    void updateOrderManagementHeaderStatusForReversalV3(@Param("companyCodeId") String companyCodeId,
+                                         @Param("plantId") String plantId,
+                                         @Param("languageId") String languageId,
+                                         @Param("warehouseId") String warehouseId,
+                                         @Param("refDocNumber") String refDocNumber,
+                                         @Param("statusId") Long statusId,
+                                         @Param("statusDescription") String statusDescription);
+    
+    @Modifying
+    @Query(value = "UPDATE tblordermangementheader SET is_deleted = 1 where c_id = :companyCodeId " +
+            "AND plant_id = :plantId AND wh_id = :warehouseId AND ref_doc_no = :refDocNumber AND pre_ob_no = :preOutboundNo " +
+            "AND is_deleted = 0", nativeQuery = true)
+    void deleteOrderManagementHeader (@Param("companyCodeId") String companyCodeId,
+                                   @Param("plantId") String plantId,
+                                   @Param("warehouseId") String warehouseId,
+                                   @Param("refDocNumber") String refDocNumber,
+                                   @Param("preOutboundNo") String preOutboundNo);
 }

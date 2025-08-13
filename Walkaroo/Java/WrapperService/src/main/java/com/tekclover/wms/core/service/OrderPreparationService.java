@@ -2,9 +2,12 @@ package com.tekclover.wms.core.service;
 
 import com.tekclover.wms.core.exception.BadRequestException;
 import com.tekclover.wms.core.model.IKeyValuePair;
+import com.tekclover.wms.core.model.auth.AuthToken;
 import com.tekclover.wms.core.model.transaction.InhouseTransferHeader;
 import com.tekclover.wms.core.model.transaction.InhouseTransferLine;
 import com.tekclover.wms.core.model.transaction.InhouseTransferUpload;
+import com.tekclover.wms.core.model.transaction.PreOutboundHeader;
+import com.tekclover.wms.core.model.transaction.SearchPreOutboundHeader;
 import com.tekclover.wms.core.model.transaction.StockAdjustment;
 import com.tekclover.wms.core.model.warehouse.inbound.almailem.*;
 import com.tekclover.wms.core.model.warehouse.inbound.walkaroo.ReversalLineV3;
@@ -32,6 +35,12 @@ public class OrderPreparationService {
 
     @Autowired
     UserRepository userRepository;
+    
+    @Autowired
+    TransactionService transactionService;
+    
+	@Autowired
+	AuthTokenService authTokenService;
 
     //=======================================================INBOUND===============================================================
 
@@ -1305,42 +1314,54 @@ public class OrderPreparationService {
      * @param deliveryConfirmationSAPList
      * @return
      */
-	public DeliveryConfirmationV3 prepDeliveryConfirmationV3(List<DeliveryConfirmationSAP> deliveryConfirmationSAPList) {
-		DeliveryConfirmationV3 deliveryConfirmationV3 = new DeliveryConfirmationV3();
-		List<DeliveryConfirmationLineV3> deliveryLines = new ArrayList<>();
-		String languageId = null;
-		String companyCode = null;
-		String plantId = null;
-		String warehouseId = null;
-		
-		for (DeliveryConfirmationSAP sapData : deliveryConfirmationSAPList) {
-			IKeyValuePair iKeyValuePair = userRepository.getCompanyAndPlant(sapData.getBranchCode());
-			log.info("company -> {}", iKeyValuePair.getCompanyCode());
-			log.info("lang -> {}", iKeyValuePair.getLanguage());
-			log.info("warehouse -> {}", iKeyValuePair.getWarehouse());
-			
-			companyCode = iKeyValuePair.getCompanyCode();
-			warehouseId = iKeyValuePair.getWarehouse();
-			languageId = iKeyValuePair.getLanguage();
-			plantId = sapData.getBranchCode();
-			
-			DeliveryConfirmationLineV3 line = new DeliveryConfirmationLineV3();
-			line.setOutbound(sapData.getSalesOrderNumber());
-			line.setHuSerialNo(sapData.getBarcodeId());
-			line.setMaterial(sapData.getMaterialNo());
-			line.setPriceSegement(sapData.getPriceSegement());
-			line.setPlant(sapData.getBranchCode());
-			line.setSkuCode(sapData.getSku());
-			line.setPickedQty(1D);
-			deliveryLines.add(line);
-		}
-		deliveryConfirmationV3.setCompanyCodeId(companyCode);
-		deliveryConfirmationV3.setPlantId(plantId);
-		deliveryConfirmationV3.setLanguageId(languageId);
-		deliveryConfirmationV3.setWarehouseId(warehouseId);
-		deliveryConfirmationV3.setLines(deliveryLines);
-		return deliveryConfirmationV3;
-	}
+//	public DeliveryConfirmationV3 prepDeliveryConfirmationV3(List<DeliveryConfirmationSAP> deliveryConfirmationSAPList) {
+//        log.info("deliveryConfirmationSAPList -----> {}", deliveryConfirmationSAPList);
+//		DeliveryConfirmationV3 deliveryConfirmationV3 = new DeliveryConfirmationV3();
+//		List<DeliveryConfirmationLineV3> deliveryLines = new ArrayList<>();
+//		String languageId = null;
+//		String companyCode = null;
+//		String plantId = null;
+//		String warehouseId = null;
+//		
+//		AuthToken transServiceAuthToken = authTokenService.getTransactionServiceAuthToken();
+//		for (DeliveryConfirmationSAP sapData : deliveryConfirmationSAPList) {
+//			SearchPreOutboundHeader searchPreOutboundHeader = new SearchPreOutboundHeader();
+//			ArrayList<String> searchList = new ArrayList<String>();
+//			searchList.add(sapData.getSalesOrderNumber());
+//			searchPreOutboundHeader.setSoNumber(searchList);
+//			
+//			try {
+//				PreOutboundHeader[] preOutboundHeaderArr = 
+//						transactionService.findPreOutboundHeaderNew(searchPreOutboundHeader, transServiceAuthToken.getAccess_token());
+//				if (preOutboundHeaderArr != null) {
+//					companyCode = preOutboundHeaderArr[0].getCompanyCodeId();
+//					warehouseId = preOutboundHeaderArr[0].getWarehouseId();
+//					languageId = preOutboundHeaderArr[0].getLanguageId();
+//					log.info("companyCode -> {}, warehouseId -> {}, languageId ->{} ", companyCode, warehouseId, languageId);
+//				}
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//			
+//			plantId = sapData.getBranchCode();
+//			
+//			DeliveryConfirmationLineV3 line = new DeliveryConfirmationLineV3();
+//			line.setOutbound(sapData.getSalesOrderNumber());
+//			line.setHuSerialNo(sapData.getBarcodeId());
+//			line.setMaterial(sapData.getMaterialNo());
+//			line.setPriceSegement(sapData.getPriceSegement());
+//			line.setPlant(sapData.getBranchCode());
+//			line.setSkuCode(sapData.getSku());
+//			line.setPickedQty(1D);
+//			deliveryLines.add(line);
+//		}
+//		deliveryConfirmationV3.setCompanyCodeId(companyCode);
+//		deliveryConfirmationV3.setPlantId(plantId);
+//		deliveryConfirmationV3.setLanguageId(languageId);
+//		deliveryConfirmationV3.setWarehouseId(warehouseId);
+//		deliveryConfirmationV3.setLines(deliveryLines);
+//		return deliveryConfirmationV3;
+//	}
 
     /**
      * @param companyCodeId

@@ -10,6 +10,7 @@ import com.tekclover.wms.core.model.warehouse.inbound.ASN;
 import com.tekclover.wms.core.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.core.model.warehouse.inbound.almailem.*;
 import com.tekclover.wms.core.model.warehouse.inbound.walkaroo.ReversalV3;
+import com.tekclover.wms.core.model.warehouse.outbound.OutboundIntegrationHeaderV2;
 import com.tekclover.wms.core.model.warehouse.outbound.almailem.*;
 import com.tekclover.wms.core.model.warehouse.outbound.walkaroo.DeliveryConfirmationSAP;
 import com.tekclover.wms.core.model.warehouse.outbound.walkaroo.DeliveryConfirmationV3;
@@ -1586,6 +1587,15 @@ public class TransactionServiceController {
         return new ResponseEntity<>(deliveryLines, HttpStatus.OK);
     }
 
+    /*--------------------PGI Reversal-----------------------------------------------------------*/
+    @ApiOperation(response = OutboundLine.class, value = "PGI Reversal") // label for swagger 
+    @PostMapping("/outboundreversal/reversal/dc")
+    public ResponseEntity<?> doDCReversal(@RequestBody List<DCReversalRequest> dcReversalRequest, @RequestParam String authToken)
+            throws IllegalAccessException, InvocationTargetException {
+        DCReversalRequest[] response = transactionService.doDCReversal(dcReversalRequest, authToken);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     /*
      * ----------------------------Reports-----------------------------------------------------------
      */
@@ -1805,6 +1815,7 @@ public class TransactionServiceController {
     public ResponseEntity<?> getMobileDashboard(@RequestParam String warehouseId, @RequestParam String companyCode,
                                                 @RequestParam String plantId, @RequestParam String languageId, @RequestParam String loginUserID,
                                                 @RequestParam String authToken) throws Exception {
+    	log.info ("-------getMobileDashboard--------------");
         MobileDashboard dashboard = transactionService.getMobileDashboard(companyCode, plantId, languageId, warehouseId, loginUserID, authToken);
         return new ResponseEntity<>(dashboard, HttpStatus.OK);
     }
@@ -3096,6 +3107,7 @@ public class TransactionServiceController {
     @PostMapping("/putawayheader/v3")
     public ResponseEntity<?> createPutawayHeader(@Valid @RequestBody List<PutawayHeader> putawayHeaders,
                                                  @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+        log.info("PutAwayHeader request from SAP ----> {}", putawayHeaders);
         PutAwayHeaderV2[] createdPutAwayHeader = transactionService.createPutAwayHeaderV3(putawayHeaders, authToken);
         return new ResponseEntity<>(createdPutAwayHeader, HttpStatus.OK);
     }
@@ -3705,6 +3717,18 @@ public class TransactionServiceController {
                 transactionService.patchAssignedPickerIdInPickupHeaderV2(updatePickupHeaderList, authToken);
         return new ResponseEntity<>(updatedPickupHeader, HttpStatus.OK);
     }
+
+    @ApiOperation(response = PickupHeader.class, value = "Update PickupHeader for PrintConfim")
+    // label for swagger // label for swagger
+    @PatchMapping("/pickupheader/v2/assign-picker")
+    public ResponseEntity<?> updateAssignPickerForPrint(@Valid @RequestBody List<PickupHeaderV2> updatePickupHeaderList, @RequestParam String loginUserID,
+                                                        @RequestParam String authToken)
+            throws IllegalAccessException, InvocationTargetException {
+        PickupHeaderV2[] updatedPickupHeader =
+                transactionService.updateAssignPickerPrintConfirm(updatePickupHeaderList, loginUserID, authToken);
+        return new ResponseEntity<>(updatedPickupHeader, HttpStatus.OK);
+    }
+
 
     @ApiOperation(response = PickupHeaderV2.class, value = "Delete PickupHeader V2") // label for swagger
     @DeleteMapping("/pickupheader/v2/{pickupNumber}")
@@ -4477,9 +4501,9 @@ public class TransactionServiceController {
 
     @ApiOperation(response = PickListHeader.class, value = "order Cancellation") // label for swagger
     @PostMapping("/outbound/orderCancellation")
-    public ResponseEntity<?> orderCancellation(@RequestBody OutboundOrderCancelInput outboundOrderCancelInput, @RequestParam String loginUserID,
+    public ResponseEntity<?> orderCancellation(@RequestBody List<OutboundOrderCancelInput> outboundOrderCancelInput,
                                                @RequestParam String authToken) throws java.text.ParseException {
-        PreOutboundHeaderV2 orderCancelled = transactionService.orderCancellation(outboundOrderCancelInput, loginUserID, authToken);
+        PreOutboundHeaderV2[] orderCancelled = transactionService.orderCancellation(outboundOrderCancelInput, authToken);
         return new ResponseEntity<>(orderCancelled, HttpStatus.OK);
     }
 
@@ -4632,8 +4656,9 @@ public class TransactionServiceController {
 
 
 
-    //--------------------------SAP--APIs---------------------------------------------------------
-    //---------------------------START------------------------------------------------------------
+    /* ************************************************************************************************************* */
+    //--------------------------SAP--APIs---------------------------------------------------------------------------
+    //---------------------------START------------------------------------------------------------------------------
     @ApiOperation(response = SalesOrderV2.class, value = "DeliveryConfirmation V3 Walkaroo") // label for swagger
     @PostMapping("/warehouse/outbound/deliveryConfirmation/v3")
     public ResponseEntity<?> postDeliveryConfirmationV3 (@RequestBody List<DeliveryConfirmationSAP> deliveryConfirmationSAPList, 
@@ -4642,7 +4667,7 @@ public class TransactionServiceController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     
-    @ApiOperation(response = Optional.class, value = "Outbound Order from SAP") // label for swagger
+    @ApiOperation(response = Optional.class, value = "Outbound Order Placement from SAP") // label for swagger
     @PostMapping("/warehouse/outbound/v3")
     public ResponseEntity<?> postOutboundOrderV3(@RequestBody List<SalesOrderV3> salesOrderV3List, @RequestParam String authToken) throws Exception {
     	 List<OutboundOrderProcessV4> allRowsList = excelDataProcessService.populateOutboundOrderProcessV4(salesOrderV3List);
@@ -4650,6 +4675,17 @@ public class TransactionServiceController {
          WarehouseApiResponse createdSO = transactionService.postSalesOrderV2(salesOrderV2Orders, authToken);
          return new ResponseEntity<>(createdSO, HttpStatus.OK);
     }
+
+    @ApiOperation(response = Optional.class, value = "Outbound Order Fullfillment from SAP") // label for swagger
+    @PostMapping("/warehouse/outbound/order/fullfillment/v3")
+    public ResponseEntity<?> postOutboundOrderFullfillmentV3(@RequestBody List<SAPOrderFullfillmentV3> sapOrderFullfillmentV3List, 
+    		@RequestParam String authToken) throws Exception {
+    	 List<OutboundIntegrationHeaderV2> obIntegrationHeaderV2List = 
+    			 excelDataProcessService.populateOutboundOrderProcessForFullfillmentV4(sapOrderFullfillmentV3List);
+    	 OutboundHeaderV2[] createdSO = transactionService.postSalesOrderV2OrderFullfillment(obIntegrationHeaderV2List, authToken);
+         return new ResponseEntity<>(createdSO, HttpStatus.OK);
+    }
+    
     //------------------------------END-------------------------------------------------------------
     
     //=================================================File Upload Outbound Orders V3 Dynamic=============================================================================

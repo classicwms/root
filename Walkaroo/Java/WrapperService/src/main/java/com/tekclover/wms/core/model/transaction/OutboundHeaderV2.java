@@ -44,5 +44,7 @@ public class OutboundHeaderV2 extends OutboundHeader {
     private String sumOfPickedQty;
 
     private String customerType;
+    private String shipToCode;
+    private String shipToParty;
 
 }

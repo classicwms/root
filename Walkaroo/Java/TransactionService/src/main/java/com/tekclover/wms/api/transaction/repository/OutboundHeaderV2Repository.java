@@ -1,19 +1,28 @@
 package com.tekclover.wms.api.transaction.repository;
 
-import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2;
-import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2Stream;
-import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
-import org.springframework.data.jpa.repository.*;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Stream;
+
+import javax.persistence.LockModeType;
+import javax.persistence.QueryHint;
+
+import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.OutboundOrderV2;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.LockModeType;
-import javax.persistence.QueryHint;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Stream;
+import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2;
+import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2Stream;
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 
 @Repository
 @Transactional
@@ -500,6 +509,8 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
                     "oh.ALTERNATE_NO alternateNo,\n" +
                     "oh.TOKEN_NUMBER tokenNumber,\n" +
                     "oh.STATUS status,\n" +
+                     "oh.SHIP_TO_CODE shipToCode, \n" +
+                     "oh.SHIP_TO_PARTY shipToParty, \n" +
                     "oh.CUSTOMER_TYPE customerType,\n" +
                     "oh.ref_field_1 referenceField1,oh.ref_field_2 referenceField2,oh.ref_field_3 referenceField3, \n" +
                     "oh.ref_field_4 referenceField4,oh.ref_field_5 referenceField5,oh.ref_field_6 referenceField6,\n" +
@@ -694,6 +705,8 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
 
     List<OutboundHeaderV2> findBySalesOrderNumberAndOutboundOrderTypeIdAndDeletionIndicator(String salesOrderNumber, Long outboundOrderTypeId, Long deletionIndicator);
 
+    List<OutboundHeaderV2> findByRefDocNumberAndOutboundOrderTypeIdAndDeletionIndicator(String refDocNumber, Long outboundOrderTypeId, Long deletionIndicator);
+    
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "Update tbloutboundheader SET SALES_ORDER_NUMBER = :salesOrderNumber, SALES_INVOICE_NUMBER = :salesInvoiceNumber, INVOICE_DATE = :invoiceDate, \r\n "
             + " DELIVERY_TYPE = :deliveryType, CUSTOMER_ID = :customerId, CUSTOMER_NAME = :customerName, ADDRESS = :address, PHONE_NUMBER = :phoneNumber, \r\n"
@@ -825,6 +838,19 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
                                              @Param("statusId") Long statusId,
                                              @Param("statusDescription") String statusDescription);
 
+    @Modifying
+    @Query(value = "UPDATE tbloutboundheader SET status_id = :statusId, status_text = :statusDescription \n " +
+            "WHERE c_id = :companyCodeId AND plant_id = :plantId AND lang_id = :languageId AND wh_id = :warehouseId AND ref_doc_no = :refDocNumber \n " +
+            "AND IS_DELETED = 0", nativeQuery = true)
+    public void updateOutboundHeaderReversal(@Param("companyCodeId") String companyCodeId,
+                                             @Param("plantId") String plantId,
+                                             @Param("languageId") String languageId,
+                                             @Param("warehouseId") String warehouseId,
+                                             @Param("refDocNumber") String refDocNumber,
+                                             @Param("statusId") Long statusId,
+                                             @Param("statusDescription") String statusDescription);
+
+
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("Update OutboundHeaderV2 ob SET ob.deliveryOrderNo = :deliveryOrderNo \r\n "
             + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND \n"
@@ -838,4 +864,40 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
                                        @Param("deliveryOrderNo") String deliveryOrderNo);
 
     OutboundHeaderV2 findByRefDocNumberAndDeletionIndicator(String refDocNumber, Long deletionIndicator);
+    
+    //============================PGIReversal================================================================
+    @Modifying(clearAutomatically = true)
+    @Query(value = "UPDATE tbloutboundheader SET STATUS_ID = :statusId, REF_FIELD_10 = :statusDescription, STATUS_TEXT = :statusDescription \n" +
+            "WHERE LANG_ID = :languageId AND C_ID = :companyCodeId AND \n" +
+            "PLANT_ID = :plantId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND ITM_CODE = :itemCode", nativeQuery = true)
+    public void updateOutboundHeaderForReversalStatusV3(@Param("companyCodeId") String companyCodeId,
+                                         @Param("plantId") String plantId,
+                                         @Param("languageId") String languageId,
+                                         @Param("warehouseId") String warehouseId,
+                                         @Param("refDocNumber") String refDocNumber,
+                                         @Param("itemCode") String itemCode,
+                                         @Param("statusId") Long statusId,
+                                         @Param("statusDescription") String statusDescription);
+    
+    @Modifying(clearAutomatically = true)
+    @Query(value = "UPDATE tbloutboundheader SET is_deleted = 1 where c_id = :companyCodeId " +
+            "AND plant_id = :plantId AND wh_id = :warehouseId AND ref_doc_no = :refDocNumber AND pre_ob_no = :preOutboundNo " +
+            "AND is_deleted = 0", nativeQuery = true)
+    void deleteOutboundHeader (@Param("companyCodeId") String companyCodeId,
+                                   @Param("plantId") String plantId,
+                                   @Param("warehouseId") String warehouseId,
+                                   @Param("refDocNumber") String refDocNumber,
+                                   @Param("preOutboundNo") String preOutboundNo);
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "delete tbloutboundheader where c_id = :companyCodeId " +
+            "AND plant_id = :plantId AND wh_id = :warehouseId AND ref_doc_no = :refDocNumber " +
+            "AND is_deleted = 0", nativeQuery = true)
+    void deleteOutboundHeader (@Param("companyCodeId") String companyCodeId,
+                               @Param("plantId") String plantId,
+                               @Param("warehouseId") String warehouseId,
+                               @Param("refDocNumber") String refDocNumber);
+
+
+    OutboundHeaderV2 findByWarehouseIdAndRefDocNumberAndDeletionIndicator(String warehouseId, String refDocNumber, Long deletionIndicator);
 }

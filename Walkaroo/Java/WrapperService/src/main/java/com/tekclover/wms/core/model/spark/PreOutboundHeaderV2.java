@@ -55,5 +55,6 @@ public class PreOutboundHeaderV2 {
         private String customerName;
         private Double customerTotalQty;
         private Double totalOrderQty;
-
+        private String shipToCode;
+        private String shipToParty;
 }

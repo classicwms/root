@@ -1,13 +1,12 @@
 package com.tekclover.wms.api.transaction.model.inbound.gr.v2;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-
 import com.tekclover.wms.api.transaction.model.inbound.gr.GrLine;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -124,5 +123,4 @@ public class GrLineV2 extends GrLine {
 
     @Column(name = "PALLET_ID", columnDefinition = "nvarchar(250)")
     private String palletId;
-
 }

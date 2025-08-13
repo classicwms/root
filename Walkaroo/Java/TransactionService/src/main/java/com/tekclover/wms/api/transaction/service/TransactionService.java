@@ -135,7 +135,7 @@ public class TransactionService extends BaseService {
                     inboundIntegrationHeader.setSourceBranchCode(dbOBOrder.getSourceBranchCode());
                     inboundIntegrationHeader.setSourceCompanyCode(dbOBOrder.getSourceCompanyCode());
                     inboundIntegrationHeader.setInboundOrderTypeId(dbOBOrder.getInboundOrderTypeId());
-                    
+
                     //-------InboundUpload Vs SAP API -------Differentiator
                     inboundIntegrationHeader.setIsSapOrder(dbOBOrder.getIsSapOrder());
                     
@@ -191,7 +191,7 @@ public class TransactionService extends BaseService {
                 log.info("Latest InboundOrder found: " + inboundList);
                 for (InboundIntegrationHeader inbound : spList) {
                 	log.info("------------@@@@@@InboundIntegrationHeader: " + inbound);
-                	
+
                     String refDocNumber = inbound.getRefDocumentNo();
                     Long inboundOrderTypeId = inbound.getInboundOrderTypeId();
                     boolean isDuplicateOrder = inboundOrderProcessingService.isPreInboundOrderExist(refDocNumber, inboundOrderTypeId);
@@ -271,6 +271,7 @@ public class TransactionService extends BaseService {
                     OutboundIntegrationHeaderV2 outboundIntegrationHeader = new OutboundIntegrationHeaderV2();
                     BeanUtils.copyProperties(dbOBOrder, outboundIntegrationHeader, CommonUtils.getNullPropertyNames(dbOBOrder));
                     outboundIntegrationHeader.setId(dbOBOrder.getOrderId());
+                    outboundIntegrationHeader.setRefDocumentNo(dbOBOrder.getOrderId()); 
                     outboundIntegrationHeader.setCompanyCode(dbOBOrder.getCompanyCode());
                     outboundIntegrationHeader.setBranchCode(dbOBOrder.getBranchCode());
                     outboundIntegrationHeader.setReferenceDocumentType(dbOBOrder.getRefDocumentType());
@@ -282,6 +283,11 @@ public class TransactionService extends BaseService {
                     outboundIntegrationHeader.setTokenNumber(dbOBOrder.getTokenNumber());
                     outboundIntegrationHeader.setTargetCompanyCode(dbOBOrder.getTargetCompanyCode());
                     outboundIntegrationHeader.setTargetBranchCode(dbOBOrder.getTargetBranchCode());
+                    /*
+                     * SAP Order 
+                     */
+                    outboundIntegrationHeader.setIsSAPOrder(dbOBOrder.getIsSAPOrder());
+                    
                     if (dbOBOrder.getOutboundOrderTypeID() == 3L) {
                         outboundIntegrationHeader.setStatus(dbOBOrder.getPickListStatus());
                         outboundIntegrationHeader.setRequiredDeliveryDate(dbOBOrder.getRequiredDeliveryDate());
@@ -338,15 +344,27 @@ public class TransactionService extends BaseService {
                     Long outboundOrderTypeId = outbound.getOutboundOrderTypeID();
                     boolean isOrderDuplicate = preOutboundHeaderService.isPreOutboundHeaderExist(refDocNumber, outboundOrderTypeId);
                     log.info("Duplicate Order : " + refDocNumber + "|-->" + isOrderDuplicate);
-                    if(!isOrderDuplicate) {
+                    if(!isOrderDuplicate || isOrderDuplicate) {      // Duplicate validation removed 28-05-2025
                         try {
                             log.info("OutboundOrder ID : " + refDocNumber);
-                            OutboundHeaderV2 outboundHeader = outboundOrderProcessingService.processOutboundReceivedV3(outbound);
+                            OutboundHeaderV2 outboundHeader = null;
+                            /*
+                             * // If this is SAP Order then
+                             */
+                            log.info("SAP flag ----> {}", outbound.getIsSAPOrder());
+                            if (outbound.getIsSAPOrder()) {
+                                log.info("SAP order processing initiated.....");
+                            	outboundHeader = outboundOrderProcessingService.processOutboundReceivedFromSAPV3(outbound);
+                            } else {
+                                log.info("NON - SAP order processing initiated.....");
+                            	outboundHeader = outboundOrderProcessingService.processOutboundReceivedV3(outbound);
+                            }
+                            
                             outboundList.remove(outbound);
                             spOutboundList.remove(outbound);
                             if (outboundHeader != null) {
                                 // Updating the Processed Status
-                                updateProcessedOutboundOrderV2(refDocNumber, outboundOrderTypeId, 10L);
+                                updateProcessedOutboundOrderV2(outboundHeader.getSalesOrderNumber(), refDocNumber, outboundOrderTypeId, 10L);
                                 warehouseApiResponse = successResponse(warehouseApiResponse);
                             } else {
                                 updateProcessedOutboundOrderV2(refDocNumber, outboundOrderTypeId, 100L);
@@ -630,6 +648,17 @@ public class TransactionService extends BaseService {
      */
     private void updateProcessedOutboundOrderV2(String refDocNumber, Long outboundOrderTypeId, Long processStatusId) throws Exception {
         orderService.updateProcessedOrderV2(refDocNumber, outboundOrderTypeId, processStatusId);
+    }
+    
+    /**
+     * 
+     * @param refDocNumber
+     * @param outboundOrderTypeId
+     * @param processStatusId
+     * @throws Exception
+     */
+    private void updateProcessedOutboundOrderV2(String soNumber, String refDocNumber, Long outboundOrderTypeId, Long processStatusId) throws Exception {
+        orderService.updateProcessedOrderV2(soNumber, refDocNumber, outboundOrderTypeId, processStatusId);
     }
 
     /**

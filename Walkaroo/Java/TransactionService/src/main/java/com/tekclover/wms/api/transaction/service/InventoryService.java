@@ -3097,7 +3097,8 @@ public class InventoryService extends BaseService {
     public InventoryV2 getInventoryV3(String companyCode, String plantId, String languageId, String warehouseId,
                                       String packBarcodes, String itemCode, String barcodeId, String manufacturerName, String storageBin) {
         try {
-            log.info("getInventory----------> : " + warehouseId + "," + packBarcodes + "," + itemCode + "," + storageBin);
+            log.info("getInventory----------> : wh_id ---> " + warehouseId + ", pack_barcode ---> " + packBarcodes + ", itm_code ---> " + itemCode + ", st_bin ----> " + storageBin + ", barcode_id --->" + barcodeId + ", MFR_NAME ---> " +
+                    manufacturerName + ", lang_id ----> " + languageId + ", c_id ----> " + companyCode + ", plant_id ----> " + plantId);
             List<InventoryV2> inventory =
                     inventoryV2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPackBarcodesAndItemCodeAndBarcodeIdAndManufacturerNameAndStorageBinAndDeletionIndicatorOrderByInventoryIdDesc(
                             languageId,
@@ -3934,6 +3935,7 @@ public class InventoryService extends BaseService {
      */
     @Transactional
     public void createInventoryNonCBMStagingLineV2(StagingLineEntityV2 stagingLine, String loginUserId) throws Exception {
+
         String companyCode = stagingLine.getCompanyCode();
         String plantId = stagingLine.getPlantId();
         String languageId = stagingLine.getLanguageId();
@@ -4065,6 +4067,7 @@ public class InventoryService extends BaseService {
      * @return
      */
     public List<InventoryV2> createInventoryv3(List<ExcessConfirmation> excessConfirmations, String loginUserID) {
+
         List<InventoryV2> inventoryList = new ArrayList<>();
         InventoryV2 createdinventory = null;
         for (ExcessConfirmation excessConfirmation : excessConfirmations) {

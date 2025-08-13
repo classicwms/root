@@ -6,6 +6,8 @@ import lombok.ToString;
 
 import java.util.Date;
 
+import javax.persistence.Column;
+
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
@@ -31,4 +33,6 @@ public class PreOutboundHeaderV2 extends PreOutboundHeader {
     private String customerId;
     private String customerName;
 
+	private String shipToCode;
+	private String shipToParty;
 }

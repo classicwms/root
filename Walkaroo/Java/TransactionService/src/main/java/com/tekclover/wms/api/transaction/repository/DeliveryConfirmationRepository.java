@@ -1,7 +1,10 @@
 package com.tekclover.wms.api.transaction.repository;
 
-import com.tekclover.wms.api.transaction.model.deliveryconfirmation.DeliveryConfirmation;
-import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
+import java.util.Date;
+import java.util.List;
+
+import javax.transaction.Transactional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -9,9 +12,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import javax.transaction.Transactional;
-import java.util.Date;
-import java.util.List;
+import com.tekclover.wms.api.transaction.model.deliveryconfirmation.DeliveryConfirmation;
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 
 @Repository
 @Transactional
@@ -31,6 +33,9 @@ public interface DeliveryConfirmationRepository extends JpaRepository<DeliveryCo
 
     @Query(value = "SELECT ref_doc_no FROM tbloutboundheader WHERE is_deleted = 0 and ref_doc_no in (:outbound)", nativeQuery = true)
     List<String> validateDeliveryOrders(@Param("outbound") List<String> outbound);
+    
+    @Query(value = "SELECT OUTBOUND FROM tbldeliveryconfirmation WHERE OUTBOUND in (:outbound)", nativeQuery = true)
+    List<String> validateDeliveryConfirmationOrders(@Param("outbound") List<String> outbound);
 
     @Query(value = "SELECT ref_doc_no \n" +
             "FROM tbloutboundheader \n" +

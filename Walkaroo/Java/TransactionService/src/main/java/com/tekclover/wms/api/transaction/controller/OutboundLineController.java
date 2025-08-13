@@ -7,12 +7,6 @@ import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.InboundReversalInput;
-import com.tekclover.wms.api.transaction.model.outbound.outboundreversal.v2.OutboundReversalV2;
-import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundLineOutput;
-import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundLineV2;
-import com.tekclover.wms.api.transaction.model.outbound.v2.SearchOutboundLineV2;
-import com.tekclover.wms.api.transaction.model.report.StockMovementReport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -259,7 +253,8 @@ public class OutboundLineController {
     /*--------------------Shipping Reversal-----------------------------------------------------------*/
     @ApiOperation(response = OutboundLineV2.class, value = "Get Delivery Lines") // label for swagger
    	@GetMapping("/v2/reversal/new")
-   	public ResponseEntity<?> doReversalV2(@RequestParam String refDocNumber, @RequestParam String itemCode, @RequestParam String manufacturerName,
+   	public ResponseEntity<?> doReversalV2(@RequestParam String refDocNumber, @RequestParam String itemCode, 
+   			@RequestParam String manufacturerName,
    			@RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException, ParseException {
        	List<OutboundReversalV2> deliveryLines = outboundlineService.doReversalV2(refDocNumber, itemCode, manufacturerName, loginUserID);
        	log.info("deliveryLines : " + deliveryLines);
@@ -274,4 +269,13 @@ public class OutboundLineController {
 		outboundlineService.batchOutboundReversalV3(outboundReversalInput, loginUserID);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
+	
+	//=================================PGIReversal===================================================================
+	@ApiOperation(response = OutboundLineV2.class, value = "PGIReversal") // label for swagger
+	@PostMapping("/v2/reversal/dc")
+	public ResponseEntity<?> doDeliveryConfirmationReversalV3(@RequestBody List<DCReversalRequest> dcReversalRequest) throws Exception {
+		List<DCReversalRequest> response = outboundlineService.doPGIReversalV3(dcReversalRequest);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	
 }

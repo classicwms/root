@@ -239,6 +239,8 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
     boolean existsByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndLineNumberAndItemCodeAndStatusIdAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber, Long lineNumber, String itemCode, Long statusId, Long deletionIndicator);
 
+    boolean existsByBarcodeIdAndStatusIdInAndDeletionIndicator(String barcodeId, List<Long> statusId, Long deletionIndicator);
+
     OrderManagementLineV2 findTopByPlantIdAndCompanyCodeIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndLineNumberAndItemCodeAndBarcodeIdAndDeletionIndicator(
             String plantId, String companyCodeId, String languageId, String warehouseId, String preOutboundNo,
             String refDocNumber, Long lineNumber, String itemCode, String barcodeId, Long deletionIndicator);
@@ -276,4 +278,38 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
     List<OrderManagementLineV2> findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndManufacturerNameAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String itemCode, String manufacturerName, Long deletionIndicator);
  
+    
+    //============================PGIReversal================================================================
+    @Modifying(clearAutomatically = true)
+    @Query(value = "UPDATE tblordermangementline SET STATUS_ID = :statusId, REF_FIELD_10 = :statusDescription, STATUS_TEXT = :statusDescription \n" +
+            "WHERE LANG_ID = :languageId AND C_ID = :companyCodeId AND \n" +
+            "PLANT_ID = :plantId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND ITM_CODE = :itemCode", nativeQuery = true)
+    public void updateOrderManagementLineStatusV3(@Param("companyCodeId") String companyCodeId,
+                                         @Param("plantId") String plantId,
+                                         @Param("languageId") String languageId,
+                                         @Param("warehouseId") String warehouseId,
+                                         @Param("refDocNumber") String refDocNumber,
+                                         @Param("itemCode") String itemCode,
+                                         @Param("statusId") Long statusId,
+                                         @Param("statusDescription") String statusDescription);
+    
+    @Modifying
+    @Query(value = "UPDATE tblordermangementline SET is_deleted = 1 where c_id = :companyCodeId " +
+            "AND plant_id = :plantId AND wh_id = :warehouseId AND ref_doc_no = :refDocNumber AND pre_ob_no = :preOutboundNo " +
+            "AND is_deleted = 0", nativeQuery = true)
+    void deleteOrderManagementLine (@Param("companyCodeId") String companyCodeId,
+                                   @Param("plantId") String plantId,
+                                   @Param("warehouseId") String warehouseId,
+                                   @Param("refDocNumber") String refDocNumber,
+                                   @Param("preOutboundNo") String preOutboundNo);
+
+    @Modifying
+    @Query(value = "update tblordermangementline set SALES_ORDER_NUMBER = :salesOrderNo where c_id = :companyCodeId " +
+            "AND plant_id = :plantId AND wh_id = :warehouseId AND ref_doc_no = :refDocNumber " +
+            "AND is_deleted = 0", nativeQuery = true)
+    void updateSalesOrderNo(@Param("companyCodeId") String companyCodeId,
+                            @Param("plantId") String plantId,
+                            @Param("warehouseId") String warehouseId,
+                            @Param("refDocNumber") String refDocNumber,
+                            @Param("salesOrderNo") String salesOrderNo);
 }

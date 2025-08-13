@@ -10,7 +10,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.InboundOrder;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;

@@ -171,10 +171,10 @@ public class PickupLineService extends BaseService {
     private StorageBinRepository storageBinRepository;
 
     @Autowired
-    private ImPartnerService imPartnerService;
+    private InventoryTransRepository inventoryTransRepository;
     
     @Autowired
-    private InventoryTransRepository inventoryTransRepository;
+    private ImPartnerService imPartnerService;
 
     @Autowired
     IDMasterService idMasterService;
@@ -2808,8 +2808,8 @@ public class PickupLineService extends BaseService {
 
     /**
      *
-     * @param createdPickupLine
-     * @param loginUserId
+//     * @param createdPickupLine
+//     * @param loginUserId
      */
 //    private void webSocketNotification (PickupLineV2 createdPickupLine, String loginUserId) {
 //        try {
@@ -4876,7 +4876,8 @@ public class PickupLineService extends BaseService {
 
 				// webSocketNotification(dbPickupLine, loginUserID);
 				// fireBaseNotification(dbPickupLine, loginUserID);
-				// pickupHeader.setStatusId(57L);
+
+//                    pickupHeader.setStatusId(57L);
 				statusDescription = getStatusDescription(59L, languageId);
 //                    pickupHeader.setStatusDescription(statusDescription);
 //                    pickupHeaderV2Repository.saveAndFlush(pickupHeader);
@@ -4885,6 +4886,9 @@ public class PickupLineService extends BaseService {
 				log.info("PickUpHeader Updated");
 
 				// ------------------------UpdateLock-Applied------------------------------------------------------------
+				//
+ 				// 	---------Commenting the below code for Walkaroo Implementation specifically
+				// 	-----------------------------------------------------------------------------------------------------
 				if (STATUS_ID == 59) {
 					updateInventoryV3(companyCodeId, plantId, languageId, warehouseId, dbPickupLine.getItemCode(),
 							dbPickupLine.getManufacturerName(), dbPickupLine.getBarcodeId(),
@@ -4906,6 +4910,175 @@ public class PickupLineService extends BaseService {
 			throw e;
 		}
 	}
+
+    /**
+     * Modified for SAP orders - 30/06/2025
+     * Aakash Vinayak
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param refDocNumber
+     * @param preOutboundNo
+     * @param pickupHeader
+     * @param pickedQty
+     * @param loginUserID
+     * @return
+     * @throws Exception
+     */
+    public void createPickupLineNewV4(String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber,
+                                      String preOutboundNo, PickupHeaderV2 pickupHeader, Double pickedQty, String loginUserID,
+                                      String idMasterAuthToken) throws Exception {
+        try {
+            log.info("1.V3 create pickupLine {}|{}", pickupHeader, loginUserID);
+            Long STATUS_ID = 0L;
+            // Create PickUpLine
+            PickupLineV2 createdPickupLine = null;
+            PickupLineV2 dbPickupLine = new PickupLineV2();
+            BeanUtils.copyProperties(pickupHeader, dbPickupLine, CommonUtils.getNullPropertyNames(pickupHeader));
+            dbPickupLine.setCompanyCodeId(companyCodeId);
+            dbPickupLine.setLanguageId(languageId);
+            dbPickupLine.setPlantId(plantId);
+            dbPickupLine.setWarehouseId(warehouseId);
+
+            if (pickedQty > 0) {
+                STATUS_ID = 59L;
+            } else {
+                STATUS_ID = 51L;
+            }
+
+            log.info("newPickupLine STATUS: " + STATUS_ID);
+            dbPickupLine.setStatusId(STATUS_ID);
+            statusDescription = getStatusDescription(STATUS_ID, languageId);
+            dbPickupLine.setStatusDescription(statusDescription);
+
+            OrderManagementLineV2 dbOrderManagementLine = orderManagementLineService.getOrderManagementLineV3(
+                    companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber,
+                    pickupHeader.getLineNumber(), pickupHeader.getItemCode(), pickupHeader.getBarcodeId());
+            log.info("OrderManagementLine: " + dbOrderManagementLine);
+            if (dbOrderManagementLine == null) {
+                dbOrderManagementLine = orderManagementLineService.getOrderManagementLineV3(companyCodeId, plantId,
+                        languageId, warehouseId, refDocNumber, pickupHeader.getLineNumber(),
+                        pickupHeader.getItemCode());
+                log.info("OrderManagementLine: " + dbOrderManagementLine);
+            }
+
+            if (dbOrderManagementLine != null) {
+                dbPickupLine.setManufacturerCode(dbOrderManagementLine.getManufacturerCode());
+                dbPickupLine.setManufacturerName(dbOrderManagementLine.getManufacturerName());
+                dbPickupLine.setManufacturerFullName(dbOrderManagementLine.getManufacturerFullName());
+                dbPickupLine.setDescription(dbOrderManagementLine.getDescription());
+                dbPickupLine.setSalesOrderNumber(dbOrderManagementLine.getSalesOrderNumber());
+                dbPickupLine.setSalesInvoiceNumber(dbOrderManagementLine.getSalesInvoiceNumber());
+                dbPickupLine.setSupplierInvoiceNo(dbOrderManagementLine.getSupplierInvoiceNo());
+                dbPickupLine.setTokenNumber(dbOrderManagementLine.getTokenNumber());
+                dbPickupLine.setLevelId(dbOrderManagementLine.getLevelId());
+                dbPickupLine.setTargetBranchCode(dbOrderManagementLine.getTargetBranchCode());
+
+                // V3
+                dbPickupLine.setMaterialNo(dbOrderManagementLine.getMaterialNo());
+                dbPickupLine.setPriceSegment(dbOrderManagementLine.getPriceSegment());
+                dbPickupLine.setArticleNo(dbOrderManagementLine.getArticleNo());
+                dbPickupLine.setGender(dbOrderManagementLine.getGender());
+                dbPickupLine.setColor(dbOrderManagementLine.getColor());
+                dbPickupLine.setSize(dbOrderManagementLine.getSize());
+                dbPickupLine.setNoPairs(dbOrderManagementLine.getNoPairs());
+            }
+
+            dbPickupLine.setPickedStorageBin(pickupHeader.getProposedStorageBin());
+            dbPickupLine.setPickedPackCode(pickupHeader.getProposedPackBarCode());
+            dbPickupLine.setPickConfirmQty(pickedQty);
+            dbPickupLine.setAllocatedQty(pickupHeader.getPickToQty());
+            dbPickupLine.setPickupCreatedOn(pickupHeader.getPickupCreatedOn());
+
+            if (pickupHeader.getPickupCreatedBy() != null) {
+                dbPickupLine.setPickupCreatedBy(pickupHeader.getPickupCreatedBy());
+            } else {
+                dbPickupLine.setPickupCreatedBy(pickupHeader.getPickUpdatedBy());
+            }
+
+            Double VAR_QTY = getQuantity(dbPickupLine.getAllocatedQty())
+                    - getQuantity(dbPickupLine.getPickConfirmQty());
+            dbPickupLine.setVarianceQuantity(VAR_QTY);
+            log.info("Var_Qty: " + VAR_QTY);
+
+            dbPickupLine.setActualHeNo(PICK_HE_NO);
+            dbPickupLine.setDeletionIndicator(0L);
+            dbPickupLine.setPickupUpdatedBy(loginUserID);
+            dbPickupLine.setPickupConfirmedBy(loginUserID);
+            dbPickupLine.setPickupUpdatedOn(new Date());
+            dbPickupLine.setPickupConfirmedOn(new Date());
+
+            // Checking for Duplicates
+            List<PickupLineV2> existingPickupLine = pickupLineV2Repository
+                    .findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndPickupNumberAndItemCodeAndPickedStorageBinAndPickedPackCodeAndBarcodeIdAndDeletionIndicator(
+                            languageId, companyCodeId, plantId, warehouseId, preOutboundNo, refDocNumber,
+                            dbPickupLine.getPartnerCode(), dbPickupLine.getLineNumber(), dbPickupLine.getPickupNumber(),
+                            dbPickupLine.getItemCode(), dbPickupLine.getPickedStorageBin(),
+                            dbPickupLine.getPickedPackCode(), dbPickupLine.getBarcodeId(), 0L);
+            log.info("existingPickupLine : " + existingPickupLine);
+
+            if (existingPickupLine == null || existingPickupLine.isEmpty()) {
+                log.info("Inputs for LeadTime : companyCode ---> " + dbPickupLine.getCompanyCodeId() + ", plantId ---> " + dbPickupLine.getPlantId() +
+                         ", languageId ---> " + dbPickupLine.getLanguageId() + ", warehouse ---> " + dbPickupLine.getWarehouseId() +
+                         ", pickupNumber ---> " + dbPickupLine.getPickupNumber() + ", barcodeId ---> " + dbPickupLine.getBarcodeId() + ", lDate ---> " + new Date());
+                String leadTime = pickupLineV2Repository.getleadtime(dbPickupLine.getCompanyCodeId(),
+                        dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(),
+                        dbPickupLine.getPickupNumber(), dbPickupLine.getBarcodeId(), new Date());
+                dbPickupLine.setReferenceField1(leadTime);
+                log.info("LeadTime: " + leadTime);
+
+                createdPickupLine = pickupLineV2Repository.save(dbPickupLine);
+                log.info("dbPickupLine created: " + createdPickupLine);
+            } else {
+                throw new BadRequestException(
+                        "PickupLine Record is getting duplicated. Given data already exists in the Database. : "
+                                + existingPickupLine);
+            }
+
+            /*---------------------------------------------Inventory Updates-------------------------------------------*/
+            // Updating respective tables
+            if (createdPickupLine != null) {
+
+                // webSocketNotification(dbPickupLine, loginUserID);
+                // fireBaseNotification(dbPickupLine, loginUserID);
+
+//                    pickupHeader.setStatusId(57L);
+                statusDescription = getStatusDescription(59L, languageId);
+//                    pickupHeader.setStatusDescription(statusDescription);
+//                    pickupHeaderV2Repository.saveAndFlush(pickupHeader);
+                pickupHeaderService.updatePickupHeaderV3(companyCodeId, plantId, languageId, warehouseId, refDocNumber,
+                        dbPickupLine.getPickupNumber(), dbPickupLine.getBarcodeId(), 59L, statusDescription);
+                log.info("PickUpHeader Updated");
+
+                //  ------------------------UpdateLock-Applied------------------------------------------------------------
+				//	---------Commenting the below code for Walkaroo Implementation specifically
+				// 	-----------------------------------------------------------------------------------------------------
+				if (STATUS_ID == 59) {
+					updateInventoryV3(companyCodeId, plantId, languageId, warehouseId, dbPickupLine.getItemCode(),
+							dbPickupLine.getManufacturerName(), dbPickupLine.getBarcodeId(),
+							dbPickupLine.getPickedStorageBin(), dbPickupLine.getAllocatedQty(),
+							dbPickupLine.getPickConfirmQty(), loginUserID);
+				}
+				/*
+				 * The below block has been commented as SAP is not needed the below logic
+				 */
+//				if (STATUS_ID == 51) { // Picker denial
+//					updateInventoryV3(companyCodeId, plantId, languageId, warehouseId, dbPickupLine.getItemCode(),
+//							dbPickupLine.getManufacturerName(), dbPickupLine.getBarcodeId(),
+//							dbPickupLine.getPickedStorageBin(), dbPickupLine.getAllocatedQty(), loginUserID);
+//				}
+
+                // CreateQualityHeader
+                qualityHeaderService.createQualityHeaderV3(companyCodeId, plantId, languageId, warehouseId,
+                        dbPickupLine, pickupHeader, idMasterAuthToken, loginUserID);
+            }
+        } catch (Exception e) {
+            log.error("1.Exception while pickupLine create");
+            throw e;
+        }
+    }
 
     /**
      *
@@ -4995,7 +5168,8 @@ public class PickupLineService extends BaseService {
             dbPickupLine.setVarianceQuantity(VAR_QTY);
             log.info("Var_Qty: " + VAR_QTY);
 
-            InventoryV2 inventory = inventoryService.getInventoryForPickUpLineV3(companyCodeId, plantId, languageId, warehouseId, dbPickupLine.getItemCode(), dbPickupLine.getManufacturerName(), barcodeId);
+            InventoryV2 inventory = 
+            		inventoryService.getInventoryForPickUpLineV3(companyCodeId, plantId, languageId, warehouseId, dbPickupLine.getItemCode(), dbPickupLine.getManufacturerName(), barcodeId);
             log.info("PickedInventory Bin: " + inventory);
 
             dbPickupLine.setActualHeNo(PICK_HE_NO);
@@ -5050,6 +5224,143 @@ public class PickupLineService extends BaseService {
                         dbPickupLine.getItemCode(), dbPickupLine.getManufacturerName(),
                         dbPickupLine.getBarcodeId(), dbPickupLine.getPickedStorageBin(),
                         dbPickupLine.getPickConfirmQty(), loginUserID);
+                        
+                //CreateQualityHeader
+                qualityHeaderService.createQualityHeaderV3(companyCodeId, plantId, languageId, warehouseId, dbPickupLine, pickupHeader, idMasterAuthToken, loginUserID);
+            }
+        } catch (Exception e) {
+            log.error("2.Exception while pickupLine create");
+            throw e;
+        }
+    }
+
+    /**
+     * Modified for SAP orders - 30/06/2025
+     * Aakash Vinayak
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param refDocNumber
+     * @param preOutboundNo
+     * @param barcodeId
+     * @param pickupHeader
+     * @param pickedQty
+     * @param loginUserID
+     * @throws Exception
+     */
+    public void createPickupLineNewV4(String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber,
+                                      String preOutboundNo, String barcodeId, PickupHeaderV2 pickupHeader, Double pickedQty, String loginUserID, String idMasterAuthToken) throws Exception {
+        try {
+            log.info("2.V3 create pickupLine {}|{}", pickupHeader, loginUserID);
+            Long STATUS_ID = 59L;
+            // Create PickUpLine
+            PickupLineV2 createdPickupLine = null;
+            PickupLineV2 dbPickupLine = new PickupLineV2();
+            BeanUtils.copyProperties(pickupHeader, dbPickupLine, CommonUtils.getNullPropertyNames(pickupHeader));
+            dbPickupLine.setCompanyCodeId(companyCodeId);
+            dbPickupLine.setLanguageId(languageId);
+            dbPickupLine.setPlantId(plantId);
+            dbPickupLine.setWarehouseId(warehouseId);
+
+            dbPickupLine.setStatusId(STATUS_ID);
+            statusDescription = getStatusDescription(STATUS_ID, languageId);
+            dbPickupLine.setStatusDescription(statusDescription);
+
+            OrderManagementLineV2 dbOrderManagementLine = orderManagementLineService.getOrderManagementLineV3(
+                    companyCodeId, plantId, languageId, warehouseId, refDocNumber, pickupHeader.getLineNumber(), pickupHeader.getItemCode());
+            log.info("OrderManagementLine: " + dbOrderManagementLine);
+
+            if (dbOrderManagementLine != null) {
+                dbPickupLine.setManufacturerCode(dbOrderManagementLine.getManufacturerCode());
+                dbPickupLine.setManufacturerName(dbOrderManagementLine.getManufacturerName());
+                dbPickupLine.setManufacturerFullName(dbOrderManagementLine.getManufacturerFullName());
+                dbPickupLine.setDescription(dbOrderManagementLine.getDescription());
+                dbPickupLine.setSalesOrderNumber(dbOrderManagementLine.getSalesOrderNumber());
+                dbPickupLine.setSalesInvoiceNumber(dbOrderManagementLine.getSalesInvoiceNumber());
+                dbPickupLine.setSupplierInvoiceNo(dbOrderManagementLine.getSupplierInvoiceNo());
+                dbPickupLine.setTokenNumber(dbOrderManagementLine.getTokenNumber());
+                dbPickupLine.setLevelId(dbOrderManagementLine.getLevelId());
+                dbPickupLine.setTargetBranchCode(dbOrderManagementLine.getTargetBranchCode());
+
+                //V3
+                dbPickupLine.setMaterialNo(dbOrderManagementLine.getMaterialNo());
+                dbPickupLine.setPriceSegment(dbOrderManagementLine.getPriceSegment());
+                dbPickupLine.setArticleNo(dbOrderManagementLine.getArticleNo());
+                dbPickupLine.setGender(dbOrderManagementLine.getGender());
+                dbPickupLine.setColor(dbOrderManagementLine.getColor());
+                dbPickupLine.setSize(dbOrderManagementLine.getSize());
+                dbPickupLine.setNoPairs(dbOrderManagementLine.getNoPairs());
+            }
+
+            dbPickupLine.setPickupCreatedOn(pickupHeader.getPickupCreatedOn());
+            if (pickupHeader.getPickupCreatedBy() != null) {
+                dbPickupLine.setPickupCreatedBy(pickupHeader.getPickupCreatedBy());
+            } else {
+                dbPickupLine.setPickupCreatedBy(pickupHeader.getPickUpdatedBy());
+            }
+
+            Double VAR_QTY = getQuantity(dbPickupLine.getAllocatedQty()) - getQuantity(dbPickupLine.getPickConfirmQty());
+            dbPickupLine.setVarianceQuantity(VAR_QTY);
+            log.info("Var_Qty: " + VAR_QTY);
+
+            InventoryV2 inventory =
+                    inventoryService.getInventoryForPickUpLineV3(companyCodeId, plantId, languageId, warehouseId, dbPickupLine.getItemCode(), dbPickupLine.getManufacturerName(), barcodeId);
+            log.info("PickedInventory Bin: " + inventory);
+
+            dbPickupLine.setActualHeNo(PICK_HE_NO);
+            dbPickupLine.setBarcodeId(barcodeId);
+            dbPickupLine.setPickedStorageBin(inventory.getStorageBin());
+            dbPickupLine.setPickedPackCode(pickupHeader.getProposedPackBarCode());
+            dbPickupLine.setPickConfirmQty(pickedQty);
+            dbPickupLine.setAllocatedQty(pickedQty);
+            dbPickupLine.setDeletionIndicator(0L);
+            dbPickupLine.setPickupUpdatedBy(loginUserID);
+            dbPickupLine.setPickupConfirmedBy(loginUserID);
+            dbPickupLine.setPickupUpdatedOn(new Date());
+            dbPickupLine.setPickupConfirmedOn(new Date());
+
+            // Checking for Duplicates
+            List<PickupLineV2> existingPickupLine =
+                    pickupLineV2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndPickupNumberAndItemCodeAndPickedStorageBinAndPickedPackCodeAndBarcodeIdAndDeletionIndicator(
+                            languageId, companyCodeId, plantId, warehouseId, preOutboundNo, refDocNumber,
+                            dbPickupLine.getPartnerCode(), dbPickupLine.getLineNumber(), dbPickupLine.getPickupNumber(), dbPickupLine.getItemCode(),
+                            dbPickupLine.getPickedStorageBin(), dbPickupLine.getPickedPackCode(), dbPickupLine.getBarcodeId(), 0L);
+            log.info("existingPickupLine : " + existingPickupLine);
+
+            if (existingPickupLine == null || existingPickupLine.isEmpty()) {
+                String leadTime = pickupLineV2Repository.getleadtime(dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(),
+                        dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(), dbPickupLine.getPickupNumber(), dbPickupLine.getBarcodeId(), new Date());
+                dbPickupLine.setReferenceField1(leadTime);
+                log.info("LeadTime: " + leadTime);
+
+                createdPickupLine = pickupLineV2Repository.save(dbPickupLine);
+                log.info("dbPickupLine created: " + createdPickupLine);
+            }
+
+            /*---------------------------------------------Inventory Updates-------------------------------------------*/
+            // Updating respective tables
+            if (createdPickupLine != null) {
+
+                //            webSocketNotification(dbPickupLine, loginUserID);
+                //            fireBaseNotification(dbPickupLine, loginUserID);
+
+//                pickupHeader.setStatusId(57L);
+//                statusDescription = getStatusDescription(57L, languageId);
+//                pickupHeader.setStatusDescription(statusDescription);
+//                pickupHeaderV2Repository.saveAndFlush(pickupHeader);
+
+                statusDescription = getStatusDescription(59L, languageId);
+                pickupHeaderService.updatePickupHeaderV3(companyCodeId, plantId, languageId, warehouseId, refDocNumber,
+                        dbPickupLine.getPickupNumber(), dbPickupLine.getBarcodeId(), 59L, statusDescription);
+                log.info("PickUpHeader Updated");
+
+                //------------------------UpdateLock-Applied------------------------------------------------------------
+                updateInventoryPickedBarcodeV3(companyCodeId, plantId, languageId, warehouseId,
+                        dbPickupLine.getItemCode(), dbPickupLine.getManufacturerName(),
+                        dbPickupLine.getBarcodeId(), dbPickupLine.getPickedStorageBin(),
+                        dbPickupLine.getPickConfirmQty(), loginUserID);
 
                 //CreateQualityHeader
                 qualityHeaderService.createQualityHeaderV3(companyCodeId, plantId, languageId, warehouseId, dbPickupLine, pickupHeader, idMasterAuthToken, loginUserID);
@@ -5059,6 +5370,7 @@ public class PickupLineService extends BaseService {
             throw e;
         }
     }
+
 
     /**
      * pickCnf
@@ -5083,8 +5395,8 @@ public class PickupLineService extends BaseService {
 		log.info("inventory record queried: " + inventory);
 		if (inventory != null) {
 			try {
-				double[] inventoryQty = calculateInventory(allocatedQty, pickConfirmQty,
-						inventory.getInventoryQuantity(), inventory.getAllocatedQuantity());
+				double[] inventoryQty = calculateInventory(pickConfirmQty, inventory.getInventoryQuantity(),
+                        inventory.getAllocatedQuantity());
 				if (inventoryQty != null && inventoryQty.length > 2) {
 					inventory.setInventoryQuantity(inventoryQty[0]);
 					inventory.setAllocatedQuantity(inventoryQty[1]);
@@ -5134,22 +5446,22 @@ public class PickupLineService extends BaseService {
 		}
 	}
     
-    /**
-     * 
-     */
-	@Scheduled(fixedDelayString = "PT1M", initialDelayString = "PT2M")
-	private void updateErroredOutInventory () {
-		List<InventoryTrans> inventoryTransList = inventoryTransRepository.findByReRun(0L);
-		inventoryTransList.stream().forEach( it -> {
-			log.info("----updateErroredOutInventory-->: " + it);
-			inventoryV2Repository.updateInventory(it.getWarehouseId(),
-					it.getPackBarcodes(), it.getItemCode(),
-					it.getStorageBin(), it.getInventoryQuantity(), it.getAllocatedQuantity());
-			it.setReRun(1L);
-			inventoryTransRepository.save(it);		
-			log.info("----updateInventoryTrans-is-done-->: " + it);
-		});
-	}
+//    /**
+//     *
+//     */
+//	@Scheduled(fixedDelayString = "PT1M", initialDelayString = "PT2M")
+//	private void updateErroredOutInventory () {
+//		List<InventoryTrans> inventoryTransList = inventoryTransRepository.findByReRun(0L);
+//		inventoryTransList.stream().forEach( it -> {
+//			log.info("----updateErroredOutInventory-->: " + it);
+//			inventoryV2Repository.updateInventory(it.getWarehouseId(),
+//					it.getPackBarcodes(), it.getItemCode(),
+//					it.getStorageBin(), it.getInventoryQuantity(), it.getAllocatedQuantity());
+//			it.setReRun(1L);
+//			inventoryTransRepository.save(it);
+//			log.info("----updateInventoryTrans-is-done-->: " + it);
+//		});
+//	}
 
     /**
      * PickerDenial

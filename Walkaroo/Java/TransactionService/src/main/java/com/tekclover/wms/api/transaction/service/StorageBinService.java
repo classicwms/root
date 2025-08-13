@@ -22,7 +22,6 @@ import com.tekclover.wms.api.transaction.model.inbound.gr.StorageBinPutAway;
 import com.tekclover.wms.api.transaction.repository.StorageBinV2Repository;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
 @Service
 public class StorageBinService extends BaseService {
@@ -581,7 +580,6 @@ public class StorageBinService extends BaseService {
      * @param plantId
      * @param languageId
      * @param warehouseId
-     * @param binClassIds
      * @param storageBin
      * @return
      */

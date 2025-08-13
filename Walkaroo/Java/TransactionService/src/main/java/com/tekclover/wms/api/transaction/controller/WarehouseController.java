@@ -3,22 +3,22 @@ package com.tekclover.wms.api.transaction.controller;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.*;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.v3.OutboundOrderProcessV4;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.v3.ReversalV3;
-import com.tekclover.wms.api.transaction.service.OrderPreparationService;
-import com.tekclover.wms.api.transaction.service.OutboundLineService;
-import com.tekclover.wms.api.transaction.service.PutAwayHeaderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
+import com.tekclover.wms.api.transaction.model.outbound.preoutbound.v2.OutboundIntegrationHeaderV2;
+import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2;
 import com.tekclover.wms.api.transaction.model.warehouse.cyclecount.CycleCountHeader;
 import com.tekclover.wms.api.transaction.model.warehouse.cyclecount.periodic.Periodic;
 import com.tekclover.wms.api.transaction.model.warehouse.cyclecount.perpetual.Perpetual;
@@ -28,6 +28,13 @@ import com.tekclover.wms.api.transaction.model.warehouse.inbound.InterWarehouseT
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.SaleOrderReturn;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.StoreReturn;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.WarehouseApiResponse;
+import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.ASNV2;
+import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.B2bTransferIn;
+import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.InboundOrderProcessV4;
+import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.InboundOrderV2;
+import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.InterWarehouseTransferInV2;
+import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.SaleOrderReturnV2;
+import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.StockReceiptHeader;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.InterWarehouseTransferOut;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.ReturnPO;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.SalesOrder;
@@ -38,8 +45,16 @@ import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.ReturnPOV2;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.SalesInvoice;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.SalesOrderV2;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.ShipmentOrderV2;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.v3.DeliveryConfirmationSAP;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.v3.DeliveryConfirmationV3;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.v3.OutboundOrderProcessV4;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.v3.ReversalV3;
 import com.tekclover.wms.api.transaction.model.warehouse.stockAdjustment.StockAdjustment;
+import com.tekclover.wms.api.transaction.service.DeliveryConfirmationAsyncProcessService;
+import com.tekclover.wms.api.transaction.service.OrderPreparationService;
+import com.tekclover.wms.api.transaction.service.OutboundLineService;
+import com.tekclover.wms.api.transaction.service.OutboundOrderProcessingFTService;
+import com.tekclover.wms.api.transaction.service.PutAwayHeaderService;
 import com.tekclover.wms.api.transaction.service.WarehouseService;
 
 import io.swagger.annotations.Api;
@@ -58,9 +73,15 @@ public class WarehouseController {
 	
 	@Autowired
 	WarehouseService warehouseService;
+	
+	@Autowired
+	DeliveryConfirmationAsyncProcessService deliveryAsynProcService;
 
 	@Autowired
 	OrderPreparationService orderPreparationService;
+
+	@Autowired
+	OutboundOrderProcessingFTService obOrderProcessingFTService;
 
 	@Autowired
 	PutAwayHeaderService putAwayHeaderService;
@@ -731,6 +752,44 @@ public class WarehouseController {
 		}
 	}
 
+	//Upload API
+	@ApiOperation(response = SalesOrderV2.class, value = "Sales order V3") // label for swagger
+	@PostMapping("/outbound/upload/salesorder/V4")
+	public ResponseEntity<?> postSalesOrderV4(@Valid @RequestBody List<SalesOrderV2> salesOrders) {
+		try {
+			List<WarehouseApiResponse> responseList = new ArrayList<>();
+			log.info("------------salesOrders : " + salesOrders);
+			salesOrders.stream().forEach(salesOrder -> {
+				log.info("-------#-----salesOrder----#----> " + salesOrder);
+				OutboundOrderV2 createdSalesOrder = warehouseService.postSalesOrderV4(salesOrder);
+				if (createdSalesOrder != null) {
+					WarehouseApiResponse response = new WarehouseApiResponse();
+					response.setStatusCode("200");
+					response.setMessage("Success");
+					responseList.add(response);
+				}
+			});
+			return new ResponseEntity<>(responseList.get(0), HttpStatus.OK);
+		} catch (Exception e) {
+			log.info("SalesOrder order Error: " + salesOrders);
+			e.printStackTrace();
+			WarehouseApiResponse response = new WarehouseApiResponse();
+			response.setStatusCode("1400");
+			response.setMessage("Not Success: " + e.getLocalizedMessage());
+			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
+		}
+	}
+
+
+	// Outbound Order Fullfillment from SAP
+	@ApiOperation(response = Optional.class, value = "Outbound Order Fullfillment from SAP") // label for swagger
+    @PostMapping("/outbound/order/fullfillment/v3")
+    public ResponseEntity<?> postOutboundOrderFullfillmentV3(@RequestBody List<OutboundIntegrationHeaderV2> obIntegrationHeaderV2List) 
+    		throws Exception {
+		 List<OutboundHeaderV2> outboundHeaderV2 = obOrderProcessingFTService.sapOutboundOrderFullfillment (obIntegrationHeaderV2List);
+         return new ResponseEntity<>(outboundHeaderV2, HttpStatus.OK);
+    }
+
 	//-----------------------------WALKAROO CHANGES-----------------------------------------------------
 	// 
 	@ApiOperation(response = DeliveryConfirmationV3.class, value = "Sales order") // label for swagger
@@ -754,6 +813,36 @@ public class WarehouseController {
 			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
 		}
 		return null;
+	}
+
+	/**
+	 * Modified for SAP orders - 30/06/2025
+	 * Aakash vinayak
+	 *
+	 * @param deliveryConfirmationV3
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
+	@ApiOperation(response = DeliveryConfirmationV3.class, value = "Sales order") // label for swagger
+	@PostMapping("/outbound/SAP/deliveryConfirmationV4")
+	public ResponseEntity<?> postDeliveryConfirmationV4(@Valid @RequestBody List<DeliveryConfirmationSAP> deliveryConfirmationSAPList)
+			throws IllegalAccessException, InvocationTargetException {
+		try {
+			warehouseService.validateDeliveryOrders(deliveryConfirmationSAPList);			
+			deliveryAsynProcService.postDeliveryConfirmationV4(deliveryConfirmationSAPList);
+			WarehouseApiResponse response = new WarehouseApiResponse();
+			response.setStatusCode("200");
+			response.setMessage("Success");
+			return new ResponseEntity<>(response, HttpStatus.OK);
+		} catch (Exception e) {
+			log.info("DeliveryConfirmationV3 order Error: " + deliveryConfirmationSAPList);
+			e.printStackTrace();
+			WarehouseApiResponse response = new WarehouseApiResponse();
+			response.setStatusCode("1400");
+			response.setMessage("Not Success: " + e.getLocalizedMessage());
+			return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
+		}
 	}
 
 	/*----------------------------Return PO------------------------------------------------------------*/

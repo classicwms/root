@@ -269,11 +269,11 @@ public class FileStorageService {
 	 */
 	public WarehouseApiResponse processDeliveryConfirmationV3(List<DeliveryConfirmationSAP> deliveryConfirmationSAPList) {
 		try {
-			DeliveryConfirmationV3 deliveryLines = orderPreparationService.prepDeliveryConfirmationV3(deliveryConfirmationSAPList);
-			log.info("deliveryLines : " + deliveryLines);
+//			DeliveryConfirmationV3 deliveryLines = orderPreparationService.prepDeliveryConfirmationV3(deliveryConfirmationSAPList);
+//			log.info("deliveryLines : " + deliveryLines);
 			WarehouseApiResponse dbWarehouseApiResponse = new WarehouseApiResponse();
 			String authToken = getTransactionAuthToken();
-			dbWarehouseApiResponse = transactionService.postDeliveryConfirmationV3(deliveryLines, authToken);
+			dbWarehouseApiResponse = transactionService.postDeliveryConfirmationV4(deliveryConfirmationSAPList, authToken);
 			return dbWarehouseApiResponse;
 		} catch (Exception e) {
 			throw e;
@@ -1378,7 +1378,7 @@ public class FileStorageService {
 				if(orderTypeId == 3L) {
 					List<SalesOrderV2> salesOrders = orderPreparationService.prepSalesOrderDataV4(companyCodeId, plantId, languageId, warehouseId, loginUserId, allRowsList);
 					log.info("salesOrders : " + salesOrders);
-					dbWarehouseApiResponse = transactionService.postSalesOrderV2(salesOrders, authToken);
+					dbWarehouseApiResponse = transactionService.postSalesOrderV4(salesOrders, authToken);
 				}
 				if (dbWarehouseApiResponse != null) {
                     return uploadSuccessMessage(fileName);

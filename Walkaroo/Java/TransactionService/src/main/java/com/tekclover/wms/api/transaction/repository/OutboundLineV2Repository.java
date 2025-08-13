@@ -1,11 +1,8 @@
 package com.tekclover.wms.api.transaction.repository;
 
-import com.tekclover.wms.api.transaction.model.IKeyValuePair;
-import com.tekclover.wms.api.transaction.model.impl.OutBoundLineImpl;
-import com.tekclover.wms.api.transaction.model.impl.StockMovementReportImpl;
-import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundLineOutput;
-import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundLineV2;
-import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
+import java.util.Date;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -15,8 +12,12 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
+import com.tekclover.wms.api.transaction.model.IKeyValuePair;
+import com.tekclover.wms.api.transaction.model.impl.OutBoundLineImpl;
+import com.tekclover.wms.api.transaction.model.impl.StockMovementReportImpl;
+import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundLineOutput;
+import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundLineV2;
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 
 @Repository
 @Transactional
@@ -761,6 +762,40 @@ public interface OutboundLineV2Repository extends JpaRepository<OutboundLineV2, 
     @Query(value = "SELECT b.PARTNER_ITEM_BARCODE FROM tblpickupheader b WHERE b.PARTNER_ITEM_BARCODE = :barcodeId and b.REF_DOC_NO = :refDocNos and b.is_deleted = 0 and b.status_id = :statusId", nativeQuery = true)
     List<String> validateDeliveryStatus(@Param("barcodeId") String barcodeId, @Param("refDocNos") String refDocNos, @Param("statusId") Long statusId);
 
-    @Query(value = "SELECT b.PARTNER_ITEM_BARCODE barcodeId, b.itm_code itemCode FROM tblpickupheader b WHERE b.PARTNER_ITEM_BARCODE = :barcodeId and b.REF_DOC_NO = :refDocNos and b.is_deleted = 0 and b.ITM_CODE = :itemCode", nativeQuery = true)
+    @Query(value = "SELECT TOP 1 b.PARTNER_ITEM_BARCODE barcodeId, b.itm_code itemCode FROM tblpickupheader b WHERE b.PARTNER_ITEM_BARCODE = :barcodeId and b.REF_DOC_NO = :refDocNos and b.is_deleted = 0 and b.ITM_CODE = :itemCode", nativeQuery = true)
     IKeyValuePair validateItemCodeProposedBarcode(@Param("barcodeId") String barcodeId, @Param("refDocNos") String refDocNos, @Param("itemCode") String itemCode);
+
+    //============================PGIReversal================================================================    
+    @Modifying(clearAutomatically = true)
+    @Query(value = "UPDATE tbloutboundline SET STATUS_ID = :statusId, REF_FIELD_10 = :statusDescription, STATUS_TEXT = :statusDescription \n" +
+            "WHERE LANG_ID = :languageId AND C_ID = :companyCodeId AND \n" +
+            "PLANT_ID = :plantId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND ITM_CODE = :itemCode ", nativeQuery = true)
+    public void updateOutboundLineStatusV3(@Param("companyCodeId") String companyCodeId,
+                                         @Param("plantId") String plantId,
+                                         @Param("languageId") String languageId,
+                                         @Param("warehouseId") String warehouseId,
+                                         @Param("refDocNumber") String refDocNumber,
+                                         @Param("itemCode") String itemCode,
+                                         @Param("statusId") Long statusId,
+                                         @Param("statusDescription") String statusDescription);
+    
+    
+    @Modifying(clearAutomatically = true)
+    @Query(value = "UPDATE tbloutboundline SET is_deleted = 1 where c_id = :companyCodeId " +
+            "AND plant_id = :plantId AND wh_id = :warehouseId AND ref_doc_no = :refDocNumber AND pre_ob_no = :preOutboundNo " +
+            "AND is_deleted = 0", nativeQuery = true)
+    void deleteOutboundLine (@Param("companyCodeId") String companyCodeId,
+                                   @Param("plantId") String plantId,
+                                   @Param("warehouseId") String warehouseId,
+                                   @Param("refDocNumber") String refDocNumber,
+                                   @Param("preOutboundNo") String preOutboundNo);
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "delete tbloutboundline where c_id = :companyCodeId " +
+            "AND plant_id = :plantId AND wh_id = :warehouseId AND ref_doc_no = :refDocNumber " +
+            "AND is_deleted = 0", nativeQuery = true)
+    void deleteOutboundLine (@Param("companyCodeId") String companyCodeId,
+                             @Param("plantId") String plantId,
+                             @Param("warehouseId") String warehouseId,
+                             @Param("refDocNumber") String refDocNumber);
 }

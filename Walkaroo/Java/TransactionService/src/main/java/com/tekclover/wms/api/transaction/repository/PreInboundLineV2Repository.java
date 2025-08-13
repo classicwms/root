@@ -1,8 +1,9 @@
 package com.tekclover.wms.api.transaction.repository;
 
-import com.tekclover.wms.api.transaction.model.dto.PutAwayStrategyDetails;
-import com.tekclover.wms.api.transaction.model.inbound.preinbound.v2.PreInboundLineEntityV2;
-import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -12,9 +13,9 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import com.tekclover.wms.api.transaction.model.dto.PutAwayStrategyDetails;
+import com.tekclover.wms.api.transaction.model.inbound.preinbound.v2.PreInboundLineEntityV2;
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 
 @Repository
 @Transactional
@@ -139,12 +140,9 @@ public interface PreInboundLineV2Repository extends JpaRepository<PreInboundLine
             String companyCodeId, String plantId, String warehouseId, String refDocNumber, String preInboundNo, Long deletionIndicator
     );
 
-//    SELECT p.maxCapacity AS maxCapacity, p.superMaxCapacity AS superMaxCapacity " +
-//            "FROM PutawayStrategy p " +
-//            "WHERE p.articleNo = :articleNo AND p.gender = :gender
-
     @Query(value = "SELECT p.max_capacity AS maxCapacity, p.super_max_capacity AS superMaxCapacity, p.proposed_bin AS storageBin " +
             "FROM tblputawaystrategy p WHERE p.article = :article and p.gender = :gender and is_deleted = 0", nativeQuery = true)
     PutAwayStrategyDetails getPutAwayStrategyDetails(@Param("article") String articleNo,
                                                      @Param("gender") String gender);
+    
 }

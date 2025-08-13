@@ -4,6 +4,7 @@ import com.tekclover.wms.core.model.IKeyValuePair;
 import com.tekclover.wms.core.model.dto.AsnList;
 import com.tekclover.wms.core.model.dto.SalesOrderV3;
 import com.tekclover.wms.core.model.warehouse.inbound.almailem.InboundOrderProcessV4;
+import com.tekclover.wms.core.model.warehouse.outbound.OutboundIntegrationHeaderV2;
 import com.tekclover.wms.core.model.warehouse.outbound.almailem.OutboundOrderProcessV4;
 import com.tekclover.wms.core.model.warehouse.outbound.almailem.SalesOrderV2;
 import com.tekclover.wms.core.repository.UserRepository;
@@ -11,10 +12,11 @@ import com.tekclover.wms.core.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
+import com.tekclover.wms.core.model.dto.SAPOrderFullfillmentV3;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -442,6 +444,7 @@ public class ExcelDataProcessService {
 		log.info("SAP---outbound----received---orders-----1----> {}", salesOrderList);
 		List<OutboundOrderProcessV4> outboundOrderList = new ArrayList<>();
 		salesOrderList.forEach(so -> {
+
 			IKeyValuePair iKeyValuePair = userRepository.getCompanyAndPlant(so.getBranchCode());
 			log.info("company -> {}", iKeyValuePair.getCompanyCode());
 			log.info("lang -> {}", iKeyValuePair.getLanguage());
@@ -474,4 +477,55 @@ public class ExcelDataProcessService {
 		log.info("SAP outbound----OrderList -------------> {}", outboundOrderList);
 		return outboundOrderList;
     }
+
+    /**
+     *
+     * @param sapOrderFullfillmentV3List
+     * @return
+     */
+	public List<OutboundIntegrationHeaderV2> populateOutboundOrderProcessForFullfillmentV4 (List<SAPOrderFullfillmentV3> sapOrderFullfillmentV3List) {
+		List<OutboundIntegrationHeaderV2> obIntegrationHeaderV2List = new ArrayList<>();
+		sapOrderFullfillmentV3List.forEach(sapOrder -> {
+			String salesOrderNumber = sapOrder.getSalesOrderNumber();
+			String branchCode = sapOrder.getBranchCode();
+			log.info("SAP---outbound----received---orders-----1----> {}", sapOrder.getSalesOrderNumber());
+			
+			IKeyValuePair iKeyValuePair = userRepository.getCompanyAndPlant(sapOrder.getBranchCode());
+			log.info("company -> {}", iKeyValuePair.getCompanyCode());
+			log.info("lang -> {}", iKeyValuePair.getLanguage());
+			log.info("warehouse -> {}", iKeyValuePair.getWarehouse());
+			
+			OutboundOrderProcessV4 obOrderProcessV4 = new OutboundOrderProcessV4();
+			obOrderProcessV4.setSalesOrderNumber(salesOrderNumber);
+			obOrderProcessV4.setPickListNumber(salesOrderNumber);
+			obOrderProcessV4.setLanguageId(iKeyValuePair.getLanguage());
+			obOrderProcessV4.setCompanyCode(iKeyValuePair.getCompanyCode());
+			obOrderProcessV4.setBranchCode(branchCode);
+			obOrderProcessV4.setWarehouseId(iKeyValuePair.getWarehouse());
+			
+			log.info("SAP outbound----obOrderProcessV4 -------------> {}", obOrderProcessV4);
+			obIntegrationHeaderV2List.add(populateOutboundIntegrationHeaderV2 (obOrderProcessV4));
+		});
+		log.info("SAP outbound----obIntegrationHeaderV2List ---3----------> {}", obIntegrationHeaderV2List);
+		return obIntegrationHeaderV2List;
+    }
+	
+	/**
+	 * 
+	 * @param dbOBOrder
+	 * @return
+	 */
+	private OutboundIntegrationHeaderV2 populateOutboundIntegrationHeaderV2 (OutboundOrderProcessV4 dbOBOrder) {
+		log.info("SAP outbound----obOrderProcessV4 --2-----------> {}", dbOBOrder);
+        OutboundIntegrationHeaderV2 outboundIntegrationHeader = new OutboundIntegrationHeaderV2();
+        outboundIntegrationHeader.setCompanyCode(dbOBOrder.getCompanyCode());
+        outboundIntegrationHeader.setBranchCode(dbOBOrder.getBranchCode());
+        outboundIntegrationHeader.setWarehouseId(dbOBOrder.getWarehouseId());
+        outboundIntegrationHeader.setWarehouseID(dbOBOrder.getWarehouseId());
+        outboundIntegrationHeader.setSalesOrderNumber(dbOBOrder.getSalesOrderNumber());
+        outboundIntegrationHeader.setPickListNumber(dbOBOrder.getPickListNumber());
+        outboundIntegrationHeader.setRefDocumentNo(dbOBOrder.getSalesOrderNumber());
+        outboundIntegrationHeader.setLanguageId(dbOBOrder.getLanguageId());;
+		return outboundIntegrationHeader;
+	}
 }

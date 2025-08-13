@@ -29,5 +29,6 @@ public class FindPreOutboundHeaderV2 {
     private List<String> languageId;
     private List<String> companyCodeId;
     private List<String> plantId;
-
+    private List<String> shipToParty;
+    private List<String> shipToCode;
 }

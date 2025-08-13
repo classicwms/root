@@ -1,13 +1,18 @@
 package com.tekclover.wms.api.transaction.model.warehouse.outbound.v2;
 
+import java.util.Date;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.OutboundOrder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-
-import javax.persistence.*;
-import java.util.Date;
-import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -58,6 +63,11 @@ public class OutboundOrderV2 extends OutboundOrder {
     private Long orderManagementHeader = 0L;
     private Long pickupHeader = 0L;
     private String orderText;
+    
+    /*
+     * Outbound Order from SAP
+     */
+    private Boolean isSAPOrder;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "OUTBOUND_ORDER_HEADER_ID",referencedColumnName = "OUTBOUND_ORDER_HEADER_ID")

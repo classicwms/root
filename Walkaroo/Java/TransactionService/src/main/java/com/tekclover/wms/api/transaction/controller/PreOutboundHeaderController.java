@@ -152,8 +152,8 @@ public class PreOutboundHeaderController {
     }
     @ApiOperation(response = PickListHeader.class, value = "Cancel Order") // label for swagger
     @PostMapping("/v2/orderCancellation")
-    public ResponseEntity<?> orderCancellation(@RequestBody OutboundOrderCancelInput outboundOrderCancelInput, @RequestParam String loginUserID) throws Exception {
-        PreOutboundHeaderV2 orderCancelled = preoutboundheaderService.orderCancellation(outboundOrderCancelInput, loginUserID);
+    public ResponseEntity<?> orderCancellation(@RequestBody List<OutboundOrderCancelInput> outboundOrderCancelInput) throws Exception {
+        List<PreOutboundHeaderV2> orderCancelled = preoutboundheaderService.orderCancellation(outboundOrderCancelInput);
         return new ResponseEntity<>(orderCancelled, HttpStatus.OK);
     }
 }

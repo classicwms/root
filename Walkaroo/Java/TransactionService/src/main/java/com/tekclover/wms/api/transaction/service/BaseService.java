@@ -12,10 +12,12 @@ import com.tekclover.wms.api.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.transaction.model.dto.UserManagement;
 import com.tekclover.wms.api.transaction.model.dto.Warehouse;
 import com.tekclover.wms.api.transaction.repository.ImBasicData1V2Repository;
+import com.tekclover.wms.api.transaction.repository.InboundHeaderV2Repository;
 import com.tekclover.wms.api.transaction.repository.InboundLineV2Repository;
 import com.tekclover.wms.api.transaction.repository.PreInboundHeaderV2Repository;
 import com.tekclover.wms.api.transaction.repository.PreInboundLineV2Repository;
 import com.tekclover.wms.api.transaction.repository.StagingLineV2Repository;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -24,6 +26,7 @@ public class BaseService {
     protected Long NUMBER_RANGE_CODE = 0L;
     protected String numberRangeId = null;
     protected IKeyValuePair description = null;
+    protected String WK = "WK_ADMIN";
     protected String MW_AMS = "WK_ADMIN";
     protected String statusDescription = null;
     protected String stockTypeDesc = null;
@@ -47,7 +50,7 @@ public class BaseService {
     public static final String GREEN = "\u001B[32m";
     public static final String RESET = "\u001B[0m";
     public static final String RED = "\u001B[31m";
-
+    public static final int SQL_SERVER_IN_CLAUSE_LIMIT = 2000;
     protected static final String COMPANY_CODE = "1000";        // WALKAROO COMPANY CODE
     protected static final String MFR_NAME = "WK";              //Walkaroo Mfr code
     @Autowired
@@ -70,6 +73,9 @@ public class BaseService {
 
     @Autowired
     protected PreInboundHeaderV2Repository preInboundHeaderV2Repository;
+    
+    @Autowired
+    protected InboundHeaderV2Repository inboundHeaderV2Repository;
 
     /**
      * @return

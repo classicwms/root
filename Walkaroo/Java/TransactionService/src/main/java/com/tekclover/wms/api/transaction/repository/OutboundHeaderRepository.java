@@ -8,8 +8,6 @@ import java.util.stream.Stream;
 import javax.persistence.LockModeType;
 import javax.persistence.QueryHint;
 
-import com.tekclover.wms.api.transaction.model.outbound.OutboundHeaderStream;
-import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Lock;
@@ -21,6 +19,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tekclover.wms.api.transaction.model.outbound.OutboundHeader;
+import com.tekclover.wms.api.transaction.model.outbound.OutboundHeaderStream;
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 
 @Repository
 @Transactional

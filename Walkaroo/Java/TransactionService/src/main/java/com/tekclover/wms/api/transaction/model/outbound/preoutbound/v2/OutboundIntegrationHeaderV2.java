@@ -1,12 +1,13 @@
 package com.tekclover.wms.api.transaction.model.outbound.preoutbound.v2;
 
+import java.util.Date;
+import java.util.List;
+
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.OutboundIntegrationHeader;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-
-import java.util.Date;
-import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -14,11 +15,8 @@ import java.util.List;
 public class OutboundIntegrationHeaderV2 extends OutboundIntegrationHeader {
 
     private String companyDescription;
-
     private String plantDescription;
-
     private String warehouseDescription;
-
     private String statusDescription;
 
     // For ALM Orders
@@ -49,6 +47,11 @@ public class OutboundIntegrationHeaderV2 extends OutboundIntegrationHeader {
     private String isCancelled;
     private Date mUpdatedOn;
     private String loginUserId;
+    
+    /*
+     * Outbound Order from SAP
+     */
+    private Boolean isSAPOrder = false;
 
     private List<OutboundIntegrationLineV2> outboundIntegrationLines;
 }

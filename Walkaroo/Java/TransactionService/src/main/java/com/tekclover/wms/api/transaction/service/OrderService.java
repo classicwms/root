@@ -6,20 +6,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import com.tekclover.wms.api.transaction.model.warehouse.cyclecount.CycleCountHeader;
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.FindInboundOrderLineV2;
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.FindInboundOrderV2;
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.InboundOrderLinesV2;
-import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.InboundOrderV2;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.FindOutboundOrderLineV2;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.FindOutboundOrderV2;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.OutboundOrderLineV2;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.OutboundOrderV2;
-import com.tekclover.wms.api.transaction.repository.*;
-import com.tekclover.wms.api.transaction.repository.specification.InboundOrderLineV2Specification;
-import com.tekclover.wms.api.transaction.repository.specification.InboundOrderV2Specification;
-import com.tekclover.wms.api.transaction.repository.specification.OuboundOrderLineV2Specification;
-import com.tekclover.wms.api.transaction.repository.specification.OuboundOrderV2Specification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,12 +13,36 @@ import com.tekclover.wms.api.transaction.controller.exception.BadRequestExceptio
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.InboundIntegrationLog;
 import com.tekclover.wms.api.transaction.model.integration.IntegrationApiResponse;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.OutboundIntegrationLog;
+import com.tekclover.wms.api.transaction.model.warehouse.cyclecount.CycleCountHeader;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.InboundOrder;
+import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.FindInboundOrderLineV2;
+import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.FindInboundOrderV2;
+import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.InboundOrderLinesV2;
+import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.InboundOrderV2;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.OutboundOrder;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.OutboundOrderLine;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.SOHeader;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.SOLine;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.ShipmentOrder;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.FindOutboundOrderLineV2;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.FindOutboundOrderV2;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.OutboundOrderLineV2;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.OutboundOrderV2;
+import com.tekclover.wms.api.transaction.repository.CycleCountHeaderRepository;
+import com.tekclover.wms.api.transaction.repository.InboundIntegrationLogRepository;
+import com.tekclover.wms.api.transaction.repository.InboundOrderLinesV2Repository;
+import com.tekclover.wms.api.transaction.repository.InboundOrderRepository;
+import com.tekclover.wms.api.transaction.repository.InboundOrderV2Repository;
+import com.tekclover.wms.api.transaction.repository.IntegrationApiResponseRepository;
+import com.tekclover.wms.api.transaction.repository.OutboundIntegrationLogRepository;
+import com.tekclover.wms.api.transaction.repository.OutboundOrderLinesRepository;
+import com.tekclover.wms.api.transaction.repository.OutboundOrderLinesV2Repository;
+import com.tekclover.wms.api.transaction.repository.OutboundOrderRepository;
+import com.tekclover.wms.api.transaction.repository.OutboundOrderV2Repository;
+import com.tekclover.wms.api.transaction.repository.specification.InboundOrderLineV2Specification;
+import com.tekclover.wms.api.transaction.repository.specification.InboundOrderV2Specification;
+import com.tekclover.wms.api.transaction.repository.specification.OuboundOrderLineV2Specification;
+import com.tekclover.wms.api.transaction.repository.specification.OuboundOrderV2Specification;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -45,7 +55,7 @@ public class OrderService {
 	InboundOrderRepository inboundOrderRepository;
 
 	@Autowired
-	private CycleCountHeaderRepository cycleCountHeaderRepository;
+	CycleCountHeaderRepository cycleCountHeaderRepository;
 
 	@Autowired
 	OutboundOrderRepository outboundOrderRepository;
@@ -406,8 +416,41 @@ public class OrderService {
 
 	//===================================================================V2========================================================================
 
+	/**
+	 * 
+	 * @param orderId
+	 * @param outboundOrderTypeID
+	 * @param processStatusId
+	 * @return
+	 * @throws Exception
+	 */
 	public OutboundOrderV2 updateProcessedOrderV2(String orderId, Long outboundOrderTypeID, Long processStatusId) throws Exception {
 		OutboundOrderV2 dbOutboundOrder = getOBOrderByIdV2(orderId, outboundOrderTypeID);
+		log.info("orderId : " + orderId);
+		log.info("dbOutboundOrder : " + dbOutboundOrder);
+		if (dbOutboundOrder != null) {
+			dbOutboundOrder.setProcessedStatusId(processStatusId);
+			dbOutboundOrder.setOrderProcessedOn(new Date());
+			if(dbOutboundOrder.getNumberOfAttempts() != null && dbOutboundOrder.getNumberOfAttempts().equals(3L)) {
+				dbOutboundOrder.setProcessedStatusId(100L);
+			}
+			OutboundOrderV2 outboundOrder = outboundOrderV2Repository.save(dbOutboundOrder);
+			return outboundOrder;
+		}
+		return dbOutboundOrder;
+	}
+	
+	/**
+	 * 
+	 * @param soNumber
+	 * @param orderId
+	 * @param outboundOrderTypeID
+	 * @param processStatusId
+	 * @return
+	 * @throws Exception
+	 */
+	public OutboundOrderV2 updateProcessedOrderV2(String soNumber, String orderId, Long outboundOrderTypeID, Long processStatusId) throws Exception {
+		OutboundOrderV2 dbOutboundOrder = getOBOrderByIdV2(soNumber, orderId, outboundOrderTypeID);
 		log.info("orderId : " + orderId);
 		log.info("dbOutboundOrder : " + dbOutboundOrder);
 		if (dbOutboundOrder != null) {
@@ -486,16 +529,45 @@ public class OrderService {
 	 * @return
 	 */
 	public OutboundOrderV2 getOBOrderByIdV2(String orderId, Long outboundOrderTypeID) {
-//		return outboundOrderRepository.findByOrderId(orderId);
-//		OutboundOrderV2 dbOutboundOrder = outboundOrderV2Repository.findByRefDocumentNo (orderId);
-		OutboundOrderV2 dbOutboundOrder = outboundOrderV2Repository.findByRefDocumentNoAndOutboundOrderTypeID (orderId, outboundOrderTypeID);
-
+		OutboundOrderV2 dbOutboundOrder = 
+				outboundOrderV2Repository.findTopByRefDocumentNoAndOutboundOrderTypeIDOrderByOrderReceivedOnDesc (orderId, outboundOrderTypeID);
 		if(dbOutboundOrder!= null) {
 			return dbOutboundOrder;
 		} else {
 			return null;
 		}
+	}
+	
+	/**
+	 * 
+	 * @param orderId
+	 * @param outboundOrderTypeID
+	 * @return
+	 */
+	public OutboundOrderV2 getOBOrderByIdV3(String orderId, Long outboundOrderTypeID) {
+		OutboundOrderV2 dbOutboundOrder = outboundOrderV2Repository.findByRefDocumentNoAndOutboundOrderTypeIDAndPartnerCodeIsNotNull (orderId, outboundOrderTypeID);
+		if(dbOutboundOrder!= null) {
+			return dbOutboundOrder;
+		} else {
+			return null;
 		}
+	}
+
+	/**
+	 * 
+	 * @param soNumber
+	 * @param orderId
+	 * @param outboundOrderTypeID
+	 * @return
+	 */
+	public OutboundOrderV2 getOBOrderByIdV2(String soNumber, String orderId, Long outboundOrderTypeID) {
+		OutboundOrderV2 dbOutboundOrder = outboundOrderV2Repository.findBySalesOrderNumberAndRefDocumentNoAndOutboundOrderTypeID (soNumber, orderId, outboundOrderTypeID);
+		if(dbOutboundOrder!= null) {
+			return dbOutboundOrder;
+		} else {
+			return null;
+		}
+	}
 
 	public OutboundOrderV2 getOBOrderByIdV2(String orderId) {
 		OutboundOrderV2 dbOutboundOrder = outboundOrderV2Repository.findByRefDocumentNo(orderId);
@@ -507,24 +579,28 @@ public class OrderService {
 		}
 	}
 
+	/**
+	 * 
+	 * @param newOutboundOrder
+	 * @return
+	 * @throws ParseException
+	 */
 	public OutboundOrderV2 createOutboundOrdersV2(OutboundOrderV2 newOutboundOrder) throws ParseException {
 //		OutboundOrderV2 dbOutboundOrder = outboundOrderV2Repository.findByRefDocumentNoAndProcessedStatusIdOrderByOrderReceivedOn(newOutboundOrder.getOrderId(), 0L);
 //		OutboundOrderV2 dbOutboundOrder = getOBOrderByIdV2(newOutboundOrder.getOrderId());
-		OutboundOrderV2 dbOutboundOrder = outboundOrderV2Repository.
-				findByRefDocumentNoAndOutboundOrderTypeID(newOutboundOrder.getOrderId(), newOutboundOrder.getOutboundOrderTypeID());
-		if(dbOutboundOrder != null) {
-			throw new BadRequestException("Order is getting Duplicated");
-		}
+//		OutboundOrderV2 dbOutboundOrder = outboundOrderV2Repository.
+//				findByRefDocumentNoAndOutboundOrderTypeID(newOutboundOrder.getOrderId(), newOutboundOrder.getOutboundOrderTypeID());
+//		if(dbOutboundOrder != null) {
+//			throw new BadRequestException("Order is getting Duplicated");
+//		}
 
 		newOutboundOrder.setUpdatedOn(new Date());
 		OutboundOrderV2 outboundOrder = outboundOrderV2Repository.save(newOutboundOrder);
 		return outboundOrder;
 	}
 
-
 	//Find InboundOrder
 	public List<InboundOrderV2> findInboundOrderV2(FindInboundOrderV2 findInboundOrder) throws ParseException {
-
 		if (findInboundOrder.getFromOrderProcessedOn() != null && findInboundOrder.getToOrderProcessedOn() != null) {
 			Date[] dates = DateUtils.addTimeToDatesForSearch(findInboundOrder.getFromOrderProcessedOn(), findInboundOrder.getToOrderProcessedOn());
 			findInboundOrder.setFromOrderProcessedOn(dates[0]);
@@ -536,16 +612,13 @@ public class OrderService {
 			findInboundOrder.setToOrderReceivedOn(dates[1]);
 		}
 
-
 		InboundOrderV2Specification spec = new InboundOrderV2Specification(findInboundOrder);
 		List<InboundOrderV2> results = inboundOrderV2Repository.findAll(spec);
 		return results;
-
 	}
 
 	//Find InboundOrderLine
 	public List<InboundOrderLinesV2> findInboundOrderLineV2(FindInboundOrderLineV2 findInboundOrderLineV2) throws ParseException {
-
 		if (findInboundOrderLineV2.getFromExpectedDate() != null && findInboundOrderLineV2.getToExpectedDate() != null) {
 			Date[] dates = DateUtils.addTimeToDatesForSearch(findInboundOrderLineV2.getFromExpectedDate(), findInboundOrderLineV2.getToExpectedDate());
 			findInboundOrderLineV2.setFromExpectedDate(dates[0]);
@@ -557,11 +630,9 @@ public class OrderService {
 			findInboundOrderLineV2.setToReceivedDate(dates[1]);
 		}
 
-
 		InboundOrderLineV2Specification spec = new InboundOrderLineV2Specification(findInboundOrderLineV2);
 		List<InboundOrderLinesV2> results = inboundOrderLinesV2Repository.findAll(spec);
 		return results;
-
 	}
 
 	//Find OutboundOrder
@@ -583,8 +654,6 @@ public class OrderService {
 			findOutboundOrderV2.setToSalesInvoiceDate(dates[1]);
 		}
 
-
-
 		OuboundOrderV2Specification spec = new OuboundOrderV2Specification(findOutboundOrderV2);
 		List<OutboundOrderV2> results = outboundOrderV2Repository.findAll(spec);
 		return results;
@@ -593,11 +662,8 @@ public class OrderService {
 
 	//Find OutboundOrderLine
 	public List<OutboundOrderLineV2> findOutboundOrderLineV2(FindOutboundOrderLineV2 findOutboundOrderLineV2) throws ParseException {
-
-
 		OuboundOrderLineV2Specification spec = new OuboundOrderLineV2Specification(findOutboundOrderLineV2);
 		List<OutboundOrderLineV2> results = outboundOrderLinesV2Repository.findAll(spec);
 		return results;
-
 	}
 }

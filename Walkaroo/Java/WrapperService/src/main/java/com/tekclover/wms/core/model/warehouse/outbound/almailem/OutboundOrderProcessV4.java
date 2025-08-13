@@ -13,12 +13,12 @@ public class OutboundOrderProcessV4 {
     private String orderType;                                // REF_FIELD_1
 
     private String companyCode;
-    private String branchCode;
+    private String branchCode;								// PLANT_ID
     private String languageId;
     private String warehouseId;
 
-    private String customerId;
-    private String customerName;
+    private String customerId;								// PARTNER_ID
+    private String customerName;							// PARTNER_NAME
     private String loginUserId;
 
     private String fromCompanyCode;
@@ -63,16 +63,17 @@ public class OutboundOrderProcessV4 {
 
     /*--------------------------Walkaroo--------------------------------------------*/
     private String outbound;
-    private Long itm;
+    private Long itm;				// MATERIAL_NO
     private String customerCode;
     private String customer;
-    private String shipToCode;
-    private String shipToParty;
+    private String shipToCode;		// SHIP_TO
+    private String shipToParty;		// SHIP_TO_NAME
     private String materialNo;
-    private String priceSegment;
-    private Double qty;
-    private String specialStock;
-    private String mtoNumber;
-    private String skuCode;
-	private Double pairQty;			// PAIR_QTY
+    private String priceSegment;	// PRICE_SEGMENT
+    private Double qty;				// ORD_QTY
+    private String specialStock;	// SP_STOCK_IND
+    private String mtoNumber;		// MTO_NUMBER
+    private String skuCode;			// ITM_CODE
+    private Double pairQty;			// PAIR_QTY
+    
 }

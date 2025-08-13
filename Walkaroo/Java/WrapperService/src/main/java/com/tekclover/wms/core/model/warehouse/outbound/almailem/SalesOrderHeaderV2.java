@@ -10,7 +10,7 @@ public class SalesOrderHeaderV2 {
 //    @NotBlank(message = "SalesOrder Number is mandatory")
     private String salesOrderNumber;                        // REF_DOC_NO;
 
-    @NotBlank(message = "StoreId is mandatory")
+//    @NotBlank(message = "StoreId is mandatory")
     private String storeID;                                // PARTNER_CODE;
 
 //    @NotBlank(message = "Store Name is mandatory")

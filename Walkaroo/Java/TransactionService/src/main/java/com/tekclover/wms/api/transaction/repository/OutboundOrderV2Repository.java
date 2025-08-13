@@ -1,8 +1,9 @@
 package com.tekclover.wms.api.transaction.repository;
 
-import com.tekclover.wms.api.transaction.model.IKeyValuePair;
-import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.OutboundOrderV2;
-import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
+import java.util.List;
+
+import javax.transaction.Transactional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -10,8 +11,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import javax.transaction.Transactional;
-import java.util.List;
+import com.tekclover.wms.api.transaction.model.IKeyValuePair;
+import com.tekclover.wms.api.transaction.model.warehouse.outbound.v2.OutboundOrderV2;
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 
 @Repository
 @Transactional
@@ -22,7 +24,10 @@ public interface OutboundOrderV2Repository extends JpaRepository<OutboundOrderV2
 
     OutboundOrderV2 findByRefDocumentNo(String orderId);
     OutboundOrderV2 findByRefDocumentNoAndOutboundOrderTypeID(String orderId, Long outboundOrderTypeID);
+    OutboundOrderV2 findByRefDocumentNoAndOutboundOrderTypeIDAndPartnerCodeIsNotNull(String orderId, Long outboundOrderTypeID);
+    OutboundOrderV2 findBySalesOrderNumberAndRefDocumentNoAndOutboundOrderTypeID(String soNumber, String orderId, Long outboundOrderTypeID);
     OutboundOrderV2 findByRefDocumentNoAndProcessedStatusIdOrderByOrderReceivedOn(String orderId, Long deletionIndicator);
+    OutboundOrderV2 findTopByRefDocumentNoAndOutboundOrderTypeIDOrderByOrderReceivedOnDesc(String orderId, Long outboundOrderTypeID);
 
     List<OutboundOrderV2> findTopByProcessedStatusIdOrderByOrderReceivedOn(long l);
     List<OutboundOrderV2> findByProcessedStatusIdOrderByOrderReceivedOn(Long processStatusId);
@@ -82,4 +87,14 @@ public interface OutboundOrderV2Repository extends JpaRepository<OutboundOrderV2
             " outbound_order_header_id in :outboundOrderHeaderId ", nativeQuery = true)
     void updateBatchExecuted(@Param("outboundOrderHeaderId") List<Long> outboundOrderHeaderId);
 
+    @Modifying
+    @Query(value = "UPDATE tbloborder2 SET sales_order_number = :salesOrderNo WHERE outbound_order_header_id = ( \n" +
+            "SELECT TOP 1 outbound_order_header_id FROM tbloborder2 where company_code = :companyCodeId AND \n" +
+            "branch_code = :plantId AND warehouseid = :warehouseId AND ref_document_no = :refDocNumber \n" +
+            "ORDER BY outbound_order_header_id desc) ", nativeQuery = true)
+    void updateSalesOrderNo(@Param("companyCodeId") String companyCodeId,
+                            @Param("plantId") String plantId,
+                            @Param("warehouseId") String warehouseId,
+                            @Param("refDocNumber") String refDocNumber,
+                            @Param("salesOrderNo") String salesOrderNo);
 }

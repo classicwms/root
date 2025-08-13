@@ -37,6 +37,11 @@ public interface PickupHeaderV2Repository extends JpaRepository<PickupHeaderV2, 
     PickupHeaderV2 findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndPickupNumberAndLineNumberAndItemCodeAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo,
             String refDocNumber, String partnerCode, String pickupNumber, Long lineNumber, String itemCode, Long deletionIndicator);
+
+    PickupHeaderV2 findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndPickupNumberAndLineNumberAndItemCodeAndBarcodeIdAndDeletionIndicator(
+            String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo,
+            String refDocNumber, String partnerCode, String pickupNumber, Long lineNumber, String itemCode, String barcodeId, Long deletionIndicator);
+
     PickupHeaderV2 findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndPickupNumberAndLineNumberAndItemCodeAndManufacturerNameAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo, String refDocNumber,
             String partnerCode, String pickupNumber, Long lineNumber, String itemCode, String manufacturerName, Long deletionIndicator);
@@ -645,4 +650,48 @@ public interface PickupHeaderV2Repository extends JpaRepository<PickupHeaderV2, 
                                          @Param("languageId") String languageId,
                                          @Param("warehouseId") String warehouseId,
                                          @Param("status") boolean status);
+    
+    //============================PGIReversal================================================================
+    @Modifying(clearAutomatically = true)
+    @Query(value = "UPDATE tblpickupheader SET STATUS_ID = :statusId, REF_FIELD_10 = :statusDescription, STATUS_TEXT = :statusDescription \n" +
+            "WHERE LANG_ID = :languageId AND C_ID = :companyCodeId AND \n" +
+            "PLANT_ID = :plantId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND ITM_CODE = :itemCode", nativeQuery = true)
+    void updatePickupHeaderStatusV3(@Param("companyCodeId") String companyCodeId,
+                                         @Param("plantId") String plantId,
+                                         @Param("languageId") String languageId,
+                                         @Param("warehouseId") String warehouseId,
+                                         @Param("refDocNumber") String refDocNumber,
+                                         @Param("itemCode") String itemCode,
+                                         @Param("statusId") Long statusId,
+                                         @Param("statusDescription") String statusDescription);
+    
+    @Modifying
+    @Query(value = "UPDATE tblpickupheader SET is_deleted = 1 where c_id = :companyCodeId " +
+            "AND plant_id = :plantId AND wh_id = :warehouseId AND ref_doc_no = :refDocNumber AND pre_ob_no = :preOutboundNo " +
+            "AND is_deleted = 0", nativeQuery = true)
+    void deletePickupHeader (@Param("companyCodeId") String companyCodeId,
+                                   @Param("plantId") String plantId,
+                                   @Param("warehouseId") String warehouseId,
+                                   @Param("refDocNumber") String refDocNumber,
+                                   @Param("preOutboundNo") String preOutboundNo);
+    
+    boolean existsByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+            String companyCodeId, String plantId, String warehouseId, String refDocNumber, String preOutboundNo, Long deletionIndicator);
+
+    boolean existsByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+            String companyCodeId, String plantId, String warehouseId, String refDocNumber, Long deletionIndicator);
+
+
+    @Modifying()
+    @Query(value = "Update tblpickupheader set ref_field_2 = :refField2, PICK_UTD_BY = :updatedBy, PICK_UTD_ON = getDate() " +
+            "Where c_id = :companyCodeId and plant_id = :plantId and wh_id = :warehouseId and ref_doc_no = :refDocNumber and pre_ob_no = :preOutboundNo " +
+            "and PU_NO = :pickupNumber and is_deleted = 0", nativeQuery = true)
+    void updatedPickupHeader(@Param("companyCodeId") String companyCodeId,
+                             @Param("plantId") String plantId,
+                             @Param("warehouseId") String warehouseId,
+                             @Param("refDocNumber") String refDocNumber,
+                             @Param("preOutboundNo") String preOutboundNo,
+                             @Param("pickupNumber") String pickupNumber,
+                             @Param("refField2") String refField2,
+                             @Param("updatedBy") String updatedBy);
 }

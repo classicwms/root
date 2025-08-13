@@ -3763,17 +3763,21 @@ public class PutAwayLineService extends BaseService {
                 }
 
                 PutAwayLineV2 createdPutAwayLine = null;
+                boolean isPutAwayLineCreated = false;
                 if (!existingPutAwayLine) {
                     createdPutAwayLine = putAwayLineV2Repository.save(dbPutAwayLine);
                     createdPutAwayLines.add(createdPutAwayLine);
                     log.info("---------->createdPutAwayLine created: " + createdPutAwayLine);
+                    isPutAwayLineCreated = true;
                 } else {
                     createdPutAwayLine = dbPutAwayLine;
                     createdPutAwayLines.add(createdPutAwayLine);
                     log.info("HU Serial Number already exist in PutAwayLine ------ BarcodeId ====  {}", newPutAwayLine.getBarcodeId());
+                    isPutAwayLineCreated = false;
+                    continue;
                 }
 
-                if (createdPutAwayLine != null && createdPutAwayLine.getPutawayConfirmedQty() > 0L) {
+                if (createdPutAwayLine != null && createdPutAwayLine.getPutawayConfirmedQty() > 0L && isPutAwayLineCreated) {
                     // Updating StorageBin StatusId as '1'
                     dbStorageBin.setStatusId(1L);
                     storageBinService.updateStorageBinV2(dbPutAwayLine.getConfirmedStorageBin(), dbStorageBin,

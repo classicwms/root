@@ -100,4 +100,10 @@ public class OutboundHeaderV2 extends OutboundHeader {
 
     @Column(name = "CUSTOMER_TYPE", columnDefinition = "nvarchar(255)")
     private String customerType;
+
+    @Column(name = "SHIP_TO_CODE", columnDefinition = "nvarchar(50)")
+    private String shipToCode;
+
+    @Column(name = "SHIP_TO_PARTY", columnDefinition = "nvarchar(50)")
+    private String shipToParty;
 }

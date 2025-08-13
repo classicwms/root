@@ -335,5 +335,72 @@ public interface PreOutboundHeaderV2Repository extends JpaRepository<PreOutbound
                                        @Param("languageId") String languageId,
                                        @Param("warehouseId") String warehouseId,
                                        @Param("salesOrderNumber") String salesOrderNumber);
+    
+    //============================PGIReversal================================================================
+    @Modifying(clearAutomatically = true)
+    @Query(value = "UPDATE tblpreoutboundheader SET STATUS_ID = :statusId, REF_FIELD_10 = :statusDescription, STATUS_TEXT = :statusDescription \n" +
+            "WHERE LANG_ID = :languageId AND C_ID = :companyCodeId AND \n" +
+            "PLANT_ID = :plantId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber ", nativeQuery = true)
+    void updatePreOutboundHeaderStatusV3(@Param("companyCodeId") String companyCodeId,
+                                         @Param("plantId") String plantId,
+                                         @Param("languageId") String languageId,
+                                         @Param("warehouseId") String warehouseId,
+                                         @Param("refDocNumber") String refDocNumber,
+                                         @Param("statusId") Long statusId,
+                                         @Param("statusDescription") String statusDescription);
+    
+    @Modifying(clearAutomatically = true)
+    @Query(value = "UPDATE tblpreoutboundheader SET is_deleted = 1 where c_id = :companyCodeId " +
+            "AND plant_id = :plantId AND wh_id = :warehouseId AND ref_doc_no = :refDocNumber AND pre_ob_no = :preOutboundNo " +
+            "AND is_deleted = 0", nativeQuery = true)
+    void deletePreOutboundHeader(@Param("companyCodeId") String companyCodeId,
+                                   @Param("plantId") String plantId,
+                                   @Param("warehouseId") String warehouseId,
+                                   @Param("refDocNumber") String refDocNumber,
+                                   @Param("preOutboundNo") String preOutboundNo);
 
+    @Modifying
+    @Query(value = "Update tblpreoutboundheader set PICK_LIST_NUMBER = :puNo where c_id = :companyId and " +
+            "plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and ref_doc_no = :refDocNo and is_deleted = 0", nativeQuery = true)
+    void updatePickupNo(@Param("companyId") String companyId,
+                        @Param("plantId") String plantId,
+                        @Param("languageId") String languageId,
+                        @Param("warehouseId") String warehouseId,
+                        @Param("refDocNo") String refDocNo,
+                        @Param("puNo") String puNo);
+
+    @Modifying
+    @Query(value = "Update tblpreoutboundheader set PICK_LIST_NUMBER = :puNo, status_id = :statusId, status_text = :statusDescription where c_id = :companyId and " +
+            "plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId and ref_doc_no = :refDocNo and is_deleted = 0", nativeQuery = true)
+    void updatePreOutboundHeaderStatusId(@Param("companyId") String companyId,
+                                         @Param("plantId") String plantId,
+                                         @Param("languageId") String languageId,
+                                         @Param("warehouseId") String warehouseId,
+                                         @Param("refDocNo") String refDocNo,
+                                         @Param("puNo") String puNo,
+                                         @Param("statusId") Long statusId,
+                                         @Param("statusDescription") String statusDescription);
+
+    @Modifying
+    @Query(value = "update tblpreoutboundheader set SALES_ORDER_NUMBER = :salesOrderNo where c_id = :companyCodeId " +
+            "AND plant_id = :plantId AND wh_id = :warehouseId AND ref_doc_no = :refDocNumber " +
+            "AND is_deleted = 0", nativeQuery = true)
+    void updateSalesOrderNo(@Param("companyCodeId") String companyCodeId,
+                            @Param("plantId") String plantId,
+                            @Param("warehouseId") String warehouseId,
+                            @Param("refDocNumber") String refDocNumber,
+                            @Param("salesOrderNo") String salesOrderNo);
+
+    //LANG_ID", "C_ID", "PLANT_ID", "WH_ID", "REF_DOC_NO", "PRE_OB_NO", "PARTNER_CODE
+//	Optional<PreOutboundHeaderV2> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+//			String languageId, String companyCodeId, String plantId, String warehouseId, String refDocNumber, Long deletionIndicator);
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "delete tblpreoutboundheader where c_id = :companyCodeId " +
+            "AND plant_id = :plantId AND wh_id = :warehouseId AND ref_doc_no = :refDocNumber " +
+            "AND is_deleted = 0", nativeQuery = true)
+    void deletePreOutboundHeader(@Param("companyCodeId") String companyCodeId,
+                                 @Param("plantId") String plantId,
+                                 @Param("warehouseId") String warehouseId,
+                                 @Param("refDocNumber") String refDocNumber);
 }

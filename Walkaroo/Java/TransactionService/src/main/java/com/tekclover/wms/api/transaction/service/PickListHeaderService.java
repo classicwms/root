@@ -1,17 +1,19 @@
 package com.tekclover.wms.api.transaction.service;
 
+import java.util.Date;
+import java.util.stream.Stream;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.ParseException;
+import org.springframework.stereotype.Service;
+
 import com.tekclover.wms.api.transaction.model.outbound.v2.PickListHeader;
 import com.tekclover.wms.api.transaction.model.outbound.v2.SearchPickListHeader;
 import com.tekclover.wms.api.transaction.repository.PickListHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.specification.PickListHeaderSpecification;
 import com.tekclover.wms.api.transaction.util.DateUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.expression.ParseException;
-import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -78,7 +80,7 @@ public class PickListHeaderService {
         dbPickListHeader.setUpdatedBy(loginUserID);
         dbPickListHeader.setCreatedOn(new Date());
         dbPickListHeader.setUpdatedOn(new Date());
-//        dbPickListHeader.setPickListCancelHeaderId(System.currentTimeMillis());
+        dbPickListHeader.setPickListCancelHeaderId(System.currentTimeMillis());
 //        List<PickListLine> createdPickListLineList = new ArrayList<>();
 //        if(pickListHeader.getLine() != null){
 //            for (PickListLine pickListLine : pickListHeader.getLine()) {

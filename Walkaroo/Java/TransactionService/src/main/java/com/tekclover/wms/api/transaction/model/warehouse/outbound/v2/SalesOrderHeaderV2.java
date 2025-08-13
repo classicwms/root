@@ -1,11 +1,13 @@
 package com.tekclover.wms.api.transaction.model.warehouse.outbound.v2;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.validation.constraints.NotBlank;
-import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import lombok.Data;
 
 @Data
 public class SalesOrderHeaderV2 {
@@ -14,16 +16,16 @@ public class SalesOrderHeaderV2 {
 //    @NotBlank(message = "SalesOrder Number is mandatory")
     private String salesOrderNumber;                        // REF_DOC_NO;
 
-    @Column(nullable = false)
-    @NotBlank(message = "StoreId is mandatory")
+//    @Column(nullable = false)
+//    @NotBlank(message = "StoreId is mandatory")
     private String storeID;                                // PARTNER_CODE;
 
 //    @Column(nullable = false)
 //    @NotBlank(message = "Store Name is mandatory")
     private String storeName;                                // PARTNER_NM;
 
-    @Column(nullable = false)
-    @NotBlank(message = "Required Delivery Date is mandatory")
+//    @Column(nullable = false)
+//    @NotBlank(message = "Required Delivery Date is mandatory")
     private String requiredDeliveryDate;                    //REQ_DEL_DATE
 
     @Column(nullable = false)

@@ -2017,6 +2017,103 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                                  @Param("noPairs") List<String> noPairs,
                                                  @Param("binClassId") List<Long> binClassId);
 
+    @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n " +
+            "WHERE \n " +
+            "(COALESCE(:itemCode, null) IS NULL OR (ITM_CODE = :itemCode)) and \n" +
+            "(COALESCE(:binClassId, null) IS NULL OR (BIN_CL_ID = :binClassId)) and\n" +
+            "(COALESCE(:companyCodeId, null) IS NULL OR (c_id = :companyCodeId)) and \n" +
+            "(COALESCE(:languageId, null) IS NULL OR (lang_id = :languageId)) and \n" +
+            "(COALESCE(:plantId, null) IS NULL OR (plant_id = :plantId)) and \n" +
+            "(COALESCE(:warehouseId, null) IS NULL OR (wh_id = :warehouseId)) and \n" +
+            "is_deleted = 0 \n" +
+            "group by itm_code,barcode_id,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id \n" +
+
+            "SELECT \n" +
+            "iv.INV_ID inventoryId, \n" +
+            "iv.LANG_ID languageId, \n" +
+            "iv.C_ID companyCodeId,\n" +
+            "iv.PLANT_ID plantId,\n" +
+            "iv.WH_ID warehouseId,\n" +
+            "iv.PAL_CODE palletCode,\n" +
+            "iv.CASE_CODE caseCode,\n" +
+            "iv.PACK_BARCODE packBarcodes,\n" +
+            "iv.ITM_CODE itemCode,\n" +
+            "iv.VAR_ID variantCode,\n" +
+            "iv.VAR_SUB_ID variantSubCode,\n" +
+            "iv.STR_NO batchSerialNumber,\n" +
+            "iv.ST_BIN storageBin,\n" +
+            "iv.STCK_TYP_ID stockTypeId,\n" +
+            "iv.SP_ST_IND_ID specialStockIndicatorId,\n" +
+            "iv.REF_ORD_NO referenceOrderNo,\n" +
+            "iv.STR_MTD storageMethod,\n" +
+            "iv.BIN_CL_ID binClassId,\n" +
+            "iv.TEXT description,\n" +
+            "iv.INV_QTY inventoryQuantity,\n" +
+            "iv.ALLOC_QTY allocatedQuantity,\n" +
+            "iv.INV_UOM inventoryUom,\n" +
+            "iv.MFR_DATE manufacturer,\n" +
+            "iv.EXP_DATE expiry,\n" +
+            "iv.IS_DELETED deletionIndicator,\n" +
+            "iv.REF_FIELD_1 referenceField1,\n" +
+            "iv.REF_FIELD_2 referenceField2,\n" +
+            "iv.REF_FIELD_3 referenceField3,\n" +
+            "iv.REF_FIELD_4 referenceField4,\n" +
+            "iv.REF_FIELD_5 referenceField5,\n" +
+            "iv.REF_FIELD_6 referenceField6,\n" +
+            "iv.REF_FIELD_7 referenceField7,\n" +
+            "iv.REF_FIELD_8 referenceField8,\n" +
+            "iv.REF_FIELD_9 referenceField9,\n" +
+            "iv.REF_FIELD_10 referenceField10,\n" +
+            "iv.IU_CTD_BY createdBy,\n" +
+            "iv.IU_CTD_ON createdOn,\n" +
+            "FORMAT(iv.IU_CTD_ON,'dd-MM-yyyy hh:mm:ss') sCreatedOn,\n" +
+            "iv.UTD_BY updatedBy,\n" +
+            "iv.UTD_ON updatedOn,\n" +
+            "iv.MFR_CODE manufacturerCode,\n" +
+            "iv.BARCODE_ID barcodeId,\n" +
+            "iv.CBM cbm,\n" +
+            "iv.level_id levelId,\n" +
+            "iv.CBM_UNIT cbmUnit,\n" +
+            "iv.CBM_PER_QTY cbmPerQuantity,\n" +
+            "iv.MFR_NAME manufacturerName,\n" +
+            "iv.ORIGIN origin,\n" +
+            "iv.BRAND brand,\n" +
+            "iv.REF_DOC_NO referenceDocumentNo,\n" +
+            "iv.C_TEXT companyDescription,\n" +
+            "iv.PLANT_TEXT plantDescription,\n" +
+            "iv.WH_TEXT warehouseDescription,\n" +
+            "iv.STCK_TYP_TEXT stockTypeDescription,\n" +
+            "iv.ITM_TYP_ID itemType,\n" +
+            "iv.ITM_TYP_TXT itemTypeDescription,\n" +
+            "iv.PARTNER_CODE partnerCode,\n" +
+            "iv.BATCH_DATE batchDate,\n" +
+            "iv.MATERIAL_NO materialNo, \n" +
+            "iv.PRICE_SEGMENT priceSegment, \n" +
+            "iv.ARTICLE_NO articleNo, \n" +
+            "iv.GENDER gender, \n" +
+            "iv.COLOR color, \n" +
+            "iv.SIZE size, \n" +
+            "iv.NO_PAIRS noPairs, \n" +
+            "iv.STATUS_TEXT statusDescription\n" +
+            "from tblinventory iv\n" +
+            "where \n" +
+            "iv.inv_id in (select inventoryId from #inv) and \n" +
+            "(COALESCE(:languageId, null) IS NULL OR (iv.lang_id = :languageId)) and \n" +
+            "(COALESCE(:plantId, null) IS NULL OR (iv.plant_id = :plantId)) and \n" +
+            "(COALESCE(:warehouseId, null) IS NULL OR (iv.wh_id = :warehouseId)) and \n" +
+            "(COALESCE(:barcodeId, null) IS NULL OR (iv.BARCODE_ID = :barcodeId)) and \n" +
+            "(COALESCE(:itemCode, null) IS NULL OR (iv.ITM_CODE = :itemCode)) and \n" +
+            "iv.is_deleted = 0", nativeQuery = true
+    )
+    public IInventoryImpl findInventoryForReversal(@Param("companyCodeId") String companyCodeId,
+                                                         @Param("languageId") String languageId,
+                                                         @Param("plantId") String plantId,
+                                                         @Param("warehouseId") String warehouseId,
+                                                         @Param("barcodeId") String barcodeId,
+                                                         @Param("itemCode") String itemCode,
+                                                         @Param("binClassId") Long binClassId);
+
+
     @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n"
             + "WHERE \n" +
             "(COALESCE(:itemCode, null) IS NULL OR (ITM_CODE IN (:itemCode))) and \n" +
@@ -4780,7 +4877,8 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                          @Param("packBarcodes") String packBarcodes,
                                          @Param("storageBin") String storageBin);
 
-    @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n" +
+//    @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n" +
+    @Query(value = "select top 1 inv_id as inventoryId into #inv from tblinventory  \n" +
             "WHERE \n" +
             "(COALESCE(:itemCode, null) IS NULL OR (ITM_CODE IN (:itemCode))) and \n" +
             "(COALESCE(:manufacturerName, null) IS NULL OR (MFR_NAME IN (:manufacturerName))) and \n" +
@@ -4788,8 +4886,11 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n" +
             "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n" +
             "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n" +
+            "(COALESCE(:barcodeId, null) IS NULL OR (barcode_id IN (:barcodeId))) and \n" +
             "is_deleted = 0 \n" +
-            "group by itm_code,barcode_id,mfr_name,pack_barcode,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id \n" +
+//            "group by itm_code,barcode_id,mfr_name,pack_barcode,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id \n" +
+	        "group by inv_id, itm_code,barcode_id,mfr_name,pack_barcode,stck_typ_id,st_bin,plant_id,wh_id,c_id,lang_id \n" + 
+	        "order by inv_id desc \n" +	    
 
             "SELECT \n" +
             "iv.INV_ID inventoryId, \n" +
@@ -4858,7 +4959,6 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "iv.COLOR color, \n" +
             "iv.SIZE size, \n" +
             "iv.NO_PAIRS noPairs, \n" +
-
             "iv.PALLET_ID palletId, \n" +
             "iv.STATUS_TEXT statusDescription\n" +
             "from tblinventory iv\n" +

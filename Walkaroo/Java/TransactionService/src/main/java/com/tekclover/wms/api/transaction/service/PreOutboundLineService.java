@@ -8,10 +8,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.tekclover.wms.api.transaction.model.outbound.preoutbound.v2.PreOutboundLineV2;
-import com.tekclover.wms.api.transaction.model.outbound.preoutbound.v2.SearchPreOutboundLineV2;
-import com.tekclover.wms.api.transaction.repository.*;
-import com.tekclover.wms.api.transaction.repository.specification.PreOutboundLineV2Specification;
+import javax.persistence.EntityNotFoundException;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -22,12 +20,16 @@ import com.tekclover.wms.api.transaction.model.outbound.preoutbound.AddPreOutbou
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.PreOutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.SearchPreOutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.UpdatePreOutboundLine;
+import com.tekclover.wms.api.transaction.model.outbound.preoutbound.v2.PreOutboundLineV2;
+import com.tekclover.wms.api.transaction.model.outbound.preoutbound.v2.SearchPreOutboundLineV2;
+import com.tekclover.wms.api.transaction.repository.PreOutboundLineRepository;
+import com.tekclover.wms.api.transaction.repository.PreOutboundLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.StagingLineV2Repository;
 import com.tekclover.wms.api.transaction.repository.specification.PreOutboundLineSpecification;
+import com.tekclover.wms.api.transaction.repository.specification.PreOutboundLineV2Specification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 
 import lombok.extern.slf4j.Slf4j;
-
-import javax.persistence.EntityNotFoundException;
 
 @Slf4j
 @Service
@@ -288,6 +290,27 @@ public class PreOutboundLineService extends BaseService {
 
         return null;
     }
+    
+    /**
+     * 
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param refDocNumber
+     * @param preOutboundNo
+     * @return
+     */
+	public List<PreOutboundLineV2> getPreOutboundLineForFullfillment (String companyCodeId, String plantId, String languageId,
+			String warehouseId, String refDocNumber, String preOutboundNo) {
+		List<PreOutboundLineV2> preOutboundLine = preOutboundLineV2Repository
+				.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+						languageId, companyCodeId, plantId, warehouseId, refDocNumber, preOutboundNo, 1L);
+		if (!preOutboundLine.isEmpty()) {
+			return preOutboundLine;
+		}
+		return null;
+	}
 
     /**
      * @param preOutboundNo

@@ -15,6 +15,7 @@ import com.tekclover.wms.core.model.warehouse.inbound.ASN;
 import com.tekclover.wms.core.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.core.model.warehouse.inbound.almailem.*;
 import com.tekclover.wms.core.model.warehouse.inbound.walkaroo.ReversalV3;
+import com.tekclover.wms.core.model.warehouse.outbound.OutboundIntegrationHeaderV2;
 import com.tekclover.wms.core.model.warehouse.outbound.almailem.*;
 import com.tekclover.wms.core.util.CommonUtils;
 import com.tekclover.wms.core.util.DateUtils;
@@ -35,6 +36,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import com.tekclover.wms.core.model.warehouse.outbound.walkaroo.DeliveryConfirmationSAP;
 import com.tekclover.wms.core.model.warehouse.outbound.walkaroo.DeliveryConfirmationV3;
 import javax.validation.Valid;
 import java.io.BufferedWriter;
@@ -4886,6 +4889,27 @@ public class TransactionService {
             HttpEntity<?> entity = new HttpEntity<>(headers);
             ResponseEntity<OutboundReversal[]> result = getRestTemplate().exchange(builder.toUriString(),
                     HttpMethod.GET, entity, OutboundReversal[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+ // GET
+    public DCReversalRequest[] doDCReversal(List<DCReversalRequest> dcReversalRequest, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getTransactionServiceApiUrl() + "outboundline/v2/reversal/dc");
+            HttpEntity<?> entity = new HttpEntity<>(dcReversalRequest, headers);
+            ResponseEntity<DCReversalRequest[]> result = getRestTemplate().exchange(builder.toUriString(),
+                    HttpMethod.POST, entity, DCReversalRequest[].class);
             log.info("result : " + result.getStatusCode());
             return result.getBody();
         } catch (Exception e) {
@@ -11577,6 +11601,38 @@ public class TransactionService {
         }
     }
 
+
+    /**
+     *
+     * @param updatePickupHeaderList
+     * @param authToken
+     * @return
+     */
+    public PickupHeaderV2[] updateAssignPickerPrintConfirm(@Valid List<PickupHeaderV2> updatePickupHeaderList, String loginUserID, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS-Almailem RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+            HttpEntity<?> entity = new HttpEntity<>(updatePickupHeaderList, headers);
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromHttpUrl(getTransactionServiceApiUrl() + "pickupheader/v2/assign-picker")
+                    .queryParam("loginUserID", loginUserID);
+            ResponseEntity<PickupHeaderV2[]> result = restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH,
+                    entity, PickupHeaderV2[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+
     // DELETE
     public boolean deletePickupHeaderV2(String companyCodeId, String plantId, String languageId, String warehouseId,
                                         String preOutboundNo, String refDocNumber, String partnerCode, String pickupNumber,
@@ -12639,6 +12695,36 @@ public class TransactionService {
         log.info("result: " + result.getStatusCode());
         return result.getBody();
     }
+
+    //Post SalesOrderV2 - Upload
+    public WarehouseApiResponse postSalesOrderV4(@Valid List<SalesOrderV2> salesOrderV2, String authToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.add("User-Agent", "ClassicWMS RestTemplate");
+        headers.add("Authorization", "Bearer " + authToken);
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromHttpUrl(getTransactionServiceApiUrl() + "warehouse/outbound/upload/salesorder/V4");
+        HttpEntity<?> entity = new HttpEntity<>(salesOrderV2, headers);
+        ResponseEntity<WarehouseApiResponse> result =
+                getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse.class);
+        log.info("result: " + result.getStatusCode());
+        return result.getBody();
+    }
+    
+    //	Post SalesOrderV2 from SAP
+    public OutboundHeaderV2[] postSalesOrderV2OrderFullfillment(List<OutboundIntegrationHeaderV2> obIntegrationHeaderV2List, String authToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.add("User-Agent", "ClassicWMS RestTemplate");
+        headers.add("Authorization", "Bearer " + authToken);
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromHttpUrl(getTransactionServiceApiUrl() + "warehouse/outbound/order/fullfillment/v3");
+        HttpEntity<?> entity = new HttpEntity<>(obIntegrationHeaderV2List, headers);
+        ResponseEntity<OutboundHeaderV2[]> result =
+                getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, OutboundHeaderV2[].class);
+        log.info("result: " + result.getStatusCode());
+        return result.getBody();
+    }
     
     //Post SalesOrderV2 - Upload
     public WarehouseApiResponse postDeliveryConfirmationV3 (@Valid DeliveryConfirmationV3 deliveryConfirmationV3, String authToken) {
@@ -12649,6 +12735,23 @@ public class TransactionService {
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromHttpUrl(getTransactionServiceApiUrl() + "warehouse/outbound/upload/deliveryConfirmationV3");
         HttpEntity<?> entity = new HttpEntity<>(deliveryConfirmationV3, headers);
+        ResponseEntity<WarehouseApiResponse> result =
+                getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse.class);
+        log.info("result: " + result.getStatusCode());
+        return result.getBody();
+    }
+
+    // Post SalesOrderV2 - Upload
+    // Modified for SAP orders - 30/06/2025
+    // Aakash vinayak
+    public WarehouseApiResponse postDeliveryConfirmationV4(List<DeliveryConfirmationSAP> deliveryConfirmationSAPList, String authToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.add("User-Agent", "ClassicWMS RestTemplate");
+        headers.add("Authorization", "Bearer " + authToken);
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromHttpUrl(getTransactionServiceApiUrl() + "warehouse/outbound/SAP/deliveryConfirmationV4");
+        HttpEntity<?> entity = new HttpEntity<>(deliveryConfirmationSAPList, headers);
         ResponseEntity<WarehouseApiResponse> result =
                 getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse.class);
         log.info("result: " + result.getStatusCode());
@@ -13972,12 +14075,11 @@ public class TransactionService {
     /**
      *
      * @param outboundOrderCancelInput
-     * @param loginUserID
      * @param authToken
      * @return
      * @throws ParseException
      */
-    public PreOutboundHeaderV2 orderCancellation(OutboundOrderCancelInput outboundOrderCancelInput, String loginUserID, String authToken) throws ParseException {
+    public PreOutboundHeaderV2[] orderCancellation(List<OutboundOrderCancelInput> outboundOrderCancelInput, String authToken) throws ParseException {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -13985,12 +14087,11 @@ public class TransactionService {
             headers.add("Authorization", "Bearer " + authToken);
 
             UriComponentsBuilder builder = UriComponentsBuilder
-                    .fromHttpUrl(getTransactionServiceApiUrl() + "preoutboundheader/v2/orderCancellation")
-                    .queryParam("loginUserID", loginUserID);
+                    .fromHttpUrl(getTransactionServiceApiUrl() + "preoutboundheader/v2/orderCancellation");
 
             HttpEntity<?> entity = new HttpEntity<>(outboundOrderCancelInput, headers);
-            ResponseEntity<PreOutboundHeaderV2> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
-                    entity, PreOutboundHeaderV2.class);
+            ResponseEntity<PreOutboundHeaderV2[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
+                    entity, PreOutboundHeaderV2[].class);
             log.info("result : " + result.getStatusCode());
             return result.getBody();
 

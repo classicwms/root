@@ -77,5 +77,8 @@ public interface OutboundHeaderV2Stream {
 	public String getAlternateNo();
 	public String getStatus();
 
+	public String getShipToParty();
+	public String getShipToCode();
+
 
 }
