@@ -218,7 +218,7 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
      */
 //    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     @Retryable(value = {org.springframework.dao.DeadlockLoserDataAccessException.class}, maxAttempts = 3, backoff = @Backoff(delay = 500))
-    public synchronized PutAwayHeaderV2 processPutAwayHeaderV4(GrLineV2 createdGRLine, String loginUserID, String idMasterToken) throws Exception {
+    public PutAwayHeaderV2 processPutAwayHeaderV4(GrLineV2 createdGRLine, String loginUserID, String idMasterToken) throws Exception {
         try {
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb("NAMRATHA");

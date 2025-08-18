@@ -123,10 +123,6 @@ public class InhouseTransferHeaderController {
             DataBaseContextHolder.setCurrentDb(routingDb);
             if (routingDb != null){
                 switch (routingDb){
-                    case "FAHAHEEL":
-                    case "AUTO_LAP":
-                        transferHeaderEntity = inHouseTransferHeaderService.createInHouseTransferHeaderFahaheel(newInHouseTransferHeader, loginUserID);
-                        break;
                     case "REEFERON":
                         transferHeaderEntity = inHouseTransferHeaderService.createInHouseTransferHeaderV5(newInHouseTransferHeader, loginUserID);
                         break;

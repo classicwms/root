@@ -73,9 +73,16 @@ public class TransactionService extends BaseService {
 //    List<StockAdjustment> stockAdjustmentList = null;
 //    static CopyOnWriteArrayList<InboundIntegrationHeader> spList = null;            // Inbound List
     static CopyOnWriteArrayList<OutboundIntegrationHeaderV2> spOutboundList = null;    // Outbound List
+<<<<<<< HEAD
 //    static CopyOnWriteArrayList<CycleCountHeader> scPerpetualList = null;    // StockCount List
 //    static CopyOnWriteArrayList<CycleCountHeader> scPeriodicList = null;    // StockCount List
 //    static CopyOnWriteArrayList<StockAdjustment> stockAdjustments = null;    // StockAdjustment List
+=======
+    static CopyOnWriteArrayList<CycleCountHeader> scPerpetualList = null;    // StockCount List
+    static CopyOnWriteArrayList<CycleCountHeader> scPeriodicList = null;    // StockCount List
+    static CopyOnWriteArrayList<StockAdjustment> stockAdjustments = null;    // StockAdjustment List
+
+>>>>>>> 92894abe73ff1a725043641d60ffb34a2c04b9a4
 
     //-------------------------------------------------------------------Outbound---------------------------------------------------------------
     public WarehouseApiResponse processOutboundOrder() throws IllegalAccessException, InvocationTargetException, ParseException {
