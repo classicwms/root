@@ -79,6 +79,7 @@ import com.tekclover.wms.api.transaction.repository.specification.GrLineSpecific
 import com.tekclover.wms.api.transaction.repository.specification.GrLineV2Specification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -2630,10 +2631,6 @@ public class GrLineService extends BaseService {
                 /*----------------INVENTORYMOVEMENT table Update---------------------------------------------*/
 //                createInventoryMovementV2(createdGRLine, createdinventory.getStorageBin());
             }
-//            if (cbm == 0D) {
-//                break outerloop;
-//            }
-//        }
     }
 
     /**
@@ -4566,6 +4563,7 @@ public class GrLineService extends BaseService {
      * @param createdGRLine
      * @return
      */
+    @Transactional
     private InventoryV2 createInventoryNonCBMV2(GrLineV2 createdGRLine) {
 
         try {
