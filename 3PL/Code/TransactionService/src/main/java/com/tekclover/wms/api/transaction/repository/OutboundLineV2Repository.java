@@ -623,4 +623,26 @@ public interface OutboundLineV2Repository extends JpaRepository<OutboundLineV2, 
                               @Param("manufacturerName") String manufacturerName,
                               @Param("loginUserId") String loginUserId,
                               @Param("updatedOn") Date updatedOn);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = "UPDATE tbloutboundline  SET status_Id = :statusId, STATUS_TEXT = :statusDescription, DLV_UTD_ON = :updatedOn, \r\n"
+            + " ASS_PICKER_ID = :assignedPickerId, MFR_NAME = :manufacturerName, HE_NO = :handlingEquipment \r\n "
+            + " WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId AND \r\n "
+            + " PARTNER_CODE = :partnerCode AND ITM_CODE = :itemCode AND \r\n "
+            + " REF_DOC_NO = :refDocNumber AND PRE_OB_NO = :preOutboundNo AND OB_LINE_NO = :lineNumber", nativeQuery = true)
+    void updateOutboundLine(@Param("companyCodeId") String companyCodeId,
+                            @Param("plantId") String plantId,
+                            @Param("languageId") String languageId,
+                            @Param("warehouseId") String warehouseId,
+                            @Param("refDocNumber") String refDocNumber,
+                            @Param("preOutboundNo") String preOutboundNo,
+                            @Param("itemCode") String itemCode,
+                            @Param("manufacturerName") String manufacturerName,
+                            @Param("partnerCode") String partnerCode,
+                            @Param("handlingEquipment") String handlingEquipment,
+                            @Param("assignedPickerId") String assignedPickerId,
+                            @Param("lineNumber") Long lineNumber,
+                            @Param("statusId") Long statusId,
+                            @Param("statusDescription") String statusDescription,
+                            @Param("updatedOn") Date updatedOn);
 }

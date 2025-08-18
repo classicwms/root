@@ -2070,13 +2070,12 @@ public class PickupLineService extends BaseService {
                 }
 
                 statusDescription = stagingLineV2Repository.getStatusDescription(STATUS_ID, dbPickupLine.getLanguageId());
-                outboundLineV2Repository.updateOutboundlineStatusUpdateProc(
+                outboundLineV2Repository.updateOutboundLine(
                         dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(),
                         dbPickupLine.getWarehouseId(), dbPickupLine.getRefDocNumber(), dbPickupLine.getPreOutboundNo(),
                         dbPickupLine.getItemCode(), dbPickupLine.getManufacturerName(), dbPickupLine.getPartnerCode(),
                         dbPickupLine.getActualHeNo(), dbPickupLine.getAssignedPickerId(),
                         dbPickupLine.getLineNumber(), STATUS_ID, statusDescription, new Date());
-                log.info("outboundLine updated using Stored Procedure: ");
             } catch (Exception e) {
                 log.error("outboundLine update Error :" + e.toString());
                 e.printStackTrace();
