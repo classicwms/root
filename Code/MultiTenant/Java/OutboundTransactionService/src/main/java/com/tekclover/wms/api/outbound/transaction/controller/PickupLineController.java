@@ -237,7 +237,7 @@ public class PickupLineController {
                     createdPickupLine = pickuplineService.createPickupLineNonCBMV2(newPickupLine, loginUserID);
                     break;
                 case "NAMRATHA":
-                    createdPickupLine = pickuplineService.createPickupLineNonCBMV4(newPickupLine, loginUserID);
+                    asyncService.processPickupLineAsync(newPickupLine, loginUserID);
                     break;
                 case "REEFERON":
                     createdPickupLine = pickuplineService.createPickupLineV5(newPickupLine, loginUserID);
@@ -245,6 +245,16 @@ public class PickupLineController {
                 case "KNOWELL":
                     createdPickupLine = pickuplineService.createPickupLineNonCBMV7(newPickupLine, loginUserID);
                     break;
+            }
+            if(createdPickupLine == null) {
+                List<PickupLineV2> createPickUpLineResponse = newPickupLine.stream()
+                        .map(item -> {
+                            PickupLineV2 copy = new PickupLineV2();
+                            BeanUtils.copyProperties(item, copy, CommonUtils.getNullPropertyNames(item));
+                            return copy;
+                        })
+                        .collect(Collectors.toList());
+                return new ResponseEntity<>(createPickUpLineResponse, HttpStatus.ACCEPTED);
             }
             return new ResponseEntity<>(createdPickupLine, HttpStatus.OK);
         } catch (Exception e) {
