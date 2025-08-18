@@ -1,32 +1,44 @@
 package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.persistence.EntityNotFoundException;
 
-import com.google.firebase.messaging.FirebaseMessagingException;
-import com.tekclover.wms.api.transaction.model.IKeyValuePair;
-import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.*;
-import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundLineV2;
-import com.tekclover.wms.api.transaction.repository.*;
-import com.tekclover.wms.api.transaction.repository.specification.PickHeaderV2Specification;
-import com.tekclover.wms.api.transaction.repository.specification.PickupHeaderV2Specification;
-import com.tekclover.wms.api.transaction.util.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
 import org.springframework.stereotype.Service;
 
+import com.google.firebase.messaging.FirebaseMessagingException;
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
+import com.tekclover.wms.api.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.AddPickupHeader;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupHeader;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.SearchPickupHeader;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.UpdatePickupHeader;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.FindPickUpHeader;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickUpHeaderCount;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickUpHeaderReport;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickerReport;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickupHeaderV2;
+import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.SearchPickupHeaderV2;
+import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundLineV2;
+import com.tekclover.wms.api.transaction.repository.OutboundLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.PickupHeaderRepository;
+import com.tekclover.wms.api.transaction.repository.PickupHeaderV2Repository;
+import com.tekclover.wms.api.transaction.repository.StagingLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.specification.PickHeaderV2Specification;
 import com.tekclover.wms.api.transaction.repository.specification.PickupHeaderSpecification;
+import com.tekclover.wms.api.transaction.repository.specification.PickupHeaderV2Specification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
+import com.tekclover.wms.api.transaction.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -1281,32 +1293,58 @@ public class PickupHeaderService {
 //        }
 //    }
 
+//    public List<PickupHeaderV2> patchAssignedPickerIdInPickupHeaderV2(List<PickupHeaderV2> updatePickupHeaderList) {
+//        List<PickupHeaderV2> pickupHeaderList = new ArrayList<>();
+//        try {
+//            log.info("Process start to update Assigned Picker Id in PickupHeader: " + updatePickupHeaderList);
+//            for (PickupHeaderV2 data : updatePickupHeaderList) {
+//                log.info("PickupHeader object to update : " + data);
+//                PickupHeaderV2 dbPickupHeader = getPickupHeaderForUpdatePickerV2(
+//                        data.getCompanyCodeId(), data.getPlantId(), data.getLanguageId(),
+//                        data.getWarehouseId(), data.getPreOutboundNo(), data.getRefDocNumber(), data.getPartnerCode(),
+//                        data.getPickupNumber(), data.getLineNumber(), data.getItemCode(), data.getManufacturerName());
+//                log.info("Old PickupHeader object from db : " + data);
+//                if (dbPickupHeader != null) {
+//                    dbPickupHeader.setAssignedPickerId(data.getAssignedPickerId());
+//                    dbPickupHeader.setPickUpdatedBy(data.getPickupCreatedBy());
+//                    dbPickupHeader.setPickUpdatedOn(new Date());
+//                    PickupHeaderV2 pickupHeader = pickupHeaderV2Repository.save(dbPickupHeader);
+//
+//                    //Send Notification
+//                    sendNotificationForUpdate(data.getRefDocNumber(),data.getAssignedPickerId(), data.getWarehouseId(), data.getReferenceDocumentType());
+//                    pickupHeaderList.add(pickupHeader);
+//                } else {
+//                    log.info("No record for PickupHeader object from db for data : " + data);
+//                    throw new BadRequestException("Error in pickupheader data");
+//                }
+//            }
+//            return pickupHeaderList;
+//        } catch (Exception e) {
+//            log.error("Update Assigned Picker Id in PickupHeader failed for : " + updatePickupHeaderList);
+//            throw new BadRequestException("Error in data");
+//        }
+//    }
+    
+    /**
+     * 
+     * @param updatePickupHeaderList
+     * @return
+     */
     public List<PickupHeaderV2> patchAssignedPickerIdInPickupHeaderV2(List<PickupHeaderV2> updatePickupHeaderList) {
         List<PickupHeaderV2> pickupHeaderList = new ArrayList<>();
         try {
             log.info("Process start to update Assigned Picker Id in PickupHeader: " + updatePickupHeaderList);
-            for (PickupHeaderV2 data : updatePickupHeaderList) {
-                log.info("PickupHeader object to update : " + data);
-                PickupHeaderV2 dbPickupHeader = getPickupHeaderForUpdatePickerV2(
-                        data.getCompanyCodeId(), data.getPlantId(), data.getLanguageId(),
-                        data.getWarehouseId(), data.getPreOutboundNo(), data.getRefDocNumber(), data.getPartnerCode(),
-                        data.getPickupNumber(), data.getLineNumber(), data.getItemCode(), data.getManufacturerName());
-                log.info("Old PickupHeader object from db : " + data);
-                if (dbPickupHeader != null) {
-                    dbPickupHeader.setAssignedPickerId(data.getAssignedPickerId());
-                    dbPickupHeader.setPickUpdatedBy(data.getPickupCreatedBy());
-                    dbPickupHeader.setPickUpdatedOn(new Date());
-                    PickupHeaderV2 pickupHeader = pickupHeaderV2Repository.save(dbPickupHeader);
-
-                    //Send Notification
-                    sendNotificationForUpdate(data.getRefDocNumber(),data.getAssignedPickerId(), data.getWarehouseId(), data.getReferenceDocumentType());
-                    pickupHeaderList.add(pickupHeader);
-                } else {
-                    log.info("No record for PickupHeader object from db for data : " + data);
-                    throw new BadRequestException("Error in pickupheader data");
-                }
+            for (PickupHeaderV2 dbPickupHeader : updatePickupHeaderList) {
+                dbPickupHeader.setPickUpdatedOn(new Date());
+                PickupHeaderV2 pickupHeader = pickupHeaderV2Repository.save(dbPickupHeader);
+                pickupHeaderList.add(pickupHeader);
             }
-            return pickupHeaderList;
+            
+          //Send Notification
+          sendNotificationForUpdate(updatePickupHeaderList.get(0).getRefDocNumber(), updatePickupHeaderList.get(0).getAssignedPickerId(),
+                  updatePickupHeaderList.get(0).getWarehouseId(), updatePickupHeaderList.get(0).getReferenceDocumentType());
+
+          return pickupHeaderList;
         } catch (Exception e) {
             log.error("Update Assigned Picker Id in PickupHeader failed for : " + updatePickupHeaderList);
             throw new BadRequestException("Error in data");

@@ -82,89 +82,182 @@ public class TransactionService extends BaseService {
 
 
     //-------------------------------------------------------------------Inbound---------------------------------------------------------------
-    public synchronized WarehouseApiResponse processInboundOrder() throws IllegalAccessException, InvocationTargetException, ParseException {
-        WarehouseApiResponse warehouseApiResponse = new WarehouseApiResponse();
-        if (inboundList == null || inboundList.isEmpty()) {
-            List<InboundOrderV2> sqlInboundList = inboundOrderV2Repository.findTopByProcessedStatusIdOrderByOrderReceivedOn(0L);
-            log.info("ib sql header list: " + sqlInboundList);
-            inboundList = new ArrayList<>();
-            for (InboundOrderV2 dbOBOrder : sqlInboundList) {
-                InboundIntegrationHeader inboundIntegrationHeader = new InboundIntegrationHeader();
-                BeanUtils.copyProperties(dbOBOrder, inboundIntegrationHeader, CommonUtils.getNullPropertyNames(dbOBOrder));
-                inboundIntegrationHeader.setId(dbOBOrder.getOrderId());
-                inboundIntegrationHeader.setMiddlewareId(String.valueOf(dbOBOrder.getMiddlewareId()));
-                inboundIntegrationHeader.setMiddlewareTable(dbOBOrder.getMiddlewareTable());
-                inboundIntegrationHeader.setSourceBranchCode(dbOBOrder.getSourceBranchCode());
-                inboundIntegrationHeader.setSourceCompanyCode(dbOBOrder.getSourceCompanyCode());
-
-//                List<InboundOrderLinesV2> sqlInboundLineList = inboundOrderLinesV2Repository.getOrderLinesByOrderTypeId(dbOBOrder.getOrderId(), dbOBOrder.getInboundOrderTypeId());
-                log.info("ib line list: " + dbOBOrder.getLine().size());
-                List<InboundIntegrationLine> inboundIntegrationLineList = new ArrayList<>();
-                for (InboundOrderLinesV2 line : dbOBOrder.getLine()) {
-                    InboundIntegrationLine inboundIntegrationLine = new InboundIntegrationLine();
-                    BeanUtils.copyProperties(line, inboundIntegrationLine, CommonUtils.getNullPropertyNames(line));
-
-                    inboundIntegrationLine.setLineReference(line.getLineReference());
-                    inboundIntegrationLine.setItemCode(line.getItemCode());
-                    inboundIntegrationLine.setItemText(line.getItemText());
-                    inboundIntegrationLine.setInvoiceNumber(line.getInvoiceNumber());
-                    inboundIntegrationLine.setContainerNumber(line.getContainerNumber());
-                    inboundIntegrationLine.setSupplierCode(line.getSupplierCode());
-                    inboundIntegrationLine.setSupplierPartNumber(line.getSupplierPartNumber());
-                    inboundIntegrationLine.setManufacturerName(line.getManufacturerName());
-                    inboundIntegrationLine.setManufacturerPartNo(line.getManufacturerPartNo());
-                    inboundIntegrationLine.setExpectedDate(line.getExpectedDate());
-                    inboundIntegrationLine.setOrderedQty(line.getExpectedQty());
-                    inboundIntegrationLine.setUom(line.getUom());
-                    inboundIntegrationLine.setItemCaseQty(line.getItemCaseQty());
-                    inboundIntegrationLine.setSalesOrderReference(line.getSalesOrderReference());
-                    inboundIntegrationLine.setManufacturerCode(line.getManufacturerCode());
-                    inboundIntegrationLine.setOrigin(line.getOrigin());
-                    inboundIntegrationLine.setBrand(line.getBrand());
-                    inboundIntegrationLine.setSourceCompanyCode(dbOBOrder.getSourceCompanyCode());
-                    inboundIntegrationLine.setSourceBranchCode(dbOBOrder.getSourceBranchCode());
-
-                    inboundIntegrationLine.setSupplierName(line.getSupplierName());
-
-                    inboundIntegrationLine.setMiddlewareId(String.valueOf(line.getMiddlewareId()));
-                    inboundIntegrationLine.setMiddlewareHeaderId(String.valueOf(line.getMiddlewareHeaderId()));
-                    inboundIntegrationLine.setMiddlewareTable(line.getMiddlewareTable());
-                    inboundIntegrationLine.setManufacturerFullName(line.getManufacturerFullName());
-                    inboundIntegrationLine.setPurchaseOrderNumber(line.getPurchaseOrderNumber());
-                    inboundIntegrationLine.setContainerNumber(line.getContainerNumber());
-                    inboundIntegrationHeader.setContainerNo(line.getContainerNumber());
-
-                    inboundIntegrationLineList.add(inboundIntegrationLine);
-                }
-                inboundIntegrationHeader.setInboundIntegrationLine(inboundIntegrationLineList);
-                inboundList.add(inboundIntegrationHeader);
-            }
-            spList = new CopyOnWriteArrayList<InboundIntegrationHeader>(inboundList);
-            log.info("There is no record found to process (sql) ...Waiting..");
-        }
-
-        if (inboundList != null) {
-            log.info("Latest InboundOrder found: " + inboundList);
-            for (InboundIntegrationHeader inbound : spList) {
-                try {
-                    log.info("InboundOrder ID : " + inbound.getRefDocumentNo());
-                    InboundHeaderV2 inboundHeader = preinboundheaderService.processInboundReceivedV2(inbound.getRefDocumentNo(), inbound);
-                    if (inboundHeader != null) {
-                        // Updating the Processed Status
-                        orderService.updateProcessedInboundOrderV2(inbound.getRefDocumentNo(), inbound.getInboundOrderTypeId(), 10L);
-                        inboundList.remove(inbound);
-                        warehouseApiResponse.setStatusCode("200");
-                        warehouseApiResponse.setMessage("Success");
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    log.error("Error on inbound processing : " + e.toString());
-                    if ((e.toString().contains("SQLState: 40001") && e.toString().contains("SQL Error: 1205")) ||
-                            e.toString().contains("was deadlocked on lock") ||
-                            e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException") ||
-                            e.toString().contains("UnexpectedRollbackException")) {
-                        // Updating the Processed Status
-                        orderService.updateProcessedInboundOrderV2(inbound.getRefDocumentNo(), inbound.getInboundOrderTypeId(), 900L);
+//    public synchronized WarehouseApiResponse processInboundOrder() throws IllegalAccessException, InvocationTargetException, ParseException {
+//        WarehouseApiResponse warehouseApiResponse = new WarehouseApiResponse();
+//        if (inboundList == null || inboundList.isEmpty()) {
+//            List<InboundOrderV2> sqlInboundList = inboundOrderV2Repository.findTopByProcessedStatusIdOrderByOrderReceivedOn(0L);
+//            log.info("ib sql header list: " + sqlInboundList);
+//            inboundList = new ArrayList<>();
+//            for (InboundOrderV2 dbOBOrder : sqlInboundList) {
+//                InboundIntegrationHeader inboundIntegrationHeader = new InboundIntegrationHeader();
+//                BeanUtils.copyProperties(dbOBOrder, inboundIntegrationHeader, CommonUtils.getNullPropertyNames(dbOBOrder));
+//                inboundIntegrationHeader.setId(dbOBOrder.getOrderId());
+//                inboundIntegrationHeader.setMiddlewareId(String.valueOf(dbOBOrder.getMiddlewareId()));
+//                inboundIntegrationHeader.setMiddlewareTable(dbOBOrder.getMiddlewareTable());
+//                inboundIntegrationHeader.setSourceBranchCode(dbOBOrder.getSourceBranchCode());
+//                inboundIntegrationHeader.setSourceCompanyCode(dbOBOrder.getSourceCompanyCode());
+//
+////                List<InboundOrderLinesV2> sqlInboundLineList = inboundOrderLinesV2Repository.getOrderLinesByOrderTypeId(dbOBOrder.getOrderId(), dbOBOrder.getInboundOrderTypeId());
+//                log.info("ib line list: " + dbOBOrder.getLine().size());
+//                List<InboundIntegrationLine> inboundIntegrationLineList = new ArrayList<>();
+//                for (InboundOrderLinesV2 line : dbOBOrder.getLine()) {
+//                    InboundIntegrationLine inboundIntegrationLine = new InboundIntegrationLine();
+//                    BeanUtils.copyProperties(line, inboundIntegrationLine, CommonUtils.getNullPropertyNames(line));
+//
+//                    inboundIntegrationLine.setLineReference(line.getLineReference());
+//                    inboundIntegrationLine.setItemCode(line.getItemCode());
+//                    inboundIntegrationLine.setItemText(line.getItemText());
+//                    inboundIntegrationLine.setInvoiceNumber(line.getInvoiceNumber());
+//                    inboundIntegrationLine.setContainerNumber(line.getContainerNumber());
+//                    inboundIntegrationLine.setSupplierCode(line.getSupplierCode());
+//                    inboundIntegrationLine.setSupplierPartNumber(line.getSupplierPartNumber());
+//                    inboundIntegrationLine.setManufacturerName(line.getManufacturerName());
+//                    inboundIntegrationLine.setManufacturerPartNo(line.getManufacturerPartNo());
+//                    inboundIntegrationLine.setExpectedDate(line.getExpectedDate());
+//                    inboundIntegrationLine.setOrderedQty(line.getExpectedQty());
+//                    inboundIntegrationLine.setUom(line.getUom());
+//                    inboundIntegrationLine.setItemCaseQty(line.getItemCaseQty());
+//                    inboundIntegrationLine.setSalesOrderReference(line.getSalesOrderReference());
+//                    inboundIntegrationLine.setManufacturerCode(line.getManufacturerCode());
+//                    inboundIntegrationLine.setOrigin(line.getOrigin());
+//                    inboundIntegrationLine.setBrand(line.getBrand());
+//                    inboundIntegrationLine.setSourceCompanyCode(dbOBOrder.getSourceCompanyCode());
+//                    inboundIntegrationLine.setSourceBranchCode(dbOBOrder.getSourceBranchCode());
+//
+//                    inboundIntegrationLine.setSupplierName(line.getSupplierName());
+//
+//                    inboundIntegrationLine.setMiddlewareId(String.valueOf(line.getMiddlewareId()));
+//                    inboundIntegrationLine.setMiddlewareHeaderId(String.valueOf(line.getMiddlewareHeaderId()));
+//                    inboundIntegrationLine.setMiddlewareTable(line.getMiddlewareTable());
+//                    inboundIntegrationLine.setManufacturerFullName(line.getManufacturerFullName());
+//                    inboundIntegrationLine.setPurchaseOrderNumber(line.getPurchaseOrderNumber());
+//                    inboundIntegrationLine.setContainerNumber(line.getContainerNumber());
+//                    inboundIntegrationHeader.setContainerNo(line.getContainerNumber());
+//
+//                    inboundIntegrationLineList.add(inboundIntegrationLine);
+//                }
+//                inboundIntegrationHeader.setInboundIntegrationLine(inboundIntegrationLineList);
+//                inboundList.add(inboundIntegrationHeader);
+//            }
+//            spList = new CopyOnWriteArrayList<InboundIntegrationHeader>(inboundList);
+//            log.info("There is no record found to process (sql) ...Waiting..");
+//        }
+//
+//        if (inboundList != null) {
+//            log.info("Latest InboundOrder found: " + inboundList);
+//            for (InboundIntegrationHeader inbound : spList) {
+//                try {
+//                    log.info("InboundOrder ID : " + inbound.getRefDocumentNo());
+//                    InboundHeaderV2 inboundHeader = preinboundheaderService.processInboundReceivedV2(inbound.getRefDocumentNo(), inbound);
+//                    if (inboundHeader != null) {
+//                        // Updating the Processed Status
+//                        orderService.updateProcessedInboundOrderV2(inbound.getRefDocumentNo(), inbound.getInboundOrderTypeId(), 10L);
+//                        inboundList.remove(inbound);
+//                        warehouseApiResponse.setStatusCode("200");
+//                        warehouseApiResponse.setMessage("Success");
+//                    }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                    log.error("Error on inbound processing : " + e.toString());
+//                    if ((e.toString().contains("SQLState: 40001") && e.toString().contains("SQL Error: 1205")) ||
+//                            e.toString().contains("was deadlocked on lock") ||
+//                            e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException") ||
+//                            e.toString().contains("UnexpectedRollbackException")) {
+//                        // Updating the Processed Status
+//                        orderService.updateProcessedInboundOrderV2(inbound.getRefDocumentNo(), inbound.getInboundOrderTypeId(), 900L);
+//
+//                       //============================================================================================
+//                        //Sending Failed Details through Mail
+//                        InboundOrderCancelInput inboundOrderCancelInput = new InboundOrderCancelInput();
+//                        inboundOrderCancelInput.setCompanyCodeId(inbound.getCompanyCode());
+//                        inboundOrderCancelInput.setPlantId(inbound.getBranchCode());
+//                        inboundOrderCancelInput.setRefDocNumber(inbound.getRefDocumentNo());
+//                        inboundOrderCancelInput.setReferenceField1(getInboundOrderTypeTable(inbound.getInboundOrderTypeId()));
+//                        String errorDesc = null;
+//                        try {
+//                            if (e.toString().contains("message")) {
+//                                errorDesc = e.toString().substring(e.toString().indexOf("message") + 9);
+//                                errorDesc = errorDesc.replaceAll("}]", "");
+//                            }
+//                            if (e.toString().contains("DataIntegrityViolationException") || e.toString().contains("ConstraintViolationException")) {
+//                                errorDesc = "Null Pointer Exception";
+//                            }
+//                            if (e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException") ||
+//                                    e.toString().contains("SQLServerException") || e.toString().contains("UnexpectedRollbackException")) {
+//                                errorDesc = "SQLServerException";
+//                            }
+//                            if (e.toString().contains("BadRequestException")) {
+//                                errorDesc = e.toString().substring(e.toString().indexOf("BadRequestException:") + 20);
+//                            }
+//                        } catch (Exception ex) {
+//                            throw new BadRequestException("ErrorDesc Extract Error" + ex);
+//                        }
+//                        inboundOrderCancelInput.setRemarks(errorDesc);
+//
+//                        mastersService.sendMail(inboundOrderCancelInput);
+//                        //============================================================================================
+//
+//                        try {
+//                            preinboundheaderService.createInboundIntegrationLogV2(inbound, e.toString());
+//                            inboundList.remove(inbound);
+//                        } catch (Exception ex) {
+//                            inboundList.remove(inbound);
+//                            throw new RuntimeException(ex);
+//                        }
+//
+//                        warehouseApiResponse.setStatusCode("1400");
+//                        warehouseApiResponse.setMessage("Failure");
+//                    } else {
+//                    // Updating the Processed Status
+//                    orderService.updateProcessedInboundOrderV2(inbound.getRefDocumentNo(), inbound.getInboundOrderTypeId(),  100L);
+//
+//                    //============================================================================================
+//                    //Sending Failed Details through Mail
+//                    InboundOrderCancelInput inboundOrderCancelInput = new InboundOrderCancelInput();
+//                    inboundOrderCancelInput.setCompanyCodeId(inbound.getCompanyCode());
+//                    inboundOrderCancelInput.setPlantId(inbound.getBranchCode());
+//                    inboundOrderCancelInput.setRefDocNumber(inbound.getRefDocumentNo());
+//                    inboundOrderCancelInput.setReferenceField1(getInboundOrderTypeTable(inbound.getInboundOrderTypeId()));
+//                    String errorDesc = null;
+//                    try {
+//                        if(e.toString().contains("message")) {
+//                            errorDesc = e.toString().substring(e.toString().indexOf("message") + 9);
+//                            errorDesc = errorDesc.replaceAll("}]", "");
+//                        }
+//                        if(e.toString().contains("DataIntegrityViolationException") || e.toString().contains("ConstraintViolationException")) {
+//                            errorDesc = "Null Pointer Exception";
+//                        }
+//                            if (e.toString().contains("CannotAcquireLockException") || e.toString().contains("LockAcquisitionException") ||
+//                                    e.toString().contains("SQLServerException") || e.toString().contains("UnexpectedRollbackException")) {
+//                                errorDesc = "SQLServerException";
+//                        }
+//                        if(e.toString().contains("BadRequestException")){
+//                            errorDesc = e.toString().substring(e.toString().indexOf("BadRequestException:") + 20);
+//                        }
+//                    } catch (Exception ex) {
+//                        throw new BadRequestException("ErrorDesc Extract Error" + ex);
+//                    }
+//                    inboundOrderCancelInput.setRemarks(errorDesc);
+//
+//                    mastersService.sendMail(inboundOrderCancelInput);
+//                    //============================================================================================
+//
+//                    try {
+//                        preinboundheaderService.createInboundIntegrationLogV2(inbound, e.toString());
+//                        inboundList.remove(inbound);
+//                    } catch (Exception ex) {
+//                        inboundList.remove(inbound);
+//                        throw new RuntimeException(ex);
+//                    }
+//
+//                    warehouseApiResponse.setStatusCode("1400");
+//                    warehouseApiResponse.setMessage("Failure");
+//                }
+//            }
+//        }
+//        }
+//        return warehouseApiResponse;
+//    }
 
                        //============================================================================================
                         //Sending Failed Details through Mail
