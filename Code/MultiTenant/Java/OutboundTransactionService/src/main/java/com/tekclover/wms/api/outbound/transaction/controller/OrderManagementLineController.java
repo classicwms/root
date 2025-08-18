@@ -3,6 +3,7 @@ package com.tekclover.wms.api.outbound.transaction.controller;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.validation.Valid;
@@ -13,8 +14,12 @@ import com.tekclover.wms.api.outbound.transaction.model.outbound.ordermangement.
 import com.tekclover.wms.api.outbound.transaction.model.outbound.ordermangement.v2.OrderManagementLineV2;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.ordermangement.v2.SearchOrderManagementLineV2;
 import com.tekclover.wms.api.outbound.transaction.repository.DbConfigRepository;
+import com.tekclover.wms.api.outbound.transaction.service.AsyncService;
 import com.tekclover.wms.api.outbound.transaction.service.OrderManagementLineService;
+import com.tekclover.wms.api.outbound.transaction.util.CommonUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -53,6 +58,8 @@ public class OrderManagementLineController {
     OrderManagementLineService ordermangementlineService;
     @Autowired
     DbConfigRepository dbConfigRepository;
+    @Autowired
+    AsyncService asyncService;
 
     @ApiOperation(response = OrderManagementLine.class, value = "Get all OrderManagementLine details")
     // label for swagger
@@ -306,9 +313,26 @@ public class OrderManagementLineController {
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
-            OrderManagementLineV2 updatedOrderManagementLine =
-                    ordermangementlineService.doUnAllocationV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber,
-                            itemCode, proposedStorageBin, proposedPackBarCode, loginUserID);
+
+            OrderManagementLineV2 updatedOrderManagementLine = new OrderManagementLineV2();
+            if (routingDb != null) {
+                switch (routingDb) {
+                    case "KNOWELL":
+                        updatedOrderManagementLine =
+                                ordermangementlineService.doUnAllocationV7(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber,
+                                        itemCode, proposedStorageBin, proposedPackBarCode, loginUserID);
+                        break;
+
+                    default:
+                        updatedOrderManagementLine =
+                                ordermangementlineService.doUnAllocationV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber,
+                                        itemCode, proposedStorageBin, proposedPackBarCode, loginUserID);
+                        break;
+                }
+            }
+//            OrderManagementLineV2 updatedOrderManagementLine =
+//                    ordermangementlineService.doUnAllocationV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber,
+//                            itemCode, proposedStorageBin, proposedPackBarCode, loginUserID);
             return new ResponseEntity<>(updatedOrderManagementLine, HttpStatus.OK);
         } finally {
             DataBaseContextHolder.clear();
@@ -363,32 +387,43 @@ public class OrderManagementLineController {
     public ResponseEntity<?> assignPickerV2(@RequestBody List<AssignPickerV2> assignPicker, @RequestParam String assignedPickerId,
                                             @RequestParam String loginUserID) throws Exception {
         try {
-            DataBaseContextHolder.setCurrentDb("MT");
-            String routingDb = dbConfigRepository.getDbName(assignPicker.get(0).getCompanyCodeId(), assignPicker.get(0).getPlantId(), assignPicker.get(0).getWarehouseId());
-            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-            DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb(routingDb);
-            List<OrderManagementLineV2> updatupdatedOrderManagementLine = null;
-            if (routingDb != null) {
-                switch (routingDb) {
-                    case "FAHAHEEL":
-                    case "AUTO_LAP":
-                        updatupdatedOrderManagementLine = ordermangementlineService.doAssignPickerV2(assignPicker,assignedPickerId,loginUserID);
-                        break;
-                    case "REEFERON":
-                        updatupdatedOrderManagementLine = ordermangementlineService.doAssignPickerV5(assignPicker, assignedPickerId, loginUserID);
-                        break;
-                    case "NAMRATHA":
-                        updatupdatedOrderManagementLine = ordermangementlineService.doAssignPickerV2(assignPicker, assignedPickerId, loginUserID);
-                        break;
-                    case "KNOWELL":
-                        updatupdatedOrderManagementLine = ordermangementlineService.doAssignPickerV7(assignPicker, assignedPickerId, loginUserID);
-                        break;
-//                        default:
-//                            updatupdatedOrderManagementLine = ordermangementlineService.doAssignPickerV2(assignPicker, assignedPickerId, loginUserID);
-                }
-            }
-            return new ResponseEntity<>(updatupdatedOrderManagementLine, HttpStatus.OK);
+//            DataBaseContextHolder.setCurrentDb("MT");
+//            String routingDb = dbConfigRepository.getDbName(assignPicker.get(0).getCompanyCodeId(), assignPicker.get(0).getPlantId(), assignPicker.get(0).getWarehouseId());
+//            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+//            DataBaseContextHolder.clear();
+//            DataBaseContextHolder.setCurrentDb(routingDb);
+//            List<OrderManagementLineV2> updatupdatedOrderManagementLine = null;
+//            if (routingDb != null) {
+//                switch (routingDb) {
+//                    case "FAHAHEEL":
+//                    case "AUTO_LAP":
+//                        updatupdatedOrderManagementLine = ordermangementlineService.doAssignPickerV2(assignPicker,assignedPickerId,loginUserID);
+//                        break;
+//                    case "REEFERON":
+//                        updatupdatedOrderManagementLine = ordermangementlineService.doAssignPickerV5(assignPicker, assignedPickerId, loginUserID);
+//                        break;
+//                    case "NAMRATHA":
+//                        updatupdatedOrderManagementLine = ordermangementlineService.doAssignPickerV2(assignPicker, assignedPickerId, loginUserID);
+//                        break;
+//                    case "KNOWELL":
+//                        updatupdatedOrderManagementLine = ordermangementlineService.doAssignPickerV7(assignPicker, assignedPickerId, loginUserID);
+//                        break;
+////                        default:
+////                            updatupdatedOrderManagementLine = ordermangementlineService.doAssignPickerV2(assignPicker, assignedPickerId, loginUserID);
+//                }
+//            }
+//            return new ResponseEntity<>(updatupdatedOrderManagementLine, HttpStatus.OK);
+            List<OrderManagementLineV2> orderManagementLineV2s =  assignPicker.stream().map(assign -> {
+                OrderManagementLineV2 newLine = new OrderManagementLineV2();
+                BeanUtils.copyProperties(assign, newLine, CommonUtils.getNullPropertyNames(assign));
+                return newLine;
+            }).collect(Collectors.toList());
+
+            // Return early response
+            ResponseEntity<?> response = new ResponseEntity<>(orderManagementLineV2s, HttpStatus.ACCEPTED);
+            // Fire async processing
+            asyncService.assignPickerAsync(assignPicker, assignedPickerId, loginUserID);
+            return response;
         } finally {
             DataBaseContextHolder.clear();
         }

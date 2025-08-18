@@ -415,12 +415,12 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
                     "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id) \n" +
                     "as referenceField10, \n" +
 
-                    "COALESCE((select sum(PICK_CNF_QTY) totQty from #pil where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no AND STATUS_ID = 50\n" +
+                    "COALESCE((select sum(PICK_CNF_QTY) totQty from #pil where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no AND STATUS_ID = 50\n" +    // 57 status need to change
                     "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id),0) \n" +
                     "as sumOfPickedQty, \n" +
 
                     "(select COUNT(PRE_OB_NO) from #pil \n" +
-                    "where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no AND STATUS_ID = 50\n" +
+                    "where REF_DOC_NO = oh.REF_DOC_NO AND PRE_OB_NO = oh.pre_ob_no AND STATUS_ID = 50\n" +              // 57 status need to change
                     "AND c_id = oh.c_id AND plant_id = oh.plant_id AND lang_id = oh.lang_id AND wh_id = oh.wh_id) \n" +
                     "as countOfPickedLine \n" +
 

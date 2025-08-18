@@ -228,5 +228,19 @@ PutAwayLineV2 findTopByCompanyCodeAndPlantIdAndWarehouseIdAndLanguageIdAndItemCo
 
     List<PutAwayLineV2> findByRefDocNumberAndPreInboundNo(String refDocNumber, String preInboundNo);
 
+    @Modifying
+    @Query(value = "update tblinboundheader set received_lines = " +
+            "(select count(distinct ib_line_no) as lineCount from tblputawayline where C_ID = :companyCodeId AND PLANT_ID = :plantId\n" +
+            "AND LANG_ID = :languageId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber\n" +
+            "AND PRE_IB_NO = :preInboundNo AND IS_DELETED = 0 AND STATUS_ID IN (20,24))\n" +
+            "WHERE IS_DELETED = 0 AND C_ID = :companyCodeId \n" +
+            "AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId " +
+            "AND REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo ", nativeQuery = true)
+    void updateInboundHeaderLineCount(@Param("companyCodeId") String companyCodeId,
+                                      @Param("plantId") String plantId,
+                                      @Param("languageId") String languageId,
+                                      @Param("warehouseId") String warehouseId,
+                                      @Param("refDocNumber") String refDocNumber,
+                                      @Param("preInboundNo") String preInboundNo);
 
 }

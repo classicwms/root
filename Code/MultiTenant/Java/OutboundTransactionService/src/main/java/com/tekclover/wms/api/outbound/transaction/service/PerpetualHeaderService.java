@@ -865,18 +865,36 @@ public class PerpetualHeaderService extends BaseService {
      */
     public PerpetualHeaderV2 getPerpetualHeaderRecordV2(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                         Long cycleCountTypeId, String cycleCountNo, Long movementTypeId, Long subMovementTypeId) {
-        Optional<PerpetualHeaderV2> optPerpetualHeader =
-                perpetualHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndCycleCountTypeIdAndCycleCountNoAndMovementTypeIdAndSubMovementTypeIdAndDeletionIndicator(
-                        companyCodeId, plantId, languageId, warehouseId, cycleCountTypeId, cycleCountNo, movementTypeId, subMovementTypeId, 0L);
+//        Optional<PerpetualHeaderV2> optPerpetualHeader =
+//                perpetualHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndCycleCountTypeIdAndCycleCountNoAndMovementTypeIdAndSubMovementTypeIdAndDeletionIndicator(
+//                        companyCodeId, plantId, languageId, warehouseId, cycleCountTypeId, cycleCountNo, movementTypeId, subMovementTypeId, 0L);
 
-        if (optPerpetualHeader.isEmpty()) {
+        PerpetualHeaderV2 optPerpetualHeader = perpetualHeaderV2Repository.getPerpetualHeader(
+                companyCodeId, plantId, warehouseId, cycleCountTypeId, cycleCountNo, movementTypeId, subMovementTypeId
+        );
+
+//        if (optPerpetualHeader.isEmpty()) {
+//            throw new BadRequestException("The given PerpetualHeader ID : " + cycleCountNo
+//                    + "cycleCountTypeId: " + cycleCountTypeId + ","
+//                    + "movementTypeId: " + movementTypeId + ","
+//                    + "companyCodeId: " + companyCodeId + ","
+//                    + "plantId: " + plantId + ","
+//                    + "warehouseId: " + warehouseId + ","
+//                    + "subMovementTypeId: " + subMovementTypeId
+//                    + " doesn't exist.");
+//        }
+        if (optPerpetualHeader == null) {
             throw new BadRequestException("The given PerpetualHeader ID : " + cycleCountNo
                     + "cycleCountTypeId: " + cycleCountTypeId + ","
                     + "movementTypeId: " + movementTypeId + ","
+                    + "companyCodeId: " + companyCodeId + ","
+                    + "plantId: " + plantId + ","
+                    + "warehouseId: " + warehouseId + ","
                     + "subMovementTypeId: " + subMovementTypeId
                     + " doesn't exist.");
         }
-        return optPerpetualHeader.get();
+//        return optPerpetualHeader.get();
+        return optPerpetualHeader;
     }
 
     /**
@@ -963,7 +981,7 @@ public class PerpetualHeaderService extends BaseService {
         log.info("searchPerpetualHeader: line status" + searchPerpetualHeader.getLineStatusId());
         log.info("searchPerpetualHeader: " + searchPerpetualHeader);
         PerpetualHeaderV2Specification spec = new PerpetualHeaderV2Specification(searchPerpetualHeader);
-        List<PerpetualHeaderV2> perpetualHeaderResults = perpetualHeaderV2Repository.stream(spec, PerpetualHeaderV2.class).collect(Collectors.toList());
+        List<PerpetualHeaderV2> perpetualHeaderResults = perpetualHeaderV2Repository.findAll(spec);
         log.info("searchPerpetualHeader results: " + perpetualHeaderResults);
         List<PerpetualHeaderEntityV2> results = convertToEntityV2(perpetualHeaderResults, searchPerpetualHeader);
 
@@ -1293,8 +1311,8 @@ public class PerpetualHeaderService extends BaseService {
             throws IllegalAccessException, InvocationTargetException {
         try {
             // Update Line Details
-            List<PerpetualLineV2> lines = perpetualLineService.updatePerpetualLineForMobileCountV2(updatePerpetualHeader.getPerpetualLine(), loginUserID);
-            log.info("Lines Updated : " + lines);
+            List<PerpetualLineV2> perpetualLines = perpetualLineService.updatePerpetualLineForMobileCountV2(updatePerpetualHeader.getPerpetualLine(), loginUserID);
+            log.info("Lines Updated : " + perpetualLines);
 
             PerpetualHeaderV2 dbPerpetualHeader = getPerpetualHeaderRecordV2(companyCodeId, plantId, languageId, warehouseId,
                     cycleCountTypeId, cycleCountNo, movementTypeId, subMovementTypeId);
@@ -1306,12 +1324,21 @@ public class PerpetualHeaderService extends BaseService {
              * 2. If STATUS_ID=74 for all the selected records, Update STATUS_ID of PERPETUALHEADER table as "74" by passing CC_NO
              * Else Update STATUS_ID as "73"
              */
-            List<PerpetualLineV2> perpetualLines = perpetualLineService.getPerpetualLineV2(companyCodeId, plantId, languageId, warehouseId, cycleCountNo);
+//            List<PerpetualLineV2> perpetualLines = perpetualLineService.getPerpetualLineV2(companyCodeId, plantId, languageId, warehouseId, cycleCountNo);
+
+            log.info("perpetualLines -----> {}", perpetualLines);
+
             long count_78 = perpetualLines.stream().filter(a -> a.getStatusId() == 78L).count();
             long count_74 = perpetualLines.stream().filter(a -> a.getStatusId() == 74L).count();
             long count_47 = perpetualLines.stream().filter(a -> a.getStatusId() == 47L).count();
             long totalCount78 = count_78 + count_47;
             long totalCount74 = count_74 + count_47;
+
+            log.info("count_78 ----> {}", count_78);
+            log.info("count_74 ----> {}", count_74);
+            log.info("count_47 ----> {}", count_47);
+            log.info("totalCount78 ----> {}", totalCount78);
+            log.info("totalCount74 ----> {}", totalCount74);
 
             if (perpetualLines.size() == totalCount78) {
                 dbPerpetualHeader.setStatusId(78L);
@@ -1321,11 +1348,13 @@ public class PerpetualHeaderService extends BaseService {
                 dbPerpetualHeader.setStatusId(73L);
             }
 
-            statusDescription = pickupLineRepository.getStatusDescription(dbPerpetualHeader.getStatusId(), languageId);
+            statusDescription = pickupLineRepository.getStatusDescription(dbPerpetualHeader.getStatusId(), dbPerpetualHeader.getLanguageId());
+            log.info("StatusDescription for PerpetualHeader -----> {}", statusDescription);
             dbPerpetualHeader.setStatusDescription(statusDescription);
 
             dbPerpetualHeader.setCountedBy(loginUserID);
             dbPerpetualHeader.setCountedOn(new Date());
+            perpetualHeaderV2Repository.delete(dbPerpetualHeader);  // Deleting coz duplicate error throws in MT
             return perpetualHeaderV2Repository.save(dbPerpetualHeader);
         } catch (Exception e) {
             e.printStackTrace();
@@ -1349,7 +1378,12 @@ public class PerpetualHeaderService extends BaseService {
                                                      Long subMovementTypeId, String loginUserID) throws IllegalAccessException, InvocationTargetException {
         PerpetualHeaderV2 dbPerpetualHeader = getPerpetualHeaderRecordV2(companyCodeId, plantId, languageId, warehouseId, cycleCountTypeId, cycleCountNo, movementTypeId, subMovementTypeId);
 
+        log.info("dbPerpetualHeader ----> {}", dbPerpetualHeader);
+
         List<PerpetualLineV2> perpetualLines = perpetualLineService.getPerpetualLineV2(companyCodeId, plantId, languageId, warehouseId, cycleCountNo);
+
+        log.info("perpetualLines ----> {}", perpetualLines);
+
         long count_78 = perpetualLines.stream().filter(a -> a.getStatusId() == 78L).count();
         long count_74 = perpetualLines.stream().filter(a -> a.getStatusId() == 74L).count();
         long count_47 = perpetualLines.stream().filter(a -> a.getStatusId() == 47L).count();
@@ -1369,6 +1403,7 @@ public class PerpetualHeaderService extends BaseService {
 
         dbPerpetualHeader.setCountedBy(loginUserID);
         dbPerpetualHeader.setCountedOn(new Date());
+        perpetualHeaderV2Repository.delete(dbPerpetualHeader);
         return perpetualHeaderV2Repository.save(dbPerpetualHeader);
     }
 
@@ -1889,7 +1924,7 @@ public class PerpetualHeaderService extends BaseService {
 
             log.info("SearchPerpetualLine Input: " + searchPerpetualLine);
             PerpetualLineV2Specification spec = new PerpetualLineV2Specification(searchPerpetualLine);
-            List<PerpetualLineV2> perpetualLineList = perpetualLineV2Repository.stream(spec, PerpetualLineV2.class).collect(Collectors.toList());
+            List<PerpetualLineV2> perpetualLineList = perpetualLineV2Repository.findAll(spec);
             log.info("searchPerpetualLine result: " + perpetualLineList);
 //            if (perpetualLineList == null || perpetualLineList.isEmpty()) {
 //                log.info("searchPerpetualHeader: line null");

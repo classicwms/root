@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.inbound.transaction.service;
 
+import com.microsoft.sqlserver.jdbc.SQLServerException;
 import com.tekclover.wms.api.inbound.transaction.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.inbound.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.inbound.transaction.model.IKeyValuePair;
@@ -25,9 +26,14 @@ import com.tekclover.wms.api.inbound.transaction.repository.specification.PutAwa
 import com.tekclover.wms.api.inbound.transaction.util.CommonUtils;
 import com.tekclover.wms.api.inbound.transaction.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -3350,41 +3357,36 @@ public class PutAwayLineService extends BaseService {
      * @return
      */
     public List<PutAwayLineV2> putAwayLineConfirmNonCBMV4(@Valid List<PutAwayLineV2> newPutAwayLines, String loginUserID) {
-        ExecutorService asyncExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        List<PutAwayLineV2> putAwayLineV2List = new ArrayList<>();
+        for(PutAwayLineV2 putAwayLineV2 : newPutAwayLines) {
+            log.info("PutAwayLine Created Started ---------------->");
+            putAwayLineV2List.add(createPutAwayLineProcessV4(putAwayLineV2, loginUserID));
+        }
 
-        List<CompletableFuture<PutAwayLineV2>> futures = newPutAwayLines.stream().map(putAwayLineV2 -> CompletableFuture.supplyAsync(() -> {
-            try {
-                return createPutAwayLineProcessV4(putAwayLineV2, loginUserID);
-            } catch (Exception e) {
-                log.error("Error processing GRLine: {}", putAwayLineV2.getLineNo(), e);
-                return null; // or throw RuntimeException
-            }
-        }, asyncExecutor)).collect(Collectors.toList());
-
-        List<PutAwayLineV2> createdPutAwayLines = futures.stream()
-                .map(CompletableFuture::join)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-
-
-        log.info("PutAwayLine Value size is {}", createdPutAwayLines.size());
-        if (!createdPutAwayLines.isEmpty()) {
-            putAwayLineV2Repository.saveAll(createdPutAwayLines);
+        try {
+            fireBaseNotification(putAwayLineV2List.get(0), loginUserID);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.info("FireBaseNotification Error in PutAwayLine " + e.getMessage());
+        }
+        log.info("PutAwayLine Value size is {}", putAwayLineV2List.size());
+        if (!putAwayLineV2List.isEmpty()) {
+            putAwayLineV2Repository.saveAll(putAwayLineV2List);
         } else {
             throw new BadRequestException("PutAwayLine List is Empty  ------------------> ");
         }
 
-        PutAwayLineV2 putAwayLine = createdPutAwayLines.get(0);
-        putAwayLineV2Repository.updateInboundHeaderRxdLinesCountProc(putAwayLine.getCompanyCode(), putAwayLine.getPlantId(), putAwayLine.getLanguageId(),
+        PutAwayLineV2 putAwayLine = putAwayLineV2List.get(0);
+        putAwayLineV2Repository.updateInboundHeaderLineCount(putAwayLine.getCompanyCode(), putAwayLine.getPlantId(), putAwayLine.getLanguageId(),
                 putAwayLine.getWarehouseId(), putAwayLine.getRefDocNumber(), putAwayLine.getPreInboundNo());
         log.info("InboundHeader received lines count updated: " + putAwayLine.getRefDocNumber());
 
         log.info("Inventory Async Process Started -------------------> ");
-        inventoryAsyncProcessService.createInventoryAsyncProcessV4(createdPutAwayLines, loginUserID);
+        inventoryAsyncProcessService.createInventoryAsyncProcessV4(putAwayLineV2List, loginUserID);
 
         inboundConfirmValidation(putAwayLine.getCompanyCode(), putAwayLine.getPlantId(), putAwayLine.getLanguageId(), putAwayLine.getWarehouseId(),
                 putAwayLine.getRefDocNumber(), putAwayLine.getPreInboundNo(), loginUserID);
-        return createdPutAwayLines;
+        return putAwayLineV2List;
 
     }
 
@@ -3392,6 +3394,12 @@ public class PutAwayLineService extends BaseService {
     /**
      * @param newPutAwayLine putAwayLine
      * @param loginUserID userID
+     * @return
+     */
+//    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+    /**
+     * @param newPutAwayLine putAwayLine
+     * @param loginUserID    userID
      * @return
      */
 //    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
@@ -3470,12 +3478,6 @@ public class PutAwayLineService extends BaseService {
             if (existingPutAwayLine.isEmpty()) {
                 //Lead Time calculation
                 log.info("---------->NewPutAwayLine created: " + dbPutAwayLine);
-                try {
-                    fireBaseNotification(dbPutAwayLine, loginUserID);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    log.info("FireBaseNotification Error in PutAwayLine " + e.getMessage());
-                }
                 if (dbPutAwayLine.getPutawayConfirmedQty() > 0L) {
 
                     storageBinV2Repository.updateEmptyBinStatus(dbPutAwayLine.getConfirmedStorageBin(), newPutAwayLine.getCompanyCode(),
@@ -3511,6 +3513,7 @@ public class PutAwayLineService extends BaseService {
                         if (addedAcceptQty > inboundLine.getOrderQty()) {
                             throw new BadRequestException("Accept qty cannot be greater than order qty");
                         }
+//                            double actualAcceptQty = getQuantity(addedAcceptQty, createdPutAwayLine.getBagSize());
                         double actualAcceptQty = addedAcceptQty;
                         inboundLine.setActualAcceptedQty(actualAcceptQty);
                         inboundLine.setAcceptedQty(addedAcceptQty);
@@ -3521,11 +3524,31 @@ public class PutAwayLineService extends BaseService {
                             newPutAwayLine.getLanguageId(), newPutAwayLine.getWarehouseId(), dbPutAwayLine.getRefDocNumber(),
                             dbPutAwayLine.getPreInboundNo(), dbPutAwayLine.getLineNo(), dbPutAwayLine.getItemCode(), 20L, statusDescription,
                             inboundLine.getActualAcceptedQty(), inboundLine.getAcceptedQty(), inboundLine.getVarianceQty());
+
+//                        inboundLine = inboundLineV2Repository.saveAndFlush(inboundLine);
                     log.info("inboundLine updated : " + inboundLine);
                 }
             } else {
                 log.info("Putaway Line already exist : " + existingPutAwayLine);
             }
+
+//            log.info("PutAwayLine Value size is {}", createdPutAwayLines.size());
+//            if (!createdPutAwayLines.isEmpty()) {
+//                putAwayLineV2Repository.saveAll(createdPutAwayLines);
+//            } else {
+//                throw new BadRequestException("PutAwayLine List is Empty  ------------------> ");
+//            }
+
+//            PutAwayLineV2 putAwayLine = createdPutAwayLines.get(0);
+//            putAwayLineV2Repository.updateInboundHeaderRxdLinesCountProc(putAwayLine.getCompanyCode(), putAwayLine.getPlantId(), putAwayLine.getLanguageId(),
+//                    putAwayLine.getWarehouseId(), putAwayLine.getRefDocNumber(), putAwayLine.getPreInboundNo());
+//            log.info("InboundHeader received lines count updated: " + putAwayLine.getRefDocNumber());
+
+//            log.info("Inventory Async Process Started -------------------> ");
+//            inventoryAsyncProcessService.createGrLineAsyncProcessV7(createdPutAwayLines, loginUserID);
+
+//            inboundConfirmValidation(putAwayLine.getCompanyCode(), putAwayLine.getPlantId(), putAwayLine.getLanguageId(), putAwayLine.getWarehouseId(),
+//                    putAwayLine.getRefDocNumber(), putAwayLine.getPreInboundNo(), loginUserID);
             return dbPutAwayLine;
         } catch (Exception e) {
             e.printStackTrace();
@@ -3540,7 +3563,7 @@ public class PutAwayLineService extends BaseService {
      * @param loginUserID
      * @return
      */
-    @Transactional(rollbackFor = {Exception.class, Throwable.class})
+//    @Transactional(rollbackFor = {Exception.class, Throwable.class})
     public List<PutAwayLineV2> putAwayLineConfirmNonCBMV7(@Valid List<PutAwayLineV2> newPutAwayLines, String loginUserID) {
         List<PutAwayLineV2> createdPutAwayLines = new ArrayList<>();
         log.info("newPutAwayLines to confirm : " + newPutAwayLines);
@@ -3556,6 +3579,10 @@ public class PutAwayLineService extends BaseService {
         String lineReferenceNo = null;
 
         try {
+            statusDescription = stagingLineV2Repository.getStatusDescription(20L, languageId);
+            putAwayLineV2Repository.updatePutawayLineStatus(newPutAwayLines.get(0).getWarehouseId(), newPutAwayLines.get(0).getCompanyCode(), newPutAwayLines.get(0).getPlantId(), newPutAwayLines.get(0).getLanguageId(), newPutAwayLines.get(0).getRefDocNumber(), 20L, statusDescription);
+            log.info("PutawayLine Status Updating");
+
             for (PutAwayLineV2 newPutAwayLine : newPutAwayLines) {
                 if (newPutAwayLine.getPutawayConfirmedQty() <= 0) {
                     throw new BadRequestException("Putaway Confirm Qty cannot be zero or negative");
@@ -3576,17 +3603,72 @@ public class PutAwayLineService extends BaseService {
 
                 StorageBinV2 dbStorageBin = null;
                 try {
-                    dbStorageBin = storageBinService.getStorageBinV2(companyCode, plantId, languageId, warehouseId, newPutAwayLine.getConfirmedStorageBin());
+                    // Checking weather confirmedStBin equals to proposedStBin
+                    if (newPutAwayLine.getProposedStorageBin().equalsIgnoreCase(newPutAwayLine.getConfirmedStorageBin())) {
+                        log.warn("ProposedStorageBin is confirmed");
+                        dbStorageBin = storageBinService.getStorageBinV7(companyCode, plantId, languageId, warehouseId, newPutAwayLine.getConfirmedStorageBin());
+                        log.info("Accepted proposedStorageBin -----> {}", dbStorageBin);
+
+//                        if (dbStorageBin.getTotalQuantity().equalsIgnoreCase(dbStorageBin.getOccupiedQuantity())) {
+//                            dbStorageBin.setStatusId(1L);
+//                        } else {
+//                            dbStorageBin.setStatusId(2L);
+//                        }
+//                        storageBinV2Repository.updateStorageBinStatus(dbStorageBin.getStatusId(), dbStorageBin.getStorageBin(), companyCode, plantId, warehouseId);
+//                        storageBinService.updateStorageBinV7(dbPutAwayLine.getConfirmedStorageBin(), dbStorageBin, companyCode, plantId, languageId, warehouseId, loginUserID);
+
+                    } else {
+                        log.warn("ConfirmedStorageBin is different from ProposedBin");
+                        log.info("Checking weather ConfirmedStorageBin is Available for Putaway");
+                        dbStorageBin = storageBinService.getConfirmedStorageBinV7(companyCode, plantId, languageId, warehouseId, newPutAwayLine.getConfirmedStorageBin());
+                        log.info("ConfirmedStoragebin is Available ----> {}", dbStorageBin);
+
+                        /**
+                         *  Updating proposedStBin since confirmedStorageBin is available, need to add remain_qty by 1 (ie., remain_qty = 18 ---> remain_qty = 19),
+                         *  and need to reduce occ_qty by 1 (ie., occ_qty = 18 -----> occ_qyt = 17)
+                         */
+                        if (dbStorageBin != null) {
+
+//                            if (dbStorageBin.getTotalQuantity().equalsIgnoreCase(dbStorageBin.getOccupiedQuantity())) {
+//                                dbStorageBin.setStatusId(1L);
+//                            } else {
+//                                dbStorageBin.setStatusId(2L);
+//                            }
+//                            storageBinV2Repository.updateStorageBinStatus(dbStorageBin.getStatusId(), dbStorageBin.getStorageBin(), companyCode, plantId, warehouseId);
+//                            storageBinService.updateStorageBinV7(dbPutAwayLine.getConfirmedStorageBin(), dbStorageBin, companyCode, plantId, languageId, warehouseId, loginUserID);
+
+                            StorageBinV2 dbProposedStBin = storageBinService.getStorageBinV7(companyCode, plantId, languageId, warehouseId, newPutAwayLine.getProposedStorageBin());
+                            log.info("ProposedBin for Updating Bin Qty's -----> {}", dbProposedStBin);
+
+                            Long CASE_QTY = 1L;
+                            log.info("CASE_QTY ----> {}", CASE_QTY);
+                            Long REMAIN_BIN_QTY;
+                            Long OCC_BIN_QTY;
+
+                            Long TOTAL_BIN_QTY = Long.valueOf(dbProposedStBin.getTotalQuantity());
+                            log.info("dbProposedStBin E or P Series proposed bin TOTAL_BIN_QTY ----> {}", TOTAL_BIN_QTY);
+
+                            OCC_BIN_QTY = Long.valueOf(dbProposedStBin.getOccupiedQuantity()) - CASE_QTY;
+                            log.info("dbProposedStBin E or P Series proposed bin OCC_BIN_QTY ----> {}", OCC_BIN_QTY);
+
+                            REMAIN_BIN_QTY = Long.valueOf(dbProposedStBin.getRemainingQuantity()) + CASE_QTY;
+                            log.info("dbProposedStBin E or P Series proposed bin REMAIN_BIN_QTY ----> {}", REMAIN_BIN_QTY);
+
+                            // Update TBLSTORAGEBIN occ_qty, remain_qty
+                            String occQty = String.valueOf(OCC_BIN_QTY);
+                            String remainQty = String.valueOf(REMAIN_BIN_QTY);
+                            storageBinV2Repository.updateBinQty(occQty, remainQty, dbProposedStBin.getStorageBin(), companyCode, plantId, warehouseId);
+                        } else {
+                            throw new BadRequestException("Confirmed StorageBin ----> " + newPutAwayLine.getConfirmedStorageBin() + " Capacity exceeding " + dbStorageBin.getTotalQuantity());
+                        }
+
+                    }
                 } catch (Exception e) {
                     throw new BadRequestException("Invalid StorageBin --> " + newPutAwayLine.getConfirmedStorageBin());
                 }
 
                 PutAwayHeaderV2 putAwayHeader = putAwayHeaderService.fetchPutawayHeaderByItemV2(companyCode, plantId, warehouseId, itemCode, manufactureName, lineReferenceNo, languageId, newPutAwayLine.getPutAwayNumber());
                 log.info("putawayHeader: " + putAwayHeader);
-
-                if (dbStorageBin != null) {
-                    dbPutAwayLine.setLevelId(String.valueOf(dbStorageBin.getFloorId()));
-                }
 
                 StagingLineEntityV2 dbStagingLineEntity = stagingLineService.getStagingLineForPutAwayLineV2(companyCode, plantId, languageId, warehouseId, preInboundNo, refDocNumber,
                         newPutAwayLine.getLineNo(), itemCode, newPutAwayLine.getManufacturerName());
@@ -3642,7 +3724,6 @@ public class PutAwayLineService extends BaseService {
                         Arrays.asList(newPutAwayLine.getConfirmedStorageBin()), 0L);
                 log.info("Existing putawayline already created : " + existingPutAwayLine);
 
-//                double actualInventoryQty = getQuantity(dbPutAwayLine.getPutawayConfirmedQty(), dbPutAwayLine.getBagSize());
                 double actualInventoryQty = dbPutAwayLine.getPutawayConfirmedQty();
                 dbPutAwayLine.setActualInventoryQty(actualInventoryQty);
 
@@ -3654,14 +3735,13 @@ public class PutAwayLineService extends BaseService {
 
                     PutAwayLineV2 createdPutAwayLine = putAwayLineV2Repository.save(dbPutAwayLine);
                     log.info("---------->NewPutAwayLine created: " + createdPutAwayLine);
-//                    fireBaseNotification(createdPutAwayLine, loginUserID);
 
                     createdPutAwayLines.add(createdPutAwayLine);
 
                     if (createdPutAwayLine != null && createdPutAwayLine.getPutawayConfirmedQty() > 0L) {
 
-                        dbStorageBin.setStatusId(1L);
-                        storageBinService.updateStorageBinV7(dbPutAwayLine.getConfirmedStorageBin(), dbStorageBin, companyCode, plantId, languageId, warehouseId, loginUserID);
+//                        dbStorageBin.setStatusId(1L);
+//                        storageBinService.updateStorageBinV7(dbPutAwayLine.getConfirmedStorageBin(), dbStorageBin, companyCode, plantId, languageId, warehouseId, loginUserID);
 
                         if (putAwayHeader != null) {
                             String confirmedStorageBin = createdPutAwayLine.getConfirmedStorageBin();
@@ -3670,6 +3750,7 @@ public class PutAwayLineService extends BaseService {
 
                             putAwayHeader.setStatusId(20L);
                             putAwayHeader.setStatusDescription(statusDescription);
+                            putAwayHeaderV2Repository.delete(putAwayHeader);
                             putAwayHeader = putAwayHeaderV2Repository.save(putAwayHeader);
                             log.info("putAwayHeader updated----> StatusId : " + putAwayHeader + " ---->----> " + putAwayHeader.getStatusId());
 
@@ -3696,7 +3777,6 @@ public class PutAwayLineService extends BaseService {
                                     throw new BadRequestException("sum of confirm Putaway line qty is greater than assigned putaway header qty");
                                 }
                                 if (dbPutawayQty <= dbAssignedPutawayQty) {
-//                                    if (proposedStorageBin.equalsIgnoreCase(confirmedStorageBin)) {
                                     log.info("New PutawayHeader Create Initiated---> ");
                                     PutAwayHeaderV2 newPutAwayHeader = new PutAwayHeaderV2();
                                     BeanUtils.copyProperties(putAwayHeader, newPutAwayHeader, CommonUtils.getNullPropertyNames(putAwayHeader));
@@ -3729,29 +3809,9 @@ public class PutAwayLineService extends BaseService {
                                     log.info("PutawayHeader StatusId : 19");
                                     statusDescription = getStatusDescription(newPutAwayHeader.getStatusId(), languageId);
                                     newPutAwayHeader.setStatusDescription(statusDescription);
+                                    putAwayHeaderV2Repository.delete(newPutAwayHeader);
                                     newPutAwayHeader = putAwayHeaderV2Repository.save(newPutAwayHeader);
                                     log.info("putAwayHeader created: " + newPutAwayHeader);
-//                                    }
-//                                    if (!proposedStorageBin.equalsIgnoreCase(confirmedStorageBin)) {
-//
-//                                        putAwayHeader.setReferenceField1(String.valueOf(putAwayHeader.getPutAwayQuantity()));
-//                                        if (putAwayHeader.getReferenceField4() == null) {
-//                                            putAwayHeader.setReferenceField2(String.valueOf(putAwayHeader.getPutAwayQuantity()));
-//                                            putAwayHeader.setReferenceField4("1");
-//                                        }
-//                                        Double PUTAWAY_QTY = dbAssignedPutawayQty - dbPutawayQty;
-//                                        if (PUTAWAY_QTY < 0) {
-//                                            throw new BadRequestException("total confirm qty greater than putaway qty");
-//                                        }
-//                                        putAwayHeader.setPutAwayQuantity(PUTAWAY_QTY);
-//                                        log.info("OrderQty ReCalcuated/Changed : " + PUTAWAY_QTY);
-//                                        putAwayHeader.setStatusId(19L);
-//                                        log.info("PutawayHeader StatusId : 19");
-//                                        statusDescription = getStatusDescription(putAwayHeader.getStatusId(), createdPutAwayLine.getLanguageId());
-//                                        putAwayHeader.setStatusDescription(statusDescription);
-//                                        putAwayHeader = putAwayHeaderV2Repository.save(putAwayHeader);
-//                                        log.info("putAwayHeader updated: " + putAwayHeader);
-//                                    }
                                 }
                             }
                         }
@@ -3810,6 +3870,7 @@ public class PutAwayLineService extends BaseService {
                         inboundLine.setStatusId(20L);
                         statusDescription = getStatusDescription(20L, languageId);
                         inboundLine.setStatusDescription(statusDescription);
+                        inboundLineV2Repository.delete(inboundLine);
                         inboundLine = inboundLineV2Repository.save(inboundLine);
                         log.info("inboundLine updated : " + inboundLine);
                     }
@@ -3832,6 +3893,8 @@ public class PutAwayLineService extends BaseService {
             return createdPutAwayLines;
         } catch (Exception e) {
             e.printStackTrace();
+            log.info("RollBack for Status Update to 19");
+            statusDescription = stagingLineV2Repository.getStatusDescription(19L, languageId);
             throw new BadRequestException("PutawayLine Create Exception");
         }
     }
@@ -4627,6 +4690,9 @@ public class PutAwayLineService extends BaseService {
      * @param putAwayLine
      * @return
      */
+    @Transactional
+    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class,
+            LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 2000))
     private InventoryV2 createInventoryNonCBMV7(String companyCode, String plantId, String languageId,
                                                 String warehouseId, String itemCode, String manufacturerName,
                                                 String refDocNumber, PutAwayLineV2 putAwayLine, String loginUserId) {

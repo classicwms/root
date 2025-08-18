@@ -18,9 +18,11 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -209,5 +211,40 @@ public class DeliveryHeaderService {
         List<DeliveryHeader> results = deliveryHeaderRepository.findAll(spec);
         log.info("results: " + results);
         return results;
+    }
+
+    public List<DeliveryHeader> createDeliveryHeaderList(List<AddDeliveryHeader> deliveryHeaderList, String loginUserID) throws ExecutionException, InterruptedException {
+
+        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+        List<Future<DeliveryHeader>> futures = new ArrayList<>();
+
+        for(AddDeliveryHeader addDeliveryHeader : deliveryHeaderList) {
+            futures.add(executor.submit(() -> createDeliveryHeader(addDeliveryHeader, loginUserID)));
+        }
+
+        List<DeliveryHeader> savedDeliveryHeader = new ArrayList<>();
+        for (Future<DeliveryHeader> future : futures) {
+            savedDeliveryHeader.add(future.get());
+        }
+
+        executor.shutdown();
+        return savedDeliveryHeader;
+    }
+
+    public List<DeliveryHeader> createDeliveryHeaderListV2(List<AddDeliveryHeader> deliveryHeaderList, String loginUseID) {
+
+        List<CompletableFuture<DeliveryHeader>> futures = deliveryHeaderList.stream()
+                .map(header -> CompletableFuture.supplyAsync(() -> {
+            try {
+                return createDeliveryHeader(header, loginUseID);
+            } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+            }
+        })).collect(Collectors.toList());
+
+        CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+        allOf.join();
+        return futures.stream().map(CompletableFuture::join).collect(Collectors.toList());
     }
 }

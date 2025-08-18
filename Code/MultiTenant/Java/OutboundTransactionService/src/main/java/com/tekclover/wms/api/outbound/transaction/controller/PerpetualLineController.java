@@ -109,7 +109,12 @@ public class PerpetualLineController {
     @PostMapping("/v2/findPerpetualLine")
     public List<PerpetualLineV2> findPerpetualLineV2(@RequestBody SearchPerpetualLineV2 searchPerpetualLine)
             throws Exception {
-
+        log.info("SearchPerpetualLineV2 ----> {}", searchPerpetualLine);
+        DataBaseContextHolder.setCurrentDb("MT");
+        String routingDb = dbConfigRepository.getDbByWarehouse(searchPerpetualLine.getWarehouseId());
+        log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb(routingDb);
         return perpetualLineService.findPerpetualLineV2(searchPerpetualLine);
     }
 

@@ -124,6 +124,10 @@ public interface PutAwayHeaderV2Repository extends JpaRepository<PutAwayHeaderV2
             String companyCodeId, String plantId, String languageId, String warehouseId, String preInboundNo,
             String refDocNumber, String putAwayNumber, Long deletionIndicator);
 
+    PutAwayHeaderV2 findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreInboundNoAndRefDocNumberAndPutAwayNumberAndPackBarcodesAndDeletionIndicator(
+            String companyCodeId, String plantId, String languageId, String warehouseId, String preInboundNo,
+            String refDocNumber, String putAwayNumber, String packBarcodeId, Long deletionIndicator);
+
     PutAwayHeaderV2 findTopByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndReferenceField5AndManufacturerNameAndStatusIdAndDeletionIndicatorOrderByCreatedOn(
             String companyCodeId, String plantId, String warehouseId, String languageId, String itemCode, String manufacturerName, Long statusId, Long deletionIndicator);
 
@@ -352,6 +356,21 @@ public interface PutAwayHeaderV2Repository extends JpaRepository<PutAwayHeaderV2
                              @Param("itemCode") String itemCode,
                              @Param("lineNumber") Long lineNumber,
                              @Param("grCtdOn") Date createdOn,
+                             @Param("putAwayNo") String putAwayNo);
+
+    @Modifying
+    @Query(value = "UPDATE tblputawayheader SET PA_NO = :putAwayNo WHERE \n" +
+            "c_id = :companyCodeId and \n" +
+            "lang_id = :languageId and \n" +
+            "plant_id = :plantId and \n" +
+            "wh_id = :warehouseId and \n" +
+            "ref_doc_no = :refDocNumber AND \n" +
+            "IS_DELETED = 0", nativeQuery = true)
+    void updatePutAwayNumberV7(@Param("companyCodeId") String companyCode,
+                             @Param("plantId") String plantId,
+                             @Param("languageId") String languageId,
+                             @Param("warehouseId") String warehouseId,
+                             @Param("refDocNumber") String refDocNumber,
                              @Param("putAwayNo") String putAwayNo);
 
     PutAwayHeaderV2 findTopByCompanyCodeIdAndPlantIdAndWarehouseIdAndReferenceField5AndManufacturerNameAndReferenceField9AndLanguageIdAndPutAwayNumberAndDeletionIndicator(

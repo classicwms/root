@@ -2592,6 +2592,7 @@ public class InventoryService extends BaseService {
     }
 
     /**
+     * This method is for Knowell and Namratha
      *
      * @param companyCodeId
      * @param plantId
@@ -2613,6 +2614,39 @@ public class InventoryService extends BaseService {
         if (dbInventory == null) {
             dbInventory = inventoryV2Repository.getOutboundInventoryV4(companyCodeId, plantId, languageId, warehouseId, barcodeId, null,
                     itemCode, manufacturerName, PACK_BARCODE, storageBin, null);
+        }
+        if (dbInventory != null) {
+            InventoryV2 inventory = new InventoryV2();
+            BeanUtils.copyProperties(dbInventory, inventory, CommonUtils.getNullPropertyNames(dbInventory));
+            return inventory;
+        }
+        return null;
+    }
+
+    /**
+     * This method is for Reefron
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param manufacturerName
+     * @param barcodeId
+     * @param storageBin
+     * @param alternateUom
+     * @return
+     */
+    public InventoryV2 getOutboundInventoryV5(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                              String itemCode, String manufacturerName, String barcodeId, String storageBin, String alternateUom) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName +
+                "|" + alternateUom + "|" + barcodeId + "|" + storageBin);
+        log.info("REEFRON inventory query");
+        IInventoryImpl dbInventory = inventoryV2Repository.getOutboundInventoryV5(companyCodeId, plantId, languageId, warehouseId, barcodeId, null,
+                itemCode, manufacturerName, null, storageBin, alternateUom);
+        if (dbInventory == null) {
+            dbInventory = inventoryV2Repository.getOutboundInventoryV5(companyCodeId, plantId, languageId, warehouseId, barcodeId, null,
+                    itemCode, manufacturerName, null, storageBin, null);
         }
         if (dbInventory != null) {
             InventoryV2 inventory = new InventoryV2();
@@ -2664,6 +2698,22 @@ public class InventoryService extends BaseService {
     public Double getInventoryByStorageBinV4(String companyCodeId, String plantId, String languageId, String warehouseId, String storageBin) {
         log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + storageBin);
         return inventoryV2Repository.getInventoryBinStatusV4(companyCodeId, plantId, languageId, warehouseId, storageBin);
+    }
+
+    /**
+     * Modified for Knowell - 02/07/2025
+     * Aakash Vinayak
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param storageBin
+     * @return
+     */
+    public Double getInventoryByStorageBinV7(String companyCodeId, String plantId, String languageId, String warehouseId, String storageBin) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + storageBin);
+        return inventoryV2Repository.getInventoryBinStatusV7(companyCodeId, plantId, languageId, warehouseId, storageBin);
     }
 
     /**

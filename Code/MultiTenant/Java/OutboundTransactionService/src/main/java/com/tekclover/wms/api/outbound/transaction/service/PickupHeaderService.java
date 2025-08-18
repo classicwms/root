@@ -393,24 +393,30 @@ public class PickupHeaderService extends BaseService {
      * @throws InvocationTargetException
      */
     public List<PickupHeader> patchAssignedPickerIdInPickupHeader(String loginUserID,
-                                                                  List<UpdatePickupHeader> updatePickupHeaderList) throws IllegalAccessException, InvocationTargetException {
+                                                                  List<PickupHeaderV2> updatePickupHeaderList) throws IllegalAccessException, InvocationTargetException {
         List<PickupHeader> pickupHeaderList = new ArrayList<>();
         try {
             log.info("Process start to update Assigned Picker Id in PickupHeader: " + updatePickupHeaderList);
-            for (UpdatePickupHeader data : updatePickupHeaderList) {
+            for (PickupHeaderV2 data : updatePickupHeaderList) {
                 log.info("PickupHeader object to update : " + data);
-                PickupHeader dbPickupHeader = getPickupHeaderForUpdate(data.getWarehouseId(), data.getPreOutboundNo(), data.getRefDocNumber(), data.getPartnerCode(),
-                        data.getPickupNumber(), data.getLineNumber(), data.getItemCode());
+                PickupHeaderV2 dbPickupHeader = getPickupHeaderForUpdatePickerV2(
+                        data.getCompanyCodeId(), data.getPlantId(), data.getLanguageId(),
+                        data.getWarehouseId(), data.getPreOutboundNo(), data.getRefDocNumber(), data.getPartnerCode(),
+                        data.getPickupNumber(), data.getLineNumber(), data.getItemCode(), data.getManufacturerName());
                 log.info("Old PickupHeader object from db : " + data);
                 if (dbPickupHeader != null) {
                     dbPickupHeader.setAssignedPickerId(data.getAssignedPickerId());
-                    dbPickupHeader.setPickUpdatedBy(loginUserID);
+                    dbPickupHeader.setPickUpdatedBy(data.getPickupCreatedBy());
                     dbPickupHeader.setPickUpdatedOn(new Date());
-                    PickupHeader pickupHeader = pickupHeaderRepository.save(dbPickupHeader);
+                    pickupHeaderV2Repository.delete(dbPickupHeader);
+                    PickupHeaderV2 pickupHeader = pickupHeaderV2Repository.save(dbPickupHeader);
+
+                    //Send Notification
+                    sendNotificationForUpdate(data.getRefDocNumber(),data.getAssignedPickerId(), data.getWarehouseId(), data.getReferenceDocumentType());
                     pickupHeaderList.add(pickupHeader);
                 } else {
                     log.info("No record for PickupHeader object from db for data : " + data);
-                    throw new BadRequestException("Error in data");
+                    throw new BadRequestException("Error in pickupheader data");
                 }
             }
             return pickupHeaderList;
@@ -679,6 +685,13 @@ public class PickupHeaderService extends BaseService {
     public PickupHeaderV2 getPickupHeaderForUpdatePickerV2(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                            String preOutboundNo, String refDocNumber, String partnerCode, String pickupNumber,
                                                            Long lineNumber, String itemCode, String manufacturerName) {
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb("MT");
+        String routingDb = dbConfigRepository.getDbName(companyCodeId,
+                plantId, warehouseId);
+        log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb(routingDb);
         PickupHeaderV2 pickupHeader =
                 pickupHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndPickupNumberAndLineNumberAndItemCodeAndManufacturerNameAndDeletionIndicator(
                         companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, pickupNumber,
@@ -1364,6 +1377,44 @@ public class PickupHeaderService extends BaseService {
         }
         return null;
     }
+	
+	//API changed without parameters - only request body is required to update picker
+    //11-03-2024 Ticket No. ALM/2024/002
+    
+    /**
+     *
+     * @param updatePickupHeaderList
+     * @return
+     */
+//    public List<PickupHeaderV2> patchAssignedPickerIdInPickupHeaderV2(String companyCodeId, String plantId, String languageId, String warehouseId, String loginUserID,
+//                                                                      List<PickupHeaderV2> updatePickupHeaderList) throws IllegalAccessException, InvocationTargetException {
+//        List<PickupHeaderV2> pickupHeaderList = new ArrayList<>();
+//        try {
+//            log.info("Process start to update Assigned Picker Id in PickupHeader: " + updatePickupHeaderList);
+//            for (PickupHeaderV2 data : updatePickupHeaderList) {
+//                log.info("PickupHeader object to update : " + data);
+//                PickupHeaderV2 dbPickupHeader = getPickupHeaderForUpdateV2(
+//                        companyCodeId, plantId, languageId,
+//                        warehouseId, data.getPreOutboundNo(), data.getRefDocNumber(), data.getPartnerCode(),
+//                        data.getPickupNumber(), data.getLineNumber(), data.getItemCode());
+//                log.info("Old PickupHeader object from db : " + data);
+//                if (dbPickupHeader != null) {
+//                    dbPickupHeader.setAssignedPickerId(data.getAssignedPickerId());
+//                    dbPickupHeader.setPickUpdatedBy(loginUserID);
+//                    dbPickupHeader.setPickUpdatedOn(new Date());
+//                    PickupHeaderV2 pickupHeader = pickupHeaderV2Repository.save(dbPickupHeader);
+//                    pickupHeaderList.add(pickupHeader);
+//                } else {
+//                    log.info("No record for PickupHeader object from db for data : " + data);
+//                    throw new BadRequestException("Error in data");
+//                }
+//            }
+//            return pickupHeaderList;
+//        } catch (Exception e) {
+//            log.error("Update Assigned Picker Id in PickupHeader failed for : " + updatePickupHeaderList);
+//            throw new BadRequestException("Error in data");
+//        }
+//    }
 
     /**
      *

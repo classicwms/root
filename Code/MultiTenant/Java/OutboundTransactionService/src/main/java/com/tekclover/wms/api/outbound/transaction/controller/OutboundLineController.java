@@ -97,7 +97,16 @@ public class OutboundLineController {
     @PostMapping("/stock-movement-report/findOutboundLine")
     public List<StockMovementReport> findLinesForStockMovement(@RequestBody SearchOutboundLine searchOutboundLine)
             throws Exception {
-        return outboundlineService.findLinesForStockMovement(searchOutboundLine);
+        try {
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbList(searchOutboundLine.getCompanyCodeId(), searchOutboundLine.getPlantId(), searchOutboundLine.getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            return outboundlineService.findLinesForStockMovement(searchOutboundLine);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
     }
 
     @ApiOperation(response = OutboundLine.class, value = "Search OutboundLine") // label for swagger

@@ -65,6 +65,12 @@ public class InhouseTransferLineController {
 	@PostMapping("/findInhouseTransferLine")
 	public ResponseEntity<?> findInhouseTransferLine(@RequestBody SearchInhouseTransferLine searchInhouseTransferLine)
 			throws Exception {
+		DataBaseContextHolder.setCurrentDb("MT");
+		String profile = dbConfigRepository.getDbName1(searchInhouseTransferLine.getCompanyCodeId(), searchInhouseTransferLine.getPlantId(),
+				searchInhouseTransferLine.getWarehouseId());
+		log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", profile);
+		DataBaseContextHolder.clear();
+		DataBaseContextHolder.setCurrentDb(profile);
 		List<InhouseTransferLine> results = inhouseTransferLineService.findInhouseTransferLine(searchInhouseTransferLine);
 		return new ResponseEntity<>(results , HttpStatus.OK);
 	}

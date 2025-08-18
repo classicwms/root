@@ -114,41 +114,45 @@ public class InhouseTransferHeaderController {
     @PostMapping("/v2")
     public ResponseEntity<?> postInHouseTransferHeaderV2(@RequestBody AddInhouseTransferHeader newInHouseTransferHeader, @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
-//        try {
-//            DataBaseContextHolder.setCurrentDb("MT");
-//            InhouseTransferHeaderEntity transferHeaderEntity = null;
-//            String routingDb = dbConfigRepository.getDbName(newInHouseTransferHeader.getCompanyCodeId(), newInHouseTransferHeader.getPlantId(), newInHouseTransferHeader.getWarehouseId());
-//            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-//            DataBaseContextHolder.clear();
-//            DataBaseContextHolder.setCurrentDb(routingDb);
-//            if (routingDb != null){
-//                switch (routingDb){
-//                    case "REEFERON":
-//                        transferHeaderEntity = inHouseTransferHeaderService.createInHouseTransferHeaderV5(newInHouseTransferHeader, loginUserID);
-//                        break;
-//                    default:
-//                        transferHeaderEntity= inHouseTransferHeaderService.createInHouseTransferHeaderV2(newInHouseTransferHeader, loginUserID);
-//                }
-//            }
-//            return new ResponseEntity<>(transferHeaderEntity, HttpStatus.OK);
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
         try {
-            InhouseTransferHeaderEntity createdInHouseTransferHeader = new InhouseTransferHeaderEntity();
-
-            BeanUtils.copyProperties(newInHouseTransferHeader, createdInHouseTransferHeader, CommonUtils.getNullPropertyNames(newInHouseTransferHeader));
-
-            // Return early response
-            ResponseEntity<?> response = new ResponseEntity<>(createdInHouseTransferHeader, HttpStatus.ACCEPTED);
-
-            asyncService.processInhouseTransferHeaderAsync(newInHouseTransferHeader, loginUserID);
-
-            return response;
+            DataBaseContextHolder.setCurrentDb("MT");
+            InhouseTransferHeaderEntity transferHeaderEntity = null;
+            String routingDb = dbConfigRepository.getDbName(newInHouseTransferHeader.getCompanyCodeId(), newInHouseTransferHeader.getPlantId(), newInHouseTransferHeader.getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            if (routingDb != null){
+                switch (routingDb){
+                    case "FAHAHEEL":
+                    case "AUTO_LAP":
+                        transferHeaderEntity = inHouseTransferHeaderService.createInHouseTransferHeaderFahaheel(newInHouseTransferHeader, loginUserID);
+                        break;
+                    case "REEFERON":
+                        transferHeaderEntity = inHouseTransferHeaderService.createInHouseTransferHeaderV5(newInHouseTransferHeader, loginUserID);
+                        break;
+                    default:
+                        transferHeaderEntity= inHouseTransferHeaderService.createInHouseTransferHeaderV2(newInHouseTransferHeader, loginUserID);
+                }
+            }
+            return new ResponseEntity<>(transferHeaderEntity, HttpStatus.OK);
         } catch (Exception e) {
-            log.error("Error processing InhouseTransferHeader async", e);
-            return new ResponseEntity<>("Failed to start InhouseTransferHeader process", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new RuntimeException(e);
         }
+//        try {
+//            InhouseTransferHeaderEntity createdInHouseTransferHeader = new InhouseTransferHeaderEntity();
+//
+//            BeanUtils.copyProperties(newInHouseTransferHeader, createdInHouseTransferHeader, CommonUtils.getNullPropertyNames(newInHouseTransferHeader));
+//
+//            // Return early response
+//            ResponseEntity<?> response = new ResponseEntity<>(createdInHouseTransferHeader, HttpStatus.ACCEPTED);
+//
+//            asyncService.processInhouseTransferHeaderAsync(newInHouseTransferHeader, loginUserID);
+//
+//            return response;
+//        } catch (Exception e) {
+//            log.error("Error processing InhouseTransferHeader async", e);
+//            return new ResponseEntity<>("Failed to start InhouseTransferHeader process", HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
     }
 
     @ApiOperation(response = InhouseTransferHeader.class, value = "Create InHouseTransferHeader Upload")

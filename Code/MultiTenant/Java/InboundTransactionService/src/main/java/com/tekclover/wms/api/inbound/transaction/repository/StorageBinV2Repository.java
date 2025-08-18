@@ -41,6 +41,9 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
                                          @Param("warehouseId") String warehouseId,
                                          @Param("languageId") String languageId);
 
+    StorageBinV2 findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndBinClassIdAndStatusIdAndDeletionIndicator(
+            String companyCodeId, String plantId, String languageId, String warehouseId, Long binClassId, Long StatusId, Long deletionIndicator);
+
     StorageBinV2 findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndBinClassIdAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, Long binClassId, Long deletionIndicator);
 
@@ -206,6 +209,14 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
     Optional<StorageBinV2> findByStorageBinAndCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndDeletionIndicator(
             String storageBin, String companyCodeId, String plantId, String warehouseId, String languageId, Long deletionIndicator);
 
+    @Query(value = "SELECT * from tblstoragebin WHERE c_id = :companyCodeId and plant_id = :plantId and \n " +
+            "wh_id = :warehouseId and lang_id = :languageId and is_deleted = 0 and st_bin = :storageBin", nativeQuery = true)
+    StorageBinV2 getStorageBinV7(@Param("storageBin") String storageBin,
+                                           @Param("companyCodeId") String companyCodeId,
+                                           @Param("plantId") String plantId,
+                                           @Param("languageId") String languageId,
+                                           @Param("warehouseId") String warehouseId);
+
     @Query(value = "SELECT top 1 * FROM tblstoragebin WHERE c_id = :companyCodeId and plant_id = :plantId and \n" +
             "wh_id = :warehouseId and lang_id = :languageId and is_deleted = 0 and st_bin = :storageBin order by st_bin", nativeQuery = true)
     //storage-bin excluding direct stock receipt bin
@@ -242,7 +253,45 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
             "AND plant_id = :plantId AND wh_id = :warehouseId and status_id = 0 \n" +
             "AND is_deleted = 0", nativeQuery = true)
     StorageBinV2 getEorPBin(@Param("companyCodeId") String companyCodeId,
+                         @Param("plantId") String plantId,
+                         @Param("warehouseId") String warehouseId);
+
+    @Query(value = "SELECT top 1 * from tblstoragebin WHERE \n " +
+            "(st_bin LIKE 'E-%' OR st_bin LIKE 'P-%') AND c_id = :companyCodeId \n" +
+            "AND plant_id = :plantId AND wh_id = :warehouseId AND is_deleted = 0  \n" +
+            "AND occ_qty <> tot_qty order by st_bin ", nativeQuery = true)
+    StorageBinV2 getEorPBinWithOccQty(@Param("companyCodeId") String companyCodeId,
                             @Param("plantId") String plantId,
                             @Param("warehouseId") String warehouseId);
+
+    @Query(value = "SELECT * from tblstoragebin WHERE c_id = :companyCodeId AND plant_id = :plantId \n " +
+            "AND wh_id = :warehouseId AND lang_id = :languageId AND is_deleted = 0 and st_bin = :storageBin \n " +
+            "AND occ_qty <> tot_qty ", nativeQuery = true)
+    StorageBinV2 getConfirmedStorageBinV7(@Param("storageBin") String storageBin,
+                                          @Param("companyCodeId") String companyCodeId,
+                                          @Param("plantId") String plantId,
+                                          @Param("languageId") String languageId,
+                                          @Param("warehouseId") String warehouseId);
+
+    @Modifying
+    @Query(value = "UPDATE tblstoragebin set occ_qty = :occQty , remain_qty = :remainQty WHERE \n " +
+            "st_bin = :storageBin AND c_id = :companyCodeId AND plant_id = :plantId \n " +
+            "AND wh_id = :warehouseId", nativeQuery = true)
+    void updateBinQty(@Param("occQty") String occQty,
+                   @Param("remainQty") String remainQty,
+                   @Param("storageBin") String storageBin,
+                   @Param("companyCodeId") String companyCodeId,
+                   @Param("plantId") String plantId,
+                   @Param("warehouseId") String warehouseId);
+
+    @Modifying
+    @Query(value = "UPDATE tblstoragebin set status_id = :statusId, CAP_CHECK = 0 \n " +
+            "WHERE st_bin = :storageBin AND c_id = :companyCodeId AND plant_id = :plantId \n " +
+            "AND wh_id = :warehouseId", nativeQuery = true)
+    void updateStorageBinStatus(@Param("statusId") Long statusId,
+                                @Param("storageBin") String storageBin,
+                                @Param("companyCodeId") String companyCodeId,
+                                @Param("plantId") String plantId,
+                                @Param("warehouseId") String warehouseId);
 
 }

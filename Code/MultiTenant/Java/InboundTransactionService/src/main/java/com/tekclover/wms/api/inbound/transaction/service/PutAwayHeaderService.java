@@ -27,6 +27,7 @@ import com.tekclover.wms.api.inbound.transaction.model.inbound.staging.v2.Stagin
 import com.tekclover.wms.api.inbound.transaction.model.inbound.staging.v2.StagingLineEntityV2;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.v2.InboundHeaderV2;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.v2.InboundLineV2;
+import com.tekclover.wms.api.inbound.transaction.model.notification.NotificationSave;
 import com.tekclover.wms.api.inbound.transaction.repository.*;
 import com.tekclover.wms.api.inbound.transaction.repository.specification.PutAwayHeaderSpecification;
 import com.tekclover.wms.api.inbound.transaction.repository.specification.PutAwayHeaderV2Specification;
@@ -1322,6 +1323,47 @@ public class PutAwayHeaderService extends BaseService {
         return putAwayHeaderV2Repository.save(dbPutAwayHeader);
     }
 
+    /**
+     * Aakash Vinayak
+     * Modfied for Knowell updating prop_st_bin, since prop_st_bin is primary key
+     * we need to delete insert inorder to update - 08/07/2025
+     *
+     * @param companyCode
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param preInboundNo
+     * @param refDocNumber
+     * @param goodsReceiptNo
+     * @param palletCode
+     * @param caseCode
+     * @param packBarcodes
+     * @param putAwayNumber
+     * @param proposedStorageBin
+     * @param loginUserID
+     * @param updatePutAwayHeader
+     * @return
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
+    public PutAwayHeaderV2 updatePutAwayHeaderV7(String companyCode, String plantId, String languageId,
+                                                 String warehouseId, String preInboundNo, String refDocNumber, String goodsReceiptNo,
+                                                 String palletCode, String caseCode, String packBarcodes, String putAwayNumber,
+                                                 String proposedStorageBin, String loginUserID, PutAwayHeaderV2 updatePutAwayHeader)
+            throws IllegalAccessException, InvocationTargetException, ParseException {
+        PutAwayHeaderV2 dbPutAwayHeader = getPutAwayHeaderV2(companyCode, plantId, languageId, warehouseId,
+                preInboundNo, refDocNumber, goodsReceiptNo,
+                palletCode, caseCode, packBarcodes, putAwayNumber, proposedStorageBin);
+        log.info("dbPutAwayHeader -----> {}", dbPutAwayHeader);
+        putAwayHeaderV2Repository.delete(dbPutAwayHeader);
+        BeanUtils.copyProperties(updatePutAwayHeader, dbPutAwayHeader, CommonUtils.getNullPropertyNames(updatePutAwayHeader));
+        dbPutAwayHeader.setReferenceField1(dbPutAwayHeader.getProposedStorageBin());
+        dbPutAwayHeader.setProposedStorageBin(dbPutAwayHeader.getProposedStorageBin());
+        dbPutAwayHeader.setUpdatedBy(loginUserID);
+        dbPutAwayHeader.setUpdatedOn(new Date());
+        return putAwayHeaderV2Repository.save(dbPutAwayHeader);
+    }
+
     //new api for Assign HHT in the putaway Header 22-12-2023
 
     public List<PutAwayHeaderV2> updatePutAwayHeaderBatchV2(String loginUserID, List<PutAwayHeaderV2> updatePutAwayHeader)
@@ -1331,13 +1373,53 @@ public class PutAwayHeaderService extends BaseService {
 
         for (PutAwayHeaderV2 putAwayHeaderV2 : updatePutAwayHeader) {
             PutAwayHeaderV2 dbPutAwayHeader = putAwayHeaderV2Repository.findByPutAwayNumberAndBarcodeIdAndDeletionIndicator(putAwayHeaderV2.getPutAwayNumber(), putAwayHeaderV2.getBarcodeId(),0L);
+            log.info("dbPutAwayHeader -----> {}", dbPutAwayHeader);
+            putAwayHeaderV2Repository.delete(dbPutAwayHeader);
             if (dbPutAwayHeader != null) {
                 BeanUtils.copyProperties(putAwayHeaderV2, dbPutAwayHeader, CommonUtils.getNullPropertyNames(putAwayHeaderV2));
+                dbPutAwayHeader.setReferenceField1(dbPutAwayHeader.getProposedStorageBin());
+                dbPutAwayHeader.setProposedStorageBin(putAwayHeaderV2.getProposedStorageBin());
                 dbPutAwayHeader.setUpdatedBy(loginUserID);
                 dbPutAwayHeader.setUpdatedOn(new Date());
                 dbPutAwayHeader.setAssignedUserId(putAwayHeaderV2.getAssignedUserId());
-                putAwayHeaderV2Repository.delete(dbPutAwayHeader);
                 PutAwayHeaderV2 savePutAway = putAwayHeaderV2Repository.save(dbPutAwayHeader);
+//                fireBaseNotification(updatePutAwayHeader.get(0), loginUserID);
+                putAwayHeaderV2List.add(savePutAway);
+            }
+        }
+        return putAwayHeaderV2List;
+    }
+
+    /**
+     * Aakash vinayak
+     * Modfied for Knowell updating prop_st_bin, since prop_st_bin is primary key
+     * we need to delete insert inorder to update - 08/07/2025
+     *
+     * @param loginUserID
+     * @param updatePutAwayHeader
+     * @return
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     * @throws ParseException
+     */
+    public List<PutAwayHeaderV2> updatePutAwayHeaderBatchV7(String loginUserID, List<PutAwayHeaderV2> updatePutAwayHeader)
+            throws IllegalAccessException, InvocationTargetException, ParseException {
+
+        List<PutAwayHeaderV2> putAwayHeaderV2List = new ArrayList<>();
+
+        for (PutAwayHeaderV2 putAwayHeaderV2 : updatePutAwayHeader) {
+            PutAwayHeaderV2 dbPutAwayHeader = putAwayHeaderV2Repository.findByPutAwayNumberAndBarcodeIdAndDeletionIndicator(putAwayHeaderV2.getPutAwayNumber(), putAwayHeaderV2.getBarcodeId(),0L);
+            log.info("dbPutAwayHeader -----> {}", dbPutAwayHeader);
+            putAwayHeaderV2Repository.delete(dbPutAwayHeader);
+            if (dbPutAwayHeader != null) {
+                BeanUtils.copyProperties(putAwayHeaderV2, dbPutAwayHeader, CommonUtils.getNullPropertyNames(putAwayHeaderV2));
+                dbPutAwayHeader.setReferenceField1(dbPutAwayHeader.getProposedStorageBin());
+                dbPutAwayHeader.setProposedStorageBin(putAwayHeaderV2.getProposedStorageBin());
+                dbPutAwayHeader.setUpdatedBy(loginUserID);
+                dbPutAwayHeader.setUpdatedOn(new Date());
+                dbPutAwayHeader.setAssignedUserId(putAwayHeaderV2.getAssignedUserId());
+                PutAwayHeaderV2 savePutAway = putAwayHeaderV2Repository.save(dbPutAwayHeader);
+//                fireBaseNotification(updatePutAwayHeader.get(0), loginUserID);
                 putAwayHeaderV2List.add(savePutAway);
             }
         }

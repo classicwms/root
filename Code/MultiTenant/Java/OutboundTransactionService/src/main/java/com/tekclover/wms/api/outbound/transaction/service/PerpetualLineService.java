@@ -685,8 +685,10 @@ public class PerpetualLineService extends BaseService {
      * @return
      */
     public List<PerpetualLineV2> getPerpetualLineV2(String companyCodeId, String plantId, String languageId, String warehouseId, String cycleCountNo) {
-        List<PerpetualLineV2> perpetualLine = perpetualLineV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndCycleCountNoAndDeletionIndicator(
-                companyCodeId, plantId, languageId, warehouseId, cycleCountNo, 0L);
+//        List<PerpetualLineV2> perpetualLine = perpetualLineV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndCycleCountNoAndDeletionIndicator(
+//                companyCodeId, plantId, languageId, warehouseId, cycleCountNo, 0L);
+
+        List<PerpetualLineV2> perpetualLine = perpetualLineV2Repository.getPerpetualLines(companyCodeId, plantId, warehouseId, cycleCountNo);
         return perpetualLine;
     }
 
@@ -739,8 +741,8 @@ public class PerpetualLineService extends BaseService {
 
         PerpetualLineV2Specification spec = new PerpetualLineV2Specification(searchPerpetualLine);
         PerpetualZeroStkLineV2Specification specification = new PerpetualZeroStkLineV2Specification(searchPerpetualLine);
-        List<PerpetualLineV2> perpetualLineResults = perpetualLineV2Repository.stream(spec, PerpetualLineV2.class).collect(Collectors.toList());
-        List<PerpetualZeroStockLine> perpetualZeroStockLineList = perpetualZeroStkLineRepository.stream(specification, PerpetualZeroStockLine.class).collect(Collectors.toList());
+        List<PerpetualLineV2> perpetualLineResults = perpetualLineV2Repository.findAll(spec);
+        List<PerpetualZeroStockLine> perpetualZeroStockLineList = perpetualZeroStkLineRepository.findAll(specification);
         if(perpetualZeroStockLineList != null && !perpetualZeroStockLineList.isEmpty()) {
             for(PerpetualZeroStockLine perpetualZeroStockLine : perpetualZeroStockLineList) {
                 PerpetualLineV2 dbPerpetualLine = new PerpetualLineV2();
@@ -749,6 +751,8 @@ public class PerpetualLineService extends BaseService {
             }
             log.info("Perpetual Line with Zero Stock: " + perpetualZeroStockLineList);
         }
+
+        log.info("perpetualLineResults -----> {}", perpetualLineResults);
 
         return perpetualLineResults;
     }
@@ -796,6 +800,7 @@ public class PerpetualLineService extends BaseService {
             dbPerpetualLine.setCountedBy(loginUserID);
             dbPerpetualLine.setCountedOn(new Date());
             newPerpetualLineList.add(dbPerpetualLine);
+            perpetualLineV2Repository.delete(dbPerpetualLine);      // Deleting coz throwing duplicate error in MT
         }
         return perpetualLineV2Repository.saveAll(newPerpetualLineList);
     }
@@ -961,8 +966,13 @@ public class PerpetualLineService extends BaseService {
                 }
             }
         }
+        log.info("createPerpetualLineV2 initiated...");
         responsePerpetualLines.addAll(createPerpetualLineV2(createBatchPerpetualLines, loginUserID));
+        log.info("createPerpetualLineV2 completed...");
+        perpetualLineV2Repository.deleteAll(updateBatchPerpetualLines);               // Deleting coz throwing duplicate error in MT
+        log.info("updateBatchPerpetualLines initiated...");
         responsePerpetualLines.addAll(perpetualLineV2Repository.saveAll(updateBatchPerpetualLines));
+        log.info("updateBatchPerpetualLines completed...");
         return responsePerpetualLines;
     }
 
@@ -1045,6 +1055,7 @@ public class PerpetualLineService extends BaseService {
                     statusDescription = pickupLineRepository.getStatusDescription(78L, dbPerpetualLine.getLanguageId());
                     dbPerpetualLine.setStatusDescription(statusDescription);
 
+                    perpetualLineV2Repository.delete(dbPerpetualLine);
                     PerpetualLineV2 updatedPerpetualLine = perpetualLineV2Repository.save(dbPerpetualLine);
                     log.info("updatedPerpetualLine : " + updatedPerpetualLine);
                     responsePerpetualLines.add(updatedPerpetualLine);
@@ -1082,6 +1093,7 @@ public class PerpetualLineService extends BaseService {
                     statusDescription = pickupLineRepository.getStatusDescription(78L, dbPerpetualLine.getLanguageId());
                     dbPerpetualLine.setStatusDescription(statusDescription);
 
+                    perpetualLineV2Repository.delete(dbPerpetualLine);
                     PerpetualLineV2 updatedPerpetualLine = perpetualLineV2Repository.save(dbPerpetualLine);
                     log.info("updatedPerpetualLine : " + updatedPerpetualLine);
                     responsePerpetualLines.add(updatedPerpetualLine);
@@ -1154,6 +1166,7 @@ public class PerpetualLineService extends BaseService {
                     statusDescription = pickupLineRepository.getStatusDescription(dbPerpetualLine.getStatusId(), dbPerpetualLine.getLanguageId());
                     dbPerpetualLine.setStatusDescription(statusDescription);
 
+                    perpetualLineV2Repository.delete(dbPerpetualLine);
                     PerpetualLineV2 updatedPerpetualLine = perpetualLineV2Repository.save(dbPerpetualLine);
                     log.info("updatedPerpetualLine : " + updatedPerpetualLine);
                     responsePerpetualLines.add(updatedPerpetualLine);

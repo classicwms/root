@@ -63,6 +63,20 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
             String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo,
             String refDocNumber, String partnerCode, Long lineNumber, String itemCode, Long deletionIndicator);
 
+    @Query(value = "SELECT * from tblordermangementline where c_id = :companyCodeId \n " +
+            "AND plant_id = :plantId AND lang_id = :languageId AND wh_id = :warehouseId \n" +
+            "AND pre_ob_no = :preOutboundNo AND ref_doc_no = :refDocNumber AND partner_code = :partnerCode \n" +
+            "AND ob_line_no = :lineNumber AND itm_code = :itemCode AND is_deleted = 0",nativeQuery = true)
+    List<OrderManagementLineV2> findAllOrderManagementLine(@Param("companyCodeId") String companyCodeId,
+                                                           @Param("plantId") String plantId,
+                                                           @Param("languageId") String languageId,
+                                                           @Param("warehouseId") String warehouseId,
+                                                           @Param("preOutboundNo") String preOutboundNo,
+                                                           @Param("refDocNumber") String refDocNumber,
+                                                           @Param("partnerCode") String partnerCode,
+                                                           @Param("lineNumber") Long lineNo,
+                                                           @Param("itemCode") String itemCode);
+
     List<OrderManagementLineV2> findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndLineNumberAndItemCodeAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo,
             Long lineNumber, String itemCode, Long deletionIndicator);

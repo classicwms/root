@@ -67,7 +67,7 @@ public class InventoryMovementController {
     
 	@ApiOperation(response = InventoryMovement.class, value = "Search InventoryMovement") // label for swagger
 	@PostMapping("/findInventoryMovement")
-	public Stream<InventoryMovement> findInventoryMovement(@RequestBody SearchInventoryMovement searchInventoryMovement)
+	public List<InventoryMovement> findInventoryMovement(@RequestBody SearchInventoryMovement searchInventoryMovement)
 			throws Exception {
 		try {
 			DataBaseContextHolder.setCurrentDb("MT");

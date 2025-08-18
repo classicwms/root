@@ -40,4 +40,17 @@ public interface StockReportOutputRepository extends JpaRepository<StockReportOu
             @Param("itemText") String itemText,
             @Param("stockTypeText") String stockTypeText
     );
+
+    @Transactional
+    @Procedure(procedureName = "sp_stock_report_inv_proc")
+    void updateSpStockReportV5(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("itemCode") String itemCode,
+            @Param("manufacturerName") String manufacturerName,
+            @Param("itemText") String itemText,
+            @Param("stockTypeText") String stockTypeText
+    );
 }

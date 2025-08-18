@@ -55,6 +55,20 @@ public class InboundOrderV2 extends InboundOrder {
     @Column(name = "ams_supplier_invoice_no")
     private String AMSSupplierInvoiceNo;
 
+    // Order_Processing
+    @Column(name = "pre_inbound_header")
+    private Long preInboundHeader = 0L;
+    @Column(name = "inbound_header")
+    private Long inboundHeader = 0L;
+    @Column(name = "staging_header")
+    private Long stagingHeader = 0L;
+    @Column(name = "gr_header")
+    private Long grHeader = 0L;
+    @Column(name = "putaway_header")
+    private Long putawayHeader = 0L;
+    @Column(name = "order_text")
+    private String orderText;
+
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "INBOUND_ORDER_HEADER_ID",referencedColumnName = "INBOUND_ORDER_HEADER_ID")
     private Set<InboundOrderLinesV2> line;

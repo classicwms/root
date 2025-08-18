@@ -148,6 +148,9 @@ public class PickupLineService extends BaseService {
     @Autowired
     InventoryTransRepository inventoryTransRepository;
 
+    @Autowired
+    StorageBinV2Repository storageBinV2Repository;
+
 
     String statusDescription = null;
     protected static final String PICK_HE_NO = "HE-01";
@@ -2495,7 +2498,7 @@ public class PickupLineService extends BaseService {
                 }
             }
 
-            log.info("matchedBarcodes", matchedBarcodes);
+            log.info("matchedBarcodes {}", matchedBarcodes);
 
             // Find leftover (unmatched) barcodes from DB
             Set<String> leftoverBarcodes = new HashSet<>(dbBarcodeSet);
@@ -2738,7 +2741,6 @@ public class PickupLineService extends BaseService {
      * @return
      * @throws Exception
      */
-    @Transactional
     public List<PickupLineV2> createPickupLineNonCBMV7(@Valid List<AddPickupLine> newPickupLines, String loginUserID) throws Exception {
         log.info("newPickupLines---> login UserId : {},{}", newPickupLines, loginUserID);
         Long STATUS_ID = 0L;
@@ -2766,10 +2768,21 @@ public class PickupLineService extends BaseService {
                 log.info("-------PickupLines---removed-dupPickupLines-----> " + newPickupLines);
             }
 
+//            statusDescription = stagingLineV2Repository.getStatusDescription(57L, newPickupLines.get(0).getLanguageId());
+//            pickupHeaderV2Repository.updatePickupHeaderStatusId(newPickupLines.get(0).getCompanyCodeId(), newPickupLines.get(0).getPlantId(),
+//                    newPickupLines.get(0).getWarehouseId(), newPickupLines.get(0).getPreOutboundNo(), newPickupLines.get(0).getItemCode(), statusDescription, 57L);
+//            log.info("PickupHeader Status Updated successfully --------------------------> 57");
+
             for (AddPickupLine newPickupLine : newPickupLines) {
                 if (newPickupLine.getPickConfirmQty() < 0) {
                     throw new BadRequestException("Please Enter a Valid Qty! " + newPickupLine.getPickConfirmQty());
                 }
+
+//                statusDescription = stagingLineV2Repository.getStatusDescription(57L, languageId);
+//                pickupHeaderV2Repository.updatePickupHeaderStatusId(newPickupLine.getCompanyCodeId(), newPickupLine.getPlantId(),
+//                        newPickupLine.getWarehouseId(), newPickupLine.getPreOutboundNo(), newPickupLine.getItemCode(), statusDescription, 57L);
+//                log.info("PickupHeader Status Updated successfully --------------------------> 57");
+
                 PickupLineV2 dbPickupLine = new PickupLineV2();
                 BeanUtils.copyProperties(newPickupLine, dbPickupLine, CommonUtils.getNullPropertyNames(newPickupLine));
                 dbPickupLine.setCompanyCodeId(String.valueOf(newPickupLine.getCompanyCodeId()));
@@ -3060,9 +3073,17 @@ public class PickupLineService extends BaseService {
                             dbPickupLine.getLineNumber(), STATUS_ID, statusDescription, new Date(), BAG_SIZE, NO_BAGS);
                     log.info("outboundLine updated using Stored Procedure: ");
 
-                    pickupHeaderV2Repository.updatePickupheaderStatusUpdateProcV6(
+                    if (dbPickupLine.getReferenceField6() != null) {
+                        log.info("outboundline update ref_field_6 for Reasons");
+                        outboundLineV2Repository.updateOutboundLineV6(companyCodeId, plantId, warehouseId, refDocNumber, preOutboundNo,
+                                itemCode, dbPickupLine.getLineNumber(), dbPickupLine.getReferenceField6());
+                        log.info("outboundline update ref_field_6 for Reasons completed");
+                    }
+
+                    pickupHeaderV2Repository.updatePickupheaderStatusUpdateProcV7(
                             companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, dbPickupLine.getItemCode(), dbPickupLine.getManufacturerName(),
-                            partnerCode, dbPickupLine.getPickupNumber(), dbPickupLine.getLineNumber(), HEADER_STATUS_ID, headerStatusDescription, loginUserID, new Date());
+                            partnerCode, dbPickupLine.getPickupNumber(), dbPickupLine.getLineNumber(), HEADER_STATUS_ID, headerStatusDescription, loginUserID, new Date(),
+                            dbPickupLine.getBarcodeId());
                     log.info("PickupHeader Updated using Stored Procedure..!");
 
                     /*
@@ -3114,9 +3135,17 @@ public class PickupLineService extends BaseService {
                             dbPickupLine.getLineNumber(), STATUS_ID, statusDescription, new Date(), BAG_SIZE, NO_BAGS);
                     log.info("outboundLine updated using Stored Procedure: ");
 
-                    pickupHeaderV2Repository.updatePickupheaderStatusUpdateProcV6(
+                    if (dbPickupLine.getReferenceField6() != null) {
+                        log.info("outboundline update ref_field_6 for Reasons");
+                        outboundLineV2Repository.updateOutboundLineV6(companyCodeId, plantId, warehouseId, refDocNumber, preOutboundNo,
+                                itemCode, dbPickupLine.getLineNumber(), dbPickupLine.getReferenceField6());
+                        log.info("outboundline update ref_field_6 for Reasons completed");
+                    }
+
+                    pickupHeaderV2Repository.updatePickupheaderStatusUpdateProcV7(
                             companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, dbPickupLine.getItemCode(), dbPickupLine.getManufacturerName(),
-                            partnerCode, dbPickupLine.getPickupNumber(), dbPickupLine.getLineNumber(), HEADER_STATUS_ID, headerStatusDescription, loginUserID, new Date());
+                            partnerCode, dbPickupLine.getPickupNumber(), dbPickupLine.getLineNumber(), HEADER_STATUS_ID, headerStatusDescription, loginUserID, new Date(),
+                            dbPickupLine.getBarcodeId());
                     log.info("PickupHeader Updated using Stored Procedure..!");
 
                     /*
@@ -3168,9 +3197,17 @@ public class PickupLineService extends BaseService {
                             dbPickupLine.getLineNumber(), STATUS_ID, statusDescription, new Date(), BAG_SIZE, NO_BAGS);
                     log.info("outboundLine updated using Stored Procedure: ");
 
-                    pickupHeaderV2Repository.updatePickupheaderStatusUpdateProcV6(
+                    if (dbPickupLine.getReferenceField6() != null) {
+                        log.info("outboundline update ref_field_6 for Reasons");
+                        outboundLineV2Repository.updateOutboundLineV6(companyCodeId, plantId, warehouseId, refDocNumber, preOutboundNo,
+                                itemCode, dbPickupLine.getLineNumber(), dbPickupLine.getReferenceField6());
+                        log.info("outboundline update ref_field_6 for Reasons completed");
+                    }
+
+                    pickupHeaderV2Repository.updatePickupheaderStatusUpdateProcV7(
                             companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, dbPickupLine.getItemCode(), dbPickupLine.getManufacturerName(),
-                            partnerCode, dbPickupLine.getPickupNumber(), dbPickupLine.getLineNumber(), HEADER_STATUS_ID, headerStatusDescription, loginUserID, new Date());
+                            partnerCode, dbPickupLine.getPickupNumber(), dbPickupLine.getLineNumber(), HEADER_STATUS_ID, headerStatusDescription, loginUserID, new Date(),
+                            dbPickupLine.getBarcodeId());
                     log.info("PickupHeader Updated using Stored Procedure..!");
 
                     /*
@@ -3194,13 +3231,17 @@ public class PickupLineService extends BaseService {
             log.info("outboundHeader, preOutboundHeader updated as 57 / 51 when respective condition met");
         } catch (Exception e) {
             log.error("PickupLine Create error: " + e.toString());
+            log.info("RollBack for Status Update 48 In PickupLine -------------");
+            statusDescription = getStatusDescription(48L, languageId);
+            pickupHeaderV2Repository.updatePickupHeaderStatusId(companyCodeId, plantId, warehouseId, preOutboundNo, itemCode, statusDescription, 48L);
+
             e.printStackTrace();
             throw new BadRequestException("Exception while creating Pickupline: " + refDocNumber);
         }
         return createdPickupLineList;
     }
 
-//    @Scheduled(fixedDelay = 10000)
+    //@Scheduled(fixedDelay = 10000)
     private void schedulePostPickupLineProcessV2() {
         DataBaseContextHolder.clear();
         DataBaseContextHolder.setCurrentDb("FAHAHEEL");
@@ -4366,7 +4407,7 @@ public class PickupLineService extends BaseService {
      * @throws IllegalAccessException
      * @throws InvocationTargetException
      */
-    private InventoryMovement createInventoryMovementV2(PickupLineV2 dbPickupLine, Long subMvtTypeId,
+    public InventoryMovement createInventoryMovementV2(PickupLineV2 dbPickupLine, Long subMvtTypeId,
                                                         String movementDocumentNo, String storageBin, String movementQtyValue, String loginUserID)
             throws IllegalAccessException, InvocationTargetException {
         InventoryMovement inventoryMovement = new InventoryMovement();
@@ -5080,7 +5121,7 @@ public class PickupLineService extends BaseService {
 //                    if (dbPickupLine.getPickUom().equalsIgnoreCase(dbPickupLine.getAlternateUom())) {
 //                        inventoryQty = calculateUOMInventory(dbPickupLine.getAllocatedQty(), dbPickupLine.getPickConfirmQty(), dbPickupLine.getNoBags(), inventory.getInventoryQuantity(), inventory.getAllocatedQuantity());
 //                    } else {
-                    inventoryQty = calculateInventory(dbPickupLine.getAllocatedQty(), dbPickupLine.getPickConfirmQty(), inventory.getNoBags(), inventory.getInventoryQuantity(), inventory.getAllocatedQuantity());
+                    inventoryQty = calculateInventoryV6(dbPickupLine.getAllocatedQty(), dbPickupLine.getPickConfirmQty(), inventory.getNoBags(), inventory.getInventoryQuantity(), inventory.getAllocatedQuantity());
 //                    }
                     if (inventoryQty != null && inventoryQty.length > 3) {
                         inventory.setInventoryQuantity(inventoryQty[0]);
@@ -5134,10 +5175,39 @@ public class PickupLineService extends BaseService {
                         // Setting up statusId = 0
                         try {
                             // Check whether Inventory has record or not for that storageBin
-                            Double inventoryByStBin = inventoryService.getInventoryByStorageBinV4(companyCodeId, plantId, languageId, warehouseId, inventory.getStorageBin());
+                            Double inventoryByStBin = inventoryService.getInventoryByStorageBinV7(companyCodeId, plantId, languageId, warehouseId, inventory.getStorageBin());
                             if (inventoryByStBin == null) {
                                 // Setting up statusId = 0
-                                updateStorageBinEmptyStatus(companyCodeId, plantId, languageId, warehouseId, inventory.getStorageBin(), loginUserID);
+
+                                if (inventoryByStBin == dbPickupLine.getPickConfirmQty()) {
+                                    /**
+                                     *  Updating proposedStBin since pickedConfirmedStorageBin, need to add remain_qty by 1 (ie., remain_qty = 18 ---> remain_qty = 19),
+                                     *  and need to reduce occ_qty by 1 (ie., occ_qty = 18 -----> occ_qyt = 17)
+                                     */
+                                    StorageBinV2 dbProposedStBin = storageBinService.getStorageBinV7(companyCodeId, plantId, languageId, warehouseId, inventory.getStorageBin());
+                                    log.info("ProposedBin for Updating Bin Qty's -----> {}", dbProposedStBin);
+
+                                    Long CASE_QTY = dbPickupLine.getNoBags().longValue();
+                                    log.info("CASE_QTY ----> {}", CASE_QTY);
+                                    Long REMAIN_BIN_QTY;
+                                    Long OCC_BIN_QTY;
+
+                                    Long TOTAL_BIN_QTY = Long.valueOf(dbProposedStBin.getTotalQuantity());
+                                    log.info("dbProposedStBin E or P Series proposed bin TOTAL_BIN_QTY ----> {}", TOTAL_BIN_QTY);
+
+                                    OCC_BIN_QTY = Long.valueOf(dbProposedStBin.getOccupiedQuantity()) - CASE_QTY;
+                                    log.info("dbProposedStBin E or P Series proposed bin OCC_BIN_QTY ----> {}", OCC_BIN_QTY);
+
+                                    REMAIN_BIN_QTY = Long.valueOf(dbProposedStBin.getRemainingQuantity()) + CASE_QTY;
+                                    log.info("dbProposedStBin E or P Series proposed bin REMAIN_BIN_QTY ----> {}", REMAIN_BIN_QTY);
+
+                                    // Update TBLSTORAGEBIN occ_qty, remain_qty
+                                    String occQty = String.valueOf(OCC_BIN_QTY);
+                                    String remainQty = String.valueOf(REMAIN_BIN_QTY);
+                                    Long STATUS_ID = 0L;
+                                    storageBinV2Repository.updateBinQty(occQty, remainQty, inventory.getStorageBin(), companyCodeId, plantId, warehouseId, STATUS_ID);
+                                }
+//                                updateStorageBinEmptyStatusV7(companyCodeId, plantId, languageId, warehouseId, inventory.getStorageBin(), loginUserID);
                             }
                         } catch (Exception e) {
                             log.error("updateStorageBin Error :" + e.toString());
@@ -5157,7 +5227,7 @@ public class PickupLineService extends BaseService {
                     if (dbPickupLine.getPickUom().equalsIgnoreCase(dbPickupLine.getAlternateUom())) {
                         inventoryQty = calculateUOMInventory(dbPickupLine.getAllocatedQty(), dbPickupLine.getPickConfirmQty(), inventory.getNoBags(), inventory.getInventoryQuantity(), inventory.getAllocatedQuantity());
                     } else {
-                        inventoryQty = calculateInventory(dbPickupLine.getAllocatedQty(), dbPickupLine.getPickConfirmQty(), inventory.getNoBags(), inventory.getInventoryQuantity(), inventory.getAllocatedQuantity());
+                        inventoryQty = calculateInventoryV6(dbPickupLine.getAllocatedQty(), dbPickupLine.getPickConfirmQty(), inventory.getNoBags(), inventory.getInventoryQuantity(), inventory.getAllocatedQuantity());
                     }
                     if (inventoryQty != null && inventoryQty.length > 3) {
                         inventory.setInventoryQuantity(inventoryQty[0]);
@@ -5205,10 +5275,10 @@ public class PickupLineService extends BaseService {
                             // 	If inv_qty && alloc_qty is zero or null then do the below logic.
                             //-------------------------------------------------------------------
                             // Check whether Inventory has record or not for that storageBin
-                            Double inventoryByStBin = inventoryService.getInventoryByStorageBinV4(companyCodeId, plantId, languageId, warehouseId, inventory.getStorageBin());
+                            Double inventoryByStBin = inventoryService.getInventoryByStorageBinV7(companyCodeId, plantId, languageId, warehouseId, inventory.getStorageBin());
                             if (inventoryByStBin == null) {
                                 // Setting up statusId = 0
-                                updateStorageBinEmptyStatus(companyCodeId, plantId, languageId, warehouseId, inventory.getStorageBin(), loginUserID);
+                                updateStorageBinEmptyStatusV7(companyCodeId, plantId, languageId, warehouseId, inventory.getStorageBin(), loginUserID);
                             }
                         }
                     } catch (Exception e) {
@@ -5404,9 +5474,9 @@ public class PickupLineService extends BaseService {
                 log.info("UOM,ALTUOM: " + dbPickupLine.getPickUom() + "|" + dbPickupLine.getAlternateUom());
                 double[] inventoryQty = null;
                 if (dbPickupLine.getPickUom().equalsIgnoreCase(dbPickupLine.getAlternateUom())) {
-                    inventoryQty = calculateInventoryUOMUnAllocate(dbPickupLine.getPickConfirmQty(), dbPickupLine.getNoBags(), allocatedInventory.getInventoryQuantity(), allocatedInventory.getAllocatedQuantity());
+                    inventoryQty = calculateInventoryUOMUnAllocateV6(dbPickupLine.getPickConfirmQty(), dbPickupLine.getNoBags(), allocatedInventory.getInventoryQuantity(), allocatedInventory.getAllocatedQuantity());
                 } else {
-                    inventoryQty = calculateInventoryUnAllocate(dbPickupLine.getPickConfirmQty(), dbPickupLine.getNoBags(), allocatedInventory.getInventoryQuantity(), allocatedInventory.getAllocatedQuantity());
+                    inventoryQty = calculateInventoryUnAllocateV6(dbPickupLine.getPickConfirmQty(), dbPickupLine.getNoBags(), allocatedInventory.getInventoryQuantity(), allocatedInventory.getAllocatedQuantity());
                 }
                 if (inventoryQty != null && inventoryQty.length > 3) {
                     allocatedInventory.setInventoryQuantity(inventoryQty[0]);
@@ -5440,10 +5510,38 @@ public class PickupLineService extends BaseService {
                         // Setting up statusId = 0
                         try {
                             // Check whether Inventory has record or not for that storageBin
-                            Double inventoryByStBin = inventoryService.getInventoryByStorageBinV4(companyCodeId, plantId, languageId, warehouseId, allocatedInventory.getStorageBin());
+                            Double inventoryByStBin = inventoryService.getInventoryByStorageBinV7(companyCodeId, plantId, languageId, warehouseId, allocatedInventory.getStorageBin());
                             if (inventoryByStBin == null) {
+                                if (inventoryByStBin == dbPickupLine.getPickConfirmQty()) {
+                                    /**
+                                     *  Updating proposedStBin since pickedConfirmedStorageBin, need to add remain_qty by 1 (ie., remain_qty = 18 ---> remain_qty = 19),
+                                     *  and need to reduce occ_qty by 1 (ie., occ_qty = 18 -----> occ_qyt = 17)
+                                     */
+                                    StorageBinV2 dbProposedStBin = storageBinService.getStorageBinV7(companyCodeId, plantId, languageId, warehouseId, allocatedInventory.getStorageBin());
+                                    log.info("ProposedBin for Updating Bin Qty's -----> {}", dbProposedStBin);
+
+                                    Long CASE_QTY = dbPickupLine.getNoBags().longValue();
+                                    log.info("CASE_QTY ----> {}", CASE_QTY);
+                                    Long REMAIN_BIN_QTY;
+                                    Long OCC_BIN_QTY;
+
+                                    Long TOTAL_BIN_QTY = Long.valueOf(dbProposedStBin.getTotalQuantity());
+                                    log.info("dbProposedStBin E or P Series proposed bin TOTAL_BIN_QTY ----> {}", TOTAL_BIN_QTY);
+
+                                    OCC_BIN_QTY = Long.valueOf(dbProposedStBin.getOccupiedQuantity()) - CASE_QTY;
+                                    log.info("dbProposedStBin E or P Series proposed bin OCC_BIN_QTY ----> {}", OCC_BIN_QTY);
+
+                                    REMAIN_BIN_QTY = Long.valueOf(dbProposedStBin.getRemainingQuantity()) + CASE_QTY;
+                                    log.info("dbProposedStBin E or P Series proposed bin REMAIN_BIN_QTY ----> {}", REMAIN_BIN_QTY);
+
+                                    // Update TBLSTORAGEBIN occ_qty, remain_qty
+                                    String occQty = String.valueOf(OCC_BIN_QTY);
+                                    String remainQty = String.valueOf(REMAIN_BIN_QTY);
+                                    Long STATUS_ID = 0L;
+                                    storageBinV2Repository.updateBinQty(occQty, remainQty, allocatedInventory.getStorageBin(), companyCodeId, plantId, warehouseId, STATUS_ID);
+                                }
                                 // Setting up statusId = 0
-                                updateStorageBinEmptyStatus(companyCodeId, plantId, languageId, warehouseId, allocatedInventory.getStorageBin(), loginUserID);
+//                                updateStorageBinEmptyStatusV7(companyCodeId, plantId, languageId, warehouseId, allocatedInventory.getStorageBin(), loginUserID);
                             }
                         } catch (Exception e) {
                             log.error("updateStorageBin Error :" + e.toString());
@@ -5508,10 +5606,38 @@ public class PickupLineService extends BaseService {
                             // Setting up statusId = 0
                             try {
                                 // Check whether Inventory has record or not for that storageBin
-                                Double inventoryByStBin = inventoryService.getInventoryByStorageBinV4(companyCodeId, plantId, languageId, warehouseId, inventory.getStorageBin());
+                                Double inventoryByStBin = inventoryService.getInventoryByStorageBinV7(companyCodeId, plantId, languageId, warehouseId, inventory.getStorageBin());
                                 if (inventoryByStBin == null) {
+                                    if (inventoryByStBin == dbPickupLine.getPickConfirmQty()) {
+                                        /**
+                                         *  Updating proposedStBin since pickedConfirmedStorageBin, need to add remain_qty by 1 (ie., remain_qty = 18 ---> remain_qty = 19),
+                                         *  and need to reduce occ_qty by 1 (ie., occ_qty = 18 -----> occ_qyt = 17)
+                                         */
+                                        StorageBinV2 dbProposedStBin = storageBinService.getStorageBinV7(companyCodeId, plantId, languageId, warehouseId, inventory.getStorageBin());
+                                        log.info("ProposedBin for Updating Bin Qty's -----> {}", dbProposedStBin);
+
+                                        Long CASE_QTY = dbPickupLine.getNoBags().longValue();
+                                        log.info("CASE_QTY ----> {}", CASE_QTY);
+                                        Long REMAIN_BIN_QTY;
+                                        Long OCC_BIN_QTY;
+
+                                        Long TOTAL_BIN_QTY = Long.valueOf(dbProposedStBin.getTotalQuantity());
+                                        log.info("dbProposedStBin E or P Series proposed bin TOTAL_BIN_QTY ----> {}", TOTAL_BIN_QTY);
+
+                                        OCC_BIN_QTY = Long.valueOf(dbProposedStBin.getOccupiedQuantity()) - CASE_QTY;
+                                        log.info("dbProposedStBin E or P Series proposed bin OCC_BIN_QTY ----> {}", OCC_BIN_QTY);
+
+                                        REMAIN_BIN_QTY = Long.valueOf(dbProposedStBin.getRemainingQuantity()) + CASE_QTY;
+                                        log.info("dbProposedStBin E or P Series proposed bin REMAIN_BIN_QTY ----> {}", REMAIN_BIN_QTY);
+
+                                        // Update TBLSTORAGEBIN occ_qty, remain_qty
+                                        String occQty = String.valueOf(OCC_BIN_QTY);
+                                        String remainQty = String.valueOf(REMAIN_BIN_QTY);
+                                        Long STATUS_ID = 0L;
+                                        storageBinV2Repository.updateBinQty(occQty, remainQty, inventory.getStorageBin(), companyCodeId, plantId, warehouseId, STATUS_ID);
+                                    }
                                     // Setting up statusId = 0
-                                    updateStorageBinEmptyStatus(companyCodeId, plantId, languageId, warehouseId, inventory.getStorageBin(), loginUserID);
+//                                    updateStorageBinEmptyStatusV7(companyCodeId, plantId, languageId, warehouseId, inventory.getStorageBin(), loginUserID);
                                 }
                             } catch (Exception e) {
                                 log.error("updateStorageBin Error :" + e.toString());
@@ -5548,17 +5674,32 @@ public class PickupLineService extends BaseService {
      */
     public void updateStorageBinEmptyStatus(String companyCodeId, String plantId, String languageId,
                                             String warehouseId, String storageBin, String loginUserID) {
-        try {
-            StorageBinV2 dbStorageBin = storageBinService.getStorageBinV2(companyCodeId, plantId, languageId, warehouseId, storageBin);
-            if (dbStorageBin != null) {
-                dbStorageBin.setStatusId(0L);
+        StorageBinV2 dbStorageBin = storageBinService.getStorageBinV2(companyCodeId, plantId, languageId, warehouseId, storageBin);
+        if (dbStorageBin != null) {
+            dbStorageBin.setStatusId(0L);
+            StorageBinV2 updateStorageBin = storageBinService.updateStorageBinV2(storageBin, dbStorageBin, companyCodeId, plantId, languageId, warehouseId, loginUserID);
+            log.info("Bin Emptied Update Success----> " + updateStorageBin);
+        }
+    }
 
-                storageBinRepository.updateEmptyBinStatus(storageBin, companyCodeId, plantId, warehouseId, 0L);
-//            StorageBinV2 updateStorageBin = storageBinService.updateStorageBinV2(storageBin, dbStorageBin, companyCodeId, plantId, languageId, warehouseId, loginUserID);
-//            log.info("Bin Emptied Update Success----> " + updateStorageBin);
-            }
-        } catch (Exception e) {
-            log.info("StorageBin Empty Status Update Error throw ---------------> ");
+
+    /**
+     * Modified for Knowell
+     * Aakash Vinayak - 03/07/2025
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param storageBin
+     * @param loginUserID
+     */
+    public void updateStorageBinEmptyStatusV7(String companyCodeId, String plantId, String languageId,
+                                            String warehouseId, String storageBin, String loginUserID) {
+        StorageBinV2 dbStorageBin = storageBinService.getStorageBinV2(companyCodeId, plantId, languageId, warehouseId, storageBin);
+        if (dbStorageBin != null) {
+            Long STATUS_ID = 0L;
+            storageBinRepository.updateEmptyBinStatus(dbStorageBin.getStorageBin(), companyCodeId, plantId, warehouseId, STATUS_ID);
+            log.info("Bin Emptied Update Success");
         }
     }
 
@@ -6387,7 +6528,7 @@ public class PickupLineService extends BaseService {
     /**
      * @param pickupLineV2
      */
-    private void setAlternateUomQuantities(PickupLineV2 pickupLineV2) {
+    public void setAlternateUomQuantities(PickupLineV2 pickupLineV2) {
         try {
             Double qtyInPiece = null;
             Double qtyInCase = null;

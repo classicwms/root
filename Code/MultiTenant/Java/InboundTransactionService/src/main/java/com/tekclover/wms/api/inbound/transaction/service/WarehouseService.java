@@ -1497,7 +1497,7 @@ public class WarehouseService extends BaseService {
 				apiLine.setPackQty(iwhTransferLineV2.getPackQty());
 				apiLine.setOrigin(iwhTransferLineV2.getOrigin());
 				apiLine.setSupplierName(iwhTransferLineV2.getSupplierName());
-				apiLine.setManufacturerCode(iwhTransferLineV2.getManufacturerCode());
+				apiLine.setManufacturerCode(iwhTransferLineV2.getManufacturerName());
 				apiLine.setBrand(iwhTransferLineV2.getBrand());
 				apiLine.setOrderId(apiHeader.getOrderId());
 //				apiLine.setInboundOrderHeaderId(apiHeader.getInboundOrderHeaderId());

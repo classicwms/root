@@ -2,6 +2,7 @@ package com.tekclover.wms.api.inbound.transaction.controller;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -290,10 +291,28 @@ public class PutAwayHeaderController {
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
-            PutAwayHeaderV2 createdPutAwayHeader =
-                    putawayheaderService.updatePutAwayHeaderV2(companyCode, plantId, languageId, warehouseId,
-                            preInboundNo, refDocNumber, goodsReceiptNo, palletCode,
-                            caseCode, packBarcodes, putAwayNumber, proposedStorageBin, loginUserID, updatePutAwayHeader);
+
+            PutAwayHeaderV2 createdPutAwayHeader = new PutAwayHeaderV2();
+            if (routingDb != null) {
+                switch (routingDb) {
+                    case "KNOWELL":
+                        createdPutAwayHeader =
+                                putawayheaderService.updatePutAwayHeaderV7(companyCode, plantId, languageId, warehouseId,
+                                        preInboundNo, refDocNumber, goodsReceiptNo, palletCode,
+                                        caseCode, packBarcodes, putAwayNumber, proposedStorageBin, loginUserID, updatePutAwayHeader);
+                        break;
+                    default:
+                        createdPutAwayHeader =
+                                putawayheaderService.updatePutAwayHeaderV2(companyCode, plantId, languageId, warehouseId,
+                                        preInboundNo, refDocNumber, goodsReceiptNo, palletCode,
+                                        caseCode, packBarcodes, putAwayNumber, proposedStorageBin, loginUserID, updatePutAwayHeader);
+                }
+            }
+
+//            PutAwayHeaderV2 createdPutAwayHeader =
+//                    putawayheaderService.updatePutAwayHeaderV2(companyCode, plantId, languageId, warehouseId,
+//                            preInboundNo, refDocNumber, goodsReceiptNo, palletCode,
+//                            caseCode, packBarcodes, putAwayNumber, proposedStorageBin, loginUserID, updatePutAwayHeader);
             return new ResponseEntity<>(createdPutAwayHeader, HttpStatus.OK);
         } finally {
             DataBaseContextHolder.clear();
@@ -365,15 +384,36 @@ public class PutAwayHeaderController {
                                                        @RequestParam String loginUserID)
             throws IllegalAccessException, InvocationTargetException, ParseException {
         try {
-            for (PutAwayHeaderV2 putAwayHeaderV2 : updatePutAwayHeader) {
-                DataBaseContextHolder.setCurrentDb("MT");
-                String routingDb = dbConfigRepository.getDbName(putAwayHeaderV2.getCompanyCodeId(), putAwayHeaderV2.getPlantId(), putAwayHeaderV2.getWarehouseId());
-                log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-                DataBaseContextHolder.clear();
-                DataBaseContextHolder.setCurrentDb(routingDb);
+//            for (PutAwayHeaderV2 putAwayHeaderV2 : updatePutAwayHeader) {
+//                DataBaseContextHolder.setCurrentDb("MT");
+//                String routingDb = dbConfigRepository.getDbName(putAwayHeaderV2.getCompanyCodeId(), putAwayHeaderV2.getPlantId(), putAwayHeaderV2.getWarehouseId());
+//                log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+//                DataBaseContextHolder.clear();
+//                DataBaseContextHolder.setCurrentDb(routingDb);
+//            }
+
+            DataBaseContextHolder.setCurrentDb("MT");
+            String routingDb = dbConfigRepository.getDbName(updatePutAwayHeader.get(0).getCompanyCodeId(), updatePutAwayHeader.get(0).getPlantId(), updatePutAwayHeader.get(0).getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+
+            List<PutAwayHeaderV2> createdPutAwayHeader = new ArrayList<>();
+            if (routingDb != null) {
+                switch (routingDb) {
+                    case "KNOWELL":
+                        createdPutAwayHeader =
+                            putawayheaderService.updatePutAwayHeaderBatchV7(loginUserID, updatePutAwayHeader);
+                        break;
+                    default:
+                        createdPutAwayHeader =
+                                putawayheaderService.updatePutAwayHeaderBatchV2(loginUserID, updatePutAwayHeader);
+
+                }
             }
-            List<PutAwayHeaderV2> createdPutAwayHeader =
-                    putawayheaderService.updatePutAwayHeaderBatchV2(loginUserID, updatePutAwayHeader);
+
+//            List<PutAwayHeaderV2> createdPutAwayHeader =
+//                    putawayheaderService.updatePutAwayHeaderBatchV2(loginUserID, updatePutAwayHeader);
             return new ResponseEntity<>(createdPutAwayHeader, HttpStatus.OK);
         } finally {
             DataBaseContextHolder.clear();
