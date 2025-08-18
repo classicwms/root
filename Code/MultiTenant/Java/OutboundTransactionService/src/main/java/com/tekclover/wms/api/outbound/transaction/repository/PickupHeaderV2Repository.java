@@ -520,6 +520,27 @@ public interface PickupHeaderV2Repository extends JpaRepository<PickupHeaderV2, 
             @Param("updatedOn") Date updatedOn
     );
 
+    @Transactional
+    @Procedure(procedureName = "pickupheader_status_update_proc_v7")
+    public void updatePickupheaderStatusUpdateProcV7(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preOutboundNo") String preOutboundNo,
+            @Param("itmCode") String itmCode,
+            @Param("manufacturerName") String manufacturerName,
+            @Param("partnerCode") String partnerCode,
+            @Param("pickupNumber") String pickupNumber,
+            @Param("lineNumber") Long lineNumber,
+            @Param("statusId") Long statusId,
+            @Param("statusDescription") String statusDescription,
+            @Param("updatedBy") String updatedBy,
+            @Param("updatedOn") Date updatedOn,
+            @Param("barcodeId") String barcodeId
+    );
+
     @Query(value =
             "WITH RankedData AS ( " +
                     "  SELECT REF_DOC_NO as refDocNumber, " +
@@ -646,6 +667,18 @@ public interface PickupHeaderV2Repository extends JpaRepository<PickupHeaderV2, 
             String companyCodeId, String plantId, String warehouseId, String refDocNumber, String preOutboundNo, Long deletionIndicator);
 
     @Modifying
+    @Query(value = "update tblpickupheader set STATUS_TEXT = :statusText, status_id = :statusId where c_id = :companyId AND PLANT_ID = :plantId AND " +
+            "WH_ID = :warehouseId AND PRE_OB_NO = :preOutboundNo \n" +
+            "AND ITM_CODE = :itemCode AND IS_DELETED = 0 ", nativeQuery = true)
+    void updatePickupHeaderStatusId(@Param("companyId") String companyId,
+                                    @Param("plantId") String plantId,
+                                    @Param("warehouseId") String warehouseId,
+                                    @Param("preOutboundNo") String preOutboundNo,
+                                    @Param("itemCode") String itemCode,
+                                    @Param("statusText") String statusText,
+                                    @Param("statusId") Long statusId);
+
+    @Modifying
     @Query(value = "Update tblpickupheader set ASS_PICKER_ID = :pickerId, PICK_UTD_BY = :updatedBy, PICK_UTD_ON = getDate() " +
             "where C_ID = :companyId and PLANT_ID = :plantId and WH_ID = :warehouseId and PU_NO = :pickupNumber and is_deleted = 0 ", nativeQuery = true)
     void updatePickerId(@Param("pickerId") String pickerId,
@@ -654,4 +687,5 @@ public interface PickupHeaderV2Repository extends JpaRepository<PickupHeaderV2, 
                         @Param("plantId") String plantId,
                         @Param("warehouseId") String warehouseId,
                         @Param("pickupNumber") String pickupNumber);
+
 }

@@ -30,6 +30,19 @@ public interface InboundLinePartialConfirmRepository extends JpaRepository<Inbou
 	                                @Param("preInboundNo") String preInboundNo,
 	                                @Param("refDocNumber") String refDocNumber,
 	                                @Param("lineNo") Long lineNo,
-	                                @Param("isExecuted") Long isExecuted);   
+	                                @Param("isExecuted") Long isExecuted);
+
+	@Modifying(clearAutomatically = true)
+	@Query(value = "UPDATE tblinboundlinepart SET is_executed = :isExecuted \n" +
+			"WHERE wh_id = :warehouseId AND ref_doc_no = :refDocNumber and pre_ib_no = :preInboundNo \n" +
+			"and ib_line_no = :lineNo and c_id = :companyCode and plant_id = :plantId and lang_id = :languageId", nativeQuery = true)
+	void updateInboundLinePartialConfirmExecutedStatusNative(@Param("languageId") String languageId,
+															 @Param("plantId") String plantId,
+															 @Param("companyCode") String companyCode,
+															 @Param("warehouseId") String warehouseId,
+															 @Param("preInboundNo") String preInboundNo,
+															 @Param("refDocNumber") String refDocNumber,
+															 @Param("lineNo") Long lineNo,
+															 @Param("isExecuted") Long isExecuted);
 }
 

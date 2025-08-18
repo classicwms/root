@@ -9,6 +9,7 @@ import com.tekclover.wms.api.outbound.transaction.model.dto.*;
 import com.tekclover.wms.api.outbound.transaction.model.inventory.Inventory;
 import com.tekclover.wms.api.outbound.transaction.model.inventory.v2.IInventoryImpl;
 import com.tekclover.wms.api.outbound.transaction.model.inventory.v2.InventoryV2;
+import com.tekclover.wms.api.outbound.transaction.model.notification.NotificationSave;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.OutboundHeader;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.OutboundLine;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.ordermangement.*;
@@ -1372,6 +1373,34 @@ public class OrderManagementLineService extends BaseService {
     }
 
     /**
+     * Modified for Knowell JPA Query to Native Query
+     * Aakash Vinayak - 03/07/2025
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param preOutboundNo
+     * @param refDocNumber
+     * @param partnerCode
+     * @param lineNumber
+     * @param itemCode
+     * @return
+     */
+    public List<OrderManagementLineV2> getListOrderManagementLineV7(String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo,
+                                                                    String refDocNumber, String partnerCode, Long lineNumber, String itemCode) {
+        List<OrderManagementLineV2> orderManagementLine = orderManagementLineV2Repository
+                .findAllOrderManagementLine(
+                        companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode);
+        if (orderManagementLine != null && !orderManagementLine.isEmpty()) {
+            return orderManagementLine;
+        }
+        throw new BadRequestException("The given OrderManagementLine ID : " + "companyCodeId:" + companyCodeId + "plantId:" + plantId + "languageId:" + languageId
+                + "warehouseId:" + warehouseId + ",preOutboundNo:" + preOutboundNo + ",refDocNumber:" + refDocNumber + ",partnerCode:" + partnerCode
+                + ",lineNumber:" + lineNumber + ",itemCode:" + itemCode + " doesn't exist.");
+    }
+
+    /**
      * @param preOutboundNo
      * @param lineNumber
      * @param itemCode
@@ -1913,6 +1942,125 @@ public class OrderManagementLineService extends BaseService {
             i++;
         }
         return !orderManagementLineList.isEmpty() ? orderManagementLineList.get(0) : null;
+    }
+
+    /**
+     * Modified for Knowell - PickupHeader should be deleted
+     * 03/07/2025 - Aakash Vinayak
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param preOutboundNo
+     * @param refDocNumber
+     * @param partnerCode
+     * @param lineNumber
+     * @param itemCode
+     * @param proposedStorageBin
+     * @param proposedPackBarCode
+     * @param loginUserID
+     * @return
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
+    public OrderManagementLineV2 doUnAllocationV7(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                  String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
+                                                  String itemCode, String proposedStorageBin, String proposedPackBarCode, String loginUserID)
+            throws IllegalAccessException, InvocationTargetException, java.text.ParseException {
+
+        // HAREESH - 2022-10-01- Validate multiple ordermanagement lines
+        List<OrderManagementLineV2> orderManagementLineList =
+                getListOrderManagementLineV7(companyCodeId, plantId, languageId, warehouseId, preOutboundNo,
+                        refDocNumber, partnerCode, lineNumber, itemCode);
+        log.info("Processing Order management Line : " + orderManagementLineList);
+
+        /*
+         * Update Inventory table -------------------------- Pass the
+         * WH_ID/ITM_CODE/PACK_BARCODE(PROP_PACK_BARCODE)/ST_BIN(PROP_ST_BIN) values in
+         * INVENTORY table update INV_QTY as (INV_QTY+ALLOC_QTY) and change ALLOC_QTY as
+         * 0
+         */
+        int i = 0;
+
+        statusDescription = pickupLineRepository.getStatusDescription(47L, languageId);
+
+        OrderManagementLineV2 updatedOrderManagementLine = new OrderManagementLineV2();
+
+        for (OrderManagementLineV2 dbOrderManagementLine : orderManagementLineList) {
+            String packBarcodes = dbOrderManagementLine.getProposedPackBarCode();
+            String storageBin = dbOrderManagementLine.getProposedStorageBin();
+            InventoryV2 inventory =
+                    inventoryService.getInventoryV2(companyCodeId, plantId, languageId, warehouseId, packBarcodes, itemCode, storageBin);
+            Double invQty = inventory.getInventoryQuantity() + dbOrderManagementLine.getAllocatedQty();
+
+            /*
+             * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
+             */
+            // Start
+            if (invQty < 0D) {
+                invQty = 0D;
+            }
+            // End
+
+            inventory.setInventoryQuantity(invQty);
+            log.info("Inventory invQty: " + invQty);
+
+            Double allocQty = inventory.getAllocatedQuantity() - dbOrderManagementLine.getAllocatedQty();
+            if (allocQty < 0D) {
+                allocQty = 0D;
+            }
+            inventory.setAllocatedQuantity(allocQty);
+            log.info("Inventory allocQty: " + allocQty);
+            Double totQty = invQty + allocQty;
+            inventory.setReferenceField4(totQty);
+            log.info("Inventory totQty: " + totQty);
+            // Create new Inventory Record
+            InventoryV2 inventoryV2 = new InventoryV2();
+            BeanUtils.copyProperties(inventory, inventoryV2, CommonUtils.getNullPropertyNames(inventory));
+            try {
+                inventoryV2 = inventoryV2Repository.save(inventoryV2);
+                log.info("-----InventoryV2 created-------: " + inventoryV2);
+            } catch (Exception e) {
+                log.error("--ERROR--updateInventoryV3----level1--inventory--error----> :" + e.toString());
+                e.printStackTrace();
+                InventoryTrans newInventoryTrans = new InventoryTrans();
+                BeanUtils.copyProperties(inventoryV2, newInventoryTrans, CommonUtils.getNullPropertyNames(inventoryV2));
+                newInventoryTrans.setReRun(0L);
+                InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+                log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
+            }
+            /*
+             * 1. Update ALLOC_QTY value as 0 2. Update STATUS_ID = 47
+             */
+            dbOrderManagementLine.setAllocatedQty(0D);
+            dbOrderManagementLine.setStatusId(47L);
+//            dbOrderManagementLine.setReferenceField7(idStatus.getStatus());
+            dbOrderManagementLine.setReferenceField7(statusDescription);
+            dbOrderManagementLine.setStatusDescription(statusDescription);
+            dbOrderManagementLine.setPickupUpdatedBy(loginUserID);
+            dbOrderManagementLine.setPickupUpdatedOn(new Date());
+            if (i != 0) {
+                dbOrderManagementLine.setDeletionIndicator(1L);
+            }
+            orderManagementLineV2Repository.delete(dbOrderManagementLine);  // deleting since duplicate error throws in MT
+            updatedOrderManagementLine = orderManagementLineV2Repository.save(dbOrderManagementLine);
+            log.info("OrderManagementLine updated: " + updatedOrderManagementLine);
+
+            // PickupHeader deletion for unallocated orders - 03/07/2025
+//            PickupHeaderV2 dbPickupHeader = pickupHeaderV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndBarcodeIdAndDeletionIndicator(
+//                    companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, dbOrderManagementLine.getBarcodeId(), 0L
+//            );
+//            log.info("PickupHeader for Deleting ------> {}", dbPickupHeader);
+//
+//            if (dbPickupHeader != null) {
+//                pickupHeaderV2Repository.delete(dbPickupHeader);
+//                log.warn("PickupHeader deletion completed...");
+//            }
+
+            i++;
+        }
+        return updatedOrderManagementLine;
     }
 
     /**
@@ -3671,10 +3819,12 @@ public class OrderManagementLineService extends BaseService {
                     pickupHeader.setProposedPackBarCode(dbOrderManagementLine.getProposedPackBarCode());
                     pickupHeader.setPickupCreatedBy(loginUserID);
                     pickupHeader.setPickupCreatedOn(new Date());
+                    pickupHeader.setReferenceField4(dbOrderManagementLine.getDescription());
                     pickupHeader.setQtyInCase(dbOrderManagementLine.getQtyInCase());
                     pickupHeader.setQtyInCrate(dbOrderManagementLine.getQtyInCrate());
                     pickupHeader.setQtyInPiece(dbOrderManagementLine.getQtyInPiece());
                     pickupHeader.setReferenceField1(dbOrderManagementLine.getReferenceField1());
+                    pickupHeader.setReferenceField3(dbOrderManagementLine.getReferenceField3());
                     pickupHeader.setManufacturerDate(dbOrderManagementLine.getManufacturerDate());
                     pickupHeader.setExpiryDate(dbOrderManagementLine.getExpiryDate());
                     if (pickupHeader.getExpiryDate() != null) {
@@ -3855,6 +4005,7 @@ public class OrderManagementLineService extends BaseService {
 
                     PickupHeaderV2 pickup = pickupHeaderV2Repository.save(pickupHeader);
                     log.info("pickupHeader created : " + pickup);
+                    fireBaseNotificationV7(assignPickers.get(0), loginUserID);
 //                    dbOrderManagementLine.setPickupNumber(PU_NO);
 //                    dbOrderManagementLine = orderManagementLineV2Repository.save(dbOrderManagementLine);
                     orderManagementLineV2Repository.updateOrderManagementLineV7(48L, statusDescription, new Date(), assignedPickerId, PU_NO,
@@ -3876,4 +4027,49 @@ public class OrderManagementLineService extends BaseService {
         return orderManagementLineList;
     }
 
+    /**
+     *
+     * @param assignPickerV2
+     * @param loginUserID
+     */
+    private void fireBaseNotificationV7(AssignPickerV2 assignPickerV2,String loginUserID) {
+        try {
+//            try {
+//                DataBaseContextHolder.setCurrentDb("MT");
+//                String profile = dbConfigRepository.getDbName(putAwayLine.getCompanyCode(), putAwayLine.getPlantId(), putAwayLine.getWarehouseId());
+//                log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", profile);
+//                DataBaseContextHolder.clear();
+//                DataBaseContextHolder.setCurrentDb(profile);
+
+            log.info("Notification Input ----> | " + assignPickerV2.getCompanyCodeId() + " | " + assignPickerV2.getPlantId() + " | " + assignPickerV2.getLanguageId() + " | " + assignPickerV2.getWarehouseId());
+            List<String> deviceToken = pickupHeaderV2Repository.getDeviceToken(assignPickerV2.getCompanyCodeId(), assignPickerV2.getPlantId(), assignPickerV2.getLanguageId(), assignPickerV2.getWarehouseId(), loginUserID);
+            log.info("deviceToken ------> {}", deviceToken);
+            if (deviceToken != null && !deviceToken.isEmpty()) {
+                String title = "Inbound Create";
+                String message = "PickupHeader Created Sucessfully ";
+
+                NotificationSave notificationInput = new NotificationSave();
+                notificationInput.setUserId(Collections.singletonList(loginUserID));
+                notificationInput.setUserType(null);
+                notificationInput.setMessage(message);
+                notificationInput.setTopic(title);
+                notificationInput.setReferenceNumber(assignPickerV2.getRefDocNumber());
+                notificationInput.setDocumentNumber(assignPickerV2.getPreOutboundNo());
+                notificationInput.setCompanyCodeId(assignPickerV2.getCompanyCodeId());
+                notificationInput.setPlantId(assignPickerV2.getPlantId());
+                notificationInput.setLanguageId(assignPickerV2.getLanguageId());
+                notificationInput.setWarehouseId(assignPickerV2.getWarehouseId());
+                notificationInput.setCreatedBy(loginUserID);
+
+                log.info("pushNotification started");
+                pushNotificationService.sendPushNotification(deviceToken, notificationInput);
+                log.info("pushNotification completed");
+            }
+//            } finally {
+//                DataBaseContextHolder.clear();
+//            }
+        } catch (Exception e) {
+            log.error("Inbound firebase notification error", e); // This logs the full stack trace
+        }
+    }
 }

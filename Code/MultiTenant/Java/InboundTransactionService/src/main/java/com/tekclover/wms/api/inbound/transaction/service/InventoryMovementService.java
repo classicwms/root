@@ -89,7 +89,7 @@ public class InventoryMovementService extends BaseService {
 	 * @throws ParseException
 	 * @throws java.text.ParseException
 	 */
-	public Stream<InventoryMovement> findInventoryMovement(SearchInventoryMovement searchInventoryMovement)
+	public List<InventoryMovement> findInventoryMovement(SearchInventoryMovement searchInventoryMovement)
 			throws ParseException, java.text.ParseException {
 		if (searchInventoryMovement.getFromCreatedOn() != null && searchInventoryMovement.getToCreatedOn() != null) {
 			Date[] dates = DateUtils.addTimeToDatesForSearch(searchInventoryMovement.getFromCreatedOn(), searchInventoryMovement.getToCreatedOn());
@@ -97,7 +97,7 @@ public class InventoryMovementService extends BaseService {
 			searchInventoryMovement.setToCreatedOn(dates[1]);
 		}
 		InventoryMovementSpecification spec = new InventoryMovementSpecification(searchInventoryMovement);
-		Stream<InventoryMovement> results = inventoryMovementRepository.stream(spec, InventoryMovement.class);
+		List<InventoryMovement> results = inventoryMovementRepository.findAll(spec);
 
 //		List<InventoryMovement> inventoryMovementList = new ArrayList<>();
 //		for (InventoryMovement dbInventoryMovement : results) {

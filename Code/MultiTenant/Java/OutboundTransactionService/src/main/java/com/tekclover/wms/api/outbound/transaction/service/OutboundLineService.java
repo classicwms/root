@@ -2877,7 +2877,7 @@ public class OutboundLineService extends BaseService {
             }
 
             log.info("Find OutboundLine Search Input: " + searchOutboundLine);
-            List<OutboundLineOutput> outboundLineSearchResults = outboundLineV2Repository.findOutboundLine(
+            List<OutboundLineOutput> outboundLineSearchResults = outboundLineV2Repository.findOutboundLineV7(
                     searchOutboundLine.getCompanyCodeId(), searchOutboundLine.getLanguageId(),
                     searchOutboundLine.getPlantId(), searchOutboundLine.getWarehouseId(),
                     searchOutboundLine.getFromDeliveryDate(), searchOutboundLine.getToDeliveryDate(), searchOutboundLine.getPreOutboundNo(),
@@ -4691,12 +4691,17 @@ public class OutboundLineService extends BaseService {
      * @param loginUserId
      * @throws Exception
      */
+    @Transactional
     public void updateOutboundLineByQLCreateProc(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                  String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
                                                  String itemCode, String manufacturerName, String handlingEquipment, Double deliveryQty,
                                                  String deliveryOrderNo, Long statusId, String statusDescription, String loginUserId) throws Exception {
         try {
-            outboundLineV2Repository.updateOutboundLineV2(companyCodeId, plantId, languageId, warehouseId,
+//            outboundLineV2Repository.updateOutboundLineV2(companyCodeId, plantId, languageId, warehouseId,
+//                    preOutboundNo, refDocNumber, partnerCode, lineNumber,
+//                    itemCode, manufacturerName, handlingEquipment,
+//                    deliveryQty, deliveryOrderNo, statusId, statusDescription, loginUserId, new Date());
+            outboundLineV2Repository.updateOutboundLineNative(companyCodeId, plantId, languageId, warehouseId,
                     preOutboundNo, refDocNumber, partnerCode, lineNumber,
                     itemCode, manufacturerName, handlingEquipment,
                     deliveryQty, deliveryOrderNo, statusId, statusDescription, loginUserId, new Date());
@@ -4904,6 +4909,207 @@ public class OutboundLineService extends BaseService {
             e.printStackTrace();
         }
         return null;
+    }
+
+
+    /**
+     * @param createdPickupLineList pickupLineList
+     */
+    public void createInventory(List<PickupLineV2> createdPickupLineList, String loginUserID) {
+
+        AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+        for (PickupLineV2 dbPickupLine : createdPickupLineList) {
+            Long BIN_CLS_ID = null;
+            if (dbPickupLine.getOutboundOrderTypeId() == 3L) {
+                BIN_CLS_ID = 1L;
+            }
+            if (dbPickupLine.getOutboundOrderTypeId() == 2L) {
+                BIN_CLS_ID = 7L;
+            }
+            if (dbPickupLine.getOutboundOrderTypeId() == 11L) {
+                BIN_CLS_ID = 1L;
+            }
+
+            // Get Inventory
+            InventoryV2 inventory = null;
+            if (dbPickupLine.getOutboundOrderTypeId() == 11L) {
+                inventory = inventoryService.getInventoryWithoutBarcode(dbPickupLine.getCompanyCodeId(),
+                        dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(),
+                        dbPickupLine.getItemCode(), BIN_CLS_ID);
+            } else {
+                inventory = inventoryService.getInventoryV5(dbPickupLine.getCompanyCodeId(),
+                        dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(),
+                        dbPickupLine.getBarcodeId(), dbPickupLine.getItemCode(), BIN_CLS_ID);
+            }
+
+            log.info("Quantity Calculation Logic Started");
+            pickupLineService.setAlternateUomQuantities(dbPickupLine);
+            log.info("Quantity Calculation Logic Completed");
+            log.info("inventory record queried: " + inventory);
+
+            if (inventory != null) {
+                if (dbPickupLine.getAllocatedQty() > 0D) {
+                    try {
+                        log.info("AllocatedQtyInv------>" + inventory.getAllocatedQuantity());
+                        log.info("AllocatedQtyPic------>" + dbPickupLine.getAllocatedQty());
+                        log.info("PickConfirmQty ------> " + dbPickupLine.getPickConfirmQty());
+//                        Double INV_QTY = (inventory.getInventoryQuantity() + dbPickupLine.getAllocatedQty()) - dbPickupLine.getPickConfirmQty();
+                        Double INV_QTY = inventory.getInventoryQuantity() - dbPickupLine.getPickConfirmQty();
+                        Double ALLOC_QTY = inventory.getAllocatedQuantity() - dbPickupLine.getAllocatedQty();
+                        log.info("INV_QTY" + INV_QTY);
+                        log.info("ALLOC_QTY" + ALLOC_QTY);
+
+                        /*
+                         * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
+                         */
+                        // Start
+                        if (INV_QTY < 0D) {
+                            INV_QTY = 0D;
+                        }
+
+                        if (ALLOC_QTY < 0D) {
+                            ALLOC_QTY = 0D;
+                        }
+                        // End
+
+                        Double qtyInCase = null;
+                        Double qtyInCreate = null;
+                        inventory.setInventoryQuantity(INV_QTY);
+                        inventory.setAllocatedQuantity(ALLOC_QTY);
+                        inventory.setReferenceField4(INV_QTY + ALLOC_QTY);
+
+                        InventoryV2 inventoryV2 = new InventoryV2();
+                        BeanUtils.copyProperties(inventory, inventoryV2, CommonUtils.getNullPropertyNames(inventory));
+                        inventoryV2.setUpdatedOn(new Date());
+                        inventoryV2.setQtyInPiece(inventoryV2.getInventoryQuantity());
+                        log.info(("QTYPIECE---->" + inventoryV2.getQtyInPiece()));
+                        if (inventoryV2.getQtyInPiece() == 0) {
+                            Double crateQty = 0.0;
+                            Double caseQty = 0.0;
+                            inventoryV2.setQtyInCreate(crateQty);
+                            inventoryV2.setQtyInCase(caseQty);
+                        } else {
+                            IKeyValuePair caseQty = stagingLineV2Repository.getAlternateUomQty(dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(), dbPickupLine.getWarehouseId(),
+                                    dbPickupLine.getItemCode(), "1", "2");
+                            IKeyValuePair createQty = stagingLineV2Repository.getAlternateUomQty(dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(), dbPickupLine.getWarehouseId(),
+                                    dbPickupLine.getItemCode(), "1", "3");
+                            if (caseQty != null) {
+                                qtyInCase = inventoryV2.getInventoryQuantity() / caseQty.getUomQty();
+                                inventoryV2.setQtyInCase(qtyInCase);
+                            }
+                            if (createQty != null) {
+                                qtyInCreate = inventoryV2.getInventoryQuantity() / createQty.getUomQty();
+                                inventoryV2.setQtyInCreate(qtyInCreate);
+                            }
+                        }
+                        inventoryV2 = inventoryV2Repository.save(inventoryV2);
+                        log.info("-----Inventory2 updated-------: " + inventoryV2);
+
+                        //--------------------------------------------------------------------------------------------------------------
+
+                        if (INV_QTY == 0) {
+                            // Setting up statusId = 0
+                            try {
+                                // Check whether Inventory has record or not
+                                InventoryV2 inventoryByStBin = inventoryService.getInventoryByStorageBinV5(dbPickupLine.getCompanyCodeId(),
+                                        dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(),
+                                        dbPickupLine.getWarehouseId(), inventory.getStorageBin());
+                                if (inventoryByStBin == null || (inventoryByStBin != null && inventoryByStBin.getReferenceField4() == 0)) {
+                                    StorageBinV2 dbStorageBin = mastersService.getStorageBinV2(inventory.getStorageBin(),
+                                            dbPickupLine.getWarehouseId(),
+                                            dbPickupLine.getCompanyCodeId(),
+                                            dbPickupLine.getPlantId(),
+                                            dbPickupLine.getLanguageId(),
+                                            authTokenForMastersService.getAccess_token());
+
+                                    if (dbStorageBin != null) {
+                                        dbStorageBin.setStatusId(0L);
+                                        log.info("Bin Emptied");
+                                        mastersService.updateStorageBinV2(inventory.getStorageBin(), dbStorageBin, dbPickupLine.getCompanyCodeId(),
+                                                dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(), loginUserID,
+                                                authTokenForMastersService.getAccess_token());
+                                        log.info("Bin Update Success");
+                                    }
+                                }
+                            } catch (Exception e) {
+                                log.error("updateStorageBin Error :" + e.toString());
+                                e.printStackTrace();
+                            }
+                        }
+                    } catch (Exception e) {
+                        log.error("Inventory Update :" + e.toString());
+                        e.printStackTrace();
+                    }
+                }
+
+                if (dbPickupLine.getAllocatedQty() == null || dbPickupLine.getAllocatedQty() == 0D) {
+                    Double INV_QTY;
+                    try {
+                        INV_QTY = inventory.getInventoryQuantity() - dbPickupLine.getPickConfirmQty();
+                        /*
+                         * [Prod Fix: 17-08] - Discussed to make negative inventory to zero
+                         */
+                        // Start
+                        if (INV_QTY < 0D) {
+                            INV_QTY = 0D;
+                        }
+                        // End
+                        inventory.setInventoryQuantity(INV_QTY);
+                        inventory.setReferenceField4(INV_QTY);
+
+                        InventoryV2 newInventoryV2 = new InventoryV2();
+                        BeanUtils.copyProperties(inventory, newInventoryV2, CommonUtils.getNullPropertyNames(inventory));
+                        newInventoryV2.setUpdatedOn(new Date());
+                        newInventoryV2.setQtyInPiece(dbPickupLine.getQtyInPiece());
+                        newInventoryV2.setQtyInCase(dbPickupLine.getQtyInCase());
+                        newInventoryV2.setQtyInCreate(dbPickupLine.getQtyInCrate());
+
+                        try {
+                            InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventoryV2);
+                            log.info("InventoryV2 created : " + createdInventoryV2);
+                        } catch (Exception e) {
+                            log.error("--ERROR--updateInventoryV3----level1--inventory--error----> :" + e.toString());
+                            e.printStackTrace();
+                            InventoryTrans newInventoryTrans = new InventoryTrans();
+                            BeanUtils.copyProperties(newInventoryV2, newInventoryTrans, CommonUtils.getNullPropertyNames(newInventoryV2));
+                            newInventoryTrans.setReRun(0L);
+                            InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+                            log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
+                        }
+
+                        //-------------------------------------------------------------------
+                        // PASS PickedConfirmedStBin, WH_ID to inventory
+                        // 	If inv_qty && alloc_qty is zero or null then do the below logic.
+                        //-------------------------------------------------------------------
+                        InventoryV2 inventoryBySTBIN = inventoryService.getInventoryByStorageBinV2(dbPickupLine.getCompanyCodeId(),
+                                dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(), dbPickupLine.getPickedStorageBin());
+                        if (inventoryBySTBIN != null && (inventoryBySTBIN.getAllocatedQuantity() == null || inventoryBySTBIN.getAllocatedQuantity() == 0D)
+                                && (inventoryBySTBIN.getInventoryQuantity() == null || inventoryBySTBIN.getInventoryQuantity() == 0D)) {
+                            try {
+                                // Setting up statusId = 0
+                                StorageBinV2 dbStorageBin = mastersService.getStorageBinV2(inventory.getStorageBin(),
+                                        dbPickupLine.getWarehouseId(),
+                                        dbPickupLine.getCompanyCodeId(),
+                                        dbPickupLine.getPlantId(),
+                                        dbPickupLine.getLanguageId(),
+                                        authTokenForMastersService.getAccess_token());
+                                dbStorageBin.setStatusId(0L);
+
+                                mastersService.updateStorageBinV2(inventory.getStorageBin(), dbStorageBin, dbPickupLine.getCompanyCodeId(),
+                                        dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(), loginUserID,
+                                        authTokenForMastersService.getAccess_token());
+                            } catch (Exception e) {
+                                log.error("updateStorageBin Error :" + e.toString());
+                                e.printStackTrace();
+                            }
+                        }
+                    } catch (Exception e1) {
+                        log.error("Inventory cum StorageBin update: Error :" + e1.toString());
+                        e1.printStackTrace();
+                    }
+                }
+            }
+        }
     }
 
 }

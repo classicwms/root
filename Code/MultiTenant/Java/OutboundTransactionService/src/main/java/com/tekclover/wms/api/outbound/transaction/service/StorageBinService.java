@@ -398,7 +398,7 @@ public class StorageBinService extends BaseService {
         BeanUtils.copyProperties(updateStorageBin, dbStorageBin, CommonUtils.getNullPropertyNames(updateStorageBin));
         dbStorageBin.setUpdatedBy(loginUserID);
         dbStorageBin.setUpdatedOn(new Date());
-        storageBinV2Repository.delete(dbStorageBin);
+//        storageBinV2Repository.delete(dbStorageBin);
         return storageBinV2Repository.save(dbStorageBin);
     }
 
@@ -565,5 +565,34 @@ public class StorageBinService extends BaseService {
         return storageBinV2Repository.existsByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndStorageBinAndBinClassIdInAndDeletionIndicator(
                 companyCodeId, plantId, languageId, warehouseId, storageBin, binClassIds, 0L);
 
+    }
+
+    /**
+     * Modified for Knowell, JPA to Native Query
+     * Aakash Vinayak - 28/07/2025
+     *
+     * @param storageBin
+     * @param companyCodeId
+     * @param plantId
+     * @param warehouseId
+     * @param languageId
+     * @return
+     */
+    public StorageBinV2 getStorageBinV7(String companyCodeId, String plantId, String languageId, String warehouseId, String storageBin) {
+        StorageBinV2 storagebin = storageBinV2Repository.getStorageBinV7(
+                storageBin,
+                companyCodeId,
+                plantId,
+                languageId,
+                warehouseId);
+        log.info("StorageBin---->:" + storagebin);
+        if (storagebin == null) {
+            throw new BadRequestException("The Given Values: " +
+                    "storageBin" + storageBin +
+                    "companyCodeId " + companyCodeId +
+                    "plantId " + plantId +
+                    "warehouseId " + warehouseId + " doesn't exist:");
+        }
+        return storagebin;
     }
 }

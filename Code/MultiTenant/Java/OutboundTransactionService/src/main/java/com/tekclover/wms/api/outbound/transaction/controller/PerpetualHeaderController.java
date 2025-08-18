@@ -199,11 +199,19 @@ public class PerpetualHeaderController {
             throws Exception {
         try {
             log.info("SearchPerpetualHeaderV2 ----> {}", searchPerpetualHeader);
-            DataBaseContextHolder.setCurrentDb("MT");
-            String routingDb = dbConfigRepository.getDbList(searchPerpetualHeader.getCompanyCodeId(), searchPerpetualHeader.getPlantId(), searchPerpetualHeader.getWarehouseId());
-            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-            DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb(routingDb);
+            if (searchPerpetualHeader.getCompanyCodeId() != null && searchPerpetualHeader.getPlantId() != null && searchPerpetualHeader.getWarehouseId() != null) {
+                DataBaseContextHolder.setCurrentDb("MT");
+                String routingDb = dbConfigRepository.getDbList(searchPerpetualHeader.getCompanyCodeId(), searchPerpetualHeader.getPlantId(), searchPerpetualHeader.getWarehouseId());
+                log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+                DataBaseContextHolder.clear();
+                DataBaseContextHolder.setCurrentDb(routingDb);
+            } else {
+                DataBaseContextHolder.setCurrentDb("MT");
+                String routingDb = dbConfigRepository.getDbByWarehouseIn(searchPerpetualHeader.getWarehouseId());
+                log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+                DataBaseContextHolder.clear();
+                DataBaseContextHolder.setCurrentDb(routingDb);
+            }
             return perpetualheaderService.findPerpetualHeaderEntityV2(searchPerpetualHeader);
         }
         finally {
@@ -292,8 +300,9 @@ public class PerpetualHeaderController {
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
             PerpetualHeaderV2 createdPerpetualHeader =
-                    perpetualheaderService.updatePerpetualHeaderV2(companyCodeId, plantId, languageId, warehouseId, cycleCountTypeId, cycleCountNo, movementTypeId,
-                            subMovementTypeId, loginUserID, updatePerpetualHeader);
+                    perpetualheaderService.updatePerpetualHeaderV2(updatePerpetualHeader.getCompanyCodeId(), updatePerpetualHeader.getPlantId(), updatePerpetualHeader.getLanguageId(),
+                            updatePerpetualHeader.getWarehouseId(), updatePerpetualHeader.getCycleCountTypeId(), updatePerpetualHeader.getCycleCountNo(),
+                            updatePerpetualHeader.getMovementTypeId(), updatePerpetualHeader.getSubMovementTypeId(), loginUserID, updatePerpetualHeader);
             return new ResponseEntity<>(createdPerpetualHeader, HttpStatus.OK);
         }
         finally {

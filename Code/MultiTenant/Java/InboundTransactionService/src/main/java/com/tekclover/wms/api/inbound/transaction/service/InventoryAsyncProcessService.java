@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -44,10 +45,18 @@ public class InventoryAsyncProcessService extends BaseService{
      * @param loginUserID userID
      */
 //    @Async("asyncExecutor")
+    @Async("asyncExecutor")
     public void createInventoryAsyncProcessV4(List<PutAwayLineV2> putAwayLineV2List, String loginUserID) {
-        putAwayLineV2List.stream().forEach(putAwayLineV2 -> {
-            createInventoryNonCBMV4(putAwayLineV2, loginUserID);
-        });
+        List<InventoryV2> inventoryV2List = new ArrayList<>();
+        log.info("Inventory BinClassId 1 process started -----------------V4-----------> Value Size is {}", putAwayLineV2List.size());
+        for(PutAwayLineV2 putAwayLineV2 : putAwayLineV2List) {
+            inventoryV2List.add(createInventoryNonCBMV4(putAwayLineV2, loginUserID));
+        }
+
+        if(!inventoryV2List.isEmpty()) {
+            log.info("Inventory BinClassId 1 process completed -----------------V4-----------> Value Size is {}", inventoryV2List.size());
+            inventoryV2Repository.saveAll(inventoryV2List);
+        }
     }
 
     /**
@@ -55,12 +64,17 @@ public class InventoryAsyncProcessService extends BaseService{
      * @return return
      */
 //    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-    public void createInventoryNonCBMV4(PutAwayLineV2 putAwayLine, String loginUserId) {
+    /**
+     * @param putAwayLine putAwayLine Input's
+     * @return return
+     */
+//    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+    public synchronized InventoryV2 createInventoryNonCBMV4(PutAwayLineV2 putAwayLine, String loginUserId) {
         DataBaseContextHolder.clear();
         DataBaseContextHolder.setCurrentDb("NAMRATHA");
 
-        alreadyExecuted = false;
-        log.info("Create Inventory Initiated ---> alreadyExecuted ---> " + new Date() + ", " + alreadyExecuted);
+//        alreadyExecuted = false;
+//        log.info("Create Inventory Initiated ---> alreadyExecuted ---> " + new Date() + ", " + alreadyExecuted);
         String palletCode = null;
         String caseCode = null;
         String companyCode = putAwayLine.getCompanyCode();
@@ -101,11 +115,12 @@ public class InventoryAsyncProcessService extends BaseService{
 
                     inventory2.setBusinessPartnerCode(putAwayLine.getBusinessPartnerCode());
                     inventory2.setBatchSerialNumber(putAwayLine.getBatchSerialNumber());
-                    if (putAwayLine.getBatchSerialNumber() != null) {
-                        inventory2.setPackBarcodes(putAwayLine.getBatchSerialNumber());
-                    } else {
-                        inventory2.setPackBarcodes(PACK_BARCODE);
-                    }
+                    inventory2.setPackBarcodes(putAwayLine.getPackBarcodes());
+//                    if (putAwayLine.getBatchSerialNumber() != null) {
+//                        inventory2.setPackBarcodes(putAwayLine.getBatchSerialNumber());
+//                    } else {
+//                        inventory2.setPackBarcodes(PACK_BARCODE);
+//                    }
                     if (inventory2.getItemType() == null) {
                         IKeyValuePair itemType = getItemTypeAndDesc(companyCode, plantId, languageId, warehouseId, itemCode);
                         if (itemType != null) {
@@ -120,10 +135,10 @@ public class InventoryAsyncProcessService extends BaseService{
                     inventory2.setCreatedOn(existinginventory.getCreatedOn());
                     inventory2.setUpdatedOn(new Date());
                     inventory2.setUpdatedBy(loginUserId);
-                    if (!alreadyExecuted) {
-                        InventoryV2 createdinventoryV2 = inventoryV2Repository.save(inventory2);
-                        log.info("----existinginventory--createdInventoryV2--------> : " + createdinventoryV2);
-                    }
+//                    if (!alreadyExecuted) {
+                    InventoryV2 createdinventoryV2 = inventoryV2Repository.save(inventory2);
+                    log.info("----existinginventory--createdInventoryV2--------> : " + createdinventoryV2);
+//                    }
                 }
             }
         } catch (Exception e) {
@@ -255,12 +270,13 @@ public class InventoryAsyncProcessService extends BaseService{
             inventory.setUpdatedOn(new Date());
             inventory.setBatchDate(new Date());
 
-            InventoryV2 createdinventory = null;
-            if (!alreadyExecuted) {
-                createdinventory = inventoryV2Repository.save(inventory);
-                alreadyExecuted = true;             //to ensure method executing only once
-                log.info("created inventory : executed" + createdinventory + " -----> " + alreadyExecuted);
-            }
+            return inventory;
+//            InventoryV2 createdinventory = null;
+//            if (!alreadyExecuted) {
+//                createdinventory = inventoryV2Repository.save(inventory);
+//                alreadyExecuted = true;             //to ensure method executing only once
+//                log.info("created inventory : executed" + createdinventory + " -----> " + alreadyExecuted);
+//            }
 
 //            return createdinventory;
         } catch (Exception e) {
@@ -268,6 +284,7 @@ public class InventoryAsyncProcessService extends BaseService{
             throw new BadRequestException("Error While Creating Inventory");
         }
     }
+
 
 
 }

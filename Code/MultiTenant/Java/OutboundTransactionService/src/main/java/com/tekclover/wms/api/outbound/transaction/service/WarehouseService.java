@@ -1392,6 +1392,7 @@ public class WarehouseService extends BaseService {
 			apiHeader.setOutboundOrderTypeID(1L);                // Hardcoded Value 3
 			apiHeader.setRefDocumentType("WMS to WMS");
 			apiHeader.setOrderReceivedOn(new Date());
+			apiHeader.setLanguageId("EN");
 			apiHeader.setMiddlewareId(interWarehouseTransferInHeaderV2.getMiddlewareId());
 			apiHeader.setMiddlewareTable(interWarehouseTransferInHeaderV2.getMiddlewareTable());
 			apiHeader.setRequiredDeliveryDate(interWarehouseTransferInHeaderV2.getTransferOrderDate());

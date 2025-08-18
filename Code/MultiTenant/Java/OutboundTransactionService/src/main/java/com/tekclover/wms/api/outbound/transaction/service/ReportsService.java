@@ -375,7 +375,6 @@ public class ReportsService extends BaseService {
     }
 
     /**
-     *
      * @param searchStockReport
      * @return
      */
@@ -466,6 +465,67 @@ public class ReportsService extends BaseService {
 
         try {
             stockReportOutputRepository.updateSpStockReportV7( // Changed coz inv_id max is not required while calculating inv_qty
+                    searchStockReport.getCompanyCodeId(),
+                    searchStockReport.getPlantId(),
+                    searchStockReport.getLanguageId(),
+                    searchStockReport.getWarehouseId(),
+                    searchStockReport.getItemCode(),
+                    searchStockReport.getManufacturerName(),
+                    searchStockReport.getItemText(),
+                    searchStockReport.getStockTypeText()
+            );
+        } catch (Exception e) {
+            log.info("Exception while executing sp_stock_report Stored Procedure msg ----> {}", e.toString());
+        }
+        log.info("Report Generated successfully through Stored Procedure");
+        StockReportOutputSpecification specification = new StockReportOutputSpecification();
+        List<StockReportOutput> reportList = stockReportOutputRepository.findAll(specification);
+        log.info("Stock Report Output -----> {}", reportList);
+        return reportList;
+    }
+
+
+    public List<StockReportOutput> stockReportUsingStoredProcedureV5(SearchStockReportInput searchStockReport) {
+
+        if (searchStockReport.getCompanyCodeId() == null) {
+            throw new BadRequestException("Company Code Cannot be Null");
+        }
+
+        if (searchStockReport.getPlantId() == null) {
+            throw new BadRequestException("Plant Cannot be Null");
+        }
+
+        if (searchStockReport.getLanguageId() == null) {
+            throw new BadRequestException("Language Cannot be Null");
+        }
+
+        if (searchStockReport.getWarehouseId() == null) {
+            throw new BadRequestException("warehouse Cannot be Null");
+        }
+
+        if (searchStockReport.getStockTypeText() == null || searchStockReport.getStockTypeText().equalsIgnoreCase("ALL")) {
+            searchStockReport.setStockTypeText("0");
+        }
+        if (searchStockReport.getStockTypeText().equalsIgnoreCase("ONHAND") || searchStockReport.getStockTypeText().equalsIgnoreCase("OnHand")) {
+            searchStockReport.setStockTypeText("1");
+        }
+        if (searchStockReport.getStockTypeText().equalsIgnoreCase("DAMAGED") || searchStockReport.getStockTypeText().equalsIgnoreCase("Damaged")) {
+            searchStockReport.setStockTypeText("7");
+        }
+        if (searchStockReport.getItemCode() == null) {
+            searchStockReport.setItemCode("0");
+        }
+        if (searchStockReport.getManufacturerName() == null) {
+            searchStockReport.setManufacturerName("0");
+        }
+
+        if (searchStockReport.getItemText() == null) {
+            searchStockReport.setItemText("0");
+        }
+        log.info("Strock Report Search Input: " + searchStockReport);
+
+        try {
+            stockReportOutputRepository.updateSpStockReportV5( // Changed coz inv_id max is not required while calculating inv_qty
                     searchStockReport.getCompanyCodeId(),
                     searchStockReport.getPlantId(),
                     searchStockReport.getLanguageId(),
@@ -867,7 +927,6 @@ public class ReportsService extends BaseService {
 //	}
 
 
-
     /**
      * Get OrderStatusReport
      *
@@ -1067,9 +1126,9 @@ public class ReportsService extends BaseService {
                 shipmentDelivery.setDescription(outboundLine.getDescription());
 
                 // Obtain Partner Name
-                IKeyValuePair partner = outboundLineV2Repository.getPartnerCodeAndDescription(outboundLine.getPartnerCode(), outboundLine.getLanguageId(),outboundLine.getCompanyCodeId(), outboundLine.getPlantId(),
+                IKeyValuePair partner = outboundLineV2Repository.getPartnerCodeAndDescription(outboundLine.getPartnerCode(), outboundLine.getLanguageId(), outboundLine.getCompanyCodeId(), outboundLine.getPlantId(),
                         outboundLine.getWarehouseId());
-                log.info("Partner Name ----->" +partner);
+                log.info("Partner Name ----->" + partner);
                 shipmentDelivery.setPartnerName(String.valueOf(partner));
 
                 /*
@@ -1093,7 +1152,6 @@ public class ReportsService extends BaseService {
     }
 
     /**
-     *
      * @param warehouseId
      * @param fromDeliveryDate
      * @param toDeliveryDate
@@ -1181,7 +1239,7 @@ public class ReportsService extends BaseService {
                 // Obtain Partner Name
 //                BusinessPartner partner = mastersService.getBusinessPartner(outboundLine.getPartnerCode(),
 //                        authTokenForMastersService.getAccess_token());
-                shipmentDelivery.setPartnerName(outboundLine.getCustomerId() +" - " + outboundLine.getCustomerName());
+                shipmentDelivery.setPartnerName(outboundLine.getCustomerId() + " - " + outboundLine.getCustomerName());
                 shipmentDelivery.setTargetBranch(outboundLine.getTargetBranchCode());
 
                 /*
@@ -1280,7 +1338,7 @@ public class ReportsService extends BaseService {
                 shipmentDelivery.setDescription(outboundLine.getItemText());
                 shipmentDelivery.setManfCode(outboundLine.getManufacturerName());
 
-                shipmentDelivery.setPartnerName(outboundLine.getCustomerId() +" - " + outboundLine.getCustomerName());
+                shipmentDelivery.setPartnerName(outboundLine.getCustomerId() + " - " + outboundLine.getCustomerName());
                 shipmentDelivery.setTargetBranch(outboundLine.getTargetBranchCode());
                 shipmentDelivery.setMrp(outboundLine.getMrp());
                 shipmentDelivery.setRemarks(outboundLine.getRemarks());
@@ -1295,6 +1353,11 @@ public class ReportsService extends BaseService {
                         outboundLine.getLanguageId(), outboundLine.getWarehouseId(), outboundLine.getRefDocNumber(), outboundLine.getItemCode());
                 shipmentDelivery.setNoOfBags(Double.valueOf(NO_OF_BAGS));
 
+                Date expiryDate = inventoryV2Repository.getExpiryDate(outboundLine.getCompanyCodeId(), outboundLine.getPlantId(),
+                        outboundLine.getLanguageId(), outboundLine.getWarehouseId(), outboundLine.getRefDocNumber(), outboundLine.getItemCode());
+
+                shipmentDelivery.setExpiryDate(expiryDate);
+
                 /*
                  * MFR_PART
                  */
@@ -1306,8 +1369,9 @@ public class ReportsService extends BaseService {
 //                }
 
                 // Setting Quantity as rounding off 2 decimal places - Aakash vinayak, 04/07/2025
-                shipmentDelivery.setQuantity(BigDecimal.valueOf(outboundLine.getDeliveryQty()).setScale(2, RoundingMode.HALF_UP).doubleValue());
-
+                if (outboundLine.getDeliveryQty() != null) {
+                    shipmentDelivery.setQuantity(BigDecimal.valueOf(outboundLine.getDeliveryQty()).setScale(2, RoundingMode.HALF_UP).doubleValue());
+                }
 //                shipmentDelivery.setQuantity(outboundLine.getDeliveryQty()); // DLV_QTY
                 shipmentDelivery.setTotal(total);
                 shipmentDeliveryList.add(shipmentDelivery);
@@ -1474,7 +1538,6 @@ public class ReportsService extends BaseService {
 //
 //        return shipmentDeliverySummaryReport;
 //    }
-
     public ShipmentDeliverySummaryReport getShipmentDeliverySummaryReport(String fromDeliveryDate, String toDeliveryDate,
                                                                           List<String> customerCode, String warehouseIds,
                                                                           String companyCodeId, String plantId, String languageId) {
@@ -1976,9 +2039,7 @@ public class ReportsService extends BaseService {
     }
 
 
-
     /**
-     *
      * @param languageId
      * @param companyCode
      * @param plantId
@@ -2012,7 +2073,7 @@ public class ReportsService extends BaseService {
                 .collect(Collectors.toList());
 
         Long totalOrdeCount = 0L;
-        if(outboundOrderTypeIdList != null && !outboundOrderTypeIdList.isEmpty()) {
+        if (outboundOrderTypeIdList != null && !outboundOrderTypeIdList.isEmpty()) {
             totalOrdeCount = outboundOrderTypeIdList.stream().filter(a -> a.equals(outboundOrderTypeId)).count();
         }
         log.info("refField1List : " + outboundOrderTypeIdList + "," + totalOrdeCount);
@@ -2321,7 +2382,6 @@ public class ReportsService extends BaseService {
             k++;
         }
     }
-
 
 
     /**
@@ -2662,7 +2722,6 @@ public class ReportsService extends BaseService {
     //Find MobileDashBoard
 
     /**
-     *
      * @param findMobileDashBoard
      * @return
      * @throws Exception
@@ -2824,70 +2883,65 @@ public class ReportsService extends BaseService {
 
 //--------------------------------------------------------Outbound Reversal------------------------------------------------------
 
-    /**
-     *
-     * @param outboundReversalInput
-     */
-        public void outboundReversal(OutboundReversalInput  outboundReversalInput){
+    public void outboundReversal(OutboundReversalInput outboundReversalInput) {
 
-            List<Long> statusIdList = Arrays.asList(57L, 50L);
-            boolean pickUpConfirm = pickupHeaderV2Repository.existsByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndStatusIdInAndDeletionIndicatorAndAssignedPickerIdIsNotNull(
-                 outboundReversalInput.getCompanyCodeId(),outboundReversalInput.getPlantId(),outboundReversalInput.getWarehouseId(),
-                 outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), statusIdList, 0L);
-            log.info("PickupHeader Status Checking " + pickUpConfirm);
-            if (pickUpConfirm) {
-                throw new BadRequestException("This Order Already PickList Confirm --------> RefDocNo is " + outboundReversalInput.getRefDocNumber());
-            }
-
-                preOutboundHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
-                        outboundReversalInput.getCompanyCodeId(),outboundReversalInput.getPlantId(),outboundReversalInput.getWarehouseId(),
-                        outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
-                log.info("PreOutboundHeader Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
-
-                preOutboundLineV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
-                        outboundReversalInput.getCompanyCodeId(),outboundReversalInput.getPlantId(),outboundReversalInput.getWarehouseId(),
-                        outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
-                log.info("PreOutboundLine Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
-
-                outboundHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
-                        outboundReversalInput.getCompanyCodeId(),outboundReversalInput.getPlantId(),outboundReversalInput.getWarehouseId(),
-                        outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
-                log.info("OutboundHeader Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
-
-                outboundLineV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
-                        outboundReversalInput.getCompanyCodeId(),outboundReversalInput.getPlantId(),outboundReversalInput.getWarehouseId(),
-                        outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
-                log.info("OrderManagementLine Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
-
-                orderManagementHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
-                        outboundReversalInput.getCompanyCodeId(),outboundReversalInput.getPlantId(),outboundReversalInput.getWarehouseId(),
-                        outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
-                log.info("OrderManagementHeader Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
-
-                orderManagementLineV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
-                        outboundReversalInput.getCompanyCodeId(),outboundReversalInput.getPlantId(),outboundReversalInput.getWarehouseId(),
-                        outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
-                log.info("OrderManagementLine Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
-
-
-                pickupHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
-                        outboundReversalInput.getCompanyCodeId(),outboundReversalInput.getPlantId(),outboundReversalInput.getWarehouseId(),
-                        outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
-                log.info("PickupHeader Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
-
-                obOrderReversal(outboundReversalInput.getRefDocNumber());
-
+        List<Long> statusIdList = Arrays.asList(57L, 50L);
+        boolean pickUpConfirm = pickupHeaderV2Repository.existsByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndStatusIdInAndDeletionIndicatorAndAssignedPickerIdIsNotNull(
+                outboundReversalInput.getCompanyCodeId(), outboundReversalInput.getPlantId(), outboundReversalInput.getWarehouseId(),
+                outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), statusIdList, 0L);
+        log.info("PickupHeader Status Checking " + pickUpConfirm);
+        if (pickUpConfirm) {
+            throw new BadRequestException("This Order Already PickList Confirm --------> RefDocNo is " + outboundReversalInput.getRefDocNumber());
         }
 
-    /**
-     *
-     * @param refDocNumber orderId
-     */
-    public void obOrderReversal(String refDocNumber){
-        if(refDocNumber != null){
-            log.info("------- OutboundOrder -------- OutboundOrderLines ----------> Deleted ---OrderId is {} --> ", refDocNumber);
+        preOutboundHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                outboundReversalInput.getCompanyCodeId(), outboundReversalInput.getPlantId(), outboundReversalInput.getWarehouseId(),
+                outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
+        log.info("PreOutboundHeader Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
+
+        preOutboundLineV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                outboundReversalInput.getCompanyCodeId(), outboundReversalInput.getPlantId(), outboundReversalInput.getWarehouseId(),
+                outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
+        log.info("PreOutboundLine Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
+
+        outboundHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                outboundReversalInput.getCompanyCodeId(), outboundReversalInput.getPlantId(), outboundReversalInput.getWarehouseId(),
+                outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
+        log.info("OutboundHeader Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
+
+        outboundLineV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                outboundReversalInput.getCompanyCodeId(), outboundReversalInput.getPlantId(), outboundReversalInput.getWarehouseId(),
+                outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
+        log.info("OrderManagementLine Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
+
+        orderManagementHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                outboundReversalInput.getCompanyCodeId(), outboundReversalInput.getPlantId(), outboundReversalInput.getWarehouseId(),
+                outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
+        log.info("OrderManagementHeader Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
+
+        orderManagementLineV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                outboundReversalInput.getCompanyCodeId(), outboundReversalInput.getPlantId(), outboundReversalInput.getWarehouseId(),
+                outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
+        log.info("OrderManagementLine Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
+
+
+        pickupHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                outboundReversalInput.getCompanyCodeId(), outboundReversalInput.getPlantId(), outboundReversalInput.getWarehouseId(),
+                outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
+        log.info("PickupHeader Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
+
+        obOrderReversal(outboundReversalInput.getRefDocNumber());
+
+    }
+
+
+    public void obOrderReversal(String refDocNumber) {
+
+        if (refDocNumber != null) {
+
             outboundOrderLinesV2Repository.deleteByOrderId(refDocNumber);
             outboundOrderV2Repository.deleteByOrderId(refDocNumber);
+
         }
 
     }

@@ -1233,7 +1233,7 @@ public class InventoryService extends BaseService {
      * @return
      */
     public synchronized List<IInventoryImpl> getInventoryForInvMmt(String companyCode, String plantId, String languageId, String warehouseId,
-                                                                   String itemCode, String manufacturerName, Long binClassId) {
+                                                      String itemCode, String manufacturerName, Long binClassId) {
 
         List<IInventoryImpl> inventory = inventoryV2Repository.
                 findInventoryForInventoryMovement(companyCode, plantId, languageId, warehouseId, itemCode, binClassId, manufacturerName);
@@ -1587,7 +1587,7 @@ public class InventoryService extends BaseService {
                                          String storageBin, Long stockTypeId, Long specialStockIndicatorId,
                                          InventoryV2 updateInventory, String loginUserID)
             throws IllegalAccessException, InvocationTargetException {
-        if (updateInventory.getBarcodeId() == null) {
+        if(updateInventory.getBarcodeId() == null) {
             throw new RuntimeException("BarcodeId is mandatory");
         }
         InventoryV2 dbInventory = inventoryV2Repository.findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPackBarcodesAndItemCodeAndManufacturerNameAndStorageBinAndStockTypeIdAndSpecialStockIndicatorIdAndBarcodeIdAndDeletionIndicatorOrderByInventoryIdDesc(
@@ -1725,7 +1725,7 @@ public class InventoryService extends BaseService {
      * @return
      */
     public synchronized List<IInventoryImpl> getInventoryForPutAwayCreate(String companyCodeId, String plantId, String languageId, String warehouseId,
-                                                                          String itemCode, String manufacturerName, Long binClassId) {
+                                                             String itemCode, String manufacturerName, Long binClassId) {
 
         List<IInventoryImpl> inventory = inventoryV2Repository.
 //                inventoryForPutAway(companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, binClassId);
@@ -2111,7 +2111,7 @@ public class InventoryService extends BaseService {
      * @return
      */
     public synchronized InventoryV2 getInventoryBinClassId3V4(String companyCode, String plantId, String languageId, String warehouseId,
-                                                              String itemCode, String manufacturerName, String barCodeId, String alternateUom) {
+                                                 String itemCode, String manufacturerName, String barCodeId, String alternateUom) {
         InventoryV2 dbInventoryV2 = new InventoryV2();
         IInventoryImpl inventory = inventoryV2Repository.getInboundInventoryV4(companyCode, plantId, languageId, warehouseId, barCodeId, null,
                 itemCode, manufacturerName, PACK_BARCODE, null, 3L, alternateUom);
@@ -2135,7 +2135,7 @@ public class InventoryService extends BaseService {
      * @return
      */
     public synchronized InventoryV2 getOutboundInventoryV4(String companyCodeId, String plantId, String languageId, String warehouseId,
-                                                           String itemCode, String manufacturerName, String barcodeId, String storageBin, String alternateUom) {
+                                              String itemCode, String manufacturerName, String barcodeId, String storageBin, String alternateUom) {
         log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName +
                 "|" + alternateUom + "|" + barcodeId + "|" + storageBin);
         IInventoryImpl dbInventory = inventoryV2Repository.getOutboundInventoryV4(companyCodeId, plantId, languageId, warehouseId, barcodeId, null,
@@ -2165,8 +2165,8 @@ public class InventoryService extends BaseService {
      * @return
      */
     public synchronized List<IInventoryImpl> getInventoryForOrderManagementV4(String companyCodeId, String plantId, String languageId, String warehouseId,
-                                                                              String itemCode, String manufacturerName, Long stockTypeId, Long binClassId,
-                                                                              String alternateUom) {
+                                                                 String itemCode, String manufacturerName, Long stockTypeId, Long binClassId,
+                                                                 String alternateUom) {
         log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + alternateUom + "|" + binClassId);
         List<IInventoryImpl> inventoryList = inventoryV2Repository.findInventoryForOrderManagementV4(companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, binClassId, stockTypeId, alternateUom);
         if (inventoryList == null || inventoryList.isEmpty()) {
@@ -2188,7 +2188,7 @@ public class InventoryService extends BaseService {
      * @return
      */
     public synchronized List<IInventoryImpl> getInventoryForOrderManagementOrderByCreatedOnV4(String companyCodeId, String plantId, String languageId, String warehouseId,
-                                                                                              String itemCode, String manufacturerName, Long stockTypeId, Long binClassId, String alternateUom) {
+                                                                                 String itemCode, String manufacturerName, Long stockTypeId, Long binClassId, String alternateUom) {
         log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + alternateUom + "|" + binClassId);
         List<IInventoryImpl> inventoryList = inventoryV2Repository.getOMLInventoryV4OrderByCreatedOn(companyCodeId, plantId, languageId, warehouseId, null, null,
                 itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId, alternateUom);
@@ -2212,7 +2212,7 @@ public class InventoryService extends BaseService {
      * @return
      */
     public synchronized List<IInventoryImpl> getInventoryForOrderManagementOrderByExpiryDateV4(String companyCodeId, String plantId, String languageId, String warehouseId,
-                                                                                               String itemCode, String manufacturerName, Long stockTypeId, Long binClassId, String alternateUom) {
+                                                                                  String itemCode, String manufacturerName, Long stockTypeId, Long binClassId, String alternateUom) {
         log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + alternateUom + "|" + binClassId);
         List<IInventoryImpl> inventoryList = inventoryV2Repository.getOMLInventoryV4OrderByExpiryDate(companyCodeId, plantId, languageId, warehouseId, null, null,
                 itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId, alternateUom);
@@ -2224,8 +2224,8 @@ public class InventoryService extends BaseService {
     }
 
     public synchronized List<IInventoryImpl> getInventoryForOrderManagementLevelAsscIdV6(String companyCodeId, String plantId, String languageId, String warehouseId,
-                                                                                         String itemCode, String manufacturerName, Long stockTypeId, Long binClassId,
-                                                                                         String alternateUom, Long levelId) {
+                                                                            String itemCode, String manufacturerName, Long stockTypeId, Long binClassId,
+                                                                            String alternateUom, Long levelId) {
         log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + alternateUom + "|" + binClassId + "|" + levelId);
         List<IInventoryImpl> inventoryList = inventoryV2Repository.getOMLInventoryLevelAsscIdV6(
                 companyCodeId, plantId, languageId, warehouseId, null, null,
@@ -2250,7 +2250,7 @@ public class InventoryService extends BaseService {
      * @return
      */
     public synchronized InventoryV2 getInventoryV4(String companyCodeId, String plantId, String languageId, String warehouseId,
-                                                   String itemCode, String manufacturerName, String barcodeId, String storageBin, String alternateUom) {
+                                      String itemCode, String manufacturerName, String barcodeId, String storageBin, String alternateUom) {
         log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName +
                 "|" + alternateUom + "|" + barcodeId + "|" + storageBin);
         IInventoryImpl dbInventory = inventoryV2Repository.getInventoryV4(companyCodeId, plantId, languageId, warehouseId, barcodeId, null,
@@ -2280,7 +2280,7 @@ public class InventoryService extends BaseService {
      * @return
      */
     public synchronized List<IInventory> getInventoryForOrderManagementGroupByLevelIdV4(String companyCodeId, String plantId, String languageId, String warehouseId,
-                                                                                        String itemCode, Long stockTypeId, Long binClassId, String manufacturerName, String alternateUom) {
+                                                                           String itemCode, Long stockTypeId, Long binClassId, String manufacturerName, String alternateUom) {
         log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + alternateUom + "|" + binClassId);
         List<IInventory> inventoryList = inventoryV2Repository.findInventoryGroupByLevelIdV4(companyCodeId, plantId, languageId, warehouseId, itemCode,
                 manufacturerName, stockTypeId, binClassId, alternateUom);
@@ -2305,8 +2305,8 @@ public class InventoryService extends BaseService {
      * @return
      */
     public synchronized List<IInventoryImpl> getInventoryForOrderManagementLevelIdV6(String companyCodeId, String plantId, String languageId, String warehouseId,
-                                                                                     String itemCode, String manufacturerName, Long stockTypeId, Long binClassId,
-                                                                                     String alternateUom, Long levelId) {
+                                                                        String itemCode, String manufacturerName, Long stockTypeId, Long binClassId,
+                                                                        String alternateUom, Long levelId) {
         log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + alternateUom + "|" + binClassId + "|" + levelId);
         List<IInventoryImpl> inventoryList = inventoryV2Repository.getOMLInventoryLevelIdV6(
                 companyCodeId, plantId, languageId, warehouseId, null, null,
@@ -2332,7 +2332,7 @@ public class InventoryService extends BaseService {
      * @return
      */
     public synchronized List<IInventoryImpl> getInventoryForOrderManagementOrderByLevelIdV4(String companyCodeId, String plantId, String languageId, String warehouseId,
-                                                                                            String itemCode, String manufacturerName, Long stockTypeId, Long binClassId, String alternateUom) {
+                                                                               String itemCode, String manufacturerName, Long stockTypeId, Long binClassId, String alternateUom) {
         log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + alternateUom + "|" + binClassId);
         List<IInventoryImpl> inventoryList = inventoryV2Repository.getOMLInventoryV4OrderByLevelId(companyCodeId, plantId, languageId, warehouseId, null, null,
                 itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId, alternateUom);

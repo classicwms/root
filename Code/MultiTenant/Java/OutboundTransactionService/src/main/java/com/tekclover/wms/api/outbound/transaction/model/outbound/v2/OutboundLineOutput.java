@@ -92,4 +92,9 @@ public interface OutboundLineOutput {
 	public Double getNoBags();
 
 	public String getReasons();
+
+	/*--------------------Namratha--------------------------------*/
+
+	public Date getManufacturerDate();
+	public Date getExpiryDate();
 }

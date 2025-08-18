@@ -190,5 +190,23 @@ public class ReportsController {
             return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
         }
     }
+    @ApiOperation(response = BarcodeGeneration.class, value = "Barcode Generation")
+    @PostMapping("/barcodeGeneartion/V6")
+    public ResponseEntity<?> postBarcodeGeneration(@RequestBody List<AddBarcodeGeneration> barcode) {
+        try {
+            for (AddBarcodeGeneration barcodeGen : barcode) {
+                DataBaseContextHolder.setCurrentDb("MT");
+                String routingDb = dbConfigRepository.getDbName(barcodeGen.getCompanyCodeId(), barcodeGen.getPlantId(), barcodeGen.getWarehouseId());
+                log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+                DataBaseContextHolder.clear();
+                DataBaseContextHolder.setCurrentDb(routingDb);
+            }
+            List<BarcodeGeneration> barcodeGeneration = reportsService.postBarcode(barcode);
+            return new ResponseEntity<>(barcodeGeneration, HttpStatus.OK);
+
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
 
 }

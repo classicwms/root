@@ -251,8 +251,10 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine, Long
             " ol.DLV_CNF_ON as confirmedOn, ol.dlv_qty as movementQty, im.text as itemText,im.mfr_part as manufacturerSKU \n" +
             " from tbloutboundline ol\n" +
             " join tblimbasicdata1 im on ol.itm_code = im.itm_code \n" +
-            " WHERE ol.ITM_CODE in (:itemCode) AND im.WH_ID in (:warehouseId) AND ol.WH_ID in (:warehouseId) AND ol.status_id = :statusId " +
-            " AND ol.DLV_CNF_ON between :fromDate and :toDate ", nativeQuery = true)
+            " WHERE ol.ITM_CODE in (:itemCode) AND im.WH_ID in (:warehouseId) AND ol.WH_ID in (:warehouseId) AND ol.status_id = :statusId and \n" +
+            " (COALESCE(CONVERT(VARCHAR(255), :fromDate), null) IS NULL OR (ol.DLV_CNF_ON between COALESCE(CONVERT(VARCHAR(255), :fromDate), null) and COALESCE(CONVERT(VARCHAR(255), :toDate), null))) \n"
+//          +  " AND ol.DLV_CNF_ON between :fromDate and :toDate "
+           , nativeQuery = true)
     public List<StockMovementReportImpl> findOutboundLineForStockMovement(@Param("itemCode") List<String> itemCode,
                                                                           @Param("warehouseId") List<String> warehouseId,
                                                                           @Param("statusId") Long statusId,

@@ -97,6 +97,18 @@ public class OutboundOrderV2 extends OutboundOrder {
     private String invoice;
     private Long executed;
 
+    // Order_Processing
+    @Column(name = "pre_outbound_header")
+    private Long preOutboundHeader = 0L;
+    @Column(name = "outbound_header")
+    private Long outboundHeader = 0L;
+    @Column(name = "order_management_header")
+    private Long orderManagementHeader = 0L;
+    @Column(name = "pickup_header")
+    private Long pickupHeader = 0L;
+    @Column(name = "order_text")
+    private String orderText;
+
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "OUTBOUND_ORDER_HEADER_ID",referencedColumnName = "OUTBOUND_ORDER_HEADER_ID")

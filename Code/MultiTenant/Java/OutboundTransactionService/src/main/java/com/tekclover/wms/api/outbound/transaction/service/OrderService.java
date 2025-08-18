@@ -385,6 +385,7 @@ public class OrderService {
 
 		OuboundOrderV2Specification spec = new OuboundOrderV2Specification(findOutboundOrderV2);
 		List<OutboundOrderV2> results = outboundOrderV2Repository.findAll(spec);
+		log.info("ObOrders process status result ---> {}", results);
 		return results;
 
 	}

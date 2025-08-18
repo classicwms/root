@@ -52,6 +52,14 @@ public interface PerpetualLineV2Repository extends JpaRepository<PerpetualLineV2
     List<PerpetualLineV2> findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndCycleCountNoAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String cycleCountNo, Long deletionIndicator);
 
+    @Query(value = "SELECT * from tblperpetualline WHERE c_id = :companyCodeId \n " +
+            "AND plant_id = :plantId AND wh_id = :warehouseId AND cc_no = :cycleCountNo \n " +
+            "AND is_deleted = 0", nativeQuery = true)
+    List<PerpetualLineV2> getPerpetualLines(@Param("companyCodeId") String companyCodeId,
+                                            @Param("plantId") String plantId,
+                                            @Param("warehouseId") String warehouseId,
+                                            @Param("cycleCountNo") String cycleCountNo);
+
     List<PerpetualLineV2> findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndCycleCountNoAndCycleCounterIdInAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String cycleCountNo, List<String> cycleCounterId, Long deletionIndicator);
 

@@ -73,11 +73,11 @@ public class ReportsController {
      * Api changes from Stream to list
      * 10-06-2025 Aakash Vinayak
      *
-     *
      * @param searchStockReport
      * @return
      */
-    @ApiOperation(response = StockReportOutput.class, value = "Get All Stock Reports StoredProcedure") // label for swagger
+    @ApiOperation(response = StockReportOutput.class, value = "Get All Stock Reports StoredProcedure")
+    // label for swagger
     @PostMapping("/v2/stockReportSP")
     public ResponseEntity<?> getAllStockReportV2SP(@Valid @RequestBody SearchStockReportInput searchStockReport) {
         try {
@@ -86,7 +86,17 @@ public class ReportsController {
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
-            List<StockReportOutput> stockReportList = reportsService.stockReportUsingStoredProcedure(searchStockReport);
+            List<StockReportOutput> stockReportList = null;
+            if (routingDb != null) {
+                switch(routingDb){
+                    case "REEFERON":
+                        stockReportList = reportsService.stockReportUsingStoredProcedureV5(searchStockReport);
+                        break;
+                    default:
+                        stockReportList = reportsService.stockReportUsingStoredProcedure(searchStockReport);
+                        break;
+                }
+            }
             return new ResponseEntity<>(stockReportList, HttpStatus.OK);
         } finally {
             DataBaseContextHolder.clear();
@@ -142,20 +152,19 @@ public class ReportsController {
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
-        List<OrderStatusReport> orderStatusReportList = reportsService.getOrderStatusReport(request);
-        return new ResponseEntity<>(orderStatusReportList, HttpStatus.OK);
-    }
-        finally {
+            List<OrderStatusReport> orderStatusReportList = reportsService.getOrderStatusReport(request);
+            return new ResponseEntity<>(orderStatusReportList, HttpStatus.OK);
+        } finally {
             DataBaseContextHolder.clear();
         }
-        }
+    }
 
     /*
      * Shipment Delivery
      */
     @ApiOperation(response = ShipmentDeliveryReport.class, value = "Get ShipmentDelivery Report") // label for swagger 
     @GetMapping("/shipmentDelivery")
-    public ResponseEntity<?> getShipmentDeliveryReport(@RequestParam String companyCodeId, @RequestParam String plantId,@RequestParam String warehouseId,
+    public ResponseEntity<?> getShipmentDeliveryReport(@RequestParam String companyCodeId, @RequestParam String plantId, @RequestParam String warehouseId,
                                                        @RequestParam(required = false) String fromDeliveryDate,
                                                        @RequestParam(required = false) String toDeliveryDate,
                                                        @RequestParam(required = false) String storeCode,
@@ -171,17 +180,17 @@ public class ReportsController {
             List<ShipmentDeliveryReport> shipmentDeliveryList = reportsService.getShipmentDeliveryReport(warehouseId,
                     fromDeliveryDate, toDeliveryDate, storeCode, soType, orderNumber);
             return new ResponseEntity<>(shipmentDeliveryList, HttpStatus.OK);
-        }
-        finally {
+        } finally {
             DataBaseContextHolder.clear();
         }
     }
 
 
-    @ApiOperation(response = ShipmentDeliveryReport.class, value = "Get ShipmentDelivery Report v2") // label for swagger
+    @ApiOperation(response = ShipmentDeliveryReport.class, value = "Get ShipmentDelivery Report v2")
+    // label for swagger
     @GetMapping("/v2/shipmentDelivery")
-    public ResponseEntity<?> getShipmentDeliveryReport(@RequestParam String companyCodeId,@RequestParam String plantId,
-                                                       @RequestParam String languageId,@RequestParam String warehouseId,
+    public ResponseEntity<?> getShipmentDeliveryReport(@RequestParam String companyCodeId, @RequestParam String plantId,
+                                                       @RequestParam String languageId, @RequestParam String warehouseId,
                                                        @RequestParam(required = false) String fromDeliveryDate,
                                                        @RequestParam(required = false) String toDeliveryDate,
                                                        @RequestParam(required = false) String storeCode,
@@ -193,16 +202,17 @@ public class ReportsController {
             String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb(routingDb);List<ShipmentDeliveryReport> shipmentDeliveryList = reportsService.getShipmentDeliveryReportV2(companyCodeId, plantId, languageId, warehouseId,
-                fromDeliveryDate, toDeliveryDate, storeCode, soType, orderNumber);
-        return new ResponseEntity<>(shipmentDeliveryList, HttpStatus.OK);
-    }
-        finally {
+            DataBaseContextHolder.setCurrentDb(routingDb);
+            List<ShipmentDeliveryReport> shipmentDeliveryList = reportsService.getShipmentDeliveryReportV2(companyCodeId, plantId, languageId, warehouseId,
+                    fromDeliveryDate, toDeliveryDate, storeCode, soType, orderNumber);
+            return new ResponseEntity<>(shipmentDeliveryList, HttpStatus.OK);
+        } finally {
             DataBaseContextHolder.clear();
         }
-        }
+    }
 
-    @ApiOperation(response = ShipmentDeliveryReport.class, value = "Get ShipmentDelivery Report v2 preOutboundNo added")    // label for swagger
+    @ApiOperation(response = ShipmentDeliveryReport.class, value = "Get ShipmentDelivery Report v2 preOutboundNo added")
+    // label for swagger
     @GetMapping("/v2/shipmentDelivery/new")
     public ResponseEntity<?> getShipmentDeliveryReportV2(@RequestParam String companyCodeId, @RequestParam String plantId,
                                                          @RequestParam String languageId, @RequestParam String warehouseId,
@@ -217,19 +227,19 @@ public class ReportsController {
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
-        List<ShipmentDeliveryReport> shipmentDeliveryList = reportsService.getShipmentDeliveryReportV2(companyCodeId, plantId, languageId, warehouseId,
-                fromDeliveryDate, toDeliveryDate, storeCode, soType, orderNumber, preOutboundNo);
-        return new ResponseEntity<>(shipmentDeliveryList, HttpStatus.OK);
-    }
-        finally {
+            List<ShipmentDeliveryReport> shipmentDeliveryList = reportsService.getShipmentDeliveryReportV2(companyCodeId, plantId, languageId, warehouseId,
+                    fromDeliveryDate, toDeliveryDate, storeCode, soType, orderNumber, preOutboundNo);
+            return new ResponseEntity<>(shipmentDeliveryList, HttpStatus.OK);
+        } finally {
             DataBaseContextHolder.clear();
         }
-        }
+    }
 
     /*
      * Shipment Delivery Summary
      */
-    @ApiOperation(response = ShipmentDeliverySummaryReport.class, value = "Get ShipmentDeliverySummary Report")    // label for swagger
+    @ApiOperation(response = ShipmentDeliverySummaryReport.class, value = "Get ShipmentDeliverySummary Report")
+    // label for swagger
     @GetMapping("/shipmentDeliverySummary")
     public ResponseEntity<?> getShipmentDeliveryReport(@RequestParam String fromDeliveryDate,
                                                        @RequestParam String toDeliveryDate, @RequestParam(required = false) List<String> customerCode,
@@ -242,19 +252,19 @@ public class ReportsController {
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
-        ShipmentDeliverySummaryReport shipmentDeliverySummaryReport =
-                reportsService.getShipmentDeliverySummaryReport(fromDeliveryDate, toDeliveryDate, customerCode, warehouseId, companyCodeId, plantId, languageId);
-        return new ResponseEntity<>(shipmentDeliverySummaryReport, HttpStatus.OK);
-    }
-        finally {
+            ShipmentDeliverySummaryReport shipmentDeliverySummaryReport =
+                    reportsService.getShipmentDeliverySummaryReport(fromDeliveryDate, toDeliveryDate, customerCode, warehouseId, companyCodeId, plantId, languageId);
+            return new ResponseEntity<>(shipmentDeliverySummaryReport, HttpStatus.OK);
+        } finally {
             DataBaseContextHolder.clear();
         }
-        }
+    }
 
     /*
      * Shipment Dispatch Summary
      */
-    @ApiOperation(response = ShipmentDispatchSummaryReport.class, value = "Get ShipmentDispatchSummary Report")    // label for swagger
+    @ApiOperation(response = ShipmentDispatchSummaryReport.class, value = "Get ShipmentDispatchSummary Report")
+    // label for swagger
     @GetMapping("/shipmentDispatchSummary")
     public ResponseEntity<?> getShipmentDispatchSummaryReport(@RequestParam String fromDeliveryDate,
                                                               @RequestParam String toDeliveryDate, @RequestParam(required = false) List<String> customerCode, @RequestParam(required = true) String warehouseId)
@@ -269,7 +279,8 @@ public class ReportsController {
     /*
      * Transaction History Report renamed from open/inventory stock report
      */
-    @ApiOperation(response = TransactionHistoryReport.class, value = "Get Transaction History Report")    // label for swagger
+    @ApiOperation(response = TransactionHistoryReport.class, value = "Get Transaction History Report")
+    // label for swagger
     @PostMapping("/transactionHistoryReport")
     public ResponseEntity<?> getTransactionHistoryReport(@RequestBody FindImBasicData1 searchImBasicData1) throws java.text.ParseException {
         try {
@@ -278,27 +289,28 @@ public class ReportsController {
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
-        List<TransactionHistoryReport> transactionHistoryReportList = reportsService.getTransactionHistoryReport(searchImBasicData1);
-        return new ResponseEntity<>(transactionHistoryReportList, HttpStatus.OK);
-    }
-        finally {
+            List<TransactionHistoryReport> transactionHistoryReportList = reportsService.getTransactionHistoryReport(searchImBasicData1);
+            return new ResponseEntity<>(transactionHistoryReportList, HttpStatus.OK);
+        } finally {
             DataBaseContextHolder.clear();
         }
-        }
+    }
 
     //-------------------------------------------------Get all StockMovementReport---------------------------------
 
     /**
      * @StockMovementReport
      */
-    @ApiOperation(response = StockMovementReport.class, value = "Get all StockMovementReport details")    // label for swagger
+    @ApiOperation(response = StockMovementReport.class, value = "Get all StockMovementReport details")
+    // label for swagger
     @GetMapping("")
     public ResponseEntity<?> getAll() {
         List<StockMovementReport> stockMovementReportList = reportsService.getStockMovementReports();
         return new ResponseEntity<>(stockMovementReportList, HttpStatus.OK);
     }
 
-    @ApiOperation(response = StockMovementReport1.class, value = "Get all StockMovementReportNew details")    // label for swagger
+    @ApiOperation(response = StockMovementReport1.class, value = "Get all StockMovementReportNew details")
+    // label for swagger
     @GetMapping("/new")
     public ResponseEntity<?> getAllStockMovementReport1() throws Exception {
         Stream<StockMovementReport1> stockMovementReportList = reportsService.findStockMovementReportNew();
@@ -320,7 +332,7 @@ public class ReportsController {
                 DataBaseContextHolder.clear();
                 DataBaseContextHolder.setCurrentDb(routingDb);
             } else {
-               routingDb = dbConfigRepository.getDbList(findMobileDashBoard.getCompanyCode(), findMobileDashBoard.getPlantId(), findMobileDashBoard.getWarehouseId());
+                routingDb = dbConfigRepository.getDbList(findMobileDashBoard.getCompanyCode(), findMobileDashBoard.getPlantId(), findMobileDashBoard.getWarehouseId());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
                 DataBaseContextHolder.setCurrentDb(routingDb);
@@ -338,7 +350,7 @@ public class ReportsController {
 
     @ApiOperation(response = MobileDashboard.class, value = "Outbound Reversal") // label for swagger
     @PostMapping("/outboundreversal")
-    public ResponseEntity<?> outboundReversal(@RequestBody OutboundReversalInput outboundReversalInput){
+    public ResponseEntity<?> outboundReversal(@RequestBody OutboundReversalInput outboundReversalInput) {
         WarehouseApiResponse response = new WarehouseApiResponse();
         try {
             String routingDb = dbConfigRepository.getDbName(outboundReversalInput.getCompanyCodeId(),outboundReversalInput.getPlantId(),outboundReversalInput.getWarehouseId());
@@ -355,7 +367,6 @@ public class ReportsController {
             return new ResponseEntity<>(response,HttpStatus.OK);
 
         } catch (Exception e) {
-
             response.setStatusCode("400");
             response.setMessage("Outbound Not Reversed " + e.getMessage());
             return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);

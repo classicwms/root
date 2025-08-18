@@ -279,16 +279,31 @@ public class PeriodicLineController {
 	public ResponseEntity<?> patchPeriodicLineConfirmV4(@PathVariable String cycleCountNo, @RequestBody List<PeriodicLineV2> updatePerpetualLine,
 														@RequestParam String loginUserID) throws Exception {
 
-		for (PeriodicLineV2 updatePerpetualline :updatePerpetualLine) {
-			DataBaseContextHolder.setCurrentDb("MT");
-			String routingDb = dbConfigRepository.getDbName(updatePerpetualline.getCompanyCode(), updatePerpetualline.getPlantId(), updatePerpetualline.getWarehouseId());
-			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-			DataBaseContextHolder.clear();
-			DataBaseContextHolder.setCurrentDb(routingDb);
+//		for (PeriodicLineV2 updatePerpetualline :updatePerpetualLine) {
+		DataBaseContextHolder.setCurrentDb("MT");
+		String routingDb = dbConfigRepository.getDbName(updatePerpetualLine.get(0).getCompanyCode(), updatePerpetualLine.get(0).getPlantId(), updatePerpetualLine.get(0).getWarehouseId());
+		log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+		DataBaseContextHolder.clear();
+		DataBaseContextHolder.setCurrentDb(routingDb);
+//		}
+
+		WarehouseApiResponse createdPerpetualLine = new WarehouseApiResponse();
+
+		if (routingDb != null) {
+			switch (routingDb) {
+				case "REEFERON":
+					createdPerpetualLine =
+							periodicLineService.updatePeriodicLineConfirmV5(cycleCountNo, updatePerpetualLine, loginUserID);
+					break;
+				default:
+					createdPerpetualLine =
+							periodicLineService.updatePeriodicLineConfirmV4(cycleCountNo, updatePerpetualLine, loginUserID);
+			}
 		}
 
-		WarehouseApiResponse createdPerpetualLine =
-				periodicLineService.updatePeriodicLineConfirmV4(cycleCountNo, updatePerpetualLine, loginUserID);
+//		WarehouseApiResponse createdPerpetualLine =
+//				periodicLineService.updatePeriodicLineConfirmV4(cycleCountNo, updatePerpetualLine, loginUserID);
+
 		return new ResponseEntity<>(createdPerpetualLine, HttpStatus.OK);
 	}
 

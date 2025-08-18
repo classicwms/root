@@ -2,7 +2,9 @@ package com.tekclover.wms.api.inbound.transaction.controller;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -13,6 +15,8 @@ import com.tekclover.wms.api.inbound.transaction.repository.DbConfigRepository;
 import com.tekclover.wms.api.inbound.transaction.service.PutAwayLineService;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.putaway.v2.PutAwayLineV2;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.putaway.v2.SearchPutAwayLineV2;
+import com.tekclover.wms.api.inbound.transaction.util.CommonUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -249,9 +253,9 @@ public class PutAwayLineController {
 					case "NAMRATHA":
 						createdPutAwayLine = putawaylineService.putAwayLineConfirmNonCBMV4(newPutAwayLine, loginUserID);
 						break;
-//					case "REEFERON":
-//						asyncService.processPutAwayLineAsync(newPutAwayLine, loginUserID);
-//						break;
+					case "REEFERON":
+						createdPutAwayLine = putawaylineService.putAwayLineConfirmNonCBMV5(newPutAwayLine, loginUserID);
+						break;
 					case "KNOWELL":
 						createdPutAwayLine = putawaylineService.putAwayLineConfirmNonCBMV7(newPutAwayLine, loginUserID);
 						break;
@@ -270,6 +274,7 @@ public class PutAwayLineController {
 			DataBaseContextHolder.clear();
 		}
 	}
+
 //	@ApiOperation(response = PutAwayLineV2.class, value = "Create PutAwayLine V2") // label for swagger
 //	@PostMapping("/confirm/v2")
 //	public ResponseEntity<?> postPutAwayLineConfirmV2(@Valid @RequestBody List<PutAwayLineV2> newPutAwayLine,

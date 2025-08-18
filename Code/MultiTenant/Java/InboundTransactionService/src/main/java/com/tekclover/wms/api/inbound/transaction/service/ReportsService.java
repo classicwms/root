@@ -1526,5 +1526,28 @@ public class ReportsService extends BaseService {
         inboundOrderV2Repository.deleteAll(inboundOrderList);
         log.info("Deleted all InboundOrders for RefDocNumber: {}", refDocNumber);
     }
+    public List<BarcodeGeneration> postBarcode(List<AddBarcodeGeneration> barcode){
 
+        List<BarcodeGeneration> generations = new ArrayList<>();
+
+        for(AddBarcodeGeneration barcodeGeneration : barcode) {
+            BarcodeGeneration barcode1 = new BarcodeGeneration();
+
+            AuthToken authTokenForIDMasterService = authTokenService.getIDMasterServiceAuthToken();
+            String nextNumberRange = idmasterService.getNextNumberRange(29L, barcodeGeneration.getWarehouseId(), barcodeGeneration.getCompanyCodeId(), barcodeGeneration.getPlantId(), barcodeGeneration.getLanguageId(), authTokenForIDMasterService.getAccess_token());
+            barcode1.setBarcodeId(nextNumberRange);
+
+            barcode1.setCompanyCodeId(barcodeGeneration.getCompanyCodeId());
+            barcode1.setPlantId(barcodeGeneration.getPlantId());
+            barcode1.setWarehouseId(barcodeGeneration.getWarehouseId());
+            barcode1.setItemCode(barcodeGeneration.getItemCode());
+            barcode1.setItemDescription(barcodeGeneration.getItemDescription());
+            barcode1.setWeight(barcodeGeneration.getWeight());
+            generations.add(barcode1);
+            log.info("new BarcodeGenerated" + generations);
+
+
+        }
+        return generations;
+    }
 }

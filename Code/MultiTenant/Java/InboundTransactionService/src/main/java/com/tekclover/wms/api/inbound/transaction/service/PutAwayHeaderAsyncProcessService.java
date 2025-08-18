@@ -2,6 +2,7 @@ package com.tekclover.wms.api.inbound.transaction.service;
 
 import com.tekclover.wms.api.inbound.transaction.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.inbound.transaction.controller.exception.BadRequestException;
+import com.tekclover.wms.api.inbound.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.inbound.transaction.model.dto.StorageBinV2;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.gr.StorageBinPutAway;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.gr.v2.GrLineV2;
@@ -22,9 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -66,30 +65,25 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
 
     /**
      *
-     * @param company company
-     * @param plant plant
-     * @param language language
-     * @param warehouse warehouse
      * @param createdGRLines grLine
      * @param loginUserID userId
      */
     @Async("asyncExecutor")
-    public void createGrLineAsyncProcessV4(String company, String plant, String language, String warehouse, List<GrLineV2> createdGRLines, String loginUserID) {
-//        ExecutorService asyncExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-        List<PutAwayHeaderV2> putAwayHeaderV2List = new ArrayList<>();
+    public void createGrLineAsyncProcessV4(List<GrLineV2> createdGRLines, String loginUserID) {
         String idMasterToken = getIDMasterAuthToken();
+        List<PutAwayHeaderV2> putAwayHeaderV2List = new ArrayList<>();
         //PA_NO
-        NUMBER_RANGE_CODE = 7L;
-        String nextPANumber = getNextRangeNumber(NUMBER_RANGE_CODE, company, plant, language, warehouse, idMasterToken);
+//        NUMBER_RANGE_CODE = 7L;
+//        String nextPANumber = getNextRangeNumber(NUMBER_RANGE_CODE, company, plant, language, warehouse, idMasterToken);
 
-        log.info("PA number ----------------> {}", nextPANumber);
-        grLineService.fireBaseNotification(createdGRLines.get(0),nextPANumber, loginUserID);
+//        log.info("PA number ----------------> {}", nextPANumber);
+        grLineService.fireBaseNotification(createdGRLines.get(0), createdGRLines.get(0).getPutAwayNumber(), loginUserID);
         try {
             for (GrLineV2 grLine : createdGRLines) {
-                putAwayHeaderV2List.add(processPutAwayHeaderV4(grLine, nextPANumber, loginUserID, idMasterToken));
+                putAwayHeaderV2List.add(processPutAwayHeaderV4(grLine, loginUserID, idMasterToken));
             }
-            if(!putAwayHeaderV2List.isEmpty()) {
-             log.info("PutAwayHeader Saved List Size is {}", putAwayHeaderV2List.size());
+            if (!putAwayHeaderV2List.isEmpty()) {
+                log.info("PutAwayHeader Saved List Size is {}", putAwayHeaderV2List.size());
                 putAwayHeaderV2Repository.saveAll(putAwayHeaderV2List);
             }
         } catch (Exception e) {
@@ -189,24 +183,29 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
      */
     @Async("asyncExecutor")
     public void createGrLineAsyncProcessV7(String company, String plant, String language,
-                                           String warehouse, List<GrLineV2> createdGRLines, String loginUserID) {
-        ExecutorService asyncExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+                                           String warehouse, List<GrLineV2> createdGRLines, String loginUserID) throws Exception {
+//        ExecutorService asyncExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         String idMasterToken = getIDMasterAuthToken();
+        AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
         //PA_NO
         NUMBER_RANGE_CODE = 7L;
         String nextPANumber = getNextRangeNumber(NUMBER_RANGE_CODE, company, plant, language, warehouse, idMasterToken);
 
         log.info("PA number ----------------> {}", nextPANumber);
         grLineService.fireBaseNotification(createdGRLines.get(0),nextPANumber, loginUserID);
-        List<CompletableFuture<Void>> futures = createdGRLines.stream().map(grLine -> CompletableFuture.runAsync(() -> {
-                    try {
-                        putwayHeaderProcessV7(grLine, nextPANumber, loginUserID, idMasterToken);
-                    } catch (Exception e) {
-                        log.error("Error processing GRLine: {}", grLine.getLineNo(), e);
-                    }
-                }, asyncExecutor)) // inject the ExecutorService
-                .collect(Collectors.toList());
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+//        List<CompletableFuture<Void>> futures = createdGRLines.stream().map(grLine -> CompletableFuture.runAsync(() -> {
+//                    try {
+//                        putwayHeaderProcessV7(grLine, nextPANumber, loginUserID, idMasterToken);
+//                    } catch (Exception e) {
+//                        log.error("Error processing GRLine: {}", grLine.getLineNo(), e);
+//                    }
+//                }, asyncExecutor)) // inject the ExecutorService
+//                .collect(Collectors.toList());
+//        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+        for (GrLineV2 grLine : createdGRLines) {
+            putwayHeaderProcessV7(grLine, nextPANumber, loginUserID, idMasterToken, authTokenForMastersService.getAccess_token());
+        }
     }
 
     /**
@@ -218,8 +217,8 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
      * @throws Exception exception
      */
 //    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-    @Retryable(value = { org.springframework.dao.DeadlockLoserDataAccessException.class }, maxAttempts = 3, backoff = @Backoff(delay = 500))
-    public PutAwayHeaderV2 processPutAwayHeaderV4(GrLineV2 createdGRLine, String nextPANumber, String loginUserID, String idMasterToken) throws Exception {
+    @Retryable(value = {org.springframework.dao.DeadlockLoserDataAccessException.class}, maxAttempts = 3, backoff = @Backoff(delay = 500))
+    public synchronized PutAwayHeaderV2 processPutAwayHeaderV4(GrLineV2 createdGRLine, String loginUserID, String idMasterToken) throws Exception {
         try {
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb("NAMRATHA");
@@ -244,18 +243,13 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
             storageBinPutAway.setLanguageId(languageId);
             storageBinPutAway.setWarehouseId(warehouseId);
 
-            //  ASS_HE_NO
+            // Insert record into PutAwayHeader
             PutAwayHeaderV2 putAwayHeader = new PutAwayHeaderV2();
             BeanUtils.copyProperties(createdGRLine, putAwayHeader, CommonUtils.getNullPropertyNames(createdGRLine));
             putAwayHeader.setCompanyCodeId(companyCode);
             putAwayHeader.setPutAwayUom(createdGRLine.getOrderUom());
             putAwayHeader.setPutAwayQuantity(createdGRLine.getGoodReceiptQty());
-
-            //Inbound Quality Number
-            NUMBER_RANGE_CODE = 23L;
-            String nextQualityNumber = getNextRangeNumber(NUMBER_RANGE_CODE, companyCode, plantId, languageId, warehouseId, idMasterToken);
-            putAwayHeader.setPutAwayNumber(nextPANumber);                           //PutAway Number
-            log.info("NewNumber Generated---> PutAway: " + nextPANumber + " ------> Quality: " + nextQualityNumber);
+            putAwayHeader.setPutAwayNumber(createdGRLine.getPutAwayNumber());                           //PutAway Number
 
             //-----------------PROP_ST_BIN---------------------------------------------
 
@@ -342,16 +336,8 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
             log.info("Proposed Storage Bin level/Floor Id: " + putAwayHeader.getLevelId());
             PreInboundHeaderV2 dbPreInboundHeader = preInboundHeaderService.getPreInboundHeaderV2ForPutAwayCreate(companyCode, plantId, languageId, warehouseId,
                     preInboundNo, refDocNumber);
-            putAwayHeader.setMiddlewareId(dbPreInboundHeader.getMiddlewareId());
-            putAwayHeader.setMiddlewareTable(dbPreInboundHeader.getMiddlewareTable());
             putAwayHeader.setReferenceDocumentType(dbPreInboundHeader.getReferenceDocumentType());
             putAwayHeader.setManufacturerFullName(dbPreInboundHeader.getManufacturerFullName());
-            putAwayHeader.setTransferOrderDate(dbPreInboundHeader.getTransferOrderDate());
-            putAwayHeader.setSourceBranchCode(dbPreInboundHeader.getSourceBranchCode());
-            putAwayHeader.setSourceCompanyCode(dbPreInboundHeader.getSourceCompanyCode());
-            putAwayHeader.setIsCompleted(dbPreInboundHeader.getIsCompleted());
-            putAwayHeader.setIsCancelled(dbPreInboundHeader.getIsCancelled());
-            putAwayHeader.setMUpdatedOn(dbPreInboundHeader.getMUpdatedOn());
 
             //PROP_HE_NO	<- PAWAY_HE_NO
             putAwayHeader.setProposedHandlingEquipment(createdGRLine.getPutAwayHandlingEquipment());
@@ -376,23 +362,24 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
             putAwayHeader.setCreatedOn(new Date());
             putAwayHeader.setUpdatedOn(new Date());
             putAwayHeader.setConfirmedOn(new Date());
-//                    putAwayHeader = putAwayHeaderV2Repository.save(putAwayHeader);
-            log.info("putAwayHeader : " + putAwayHeader);
+//            putAwayHeader = putAwayHeaderV2Repository.save(putAwayHeader);
+//            log.info("putAwayHeader created : " + putAwayHeader);
 
             // Updating Grline field -------------> PutAwayNumber
-            log.info("Updation of PutAwayNumber on GrLine Started");
-
-            updatePutAwayNumber(putAwayHeader, createdGRLine);
-
-            log.info("Updation of PutAwayNumber on GrLine Completed");
+//            log.info("Updation of PutAwayNumber on GrLine Started");
+//            putAwayHeaderV2Repository.updatePutAwayNumber(putAwayHeader.getCompanyCodeId(), putAwayHeader.getPlantId(),
+//                    putAwayHeader.getLanguageId(), putAwayHeader.getWarehouseId(), putAwayHeader.getRefDocNumber(),
+//                    putAwayHeader.getPreInboundNo(), createdGRLine.getItemCode(), createdGRLine.getLineNo(), createdGRLine.getCreatedOn(),
+//                    putAwayHeader.getPutAwayNumber());
+//            log.info("Updation of PutAwayNumber on GrLine Completed");
 
             /*----------------Inventory tables Create---------------------------------------------*/
             inventoryService.createInventoryNonCBMV4(companyCode, plantId, languageId, warehouseId, itemCode, manufacturerName, refDocNumber, createdGRLine);
 
             //bypass quality header and line
 //                    inboundQualityHeaderService.createInboundQualityHeaderV4(createdGRLine, statusId, statusDescription, nextQualityNumber);
-            return putAwayHeader;
 
+            return putAwayHeader;
         } catch (Exception e) {
             log.info("RollPack In GrLine Input Values is RefDocNumber {}, PreInboundNo {}, BarcodeId {} ", createdGRLine.getRefDocNumber(), createdGRLine.getPreInboundNo(), createdGRLine.getBarcodeId());
             grLineV2Repository.rollPackGrLine(createdGRLine.getRefDocNumber(), createdGRLine.getPreInboundNo(), createdGRLine.getBarcodeId());
@@ -400,7 +387,6 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
             throw e;
         }
     }
-
     /**
      * Updating PutawayNumber in grlines with retryable
      *
@@ -628,8 +614,8 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
      * @param loginUserID userId
      * @throws Exception exception
      */
-//    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-    private void putwayHeaderProcessV7(GrLineV2 createdGRLine, String nextPANumber, String loginUserID, String idMasterToken) throws Exception {
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+    private void putwayHeaderProcessV7(GrLineV2 createdGRLine, String nextPANumber, String loginUserID, String idMasterToken, String masterToken) throws Exception {
         try {
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb("KNOWELL");
@@ -674,12 +660,58 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
                     }
                     log.info("BinClassId : " + binClassId);
 
-                    StorageBinV2 dbStorageBinEorP = storageBinV2Repository.getEorPBin(companyCode, plantId, warehouseId);
-                    log.info("dbStorageBin E or P Series proposed bin Record ----> {}", dbStorageBinEorP);
+                    Long CASE_QTY = 1L;
+                    log.info("CASE_QTY ---> {}", CASE_QTY);
+                    Long REMAIN_BIN_QTY;
+                    Long OCC_BIN_QTY;
 
-                    putAwayHeader.setProposedStorageBin(dbStorageBinEorP.getStorageBin());
-                    putAwayHeader.setLevelId(String.valueOf(dbStorageBinEorP.getFloorId()));
+                    if (createdGRLine.getInterimStorageBin() == null && putAwayHeader.getProposedStorageBin() == null) {
+                        // BinClassId - 1 - Live Bin E to P series empty bins and occ_qty < 20
+                        if (createdGRLine.getAcceptedQty() > 0.0) {
+                            StorageBinV2 dbStorageBinEorP = storageBinV2Repository.getEorPBinWithOccQty(companyCode, plantId, warehouseId);
+                            log.info("dbStorageBin E or P Series proposed bin Record ----> {}", dbStorageBinEorP);
 
+                            if (dbStorageBinEorP != null) {
+                                Long TOTAL_BIN_QTY = Long.valueOf(dbStorageBinEorP.getTotalQuantity());
+                                log.info("dbStorageBin E or P Series proposed bin TOTAL_BIN_QTY ----> {}", TOTAL_BIN_QTY);
+
+                                OCC_BIN_QTY = Long.valueOf(dbStorageBinEorP.getOccupiedQuantity()) + CASE_QTY;
+                                log.info("dbStorageBin E or P Series proposed bin OCC_BIN_QTY ----> {}", OCC_BIN_QTY);
+
+                                REMAIN_BIN_QTY = TOTAL_BIN_QTY - OCC_BIN_QTY;
+                                log.info("dbStorageBin E or P Series proposed bin REMAIN_BIN_QTY ----> {}", REMAIN_BIN_QTY);
+
+                                // Update TBLSTORAGEBIN occ_qty, remain_qty
+                                String occQty = String.valueOf(OCC_BIN_QTY);
+                                String remainQty = String.valueOf(REMAIN_BIN_QTY);
+                                storageBinV2Repository.updateBinQty(occQty, remainQty, dbStorageBinEorP.getStorageBin(), createdGRLine.getCompanyCode(), createdGRLine.getPlantId(), createdGRLine.getWarehouseId());
+
+                                putAwayHeader.setProposedStorageBin(dbStorageBinEorP.getStorageBin());
+                                putAwayHeader.setLevelId(String.valueOf(dbStorageBinEorP.getFloorId()));
+                            }
+                        }
+
+                        //BinClassId - 7 - Return Order(Sale Return)
+                        if (createdGRLine.getDamageQty() > 0.0) {
+                            binClassId = 7L;
+                            storageBinPutAway.setBinClassId(binClassId);
+                            log.info("BinClassId : " + binClassId);
+
+                            StorageBinV2 proposedBin = storageBinService.getStorageBinByBinClassIdV7(storageBinPutAway);
+                            if (proposedBin != null) {
+                                putAwayHeader.setProposedStorageBin(proposedBin.getStorageBin());
+                                putAwayHeader.setLevelId(String.valueOf(proposedBin.getFloorId()));
+                                log.info("Return Order --> Proposed Bin: " + proposedBin.getStorageBin());
+                            }
+                        }
+                        //BinClassId - 2 - RESEIVINGSTAGING bin
+                        if (putAwayHeader.getProposedStorageBin() == null) {
+                            StorageBinV2 stBin = getReserveBin(warehouseId, 2L, companyCode, plantId, languageId);
+                            log.info("Bin Unavailable --> Proposing reserveBin: " + stBin.getStorageBin());
+                            putAwayHeader.setProposedStorageBin(stBin.getStorageBin());
+                            putAwayHeader.setLevelId(String.valueOf(stBin.getFloorId()));
+                        }
+                    }
                     /////////////////////////////////////////////////////////////////////////////////////////////////////
                     log.info("Proposed Storage Bin: " + putAwayHeader.getProposedStorageBin());
                     log.info("Proposed Storage Bin level/Floor Id: " + putAwayHeader.getLevelId());

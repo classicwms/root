@@ -4,6 +4,7 @@ import com.tekclover.wms.api.outbound.transaction.model.dto.StorageBinV2;
 import com.tekclover.wms.api.outbound.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -262,4 +263,26 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
 
     boolean existsByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndStorageBinAndBinClassIdInAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String storageBin, List<Long> binClassIds, Long deletionIndicator);
+
+    //===========================================KNOWELL-Dev==============================================================
+
+    @Query(value = "SELECT * from tblstoragebin WHERE c_id = :companyCodeId and plant_id = :plantId and \n " +
+            "wh_id = :warehouseId and lang_id = :languageId and is_deleted = 0 and st_bin = :storageBin", nativeQuery = true)
+    StorageBinV2 getStorageBinV7(@Param("storageBin") String storageBin,
+                                 @Param("companyCodeId") String companyCodeId,
+                                 @Param("plantId") String plantId,
+                                 @Param("languageId") String languageId,
+                                 @Param("warehouseId") String warehouseId);
+
+    @Modifying
+    @Query(value = "UPDATE tblstoragebin set occ_qty = :occQty , remain_qty = :remainQty, status_id = :statusId WHERE \n " +
+            "st_bin = :storageBin AND c_id = :companyCodeId AND plant_id = :plantId \n " +
+            "AND wh_id = :warehouseId", nativeQuery = true)
+    void updateBinQty(@Param("occQty") String occQty,
+                      @Param("remainQty") String remainQty,
+                      @Param("storageBin") String storageBin,
+                      @Param("companyCodeId") String companyCodeId,
+                      @Param("plantId") String plantId,
+                      @Param("warehouseId") String warehouseId,
+                      @Param("statusId") Long statusId);
 }

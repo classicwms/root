@@ -113,6 +113,41 @@ public class StorageBinService extends BaseService {
     }
 
     /**
+     * checking for KNOWELL db routing
+     * @param storageBinPutAway
+     * @return
+     * @throws Exception
+     */
+    public StorageBinV2 getStorageBinByBinClassIdV7(StorageBinPutAway storageBinPutAway) throws Exception {
+        try {
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb("KNOWELL");
+            StorageBinV2 storagebin = null;
+            if (storageBinPutAway.getBinClassId() == 7) {
+                storagebin = storageBinV2Repository.getStorageBinNonCBMBinClassId(
+                        storageBinPutAway.getBinClassId(),
+                        storageBinPutAway.getCompanyCodeId(),
+                        storageBinPutAway.getPlantId(),
+                        storageBinPutAway.getLanguageId(),
+                        storageBinPutAway.getWarehouseId());
+            }
+            if (storagebin != null) {
+                log.info("BinClassId 7 StorageBin: " + storagebin.getStorageBin());
+                return storagebin;
+            } else {
+                log.info("BinClassId --> 7L StorageBin Unavailable --> Proposing reserve bin ---> BinClassId --> 2L");
+                return storageBinV2Repository.findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndBinClassIdAndDeletionIndicator(
+                        storageBinPutAway.getCompanyCodeId(), storageBinPutAway.getPlantId(),
+                        storageBinPutAway.getLanguageId(), storageBinPutAway.getWarehouseId(),
+                        2L, 0L);
+            }
+        } catch (Exception e) {
+            log.error("Exception while Bin fetch : " + e.toString());
+            throw e;
+        }
+    }
+
+    /**
      * @param storageBinPutAway
      * @return
      */
@@ -361,6 +396,62 @@ public class StorageBinService extends BaseService {
     }
 
     /**
+     * Modified for Knowell, JPA to Native Query
+     * Aakash Vinayak - 08/07/2025
+     *
+     * @param storageBin
+     * @param companyCodeId
+     * @param plantId
+     * @param warehouseId
+     * @param languageId
+     * @return
+     */
+    public StorageBinV2 getStorageBinV7(String companyCodeId, String plantId, String languageId, String warehouseId, String storageBin) {
+        StorageBinV2 storagebin = storageBinV2Repository.getStorageBinV7(
+                storageBin,
+                companyCodeId,
+                plantId,
+                languageId,
+                warehouseId);
+        log.info("StorageBin---->:" + storagebin);
+        if (storagebin == null) {
+            throw new BadRequestException("The Given Values: " +
+                    "storageBin" + storageBin +
+                    "companyCodeId " + companyCodeId +
+                    "plantId " + plantId +
+                    "warehouseId " + warehouseId + " doesn't exist:");
+        }
+        return storagebin;
+    }
+
+    /**
+     * Modified for Knowell Checking Conf_St_bin is available
+     * will be checking weather the remain_qty > 0 and status_id = 0
+     *
+     * Aakash Vinayak - 25/07/2025
+     *
+     * @param storageBin
+     * @param companyCodeId
+     * @param plantId
+     * @param warehouseId
+     * @param languageId
+     * @return
+     */
+    public StorageBinV2 getConfirmedStorageBinV7(String companyCodeId, String plantId, String languageId, String warehouseId, String storageBin) {
+        StorageBinV2 storagebin = storageBinV2Repository.getConfirmedStorageBinV7(
+                storageBin,
+                companyCodeId,
+                plantId,
+                languageId,
+                warehouseId);
+        log.info("ConfirmedStorageBin available ---->:" + storagebin);
+        if (storagebin == null) {
+            throw new BadRequestException("The ConfirmedStorageBin is not Available because either Remaining_Qty capacity is 0 or Bin is Occupied (status_id = 1)");
+        }
+        return storagebin;
+    }
+
+    /**
      * @param storageBin
      * @param companyCodeId
      * @param plantId
@@ -460,7 +551,8 @@ public class StorageBinService extends BaseService {
         BeanUtils.copyProperties(updateStorageBin, dbStorageBin, CommonUtils.getNullPropertyNames(updateStorageBin));
         dbStorageBin.setUpdatedBy(loginUserID);
         dbStorageBin.setUpdatedOn(new Date());
-//        storageBinV2Repository.delete(dbStorageBin);
+        dbStorageBin.setCapacityCheck(false);
+        storageBinV2Repository.delete(dbStorageBin);
         return storageBinV2Repository.save(dbStorageBin);
     }
 
