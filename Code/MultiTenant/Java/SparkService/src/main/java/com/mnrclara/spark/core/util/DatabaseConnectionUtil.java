@@ -105,7 +105,7 @@ public class DatabaseConnectionUtil {
     //==========================================Knowell==============================================
 
     public static String getKnowellJdbcUrl() {
-        return "jdbc:sqlserver://10.10.22.45;databaseName=WMS_MT";
+        return "jdbc:sqlserver://10.10.22.45;databaseName=WMS_KNOWELL";
     }
 
     public static Properties getKnowellDatabaseConnectionProperties() {

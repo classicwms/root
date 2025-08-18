@@ -95,7 +95,7 @@ public class DataSourceConfig {
                 break;
             case "KNOWELL":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://10.10.22.45;databaseName=WMS_KNOWELL_DEV");
+                dataSource.setUrl("jdbc:sqlserver://10.10.22.45;databaseName=WMS_KNOWELL");
                 dataSource.setUsername("sa");
                 dataSource.setPassword("D3pyGJd4uK8sSqM7YbfJp5nYt");
                 break;
