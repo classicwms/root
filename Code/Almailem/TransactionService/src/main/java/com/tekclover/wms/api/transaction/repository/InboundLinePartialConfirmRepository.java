@@ -18,7 +18,7 @@ import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpeci
 public interface InboundLinePartialConfirmRepository extends JpaRepository<InboundLinePartialConfirm, Long>,
         JpaSpecificationExecutor<InboundLinePartialConfirm>, StreamableJpaSpecificationRepository<InboundLinePartialConfirm> {
 
-	public List<InboundLinePartialConfirm> findByStatusIdAndIsExecuted (Long statusId, Long isExecuted);
+	public List<InboundLinePartialConfirm> findByStatusIdAndIsExecutedAndAcceptedQtyNot (Long statusId, Long isExecuted, Double acceptedQty);
 	
 	@Modifying(clearAutomatically = true)
     @Query("UPDATE InboundLinePartialConfirm ib SET ib.isExecuted = :isExecuted \n" +

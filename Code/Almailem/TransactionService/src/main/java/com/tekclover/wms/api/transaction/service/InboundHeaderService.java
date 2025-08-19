@@ -1805,7 +1805,7 @@ public class InboundHeaderService extends BaseService {
 	private void scheduleInboundLinePartialConfirmation() {
 		log.info("-----scheduleInboundLinePartialConfirmation--1-->: ");
 		List<InboundLinePartialConfirm> inboundLinePartialConfirmList = inboundLinePartialConfirmRepository
-				.findByStatusIdAndIsExecuted(24L, 0L);
+				.findByStatusIdAndIsExecutedAndAcceptedQtyNot(24L, 0L, 0D);
 		log.info("-----scheduleInboundLinePartialConfirmation--2-->: " + inboundLinePartialConfirmList);
 
 		inboundLinePartialConfirmList.stream().forEach(inboundLine -> {

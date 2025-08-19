@@ -74,6 +74,7 @@ import com.tekclover.wms.api.enterprise.transaction.repository.specification.Ord
 import com.tekclover.wms.api.enterprise.transaction.repository.specification.OrderManagementLineV2Specification;
 import com.tekclover.wms.api.enterprise.transaction.util.CommonUtils;
 import com.tekclover.wms.api.enterprise.transaction.util.DateUtils;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -2118,66 +2119,66 @@ public class OrderManagementLineService extends BaseService {
     /**
      * send Push Notification
      */
-    public void sendPushNotification() {
-        try {
-                        List<IKeyValuePair> notification =
-                                pickupHeaderV2Repository.findByStatusIdAndNotificationStatusAndDeletionIndicatorDistinctRefDocNo();
+	public void sendPushNotification() {
+		try {
+			List<IKeyValuePair> notification = pickupHeaderV2Repository
+					.findByStatusIdAndNotificationStatusAndDeletionIndicatorDistinctRefDocNo();
 
-                        if (notification != null) {
-                            for (IKeyValuePair pickupHeaderV2 : notification) {
+			if (notification != null) {
+				for (IKeyValuePair pickupHeaderV2 : notification) {
 
-                                List<String> deviceToken = pickupHeaderV2Repository.getDeviceToken(
-                                        pickupHeaderV2.getAssignPicker(), pickupHeaderV2.getWarehouseId());
+					List<String> deviceToken = pickupHeaderV2Repository.getDeviceToken(pickupHeaderV2.getAssignPicker(),
+							pickupHeaderV2.getWarehouseId());
 
-                                if (deviceToken != null && !deviceToken.isEmpty()) {
-                                    String title = "PICKING";
-                                    String message =  pickupHeaderV2.getRefDocType() + " ORDER - " + pickupHeaderV2.getRefDocNumber() + " - IS RECEIVED ";
-                                    String response = pushNotificationService.sendPushNotification(deviceToken, title, message);
-                                    if (response.equals("OK")) {
-                                        pickupHeaderV2Repository.updateNotificationStatus(
-                                                pickupHeaderV2.getAssignPicker(), pickupHeaderV2.getRefDocNumber(), pickupHeaderV2.getWarehouseId());
-                                        log.info("status update successfully");
-                                    }
-                                }
-                            }
-                        }
-        } catch (Exception e) {
+					if (deviceToken != null && !deviceToken.isEmpty()) {
+						String title = "PICKING";
+						String message = pickupHeaderV2.getRefDocType() + " ORDER - " + pickupHeaderV2.getRefDocNumber()
+								+ " - IS RECEIVED ";
+						String response = pushNotificationService.sendPushNotification(deviceToken, title, message);
+						if (response.equals("OK")) {
+							pickupHeaderV2Repository.updateNotificationStatus(pickupHeaderV2.getAssignPicker(),
+									pickupHeaderV2.getRefDocNumber(), pickupHeaderV2.getWarehouseId());
+							log.info("status update successfully");
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
 //            e.printStackTrace();
-                    }
-                }
+		}
+	}
 
     /**
      *
      * @param preOutboundNo
      * @param warehouseId
      */
-    public void sendPushNotification(String preOutboundNo, String warehouseId) {
-        try {
-            List<IKeyValuePair> notification =
-                    pickupHeaderV2Repository.findPushNotificationStatusByPreOutboundNo(preOutboundNo, warehouseId);
+	public void sendPushNotification(String preOutboundNo, String warehouseId) {
+		try {
+			List<IKeyValuePair> notification = pickupHeaderV2Repository
+					.findPushNotificationStatusByPreOutboundNo(preOutboundNo, warehouseId);
 
-            if (notification != null) {
-                for (IKeyValuePair pickupHeaderV2 : notification) {
-
-                    List<String> deviceToken = pickupHeaderV2Repository.getDeviceToken(
-                            pickupHeaderV2.getAssignPicker(), pickupHeaderV2.getWarehouseId());
-
-                    if (deviceToken != null && !deviceToken.isEmpty()) {
-                        String title = "PICKING";
-                        String message = pickupHeaderV2.getRefDocType() + " ORDER - " + pickupHeaderV2.getRefDocNumber() + " - IS RECEIVED ";
-                        String response = pushNotificationService.sendPushNotification(deviceToken, title, message);
-                        if (response.equals("OK")) {
-                            pickupHeaderV2Repository.updateNotificationStatus(
-                                    pickupHeaderV2.getAssignPicker(), pickupHeaderV2.getRefDocNumber(), pickupHeaderV2.getWarehouseId());
-                            log.info("status update successfully");
-            }
-            }
-        }
-    }
-        } catch (Exception e) {
+			if (notification != null) {
+				for (IKeyValuePair pickupHeaderV2 : notification) {
+					List<String> deviceToken = pickupHeaderV2Repository.getDeviceToken(pickupHeaderV2.getAssignPicker(),
+							pickupHeaderV2.getWarehouseId());
+					if (deviceToken != null && !deviceToken.isEmpty()) {
+						String title = "PICKING";
+						String message = pickupHeaderV2.getRefDocType() + " ORDER - " + pickupHeaderV2.getRefDocNumber()
+								+ " - IS RECEIVED ";
+						String response = pushNotificationService.sendPushNotification(deviceToken, title, message);
+						if (response.equals("OK")) {
+							pickupHeaderV2Repository.updateNotificationStatus(pickupHeaderV2.getAssignPicker(),
+									pickupHeaderV2.getRefDocNumber(), pickupHeaderV2.getWarehouseId());
+							log.info("status update successfully");
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
 //            e.printStackTrace();
-            }
-    }
+		}
+	}
 
     /**
      *

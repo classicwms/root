@@ -1,17 +1,49 @@
 package com.tekclover.wms.api.enterprise.transaction.service;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.persistence.EntityNotFoundException;
+import javax.validation.Valid;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.ParseException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.google.firebase.messaging.FirebaseMessagingException;
-import com.tekclover.wms.api.enterprise.transaction.config.PropertiesConfig;
 import com.tekclover.wms.api.enterprise.controller.exception.BadRequestException;
+import com.tekclover.wms.api.enterprise.transaction.config.PropertiesConfig;
 import com.tekclover.wms.api.enterprise.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.enterprise.transaction.model.auth.AuthToken;
-import com.tekclover.wms.api.enterprise.transaction.model.dto.*;
+import com.tekclover.wms.api.enterprise.transaction.model.dto.IInventory;
+import com.tekclover.wms.api.enterprise.transaction.model.dto.ImBasicData;
+import com.tekclover.wms.api.enterprise.transaction.model.dto.ImBasicData1;
+import com.tekclover.wms.api.enterprise.transaction.model.dto.StatusId;
+import com.tekclover.wms.api.enterprise.transaction.model.dto.StorageBin;
+import com.tekclover.wms.api.enterprise.transaction.model.dto.StorageBinV2;
 import com.tekclover.wms.api.enterprise.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.enterprise.transaction.model.inbound.inventory.v2.IInventoryImpl;
 import com.tekclover.wms.api.enterprise.transaction.model.inbound.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.OutboundHeader;
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.OutboundLine;
-import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.*;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.AddOrderManagementLine;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.AssignPicker;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.OrderManagementHeader;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.OrderManagementLine;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.SearchOrderManagementLine;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.UpdateOrderManagementLine;
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.v2.AssignPickerV2;
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.v2.OrderManagementHeaderV2;
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.ordermangement.v2.OrderManagementLineV2;
@@ -21,26 +53,26 @@ import com.tekclover.wms.api.enterprise.transaction.model.outbound.pickup.v2.Pic
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.v2.OutboundIntegrationHeaderV2;
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.v2.OutboundHeaderV2;
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.v2.OutboundLineV2;
-import com.tekclover.wms.api.enterprise.transaction.repository.*;
+import com.tekclover.wms.api.enterprise.transaction.repository.ImBasicData1Repository;
+import com.tekclover.wms.api.enterprise.transaction.repository.InventoryRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.InventoryV2Repository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OrderManagementHeaderRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OrderManagementHeaderV2Repository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OrderManagementLineRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OrderManagementLineV2Repository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OutboundHeaderRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OutboundHeaderV2Repository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OutboundLineRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.OutboundLineV2Repository;
+import com.tekclover.wms.api.enterprise.transaction.repository.PickupHeaderRepository;
+import com.tekclover.wms.api.enterprise.transaction.repository.PickupHeaderV2Repository;
+import com.tekclover.wms.api.enterprise.transaction.repository.StagingLineV2Repository;
 import com.tekclover.wms.api.enterprise.transaction.repository.specification.OrderManagementLineSpecification;
 import com.tekclover.wms.api.enterprise.transaction.repository.specification.OrderManagementLineV2Specification;
 import com.tekclover.wms.api.enterprise.transaction.util.CommonUtils;
 import com.tekclover.wms.api.enterprise.transaction.util.DateUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.expression.ParseException;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
-import javax.validation.Valid;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -2091,33 +2123,34 @@ public class OrderManagementLineService extends BaseService {
     /**
      * send Push Notification
      */
-    public void sendPushNotification() {
-        try {
-                        List<IKeyValuePair> notification =
-                                pickupHeaderV2Repository.findByStatusIdAndNotificationStatusAndDeletionIndicatorDistinctRefDocNo();
+	public void sendPushNotification() {
+		try {
+			List<IKeyValuePair> notification = pickupHeaderV2Repository
+					.findByStatusIdAndNotificationStatusAndDeletionIndicatorDistinctRefDocNo();
 
-                        if (notification != null) {
-                            for (IKeyValuePair pickupHeaderV2 : notification) {
+			if (notification != null) {
+				for (IKeyValuePair pickupHeaderV2 : notification) {
 
-                                List<String> deviceToken = pickupHeaderV2Repository.getDeviceToken(
-                                        pickupHeaderV2.getAssignPicker(), pickupHeaderV2.getWarehouseId());
+					List<String> deviceToken = pickupHeaderV2Repository.getDeviceToken(pickupHeaderV2.getAssignPicker(),
+							pickupHeaderV2.getWarehouseId());
 
-                                if (deviceToken != null && !deviceToken.isEmpty()) {
-                                    String title = "PICKING";
-                                    String message =  pickupHeaderV2.getRefDocType() + " ORDER - " + pickupHeaderV2.getRefDocNumber() + " - IS RECEIVED ";
-                                    String response = pushNotificationService.sendPushNotification(deviceToken, title, message);
-                                    if (response.equals("OK")) {
-                                        pickupHeaderV2Repository.updateNotificationStatus(
-                                                pickupHeaderV2.getAssignPicker(), pickupHeaderV2.getRefDocNumber(), pickupHeaderV2.getWarehouseId());
-                                        log.info("status update successfully");
-                                    }
-                                }
-                            }
-                        }
-        } catch (Exception e) {
+					if (deviceToken != null && !deviceToken.isEmpty()) {
+						String title = "PICKING";
+						String message = pickupHeaderV2.getRefDocType() + " ORDER - " + pickupHeaderV2.getRefDocNumber()
+								+ " - IS RECEIVED ";
+						String response = pushNotificationService.sendPushNotification(deviceToken, title, message);
+						if (response.equals("OK")) {
+							pickupHeaderV2Repository.updateNotificationStatus(pickupHeaderV2.getAssignPicker(),
+									pickupHeaderV2.getRefDocNumber(), pickupHeaderV2.getWarehouseId());
+							log.info("status update successfully");
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
 //            e.printStackTrace();
-                    }
-                }
+		}
+	}
 
     /**
      *
