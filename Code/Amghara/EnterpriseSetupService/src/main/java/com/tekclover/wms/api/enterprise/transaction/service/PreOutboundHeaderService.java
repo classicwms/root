@@ -93,6 +93,7 @@ import com.tekclover.wms.api.enterprise.transaction.repository.specification.Pre
 import com.tekclover.wms.api.enterprise.transaction.repository.specification.PreOutboundHeaderV2Specification;
 import com.tekclover.wms.api.enterprise.transaction.util.CommonUtils;
 import com.tekclover.wms.api.enterprise.transaction.util.DateUtils;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -1836,12 +1837,10 @@ public class PreOutboundHeaderService extends BaseService {
         return outboundHeader;
         } catch (Exception e) {
             e.printStackTrace();
-
             // Updating the Processed Status
             log.info("Rollback Initiated...!" + outboundIntegrationHeader.getRefDocumentNo());
             orderManagementLineService.rollback(outboundIntegrationHeader);
             orderService.updateProcessedOrderV2(outboundIntegrationHeader.getRefDocumentNo(), outboundIntegrationHeader.getOutboundOrderTypeID());
-
             throw e;
         }
     }
