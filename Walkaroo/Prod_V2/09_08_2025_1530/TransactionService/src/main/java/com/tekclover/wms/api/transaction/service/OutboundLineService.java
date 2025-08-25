@@ -5874,4 +5874,42 @@ public class OutboundLineService extends BaseService {
 
         return dcReversalRequestList;
     }
+
+
+
+
+    /**
+     * Modified for SAP orders - 30/06/2025
+     * Aakash vinayak
+     * @param deliveryConfirmationV3
+     * @throws Exception
+     */
+    public void createPickupHeaderProcess(DeliveryConfirmationV3 deliveryConfirmationV3) throws Exception {
+        try {
+            List<DeliveryConfirmationLineV3> deliveryLines = deliveryConfirmationV3.getLines();
+            if (deliveryLines != null && !deliveryLines.isEmpty()) {
+
+                for (DeliveryConfirmationLineV3 deliveryLine : deliveryLines) {
+                    OutboundHeaderV2 outHeader = outboundHeaderService.getOutboundHeaderV3(deliveryLine.getOutbound());
+                    String customerId = outHeader.getCustomerId();
+                    String barcodeId = deliveryLine.getHuSerialNo();
+                    String itemCode = deliveryLine.getSkuCode();
+                    String loginUserId = deliveryConfirmationV3.getLoginUserId() != null ? deliveryConfirmationV3.getLoginUserId() : WK;
+                    double pickedQty = deliveryLine.getPickedQty() != null ? deliveryLine.getPickedQty() : 0;
+
+                    PickupHeaderV2 pickupHeader = pickupHeaderService.getPickupHeaderForPickUpLineV3(outHeader.getCompanyCodeId(), outHeader.getPlantId(), outHeader.getLanguageId(),
+                            outHeader.getWarehouseId(), outHeader.getPreOutboundNo(), outHeader.getRefDocNumber(), customerId, barcodeId, itemCode);
+                    log.info("PickUpHeader : " + pickupHeader);
+                    String idMasterAuthToken = getIDMasterAuthToken();
+                    if (pickupHeader != null) {
+                        pickupLineService.createPickupLineInDeliveryConfirmation(outHeader.getCompanyCodeId(), outHeader.getPlantId(), outHeader.getLanguageId(), outHeader.getWarehouseId(),
+                                outHeader.getRefDocNumber(), outHeader.getPreOutboundNo(), pickupHeader, pickedQty, loginUserId, idMasterAuthToken);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Exception validation deliveryConfirmation! " + e.getMessage());
+            throw e;
+        }
+    }
 }

@@ -2,11 +2,7 @@ package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
@@ -3319,6 +3315,21 @@ public class InventoryService extends BaseService {
     }
 
     /**
+     * Inventory query for orderfullfillment -----BinClassId 1 and 10
+     */
+    public List<IInventory> getInventoryForOrderFullfillment(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                                           String itemCode, Long stockTypeId, List<Long> binClassId, String manufacturerName) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + binClassId);
+        List<IInventory> inventoryList = inventoryV2Repository.findInventoryListFFMO(
+                companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, stockTypeId, binClassId);
+        if(inventoryList == null || inventoryList.isEmpty()) {
+            return inventoryV2Repository.findInventoryListFFMO(
+                    companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, stockTypeId, Collections.singletonList(3L));
+        }
+        return inventoryList;
+    }
+
+    /**
      * @param companyCodeId
      * @param plantId
      * @param languageId
@@ -4183,5 +4194,41 @@ public class InventoryService extends BaseService {
             e.printStackTrace();
             throw new BadRequestException("Exception while Inventory Get : " + e);
         }
+    }
+
+    /**
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param manufacturerName
+     * @param stockTypeId
+     * @param binClassId
+     * @return
+     */
+    public List<IInventoryImpl> getInventoryForOrderManagementFullfillment(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                                        String itemCode, String manufacturerName, Long stockTypeId, List<Long> binClassId) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + binClassId);
+        List<IInventoryImpl> inventoryList = inventoryV2Repository.getOMLInventoryFullFillment(
+                companyCodeId, plantId, languageId, warehouseId, null, null, itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId);
+        if(inventoryList == null || inventoryList.isEmpty()) {
+            return inventoryV2Repository.getOMLInventoryFullFillment(
+                    companyCodeId, plantId, languageId, warehouseId, null, null, itemCode, manufacturerName, PACK_BARCODE, Collections.singletonList(3L), stockTypeId);
+        }
+        return inventoryList;
+    }
+
+    // Get Inventory for OrderFullfillment
+    public List<IInventoryImpl> getInventoryOrderFullfillment(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                                               String itemCode, String manufacturerName, Long stockTypeId, List<Long> binClassId) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + binClassId);
+        List<IInventoryImpl> inventoryList = inventoryV2Repository.getOMLInventoryFullFillment(
+                companyCodeId, plantId, languageId, warehouseId, null, null, itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId);
+        if(inventoryList == null || inventoryList.isEmpty()) {
+            return inventoryV2Repository.getOMLInventoryFullFillment(
+                    companyCodeId, plantId, languageId, warehouseId, null, null, itemCode, manufacturerName, PACK_BARCODE, Collections.singletonList(3L), stockTypeId);
+        }
+        return inventoryList;
     }
 }

@@ -1152,7 +1152,7 @@ public class OutboundOrderProcessingFTService extends BaseService {
 
             // ----------------CreateOrderManagementLine----------------------------------------------------------------------------
             boolean fromOrderFullfillment = true;
-            createOrderManagementLine(companyCodeId, plantId, languageId, warehouseId, outboundIntegrationHeader,
+            createOrderManagementLineFullfillment(companyCodeId, plantId, languageId, warehouseId, outboundIntegrationHeader,
                     createdPreOutboundLineList, WK, fromOrderFullfillment);
 
             OutboundHeaderV2 outboundHeader = createOutboundHeaderV2(createdPreOutboundHeader,
@@ -3270,6 +3270,59 @@ public class OutboundOrderProcessingFTService extends BaseService {
         outboundLineV2Repository.deleteOutboundLine(companyId, plantId, warehouseId, refDocNo);
         log.info("OutboundLine Deleted Successfully --> Order No is {} ", refDocNo);
 
+    }
+
+
+    /**
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param outboundIntegrationHeader
+     * @return
+     * @throws Exception
+     */
+    private void createOrderManagementLineFullfillment(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                       OutboundIntegrationHeaderV2 outboundIntegrationHeader, List<PreOutboundLineV2> preOutboundLineList,
+                                                       String loginUserId, boolean fromOrderFullfillment) throws Exception {
+        try {
+            for (PreOutboundLineV2 preOutboundLine : preOutboundLineList) {
+                log.error("--------1-------fromOrderFullfillment----> " + fromOrderFullfillment);
+                OrderManagementLineV2 orderManagementLine = new OrderManagementLineV2();
+                BeanUtils.copyProperties(preOutboundLine, orderManagementLine, CommonUtils.getNullPropertyNames(preOutboundLine));
+
+                if (preOutboundLine.getCustomerId() == null) {
+                    orderManagementLine.setPartnerCode("STO");
+                }
+                log.info("orderManagementLine : " + orderManagementLine);
+
+                Long OB_ORD_TYP_ID = outboundIntegrationHeader.getOutboundOrderTypeID();
+                List<Long> BIN_CLASS_ID  = new ArrayList<>();
+
+                if (OB_ORD_TYP_ID == 0L || OB_ORD_TYP_ID == 1L || OB_ORD_TYP_ID == 3L) {
+                    if (preOutboundLine.getMtoNumber() != null && !preOutboundLine.getMtoNumber().isEmpty()) {
+                        log.info("MTO Number is ------------------> {} ", preOutboundLine.getMtoNumber());
+                        BIN_CLASS_ID.add(10L);
+                    } else {
+                        BIN_CLASS_ID.add(1L);
+                        BIN_CLASS_ID.add(10L);
+                    }
+
+                    OrderManagementLineV2 orderManagementLineV2 = orderManagementLineService.updateAllocationOrderFullfillment(companyCodeId, plantId, languageId, warehouseId, preOutboundLine.getItemCode(),
+                            orderManagementLine.getManufacturerName(), BIN_CLASS_ID, preOutboundLine.getOrderQty(), orderManagementLine, loginUserId, fromOrderFullfillment);
+                    log.info("OrderFullfillment method OrderManagement Line Created Successfully ----------> OrderId is {}", orderManagementLineV2.getRefDocNumber());
+                }
+                if (OB_ORD_TYP_ID == 2L) {
+                    BIN_CLASS_ID.add(7L);
+                    OrderManagementLineV2 orderManagement = orderManagementLineService.updateAllocationOrderFullfillment(companyCodeId, plantId, languageId, warehouseId, preOutboundLine.getItemCode(),
+                            orderManagementLine.getManufacturerName(), BIN_CLASS_ID, preOutboundLine.getOrderQty(), orderManagementLine, loginUserId, fromOrderFullfillment);
+                    log.info("OrderFullfillment method OrderManagement Line Created Successfully ----------> OrderId is {}", orderManagement.getRefDocNumber());
+                }
+            }
+        } catch (Exception e) {
+            log.error("Exception While OrderManagementLine create: " + e);
+            throw e;
+        }
     }
 
 }

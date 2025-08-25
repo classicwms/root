@@ -707,6 +707,28 @@ public interface OutboundLineV2Repository extends JpaRepository<OutboundLineV2, 
                               @Param("loginUserId") String loginUserId,
                               @Param("updatedOn") Date updatedOn);
 
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE OutboundLineV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription, ob.updatedOn = :updatedOn, \r\n"
+            + " ob.deliveryQty = :deliveryQty, ob.updatedBy = :loginUserId \r\n "
+            + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND \r\n "
+            + " ob.partnerCode = :partnerCode AND ob.itemCode = :itemCode AND ob.manufacturerName = :manufacturerName AND \r\n "
+            + " ob.refDocNumber = :refDocNumber AND ob.preOutboundNo = :preOutboundNo AND ob.lineNumber = :lineNumber")
+    void updateOutboundLineForDeliveryConfirm(@Param("companyCodeId") String companyCodeId,
+                              @Param("plantId") String plantId,
+                              @Param("languageId") String languageId,
+                              @Param("warehouseId") String warehouseId,
+                              @Param("preOutboundNo") String preOutboundNo,
+                              @Param("refDocNumber") String refDocNumber,
+                              @Param("partnerCode") String partnerCode,
+                              @Param("lineNumber") Long lineNumber,
+                              @Param("itemCode") String itemCode,
+                              @Param("manufacturerName") String manufacturerName,
+                              @Param("deliveryQty") Double deliveryQty,
+                              @Param("statusId") Long statusId,
+                              @Param("statusDescription") String statusDescription,
+                              @Param("loginUserId") String loginUserId,
+                              @Param("updatedOn") Date updatedOn);
+
     @Transactional
     @Procedure(procedureName = "all_status_update_ob_cnf_proc")
     public void deliveryConfirmationProc(@Param("companyCodeId") String companyCodeId,
