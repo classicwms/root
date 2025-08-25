@@ -1802,7 +1802,7 @@ public class GrLineService extends BaseService {
 		log.info("Create PutawayHeader Schedule Initiated : " + new Date());
 //        GrLineV2 createdGRLine = getGrLineV2();
 		List<GrLineV2> createdGRLines = getGrLineV2List();
-		if (createdGRLines != null) {
+		if (createdGRLines != null && !createdGRLines.isEmpty()){
 			createdGRLines.stream().forEach(createdGRLine -> {
 				if (createdGRLine != null) {
 					String companyCode = createdGRLine.getCompanyCode();
