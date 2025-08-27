@@ -26,4 +26,6 @@ public class ShipmentDeliveryReport {
 	private String driverName;
 	private String vehicleNo;
 	private Double orderQty;
+	private Date expiryDate;
+
 }
