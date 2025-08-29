@@ -48,7 +48,7 @@ public class SendMailService {
 	@Autowired
 	private FileNameForEmailRepository fileNameForEmailRepository;
 
-	@Scheduled(cron = "0 0 15 * * ?")
+//	@Scheduled(cron = "0 0 15 * * ?")
 	public void sendMail() throws MessagingException, IOException {
 		//Send Email
 		log.info("Scheduling the Mail Started at "+ new Date());
