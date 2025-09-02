@@ -5,6 +5,7 @@ import com.tekclover.wms.api.transaction.model.inbound.staging.v2.StagingLineEnt
 import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
@@ -336,16 +337,44 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
             @Param("updatedOn") Date updatedOn
     );
 
-    @Transactional
-    @Procedure(procedureName = "stagingline_inv_qty_update_proc")
-    public void updateStagingLineInvQtyUpdateProc(
+//    @Transactional
+//    @Procedure(procedureName = "stagingline_inv_qty_update_proc")
+//    public void updateStagingLineInvQtyUpdateProc(
+//            @Param("companyCodeId") String companyCodeId,
+//            @Param("plantId") String plantId,
+//            @Param("languageId") String languageId,
+//            @Param("warehouseId") String warehouseId,
+//            @Param("refDocNumber") String refDocNumber,
+//            @Param("preInboundNo") String preInboundNo
+//    );
+
+    @Modifying
+    @Query(value = "UPDATE TH SET TH.INV_QTY = X.invQty FROM tblstagingline TH \n" +
+            "INNER JOIN (SELECT inv.C_ID, inv.PLANT_ID, inv.LANG_ID, inv.WH_ID, inv.ITM_CODE, inv.MFR_NAME, SUM(inv.REF_FIELD_4) AS invQty FROM tblinventory inv \n" +
+            "INNER JOIN (SELECT MAX(INV_ID) AS inventoryId, ITM_CODE, MFR_NAME, ST_BIN, PLANT_ID, WH_ID, C_ID, LANG_ID FROM tblinventory \n" +
+            "GROUP BY ITM_CODE, MFR_NAME, ST_BIN, PLANT_ID, WH_ID, C_ID, LANG_ID) latest \n" +
+            "ON inv.INV_ID = latest.inventoryId \n" +
+            "WHERE inv.IS_DELETED = 0 \n" +
+            "AND inv.BIN_CL_ID IN (1,7) \n" +
+            "AND inv.C_ID = :companyCodeId \n" +
+            "AND inv.PLANT_ID = :plantId \n" +
+            "AND inv.LANG_ID = :languageId \n" +
+            "AND inv.WH_ID = :warehouseId \n" +
+            "GROUP BY inv.ITM_CODE, inv.MFR_NAME, inv.PLANT_ID, inv.WH_ID, inv.C_ID, inv.LANG_ID) X ON X.C_ID = TH.C_ID \n" +
+            "AND X.PLANT_ID = TH.PLANT_ID  \n" +
+            "AND X.LANG_ID = TH.LANG_ID  \n" +
+            "AND X.WH_ID = TH.WH_ID  \n" +
+            "AND X.ITM_CODE = TH.ITM_CODE  \n" +
+            "AND X.MFR_NAME = TH.MFR_NAME \n" +
+            "WHERE TH.REF_DOC_NO = :refDocNumber \n" +
+            "AND TH.PRE_IB_NO = :preInboundNo", nativeQuery = true)
+    void updateStagingLineInvQtyUpdateProc(
             @Param("companyCodeId") String companyCodeId,
             @Param("plantId") String plantId,
             @Param("languageId") String languageId,
             @Param("warehouseId") String warehouseId,
             @Param("refDocNumber") String refDocNumber,
-            @Param("preInboundNo") String preInboundNo
-    );
+            @Param("preInboundNo") String preInboundNo);
 
     //update barcode - stagingline - barcode is null
     @Query(value = "select * from tblstagingline i \n" +

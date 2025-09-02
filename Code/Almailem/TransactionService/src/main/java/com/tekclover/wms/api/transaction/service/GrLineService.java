@@ -1571,12 +1571,16 @@ public class GrLineService extends BaseService {
        if (grLineList == null) {
     	   return null;
        }
-       for (GrLineV2 grLine : grLineList) {
-    	   if (grLine != null) {
-               grLineV2Repository.updateGrLineStatusV2(grLine.getCompanyCode(), grLine.getPlantId(), grLine.getLanguageId(), grLine.getWarehouseId(), grLine.getPreInboundNo(),
-                       grLine.getCreatedOn(), grLine.getLineNo(), grLine.getItemCode(), 1L);
+       
+       if (grLineList != null && !grLineList.isEmpty()) {
+    	   for (GrLineV2 grLine : grLineList) {
+        	   if (grLine != null) {
+                   grLineV2Repository.updateGrLineStatusV2(grLine.getCompanyCode(), grLine.getPlantId(), grLine.getLanguageId(), grLine.getWarehouseId(), grLine.getPreInboundNo(),
+                           grLine.getCreatedOn(), grLine.getLineNo(), grLine.getItemCode(), 1L);
+               }
            }
        }
+      
       
        return grLineList;
    }

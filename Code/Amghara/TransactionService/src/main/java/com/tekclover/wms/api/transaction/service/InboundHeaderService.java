@@ -1726,11 +1726,16 @@ public class InboundHeaderService extends BaseService {
 			List<InboundLinePartialConfirm> newInboundLinePartialConfirmList = new ArrayList<>();
 			inboundLineList.stream().forEach(inboundLine -> {
 				try {
-					inboundLineV2Repository.updateInboundLineStatusUpdateInboundConfirmIndividualItemProc(companyCode,
-							plantId, languageId, warehouseId, refDocNumber, preInboundNo, inboundLine.getItemCode(),
-							inboundLine.getManufacturerName(), inboundLine.getLineNo(), 24L, statusDescription,
-							loginUserID, new Date());
-					log.info("-----updateInboundHeaderPartialConfirmNewV2----InboundLine-status-updated: "
+//					inboundLineV2Repository.updateInboundLineStatusUpdateInboundConfirmIndividualItemProc(companyCode,
+//							plantId, languageId, warehouseId, refDocNumber, preInboundNo, inboundLine.getItemCode(),
+//							inboundLine.getManufacturerName(), inboundLine.getLineNo(), 24L, statusDescription,
+//							loginUserID, new Date());
+
+                    inboundLineV2Repository.updateInboundLineStatusUpdateInboundConfirmIndividualItemProc(24L,
+                            statusDescription, loginUserID, new Date(), inboundLine.getItemCode(), inboundLine.getManufacturerName(), companyCode, plantId, languageId, warehouseId,
+                            refDocNumber, preInboundNo, inboundLine.getLineNo());
+
+                    log.info("-----updateInboundHeaderPartialConfirmNewV2----InboundLine-status-updated: "
 							+ inboundLine.getItemCode() + ", " + inboundLine.getManufacturerName() + ", "
 							+ inboundLine.getLineNo());
 
