@@ -165,31 +165,35 @@ public class ReportsController {
 
     @ApiOperation(response = PutAwayLineV2.class, value = "Inbound Reversal")    // label for swagger
     @PatchMapping("/inboundReversal")
-    public ResponseEntity<?> inboundReversal(@RequestParam String companyCodeId,@RequestParam String plantId,
-                                             @RequestParam String warehouseId,@RequestParam String refDocNumber,@RequestParam String preInboundNo){
+    public ResponseEntity<?> inboundReversal(@RequestParam String companyCodeId, @RequestParam String plantId,
+                                             @RequestParam String warehouseId, @RequestParam String refDocNumber, @RequestParam String preInboundNo) {
 
         WarehouseApiResponse response = new WarehouseApiResponse();
         try {
             DataBaseContextHolder.setCurrentDb("MT");
-            String routingDb = dbConfigRepository.getDbName(companyCodeId,plantId,warehouseId);
+            reportsService.inboundOrderReversal(refDocNumber);
+
+            String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
-            reportsService.inboundReversal(companyCodeId,plantId,warehouseId,refDocNumber,preInboundNo);
+            reportsService.inboundReversal(companyCodeId, plantId, warehouseId, refDocNumber, preInboundNo);
 
-            DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb("MT");
-            reportsService.inboundOrderReversal(refDocNumber);
+//            DataBaseContextHolder.clear();
+//            DataBaseContextHolder.setCurrentDb("MT");
+//            reportsService.inboundOrderReversal(refDocNumber);
 
             response.setStatusCode("200");
             response.setMessage("Inbound Reversed Successfully");
-            return new ResponseEntity<>(response,HttpStatus.OK);
+            log.info("Inbound Reversed Successfully ---------------------------------------------> ");
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             response.setStatusCode("400");
-            response.setMessage("Inbound Not Reversed " +e.getMessage());
-            return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
+            response.setMessage("Inbound Not Reversed " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
+
     @ApiOperation(response = BarcodeGeneration.class, value = "Barcode Generation")
     @PostMapping("/barcodeGeneartion/V6")
     public ResponseEntity<?> postBarcodeGeneration(@RequestBody List<AddBarcodeGeneration> barcode) {

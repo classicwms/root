@@ -110,4 +110,13 @@ public interface ImBasicData1V2Repository extends JpaRepository<ImBasicData1V2, 
             String companyCodeId, String plantId, String languageId, String warehouseId,
             String itemCode, String uomId, String manufacturerPartNo
     );
+
+
+    @Modifying
+    @Query(value = "Update tblimbasicdata1 set is_deleted = 1, UTD_ON = getDate() where LANG_ID = :languageId AND \n " +
+            "C_ID = :companyId AND PLANT_ID = :plantId AND WH_ID = :warehouseId AND ITM_CODE = :itemCode AND MFR_PART = :mfrPart AND UOM_ID = :uomId ", nativeQuery = true)
+    void deleteImBasicData1(@Param("languageId") String languageId, @Param("companyId") String companyId,
+                            @Param("plantId") String plantId, @Param("warehouseId") String warehouseId,
+                            @Param("itemCode") String itemCode, @Param("mfrPart") String mfrPart,
+                            @Param("uomId") String uomId);
 }

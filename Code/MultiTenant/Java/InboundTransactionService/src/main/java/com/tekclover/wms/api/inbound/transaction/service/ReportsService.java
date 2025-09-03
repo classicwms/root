@@ -1435,7 +1435,7 @@ public class ReportsService extends BaseService {
             }
 
             //delete ibOrder2 and ibOrderLines2
-            inboundOrderReversal(refDocNumber);
+//            inboundOrderReversal(refDocNumber);
 
             log.info("Checking existence of PreInboundHeader...");
             PreInboundHeaderEntityV2 preInboundHeader = preInboundHeaderV2Repository.findByRefDocNumberAndPreInboundNo(refDocNumber, preInboundNo);
@@ -1453,11 +1453,6 @@ public class ReportsService extends BaseService {
             } else {
                 log.warn("PreInboundHeader not found for RefDocNumber: {} and PreInboundNo: {}", refDocNumber, preInboundNo);
             }
-
-//            GrHeaderV2 grHeader = grHeaderV2Repository.findByRefDocNumberAndPreInboundNoAndStatusId(refDocNumber, preInboundNo, 24L);
-//
-//            if (grHeader != null) {
-//                log.info("GR Header found. Processing GR lines for deletion and inventory adjustment...");
 
             List<GrLineV2> grLine = grLineV2Repository.findByRefDocNumberAndPreInboundNo(refDocNumber, preInboundNo);
 
