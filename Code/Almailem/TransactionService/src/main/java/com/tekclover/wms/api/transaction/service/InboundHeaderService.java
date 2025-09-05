@@ -1633,8 +1633,8 @@ public class InboundHeaderService extends BaseService {
 					warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
         log.info("InboundLine updated");
 
-			putAwayLineV2Repository.updatePutawayLineStatusUpdateInboundConfirmProc(companyCode, plantId, languageId,
-					warehouseId, refDocNumber, preInboundNo, 24L, statusDescription, loginUserID, new Date());
+			putAwayLineV2Repository.updatePutAwayLineStatusUpdateInboundConfirm(companyCode, plantId, languageId,
+					warehouseId, refDocNumber, preInboundNo, 24L, statusDescription);
         log.info("putAwayLine updated");
 
 	//        putAwayHeaderV2Repository.updatepaheaderStatusUpdateInboundConfirmProc(
@@ -1727,10 +1727,14 @@ public class InboundHeaderService extends BaseService {
 			List<InboundLinePartialConfirm> newInboundLinePartialConfirmList = new ArrayList<>();
 			inboundLineList.stream().forEach(inboundLine -> {
 				try {
-					inboundLineV2Repository.updateInboundLineStatusUpdateInboundConfirmIndividualItemProc(companyCode,
-							plantId, languageId, warehouseId, refDocNumber, preInboundNo, inboundLine.getItemCode(),
-							inboundLine.getManufacturerName(), inboundLine.getLineNo(), 24L, statusDescription,
-							loginUserID, new Date());
+//					inboundLineV2Repository.updateInboundLineStatusUpdateInboundConfirmIndividualItemProc(companyCode,
+//							plantId, languageId, warehouseId, refDocNumber, preInboundNo, inboundLine.getItemCode(),
+//							inboundLine.getManufacturerName(), inboundLine.getLineNo(), 24L, statusDescription,
+//							loginUserID, new Date());
+
+                    inboundLineV2Repository.updateInboundLineStatusUpdateInboundConfirmIndividualItem(24L,
+                            statusDescription, loginUserID, new Date(), inboundLine.getItemCode(), inboundLine.getManufacturerName(), companyCode, plantId, languageId, warehouseId,
+                            refDocNumber, preInboundNo, inboundLine.getLineNo());
 					log.info("-----updateInboundHeaderPartialConfirmNewV2----InboundLine-status-updated: "
 							+ inboundLine.getItemCode() + ", " + inboundLine.getManufacturerName() + ", "
 							+ inboundLine.getLineNo());
@@ -1804,9 +1808,9 @@ public class InboundHeaderService extends BaseService {
 	@Scheduled(fixedDelay = 15000)
 	private void scheduleInboundLinePartialConfirmation() {
 		log.info("-----scheduleInboundLinePartialConfirmation--1-->: ");
-		List<InboundLinePartialConfirm> inboundLinePartialConfirmList = inboundLinePartialConfirmRepository
-				.findByStatusIdAndIsExecutedAndAcceptedQtyNot(24L, 0L, 0D);
-		log.info("-----scheduleInboundLinePartialConfirmation--2-->: " + inboundLinePartialConfirmList);
+        List<InboundLinePartialConfirm> inboundLinePartialConfirmList = inboundLinePartialConfirmRepository
+                .findByStatusIdAndIsExecutedAndAcceptedQtyNot(24L, 0L, 0D);
+        log.info("-----scheduleInboundLinePartialConfirmation--2-->: " + inboundLinePartialConfirmList);
 
 		inboundLinePartialConfirmList.stream().forEach(inboundLine -> {
 			log.info("-----scheduleInboundLinePartialConfirmation---->: " + inboundLine);
@@ -1839,10 +1843,9 @@ public class InboundHeaderService extends BaseService {
 			}
 			
 			statusDescription = stagingLineV2Repository.getStatusDescription(24L, inboundLine.getLanguageId());
-			putAwayLineV2Repository.updatePutawayLineStatusUpdateInboundConfirmProc(inboundLine.getCompanyCode(),
+			putAwayLineV2Repository.updatePutAwayLineStatusUpdateInboundConfirm(inboundLine.getCompanyCode(),
 					inboundLine.getPlantId(), inboundLine.getLanguageId(), inboundLine.getWarehouseId(),
-					inboundLine.getRefDocNumber(), inboundLine.getPreInboundNo(), 24L, statusDescription,
-					updatedBy, new Date());
+					inboundLine.getRefDocNumber(), inboundLine.getPreInboundNo(), 24L, statusDescription);
 			log.info("-----updateInboundHeaderPartialConfirmNewV2----putAwayLine-updated----");
 		});
 	}
