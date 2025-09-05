@@ -109,7 +109,7 @@ public class PackingLine {
 	@Column(name = "PROFORMA_INVOICE_NO")
 	private Long proformaInvoiceNo = 0L;
 
-	@Column(name = "ITEM_TEXT", columnDefinition = "nvarchar(50)")
+	@Column(name = "ITEM_TEXT", columnDefinition = "nvarchar(500)")
 	private String description;
 
 	@Column(name = "PACK_MAT_NO", columnDefinition = "nvarchar(50)")

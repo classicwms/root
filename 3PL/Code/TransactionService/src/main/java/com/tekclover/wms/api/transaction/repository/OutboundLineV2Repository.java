@@ -512,6 +512,31 @@ public interface OutboundLineV2Repository extends JpaRepository<OutboundLineV2, 
             @Param("statusId") Long statusId
     );
 
+
+    // Sandhiya code merge 3PL
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = " UPDATE tbloutboundline SET DLV_QTY = :deliveryQty, DLV_ORD_NO = :deliveryOrderNo, STATUS_TEXT = :statusDescription, STATUS_ID = :statusId " +
+            " WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId AND PRE_OB_NO = :preOutboundNo AND REF_DOC_NO = :refDocNumber \n" +
+            " AND PARTNER_CODE = :partnerCode AND OB_LINE_NO = :lineNumber AND ITM_CODE = :itmCode ", nativeQuery = true)
+    public void updateOBlineByQLCreate(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("preOutboundNo") String preOutboundNo,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("partnerCode") String partnerCode,
+            @Param("lineNumber") Long lineNumber,
+            @Param("itmCode") String itmCode,
+            @Param("deliveryQty") Double deliveryQty,
+            @Param("deliveryOrderNo") String deliveryOrderNo,
+            @Param("statusDescription") String statusDescription,
+            @Param("statusId") Long statusId
+    );
+
+
+
+
     @Query(value = "select ol.wh_id as warehouseId,ol.c_id as companyCodeId,ol.plant_id as plantId,ol.lang_id as languageId, ol.itm_code as itemCode , \n" +
             " ol.wh_text as warehouseDescription,ol.c_text as companyDescription,ol.plant_text as plantDescription,ol.status_text as statusDescription,\n" +
             " 'OutBound' as documentType , ol.ref_doc_no as documentNumber, ol.partner_code as customerCode,\n" +
@@ -560,6 +585,29 @@ public interface OutboundLineV2Repository extends JpaRepository<OutboundLineV2, 
             @Param("statusDescription") String statusDescription,
             @Param("updatedOn") Date updatedOn
     );
+
+    // Sandhiya code merge 3PL
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = "UPDATE tbloutboundline  SET status_Id = :statusId, STATUS_TEXT = :statusDescription, DLV_UTD_ON = :updatedOn, \r\n"
+            + " ASS_PICKER_ID = :assignedPickerId, MFR_NAME = :manufacturerName, HE_NO = :handlingEquipment \r\n "
+            + " WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId AND \r\n "
+            + " PARTNER_CODE = :partnerCode AND ITM_CODE = :itemCode AND \r\n "
+            + " REF_DOC_NO = :refDocNumber AND PRE_OB_NO = :preOutboundNo AND OB_LINE_NO = :lineNumber", nativeQuery = true)
+    void updateOutboundLine(@Param("companyCodeId") String companyCodeId,
+                            @Param("plantId") String plantId,
+                            @Param("languageId") String languageId,
+                            @Param("warehouseId") String warehouseId,
+                            @Param("refDocNumber") String refDocNumber,
+                            @Param("preOutboundNo") String preOutboundNo,
+                            @Param("itemCode") String itemCode,
+                            @Param("manufacturerName") String manufacturerName,
+                            @Param("partnerCode") String partnerCode,
+                            @Param("handlingEquipment") String handlingEquipment,
+                            @Param("assignedPickerId") String assignedPickerId,
+                            @Param("lineNumber") Long lineNumber,
+                            @Param("statusId") Long statusId,
+                            @Param("statusDescription") String statusDescription,
+                            @Param("updatedOn") Date updatedOn);
 
     @Query(value = "SELECT COUNT(ref_doc_no) as count FROM \n"
             + "tbloutboundline qh WHERE \n"
@@ -624,25 +672,8 @@ public interface OutboundLineV2Repository extends JpaRepository<OutboundLineV2, 
                               @Param("loginUserId") String loginUserId,
                               @Param("updatedOn") Date updatedOn);
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query(value = "UPDATE tbloutboundline  SET status_Id = :statusId, STATUS_TEXT = :statusDescription, DLV_UTD_ON = :updatedOn, \r\n"
-            + " ASS_PICKER_ID = :assignedPickerId, MFR_NAME = :manufacturerName, HE_NO = :handlingEquipment \r\n "
-            + " WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId AND \r\n "
-            + " PARTNER_CODE = :partnerCode AND ITM_CODE = :itemCode AND \r\n "
-            + " REF_DOC_NO = :refDocNumber AND PRE_OB_NO = :preOutboundNo AND OB_LINE_NO = :lineNumber", nativeQuery = true)
-    void updateOutboundLine(@Param("companyCodeId") String companyCodeId,
-                            @Param("plantId") String plantId,
-                            @Param("languageId") String languageId,
-                            @Param("warehouseId") String warehouseId,
-                            @Param("refDocNumber") String refDocNumber,
-                            @Param("preOutboundNo") String preOutboundNo,
-                            @Param("itemCode") String itemCode,
-                            @Param("manufacturerName") String manufacturerName,
-                            @Param("partnerCode") String partnerCode,
-                            @Param("handlingEquipment") String handlingEquipment,
-                            @Param("assignedPickerId") String assignedPickerId,
-                            @Param("lineNumber") Long lineNumber,
-                            @Param("statusId") Long statusId,
-                            @Param("statusDescription") String statusDescription,
-                            @Param("updatedOn") Date updatedOn);
+
+    void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+            String companyCodeId, String plantId, String warehouseId, String refDocNumber, String preOutboundNo, Long deletionIndicator);
+
 }

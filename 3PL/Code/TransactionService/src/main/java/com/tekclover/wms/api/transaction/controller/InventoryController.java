@@ -7,6 +7,7 @@ import javax.validation.Valid;
 
 import com.tekclover.wms.api.transaction.model.dto.BinVolume;
 import com.tekclover.wms.api.transaction.model.impl.InventoryImpl;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.*;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.IInventoryImpl;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.SearchInventoryV2;
@@ -25,10 +26,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tekclover.wms.api.transaction.model.inbound.inventory.AddInventory;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.SearchInventory;
-import com.tekclover.wms.api.transaction.model.inbound.inventory.UpdateInventory;
 import com.tekclover.wms.api.transaction.service.InventoryService;
 
 import io.swagger.annotations.Api;
@@ -189,5 +186,12 @@ public class InventoryController {
 											   @RequestParam Long specialStockIndicatorId, @RequestParam String loginUserID) {
 		inventoryService.deleteInventoryV2(companyCodeId, plantId, languageId, warehouseId, stockTypeId, specialStockIndicatorId, packBarcodes, itemCode, manufacturerName, storageBin, loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
+	@ApiOperation(response = ItemStockDto[].class, value = "Find InventoryStock Level")
+	@PostMapping("/inventoryStock/Level")
+	public ResponseEntity<?> findInventoryStock(@RequestParam String warehouseId, @RequestParam String customerId){
+		List<ItemStockDto> inventoryStock = inventoryService.findInventorStock(warehouseId, customerId);
+		return new ResponseEntity<>(inventoryStock, HttpStatus.OK);
 	}
 }

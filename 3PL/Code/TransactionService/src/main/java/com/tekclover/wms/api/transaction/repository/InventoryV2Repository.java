@@ -2,6 +2,7 @@ package com.tekclover.wms.api.transaction.repository;
 
 import com.tekclover.wms.api.transaction.model.dto.IInventory;
 import com.tekclover.wms.api.transaction.model.impl.StockReportImpl;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryStockLevel;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.IInventoryImpl;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.transaction.model.report.CBMBinReport;
@@ -685,6 +686,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                                                @Param("manufacturerName") String manufacturerName,
                                                                @Param("stockTypeId") Long stockTypeId,
                                                                @Param("binClassId") Long binClassId);
+
     @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n"
             + "WHERE is_deleted = 0 group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
@@ -1473,6 +1475,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                                 @Param("itemCode") String itemCode,
                                                 @Param("packBarcode") String barcodeId,
                                                 @Param("storageBin") String storageBin);
+
     List<InventoryV2> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerCodeAndDeletionIndicatorOrderByInventoryIdDesc(
             String languageId, String companyCode, String plantId, String warehouseId, String itemCode, String manufacturerName, Long deletionIndicator);
 
@@ -1923,6 +1926,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                                     @Param("itemCode") String itemCode,
                                                     @Param("manufacturerName") String manufacturerName,
                                                     @Param("binClassId") Long binClassId);
+
     @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n"
             + "WHERE is_deleted = 0 group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n" +
 
@@ -2281,7 +2285,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
 //            ") X ON \n" +
 //            "X.C_ID = TH.C_ID AND X.LANG_ID = TH.LANG_ID \n" +
 
-            // plant Description from tblplantId to temp table
+    // plant Description from tblplantId to temp table
 //            "UPDATE TH SET TH.PLANT_TEXT = X.VALUE FROM #stockreport TH INNER JOIN \n" +
 //            "(SELECT C_ID,PLANT_ID,LANG_ID,PLANT_TEXT VALUE FROM TBLPLANTID \n" +
 //            "WHERE \n" +
@@ -2292,7 +2296,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
 //            ") X ON \n" +
 //            "X.C_ID = TH.C_ID AND X.PLANT_ID = TH.PLANT_ID AND X.LANG_ID = TH.LANG_ID \n" +
 
-            // warehouse Description from tblwarehouseId to temp table
+    // warehouse Description from tblwarehouseId to temp table
 //            "UPDATE TH SET TH.WH_TEXT = X.VALUE FROM #stockreport TH INNER JOIN \n" +
 //            "(SELECT C_ID,PLANT_ID,LANG_ID,WH_ID,WH_TEXT VALUE FROM TBLWAREHOUSEID \n" +
 //            "WHERE \n" +
@@ -2304,7 +2308,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
 //            ") X ON \n" +
 //            "X.C_ID = TH.C_ID AND X.PLANT_ID = TH.PLANT_ID AND X.WH_ID = TH.WH_ID AND X.LANG_ID = TH.LANG_ID \n" +
 
-            // Barcode from tblimpartner to temp table
+    // Barcode from tblimpartner to temp table
 //            "UPDATE TH SET TH.BAR_CODE = X.VALUE FROM #stockreport TH INNER JOIN \n" +
 //            "(SELECT C_ID,PLANT_ID,LANG_ID,WH_ID,ITM_CODE,MFR_NAME,PARTNER_ITM_BAR VALUE FROM TBLIMPARTNER \n" +
 //            "WHERE \n" +
@@ -2571,8 +2575,8 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
 
 //    @Query(value = "select count(inv1.st_bin) as occupiedBin,inv1.tpl_partner_id as partnerId,inv1.tpl_partner_text as partnerName from tblinventory inv1 \n" +
 //            " join (select max(inv_id) as max_inv from tblinventory where is_deleted =0 AND ref_field_4 > 0  AND bin_cl_id = 1 AND (COALESCE(:companyCode, null) IS NULL OR (c_id IN (:companyCode))) and (COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) \n" +
-//            " and (COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and (COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) group by st_bin, plant_id, wh_id, c_id, lang_id,tpl_partner_id) \n" +
-//            " as inv2 ON inv1.inv_id = inv2.max_inv where (COALESCE(:threePLPartnerId, null) IS NULL OR (inv1.tpl_partner_id IN (:threePLPartnerId))) group by inv1.tpl_partner_id,inv1.tpl_partner_text",nativeQuery = true)
+//            " and (COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and (COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) group by itm_code, mfr_name, st_bin, plant_id, wh_id, c_id, lang_id) \n" +
+//            " as inv2 ON inv1.inv_id = inv2.max_inv where (COALESCE(:threePLPartnerId, null) IS NULL OR (inv1.tpl_partner_id IN (:threePLPartnerId))) group by inv1.tpl_partner_id,inv1.tpl_partner_text,inv1.st_bin",nativeQuery = true)
 //    public List<OccupancyBinReportResponse> getTotalStorageBinV2(@Param("companyCode") String companyCode,
 //                                                           @Param("plantId") String plantId,
 //                                                           @Param("warehouseId") String warehouseId,
@@ -2663,4 +2667,24 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
                                @Param("languageId") String languageId,
                                @Param("warehouseId") String warehouseId,
                                @Param("partnerCode") String partnerCode);
+
+    @Query(value ="Select itm_code sku, inv_qty stockQuantity, 'InStock' stockStatus, wh_id warehouseId, TPL_PARTNER_ID customerId from tblinventory " +
+            "where ref_field_4 > 0 and  inv_id in (select max(inv_id) inventoryId from tblinventory " +
+            "WHERE is_deleted = 0 and wh_id =:warehouseId and TPL_PARTNER_ID = :customerId and bin_cl_id = :binClassId \n" +
+            " group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) ", nativeQuery = true)
+    public List<InventoryStockLevel> findInStockItems(
+            @Param("warehouseId") String warehouseId,
+            @Param("customerId") String customerId,
+            @Param("binClassId") Long binClassId);
+
+    @Query(value ="Select itm_code sku, inv_qty stockQuantity, 'OutStock' stockStatus, wh_id warehouseId, TPL_PARTNER_ID customerId from tblinventory " +
+            "where ref_field_4 = 0 and  inv_id in (select max(inv_id) inventoryId from tblinventory " +
+            "WHERE is_deleted = 0 and wh_id =:warehouseId and TPL_PARTNER_ID = :customerId and bin_cl_id = :binClassId \n" +
+            " group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) ", nativeQuery = true)
+    public List<InventoryStockLevel> findOutStockItems(
+            @Param("warehouseId") String warehouseId,
+            @Param("customerId") String customerId,
+            @Param("binClassId") Long binClassId);
+
+
 }

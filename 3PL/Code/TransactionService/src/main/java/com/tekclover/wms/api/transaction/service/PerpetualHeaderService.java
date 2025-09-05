@@ -75,6 +75,7 @@ public class PerpetualHeaderService extends BaseService {
     @Autowired
     JdbcTemplate jdbcTemplate;
 
+
     //=======================================================================================================================
     @Autowired
     private StagingLineV2Repository stagingLineV2Repository;
@@ -959,6 +960,7 @@ public class PerpetualHeaderService extends BaseService {
             searchPerpetualHeader.setStartCreatedOn(dates[0]);
             searchPerpetualHeader.setEndCreatedOn(dates[1]);
         }
+
 
         PerpetualHeaderV2Specification spec = new PerpetualHeaderV2Specification(searchPerpetualHeader);
         List<PerpetualHeaderV2> perpetualHeaderResults = perpetualHeaderV2Repository.findAll(spec);

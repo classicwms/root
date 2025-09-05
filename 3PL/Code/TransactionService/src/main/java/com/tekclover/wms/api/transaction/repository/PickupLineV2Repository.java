@@ -3,7 +3,6 @@ package com.tekclover.wms.api.transaction.repository;
 import com.tekclover.wms.api.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.transaction.model.impl.StockMovementReportImpl;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.v2.PickupLineV2;
-import com.tekclover.wms.api.transaction.model.report.CBMUtilization;
 import com.tekclover.wms.api.transaction.model.report.OccupancyBinReportResponse;
 import com.tekclover.wms.api.transaction.model.report.PickingProductivityImpl;
 import com.tekclover.wms.api.transaction.model.threepl.pricelist.PriceListAssignment;
@@ -275,14 +274,14 @@ public interface PickupLineV2Repository extends JpaRepository<PickupLineV2, Long
             ") as partnerName from tblpickupline \n" +
             "where (COALESCE(:businessPartnerCode, null) IS NULL OR (partner_code IN (:businessPartnerCode))) and \n" +
             "(COALESCE(:companyCode, null) IS NULL OR (c_id IN (:companyCode))) and (COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and (COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and (COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n" +
-            "pick_ctd_on between :fromDate and :toDate and is_deleted = 0  group by partner_code",nativeQuery = true)
+            "pick_ctd_on between :fromDate and :toDate and is_deleted = 0  group by partner_code", nativeQuery = true)
     OccupancyBinReportResponse findByPartnerCode(@Param("companyCode") String companyCode,
-                                                       @Param("plantId") String plantId,
-                                                       @Param("warehouseId") String warehouseId,
-                                                       @Param("languageId") String languageId,
-                                                       @Param("businessPartnerCode") String businessPartnerCode,
-                                                       @Param("fromDate") Date fromDate,
-                                                       @Param("toDate") Date toDate);
+                                                 @Param("plantId") String plantId,
+                                                 @Param("warehouseId") String warehouseId,
+                                                 @Param("languageId") String languageId,
+                                                 @Param("businessPartnerCode") String businessPartnerCode,
+                                                 @Param("fromDate") Date fromDate,
+                                                 @Param("toDate") Date toDate);
 
 //
 //    @Query(value = " select sum(pick.pick_cnf_qty) as outboundConfirmedQty, sum(pick.tpl_cbm) as outboundTotalThreePLCbm, pick.partner_code as partnerCode, paName.partnerName as partnerName, \n" +
@@ -301,6 +300,5 @@ public interface PickupLineV2Repository extends JpaRepository<PickupLineV2, Long
 //                                           @Param("businessPartnerCode") String businessPartnerCode,
 //                                           @Param("fromDate") Date fromDate,
 //                                           @Param("toDate") Date toDate);
-
 }
 
