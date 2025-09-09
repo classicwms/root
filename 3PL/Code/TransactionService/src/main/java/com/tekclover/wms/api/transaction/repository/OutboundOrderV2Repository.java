@@ -45,4 +45,6 @@ public interface OutboundOrderV2Repository extends JpaRepository<OutboundOrderV2
     @Query(value = "update tbloborder2 set processed_status_id = 0 where " +
             " outbound_order_header_id = :outboundOrderHeaderId ", nativeQuery = true)
     void updateProcessStatusId(@Param("outboundOrderHeaderId") Long outboundOrderHeaderId);
+
+    void deleteByOrderId(String orderId);
 }

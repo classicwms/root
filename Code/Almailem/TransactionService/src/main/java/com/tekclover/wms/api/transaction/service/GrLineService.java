@@ -1798,21 +1798,21 @@ public class GrLineService extends BaseService {
 	 * 
 	 */
     @Scheduled(fixedDelay = 15000)
-	private void schedulePostGRLineProcessV2() {
-		log.info("Create PutawayHeader Schedule Initiated : " + new Date());
+    private void schedulePostGRLineProcessV2() {
+        log.info("Create PutawayHeader Schedule Initiated : " + new Date());
 //        GrLineV2 createdGRLine = getGrLineV2();
 		List<GrLineV2> createdGRLines = getGrLineV2List();
-		if (createdGRLines != null) {
-			createdGRLines.stream().forEach(createdGRLine -> {
-				if (createdGRLine != null) {
-					String companyCode = createdGRLine.getCompanyCode();
-					String plantId = createdGRLine.getPlantId();
-					String languageId = createdGRLine.getLanguageId();
-					String warehouseId = createdGRLine.getWarehouseId();
-					String refDocNumber = createdGRLine.getRefDocNumber();
-					Long inboundOrderTypeId = createdGRLine.getInboundOrderTypeId();
-					try {
-						createPutAwayHeaderNonCBMV2(createdGRLine, createdGRLine.getCreatedBy());
+        if (createdGRLines != null) {
+        	createdGRLines.stream().forEach(createdGRLine -> {
+        if (createdGRLine != null) {
+            String companyCode = createdGRLine.getCompanyCode();
+            String plantId = createdGRLine.getPlantId();
+            String languageId = createdGRLine.getLanguageId();
+            String warehouseId = createdGRLine.getWarehouseId();
+            String refDocNumber = createdGRLine.getRefDocNumber();
+            Long inboundOrderTypeId = createdGRLine.getInboundOrderTypeId();
+            try {
+                createPutAwayHeaderNonCBMV2(createdGRLine, createdGRLine.getCreatedBy());
 
 						// putaway header successfully created - changing flag to 10
 						grLineV2Repository.updateGrLineStatusV2(createdGRLine.getCompanyCode(),
@@ -1820,26 +1820,26 @@ public class GrLineService extends BaseService {
 								createdGRLine.getWarehouseId(), createdGRLine.getPreInboundNo(),
 								createdGRLine.getCreatedOn(), createdGRLine.getLineNo(), createdGRLine.getItemCode(),
 								10L);
-						log.info("GrLine status 10 updated..! ");
+                log.info("GrLine status 10 updated..! ");
 
-					} catch (Exception e) {
-						e.printStackTrace();
-						log.info("GrLine status 100 updated - putaway header create - failed..! ");
-						log.error("Exception occurred while create putaway header " + e.toString());
+            } catch (Exception e) {
+            	e.printStackTrace();
+            	log.info("GrLine status 100 updated - putaway header create - failed..! ");
+                log.error("Exception occurred while create putaway header " + e.toString());
 
-						// putaway header create failed - changing flag to 100
+				// putaway header create failed - changing flag to 100
 						grLineV2Repository.updateGrLineStatusV2(createdGRLine.getCompanyCode(),
 								createdGRLine.getPlantId(), createdGRLine.getLanguageId(),
 								createdGRLine.getWarehouseId(), createdGRLine.getPreInboundNo(),
 								createdGRLine.getCreatedOn(), createdGRLine.getLineNo(), createdGRLine.getItemCode(),
 								100L);
-						sendMail(companyCode, plantId, languageId, warehouseId, refDocNumber,
-								getInboundOrderTypeTable(inboundOrderTypeId), e.toString());
-					}
-				}
-			});
-		}
-	}
+				sendMail(companyCode, plantId, languageId, warehouseId, refDocNumber,
+						getInboundOrderTypeTable(inboundOrderTypeId), e.toString());
+                        }
+                    }
+        	});       	
+        }
+                }
 
     /**
      * 

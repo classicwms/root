@@ -16,6 +16,8 @@ import javax.validation.Valid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -1830,54 +1832,6 @@ public class PickupLineService extends BaseService {
                 loginUserID, 47L, 50L, 51L, statusDescription50, statusDescription51);
         log.info("outboundHeader, preOutboundHeader updated as 50 / 51 when respective condition met");
 
-//        List<OutboundLineV2> outboundLineList = outboundLineService.getOutboundLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber);
-//        boolean hasStatus51 = false;
-//        List<Long> status51List = outboundLineList.stream().map(OutboundLine::getStatusId).collect(Collectors.toList());
-//        long status51IdCount = status51List.stream().filter(a -> a == 51L || a == 47L).count();
-//        log.info("status count : " + (status51IdCount == status51List.size()));
-//        hasStatus51 = (status51IdCount == status51List.size());
-//        if (!status51List.isEmpty() && hasStatus51) {
-//            //------------------------UpdateLock-Applied------------------------------------------------------------
-//            OutboundHeaderV2 outboundHeader = outboundHeaderService.getOutboundHeaderV2(companyCodeId, plantId, languageId, refDocNumber, warehouseId);
-//            outboundHeader.setStatusId(51L);
-//            statusDescription = stagingLineV2Repository.getStatusDescription(51L, languageId);
-//            outboundHeader.setStatusDescription(statusDescription);
-//            outboundHeader.setUpdatedBy(loginUserID);
-//            outboundHeader.setUpdatedOn(new Date());
-//            outboundHeaderV2Repository.save(outboundHeader);
-//            log.info("outboundHeader updated as 51.");
-//
-//            //------------------------UpdateLock-Applied------------------------------------------------------------
-//            PreOutboundHeaderV2 preOutboundHeader = preOutboundHeaderService.getPreOutboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber);
-//            preOutboundHeader.setStatusId(51L);
-//            preOutboundHeader.setStatusDescription(statusDescription);
-//            preOutboundHeader.setUpdatedBy(loginUserID);
-//            preOutboundHeader.setUpdatedOn(new Date());
-//            preOutboundHeaderV2Repository.save(preOutboundHeader);
-//            log.info("PreOutboundHeader updated as 51.");
-//        }
-//
-//        /*
-//         * Update OutboundHeader & Preoutbound Header STATUS_ID as 50 only if all OutboundLines are STATUS_ID is 50
-//         */
-//        List<OutboundLineV2> outboundLine50List = outboundLineService.getOutboundLineV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber);
-//        boolean hasStatus50 = false;
-//        List<Long> status50List = outboundLine50List.stream().map(OutboundLine::getStatusId).collect(Collectors.toList());
-//        long status50IdCount = status50List.stream().filter(a -> a == 50L).count();
-//        log.info("status count : " + (status50IdCount == status50List.size()));
-//        hasStatus50 = (status50IdCount == status50List.size());
-//        if (!status50List.isEmpty() && hasStatus50) {
-//            //------------------------UpdateLock-Applied------------------------------------------------------------
-//            OutboundHeaderV2 outboundHeader50 = outboundHeaderService.getOutboundHeaderV2(companyCodeId, plantId, languageId, refDocNumber, warehouseId);
-//            outboundHeader50.setStatusId(50L);
-//            statusDescription = stagingLineV2Repository.getStatusDescription(50L, languageId);
-//            outboundHeader50.setStatusDescription(statusDescription);
-//            outboundHeader50.setUpdatedBy(loginUserID);
-//            outboundHeader50.setUpdatedOn(new Date());
-//            outboundHeaderV2Repository.save(outboundHeader50);
-//            log.info("outboundHeader updated as 50.");
-//        }
-
         /*---------------------------------------------PickupHeader Updates---------------------------------------*/
         // -----------------logic for checking all records as 51 then only it should go to update header-----------*/
         try {
@@ -1893,24 +1847,30 @@ public class PickupLineService extends BaseService {
                 STATUS_ID = 50L;
             }
             
-            //------------------------UpdateLock-Applied------------------------------------------------------------
-//            for (PickupLineV2 dbPickupLine : createdPickupLineList) {
-//                statusDescription = stagingLineV2Repository.getStatusDescription(STATUS_ID, languageId);
-//                pickupHeaderV2Repository.updatePickupheaderStatusUpdateProc(
-//                        companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, dbPickupLine.getItemCode(), dbPickupLine.getManufacturerName(),
-//                        partnerCode, dbPickupLine.getPickupNumber(), STATUS_ID, statusDescription, loginUserID, new Date());
-//            }
-//            log.info("PickUpHeader status updated through stored procedure");
-            
             // Prod Issue @Amghara
             log.info("PickupNumber: " + pickupNumber);
-            pickupHeaderV2Repository.updatePickupheader(refDocNumber, pickupNumber, STATUS_ID, statusDescription, loginUserID, new Date());
+            updatePickupheader(refDocNumber, pickupNumber, STATUS_ID, statusDescription, loginUserID, new Date());
             log.info("PickUpHeader status updated....");
         } catch (Exception e) {
             e.printStackTrace();
             log.info("PickupHeader update error: " + e.toString());
         }
         return createdPickupLineList;
+    }
+    
+    /**
+     * 
+     * @param refDocNumber
+     * @param pickupNumber
+     * @param STATUS_ID
+     * @param statusDescription2
+     * @param loginUserID
+     * @param date
+     */
+    @Retryable(value = Exception.class, maxAttempts = 3, backoff = @Backoff(delay = 3000, multiplier = 2))
+    private void updatePickupheader (String refDocNumber, String pickupNumber, Long STATUS_ID, String statusDescription2, String loginUserID, Date date) {
+    	pickupHeaderV2Repository.updatePickupheader(refDocNumber, pickupNumber, STATUS_ID, statusDescription, loginUserID, new Date());
+        log.info("PickUpHeader status updated....");
     }
 
     @Scheduled(fixedDelay = 10000)

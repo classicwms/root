@@ -76,4 +76,10 @@ public interface PreOutboundLineV2Repository extends JpaRepository<PreOutboundLi
 //    + "WHERE REF_DOC_NO = :refDocNumber \r\n"
 //    + "GROUP BY REF_DOC_NO", nativeQuery = true)
 //    public Long getCountOfPickedQty(@Param("refDocNumber")String refDocNumber);
+
+
+    void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+            String companyCodeId, String plantId, String warehouseId, String refDocNumber, String preOutboundNo, Long deletionIndicator);
+
+
 }

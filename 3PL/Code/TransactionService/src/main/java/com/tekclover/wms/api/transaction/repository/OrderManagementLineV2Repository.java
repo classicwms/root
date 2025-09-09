@@ -176,4 +176,9 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
             @Param("warehouseId") String warehouseId,
             @Param("refDocNumber") String refDocNumber,
             @Param("outboundOrderTypeId") Long outboundOrderTypeId);
+
+
+    void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+            String companyCodeId, String plantId, String warehouseId, String refDocNumber, String preOutboundNo, Long deletionIndicator);
+
 }

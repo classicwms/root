@@ -312,4 +312,7 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
                             @Param("warehouseId") String warehouseId,
                             @Param("refDocNumber") String refDocNumber,
                             @Param("salesOrderNo") String salesOrderNo);
+
+    boolean existsByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndBarcodeIdAndDeletionIndicator(
+            String companyCodeId, String plantId, String langugeId, String warehouseId, String refDocNumber, String barcodeId, Long deletionIndicator);
 }

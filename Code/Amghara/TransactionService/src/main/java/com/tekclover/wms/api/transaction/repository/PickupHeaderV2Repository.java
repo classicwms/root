@@ -114,7 +114,7 @@ public interface PickupHeaderV2Repository extends JpaRepository<PickupHeaderV2, 
     );
     
     // -----New one----by-Muru-------
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "UPDATE tblpickupheader\r\n"
     		+ "	SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, \r\n"
     		+ "	PICK_UTD_ON = :updatedOn, PICK_CNF_ON = :updatedOn, PICK_UTD_BY = :updatedBy, PICK_CNF_BY = :updatedBy\r\n"

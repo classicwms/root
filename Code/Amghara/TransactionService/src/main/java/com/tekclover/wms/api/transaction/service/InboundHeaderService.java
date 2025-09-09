@@ -1730,7 +1730,8 @@ public class InboundHeaderService extends BaseService {
 							plantId, languageId, warehouseId, refDocNumber, preInboundNo, inboundLine.getItemCode(),
 							inboundLine.getManufacturerName(), inboundLine.getLineNo(), 24L, statusDescription,
 							loginUserID, new Date());
-					log.info("-----updateInboundHeaderPartialConfirmNewV2----InboundLine-status-updated: "
+
+                    log.info("-----updateInboundHeaderPartialConfirmNewV2----InboundLine-status-updated: "
 							+ inboundLine.getItemCode() + ", " + inboundLine.getManufacturerName() + ", "
 							+ inboundLine.getLineNo());
 

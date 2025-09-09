@@ -160,20 +160,37 @@ public interface PutAwayLineV2Repository extends JpaRepository<PutAwayLineV2, Lo
                                         @Param("manufacturerName") String manufacturerName,
                                         @Param("lineNo") Long lineNo);
 
-    @Transactional
-    @Procedure(procedureName = "putawayline_status_update_ib_cnf_proc")
-    public void updatePutawayLineStatusUpdateInboundConfirmProc(
-            @Param("companyCodeId") String companyCode,
-            @Param("plantId") String plantId,
-            @Param("languageId") String languageId,
-            @Param("warehouseId") String warehouseId,
-            @Param("refDocNumber") String refDocNumber,
-            @Param("preInboundNo") String preInboundNo,
-            @Param("statusId") Long statusId,
-            @Param("statusDescription") String statusDescription,
-            @Param("updatedBy") String updatedBy,
-            @Param("updatedOn") Date updatedOn
-    );
+//    @Transactional
+//    @Procedure(procedureName = "putawayline_status_update_ib_cnf_proc")
+//    public void updatePutawayLineStatusUpdateInboundConfirmProc(
+//            @Param("companyCodeId") String companyCode,
+//            @Param("plantId") String plantId,
+//            @Param("languageId") String languageId,
+//            @Param("warehouseId") String warehouseId,
+//            @Param("refDocNumber") String refDocNumber,
+//            @Param("preInboundNo") String preInboundNo,
+//            @Param("statusId") Long statusId,
+//            @Param("statusDescription") String statusDescription,
+//            @Param("updatedBy") String updatedBy,
+//            @Param("updatedOn") Date updatedOn
+//    );
+
+    @Modifying
+    @Query(value = "update pul set pul.status_id = :statusId,pul.status_text = :statusDescription, pul.pa_cnf_on = GETDATE() from tblputawayline pul " +
+            "inner join (SELECT C_ID,PLANT_ID,LANG_ID,WH_ID,REF_DOC_NO,PRE_IB_NO,IB_LINE_NO,ITM_CODE,MFR_NAME FROM tblinboundline\n" +
+            "WHERE IS_DELETED = 0 AND REF_FIELD_2 = 'TRUE' AND status_id = :statusId AND \n" +
+            "C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId AND \n" +
+            "REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo) X on pul.C_ID = X.C_ID AND pul.PLANT_ID = X.PLANT_ID AND pul.LANG_ID = X.LANG_ID AND pul.WH_ID = X.WH_ID AND \n" +
+            "pul.REF_DOC_NO = X.REF_DOC_NO AND pul.PRE_IB_NO = X.PRE_IB_NO AND pul.ITM_CODE = X.ITM_CODE AND \n" +
+            "pul.MFR_NAME = X.MFR_NAME AND pul.IB_LINE_NO = X.IB_LINE_NO AND pul.IS_DELETED = 0", nativeQuery = true)
+    void updatePutAwayLineStatusUpdateInboundConfirm(@Param("companyCodeId") String companyCode,
+                                                     @Param("plantId") String plantId,
+                                                     @Param("languageId") String languageId,
+                                                     @Param("warehouseId") String warehouseId,
+                                                     @Param("refDocNumber") String refDocNumber,
+                                                     @Param("preInboundNo") String preInboundNo,
+                                                     @Param("statusId") Long statusId,
+                                                     @Param("statusDescription") String statusDescription);
 
     @Transactional
     @Procedure(procedureName = "ibheader_pal_cnt_update_proc")
