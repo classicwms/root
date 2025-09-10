@@ -2959,18 +2959,15 @@ public class PutAwayHeaderService extends BaseService {
      * @return
      */
 	public PutAwayHeaderV2 getPutAwayHeaderV3(String companyCodeId, String plantId, String warehouseId,
-			String languageId, String putAwayNumber, String preInboundNo, String barcodeId, String lineNumber,
-			Long statusId) {
+			String languageId, String putAwayNumber, String preInboundNo, String barcodeId, String lineNumber) {
 		if (lineNumber != null) {
 			return putAwayHeaderV2Repository
-					.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndPutAwayNumberAndPreInboundNoAndBarcodeIdAndReferenceField9AndStatusIdAndDeletionIndicator(
-							companyCodeId, plantId, warehouseId, languageId, putAwayNumber, preInboundNo, barcodeId,
-							lineNumber, statusId, 0L);
+					.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndPutAwayNumberAndPreInboundNoAndBarcodeIdAndReferenceField9AndDeletionIndicator(
+							companyCodeId, plantId, warehouseId, languageId, putAwayNumber, preInboundNo, barcodeId, lineNumber, 0L);
 		} else {
 			return putAwayHeaderV2Repository
-					.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndPutAwayNumberAndPreInboundNoAndBarcodeIdAndStatusIdAndDeletionIndicator(
-							companyCodeId, plantId, warehouseId, languageId, putAwayNumber, preInboundNo, barcodeId,
-							statusId, 0L);
+					.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndPutAwayNumberAndPreInboundNoAndBarcodeIdAndDeletionIndicator(
+							companyCodeId, plantId, warehouseId, languageId, putAwayNumber, preInboundNo, barcodeId, 0L);
 		}
 	}
 

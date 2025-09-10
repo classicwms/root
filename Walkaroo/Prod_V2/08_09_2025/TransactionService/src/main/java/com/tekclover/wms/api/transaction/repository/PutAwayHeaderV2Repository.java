@@ -578,8 +578,23 @@ public interface PutAwayHeaderV2Repository extends JpaRepository<PutAwayHeaderV2
 			String companyCodeId, String plantId, String warehouseId, String languageId, String putAwayNumber,
 			String preInboundNo, String barcodeId, String lineNumber, Long statusId, long l);
 
+    PutAwayHeaderV2 findByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndPutAwayNumberAndPreInboundNoAndBarcodeIdAndReferenceField9AndDeletionIndicator(
+            String companyCodeId, String plantId, String warehouseId, String languageId, String putAwayNumber,
+            String preInboundNo, String barcodeId, String lineNumber, long l);
+
 	PutAwayHeaderV2 findByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndPutAwayNumberAndPreInboundNoAndBarcodeIdAndStatusIdAndDeletionIndicator(
 			String companyCodeId, String plantId, String warehouseId, String languageId, String putAwayNumber,
 			String preInboundNo, String barcodeId, Long statusId, long l);
+
+
+
+    @Modifying
+    @Query(value = "UPDATE tblputawayheader SET STATUS_ID = :statusId where C_ID = :companyCodeId and PLANT_ID = :plantId \n" +
+            "AND LANG_ID = :languageId and WH_ID = :warehouseId \n" +
+            "AND REF_FIELD_5 = :itemCode and BARCODE_ID = :barcodeId ", nativeQuery = true)
+    void updatePutAwayHeaderStatusId(@Param("companyCodeId") String companyCodeId, @Param("plantId") String plantId,
+                                     @Param("languageId") String languageId, @Param("warehouseId") String warehouseId,
+                                     @Param("itemCode") String itemCode, @Param("barcodeId") String barcodeId,
+                                     @Param("statusId") Long statusId);
 
 }

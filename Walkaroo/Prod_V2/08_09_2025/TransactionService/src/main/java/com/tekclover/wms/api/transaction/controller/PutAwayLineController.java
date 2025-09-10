@@ -11,6 +11,7 @@ import com.tekclover.wms.api.transaction.model.dto.PutAwayPalletGroupResponse;
 import com.tekclover.wms.api.transaction.model.dto.PutawayUserGroup;
 import com.tekclover.wms.api.transaction.model.notification.NotificationSave;
 import com.tekclover.wms.api.transaction.service.IDMasterService;
+import com.tekclover.wms.api.transaction.service.PutAwayLineAsyncProcess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +51,9 @@ public class PutAwayLineController {
 	
 	@Autowired
 	PutAwayLineService putawaylineService;
+
+	@Autowired
+	PutAwayLineAsyncProcess putAwayLineAsyncProcess;
 
     @ApiOperation(response = PutAwayLine.class, value = "Get all PutAwayLine details") // label for swagger
 	@GetMapping("")
@@ -187,7 +191,7 @@ public class PutAwayLineController {
 													  @RequestParam String loginUserID)
             throws Exception {
 		log.info("Request for putAwayLines to confirm : " + newPutAwayLine);
-		List<PutAwayLineV2> createdPutAwayLine = putawaylineService.putAwayLineConfirmNonCBMV3(newPutAwayLine, loginUserID);
+		List<PutAwayLineV2> createdPutAwayLine = putAwayLineAsyncProcess.putAwayConfirmProcess(newPutAwayLine, loginUserID);
 		return new ResponseEntity<>(createdPutAwayLine, HttpStatus.OK);
 	}
 

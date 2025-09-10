@@ -131,7 +131,7 @@ public class Inventory {
     @Column(name = "REF_FIELD_5")
     private String referenceField5;
 
-    @Column(name = "REF_FIELD_6")
+    @Column(name = "REF_FIELD_6", columnDefinition = "nvarchar(200)")
     private String referenceField6;
 
     @Column(name = "REF_FIELD_7")
@@ -161,4 +161,8 @@ public class Inventory {
 //    @Id
     @Column(name = "MFR_CODE", columnDefinition = "nvarchar(255)")
     private String manufacturerCode;
+
+    @Column(name = "MTO_NUMBER", columnDefinition = "nvarchar(200)")
+    private String mtoNumber;
+
 }

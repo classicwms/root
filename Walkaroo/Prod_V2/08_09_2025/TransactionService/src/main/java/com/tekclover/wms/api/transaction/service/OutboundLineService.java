@@ -5897,13 +5897,13 @@ public class OutboundLineService extends BaseService {
                                 outHeader.getRefDocNumber(), outHeader.getPreOutboundNo(), itemCode);
 
                         log.info("PickupHeader Size is {} DeliveryConfirmation --------------------------------->STEP 2", pickupHeaders.size());
-                        for (PickupHeaderV2 pickup : pickupHeaders) {
-                            if (pickup.getStatusId() != 59) {
-                                log.info("PickupHeader StatusId is  ----------------------------- > {}", pickup.getStatusId());
-                                pickupLineService.createPickupLineNewV4(outHeader.getCompanyCodeId(), outHeader.getPlantId(), outHeader.getLanguageId(), outHeader.getWarehouseId(),
-                                        outHeader.getRefDocNumber(), outHeader.getPreOutboundNo(), pickup, 0D, loginUserId, idMasterAuthToken);
-                            }
-                        }
+//                        for (PickupHeaderV2 pickup : pickupHeaders) {
+//                            if (pickup.getStatusId() != 59) {
+//                                log.info("PickupHeader StatusId is  ----------------------------- > {}", pickup.getStatusId());
+//                                pickupLineService.createPickupLineNewV4(outHeader.getCompanyCodeId(), outHeader.getPlantId(), outHeader.getLanguageId(), outHeader.getWarehouseId(),
+//                                        outHeader.getRefDocNumber(), outHeader.getPreOutboundNo(), pickup, 0D, loginUserId, idMasterAuthToken);
+//                            }
+//                        }
                         pickupLineService.createPickupLineNewV4(outHeader.getCompanyCodeId(), outHeader.getPlantId(), outHeader.getLanguageId(), outHeader.getWarehouseId(),
                                 outHeader.getRefDocNumber(), outHeader.getPreOutboundNo(), barcodeId, pickupHeaders.get(0), pickedQty, loginUserId, idMasterAuthToken);
 

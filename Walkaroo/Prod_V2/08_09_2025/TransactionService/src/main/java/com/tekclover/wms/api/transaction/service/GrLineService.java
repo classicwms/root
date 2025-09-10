@@ -5809,6 +5809,8 @@ public class GrLineService extends BaseService {
                 inventory.setBusinessPartnerCode(createdGRLine.getBusinessPartnerCode());
                 inventory.setReferenceDocumentNo(createdGRLine.getRefDocNumber());
                 inventory.setReferenceOrderNo(createdGRLine.getRefDocNumber());
+                log.info("MTO Number -----------------> " + createdGRLine.getMtoNumber());
+                inventory.setMtoNumber(createdGRLine.getMtoNumber());
                 inventory.setReferenceField6(createdGRLine.getMtoNumber());
                 inventory.setCreatedOn(dbInventory.getCreatedOn());
                 inventory.setUpdatedOn(new Date());
@@ -5878,6 +5880,8 @@ public class GrLineService extends BaseService {
                     }
                 }
 
+                log.info("MTO Number -----------------> " + createdGRLine.getMtoNumber());
+                inventory.setMtoNumber(createdGRLine.getMtoNumber());
                 inventory.setReferenceField6(createdGRLine.getMtoNumber());
                 inventory.setCreatedOn(new Date());
                 createdinventory = inventoryV2Repository.save(inventory);

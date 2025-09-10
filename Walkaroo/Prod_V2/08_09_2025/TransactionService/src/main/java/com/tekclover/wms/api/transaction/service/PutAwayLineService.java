@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.transaction.annotation.Isolation;
@@ -3585,6 +3586,7 @@ public class PutAwayLineService extends BaseService {
         }
     }
 
+
     /**
      *
      * @param newPutAwayLines
@@ -3610,7 +3612,7 @@ public class PutAwayLineService extends BaseService {
         List<PutAwayLineConfirm> refDocNumbers = new ArrayList<>();
 
         try {
-        	if (newPutAwayLines != null && newPutAwayLines.size() > 0) {
+        	if (newPutAwayLines != null && !newPutAwayLines.isEmpty()) {
         		statusDescription = getStatusDescription(20L, newPutAwayLines.get(0).getLanguageId());
         	}
 
@@ -3649,7 +3651,7 @@ public class PutAwayLineService extends BaseService {
 
                 PutAwayHeaderV2 putAwayHeader = putAwayHeaderService.getPutAwayHeaderV3(companyCode, plantId,
                         warehouseId, languageId, newPutAwayLine.getPutAwayNumber(), newPutAwayLine.getPreInboundNo(),
-                        newPutAwayLine.getBarcodeId(), String.valueOf(newPutAwayLine.getLineNo()), 19L);
+                        newPutAwayLine.getBarcodeId(), String.valueOf(newPutAwayLine.getLineNo()));
                 log.info("putawayHeader: " + putAwayHeader);
 
                 if (dbStorageBin != null) {

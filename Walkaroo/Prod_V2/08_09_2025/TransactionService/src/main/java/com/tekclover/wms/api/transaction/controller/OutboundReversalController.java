@@ -7,8 +7,10 @@ import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.model.dto.OutboundOrderReversal;
 import com.tekclover.wms.api.transaction.model.outbound.outboundreversal.v2.OutboundReversalV2;
 import com.tekclover.wms.api.transaction.model.outbound.outboundreversal.v2.SearchOutboundReversalV2;
+import com.tekclover.wms.api.transaction.service.OrderReversalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +43,9 @@ public class OutboundReversalController {
 	
 	@Autowired
 	OutboundReversalService outboundreversalService;
+
+	@Autowired
+	OrderReversalService orderReversalService;
 	
     @ApiOperation(response = OutboundReversal.class, value = "Get all OutboundReversal details") // label for swagger
 	@GetMapping("")
@@ -103,5 +108,12 @@ public class OutboundReversalController {
 		OutboundReversalV2 createdOutboundReversal =
 				outboundreversalService.createOutboundReversalV2(newOutboundReversal, loginUserID);
 		return new ResponseEntity<>(createdOutboundReversal , HttpStatus.OK);
+	}
+
+	@ApiOperation(response = OutboundOrderReversal.class, value = "Outbound Order Reversal")
+	@PostMapping("/order/reversal")
+	public ResponseEntity<?> outboundOrderReversal(@Valid @RequestBody List<OutboundOrderReversal> outboundOrderReversalList) {
+		List<OutboundOrderReversal> response = orderReversalService.outboundOrderReversal(outboundOrderReversalList);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 }

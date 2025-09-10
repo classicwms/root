@@ -1,13 +1,13 @@
 package com.tekclover.wms.api.transaction.service;
 
-import com.tekclover.wms.api.transaction.model.inbound.InboundLine;
-import com.tekclover.wms.api.transaction.model.inbound.gr.v2.GrLineV2;
+import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
+import com.tekclover.wms.api.transaction.model.dto.OutboundOrderReversal;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.InboundIntegrationHeader;
-import com.tekclover.wms.api.transaction.model.inbound.preinbound.v2.PreInboundHeaderEntityV2;
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.v2.PreInboundLineEntityV2;
 import com.tekclover.wms.api.transaction.model.inbound.staging.v2.StagingLineEntityV2;
 import com.tekclover.wms.api.transaction.model.inbound.v2.InboundLineV2;
+import com.tekclover.wms.api.transaction.model.outbound.outboundreversal.OutboundReversal;
 import com.tekclover.wms.api.transaction.repository.*;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -22,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Data
 @Service
 @Slf4j
-public class OrderReversalService {
+public class OrderReversalService extends BaseService {
 
     @Autowired
     PreInboundLineV2Repository preInboundLineV2Repository;
@@ -50,6 +51,30 @@ public class OrderReversalService {
 
     @Autowired
     InventoryV2Repository inventoryV2Repository;
+
+    @Autowired
+    PickupLineV2Repository pickupLineV2Repository;
+
+    @Autowired
+    PickupHeaderV2Repository pickupHeaderV2Repository;
+
+    @Autowired
+    OrderManagementHeaderV2Repository orderManagementHeaderV2Repository;
+
+    @Autowired
+    OrderManagementLineV2Repository orderManagementLineV2Repository;
+
+    @Autowired
+    PreOutboundHeaderV2Repository preOutboundHeaderV2Repository;
+
+    @Autowired
+    PreOutboundLineV2Repository preOutboundLineV2Repository;
+
+    @Autowired
+    OutboundHeaderV2Repository outboundHeaderV2Repository;
+
+    @Autowired
+    OutboundLineV2Repository outboundLineV2Repository;
 
     public void pgiOrderReversal(InboundIntegrationHeader inbound) {
 
@@ -224,5 +249,76 @@ public class OrderReversalService {
         } catch (Exception e) {
             throw new EntityNotFoundException("Error in deleting Id: " + e.toString());
         }
+    }
+
+    /**
+     * OutboundOrder Reversal Api - V1, Soft Deletes Pickup Header, OrderManagement Header and line, and
+     * Status updation in Preoutbound header and line, Outbound header and line
+     *
+     * @param reversalRequestList
+     * @return
+     */
+    public List<OutboundOrderReversal> outboundOrderReversal(List<OutboundOrderReversal> reversalRequestList) {
+
+        List<OutboundOrderReversal> outboundOrderReversals = new ArrayList<>();
+
+        for (OutboundOrderReversal orderReversal : reversalRequestList) {
+            OutboundOrderReversal reversalResponse = new OutboundOrderReversal();
+            reversalResponse.setCompanyCodeId(orderReversal.getCompanyCodeId());
+            reversalResponse.setLanguageId(orderReversal.getLanguageId());
+            reversalResponse.setPlantId(orderReversal.getPlantId());
+            reversalResponse.setWarehouseId(orderReversal.getWarehouseId());
+            reversalResponse.setRefDocNumber(orderReversal.getRefDocNumber());
+
+            // Checking weather PickupLine exists
+            boolean pickupLineExists = pickupLineV2Repository.existsByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                    orderReversal.getCompanyCodeId(), orderReversal.getPlantId(), orderReversal.getWarehouseId(), orderReversal.getRefDocNumber(), 0L
+            );
+
+            if (pickupLineExists) {
+                throw new BadRequestException("Pickup Lines Exists for this RefDocNumber : " + orderReversal.getRefDocNumber() + " Qutting Reversal Process");
+            }
+
+            try {
+                // Soft Deletion of PickupHeader Process
+                log.warn("Soft Deletion of PickupHeader Initiated...");
+                pickupHeaderV2Repository.deletePickupHeaderV2(orderReversal.getCompanyCodeId(), orderReversal.getPlantId(), orderReversal.getWarehouseId(), orderReversal.getRefDocNumber());
+
+                // Soft Deletion of OrderManagement Header and Line process
+                log.warn("Soft Deletion of OrderManagementHeader Initiated...");
+                orderManagementHeaderV2Repository.deleteOrderManagementHeaderV2(orderReversal.getCompanyCodeId(), orderReversal.getPlantId(), orderReversal.getWarehouseId(), orderReversal.getRefDocNumber());
+
+                log.warn("Soft Deletion of OrderManagementLine Initiated...");
+                orderManagementLineV2Repository.deleteOrderManagementLineV2(orderReversal.getCompanyCodeId(), orderReversal.getPlantId(), orderReversal.getWarehouseId(), orderReversal.getRefDocNumber());
+
+                // Updating OutboundHeader and Line
+                Long STATUS_ID = 39L;
+                statusDescription = getStatusDescription(STATUS_ID, orderReversal.getLanguageId());
+
+                log.info("Updating OutboundHeader to Status 39");
+                outboundHeaderV2Repository.updateOutboundHeaderReversal(orderReversal.getCompanyCodeId(), orderReversal.getPlantId(),
+                        orderReversal.getLanguageId(), orderReversal.getWarehouseId(), orderReversal.getRefDocNumber(), STATUS_ID, statusDescription);
+
+                log.info("Updating OutboundLine to Status 39");
+                outboundLineV2Repository.updateOutboundLineReversal(orderReversal.getCompanyCodeId(), orderReversal.getPlantId(),
+                        orderReversal.getLanguageId(), orderReversal.getWarehouseId(), orderReversal.getRefDocNumber(), STATUS_ID, statusDescription);
+
+                //Updating PreOutboundHeader and Line
+                log.info("Updating PreOutboundHeader to Status 39");
+                preOutboundHeaderV2Repository.updatePreOutboundHeaderStatusV3(orderReversal.getCompanyCodeId(), orderReversal.getPlantId(),
+                        orderReversal.getLanguageId(), orderReversal.getWarehouseId(), orderReversal.getRefDocNumber(), STATUS_ID, statusDescription);
+
+                log.info("Updating PreOutboundLine to Status 39");
+                preOutboundLineV2Repository.updatePreOutboundLineStatus(orderReversal.getCompanyCodeId(), orderReversal.getPlantId(),
+                        orderReversal.getLanguageId(), orderReversal.getWarehouseId(), orderReversal.getRefDocNumber(), STATUS_ID, statusDescription);
+
+                outboundOrderReversals.add(reversalResponse);
+            } catch (Exception e) {
+                throw new BadRequestException("Error Process Reversal for Outbound Order");
+            }
+
+        }
+
+        return outboundOrderReversals;
     }
 }
