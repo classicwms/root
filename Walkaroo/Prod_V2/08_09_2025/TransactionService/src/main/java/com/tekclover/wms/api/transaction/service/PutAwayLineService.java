@@ -3594,6 +3594,7 @@ public class PutAwayLineService extends BaseService {
      * @return
      * @throws Exception
      */
+    @Async("asyncExecutor")
     public List<PutAwayLineV2> putAwayLineConfirmNonCBMV3(@Valid List<PutAwayLineV2> newPutAwayLines,
                                                           String loginUserID) throws Exception {
         List<PutAwayLineV2> createdPutAwayLines = new ArrayList<>();

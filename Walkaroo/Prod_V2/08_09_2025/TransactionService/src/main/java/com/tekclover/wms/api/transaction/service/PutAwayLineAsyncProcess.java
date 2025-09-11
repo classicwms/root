@@ -40,7 +40,7 @@ public class PutAwayLineAsyncProcess {
         return putAwayLineV2s;
     }
 
-    @Async("asyncTaskExecutor")
+//    @Async("asyncTaskExecutor")
     public void createPutAwayLine(List<PutAwayLineV2> putAwayLineV2s, String loginUserID) {
 
         log.info("PutAwayLine Async process Started -------->");
