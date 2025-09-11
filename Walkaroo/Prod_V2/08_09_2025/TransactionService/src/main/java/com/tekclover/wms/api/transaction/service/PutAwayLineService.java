@@ -3935,8 +3935,8 @@ public class PutAwayLineService extends BaseService {
      * @param createdPutAwayLine
      * @throws Exception
      */
-    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class, LockAcquisitionException.class,
-            UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 2000))
+//    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class, LockAcquisitionException.class,
+//            UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 2000))
     private void updateInboudLine(PutAwayLine createdPutAwayLine) throws Exception {
         try {
             /*--------------------- INBOUNDTABLE Updates------------------------------------------*/

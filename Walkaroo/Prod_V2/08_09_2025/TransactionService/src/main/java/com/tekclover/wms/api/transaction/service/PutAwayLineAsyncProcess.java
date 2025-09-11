@@ -30,11 +30,13 @@ public class PutAwayLineAsyncProcess {
 
         log.info("PutAwayLine Confirm Process Size is {} ", putAwayLineV2s.size());
         for(PutAwayLineV2 pu : putAwayLineV2s) {
-            log.info("PutAwayLine confirm Status Id Updated ItemCode {}, BarcodeIs {} ", pu.getItemBarcode(), pu.getBarcodeId());
+            log.info("PutAwayLine confirm Status Id Updated ItemCode {}, BarcodeIs {} ", pu.getItemCode(), pu.getBarcodeId());
             putAwayHeaderV2Repository.updatePutAwayHeaderStatusId( pu.getCompanyCode(), pu.getPlantId(), pu.getLanguageId(), pu.getWarehouseId(),
                     pu.getItemCode(), pu.getBarcodeId(), 20L);
         }
         createPutAwayLine(putAwayLineV2s, loginUserID);
+
+        log.info("Return Response Successfully In PutAwayConfirm --------------------------------> ");
         return putAwayLineV2s;
     }
 
