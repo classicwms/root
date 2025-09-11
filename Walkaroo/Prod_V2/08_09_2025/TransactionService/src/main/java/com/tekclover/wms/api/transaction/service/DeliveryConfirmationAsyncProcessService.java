@@ -35,7 +35,7 @@ public class DeliveryConfirmationAsyncProcessService {
 	 @Autowired
 	 DeliveryConfirmationRepository deliveryConfirmationRepository;
 
-	 @Async ("asyncTaskExecutor")
+	 @Async ("asyncExecutor")
 	 public void postDeliveryConfirmationV4(List<DeliveryConfirmationSAP> deliveryConfirmationSAPList) throws Exception {
 		DeliveryConfirmationV3 deliveryConfirmationV3 = prepDeliveryConfirmationV3 (deliveryConfirmationSAPList);
 		log.info("DeliveryConfirmationV4 received from SAP External: " + deliveryConfirmationV3);

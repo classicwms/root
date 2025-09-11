@@ -20,14 +20,14 @@ public class ScheduleAsyncService {
     TransactionService transactionService;
 
     //-------------------------------------------------------------------Inbound---------------------------------------------------------------
-    @Async("asyncTaskExecutor")
+    @Async("asyncExecutor")
     public CompletableFuture<WarehouseApiResponse> processInboundOrder() throws Exception{
         WarehouseApiResponse inboundOrder = transactionService.processInboundOrder();
         return CompletableFuture.completedFuture(inboundOrder);
     }
 
     //-------------------------------------------------------------------Outbound---------------------------------------------------------------
-    @Async("asyncTaskExecutor")
+    @Async("asyncExecutor")
     public CompletableFuture<WarehouseApiResponse> processOutboundOrder() throws Exception {
 
         WarehouseApiResponse outboundOrder = transactionService.processOutboundOrder();
@@ -36,14 +36,14 @@ public class ScheduleAsyncService {
     }
 
     //-------------------------------------------------------------------DeliveryConfirmation---------------------------------------------------------------
-    @Async("asyncTaskExecutor")
+    @Async("asyncExecutor")
     public CompletableFuture<WarehouseApiResponse> processDeliveryTemplate() throws Exception {
         WarehouseApiResponse deliveryTemplate = transactionService.processDeliveryTemplate();
         return CompletableFuture.completedFuture(deliveryTemplate);
     }
     
     //-------------------------------------------------------------------StockCount---------------------------------------------------------------
-    @Async("asyncTaskExecutor")
+    @Async("asyncExecutor")
     public CompletableFuture<WarehouseApiResponse> processPerpetualStockCountOrder() throws Exception {
 
         WarehouseApiResponse perpetualStockCountOrder = transactionService.processPerpetualStockCountOrder();
@@ -51,7 +51,7 @@ public class ScheduleAsyncService {
 
     }
 
-    @Async("asyncTaskExecutor")
+    @Async("asyncExecutor")
     public CompletableFuture<WarehouseApiResponse> processPeriodicStockCountOrder() throws Exception {
 
         WarehouseApiResponse periodicStockCountOrder = transactionService.processPeriodicStockCountOrder();
@@ -60,7 +60,7 @@ public class ScheduleAsyncService {
     }
 
     //-------------------------------------------------------------------StockAdjustment---------------------------------------------------------------
-    @Async("asyncTaskExecutor")
+    @Async("asyncExecutor")
     public CompletableFuture<WarehouseApiResponse> processStockAdjustmentOrder() throws Exception {
 
         WarehouseApiResponse stockAdjustmentOrder = transactionService.processStockAdjustmentOrder();
@@ -68,7 +68,7 @@ public class ScheduleAsyncService {
     }
 
     //-------------------------------------------------------------------Inbound-Failed-Order-------------------------------------------------------------
-    @Async("asyncTaskExecutor")
+    @Async("asyncExecutor")
     public CompletableFuture<WarehouseApiResponse> processInboundFailedOrder() throws Exception {
 
         WarehouseApiResponse inboundFailedOrder = transactionService.processInboundFailedOrder();
@@ -77,7 +77,7 @@ public class ScheduleAsyncService {
     }
 
     //-------------------------------------------------------------------Outbound-Failed-Order---------------------------------------------------------------
-    @Async("asyncTaskExecutor")
+    @Async("asyncExecutor")
     public CompletableFuture<WarehouseApiResponse> processOutboundFailedOrder() throws Exception {
 
         WarehouseApiResponse outboundFailedOrder = transactionService.processOutboundFailedOrder();

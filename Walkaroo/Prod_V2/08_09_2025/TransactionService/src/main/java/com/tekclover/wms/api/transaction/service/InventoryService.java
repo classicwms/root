@@ -3525,7 +3525,7 @@ public class InventoryService extends BaseService {
      * @return
      * @throws Exception
      */
-//    @Async("asyncTaskExecutor")
+//    @Async("asyncExecutor")
 //    @Transactional
     public InventoryV2 createInventoryNonCBMV3(PutAwayLineV2 putAwayLine, String loginUserId) throws Exception {
         String companyCode = putAwayLine.getCompanyCode();
