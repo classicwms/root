@@ -20,25 +20,6 @@ public class PutAwayLineAsyncProcess {
     @Autowired
     PutAwayLineService putAwayLineService;
 
-    /**
-     *
-     * @param putAwayLineV2s putAwayLineList
-     * @param loginUserID UserID
-     * @return
-     */
-    public List<PutAwayLineV2> putAwayConfirmProcess(List<PutAwayLineV2> putAwayLineV2s, String loginUserID) {
-
-        log.info("PutAwayLine Confirm Process Size is {} ", putAwayLineV2s.size());
-        for(PutAwayLineV2 pu : putAwayLineV2s) {
-            log.info("PutAwayLine confirm Status Id Updated ItemCode {}, BarcodeIs {} ", pu.getItemCode(), pu.getBarcodeId());
-            putAwayHeaderV2Repository.updatePutAwayHeaderStatusId( pu.getCompanyCode(), pu.getPlantId(), pu.getLanguageId(), pu.getWarehouseId(),
-                    pu.getItemCode(), pu.getBarcodeId(), 20L);
-        }
-        createPutAwayLine(putAwayLineV2s, loginUserID);
-
-        log.info("Return Response Successfully In PutAwayConfirm --------------------------------> ");
-        return putAwayLineV2s;
-    }
 
     @Async("asyncExecutor")
     public void createPutAwayLine(List<PutAwayLineV2> putAwayLineV2s, String loginUserID) {
@@ -46,7 +27,7 @@ public class PutAwayLineAsyncProcess {
         log.info("PutAwayLine Async process Started -------->");
         try {
             List<PutAwayLineV2> putAwayLineV2List = putAwayLineService.putAwayLineConfirmNonCBMV3(putAwayLineV2s, loginUserID);
-            log.info("PutAwayLine Async process Started --------> Size is " + putAwayLineV2List.size());
+            log.info("PutAwayLine Async process Started --------> Size is {} ", putAwayLineV2List.size());
         } catch (Exception e) {
             log.info(e.getMessage());
         }

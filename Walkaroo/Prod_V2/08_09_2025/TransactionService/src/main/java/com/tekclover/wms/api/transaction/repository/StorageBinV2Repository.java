@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -352,5 +353,18 @@ public interface StorageBinV2Repository extends JpaRepository<StorageBinV2, Long
             @Param("gender") String gender,
             @Param("article") String article);
 
+    @Modifying
+    @Query(value = "Update tblstoragebin set status_id = :statusId WHERE c_id = :companyCode \n" +
+            "AND plant_id = :plantId \n" +
+            "AND lang_id = :languageId \n" +
+            "AND wh_id = :warehouseId \n" +
+            "AND st_bin = :storageBin \n " +
+            "AND is_deleted = 0 ", nativeQuery = true)
+    void updateStorageBin( @Param("companyCode") String companyCode,
+                           @Param("plantId") String plantId,
+                           @Param("languageId") String languageId,
+                           @Param("warehouseId") String warehouseId,
+                           @Param("storageBin") String storageBin,
+                           @Param("statusId") Long statusId);
 
 }

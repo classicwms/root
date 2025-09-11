@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.repository.*;
 import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,21 +55,6 @@ import com.tekclover.wms.api.transaction.model.inbound.putaway.v2.SearchPutAwayL
 import com.tekclover.wms.api.transaction.model.inbound.staging.v2.StagingLineEntityV2;
 import com.tekclover.wms.api.transaction.model.inbound.v2.InboundLineV2;
 import com.tekclover.wms.api.transaction.model.inbound.v2.PutAwayLineConfirm;
-import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
-import com.tekclover.wms.api.transaction.repository.InboundHeaderV2Repository;
-import com.tekclover.wms.api.transaction.repository.InboundLineRepository;
-import com.tekclover.wms.api.transaction.repository.InboundLineV2Repository;
-import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
-import com.tekclover.wms.api.transaction.repository.InventoryRepository;
-import com.tekclover.wms.api.transaction.repository.InventoryV2Repository;
-import com.tekclover.wms.api.transaction.repository.PalletIdAssignmentRepository;
-import com.tekclover.wms.api.transaction.repository.PickupHeaderV2Repository;
-import com.tekclover.wms.api.transaction.repository.PutAwayHeaderRepository;
-import com.tekclover.wms.api.transaction.repository.PutAwayHeaderV2Repository;
-import com.tekclover.wms.api.transaction.repository.PutAwayLineRepository;
-import com.tekclover.wms.api.transaction.repository.PutAwayLineV2Repository;
-import com.tekclover.wms.api.transaction.repository.StagingLineV2Repository;
-import com.tekclover.wms.api.transaction.repository.StorageBinRepository;
 import com.tekclover.wms.api.transaction.repository.specification.PutAwayLineSpecification;
 import com.tekclover.wms.api.transaction.repository.specification.PutAwayLineV2Specification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
@@ -157,6 +143,12 @@ public class PutAwayLineService extends BaseService {
 
     @Autowired
     PushNotificationService pushNotificationService;
+
+    @Autowired
+    PutAwayLineAsyncProcess putAwayLineAsyncProcess;
+
+    @Autowired
+    StorageBinV2Repository storageBinV2Repository;
 
     //--------------------------------------------------------------------------------------------
 
@@ -3595,6 +3587,34 @@ public class PutAwayLineService extends BaseService {
      * @throws Exception
      */
 
+    /**
+     *
+     * @param putAwayLineV2s putAwayLineList
+     * @param loginUserID UserID
+     * @return
+     */
+    public List<PutAwayLineV2> putAwayConfirmProcess(List<PutAwayLineV2> putAwayLineV2s, String loginUserID) {
+
+        log.info("PutAwayLine Confirm Process Size is {} ", putAwayLineV2s.size());
+        for(PutAwayLineV2 pu : putAwayLineV2s) {
+            log.info("PutAwayLine confirm Status Id Updated ItemCode {}, BarcodeIs {} ", pu.getItemCode(), pu.getBarcodeId());
+            putAwayHeaderV2Repository.updatePutAwayHeaderStatusId( pu.getCompanyCode(), pu.getPlantId(), pu.getLanguageId(), pu.getWarehouseId(),
+                    pu.getItemCode(), pu.getBarcodeId(), 20L);
+        }
+        putAwayLineAsyncProcess.createPutAwayLine(putAwayLineV2s, loginUserID);
+
+        log.info("Return Response Successfully In PutAwayConfirm --------------------------->");
+        return putAwayLineV2s;
+    }
+
+
+    /**
+     *
+     * @param newPutAwayLines putAwayLine
+     * @param loginUserID userID
+     * @return
+     * @throws Exception Exception
+     */
     public List<PutAwayLineV2> putAwayLineConfirmNonCBMV3(@Valid List<PutAwayLineV2> newPutAwayLines,
                                                           String loginUserID) throws Exception {
         List<PutAwayLineV2> createdPutAwayLines = new ArrayList<>();
@@ -3779,8 +3799,10 @@ public class PutAwayLineService extends BaseService {
                 if (createdPutAwayLine != null && createdPutAwayLine.getPutawayConfirmedQty() > 0L) {
                     // Updating StorageBin StatusId as '1'
                     dbStorageBin.setStatusId(1L);
-                    storageBinService.updateStorageBinV2(dbPutAwayLine.getConfirmedStorageBin(), dbStorageBin,
-                            companyCode, plantId, languageId, warehouseId, loginUserID);
+                    storageBinV2Repository.updateStorageBin(companyCode, plantId, languageId, warehouseId, dbPutAwayLine.getConfirmedStorageBin(), 1L);
+
+//                    storageBinService.updateStorageBinV2(dbPutAwayLine.getConfirmedStorageBin(), dbStorageBin,
+//                            companyCode, plantId, languageId, warehouseId, loginUserID);
 
                     if (putAwayHeader != null) {
                         String confirmedStorageBin = createdPutAwayLine.getConfirmedStorageBin();
@@ -3991,6 +4013,7 @@ public class PutAwayLineService extends BaseService {
             inboundLine.setStatusId(20L);
             statusDescription = getStatusDescription(20L, createdPutAwayLine.getLanguageId());
             inboundLine.setStatusDescription(statusDescription);
+            inboundLineRepository.delete(inboundLine);
             InboundLineV2 updatedInboundLine = inboundLineV2Repository.saveAndFlush(inboundLine);
             log.info("------updatedInboundLine---updated: " + updatedInboundLine);
         } catch (Exception e) {

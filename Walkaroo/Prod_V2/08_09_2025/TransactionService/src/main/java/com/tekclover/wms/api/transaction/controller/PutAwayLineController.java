@@ -191,7 +191,7 @@ public class PutAwayLineController {
 													  @RequestParam String loginUserID)
             throws Exception {
 		log.info("Request for putAwayLines to confirm : " + newPutAwayLine);
-		List<PutAwayLineV2> createdPutAwayLine = putAwayLineAsyncProcess.putAwayConfirmProcess(newPutAwayLine, loginUserID);
+		List<PutAwayLineV2> createdPutAwayLine = putawaylineService.putAwayConfirmProcess(newPutAwayLine, loginUserID);
 		return new ResponseEntity<>(createdPutAwayLine, HttpStatus.OK);
 	}
 
