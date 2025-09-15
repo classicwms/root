@@ -13,10 +13,8 @@ import javax.validation.Valid;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
@@ -32,10 +30,12 @@ import com.tekclover.wms.api.transaction.model.inbound.putaway.PutAwayHeader;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.PutAwayLine;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.SearchPutAwayLine;
 import com.tekclover.wms.api.transaction.model.inbound.putaway.UpdatePutAwayLine;
+import com.tekclover.wms.api.transaction.model.trans.InventoryTrans;
 import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
 import com.tekclover.wms.api.transaction.repository.InboundLineRepository;
 import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
 import com.tekclover.wms.api.transaction.repository.InventoryRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryTransRepository;
 import com.tekclover.wms.api.transaction.repository.PutAwayHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.PutAwayLineRepository;
 import com.tekclover.wms.api.transaction.repository.specification.PutAwayLineSpecification;
@@ -81,6 +81,9 @@ public class PutAwayLineService extends BaseService {
 	@Autowired
 	private ImBasicData1Repository imbasicdata1Repository;
 	
+ 	@Autowired
+ 	private InventoryTransRepository inventoryTransRepository;
+ 	
 	/**
 	 * getPutAwayLines
 	 * @return
@@ -429,7 +432,7 @@ public class PutAwayLineService extends BaseService {
 						dbStorageBin.setStatusId(1L);
 						mastersService.updateStorageBin(dbPutAwayLine.getConfirmedStorageBin(), dbStorageBin, loginUserID, authTokenForMastersService.getAccess_token());
 						
-						if (isInventoryCreated && isInventoryMovemoentCreated) {
+//						if (isInventoryCreated && isInventoryMovemoentCreated) {
 							List<PutAwayHeader> headers = putAwayHeaderService.getPutAwayHeader(createdPutAwayLine.getWarehouseId(), 
 									createdPutAwayLine.getPreInboundNo(), createdPutAwayLine.getRefDocNumber(), createdPutAwayLine.getPutAwayNumber());
 							for (PutAwayHeader putAwayHeader : headers) {
@@ -441,8 +444,13 @@ public class PutAwayLineService extends BaseService {
 							/*--------------------- INBOUNDTABLE Updates ------------------------------------------*/
 							// Pass WH_ID/PRE_IB_NO/REF_DOC_NO/IB_LINE_NO/ITM_CODE values in PUTAWAYLINE table and 
 							// fetch PA_CNF_QTY values and QTY_TYPE values and updated STATUS_ID as 20
-							updateInboundLine (createdPutAwayLine);
-						}
+							try {
+								updateInboundLine (createdPutAwayLine);
+							} catch (Exception e) {
+								e.printStackTrace();
+								log.info("------updateInboundLine--ERROR----" + e.toString());			
+							}
+//						}
 					}
 				} else {
 					log.info("Putaway Line already exist : " + existingPutAwayLine);
@@ -460,20 +468,23 @@ public class PutAwayLineService extends BaseService {
 	 * @param createdPutAwayLine
 	 */
 	@Transactional
-    @Retryable(value = Exception.class, maxAttempts = 3, backoff = @Backoff(delay = 5000, multiplier = 2))
+//    @Retryable(value = Exception.class, maxAttempts = 3, backoff = @Backoff(delay = 5000, multiplier = 2))
 	private void updateExistingInventory (PutAwayLine createdPutAwayLine) {
+		Inventory existinginventory = null;
+		double INV_QTY_ERR = 0;
 		try {
 			/*
 			 * Insert PA_CNF_QTY value in this field.
 			 * Also Pass WH_ID/PACK_BARCODE/ITM_CODE/BIN_CL_ID=3 in INVENTORY table and fetch ST_BIN/INV_QTY value.
 			 * Update INV_QTY value by (INV_QTY - PA_CNF_QTY) . If this value becomes Zero, then delete the record"
 			 */
-			Inventory existinginventory = inventoryService.getInventory(createdPutAwayLine.getWarehouseId(),
+			existinginventory = inventoryService.getInventory(createdPutAwayLine.getWarehouseId(),
 					createdPutAwayLine.getPackBarcodes(), createdPutAwayLine.getItemCode(), 3L);
 			log.info("-----existinginventory--------> : " + existinginventory);
 			double INV_QTY = existinginventory.getInventoryQuantity() - createdPutAwayLine.getPutawayConfirmedQty();
 			log.info("INV_QTY : " + INV_QTY);
 			if (INV_QTY >= 0) {
+				INV_QTY_ERR = INV_QTY;
 				existinginventory.setInventoryQuantity(INV_QTY);
 				Inventory updatedInventory = inventoryRepository.save(existinginventory);
 				log.info("updatedInventory--------> : " + updatedInventory);
@@ -481,14 +492,35 @@ public class PutAwayLineService extends BaseService {
 		} catch (Exception e) {
 			log.info("Existing Inventory---Error-----> : " + e.toString());
 			e.printStackTrace();
+			
+			// Inventory Error Handling
+			InventoryTrans newInventoryTrans = new InventoryTrans();
+			BeanUtils.copyProperties(existinginventory, newInventoryTrans, CommonUtils.getNullPropertyNames(existinginventory));
+			newInventoryTrans.setInventoryQuantity(INV_QTY_ERR);
+			newInventoryTrans.setReRun(0L);
+			InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+			log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
 		}
+	}
+	
+	@Scheduled(fixedDelayString = "PT1M", initialDelayString = "PT2M")
+	private void updateErroredOutInventory() {
+		List<InventoryTrans> inventoryTransList = inventoryTransRepository.findByReRun(0L);
+		inventoryTransList.stream().forEach(it -> {
+			log.info("----updateErroredOutInventory-->: " + it);
+			inventoryRepository.updateInventory(it.getWarehouseId(), it.getPackBarcodes(), it.getItemCode(),
+					it.getStorageBin(), it.getInventoryQuantity(), it.getAllocatedQuantity());
+			it.setReRun(1L);
+			inventoryTransRepository.save(it);
+			log.info("----updateInventoryTrans-is-done-->: " + it);
+		});
 	}
 	
 	/**
 	 * 
 	 * @param createdPutAwayLine
 	 */
-	@Transactional(isolation = Isolation.READ_COMMITTED)
+//	@Transactional(isolation = Isolation.READ_COMMITTED)
 	private void updateInboundLine (PutAwayLine createdPutAwayLine) {
 		double addedAcceptQty = 0.0;
 		double addedDamageQty = 0.0;

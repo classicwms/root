@@ -336,7 +336,7 @@ public class InventoryService extends BaseService {
 	 */
 	public Inventory getInventoryByStorageBin (String warehouseId, String storageBin) {
 		Optional<Inventory> inventory = 
-				inventoryRepository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndStorageBinAndDeletionIndicator(
+				inventoryRepository.findTopByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndStorageBinAndDeletionIndicator(
 						getLanguageId(),
 						getCompanyCode(),
 						getPlantId(),

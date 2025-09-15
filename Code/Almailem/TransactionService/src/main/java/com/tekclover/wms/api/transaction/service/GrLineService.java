@@ -1794,8 +1794,8 @@ public class GrLineService extends BaseService {
 			// Exception Log
 			createGrLineLog10(newGrLines, e.toString());
 			e.printStackTrace();
-                            throw e;
-                        }
+			throw e;
+		}
 	}
 
 	/**
@@ -1825,18 +1825,22 @@ public class GrLineService extends BaseService {
 								createdGRLine.getCreatedOn(), createdGRLine.getLineNo(), createdGRLine.getItemCode(),
 								10L);
 						log.info("GrLine status 10 updated..! ");
-
 					} catch (Exception e) {
 						e.printStackTrace();
 						log.info("GrLine status 100 updated - putaway header create - failed..! ");
 						log.error("Exception occurred while create putaway header " + e.toString());
 
 						// putaway header create failed - changing flag to 100
+//						grLineV2Repository.updateGrLineStatusV2(createdGRLine.getCompanyCode(),
+//								createdGRLine.getPlantId(), createdGRLine.getLanguageId(),
+//								createdGRLine.getWarehouseId(), createdGRLine.getPreInboundNo(),
+//								createdGRLine.getCreatedOn(), createdGRLine.getLineNo(), createdGRLine.getItemCode(),
+//								100L);
 						grLineV2Repository.updateGrLineStatusV2(createdGRLine.getCompanyCode(),
 								createdGRLine.getPlantId(), createdGRLine.getLanguageId(),
 								createdGRLine.getWarehouseId(), createdGRLine.getPreInboundNo(),
 								createdGRLine.getCreatedOn(), createdGRLine.getLineNo(), createdGRLine.getItemCode(),
-								100L);
+								0L);
 						sendMail(companyCode, plantId, languageId, warehouseId, refDocNumber,
 								getInboundOrderTypeTable(inboundOrderTypeId), e.toString());
 					}

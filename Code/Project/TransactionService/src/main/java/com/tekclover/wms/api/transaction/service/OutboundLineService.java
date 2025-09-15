@@ -10,8 +10,10 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
+import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.expression.ParseException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -1154,7 +1156,11 @@ public class OutboundLineService extends BaseService {
 	 * @param lineNumbers
 	 * @param loginUserID
 	 */
-	@Retryable(value = Exception.class, maxAttempts = 3, backoff = @Backoff(delay = 3000))
+	@Retryable(
+			value = {CannotAcquireLockException.class, LockAcquisitionException.class}, 
+			maxAttempts = 3, 
+			backoff = @Backoff(delay = 3000, multiplier = 2, maxDelay = 10000)
+			)
 	private void deliveryConfirmStatusUpdate (String warehouseId, String preOutboundNo, String refDocNumber, Long STATUS_ID_59, List<Long> lineNumbers, String loginUserID) {
         try {
             AuthToken authTokenForIDService = authTokenService.getIDMasterServiceAuthToken();
