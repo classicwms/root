@@ -451,4 +451,12 @@ public interface PickupHeaderV2Repository extends JpaRepository<PickupHeaderV2, 
 //                                           @Param("languageId")String languageId,
 //                                           @Param("warehouseId")String warehouseId);
 
+
+    void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+            String companyCodeId, String plantId, String warehouseId, String refDocNumber, String preOutboundNo, Long deletionIndicator);
+
+
+    boolean existsByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndStatusIdInAndDeletionIndicatorAndAssignedPickerIdIsNotNull(
+            String companyCodeId, String plantId, String warehouseId, String refDocNumber, String preOutboundNo, List<Long> statusId, Long deletionIndicator);
+
 }

@@ -22,7 +22,6 @@ import com.tekclover.wms.api.transaction.model.outbound.quality.QualityHeader;
 import com.tekclover.wms.api.transaction.model.outbound.quality.v2.QualityHeaderV2;
 import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2;
 import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundLineV2;
-import com.tekclover.wms.api.transaction.model.threepl.pricelist.PriceList;
 import com.tekclover.wms.api.transaction.model.threepl.pricelist.PriceListAssignment;
 import com.tekclover.wms.api.transaction.repository.*;
 import com.tekclover.wms.api.transaction.repository.specification.PickupLineSpecification;
@@ -1267,8 +1266,8 @@ public class PickupLineService extends BaseService {
     public List<PickupLineV2> getPickupLineForPerpetualCountV2(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                                String itemCode, String manufacturerName, String storageBin, Date stockCountDate) {
         List<PickupLineV2> pickupLine = pickupLineV2Repository
-              .findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerNameAndPickedStorageBinAndStatusIdAndPickupCreatedOnBetweenAndDeletionIndicator(
-                    languageId, companyCodeId, plantId, warehouseId, itemCode, manufacturerName, storageBin, 50L, stockCountDate, new Date(), 0L);
+                .findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerNameAndPickedStorageBinAndStatusIdAndPickupCreatedOnBetweenAndDeletionIndicator(
+                        languageId, companyCodeId, plantId, warehouseId, itemCode, manufacturerName, storageBin, 50L, stockCountDate, new Date(), 0L);
 //        List<PickupLineV2> pickupLine = pickupLineV2Repository
 //                .findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerNameAndPickedStorageBinAndStatusIdAndDeletionIndicator(
 //                        languageId, companyCodeId, plantId, warehouseId, itemCode, manufacturerName, storageBin, 50L, 0L);
@@ -1301,7 +1300,6 @@ public class PickupLineService extends BaseService {
     }
 
     /**
-     *
      * @param companyCodeId
      * @param plantId
      * @param languageId
@@ -1316,11 +1314,10 @@ public class PickupLineService extends BaseService {
         PickupLineV2 pickupLine = pickupLineV2Repository
                 .findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndStatusIdAndAssignedPickerIdInAndDeletionIndicatorAndPickupConfirmedOnBetweenOrderByPickupConfirmedOn(
                         companyCodeId, plantId, languageId, warehouseId, 50L, assignedPickerId, 0L, dates[0], dates[1]);
-            return pickupLine;
+        return pickupLine;
     }
 
     /**
-     *
      * @param companyCodeId
      * @param plantId
      * @param languageId
@@ -1459,7 +1456,6 @@ public class PickupLineService extends BaseService {
     }
 
     /**
-     *
      * @param companyCodeId
      * @param plantId
      * @param languageId
@@ -1480,7 +1476,6 @@ public class PickupLineService extends BaseService {
     }
 
     /**
-     *
      * @param companyCodeId
      * @param plantId
      * @param languageId
@@ -1517,7 +1512,6 @@ public class PickupLineService extends BaseService {
     }
 
     /**
-     *
      * @param languageId
      * @param companyCode
      * @param plantId
@@ -1616,7 +1610,7 @@ public class PickupLineService extends BaseService {
 //    @Transactional
     public List<PickupLineV2> createPickupLineNonCBMV2(@Valid List<AddPickupLine> newPickupLines, String loginUserID)
             throws IllegalAccessException, InvocationTargetException, java.text.ParseException {
-        log.info("login UserId : {}" , loginUserID);
+        log.info("login UserId : {}", loginUserID);
         AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
         Long STATUS_ID = 0L;
         String companyCodeId = null;
@@ -1712,7 +1706,7 @@ public class PickupLineService extends BaseService {
                     dbPickupLine.getPreOutboundNo(), dbPickupLine.getRefDocNumber(), dbPickupLine.getPartnerCode(), dbPickupLine.getPickupNumber());
             if (dbPickupHeader != null) {
                 dbPickupLine.setPickupCreatedOn(dbPickupHeader.getPickupCreatedOn());
-                if(dbPickupHeader.getPickupCreatedBy() != null) {
+                if (dbPickupHeader.getPickupCreatedBy() != null) {
                     dbPickupLine.setPickupCreatedBy(dbPickupHeader.getPickupCreatedBy());
                 } else {
                     dbPickupLine.setPickupCreatedBy(dbPickupHeader.getPickUpdatedBy());
@@ -1743,17 +1737,17 @@ public class PickupLineService extends BaseService {
             log.info("ThreePL Logic Started --------------------------------> ");
             PriceListAssignment priceAssign = priceListAssignmentRepository.getPartnerCode(newPickupLine.getCompanyCodeId(), newPickupLine.getPlantId(), newPickupLine.getWarehouseId(), newPickupLine.getLanguageId(), newPickupLine.getPartnerCode());
             Long priceListId = priceAssign.getPriceListId();
-            log.info("PriceListAssignmentId----->" +priceListId);
+            log.info("PriceListAssignmentId----->" + priceListId);
             IKeyValuePair priceList = priceListRepository.getChargeUnit(newPickupLine.getCompanyCodeId(), newPickupLine.getPlantId(), newPickupLine.getLanguageId(), newPickupLine.getWarehouseId(), priceAssign.getPriceListId(), 4L);
-            log.info("C_Id----->" +newPickupLine.getCompanyCodeId());
-            log.info("PlantId----->" +newPickupLine.getPlantId());
-            log.info("WH_Id----->" +newPickupLine.getWarehouseId());
-            log.info("PriceListId----->" +priceAssign.getPriceListId());
+            log.info("C_Id----->" + newPickupLine.getCompanyCodeId());
+            log.info("PlantId----->" + newPickupLine.getPlantId());
+            log.info("WH_Id----->" + newPickupLine.getWarehouseId());
+            log.info("PriceListId----->" + priceAssign.getPriceListId());
 
             log.info("PriceList------>" + priceList.getChargeUnit());
             dbPickupLine.setRate(priceList.getPricePerChargeUnit());
             dbPickupLine.setThreePLCbm(priceList.getChargeRangeTo());
-            log.info("TPLCBM----->" +dbPickupLine.getThreePLCbm());
+            log.info("TPLCBM----->" + dbPickupLine.getThreePLCbm());
 
 //            {
 //                Optional.ofNullable(priceListAssignmentRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndPartnerCodeAndDeletionIndicator(
@@ -1856,7 +1850,7 @@ public class PickupLineService extends BaseService {
             log.info("existingPickupLine : " + existingPickupLine);
             if (existingPickupLine == null || existingPickupLine.isEmpty()) {
                 String leadTime = pickupLineV2Repository.getleadtime(dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(),
-                                    dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(), dbPickupLine.getPickupNumber(), new Date());
+                        dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(), dbPickupLine.getPickupNumber(), new Date());
                 dbPickupLine.setReferenceField1(leadTime);
                 log.info("LeadTime: " + leadTime);
 
@@ -1867,6 +1861,7 @@ public class PickupLineService extends BaseService {
                 throw new BadRequestException("PickupLine Record is getting duplicated. Given data already exists in the Database. : " + existingPickupLine);
             }
         }
+
 
         /*---------------------------------------------Inventory Updates-------------------------------------------*/
         // Updating respective tables
@@ -1932,17 +1927,17 @@ public class PickupLineService extends BaseService {
 
                         PriceListAssignment priceAssign = priceListAssignmentRepository.getPartnerCodeInv(dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(), dbPickupLine.getWarehouseId(), dbPickupLine.getLanguageId(), dbPickupLine.getPartnerCode());
                         Long priceListId = priceAssign.getPriceListId();
-                        log.info("PriceListAssignmentId----->" +priceListId);
+                        log.info("PriceListAssignmentId----->" + priceListId);
                         IKeyValuePair priceList = priceListRepository.getChargeUnitInv(dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(), priceAssign.getPriceListId(), 3L);
-                        log.info("PriceList------>" +priceList);
+                        log.info("PriceList------>" + priceList);
                         inventoryV2.setThreePLCbmPerQty(priceList.getChargeRangeTo());
                         inventoryV2.setThreePLRatePerQty(priceList.getPricePerChargeUnit());
                         Double totalRate = inventoryV2.getThreePLRatePerQty() * inventoryV2.getReferenceField4();
-                        log.info("TotalRate----->" +totalRate);
+                        log.info("TotalRate----->" + totalRate);
                         inventoryV2.setTotalRate(totalRate);
                         inventoryV2.setRate(totalRate);
                         Double CBM = inventoryV2.getThreePLCbmPerQty() * inventoryV2.getReferenceField4();
-                        log.info("CBM----->" +CBM);
+                        log.info("CBM----->" + CBM);
                         inventoryV2.setThreePLCbm(CBM);
                         inventoryV2.setTotalThreePLCbm(CBM);
 
@@ -2065,17 +2060,24 @@ public class PickupLineService extends BaseService {
              */
             try {
                 //spring boot to Stored procedure null unable to pass so assigned picker is set as 0 and it is handled inside stored procedure
-                if(dbPickupLine.getAssignedPickerId() == null) {
+                if (dbPickupLine.getAssignedPickerId() == null) {
                     dbPickupLine.setAssignedPickerId("0");
                 }
 
                 statusDescription = stagingLineV2Repository.getStatusDescription(STATUS_ID, dbPickupLine.getLanguageId());
+//                outboundLineV2Repository.updateOutboundlineStatusUpdateProc(
+//                        dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(),
+//                        dbPickupLine.getWarehouseId(), dbPickupLine.getRefDocNumber(), dbPickupLine.getPreOutboundNo(),
+//                        dbPickupLine.getItemCode(), dbPickupLine.getManufacturerName(), dbPickupLine.getPartnerCode(),
+//                        dbPickupLine.getActualHeNo(), dbPickupLine.getAssignedPickerId(),
+//                        dbPickupLine.getLineNumber(), STATUS_ID, statusDescription, new Date());
                 outboundLineV2Repository.updateOutboundLine(
                         dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(), dbPickupLine.getLanguageId(),
                         dbPickupLine.getWarehouseId(), dbPickupLine.getRefDocNumber(), dbPickupLine.getPreOutboundNo(),
                         dbPickupLine.getItemCode(), dbPickupLine.getManufacturerName(), dbPickupLine.getPartnerCode(),
                         dbPickupLine.getActualHeNo(), dbPickupLine.getAssignedPickerId(),
                         dbPickupLine.getLineNumber(), STATUS_ID, statusDescription, new Date());
+                
             } catch (Exception e) {
                 log.error("outboundLine update Error :" + e.toString());
                 e.printStackTrace();
@@ -2125,7 +2127,7 @@ public class PickupLineService extends BaseService {
                     newQualityHeader.setOutboundOrderTypeId(dbPickupLine.getOutboundOrderTypeId());
                     newQualityHeader.setSupplierInvoiceNo(dbPickupLine.getSupplierInvoiceNo());
                     newQualityHeader.setTokenNumber(dbPickupLine.getTokenNumber());
-                    if(dbPickupHeader != null) {
+                    if (dbPickupHeader != null) {
                         newQualityHeader.setCustomerCode(dbPickupHeader.getCustomerCode());
                         newQualityHeader.setTransferRequestType(dbPickupHeader.getTransferRequestType());
                     }
@@ -2137,7 +2139,7 @@ public class PickupLineService extends BaseService {
                     statusDescription = stagingLineV2Repository.getStatusDescription(54L, dbPickupLine.getLanguageId());
                     newQualityHeader.setReferenceField10(statusDescription);
                     newQualityHeader.setStatusDescription(statusDescription);
-                    log.info("login UserId : {}" , loginUserID);
+                    log.info("login UserId : {}", loginUserID);
                     QualityHeaderV2 createdQualityHeader = qualityHeaderService.createQualityHeaderV2(newQualityHeader, loginUserID);
                     log.info("createdQualityHeader : " + createdQualityHeader);
                 } catch (Exception e) {
@@ -2257,7 +2259,7 @@ public class PickupLineService extends BaseService {
                     newPickupLine.getLanguageId(),
                     newPickupLine.getPlantId(),
                     newPickupLine.getWarehouseId());
-            if(description != null) {
+            if (description != null) {
                 dbPickupLine.setCompanyDescription(description.getCompanyDesc());
                 dbPickupLine.setPlantDescription(description.getPlantDesc());
                 dbPickupLine.setWarehouseDescription(description.getWarehouseDesc());
@@ -2298,7 +2300,7 @@ public class PickupLineService extends BaseService {
                     dbPickupLine.getPreOutboundNo(), dbPickupLine.getRefDocNumber(), dbPickupLine.getPartnerCode(), dbPickupLine.getPickupNumber());
             if (dbPickupHeader != null) {
                 dbPickupLine.setPickupCreatedOn(dbPickupHeader.getPickupCreatedOn());
-                if(dbPickupHeader.getPickupCreatedBy() != null) {
+                if (dbPickupHeader.getPickupCreatedBy() != null) {
                     dbPickupLine.setPickupCreatedBy(dbPickupHeader.getPickupCreatedBy());
                 } else {
                     dbPickupLine.setPickupCreatedBy(dbPickupHeader.getPickUpdatedBy());
@@ -2335,7 +2337,7 @@ public class PickupLineService extends BaseService {
             log.info("existingPickupLine : " + existingPickupLine);
             if (existingPickupLine == null || existingPickupLine.isEmpty()) {
                 String leadTime = pickupLineV2Repository.getleadtime(dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(),
-                                    dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(), dbPickupLine.getPickupNumber(), new Date());
+                        dbPickupLine.getLanguageId(), dbPickupLine.getWarehouseId(), dbPickupLine.getPickupNumber(), new Date());
                 dbPickupLine.setReferenceField1(leadTime);
                 log.info("LeadTime: " + leadTime);
 
@@ -2517,7 +2519,7 @@ public class PickupLineService extends BaseService {
 //                updateOutboundLine.setStatusId(STATUS_ID);
 
                 //spring boot to Stored procedure null unable to pass so assigned picker is set as 0 and it is handled inside stored procedure
-                if(dbPickupLine.getAssignedPickerId() == null) {
+                if (dbPickupLine.getAssignedPickerId() == null) {
                     dbPickupLine.setAssignedPickerId("0");
                 }
 
@@ -2720,7 +2722,7 @@ public class PickupLineService extends BaseService {
                 Double pickupLineQty = pickupLineV2Repository.getPickupLineSumV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber,
                         preOutboundNo, dbPickupLine.getPickupNumber(), 50L, dbPickupLine.getItemCode(), dbPickupLine.getManufacturerName());
 
-                if(pickupLineQty < headerPickToQty){
+                if (pickupLineQty < headerPickToQty) {
                     PickupHeaderV2 newPickupHeader = new PickupHeaderV2();
                     BeanUtils.copyProperties(pickupHeader, newPickupHeader, CommonUtils.getNullPropertyNames(pickupHeader));
                     long NUM_RAN_CODE = 10;
@@ -2887,7 +2889,7 @@ public class PickupLineService extends BaseService {
                     dbPickupLine.getPreOutboundNo(), dbPickupLine.getRefDocNumber(), dbPickupLine.getPartnerCode(), dbPickupLine.getPickupNumber());
             if (dbPickupHeader != null) {
                 dbPickupLine.setPickupCreatedOn(dbPickupHeader.getPickupCreatedOn());
-                if(dbPickupHeader.getPickupCreatedBy() != null) {
+                if (dbPickupHeader.getPickupCreatedBy() != null) {
                     dbPickupLine.setPickupCreatedBy(dbPickupHeader.getPickupCreatedBy());
                 } else {
                     dbPickupLine.setPickupCreatedBy(dbPickupHeader.getPickUpdatedBy());
@@ -3654,29 +3656,29 @@ public class PickupLineService extends BaseService {
                 dbPickupLine.getManufacturerName(),
                 dbPickupLine.getItemCode());
         log.info("BalanceOhQty: " + sumOfInvQty);
-        if(sumOfInvQty != null) {
-        inventoryMovement.setBalanceOHQty(sumOfInvQty);
+        if (sumOfInvQty != null) {
+            inventoryMovement.setBalanceOHQty(sumOfInvQty);
             Double openQty = 0D;
-            if(movementQtyValue.equalsIgnoreCase("P")) {
+            if (movementQtyValue.equalsIgnoreCase("P")) {
                 openQty = sumOfInvQty - dbPickupLine.getPickConfirmQty();
             }
-            if(movementQtyValue.equalsIgnoreCase("N")) {
+            if (movementQtyValue.equalsIgnoreCase("N")) {
                 openQty = sumOfInvQty + dbPickupLine.getPickConfirmQty();
             }
             inventoryMovement.setReferenceField2(String.valueOf(openQty));          //Qty before inventory Movement occur
             log.info("OH Qty, OpenQty : " + sumOfInvQty + ", " + openQty);
         }
-        if(sumOfInvQty == null) {
+        if (sumOfInvQty == null) {
             inventoryMovement.setBalanceOHQty(0D);
             Double openQty = 0D;
             sumOfInvQty = 0D;
-            if(movementQtyValue.equalsIgnoreCase("P")) {
+            if (movementQtyValue.equalsIgnoreCase("P")) {
                 openQty = sumOfInvQty - dbPickupLine.getPickConfirmQty();
-                if(openQty < 0){
+                if (openQty < 0) {
                     openQty = 0D;
                 }
             }
-            if(movementQtyValue.equalsIgnoreCase("N")) {
+            if (movementQtyValue.equalsIgnoreCase("N")) {
                 openQty = sumOfInvQty + dbPickupLine.getPickConfirmQty();
             }
             inventoryMovement.setReferenceField2(String.valueOf(openQty));          //Qty before inventory Movement occur
@@ -3724,7 +3726,6 @@ public class PickupLineService extends BaseService {
     }
 
     /**
-     *
      * @param updateBarcodeInput
      * @return
      */
@@ -3986,7 +3987,6 @@ public class PickupLineService extends BaseService {
     }
 
     /**
-     *
      * @param companyCodeId
      * @param plantId
      * @param languageId
@@ -3998,11 +3998,10 @@ public class PickupLineService extends BaseService {
         List<PickupLineV2> pickupLine = pickupLineV2Repository
                 .findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
                         companyCodeId, plantId, languageId, warehouseId, refDocNumber, 0L);
-            return pickupLine;
+        return pickupLine;
     }
 
     /**
-     *
      * @param companyCodeId
      * @param plantId
      * @param languageId
@@ -4017,11 +4016,10 @@ public class PickupLineService extends BaseService {
         List<PickupLineV2> pickupLine = pickupLineV2Repository
                 .findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndItemCodeAndManufacturerNameAndDeletionIndicator(
                         companyCodeId, plantId, languageId, warehouseId, refDocNumber, itemCode, manufacturerName, 0L);
-            return pickupLine;
+        return pickupLine;
     }
 
     /**
-     *
      * @param companyCodeId
      * @param plantId
      * @param languageId
@@ -4033,14 +4031,14 @@ public class PickupLineService extends BaseService {
      */
     //DeletePickupLine
     public List<PickupLineV2> deletePickUpLine(String companyCodeId, String plantId, String languageId,
-                                               String warehouseId, String refDocNumber, String preOutboundNo, String loginUserID)throws Exception {
+                                               String warehouseId, String refDocNumber, String preOutboundNo, String loginUserID) throws Exception {
 
         List<PickupLineV2> pickupLineV2List = new ArrayList<>();
         List<PickupLineV2> dbPickUpLine = pickupLineV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
-                companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo,0L);
+                companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 0L);
         log.info("PickList Cancellation - PickupLine : " + dbPickUpLine);
-        if(dbPickUpLine != null && !dbPickUpLine.isEmpty()){
-            for(PickupLineV2 pickupLineV2 : dbPickUpLine){
+        if (dbPickUpLine != null && !dbPickUpLine.isEmpty()) {
+            for (PickupLineV2 pickupLineV2 : dbPickUpLine) {
                 pickupLineV2.setPickupUpdatedBy(loginUserID);
                 pickupLineV2.setPickupUpdatedOn(new Date());
                 pickupLineV2.setDeletionIndicator(1L);
@@ -4053,6 +4051,7 @@ public class PickupLineService extends BaseService {
 
     /**
      * Pick List cancel
+     *
      * @param companyCodeId
      * @param plantId
      * @param languageId

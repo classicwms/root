@@ -40,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityNotFoundException;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -2611,6 +2612,43 @@ public class InventoryService extends BaseService {
             inventoryV2Repository.save(newInventory);
         }
         return newInventory;
+    }
+
+    /**
+     *
+     * @param warehouseId
+     * @param customerId
+     * @return
+     */
+    public List<ItemStockDto> findInventorStock(String warehouseId, String customerId){
+
+        List<ItemStockDto> itemStockDtoList = new ArrayList<>();
+
+        List<InventoryStockLevel> inventoryInStockList =
+                inventoryV2Repository.findInStockItems(warehouseId, customerId, 1L);
+
+        List<InventoryStockLevel> inventoryOutStockList =
+                inventoryV2Repository.findOutStockItems(warehouseId, customerId, 1L);
+
+        inventoryInStockList.forEach(inStockItem -> {
+            ItemStockDto itemInStock = new ItemStockDto();
+            itemInStock.setStock_status(inStockItem.getStockStatus());
+            itemInStock.setStock_quantity(inStockItem.getStockQuantity());
+            itemInStock.setSku(inStockItem.getSku());
+
+            itemStockDtoList.add(itemInStock);
+        });
+
+        inventoryOutStockList.forEach(outStockItem -> {
+            ItemStockDto itemOutStock = new ItemStockDto();
+            itemOutStock.setStock_status(outStockItem.getStockStatus());
+            itemOutStock.setStock_quantity(outStockItem.getStockQuantity());
+            itemOutStock.setSku(outStockItem.getSku());
+
+            itemStockDtoList.add(itemOutStock);
+        });
+
+        return itemStockDtoList;
     }
 
     //===========================================Inventory_ExceptionLog================================================

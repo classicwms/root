@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -602,10 +603,11 @@ public class ImBasicData1Service {
     public void deleteImBasicData1V2(String itemCode, String companyCodeId, String plantId, String languageId, String uomId, String manufacturerPartNo, String warehouseId, String loginUserID) throws ParseException {
         ImBasicData1V2 imbasicdata1 = getaImBasicData1V2(itemCode, warehouseId, companyCodeId, plantId, uomId, manufacturerPartNo, languageId);
         if (imbasicdata1 != null) {
-            imbasicdata1.setDeletionIndicator(1L);
-            imbasicdata1.setUpdatedBy(loginUserID);
-            imbasicdata1.setUpdatedOn(new Date());
-            imBasicData1V2Repository.save(imbasicdata1);
+            imBasicData1V2Repository.deleteImBasicData1(languageId, companyCodeId, plantId, warehouseId, itemCode, manufacturerPartNo, uomId);
+//            imbasicdata1.setDeletionIndicator(1L);
+//            imbasicdata1.setUpdatedBy(loginUserID);
+//            imbasicdata1.setUpdatedOn(new Date());
+//            imBasicData1V2Repository.save(imbasicdata1);
         } else {
             throw new EntityNotFoundException("Error in deleting itemCode Id:" + itemCode);
         }

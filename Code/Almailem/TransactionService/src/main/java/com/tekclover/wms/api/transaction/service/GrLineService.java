@@ -1571,16 +1571,12 @@ public class GrLineService extends BaseService {
        if (grLineList == null) {
     	   return null;
        }
-       
-       if (grLineList != null && !grLineList.isEmpty()) {
-    	   for (GrLineV2 grLine : grLineList) {
-        	   if (grLine != null) {
-                   grLineV2Repository.updateGrLineStatusV2(grLine.getCompanyCode(), grLine.getPlantId(), grLine.getLanguageId(), grLine.getWarehouseId(), grLine.getPreInboundNo(),
-                           grLine.getCreatedOn(), grLine.getLineNo(), grLine.getItemCode(), 1L);
-               }
+       for (GrLineV2 grLine : grLineList) {
+    	   if (grLine != null) {
+               grLineV2Repository.updateGrLineStatusV2(grLine.getCompanyCode(), grLine.getPlantId(), grLine.getLanguageId(), grLine.getWarehouseId(), grLine.getPreInboundNo(),
+                       grLine.getCreatedOn(), grLine.getLineNo(), grLine.getItemCode(), 1L);
            }
        }
-      
       
        return grLineList;
    }
@@ -1806,7 +1802,7 @@ public class GrLineService extends BaseService {
 		log.info("Create PutawayHeader Schedule Initiated : " + new Date());
 //        GrLineV2 createdGRLine = getGrLineV2();
 		List<GrLineV2> createdGRLines = getGrLineV2List();
-		if (createdGRLines != null && !createdGRLines.isEmpty()){
+		if (createdGRLines != null) {
 			createdGRLines.stream().forEach(createdGRLine -> {
 				if (createdGRLine != null) {
 					String companyCode = createdGRLine.getCompanyCode();
@@ -1825,17 +1821,13 @@ public class GrLineService extends BaseService {
 								createdGRLine.getCreatedOn(), createdGRLine.getLineNo(), createdGRLine.getItemCode(),
 								10L);
 						log.info("GrLine status 10 updated..! ");
+
 					} catch (Exception e) {
 						e.printStackTrace();
 						log.info("GrLine status 100 updated - putaway header create - failed..! ");
 						log.error("Exception occurred while create putaway header " + e.toString());
 
 						// putaway header create failed - changing flag to 100
-//						grLineV2Repository.updateGrLineStatusV2(createdGRLine.getCompanyCode(),
-//								createdGRLine.getPlantId(), createdGRLine.getLanguageId(),
-//								createdGRLine.getWarehouseId(), createdGRLine.getPreInboundNo(),
-//								createdGRLine.getCreatedOn(), createdGRLine.getLineNo(), createdGRLine.getItemCode(),
-//								100L);
 						grLineV2Repository.updateGrLineStatusV2(createdGRLine.getCompanyCode(),
 								createdGRLine.getPlantId(), createdGRLine.getLanguageId(),
 								createdGRLine.getWarehouseId(), createdGRLine.getPreInboundNo(),
@@ -1848,6 +1840,7 @@ public class GrLineService extends BaseService {
 			});
 		}
 	}
+
 
     /**
      * 

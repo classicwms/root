@@ -1103,7 +1103,11 @@ public class OutboundOrderProcessingFTService extends BaseService {
      * @return
      * @throws Exception
      */
+<<<<<<< HEAD
     //@Transactional
+=======
+//    @Transactional
+>>>>>>> 9c7b40d4a307eb0bb71c09242b29eae1a6326603
     public OutboundHeaderV2 fullfillOutboundReceivedV4(OutboundIntegrationHeaderV2 outboundIntegrationHeader) throws Exception {
         String companyCodeId = null;
         String plantId = null;

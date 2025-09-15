@@ -15,6 +15,7 @@ import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.transaction.model.outbound.packing.*;
 import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundLineV2;
 import com.tekclover.wms.api.transaction.model.threepl.pricelist.PriceList;
+import com.tekclover.wms.api.transaction.model.threepl.pricelist.PriceListAssignment;
 import com.tekclover.wms.api.transaction.repository.*;
 import com.tekclover.wms.api.transaction.repository.specification.PackingLineSpecification;
 import org.springframework.beans.BeanUtils;
@@ -135,52 +136,60 @@ public class PackingLineService extends BaseService {
             // ThreePL
             log.info("ThreePL Logic Started --------------------------------> ");
             {
-                Optional.ofNullable(priceListAssignmentRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndPartnerCodeAndDeletionIndicator(
-                                newPackingLine.getCompanyCodeId(), newPackingLine.getPlantId(), newPackingLine.getWarehouseId(), newPackingLine.getPartnerCode(), 0L))
-                        .ifPresentOrElse(priceListAssignment -> {
-                            List<PriceList> priceLists = priceListRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndPriceListIdAndServiceTypeIdAndDeletionIndicator(
-                                    priceListAssignment.getCompanyCodeId(), priceListAssignment.getPlantId(), priceListAssignment.getWarehouseId(), priceListAssignment.getPriceListId(), 5L, 0L);
-                            log.info("PriceList Values {}", priceLists);
-
-                            Double threePLCbm = dbPackingLine.getThreePLCbm(); // Given total CBM
-                            String currency = new String();
-                            double chargeUnit = 0.0;
-
-                            // Sort the price list by chargeFrom so that lower ranges are processed first
-                            priceLists.sort(Comparator.comparingDouble(PriceList::getChargeRangeFrom));
-
-                            for (PriceList dbPrice : priceLists) {
-                                double chargeFrom = dbPrice.getChargeRangeFrom() != null ? dbPrice.getChargeRangeFrom() : 0.0;
-                                double chargeTo = dbPrice.getChargeRangeTo() != null ? dbPrice.getChargeRangeTo() : 0.0;
-                                double chargePerUnit = dbPrice.getPricePerChargeUnit() != null ? dbPrice.getPricePerChargeUnit() : 0.0;
-//                                currency.append(dbPrice.getReferenceField4());
-                                currency = dbPrice.getReferenceField4();
-                                log.info("ThreePL CBM Value {}, ChargeFrom Value {}, ChargeTo Value {}, ChargeUnit Value{} ", threePLCbm, chargeFrom, chargeTo, chargeUnit);
-                                if (threePLCbm >= chargeFrom && threePLCbm >= chargeTo) {
-                                    if (chargeUnit != 0.0) {
-                                        chargeUnit = chargePerUnit;
-                                    } else {
-                                        chargeUnit = chargePerUnit;
-                                    }
-                                    threePLCbm -= chargeTo;
-                                } else if (threePLCbm <= chargeTo) {
-                                    if (chargeUnit != 0.0) {
-                                        chargeUnit = chargePerUnit;
-                                    } else {
-                                        chargeUnit = chargePerUnit;
-                                    }
-                                    threePLCbm -= chargeTo;
-                                }
-                                if (threePLCbm <= 0) {
-                                    break;
-                                }
-                            }
-                            log.info("Finally ThreePLUom Value is {}", chargeUnit);
-                            dbPackingLine.setRate(chargeUnit);
-                            dbPackingLine.setCurrency(String.valueOf(currency));
-
-                        }, () -> log.warn("PriceListAssignment not found for CompanyCode {}, PlantId {}, WarehouseId {}, PartnerCode {}",
-                                dbPackingLine.getCompanyCodeId(), dbPackingLine.getPlantId(), dbPackingLine.getWarehouseId(), dbPackingLine.getPartnerCode()));
+                PriceListAssignment priceAssign = priceListAssignmentRepository.getPartnerCodeInv(newPackingLine.getCompanyCodeId(), newPackingLine.getPlantId(), newPackingLine.getWarehouseId(), newPackingLine.getLanguageId(), newPackingLine.getPartnerCode());
+                Long priceListId = priceAssign.getPriceListId();
+                log.info("PriceListAssignmentId----->" +priceListId);
+                IKeyValuePair priceList = priceListRepository.getChargeUnitInv(newPackingLine.getCompanyCodeId(), newPackingLine.getPlantId(), newPackingLine.getLanguageId(), newPackingLine.getWarehouseId(), priceAssign.getPriceListId(), 4L);
+                log.info("PriceList------>" + priceList.getChargeUnit());
+                log.info("TPLCBM----->" + dbPackingLine.getThreePLCbm());
+                dbPackingLine.setRate(priceList.getPricePerChargeUnit());
+                dbPackingLine.setThreePLCbm(priceList.getChargeRangeTo());
+//                Optional.ofNullable(priceListAssignmentRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndPartnerCodeAndDeletionIndicator(
+//                                newPackingLine.getCompanyCodeId(), newPackingLine.getPlantId(), newPackingLine.getWarehouseId(), newPackingLine.getPartnerCode(), 0L))
+//                        .ifPresentOrElse(priceListAssignment -> {
+//                            List<PriceList> priceLists = priceListRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndPriceListIdAndServiceTypeIdAndDeletionIndicator(
+//                                    priceListAssignment.getCompanyCodeId(), priceListAssignment.getPlantId(), priceListAssignment.getWarehouseId(), priceListAssignment.getPriceListId(), 5L, 0L);
+//                            log.info("PriceList Values {}", priceLists);
+//
+//                            Double threePLCbm = dbPackingLine.getThreePLCbm(); // Given total CBM
+//                            String currency = new String();
+//                            double chargeUnit = 0.0;
+//
+//                            // Sort the price list by chargeFrom so that lower ranges are processed first
+//                            priceLists.sort(Comparator.comparingDouble(PriceList::getChargeRangeFrom));
+//
+//                            for (PriceList dbPrice : priceLists) {
+//                                double chargeFrom = dbPrice.getChargeRangeFrom() != null ? dbPrice.getChargeRangeFrom() : 0.0;
+//                                double chargeTo = dbPrice.getChargeRangeTo() != null ? dbPrice.getChargeRangeTo() : 0.0;
+//                                double chargePerUnit = dbPrice.getPricePerChargeUnit() != null ? dbPrice.getPricePerChargeUnit() : 0.0;
+////                                currency.append(dbPrice.getReferenceField4());
+//                                currency = dbPrice.getReferenceField4();
+//                                log.info("ThreePL CBM Value {}, ChargeFrom Value {}, ChargeTo Value {}, ChargeUnit Value{} ", threePLCbm, chargeFrom, chargeTo, chargeUnit);
+//                                if (threePLCbm >= chargeFrom && threePLCbm >= chargeTo) {
+//                                    if (chargeUnit != 0.0) {
+//                                        chargeUnit = chargePerUnit;
+//                                    } else {
+//                                        chargeUnit = chargePerUnit;
+//                                    }
+//                                    threePLCbm -= chargeTo;
+//                                } else if (threePLCbm <= chargeTo) {
+//                                    if (chargeUnit != 0.0) {
+//                                        chargeUnit = chargePerUnit;
+//                                    } else {
+//                                        chargeUnit = chargePerUnit;
+//                                    }
+//                                    threePLCbm -= chargeTo;
+//                                }
+//                                if (threePLCbm <= 0) {
+//                                    break;
+//                                }
+//                            }
+//                            log.info("Finally ThreePLUom Value is {}", chargeUnit);
+//                            dbPackingLine.setRate(chargeUnit);
+//                            dbPackingLine.setCurrency(String.valueOf(currency));
+//
+//                        }, () -> log.warn("PriceListAssignment not found for CompanyCode {}, PlantId {}, WarehouseId {}, PartnerCode {}",
+//                                dbPackingLine.getCompanyCodeId(), dbPackingLine.getPlantId(), dbPackingLine.getWarehouseId(), dbPackingLine.getPartnerCode()));
             }
 
             log.info("ThreePL Logic completed -----------------------------------------> ");

@@ -3945,7 +3945,7 @@ public class OutboundLineService extends BaseService {
                                                     String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
                                                     String itemCode, Double deliveryQty, String deliveryOrderNo, Long statusId, String statusDescription)
             throws IllegalAccessException, InvocationTargetException {
-        outboundLineV2Repository.updateOBlineByQLCreateProcedure(companyCodeId, plantId, languageId, warehouseId,
+        outboundLineV2Repository.updateOBlineByQLCreate(companyCodeId, plantId, languageId, warehouseId,
                 preOutboundNo, refDocNumber, partnerCode, lineNumber,
                 itemCode, deliveryQty, deliveryOrderNo, statusDescription, statusId);
         log.info("------updateOutboundLineByProc-------> : " + statusId + " updated...");
