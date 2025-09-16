@@ -65,4 +65,18 @@ public interface DeliveryConfirmationRepository extends JpaRepository<DeliveryCo
                                      @Param("processStatusId") Long processStatusId,
                                      @Param("remark") String remark,
                                      @Param("orderProcessedOn") Date orderProcessedOn);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = "update tbldeliveryconfirmation set process_status_id = :processStatusId, order_processed_on = :orderProcessedOn  where DELIVERY_ID = :deliveryId and process_status_id <> 100 ", nativeQuery = true)
+    void updateProcessStatusId(@Param("deliveryId") Long deliveryId,
+                               @Param("processStatusId") Long processStatusId,
+                               @Param("orderProcessedOn") Date orderProcessedOn);
+
+    DeliveryConfirmation findTopByProcessedStatusIdOrderByOrderReceivedOn(Long processStatusId);
+
+    @Query(value = "select * from tbldeliveryconfirmation where outbound = (select top 1 outbound from tbldeliveryconfirmation \n" +
+            "where process_status_id = :statusId group by outbound,order_received_on order by order_received_on) ", nativeQuery = true)
+    List<DeliveryConfirmation> findTop1DeliveryConfirmationList(@Param("statusId") Long statusId);
+
+
 }

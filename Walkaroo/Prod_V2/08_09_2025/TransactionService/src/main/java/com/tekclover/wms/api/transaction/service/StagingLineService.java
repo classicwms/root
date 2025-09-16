@@ -2774,8 +2774,17 @@ public class StagingLineService extends BaseService {
 
                                     // Update list again only if necessary
                                 } else {
+                                    log.info("SAP ERROR ---------------------------> {}", response);
                                     entity.setSapFlag("1");
                                     entity.setRemarks("SAP ERROR");
+
+                                    entity.setSapFlag("1");
+                                    StagingLineEntityV2 updated = stagingLineV2Repository.save(entity);
+
+                                    GrHeaderV2 grHeaderV2 = grHeaderV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+                                            updated.getCompanyCode(), updated.getPlantId(), updated.getLanguageId(), updated.getWarehouseId(), updated.getRefDocNumber(), updated.getPreInboundNo(), 0L);
+                                    grHeaderV2.setSapFlag("1");
+                                    grHeaderV2Repository.save(grHeaderV2);
                                 }
                             }
                         } catch (JsonProcessingException e) {

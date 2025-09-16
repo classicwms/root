@@ -597,4 +597,12 @@ public interface PutAwayHeaderV2Repository extends JpaRepository<PutAwayHeaderV2
                                      @Param("itemCode") String itemCode, @Param("barcodeId") String barcodeId,
                                      @Param("statusId") Long statusId);
 
+    @Modifying
+    @Query(value = "UPDATE tblputawayheader SET STATUS_ID = :statusId where C_ID = :companyCodeId and PLANT_ID = :plantId \n" +
+            "AND LANG_ID = :languageId and WH_ID = :warehouseId \n" +
+            "AND BARCODE_ID in (:barcodeIds) ", nativeQuery = true)
+    void updatePutAwayHeaderStatusIds(@Param("companyCodeId") String companyCodeId, @Param("plantId") String plantId,
+                                      @Param("languageId") String languageId, @Param("warehouseId") String warehouseId,
+                                      @Param("barcodeIds") List<String> barcodeIds, @Param("statusId") Long statusId);
+
 }

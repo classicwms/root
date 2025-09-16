@@ -385,4 +385,11 @@ public class SparkController {
         return new ResponseEntity<>(outboundHeaderV3, HttpStatus.OK);
     }
 
+    @ApiOperation(response = OutboundHeaderSpark.class, value = "Spark OutboundHeader New Search")
+    @PostMapping("/outboundHeader/new/v2")
+    public ResponseEntity<?> findOutboundHeaderNew(@RequestBody FindOutboundHeaderNew findOutboundHeaderNew) throws Exception {
+        OutboundHeaderSpark[] outboundHeader = sparkService.getOutboundHeader(findOutboundHeaderNew);
+        return new ResponseEntity<>(outboundHeader, HttpStatus.OK);
+    }
+
 }

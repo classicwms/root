@@ -5883,9 +5883,12 @@ public class OutboundLineService extends BaseService {
                     String loginUserId = deliveryConfirmationV3.getLoginUserId() != null ? deliveryConfirmationV3.getLoginUserId() : WK;
                     double pickedQty = deliveryLine.getPickedQty() != null ? deliveryLine.getPickedQty() : 0;
 
+                    log.info("Get PickupHeader Values -----> Company {}, PlantId {}, WarehouseId {}, LanguageId {}, PreOutboundNo {}, RefDocNo {}, CustomerId {}, BarcodeId {}, ItemCode {}  ",
+                            outHeader.getCompanyCodeId(), outHeader.getPlantId(), outHeader.getWarehouseId(), outHeader.getLanguageId(), outHeader.getPreOutboundNo(), outHeader.getRefDocNumber(), customerId, barcodeId, itemCode );
+
                     PickupHeaderV2 pickupHeader = pickupHeaderService.getPickupHeaderForPickUpLineV3(outHeader.getCompanyCodeId(), outHeader.getPlantId(), outHeader.getLanguageId(),
                             outHeader.getWarehouseId(), outHeader.getPreOutboundNo(), outHeader.getRefDocNumber(), customerId, barcodeId, itemCode);
-                    log.info("PickUpHeader : " + pickupHeader);
+                    log.info("PickUpHeader Values in DeliveryConfirm : " + pickupHeader);
                     String idMasterAuthToken = getIDMasterAuthToken();
                     if (pickupHeader != null) {
                         log.info("Same BarcodeId in DeliveryConfirmation ----------------------------------->");

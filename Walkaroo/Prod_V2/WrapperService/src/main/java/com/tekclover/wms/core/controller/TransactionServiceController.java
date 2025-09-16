@@ -4812,4 +4812,12 @@ public class TransactionServiceController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @ApiOperation(response = OutboundOrderReversal[].class, value = "Outbound vehicle no ") // label for swagger
+    @PostMapping("/outbound/order/reversal")
+    public ResponseEntity<?> outboundOrderReversal(@Valid @RequestBody List<OutboundOrderReversal> outboundOrderReversalList, @RequestParam String authToken) {
+        OutboundOrderReversal[] response =
+                transactionService.outboundOrderReversals(outboundOrderReversalList, authToken);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 }

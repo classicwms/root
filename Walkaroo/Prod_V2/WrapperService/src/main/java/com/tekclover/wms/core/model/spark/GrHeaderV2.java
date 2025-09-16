@@ -67,4 +67,5 @@ public class GrHeaderV2 {
     private String sapType;
     private String sapFlag;
     private String vehicleNumber;
+    private String sapDocumentNo;
 }

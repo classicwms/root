@@ -3627,8 +3627,12 @@ public class InventoryService extends BaseService {
             inventory.setCreatedOn(new Date());
             inventory.setUpdatedOn(new Date());
             try {
-				createdinventory = inventoryV2Repository.save(inventory);
-				log.info("B1-created inventory : {}", createdinventory);
+                if(inventory.getInventoryQuantity() == 1) {
+                    createdinventory = inventoryV2Repository.save(inventory);
+                    log.info("B1-created inventory : {}", createdinventory);
+                } else {
+                    log.info("Inventory Qty Value is {} ---------> So Skip the Value", inventory.getInventoryQuantity());
+                }
             } catch (Exception e1) {
 				log.error("--ERROR--createInventoryNonCBMV3 ----level1--inventory--error----> :" + e1.toString());
 				e1.printStackTrace();

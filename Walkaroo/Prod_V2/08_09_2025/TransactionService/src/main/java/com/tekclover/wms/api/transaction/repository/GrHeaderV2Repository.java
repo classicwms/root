@@ -168,7 +168,9 @@ public interface GrHeaderV2Repository extends JpaRepository<GrHeaderV2, Long>, J
     //-------------------SAP-DATA-UPDATE-----------------------------------------------------------------------
     @Modifying
     @Query(value = "UPDATE tblgrheader \r\n"
-    		+ "SET sap_type = :sapType \r\n"
+    		+ "SET sap_type = :sapType, \r\n"
+            + "SAP_DOCUMENT_NO = :docNo \r\n"
     		+ "WHERE ref_doc_no = :refDocNumber AND is_deleted = 0", nativeQuery = true)
-    void updateGRHeader_SAP(@Param("refDocNumber") String refDocNumber, @Param("sapType") String sapType);
+    void updateGRHeader_SAP(@Param("refDocNumber") String refDocNumber, @Param("sapType") String sapType,
+                            @Param("docNo") String docNo);
 }

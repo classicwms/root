@@ -80,4 +80,6 @@ public class GrHeaderV2 extends GrHeader {
 	@Column(name = "VEHICLE_NO", columnDefinition = "nvarchar(50)")
 	private String vehicleNumber;
 
+	@Column(name = "SAP_DOCUMENT_NO", columnDefinition = "nvarchar(200)")
+	private String sapDocumentNo;
 }

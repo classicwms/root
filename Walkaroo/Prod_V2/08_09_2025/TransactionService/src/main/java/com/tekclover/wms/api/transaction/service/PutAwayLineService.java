@@ -3595,12 +3595,29 @@ public class PutAwayLineService extends BaseService {
      */
     public List<PutAwayLineV2> putAwayConfirmProcess(List<PutAwayLineV2> putAwayLineV2s, String loginUserID) {
 
-        log.info("PutAwayLine Confirm Process Size is {} ", putAwayLineV2s.size());
-        for(PutAwayLineV2 pu : putAwayLineV2s) {
-            log.info("PutAwayLine confirm Status Id Updated ItemCode {}, BarcodeIs {} ", pu.getItemCode(), pu.getBarcodeId());
-            putAwayHeaderV2Repository.updatePutAwayHeaderStatusId( pu.getCompanyCode(), pu.getPlantId(), pu.getLanguageId(), pu.getWarehouseId(),
-                    pu.getItemCode(), pu.getBarcodeId(), 20L);
-        }
+        log.info("PutAway Confirm Process started | Records: {} ", putAwayLineV2s.size());
+
+        String companyCode = putAwayLineV2s.get(0).getCompanyCode();
+        String plantId = putAwayLineV2s.get(0).getPlantId();
+        String languageId = putAwayLineV2s.get(0).getLanguageId();
+        String warehouseId = putAwayLineV2s.get(0).getWarehouseId();
+        List<String> barcodeIds = putAwayLineV2s.stream()
+                .map(PutAwayLineV2::getBarcodeId)
+                .distinct()
+                .collect(Collectors.toList());
+
+        log.info(" Collected CompanyCode={}, PlantId={}, LangId={}, WarehouseId={}, BarcodeCount={}",
+                companyCode, plantId, languageId, warehouseId, barcodeIds.size());
+
+        putAwayHeaderV2Repository.updatePutAwayHeaderStatusIds(
+                companyCode, plantId, languageId, warehouseId, barcodeIds, 20L);
+        log.info("✅ Successfully updated StatusId=20 for {} records.", barcodeIds);
+
+//        for(PutAwayLineV2 pu : putAwayLineV2s) {
+//            log.info("PutAwayLine confirm Status Id Updated ItemCode {}, BarcodeIs {} ", pu.getItemCode(), pu.getBarcodeId());
+//            putAwayHeaderV2Repository.updatePutAwayHeaderStatusId( pu.getCompanyCode(), pu.getPlantId(), pu.getLanguageId(), pu.getWarehouseId(),
+//                    pu.getItemCode(), pu.getBarcodeId(), 20L);
+//        }
         putAwayLineAsyncProcess.createPutAwayLine(putAwayLineV2s, loginUserID);
 
         log.info("Return Response Successfully In PutAwayConfirm --------------------------->");

@@ -4612,7 +4612,7 @@ public class PutAwayHeaderService extends BaseService {
 					putAway.getMessage(), putAway.getType(), putAway.getMatDocDate());
 			log.info("-----StagingLine----updatedStagingLine_SAP-->");
 			
-			grHeaderV2Repository.updateGRHeader_SAP (putAway.getRefDocNumber(), putAway.getType());
+			grHeaderV2Repository.updateGRHeader_SAP (putAway.getRefDocNumber(), putAway.getType(), putAway.getSapDocumentNo());
 			log.info("----grHeader-----updated_SAP-->");
 			
 			putAway.setReRun(1L);
