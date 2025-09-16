@@ -3526,16 +3526,16 @@ public class WarehouseService extends BaseService {
 	}
 
 
-
-	@Scheduled(cron = "5 * * * * ?")
-	public void postSAPDeliveryConfirmationScheduleProcess () throws Exception {
+	//	@Scheduled(cron = "5 * * * * ?")
+	@Scheduled(fixedDelay = 20000)
+	public void postSAPDeliveryConfirmationScheduleProcess() throws Exception {
 		log.info("-------postSAPDeliveryConfirmation----------");
 //		List<DeliveryConfirmation> deliveryConfirmations = deliveryConfirmationRepository.findByProcessedStatusIdOrderByOrderReceivedOn(9L);
 		DeliveryConfirmation deliveryCnf = deliveryConfirmationRepository.findTopByProcessedStatusIdOrderByOrderReceivedOn(9L);
 		log.info("DeliveryConfirmation Values---------------------> " + deliveryCnf);
 
-		if(deliveryCnf != null) {
-		deliveryConfirmationRepository.updateProcessStatusId(deliveryCnf.getDeliveryId(), 1L, new Date());
+		if (deliveryCnf != null) {
+			deliveryConfirmationRepository.updateProcessStatusId(deliveryCnf.getDeliveryId(), 1L, new Date());
 		log.info("DeliveryConfirmation ProcessStatus Id 1 Updated -------> DeliveryId is {} ", deliveryCnf.getDeliveryId());
 //		log.info("delivery template list: " + deliveryConfirmations.size());
 
