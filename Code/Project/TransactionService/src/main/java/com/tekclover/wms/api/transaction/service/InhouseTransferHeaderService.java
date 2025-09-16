@@ -26,11 +26,13 @@ import com.tekclover.wms.api.transaction.model.mnc.InhouseTransferHeaderEntity;
 import com.tekclover.wms.api.transaction.model.mnc.InhouseTransferLine;
 import com.tekclover.wms.api.transaction.model.mnc.InhouseTransferLineEntity;
 import com.tekclover.wms.api.transaction.model.mnc.SearchInhouseTransferHeader;
+import com.tekclover.wms.api.transaction.model.trans.InventoryTrans;
 import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
 import com.tekclover.wms.api.transaction.repository.InhouseTransferHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.InhouseTransferLineRepository;
 import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
 import com.tekclover.wms.api.transaction.repository.InventoryRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryTransRepository;
 import com.tekclover.wms.api.transaction.repository.StorageBinRepository;
 import com.tekclover.wms.api.transaction.repository.specification.InhouseTransferHeaderSpecification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
@@ -67,6 +69,9 @@ public class InhouseTransferHeaderService extends BaseService {
 
 	@Autowired
 	private ImBasicData1Repository imbasicdata1Repository;
+	
+	@Autowired
+ 	private InventoryTransRepository inventoryTransRepository;
 	
 	/**
 	 * getInHouseTransferHeaders
@@ -330,15 +335,6 @@ public class InhouseTransferHeaderService extends BaseService {
 		 */
 		if (transferTypeId == 1L && transferMethod.equalsIgnoreCase(ONESTEP)) {
 			updateTransferInventory(warehouseId, transferTypeId, createdInhouseTransferLine, loginUserID);
-//			List<Inventory> inventoryList = inventoryService.getInventory(warehouseId, itemCode);
-//			log.info("-------------------inventoryList----------------- : " + inventoryList);
-//			for (Inventory inventory : inventoryList) {
-//				log.info("inventory: " + inventory);
-//				inventory.setStockTypeId(createdInhouseTransferLine.getTargetStockTypeId());
-//				Inventory updatedInventory = inventoryRepository.save(inventory);
-//				log.info("transferTypeId: " + transferTypeId);
-//				log.info("updatedInventory : " + updatedInventory);
-//			}
 		}
 		
 		/*
@@ -348,20 +344,6 @@ public class InhouseTransferHeaderService extends BaseService {
 		 */
 		if (transferTypeId == 2L && transferMethod.equalsIgnoreCase(ONESTEP)) {
 			updateTransferInventory(warehouseId, transferTypeId, createdInhouseTransferLine, loginUserID);
-//			List<Inventory> inventoryList = inventoryService.getInventory(warehouseId, createdInhouseTransferLine.getSourceItemCode());
-//			for (Inventory dbInventory : inventoryList) {
-//
-//				// insert a record with target item code and delete the old record in Inventory table
-//				Inventory newInventory = new Inventory();
-//				BeanUtils.copyProperties(dbInventory, newInventory, CommonUtils.getNullPropertyNames(dbInventory));
-//				newInventory.setItemCode(createdInhouseTransferLine.getTargetItemCode());
-//				Inventory createdNewInventory = inventoryRepository.save(newInventory);
-//				log.info("createdNewInventory : " + createdNewInventory);
-//
-//				// Delete the old record
-//				inventoryRepository.delete(dbInventory);
-//				log.info("dbInventory deleted.");
-//			}
 		}
 		
 		/*
@@ -386,8 +368,22 @@ public class InhouseTransferHeaderService extends BaseService {
 				
 				log.info("-----Source----INV_QTY-----------> : " + INV_QTY);
 				inventorySourceItemCode.setInventoryQuantity(INV_QTY);
-				Inventory updatedInventory = inventoryRepository.save(inventorySourceItemCode);
-				log.info("--------source---inventory-----updated----->" + updatedInventory);
+				Double INV_QTY_ERR = INV_QTY;
+				try {
+					Inventory updatedInventory = inventoryRepository.save(inventorySourceItemCode);
+					log.info("--------source---inventory-----updated----->" + updatedInventory);
+				} catch (Exception e1) {
+					log.error("--ERROR--updateInventory---InhouseTransferHeader--error----> :" + e1.toString());
+					e1.printStackTrace();
+					
+					// Inventory Error Handling
+					InventoryTrans newInventoryTrans = new InventoryTrans();
+					BeanUtils.copyProperties(inventorySourceItemCode, newInventoryTrans, CommonUtils.getNullPropertyNames(inventorySourceItemCode));
+					newInventoryTrans.setInventoryQuantity(INV_QTY_ERR);
+					newInventoryTrans.setReRun(0L);
+					InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+					log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
+				}
 				
 				if (INV_QTY == 0 && (inventorySourceItemCode.getAllocatedQuantity() == null || inventorySourceItemCode.getAllocatedQuantity() == 0D)) {
 					// Deleting record
@@ -404,7 +400,6 @@ public class InhouseTransferHeaderService extends BaseService {
 					} catch(Exception e) {
 						log.error("---------storagebin-update-----",e);
 					}
-
 				}
 				
 				// Pass WH_ID/ TGT_ITM_CODE/PACK_BARCODE/TGT_ST_BIN in INVENTORY TABLE validate for a record.
@@ -418,8 +413,21 @@ public class InhouseTransferHeaderService extends BaseService {
 					log.info("-----Target----INV_QTY-----------> : " + INV_QTY);
 					
 					inventoryTargetItemCode.setInventoryQuantity(INV_QTY);
-					Inventory targetUpdatedInventory = inventoryRepository.save(inventoryTargetItemCode);
-					log.info("------->updatedInventory : " + targetUpdatedInventory);
+					try {
+						Inventory targetUpdatedInventory = inventoryRepository.save(inventoryTargetItemCode);
+						log.info("------->updatedInventory : " + targetUpdatedInventory);
+					} catch (Exception e) {
+						log.error("--ERROR--updateInventory---InhouseTransferHeader--error--2--> :" + e.toString());
+						e.printStackTrace();
+						
+						// Inventory Error Handling
+						InventoryTrans newInventoryTrans = new InventoryTrans();
+						BeanUtils.copyProperties(inventoryTargetItemCode, newInventoryTrans, CommonUtils.getNullPropertyNames(inventoryTargetItemCode));
+						newInventoryTrans.setInventoryQuantity(INV_QTY_ERR);
+						newInventoryTrans.setReRun(0L);
+						InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+						log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
+					}
 				} else {
 					/*
 					 * Fetch from INHOUSETRANSFERLINE table and insert in INVENTORY table as 
@@ -489,11 +497,24 @@ public class InhouseTransferHeaderService extends BaseService {
 			Double transferConfirmedQty = createdInhouseTransferLine.getTransferConfirmedQty();
 			transferConfirmedQty = transferConfirmedQty <= inventoryQty ? transferConfirmedQty : inventoryQty;
 			double INV_QTY = inventoryQty - transferConfirmedQty;
-
+			double INV_QTY_ERR = INV_QTY;
 			log.info("-----Source----INV_QTY after transfer-----------> : " + INV_QTY);
 			inventorySourceItemCode.setInventoryQuantity(INV_QTY);
-			Inventory updatedInventory = inventoryRepository.save(inventorySourceItemCode);
-			log.info("--------source---inventory-----updated----->" + updatedInventory);
+			try {
+				Inventory updatedInventory = inventoryRepository.save(inventorySourceItemCode);
+				log.info("--------source---inventory-----updated----->" + updatedInventory);
+			} catch (Exception e) {
+				log.error("--ERROR--updateTransferInventory---InhouseTransferHeader--error-1---> :" + e.toString());
+				e.printStackTrace();
+				
+				// Inventory Error Handling
+				InventoryTrans newInventoryTrans = new InventoryTrans();
+				BeanUtils.copyProperties(inventorySourceItemCode, newInventoryTrans, CommonUtils.getNullPropertyNames(inventorySourceItemCode));
+				newInventoryTrans.setInventoryQuantity(INV_QTY_ERR);
+				newInventoryTrans.setReRun(0L);
+				InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+				log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
+			}
 
 			if (INV_QTY == 0 && (inventorySourceItemCode.getAllocatedQuantity() == null || inventorySourceItemCode.getAllocatedQuantity() == 0D)) {
 				// Deleting record
@@ -510,11 +531,25 @@ public class InhouseTransferHeaderService extends BaseService {
 				// update INV_QTY value (INV_QTY + TR_CNF_QTY)
 				inventoryQty = inventoryTargetItemCode.getInventoryQuantity();
 				INV_QTY = inventoryQty + transferConfirmedQty;
+				INV_QTY_ERR = INV_QTY;
+				
 				log.info("-----Target----INV_QTY-----------> : " + INV_QTY);
-
 				inventoryTargetItemCode.setInventoryQuantity(INV_QTY);
-				Inventory targetUpdatedInventory = inventoryRepository.save(inventoryTargetItemCode);
-				log.info("------->updatedInventory : " + targetUpdatedInventory);
+				try {
+					Inventory targetUpdatedInventory = inventoryRepository.save(inventoryTargetItemCode);
+					log.info("------->updatedInventory : " + targetUpdatedInventory);
+				} catch (Exception e) {
+					log.error("--ERROR--updateTransferInventory---InhouseTransferHeader--error-2---> :" + e.toString());
+					e.printStackTrace();
+					
+					// Inventory Error Handling
+					InventoryTrans newInventoryTrans = new InventoryTrans();
+					BeanUtils.copyProperties(inventoryTargetItemCode, newInventoryTrans, CommonUtils.getNullPropertyNames(inventoryTargetItemCode));
+					newInventoryTrans.setInventoryQuantity(INV_QTY_ERR);
+					newInventoryTrans.setReRun(0L);
+					InventoryTrans inventoryTransCreated = inventoryTransRepository.save(newInventoryTrans);
+					log.error("inventoryTransCreated -------- :" + inventoryTransCreated);
+				}
 			} else {
 				createInventory(createdInhouseTransferLine, transferConfirmedQty, loginUserID);
 			}
@@ -528,56 +563,56 @@ public class InhouseTransferHeaderService extends BaseService {
 	 * @param createdInhouseTransferLine
 	 * @param loginUserID
 	 */
-	private void updateTransferInventoryForTransferOrderType1(String warehouseId, Long transferTypeId, InhouseTransferLine createdInhouseTransferLine, String loginUserID) {
-		Long sourceStockTypeId = createdInhouseTransferLine.getSourceStockTypeId() != null ? createdInhouseTransferLine.getSourceStockTypeId() : 1L;
-		Long targetStockTypeId = createdInhouseTransferLine.getTargetStockTypeId() != null ? createdInhouseTransferLine.getTargetStockTypeId() : 1L;
-		List<Inventory> inventorySourceItemCodeList =
-				getTransferInventory(warehouseId, createdInhouseTransferLine.getSourceItemCode(), sourceStockTypeId, transferTypeId);
-		for (Inventory inventorySourceItemCode : inventorySourceItemCodeList) {
-			log.info("---------source inventory----------> : " + transferTypeId + "|" + inventorySourceItemCode);
-			if (inventorySourceItemCode != null) {
-				Double inventoryQty = inventorySourceItemCode.getInventoryQuantity();
-				Double transferConfirmedQty = createdInhouseTransferLine.getTransferConfirmedQty();
-				transferConfirmedQty = transferConfirmedQty <= inventoryQty ? transferConfirmedQty : inventoryQty;
-				double INV_QTY = inventoryQty - transferConfirmedQty;
-
-				log.info("-----Source----INV_QTY after transfer-----------> : " + INV_QTY);
-				inventorySourceItemCode.setInventoryQuantity(INV_QTY);
-				Inventory updatedInventory = inventoryRepository.save(inventorySourceItemCode);
-				log.info("--------source---inventory-----updated----->" + updatedInventory);
-
-				if (INV_QTY == 0 && (inventorySourceItemCode.getAllocatedQuantity() == null
-						|| inventorySourceItemCode.getAllocatedQuantity() == 0D)) {
-					// Deleting record
-					inventoryRepository.delete(inventorySourceItemCode);
-					log.info("---------source inventory-----deleted-----");
-					emptyStorageBin(warehouseId, inventorySourceItemCode.getStorageBin(), loginUserID);
-				}
-
-				// Pass WH_ID/ TGT_ITM_CODE/PACK_BARCODE/TGT_ST_BIN in INVENTORY TABLE validate
-				// for a record.
-				List<Inventory> inventoryTargetItemCodeList = getTransferInventory(warehouseId,
-						createdInhouseTransferLine.getTargetItemCode(),targetStockTypeId, transferTypeId);
-				log.info("---------Target inventory----------> : " + transferTypeId + "|" + inventorySourceItemCode);
-				if (inventoryTargetItemCodeList != null) {
-					for (Inventory inventoryTargetItemCode : inventoryTargetItemCodeList) {
-						if (inventoryTargetItemCode != null) {
-							// update INV_QTY value (INV_QTY + TR_CNF_QTY)
-							inventoryQty = inventoryTargetItemCode.getInventoryQuantity();
-							INV_QTY = inventoryQty + transferConfirmedQty;
-							log.info("-----Target----INV_QTY-----------> : " + INV_QTY);
-
-							inventoryTargetItemCode.setInventoryQuantity(INV_QTY);
-							Inventory targetUpdatedInventory = inventoryRepository.save(inventoryTargetItemCode);
-							log.info("------->updatedInventory : " + targetUpdatedInventory);
-						} else {
-							createInventory(createdInhouseTransferLine, transferConfirmedQty, loginUserID);
-						}
-					}
-				}
-			}
-		}
-	}
+//	private void updateTransferInventoryForTransferOrderType1(String warehouseId, Long transferTypeId, InhouseTransferLine createdInhouseTransferLine, String loginUserID) {
+//		Long sourceStockTypeId = createdInhouseTransferLine.getSourceStockTypeId() != null ? createdInhouseTransferLine.getSourceStockTypeId() : 1L;
+//		Long targetStockTypeId = createdInhouseTransferLine.getTargetStockTypeId() != null ? createdInhouseTransferLine.getTargetStockTypeId() : 1L;
+//		List<Inventory> inventorySourceItemCodeList =
+//				getTransferInventory(warehouseId, createdInhouseTransferLine.getSourceItemCode(), sourceStockTypeId, transferTypeId);
+//		for (Inventory inventorySourceItemCode : inventorySourceItemCodeList) {
+//			log.info("---------source inventory----------> : " + transferTypeId + "|" + inventorySourceItemCode);
+//			if (inventorySourceItemCode != null) {
+//				Double inventoryQty = inventorySourceItemCode.getInventoryQuantity();
+//				Double transferConfirmedQty = createdInhouseTransferLine.getTransferConfirmedQty();
+//				transferConfirmedQty = transferConfirmedQty <= inventoryQty ? transferConfirmedQty : inventoryQty;
+//				double INV_QTY = inventoryQty - transferConfirmedQty;
+//
+//				log.info("-----Source----INV_QTY after transfer-----------> : " + INV_QTY);
+//				inventorySourceItemCode.setInventoryQuantity(INV_QTY);
+//				Inventory updatedInventory = inventoryRepository.save(inventorySourceItemCode);
+//				log.info("--------source---inventory-----updated----->" + updatedInventory);
+//
+//				if (INV_QTY == 0 && (inventorySourceItemCode.getAllocatedQuantity() == null
+//						|| inventorySourceItemCode.getAllocatedQuantity() == 0D)) {
+//					// Deleting record
+//					inventoryRepository.delete(inventorySourceItemCode);
+//					log.info("---------source inventory-----deleted-----");
+//					emptyStorageBin(warehouseId, inventorySourceItemCode.getStorageBin(), loginUserID);
+//				}
+//
+//				// Pass WH_ID/ TGT_ITM_CODE/PACK_BARCODE/TGT_ST_BIN in INVENTORY TABLE validate
+//				// for a record.
+//				List<Inventory> inventoryTargetItemCodeList = getTransferInventory(warehouseId,
+//						createdInhouseTransferLine.getTargetItemCode(),targetStockTypeId, transferTypeId);
+//				log.info("---------Target inventory----------> : " + transferTypeId + "|" + inventorySourceItemCode);
+//				if (inventoryTargetItemCodeList != null) {
+//					for (Inventory inventoryTargetItemCode : inventoryTargetItemCodeList) {
+//						if (inventoryTargetItemCode != null) {
+//							// update INV_QTY value (INV_QTY + TR_CNF_QTY)
+//							inventoryQty = inventoryTargetItemCode.getInventoryQuantity();
+//							INV_QTY = inventoryQty + transferConfirmedQty;
+//							log.info("-----Target----INV_QTY-----------> : " + INV_QTY);
+//
+//							inventoryTargetItemCode.setInventoryQuantity(INV_QTY);
+//							Inventory targetUpdatedInventory = inventoryRepository.save(inventoryTargetItemCode);
+//							log.info("------->updatedInventory : " + targetUpdatedInventory);
+//						} else {
+//							createInventory(createdInhouseTransferLine, transferConfirmedQty, loginUserID);
+//						}
+//					}
+//				}
+//			}
+//		}
+//	}
 
 	/**
 	 * @param createdInhouseTransferLine

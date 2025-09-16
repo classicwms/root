@@ -281,7 +281,7 @@ public interface InventoryRepository extends PagingAndSortingRepository<Inventor
 	
 	//-------------STRATEGY-APPROACH-END---------------------------------------------------------------------
 
-	public Optional<Inventory> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndStorageBinAndDeletionIndicator(
+	public Optional<Inventory> findTopByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndStorageBinAndDeletionIndicator(
 			String languageId, String companyCode, String plantId, String warehouseId, String storageBin, long l);
 	
 	@Query (value = "SELECT SUM (INV_QTY) AS INV_QTY, SUM(ALLOC_QTY) AS ALLOC_QTY\r\n"

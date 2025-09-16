@@ -41,7 +41,7 @@ import com.tekclover.wms.core.model.transaction.ReceiptConfimationReport;
 import com.tekclover.wms.core.model.transaction.ShipmentDeliveryReport;
 import com.tekclover.wms.core.model.transaction.ShipmentDeliverySummaryReport;
 import com.tekclover.wms.core.model.transaction.ShipmentDispatchSummaryReport;
-import com.tekclover.wms.core.repository.MongoTransactionRepository;
+//import com.tekclover.wms.core.repository.MongoTransactionRepository;
 import com.tekclover.wms.core.util.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -57,8 +57,8 @@ import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 @Service
 public class ReportService {
 
-	@Autowired
-	MongoTransactionRepository mongoInboundRepository;
+//	@Autowired
+//	MongoTransactionRepository mongoInboundRepository;
 	
 	@Autowired
 	private MastersService mastersService;
@@ -77,35 +77,35 @@ public class ReportService {
 	 * @return
 	 * @throws ParseException 
 	 */
-	public Map<String, Object> getOrderDetails (String warehouseID, Long statusId, String orderDate) throws ParseException {
-		Date localDate = null;
-		List<InboundIntegrationHeader> inboundOrders = null;
-		if (orderDate != null) {
-			try {
-				Date date = DateUtils.convertStringToDate(orderDate);
-				localDate = DateUtils.addTimeToDate(date);
-				
-				inboundOrders = mongoInboundRepository.findAllByWarehouseIDAndProcessedStatusIdAndOrderReceivedOn(
-						warehouseID, statusId, localDate);
-				log.info("inboundOrders : " + inboundOrders);
-			} catch (Exception e) {
-				throw new BadRequestException("Date format should be MM-dd-yyyy");
-			}
-		} else {
-			inboundOrders = mongoInboundRepository.findAllByWarehouseIDAndProcessedStatusId(
-					warehouseID, statusId);
-			log.info("inboundOrders : " + inboundOrders);
-		}
-			
-		long newOrders = inboundOrders.stream().filter(a -> a.getProcessedStatusId() == 0).count();
-		long processedOrders = inboundOrders.stream().filter(a -> a.getProcessedStatusId() == 10).count();
-		
-		Map<String, Object> map = new HashMap <>();
-		map.put("newOrders", newOrders);
-		map.put("processedOrders", processedOrders);
-		map.put("orders", inboundOrders);
-		return map;
-	}
+//	public Map<String, Object> getOrderDetails (String warehouseID, Long statusId, String orderDate) throws ParseException {
+//		Date localDate = null;
+//		List<InboundIntegrationHeader> inboundOrders = null;
+//		if (orderDate != null) {
+//			try {
+//				Date date = DateUtils.convertStringToDate(orderDate);
+//				localDate = DateUtils.addTimeToDate(date);
+//				
+//				inboundOrders = mongoInboundRepository.findAllByWarehouseIDAndProcessedStatusIdAndOrderReceivedOn(
+//						warehouseID, statusId, localDate);
+//				log.info("inboundOrders : " + inboundOrders);
+//			} catch (Exception e) {
+//				throw new BadRequestException("Date format should be MM-dd-yyyy");
+//			}
+//		} else {
+//			inboundOrders = mongoInboundRepository.findAllByWarehouseIDAndProcessedStatusId(
+//					warehouseID, statusId);
+//			log.info("inboundOrders : " + inboundOrders);
+//		}
+//			
+//		long newOrders = inboundOrders.stream().filter(a -> a.getProcessedStatusId() == 0).count();
+//		long processedOrders = inboundOrders.stream().filter(a -> a.getProcessedStatusId() == 10).count();
+//		
+//		Map<String, Object> map = new HashMap <>();
+//		map.put("newOrders", newOrders);
+//		map.put("processedOrders", processedOrders);
+//		map.put("orders", inboundOrders);
+//		return map;
+//	}
 	
 	/**
 	 * 

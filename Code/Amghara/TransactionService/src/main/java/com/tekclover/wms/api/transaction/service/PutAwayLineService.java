@@ -12,11 +12,13 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
+import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.IKeyValuePair;
@@ -25,7 +27,6 @@ import com.tekclover.wms.api.transaction.model.dto.IImbasicData1;
 import com.tekclover.wms.api.transaction.model.dto.StorageBin;
 import com.tekclover.wms.api.transaction.model.dto.StorageBinV2;
 import com.tekclover.wms.api.transaction.model.dto.Warehouse;
-import com.tekclover.wms.api.transaction.model.inbound.InboundLine;
 import com.tekclover.wms.api.transaction.model.inbound.gr.StorageBinPutAway;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
@@ -525,42 +526,42 @@ public class PutAwayLineService extends BaseService {
     /**
      * @param createdPutAwayLine
      */
-    @Transactional(isolation = Isolation.READ_COMMITTED)
-    private void updateInboundLine(PutAwayLine createdPutAwayLine) {
-        double addedAcceptQty = 0.0;
-        double addedDamageQty = 0.0;
-
-        InboundLine inboundLine = inboundLineService.getInboundLine(createdPutAwayLine.getWarehouseId(),
-                createdPutAwayLine.getRefDocNumber(), createdPutAwayLine.getPreInboundNo(), createdPutAwayLine.getLineNo(),
-                createdPutAwayLine.getItemCode());
-        log.info("inboundLine----from--DB---------> " + inboundLine);
-
-        // If QTY_TYPE = A, add PA_CNF_QTY with existing value in ACCEPT_QTY field
-        if (createdPutAwayLine.getQuantityType().equalsIgnoreCase("A")) {
-            if (inboundLine.getAcceptedQty() != null) {
-                addedAcceptQty = inboundLine.getAcceptedQty() + createdPutAwayLine.getPutawayConfirmedQty();
-            } else {
-                addedAcceptQty = createdPutAwayLine.getPutawayConfirmedQty();
-            }
-
-            inboundLine.setAcceptedQty(addedAcceptQty);
-        }
-
-        // if QTY_TYPE = D, add PA_CNF_QTY with existing value in DAMAGE_QTY field
-        if (createdPutAwayLine.getQuantityType().equalsIgnoreCase("D")) {
-            if (inboundLine.getDamageQty() != null) {
-                addedDamageQty = inboundLine.getDamageQty() + createdPutAwayLine.getPutawayConfirmedQty();
-            } else {
-                addedDamageQty = createdPutAwayLine.getPutawayConfirmedQty();
-            }
-
-            inboundLine.setDamageQty(addedDamageQty);
-        }
-
-        inboundLine.setStatusId(20L);
-        inboundLine = inboundLineRepository.save(inboundLine);
-        log.info("inboundLine updated : " + inboundLine);
-    }
+//    @Transactional(isolation = Isolation.READ_COMMITTED)
+//    private void updateInboundLine(PutAwayLine createdPutAwayLine) {
+//        double addedAcceptQty = 0.0;
+//        double addedDamageQty = 0.0;
+//
+//        InboundLine inboundLine = inboundLineService.getInboundLine(createdPutAwayLine.getWarehouseId(),
+//                createdPutAwayLine.getRefDocNumber(), createdPutAwayLine.getPreInboundNo(), createdPutAwayLine.getLineNo(),
+//                createdPutAwayLine.getItemCode());
+//        log.info("inboundLine----from--DB---------> " + inboundLine);
+//
+//        // If QTY_TYPE = A, add PA_CNF_QTY with existing value in ACCEPT_QTY field
+//        if (createdPutAwayLine.getQuantityType().equalsIgnoreCase("A")) {
+//            if (inboundLine.getAcceptedQty() != null) {
+//                addedAcceptQty = inboundLine.getAcceptedQty() + createdPutAwayLine.getPutawayConfirmedQty();
+//            } else {
+//                addedAcceptQty = createdPutAwayLine.getPutawayConfirmedQty();
+//            }
+//
+//            inboundLine.setAcceptedQty(addedAcceptQty);
+//        }
+//
+//        // if QTY_TYPE = D, add PA_CNF_QTY with existing value in DAMAGE_QTY field
+//        if (createdPutAwayLine.getQuantityType().equalsIgnoreCase("D")) {
+//            if (inboundLine.getDamageQty() != null) {
+//                addedDamageQty = inboundLine.getDamageQty() + createdPutAwayLine.getPutawayConfirmedQty();
+//            } else {
+//                addedDamageQty = createdPutAwayLine.getPutawayConfirmedQty();
+//            }
+//
+//            inboundLine.setDamageQty(addedDamageQty);
+//        }
+//
+//        inboundLine.setStatusId(20L);
+//        inboundLine = inboundLineRepository.save(inboundLine);
+//        log.info("inboundLine updated : " + inboundLine);
+//    }
 
     /**
      * @param dbPutAwayLine
@@ -1301,55 +1302,7 @@ public class PutAwayLineService extends BaseService {
 					// Pass WH_ID/PRE_IB_NO/REF_DOC_NO/IB_LINE_NO/ITM_CODE values in PUTAWAYLINE
 					// table and
 					// fetch PA_CNF_QTY values and QTY_TYPE values and updated STATUS_ID as 20
-					double addedAcceptQty = 0.0;
-					double addedDamageQty = 0.0;
-
-					InboundLineV2 inboundLine = inboundLineService.getInboundLineV2(createdPutAwayLine.getCompanyCode(),
-							createdPutAwayLine.getPlantId(), createdPutAwayLine.getLanguageId(),
-							createdPutAwayLine.getWarehouseId(), createdPutAwayLine.getRefDocNumber(),
-							createdPutAwayLine.getPreInboundNo(), createdPutAwayLine.getLineNo(),
-							createdPutAwayLine.getItemCode());
-					log.info("inboundLine----from--DB---------> " + inboundLine);
-
-					// If QTY_TYPE = A, add PA_CNF_QTY with existing value in ACCEPT_QTY field
-					if (createdPutAwayLine.getQuantityType().equalsIgnoreCase("A")) {
-						if (inboundLine.getAcceptedQty() != null
-								&& inboundLine.getAcceptedQty() < inboundLine.getOrderQty()) {
-							addedAcceptQty = inboundLine.getAcceptedQty() + createdPutAwayLine.getPutawayConfirmedQty();
-						} else {
-							addedAcceptQty = createdPutAwayLine.getPutawayConfirmedQty();
-						}
-						if (addedAcceptQty > inboundLine.getOrderQty()) {
-							throw new BadRequestException("Accept qty cannot be greater than order qty");
-						}
-						inboundLine.setAcceptedQty(addedAcceptQty);
-						inboundLine.setVarianceQty(inboundLine.getOrderQty() - addedAcceptQty);
-					}
-
-					// if QTY_TYPE = D, add PA_CNF_QTY with existing value in DAMAGE_QTY field
-					if (createdPutAwayLine.getQuantityType().equalsIgnoreCase("D")) {
-						if (inboundLine.getDamageQty() != null
-								&& inboundLine.getDamageQty() < inboundLine.getOrderQty()) {
-							addedDamageQty = inboundLine.getDamageQty() + createdPutAwayLine.getPutawayConfirmedQty();
-						} else {
-							addedDamageQty = createdPutAwayLine.getPutawayConfirmedQty();
-						}
-						if (addedDamageQty > inboundLine.getOrderQty()) {
-							throw new BadRequestException("Damage qty cannot be greater than order qty");
-						}
-						inboundLine.setDamageQty(addedDamageQty);
-						inboundLine.setVarianceQty(inboundLine.getOrderQty() - addedDamageQty);
-					}
-
-					if (inboundLine.getInboundOrderTypeId() == 5L) { // condition added for final Inbound confirm
-						inboundLine.setReferenceField2("true");
-					}
-
-					inboundLine.setStatusId(20L);
-					statusDescription = stagingLineV2Repository.getStatusDescription(20L, createdPutAwayLine.getLanguageId());
-					inboundLine.setStatusDescription(statusDescription);
-					inboundLine = inboundLineV2Repository.save(inboundLine);
-					log.info("inboundLine updated : " + inboundLine);
+					updateInboundLine (createdPutAwayLine);
 				} else {
 					log.info("Putaway Line already exist : " + existingPutAwayLine);
 				}
@@ -1367,6 +1320,67 @@ public class PutAwayLineService extends BaseService {
 			throw e;
 		}
 	}
+    
+    /**
+     * 
+     * @param createdPutAwayLine
+     */
+    @Retryable(
+    		value = {CannotAcquireLockException.class, LockAcquisitionException.class}, 
+    		maxAttempts = 3, 
+    		backoff = @Backoff(delay = 5000, multiplier = 2)
+    		)
+    private void updateInboundLine (PutAwayLine createdPutAwayLine) {
+    	double addedAcceptQty = 0.0;
+		double addedDamageQty = 0.0;
+
+		InboundLineV2 inboundLine = inboundLineService.getInboundLineV2(createdPutAwayLine.getCompanyCode(),
+				createdPutAwayLine.getPlantId(), createdPutAwayLine.getLanguageId(),
+				createdPutAwayLine.getWarehouseId(), createdPutAwayLine.getRefDocNumber(),
+				createdPutAwayLine.getPreInboundNo(), createdPutAwayLine.getLineNo(),
+				createdPutAwayLine.getItemCode());
+		log.info("inboundLine----from--DB---------> " + inboundLine);
+
+		// If QTY_TYPE = A, add PA_CNF_QTY with existing value in ACCEPT_QTY field
+		if (createdPutAwayLine.getQuantityType().equalsIgnoreCase("A")) {
+			if (inboundLine.getAcceptedQty() != null
+					&& inboundLine.getAcceptedQty() < inboundLine.getOrderQty()) {
+				addedAcceptQty = inboundLine.getAcceptedQty() + createdPutAwayLine.getPutawayConfirmedQty();
+			} else {
+				addedAcceptQty = createdPutAwayLine.getPutawayConfirmedQty();
+			}
+			if (addedAcceptQty > inboundLine.getOrderQty()) {
+				throw new BadRequestException("Accept qty cannot be greater than order qty");
+			}
+			inboundLine.setAcceptedQty(addedAcceptQty);
+			inboundLine.setVarianceQty(inboundLine.getOrderQty() - addedAcceptQty);
+		}
+
+		// if QTY_TYPE = D, add PA_CNF_QTY with existing value in DAMAGE_QTY field
+		if (createdPutAwayLine.getQuantityType().equalsIgnoreCase("D")) {
+			if (inboundLine.getDamageQty() != null
+					&& inboundLine.getDamageQty() < inboundLine.getOrderQty()) {
+				addedDamageQty = inboundLine.getDamageQty() + createdPutAwayLine.getPutawayConfirmedQty();
+			} else {
+				addedDamageQty = createdPutAwayLine.getPutawayConfirmedQty();
+			}
+			if (addedDamageQty > inboundLine.getOrderQty()) {
+				throw new BadRequestException("Damage qty cannot be greater than order qty");
+			}
+			inboundLine.setDamageQty(addedDamageQty);
+			inboundLine.setVarianceQty(inboundLine.getOrderQty() - addedDamageQty);
+		}
+
+		if (inboundLine.getInboundOrderTypeId() == 5L) { // condition added for final Inbound confirm
+			inboundLine.setReferenceField2("true");
+		}
+
+		inboundLine.setStatusId(20L);
+		statusDescription = stagingLineV2Repository.getStatusDescription(20L, createdPutAwayLine.getLanguageId());
+		inboundLine.setStatusDescription(statusDescription);
+		inboundLine = inboundLineV2Repository.save(inboundLine);
+		log.info("inboundLine updated : " + inboundLine);
+    }
 
 
     /**
