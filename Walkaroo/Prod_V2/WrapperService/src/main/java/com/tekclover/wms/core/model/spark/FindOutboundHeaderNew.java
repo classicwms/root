@@ -12,6 +12,12 @@ public class FindOutboundHeaderNew {
     private List<String> languageId;
     private List<String> companyCodeId;
     private List<String> plantId;
+
+    private List<String> companyDescription;
+    private List<String> plantDescription;
+    private List<String> warehouseDescription;
+    private List<String> statusDescription;
+
     private List<String> targetBranchCode;
     private List<String> preOutboundNo;
     private List<String> warehouseId;

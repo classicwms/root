@@ -13,6 +13,11 @@ public class OutboundHeaderSpark {
     private String warehouseId;
     private String plantId;
 
+    private String companyDescription;
+    private String plantDescription;
+    private String warehouseDescription;
+    private String statusDescription;
+
     private String salesOrderNumber;
     private String customerId;
     private String customerName;
