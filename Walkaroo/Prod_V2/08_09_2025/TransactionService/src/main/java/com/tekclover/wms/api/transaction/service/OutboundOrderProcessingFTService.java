@@ -1191,96 +1191,6 @@ public class OutboundOrderProcessingFTService extends BaseService {
 
 
     /**
-     * @param outboundIntegrationHeader
-     * @return
-     * @throws Exception
-     */
-    @Transactional
-    public OutboundHeaderV2 fullfillOutboundReceivedV3(OutboundIntegrationHeaderV2 outboundIntegrationHeader) throws Exception {
-        String companyCodeId = null;
-        String plantId = null;
-        String languageId = null;
-        String warehouseId = null;
-        String refDocNumber = null;
-        try {
-            companyCodeId = outboundIntegrationHeader.getCompanyCode();
-            plantId = outboundIntegrationHeader.getBranchCode();
-            languageId = outboundIntegrationHeader.getLanguageId() != null ? outboundIntegrationHeader.getLanguageId()
-                    : LANG_ID;
-            warehouseId = outboundIntegrationHeader.getWarehouseID();
-            refDocNumber = outboundIntegrationHeader.getRefDocumentNo();
-            Long statusId = 39L;
-            statusDescription = getStatusDescription(statusId, languageId);
-
-            log.info("Outbound process fullfill Initiated ------> : {}|{}|{}|{}|{}", companyCodeId, plantId, languageId,
-                    warehouseId, refDocNumber);
-            WK = "SAP-ORDER FULLFILLMENT";
-
-            // ---------------PreOutboundHeader-----------------------------------------------------------------------------------
-            log.info("preOutboundHeader inpouts : {},{},{},{},{}", companyCodeId, plantId, languageId, warehouseId, refDocNumber);
-            PreOutboundHeaderV2 createdPreOutboundHeader = preOutboundHeaderService
-                    .getPreOutboundHeaderV3(companyCodeId, plantId, languageId, warehouseId, refDocNumber);
-            log.info("PreOutboundHeader Retrieved : {}", createdPreOutboundHeader);
-
-            String preOutboundNo = createdPreOutboundHeader.getPreOutboundNo();
-            log.info("--------------preOutboundNo--------->{}", preOutboundNo);
-
-            createdPreOutboundHeader.setSalesOrderNumber(outboundIntegrationHeader.getSalesOrderNumber());
-            outboundIntegrationHeader.setOutboundOrderTypeID(createdPreOutboundHeader.getOutboundOrderTypeId());
-            outboundIntegrationHeader.setCustomerId(createdPreOutboundHeader.getCustomerId());
-
-            OutboundOrderProcess outboundOrderProcess = new OutboundOrderProcess();
-
-            // ----------------PreOutboundLine-------------------------------------------------------------------------------------
-            List<PreOutboundLineV2> createdPreOutboundLineList = preOutboundLineService
-                    .getPreOutboundLineV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo);
-            log.info("PreOutboundLine Retrieved---1---> : " + createdPreOutboundLineList);
-            if (createdPreOutboundLineList == null) {
-                createdPreOutboundLineList =
-                        preOutboundLineService.getPreOutboundLineForFullfillment(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo);
-                log.info("PreOutboundLine Retrieved---2---> : " + createdPreOutboundLineList);
-            }
-
-            // ----------------CreateOrderManagementLine----------------------------------------------------------------------------
-            boolean fromOrderFullfillment = true;
-            createOrderManagementLine(companyCodeId, plantId, languageId, warehouseId, outboundIntegrationHeader,
-                    createdPreOutboundLineList, WK, fromOrderFullfillment);
-
-            OutboundHeaderV2 outboundHeader = createOutboundHeaderV2(createdPreOutboundHeader,
-                    outboundIntegrationHeader, statusId, statusDescription);
-            if (outboundHeader.getPartnerCode() == null) {
-                outboundHeader.setPartnerCode("STO");
-            }
-            log.info("outboundHeader Created : {}", outboundHeader);
-
-            statusId = 41L;
-            statusDescription = getStatusDescription(statusId, languageId);
-            OrderManagementHeaderV2 createdOrderManagementHeader = createOrderManagementHeaderV2(
-                    createdPreOutboundHeader, statusId, statusDescription, WK);
-            log.info("OrderMangementHeader Created : {}", createdOrderManagementHeader);
-
-            outboundOrderProcess.setOrderManagementHeader(createdOrderManagementHeader);
-            outboundOrderProcess.setPreOutboundHeader(createdPreOutboundHeader);
-            outboundOrderProcess.setPreOutboundLines(createdPreOutboundLineList);
-            outboundOrderProcess.setOutboundIntegrationHeader(outboundIntegrationHeader);
-            postOutboundOrder(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber,
-                    outboundIntegrationHeader.getOutboundOrderTypeID(), outboundOrderProcess);
-
-            validatePickupHeaderCreation(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo,
-                    outboundHeader, WK);
-            preOutboundHeaderV2Repository.updatePreOutboundHeaderStatusV3(companyCodeId, plantId, languageId, warehouseId, refDocNumber, 48L, "IN PICKING");
-            return outboundHeader;
-        } catch (Exception e) {
-            e.printStackTrace();
-            // Updating the Processed Status
-            log.info("Rollback Initiated...!" + outboundIntegrationHeader.getRefDocumentNo());
-            rollback(outboundIntegrationHeader);
-            orderService.updateProcessedOrderV2(outboundIntegrationHeader.getRefDocumentNo(), outboundIntegrationHeader.getOutboundOrderTypeID());
-            throw e;
-        }
-    }
-
-    /**
      * PickList Cancellation
      *
      * @param outboundIntegrationHeader
@@ -2373,7 +2283,7 @@ public class OutboundOrderProcessingFTService extends BaseService {
                                                       String preOutboundNo, List<OrderManagementLineV2> orderManagementLineList, String loginUserId) {
         try {
         	log.info ("-------createPickupHeaderV4--------called-------");
-        	
+            List<PickupHeaderV2> pickupHeaderV2List = new ArrayList<>();
             double sumOfAllocatedQty = orderManagementLineList.stream().filter(n -> n.getAllocatedQty() != null).mapToDouble(OrderManagementLineV2::getAllocatedQty).sum();
             IKeyValuePair caseTolerance = getnoOfCaseTolerance(companyCodeId, plantId, languageId, warehouseId);
             log.info("caseTolerance: " + caseTolerance);
@@ -2389,11 +2299,14 @@ public class OutboundOrderProcessingFTService extends BaseService {
                 log.info(noOfCases + "|" + plusTolerance + "|" + totalCases + "|" + sumOfAllocatedQty+ "|" + PU_NO_COUNT);
                 int i = 1;
                 PU_NO = getNextRangeNumber(10L, companyCodeId, plantId, languageId, warehouseId);
+                log.info("OrderFullfillment PickupHeader Creation -------------> Sorted OrdermanagementList ---->  {} ", orderManagementLineList.size());
+
                 for (OrderManagementLineV2 createdOrderManagementLine : sortedOrderManagementLineList) {
                     if (createdOrderManagementLine.getOutboundOrderTypeId() == 3) {
                         if (i <= totalCases) {
-                            createPickUpHeaderV4(companyCodeId, plantId, languageId, warehouseId, PU_NO, preOutboundNo,
+                           PickupHeaderV2 pickupHeaderV2 =  createPickUpHeaderV4(companyCodeId, plantId, languageId, warehouseId, PU_NO, preOutboundNo,
                                     refDocNumber, createdOrderManagementLine, loginUserId);
+                           pickupHeaderV2List.add(pickupHeaderV2);
                             i++;
                             if (i > totalCases) {
                                 i = 1;
@@ -2410,8 +2323,8 @@ public class OutboundOrderProcessingFTService extends BaseService {
                 PU_NO = getNextRangeNumber(10L, companyCodeId, plantId, languageId, warehouseId);
                 for (OrderManagementLineV2 orderManagementLine : orderManagementLineList) {
                     if(orderManagementLine.getOutboundOrderTypeId() == 3) {
-                        createPickUpHeaderV4(companyCodeId, plantId, languageId, warehouseId, PU_NO, preOutboundNo, refDocNumber, orderManagementLine, loginUserId);
-
+                        PickupHeaderV2 pickupHeaderV2 = createPickUpHeaderV4(companyCodeId, plantId, languageId, warehouseId, PU_NO, preOutboundNo, refDocNumber, orderManagementLine, loginUserId);
+                        pickupHeaderV2List.add(pickupHeaderV2);
 //                        DocumentNumber documentNumber = new DocumentNumber();
 //                        documentNumber.setRefDocNumber(orderManagementLine.getRefDocNumber());
 //                        documentNumber.setPreOutboundNo(orderManagementLine.getPreOutboundNo());
@@ -2419,6 +2332,12 @@ public class OutboundOrderProcessingFTService extends BaseService {
                     }
                 }
             }
+
+            if(!pickupHeaderV2List.isEmpty()) {
+                log.info("PickupHeader Values Saved in Orderfullfillment ---------------------> " + pickupHeaderV2List.size());
+                pickupHeaderV2Repository.saveAll(pickupHeaderV2List);
+            }
+
             return documentNumberList;
 
         } catch (Exception e) {
@@ -2623,6 +2542,7 @@ public class OutboundOrderProcessingFTService extends BaseService {
                     for (String shipToParty : shipToPartyList) {
                         log.info("ShipToParty : " + shipToParty);
                         List<OrderManagementLineV2> orderManagementLineList = orderManagementLineService.getOrderManagementLinesShipToPartyV3(companyCodeId, plantId, languageId, warehouseId, salesOrderNumber, shipToParty);
+                        log.info("OrderManagementLine List in Orderfullfillment -----------------------> RefDocNo is {} ", refDocNumber);
                         createPickupHeaderV4(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, orderManagementLineList, loginUserId);
                     }
                 }
@@ -2825,7 +2745,7 @@ public class OutboundOrderProcessingFTService extends BaseService {
      * @param loginUserId
      * @throws Exception
      */
-    private void createPickUpHeaderV4(String companyCodeId, String plantId, String languageId, String warehouseId, String pickupNumber,
+    private PickupHeaderV2 createPickUpHeaderV4(String companyCodeId, String plantId, String languageId, String warehouseId, String pickupNumber,
                                       String preOutboundNo, String refDocNumber, OrderManagementLineV2 orderManagementLine, String loginUserId) throws Exception {
 
         preOutboundNo = orderManagementLine.getPreOutboundNo();
@@ -2862,12 +2782,12 @@ public class OutboundOrderProcessingFTService extends BaseService {
         outboundOrderV2Repository.updateOutboundHeaderText(newPickupHeader.getOutboundOrderTypeId(), newPickupHeader.getRefDocNumber(), text);
         log.info("PickupHeader Status Updated Successfully");
 
-        PickupHeaderV2 createdPickupHeader = pickupHeaderV2Repository.save(newPickupHeader);
-        log.info("pickupHeader created: " + createdPickupHeader);
+//        PickupHeaderV2 createdPickupHeader = pickupHeaderV2Repository.save(newPickupHeader);
+//        log.info("pickupHeader created: " + createdPickupHeader);
 
-        orderManagementLineV2Repository.updateOrderManagementLineV3(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, pickupNumber,
+//        orderManagementLineV2Repository.updateOrderManagementLineV3(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, pickupNumber,
 //                    assignPickerId,
-                orderManagementLine.getLineNumber(), orderManagementLine.getItemCode(), 48L, statusDescription, new Date());
+//                orderManagementLine.getLineNumber(), orderManagementLine.getItemCode(), 48L, statusDescription, new Date());
 
         outboundLineV2Repository.updateOutboundLineStatusV3(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo,
                 48L, statusDescription, orderManagementLine.getLineNumber(), orderManagementLine.getItemCode());
@@ -2878,13 +2798,14 @@ public class OutboundOrderProcessingFTService extends BaseService {
         log.info("outboundHeader updated");
 
         // ORDERMANAGEMENTHEADER Update
-        orderManagementHeaderV2Repository.updateOrderManagementHeaderStatusV3(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 48L, statusDescription);
-        log.info("orderManagementHeader updated");
+//        orderManagementHeaderV2Repository.updateOrderManagementHeaderStatusV3(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 48L, statusDescription);
+//        log.info("orderManagementHeader updated");
         
         // PreOutboundHeader Update for PU_NO
         preOutboundHeaderV2Repository.updatePreOutboundHeaderStatusId(companyCodeId, plantId, languageId, warehouseId, refDocNumber, pickupNumber, 48L, statusDescription);
         log.info("PreOutboundHeader Updated PickupNo");
 
+        return newPickupHeader;
         
     }
 

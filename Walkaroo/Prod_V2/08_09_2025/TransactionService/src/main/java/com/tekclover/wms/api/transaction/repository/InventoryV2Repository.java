@@ -4894,7 +4894,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:packBarcodes, null) IS NULL OR (iv.PACK_BARCODE IN (:packBarcodes))) and \n" +
             "(COALESCE(:itemCode, null) IS NULL OR (iv.ITM_CODE IN (:itemCode))) and \n" +
             "(COALESCE(:storageBin, null) IS NULL OR (iv.ST_BIN IN (:storageBin))) and\n" +
-            "iv.is_deleted = 0  and iv.stck_typ_id = 1 and (iv.INV_QTY > 0) order by iv.BARCODE_ID,iv.ST_SEC_ID,iv.REF_FIELD_10 \n", nativeQuery = true)
+            "iv.is_deleted = 0  and iv.stck_typ_id = 1 and (iv.INV_QTY > 0) order by iv.BIN_CL_ID, iv.REF_FIELD_10 \n", nativeQuery = true)
     public IInventoryImpl getInventoryV3(@Param("companyCodeId") String companyCodeId,
                                          @Param("plantId") String plantId,
                                          @Param("languageId") String languageId,
@@ -5521,7 +5521,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:itemCode, null) IS NULL OR (iv.ITM_CODE IN (:itemCode))) and \n" +
          //   "(COALESCE(:binClassId, null) IS NULL OR (iv.BIN_CL_ID IN (:binClassId))) and\n" +
             "(COALESCE(:stockTypeId, null) IS NULL OR (iv.STCK_TYP_ID IN (:stockTypeId))) and \n" +
-            "iv.is_deleted = 0 and (iv.INV_QTY > 0) order by iv.LEVEL_ID, iv.BARCODE_ID, iv.INV_QTY, iv.ST_SEC_ID, iv.REF_FIELD_10 \n", nativeQuery = true)
+            "iv.is_deleted = 0 and (iv.INV_QTY > 0) order by iv.BIN_CL_ID, iv.REF_FIELD_10 \n", nativeQuery = true)
     public List<IInventoryImpl> getOMLInventoryFullFillment(@Param("companyCodeId") String companyCodeId,
                                                                 @Param("plantId") String plantId,
                                                                 @Param("languageId") String languageId,
