@@ -6,6 +6,8 @@ import java.util.List;
 import javax.validation.Valid;
 
 import com.tekclover.wms.api.inbound.transaction.config.dynamicConfig.DataBaseContextHolder;
+import com.tekclover.wms.api.inbound.transaction.model.dto.InventoryBinItmGroupByDto;
+import com.tekclover.wms.api.inbound.transaction.model.dto.InventoryBinItmGroupInput;
 import com.tekclover.wms.api.inbound.transaction.model.impl.InventoryImpl;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.v2.IInventoryImpl;
 import com.tekclover.wms.api.inbound.transaction.model.inbound.inventory.v2.InventoryV2;
@@ -253,6 +255,22 @@ public class InventoryController {
 			inventoryService.deleteInventoryV2(companyCodeId, plantId, languageId, warehouseId, stockTypeId, specialStockIndicatorId, packBarcodes, itemCode, manufacturerName, storageBin, loginUserID);
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		} finally {
+			DataBaseContextHolder.clear();
+		}
+	}
+
+	@ApiOperation(response = InventoryBinItmGroupByDto.class, value = "Get Inventory by Item and Bin")
+	@PostMapping("/groupByBinItem/v7")
+	public ResponseEntity<?> getInventoryByBinItemGroupByV7(@RequestBody InventoryBinItmGroupInput input) {
+		try {
+			DataBaseContextHolder.setCurrentDb("MT");
+			String routingDb = dbConfigRepository.getDbName1(input.getCompanyCodeId(), input.getPlantId(), input.getWarehouseId());
+			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+			DataBaseContextHolder.clear();
+			DataBaseContextHolder.setCurrentDb(routingDb);
+			List<InventoryBinItmGroupByDto> response = inventoryService.getInventoryByBinAndItemGroupByV7(input);
+			return new ResponseEntity<>(response, HttpStatus.OK);
+		}  finally {
 			DataBaseContextHolder.clear();
 		}
 	}

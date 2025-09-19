@@ -2,6 +2,8 @@ package com.tekclover.wms.core.controller;
 
 import com.tekclover.wms.core.batch.scheduler.BatchJobScheduler;
 import com.tekclover.wms.core.exception.CustomErrorResponse;
+import com.tekclover.wms.core.model.dto.InventoryBinItmGroupInput;
+import com.tekclover.wms.core.model.dto.InventoryGroupByBinItm;
 import com.tekclover.wms.core.model.dto.MultiDbInput;
 import com.tekclover.wms.core.model.dto.StagingLineUpdate;
 import com.tekclover.wms.core.model.masters.ImPartner;
@@ -1886,6 +1888,15 @@ public class InboundTransactionServiceController {
     public ResponseEntity<?> deleteInboundOrder(@RequestParam String orderId, @RequestParam String authToken) throws Exception {
         transactionService.deleteInboundOrder(orderId, authToken);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    // ==================================================IventoryGroupByBinAndItemCode============================================//
+
+    @ApiOperation(response = InventoryGroupByBinItm.class, value = "Get Inventory by Item and Bin") // label for swagger
+    @PostMapping("/inventory/groupByBinItem/v7")
+    public InventoryGroupByBinItm[] getInventoryByBinItemGroupByV7(@RequestBody InventoryBinItmGroupInput inventoryBinItmGroupInput,
+                                                                   @RequestParam String authToken) throws Exception {
+        return transactionService.getInventoryByBinItemGroupByV7(inventoryBinItmGroupInput, authToken);
     }
 
 }

@@ -2493,4 +2493,18 @@ public class InventoryService extends BaseService {
         }
     }
 
+
+    /**
+     * Knowell Report for GroupBy Bin and Item inventory Report
+     *
+     * @param input
+     * @return
+     */
+    public List<InventoryBinItmGroupByDto> getInventoryByBinAndItemGroupByV7(InventoryBinItmGroupInput input) {
+
+        List<InventoryBinItmGroupByDto> inventoryBinItmGroupByDtos = inventoryV2Repository.getInventoryByBinAndItemV7(input.getItemCode(), input.getStorageBin());
+
+        return inventoryBinItmGroupByDtos;
+    }
+
 }

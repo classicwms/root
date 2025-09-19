@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tekclover.wms.core.config.PropertiesConfig;
+import com.tekclover.wms.core.model.dto.InventoryBinItmGroupInput;
+import com.tekclover.wms.core.model.dto.InventoryGroupByBinItm;
 import com.tekclover.wms.core.model.dto.MultiDbInput;
 import com.tekclover.wms.core.model.auth.AuthToken;
 import com.tekclover.wms.core.model.dto.StagingLineUpdate;
@@ -7422,6 +7424,25 @@ public class InboundTransactionService {
                     String.class);
 //			log.info("result : " + result);
             return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+
+    public InventoryGroupByBinItm[] getInventoryByBinItemGroupByV7(InventoryBinItmGroupInput inventoryBinItmGroupInput, String authToken) throws Exception {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getInboundTransactionServiceApiUrl() + "inventory/groupByBinItem/v7");
+            HttpEntity<?> entity = new HttpEntity<>(inventoryBinItmGroupInput, headers);
+            ResponseEntity<InventoryGroupByBinItm[]> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, InventoryGroupByBinItm[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
