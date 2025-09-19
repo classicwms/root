@@ -3969,7 +3969,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
     @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n" +
             "WHERE \n" +
             "(COALESCE(:itemCode, null) IS NULL OR (ITM_CODE IN (:itemCode))) and \n" +
-            "(COALESCE(:binClassId, null) IS NULL OR (BIN_CL_ID IN (:binClassId))) and\n" +
+          //  "(COALESCE(:binClassId, null) IS NULL OR (BIN_CL_ID IN (:binClassId))) and\n" +
             "(COALESCE(:manufacturerName, null) IS NULL OR (MFR_NAME IN (:manufacturerName))) and \n" +
             "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and \n" +
             "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n" +
@@ -4060,7 +4060,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "(COALESCE(:itemCode, null) IS NULL OR (iv.ITM_CODE IN (:itemCode))) and \n" +
             "(COALESCE(:storageBin, null) IS NULL OR (iv.ST_BIN IN (:storageBin))) and\n" +
             "(COALESCE(:binClassId, null) IS NULL OR (iv.BIN_CL_ID IN (:binClassId))) and\n" +
-            "iv.is_deleted = 0 and iv.stck_typ_id = :stockTypeId \n", nativeQuery = true)
+            "iv.is_deleted = 0 and iv.INV_QTY > 0 and iv.stck_typ_id = :stockTypeId \n", nativeQuery = true)
     public IInventoryImpl getInboundInventoryV3(@Param("companyCodeId") String companyCodeId,
                                                 @Param("plantId") String plantId,
                                                 @Param("languageId") String languageId,

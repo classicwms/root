@@ -3627,6 +3627,7 @@ public class InventoryService extends BaseService {
             inventory.setCreatedOn(new Date());
             inventory.setUpdatedOn(new Date());
             try {
+                log.info("Inventory Quantity is {}, BarcodeID is {} ---------------------------->  ", inventory.getInventoryQuantity(), inventory.getBarcodeId());
                 if(inventory.getInventoryQuantity() == 1) {
                     createdinventory = inventoryV2Repository.save(inventory);
                     log.info("B1-created inventory : {}", createdinventory);
@@ -3687,7 +3688,7 @@ public class InventoryService extends BaseService {
 		try {
 			dbInventory = getInventoryV3(companyCode, plantId, languageId, warehouseId, itemCode, manufacturerName, barcodeId, null, 3L, 1L);
 		} catch (Exception e) {
-			log.error("Error on getInventoryV3 : " + e.toString());;
+			log.error("Error on getInventoryV3 : " + e.toString());
 			e.printStackTrace();
 		}
 		
@@ -3941,138 +3942,6 @@ public class InventoryService extends BaseService {
                 searchInventory.getBinClassId());
         log.info("Inventory results: " + results.size() );
         return results;
-    }
-
-    /**
-     *
-     * @param stagingLine
-     * @param loginUserId
-     */
-    @Transactional
-    public void createInventoryNonCBMStagingLineV2(StagingLineEntityV2 stagingLine, String loginUserId) throws Exception {
-
-        String companyCode = stagingLine.getCompanyCode();
-        String plantId = stagingLine.getPlantId();
-        String languageId = stagingLine.getLanguageId();
-        String warehouseId = stagingLine.getWarehouseId();
-        String barCodeId = stagingLine.getBarcodeId();
-        String itemCode = stagingLine.getItemCode();
-        String manufacturerName = stagingLine.getManufacturerName();
-        try {
-            InventoryV2 createdinventory = null;
-            InventoryV2 dbInventory = getInventoryV3(companyCode, plantId, languageId, warehouseId, itemCode, manufacturerName, barCodeId, null, 3L, 1L);
-            if (dbInventory != null) {
-                InventoryV2 inventory = new InventoryV2();
-                BeanUtils.copyProperties(dbInventory, inventory, CommonUtils.getNullPropertyNames(dbInventory));
-
-                Double INV_QTY = getQuantity(dbInventory.getInventoryQuantity());
-                Double GR_QTY = getQuantity(stagingLine.getOrderQty());
-
-                log.info("Before - B3-Inventory - INV_QTY,TOT_QTY,OrderQty: {}, {}, {}, {}", INV_QTY, dbInventory.getReferenceField4(), GR_QTY);
-                INV_QTY = round(INV_QTY + GR_QTY);
-
-                inventory.setInventoryQuantity(INV_QTY);
-                inventory.setAllocatedQuantity(0D);
-                inventory.setReferenceField4(INV_QTY);
-
-                if (stagingLine.getBarcodeId() != null) {
-                    inventory.setBarcodeId(stagingLine.getBarcodeId());
-                }
-
-                if (inventory.getItemType() == null) {
-                    IKeyValuePair itemType = getItemTypeAndDesc(companyCode, plantId, languageId, warehouseId, itemCode);
-                    if (itemType != null) {
-                        inventory.setItemType(itemType.getItemType());
-                        inventory.setItemTypeDescription(itemType.getItemTypeDescription());
-                    }
-                }
-                inventory.setReferenceDocumentNo(stagingLine.getRefDocNumber());
-                inventory.setReferenceOrderNo(stagingLine.getRefDocNumber());
-                inventory.setUpdatedBy(loginUserId);
-                inventory.setCreatedOn(dbInventory.getCreatedOn());
-                inventory.setUpdatedOn(new Date());
-                createdinventory = inventoryV2Repository.save(inventory);
-                log.info("BinClassId 3 created inventory[Existing] : {}", createdinventory);
-            }
-
-            if (dbInventory == null) {
-                InventoryV2 inventory = new InventoryV2();
-                BeanUtils.copyProperties(stagingLine, inventory, CommonUtils.getNullPropertyNames(stagingLine));
-                inventory.setCompanyCodeId(companyCode);
-
-                // VAR_ID, VAR_SUB_ID, STR_MTD, STR_NO ---> Hard coded as '1'
-                inventory.setVariantCode(1L);
-                inventory.setVariantSubCode("1");
-                inventory.setStorageMethod("1");
-                if (stagingLine.getBatchSerialNumber() != null) {
-                    inventory.setBatchSerialNumber(stagingLine.getBatchSerialNumber());
-                    inventory.setPackBarcodes(stagingLine.getBatchSerialNumber());
-                } else {
-                    inventory.setBatchSerialNumber("1");
-                    inventory.setPackBarcodes(PACK_BARCODE);
-                }
-                inventory.setBinClassId(3L);
-                inventory.setDeletionIndicator(0L);
-                inventory.setReferenceField8(stagingLine.getItemDescription());
-                inventory.setReferenceField9(stagingLine.getManufacturerName());
-                inventory.setManufacturerCode(stagingLine.getManufacturerName());
-                inventory.setDescription(stagingLine.getItemDescription());
-                inventory.setReferenceDocumentNo(stagingLine.getRefDocNumber());
-                inventory.setReferenceOrderNo(stagingLine.getRefDocNumber());
-
-                log.info("StorageBin get and set from Master -------------BinClassId ----> " + 3L);
-                // ST_BIN ---Pass WH_ID/BIN_CL_ID=3 in STORAGEBIN table and fetch ST_BIN value and update
-                StorageBinV2 storageBin = storageBinService.getStorageBinByBinClassIdV2(warehouseId, 3L, companyCode, plantId, languageId);
-                log.info("storageBin: {}", storageBin);
-
-                if (storageBin != null) {
-                    inventory.setStorageBin(storageBin.getStorageBin());
-                    inventory.setReferenceField10(storageBin.getStorageSectionId());
-                    inventory.setStorageSectionId(storageBin.getStorageSectionId());
-                    inventory.setReferenceField5(storageBin.getAisleNumber());
-                    inventory.setReferenceField6(storageBin.getShelfId());
-                    inventory.setReferenceField7(storageBin.getRowId());
-                    inventory.setLevelId(String.valueOf(storageBin.getFloorId()));
-                }
-
-                // STCK_TYP_ID
-                inventory.setStockTypeId(1L);
-                String stockTypeDesc = getStockTypeDesc(companyCode, plantId, languageId, warehouseId, 1L);
-                inventory.setStockTypeDescription(stockTypeDesc);
-
-                // SP_ST_IND_ID
-                inventory.setSpecialStockIndicatorId(1L);
-                inventory.setPalletId(stagingLine.getPalletId());
-
-                // INV_QTY
-                double INV_QTY = round(stagingLine.getOrderQty());
-                inventory.setInventoryQuantity(INV_QTY);
-                inventory.setReferenceField4(INV_QTY);      //Allocated Qty is zero for bin Class Id 3
-                log.info("New - Inventory - INV_QTY,TOT_QTY: {}", INV_QTY);
-
-                // INV_UOM
-                inventory.setInventoryUom(stagingLine.getOrderUom());
-                inventory.setCreatedBy(loginUserId);
-                inventory.setUpdatedBy(loginUserId);
-
-                if (inventory.getItemType() == null) {
-                    IKeyValuePair itemType = getItemTypeAndDesc(companyCode, plantId, languageId, warehouseId, itemCode);
-                    if (itemType != null) {
-                        inventory.setItemType(itemType.getItemType());
-                        inventory.setItemTypeDescription(itemType.getItemTypeDescription());
-                    }
-                }
-
-                inventory.setCreatedOn(new Date());
-                inventory.setUpdatedOn(new Date());
-                createdinventory = inventoryV2Repository.save(inventory);
-                log.info("B3 created inventory : {}", createdinventory);
-            }
-        } catch (Exception e) {
-            // Exception Log
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     /**

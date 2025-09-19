@@ -3227,6 +3227,7 @@ public class OutboundOrderProcessingFTService extends BaseService {
                     } else {
                         BIN_CLASS_ID.add(1L);
                         BIN_CLASS_ID.add(10L);
+                        BIN_CLASS_ID.add(3L);
                     }
 
                     OrderManagementLineV2 orderManagementLineV2 = orderManagementLineService.updateAllocationOrderFullfillment(companyCodeId, plantId, languageId, warehouseId, preOutboundLine.getItemCode(),
