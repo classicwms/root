@@ -1840,7 +1840,7 @@ public class PreOutboundHeaderService extends BaseService {
             // Updating the Processed Status
             log.info("Rollback Initiated...!" + outboundIntegrationHeader.getRefDocumentNo());
             orderManagementLineService.rollback(outboundIntegrationHeader);
-//            orderService.updateProcessedOrderV2(outboundIntegrationHeader.getRefDocumentNo(), outboundIntegrationHeader.getOutboundOrderTypeID());
+            orderService.updateProcessedOrderV2(outboundIntegrationHeader.getRefDocumentNo(), outboundIntegrationHeader.getOutboundOrderTypeID());
             throw e;
         }
     }
