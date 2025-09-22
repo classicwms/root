@@ -2116,11 +2116,27 @@ public class WarehouseService extends BaseService {
 		List<String> salesOrderNumbers = deliveryConfirmationSAPList.stream()
 				.map(DeliveryConfirmationSAP::getSalesOrderNumber)
 				.collect(Collectors.toList());
-		List<String> validateDeliveryOrders = deliveryConfirmationRepository.validateDeliveryConfirmationOrders (salesOrderNumbers);
-		log.info("------DeliveryOrders------> : " + validateDeliveryOrders);
-		if (validateDeliveryOrders != null && validateDeliveryOrders.size() > 0){
-			throw new BadRequestException("Orders are getting duplicated -> " + salesOrderNumbers);
+
+		int batchSize = 2000; // keep safe under 2100
+		List<String> duplicates = new ArrayList<>();
+
+		for (int i = 0; i < salesOrderNumbers.size(); i += batchSize) {
+			List<String> batch = salesOrderNumbers.subList(i, Math.min(i + batchSize, salesOrderNumbers.size()));
+			List<String> result = deliveryConfirmationRepository.validateDeliveryConfirmationOrders(batch);
+			if (result != null) {
+				duplicates.addAll(result);
+			}
 		}
+
+		if (!duplicates.isEmpty()) {
+			throw new BadRequestException("Orders are getting duplicated -> " + duplicates);
+		}
+
+//		List<String> validateDeliveryOrders = deliveryConfirmationRepository.validateDeliveryConfirmationOrders (salesOrderNumbers);
+//		log.info("------DeliveryOrders------> : " + validateDeliveryOrders);
+//		if (validateDeliveryOrders != null && validateDeliveryOrders.size() > 0){
+//			throw new BadRequestException("Orders are getting duplicated -> " + salesOrderNumbers);
+//		}
 	}
 	
 	/**
