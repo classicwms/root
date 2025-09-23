@@ -3543,7 +3543,7 @@ public class WarehouseService extends BaseService {
 
 
 	//	@Scheduled(cron = "5 * * * * ?")
-	@Scheduled(fixedDelay = 10000)
+	@Scheduled(fixedDelay = 5000)
 	public void postSAPDeliveryConfirmationScheduleProcess() throws Exception {
 		log.info("-------postSAPDeliveryConfirmation----------");
 //		List<DeliveryConfirmation> deliveryConfirmations = deliveryConfirmationRepository.findByProcessedStatusIdOrderByOrderReceivedOn(9L);
