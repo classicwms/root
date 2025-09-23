@@ -1,19 +1,22 @@
 package com.tekclover.wms.api.inbound.orders.controller;
 
 import com.tekclover.wms.api.inbound.orders.config.dynamicConfig.DataBaseContextHolder;
+import com.tekclover.wms.api.inbound.orders.model.inbound.InboundOrderMobileApp;
+import com.tekclover.wms.api.inbound.orders.model.inbound.v2.InboundHeaderEntityV2;
 import com.tekclover.wms.api.inbound.orders.model.warehouse.inbound.SaleOrderReturn;
 import com.tekclover.wms.api.inbound.orders.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.api.inbound.orders.model.warehouse.inbound.v2.*;
 import com.tekclover.wms.api.inbound.orders.repository.DbConfigRepository;
 import com.tekclover.wms.api.inbound.orders.service.*;
-import com.tekclover.wms.api.inbound.orders.service.namratha.SupplierInvoiceServiceV4;
+import com.tekclover.wms.api.inbound.orders.service.SupplierInvoiceServiceV6;
+import com.tekclover.wms.api.inbound.orders.service.SupplierInvoiceServiceV5;
+import com.tekclover.wms.api.inbound.orders.service.SupplierInvoiceServiceV4;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -53,6 +56,14 @@ public class InboundOrderController {
     @Autowired
     WarehouseService warehouseService;
 
+    @Autowired
+    SupplierInvoiceServiceV5 supplierInvoiceServiceV5;
+
+    @Autowired
+    SupplierInvoiceServiceV6 supplierInvoiceServiceV6;
+
+    @Autowired
+    TransactionService transactionService;
 
     // ASN V2
     @ApiOperation(response = ASNV2.class, value = "ASN V2") // label for swagger
@@ -124,54 +135,57 @@ public class InboundOrderController {
 
   //-----------------------------------------------------------------------------------------------
     // ASN V2
-  @ApiOperation(response = ASNV2.class, value = "ASN V2") // label for swagger
-  @PostMapping("/inbound/asn/upload/v4")
-  public ResponseEntity<?> postASNBP(@Valid @RequestBody List<ASNV2> asnList)
-          throws Exception {
-      List<WarehouseApiResponse> responseList = new ArrayList<>();
-      try {
-          DataBaseContextHolder.clear();
-          DataBaseContextHolder.setCurrentDb("MT");
-
-//          // Inbound Order Create process
+//  @ApiOperation(response = ASNV2.class, value = "ASN V2") // label for swagger
+//  @PostMapping("/inbound/asn/upload/v4")
+//  public ResponseEntity<?> postASNBP(@Valid @RequestBody List<ASNV2> asnList)
+//          throws Exception {
+//      List<WarehouseApiResponse> responseList = new ArrayList<>();
+//      try {
+//          DataBaseContextHolder.clear();
+//          DataBaseContextHolder.setCurrentDb("MT");
+//
+////          // Inbound Order Create process
+////          asnList.forEach(asnv2 -> {
+////              supplierInvoiceServiceV6.saveASNV6(asnv2);
+////          });
+//
+//          String routingDb = "BP";
+//          log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+//          DataBaseContextHolder.clear();
+//          DataBaseContextHolder.setCurrentDb(routingDb);
+//
 //          asnList.forEach(asnv2 -> {
 //              supplierInvoiceServiceV6.saveASNV6(asnv2);
 //          });
+//          //RM inbound
+//          if (asnList.get(0).getAsnHeader().getInboundOrderTypeId().equals(1L)) {
+//              supplierInvoiceServiceV6.inboundOrder(asnList);
+//          }
+//          //FG inbound
+//          if (asnList.get(0).getAsnHeader().getInboundOrderTypeId().equals(12L) ||
+//                  asnList.get(0).getAsnHeader().getInboundOrderTypeId().equals(4L)) {
+//              supplierInvoiceServiceV6.fgInboundOrder(asnList);
+//          }
+//
+//          WarehouseApiResponse response = new WarehouseApiResponse();
+//          response.setStatusCode("200");
+//          response.setMessage("Success");
+//          responseList.add(response);
+//          return new ResponseEntity<>(responseList, HttpStatus.OK);
+//      }  catch(Exception e){
+//          WarehouseApiResponse response = new WarehouseApiResponse();
+//          response.setStatusCode("400");
+//          response.setMessage("Not Success");
+//          responseList.add(response);
+//          return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
+//      }
+//      finally{
+//          DataBaseContextHolder.clear();
+//      }
+//  }
+//
 
-          String routingDb = "BP";
-          log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-          DataBaseContextHolder.clear();
-          DataBaseContextHolder.setCurrentDb(routingDb);
 
-          asnList.forEach(asnv2 -> {
-              supplierInvoiceServiceV6.saveASNV6(asnv2);
-          });
-          //RM inbound
-          if (asnList.get(0).getAsnHeader().getInboundOrderTypeId().equals(1L)) {
-              supplierInvoiceServiceV6.inboundOrder(asnList);
-          }
-          //FG inbound
-          if (asnList.get(0).getAsnHeader().getInboundOrderTypeId().equals(12L) ||
-                  asnList.get(0).getAsnHeader().getInboundOrderTypeId().equals(4L)) {
-              supplierInvoiceServiceV6.fgInboundOrder(asnList);
-          }
-
-          WarehouseApiResponse response = new WarehouseApiResponse();
-          response.setStatusCode("200");
-          response.setMessage("Success");
-          responseList.add(response);
-          return new ResponseEntity<>(responseList, HttpStatus.OK);
-      }  catch(Exception e){
-          WarehouseApiResponse response = new WarehouseApiResponse();
-          response.setStatusCode("400");
-          response.setMessage("Not Success");
-          responseList.add(response);
-          return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
-      }
-      finally{
-          DataBaseContextHolder.clear();
-      }
-  }
     // ASN V2
     @ApiOperation(response = ASNV2.class, value = "ASN V8") // label for swagger
     @PostMapping("/inbound/asn/v8")
@@ -303,9 +317,9 @@ public class InboundOrderController {
                         case "KNOWELL":
                             createdInterWarehouseTransferInV2 = warehouseService.postWarehouseASNV7(asnv2);
                             break;
-                        case "BP":
-                            createdInterWarehouseTransferInV2 = warehouseService.postWarehouseASNV4(asnv2);
-                            break;
+//                        case "BP":
+//                            createdInterWarehouseTransferInV2 = warehouseService.postWarehouseASNV4(asnv2);
+//                            break;
                     }
                 }
                 if (createdInterWarehouseTransferInV2 != null) {
