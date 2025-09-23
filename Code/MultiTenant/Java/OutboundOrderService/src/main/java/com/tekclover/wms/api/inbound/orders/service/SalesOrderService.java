@@ -134,8 +134,8 @@ public class SalesOrderService extends BaseService{
     @Autowired
     InventoryTransRepository inventoryTransRepository;
 
-    @Autowired
-    StockAdjustmentMiddlewareService stockAdjustmentService;
+//    @Autowired
+//    StockAdjustmentMiddlewareService stockAdjustmentService;
 
     @Autowired
     StockAdjustmentRepository stockAdjustmentRepository;

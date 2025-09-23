@@ -265,9 +265,9 @@ public class OutboundLineController {
                     case "KNOWELL":
                         outboundLine = outboundlineService.findOutboundLineNewV7(searchOutboundLine);
                         break;
-                    case "MMF":
-                        outboundLine = outboundlineService.findOutboundLineNewV8(searchOutboundLine);
-                        break;
+//                    case "MMF":
+//                        outboundLine = outboundlineService.findOutboundLineNewV8(searchOutboundLine);
+//                        break;
                     case "BP":
                         outboundLine = outboundlineService.findOutboundLineNewV6(searchOutboundLine);
                         break;
@@ -325,10 +325,10 @@ public class OutboundLineController {
                         createdOutboundLine = outboundlineService.deliveryConfirmationV5(companyCodeId, plantId, languageId,
                                 warehouseId, preOutboundNo, refDocNumber, partnerCode, loginUserID);
                         break;
-                    case "BP":
-                        createdOutboundLine = outboundlineService.deliveryConfirmationV6(companyCodeId, plantId, languageId,
-                                warehouseId, preOutboundNo, refDocNumber, partnerCode, loginUserID);
-                        break;
+//                    case "BP":
+//                        createdOutboundLine = outboundlineService.deliveryConfirmationV6(companyCodeId, plantId, languageId,
+//                                warehouseId, preOutboundNo, refDocNumber, partnerCode, loginUserID);
+//                        break;
                     default:
                         createdOutboundLine = outboundlineService.deliveryConfirmationV2(companyCodeId, plantId, languageId,
                                 warehouseId, preOutboundNo, refDocNumber, partnerCode, loginUserID);
