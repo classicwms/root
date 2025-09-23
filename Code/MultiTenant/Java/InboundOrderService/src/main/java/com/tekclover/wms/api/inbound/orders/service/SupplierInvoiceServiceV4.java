@@ -10,10 +10,8 @@ import com.tekclover.wms.api.inbound.orders.model.dto.ImBasicData1;
 import com.tekclover.wms.api.inbound.orders.model.dto.ImBasicData1V2;
 import com.tekclover.wms.api.inbound.orders.model.dto.ImPartner;
 import com.tekclover.wms.api.inbound.orders.model.inbound.gr.v2.GrHeaderV2;
-import com.tekclover.wms.api.inbound.orders.model.inbound.preinbound.InboundIntegrationHeader;
 import com.tekclover.wms.api.inbound.orders.model.inbound.preinbound.v2.PreInboundHeaderEntityV2;
 import com.tekclover.wms.api.inbound.orders.model.inbound.preinbound.v2.PreInboundLineEntityV2;
-import com.tekclover.wms.api.inbound.orders.model.inbound.staging.CaseConfirmation;
 import com.tekclover.wms.api.inbound.orders.model.inbound.staging.v2.StagingHeaderV2;
 import com.tekclover.wms.api.inbound.orders.model.inbound.staging.v2.StagingLineEntityV2;
 import com.tekclover.wms.api.inbound.orders.model.inbound.v2.InboundHeaderV2;
@@ -22,8 +20,6 @@ import com.tekclover.wms.api.inbound.orders.model.outbound.ordermangement.v2.Ord
 import com.tekclover.wms.api.inbound.orders.model.warehouse.Warehouse;
 import com.tekclover.wms.api.inbound.orders.model.warehouse.inbound.v2.*;
 import com.tekclover.wms.api.inbound.orders.repository.*;
-import com.tekclover.wms.api.inbound.orders.service.BaseService;
-import com.tekclover.wms.api.inbound.orders.service.ErrorLogService;
 import com.tekclover.wms.api.inbound.orders.util.CommonUtils;
 import com.tekclover.wms.api.inbound.orders.util.DateUtils;
 import lombok.RequiredArgsConstructor;
@@ -92,8 +88,8 @@ public class SupplierInvoiceServiceV4 extends BaseService {
     @Autowired
     WarehouseRepository warehouseRepository;
 
-    @Autowired
-    ErrorLogService errorLogService;
+//    @Autowired
+//    ErrorLogService errorLogService;
 
     private static String WAREHOUSEID_NUMBERRANGE = "110";
 
@@ -511,7 +507,7 @@ public class SupplierInvoiceServiceV4 extends BaseService {
 
         } catch (Exception e) {
             log.error("Error processing inbound ASN Lines", e);
-            errorLogService.createProcessInboundReceivedV2(asnv2, e.getMessage());
+//            errorLogService.createProcessInboundReceivedV2(asnv2, e.getMessage());
             throw new BadRequestException("Inbound Order Processing failed: " + e.getMessage());
         } finally {
             executorService.shutdown();

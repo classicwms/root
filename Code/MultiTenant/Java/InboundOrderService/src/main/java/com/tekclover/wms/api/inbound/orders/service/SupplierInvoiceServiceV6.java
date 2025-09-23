@@ -56,8 +56,8 @@ public class SupplierInvoiceServiceV6 extends BaseService {
     InboundOrderV2Repository inboundOrderV2Repository;
     @Autowired
     WarehouseRepository warehouseRepository;
-    @Autowired
-    ErrorLogService errorLogService;
+//    @Autowired
+//    ErrorLogService errorLogService;
     @Autowired
     ImBasicData1V2Repository imBasicData1V2Repository;
 
@@ -167,7 +167,7 @@ public class SupplierInvoiceServiceV6 extends BaseService {
         } catch (Exception e) {
             log.error("Error processing inbound ASN Lines", e);
 
-            errorLogService.createProcessInboundReceivedV2(asnv2, e.getMessage());
+//            errorLogService.createProcessInboundReceivedV2(asnv2, e.getMessage());
             updateStatusId(asnv2.getAsnHeader().getCompanyCode(), asnv2.getAsnHeader().getBranchCode(), asnv2.getAsnHeader().getWarehouseId(),
                     asnv2.getAsnHeader().getAsnNumber(), 100L);
             throw new BadRequestException("Inbound Order Processing failed: " + e.getMessage());
@@ -514,105 +514,105 @@ public class SupplierInvoiceServiceV6 extends BaseService {
 
 //-------------------------------------------------------FG-------------------------------------------------------------
 
-    @Async("asyncExecutor")
-    public void fgInboundOrder(List<ASNV2> asnv2List) throws Exception {
-        for (ASNV2 asnv2 : asnv2List){
-            processInboundReceivedV2(asnv2);
-        }
-    }
+//    @Async("asyncExecutor")
+//    public void fgInboundOrder(List<ASNV2> asnv2List) throws Exception {
+//        for (ASNV2 asnv2 : asnv2List){
+//            processInboundReceivedV2(asnv2);
+//        }
+//    }
 
     //FG Inbound
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-    public void processInboundReceivedV2(ASNV2 asnv2) throws Exception {
-        ExecutorService executorService = Executors.newFixedThreadPool(4);
-        DataBaseContextHolder.clear();
-        DataBaseContextHolder.setCurrentDb("BP");
-        // Inbound Order table saved process
-        try {
-//            saveASNV6(asnv2);
-            ASNHeaderV2 headerV2 = asnv2.getAsnHeader();
-            List<ASNLineV2> lineV2List = asnv2.getAsnLine();
-            String unitType = lineV2List.get(0).getUnitType();
-            String companyCode = headerV2.getCompanyCode();
-            String plantId = headerV2.getBranchCode();
-            String warehouseId = headerV2.getWarehouseId();
-            String languageId = headerV2.getLanguageId();
-            String itemText = null;
-
-            if (unitType == null || unitType.isEmpty()) {
-                throw new RuntimeException("Unit Type is mandatory for this order");
-            }
-
-            Optional<PreInboundHeaderEntityV2> orderProcessedStatus = preInboundHeaderV2Repository.
-                    findByRefDocNumberAndInboundOrderTypeIdAndDeletionIndicator(headerV2.getAsnNumber(), headerV2.getInboundOrderTypeId(), 0L);
-            if (!orderProcessedStatus.isEmpty()) {
-                throw new BadRequestException("Order :" + headerV2.getAsnNumber() + " already processed. Reprocessing can't be allowed.");
-            }
-            // Description_Set
-            IKeyValuePair description = repo.stagingLineV2Repository.getDescription(companyCode, languageId, plantId, warehouseId);
-            String companyText = description.getCompanyDesc();
-            String plantText = description.getPlantDesc();
-            String warehouseText = description.getWarehouseDesc();
-
-            String idMasterAuthToken = repo.authTokenService.getIDMasterServiceAuthToken().getAccess_token();
-            Long statusId = 13L;
-
-            // Getting PreInboundNo, StagingNo, CaseCode from NumberRangeTable
-            String preInboundNo = getNextRangeNumber(2L, companyCode, plantId, languageId, warehouseId, idMasterAuthToken);
-            log.info("PreInboundNo : " + preInboundNo);
-            statusDescription = getStatusDescription(statusId, languageId);
-
-            // Step 1: Create headers before line processing
-            PreInboundHeaderEntityV2 preInboundHeader = createPreInboundHeaderV6(
-                    companyCode, languageId, plantId, preInboundNo, headerV2, warehouseId, companyText, plantText, warehouseText, MRF_NAME_V6,unitType);
-            log.info("PreInboundHeader created: {}", preInboundHeader.getPreInboundNo());
-
-            InboundHeaderV2 inboundHeader = createInboundHeader(preInboundHeader, lineV2List.size());
-            log.info("Inbound Header Created: {}", inboundHeader);
-
-            repo.preInboundHeaderV2Repository.save(preInboundHeader);
-            repo.inboundHeaderV2Repository.save(inboundHeader);
-                // Collections for batch saving
-                List<PreInboundLineEntityV2> preInboundLineList = Collections.synchronizedList(new ArrayList<>());
-                List<ImBasicData1V2> imBasicData1V2List = Collections.synchronizedList(new ArrayList<>());
-
-                String partBarCode = generateBarCodeId(preInboundHeader.getRefDocNumber());
-
-                // Process lines in parallel
-                CompletableFuture<Void> allFutures = CompletableFuture.allOf(asnv2.getAsnLine().stream()
-                        .map(asnLineV2 -> CompletableFuture.runAsync(() -> {
-                            try {
-                                processASNLine(asnv2, asnLineV2, preInboundHeader, preInboundLineList, imBasicData1V2List, partBarCode);
-                            } catch (Exception e) {
-                                log.error("Error processing ASN Line for ASN: {}", headerV2.getAsnNumber(), e);
-                                throw new RuntimeException(e);
-                            }
-                        }, executorService)).toArray(CompletableFuture[]::new));
-                try {
-                    allFutures.join(); // Wait for all tasks to finish
-                } catch (CompletionException e) {
-                    log.error("Exception during ASN line processing: {}", e.getCause().getMessage());
-                    throw new BadRequestException("Inbound Order Processing failed: " + e.getCause().getMessage());
-                }
-                // Batch Save All Records
-                if (!imBasicData1V2List.isEmpty()) {
-                    repo.imBasicData1V2Repository.saveAll(imBasicData1V2List);
-                }
-                repo.preInboundLineV2Repository.saveAll(preInboundLineList);
-                updateStatusId(headerV2.getCompanyCode(), headerV2.getBranchCode(), headerV2.getWarehouseId(),
-                        headerV2.getAsnNumber(), 10L);
-        } catch (Exception e) {
-            log.error("Error processing inbound ASN Lines", e);
-            errorLogService.createProcessInboundReceivedV2(asnv2, e.getMessage());
-            updateStatusId(asnv2.getAsnHeader().getCompanyCode(), asnv2.getAsnHeader().getBranchCode(), asnv2.getAsnHeader().getWarehouseId(),
-                    asnv2.getAsnHeader().getAsnNumber(), 100L);
-            throw new BadRequestException("Inbound Order Processing failed: " + e.getMessage());
-        }finally {
-            executorService.shutdown();
-            DataBaseContextHolder.clear();
-        }
-
-    }
+//    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+//    public void processInboundReceivedV2(ASNV2 asnv2) throws Exception {
+//        ExecutorService executorService = Executors.newFixedThreadPool(4);
+//        DataBaseContextHolder.clear();
+//        DataBaseContextHolder.setCurrentDb("BP");
+//        // Inbound Order table saved process
+//        try {
+////            saveASNV6(asnv2);
+//            ASNHeaderV2 headerV2 = asnv2.getAsnHeader();
+//            List<ASNLineV2> lineV2List = asnv2.getAsnLine();
+//            String unitType = lineV2List.get(0).getUnitType();
+//            String companyCode = headerV2.getCompanyCode();
+//            String plantId = headerV2.getBranchCode();
+//            String warehouseId = headerV2.getWarehouseId();
+//            String languageId = headerV2.getLanguageId();
+//            String itemText = null;
+//
+//            if (unitType == null || unitType.isEmpty()) {
+//                throw new RuntimeException("Unit Type is mandatory for this order");
+//            }
+//
+//            Optional<PreInboundHeaderEntityV2> orderProcessedStatus = preInboundHeaderV2Repository.
+//                    findByRefDocNumberAndInboundOrderTypeIdAndDeletionIndicator(headerV2.getAsnNumber(), headerV2.getInboundOrderTypeId(), 0L);
+//            if (!orderProcessedStatus.isEmpty()) {
+//                throw new BadRequestException("Order :" + headerV2.getAsnNumber() + " already processed. Reprocessing can't be allowed.");
+//            }
+//            // Description_Set
+//            IKeyValuePair description = repo.stagingLineV2Repository.getDescription(companyCode, languageId, plantId, warehouseId);
+//            String companyText = description.getCompanyDesc();
+//            String plantText = description.getPlantDesc();
+//            String warehouseText = description.getWarehouseDesc();
+//
+//            String idMasterAuthToken = repo.authTokenService.getIDMasterServiceAuthToken().getAccess_token();
+//            Long statusId = 13L;
+//
+//            // Getting PreInboundNo, StagingNo, CaseCode from NumberRangeTable
+//            String preInboundNo = getNextRangeNumber(2L, companyCode, plantId, languageId, warehouseId, idMasterAuthToken);
+//            log.info("PreInboundNo : " + preInboundNo);
+//            statusDescription = getStatusDescription(statusId, languageId);
+//
+//            // Step 1: Create headers before line processing
+//            PreInboundHeaderEntityV2 preInboundHeader = createPreInboundHeaderV6(
+//                    companyCode, languageId, plantId, preInboundNo, headerV2, warehouseId, companyText, plantText, warehouseText, MRF_NAME_V6,unitType);
+//            log.info("PreInboundHeader created: {}", preInboundHeader.getPreInboundNo());
+//
+//            InboundHeaderV2 inboundHeader = createInboundHeader(preInboundHeader, lineV2List.size());
+//            log.info("Inbound Header Created: {}", inboundHeader);
+//
+//            repo.preInboundHeaderV2Repository.save(preInboundHeader);
+//            repo.inboundHeaderV2Repository.save(inboundHeader);
+//                // Collections for batch saving
+//                List<PreInboundLineEntityV2> preInboundLineList = Collections.synchronizedList(new ArrayList<>());
+//                List<ImBasicData1V2> imBasicData1V2List = Collections.synchronizedList(new ArrayList<>());
+//
+//                String partBarCode = generateBarCodeId(preInboundHeader.getRefDocNumber());
+//
+//                // Process lines in parallel
+//                CompletableFuture<Void> allFutures = CompletableFuture.allOf(asnv2.getAsnLine().stream()
+//                        .map(asnLineV2 -> CompletableFuture.runAsync(() -> {
+//                            try {
+//                                processASNLine(asnv2, asnLineV2, preInboundHeader, preInboundLineList, imBasicData1V2List, partBarCode);
+//                            } catch (Exception e) {
+//                                log.error("Error processing ASN Line for ASN: {}", headerV2.getAsnNumber(), e);
+//                                throw new RuntimeException(e);
+//                            }
+//                        }, executorService)).toArray(CompletableFuture[]::new));
+//                try {
+//                    allFutures.join(); // Wait for all tasks to finish
+//                } catch (CompletionException e) {
+//                    log.error("Exception during ASN line processing: {}", e.getCause().getMessage());
+//                    throw new BadRequestException("Inbound Order Processing failed: " + e.getCause().getMessage());
+//                }
+//                // Batch Save All Records
+//                if (!imBasicData1V2List.isEmpty()) {
+//                    repo.imBasicData1V2Repository.saveAll(imBasicData1V2List);
+//                }
+//                repo.preInboundLineV2Repository.saveAll(preInboundLineList);
+//                updateStatusId(headerV2.getCompanyCode(), headerV2.getBranchCode(), headerV2.getWarehouseId(),
+//                        headerV2.getAsnNumber(), 10L);
+//        } catch (Exception e) {
+//            log.error("Error processing inbound ASN Lines", e);
+//            errorLogService.createProcessInboundReceivedV2(asnv2, e.getMessage());
+//            updateStatusId(asnv2.getAsnHeader().getCompanyCode(), asnv2.getAsnHeader().getBranchCode(), asnv2.getAsnHeader().getWarehouseId(),
+//                    asnv2.getAsnHeader().getAsnNumber(), 100L);
+//            throw new BadRequestException("Inbound Order Processing failed: " + e.getMessage());
+//        }finally {
+//            executorService.shutdown();
+//            DataBaseContextHolder.clear();
+//        }
+//
+//    }
     /**
      * @param companyId
      * @param languageId
@@ -722,7 +722,7 @@ public class SupplierInvoiceServiceV6 extends BaseService {
                 imBasicData1.setCapacityCheck(false);
                 imBasicData1.setDeletionIndicator(0L);
                 imBasicData1.setStatusId(1L);
-                imBasicData1.setReferenceField10(asnLineV2.getUnitType());
+//                imBasicData1.setReferenceField10(asnLineV2.getUnitType());
                 imBasicData1.setCompanyDescription(preInboundHeader.getCompanyDescription());
                 imBasicData1.setPlantDescription(preInboundHeader.getPlantDescription());
                 imBasicData1.setWarehouseDescription(preInboundHeader.getWarehouseDescription());
@@ -827,7 +827,7 @@ public class SupplierInvoiceServiceV6 extends BaseService {
         preInboundLine.setBranchCode(asnLineV2.getBranchCode());
         preInboundLine.setTransferOrderNo(asnHeaderV2.getAsnNumber());
         preInboundLine.setIsCompleted(asnLineV2.getIsCompleted());
-        preInboundLine.setReferenceField10(asnLineV2.getUnitType());
+//        preInboundLine.setReferenceField10(asnLineV2.getUnitType());
 
         preInboundLine.setDeletionIndicator(0L);
         preInboundLine.setCreatedBy("MW_AMS");
@@ -1042,10 +1042,10 @@ public class SupplierInvoiceServiceV6 extends BaseService {
             List<ASNLineV2> asnLineV2s = asnv2.getAsnLine();
 
             if (asnV2Header.getInboundOrderTypeId().equals(12L)){
-                String unitType = asnLineV2s.get(0).getUnitType();
-                if (unitType == null || unitType.isEmpty()){
-                    throw new RuntimeException("Unit Type is mandatory for this order");
-                }
+//                String unitType = asnLineV2s.get(0).getUnitType();
+//                if (unitType == null || unitType.isEmpty()){
+//                    throw new RuntimeException("Unit Type is mandatory for this order");
+//                }
             }
 
             InboundOrderV2 apiHeader = new InboundOrderV2();
@@ -1057,7 +1057,7 @@ public class SupplierInvoiceServiceV6 extends BaseService {
             apiHeader.setRefDocumentNo(asnV2Header.getAsnNumber());
             apiHeader.setOrderReceivedOn(new Date());
             apiHeader.setRefDocumentType("SUPPLIER INVOICE");
-            apiHeader.setMiddlewareTable(asnLineV2s.get(0).getUnitType());                 // Unit Type (FG)
+//            apiHeader.setMiddlewareTable(asnLineV2s.get(0).getUnitType());                 // Unit Type (FG)
             apiHeader.setAMSSupplierInvoiceNo(asnLineV2s.get(0).getPriceSegment());        // Weight (RM)
             apiHeader.setPurchaseOrderNumber(asnLineV2s.get(0).getPurchaseOrderNumber());
             apiHeader.setLanguageId(asnV2Header.getLanguageId() != null ? asnV2Header.getLanguageId() : LANG_ID);
@@ -1101,7 +1101,7 @@ public class SupplierInvoiceServiceV6 extends BaseService {
                 apiLine.setManufacturerFullName(MRF_NAME_V6);
                 apiLine.setPurchaseOrderNumber(asnLineV2.getPurchaseOrderNumber());
                 apiLine.setAMSSupplierInvoiceNo(asnLineV2.getPriceSegment());
-                apiLine.setMiddlewareTable(asnLineV2.getUnitType());
+//                apiLine.setMiddlewareTable(asnLineV2.getUnitType());
 
 
                 if (asnV2Header.getInboundOrderTypeId() != null) {
