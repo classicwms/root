@@ -10,7 +10,6 @@ import com.tekclover.wms.api.inbound.orders.repository.DbConfigRepository;
 import com.tekclover.wms.api.inbound.orders.service.*;
 import com.tekclover.wms.api.inbound.orders.service.SupplierInvoiceServiceV6;
 import com.tekclover.wms.api.inbound.orders.service.SupplierInvoiceServiceV5;
-import com.tekclover.wms.api.inbound.orders.service.SupplierInvoiceServiceV4;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
@@ -35,8 +34,8 @@ import java.util.List;
 @RestController
 public class InboundOrderController {
 
-    @Autowired
-    SupplierInvoiceServiceV4 supplierInvoiceService;
+//    @Autowired
+//    SupplierInvoiceServiceV4 supplierInvoiceService;
 
     @Autowired
     StockReceiptService stockReceiptService;
@@ -64,74 +63,74 @@ public class InboundOrderController {
 
     @Autowired
     TransactionService transactionService;
+//
+//    // ASN V2
+//    @ApiOperation(response = ASNV2.class, value = "ASN V2") // label for swagger
+//    @PostMapping("/inbound/asn/v2")
+//    public ResponseEntity<?> postASNV3(@Valid @RequestBody ASNV2 asn)
+//            throws Exception {
+//        try {
+//            DataBaseContextHolder.clear();
+//            DataBaseContextHolder.setCurrentDb("MT");
+//            // OrderProcess Table Save Records
+////            InboundOrderV2 saveInbound = supplierInvoiceService.saveASNV6(asn);
+//            String routingDb = dbConfigRepository.getDbName(asn.getAsnHeader().getCompanyCode(), asn.getAsnHeader().getBranchCode(), asn.getAsnHeader().getWarehouseId());
+//            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+//            DataBaseContextHolder.clear();
+//            DataBaseContextHolder.setCurrentDb(routingDb);
+////            if (routingDb.equalsIgnoreCase("NAMRATHA")) {
+////                supplierInvoiceService.processInboundReceivedV2(asn);
+////            }
+//            WarehouseApiResponse response = null;
+//            if (saveInbound != null) {
+//                response = new WarehouseApiResponse();
+//                response.setStatusCode("200");
+//                response.setMessage("Success");
+//            }
+//            return new ResponseEntity<>(response, HttpStatus.OK);
+//        } catch (Exception e) {
+//            WarehouseApiResponse response = new WarehouseApiResponse();
+//            response.setStatusCode("1400");
+//            response.setMessage("Not Success: " + e.getLocalizedMessage());
+//            return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
+//        } finally {
+//            DataBaseContextHolder.clear();
+//        }
+//    }
 
     // ASN V2
-    @ApiOperation(response = ASNV2.class, value = "ASN V2") // label for swagger
-    @PostMapping("/inbound/asn/v2")
-    public ResponseEntity<?> postASNV3(@Valid @RequestBody ASNV2 asn)
-            throws Exception {
-        try {
-            DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb("MT");
-            // OrderProcess Table Save Records
-            InboundOrderV2 saveInbound = supplierInvoiceService.saveASNV6(asn);
-            String routingDb = dbConfigRepository.getDbName(asn.getAsnHeader().getCompanyCode(), asn.getAsnHeader().getBranchCode(), asn.getAsnHeader().getWarehouseId());
-            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-            DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb(routingDb);
-            if (routingDb.equalsIgnoreCase("NAMRATHA")) {
-                supplierInvoiceService.processInboundReceivedV2(asn);
-            }
-            WarehouseApiResponse response = null;
-            if (saveInbound != null) {
-                response = new WarehouseApiResponse();
-                response.setStatusCode("200");
-                response.setMessage("Success");
-            }
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (Exception e) {
-            WarehouseApiResponse response = new WarehouseApiResponse();
-            response.setStatusCode("1400");
-            response.setMessage("Not Success: " + e.getLocalizedMessage());
-            return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
-        } finally {
-            DataBaseContextHolder.clear();
-        }
-    }
-
-    // ASN V2
-    @ApiOperation(response = ASNV2.class, value = "ASN V2") // label for swagger
-    @PostMapping("/inbound/asn/v4")
-    public ResponseEntity<?> postASNV4(@Valid @RequestBody List<ASNV2> asnList)
-            throws Exception {
-        try {
-            DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb("KNOWELL");
-            for (ASNV2 asn : asnList) {
-                // OrderProcess Table Save Records
-                InboundOrderV2 saveInbound = supplierInvoiceService.saveASNV6(asn);
-            }
-            DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb("KNOWELL");
-            supplierInvoiceServiceV5.processInboundReceivedV2(asnList);
-
-            List<WarehouseApiResponse> responseList = new ArrayList<>();
-            WarehouseApiResponse response = new WarehouseApiResponse();
-            response.setStatusCode("200");
-            response.setMessage("Success");
-            responseList.add(response);
-            return new ResponseEntity<>(responseList, HttpStatus.OK);
-        } catch (Exception e) {
-            List<WarehouseApiResponse> responseList = new ArrayList<>();
-            WarehouseApiResponse response = new WarehouseApiResponse();
-            response.setStatusCode("400");
-            response.setMessage("Not Success");
-            responseList.add(response);
-            return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
-        } finally {
-            DataBaseContextHolder.clear();
-        }
-    }
+//    @ApiOperation(response = ASNV2.class, value = "ASN V2") // label for swagger
+//    @PostMapping("/inbound/asn/v4")
+//    public ResponseEntity<?> postASNV4(@Valid @RequestBody List<ASNV2> asnList)
+//            throws Exception {
+//        try {
+//            DataBaseContextHolder.clear();
+//            DataBaseContextHolder.setCurrentDb("KNOWELL");
+//            for (ASNV2 asn : asnList) {
+//                // OrderProcess Table Save Records
+//                InboundOrderV2 saveInbound = supplierInvoiceService.saveASNV6(asn);
+//            }
+//            DataBaseContextHolder.clear();
+//            DataBaseContextHolder.setCurrentDb("KNOWELL");
+//            supplierInvoiceServiceV5.processInboundReceivedV2(asnList);
+//
+//            List<WarehouseApiResponse> responseList = new ArrayList<>();
+//            WarehouseApiResponse response = new WarehouseApiResponse();
+//            response.setStatusCode("200");
+//            response.setMessage("Success");
+//            responseList.add(response);
+//            return new ResponseEntity<>(responseList, HttpStatus.OK);
+//        } catch (Exception e) {
+//            List<WarehouseApiResponse> responseList = new ArrayList<>();
+//            WarehouseApiResponse response = new WarehouseApiResponse();
+//            response.setStatusCode("400");
+//            response.setMessage("Not Success");
+//            responseList.add(response);
+//            return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
+//        } finally {
+//            DataBaseContextHolder.clear();
+//        }
+//    }
 
   //-----------------------------------------------------------------------------------------------
     // ASN V2
@@ -187,23 +186,23 @@ public class InboundOrderController {
 
 
     // ASN V2
-    @ApiOperation(response = ASNV2.class, value = "ASN V8") // label for swagger
-    @PostMapping("/inbound/asn/v8")
-    public ResponseEntity<?> postASNV3(@Valid @RequestBody List<ASNV2> asn)
-            throws Exception {
-        try {
-            String routingDb = dbConfigRepository.getDbNameWithoutWhId(asn.get(0).getAsnHeader().getCompanyCode(), asn.get(0).getAsnHeader().getBranchCode());
-            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-            DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb(routingDb);
+//    @ApiOperation(response = ASNV2.class, value = "ASN V8") // label for swagger
+//    @PostMapping("/inbound/asn/v8")
+//    public ResponseEntity<?> postASNV3(@Valid @RequestBody List<ASNV2> asn)
+//            throws Exception {
+//        try {
+//            String routingDb = dbConfigRepository.getDbNameWithoutWhId(asn.get(0).getAsnHeader().getCompanyCode(), asn.get(0).getAsnHeader().getBranchCode());
+//            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
 //            DataBaseContextHolder.clear();
-//            DataBaseContextHolder.setCurrentDb("FAHAHEEL");
-            List<ASNV2> createdASNHeader = supplierInvoiceService.processInboundReceivedV8(asn);
-            return new ResponseEntity<>(createdASNHeader, HttpStatus.OK);
-        } finally {
-            DataBaseContextHolder.clear();
-        }
-    }
+//            DataBaseContextHolder.setCurrentDb(routingDb);
+////            DataBaseContextHolder.clear();
+////            DataBaseContextHolder.setCurrentDb("FAHAHEEL");
+//            List<ASNV2> createdASNHeader = supplierInvoiceService.processInboundReceivedV8(asn);
+//            return new ResponseEntity<>(createdASNHeader, HttpStatus.OK);
+//        } finally {
+//            DataBaseContextHolder.clear();
+//        }
+//    }
 
 
     // StockReceipt V2
