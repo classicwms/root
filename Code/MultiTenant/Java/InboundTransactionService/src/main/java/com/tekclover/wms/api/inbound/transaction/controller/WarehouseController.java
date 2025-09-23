@@ -181,8 +181,8 @@ public class WarehouseController {
             DataBaseContextHolder.setCurrentDb("MT");
             String profile = dbConfigRepository.getDbName(asn.getAsnHeader().getCompanyCode(), asn.getAsnHeader().getBranchCode(), asn.getAsnHeader().getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", profile);
-//            DataBaseContextHolder.clear();
-//            DataBaseContextHolder.setCurrentDb(profile);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(profile);
             InboundOrderV2 createdASNHeader = null;
             if (profile != null) {
                 switch (profile) {

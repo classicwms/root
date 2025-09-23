@@ -2,8 +2,10 @@ package com.tekclover.wms.api.inbound.orders.service;
 
 import com.tekclover.wms.api.inbound.orders.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.inbound.orders.controller.BadRequestException;
+import com.tekclover.wms.api.inbound.orders.model.inbound.InboundOrderMobileApp;
 import com.tekclover.wms.api.inbound.orders.model.inbound.preinbound.InboundIntegrationHeader;
 import com.tekclover.wms.api.inbound.orders.model.inbound.preinbound.InboundIntegrationLine;
+import com.tekclover.wms.api.inbound.orders.model.inbound.staging.v2.StagingLineEntityV2;
 import com.tekclover.wms.api.inbound.orders.model.inbound.v2.InboundHeaderV2;
 import com.tekclover.wms.api.inbound.orders.model.inbound.v2.InboundOrderCancelInput;
 import com.tekclover.wms.api.inbound.orders.model.outbound.preoutbound.v2.OutboundIntegrationHeaderV2;
@@ -19,11 +21,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Slf4j
@@ -40,11 +41,16 @@ public class TransactionService {
     @Autowired
     InboundOrderV2Repository inboundOrderV2Repository;
 
+    @Autowired
+    StagingLineV2Repository stagingLineV2Repository;
+
     //-------------------------------------------------------------------Inbound---------------------------------------------------------------
-    public WarehouseApiResponse processInboundOrder() throws IllegalAccessException, InvocationTargetException, ParseException {
+    public WarehouseApiResponse processInboundOrder(String profile) throws IllegalAccessException, InvocationTargetException, ParseException {
         WarehouseApiResponse warehouseApiResponse = new WarehouseApiResponse();
+
         DataBaseContextHolder.clear();
-        DataBaseContextHolder.setCurrentDb("MT");
+        DataBaseContextHolder.setCurrentDb(profile);
+        log.info("Current DB --------> " + profile);
         List<InboundOrderV2> sqlInboundList = inboundOrderV2Repository.findTopByProcessedStatusIdOrderByOrderReceivedOn(0L);
         log.info("ib sql header list: " + sqlInboundList);
 
@@ -61,11 +67,6 @@ public class TransactionService {
             BeanUtils.copyProperties(dbOBOrder, inboundIntegrationHeader, CommonUtils.getNullPropertyNames(dbOBOrder));
             inboundIntegrationHeader.setId(dbOBOrder.getOrderId());
             inboundIntegrationHeader.setMiddlewareId(String.valueOf(dbOBOrder.getMiddlewareId()));
-//            inboundIntegrationHeader.setMiddlewareTable(dbOBOrder.getMiddlewareTable());
-//            inboundIntegrationHeader.setSourceBranchCode(dbOBOrder.getSourceBranchCode());
-//            inboundIntegrationHeader.setSourceCompanyCode(dbOBOrder.getSourceCompanyCode());
-//            inboundIntegrationHeader.setCustomerCode(dbOBOrder.getCustomerCode());
-//            inboundIntegrationHeader.setTransferRequestType(dbOBOrder.getTransferRequestType());
             if (dbOBOrder.getCustomerId() != null) {
                 inboundIntegrationHeader.setCustomerId(dbOBOrder.getCustomerId());
             }
@@ -79,37 +80,9 @@ public class TransactionService {
                 InboundIntegrationLine inboundIntegrationLine = new InboundIntegrationLine();
                 BeanUtils.copyProperties(line, inboundIntegrationLine, CommonUtils.getNullPropertyNames(line));
                 inboundIntegrationLine.setLineReference(line.getLineReference());
-                //inboundIntegrationLine.setItemCode(line.getItemCode().replaceAll("[^a-zA-Z0-9-_]", ""));    //For Knowell
-//                inboundIntegrationLine.setItemCode(line.getItemCode());
-//                inboundIntegrationLine.setItemText(line.getItemText());
-//                inboundIntegrationLine.setInvoiceNumber(line.getInvoiceNumber());
-//                inboundIntegrationLine.setContainerNumber(line.getContainerNumber());
-//                inboundIntegrationLine.setSupplierCode(line.getSupplierCode());
-//                inboundIntegrationLine.setSupplierPartNumber(line.getSupplierPartNumber());
-//                inboundIntegrationLine.setManufacturerName(line.getManufacturerName());
-//                inboundIntegrationLine.setManufacturerPartNo(line.getManufacturerPartNo());
-//                inboundIntegrationLine.setExpectedDate(line.getExpectedDate());
                 inboundIntegrationLine.setOrderedQty(line.getExpectedQty());
-//                inboundIntegrationLine.setUom(line.getUom());
-//                inboundIntegrationLine.setItemCaseQty(line.getItemCaseQty());
-//                inboundIntegrationLine.setSalesOrderReference(line.getSalesOrderReference());
-//                inboundIntegrationLine.setManufacturerCode(line.getManufacturerCode());
-//                inboundIntegrationLine.setOrigin(line.getOrigin());
-//                inboundIntegrationLine.setBrand(line.getBrand());
-//                inboundIntegrationLine.setSourceCompanyCode(dbOBOrder.getSourceCompanyCode());
-//                inboundIntegrationLine.setSourceBranchCode(dbOBOrder.getSourceBranchCode());
-//                inboundIntegrationLine.setSupplierName(line.getSupplierName());
-                inboundIntegrationLine.setMiddlewareId(String.valueOf(line.getMiddlewareId()));
-                inboundIntegrationLine.setMiddlewareHeaderId(String.valueOf(line.getMiddlewareHeaderId()));
-//                inboundIntegrationLine.setMiddlewareTable(line.getMiddlewareTable());
-//                inboundIntegrationLine.setManufacturerFullName(line.getManufacturerFullName());
-//                inboundIntegrationLine.setPurchaseOrderNumber(line.getPurchaseOrderNumber());
-//                inboundIntegrationLine.setContainerNumber(line.getContainerNumber());
                 inboundIntegrationLine.setManufacturerDate(line.getReceivedDate());
                 inboundIntegrationHeader.setContainerNo(line.getContainerNumber());
-//                inboundIntegrationLine.setVehicleNo(line.getVehicleNo());
-//                inboundIntegrationLine.setVehicleUnloadingDate(line.getVehicleUnloadingDate());
-//                inboundIntegrationLine.setVehicleReportingDate(line.getVehicleReportingDate());
                 if (inboundIntegrationHeader.getCustomerId() != null) {
                     inboundIntegrationLine.setCustomerId(inboundIntegrationHeader.getCustomerId());
                 }
@@ -129,11 +102,11 @@ public class TransactionService {
                 InboundIntegrationHeader inbound = iterator.next();
                 try {
                     log.info("InboundOrder ID : {}", inbound.getRefDocumentNo());
-                    String profile = dbConfigRepository.getDbName(inbound.getCompanyCode(), inbound.getBranchCode(), inbound.getWarehouseID());
+//                    String profile = dbConfigRepository.getDbName(inbound.getCompanyCode(), inbound.getBranchCode(), inbound.getWarehouseID());
                     log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", profile);
 
-                    DataBaseContextHolder.clear();
-                    DataBaseContextHolder.setCurrentDb(profile);
+//                    DataBaseContextHolder.clear();
+//                    DataBaseContextHolder.setCurrentDb(profile);
                     InboundHeaderV2 inboundHeader = null;
 
                     if (profile != null) {
@@ -155,7 +128,9 @@ public class TransactionService {
                     }
 
                     if (inboundHeader != null) {
-                        orderService.updateProcessedInboundOrderV2(inbound.getRefDocumentNo(), inbound.getInboundOrderTypeId(), 10L);
+//                        orderService.updateProcessStatus(inbound.getRefDocumentNo(), inbound.getInboundOrderTypeId(), 10L);
+                        inboundOrderV2Repository.updateIbOrderStatus(inboundHeader.getCompanyCode(), inboundHeader.getPlantId(), inboundHeader.getWarehouseId(),
+                                inboundHeader.getRefDocNumber(), 10L);
                         iterator.remove(); // Safe removal
                         warehouseApiResponse.setStatusCode("200");
                         warehouseApiResponse.setMessage("Success");
@@ -164,7 +139,7 @@ public class TransactionService {
                 } catch (Exception e) {
                     e.printStackTrace();
                     log.error("Error on inbound processing: {}", e);
-
+//                    errorLogService.createProcessInboundOrder(inbound, e.getMessage());
                     boolean isLockOrDeadlock = e.toString().contains("SQLState: 40001") ||
                             e.toString().contains("SQL Error: 1205") ||
                             e.toString().contains("was deadlocked on lock") ||
@@ -173,8 +148,8 @@ public class TransactionService {
                             e.toString().contains("UnexpectedRollbackException");
 
                     Long status = isLockOrDeadlock ? 900L : 100L;
-                    orderService.updateProcessedInboundOrderV2(inbound.getRefDocumentNo(), inbound.getInboundOrderTypeId(), status);
-
+//                    orderService.updateProcessStatus(inbound.getRefDocumentNo(), inbound.getInboundOrderTypeId(), status);
+                    inboundOrderV2Repository.updateProcessStatusId(inbound.getRefDocumentNo(), status);
                     InboundOrderCancelInput cancelInput = new InboundOrderCancelInput();
                     cancelInput.setCompanyCodeId(inbound.getCompanyCode());
                     cancelInput.setPlantId(inbound.getBranchCode());
@@ -219,7 +194,6 @@ public class TransactionService {
         return warehouseApiResponse;
     }
 
-
     /**
      * @param referenceDocumentTypeId
      * @return
@@ -242,4 +216,5 @@ public class TransactionService {
 
         return referenceDocumentType;
     }
+
 }

@@ -79,4 +79,14 @@ public interface PreOutboundLineV2Repository extends JpaRepository<PreOutboundLi
 //    + "WHERE REF_DOC_NO = :refDocNumber \r\n"
 //    + "GROUP BY REF_DOC_NO", nativeQuery = true)
 //    public Long getCountOfPickedQty(@Param("refDocNumber")String refDocNumber);
+
+
+    @Query(value = "select * from tblpreoutboundline where IS_DELETED = 0 and C_ID = :companyCodeId and PLANT_ID = :plantId and " +
+            " WH_ID = :warehouseId and PRE_OB_NO = :preOutboundNo and REF_DOC_NO = :refDocNumber ",nativeQuery = true)
+    List<PreOutboundLineV2> getPreOutboundLine(@Param("companyCodeId") String companyCodeId,
+                                             @Param("plantId") String plantId,
+                                             @Param("warehouseId") String warehouseId,
+                                             @Param("preOutboundNo") String preOutboundNo,
+                                             @Param("refDocNumber") String refDocNumber);
+
 }

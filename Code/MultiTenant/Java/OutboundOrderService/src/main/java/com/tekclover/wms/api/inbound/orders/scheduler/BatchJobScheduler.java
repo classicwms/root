@@ -28,11 +28,36 @@ public class BatchJobScheduler {
 
     //-------------------------------------------------------------------------------------------
 
+//    @Scheduled(fixedDelay = 20000)
+//    public void scheduleJob() throws InterruptedException, InvocationTargetException, IllegalAccessException, ParseException {
+//        CompletableFuture<WarehouseApiResponse> OutboundOrder = scheduleAsyncService.processOutboundOrder();
+//    }
+
     @Scheduled(fixedDelay = 20000)
     public void scheduleJob() throws InterruptedException, InvocationTargetException, IllegalAccessException, ParseException {
-        CompletableFuture<WarehouseApiResponse> amgharaOutboundOrder = scheduleAsyncService.processAmgharaOutboundOrder();
+//        CompletableFuture<WarehouseApiResponse> OutboundOrder = scheduleAsyncService.processOutboundOrder();
 //        CompletableFuture<WarehouseApiResponse> outboundFailedOrder = scheduleAsyncService.processOutboundFailedOrder();
+
+
+        //NAMRATHA
+        CompletableFuture<WarehouseApiResponse> OutboundOrderV4 = scheduleAsyncService.processOutboundOrderV4();
+
+        //REEFERON
+//        CompletableFuture<WarehouseApiResponse> OutboundOrderV5 = scheduleAsyncService.processOutboundOrderV5();
+
+        //BP
+//        CompletableFuture<WarehouseApiResponse> OutboundOrderV6 = scheduleAsyncService.processOutboundOrderV6();
+
+        //KNOWELL
+        CompletableFuture<WarehouseApiResponse> OutboundOrderV7 = scheduleAsyncService.processOutboundOrderV7();
+
+        //MMF
+//        CompletableFuture<WarehouseApiResponse> OutboundOrderV8 = scheduleAsyncService.processOutboundOrderV8();
+
     }
+
+
+
 
 
     // Delete HhtNotification_Records
@@ -41,14 +66,6 @@ public class BatchJobScheduler {
         notificationRepository.truncateTable();
     }
 
-//    @Scheduled(cron = "0 0 1 * * *")
-//    public void schedulehttnotification() {
-//
-//        log.info("Starting schedulerhttnotification job at 1 AM");
-//        deleteRecords();
-//        log.info("DataBase cleaned successfully.");
-//
-//    }
 
     @Scheduled(cron = "0 0 1 * * *")
     public void schedulehttnotification() {

@@ -86,34 +86,6 @@ public class SalesOrderServiceV4 extends BaseService {
             if (!orderProcessedStatus.isEmpty()) {
                 throw new BadRequestException("Order :" + refDocNumber + " already processed. Reprocessing can't be allowed.");
             }
-//            //Check WMS order table
-//            List<OutboundHeaderV2> outbound = repo.outboundHeaderV2Repository.findBySalesOrderNumberAndOutboundOrderTypeIdAndDeletionIndicator(salesOrderNumber, 3L, 0L);
-//            log.info("SalesOrderNumber already Exist: ---> PickList Cancellation to be executed " + salesOrderNumber);
-//
-//            if (outbound != null && !outbound.isEmpty()) {
-//                List<OutboundHeaderV2> oldPickListNo = outbound.stream().filter(n -> !n.getPickListNumber().equalsIgnoreCase(newPickListNo)).collect(Collectors.toList());
-//                log.info("Old PickList Number, New PickList Number: " + oldPickListNo + ", " + newPickListNo);
-//
-//                if (oldPickListNo != null && !oldPickListNo.isEmpty()) {
-//                    for (OutboundHeaderV2 oldPickListNumber : oldPickListNo) {
-//                        OutboundHeaderV2 outboundOrderV2 =
-//                                repo.outboundHeaderV2Repository.findByCompanyCodeIdAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
-//                                        companyCode, languageId, plantId, warehouseId, oldPickListNumber.getPickListNumber(), oldPickListNumber.getPreOutboundNo(), 0L);
-//                        log.info("Outbound Order status ---> Delivered for old Picklist Number: " + outboundOrderV2 + ", " + oldPickListNumber);
-//
-//                        if (outboundOrderV2 != null && outboundOrderV2.getInvoiceNumber() != null) {
-//                            // Update error message for the new PicklistNo
-//                            throw new BadRequestException("Picklist cannot be cancelled as Sales order associated with picklist - Invoice has been raised");
-//                        }
-//
-//                        log.info("Old PickList Number: " + oldPickListNumber.getPickListNumber() + ", " +
-//                                oldPickListNumber.getPreOutboundNo() + " Cancellation Initiated and followed by New PickList " + newPickListNo + " creation started");
-//
-//                        //Delete old PickListData
-//                        createPickListCancellation = repo.orderService.pickListCancellationNew(companyCode, plantId, languageId, warehouseId, oldPickListNumber.getPickListNumber(), newPickListNo, oldPickListNumber.getPreOutboundNo(), "MW_AMS");
-//                    }
-//                }
-//            }
 
             // PreBoundHeader
             PreOutboundHeaderV2 preOutboundHeader = createPreOutboundHeaderV2(companyCode, plantId, languageId, warehouseId,

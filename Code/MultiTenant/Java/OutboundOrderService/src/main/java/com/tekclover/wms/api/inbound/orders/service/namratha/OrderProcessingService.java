@@ -4,6 +4,7 @@ import com.tekclover.wms.api.inbound.orders.config.dynamicConfig.DataBaseContext
 import com.tekclover.wms.api.inbound.orders.controller.BadRequestException;
 import com.tekclover.wms.api.inbound.orders.model.dto.BomLine;
 import com.tekclover.wms.api.inbound.orders.model.dto.ImBasicData1V2;
+import com.tekclover.wms.api.inbound.orders.model.inbound.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.inbound.orders.model.outbound.ordermangement.v2.OrderManagementHeaderV2;
 import com.tekclover.wms.api.inbound.orders.model.outbound.ordermangement.v2.OrderManagementLineV2;
 import com.tekclover.wms.api.inbound.orders.model.outbound.pickup.v2.PickupHeaderV2;
@@ -17,8 +18,8 @@ import com.tekclover.wms.api.inbound.orders.model.warehouse.Warehouse;
 import com.tekclover.wms.api.inbound.orders.repository.*;
 import com.tekclover.wms.api.inbound.orders.service.*;
 import com.tekclover.wms.api.inbound.orders.util.CommonUtils;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.criterion.Order;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,13 +27,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class OrderProcessingService extends BaseService {
 
+    private final RepositoryProvider repo;
     @Autowired
     PreOutboundHeaderV2Repository preOutboundHeaderV2Repository;
     @Autowired
@@ -60,6 +64,12 @@ public class OrderProcessingService extends BaseService {
     OrderManagementLineV2Repository orderManagementLineV2Repository;
     @Autowired
     PickupHeaderV2Repository pickupHeaderV2Repository;
+
+    @Autowired
+    OutboundOrderV2Repository outboundOrderV2Repository;
+
+    @Autowired
+    SalesOrderServiceV6 salesOrderServiceV6;
 
     protected static final Long OB_PL_ORD_TYP_ID = 3L;          //Production Order creation
     protected static final Long OB_IPL_ORD_TYP_ID_SFG = 5L;          //Production Order create - semi-finished goods Picklist
@@ -160,11 +170,6 @@ public class OrderProcessingService extends BaseService {
             }
 
             createOrderManagementLine(companyCodeId, plantId, languageId, preOutboundNo, outboundIntegrationHeader, createdPreOutboundLineList, MW_AMS);
-
-            /*------------------Record Insertion in OUTBOUNDLINE tables-----------*/
-//            List<OutboundLineV2> createOutboundLineList = createOutboundLineV2(createdPreOutboundLineList, outboundIntegrationHeader, MW_AMS);
-//            log.info("createOutboundLine created : " + createOutboundLineList);
-
             // OutboundLines Created
             createOutboundLine(companyCodeId, plantId, warehouseId, languageId, preOutboundNo);
 
@@ -201,6 +206,140 @@ public class OrderProcessingService extends BaseService {
         }
     }
 
+//==================================================================MMF============================================================
+
+    /**
+     * MMF
+     *
+     * @param outboundIntegrationHeader
+     * @return
+     * @throws Exception
+     */
+    public OutboundHeaderV2 processOutboundReceivedV8(OutboundIntegrationHeaderV2 outboundIntegrationHeader) throws Exception {
+        try {
+            /*
+             * Checking whether received refDocNumber processed already.
+             */
+            log.info("Outbound Process Initiated----> " + outboundIntegrationHeader.getRefDocumentNo() + ", " + outboundIntegrationHeader.getOutboundOrderTypeID());
+            if (outboundIntegrationHeader.getLoginUserId() != null) {
+                MW_AMS = outboundIntegrationHeader.getLoginUserId();
+            }
+
+            String warehouseId = outboundIntegrationHeader.getWarehouseID();
+            String companyCodeId = outboundIntegrationHeader.getCompanyCode();
+            String plantId = outboundIntegrationHeader.getBranchCode();
+            String languageId = outboundIntegrationHeader.getLanguageId() != null ? outboundIntegrationHeader.getLanguageId() : LANG_ID;
+            String refDocNumber = outboundIntegrationHeader.getRefDocumentNo();
+
+            if (warehouseId == null) {
+                try {
+                    Optional<Warehouse> warehouse =
+                            warehouseRepository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndDeletionIndicator(
+                                    outboundIntegrationHeader.getCompanyCode(), outboundIntegrationHeader.getBranchCode(), LANG_ID, 0L);
+                    log.info("warehouse : " + warehouse);
+                    if (warehouse.isPresent()) {
+                        log.info("warehouse : " + warehouse.get().getWarehouseId());
+                        warehouseId = warehouse.get().getWarehouseId();
+                    } else {
+                        log.info("warehouse not found.");
+                        throw new BadRequestException("Warehouse cannot be null.");
+                    }
+                } catch (Exception e) {
+                    log.error("Warehouse fetch exception : " + e.toString());
+                    throw e;
+                }
+            }
+
+            Optional<PreOutboundHeaderV2> orderProcessedStatus =
+                    preOutboundHeaderV2Repository.findByRefDocNumberAndOutboundOrderTypeIdAndDeletionIndicator(
+                            refDocNumber, outboundIntegrationHeader.getOutboundOrderTypeID(), 0L);
+
+            if (orderProcessedStatus.isPresent()) {
+                log.info("PickListCancellation Starting -----------> companyId {}, PlantId {}, WarehouseId {}, RefDocNo {} ", companyCodeId, plantId, warehouseId, refDocNumber);
+                List<Long> statusIdList = Arrays.asList(57L, 50L);
+                boolean pickUpConfirm = pickupHeaderV2Repository.existsByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndStatusIdInAndDeletionIndicator(
+                        companyCodeId, plantId, warehouseId, refDocNumber, statusIdList, 0L);
+                log.info("PickupHeader Status Checking " + pickUpConfirm);
+                if (pickUpConfirm) {
+                    throw new BadRequestException("This Order Already PickList Confirm --------> RefDocNo is " + refDocNumber);
+                }
+                // PickListCancellation Delete all tables
+                pickListCancellationV8(companyCodeId, plantId, warehouseId, refDocNumber);
+            }
+
+            // ORD_TYP_ID == 4
+            if (outboundIntegrationHeader.getOutboundOrderTypeID() == 4 ||
+                    (outboundIntegrationHeader.getReferenceDocumentType() != null && outboundIntegrationHeader.getReferenceDocumentType().equalsIgnoreCase("Sales Invoice"))) {
+                OutboundHeaderV2 updateOutboundHeaderAndLine = updateOutboundHeaderForSalesInvoice(outboundIntegrationHeader, warehouseId);
+                log.info("SalesInvoice Updated in OutboundHeader and Line");
+                if (updateOutboundHeaderAndLine == null) {
+                    updateOutboundHeaderAndLine = new OutboundHeaderV2();
+                }
+                return updateOutboundHeaderAndLine;
+            }
+
+            // Getting PreOutboundNo from NumberRangeTable
+            String preOutboundNo = getPreOutboundNo(warehouseId, companyCodeId, plantId, languageId);
+            String refField1ForOrderType = null;
+
+            /*
+             * Append PREOUTBOUNDLINE table through below logic
+             */
+            List<PreOutboundLineV2> createdPreOutboundLineList = new ArrayList<>();
+            for (OutboundIntegrationLineV2 outboundIntegrationLine : outboundIntegrationHeader.getOutboundIntegrationLines()) {
+                // PreOutboundLine
+                try {
+                    //=========================================================================================================//
+
+                    PreOutboundLineV2 preOutboundLine = createPreOutboundLineV8(companyCodeId, plantId, languageId, warehouseId,
+                            preOutboundNo, outboundIntegrationHeader, outboundIntegrationLine, MW_AMS);
+                    PreOutboundLineV2 createdPreOutboundLine = preOutboundLineV2Repository.save(preOutboundLine);
+                    log.info("preOutboundLine created---1---> : " + createdPreOutboundLine);
+                    createdPreOutboundLineList.add(createdPreOutboundLine);
+
+                } catch (Exception e) {
+                    log.error("Error on processing PreOutboundLine : " + e.toString());
+                    e.printStackTrace();
+                }
+            }
+
+            createOrderManagementLineV8(companyCodeId, plantId, languageId, preOutboundNo, outboundIntegrationHeader, createdPreOutboundLineList, MW_AMS);
+            // OutboundLines Created
+            createOutboundLineV8(companyCodeId, plantId, warehouseId, languageId, preOutboundNo);
+
+            /*------------------Insert into PreOutboundHeader table-----------------------------*/
+            PreOutboundHeaderV2 createdPreOutboundHeader = createPreOutboundHeaderV8(companyCodeId, plantId, languageId, warehouseId,
+                    preOutboundNo, outboundIntegrationHeader, refField1ForOrderType, MW_AMS);
+            log.info("preOutboundHeader Created : " + createdPreOutboundHeader);
+
+            /*------------------ORDERMANAGEMENTHEADER TABLE-------------------------------------*/
+            OrderManagementHeaderV2 createdOrderManagementHeader = createOrderManagementHeaderV8(createdPreOutboundHeader, MW_AMS);
+            log.info("OrderMangementHeader Created : " + createdOrderManagementHeader);
+
+            /*------------------Record Insertion in OUTBOUNDHEADER/OUTBOUNDLINE tables-----------*/
+            OutboundHeaderV2 outboundHeader = createOutboundHeaderV8(createdPreOutboundHeader, createdOrderManagementHeader.getStatusId(),
+                    outboundIntegrationHeader, MW_AMS);
+
+            //check the status of OrderManagementLine for NoStock update status of outbound header, preoutbound header, preoutboundline
+            statusDescription = getStatusDescription(47L, languageId);
+            orderManagementLineV2Repository.updateNostockStatusUpdateProc(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 47L, statusDescription);
+            log.info("No stock status updated in preinbound header and line, outbound header using stored procedure when condition is satisfied");
+
+            // Creating pickupheader number with respect to the incoming orders!!
+            createPickupHeaderNoV8(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, outboundHeader.getRefDocNumber(), outboundIntegrationHeader);
+
+            return outboundHeader;
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            // Updating the Processed Status
+            log.info("Rollback Initiated...!" + outboundIntegrationHeader.getRefDocumentNo());
+            orderManagementLineService.rollback(outboundIntegrationHeader);
+            orderService.updateProcessedOrderV8(outboundIntegrationHeader.getRefDocumentNo(), outboundIntegrationHeader.getOutboundOrderTypeID());
+            throw e;
+        }
+    }
+
     /**
      * @param outboundIntegrationHeader
      * @return
@@ -230,15 +369,13 @@ public class OrderProcessingService extends BaseService {
                 throw new BadRequestException("Order :" + outboundIntegrationHeader.getRefDocumentNo() + " already processed. Reprocessing can't be allowed.");
             }
 
-            String masterAuthToken = getMasterAuthToken();
-
             if (warehouseId == null) {
                 try {
                     Optional<Warehouse> warehouse =
                             warehouseRepository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndDeletionIndicator(
                                     outboundIntegrationHeader.getCompanyCode(), outboundIntegrationHeader.getBranchCode(), LANG_ID, 0L);
                     log.info("warehouse : " + warehouse);
-                    if (warehouse != null && !warehouse.isEmpty()) {
+                    if (warehouse.isPresent()) {
                         log.info("warehouse : " + warehouse.get().getWarehouseId());
                         warehouseId = warehouse.get().getWarehouseId();
                     } else {
@@ -275,7 +412,7 @@ public class OrderProcessingService extends BaseService {
                     //=========================================================================================================//
 
                     PreOutboundLineV2 preOutboundLine = createPreOutboundLineV2(companyCodeId, plantId, languageId, warehouseId,
-                            preOutboundNo, outboundIntegrationHeader, outboundIntegrationLine, MFR_NAME_V7);
+                            preOutboundNo, outboundIntegrationHeader, outboundIntegrationLine, outboundIntegrationLine.getManufacturerName());
                     PreOutboundLineV2 createdPreOutboundLine = preOutboundLineV2Repository.save(preOutboundLine);
                     log.info("preOutboundLine created---1---> : " + createdPreOutboundLine);
                     createdPreOutboundLineList.add(createdPreOutboundLine);
@@ -316,9 +453,6 @@ public class OrderProcessingService extends BaseService {
             return outboundHeader;
         } catch (Exception e) {
             e.printStackTrace();
-//            log.info("Rollback Initiated...!" + outboundIntegrationHeader.getRefDocumentNo());
-//            orderManagementLineService.rollback(outboundIntegrationHeader);
-//            orderService.updateProcessedOrderV2(outboundIntegrationHeader.getRefDocumentNo(), outboundIntegrationHeader.getOutboundOrderTypeID());
             throw e;
         }
     }
@@ -543,7 +677,69 @@ public class OrderProcessingService extends BaseService {
         // PROP_ST_BIN
         return orderManagementLine;
     }
+    //=============================================================MMF======================================================
+    /**
+     * MMF
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param preOutboundNo
+     * @param outboundIntegrationHeader
+     * @param preOutboundLine
+     * @param loginUserId
+     * @return
+     * @throws Exception
+     */
+    public OrderManagementLineV2 createOrderManagementLineV8(String companyCodeId, String plantId, String languageId, String preOutboundNo,
+                                                             OutboundIntegrationHeaderV2 outboundIntegrationHeader, PreOutboundLineV2 preOutboundLine, String loginUserId) throws Exception {
+        OrderManagementLineV2 orderManagementLine = new OrderManagementLineV2();
+        BeanUtils.copyProperties(preOutboundLine, orderManagementLine, CommonUtils.getNullPropertyNames(preOutboundLine));
 
+        orderManagementLine.setMiddlewareId(preOutboundLine.getMiddlewareId());
+        orderManagementLine.setMiddlewareHeaderId(preOutboundLine.getMiddlewareHeaderId());
+        orderManagementLine.setMiddlewareTable(preOutboundLine.getMiddlewareTable());
+        orderManagementLine.setReferenceDocumentType(preOutboundLine.getReferenceDocumentType());
+        orderManagementLine.setSalesInvoiceNumber(preOutboundLine.getSalesInvoiceNumber());
+        orderManagementLine.setManufacturerName(preOutboundLine.getManufacturerName());
+        orderManagementLine.setItemCode(preOutboundLine.getItemCode());
+        orderManagementLine.setReferenceField1(preOutboundLine.getReferenceField1());
+        orderManagementLine.setManufacturerFullName(preOutboundLine.getManufacturerFullName());
+        orderManagementLine.setPickListNumber(preOutboundLine.getPickListNumber());
+        orderManagementLine.setSupplierInvoiceNo(preOutboundLine.getSupplierInvoiceNo());
+        orderManagementLine.setTokenNumber(preOutboundLine.getTokenNumber());
+        orderManagementLine.setTargetBranchCode(preOutboundLine.getTargetBranchCode());
+        orderManagementLine.setPickupCreatedBy(loginUserId);
+        orderManagementLine.setPickupCreatedOn(new Date());
+        orderManagementLine.setTransferOrderNo(preOutboundLine.getTransferOrderNo());
+        orderManagementLine.setReturnOrderNo(preOutboundLine.getReturnOrderNo());
+        orderManagementLine.setIsCompleted(preOutboundLine.getIsCompleted());
+        orderManagementLine.setIsCancelled(preOutboundLine.getIsCancelled());
+        log.info("orderManagementLine : " + orderManagementLine);
+        Long OB_ORD_TYP_ID = outboundIntegrationHeader.getOutboundOrderTypeID();
+        Long BIN_CLASS_ID;
+
+        if (OB_ORD_TYP_ID == 0L || OB_ORD_TYP_ID == 1L || OB_ORD_TYP_ID == 3L ||
+                OB_ORD_TYP_ID.equals(OB_IPL_ORD_TYP_ID_SFG) || OB_ORD_TYP_ID.equals(OB_IPL_ORD_TYP_ID_FG)) {
+
+            log.info("OutboundOrderType is either ---------> 0, 1, 3, 5, 6");
+//            List<String> storageSectionIds = Arrays.asList("ZB", "ZC", "ZG", "ZT"); //ZB,ZC,ZG,ZT
+            BIN_CLASS_ID = 1L;
+            orderManagementLine = orderManagementLineService.createOrderManagementV8(companyCodeId, plantId, languageId, BIN_CLASS_ID, orderManagementLine, preOutboundLine.getWarehouseId(),
+                    preOutboundLine.getItemCode(), preOutboundLine.getOrderQty(), loginUserId);
+        }
+
+        if (OB_ORD_TYP_ID == 2L) {
+            log.info("OutboundOrderType is ----------> 2");
+//            List<String> storageSectionIds = Arrays.asList("ZD"); //ZD
+            BIN_CLASS_ID = 7L;
+            orderManagementLine = orderManagementLineService.createOrderManagementV8(companyCodeId, plantId, languageId, BIN_CLASS_ID, orderManagementLine, preOutboundLine.getWarehouseId(),
+                    preOutboundLine.getItemCode(), preOutboundLine.getOrderQty(), loginUserId);
+        }
+
+        // PROP_ST_BIN
+        return orderManagementLine;
+    }
 
     /**
      * @param createdPreOutboundLine
@@ -645,6 +841,31 @@ public class OrderProcessingService extends BaseService {
             lineNo ++;
         }
     }
+
+    /**
+     * MMF
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param warehouseId
+     * @param languageId
+     * @param preOutboundNo
+     */
+    public void createOutboundLineV8(String companyCodeId, String plantId, String warehouseId, String languageId, String preOutboundNo) {
+
+        List<OrderManagementLineV2> orderManagementLinList = orderManagementLineV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndDeletionIndicator(
+                companyCodeId, plantId, languageId, warehouseId, preOutboundNo, 0L);
+
+        Long lineNo = 1L;
+        for(OrderManagementLineV2 orderManagementLine : orderManagementLinList) {
+            OutboundLineV2 newOutboundLine = new OutboundLineV2();
+            BeanUtils.copyProperties(orderManagementLine, newOutboundLine, CommonUtils.getNullPropertyNames(orderManagementLine));
+            newOutboundLine.setLineNumber(orderManagementLine.getLineNumber());
+            outboundLineV2Repository.delete(newOutboundLine);
+            outboundLineV2Repository.save(newOutboundLine);
+            lineNo ++;
+        }
+    }
     /**
      * @param companyCodeId
      * @param plantId
@@ -720,6 +941,83 @@ public class OrderProcessingService extends BaseService {
         return preOutboundLine;
     }
 
+    //==================================================MMF=================================================================
+    /**
+     * MMF
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param preOutboundNo
+     * @param outboundIntegrationHeader
+     * @param outboundIntegrationLine
+     * @param loginUserId
+     * @return
+     * @throws ParseException
+     */
+    public PreOutboundLineV2 createPreOutboundLineV8(String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo,
+                                                     OutboundIntegrationHeaderV2 outboundIntegrationHeader, OutboundIntegrationLineV2 outboundIntegrationLine, String loginUserId) throws ParseException {
+        PreOutboundLineV2 preOutboundLine = new PreOutboundLineV2();
+        BeanUtils.copyProperties(outboundIntegrationLine, preOutboundLine, CommonUtils.getNullPropertyNames(outboundIntegrationLine));
+        preOutboundLine.setLanguageId(languageId);
+        preOutboundLine.setCompanyCodeId(companyCodeId);
+        preOutboundLine.setPlantId(plantId);
+        preOutboundLine.setCustomerId(outboundIntegrationHeader.getCustomerId());
+        preOutboundLine.setCustomerName(outboundIntegrationHeader.getCustomerName());
+        preOutboundLine.setWarehouseId(warehouseId);
+        preOutboundLine.setRefDocNumber(outboundIntegrationHeader.getRefDocumentNo());
+        preOutboundLine.setPreOutboundNo(preOutboundNo);
+        preOutboundLine.setPartnerCode(outboundIntegrationHeader.getPartnerCode());
+        preOutboundLine.setLineNumber(outboundIntegrationLine.getLineReference());
+        preOutboundLine.setItemCode(outboundIntegrationLine.getItemCode());
+        preOutboundLine.setOutboundOrderTypeId(outboundIntegrationHeader.getOutboundOrderTypeID());
+        preOutboundLine.setStatusId(39L);
+        preOutboundLine.setStockTypeId(1L);
+        preOutboundLine.setSpecialStockIndicatorId(1L);
+        preOutboundLine.setManufacturerName(outboundIntegrationLine.getManufacturerName());
+        description = getDescription(preOutboundLine.getCompanyCodeId(), preOutboundLine.getPlantId(), preOutboundLine.getLanguageId(), preOutboundLine.getWarehouseId());
+        if (description != null) {
+            preOutboundLine.setCompanyDescription(description.getCompanyDesc());
+            preOutboundLine.setPlantDescription(description.getPlantDesc());
+            preOutboundLine.setWarehouseDescription(description.getWarehouseDesc());
+        }
+        statusDescription = stagingLineV2Repository.getStatusDescription(39L, languageId);
+        preOutboundLine.setStatusDescription(statusDescription);
+        preOutboundLine.setPickListNumber(outboundIntegrationLine.getPickListNo());
+        ImBasicData1V2 imBasicData1 = imBasicData1V2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndDeletionIndicator(
+                languageId, companyCodeId, plantId, warehouseId,
+                outboundIntegrationLine.getItemCode().trim(), 0L);
+        log.info("imBasicData1 : " + imBasicData1);
+        if (imBasicData1 != null) {
+            preOutboundLine.setDescription(imBasicData1.getDescription());
+            if (imBasicData1.getItemType() != null && imBasicData1.getItemTypeDescription() == null) {
+                preOutboundLine.setItemType(getItemTypeDesc(companyCodeId, plantId, languageId, outboundIntegrationHeader.getWarehouseID(), imBasicData1.getItemType()));
+            } else {
+                preOutboundLine.setItemType(imBasicData1.getItemTypeDescription());
+            }
+            if (imBasicData1.getItemGroup() != null && imBasicData1.getItemGroupDescription() == null) {
+                preOutboundLine.setItemGroup(getItemGroupDesc(companyCodeId, plantId, languageId, outboundIntegrationHeader.getWarehouseID(), imBasicData1.getItemGroup()));
+            } else {
+                preOutboundLine.setItemGroup(imBasicData1.getItemGroupDescription());
+            }
+
+            preOutboundLine.setManufacturerCode(imBasicData1.getManufacturerCode());
+            preOutboundLine.setManufacturerName(imBasicData1.getManufacturerName());
+            preOutboundLine.setManufacturerFullName(imBasicData1.getManufacturerFullName());
+        } else {
+            preOutboundLine.setDescription(outboundIntegrationLine.getItemText());
+        }
+        preOutboundLine.setOrderQty(outboundIntegrationLine.getOrderedQty());
+        preOutboundLine.setOrderUom(outboundIntegrationLine.getUom());
+        preOutboundLine.setRequiredDeliveryDate(outboundIntegrationHeader.getRequiredDeliveryDate());
+        preOutboundLine.setReferenceField1(outboundIntegrationLine.getRefField1ForOrderType());
+        preOutboundLine.setDeletionIndicator(0L);
+        preOutboundLine.setCreatedBy(loginUserId);
+        preOutboundLine.setCreatedOn(new Date());
+        log.info("preOutboundLine : " + preOutboundLine);
+        return preOutboundLine;
+    }
 
     /**
      * @param companyCodeId
@@ -731,52 +1029,170 @@ public class OrderProcessingService extends BaseService {
      * @param loginUserId
      * @throws Exception
      */
+//    @Transactional
+//    public void createOrderManagementLine(String companyCodeId, String plantId, String languageId, String preOutboundNo,
+//                                          OutboundIntegrationHeaderV2 outboundIntegrationHeader, List<PreOutboundLineV2> preOutboundLineList, String loginUserId) throws Exception {
+//        OrderManagementLineV2 orderManagementLine = null;
+//        try {
+//
+//            log.info("Total PreOutboundLines received :{}", preOutboundLineList.size());
+//
+//            // 1. Group By ItemCode and Sum Of OrderQty
+//            Map<String, Double> itemCodeToTotalQty = preOutboundLineList.stream()
+//                    .collect(Collectors.groupingBy(PreOutboundLineV2::getItemCode,Collectors.summingDouble(line -> line.getOrderQty() == null ? 0.0 : line.getOrderQty())));
+//            log.info("Grouped item codes found: {}", itemCodeToTotalQty.keySet());
+//
+//            // 2.Loop Over Grouped By Result
+//            for(Map.Entry<String, Double> entry : itemCodeToTotalQty.entrySet()) {
+//                String itemCode = entry.getKey();
+//                Double totalQty = entry.getValue();
+//
+//                PreOutboundLineV2 preOutboundLineV2 = preOutboundLineList.stream()
+//                        .filter(p -> p.getItemCode().equals(itemCode))
+//                        .findFirst()
+//                        .orElseThrow(() -> new RuntimeException(" ItemCode not found in list: " + itemCode));
+//
+//                // Create new PreOutboundLine
+//                PreOutboundLineV2 newPreOutboundLine = new PreOutboundLineV2();
+//                BeanUtils.copyProperties(preOutboundLineV2, newPreOutboundLine, CommonUtils.getNullPropertyNames(preOutboundLineV2));
+//                newPreOutboundLine.setItemCode(itemCode);
+//                newPreOutboundLine.setOrderQty(totalQty);
+//
+//                // Log creation step
+//                log.info(" Create OrderManagementLine is Start for ItemCode: {} | TotalQty: {}", itemCode, totalQty);
+//                // Create OrderManagementLine
+//                orderManagementLine = createOrderManagementLineV2(companyCodeId, plantId, languageId, preOutboundNo,
+//                        outboundIntegrationHeader, newPreOutboundLine, loginUserId);
+//
+//                log.debug("Created OrderManagementLine Created: -----------------------------> |||||||||||");
+//            }
+//            log.info(" All OrderManagementLines created successfully for PreOutboundNo: {}", preOutboundNo);
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            throw e;
+//        }
+//    }
+
+
     @Transactional
     public void createOrderManagementLine(String companyCodeId, String plantId, String languageId, String preOutboundNo,
                                           OutboundIntegrationHeaderV2 outboundIntegrationHeader, List<PreOutboundLineV2> preOutboundLineList, String loginUserId) throws Exception {
-        OrderManagementLineV2 orderManagementLine = null;
-        try {
 
-            log.info("Total PreOutboundLines received :{}", preOutboundLineList.size());
+        log.info("Total PreOutboundLines received : {}", preOutboundLineList.size());
 
-            // 1. Group By ItemCode and Sum Of OrderQty
-            Map<String, Double> itemCodeToTotalQty = preOutboundLineList.stream()
-                    .collect(Collectors.groupingBy(PreOutboundLineV2::getItemCode,Collectors.summingDouble(line -> line.getOrderQty() == null ? 0.0 : line.getOrderQty())));
-            log.info("Grouped item codes found: {}", itemCodeToTotalQty.keySet());
+        Map<String, Double> itemCodeToTotalQty = preOutboundLineList.stream()
+                .collect(Collectors.groupingBy(PreOutboundLineV2::getItemCode,
+                        Collectors.summingDouble(line -> line.getOrderQty() == null ? 0.0 : line.getOrderQty())));
 
-            // 2.Loop Over Grouped By Result
-            for(Map.Entry<String, Double> entry : itemCodeToTotalQty.entrySet()) {
-                String itemCode = entry.getKey();
-                Double totalQty = entry.getValue();
+        log.info("Grouped item codes found: {}", itemCodeToTotalQty.keySet());
 
-                PreOutboundLineV2 preOutboundLineV2 = preOutboundLineList.stream()
-                        .filter(p -> p.getItemCode().equals(itemCode))
-                        .findFirst()
-                        .orElseThrow(() -> new RuntimeException(" ItemCode not found in list: " + itemCode));
+        // Setup thread pool (example: 8 threads)
+        int threadPoolSize = 8;
+        ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
+        List<Future<?>> futures = new ArrayList<>();
 
-                // Create new PreOutboundLine
-                PreOutboundLineV2 newPreOutboundLine = new PreOutboundLineV2();
-                BeanUtils.copyProperties(preOutboundLineV2, newPreOutboundLine, CommonUtils.getNullPropertyNames(preOutboundLineV2));
-                newPreOutboundLine.setItemCode(itemCode);
-                newPreOutboundLine.setOrderQty(totalQty);
+        for (Map.Entry<String, Double> entry : itemCodeToTotalQty.entrySet()) {
+            String itemCode = entry.getKey();
+            Double totalQty = entry.getValue();
 
-                // Log creation step
-                log.info(" Create OrderManagementLine is Start for ItemCode: {} | TotalQty: {}", itemCode, totalQty);
-                // Create OrderManagementLine
-                orderManagementLine = createOrderManagementLineV2(companyCodeId, plantId, languageId, preOutboundNo,
-                        outboundIntegrationHeader, newPreOutboundLine, loginUserId);
+            futures.add(executor.submit(() -> {
+                try {
+                    PreOutboundLineV2 preOutboundLineV2 = preOutboundLineList.stream()
+                            .filter(p -> p.getItemCode().equals(itemCode))
+                            .findFirst()
+                            .orElseThrow(() -> new RuntimeException("ItemCode not found in list: " + itemCode));
 
-                log.debug("Created OrderManagementLine Created: -----------------------------> |||||||||||");
-            }
-            log.info(" All OrderManagementLines created successfully for PreOutboundNo: {}", preOutboundNo);
+                    PreOutboundLineV2 newPreOutboundLine = new PreOutboundLineV2();
+                    BeanUtils.copyProperties(preOutboundLineV2, newPreOutboundLine, CommonUtils.getNullPropertyNames(preOutboundLineV2));
+                    newPreOutboundLine.setItemCode(itemCode);
+                    newPreOutboundLine.setOrderQty(totalQty);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
+                    log.info("Creating OrderManagementLine for ItemCode: {} | TotalQty: {}", itemCode, totalQty);
+
+                    createOrderManagementLineV2(companyCodeId, plantId, languageId, preOutboundNo, outboundIntegrationHeader, newPreOutboundLine, loginUserId);
+
+                    log.debug("Created OrderManagementLine for ItemCode: {}", itemCode);
+                } catch (Exception ex) {
+                    log.error("Failed to create OrderManagementLine for ItemCode: {} | Error: {}", itemCode, ex.getMessage(), ex);
+                    throw new RuntimeException(ex);
+                }
+            }));
         }
+
+        // Wait for all tasks to complete
+        for (Future<?> future : futures) {
+            future.get(); // This will rethrow any exception that occurred in the thread
+        }
+
+        executor.shutdown();
+//        executor.awaitTermination(5, TimeUnit.MINUTES); // Adjust timeout as needed
+
+        log.info("All OrderManagementLines created successfully for PreOutboundNo: {}", preOutboundNo);
     }
 
+
+    @Transactional
+    public void createOrderManagementLineV8(String companyCodeId, String plantId, String languageId, String preOutboundNo,
+                                          OutboundIntegrationHeaderV2 outboundIntegrationHeader, List<PreOutboundLineV2> preOutboundLineList, String loginUserId) throws Exception {
+
+        log.info("Total PreOutboundLines received : {}", preOutboundLineList.size());
+
+        Map<String, Double> itemCodeToTotalQty = preOutboundLineList.stream()
+                .collect(Collectors.groupingBy(PreOutboundLineV2::getItemCode,
+                        Collectors.summingDouble(line -> line.getOrderQty() == null ? 0.0 : line.getOrderQty())));
+
+        log.info("Grouped item codes found: {}", itemCodeToTotalQty.keySet());
+
+        // Setup thread pool (example: 8 threads)
+        int threadPoolSize = 8;
+        ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
+        List<Future<?>> futures = new ArrayList<>();
+
+        for (Map.Entry<String, Double> entry : itemCodeToTotalQty.entrySet()) {
+            String itemCode = entry.getKey();
+            Double totalQty = entry.getValue();
+
+            futures.add(executor.submit(() -> {
+                try {
+                    PreOutboundLineV2 preOutboundLineV2 = preOutboundLineList.stream()
+                            .filter(p -> p.getItemCode().equals(itemCode))
+                            .findFirst()
+                            .orElseThrow(() -> new RuntimeException("ItemCode not found in list: " + itemCode));
+
+                    PreOutboundLineV2 newPreOutboundLine = new PreOutboundLineV2();
+                    BeanUtils.copyProperties(preOutboundLineV2, newPreOutboundLine, CommonUtils.getNullPropertyNames(preOutboundLineV2));
+                    newPreOutboundLine.setItemCode(itemCode);
+                    newPreOutboundLine.setOrderQty(totalQty);
+
+                    log.info("Creating OrderManagementLine for ItemCode: {} | TotalQty: {}", itemCode, totalQty);
+
+                    createOrderManagementLineV8(companyCodeId, plantId, languageId, preOutboundNo, outboundIntegrationHeader, newPreOutboundLine, loginUserId);
+
+                    log.debug("Created OrderManagementLine for ItemCode: {}", itemCode);
+                } catch (Exception ex) {
+                    log.error("Failed to create OrderManagementLine for ItemCode: {} | Error: {}", itemCode, ex.getMessage(), ex);
+                    throw new RuntimeException(ex);
+                }
+            }));
+        }
+
+        // Wait for all tasks to complete
+        for (Future<?> future : futures) {
+            future.get(); // This will rethrow any exception that occurred in the thread
+        }
+
+        executor.shutdown();
+//        executor.awaitTermination(5, TimeUnit.MINUTES); // Adjust timeout as needed
+
+        log.info("All OrderManagementLines created successfully for PreOutboundNo: {}", preOutboundNo);
+    }
+
+
     /**
+     * Modifying like Namratha different preoutboundline
+     * 02/07/2025 - Aakash vinayak
+     *
      * @param companyCodeId
      * @param plantId
      * @param languageId
@@ -786,20 +1202,109 @@ public class OrderProcessingService extends BaseService {
      * @param loginUserId
      * @throws Exception
      */
+//    @Transactional
+//    public void createOrderManagementLineV7(String companyCodeId, String plantId, String languageId, String preOutboundNo,
+//                                            OutboundIntegrationHeaderV2 outboundIntegrationHeader, List<PreOutboundLineV2> preOutboundLineList, String loginUserId) throws Exception {
+//        OrderManagementLineV2 orderManagementLine = null;
+//        try {
+////            for (PreOutboundLineV2 preOutboundLine : preOutboundLineList) {
+////                orderManagementLine = createOrderManagementLineV7(companyCodeId, plantId, languageId, preOutboundNo, outboundIntegrationHeader, preOutboundLine, loginUserId);
+////            }
+//
+//            log.info("Total PreOutboundLines received Knowell : {}", preOutboundLineList.size());
+//
+//            // 1. Group By ItemCode and Sum Of OrderQty
+//            Map<String, Double> itemCodeToTotalQty = preOutboundLineList.stream()
+//                    .collect(Collectors.groupingBy(PreOutboundLineV2::getItemCode,Collectors.summingDouble(line -> line.getOrderQty() == null ? 0.0 : line.getOrderQty())));
+//            log.info("Grouped item codes found for Knowell : {}", itemCodeToTotalQty.keySet());
+//
+//            // 2. Loop Over Grouped by Result
+//            for (Map.Entry<String, Double> entry : itemCodeToTotalQty.entrySet()) {
+//                String itemCode = entry.getKey();
+//                Double totalQty = entry.getValue();
+//
+//                PreOutboundLineV2 preOutboundLineV2 = preOutboundLineList.stream()
+//                        .filter(p -> p.getItemCode().equals(itemCode))
+//                        .findFirst()
+//                        .orElseThrow(() -> new RuntimeException("Item Code not found in the List : " + itemCode));
+//
+//                // Create new PreOutboundLine
+//                PreOutboundLineV2 newPreOutboundLine = new PreOutboundLineV2();
+//                BeanUtils.copyProperties(preOutboundLineV2, newPreOutboundLine, CommonUtils.getNullPropertyNames(preOutboundLineV2));
+//                newPreOutboundLine.setItemCode(itemCode);
+//                newPreOutboundLine.setOrderQty(totalQty);
+//
+//                // Log creation step
+//                log.info("Creating OrderManagementLine is Started for ItemCode : {} | TotalQty : {}", itemCode, totalQty);
+//                // Create OrderManagementLine
+//                orderManagementLine = createOrderManagementLineV7(companyCodeId, plantId, languageId, preOutboundNo, outboundIntegrationHeader, newPreOutboundLine, loginUserId);
+//
+//                log.debug("Created OrderManagementLine Created: -----------------------------> |||||||||||");
+//            }
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            throw e;
+//        }
+//        log.info("orderManagementLine created---1---> : " + orderManagementLine);
+//    }
+
     @Transactional
     public void createOrderManagementLineV7(String companyCodeId, String plantId, String languageId, String preOutboundNo,
-                                            OutboundIntegrationHeaderV2 outboundIntegrationHeader, List<PreOutboundLineV2> preOutboundLineList, String loginUserId) throws Exception {
-        OrderManagementLineV2 orderManagementLine = null;
-        try {
-            for (PreOutboundLineV2 preOutboundLine : preOutboundLineList) {
-                orderManagementLine = createOrderManagementLineV7(companyCodeId, plantId, languageId, preOutboundNo, outboundIntegrationHeader, preOutboundLine, loginUserId);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
+                                          OutboundIntegrationHeaderV2 outboundIntegrationHeader, List<PreOutboundLineV2> preOutboundLineList, String loginUserId) throws Exception {
+
+        log.info("Total PreOutboundLines received : {}", preOutboundLineList.size());
+
+        Map<String, Double> itemCodeToTotalQty = preOutboundLineList.stream()
+                .collect(Collectors.groupingBy(PreOutboundLineV2::getItemCode,
+                        Collectors.summingDouble(line -> line.getOrderQty() == null ? 0.0 : line.getOrderQty())));
+
+        log.info("Grouped item codes found: {}", itemCodeToTotalQty.keySet());
+
+        // Setup thread pool (example: 8 threads)
+        int threadPoolSize = 8;
+        ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
+        List<Future<?>> futures = new ArrayList<>();
+
+        for (Map.Entry<String, Double> entry : itemCodeToTotalQty.entrySet()) {
+            String itemCode = entry.getKey();
+            Double totalQty = entry.getValue();
+
+            futures.add(executor.submit(() -> {
+                try {
+                    PreOutboundLineV2 preOutboundLineV2 = preOutboundLineList.stream()
+                            .filter(p -> p.getItemCode().equals(itemCode))
+                            .findFirst()
+                            .orElseThrow(() -> new RuntimeException("ItemCode not found in list: " + itemCode));
+
+                    PreOutboundLineV2 newPreOutboundLine = new PreOutboundLineV2();
+                    BeanUtils.copyProperties(preOutboundLineV2, newPreOutboundLine, CommonUtils.getNullPropertyNames(preOutboundLineV2));
+                    newPreOutboundLine.setItemCode(itemCode);
+                    newPreOutboundLine.setOrderQty(totalQty);
+
+                    log.info("Creating OrderManagementLine for ItemCode: {} | TotalQty: {}", itemCode, totalQty);
+
+                    createOrderManagementLineV7(companyCodeId, plantId, languageId, preOutboundNo, outboundIntegrationHeader, newPreOutboundLine, loginUserId);
+
+                    log.debug("Created OrderManagementLine for ItemCode: {}", itemCode);
+                } catch (Exception ex) {
+                    log.error("Failed to create OrderManagementLine for ItemCode: {} | Error: {}", itemCode, ex.getMessage(), ex);
+                    throw new RuntimeException(ex);
+                }
+            }));
         }
-        log.info("orderManagementLine created---1---> : " + orderManagementLine);
+
+        // Wait for all tasks to complete
+        for (Future<?> future : futures) {
+            future.get(); // This will rethrow any exception that occurred in the thread
+        }
+
+        executor.shutdown();
+//        executor.awaitTermination(5, TimeUnit.MINUTES); // Adjust timeout as needed
+
+        log.info("All OrderManagementLines created successfully for PreOutboundNo: {}", preOutboundNo);
     }
+
 
     /**
      * @param companyCodeId
@@ -853,6 +1358,75 @@ public class OrderProcessingService extends BaseService {
         preOutboundHeader.setCreatedOn(new Date());
         PreOutboundHeaderV2 createdPreOutboundHeader = preOutboundHeaderV2Repository.save(preOutboundHeader);
         log.info("createdPreOutboundHeader : " + createdPreOutboundHeader);
+
+        // Order_Text_Update
+        String text = "PreOutboundHeader Created";
+        outboundOrderV2Repository.updatePreOutBoundOrderText(preOutboundHeader.getOutboundOrderTypeId(), preOutboundHeader.getRefDocNumber(), text);
+        log.info("PreOutbound Header Status Updated Successfully");
+
+        return createdPreOutboundHeader;
+    }
+
+    /**
+     * MMF
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param preOutboundNo
+     * @param outboundIntegrationHeader
+     * @param refField1ForOrderType
+     * @param loginUserId
+     * @return
+     * @throws ParseException
+     */
+    public PreOutboundHeaderV2 createPreOutboundHeaderV8(String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo,
+                                                         OutboundIntegrationHeaderV2 outboundIntegrationHeader, String refField1ForOrderType, String loginUserId) throws ParseException {
+//        AuthToken authTokenForIDService = authTokenService.getIDMasterServiceAuthToken();
+        PreOutboundHeaderV2 preOutboundHeader = new PreOutboundHeaderV2();
+        BeanUtils.copyProperties(outboundIntegrationHeader, preOutboundHeader, CommonUtils.getNullPropertyNames(outboundIntegrationHeader));
+        preOutboundHeader.setLanguageId(languageId);
+        preOutboundHeader.setCompanyCodeId(companyCodeId);
+        preOutboundHeader.setPlantId(plantId);
+        preOutboundHeader.setWarehouseId(warehouseId);
+        preOutboundHeader.setRefDocNumber(outboundIntegrationHeader.getRefDocumentNo());
+        preOutboundHeader.setConsignment(outboundIntegrationHeader.getRefDocumentNo());
+        preOutboundHeader.setPreOutboundNo(preOutboundNo);                                                // PRE_OB_NO
+        preOutboundHeader.setOutboundOrderTypeId(outboundIntegrationHeader.getOutboundOrderTypeID());    // Hardcoded value "0"
+        preOutboundHeader.setRefDocDate(new Date());
+        preOutboundHeader.setStatusId(39L);
+        preOutboundHeader.setRequiredDeliveryDate(outboundIntegrationHeader.getRequiredDeliveryDate());
+        preOutboundHeader.setCustomerId(outboundIntegrationHeader.getCustomerId());
+        preOutboundHeader.setCustomerName(outboundIntegrationHeader.getCustomerName());
+
+        // REF_FIELD_1
+        preOutboundHeader.setReferenceField1(refField1ForOrderType);
+
+        description = getDescription(companyCodeId, plantId, languageId, warehouseId);
+        if (description != null) {
+            preOutboundHeader.setCompanyDescription(description.getCompanyDesc());
+            preOutboundHeader.setPlantDescription(description.getPlantDesc());
+            preOutboundHeader.setWarehouseDescription(description.getWarehouseDesc());
+        }
+        // Status Description
+//		StatusId idStatus = idmasterService.getStatus(39L, outboundIntegrationHeader.getWarehouseID(), authTokenForIDService.getAccess_token());
+        statusDescription = getStatusDescription(39L, languageId);
+        log.info("PreOutboundHeader StatusDescription: " + statusDescription);
+        // REF_FIELD_10
+        preOutboundHeader.setReferenceField10(statusDescription);
+        preOutboundHeader.setStatusDescription(statusDescription);
+        preOutboundHeader.setDeletionIndicator(0L);
+        preOutboundHeader.setCreatedBy(loginUserId);
+        preOutboundHeader.setCreatedOn(new Date());
+        PreOutboundHeaderV2 createdPreOutboundHeader = preOutboundHeaderV2Repository.save(preOutboundHeader);
+        log.info("createdPreOutboundHeader : " + createdPreOutboundHeader);
+
+        // Order_Text_Update
+        String text = "PreOutboundHeader Created";
+        outboundOrderV2Repository.updatePreOutBoundOrderText(preOutboundHeader.getOutboundOrderTypeId(), preOutboundHeader.getRefDocNumber(), text);
+        log.info("PreOutbound Header Status Updated Successfully");
+
         return createdPreOutboundHeader;
     }
 
@@ -869,6 +1443,36 @@ public class OrderProcessingService extends BaseService {
         newOrderManagementHeader.setReferenceField7(statusDescription);
         newOrderManagementHeader.setPickupCreatedBy(loginUserId);
         newOrderManagementHeader.setPickupCreatedOn(new Date());
+
+        // Order_Text_Update
+        String text = "OrderManagement Created";
+        outboundOrderV2Repository.updateOrderManagementText(newOrderManagementHeader.getOutboundOrderTypeId(), newOrderManagementHeader.getRefDocNumber(), text);
+        log.info("OrderManagement Header Status Updated Successfully");
+
+        return orderManagementHeaderV2Repository.save(newOrderManagementHeader);
+    }
+
+    /**
+     * MMF
+     *
+     * @param createdPreOutboundHeader
+     * @return
+     */
+    public OrderManagementHeaderV2 createOrderManagementHeaderV8(PreOutboundHeaderV2 createdPreOutboundHeader, String loginUserId) {
+        OrderManagementHeaderV2 newOrderManagementHeader = new OrderManagementHeaderV2();
+        BeanUtils.copyProperties(createdPreOutboundHeader, newOrderManagementHeader, CommonUtils.getNullPropertyNames(createdPreOutboundHeader));
+        newOrderManagementHeader.setStatusId(41L);    // Hard Coded Value "41"
+        statusDescription = getStatusDescription(41L, createdPreOutboundHeader.getLanguageId());
+        newOrderManagementHeader.setStatusDescription(statusDescription);
+        newOrderManagementHeader.setReferenceField7(statusDescription);
+        newOrderManagementHeader.setPickupCreatedBy(loginUserId);
+        newOrderManagementHeader.setPickupCreatedOn(new Date());
+
+        // Order_Text_Update
+        String text = "OrderManagement Created";
+        outboundOrderV2Repository.updateOrderManagementText(newOrderManagementHeader.getOutboundOrderTypeId(), newOrderManagementHeader.getRefDocNumber(), text);
+        log.info("OrderManagement Header Status Updated Successfully");
+
         return orderManagementHeaderV2Repository.save(newOrderManagementHeader);
     }
 
@@ -898,6 +1502,51 @@ public class OrderProcessingService extends BaseService {
         }
         outboundHeader.setCreatedBy(loginUserId);
         outboundHeader.setCreatedOn(new Date());
+
+        // Order_Text_Update
+        String text = "OutboundHeader Created";
+        outboundOrderV2Repository.updateOutboundHeaderText(outboundHeader.getOutboundOrderTypeId(), outboundHeader.getRefDocNumber(), text);
+        log.info("OutboundHeader Status Updated Successfully");
+
+        outboundHeader = outboundHeaderV2Repository.save(outboundHeader);
+        log.info("Created outboundHeader : " + outboundHeader);
+        return outboundHeader;
+    }
+
+    /**
+     * MMF
+     *
+     * @param createdPreOutboundHeader
+     * @param statusId
+     * @return
+     * @throws ParseException
+     */
+    public OutboundHeaderV2 createOutboundHeaderV8(PreOutboundHeaderV2 createdPreOutboundHeader, Long statusId, OutboundIntegrationHeaderV2 outboundIntegrationHeader, String loginUserId) throws ParseException {
+
+        OutboundHeaderV2 outboundHeader = new OutboundHeaderV2();
+        BeanUtils.copyProperties(createdPreOutboundHeader, outboundHeader, CommonUtils.getNullPropertyNames(createdPreOutboundHeader));
+        outboundHeader.setRefDocNumber(outboundHeader.getRefDocNumber());
+        outboundHeader.setRefDocDate(new Date());
+        outboundHeader.setStatusId(statusId);
+        statusDescription = getStatusDescription(statusId, createdPreOutboundHeader.getLanguageId());
+        outboundHeader.setStatusDescription(statusDescription);
+        outboundHeader.setInvoiceDate(outboundIntegrationHeader.getRequiredDeliveryDate());
+        outboundHeader.setConsignment(outboundIntegrationHeader.getPickListNumber());
+        outboundHeader.setInvoiceNumber(outboundIntegrationHeader.getInvoice());
+        if (outboundHeader.getOutboundOrderTypeId() == 3L) {
+            outboundHeader.setCustomerType("INVOICE");
+        }
+        if (outboundHeader.getOutboundOrderTypeId() == 0L || outboundHeader.getOutboundOrderTypeId() == 1L) {
+            outboundHeader.setCustomerType("TRANSVERSE");
+        }
+        outboundHeader.setCreatedBy(loginUserId);
+        outboundHeader.setCreatedOn(new Date());
+
+        // Order_Text_Update
+        String text = "OutboundHeader Created";
+        outboundOrderV2Repository.updateOutboundHeaderText(outboundHeader.getOutboundOrderTypeId(), outboundHeader.getRefDocNumber(), text);
+        log.info("OutboundHeader Status Updated Successfully");
+
         outboundHeader = outboundHeaderV2Repository.save(outboundHeader);
         log.info("Created outboundHeader : " + outboundHeader);
         return outboundHeader;
@@ -955,6 +1604,74 @@ public class OrderProcessingService extends BaseService {
                 newPickupHeader.setBatchSerialNumber(orderManagementLine.getProposedBatchSerialNumber());
                 newPickupHeader.setStorageSectionId(orderManagementLine.getStorageSectionId());
                 PickupHeaderV2 createdPickupHeader = orderService.createOutboundOrderProcessingPickupHeaderV2(newPickupHeader, orderManagementLine.getPickupCreatedBy());
+                log.info("pickupHeader created: " + createdPickupHeader);
+
+                orderManagementLineV2Repository.updateOrderManagementLineV6(
+                        companyCodeId, plantId, languageId, warehouseId, preOutboundNo,
+                        orderManagementLine.getLineNumber(), orderManagementLine.getItemCode(),
+                        48L, statusDescription, PU_NO, new Date());
+            }
+
+            outboundHeaderV2Repository.updateOutboundHeaderStatusV3(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, 48L, statusDescription);
+            orderManagementHeaderV2Repository.updateOrderManagementHeaderStatusV3(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, 48L, statusDescription);
+        }
+    }
+
+    //==============================================MMF==========================================================
+    /**
+     * MMF
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param preOutboundNo
+     * @param refDocNumber
+     * @param outboundIntegrationHeader
+     * @throws Exception
+     */
+    public void createPickupHeaderNoV8(String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo,
+                                     String refDocNumber, OutboundIntegrationHeaderV2 outboundIntegrationHeader) throws Exception {
+
+        List<OrderManagementLineV2> orderManagementLines = orderManagementLineV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndDeletionIndicatorAndStatusIdNot(
+                companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, 0L, 47L);
+
+        log.info("OrderManagementList for PickupHeader -------------> {}", orderManagementLines.size());
+
+        long NUM_RAN_CODE = 10;
+        String PU_NO = getNextRangeNumber(NUM_RAN_CODE, companyCodeId, plantId, languageId, warehouseId);
+        log.info("----------New PU_NO--------> : " + PU_NO);
+
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb("MMF");
+        if (orderManagementLines != null && !orderManagementLines.isEmpty()) {
+            for (OrderManagementLineV2 orderManagementLine : orderManagementLines) {
+                PickupHeaderV2 newPickupHeader = new PickupHeaderV2();
+                BeanUtils.copyProperties(orderManagementLine, newPickupHeader, CommonUtils.getNullPropertyNames(orderManagementLine));
+                newPickupHeader.setPickupNumber(PU_NO);
+                newPickupHeader.setPickToQty(orderManagementLine.getAllocatedQty());
+                newPickupHeader.setPickUom(orderManagementLine.getOrderUom());
+                newPickupHeader.setBarcodeId(orderManagementLine.getBarcodeId());
+
+                // STATUS_ID
+                newPickupHeader.setStatusId(48L);
+                statusDescription = stagingLineV2Repository.getStatusDescription(48L, languageId);
+                newPickupHeader.setStatusDescription(statusDescription);
+
+                // ProposedPackbarcode
+                newPickupHeader.setProposedPackBarCode(orderManagementLine.getProposedPackBarCode());
+
+                //Setting InventoryQuantity from orderManagementLine
+                newPickupHeader.setInventoryQuantity(orderManagementLine.getInventoryQty());
+
+                //Setting BagSize
+                newPickupHeader.setBagSize(orderManagementLine.getInventoryQty());
+                newPickupHeader.setNoBags(orderManagementLine.getNoBags());
+
+                newPickupHeader.setReferenceField5(orderManagementLine.getDescription());
+                newPickupHeader.setBatchSerialNumber(orderManagementLine.getProposedBatchSerialNumber());
+                newPickupHeader.setStorageSectionId(orderManagementLine.getStorageSectionId());
+                PickupHeaderV2 createdPickupHeader = orderService.createOutboundOrderProcessingPickupHeaderV8(newPickupHeader, orderManagementLine.getPickupCreatedBy());
                 log.info("pickupHeader created: " + createdPickupHeader);
 
                 orderManagementLineV2Repository.updateOrderManagementLineV6(
@@ -1069,5 +1786,347 @@ public class OrderProcessingService extends BaseService {
         outboundLineV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
                 companyCodeId, plantId, warehouseId, refDocNumber, 0L);
         log.info("OrderManagementLine Deleted Successfully ---> RefDocNo is {}", refDocNumber);
+    }
+
+//=====================================================MMF===================================================
+    /**
+     * MMF
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param warehouseId
+     * @param refDocNumber
+     *
+     */
+    public void pickListCancellationV8(String companyCodeId, String plantId, String warehouseId, String refDocNumber) {
+
+        preOutboundHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                companyCodeId, plantId, warehouseId, refDocNumber, 0L);
+        log.info("PreOutboundHeader Deleted Successfully ---> RefDocNo is {}", refDocNumber);
+
+        outboundHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                companyCodeId, plantId, warehouseId, refDocNumber, 0L);
+        log.info("OutboundHeader Deleted Successfully ---> RefDocNo is {}", refDocNumber);
+
+        orderManagementHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                companyCodeId, plantId, warehouseId, refDocNumber, 0L);
+        log.info("OrderManagementHeader Deleted Successfully ---> RefDocNo is {}", refDocNumber);
+
+        pickupHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                companyCodeId, plantId, warehouseId, refDocNumber, 0L);
+        log.info("PickupHeader Deleted Successfully ---> RefDocNo is {}", refDocNumber);
+
+        preOutboundLineV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                companyCodeId, plantId, warehouseId, refDocNumber, 0L);
+        log.info("PreOutboundLine Deleted Successfully ---> RefDocNo is {}", refDocNumber);
+
+        orderManagementLineV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                companyCodeId, plantId, warehouseId, refDocNumber, 0L);
+        log.info("OrderManagementLine Deleted Successfully ---> RefDocNo is {}", refDocNumber);
+
+        outboundLineV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                companyCodeId, plantId, warehouseId, refDocNumber, 0L);
+        log.info("OrderManagementLine Deleted Successfully ---> RefDocNo is {}", refDocNumber);
+    }
+
+    /**
+     * @param outboundIntegrationHeader
+     * @return
+     * @throws Exception
+     */
+    public OutboundHeaderV2 processOutboundReceivedV6(OutboundIntegrationHeaderV2 outboundIntegrationHeader) throws Exception {
+        try {
+            /*
+             * Checking whether received refDocNumber processed already.
+             */
+            log.info("Outbound Process Initiated----> " + outboundIntegrationHeader.getRefDocumentNo() + ", " + outboundIntegrationHeader.getOutboundOrderTypeID());
+            if (outboundIntegrationHeader.getLoginUserId() != null) {
+                MW_AMS = outboundIntegrationHeader.getLoginUserId();
+            }
+
+            String warehouseId = outboundIntegrationHeader.getWarehouseID();
+            String companyCodeId = outboundIntegrationHeader.getCompanyCode();
+            String plantId = outboundIntegrationHeader.getBranchCode();
+            String languageId = outboundIntegrationHeader.getLanguageId() != null ? outboundIntegrationHeader.getLanguageId() : LANG_ID;
+            String refDocNumber = outboundIntegrationHeader.getRefDocumentNo();
+
+            if (warehouseId == null) {
+                try {
+                    Optional<Warehouse> warehouse =
+                            warehouseRepository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndDeletionIndicator(
+                                    outboundIntegrationHeader.getCompanyCode(), outboundIntegrationHeader.getBranchCode(), LANG_ID, 0L);
+                    log.info("warehouse : " + warehouse);
+                    if (warehouse.isPresent()) {
+                        log.info("warehouse : " + warehouse.get().getWarehouseId());
+                        warehouseId = warehouse.get().getWarehouseId();
+                    } else {
+                        log.info("warehouse not found.");
+                        throw new BadRequestException("Warehouse cannot be null.");
+                    }
+                } catch (Exception e) {
+                    log.error("Warehouse fetch exception : " + e.toString());
+                    throw e;
+                }
+            }
+
+            Optional<PreOutboundHeaderV2> orderProcessedStatus =
+                    preOutboundHeaderV2Repository.findByRefDocNumberAndOutboundOrderTypeIdAndDeletionIndicator(
+                            refDocNumber, outboundIntegrationHeader.getOutboundOrderTypeID(), 0L);
+
+            if (orderProcessedStatus.isPresent()) {
+                log.info("PickListCancellation Starting -----------> companyId {}, PlantId {}, WarehouseId {}, RefDocNo {} ", companyCodeId, plantId, warehouseId, refDocNumber);
+                List<Long> statusIdList = Arrays.asList(57L, 50L);
+                boolean pickUpConfirm = pickupHeaderV2Repository.existsByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndStatusIdInAndDeletionIndicator(
+                        companyCodeId, plantId, warehouseId, refDocNumber, statusIdList, 0L);
+                log.info("PickupHeader Status Checking " + pickUpConfirm);
+                if (pickUpConfirm) {
+                    throw new BadRequestException("This Order Already PickList Confirm --------> RefDocNo is " + refDocNumber);
+                }
+                // PickListCancellation Delete all tables
+                pickListCancellation(companyCodeId, plantId, warehouseId, refDocNumber);
+            }
+
+            String preOutboundNo = getPreOutboundNo(warehouseId, companyCodeId, plantId, languageId);
+            // PreBoundHeader
+            PreOutboundHeaderV2 preOutboundHeader = createPreOutboundHeaderV6(companyCodeId, plantId, languageId, warehouseId,
+                    preOutboundNo, outboundIntegrationHeader, MW_AMS);
+            log.info("preOutboundHeader Created : " + preOutboundHeader);
+
+            // OrderManagementHeader
+            OrderManagementHeaderV2 orderManagementHeader = createOrderManagementHeaderV6(preOutboundHeader, MW_AMS);
+            log.info("OrderManagementHeader Created : " + orderManagementHeader);
+
+            // OutboundHeader
+            OutboundHeaderV2 outboundHeader = createOutboundHeaderV6(preOutboundHeader, orderManagementHeader.getStatusId(), outboundIntegrationHeader, MW_AMS);
+            log.info("OutboundHeader Created : " + outboundHeader);
+
+            repo.preOutboundHeaderV2Repository.save(preOutboundHeader);
+            repo.outboundHeaderV2Repository.save(outboundHeader);
+            if (preOutboundHeader.getOutboundOrderTypeId().equals(3L)){
+                repo.orderManagementHeaderV2Repository.save(orderManagementHeader);
+            }
+
+            // Collections for batch saving
+            List<PreOutboundLineV2> preOutboundLines = new ArrayList<>();
+            List<OutboundLineV2> outboundLines = new ArrayList<>();
+            List<OrderManagementLineV2> managementLines = new ArrayList<>();
+            List<InventoryV2> inventoryList = new ArrayList<>();
+
+            for (OutboundIntegrationLineV2 outBoundLine : outboundIntegrationHeader.getOutboundIntegrationLines()) {
+                try {
+                    processSingleSaleOrderLineV6(outBoundLine,preOutboundHeader,MW_AMS,preOutboundLines,outboundLines,managementLines,inventoryList);
+                } catch (Exception e) {
+                    log.error("Error processing PICK_LIST Line for SalesOrder: {}",
+                            outboundIntegrationHeader.getSalesOrderNumber(), e);
+                    throw new BadRequestException("Inbound Order Processing failed: " + e.getMessage());
+                }
+            }
+
+            
+            repo.preOutboundLineV2Repository.saveAll(preOutboundLines);
+
+            if (preOutboundHeader.getOutboundOrderTypeId().equals(3L)) {
+                repo.orderManagementLineV2Repository.saveAll(managementLines);
+                repo.outboundLineV2Repository.saveAll(outboundLines);
+                // repo.inventoryV2Repository.saveAll(inventoryList);  // enable if needed
+            }
+            if (managementLines != null) {
+                List<OrderManagementLineV2> NoStockLines = managementLines.stream()
+                        .filter(line -> Objects.equals(line.getStatusId(), 47L))
+                        .collect(Collectors.toList());
+
+                if (!NoStockLines.isEmpty()) {
+                    statusDescription = getStatusDescription(47L, languageId);
+                    repo.orderManagementLineV2Repository.updateNostockStatusUpdateProc(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 47L, statusDescription);
+                    log.info("No stock status updated in preinbound header and line, outbound header using stored procedure when condition is satisfied");
+                }
+
+                List<OrderManagementLineV2> nonNoStockLines = managementLines.stream()
+                        .filter(line -> !Objects.equals(line.getStatusId(), 47L))
+                        .collect(Collectors.toList());
+
+                if (!nonNoStockLines.isEmpty()) {
+                    salesOrderServiceV6.createPickupHeaderNoV6(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, nonNoStockLines);
+                }
+            }
+            return outboundHeader;
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            // Updating the Processed Status
+            log.info("Rollback Initiated...!" + outboundIntegrationHeader.getRefDocumentNo());
+            orderManagementLineService.rollback(outboundIntegrationHeader);
+            orderService.updateProcessedOrderV2(outboundIntegrationHeader.getRefDocumentNo(), outboundIntegrationHeader.getOutboundOrderTypeID());
+            throw e;
+        }
+    }
+
+    public PreOutboundHeaderV2 createPreOutboundHeaderV6(String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo,
+                                                         OutboundIntegrationHeaderV2 outboundIntegrationHeader, String loginUserId) throws ParseException {
+        PreOutboundHeaderV2 preOutboundHeader = new PreOutboundHeaderV2();
+        BeanUtils.copyProperties(outboundIntegrationHeader, preOutboundHeader, CommonUtils.getNullPropertyNames(outboundIntegrationHeader));
+        preOutboundHeader.setLanguageId(languageId);
+        preOutboundHeader.setCompanyCodeId(companyCodeId);
+        preOutboundHeader.setPlantId(plantId);
+        preOutboundHeader.setWarehouseId(warehouseId);
+        preOutboundHeader.setRefDocNumber(outboundIntegrationHeader.getSalesOrderNumber());
+        preOutboundHeader.setConsignment(outboundIntegrationHeader.getSalesOrderNumber());
+        preOutboundHeader.setPreOutboundNo(preOutboundNo);                                                // PRE_OB_NO
+        preOutboundHeader.setOutboundOrderTypeId(outboundIntegrationHeader.getOutboundOrderTypeID());    // Hardcoded value "0"
+        preOutboundHeader.setReferenceDocumentType("SaleOrder");
+        preOutboundHeader.setRefDocDate(new Date());
+        preOutboundHeader.setStatusId(39L);
+        // REF_FIELD_1
+        preOutboundHeader.setReferenceField1("SaleOrder");
+        preOutboundHeader.setReferenceField6(outboundIntegrationHeader.getMiddlewareTable());   //unit type
+
+        if (outboundIntegrationHeader.getPickListNumber() != null && outboundIntegrationHeader.getPartnerCode() != null) {
+            preOutboundHeader.setRefDocNumber(outboundIntegrationHeader.getPickListNumber());
+            preOutboundHeader.setPartnerCode(outboundIntegrationHeader.getPartnerCode());
+            preOutboundHeader.setPickListNumber(outboundIntegrationHeader.getPickListNumber());
+        } else {
+            preOutboundHeader.setRefDocNumber(outboundIntegrationHeader.getSalesOrderNumber());
+            preOutboundHeader.setPartnerCode(outboundIntegrationHeader.getBranchCode());
+            preOutboundHeader.setPickListNumber(outboundIntegrationHeader.getSalesOrderNumber());
+        }
+
+        description = getDescription(companyCodeId, plantId, languageId, warehouseId);
+        if (description != null) {
+            preOutboundHeader.setCompanyDescription(description.getCompanyDesc());
+            preOutboundHeader.setPlantDescription(description.getPlantDesc());
+            preOutboundHeader.setWarehouseDescription(description.getWarehouseDesc());
+        }
+        statusDescription = getStatusDescription(39L, languageId);
+        log.info("PreOutboundHeader StatusDescription: " + statusDescription);
+        preOutboundHeader.setReferenceField10(statusDescription);
+        preOutboundHeader.setStatusDescription(statusDescription);
+        preOutboundHeader.setDeletionIndicator(0L);
+        preOutboundHeader.setCreatedBy(loginUserId);
+        preOutboundHeader.setCreatedOn(new Date());
+//        PreOutboundHeaderV2 createdPreOutboundHeader = repo.preOutboundHeaderV2Repository.save(preOutboundHeader);
+        log.info("createdPreOutboundHeader : " + preOutboundHeader);
+        return preOutboundHeader;
+    }
+
+    public OrderManagementHeaderV2 createOrderManagementHeaderV6(PreOutboundHeaderV2 createdPreOutboundHeader, String loginUserId) {
+        OrderManagementHeaderV2 newOrderManagementHeader = new OrderManagementHeaderV2();
+        BeanUtils.copyProperties(createdPreOutboundHeader, newOrderManagementHeader, CommonUtils.getNullPropertyNames(createdPreOutboundHeader));
+        newOrderManagementHeader.setStatusId(41L);    // Hard Coded Value "41"
+        statusDescription = getStatusDescription(41L, createdPreOutboundHeader.getLanguageId());
+        newOrderManagementHeader.setStatusDescription(statusDescription);
+        newOrderManagementHeader.setReferenceField7(statusDescription);
+        newOrderManagementHeader.setPickupCreatedBy(loginUserId);
+        newOrderManagementHeader.setPickupCreatedOn(new Date());
+        return newOrderManagementHeader;
+    }
+
+    public OutboundHeaderV2 createOutboundHeaderV6(PreOutboundHeaderV2 createdPreOutboundHeader, Long statusId,OutboundIntegrationHeaderV2 outboundIntegrationHeader, String loginUserId) throws ParseException {
+
+        OutboundHeaderV2 outboundHeader = new OutboundHeaderV2();
+        BeanUtils.copyProperties(createdPreOutboundHeader, outboundHeader, CommonUtils.getNullPropertyNames(createdPreOutboundHeader));
+        outboundHeader.setRefDocNumber(outboundHeader.getRefDocNumber());
+        outboundHeader.setRefDocDate(new Date());
+        outboundHeader.setStatusId(statusId);
+        statusDescription = getStatusDescription(statusId, createdPreOutboundHeader.getLanguageId());
+        outboundHeader.setStatusDescription(statusDescription);
+        outboundHeader.setConsignment(outboundIntegrationHeader.getPickListNumber());
+        outboundHeader.setInvoiceNumber(outboundIntegrationHeader.getInvoice());
+            outboundHeader.setCustomerType("INVOICE");
+        outboundHeader.setCreatedBy(loginUserId);
+        outboundHeader.setCreatedOn(new Date());
+        log.info("Created outboundHeader : " + outboundHeader);
+        return outboundHeader;
+    }
+
+    @Transactional
+    public void processSingleSaleOrderLineV6(OutboundIntegrationLineV2 outboundIntegrationLine, PreOutboundHeaderV2 preOutboundHeaderV2,
+                                           String loginUserID, List<PreOutboundLineV2> preOutboundLines,
+                                           List<OutboundLineV2> outboundLines, List<OrderManagementLineV2> managementLines,
+                                           List<InventoryV2> inventoryList)throws ParseException {
+
+        PreOutboundLineV2 preOutboundLine = createPreOutboundLineV6(preOutboundHeaderV2, outboundIntegrationLine, loginUserID);
+        preOutboundLines.add(preOutboundLine);
+        log.info("PreOutbound Line {} Created Successfully -------------------> ", preOutboundLine);
+
+        if (preOutboundHeaderV2.getOutboundOrderTypeId().equals(3L)) {
+            List<OrderManagementLineV2> orderManagementLineV2List = salesOrderServiceV6.postOrderManagementLine(preOutboundLine, loginUserID, inventoryList);
+            managementLines.addAll(orderManagementLineV2List);
+            log.info("OrderManagement Line {} Created Successfully -----------------------> ", orderManagementLineV2List);
+
+
+            for (OrderManagementLineV2 orderManagementLine : orderManagementLineV2List) {
+                OutboundLineV2 outboundLineV2 = salesOrderServiceV6.createOutboundLine(orderManagementLine);
+                outboundLines.add(outboundLineV2);
+                log.info("OutboundLine {} Created Successfully ------------------------------> ", outboundLineV2);
+            }
+        }
+
+    }
+    public PreOutboundLineV2 createPreOutboundLineV6(PreOutboundHeaderV2 preOutboundHeader, OutboundIntegrationLineV2 outboundIntegrationLine,
+                                                   String loginUserId) throws ParseException {
+
+        PreOutboundLineV2 preOutboundLine = new PreOutboundLineV2();
+        BeanUtils.copyProperties(outboundIntegrationLine, preOutboundLine, CommonUtils.getNullPropertyNames(outboundIntegrationLine));
+        preOutboundLine.setLanguageId(preOutboundHeader.getLanguageId());
+        preOutboundLine.setCompanyCodeId(preOutboundHeader.getCompanyCodeId());
+        preOutboundLine.setPlantId(preOutboundHeader.getPlantId());
+        preOutboundLine.setCustomerId(preOutboundHeader.getCustomerId());
+        preOutboundLine.setCustomerName(preOutboundHeader.getCustomerName());
+        preOutboundLine.setWarehouseId(preOutboundHeader.getWarehouseId());
+        preOutboundLine.setRefDocNumber(preOutboundHeader.getRefDocNumber());
+        preOutboundLine.setPreOutboundNo(preOutboundHeader.getPreOutboundNo());
+        preOutboundLine.setPartnerCode(preOutboundHeader.getPartnerCode());
+        preOutboundLine.setLineNumber(outboundIntegrationLine.getLineReference());
+        preOutboundLine.setItemCode(outboundIntegrationLine.getItemCode());
+        preOutboundLine.setOutboundOrderTypeId(preOutboundHeader.getOutboundOrderTypeId());
+        preOutboundLine.setStatusId(39L);
+        preOutboundLine.setStockTypeId(1L);
+        preOutboundLine.setSpecialStockIndicatorId(1L);
+        preOutboundLine.setManufacturerName(MFR_NAME_V6);
+        preOutboundLine.setManufacturerCode(MFR_NAME_V6);
+        preOutboundLine.setReferenceField3(outboundIntegrationLine.getPriceSegment());    //weight
+        preOutboundLine.setReferenceField6(outboundIntegrationLine.getMiddlewareTable()); //unit type
+        String barcodeId = outboundIntegrationLine.getBarcodeId() != null ? outboundIntegrationLine.getBarcodeId() : outboundIntegrationLine.getItemCode();
+
+        preOutboundLine.setBarcodeId(barcodeId);
+        description = getDescription(preOutboundLine.getCompanyCodeId(), preOutboundLine.getPlantId(), preOutboundLine.getLanguageId(), preOutboundLine.getWarehouseId());
+        if (description != null) {
+            preOutboundLine.setCompanyDescription(description.getCompanyDesc());
+            preOutboundLine.setPlantDescription(description.getPlantDesc());
+            preOutboundLine.setWarehouseDescription(description.getWarehouseDesc());
+        }
+        statusDescription = stagingLineV2Repository.getStatusDescription(39L, preOutboundHeader.getLanguageId());
+        preOutboundLine.setStatusDescription(statusDescription);
+        preOutboundLine.setPickListNumber(outboundIntegrationLine.getPickListNo());
+        ImBasicData1V2 imBasicData1 = repo.imBasicData1V2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerPartNoAndDeletionIndicator(
+                preOutboundHeader.getLanguageId(), preOutboundHeader.getCompanyCodeId(), preOutboundHeader.getPlantId(), preOutboundHeader.getWarehouseId(), outboundIntegrationLine.getItemCode(), outboundIntegrationLine.getManufacturerName(), 0L);
+        log.info("imBasicData1 : " + imBasicData1);
+        if (imBasicData1 != null) {
+            preOutboundLine.setDescription(imBasicData1.getDescription());
+            if (imBasicData1.getItemType() != null && imBasicData1.getItemTypeDescription() == null) {
+                preOutboundLine.setItemType(getItemTypeDesc(preOutboundHeader.getCompanyCodeId(), preOutboundHeader.getPlantId(),
+                        preOutboundHeader.getLanguageId(), preOutboundHeader.getWarehouseId(), imBasicData1.getItemType()));
+            } else {
+                preOutboundLine.setItemType(imBasicData1.getItemTypeDescription());
+            }
+            if (imBasicData1.getItemGroup() != null && imBasicData1.getItemGroupDescription() == null) {
+                preOutboundLine.setItemGroup(getItemGroupDesc(preOutboundHeader.getCompanyCodeId(), preOutboundHeader.getPlantId(),
+                        preOutboundHeader.getLanguageId(), preOutboundHeader.getWarehouseId(), imBasicData1.getItemGroup()));
+            } else {
+                preOutboundLine.setItemGroup(imBasicData1.getItemGroupDescription());
+            }
+        } else {
+            preOutboundLine.setDescription(outboundIntegrationLine.getItemText());
+        }
+        preOutboundLine.setOrderQty(outboundIntegrationLine.getOrderedQty());
+        preOutboundLine.setOrderUom(outboundIntegrationLine.getUom());
+        preOutboundLine.setReferenceField1("SalesOrder");
+        preOutboundLine.setDeletionIndicator(0L);
+        preOutboundLine.setCreatedBy(loginUserId);
+        preOutboundLine.setCreatedOn(new Date());
+
+        log.info("preOutboundLine : " + preOutboundLine);
+
+        return preOutboundLine;
     }
 }

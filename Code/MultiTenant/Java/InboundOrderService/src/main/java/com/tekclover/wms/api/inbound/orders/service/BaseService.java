@@ -2,6 +2,7 @@ package com.tekclover.wms.api.inbound.orders.service;
 
 import com.tekclover.wms.api.inbound.orders.controller.BadRequestException;
 import com.tekclover.wms.api.inbound.orders.model.IKeyValuePair;
+import com.tekclover.wms.api.inbound.orders.model.warehouse.outbound.confirmation.SalesOrder;
 import com.tekclover.wms.api.inbound.orders.repository.StagingLineV2Repository;
 import com.tekclover.wms.api.inbound.orders.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,7 @@ public class BaseService {
     protected static final String MFR_NAME = "NAMRATHA";
     protected static final String MFR_NAME_V5 = "REEFERON";
     protected static final String MRF_NAME_V7 = "KNOWELL";
+    protected static final String MRF_NAME_V6 = "BP";
     protected static final String PICK_HE_NO = "HE-01";
     protected static final String BASE_UOM = "ECH";
     protected static final String ALTERNATE_UOM = "BAG";
@@ -60,7 +62,7 @@ public class BaseService {
     protected static final String ST_SEC_ID_PSFG = "6";         //Indus semi Finished goods production storage section id
     protected static final String ST_SEC_ID_PFG = "7";         //Indus Finished goods production storage section id
 
-    protected static final List<String> storageSectionIds  = new ArrayList<>(Arrays.asList("6","7"));         //Indus storage section id propose not in
+    protected static final List<String> storageSectionIds = new ArrayList<>(Arrays.asList("6", "7"));         //Indus storage section id propose not in
 
 
     @Autowired
@@ -92,12 +94,12 @@ public class BaseService {
     protected String getPlantId() {
         return "1001";
     }
+
     /**
-     *
      * @return
      */
     protected String getMfrName(String companyCode) {
-        if(companyCode.equalsIgnoreCase(COMPANY_CODE)) {
+        if (companyCode.equalsIgnoreCase(COMPANY_CODE)) {
             return "1001";
         }
         return null;
@@ -105,6 +107,7 @@ public class BaseService {
 
     /**
      * ID Master AuthToken
+     *
      * @return
      */
     protected String getIDMasterAuthToken() {
@@ -113,6 +116,7 @@ public class BaseService {
 
     /**
      * Master AuthToken
+     *
      * @return
      */
     protected String getMasterAuthToken() {
@@ -150,7 +154,6 @@ public class BaseService {
     }
 
     /**
-     *
      * @param companyCode
      * @param plantId
      * @param languageId
@@ -162,8 +165,8 @@ public class BaseService {
         String referenceDocumentType = stagingLineV2Repository.getInboundOrderTypeDescription(referenceDocumentTypeId, companyCode, plantId, languageId, warehouseId);
         return referenceDocumentType;
     }
+
     /**
-     *
      * @param companyCodeId
      * @param plantId
      * @param languageId
@@ -288,7 +291,6 @@ public class BaseService {
     }
 
     /**
-     *
      * @param companyCodeId
      * @param plantId
      * @param languageId
@@ -300,8 +302,8 @@ public class BaseService {
                                    String warehouseId, Long stockTypeId) {
         return stagingLineV2Repository.getStockTypeDescription(companyCodeId, plantId, languageId, warehouseId, stockTypeId);
     }
+
     /**
-     *
      * @param companyCodeId
      * @param plantId
      * @param languageId
@@ -314,7 +316,6 @@ public class BaseService {
     }
 
     /**
-     *
      * @param companyCodeId
      * @param plantId
      * @param languageId
@@ -340,7 +341,6 @@ public class BaseService {
     }
 
     /**
-     *
      * @param value
      * @return
      */
@@ -349,7 +349,6 @@ public class BaseService {
     }
 
     /**
-     *
      * @param value
      * @return
      */
@@ -359,6 +358,7 @@ public class BaseService {
 
     /**
      * Get company, plant, warehouse description
+     *
      * @param companyCodeId
      * @param plantId
      * @param languageId
@@ -379,7 +379,6 @@ public class BaseService {
     }
 
     /**
-     *
      * @param companyCodeId
      * @param plantId
      * @param languageId
@@ -394,20 +393,18 @@ public class BaseService {
 
 
     /**
-     *
      * @param orderQty
      * @param uomQty
      * @return
      */
     public Double getQuantity(Double orderQty, Double uomQty) {
-        if(orderQty != null && uomQty != null) {
+        if (orderQty != null && uomQty != null) {
             return orderQty * uomQty;
         }
         throw new BadRequestException("Quantity cannot be null");
     }
 
     /**
-     *
      * @param quantity
      * @return
      */
@@ -416,12 +413,11 @@ public class BaseService {
     }
 
     /**
-     *
      * @param itemCode
      * @param partBarCode
      * @return
      */
-    public String generateBarCodeId (String itemCode, String partBarCode) {
+    public String generateBarCodeId(String itemCode, String partBarCode) {
         itemCode = itemCode.trim().toUpperCase().replaceAll("\\s+", "");
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(itemCode);
@@ -430,18 +426,18 @@ public class BaseService {
     }
 
     /**
-     *
      * @param itemCode
      * @param partBarCode
      * @param bagNumber
      * @return
      */
-    public String generateBarCodeId (String itemCode, String partBarCode, long bagNumber) throws ParseException {
+    public String generateBarCodeId(String itemCode, String partBarCode, long bagNumber) throws ParseException {
         itemCode = itemCode.trim().toUpperCase().replaceAll("\\s+", "");
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(itemCode);
         stringBuilder.append(partBarCode);
         stringBuilder.append(bagNumber);
+
         Date currentDate = DateUtils.getCurrentDateTimeAsDate();
         Date[] dates = DateUtils.addTimeToDatesForSearch(currentDate, currentDate);
         Date fromDate = dates[0];
@@ -453,7 +449,6 @@ public class BaseService {
     }
 
     /**
-     *
      * @param companyCodeId
      * @param plantId
      * @param languageId
@@ -467,11 +462,10 @@ public class BaseService {
     }
 
     /**
-     *
      * @param refDocNumber
      * @return
      */
-    public String generateBarCodeId (String refDocNumber) {
+    public String generateBarCodeId(String refDocNumber) {
         String orderNoLastThreeDigit = refDocNumber;
         if (refDocNumber != null && refDocNumber.length() >= 3) {
             orderNoLastThreeDigit = refDocNumber.substring(refDocNumber.length() - 3);
@@ -485,12 +479,11 @@ public class BaseService {
     }
 
     /**
-     *
      * @param itemCode
      * @param refDocNumber
      * @return
      */
-    public String generateBarCodeIdV4 (String itemCode, String refDocNumber) {
+    public String generateBarCodeIdV4(String itemCode, String refDocNumber) {
         itemCode = itemCode.trim().toUpperCase().replaceAll("\\s+", "");
         String orderNoLastThreeDigit = refDocNumber;
         if (refDocNumber != null && refDocNumber.length() >= 3) {
@@ -508,6 +501,7 @@ public class BaseService {
 
     /**
      * pickupline inventory calculation
+     *
      * @param allocatedQty
      * @param pickCnfQty
      * @param bagSize
@@ -515,7 +509,7 @@ public class BaseService {
      * @param invAllocatedQty
      * @return
      */
-    public double[] calculateInventory (Double allocatedQty, Double pickCnfQty, Double bagSize, Double inventoryQty, Double invAllocatedQty) {
+    public double[] calculateInventory(Double allocatedQty, Double pickCnfQty, Double bagSize, Double inventoryQty, Double invAllocatedQty) {
         log.info("INV_QTY, ALLOC_QTY, PICK_CNF_QTY : " + inventoryQty + ", " + invAllocatedQty + ", " + pickCnfQty);
         bagSize = bagSize != null ? bagSize : 0;
 
@@ -532,11 +526,10 @@ public class BaseService {
         double NO_OF_BAGS = TOT_QTY != 0 ? roundUp(TOT_QTY / bagSize) : 0;
 
         log.info("INV_QTY, ALLOC_QTY, TOT_QTY : " + INV_QTY + "|" + ALLOC_QTY + "|" + TOT_QTY + "|" + NO_OF_BAGS);
-        return new double[] {INV_QTY, ALLOC_QTY, TOT_QTY, NO_OF_BAGS};
+        return new double[]{INV_QTY, ALLOC_QTY, TOT_QTY, NO_OF_BAGS};
     }
 
     /**
-     *
      * @param allocatedQty
      * @param pickCnfQty
      * @param bagSize
@@ -544,7 +537,7 @@ public class BaseService {
      * @param invAllocatedQty
      * @return
      */
-    public double[] calculateUOMInventory (Double allocatedQty, Double pickCnfQty, Double bagSize, Double inventoryQty, Double invAllocatedQty) {
+    public double[] calculateUOMInventory(Double allocatedQty, Double pickCnfQty, Double bagSize, Double inventoryQty, Double invAllocatedQty) {
         log.info("INV_QTY, ALLOC_QTY, PICK_CNF_QTY : " + inventoryQty + ", " + invAllocatedQty + ", " + pickCnfQty);
 
         bagSize = bagSize != null ? bagSize : 0;
@@ -560,18 +553,19 @@ public class BaseService {
         double NO_OF_BAGS = TOT_QTY != 0 ? roundUp(TOT_QTY / bagSize) : 0;
 
         log.info("INV_QTY, ALLOC_QTY, TOT_QTY : " + INV_QTY + "|" + ALLOC_QTY + "|" + TOT_QTY + "|" + NO_OF_BAGS);
-        return new double[] {INV_QTY, ALLOC_QTY, TOT_QTY, NO_OF_BAGS};
+        return new double[]{INV_QTY, ALLOC_QTY, TOT_QTY, NO_OF_BAGS};
     }
 
     /**
      * pickupline inventory calculation (unAllocate)
+     *
      * @param pickCnfQty/allocatedQty
      * @param bagSize
      * @param inventoryQty
      * @param invAllocatedQty
      * @return
      */
-    public double[] calculateInventoryUnAllocate (Double pickCnfQty, Double bagSize, Double inventoryQty, Double invAllocatedQty) {
+    public double[] calculateInventoryUnAllocate(Double pickCnfQty, Double bagSize, Double inventoryQty, Double invAllocatedQty) {
         log.info("INV_QTY, ALLOC_QTY, PICK_CNF_QTY : " + inventoryQty + ", " + invAllocatedQty + ", " + pickCnfQty);
         bagSize = bagSize != null ? bagSize : 0;
 
@@ -587,18 +581,19 @@ public class BaseService {
         double NO_OF_BAGS = TOT_QTY != 0 ? roundUp(TOT_QTY / bagSize) : 0;
 
         log.info("INV_QTY, ALLOC_QTY, TOT_QTY : " + INV_QTY + "|" + ALLOC_QTY + "|" + TOT_QTY + "|" + NO_OF_BAGS);
-        return new double[] {INV_QTY, ALLOC_QTY, TOT_QTY, NO_OF_BAGS};
+        return new double[]{INV_QTY, ALLOC_QTY, TOT_QTY, NO_OF_BAGS};
     }
 
     /**
      * pickupline inventory calculation (unAllocate)
+     *
      * @param pickCnfQty/allocatedQty
      * @param bagSize
      * @param inventoryQty
      * @param invAllocatedQty
      * @return
      */
-    public double[] calculateInventoryUOMUnAllocate (Double pickCnfQty, Double bagSize, Double inventoryQty, Double invAllocatedQty) {
+    public double[] calculateInventoryUOMUnAllocate(Double pickCnfQty, Double bagSize, Double inventoryQty, Double invAllocatedQty) {
         log.info("INV_QTY, ALLOC_QTY, PICK_CNF_QTY : " + inventoryQty + ", " + invAllocatedQty + ", " + pickCnfQty);
         bagSize = bagSize != null ? bagSize : 0;
         pickCnfQty = getQuantity(pickCnfQty);
@@ -613,18 +608,19 @@ public class BaseService {
         double NO_OF_BAGS = TOT_QTY != 0 ? roundUp(TOT_QTY / bagSize) : 0;
 
         log.info("INV_QTY, ALLOC_QTY, TOT_QTY : " + INV_QTY + "|" + ALLOC_QTY + "|" + TOT_QTY + "|" + NO_OF_BAGS);
-        return new double[] {INV_QTY, ALLOC_QTY, TOT_QTY, NO_OF_BAGS};
+        return new double[]{INV_QTY, ALLOC_QTY, TOT_QTY, NO_OF_BAGS};
     }
 
     /**
      * pickupline inventory calculation (Allocate)
+     *
      * @param pickCnfQty
      * @param bagSize
      * @param inventoryQty
      * @param invAllocatedQty
      * @return
      */
-    public double[] calculateInventoryAllocate (Double pickCnfQty, Double bagSize, Double inventoryQty, Double invAllocatedQty) {
+    public double[] calculateInventoryAllocate(Double pickCnfQty, Double bagSize, Double inventoryQty, Double invAllocatedQty) {
         log.info("INV_QTY, ALLOC_QTY, PICK_CNF_QTY : " + inventoryQty + ", " + invAllocatedQty + ", " + pickCnfQty);
         bagSize = bagSize != null ? bagSize : 0;
 
@@ -640,18 +636,19 @@ public class BaseService {
         double NO_OF_BAGS = TOT_QTY != 0 ? roundUp(TOT_QTY / bagSize) : 0;
 
         log.info("INV_QTY, ALLOC_QTY, TOT_QTY : " + INV_QTY + "|" + ALLOC_QTY + "|" + TOT_QTY + "|" + NO_OF_BAGS);
-        return new double[] {INV_QTY, ALLOC_QTY, TOT_QTY, NO_OF_BAGS};
+        return new double[]{INV_QTY, ALLOC_QTY, TOT_QTY, NO_OF_BAGS};
     }
 
     /**
      * pickupline inventory calculation (Allocate)
+     *
      * @param pickCnfQty
      * @param bagSize
      * @param inventoryQty
      * @param invAllocatedQty
      * @return
      */
-    public double[] calculateInventoryUOMAllocate (Double pickCnfQty, Double bagSize, Double inventoryQty, Double invAllocatedQty) {
+    public double[] calculateInventoryUOMAllocate(Double pickCnfQty, Double bagSize, Double inventoryQty, Double invAllocatedQty) {
         log.info("INV_QTY, ALLOC_QTY, PICK_CNF_QTY : " + inventoryQty + ", " + invAllocatedQty + ", " + pickCnfQty);
         bagSize = bagSize != null ? bagSize : 0;
 
@@ -665,18 +662,19 @@ public class BaseService {
         double NO_OF_BAGS = TOT_QTY != 0 ? roundUp(TOT_QTY / bagSize) : 0;
 
         log.info("INV_QTY, ALLOC_QTY, TOT_QTY : " + INV_QTY + "|" + ALLOC_QTY + "|" + TOT_QTY + "|" + NO_OF_BAGS);
-        return new double[] {INV_QTY, ALLOC_QTY, TOT_QTY, NO_OF_BAGS};
+        return new double[]{INV_QTY, ALLOC_QTY, TOT_QTY, NO_OF_BAGS};
     }
 
     /**
      * orderManagementLine inventory calculation (Allocate)
+     *
      * @param allocatedQty
      * @param bagSize
      * @param inventoryQty
      * @param invAllocatedQty
      * @return
      */
-    public double[] allocateInventory (Double allocatedQty, Double bagSize, Double inventoryQty, Double invAllocatedQty) {
+    public double[] allocateInventory(Double allocatedQty, Double bagSize, Double inventoryQty, Double invAllocatedQty) {
         log.info("INV_QTY, ALLOC_QTY, ALLOC_QTY : " + inventoryQty + ", " + invAllocatedQty + ", " + allocatedQty);
         bagSize = bagSize != null ? bagSize : 0;
 
@@ -691,18 +689,17 @@ public class BaseService {
         double TOT_QTY = INV_QTY + ALLOC_QTY;
 
         log.info("INV_QTY, ALLOC_QTY, TOT_QTY : " + INV_QTY + "|" + ALLOC_QTY + "|" + TOT_QTY);
-        return new double[] {INV_QTY, ALLOC_QTY, TOT_QTY};
+        return new double[]{INV_QTY, ALLOC_QTY, TOT_QTY};
     }
 
     /**
-     *
      * @param transferQty
      * @param bagSize
      * @param inventoryQty
      * @param invAllocatedQty
      * @return
      */
-    public double[] calculateTransferInventory (Double transferQty, Double bagSize, Double inventoryQty, Double invAllocatedQty) {
+    public double[] calculateTransferInventory(Double transferQty, Double bagSize, Double inventoryQty, Double invAllocatedQty) {
         log.info("INV_QTY, ALLOC_QTY, TFR_QTY : " + inventoryQty + ", " + invAllocatedQty + ", " + transferQty);
         bagSize = bagSize != null ? bagSize : 0;
 
@@ -717,18 +714,17 @@ public class BaseService {
         double NO_OF_BAGS = TOT_QTY != 0 ? roundUp(TOT_QTY / bagSize) : 0;
 
         log.info("Tfr INV_QTY, ALLOC_QTY, TOT_QTY : " + INV_QTY + "|" + ALLOC_QTY + "|" + TOT_QTY + "|" + NO_OF_BAGS);
-        return new double[] {INV_QTY, ALLOC_QTY, TOT_QTY, NO_OF_BAGS};
+        return new double[]{INV_QTY, ALLOC_QTY, TOT_QTY, NO_OF_BAGS};
     }
 
     /**
-     *
      * @param varianceQty
      * @param bagSize
      * @param inventoryQty
      * @param invAllocatedQty
      * @return
      */
-    public double[] calculateStockAdjustmentInventory (Double varianceQty, Double bagSize, Double inventoryQty, Double invAllocatedQty) {
+    public double[] calculateStockAdjustmentInventory(Double varianceQty, Double bagSize, Double inventoryQty, Double invAllocatedQty) {
         log.info("INV_QTY, ALLOC_QTY, TFR_QTY : " + inventoryQty + ", " + invAllocatedQty + ", " + varianceQty);
         bagSize = bagSize != null ? bagSize : 0;
         double actualVarianceQty = getQuantity((varianceQty != null ? varianceQty : 0), bagSize);
@@ -743,7 +739,7 @@ public class BaseService {
         double NO_OF_BAGS = TOT_QTY != 0 ? roundUp(TOT_QTY / bagSize) : 0;
 
         log.info("Tfr INV_QTY, ALLOC_QTY, TOT_QTY : " + INV_QTY + "|" + ALLOC_QTY + "|" + TOT_QTY + "|" + NO_OF_BAGS);
-        return new double[] {INV_QTY, ALLOC_QTY, TOT_QTY, NO_OF_BAGS};
+        return new double[]{INV_QTY, ALLOC_QTY, TOT_QTY, NO_OF_BAGS};
     }
 
     /**
@@ -770,5 +766,27 @@ public class BaseService {
             }
         }
         return reqDelDate;
+    }
+
+    /**
+     *
+     * @param refDocNo
+     * @param itemCode
+     * @param lineNo
+     * @return
+     */
+    public String generateBarcodeId(String refDocNo, String itemCode, int lineNo){
+        itemCode = itemCode.trim().toUpperCase().replaceAll("\\s+", "");
+        String orderNoLastThreeDigit = refDocNo;
+        if (refDocNo != null && refDocNo.length() >= 3) {
+            orderNoLastThreeDigit = refDocNo.substring(refDocNo.length() - 3);
+        } else {
+            throw new IllegalArgumentException("refDocNumber must be at least 3 characters long");
+        }
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(itemCode);
+        stringBuilder.append(orderNoLastThreeDigit);
+        stringBuilder.append(lineNo);
+        return stringBuilder.toString();
     }
 }

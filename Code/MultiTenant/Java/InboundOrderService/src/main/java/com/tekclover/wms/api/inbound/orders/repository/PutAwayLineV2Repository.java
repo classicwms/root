@@ -191,4 +191,24 @@ public interface PutAwayLineV2Repository extends JpaRepository<PutAwayLineV2, Lo
 PutAwayLineV2 findTopByCompanyCodeAndPlantIdAndWarehouseIdAndLanguageIdAndItemCodeAndManufacturerNameAndStatusIdAndDeletionIndicatorOrderByCreatedOn(
             String companyCodeId, String plantId, String warehouseId, String languageId,
             String itemCode, String manufacturerName, Long statusId, Long deletionIndicator);
+
+
+    @Query(value = "select * from tblputawayline where c_id = :companyCodeId and plant_id = :plantId and " +
+            " lang_id = :languageId and wh_id = :warehouseId and ref_doc_no = :refDocNumber ",nativeQuery = true)
+    List<PutAwayLineV2> getPutAwayLinesV4(@Param("companyCodeId") String companyCode,
+                                        @Param("plantId") String plantId,
+                                        @Param("languageId") String languageId,
+                                        @Param("warehouseId") String warehouseId,
+                                        @Param("refDocNumber") String refDocNumber);
+
+    //BP
+    @Query(value = "select * from tblputawayline where c_id = :companyCodeId and plant_id = :plantId and " +
+            " lang_id = :languageId and wh_id = :warehouseId and ref_doc_no = :refDocNumber ",nativeQuery = true)
+    List<PutAwayLineV2> getPutAwayLinesV6(@Param("companyCodeId") String companyCode,
+                                          @Param("plantId") String plantId,
+                                          @Param("languageId") String languageId,
+                                          @Param("warehouseId") String warehouseId,
+                                          @Param("refDocNumber") String refDocNumber);
+
+
 }

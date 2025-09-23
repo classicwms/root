@@ -462,11 +462,33 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
                                             @Param("uomId") String uomId,
                                             @Param("altUom") String altUom);
 
+
+    @Query(value = "select COUNT(*) from tblimalternateuom where " +
+            "c_id = :companyCode and plant_id = :plantId and wh_id = :warehouseId and itm_code = :itemCode and " +
+            "uom_id = :uomId and alt_uom = :altUom", nativeQuery = true)
+    public Long getAlternateUomQtyUpload(@Param("companyCode") String companyCode,
+                                            @Param("plantId") String plantId,
+                                            @Param("warehouseId") String warehouseId,
+                                            @Param("itemCode") String itemCode,
+                                            @Param("uomId") String uomId,
+                                            @Param("altUom") String altUom);
+
     @Query(value = "SELECT COUNT(*) + 1 FROM tblstagingline WHERE LANG_ID ='EN' \n" +
             "AND ITM_CODE = :itemCode and st_ctd_on between :fromDate and :toDate ", nativeQuery = true)
     public long getStagingLineCount(@Param("itemCode") String itemCode,
                                     @Param("fromDate") Date fromDate,
                                     @Param("toDate") Date toDate);
 
+    public StagingLineEntityV2 findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndBarcodeIdAndDeletionIndicator(String companyCode, String plantId, String languageId, String warehouseId, String barcodeId, Long deletionIndicator);
+
+
+    @Query(value = "select UOM_QTY from tblimalternateuom where C_ID = :companyId and PLANT_ID = :plantId and WH_ID = :warehouseId " +
+            " and LANG_ID = :languageId and ITM_CODE = :itemCode and UOM_ID = :uomId ",nativeQuery = true)
+    public Double getQty(@Param("companyId") String companyId,
+                         @Param("plantId") String plantId,
+                         @Param("warehouseId") String warehouseId,
+                         @Param("languageId")String languageId,
+                         @Param("itemCode")String itemCode,
+                         @Param("uomId")String uomId);
 
 }

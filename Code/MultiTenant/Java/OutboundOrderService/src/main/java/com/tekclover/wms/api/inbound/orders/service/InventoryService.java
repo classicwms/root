@@ -442,6 +442,31 @@ public class InventoryService {
     }
 
     /**
+     * MMF
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param stockTypeId
+     * @param binClassId
+     * @param manufacturerName
+     * @param alternateUom
+     * @return
+     */
+    public synchronized List<IInventoryImpl> getInventoryForOrderManagementV8(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                                              String itemCode, String manufacturerName, Long stockTypeId, Long binClassId,
+                                                                              String alternateUom) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + alternateUom + "|" + binClassId);
+        List<IInventoryImpl> inventoryList = inventoryV2Repository.findInventoryForOrderManagementV4(companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, binClassId, stockTypeId, alternateUom);
+        if (inventoryList == null || inventoryList.isEmpty()) {
+            inventoryList = inventoryV2Repository.findInventoryForOrderManagementV4(companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, binClassId, stockTypeId, null);
+        }
+        return inventoryList;
+    }
+
+    /**
      *
      * @param companyCodeId
      * @param plantId
@@ -465,7 +490,32 @@ public class InventoryService {
         }
         return inventoryList;
     }
-
+    //===============================================MMF=============================================================
+    /**
+     * MMF
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param manufacturerName
+     * @param stockTypeId
+     * @param binClassId
+     * @param alternateUom
+     * @return
+     */
+    public synchronized List<IInventoryImpl> getInventoryForOrderManagementOrderByCreatedOnV8(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                                                              String itemCode, String manufacturerName, Long stockTypeId, Long binClassId, String alternateUom) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + alternateUom + "|" + binClassId);
+        List<IInventoryImpl> inventoryList = inventoryV2Repository.getOMLInventoryV4OrderByCreatedOn(companyCodeId, plantId, languageId, warehouseId, null, null,
+                itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId, alternateUom);
+        if (inventoryList == null || inventoryList.isEmpty()) {
+            inventoryList = inventoryV2Repository.getOMLInventoryV4OrderByCreatedOn(companyCodeId, plantId, languageId, warehouseId, null, null,
+                    itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId, null);
+        }
+        return inventoryList;
+    }
     /**
      *
      * @param companyCodeId
@@ -491,6 +541,31 @@ public class InventoryService {
         return inventoryList;
     }
 
+    /**
+     * MMF
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param manufacturerName
+     * @param stockTypeId
+     * @param binClassId
+     * @param alternateUom
+     * @return
+     */
+    public synchronized List<IInventoryImpl> getInventoryForOrderManagementOrderByExpiryDateV8(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                                                               String itemCode, String manufacturerName, Long stockTypeId, Long binClassId, String alternateUom) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + alternateUom + "|" + binClassId);
+        List<IInventoryImpl> inventoryList = inventoryV2Repository.getOMLInventoryV4OrderByExpiryDate(companyCodeId, plantId, languageId, warehouseId, null, null,
+                itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId, alternateUom);
+        if (inventoryList == null || inventoryList.isEmpty()) {
+            inventoryList = inventoryV2Repository.getOMLInventoryV4OrderByExpiryDate(companyCodeId, plantId, languageId, warehouseId, null, null,
+                    itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId, null);
+        }
+        return inventoryList;
+    }
 
     /**
      *
@@ -517,6 +592,34 @@ public class InventoryService {
         return inventoryList;
     }
 
+
+
+    /**
+     * MMF
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param manufacturerName
+     * @param stockTypeId
+     * @param binClassId
+     * @param alternateUom
+     * @return
+     */
+    public synchronized List<IInventoryImpl> getInventoryForOrderManagementOrderByLevelIdV8(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                                                            String itemCode, String manufacturerName, Long stockTypeId, Long binClassId, String alternateUom) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + alternateUom + "|" + binClassId);
+        List<IInventoryImpl> inventoryList = inventoryV2Repository.getOMLInventoryV4OrderByLevelId(companyCodeId, plantId, languageId, warehouseId, null, null,
+                itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId, alternateUom);
+        if (inventoryList == null || inventoryList.isEmpty()) {
+            inventoryList = inventoryV2Repository.getOMLInventoryV4OrderByLevelId(companyCodeId, plantId, languageId, warehouseId, null, null,
+                    itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId, null);
+        }
+        return inventoryList;
+    }
+
     /**
      *
      * @param companyCodeId
@@ -532,6 +635,32 @@ public class InventoryService {
      */
     public synchronized List<IInventory> getInventoryForOrderManagementByBatchV4(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                                     String itemCode, String manufacturerName, Long stockTypeId, Long binClassId, String alternateUom) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + alternateUom + "|" + binClassId);
+        List<IInventory> inventoryList = inventoryV2Repository.findInventoryByBatchV4(companyCodeId, plantId, languageId, warehouseId, binClassId,
+                stockTypeId, itemCode, manufacturerName, alternateUom);
+        if (inventoryList == null || inventoryList.isEmpty()) {
+            inventoryList = inventoryV2Repository.findInventoryByBatchV4(companyCodeId, plantId, languageId, warehouseId, binClassId,
+                    stockTypeId, itemCode, manufacturerName, null);
+        }
+        return inventoryList;
+    }
+
+    /**
+     * MMF
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param manufacturerName
+     * @param stockTypeId
+     * @param binClassId
+     * @param alternateUom
+     * @return
+     */
+    public synchronized List<IInventory> getInventoryForOrderManagementByBatchV8(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                                                 String itemCode, String manufacturerName, Long stockTypeId, Long binClassId, String alternateUom) {
         log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + alternateUom + "|" + binClassId);
         List<IInventory> inventoryList = inventoryV2Repository.findInventoryByBatchV4(companyCodeId, plantId, languageId, warehouseId, binClassId,
                 stockTypeId, itemCode, manufacturerName, alternateUom);
@@ -575,6 +704,31 @@ public class InventoryService {
      * @param languageId
      * @param warehouseId
      * @param itemCode
+     * @param manufacturerName
+     * @param stockTypeId
+     * @param binClassId
+     * @param alternateUom
+     * @return
+     */
+    public synchronized List<IInventoryImpl> getInventoryForOrderManagementOrderByBatchV8(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                                                          String itemCode, String manufacturerName, Long stockTypeId, Long binClassId, String alternateUom) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName +
+                "|" + alternateUom + "|" + binClassId);
+        List<IInventoryImpl> inventoryList = inventoryV2Repository.getOMLInventoryV4OrderByBatch(companyCodeId, plantId, languageId, warehouseId, null, null,
+                itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId, alternateUom);
+        if (inventoryList == null || inventoryList.isEmpty()) {
+            inventoryList = inventoryV2Repository.getOMLInventoryV4OrderByBatch(companyCodeId, plantId, languageId, warehouseId, null, null,
+                    itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId, null);
+        }
+        return inventoryList;
+    }
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
      * @param stockTypeId
      * @param binClassId
      * @param manufacturerName
@@ -583,6 +737,31 @@ public class InventoryService {
      */
     public synchronized List<IInventory> getInventoryForOrderManagementGroupByLevelIdV4(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                                            String itemCode, Long stockTypeId, Long binClassId, String manufacturerName, String alternateUom) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + alternateUom + "|" + binClassId);
+        List<IInventory> inventoryList = inventoryV2Repository.findInventoryGroupByLevelIdV4(companyCodeId, plantId, languageId, warehouseId, itemCode,
+                manufacturerName, stockTypeId, binClassId, alternateUom);
+        if (inventoryList == null || inventoryList.isEmpty()) {
+            inventoryList = inventoryV2Repository.findInventoryGroupByLevelIdV4(companyCodeId, plantId, languageId, warehouseId, itemCode,
+                    manufacturerName, stockTypeId, binClassId, null);
+        }
+        return inventoryList;
+    }
+    /**
+     * MMF
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param stockTypeId
+     * @param binClassId
+     * @param manufacturerName
+     * @param alternateUom
+     * @return
+     */
+    public synchronized List<IInventory> getInventoryForOrderManagementGroupByLevelIdV8(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                                                        String itemCode, Long stockTypeId, Long binClassId, String manufacturerName, String alternateUom) {
         log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + alternateUom + "|" + binClassId);
         List<IInventory> inventoryList = inventoryV2Repository.findInventoryGroupByLevelIdV4(companyCodeId, plantId, languageId, warehouseId, itemCode,
                 manufacturerName, stockTypeId, binClassId, alternateUom);
@@ -623,6 +802,35 @@ public class InventoryService {
     }
 
     /**
+     * MMF
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param manufacturerName
+     * @param stockTypeId
+     * @param binClassId
+     * @param alternateUom
+     * @param levelId
+     * @return
+     */
+    public synchronized List<IInventoryImpl> getInventoryForOrderManagementLevelIdV8(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                                                     String itemCode, String manufacturerName, Long stockTypeId, Long binClassId,
+                                                                                     String alternateUom, Long levelId) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + alternateUom + "|" + binClassId + "|" + levelId);
+        List<IInventoryImpl> inventoryList = inventoryV2Repository.getOMLInventoryLevelIdV6(
+                companyCodeId, plantId, languageId, warehouseId, null, null,
+                itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId, alternateUom, levelId);
+        if (inventoryList == null || inventoryList.isEmpty()) {
+            inventoryList = inventoryV2Repository.getOMLInventoryLevelAsscIdV6(
+                    companyCodeId, plantId, languageId, warehouseId, null, null,
+                    itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId, null, levelId);
+        }
+        return inventoryList;
+    }
+    /**
      *
      * @param companyCodeId
      * @param plantId
@@ -651,6 +859,35 @@ public class InventoryService {
         return inventoryList;
     }
 
+    /**
+     * MMF
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param manufacturerName
+     * @param stockTypeId
+     * @param binClassId
+     * @param alternateUom
+     * @param levelId
+     * @return
+     */
+    public synchronized List<IInventoryImpl> getInventoryForOrderManagementLevelAsscIdV8(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                                                         String itemCode, String manufacturerName, Long stockTypeId, Long binClassId,
+                                                                                         String alternateUom, Long levelId) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + alternateUom + "|" + binClassId + "|" + levelId);
+        List<IInventoryImpl> inventoryList = inventoryV2Repository.getOMLInventoryLevelAsscIdV6(
+                companyCodeId, plantId, languageId, warehouseId, null, null,
+                itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId, alternateUom, levelId);
+        if (inventoryList == null || inventoryList.isEmpty()) {
+            inventoryList = inventoryV2Repository.getOMLInventoryLevelIdV6(
+                    companyCodeId, plantId, languageId, warehouseId, null, null,
+                    itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId, null, levelId);
+        }
+        return inventoryList;
+    }
     /**
      *
      * @param companyCodeId
@@ -708,6 +945,36 @@ public class InventoryService {
         return null;
     }
 
+    /**
+     * MMF
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param manufacturerName
+     * @param storageBin
+     * @param alternateUom
+     * @return
+     */
+    public synchronized InventoryV2 getInventoryV8(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                   String itemCode, String manufacturerName, String barcodeId, String storageBin, String alternateUom) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName +
+                "|" + alternateUom + "|" + barcodeId + "|" + storageBin);
+        IInventoryImpl dbInventory = inventoryV2Repository.getInventoryV4(companyCodeId, plantId, languageId, warehouseId, barcodeId, null,
+                itemCode, manufacturerName, PACK_BARCODE, storageBin, alternateUom);
+        if(dbInventory == null) {
+            dbInventory = inventoryV2Repository.getInventoryV4(companyCodeId, plantId, languageId, warehouseId, barcodeId, null,
+                    itemCode, manufacturerName, PACK_BARCODE, storageBin, null);
+        }
+        if(dbInventory != null) {
+            InventoryV2 inventory = new InventoryV2();
+            BeanUtils.copyProperties(dbInventory, inventory, CommonUtils.getNullPropertyNames(dbInventory));
+            return inventory;
+        }
+        return null;
+    }
 
     /**
      * @param companyCodeId
@@ -776,10 +1043,10 @@ public class InventoryService {
                                                                         String barcodeId) {
         log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + binClassId);
         List<IInventoryImpl> inventoryList = inventoryV2Repository.getOMLInventoryLevelIdV5(
-                companyCodeId, plantId, languageId, warehouseId, barcodeId, null, itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId);
+                companyCodeId, plantId, languageId, warehouseId, barcodeId, null, itemCode, manufacturerName, null, binClassId, stockTypeId);
         if(inventoryList == null || inventoryList.isEmpty()) {
             return inventoryV2Repository.getOMLInventoryLevelIdV5(
-                    companyCodeId, plantId, languageId, warehouseId, barcodeId, null, itemCode, manufacturerName, PACK_BARCODE, STAGING_BIN_CLASS_ID, stockTypeId);
+                    companyCodeId, plantId, languageId, warehouseId, barcodeId, null, itemCode, manufacturerName, null, STAGING_BIN_CLASS_ID, stockTypeId);
         }
         return inventoryList;
     }
@@ -930,6 +1197,66 @@ public class InventoryService {
             }
             log.info("getInventory record----------> : " + inventory.size());
             return inventory;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BadRequestException("Exception while Inventory Get : " + e);
+        }
+    }
+
+    /**
+     *
+     * @param companyCode
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param manufacturerName
+     * @param binClassId
+     * @return
+     */
+    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class, LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 2000))
+    public List<IInventoryImpl> getStockAdjustmentInventory(String companyCode, String plantId, String languageId, String warehouseId,
+                                                            String itemCode, String manufacturerName, Long binClassId) {
+        try {
+            return inventoryV2Repository.
+                    inventoryForStockCount(companyCode, plantId, languageId, warehouseId, itemCode, manufacturerName, binClassId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BadRequestException("Exception while Inventory Get : " + e);
+        }
+    }
+
+    /**
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param packBarcodes
+     * @param binClassId
+     * @return
+     */
+    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class, LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 2000))
+    public InventoryV2 getInventoryForStockAdjustmentDamageV2(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                              String itemCode, String packBarcodes, Long binClassId, String manufacturerName) {
+        try {
+            InventoryV2 inventory =
+                    inventoryV2Repository.findTopByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndPackBarcodesAndBinClassIdAndManufacturerNameAndDeletionIndicatorOrderByInventoryIdDesc(
+                            languageId,
+                            companyCodeId,
+                            plantId,
+                            warehouseId,
+                            itemCode,
+                            packBarcodes,
+                            binClassId,
+                            manufacturerName,
+                            0L
+                    );
+            if (inventory != null) {
+                log.info("InventoryForStockAdjustmentDamageV2: " + inventory);
+                return inventory;
+            }
+            return null;
         } catch (Exception e) {
             e.printStackTrace();
             throw new BadRequestException("Exception while Inventory Get : " + e);

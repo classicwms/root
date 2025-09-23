@@ -911,7 +911,7 @@ public class OrderManagementLineService extends BaseService {
                             iInventory.getLevelId());
                     log.info("Group By LeveId Inventory: " + finalInventoryList.size());
                     if (!finalInventoryList.isEmpty()) {
-                        newOrderManagementLine = orderAllocationV7(companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName,
+                        newOrderManagementLine = orderAllocatedV4(companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName,
                                 binClassId, ORD_QTY, orderManagementLine, finalInventoryList, loginUserID);
                         log.info("newOrderManagementLine updated ---#--->" + newOrderManagementLine);
                         return newOrderManagementLine;
@@ -2849,6 +2849,158 @@ public class OrderManagementLineService extends BaseService {
         } catch (Exception e) {
             log.error("Error setting UOM quantities: {}", e.getMessage(), e);
         }
+    }
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param manufacturerName
+     * @param binClassId
+     * @param ORD_QTY
+     * @param orderManagementLine
+     * @param finalInventoryList
+     * @param loginUserID
+     * @return
+     */
+    public OrderManagementLineV2 orderAllocatedV4(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                   String itemCode, String manufacturerName, Long binClassId, Double ORD_QTY,
+                                                   OrderManagementLineV2 orderManagementLine, List<IInventoryImpl> finalInventoryList,
+                                                   String loginUserID) {
+        OrderManagementLineV2 newOrderManagementLine = null;
+        String alternateUom = orderManagementLine.getAlternateUom();
+//        outerloop:
+        for (IInventoryImpl stBinWiseInventory : finalInventoryList) {
+            InventoryV2 stBinInventory = inventoryService.getInventoryV4(companyCodeId, plantId, languageId, warehouseId, itemCode,
+                    manufacturerName, stBinWiseInventory.getBarcodeId(),
+                    stBinWiseInventory.getStorageBin(), alternateUom);
+            log.info("Inventory for Allocation Bin wise ---->: " + stBinInventory);
+
+            // If the queried Inventory is empty then EMPTY orderManagementLine is created.
+            if (stBinInventory == null) {
+                return updateOrderManagementLineV2(orderManagementLine);
+            }
+
+            Long STATUS_ID = 0L;
+            Double ALLOC_QTY = 0D;
+
+            /*
+             * ALLOC_QTY 1. If ORD_QTY< INV_QTY , then ALLOC_QTY = ORD_QTY. 2. If
+             * ORD_QTY>INV_QTY, then ALLOC_QTY = INV_QTY. If INV_QTY = 0, Auto fill
+             * ALLOC_QTY=0
+             */
+            Double INV_QTY = stBinInventory.getInventoryQuantity();
+
+            // INV_QTY
+            orderManagementLine.setInventoryQty(INV_QTY);
+
+            log.info("ORD_QTY -----> {}", ORD_QTY);
+            log.info("INV_QTY -----> {}", INV_QTY);
+
+            // Temp variable for setting ORD_QTY
+            Double INCOMING_ORD_QTY = ORD_QTY;
+
+            if (ORD_QTY <= INV_QTY) {
+                ALLOC_QTY = ORD_QTY;
+            } else if (ORD_QTY > INV_QTY) {
+                ALLOC_QTY = INV_QTY;
+            } else if (INV_QTY == 0) {
+                ALLOC_QTY = 0D;
+            }
+            log.info("ALLOC_QTY -----1--->: " + ALLOC_QTY);
+
+            if (orderManagementLine.getStatusId() == 47L) {
+                try {
+                    orderManagementLineV2Repository.delete(orderManagementLine);
+                    log.info("--#---orderManagementLine--deleted----: " + orderManagementLine);
+                } catch (Exception e) {
+                    log.info("--Error---orderManagementLine--deleted----: " + orderManagementLine);
+                    e.printStackTrace();
+                }
+            }
+
+            orderManagementLine.setNoBags(stBinInventory.getNoBags() != null ? stBinInventory.getNoBags() : 0.0);
+            orderManagementLine.setBagSize(stBinInventory.getBagSize() != null ? stBinInventory.getBagSize() : 0.0);
+            orderManagementLine.setAllocatedQty(ALLOC_QTY);
+            orderManagementLine.setReAllocatedQty(ALLOC_QTY);
+
+            // STATUS_ID
+            /* if ORD_QTY> ALLOC_QTY , then STATUS_ID is hardcoded as "42" */
+            if (ORD_QTY > ALLOC_QTY) {
+                STATUS_ID = 42L;
+            }
+
+            /* if ORD_QTY=ALLOC_QTY, then STATUS_ID is hardcoded as "43" */
+            if (ORD_QTY == ALLOC_QTY) {
+                STATUS_ID = 43L;
+            }
+
+            statusDescription = getStatusDescription(STATUS_ID, orderManagementLine.getLanguageId());
+            orderManagementLine.setStatusId(STATUS_ID);
+            orderManagementLine.setStatusDescription(statusDescription);
+            orderManagementLine.setReferenceField7(statusDescription);
+            orderManagementLine.setPickupUpdatedBy(loginUserID);
+            orderManagementLine.setPickupUpdatedOn(new Date());
+
+            double allocatedQtyFromOrderMgmt = 0.0;
+
+            /*
+             * Deleting current record and inserting new record (since UK is not allowing to
+             * update prop_st_bin and Pack_bar_codes columns
+             */
+            newOrderManagementLine = new OrderManagementLineV2();
+            BeanUtils.copyProperties(orderManagementLine, newOrderManagementLine, CommonUtils.getNullPropertyNames(orderManagementLine));
+
+            if (newOrderManagementLine.getCompanyDescription() == null) {
+                description = getDescription(companyCodeId, plantId, languageId, warehouseId);
+                newOrderManagementLine.setCompanyDescription(description.getCompanyDesc());
+                newOrderManagementLine.setPlantDescription(description.getPlantDesc());
+                newOrderManagementLine.setWarehouseDescription(description.getWarehouseDesc());
+            }
+
+            newOrderManagementLine.setProposedStorageBin(stBinInventory.getStorageBin());
+            if (stBinInventory.getBarcodeId() != null) {
+                newOrderManagementLine.setBarcodeId(stBinInventory.getBarcodeId());
+            }
+            if (stBinInventory.getLevelId() != null) {
+                newOrderManagementLine.setLevelId(stBinInventory.getLevelId());
+            }
+            log.info("LoosePack is inventory ---------> " + stBinInventory.isLoosePack());
+            if (stBinInventory.isLoosePack()) {
+                newOrderManagementLine.setLoosePack(1L);
+            } else {
+                newOrderManagementLine.setLoosePack(0L);
+            }
+            newOrderManagementLine.setProposedPackBarCode(stBinInventory.getPackBarcodes());
+            newOrderManagementLine.setProposedBatchSerialNumber(stBinInventory.getBatchSerialNumber());
+            newOrderManagementLine.setMrp(stBinInventory.getMrp());
+            OrderManagementLineV2 createdOrderManagementLine = orderManagementLineV2Repository.save(newOrderManagementLine);
+            log.info("--else---createdOrderManagementLine newly created------: " + createdOrderManagementLine);
+            allocatedQtyFromOrderMgmt = createdOrderManagementLine.getAllocatedQty();
+
+            BigDecimal ordQty = BigDecimal.valueOf(ORD_QTY);
+            BigDecimal allocQty = BigDecimal.valueOf(ALLOC_QTY);
+
+            ordQty = ordQty.setScale(2, RoundingMode.HALF_UP);
+
+            if (ordQty.compareTo(allocQty) > 0) {
+//                    ORD_QTY = ORD_QTY - ALLOC_QTY;
+                ORD_QTY = ordQty.doubleValue() - ALLOC_QTY; // convert back if needed
+            }
+
+            log.info("ORD_QTY After --else---createdOrderManagementLine newly created------: {}", ORD_QTY);
+            log.info("allocatedQtyFromOrderMgmt ----> {}", allocatedQtyFromOrderMgmt);
+            log.info("INCOMING_ORD_QTY == ALLOC_QTY Check for Breaking Loop | " + INCOMING_ORD_QTY + " | " + ALLOC_QTY);
+            if (INCOMING_ORD_QTY.equals(ALLOC_QTY)) {   // Changed coz ord_qty and alloc_qty will always be same if there is excess inv_qty, in that case this condition fails, so instead check ord_qty = inv_qty then the condition is true.
+                log.info("ORD_QTY fully allocated: " + ORD_QTY);
+                return newOrderManagementLine;
+//                    break outerloop; // If the Inventory satisfied the Ord_qty
+            }
+        }
+        return newOrderManagementLine;
     }
 }
 

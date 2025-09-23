@@ -22,48 +22,30 @@ public class BatchJobScheduler {
 
     //-------------------------------------------------------------------------------------------
 
+//    @Scheduled(fixedDelay = 20000)
+//    public void scheduleJob() throws InterruptedException, InvocationTargetException, IllegalAccessException, ParseException {
+//        CompletableFuture<WarehouseApiResponse> inboundOrder = scheduleAsyncService.processInboundOrder();
+//    }
+
     @Scheduled(fixedDelay = 20000)
     public void scheduleJob() throws InterruptedException, InvocationTargetException, IllegalAccessException, ParseException {
 
-        CompletableFuture<WarehouseApiResponse> inboundOrder = scheduleAsyncService.processInboundOrder();
-//        CompletableFuture<WarehouseApiResponse> perpetualStockCountOrder = scheduleAsyncService.processPerpetualStockCountOrder();
-//        CompletableFuture<WarehouseApiResponse> stockAdjustmentOrder = scheduleAsyncService.processStockAdjustmentOrder();
-//        CompletableFuture<WarehouseApiResponse> inboundFailedOrder = scheduleAsyncService.processInboundFailedOrder();
 
+        //NAMRATHA
+        CompletableFuture<WarehouseApiResponse> inboundOrderV4 = scheduleAsyncService.processInboundOrderV4();
+
+        //REEFERON
+//        CompletableFuture<WarehouseApiResponse> inboundOrderV5 = scheduleAsyncService.processInboundOrderV5();
+
+        //BP
+//        CompletableFuture<WarehouseApiResponse> inboundOrderV6 = scheduleAsyncService.processInboundOrderV6();
+
+        //KNOWELL
+        CompletableFuture<WarehouseApiResponse> inboundOrderV7 = scheduleAsyncService.processInboundOrderV7();
+
+        //MMF
+//        CompletableFuture<WarehouseApiResponse> inboundOrderV8 = scheduleAsyncService.processInboundOrderV8();
     }
-
-//    @Scheduled(fixedDelay = 10000)
-//    public void setScheduleAsyncService() {
-//
-//        namratha();
-//        reeferon();
-//        common();
-//
-//    }
-//
-//    @Async("asyncExecutor")
-//    public void namratha() {
-//        DataBaseContextHolder.clear();
-//        DataBaseContextHolder.setCurrentDb("NAMRATHA");
-//        String currentDb = DataBaseContextHolder.getCurrentDb();
-//        log.info(currentDb);
-//    }
-//
-//    @Async("asyncExecutor")
-//    public void reeferon() {
-//        DataBaseContextHolder.clear();
-//        DataBaseContextHolder.setCurrentDb("REEFERON");
-//        String currentDb = DataBaseContextHolder.getCurrentDb();
-//        log.info(currentDb);
-//    }
-//
-//    @Async("asyncExecutor")
-//    public void common() {
-//        DataBaseContextHolder.clear();
-//        String currentDb = DataBaseContextHolder.getCurrentDb();
-//        log.info(currentDb);
-//    }
-//
 
 
 }

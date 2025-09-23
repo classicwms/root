@@ -752,15 +752,15 @@ public class WarehouseService extends BaseService {
 				log.info("The Given Values for getting InventoryQty : companyCodeId ---> " + apiHeader.getCompanyCode() + " plantId ----> " + apiHeader.getBranchCode() + " languageId ----> " + apiHeader.getLanguageId() +
 						", warehouseId -----> " + apiHeader.getWarehouseID() + "itemCode -----> " + apiLine.getItemCode() + " refDocumentNo -----> " + apiHeader.getRefDocumentNo());
 
-				Double INV_QTY = inventoryV2Repository.getCurrentCaseQtyWithoutBarcodeId(apiHeader.getCompanyCode(), apiHeader.getBranchCode(), apiHeader.getLanguageId(),
-						apiHeader.getWarehouseID(), apiLine.getItemCode(), apiHeader.getRefDocumentNo());
+//				Double INV_QTY = inventoryV2Repository.getCurrentCaseQtyWithoutBarcodeId(apiHeader.getCompanyCode(), apiHeader.getBranchCode(), apiHeader.getLanguageId(),
+//						apiHeader.getWarehouseID(), apiLine.getItemCode(), apiHeader.getRefDocumentNo());
 
-				log.info("Inventory Qty for incoming order according to ItemCode INV_QTY ----> {}", INV_QTY);
+//				log.info("Inventory Qty for incoming order according to ItemCode INV_QTY ----> {}", INV_QTY);
 
 				Double ordQty = soLine.getExpectedQtyInPieces() / soLine.getExpectedQtyInCases();  // 50 / 2 => 25
 				apiLine.setExpectedQty(soLine.getExpectedQtyInPieces());     // 25
 				apiLine.setOrderedQty(soLine.getExpectedQtyInPieces());      // 25
-				apiLine.setBagSize(INV_QTY);         // 25
+//				apiLine.setBagSize(INV_QTY);         // 25
 //				if (soLine.getNoBags() != null) {
 //					apiLine.setNoBags(soLine.getNoBags());
 //				} else {
@@ -1087,12 +1087,6 @@ public class WarehouseService extends BaseService {
 			} else {
 				apiHeader.setOutboundOrderTypeID(OB_PL_ORD_TYP_ID);
 			}
-//			apiHeader.setOutboundOrderTypeID(3L);                                   // Hardcoded Value "3"
-//			apiHeader.setRefDocumentType("PICK LIST");                              // Hardcoded value "SaleOrder"
-//            apiHeader.setRefDocumentType(getOutboundOrderTypeDesc(apiHeader.getCompanyCode(), apiHeader.getBranchCode(),
-//                                                                  apiHeader.getLanguageId(), apiHeader.getWarehouseID(),
-//                                                                  apiHeader.getOutboundOrderTypeID()));
-
 			apiHeader.setRefDocumentType("SALES ORDER");
 			apiHeader.setCustomerType("INVOICE");                                //HardCoded
 			apiHeader.setOrderReceivedOn(new Date());

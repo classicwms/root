@@ -22,6 +22,16 @@ public class ASNHeaderV2  {
 	private String asnNumber;
 	private String AMSSupplierInvoiceNo;
 
+	private String warehouseId;
+	private String languageId;
+	private String parentProductionOrderNo;
+
+	//almailem fields
+	private String purchaseOrderNumber;
+	private Long inboundOrderTypeId;
+	private String supplierCode;
+	private String loginUserId;
+
 	//almailem fields
 //	private String purchaseOrderNumber;
 
@@ -32,4 +42,7 @@ public class ASNHeaderV2  {
 	//MiddleWare Fields
 	private Long middlewareId;
 	private String middlewareTable;
+	private String customerId;
+	private  String customerName;
+
 }

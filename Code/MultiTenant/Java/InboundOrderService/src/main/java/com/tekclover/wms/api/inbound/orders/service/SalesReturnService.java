@@ -3,6 +3,7 @@ package com.tekclover.wms.api.inbound.orders.service;
 
 import com.microsoft.sqlserver.jdbc.SQLServerException;
 import com.tekclover.wms.api.inbound.orders.config.PropertiesConfig;
+import com.tekclover.wms.api.inbound.orders.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.inbound.orders.controller.BadRequestException;
 import com.tekclover.wms.api.inbound.orders.model.IKeyValuePair;
 import com.tekclover.wms.api.inbound.orders.model.auth.AuthToken;
@@ -469,7 +470,8 @@ public class SalesReturnService {
      * @return
      * @throws ParseException
      */
-    private PreInboundLineEntityV2 createPreInboundLineV2(String companyCode, String plantId, String languageId, String preInboundNo, SOReturnHeaderV2 headerV2, SOReturnLineV2 srLineV2, String warehouseId, String companyDescription, String plantDescription, String warehouseDescription) throws ParseException {
+    private PreInboundLineEntityV2 createPreInboundLineV2(String companyCode, String plantId, String languageId,
+                                                          String preInboundNo, SOReturnHeaderV2 headerV2, SOReturnLineV2 srLineV2, String warehouseId, String companyDescription, String plantDescription, String warehouseDescription) throws ParseException {
         PreInboundLineEntityV2 preInboundLine = new PreInboundLineEntityV2();
 
         preInboundLine.setLanguageId(languageId);
@@ -502,7 +504,7 @@ public class SalesReturnService {
         // PARTNER_CODE
         preInboundLine.setBusinessPartnerCode(srLineV2.getSupplierPartNumber());
         // ORD_QTY
-        preInboundLine.setOrderQty(srLineV2.getPackQty());
+        preInboundLine.setOrderQty(srLineV2.getExpectedQty());
         // ORD_UOM
         preInboundLine.setOrderUom(srLineV2.getUom());
         // STCK_TYP_ID

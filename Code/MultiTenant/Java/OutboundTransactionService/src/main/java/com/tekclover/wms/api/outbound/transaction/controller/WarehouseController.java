@@ -229,6 +229,11 @@ public class WarehouseController {
 	public ResponseEntity<?> postSalesOrderV2(@Valid @RequestBody SalesOrderV2 salesOrder)
 			throws IllegalAccessException, InvocationTargetException {
 		try {
+			DataBaseContextHolder.setCurrentDb("MT");
+			String routingDb = dbConfigRepository.getDbName(salesOrder.getSalesOrderHeader().getCompanyCode(), salesOrder.getSalesOrderHeader().getBranchCode(), salesOrder.getSalesOrderHeader().getWarehouseId());
+			DataBaseContextHolder.clear();
+			DataBaseContextHolder.setCurrentDb(routingDb);
+			log.info("Current DB "  + routingDb);
 			SalesOrderV2 createdSalesOrder = warehouseService.postSalesOrderV2(salesOrder);
 			if (createdSalesOrder != null) {
 				WarehouseApiResponse response = new WarehouseApiResponse();
@@ -256,6 +261,9 @@ public class WarehouseController {
 			WarehouseApiResponse response = new WarehouseApiResponse();
 			for (SalesOrderV2 salesOrder : salesOrders) {
 				DataBaseContextHolder.setCurrentDb("MT");
+				String routingDb = dbConfigRepository.getDbName(salesOrders.get(0).getSalesOrderHeader().getCompanyCode(),salesOrders.get(0).getSalesOrderHeader().getBranchCode(), salesOrders.get(0).getSalesOrderHeader().getWarehouseId());
+				DataBaseContextHolder.clear();
+				DataBaseContextHolder.setCurrentDb(routingDb);
 				OutboundOrderV2 createdSalesOrder = warehouseService.postSalesOrderV5(salesOrder);
 				if (createdSalesOrder != null) {
 					response.setStatusCode("200");
@@ -282,6 +290,9 @@ public class WarehouseController {
 			WarehouseApiResponse response = new WarehouseApiResponse();
 			for (SalesOrderV2 salesOrder : salesOrders) {
 				DataBaseContextHolder.setCurrentDb("MT");
+				String routingDb = dbConfigRepository.getDbName(salesOrders.get(0).getSalesOrderHeader().getCompanyCode(),salesOrders.get(0).getSalesOrderHeader().getBranchCode(), salesOrders.get(0).getSalesOrderHeader().getWarehouseId());
+				DataBaseContextHolder.clear();
+				DataBaseContextHolder.setCurrentDb(routingDb);
 				OutboundOrderV2 createdSalesOrder = warehouseService.emptyCrateOrderV5(salesOrder);
 				if (createdSalesOrder != null) {
 					response.setStatusCode("200");
@@ -308,6 +319,9 @@ public class WarehouseController {
 			WarehouseApiResponse response = new WarehouseApiResponse();
 			for (SalesOrderV2 salesOrder : salesOrders) {
 				DataBaseContextHolder.setCurrentDb("MT");
+				String routingDb = dbConfigRepository.getDbName(salesOrders.get(0).getSalesOrderHeader().getCompanyCode(),salesOrders.get(0).getSalesOrderHeader().getBranchCode(), salesOrders.get(0).getSalesOrderHeader().getWarehouseId());
+				DataBaseContextHolder.clear();
+				DataBaseContextHolder.setCurrentDb(routingDb);
 				OutboundOrderV2 createdSalesOrder = warehouseService.saveSalesOrderV7(salesOrder);
 				if (createdSalesOrder != null) {
 					response.setStatusCode("200");
@@ -334,6 +348,9 @@ public class WarehouseController {
 			WarehouseApiResponse response = new WarehouseApiResponse();
 			for (ReturnPOV2 returnPOV2 : returnPOV2s) {
 				DataBaseContextHolder.setCurrentDb("MT");
+				String routingDb = dbConfigRepository.getDbName(returnPOV2s.get(0).getReturnPOHeader().getCompanyCode(),returnPOV2s.get(0).getReturnPOHeader().getBranchCode(), returnPOV2s.get(0).getReturnPOHeader().getWareHouseId());
+				DataBaseContextHolder.clear();
+				DataBaseContextHolder.setCurrentDb(routingDb);
 				ReturnPOV2 createdPurchaseReturnOrder = warehouseService.postReturnPOV2(returnPOV2);
 				if (createdPurchaseReturnOrder != null) {
 					response.setStatusCode("200");
@@ -358,7 +375,6 @@ public class WarehouseController {
 	public ResponseEntity<?> postInterWarehouseTransferInUploadV2(@RequestBody List<InterWarehouseTransferInV2> interWarehouseTransferInV2List)
 			throws IllegalAccessException, InvocationTargetException {
 		try {
-			List<WarehouseApiResponse> responseList = new ArrayList<>();
 			WarehouseApiResponse response = new WarehouseApiResponse();
 			for (InterWarehouseTransferInV2 interWarehouseTransferInV2 : interWarehouseTransferInV2List) {
 				DataBaseContextHolder.setCurrentDb("MT");

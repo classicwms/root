@@ -153,4 +153,7 @@ public interface InboundHeaderV2Repository extends JpaRepository<InboundHeaderV2
             @Param("statusDescription2") String statusDescription2,
             @Param("updatedBy") String updatedBy,
             @Param("updatedOn") Date updatedOn);
+
+    InboundHeaderV2 findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndInboundOrderTypeIdAndDeletionIndicator(
+            String companyCode, String plantId, String languageId, String warehouseId, String refDocNumber, String preInboundNo, Long inboundOrderTypeId, Long deletionIndicator);
 }

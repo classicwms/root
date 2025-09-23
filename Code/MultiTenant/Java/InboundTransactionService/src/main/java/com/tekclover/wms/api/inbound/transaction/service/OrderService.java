@@ -29,15 +29,9 @@ public class OrderService {
 
     @Autowired
     InboundOrderRepository inboundOrderRepository;
-    @Autowired
-    IntegrationApiResponseRepository integrationApiResponseRepository;
 
     @Autowired
     InboundIntegrationLogRepository inboundIntegrationLogRepository;
-
-
-    @Autowired
-    WarehouseService warehouseService;
 
     //------------------------------------------------------------------------------------------------
 
@@ -149,25 +143,6 @@ public class OrderService {
         return dbInboundOrder;
     }
 
-//    /**
-//     * @param newInboundOrderV2
-//     * @return
-//     */
-//    public InboundOrderV2 createInboundOrdersV2(InboundOrderV2 newInboundOrderV2) {
-//        String profile = dbConfigRepository.getDbName(newInboundOrderV2.getCompanyCode(), newInboundOrderV2.getBranchCode(), newInboundOrderV2.getWarehouseID());
-//        log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", profile);
-//        InboundOrderV2 dbInboundOrder = inboundOrderV2Repository.
-//                findByRefDocumentNoAndInboundOrderTypeId(newInboundOrderV2.getOrderId(), newInboundOrderV2.getInboundOrderTypeId());
-//        if (dbInboundOrder != null) {
-//            throw new BadRequestException("Order is getting Duplicated");
-//        }
-//        InboundOrderV2 inboundOrderV2 = inboundOrderV2Repository.save(newInboundOrderV2);
-//        DataBaseContextHolder.clear();
-//        DataBaseContextHolder.setCurrentDb(profile);
-//        InboundOrderV2 imdDB = inboundOrderV2Repository.save(newInboundOrderV2);
-//        return inboundOrderV2;
-//    }
-
     public InboundOrderV2 createInboundOrdersV2(InboundOrderV2 newInboundOrderV2) {
 
         try {
@@ -271,6 +246,26 @@ public class OrderService {
         }
         inboundOrderLinesRepository.deleteAll(delete.getLines());
         inboundOrderRepository.delete(delete);
+    }
+
+    /**
+     *
+     * @param newInboundOrderV2
+     * @return
+     */
+    public InboundOrderV2 createInboundOrders(InboundOrderV2 newInboundOrderV2) {
+
+        try {
+//            InboundOrderV2 dbInboundOrder = inboundOrderV2Repository.
+//                    findByRefDocumentNoAndInboundOrderTypeId(newInboundOrderV2.getOrderId(), newInboundOrderV2.getInboundOrderTypeId());
+            InboundOrderV2 inboundOrderV2 = inboundOrderV2Repository.save(newInboundOrderV2);
+            log.info("inboundOrderV2 ----> {}", inboundOrderV2);
+            return inboundOrderV2;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
 }

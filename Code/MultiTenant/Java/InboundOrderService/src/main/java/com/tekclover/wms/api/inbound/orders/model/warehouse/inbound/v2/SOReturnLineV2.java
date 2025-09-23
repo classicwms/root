@@ -27,6 +27,7 @@ public class SOReturnLineV2  {
 	private String invoiceNumber;
 	private String storeID;
 	private String supplierPartNumber;
+	private String supplierName;
 
 	//	@Column(nullable = false)
 //	@NotBlank(message = "Manufacturer Name is mandatory")

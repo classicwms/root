@@ -104,7 +104,7 @@ public class InventoryV2 extends Inventory {
     private Double caseQty;
 
     @Column(name = "LOOSE_PACK")
-    private boolean loosePack;
+    private Boolean loosePack;
 
     /*---------------------------------REEFERON---------------------------*/
 

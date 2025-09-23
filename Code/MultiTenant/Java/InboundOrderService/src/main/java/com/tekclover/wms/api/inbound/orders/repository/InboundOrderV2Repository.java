@@ -33,6 +33,12 @@ public interface InboundOrderV2Repository extends JpaRepository<InboundOrderV2, 
             " inbound_order_header_id = :inboundOrderHeaderId ", nativeQuery = true)
     void updateProcessStatusId(@Param("inboundOrderHeaderId") Long inboundOrderHeaderId);
 
+    @Modifying
+    @Query(value = "update tbliborder2 set processed_status_id = :statusId where " +
+            " order_id = :orderNo ", nativeQuery = true)
+    void updateProcessStatusId(@Param("orderNo") String orderNo,
+                               @Param("statusId") Long statusId);
+
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "update tbliborder2 set inbound_header = 1, order_text = :text where " +
             "inbound_order_type_id = :inboundHeaderId and ref_document_no = :refDocNo", nativeQuery = true)
@@ -58,6 +64,13 @@ public interface InboundOrderV2Repository extends JpaRepository<InboundOrderV2, 
                        @Param("refDocNo") String refDocNo,
                        @Param("text") String text);
 
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = "update tbliborder2 set pre_inbound_header = 100, order_text = :text where " +
+            "ref_document_no = :refDocNo", nativeQuery = true)
+    void invalidItemCodeMsgThrow(
+                       @Param("refDocNo") String refDocNo,
+                       @Param("text") String text);
+
     @Modifying
     @Query(value = "UPDATE tbliborder2 set processed_status_id = :processedStatusId WHERE \n" +
             "company_code = :companyCodeId AND branch_code = :plantId \n" +
@@ -67,5 +80,6 @@ public interface InboundOrderV2Repository extends JpaRepository<InboundOrderV2, 
                              @Param("warehouseId") String warehouseId,
                              @Param("refDocNo") String refDocumentNo,
                              @Param("processedStatusId") Long processStatusId);
+
 
 }

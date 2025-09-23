@@ -113,4 +113,96 @@ public interface PreInboundHeaderV2Repository extends JpaRepository<PreInboundHe
             @Param("updatedBy") String updatedBy,
             @Param("updatedOn") Date updatedOn
     );
+
+    //BP
+    @Query(value = "select * from tblpreinboundheader where c_id = :companyCodeId and plant_id = :plantId and lang_id = :languageId and " +
+            " wh_id = :warehouseId and PRE_IB_NO = :preInboundNo and REF_DOC_NO = :refDocNumber and IS_DELETED = 0 ",nativeQuery = true)
+    public PreInboundHeaderEntityV2 getPreInboundHeaderV6(@Param("companyCodeId") String companyCode,
+                                                          @Param("plantId") String plantId,
+                                                          @Param("languageId") String languageId,
+                                                          @Param("warehouseId") String warehouseId,
+                                                          @Param("preInboundNo") String preInboundNo,
+                                                          @Param("refDocNumber") String refDocNumber);
+
+
+    @Modifying
+    @Query(value = "delete tblpreinboundheader where c_id = :companyCodeId and plant_id = :plantId and " +
+            " lang_id = :languageId and wh_id = :warehouseId and ref_doc_no = :refDocNumber ",nativeQuery = true)
+    void deletePreInboundHeaderV4(@Param("companyCodeId") String companyCode,
+                                  @Param("plantId") String plantId,
+                                  @Param("languageId") String languageId,
+                                  @Param("warehouseId") String warehouseId,
+                                  @Param("refDocNumber") String refDocNumber);
+
+    @Modifying
+    @Query(value = "delete tblpreinboundline where c_id = :companyCodeId and plant_id = :plantId and " +
+            " lang_id = :languageId and wh_id = :warehouseId and ref_doc_no = :refDocNumber ",nativeQuery = true)
+    void deletePreInboundLineV4(@Param("companyCodeId") String companyCode,
+                                @Param("plantId") String plantId,
+                                @Param("languageId") String languageId,
+                                @Param("warehouseId") String warehouseId,
+                                @Param("refDocNumber") String refDocNumber);
+
+    @Modifying
+    @Query(value = "delete tblinboundheader where c_id = :companyCodeId and plant_id = :plantId and " +
+            " lang_id = :languageId and wh_id = :warehouseId and ref_doc_no = :refDocNumber ",nativeQuery = true)
+    void deleteInboundHeaderV4(@Param("companyCodeId") String companyCode,
+                               @Param("plantId") String plantId,
+                               @Param("languageId") String languageId,
+                               @Param("warehouseId") String warehouseId,
+                               @Param("refDocNumber") String refDocNumber);
+
+    @Modifying
+    @Query(value = "delete tblinboundline where c_id = :companyCodeId and plant_id = :plantId and " +
+            " lang_id = :languageId and wh_id = :warehouseId and ref_doc_no = :refDocNumber ",nativeQuery = true)
+    void deleteInboundLineV4(@Param("companyCodeId") String companyCode,
+                             @Param("plantId") String plantId,
+                             @Param("languageId") String languageId,
+                             @Param("warehouseId") String warehouseId,
+                             @Param("refDocNumber") String refDocNumber);
+
+    @Modifying
+    @Query(value = "delete tblstagingheader where c_id = :companyCodeId and plant_id = :plantId and " +
+            " lang_id = :languageId and wh_id = :warehouseId and ref_doc_no = :refDocNumber ",nativeQuery = true)
+    void deleteStagingHeaderV4(@Param("companyCodeId") String companyCode,
+                               @Param("plantId") String plantId,
+                               @Param("languageId") String languageId,
+                               @Param("warehouseId") String warehouseId,
+                               @Param("refDocNumber") String refDocNumber);
+
+    @Modifying
+    @Query(value = "delete tblstagingline where c_id = :companyCodeId and plant_id = :plantId and " +
+            " lang_id = :languageId and wh_id = :warehouseId and ref_doc_no = :refDocNumber ",nativeQuery = true)
+    void deleteStagingLineV4(@Param("companyCodeId") String companyCode,
+                             @Param("plantId") String plantId,
+                             @Param("languageId") String languageId,
+                             @Param("warehouseId") String warehouseId,
+                             @Param("refDocNumber") String refDocNumber);
+
+    @Modifying
+    @Query(value = "delete tblgrheader where c_id = :companyCodeId and plant_id = :plantId and " +
+            " lang_id = :languageId and wh_id = :warehouseId and ref_doc_no = :refDocNumber ",nativeQuery = true)
+    void deleteGrHeaderV4(@Param("companyCodeId") String companyCode,
+                          @Param("plantId") String plantId,
+                          @Param("languageId") String languageId,
+                          @Param("warehouseId") String warehouseId,
+                          @Param("refDocNumber") String refDocNumber);
+
+    @Modifying
+    @Query(value = "delete tblgrline where c_id = :companyCodeId and plant_id = :plantId and " +
+            " lang_id = :languageId and wh_id = :warehouseId and ref_doc_no = :refDocNumber ",nativeQuery = true)
+    void deleteGrLineV4(@Param("companyCodeId") String companyCode,
+                        @Param("plantId") String plantId,
+                        @Param("languageId") String languageId,
+                        @Param("warehouseId") String warehouseId,
+                        @Param("refDocNumber") String refDocNumber);
+
+    @Modifying
+    @Query(value = "delete tblputawayheader where c_id = :companyCodeId and plant_id = :plantId and " +
+            " lang_id = :languageId and wh_id = :warehouseId and ref_doc_no = :refDocNumber ",nativeQuery = true)
+    void deletePutawayHeaderV4(@Param("companyCodeId") String companyCode,
+                               @Param("plantId") String plantId,
+                               @Param("languageId") String languageId,
+                               @Param("warehouseId") String warehouseId,
+                               @Param("refDocNumber") String refDocNumber);
 }

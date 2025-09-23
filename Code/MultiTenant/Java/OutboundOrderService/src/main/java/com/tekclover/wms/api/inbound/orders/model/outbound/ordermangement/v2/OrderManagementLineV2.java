@@ -170,5 +170,4 @@ public class OrderManagementLineV2 extends OrderManagementLine {
 
     @Column(name = "LOOSE_PACK")
     private Long loosePack = 0L;
-
 }

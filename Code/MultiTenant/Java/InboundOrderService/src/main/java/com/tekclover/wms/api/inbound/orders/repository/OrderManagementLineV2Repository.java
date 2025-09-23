@@ -350,4 +350,14 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
                                                                        @Param("languageId") String languageId,
                                                                        @Param("warehouseId") String warehouseId,
                                                                        @Param("itemCode") String itemCode);
+
+
+    @Query(value = "SELECT TOP 1 * from tblordermangementline ob WHERE \n " +
+            "ob.c_id = :companyCodeId AND ob.plant_id = :plantId AND ob.lang_id = :languageId AND ob.wh_id = :warehouseId AND \n " +
+            "ob.itm_code = :itemCode AND ob.status_id in (42, 43, 47, 48) AND is_deleted = 0", nativeQuery = true)
+    Optional<OrderManagementLineV2> getOrderManagementLineForCrossDockV8(@Param("companyCodeId") String companyCodeId,
+                                                                       @Param("plantId") String plantId,
+                                                                       @Param("languageId") String languageId,
+                                                                       @Param("warehouseId") String warehouseId,
+                                                                       @Param("itemCode") String itemCode);
 }

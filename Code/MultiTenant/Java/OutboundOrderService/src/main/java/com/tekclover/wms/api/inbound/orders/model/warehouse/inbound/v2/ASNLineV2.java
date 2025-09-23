@@ -71,4 +71,6 @@ public class ASNLineV2 {
     private Long middlewareHeaderId;
     private String middlewareTable;
 
+    /*-----------------------------BP----------------------------------------*/
+    private String unitType;
 }

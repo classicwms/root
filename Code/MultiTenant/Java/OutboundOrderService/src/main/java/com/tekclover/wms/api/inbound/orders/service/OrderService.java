@@ -384,6 +384,130 @@ public class OrderService {
         }
     }
 
+    /**
+     * MMF
+     *
+     * @param newPickupHeader
+     * @param loginUserID
+     * @return
+     * @throws Exception
+     */
+    public PickupHeaderV2 createOutboundOrderProcessingPickupHeaderV8(PickupHeaderV2 newPickupHeader, String loginUserID) throws Exception {
+        try {
+            PickupHeaderV2 dbPickupHeader = new PickupHeaderV2();
+            log.info("newPickupHeader : " + newPickupHeader);
+            BeanUtils.copyProperties(newPickupHeader, dbPickupHeader, CommonUtils.getNullPropertyNames(newPickupHeader));
+
+            IKeyValuePair description = stagingLineV2Repository.getDescription(dbPickupHeader.getCompanyCodeId(),
+                    dbPickupHeader.getLanguageId(),
+                    dbPickupHeader.getPlantId(),
+                    dbPickupHeader.getWarehouseId());
+
+            if (dbPickupHeader.getStatusId() != null) {
+                statusDescription = stagingLineV2Repository.getStatusDescription(dbPickupHeader.getStatusId(), dbPickupHeader.getLanguageId());
+                dbPickupHeader.setStatusDescription(statusDescription);
+            }
+
+            dbPickupHeader.setCompanyDescription(description.getCompanyDesc());
+            dbPickupHeader.setPlantDescription(description.getPlantDesc());
+            dbPickupHeader.setWarehouseDescription(description.getWarehouseDesc());
+
+            statusDescription = stagingLineV2Repository.getStatusDescription(48L, dbPickupHeader.getLanguageId());
+            outboundLineV2Repository.updateOutboundLineV2(dbPickupHeader.getCompanyCodeId(),
+                    dbPickupHeader.getPlantId(),
+                    dbPickupHeader.getLanguageId(),
+                    dbPickupHeader.getWarehouseId(),
+                    dbPickupHeader.getPreOutboundNo(),
+                    dbPickupHeader.getRefDocNumber(),
+                    dbPickupHeader.getPartnerCode(),
+                    dbPickupHeader.getLineNumber(),
+                    dbPickupHeader.getItemCode(),
+                    48L,
+                    statusDescription,
+                    dbPickupHeader.getAssignedPickerId(),
+                    dbPickupHeader.getManufacturerName(),
+                    loginUserID,
+                    new Date());
+
+            String customerName = getCustomerName(dbPickupHeader.getCompanyCodeId(), dbPickupHeader.getPlantId(),
+                    dbPickupHeader.getLanguageId(), dbPickupHeader.getWarehouseId(),
+                    dbPickupHeader.getCustomerCode());
+            if (customerName != null) {
+                dbPickupHeader.setCustomerName(customerName);
+            }
+            dbPickupHeader.setDeletionIndicator(0L);
+            dbPickupHeader.setPickupCreatedBy(loginUserID);
+            dbPickupHeader.setPickupCreatedOn(new Date());
+            PickupHeaderV2 pickupHeaderV2 = pickupHeaderV2Repository.save(dbPickupHeader);
+
+            return pickupHeaderV2;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    /**
+     * @param newPickupHeader
+     * @param loginUserID
+     * @return
+     * @throws Exception
+     */
+    public PickupHeaderV2 createOutboundOrderProcessingPickupHeaderV6(PickupHeaderV2 newPickupHeader, String loginUserID) throws Exception {
+        try {
+            PickupHeaderV2 dbPickupHeader = new PickupHeaderV2();
+            log.info("newPickupHeader : " + newPickupHeader);
+            BeanUtils.copyProperties(newPickupHeader, dbPickupHeader, CommonUtils.getNullPropertyNames(newPickupHeader));
+
+            IKeyValuePair description = stagingLineV2Repository.getDescription(dbPickupHeader.getCompanyCodeId(),
+                    dbPickupHeader.getLanguageId(),
+                    dbPickupHeader.getPlantId(),
+                    dbPickupHeader.getWarehouseId());
+
+            if (dbPickupHeader.getStatusId() != null) {
+                statusDescription = stagingLineV2Repository.getStatusDescription(dbPickupHeader.getStatusId(), dbPickupHeader.getLanguageId());
+                dbPickupHeader.setStatusDescription(statusDescription);
+            }
+
+            dbPickupHeader.setCompanyDescription(description.getCompanyDesc());
+            dbPickupHeader.setPlantDescription(description.getPlantDesc());
+            dbPickupHeader.setWarehouseDescription(description.getWarehouseDesc());
+
+            statusDescription = stagingLineV2Repository.getStatusDescription(48L, dbPickupHeader.getLanguageId());
+            outboundLineV2Repository.updateOutboundLineV2(dbPickupHeader.getCompanyCodeId(),
+                    dbPickupHeader.getPlantId(),
+                    dbPickupHeader.getLanguageId(),
+                    dbPickupHeader.getWarehouseId(),
+                    dbPickupHeader.getPreOutboundNo(),
+                    dbPickupHeader.getRefDocNumber(),
+                    dbPickupHeader.getPartnerCode(),
+                    dbPickupHeader.getLineNumber(),
+                    dbPickupHeader.getItemCode(),
+                    48L,
+                    statusDescription,
+                    dbPickupHeader.getAssignedPickerId(),
+                    dbPickupHeader.getManufacturerName(),
+                    loginUserID,
+                    new Date());
+
+            String customerName = getCustomerName(dbPickupHeader.getCompanyCodeId(), dbPickupHeader.getPlantId(),
+                    dbPickupHeader.getLanguageId(), dbPickupHeader.getWarehouseId(),
+                    dbPickupHeader.getCustomerCode());
+            if (customerName != null) {
+                dbPickupHeader.setCustomerName(customerName);
+            }
+            dbPickupHeader.setDeletionIndicator(0L);
+            dbPickupHeader.setPickupCreatedBy(loginUserID);
+            dbPickupHeader.setPickupCreatedOn(new Date());
+            PickupHeaderV2 pickupHeaderV2 = pickupHeaderV2Repository.save(dbPickupHeader);
+
+            return pickupHeaderV2;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
 
     /**
      * @param companyCodeId
@@ -1413,6 +1537,48 @@ public class OrderService {
     }
 
     /**
+     * MMF
+     *
+     * @param orderId
+     * @param outboundOrderTypeID
+     */
+    public void updateProcessedOrderV8(String orderId, Long outboundOrderTypeID) {
+        log.info("rollback - rerun - orderId : " + orderId + "," + outboundOrderTypeID);
+        OutboundOrderV2 dbOutboundOrder = getOBOrderByIdV2(orderId, outboundOrderTypeID);
+        if (dbOutboundOrder != null) {
+            Long numberOfAttemts = 0L;
+            Long attempted = 0L;
+            Long processStatusId = 0L;
+            if (dbOutboundOrder.getNumberOfAttempts() != null) {
+                if (dbOutboundOrder.getNumberOfAttempts().equals(0L)) {
+                    numberOfAttemts = 1L;
+                    processStatusId = 0L;
+                }
+                if (dbOutboundOrder.getNumberOfAttempts().equals(1L)) {
+                    numberOfAttemts = 2L;
+                    processStatusId = 0L;
+                }
+                if (dbOutboundOrder.getNumberOfAttempts().equals(2L)) {
+                    numberOfAttemts = 3L;
+                    processStatusId = 100L;
+                }
+                if (dbOutboundOrder.getNumberOfAttempts().equals(3L)) {
+                    numberOfAttemts = 3L;
+                    processStatusId = 100L;
+                }
+            } else {
+                numberOfAttemts = 1L;
+                processStatusId = 0L;
+            }
+            dbOutboundOrder.setProcessedStatusId(processStatusId);
+            dbOutboundOrder.setNumberOfAttempts(numberOfAttemts);
+            dbOutboundOrder.setOrderProcessedOn(new Date());
+            OutboundOrderV2 updatedOutboundOrder = outboundOrderV2Repository.save(dbOutboundOrder);
+            log.info("rollback rerun - updatedOutboundOrder : " + updatedOutboundOrder);
+        }
+    }
+
+    /**
      *
      * @param orderId
      * @param outboundOrderTypeID
@@ -1510,10 +1676,52 @@ public class OrderService {
     }
 
     /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param stockTypeId
+     * @param binClassId
+     * @param manufacturerName
+     * @param alternateUom
+     * @return
+     */
+    public List<IInventoryImpl> getInventoryForOrderManagementV6(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                                 String itemCode, String manufacturerName, Long stockTypeId, Long binClassId,
+                                                                 String alternateUom) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + alternateUom + "|" + binClassId);
+        List<IInventoryImpl> inventoryList = inventoryV2Repository.findInventoryForOrderManagementV4(companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, binClassId, stockTypeId, alternateUom);
+        if (inventoryList == null || inventoryList.isEmpty()) {
+            inventoryList = inventoryV2Repository.findInventoryForOrderManagementV4(companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName, binClassId, stockTypeId, null);
+        }
+        return inventoryList;
+    }
+
+    /**
      * @param orderManagementLine
      * @return
      */
     public OrderManagementLineV2 updateOrderManagementLineV2(OrderManagementLineV2 orderManagementLine) {
+        orderManagementLine.setStatusId(47L);
+        statusDescription = stagingLineV2Repository.getStatusDescription(47L, orderManagementLine.getLanguageId());
+        orderManagementLine.setStatusDescription(statusDescription);
+        orderManagementLine.setReferenceField7(statusDescription);
+        orderManagementLine.setProposedStorageBin("");
+        orderManagementLine.setProposedPackBarCode("");
+        orderManagementLine.setInventoryQty(0D);
+        orderManagementLine.setAllocatedQty(0D);
+        orderManagementLine = orderManagementLineV2Repository.save(orderManagementLine);
+        log.info("orderManagementLine created: " + orderManagementLine);
+        return orderManagementLine;
+    }
+
+    /**
+     * @param orderManagementLine
+     * @return
+     */
+    public OrderManagementLineV2 updateOrderManagementLineV6(OrderManagementLineV2 orderManagementLine) {
         orderManagementLine.setStatusId(47L);
         statusDescription = stagingLineV2Repository.getStatusDescription(47L, orderManagementLine.getLanguageId());
         orderManagementLine.setStatusDescription(statusDescription);
@@ -1565,8 +1773,58 @@ public class OrderService {
      * @param alternateUom
      * @return
      */
+    public synchronized List<IInventoryImpl> getInventoryForOrderManagementOrderByCreatedOnV6(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                                                              String itemCode, String manufacturerName, Long stockTypeId, Long binClassId, String alternateUom) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + alternateUom + "|" + binClassId);
+        List<IInventoryImpl> inventoryList = inventoryV2Repository.getOMLInventoryV4OrderByCreatedOn(companyCodeId, plantId, languageId, warehouseId, null, null,
+                itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId, alternateUom);
+        if (inventoryList == null || inventoryList.isEmpty()) {
+            inventoryList = inventoryV2Repository.getOMLInventoryV4OrderByCreatedOn(companyCodeId, plantId, languageId, warehouseId, null, null,
+                    itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId, null);
+        }
+        return inventoryList;
+    }
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param manufacturerName
+     * @param stockTypeId
+     * @param binClassId
+     * @param alternateUom
+     * @return
+     */
     public synchronized List<IInventoryImpl> getInventoryForOrderManagementOrderByExpiryDateV4(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                                                   String itemCode, String manufacturerName, Long stockTypeId, Long binClassId, String alternateUom) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + alternateUom + "|" + binClassId);
+        List<IInventoryImpl> inventoryList = inventoryV2Repository.getOMLInventoryV4OrderByExpiryDate(companyCodeId, plantId, languageId, warehouseId, null, null,
+                itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId, alternateUom);
+        if (inventoryList == null || inventoryList.isEmpty()) {
+            inventoryList = inventoryV2Repository.getOMLInventoryV4OrderByExpiryDate(companyCodeId, plantId, languageId, warehouseId, null, null,
+                    itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId, null);
+        }
+        return inventoryList;
+    }
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param manufacturerName
+     * @param stockTypeId
+     * @param binClassId
+     * @param alternateUom
+     * @return
+     */
+    public synchronized List<IInventoryImpl> getInventoryForOrderManagementOrderByExpiryDateV6(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                                                               String itemCode, String manufacturerName, Long stockTypeId, Long binClassId, String alternateUom) {
         log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + alternateUom + "|" + binClassId);
         List<IInventoryImpl> inventoryList = inventoryV2Repository.getOMLInventoryV4OrderByExpiryDate(companyCodeId, plantId, languageId, warehouseId, null, null,
                 itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId, alternateUom);
@@ -1615,8 +1873,58 @@ public class OrderService {
      * @param alternateUom
      * @return
      */
+    public synchronized List<IInventoryImpl> getInventoryForOrderManagementOrderByLevelIdV6(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                                                            String itemCode, String manufacturerName, Long stockTypeId, Long binClassId, String alternateUom) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + alternateUom + "|" + binClassId);
+        List<IInventoryImpl> inventoryList = inventoryV2Repository.getOMLInventoryV4OrderByLevelId(companyCodeId, plantId, languageId, warehouseId, null, null,
+                itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId, alternateUom);
+        if (inventoryList == null || inventoryList.isEmpty()) {
+            inventoryList = inventoryV2Repository.getOMLInventoryV4OrderByLevelId(companyCodeId, plantId, languageId, warehouseId, null, null,
+                    itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId, null);
+        }
+        return inventoryList;
+    }
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param manufacturerName
+     * @param stockTypeId
+     * @param binClassId
+     * @param alternateUom
+     * @return
+     */
     public synchronized List<IInventory> getInventoryForOrderManagementByBatchV4(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                                     String itemCode, String manufacturerName, Long stockTypeId, Long binClassId, String alternateUom) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + alternateUom + "|" + binClassId);
+        List<IInventory> inventoryList = inventoryV2Repository.findInventoryByBatchV4(companyCodeId, plantId, languageId, warehouseId, binClassId,
+                stockTypeId, itemCode, manufacturerName, alternateUom);
+        if (inventoryList == null || inventoryList.isEmpty()) {
+            inventoryList = inventoryV2Repository.findInventoryByBatchV4(companyCodeId, plantId, languageId, warehouseId, binClassId,
+                    stockTypeId, itemCode, manufacturerName, null);
+        }
+        return inventoryList;
+    }
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param manufacturerName
+     * @param stockTypeId
+     * @param binClassId
+     * @param alternateUom
+     * @return
+     */
+    public synchronized List<IInventory> getInventoryForOrderManagementByBatchV6(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                                                 String itemCode, String manufacturerName, Long stockTypeId, Long binClassId, String alternateUom) {
         log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + alternateUom + "|" + binClassId);
         List<IInventory> inventoryList = inventoryV2Repository.findInventoryByBatchV4(companyCodeId, plantId, languageId, warehouseId, binClassId,
                 stockTypeId, itemCode, manufacturerName, alternateUom);
@@ -1661,6 +1969,32 @@ public class OrderService {
      * @param warehouseId
      * @param itemCode
      * @param manufacturerName
+     * @param stockTypeId
+     * @param binClassId
+     * @param alternateUom
+     * @return
+     */
+    public synchronized List<IInventoryImpl> getInventoryForOrderManagementOrderByBatchV6(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                                                          String itemCode, String manufacturerName, Long stockTypeId, Long binClassId, String alternateUom) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName +
+                "|" + alternateUom + "|" + binClassId);
+        List<IInventoryImpl> inventoryList = inventoryV2Repository.getOMLInventoryV4OrderByBatch(companyCodeId, plantId, languageId, warehouseId, null, null,
+                itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId, alternateUom);
+        if (inventoryList == null || inventoryList.isEmpty()) {
+            inventoryList = inventoryV2Repository.getOMLInventoryV4OrderByBatch(companyCodeId, plantId, languageId, warehouseId, null, null,
+                    itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId, null);
+        }
+        return inventoryList;
+    }
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param manufacturerName
      * @param storageBin
      * @param alternateUom
      * @return
@@ -1683,6 +2017,38 @@ public class OrderService {
         return null;
     }
 
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param manufacturerName
+     * @param storageBin
+     * @param alternateUom
+     * @return
+     */
+    public synchronized InventoryV2 getInventoryV6(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                   String itemCode, String manufacturerName, String barcodeId, String storageBin, String alternateUom) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName +
+                "|" + alternateUom + "|" + barcodeId + "|" + storageBin);
+        IInventoryImpl dbInventory = inventoryV2Repository.getInventoryV4(companyCodeId, plantId, languageId, warehouseId, barcodeId, null,
+                itemCode, manufacturerName, PACK_BARCODE, storageBin, alternateUom);
+        if (dbInventory == null) {
+            dbInventory = inventoryV2Repository.getInventoryV4(companyCodeId, plantId, languageId, warehouseId, barcodeId, null,
+                    itemCode, manufacturerName, PACK_BARCODE, storageBin, null);
+        }
+        if (dbInventory != null) {
+            InventoryV2 inventory = new InventoryV2();
+            BeanUtils.copyProperties(dbInventory, inventory, CommonUtils.getNullPropertyNames(dbInventory));
+            return inventory;
+        }
+        return null;
+    }
+
+
     /**
      *
      * @param companyCodeId
@@ -1698,6 +2064,31 @@ public class OrderService {
      */
     public synchronized List<IInventory> getInventoryForOrderManagementGroupByLevelIdV4(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                                            String itemCode, Long stockTypeId, Long binClassId, String manufacturerName, String alternateUom) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + alternateUom + "|" + binClassId);
+        List<IInventory> inventoryList = inventoryV2Repository.findInventoryGroupByLevelIdV4(companyCodeId, plantId, languageId, warehouseId, itemCode,
+                manufacturerName, stockTypeId, binClassId, alternateUom);
+        if (inventoryList == null || inventoryList.isEmpty()) {
+            inventoryList = inventoryV2Repository.findInventoryGroupByLevelIdV4(companyCodeId, plantId, languageId, warehouseId, itemCode,
+                    manufacturerName, stockTypeId, binClassId, null);
+        }
+        return inventoryList;
+    }
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param stockTypeId
+     * @param binClassId
+     * @param manufacturerName
+     * @param alternateUom
+     * @return
+     */
+    public synchronized List<IInventory> getInventoryForOrderManagementGroupByLevelIdV6(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                                                        String itemCode, Long stockTypeId, Long binClassId, String manufacturerName, String alternateUom) {
         log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + alternateUom + "|" + binClassId);
         List<IInventory> inventoryList = inventoryV2Repository.findInventoryGroupByLevelIdV4(companyCodeId, plantId, languageId, warehouseId, itemCode,
                 manufacturerName, stockTypeId, binClassId, alternateUom);
@@ -1788,6 +2179,29 @@ public class OrderService {
         return inventory;
     }
 
+
+    /**
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param stockTypeId
+     * @param binClassId
+     * @param manufacturerName
+     * @return
+     */
+    public List<IInventoryImpl> getInventoryForOrderManagementV6(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                                 String itemCode, Long stockTypeId, Long binClassId, String manufacturerName) {
+        if (companyCodeId == null || plantId == null || languageId == null || warehouseId == null ||
+                itemCode == null || stockTypeId == null || binClassId == null || manufacturerName == null) {
+            throw new BadRequestException("Parameter cannot be null: C_ID, PlantId, Lang_Id, WhId, itm_code, stockTypeId, bin_cl_id, mfr_name---> "
+                    + companyCodeId + ", " + plantId + ", " + languageId + "," + warehouseId + "," + itemCode + "," + stockTypeId + "," + binClassId + "," + manufacturerName);
+        }
+        List<IInventoryImpl> inventory = inventoryV2Repository.findInventoryForOrderManagement(companyCodeId, plantId, languageId, warehouseId, itemCode, binClassId, stockTypeId, manufacturerName);
+        return inventory;
+    }
+
     // UnAllocate OrdermanagementLine create
     public OrderManagementLineV2 createEMPTYOrderManagementLineV2(OrderManagementLineV2 orderManagementLine) {
 
@@ -1813,4 +2227,32 @@ public class OrderService {
         log.info("orderManagementLine created: " + orderManagementLine);
         return orderManagementLine;
     }
+
+    // UnAllocate OrdermanagementLine create
+    public OrderManagementLineV2 createEMPTYOrderManagementLineV6(OrderManagementLineV2 orderManagementLine) {
+
+        DataBaseContextHolder.setCurrentDb("BP");
+        log.info("Unallocated Orders creation started ...........");
+        orderManagementLine.setStatusId(47L);
+        statusDescription = stagingLineV2Repository.getStatusDescription(47L, orderManagementLine.getLanguageId());
+        orderManagementLine.setReferenceField7(statusDescription);
+        orderManagementLine.setProposedStorageBin("");
+        orderManagementLine.setProposedPackBarCode("");
+        orderManagementLine.setInventoryQty(0D);
+        orderManagementLine.setAllocatedQty(0D);
+
+        IKeyValuePair description = stagingLineV2Repository.getDescription(orderManagementLine.getCompanyCodeId(),
+                orderManagementLine.getLanguageId(),
+                orderManagementLine.getPlantId(),
+                orderManagementLine.getWarehouseId());
+        orderManagementLine.setCompanyDescription(description.getCompanyDesc());
+        orderManagementLine.setPlantDescription(description.getPlantDesc());
+        orderManagementLine.setWarehouseDescription(description.getWarehouseDesc());
+        orderManagementLine.setStatusDescription(statusDescription);
+        orderManagementLine = orderManagementLineV2Repository.save(orderManagementLine);
+        unallocatedOrderLineService.createUnallocatedOrderLine(orderManagementLine);
+        log.info("orderManagementLine created: " + orderManagementLine);
+        return orderManagementLine;
+    }
+
 }

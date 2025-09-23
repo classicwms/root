@@ -5,12 +5,16 @@ import static java.util.stream.Collectors.toList;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
+import com.tekclover.wms.api.inbound.orders.model.inbound.putaway.v2.PutAwayLineV2;
+import com.tekclover.wms.api.inbound.orders.model.warehouse.inbound.v2.ASNHeaderV2;
+import com.tekclover.wms.api.inbound.orders.model.warehouse.inbound.v2.ASNLineV2;
+import com.tekclover.wms.api.inbound.orders.model.warehouse.inbound.v2.ASNV2;
+import com.tekclover.wms.api.inbound.orders.repository.*;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,26 +49,13 @@ import com.tekclover.wms.api.inbound.orders.model.inbound.v2.InboundLineV2;
 import com.tekclover.wms.api.inbound.orders.model.outbound.ordermangement.v2.OrderManagementLineV2;
 import com.tekclover.wms.api.inbound.orders.model.warehouse.Warehouse;
 import com.tekclover.wms.api.inbound.orders.model.warehouse.inbound.v2.InboundOrderV2;
-import com.tekclover.wms.api.inbound.orders.repository.DbConfigRepository;
-import com.tekclover.wms.api.inbound.orders.repository.GrHeaderV2Repository;
-import com.tekclover.wms.api.inbound.orders.repository.ImBasicData1Repository;
-import com.tekclover.wms.api.inbound.orders.repository.ImBasicData1V2Repository;
-import com.tekclover.wms.api.inbound.orders.repository.InboundHeaderV2Repository;
-import com.tekclover.wms.api.inbound.orders.repository.InboundIntegrationLogRepository;
-import com.tekclover.wms.api.inbound.orders.repository.InboundLineV2Repository;
-import com.tekclover.wms.api.inbound.orders.repository.InboundOrderV2Repository;
-import com.tekclover.wms.api.inbound.orders.repository.OrderManagementLineV2Repository;
-import com.tekclover.wms.api.inbound.orders.repository.PreInboundHeaderV2Repository;
-import com.tekclover.wms.api.inbound.orders.repository.PreInboundLineV2Repository;
-import com.tekclover.wms.api.inbound.orders.repository.StagingHeaderV2Repository;
-import com.tekclover.wms.api.inbound.orders.repository.StagingLineV2Repository;
-import com.tekclover.wms.api.inbound.orders.repository.WarehouseRepository;
 import com.tekclover.wms.api.inbound.orders.util.CommonUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class OrderService extends BaseService {
 
     @Autowired
@@ -106,11 +97,15 @@ public class OrderService extends BaseService {
     @Autowired
     GrLineService grLineService;
 
+    private final RepositoryProvider repo;
     @Autowired
     ImBasicData1Service imBasicData1Service;
     @Autowired
     OrderProcessingService orderProcessingService;
     String statusDescription = null;
+    @Autowired
+    PutAwayLineV2Repository putAwayLineV2Repository;
+
 
 
     //------------------------------------------------------------------------------------------------
@@ -120,8 +115,6 @@ public class OrderService extends BaseService {
      * @return
      */
     public InboundOrderV2 getOrderByIdV2(String orderId, Long inboundOrderTypeId) {
-        DataBaseContextHolder.clear();
-        DataBaseContextHolder.setCurrentDb("MT");
         InboundOrderV2 dbInboundOrder = inboundOrderV2Repository.findByRefDocumentNoAndInboundOrderTypeId(orderId, inboundOrderTypeId);
         if (dbInboundOrder != null) {
             return dbInboundOrder;
@@ -137,6 +130,29 @@ public class OrderService extends BaseService {
         } else {
             return null;
         }
+    }
+
+    public InboundOrderV2 updateProcessedInboundOrderV3(String orderId, Long inboundOrderTypeId, Long processStatusId) throws ParseException {
+//        InboundOrderV2 dbInboundOrder = getOrderByIdV2(orderId, inboundOrderTypeId);
+//        log.info("orderId : " + orderId);
+//        log.info("dbInboundOrder : " + dbInboundOrder);
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb("MT");
+        InboundOrderV2 dbInboundOrder1 = getOrder(orderId);
+        dbInboundOrder1.setProcessedStatusId(processStatusId);
+        dbInboundOrder1.setOrderProcessedOn(new Date());
+        inboundOrderV2Repository.save(dbInboundOrder1);
+//        DataBaseContextHolder.clear();
+//        try {
+//            String routingDb = dbConfigRepository.getDbName(dbInboundOrder.getCompanyCode(), dbInboundOrder.getBranchCode(), dbInboundOrder.getWarehouseID());
+//            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+//            DataBaseContextHolder.setCurrentDb(routingDb);
+//            inboundOrderV2Repository.updateIbOrderStatus(dbInboundOrder1.getCompanyCode(), dbInboundOrder1.getBranchCode(), dbInboundOrder1.getWarehouseID(),
+//                    dbInboundOrder1.getRefDocumentNo(), processStatusId);
+//        } finally {
+//            DataBaseContextHolder.clear();
+//        }
+        return dbInboundOrder1;
     }
 
     /**
@@ -157,18 +173,31 @@ public class OrderService extends BaseService {
             String routingDb = dbConfigRepository.getDbName(dbInboundOrder.getCompanyCode(), dbInboundOrder.getBranchCode(), dbInboundOrder.getWarehouseID());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.setCurrentDb(routingDb);
-            //InboundOrderV2 dbInboundOrder2 = getOrder(orderId);
-//            InboundOrderV2 dbInboundOrder2 = dbInboundOrder1;
-//            dbInboundOrder2.setProcessedStatusId(processStatusId);
-//            dbInboundOrder2.setOrderProcessedOn(new Date());
             inboundOrderV2Repository.updateIbOrderStatus(dbInboundOrder1.getCompanyCode(), dbInboundOrder1.getBranchCode(), dbInboundOrder1.getWarehouseID(),
                     dbInboundOrder1.getRefDocumentNo(), processStatusId);
-
-//            inboundOrderV2Repository.save(dbInboundOrder2);
         } finally {
             DataBaseContextHolder.clear();
         }
         return dbInboundOrder;
+    }
+
+    /**
+     *
+     * @param orderId
+     * @param inboundOrderTypeId
+     * @param processStatusId
+     * @return
+     * @throws ParseException
+     */
+    public void updateProcessStatus(String orderId, Long inboundOrderTypeId, Long processStatusId) throws ParseException {
+        InboundOrderV2 dbInboundOrder = getOrderByIdV2(orderId, inboundOrderTypeId);
+        log.info("orderId : " + orderId);
+        log.info("dbInboundOrder : " + dbInboundOrder);
+        InboundOrderV2 dbInboundOrder1 = getOrder(orderId);
+        dbInboundOrder1.setProcessedStatusId(processStatusId);
+        dbInboundOrder1.setOrderProcessedOn(new Date());
+        inboundOrderV2Repository.save(dbInboundOrder1);
+//        return dbInboundOrder;
     }
 
 
@@ -353,17 +382,25 @@ public class OrderService extends BaseService {
             inboundOrderProcess.setLoginUserId(MW_AMS);
 
             //Checking whether received refDocNumber processed already.
-            Optional<PreInboundHeaderEntityV2> orderProcessedStatus = preInboundHeaderV2Repository.
-                    findByRefDocNumberAndInboundOrderTypeIdAndDeletionIndicator(refDocNumber, inboundIntegrationHeader.getInboundOrderTypeId(), 0L);
-            if (!orderProcessedStatus.isEmpty()) {
-                throw new BadRequestException("Order :" + refDocNumber + " already processed. Reprocessing can't be allowed.");
+//            Optional<PreInboundHeaderEntityV2> orderProcessedStatus = preInboundHeaderV2Repository.
+//                    findByRefDocNumberAndInboundOrderTypeIdAndDeletionIndicator(refDocNumber, inboundIntegrationHeader.getInboundOrderTypeId(), 0L);
+//            if (!orderProcessedStatus.isEmpty()) {
+//                throw new BadRequestException("Order :" + refDocNumber + " already processed. Reprocessing can't be allowed.");
+//            }
+
+
+            //----------
+            List<PutAwayLineV2> putAwayLine = putAwayLineV2Repository.getPutAwayLinesV4(companyCodeId, plantId, languageId, warehouseId, refDocNumber);
+
+            if (putAwayLine.isEmpty()){
+                log.info("Already Exits The Order -------------------------------V4 ----------> {} ", refDocNumber);
+                inboundOrderCancellationV4(companyCodeId,plantId,languageId,warehouseId,refDocNumber);
+            }else {
+                throw new BadRequestException("Inbound already confirmed for this order : "+refDocNumber);
             }
 
             List<InboundIntegrationLine> inboundIntegrationLines = new ArrayList<>();
-            List<ImPartner> imPartnerList = new ArrayList<>();
-
             String idMasterAuthToken = authTokenService.getIDMasterServiceAuthToken().getAccess_token();
-            String masterAuthToken = authTokenService.getMastersServiceAuthToken().getAccess_token();
             Long statusId = 13L;
 
             // Getting PreInboundNo, StagingNo, CaseCode from NumberRangeTable
@@ -377,10 +414,9 @@ public class OrderService extends BaseService {
             description = getDescription(companyCodeId, plantId, languageId, warehouseId);
 
             List<PreInboundLineEntityV2> overallCreatedPreInboundLineList = new ArrayList<>();
-            List<PreInboundLineEntityV2> toBeCreatedPreInboundLineList = new ArrayList<>();
             String partBarCode = generateBarCodeId(refDocNumber);
-            
-            log.info("-----inboundIntegrationHeader--------> " + inboundIntegrationHeader.getInboundIntegrationLine());            
+
+            log.info("-----inboundIntegrationHeader--------> " + inboundIntegrationHeader.getInboundIntegrationLine());
             long lineNumber = 1;
             for (InboundIntegrationLine inboundIntegrationLine : inboundIntegrationHeader.getInboundIntegrationLine()) {
                 ImBasicData1V2 imBasicData1 = imBasicData1V2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerPartNoAndDeletionIndicator(
@@ -435,9 +471,6 @@ public class OrderService extends BaseService {
                  * Before inserting the record into Preinbound table, fetch ITM_CODE from InboundIntegrationHeader (MONGO) table and
                  * pass into BOMHEADER table as PAR_ITM_CODE and validate record is Not Null
                  */
-                BomHeader bomHeader = mastersService.getBomHeader(inboundIntegrationLine.getItemCode(), warehouseId,
-                        companyCodeId, plantId, languageId, masterAuthToken);
-                log.info("bomHeader [BOM] : " + bomHeader);
 
                 log.info("noOfBags in inboundIntegrationLine ----------> {}", inboundIntegrationLine.getNoBags());
                 double noOfBags = inboundIntegrationLine.getNoBags() != null ? inboundIntegrationLine.getNoBags() : 1L;
@@ -461,59 +494,77 @@ public class OrderService extends BaseService {
                     newInboundIntegrationLine.setLineReference(lineNumber);
                     newInboundIntegrationLine.setNoBags(1D);
                     newInboundIntegrationLine.setOrderedQty(inboundIntegrationLine.getOrderedQty());
-
-//                    ImPartner imPartner = createImpartner(companyCodeId, plantId, languageId, warehouseId, newInboundIntegrationLine.getItemCode(),
-//                            newInboundIntegrationLine.getManufacturerName(), barcodeId, MW_AMS);
-//                    imPartnerList.add(imPartner);
-
-//                    if (bomHeader != null) {
-//                        BomLine[] bomLine = mastersService.getBomLine(bomHeader.getBomNumber(), companyCodeId, plantId, languageId, warehouseId, masterAuthToken);
-//                        for (BomLine dbBomLine : bomLine) {
-//                            PreInboundLineEntityV2 preInboundLineEntity = createPreInboundLineBOMBasedV2(companyCodeId, plantId, languageId, warehouseId,
-//                                    preInboundNo, inboundIntegrationHeader, newInboundIntegrationLine,
-//                                    dbBomLine, MW_AMS, description, statusId, statusDescription);
-//                            toBeCreatedPreInboundLineList.add(preInboundLineEntity);
-//                            log.info("preInboundLineEntity [BOM] : " + toBeCreatedPreInboundLineList.size());
-//                        }
-
-                        // Batch Insert - PreInboundLines
-//                        if (!toBeCreatedPreInboundLineList.isEmpty()) {
-//                            log.info("createdPreInboundLine [BOM] : " + toBeCreatedPreInboundLineList);
-//                            overallCreatedPreInboundLineList.addAll(toBeCreatedPreInboundLineList);
-//                        }
-//                    }
                     lineNumber++;
                     inboundIntegrationLines.add(newInboundIntegrationLine);
                 }
             }
 
-//            inboundOrderProcess.setImPartnerList(imPartnerList);
-            /*
-             * Append PREINBOUNDLINE table through below logic
-             */
-            List<PreInboundLineEntityV2> finalToBeCreatedPreInboundLineList = new ArrayList<>();
-            inboundIntegrationLines.stream().forEach(inboundIntegrationLine -> {
-                try {
-                    finalToBeCreatedPreInboundLineList.add(createPreInboundLineV2(companyCodeId, plantId, languageId, warehouseId, preInboundNo,
-                            inboundIntegrationHeader, inboundIntegrationLine, MW_AMS,
-                            description, statusId, statusDescription));
-                } catch (Exception e) {
-                    throw new BadRequestException("Exception While PreInboundLine Create" + e.toString());
-                }
-            });
-            log.info("toBeCreatedPreInboundLineList [API] : " + finalToBeCreatedPreInboundLineList.size());
-
-            // Batch Insert - PreInboundLines
-            if (!finalToBeCreatedPreInboundLineList.isEmpty()) {
-                log.info("createdPreInboundLine [API] : " + finalToBeCreatedPreInboundLineList);
-                overallCreatedPreInboundLineList.addAll(finalToBeCreatedPreInboundLineList);
-            }
-            inboundOrderProcess.setPreInboundLines(overallCreatedPreInboundLineList);
 
             /*------------------Insert into PreInboundHeader table-----------------------------*/
             PreInboundHeaderEntityV2 createPreInboundHeader = createPreInboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, preInboundNo,
                     inboundIntegrationHeader, MW_AMS, description, statusId, statusDescription);
             inboundOrderProcess.setPreInboundHeader(createPreInboundHeader);
+
+            InboundHeaderV2 createInboundHeader = createInboundHeaderV2(createPreInboundHeader, overallCreatedPreInboundLineList);
+            inboundOrderProcess.setInboundHeader(createInboundHeader);
+
+            StagingHeaderV2 stagingHeader = createStagingHeaderV2(createPreInboundHeader, stagingNo);
+            inboundOrderProcess.setStagingHeader(stagingHeader);
+
+            //Gr Header Creation
+            GrHeaderV2 createGrHeader = createGrHeaderV2(stagingHeader, caseCode, grNumber, languageId);
+            inboundOrderProcess.setGrHeader(createGrHeader);
+
+
+
+            /*
+             * Append PREINBOUNDLINE table through below logic
+             */
+//            List<PreInboundLineEntityV2> finalToBeCreatedPreInboundLineList = new ArrayList<>();
+//            inboundIntegrationLines.stream().forEach(inboundIntegrationLine -> {
+//                try {
+//                    finalToBeCreatedPreInboundLineList.add(createPreInboundLineV2(companyCodeId, plantId, languageId, warehouseId, preInboundNo,
+//                            inboundIntegrationHeader, inboundIntegrationLine, MW_AMS,
+//                            description, statusId, statusDescription));
+//                } catch (Exception e) {
+//                    throw new BadRequestException("Exception While PreInboundLine Create" + e.toString());
+//                }
+//            });
+//            log.info("toBeCreatedPreInboundLineList [API] : " + finalToBeCreatedPreInboundLineList.size());
+
+            // Batch Insert - PreInboundLines
+//            if (!finalToBeCreatedPreInboundLineList.isEmpty()) {
+//                log.info("createdPreInboundLine [API] : " + finalToBeCreatedPreInboundLineList);
+//                overallCreatedPreInboundLineList.addAll(finalToBeCreatedPreInboundLineList);
+//            }
+//            inboundOrderProcess.setPreInboundLines(overallCreatedPreInboundLineList);
+
+            ExecutorService executor = Executors.newFixedThreadPool(8);
+            List<Future<PreInboundLineEntityV2>> futures = new ArrayList<>();
+
+            for (InboundIntegrationLine line : inboundIntegrationLines) {
+                futures.add(executor.submit(() -> {
+                    return createPreInboundLineV2(companyCodeId, plantId, languageId, warehouseId, preInboundNo,
+                            inboundIntegrationHeader, line, line.getManufacturerCode(),
+                            description, statusId, statusDescription);
+                }));
+            }
+
+            List<PreInboundLineEntityV2> finalToBeCreatedPreInboundLineList = new ArrayList<>();
+            for (Future<PreInboundLineEntityV2> future : futures) {
+                try {
+                    finalToBeCreatedPreInboundLineList.add(future.get());
+                } catch (Exception e) {
+                    log.error("Exception in thread: ", e);
+                }
+            }
+            executor.shutdown();
+
+            if (!finalToBeCreatedPreInboundLineList.isEmpty()) {
+                log.info("createdPreInboundLine [API] : " + finalToBeCreatedPreInboundLineList);
+                overallCreatedPreInboundLineList.addAll(finalToBeCreatedPreInboundLineList);
+            }
+            inboundOrderProcess.setPreInboundLines(overallCreatedPreInboundLineList);
 
             List<InboundLineV2> inboundLines = overallCreatedPreInboundLineList.stream().map(preInboundLine -> {
                 InboundLineV2 inboundLine = new InboundLineV2();
@@ -536,23 +587,6 @@ public class OrderService extends BaseService {
                 stagingLine.setStatusDescription(statusDescription);
                 stagingLine.setGoodsReceiptNo(grNumber);
 
-//                if (companyCodeId.equalsIgnoreCase(WK_COMPANY_CODE)) {
-//                    //-----------------PROP_ST_BIN---------------------------------------------
-//                    StorageBin storageBin = null;
-//                    try {
-//                        String referenceField1 = preInboundLine.getArticleNo().substring(0, 2);
-//                        String referenceField2 = preInboundLine.getGender();
-//                        log.info("referenceField1, referenceField2, companyCode, plantId, warehouseId, languageId: " + referenceField1 + "," + referenceField2 + "," + companyCodeId + "," + plantId + "," + warehouseId + "," + languageId);
-//                        storageBin = mastersService.getStorageBinV3(referenceField1, referenceField2, companyCodeId, plantId, warehouseId, languageId, masterAuthToken);
-//                        log.info("InterimStorageBin: " + storageBin);
-//                        if (storageBin != null) {
-//                            stagingLine.setReferenceField5(storageBin.getStorageBin());
-//                        }
-//                    } catch (Exception e) {
-//                        throw new BadRequestException("Invalid StorageBin");
-//                    }
-//                }
-
                 // Cross_Dock_logic_started
                 try {
                     log.info("Cross Dock logic started");
@@ -572,18 +606,6 @@ public class OrderService extends BaseService {
                 return stagingLine;
             }).collect(Collectors.toList());
             inboundOrderProcess.setStagingLines(stagingLines);
-
-            /*------------------Insert into Inbound Header----------------------------*/
-            InboundHeaderV2 createInboundHeader = createInboundHeaderV2(createPreInboundHeader, overallCreatedPreInboundLineList);
-            inboundOrderProcess.setInboundHeader(createInboundHeader);
-
-            StagingHeaderV2 stagingHeader = createStagingHeaderV2(createPreInboundHeader, stagingNo);
-            inboundOrderProcess.setStagingHeader(stagingHeader);
-
-            //Gr Header Creation
-            GrHeaderV2 createGrHeader = createGrHeaderV2(stagingHeader, caseCode, grNumber, languageId);
-            inboundOrderProcess.setGrHeader(createGrHeader);
-
             return orderProcessingService.postInboundReceived(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preInboundNo, inboundOrderTypeId, inboundOrderProcess);
 
         } catch (Exception e) {
@@ -627,10 +649,8 @@ public class OrderService extends BaseService {
             }
 
             List<InboundIntegrationLine> inboundIntegrationLines = new ArrayList<>();
-            List<ImPartner> imPartnerList = new ArrayList<>();
 
             String idMasterAuthToken = authTokenService.getIDMasterServiceAuthToken().getAccess_token();
-            String masterAuthToken = authTokenService.getMastersServiceAuthToken().getAccess_token();
             Long statusId = 13L;
 
             log.info("NumberRange input: CompanyCode ---> " + companyCodeId + ", plantId ---> " + plantId + ", languageId ---> " + languageId + ", warehouseId ---> " + warehouseId);
@@ -645,7 +665,6 @@ public class OrderService extends BaseService {
             description = getDescription(companyCodeId, plantId, languageId, warehouseId);
 
             List<PreInboundLineEntityV2> overallCreatedPreInboundLineList = new ArrayList<>();
-            List<PreInboundLineEntityV2> toBeCreatedPreInboundLineList = new ArrayList<>();
             long lineNumber = 1;
             for (InboundIntegrationLine inboundIntegrationLine : inboundIntegrationHeader.getInboundIntegrationLine()) {
                 ImBasicData1V2 imBasicData1 = imBasicData1V2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerNameAndDeletionIndicator(
@@ -658,45 +677,20 @@ public class OrderService extends BaseService {
                     }
                     inboundIntegrationLine.setBrand(imBasicData1.getBrand());
                     inboundIntegrationLine.setSize(imBasicData1.getSize());
-                    if (imBasicData1.getItemType() != null && imBasicData1.getItemTypeDescription() == null) {
-                        inboundIntegrationLine.setItemType(getItemTypeDesc(companyCodeId, plantId, languageId, warehouseId, imBasicData1.getItemType()));
-                    } else {
-                        inboundIntegrationLine.setItemType(imBasicData1.getItemTypeDescription());
-                    }
-                    if (imBasicData1.getItemGroup() != null && imBasicData1.getItemGroupDescription() == null) {
-                        inboundIntegrationLine.setItemGroup(getItemGroupDesc(companyCodeId, plantId, languageId, warehouseId, imBasicData1.getItemGroup()));
-                    } else {
-                        inboundIntegrationLine.setItemGroup(imBasicData1.getItemGroupDescription());
-                    }
 
                     inboundIntegrationLine.setManufacturerCode(imBasicData1.getManufacturerCode());
                     inboundIntegrationLine.setManufacturerName(imBasicData1.getManufacturerName());
                     inboundIntegrationLine.setManufacturerFullName(imBasicData1.getManufacturerFullName());
                 }
-
-                // If ITM_CODE value is Null, then insert a record in IMBASICDATA1 table as below
                 if (imBasicData1 == null) {
-                    imBasicData1 = new ImBasicData1V2();
-                    BeanUtils.copyProperties(inboundIntegrationLine, imBasicData1, CommonUtils.getNullPropertyNames(inboundIntegrationLine));
-                    imBasicData1.setLanguageId(languageId);                                         // LANG_ID
-                    imBasicData1.setWarehouseId(warehouseId);                                       // WH_ID
-                    imBasicData1.setCompanyCodeId(companyCodeId);                                   // C_ID
-                    imBasicData1.setPlantId(plantId);                                               // PLANT_ID
-                    imBasicData1.setItemCode(inboundIntegrationLine.getItemCode());                 // ITM_CODE
-                    imBasicData1.setUomId("1");                         // UOM_ID
-                    imBasicData1.setDescription(inboundIntegrationLine.getItemText());              // ITEM_TEXT
-                    imBasicData1.setManufacturerPartNo(inboundIntegrationLine.getManufacturerName());
-                    imBasicData1.setManufacturerName(inboundIntegrationLine.getManufacturerName());
-                    imBasicData1.setManufacturerCode(inboundIntegrationLine.getManufacturerCode());
-                    imBasicData1.setCapacityCheck(false);
-                    imBasicData1.setDeletionIndicator(0L);
-                    imBasicData1.setCompanyDescription(description.getCompanyDesc());
-                    imBasicData1.setPlantDescription(description.getPlantDesc());
-                    imBasicData1.setWarehouseDescription(description.getWarehouseDesc());
+                    // IB_Order
+                    String errorText = "The given values: manufacturerName:" + inboundIntegrationLine.getManufacturerName() +
+                            ",ItemCode: " + inboundIntegrationLine.getItemCode() + " doesn't exist.";
+                    inboundOrderV2Repository.invalidItemCodeMsgThrow(inboundIntegrationHeader.getRefDocumentNo(), errorText);
+                    log.info("Update Inbound Order Update Successfully");
 
-                    imBasicData1.setStatusId(1L);                                                // STATUS_ID
-                    ImBasicData1 createdImBasicData1 = mastersService.createImBasicData1V2(imBasicData1, WMS_KNOWELL, masterAuthToken);
-                    log.info("ImBasicData1 created: " + createdImBasicData1);
+                    throw new BadRequestException("The given values: manufacturerName:" + inboundIntegrationLine.getManufacturerName() +
+                            ",ItemCode: " + inboundIntegrationLine.getItemCode() + " doesn't exist.");
                 }
 
                 /*-------------Insertion of BOM item in PREINBOUNDLINE table---------------------------------------------------------*/
@@ -704,9 +698,6 @@ public class OrderService extends BaseService {
                  * Before inserting the record into Preinbound table, fetch ITM_CODE from InboundIntegrationHeader (MONGO) table and
                  * pass into BOMHEADER table as PAR_ITM_CODE and validate record is Not Null
                  */
-                BomHeader bomHeader = mastersService.getBomHeader(inboundIntegrationLine.getItemCode(), warehouseId,
-                        companyCodeId, plantId, languageId, masterAuthToken);
-                log.info("bomHeader [BOM] : " + bomHeader);
 
                 log.info("noOfBags in inboundIntegrationLine ----------> {}", inboundIntegrationLine.getNoBags());
                 double noOfBags = inboundIntegrationLine.getNoBags() != null ? inboundIntegrationLine.getNoBags() : 1L;
@@ -730,58 +721,77 @@ public class OrderService extends BaseService {
                     newInboundIntegrationLine.setNoBags(1D);
                     newInboundIntegrationLine.setOrderedQty(inboundIntegrationLine.getOrderedQty());
 
-                    ImPartner imPartner = createImpartner(companyCodeId, plantId, languageId, warehouseId, newInboundIntegrationLine.getItemCode(),
-                            newInboundIntegrationLine.getManufacturerName(), barcodeId, WMS_KNOWELL);
-                    imPartnerList.add(imPartner);
-
-                    if (bomHeader != null) {
-                        BomLine[] bomLine = mastersService.getBomLine(bomHeader.getBomNumber(), companyCodeId, plantId, languageId, warehouseId, masterAuthToken);
-                        for (BomLine dbBomLine : bomLine) {
-                            PreInboundLineEntityV2 preInboundLineEntity = createPreInboundLineBOMBasedV2(companyCodeId, plantId, languageId, warehouseId,
-                                    preInboundNo, inboundIntegrationHeader, newInboundIntegrationLine,
-                                    dbBomLine, inboundIntegrationLine.getManufacturerCode(), description, statusId, statusDescription);
-                            toBeCreatedPreInboundLineList.add(preInboundLineEntity);
-                            log.info("preInboundLineEntity [BOM] : " + toBeCreatedPreInboundLineList.size());
-                        }
-
-                        // Batch Insert - PreInboundLines
-                        if (!toBeCreatedPreInboundLineList.isEmpty()) {
-                            log.info("createdPreInboundLine [BOM] : " + toBeCreatedPreInboundLineList);
-                            overallCreatedPreInboundLineList.addAll(toBeCreatedPreInboundLineList);
-                        }
-                    }
                     lineNumber++;
                     inboundIntegrationLines.add(newInboundIntegrationLine);
                 }
             }
 
-            inboundOrderProcess.setImPartnerList(imPartnerList);
-            /*
-             * Append PREINBOUNDLINE table through below logic
-             */
-            List<PreInboundLineEntityV2> finalToBeCreatedPreInboundLineList = new ArrayList<>();
-            inboundIntegrationLines.stream().forEach(inboundIntegrationLine -> {
-                try {
-                    finalToBeCreatedPreInboundLineList.add(createPreInboundLineV2(companyCodeId, plantId, languageId, warehouseId, preInboundNo,
-                            inboundIntegrationHeader, inboundIntegrationLine, inboundIntegrationLine.getManufacturerCode(),
-                            description, statusId, statusDescription));
-                } catch (Exception e) {
-                    throw new BadRequestException("Exception While PreInboundLine Create" + e.toString());
-                }
-            });
-            log.info("toBeCreatedPreInboundLineList [API] : " + finalToBeCreatedPreInboundLineList.size());
-
-            // Batch Insert - PreInboundLines
-            if (!finalToBeCreatedPreInboundLineList.isEmpty()) {
-                log.info("createdPreInboundLine [API] : " + finalToBeCreatedPreInboundLineList);
-                overallCreatedPreInboundLineList.addAll(finalToBeCreatedPreInboundLineList);
-            }
-            inboundOrderProcess.setPreInboundLines(overallCreatedPreInboundLineList);
-
             /*------------------Insert into PreInboundHeader table-----------------------------*/
             PreInboundHeaderEntityV2 createPreInboundHeader = createPreInboundHeaderV2(companyCodeId, plantId, languageId, warehouseId, preInboundNo,
                     inboundIntegrationHeader, WMS_KNOWELL, description, statusId, statusDescription);
             inboundOrderProcess.setPreInboundHeader(createPreInboundHeader);
+
+            /*------------------Insert into Inbound Header----------------------------*/
+            InboundHeaderV2 createInboundHeader = createInboundHeaderV2(createPreInboundHeader, overallCreatedPreInboundLineList);
+            inboundOrderProcess.setInboundHeader(createInboundHeader);
+
+            StagingHeaderV2 stagingHeader = createStagingHeaderV2(createPreInboundHeader, stagingNo);
+            inboundOrderProcess.setStagingHeader(stagingHeader);
+
+            //Gr Header Creation
+            GrHeaderV2 createGrHeader = createGrHeaderV2(stagingHeader, caseCode, grNumber, languageId);
+            inboundOrderProcess.setGrHeader(createGrHeader);
+
+
+//            /*
+//             * Append PREINBOUNDLINE table through below logic
+//             */
+//            List<PreInboundLineEntityV2> finalToBeCreatedPreInboundLineList = new ArrayList<>();
+//            inboundIntegrationLines.stream().forEach(inboundIntegrationLine -> {
+//                try {
+//                    finalToBeCreatedPreInboundLineList.add(createPreInboundLineV3(companyCodeId, plantId, languageId, warehouseId, preInboundNo,
+//                            inboundIntegrationHeader, inboundIntegrationLine, inboundIntegrationLine.getManufacturerCode(),
+//                            description, statusId, statusDescription));
+//                } catch (Exception e) {
+//                    throw new BadRequestException("Exception While PreInboundLine Create" + e.toString());
+//                }
+//            });
+//            log.info("toBeCreatedPreInboundLineList [API] : " + finalToBeCreatedPreInboundLineList.size());
+//
+//            // Batch Insert - PreInboundLines
+//            if (!finalToBeCreatedPreInboundLineList.isEmpty()) {
+//                log.info("createdPreInboundLine [API] : " + finalToBeCreatedPreInboundLineList);
+//                overallCreatedPreInboundLineList.addAll(finalToBeCreatedPreInboundLineList);
+//            }
+//            inboundOrderProcess.setPreInboundLines(overallCreatedPreInboundLineList);
+//
+            ExecutorService executor = Executors.newFixedThreadPool(8);
+            List<Future<PreInboundLineEntityV2>> futures = new ArrayList<>();
+
+            for (InboundIntegrationLine line : inboundIntegrationLines) {
+                futures.add(executor.submit(() -> {
+                    return createPreInboundLineV3(companyCodeId, plantId, languageId, warehouseId, preInboundNo,
+                            inboundIntegrationHeader, line, line.getManufacturerCode(),
+                            description, statusId, statusDescription);
+                }));
+            }
+
+            List<PreInboundLineEntityV2> finalToBeCreatedPreInboundLineList = new ArrayList<>();
+            for (Future<PreInboundLineEntityV2> future : futures) {
+                try {
+                    finalToBeCreatedPreInboundLineList.add(future.get());
+                } catch (Exception e) {
+                    log.error("Exception in thread: ", e);
+                }
+            }
+            executor.shutdown();
+
+            if (!finalToBeCreatedPreInboundLineList.isEmpty()) {
+                log.info("createdPreInboundLine [API] : " + finalToBeCreatedPreInboundLineList.size());
+                overallCreatedPreInboundLineList.addAll(finalToBeCreatedPreInboundLineList);
+            }
+            inboundOrderProcess.setPreInboundLines(overallCreatedPreInboundLineList);
+
 
             List<InboundLineV2> inboundLines = overallCreatedPreInboundLineList.stream().map(preInboundLine -> {
                 InboundLineV2 inboundLine = new InboundLineV2();
@@ -806,17 +816,6 @@ public class OrderService extends BaseService {
                 return stagingLine;
             }).collect(Collectors.toList());
             inboundOrderProcess.setStagingLines(stagingLines);
-
-            /*------------------Insert into Inbound Header----------------------------*/
-            InboundHeaderV2 createInboundHeader = createInboundHeaderV2(createPreInboundHeader, overallCreatedPreInboundLineList);
-            inboundOrderProcess.setInboundHeader(createInboundHeader);
-
-            StagingHeaderV2 stagingHeader = createStagingHeaderV2(createPreInboundHeader, stagingNo);
-            inboundOrderProcess.setStagingHeader(stagingHeader);
-
-            //Gr Header Creation
-            GrHeaderV2 createGrHeader = createGrHeaderV2(stagingHeader, caseCode, grNumber, languageId);
-            inboundOrderProcess.setGrHeader(createGrHeader);
 
             return orderProcessingService.postInboundReceived(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preInboundNo, inboundOrderTypeId, inboundOrderProcess);
 
@@ -1053,7 +1052,7 @@ public class OrderService extends BaseService {
             if (inboundIntegrationLine.getCustomerId() != null) {
                 preInboundLine.setReferenceField6(inboundIntegrationLine.getCustomerId());
             }
-            if(inboundIntegrationLine.getCustomerName() != null) {
+            if (inboundIntegrationLine.getCustomerName() != null) {
                 preInboundLine.setReferenceField7(inboundIntegrationLine.getCustomerName());
             }
 
@@ -1193,7 +1192,7 @@ public class OrderService extends BaseService {
      * @return
      * @throws Exception
      */
-    public PreInboundLineEntityV2 createPreInboundLineV2(String companyCodeId, String plantId, String languageId, String warehouseId,
+    public PreInboundLineEntityV2 createPreInboundLineV3(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                          String preInboundNo, InboundIntegrationHeader inboundIntegrationHeader,
                                                          InboundIntegrationLine inboundIntegrationLine, String MW_AMS,
                                                          IKeyValuePair description, Long statusId, String statusDesc) throws Exception {
@@ -1208,7 +1207,6 @@ public class OrderService extends BaseService {
             preInboundLine.setPreInboundNo(preInboundNo);
             preInboundLine.setLineNo(inboundIntegrationLine.getLineReference());
             preInboundLine.setInboundOrderTypeId(inboundIntegrationHeader.getInboundOrderTypeId());
-            preInboundLine.setParentProductionOrderNo(inboundIntegrationHeader.getParentProductionOrderNo());
             preInboundLine.setItemDescription(inboundIntegrationLine.getItemText());
             preInboundLine.setBusinessPartnerCode(inboundIntegrationLine.getSupplierCode());
             preInboundLine.setOrderQty(inboundIntegrationLine.getOrderedQty());
@@ -1236,12 +1234,80 @@ public class OrderService extends BaseService {
             preInboundLine.setCreatedOn(new Date());
 
             log.info("preInboundLine : " + preInboundLine);
+            // IB_Order
+            String orderText = "Inbound Header Created";
+            inboundOrderV2Repository.updateIbHeader(preInboundLine.getInboundOrderTypeId(), preInboundLine.getRefDocNumber(), orderText);
+            log.info("Update Inbound Header Update Successfully");
+
+
+            InboundLineV2 inboundLine = new InboundLineV2();
+            BeanUtils.copyProperties(preInboundLine, inboundLine, CommonUtils.getNullPropertyNames(preInboundLine));
+            inboundLine.setDescription(preInboundLine.getItemDescription());
+            inboundLineV2Repository.save(inboundLine);
+            log.info("InboundLine Saved Successfully");
+
             return preInboundLine;
         } catch (Exception e) {
             log.error("PreInboundLine Create Exception: " + e.toString());
             throw e;
         }
     }
+
+    public PreInboundLineEntityV2 createPreInboundLineV2(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                         String preInboundNo, InboundIntegrationHeader inboundIntegrationHeader,
+                                                         InboundIntegrationLine inboundIntegrationLine, String MW_AMS,
+                                                         IKeyValuePair description, Long statusId, String statusDesc) throws Exception {
+        try {
+            PreInboundLineEntityV2 preInboundLine = new PreInboundLineEntityV2();
+            BeanUtils.copyProperties(inboundIntegrationLine, preInboundLine, CommonUtils.getNullPropertyNames(inboundIntegrationLine));
+            preInboundLine.setLanguageId(languageId);
+            preInboundLine.setCompanyCode(companyCodeId);
+            preInboundLine.setPlantId(plantId);
+            preInboundLine.setWarehouseId(warehouseId);
+            preInboundLine.setRefDocNumber(inboundIntegrationHeader.getRefDocumentNo());
+            preInboundLine.setPreInboundNo(preInboundNo);
+            preInboundLine.setLineNo(inboundIntegrationLine.getLineReference());
+            preInboundLine.setInboundOrderTypeId(inboundIntegrationHeader.getInboundOrderTypeId());
+            preInboundLine.setItemDescription(inboundIntegrationLine.getItemText());
+            preInboundLine.setBusinessPartnerCode(inboundIntegrationLine.getSupplierCode());
+            preInboundLine.setOrderQty(inboundIntegrationLine.getOrderedQty());
+            preInboundLine.setOrderUom(inboundIntegrationLine.getUom());
+            preInboundLine.setStockTypeId(1L);
+            preInboundLine.setStockTypeDescription(getStockTypeDesc(companyCodeId, plantId, languageId, warehouseId, preInboundLine.getStockTypeId()));
+            preInboundLine.setSpecialStockIndicatorId(1L);
+            log.info("inboundIntegrationLine.getExpectedDate() : " + inboundIntegrationLine.getExpectedDate());
+            preInboundLine.setExpectedArrivalDate(inboundIntegrationLine.getExpectedDate());
+            preInboundLine.setReferenceField4(inboundIntegrationLine.getSalesOrderReference());
+            // Status ID - statusId changed to reduce one less step process and avoid deadlock while updating status
+            preInboundLine.setStatusId(statusId);
+            preInboundLine.setStatusDescription(statusDesc);
+            preInboundLine.setCompanyDescription(description.getCompanyDesc());
+            preInboundLine.setPlantDescription(description.getPlantDesc());
+            preInboundLine.setWarehouseDescription(description.getWarehouseDesc());
+            preInboundLine.setBrandName(inboundIntegrationLine.getBrand());
+            preInboundLine.setManufacturerCode(inboundIntegrationLine.getManufacturerName());
+            preInboundLine.setPartnerItemNo(inboundIntegrationLine.getSupplierCode());
+            preInboundLine.setContainerNo(inboundIntegrationLine.getContainerNumber());
+            preInboundLine.setReferenceDocumentType(inboundIntegrationHeader.getRefDocumentType());
+            preInboundLine.setBusinessPartnerCode(inboundIntegrationLine.getBranchCode());
+
+            preInboundLine.setDeletionIndicator(0L);
+            preInboundLine.setCreatedBy(MW_AMS);
+            preInboundLine.setCreatedOn(new Date());
+
+            log.info("preInboundLine : " + preInboundLine);
+            // IB_Order
+            String orderText = "Inbound Header Created";
+            inboundOrderV2Repository.updateIbHeader(preInboundLine.getInboundOrderTypeId(), preInboundLine.getRefDocNumber(), orderText);
+            log.info("Update Inbound Header Update Successfully");
+
+            return preInboundLine;
+        } catch (Exception e) {
+            log.error("PreInboundLine Create Exception: " + e.toString());
+            throw e;
+        }
+    }
+
 
     /**
      * @param companyCodeId
@@ -1368,6 +1434,7 @@ public class OrderService extends BaseService {
                                                              String preInboundNo, InboundIntegrationHeader inboundIntegrationHeader,
                                                              String MW_AMS, IKeyValuePair description, Long statusId, String statusDesc) throws Exception {
         try {
+            log.info("PreInboundHeader Create Started -------------------------> ");
             PreInboundHeaderEntityV2 preInboundHeader = new PreInboundHeaderEntityV2();
             BeanUtils.copyProperties(inboundIntegrationHeader, preInboundHeader, CommonUtils.getNullPropertyNames(inboundIntegrationHeader));
             preInboundHeader.setCompanyCode(companyCodeId);
@@ -1402,6 +1469,12 @@ public class OrderService extends BaseService {
             preInboundHeader.setCreatedOn(new Date());
 
             log.info("createdPreInboundHeader : " + preInboundHeader);
+
+            // IB_Order
+            String preInbound = "PreInbound Created";
+            inboundOrderV2Repository.updateIbOrder(preInboundHeader.getInboundOrderTypeId(), preInboundHeader.getRefDocNumber(), preInbound);
+            log.info("Update Inbound Order Update Successfully");
+
             return preInboundHeader;
         } catch (Exception e) {
             log.error("PreInboundHeader Create Exception : " + e.toString());
@@ -1898,6 +1971,12 @@ public class OrderService extends BaseService {
             // GR_MTD
             stagingHeader.setGrMtd("INTEGRATION");
 //            return stagingHeaderV2Repository.save(stagingHeader);
+
+            // Staging_Header
+            String orderText = "StagingHeader Created";
+            inboundOrderV2Repository.updateStagingHeader(stagingHeader.getInboundOrderTypeId(), stagingHeader.getRefDocNumber(), orderText);
+            log.info("Update Staging Header Update Successfully");
+
             return stagingHeader;
         } catch (Exception e) {
             log.error("Exception while StagingHeader Create : " + e.toString());
@@ -1923,6 +2002,12 @@ public class OrderService extends BaseService {
             grHeader.setStatusId(16L);
             grHeader.setStatusDescription(getStatusDescription(16L, languageId));
 //            GrHeaderV2 createdGrHeader = grHeaderV2Repository.save(grHeader);
+
+            // Staging_Header
+            String orderText = "GrHeader Created";
+            inboundOrderV2Repository.updateGrHeader(grHeader.getInboundOrderTypeId(), grHeader.getRefDocNumber(), orderText);
+            log.info("Update Staging Header Update Successfully");
+
             return grHeader;
         } catch (Exception e) {
             log.error("Exception while GrHeader Create : " + e.toString());
@@ -1953,7 +2038,7 @@ public class OrderService extends BaseService {
             if (stagingHeader.getCustomerId() != null) {
                 grHeader.setCustomerId(stagingHeader.getCustomerId());
             }
-            if(stagingHeader.getCustomerName() != null) {
+            if (stagingHeader.getCustomerName() != null) {
                 grHeader.setCustomerName(stagingHeader.getCustomerName());
             }
             // Gr_Header
@@ -1981,7 +2066,7 @@ public class OrderService extends BaseService {
             if (preInboundHeader.getCustomerId() != null) {
                 stagingHeader.setCustomerId(preInboundHeader.getCustomerId());
             }
-            if(preInboundHeader.getCustomerName() != null) {
+            if (preInboundHeader.getCustomerName() != null) {
                 stagingHeader.setCustomerName(preInboundHeader.getCustomerName());
             }
             // GR_MTD
@@ -2071,8 +2156,8 @@ public class OrderService extends BaseService {
 
             StagingHeaderV2 stagingHeader = createStagingHeaderV5(createPreInboundHeader, stagingNo);
 
-            statusDescription = getStatusDescription(17L, languageId);
-            GrHeaderV2 createGrHeader = createGrHeaderV5(stagingHeader, caseCode, grNumber, 17L, statusDescription);
+            statusDescription = getStatusDescription(16L, languageId);
+            GrHeaderV2 createGrHeader = createGrHeaderV5(stagingHeader, caseCode, grNumber, 16L, statusDescription);
 
 //            preInboundHeaderV2Repository.saveAndFlush(createPreInboundHeader);
 //            stagingHeaderV2Repository.saveAndFlush(stagingHeader);
@@ -2080,8 +2165,7 @@ public class OrderService extends BaseService {
 //            grHeaderV2Repository.saveAndFlush(createGrHeader);
 
             //Lines
-            List<InboundLineV2> inboundLines = createInboundLines(17L, statusDescription, overallCreatedPreInboundLineList);
-
+            List<InboundLineV2> inboundLines = createInboundLines(16L, statusDescription, overallCreatedPreInboundLineList);
             statusDescription = getStatusDescription(14L, languageId);
 
             List<StagingLineEntityV2> stagingLines = createStagingLines(stagingNo, caseCode, 14L, statusDescription, overallCreatedPreInboundLineList);
@@ -2240,7 +2324,7 @@ public class OrderService extends BaseService {
             if (preInboundHeader.getCustomerId() != null) {
                 inboundHeader.setCustomerId(preInboundHeader.getCustomerId());
             }
-            if(preInboundHeader.getCustomerName() != null) {
+            if (preInboundHeader.getCustomerName() != null) {
                 inboundHeader.setCustomerName(preInboundHeader.getCustomerName());
             }
             // Inbound_Header
@@ -2280,7 +2364,7 @@ public class OrderService extends BaseService {
                 if (preInboundLine.getReferenceField6() != null) {
                     inboundLine.setReferenceField6(preInboundLine.getReferenceField6());
                 }
-                if(preInboundLine.getReferenceField7() != null) {
+                if (preInboundLine.getReferenceField7() != null) {
                     inboundLine.setReferenceField7(preInboundLine.getReferenceField7());
                 }
                 log.info("InboundLines ----->" + inboundLine);
@@ -2318,8 +2402,9 @@ public class OrderService extends BaseService {
                 stagingLine.setVehicleUnloadingDate(preInboundLine.getVehicleUnloadingDate());
                 stagingLine.setVehicleReportingDate(preInboundLine.getVehicleReportingDate());
                 if (preInboundLine.getReferenceField6() != null) {
-                    stagingLine.setReferenceField6(preInboundLine.getReferenceField6());                }
-                if(preInboundLine.getReferenceField7() != null) {
+                    stagingLine.setReferenceField6(preInboundLine.getReferenceField6());
+                }
+                if (preInboundLine.getReferenceField7() != null) {
                     stagingLine.setReferenceField7(preInboundLine.getReferenceField7());
                 }
 
@@ -2421,4 +2506,927 @@ public class OrderService extends BaseService {
             log.error("Error setting UOM quantities: {}", e.getMessage(), e);
         }
     }
+
+//===================================================BP============================================================================
+
+    /**
+     * @param refDocNumber
+     * @param inboundIntegrationHeader
+     * @return
+     * @throws Exception
+     */
+    public InboundHeaderV2 processInboundReceivedV6(String refDocNumber, InboundIntegrationHeader inboundIntegrationHeader) throws Exception {
+
+        InboundOrderProcess inboundOrderProcess = new InboundOrderProcess();
+        String companyCodeId = inboundIntegrationHeader.getCompanyCode();
+        String plantId = inboundIntegrationHeader.getBranchCode();
+        String languageId = inboundIntegrationHeader.getLanguageId() != null ? inboundIntegrationHeader.getLanguageId() : LANG_ID;
+        String warehouseId = inboundIntegrationHeader.getWarehouseID();
+        Long inboundOrderTypeId = inboundIntegrationHeader.getInboundOrderTypeId();
+        log.info("CompanyCodeId, plantId, languageId, warehouseId : " + companyCodeId + ", " + plantId + ", " + languageId + ", " + warehouseId);
+
+        try {
+            log.info("Inbound Process Initiated ------> " + refDocNumber + ", " + inboundOrderTypeId);
+            if (inboundIntegrationHeader.getLoginUserId() != null) {
+                MW_AMS = inboundIntegrationHeader.getLoginUserId();
+            }
+
+            // save/create process
+            inboundOrderProcess.setInboundIntegrationHeader(inboundIntegrationHeader);
+            inboundOrderProcess.setLoginUserId(MW_AMS);
+
+            //Checking whether received refDocNumber processed already.
+            Optional<PreInboundHeaderEntityV2> orderProcessedStatus = preInboundHeaderV2Repository.
+                    findByRefDocNumberAndInboundOrderTypeIdAndDeletionIndicator(refDocNumber, inboundIntegrationHeader.getInboundOrderTypeId(), 0L);
+//            if (!orderProcessedStatus.isEmpty()) {
+//                throw new BadRequestException("Order :" + refDocNumber + " already processed. Reprocessing can't be allowed.");
+//            }
+
+            List<PutAwayLineV2> putAwayLine = putAwayLineV2Repository.getPutAwayLinesV6(companyCodeId, plantId, languageId, warehouseId, refDocNumber);
+
+            if (putAwayLine.isEmpty()){
+                log.info("Already Exits The Order -------------------------------V6 ----------> {} ", refDocNumber);
+                inboundOrderCancellationV4(companyCodeId,plantId,languageId,warehouseId,refDocNumber);
+            }else {
+                throw new BadRequestException("Inbound already confirmed for this order : "+refDocNumber);
+            }
+            // Description_Set
+            IKeyValuePair description = repo.stagingLineV2Repository.getDescription(companyCodeId, languageId, plantId, warehouseId);
+            String companyText = description.getCompanyDesc();
+            String plantText = description.getPlantDesc();
+            String warehouseText = description.getWarehouseDesc();
+
+            String idMasterAuthToken = repo.authTokenService.getIDMasterServiceAuthToken().getAccess_token();
+            Long statusId = 13L;
+
+            // Getting PreInboundNo, StagingNo, CaseCode from NumberRangeTable
+            String preInboundNo = getNextRangeNumber(2L, companyCodeId, plantId, languageId, warehouseId, idMasterAuthToken);
+            String stagingNo = getNextRangeNumber(3L, companyCodeId, plantId, languageId, warehouseId, idMasterAuthToken);
+            String caseCode = getNextRangeNumber(4L, companyCodeId, plantId, languageId, warehouseId, idMasterAuthToken);
+            String grNumber = getNextRangeNumber(5L, companyCodeId, plantId, languageId, warehouseId, idMasterAuthToken);
+            log.info("PreInboundNo, StagingNo, CaseCode, GrNumber : " + preInboundNo + ", " + stagingNo + ", " + caseCode + ", " + grNumber);
+            statusDescription = getStatusDescription(statusId, languageId);
+
+            // Step 1: Create headers before line processing
+            PreInboundHeaderEntityV2 preInboundHeader = createPreInboundHeaderV6(
+                    companyCodeId, languageId, plantId, preInboundNo, inboundIntegrationHeader, warehouseId, companyText, plantText, warehouseText, MRF_NAME_V6,inboundIntegrationHeader.getAMSSupplierInvoiceNo());
+            log.info("PreInboundHeader created: {}", preInboundHeader.getPreInboundNo());
+            inboundOrderProcess.setPreInboundHeader(preInboundHeader);
+            InboundHeaderV2 inboundHeader = createInboundHeaderV6(preInboundHeader, inboundIntegrationHeader.getInboundIntegrationLine().size());
+            log.info("Inbound Header Created: {}", inboundHeader);
+            inboundOrderProcess.setInboundHeader(inboundHeader);
+
+            StagingHeaderV2 stagingHeader = null;
+            GrHeaderV2 grHeader = null;
+
+            if (inboundIntegrationHeader.getInboundOrderTypeId().equals(1L)){
+                stagingHeader = createStagingHeaderV6(preInboundHeader, stagingNo);
+                log.info("StagingHeader Created: {}", stagingHeader);
+                inboundOrderProcess.setStagingHeader(stagingHeader);
+
+                grHeader = createGrHeaderV6(stagingHeader, caseCode, grNumber);
+                log.info("GrHeader Created: {}", grHeader);
+                inboundOrderProcess.setGrHeader(grHeader);
+
+            }
+
+            String partBarCode = generateBarCodeId(preInboundHeader.getRefDocNumber());
+            processSingleASNLineV6(inboundIntegrationHeader, inboundIntegrationHeader.getInboundIntegrationLine(), preInboundHeader, stagingHeader, grHeader, partBarCode,inboundOrderProcess);
+
+            return orderProcessingService.postInboundReceived(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preInboundNo, inboundOrderTypeId, inboundOrderProcess);
+
+        } catch (Exception e) {
+            log.error("Inbound Order Processing Exception ----> " + e.toString());
+            throw e;
+        }
+    }
+
+
+    /**
+     * @param refDocNumber
+     * @param inboundIntegrationHeader
+     * @return
+     * @throws Exception
+     */
+    public InboundHeaderV2 processInboundReceivedV8(String refDocNumber, InboundIntegrationHeader inboundIntegrationHeader) throws Exception {
+
+        InboundOrderProcess inboundOrderProcess = new InboundOrderProcess();
+        String companyCodeId = inboundIntegrationHeader.getCompanyCode();
+        String plantId = inboundIntegrationHeader.getBranchCode();
+        String languageId = inboundIntegrationHeader.getLanguageId() != null ? inboundIntegrationHeader.getLanguageId() : LANG_ID;
+        String warehouseId = inboundIntegrationHeader.getWarehouseID();
+        Long inboundOrderTypeId = inboundIntegrationHeader.getInboundOrderTypeId();
+        log.info("CompanyCodeId, plantId, languageId, warehouseId : " + companyCodeId + ", " + plantId + ", " + languageId + ", " + warehouseId);
+
+        try {
+            log.info("Inbound Process Initiated ------> " + refDocNumber + ", " + inboundOrderTypeId);
+            if (inboundIntegrationHeader.getLoginUserId() != null) {
+                MW_AMS = inboundIntegrationHeader.getLoginUserId();
+            }
+
+            // save/create process
+            inboundOrderProcess.setInboundIntegrationHeader(inboundIntegrationHeader);
+            inboundOrderProcess.setLoginUserId(MW_AMS);
+
+            //Checking whether received refDocNumber processed already.
+            Optional<PreInboundHeaderEntityV2> orderProcessedStatus = preInboundHeaderV2Repository.
+                    findByRefDocNumberAndInboundOrderTypeIdAndDeletionIndicator(refDocNumber, inboundIntegrationHeader.getInboundOrderTypeId(), 0L);
+            if (!orderProcessedStatus.isEmpty()) {
+                throw new BadRequestException("Order :" + refDocNumber + " already processed. Reprocessing can't be allowed.");
+            }
+
+            List<InboundIntegrationLine> inboundIntegrationLines = new ArrayList<>();
+
+            String idMasterAuthToken = authTokenService.getIDMasterServiceAuthToken().getAccess_token();
+            Long statusId = 13L;
+
+            // Getting PreInboundNo, StagingNo, CaseCode from NumberRangeTable
+            String preInboundNo = getNextRangeNumber(2L, companyCodeId, plantId, languageId, warehouseId, idMasterAuthToken);
+            String stagingNo = getNextRangeNumber(3L, companyCodeId, plantId, languageId, warehouseId, idMasterAuthToken);
+            String caseCode = getNextRangeNumber(4L, companyCodeId, plantId, languageId, warehouseId, idMasterAuthToken);
+            String grNumber = getNextRangeNumber(5L, companyCodeId, plantId, languageId, warehouseId, idMasterAuthToken);
+            log.info("PreInboundNo, StagingNo, CaseCode, GrNumber : " + preInboundNo + ", " + stagingNo + ", " + caseCode + ", " + grNumber);
+
+            statusDescription = getStatusDescription(statusId, languageId);
+            description = getDescription(companyCodeId, plantId, languageId, warehouseId);
+
+            List<PreInboundLineEntityV2> overallCreatedPreInboundLineList = new ArrayList<>();
+            String partBarCode = generateBarCodeId(refDocNumber);
+
+            log.info("-----inboundIntegrationHeader--------> " + inboundIntegrationHeader.getInboundIntegrationLine());
+            long lineNumber = 1;
+            for (InboundIntegrationLine inboundIntegrationLine : inboundIntegrationHeader.getInboundIntegrationLine()) {
+                ImBasicData1V2 imBasicData1 = imBasicData1V2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerPartNoAndDeletionIndicator(
+                        languageId, companyCodeId, plantId, warehouseId,
+                        inboundIntegrationLine.getItemCode().trim(), inboundIntegrationLine.getManufacturerName(), 0L);
+                log.info("imBasicData1 exists: " + imBasicData1);
+                if (imBasicData1 != null) {
+                    if (inboundIntegrationLine.getItemText() == null) {
+                        inboundIntegrationLine.setItemText(imBasicData1.getDescription());
+                    }
+                    inboundIntegrationLine.setBrand(imBasicData1.getBrand());
+                    inboundIntegrationLine.setSize(imBasicData1.getSize());
+                    if (imBasicData1.getItemType() != null && imBasicData1.getItemTypeDescription() == null) {
+                        inboundIntegrationLine.setItemType(getItemTypeDesc(companyCodeId, plantId, languageId, warehouseId, imBasicData1.getItemType()));
+                    } else {
+                        inboundIntegrationLine.setItemType(imBasicData1.getItemTypeDescription());
+                    }
+                    if (imBasicData1.getItemGroup() != null && imBasicData1.getItemGroupDescription() == null) {
+                        inboundIntegrationLine.setItemGroup(getItemGroupDesc(companyCodeId, plantId, languageId, warehouseId, imBasicData1.getItemGroup()));
+                    } else {
+                        inboundIntegrationLine.setItemGroup(imBasicData1.getItemGroupDescription());
+                    }
+                }
+
+                // If ITM_CODE value is Null, then insert a record in IMBASICDATA1 table as below
+                if (imBasicData1 == null) {
+                    imBasicData1 = new ImBasicData1V2();
+                    BeanUtils.copyProperties(inboundIntegrationLine, imBasicData1, CommonUtils.getNullPropertyNames(inboundIntegrationLine));
+                    imBasicData1.setLanguageId(languageId);                                         // LANG_ID
+                    imBasicData1.setWarehouseId(warehouseId);                                       // WH_ID
+                    imBasicData1.setCompanyCodeId(companyCodeId);                                   // C_ID
+                    imBasicData1.setPlantId(plantId);                                               // PLANT_ID
+                    imBasicData1.setItemCode(inboundIntegrationLine.getItemCode());                 // ITM_CODE
+                    imBasicData1.setUomId(inboundIntegrationLine.getUom());                         // UOM_ID
+                    imBasicData1.setDescription(inboundIntegrationLine.getItemText());              // ITEM_TEXT
+                    imBasicData1.setManufacturerPartNo(inboundIntegrationLine.getManufacturerName());
+                    imBasicData1.setManufacturerName(inboundIntegrationLine.getManufacturerName());
+                    imBasicData1.setManufacturerCode(inboundIntegrationLine.getManufacturerCode());
+                    imBasicData1.setCapacityCheck(false);
+                    imBasicData1.setDeletionIndicator(0L);
+                    imBasicData1.setCompanyDescription(description.getCompanyDesc());
+                    imBasicData1.setPlantDescription(description.getPlantDesc());
+                    imBasicData1.setWarehouseDescription(description.getWarehouseDesc());
+
+                    imBasicData1.setStatusId(1L);                                                // STATUS_ID
+                    ImBasicData1 createdImBasicData1 = imBasicData1Service.createImBasicData1V2(imBasicData1, MW_AMS);
+                    log.info("ImBasicData1 created: " + createdImBasicData1);
+                }
+
+                /*-------------Insertion of BOM item in PREINBOUNDLINE table---------------------------------------------------------*/
+                /*
+                 * Before inserting the record into Preinbound table, fetch ITM_CODE from InboundIntegrationHeader (MONGO) table and
+                 * pass into BOMHEADER table as PAR_ITM_CODE and validate record is Not Null
+                 */
+
+                log.info("noOfBags in inboundIntegrationLine ----------> {}", inboundIntegrationLine.getNoBags());
+                double noOfBags = inboundIntegrationLine.getNoBags() != null ? inboundIntegrationLine.getNoBags() : 1L;
+                for (long i = 1; i <= noOfBags; i++) {
+                    InboundIntegrationLine newInboundIntegrationLine = new InboundIntegrationLine();
+                    BeanUtils.copyProperties(inboundIntegrationLine, newInboundIntegrationLine, CommonUtils.getNullPropertyNames(inboundIntegrationLine));
+                    String barcodeId = "";
+                    try {
+                        if (inboundIntegrationLine.getSupplierCode() != null && inboundIntegrationLine.getSupplierCode().equalsIgnoreCase("EVEREST FOOD PRODUCTS PVT LTD")) {
+                            //barcodeId = null;
+                            barcodeId = "10000" + inboundIntegrationLine.getItemCode();
+                        } else {
+                            barcodeId = generateBarCodeId(newInboundIntegrationLine.getItemCode(), partBarCode, i);
+                        }
+                        barcodeId = barcodeId + lineNumber;
+                        newInboundIntegrationLine.setBarcodeId(barcodeId);
+                    } catch (Exception e) {
+                        throw new RuntimeException("Failed to generate barcode for item code: "
+                                + inboundIntegrationLine.getItemCode(), e);
+                    }
+                    newInboundIntegrationLine.setLineReference(lineNumber);
+                    newInboundIntegrationLine.setNoBags(1D);
+                    newInboundIntegrationLine.setOrderedQty(inboundIntegrationLine.getOrderedQty());
+                    lineNumber++;
+                    inboundIntegrationLines.add(newInboundIntegrationLine);
+                }
+            }
+
+
+            /*------------------Insert into PreInboundHeader table-----------------------------*/
+            PreInboundHeaderEntityV2 createPreInboundHeader = createPreInboundHeaderV8(companyCodeId, plantId, languageId, warehouseId, preInboundNo,
+                    inboundIntegrationHeader, MW_AMS, description, statusId, statusDescription);
+            inboundOrderProcess.setPreInboundHeader(createPreInboundHeader);
+
+            InboundHeaderV2 createInboundHeader = createInboundHeaderV8(createPreInboundHeader, overallCreatedPreInboundLineList);
+            inboundOrderProcess.setInboundHeader(createInboundHeader);
+
+            StagingHeaderV2 stagingHeader = createStagingHeaderV8(createPreInboundHeader, stagingNo);
+            inboundOrderProcess.setStagingHeader(stagingHeader);
+
+            //Gr Header Creation
+            GrHeaderV2 createGrHeader = createGrHeaderV8(stagingHeader, caseCode, grNumber, languageId);
+            inboundOrderProcess.setGrHeader(createGrHeader);
+
+
+
+            /*
+             * Append PREINBOUNDLINE table through below logic
+             */
+//            List<PreInboundLineEntityV2> finalToBeCreatedPreInboundLineList = new ArrayList<>();
+//            inboundIntegrationLines.stream().forEach(inboundIntegrationLine -> {
+//                try {
+//                    finalToBeCreatedPreInboundLineList.add(createPreInboundLineV2(companyCodeId, plantId, languageId, warehouseId, preInboundNo,
+//                            inboundIntegrationHeader, inboundIntegrationLine, MW_AMS,
+//                            description, statusId, statusDescription));
+//                } catch (Exception e) {
+//                    throw new BadRequestException("Exception While PreInboundLine Create" + e.toString());
+//                }
+//            });
+//            log.info("toBeCreatedPreInboundLineList [API] : " + finalToBeCreatedPreInboundLineList.size());
+
+            // Batch Insert - PreInboundLines
+//            if (!finalToBeCreatedPreInboundLineList.isEmpty()) {
+//                log.info("createdPreInboundLine [API] : " + finalToBeCreatedPreInboundLineList);
+//                overallCreatedPreInboundLineList.addAll(finalToBeCreatedPreInboundLineList);
+//            }
+//            inboundOrderProcess.setPreInboundLines(overallCreatedPreInboundLineList);
+
+            ExecutorService executor = Executors.newFixedThreadPool(8);
+            List<Future<PreInboundLineEntityV2>> futures = new ArrayList<>();
+
+            for (InboundIntegrationLine line : inboundIntegrationLines) {
+                futures.add(executor.submit(() -> {
+                    return createPreInboundLineV8(companyCodeId, plantId, languageId, warehouseId, preInboundNo,
+                            inboundIntegrationHeader, line, line.getManufacturerCode(),
+                            description, statusId, statusDescription);
+                }));
+            }
+
+            List<PreInboundLineEntityV2> finalToBeCreatedPreInboundLineList = new ArrayList<>();
+            for (Future<PreInboundLineEntityV2> future : futures) {
+                try {
+                    finalToBeCreatedPreInboundLineList.add(future.get());
+                } catch (Exception e) {
+                    log.error("Exception in thread: ", e);
+                }
+            }
+            executor.shutdown();
+
+            if (!finalToBeCreatedPreInboundLineList.isEmpty()) {
+                log.info("createdPreInboundLine [API] : " + finalToBeCreatedPreInboundLineList);
+                overallCreatedPreInboundLineList.addAll(finalToBeCreatedPreInboundLineList);
+            }
+            inboundOrderProcess.setPreInboundLines(overallCreatedPreInboundLineList);
+
+            List<InboundLineV2> inboundLines = overallCreatedPreInboundLineList.stream().map(preInboundLine -> {
+                InboundLineV2 inboundLine = new InboundLineV2();
+                BeanUtils.copyProperties(preInboundLine, inboundLine, CommonUtils.getNullPropertyNames(preInboundLine));
+                inboundLine.setDescription(preInboundLine.getItemDescription());
+                log.info("Description ------> {}", inboundLine.getDescription());
+                return inboundLine;
+            }).collect(Collectors.toList());
+            inboundOrderProcess.setInboundLines(inboundLines);
+
+            statusDescription = getStatusDescription(14L, languageId);
+            List<StagingLineEntityV2> stagingLines = overallCreatedPreInboundLineList.stream().map(preInboundLine -> {
+                StagingLineEntityV2 stagingLine = new StagingLineEntityV2();
+                BeanUtils.copyProperties(preInboundLine, stagingLine, CommonUtils.getNullPropertyNames(preInboundLine));
+                stagingLine.setStagingNo(stagingNo);
+                stagingLine.setCaseCode(caseCode);
+                stagingLine.setPalletCode(caseCode);
+                stagingLine.setPartner_item_barcode(preInboundLine.getBarcodeId());
+                stagingLine.setStatusId(14L);
+                stagingLine.setStatusDescription(statusDescription);
+                stagingLine.setGoodsReceiptNo(grNumber);
+
+                // Cross_Dock_logic_started
+                try {
+                    log.info("Cross Dock logic started");
+                    log.info("The stagingLine inputs : companyCode --> " + stagingLine.getCompanyCode() + " and plantId --> " + stagingLine.getPlantId() + " and wareHouseId --> " + stagingLine.getWarehouseId() + " and itemCode --> " + stagingLine.getItemCode());
+                    Optional<OrderManagementLineV2> crossDock = orderManagementLineV2Repository.getOrderManagementLineForCrossDockV8(
+                            stagingLine.getCompanyCode(), stagingLine.getPlantId(), stagingLine.getLanguageId(), stagingLine.getWarehouseId(), stagingLine.getItemCode());
+                    log.info("Cross Dock Value is " + crossDock);
+                    if (crossDock.isPresent()) {
+                        stagingLine.setCrossDock(true);
+                    } else {
+                        stagingLine.setCrossDock(false);
+                    }
+                } catch (Exception e) {
+                    log.info("Cross Dock Failed " + e);
+                }
+
+                return stagingLine;
+            }).collect(Collectors.toList());
+            inboundOrderProcess.setStagingLines(stagingLines);
+            return orderProcessingService.postInboundReceived(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preInboundNo, inboundOrderTypeId, inboundOrderProcess);
+
+        } catch (Exception e) {
+            log.error("Inbound Order Processing Exception ----> " + e.toString());
+            throw e;
+        }
+    }
+
+    /**
+     *
+     *
+     * @param preInboundNo
+     * @param inboundIntegrationHeader
+     * @return
+     */
+    public PreInboundHeaderEntityV2 createPreInboundHeaderV8(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                             String preInboundNo, InboundIntegrationHeader inboundIntegrationHeader,
+                                                             String MW_AMS, IKeyValuePair description, Long statusId, String statusDesc) throws Exception {
+        try {
+            log.info("PreInboundHeader Create Started -------------------------> ");
+            PreInboundHeaderEntityV2 preInboundHeader = new PreInboundHeaderEntityV2();
+            BeanUtils.copyProperties(inboundIntegrationHeader, preInboundHeader, CommonUtils.getNullPropertyNames(inboundIntegrationHeader));
+            preInboundHeader.setCompanyCode(companyCodeId);
+            preInboundHeader.setPlantId(plantId);
+            preInboundHeader.setLanguageId(languageId);                                    // LANG_ID
+            preInboundHeader.setWarehouseId(warehouseId);
+            preInboundHeader.setRefDocNumber(inboundIntegrationHeader.getRefDocumentNo());
+            preInboundHeader.setPreInboundNo(preInboundNo);                                                // PRE_IB_NO
+            preInboundHeader.setReferenceDocumentType(inboundIntegrationHeader.getRefDocumentType());    // REF_DOC_TYP - Hard Coded Value "ASN"
+            preInboundHeader.setInboundOrderTypeId(inboundIntegrationHeader.getInboundOrderTypeId());    // IB_ORD_TYP_ID
+            preInboundHeader.setRefDocDate(inboundIntegrationHeader.getOrderReceivedOn());                // REF_DOC_DATE
+            // Status ID - statusId changed to reduce one less step process and avoid deadlock while updating status
+            preInboundHeader.setStatusId(statusId);
+            preInboundHeader.setStatusDescription(statusDesc);
+            preInboundHeader.setCompanyDescription(description.getCompanyDesc());
+            preInboundHeader.setPlantDescription(description.getPlantDesc());
+            preInboundHeader.setWarehouseDescription(description.getWarehouseDesc());
+
+            preInboundHeader.setMiddlewareId(inboundIntegrationHeader.getMiddlewareId());
+            preInboundHeader.setMiddlewareTable(inboundIntegrationHeader.getMiddlewareTable());
+            preInboundHeader.setContainerNo(inboundIntegrationHeader.getContainerNo());
+
+            preInboundHeader.setTransferOrderDate(inboundIntegrationHeader.getTransferOrderDate());
+            preInboundHeader.setSourceBranchCode(inboundIntegrationHeader.getSourceBranchCode());
+            preInboundHeader.setSourceCompanyCode(inboundIntegrationHeader.getSourceCompanyCode());
+            preInboundHeader.setIsCompleted(inboundIntegrationHeader.getIsCompleted());
+            preInboundHeader.setIsCancelled(inboundIntegrationHeader.getIsCancelled());
+            preInboundHeader.setMUpdatedOn(inboundIntegrationHeader.getUpdatedOn());
+
+            preInboundHeader.setDeletionIndicator(0L);
+            preInboundHeader.setCreatedBy(MW_AMS);
+            preInboundHeader.setCreatedOn(new Date());
+
+            log.info("createdPreInboundHeader : " + preInboundHeader);
+
+            // IB_Order
+            String preInbound = "PreInbound Created";
+            inboundOrderV2Repository.updateIbOrder(preInboundHeader.getInboundOrderTypeId(), preInboundHeader.getRefDocNumber(), preInbound);
+            log.info("Update Inbound Order Update Successfully");
+
+            return preInboundHeader;
+        } catch (Exception e) {
+            log.error("PreInboundHeader Create Exception : " + e.toString());
+            throw e;
+        }
+    }
+
+    /**
+     * @param preInboundHeader
+     * @param preInboundLine
+     * @return
+     */
+    public InboundHeaderV2 createInboundHeaderV8(PreInboundHeaderEntityV2 preInboundHeader, List<PreInboundLineEntityV2> preInboundLine) throws Exception {
+        try {
+            InboundHeaderV2 inboundHeader = new InboundHeaderV2();
+            BeanUtils.copyProperties(preInboundHeader, inboundHeader, CommonUtils.getNullPropertyNames(preInboundHeader));
+            inboundHeader.setCountOfOrderLines((long) preInboundLine.size());       //count of lines
+//            return inboundHeaderV2Repository.save(inboundHeader);
+            return inboundHeader;
+        } catch (Exception e) {
+            log.error("Exception while InboundHeader Create : " + e.toString());
+            throw e;
+        }
+    }
+    /**
+     * @param preInboundHeader
+     * @param stagingNo
+     * @return
+     */
+    public StagingHeaderV2 createStagingHeaderV8(PreInboundHeaderEntityV2 preInboundHeader, String stagingNo) throws Exception {
+        try {
+            StagingHeaderV2 stagingHeader = new StagingHeaderV2();
+            BeanUtils.copyProperties(preInboundHeader, stagingHeader, CommonUtils.getNullPropertyNames(preInboundHeader));
+            stagingHeader.setStagingNo(stagingNo);
+            // GR_MTD
+            stagingHeader.setGrMtd("INTEGRATION");
+//            return stagingHeaderV2Repository.save(stagingHeader);
+
+            // Staging_Header
+            String orderText = "StagingHeader Created";
+            inboundOrderV2Repository.updateStagingHeader(stagingHeader.getInboundOrderTypeId(), stagingHeader.getRefDocNumber(), orderText);
+            log.info("Update Staging Header Update Successfully");
+
+            return stagingHeader;
+        } catch (Exception e) {
+            log.error("Exception while StagingHeader Create : " + e.toString());
+            throw e;
+        }
+    }
+    /**
+     * @param stagingHeader
+     * @param caseCode
+     * @param grNumber
+     * @param languageId
+     * @return
+     * @throws Exception
+     */
+    public GrHeaderV2 createGrHeaderV8(StagingHeaderV2 stagingHeader, String caseCode, String grNumber, String languageId) throws Exception {
+        try {
+            GrHeaderV2 grHeader = new GrHeaderV2();
+            BeanUtils.copyProperties(stagingHeader, grHeader, CommonUtils.getNullPropertyNames(stagingHeader));
+            grHeader.setCaseCode(caseCode);
+            grHeader.setPalletCode(caseCode);
+            grHeader.setGoodsReceiptNo(grNumber);
+            grHeader.setStatusId(16L);
+            grHeader.setStatusDescription(getStatusDescription(16L, languageId));
+//            GrHeaderV2 createdGrHeader = grHeaderV2Repository.save(grHeader);
+
+            // Staging_Header
+            String orderText = "GrHeader Created";
+            inboundOrderV2Repository.updateGrHeader(grHeader.getInboundOrderTypeId(), grHeader.getRefDocNumber(), orderText);
+            log.info("Update Staging Header Update Successfully");
+
+            return grHeader;
+        } catch (Exception e) {
+            log.error("Exception while GrHeader Create : " + e.toString());
+            throw e;
+        }
+    }
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param preInboundNo
+     * @param inboundIntegrationHeader
+     * @param inboundIntegrationLine
+     * @param MW_AMS
+     * @param description
+     * @param statusId
+     * @param statusDesc
+     * @return
+     * @throws Exception
+     */
+    public PreInboundLineEntityV2 createPreInboundLineV8(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                         String preInboundNo, InboundIntegrationHeader inboundIntegrationHeader,
+                                                         InboundIntegrationLine inboundIntegrationLine, String MW_AMS,
+                                                         IKeyValuePair description, Long statusId, String statusDesc) throws Exception {
+        try {
+            PreInboundLineEntityV2 preInboundLine = new PreInboundLineEntityV2();
+            BeanUtils.copyProperties(inboundIntegrationLine, preInboundLine, CommonUtils.getNullPropertyNames(inboundIntegrationLine));
+            preInboundLine.setLanguageId(languageId);
+            preInboundLine.setCompanyCode(companyCodeId);
+            preInboundLine.setPlantId(plantId);
+            preInboundLine.setWarehouseId(warehouseId);
+            preInboundLine.setRefDocNumber(inboundIntegrationHeader.getRefDocumentNo());
+            preInboundLine.setPreInboundNo(preInboundNo);
+            preInboundLine.setLineNo(inboundIntegrationLine.getLineReference());
+            preInboundLine.setInboundOrderTypeId(inboundIntegrationHeader.getInboundOrderTypeId());
+            preInboundLine.setItemDescription(inboundIntegrationLine.getItemText());
+            preInboundLine.setBusinessPartnerCode(inboundIntegrationLine.getSupplierCode());
+            preInboundLine.setOrderQty(inboundIntegrationLine.getOrderedQty());
+            preInboundLine.setOrderUom(inboundIntegrationLine.getUom());
+            preInboundLine.setStockTypeId(1L);
+            preInboundLine.setStockTypeDescription(getStockTypeDesc(companyCodeId, plantId, languageId, warehouseId, preInboundLine.getStockTypeId()));
+            preInboundLine.setSpecialStockIndicatorId(1L);
+            log.info("inboundIntegrationLine.getExpectedDate() : " + inboundIntegrationLine.getExpectedDate());
+            preInboundLine.setExpectedArrivalDate(inboundIntegrationLine.getExpectedDate());
+            preInboundLine.setReferenceField4(inboundIntegrationLine.getSalesOrderReference());
+            // Status ID - statusId changed to reduce one less step process and avoid deadlock while updating status
+            preInboundLine.setStatusId(statusId);
+            preInboundLine.setStatusDescription(statusDesc);
+            preInboundLine.setCompanyDescription(description.getCompanyDesc());
+            preInboundLine.setPlantDescription(description.getPlantDesc());
+            preInboundLine.setWarehouseDescription(description.getWarehouseDesc());
+            preInboundLine.setBrandName(inboundIntegrationLine.getBrand());
+            preInboundLine.setManufacturerCode(inboundIntegrationLine.getManufacturerName());
+            preInboundLine.setPartnerItemNo(inboundIntegrationLine.getSupplierCode());
+            preInboundLine.setContainerNo(inboundIntegrationLine.getContainerNumber());
+            preInboundLine.setReferenceDocumentType(inboundIntegrationHeader.getRefDocumentType());
+
+            preInboundLine.setDeletionIndicator(0L);
+            preInboundLine.setCreatedBy(MW_AMS);
+            preInboundLine.setCreatedOn(new Date());
+
+            log.info("preInboundLine : " + preInboundLine);
+            // IB_Order
+            String orderText = "Inbound Header Created";
+            inboundOrderV2Repository.updateIbHeader(preInboundLine.getInboundOrderTypeId(), preInboundLine.getRefDocNumber(), orderText);
+            log.info("Update Inbound Header Update Successfully");
+
+            return preInboundLine;
+        } catch (Exception e) {
+            log.error("PreInboundLine Create Exception: " + e.toString());
+            throw e;
+        }
+    }
+
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param refDocNumber
+     */
+    public void inboundOrderCancellationV4(String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber){
+
+        preInboundHeaderV2Repository.deletePreInboundHeaderV4(companyCodeId,plantId,languageId,warehouseId,refDocNumber);
+        log.info("PreInboundHeader Deleted Successfully ------> V4 <-----------------");
+
+        preInboundHeaderV2Repository.deletePreInboundLineV4(companyCodeId,plantId,languageId,warehouseId,refDocNumber);
+        log.info("PreInboundLine Deleted Successfully ------> V4 <-----------------");
+
+        preInboundHeaderV2Repository.deleteInboundHeaderV4(companyCodeId,plantId,languageId,warehouseId,refDocNumber);
+        log.info("InboundHeader Deleted Successfully ------> V4 <-----------------");
+
+        preInboundHeaderV2Repository.deleteInboundLineV4(companyCodeId,plantId,languageId,warehouseId,refDocNumber);
+        log.info("InboundLine Deleted Successfully ------> V4 <-----------------");
+
+        preInboundHeaderV2Repository.deleteStagingHeaderV4(companyCodeId,plantId,languageId,warehouseId,refDocNumber);
+        log.info("StagingHeader Deleted Successfully ------> V4 <-----------------");
+
+        preInboundHeaderV2Repository.deleteStagingLineV4(companyCodeId,plantId,languageId,warehouseId,refDocNumber);
+        log.info("StagingLine Deleted Successfully ------> V4 <-----------------");
+
+        preInboundHeaderV2Repository.deleteGrHeaderV4(companyCodeId,plantId,languageId,warehouseId,refDocNumber);
+        log.info("GrHeader Deleted Successfully ------> V4 <-----------------");
+
+        preInboundHeaderV2Repository.deleteGrLineV4(companyCodeId,plantId,languageId,warehouseId,refDocNumber);
+        log.info("GrLine Deleted Successfully ------> V4 <-----------------");
+
+        preInboundHeaderV2Repository.deletePutawayHeaderV4(companyCodeId,plantId,languageId,warehouseId,refDocNumber);
+        log.info("PutAwayHeader Deleted Successfully ------> V4 <-----------------");
+
+    }
+
+    /**
+     * @param companyId
+     * @param languageId
+     * @param plantId
+     * @param preInboundNo
+     * @param inboundIntegrationHeader
+     * @param warehouseId
+     * @param companyText
+     * @param plantText
+     * @param warehouseText
+     * @param mfrName
+     * @return
+     */
+    private PreInboundHeaderEntityV2 createPreInboundHeaderV6(String companyId, String languageId, String plantId, String preInboundNo, InboundIntegrationHeader inboundIntegrationHeader,
+                                                            String warehouseId, String companyText, String plantText, String warehouseText, String mfrName, String weight) {
+        try {
+            PreInboundHeaderEntityV2 preInboundHeader = new PreInboundHeaderEntityV2();
+            BeanUtils.copyProperties(inboundIntegrationHeader, preInboundHeader, CommonUtils.getNullPropertyNames(inboundIntegrationHeader));
+            preInboundHeader.setLanguageId(languageId);                                    // LANG_ID
+            preInboundHeader.setWarehouseId(warehouseId);
+            preInboundHeader.setCompanyCode(companyId);
+            preInboundHeader.setPlantId(plantId);
+            preInboundHeader.setRefDocNumber(inboundIntegrationHeader.getRefDocumentNo());
+            preInboundHeader.setPreInboundNo(preInboundNo);                                                // PRE_IB_NO
+            preInboundHeader.setReferenceDocumentType("Supplier Invoice");    // REF_DOC_TYP - Hard Coded Value "ASN"
+            preInboundHeader.setInboundOrderTypeId(inboundIntegrationHeader.getInboundOrderTypeId());    // IB_ORD_TYP_ID
+            preInboundHeader.setRefDocDate(new Date());                // REF_DOC_DATE
+            preInboundHeader.setTransferRequestType("Supplier Invoice");
+            preInboundHeader.setStatusId(5L);
+            statusDescription = repo.stagingLineV2Repository.getStatusDescription(5L, languageId);
+            preInboundHeader.setStatusDescription(statusDescription);
+            preInboundHeader.setCompanyDescription(companyText);
+            preInboundHeader.setPlantDescription(plantText);
+            preInboundHeader.setWarehouseDescription(warehouseText);
+            preInboundHeader.setMiddlewareId(String.valueOf(inboundIntegrationHeader.getMiddlewareId()));
+            preInboundHeader.setMiddlewareTable(inboundIntegrationHeader.getMiddlewareTable());
+            preInboundHeader.setManufacturerFullName(mfrName);
+            preInboundHeader.setReferenceField3(weight);      //weight
+
+            preInboundHeader.setTransferOrderDate(new Date());
+            preInboundHeader.setSourceBranchCode(inboundIntegrationHeader.getBranchCode());
+            preInboundHeader.setSourceCompanyCode(inboundIntegrationHeader.getCompanyCode());
+            preInboundHeader.setMUpdatedOn(inboundIntegrationHeader.getUpdatedOn());
+
+            preInboundHeader.setDeletionIndicator(0L);
+            preInboundHeader.setCreatedBy("MW_AMS");
+            preInboundHeader.setCreatedOn(new Date());
+
+            // IB_Order
+            String preInbound = "PreInbound Created";
+            inboundOrderV2Repository.updateIbOrder(preInboundHeader.getInboundOrderTypeId(), preInboundHeader.getRefDocNumber(), preInbound);
+            log.info("Update Inbound Order Update Successfully");
+            return preInboundHeader;
+        } catch (Exception e) {
+            log.info("PreInboundHeader Creation Failed -----------> " + e.getMessage());
+            throw new BadRequestException("PreInboundHeader Failed -----------------> " + e);
+        }
+    }
+
+    /**
+     * @param preInboundHeader
+     * @return
+     */
+    private InboundHeaderV2 createInboundHeaderV6(PreInboundHeaderEntityV2 preInboundHeader, int lineSize) throws Exception {
+        try {
+            InboundHeaderV2 inboundHeader = new InboundHeaderV2();
+            BeanUtils.copyProperties(preInboundHeader, inboundHeader, CommonUtils.getNullPropertyNames(preInboundHeader));
+            inboundHeader.setCountOfOrderLines((long) lineSize);       //count of lines
+            return inboundHeader;
+        } catch (Exception e) {
+            log.error("Exception while InboundHeader Create : " + e.toString());
+            throw e;
+        }
+    }
+
+
+    /**
+     * @param preInboundHeader
+     * @param stagingNo
+     * @return
+     */
+    public StagingHeaderV2 createStagingHeaderV6(PreInboundHeaderEntityV2 preInboundHeader, String stagingNo) throws Exception {
+        try {
+            StagingHeaderV2 stagingHeader = new StagingHeaderV2();
+            BeanUtils.copyProperties(preInboundHeader, stagingHeader, CommonUtils.getNullPropertyNames(preInboundHeader));
+            stagingHeader.setStagingNo(stagingNo);
+            stagingHeader.setGrMtd("INTEGRATION");
+            // Staging_Header
+            String orderText = "StagingHeader Created";
+            inboundOrderV2Repository.updateStagingHeader(stagingHeader.getInboundOrderTypeId(), stagingHeader.getRefDocNumber(), orderText);
+            log.info("Update Staging Header Update Successfully");
+            return stagingHeader;
+        } catch (Exception e) {
+            log.error("Exception while StagingHeader Create : " + e.toString());
+            throw e;
+        }
+    }
+
+    /**
+     * @param stagingHeader
+     * @param caseCode
+     * @param grNumber
+     * @return
+     * @throws Exception
+     */
+    public GrHeaderV2 createGrHeaderV6(StagingHeaderV2 stagingHeader, String caseCode, String grNumber) throws Exception {
+        try {
+            GrHeaderV2 grHeader = new GrHeaderV2();
+            BeanUtils.copyProperties(stagingHeader, grHeader, CommonUtils.getNullPropertyNames(stagingHeader));
+            grHeader.setCaseCode(caseCode);
+            grHeader.setPalletCode(caseCode);
+            grHeader.setGoodsReceiptNo(grNumber);
+            grHeader.setStatusId(16L);
+            grHeader.setStatusDescription(getStatusDescription(16L, grHeader.getLanguageId()));
+
+            // Staging_Header
+            String orderText = "GrHeader Created";
+            inboundOrderV2Repository.updateGrHeader(grHeader.getInboundOrderTypeId(), grHeader.getRefDocNumber(), orderText);
+            log.info("Update Staging Header Update Successfully");
+
+            return grHeader;
+        } catch (Exception e) {
+            log.error("Exception while GrHeader Create : " + e.toString());
+            throw e;
+        }
+    }
+
+    /**
+     *
+     * @param inboundIntegrationHeader
+     * @param inboundIntegrationLines
+     * @param preInboundHeader
+     * @param stagingHeader
+     * @param grHeaderV2
+     * @param partBarCode
+     * @param inboundOrderProcess
+     * @throws Exception
+     */
+    private void processSingleASNLineV6(InboundIntegrationHeader inboundIntegrationHeader, List<InboundIntegrationLine> inboundIntegrationLines, PreInboundHeaderEntityV2 preInboundHeader,
+                                      StagingHeaderV2 stagingHeader, GrHeaderV2 grHeaderV2, String partBarCode,InboundOrderProcess inboundOrderProcess) throws Exception {
+
+        String companyCode = preInboundHeader.getCompanyCode();
+        String plantId = preInboundHeader.getPlantId();
+        String warehouseId = preInboundHeader.getWarehouseId();
+        String languageId = preInboundHeader.getLanguageId();
+        String itemText = null;
+
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb("BP");
+
+        log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", DataBaseContextHolder.getCurrentDb());
+        List<ImBasicData1V2> imBasicData1List = new ArrayList<>();
+
+        for(InboundIntegrationLine inboundIntegrationLine : inboundIntegrationLines) {
+            ImBasicData1V2 imBasicData1 = imBasicData1V2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerPartNoAndDeletionIndicator(
+                    languageId, companyCode, plantId, warehouseId, inboundIntegrationLine.getItemCode(), inboundIntegrationLine.getManufacturerName(), 0L);
+
+            if (imBasicData1 == null) {
+                imBasicData1 = new ImBasicData1V2();
+                imBasicData1.setLanguageId(languageId);
+                imBasicData1.setWarehouseId(warehouseId);
+                imBasicData1.setCompanyCodeId(companyCode);
+                imBasicData1.setPlantId(plantId);
+                imBasicData1.setItemCode(inboundIntegrationLine.getItemCode());
+                imBasicData1.setUomId(inboundIntegrationLine.getUom());
+                imBasicData1.setDescription(inboundIntegrationLine.getItemText());
+                imBasicData1.setManufacturerPartNo(inboundIntegrationLine.getManufacturerName());
+                imBasicData1.setManufacturerName(inboundIntegrationLine.getManufacturerName());
+                imBasicData1.setCapacityCheck(false);
+                imBasicData1.setDeletionIndicator(0L);
+                imBasicData1.setStatusId(1L);
+                imBasicData1.setReferenceField3(inboundIntegrationLine.getMiddlewareTable());        // weight
+                imBasicData1.setReferenceField10(inboundIntegrationLine.getAMSSupplierInvoiceNo());  // unit type
+                imBasicData1.setCompanyDescription(preInboundHeader.getCompanyDescription());
+                imBasicData1.setPlantDescription(preInboundHeader.getPlantDescription());
+                imBasicData1.setWarehouseDescription(preInboundHeader.getWarehouseDescription());
+                imBasicData1List.add(imBasicData1);
+            }
+        }
+
+        List<PreInboundLineEntityV2> overallCreatedPreInboundLineList = new ArrayList<>();
+        ExecutorService executor = Executors.newFixedThreadPool(8);
+        List<Future<PreInboundLineEntityV2>> futures = new ArrayList<>();
+
+        Long lineNumber = 1L;
+        for (InboundIntegrationLine line : inboundIntegrationLines) {
+            Long finalLineNumber = lineNumber;
+            futures.add(executor.submit(() -> {
+                return createPreInboundLineV6(companyCode, plantId, languageId, warehouseId, preInboundHeader.getPreInboundNo(),
+                        inboundIntegrationHeader, line,preInboundHeader.getCompanyDescription(),preInboundHeader.getPlantDescription(),preInboundHeader.getWarehouseDescription(),partBarCode,itemText, finalLineNumber);
+            }));
+            lineNumber++;
+        }
+
+        List<PreInboundLineEntityV2> finalToBeCreatedPreInboundLineList = new ArrayList<>();
+        for (Future<PreInboundLineEntityV2> future : futures) {
+            try {
+                finalToBeCreatedPreInboundLineList.add(future.get());
+            } catch (Exception e) {
+                log.error("Exception in thread: ", e);
+            }
+        }
+        executor.shutdown();
+
+        if (!finalToBeCreatedPreInboundLineList.isEmpty()) {
+            log.info("createdPreInboundLine [API] : " + finalToBeCreatedPreInboundLineList);
+            overallCreatedPreInboundLineList.addAll(finalToBeCreatedPreInboundLineList);
+            imBasicData1V2Repository.saveAll(imBasicData1List);
+        }
+        inboundOrderProcess.setPreInboundLines(overallCreatedPreInboundLineList);
+
+        if (inboundIntegrationHeader.getInboundOrderTypeId().equals(1L)){
+            List<InboundLineV2> inboundLines = overallCreatedPreInboundLineList.stream().map(preInboundLine -> {
+                InboundLineV2 inboundLine = new InboundLineV2();
+                BeanUtils.copyProperties(preInboundLine, inboundLine, CommonUtils.getNullPropertyNames(preInboundLine));
+                inboundLine.setDescription(preInboundLine.getItemDescription());
+                inboundLine.setStatusId(17L);
+                inboundLine.setBarcodeId(preInboundLine.getBarcodeId());
+                log.info("Description ------> {}", inboundLine.getDescription());
+                return inboundLine;
+            }).collect(Collectors.toList());
+            inboundOrderProcess.setInboundLines(inboundLines);
+
+            statusDescription = getStatusDescription(14L, languageId);
+            List<StagingLineEntityV2> stagingLines = overallCreatedPreInboundLineList.stream().map(preInboundLine -> {
+                StagingLineEntityV2 stagingLine = new StagingLineEntityV2();
+                BeanUtils.copyProperties(preInboundLine, stagingLine, CommonUtils.getNullPropertyNames(preInboundLine));
+                stagingLine.setStagingNo(stagingHeader.getStagingNo());
+                stagingLine.setCaseCode(grHeaderV2.getCaseCode());
+                stagingLine.setPalletCode(grHeaderV2.getCaseCode());
+                stagingLine.setPartner_item_barcode(preInboundLine.getBarcodeId());
+                stagingLine.setBarcodeId(preInboundLine.getBarcodeId());
+                stagingLine.setStatusId(14L);
+                stagingLine.setStatusDescription(statusDescription);
+                stagingLine.setGoodsReceiptNo(grHeaderV2.getGoodsReceiptNo());
+                return stagingLine;
+            }).collect(Collectors.toList());
+            inboundOrderProcess.setStagingLines(stagingLines);
+        }
+        
+
+    }
+
+    /**
+     * @param companyCode
+     * @param plantId
+     * @param languageId
+     * @param preInboundNo
+     * @param inboundIntegrationHeader
+     * @param inboundIntegrationLine
+     * @param warehouseId
+     * @param companyText
+     * @param plantText
+     * @param warehouseText
+     * @param partBarCode
+     * @param itemText
+     * @return
+     */
+    private PreInboundLineEntityV2 createPreInboundLineV6(String companyCode, String plantId, String languageId,String warehouseId, String preInboundNo, InboundIntegrationHeader inboundIntegrationHeader,
+                                                          InboundIntegrationLine inboundIntegrationLine,  String companyText, String plantText, String warehouseText,
+                                                        String partBarCode, String itemText, Long lineNumber) {
+
+        PreInboundLineEntityV2 preInboundLine = new PreInboundLineEntityV2();
+
+        String barcodeId = generateBarCodeId(inboundIntegrationLine.getItemCode(), partBarCode);
+
+        preInboundLine.setLanguageId(languageId);
+        preInboundLine.setCompanyCode(companyCode);
+        preInboundLine.setPlantId(plantId);
+        preInboundLine.setWarehouseId(warehouseId);
+        preInboundLine.setRefDocNumber(inboundIntegrationHeader.getRefDocumentNo());
+        preInboundLine.setInboundOrderTypeId(inboundIntegrationHeader.getInboundOrderTypeId());
+        preInboundLine.setBarcodeId(barcodeId + lineNumber);
+        preInboundLine.setTransferRequestType("Supplier Invoice");
+        // PRE_IB_NO
+        preInboundLine.setPreInboundNo(preInboundNo);
+        // IB__LINE_NO
+        preInboundLine.setLineNo(lineNumber);
+        // ITM_CODE
+        preInboundLine.setItemCode(inboundIntegrationLine.getItemCode());
+
+        preInboundLine.setItemDescription(inboundIntegrationLine.getItemText());
+        // MFR_PART
+        preInboundLine.setManufacturerPartNo(inboundIntegrationLine.getManufacturerName());
+        // PARTNER_CODE
+        preInboundLine.setBusinessPartnerCode(inboundIntegrationLine.getSupplierCode());
+        // ORD_QTY
+        preInboundLine.setOrderQty(inboundIntegrationLine.getOrderedQty());
+        // ORD_UOM
+        preInboundLine.setOrderUom(inboundIntegrationLine.getUom());
+        // STCK_TYP_ID
+        preInboundLine.setStockTypeId(1L);
+        // SP_ST_IND_ID
+        preInboundLine.setSpecialStockIndicatorId(1L);
+
+        // EA_DATE
+        log.info("inboundIntegrationLine.getExpectedDate() : " + inboundIntegrationLine.getExpectedDate());
+        preInboundLine.setExpectedArrivalDate(getExpectedDate(String.valueOf(inboundIntegrationLine.getExpectedDate())));
+        // ITM_CASE_QTY
+        preInboundLine.setItemCaseQty(inboundIntegrationLine.getItemCaseQty());
+        preInboundLine.setStatusId(5L);
+        statusDescription = stagingLineV2Repository.getStatusDescription(5L, languageId);
+        preInboundLine.setStatusDescription(statusDescription);
+
+        preInboundLine.setCompanyDescription(companyText);
+        preInboundLine.setPlantDescription(plantText);
+        preInboundLine.setWarehouseDescription(warehouseText);
+        preInboundLine.setOrigin(inboundIntegrationLine.getOrigin());
+        preInboundLine.setBrandName(inboundIntegrationLine.getBrand());
+        preInboundLine.setManufacturerCode(inboundIntegrationLine.getManufacturerName());
+        preInboundLine.setManufacturerName(inboundIntegrationLine.getManufacturerName());
+        preInboundLine.setPartnerItemNo(inboundIntegrationLine.getSupplierCode());
+        preInboundLine.setContainerNo(inboundIntegrationLine.getContainerNumber());
+        preInboundLine.setSupplierName(inboundIntegrationLine.getSupplierName());
+
+        preInboundLine.setMiddlewareId(String.valueOf(inboundIntegrationLine.getMiddlewareId()));
+        preInboundLine.setMiddlewareHeaderId(String.valueOf(inboundIntegrationLine.getMiddlewareHeaderId()));
+//        preInboundLine.setMiddlewareTable(asnLineV2.getMiddlewareTable());
+        preInboundLine.setPurchaseOrderNumber(inboundIntegrationLine.getPurchaseOrderNumber());
+        preInboundLine.setReferenceDocumentType("Supplier Invoice");
+        preInboundLine.setManufacturerFullName(inboundIntegrationLine.getManufacturerFullName());
+        preInboundLine.setReferenceField3(inboundIntegrationLine.getMiddlewareTable());    //weight
+
+        preInboundLine.setBranchCode(inboundIntegrationLine.getBranchCode());
+        preInboundLine.setTransferOrderNo(inboundIntegrationHeader.getRefDocumentNo());
+        preInboundLine.setIsCompleted(inboundIntegrationLine.getIsCompleted());
+        preInboundLine.setReferenceField10(inboundIntegrationLine.getAMSSupplierInvoiceNo()); //unit type
+
+        preInboundLine.setDeletionIndicator(0L);
+        preInboundLine.setCreatedBy("MW_AMS");
+        preInboundLine.setCreatedOn(new Date());
+
+        log.info("preInboundLine : " + preInboundLine);
+        return preInboundLine;
+    }
+
 }

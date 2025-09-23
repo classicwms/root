@@ -65,10 +65,38 @@ public class ASNLineV2 {
     private String manufacturerFullName;
     private String purchaseOrderNumber;
     private String supplierInvoiceNo;
+    private String noPairs;
 
     //MiddleWare Fields
     private Long middlewareId;
     private Long middlewareHeaderId;
     private String middlewareTable;
 
+    private Double noBags;
+    private Double bagSize;
+
+    /*------------------------Namratha Fields -------------------------------*/
+    private String inwardDate;
+    private Double expectedQtyInPieces;
+    private Double expectedQtyInCases;
+    private String unloadingIncharge;
+    private Long totalUnLoaders;
+    private String barcodeId;
+
+    /*----------------Walkaroo changes------------------------------------------------------*/
+    private String materialNo;
+    private String priceSegment;
+    private String articleNo;
+    private String gender;
+    private String color;
+    private String size;
+    /*----------------------Impex--------------------------------------------------*/
+    private String alternateUom;
+    private Double mrp;
+    private String vehicleNo;
+    private Date vehicleReportingDate;
+    private Date vehicleUnloadingDate;
+
+    /*-----------------------------BP----------------------------------------*/
+    private String unitType;
 }

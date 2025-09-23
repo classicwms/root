@@ -302,4 +302,18 @@ public interface PreOutboundHeaderV2Repository extends JpaRepository<PreOutbound
 
     void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
             String companyCodeId, String plantId, String warehouseId, String refDocNumber, Long deletionIndicator);
+
+
+    @Query(value = "select * from tblpreoutboundheader where is_deleted = 0 and C_ID = :companyCodeId and PLANT_ID = :plantId and " +
+            " WH_ID = :warehouseId and PRE_OB_NO = :preOutboundNo and REF_DOC_NO = :refDocNumber ",nativeQuery = true)
+    PreOutboundHeaderV2 getPreOutboundHeader(@Param("companyCodeId") String companyCodeId,
+                                             @Param("plantId") String plantId,
+                                             @Param("warehouseId") String warehouseId,
+                                             @Param("preOutboundNo") String preOutboundNo,
+                                             @Param("refDocNumber") String refDocNumber);
+
+    Optional<PreOutboundHeaderV2> findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+            String languageId, String plantId, String  companyCodeId, String warehouseId, String refDocNumber, String preOutboundNo, Long deletionIndicator);
+
+
 }

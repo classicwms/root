@@ -384,7 +384,28 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
                                      @Param("proposedStorageBin") String proposedStorageBin,        //26_02_2025_update uniqueOrderManagementLine stBin added
                                      @Param("updatedOn") Date updatedOn);
 
-
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE OrderManagementLineV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription, ob.pickupUpdatedOn = :updatedOn, ob.pickupUpdatedBy = :pickupUpdatedBy, \r\n"
+            + " ob.assignedPickerId = :assignedPickerId, ob.pickupNumber = :pickupNumber \r\n "
+            + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND \r\n "
+            + " ob.partnerCode = :partnerCode AND ob.itemCode = :itemCode AND  ob.proposedStorageBin = :proposedStorageBin AND \r\n "   //26_02_2025_update uniqueOrderManagementLine stBin added
+            + " ob.refDocNumber = :refDocNumber AND ob.preOutboundNo = :preOutboundNo AND ob.lineNumber = :lineNumber")
+    void updateOrderManagementLineV8(@Param("companyCodeId") String companyCodeId,
+                                     @Param("plantId") String plantId,
+                                     @Param("languageId") String languageId,
+                                     @Param("warehouseId") String warehouseId,
+                                     @Param("preOutboundNo") String preOutboundNo,
+                                     @Param("refDocNumber") String refDocNumber,
+                                     @Param("partnerCode") String partnerCode,
+                                     @Param("lineNumber") Long lineNumber,
+                                     @Param("itemCode") String itemCode,
+                                     @Param("statusId") Long statusId,
+                                     @Param("statusDescription") String statusDescription,
+                                     @Param("assignedPickerId") String assignedPickerId,
+                                     @Param("pickupNumber") String pickupNumber,
+                                     @Param("pickupUpdatedBy") String pickupUpdatedBy,
+                                     @Param("proposedStorageBin") String proposedStorageBin,        //26_02_2025_update uniqueOrderManagementLine stBin added
+                                     @Param("updatedOn") Date updatedOn);
     @Query(value = "SELECT * FROM tblordermangementline WHERE " +
             "C_ID = ?1 AND PLANT_ID = ?2 AND LANG_ID = ?3 AND WH_ID = ?4 AND PRE_OB_NO = ?5 AND REF_DOC_NO = ?6 AND " +
             "PARTNER_CODE = ?7 AND OB_LINE_NO = ?8 AND ITM_CODE = ?9 AND PROP_ST_BIN = ?10 AND PROP_PACK_BARCODE = ?11 AND IS_DELETED = ?12",
@@ -474,7 +495,8 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
             "AND prop_st_bin = :proposedStorageBin " +
             "AND prop_pack_barcode = :proposedPackCode " +
             "AND partner_item_barcode = :barcodeId " +
-            "AND is_deleted = 0", nativeQuery = true)
+            "AND is_deleted = 0 " +
+            "AND status_id <> 48", nativeQuery = true)
     OrderManagementLineV2 findOrderManagementLineV7(
             @Param("companyCodeId") String companyCodeId,
             @Param("plantId") String plantId,
@@ -518,6 +540,17 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
                                             @Param("manufacturerName") String manufacturerName,
                                             @Param("statusId") List<Long> statusId,
                                             @Param("preOutboundNo") String preOutboundNo);
+
+    @Modifying
+    @Query(value = "UPDATE tblordermangementline set STATUS_ID = :statusId, STATUS_TEXT = :statusText \n " +
+            "WHERE C_ID = :companyId AND PLANT_ID = :plantId and WH_ID = :warehouseId AND partner_item_barcode = :barcodeId \n " +
+            "AND is_deleted = 0", nativeQuery = true)
+    void updatePickerDenialStatus(@Param("companyId") String companyId,
+                                  @Param("plantId") String plantId,
+                                  @Param("warehouseId") String warehouseId,
+                                  @Param("barcodeId") String barcodeId,
+                                  @Param("statusId") Long statusId,
+                                  @Param("statusText") String statusText);
 
     //-------------------------------Fahaheel------------------------------------------------------//
 

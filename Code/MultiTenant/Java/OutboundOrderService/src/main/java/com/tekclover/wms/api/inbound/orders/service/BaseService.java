@@ -40,10 +40,12 @@ public class BaseService {
     //V2
     protected static final String WAREHOUSE_ID_100 = "100";
     protected static final String WAREHOUSE_ID_200 = "200";
+    protected static final String WAREHOUSE_ID_300 = "300";
     protected static final Long FAILED_PROCESS_STATUS_ID = 100L;
 
     protected static final String COMPANY_CODE = "1001";        //Indus mega food company code
     protected static final String MFR_NAME_V4 = "NAMRATHA";              //Walkaroo Mfr code
+    protected static final String MFR_NAME_V6 = "BP";
     @Autowired
     protected IDMasterService idmasterService;
 

@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.inbound.orders.service;
 
 
+import com.tekclover.wms.api.inbound.orders.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.inbound.orders.controller.BadRequestException;
 import com.tekclover.wms.api.inbound.orders.controller.InboundOrderRequestException;
 import com.tekclover.wms.api.inbound.orders.model.warehouse.Warehouse;
@@ -243,7 +244,7 @@ public class WarehouseService extends BaseService {
             List<ASNLineV2> asnLineV2s = asnv2.getAsnLine();
 
             //validateBarcodeIds
-            huSerialValidation(asnLineV2s, asnV2Header.getAsnNumber());
+//            huSerialValidation(asnLineV2s, asnV2Header.getAsnNumber());
 
             InboundOrderV2 apiHeader = new InboundOrderV2();
             BeanUtils.copyProperties(asnV2Header, apiHeader, CommonUtils.getNullPropertyNames(asnV2Header));

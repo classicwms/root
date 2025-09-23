@@ -89,4 +89,13 @@ public interface PreInboundLineV2Repository extends JpaRepository<PreInboundLine
             @Param("updatedBy") String updatedBy,
             @Param("updatedOn") Date updatedOn
     );
+
+    @Query(value = "select * from tblpreinboundline where c_id = :companyCodeId and plant_id = :plantId and lang_id = :languageId and " +
+            " wh_id = :warehouseId and PRE_IB_NO = :preInboundNo and REF_DOC_NO = :refDocNumber and IS_DELETED = 0 ",nativeQuery = true)
+    public List<PreInboundLineEntityV2> getPreInboundLineV6(@Param("companyCodeId") String companyCode,
+                                                            @Param("plantId") String plantId,
+                                                            @Param("languageId") String languageId,
+                                                            @Param("warehouseId") String warehouseId,
+                                                            @Param("preInboundNo") String preInboundNo,
+                                                            @Param("refDocNumber") String refDocNumber);
 }

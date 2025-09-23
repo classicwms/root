@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.inbound.orders.service;
 
+import com.tekclover.wms.api.inbound.orders.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.inbound.orders.model.dto.InboundOrderProcess;
 import com.tekclover.wms.api.inbound.orders.model.inbound.preinbound.InboundIntegrationHeader;
 import com.tekclover.wms.api.inbound.orders.model.inbound.preinbound.InboundIntegrationLog;
@@ -59,6 +60,9 @@ public class OrderProcessingService extends BaseService {
 
     @Autowired
     ImPartnerRepository imPartnerRepository;
+
+    @Autowired
+    DbConfigRepository dbConfigRepository;
     //========================================================================V2====================================================================
 
     /**

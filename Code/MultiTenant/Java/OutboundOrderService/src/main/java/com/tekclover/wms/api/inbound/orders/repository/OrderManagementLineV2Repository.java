@@ -72,6 +72,8 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
             String companyCodeId, String plantId, String languageId, String warehouseId, String itemCode,
             String manufacturerName, List<Long> statusIdList, Long deletionIndicator);
 
+    boolean existsByBarcodeIdAndStatusIdInAndDeletionIndicator(String barcodeId, List<Long> statusId, Long deletionIndicator);
+
     @Modifying(clearAutomatically = true)
     @Query("UPDATE OrderManagementLineV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription \n" +
             "WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId \n" +
@@ -408,4 +410,20 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
 
     List<OrderManagementLineV2> findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo, Long deletionIndicator);
+
+
+    //count
+    @Query(value = "select count(*) from tblordermangementline where is_deleted = 0 and c_id = :companyCodeId and plant_id = :plantId and " +
+            " lang_id = :languageId and wh_id = :warehouseId " +
+            " and partner_item_barcode = :barcodeId and itm_code = :itemCode and status_id in (42,43,48) ",nativeQuery = true)
+    public Long getCount(@Param("companyCodeId") String companyCodeId,
+                         @Param("plantId") String plantId,
+                         @Param("languageId") String languageId,
+                         @Param("warehouseId") String warehouseId,
+                         @Param("barcodeId") String barcodeId,
+                         @Param("itemCode") String itemCode);
+
+
+    List<OrderManagementLineV2> findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndStatusIdNotInAndDeletionIndicator(
+            String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber, String preOutboundNo, List<Long> statusIds, Long deletionIndicator);
 }
