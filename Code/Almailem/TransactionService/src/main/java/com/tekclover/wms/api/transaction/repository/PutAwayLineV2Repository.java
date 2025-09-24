@@ -209,4 +209,23 @@ PutAwayLineV2 findTopByCompanyCodeAndPlantIdAndWarehouseIdAndLanguageIdAndItemCo
 List<PutAwayLineV2> findByCompanyCodeAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndItemCodeAndManufacturerNameAndLineNoAndStatusIdInAndDeletionIndicator(
 		String companyCode, String languageId, String plantId, String warehouseId, String refDocNumber,
 		String preInboundNo, String itemCode, String manufacturerName, Long lineNumber, Long[] statusIds, long l);
+
+
+    @Modifying
+    @Query(value = "UPDATE tblinboundheader SET received_lines = (SELECT COUNT(lineCount) FROM \n" +
+            "(SELECT COUNT(IB_LINE_NO) AS lineCount FROM tblputawayline \n" +
+            "WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId \n" +
+            "AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber \n" +
+            "AND PRE_IB_NO = :preInboundNo AND IS_DELETED = 0 AND STATUS_ID IN (20,24) \n" +
+            "GROUP BY IB_LINE_NO, REF_DOC_NO, PRE_IB_NO, PLANT_ID, WH_ID, C_ID) x) \n" +
+            "WHERE IS_DELETED = 0 AND C_ID = :companyCodeId AND PLANT_ID = :plantId \n" +
+            "AND LANG_ID = :languageId AND WH_ID = :warehouseId \n" +
+            "AND REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo ", nativeQuery = true)
+    void updateInboundHeaderReceivedLines(@Param("companyCodeId") String companyCodeId,
+                                          @Param("plantId") String plantId,
+                                          @Param("languageId") String languageId,
+                                          @Param("warehouseId") String warehouseId,
+                                          @Param("refDocNumber") String refDocNumber,
+                                          @Param("preInboundNo") String preInboundNo);
+
 }

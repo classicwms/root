@@ -1786,9 +1786,12 @@ public class PutAwayLineService extends BaseService {
 					log.info("Putaway Line already exist : " + existingPutAwayLine);
 				}
 			}
-			putAwayLineV2Repository.updateInboundHeaderRxdLinesCountProc(companyCode, plantId, languageId, warehouseId,
-					refDocNumber, preInboundNo);
+            putAwayLineV2Repository.updateInboundHeaderReceivedLines(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
             log.info("InboundHeader received lines count updated: " + refDocNumber);
+
+//			putAwayLineV2Repository.updateInboundHeaderRxdLinesCountProc(companyCode, plantId, languageId, warehouseId,
+//					refDocNumber, preInboundNo);
+//            log.info("InboundHeader received lines count updated: " + refDocNumber);
             return createdPutAwayLines;
         } catch (Exception e) {
             e.printStackTrace();

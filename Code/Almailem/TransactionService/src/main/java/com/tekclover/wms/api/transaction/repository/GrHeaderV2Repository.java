@@ -131,4 +131,46 @@ public interface GrHeaderV2Repository extends JpaRepository<GrHeaderV2, Long>, J
             @Param("statusDescription") String statusDescription,
             @Param("updatedBy") String updatedBy,
             @Param("updatedOn") Date updatedOn);
+
+    @Modifying
+    @Query(value = "UPDATE tblgrheader SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, \n" +
+            "GR_UTD_ON = :updatedOn, GR_CNF_ON = :updatedOn \n" +
+            "WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId \n" +
+            "AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber \n" +
+            "AND PRE_IB_NO = :preInboundNo AND IS_DELETED = 0 \n" +
+            "AND ((SELECT COUNT(1) FROM tblstagingline \n" +
+            "WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId \n" +
+            "AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber \n" +
+            "AND PRE_IB_NO = :preInboundNo AND IS_DELETED = 0) = \n" +
+            "(SELECT COUNT(1) FROM (SELECT REF_DOC_NO FROM TBLGRLINE \n" +
+            "WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId \n" +
+            "AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber \n" +
+            "AND PRE_IB_NO = :preInboundNo AND IS_DELETED = 0 \n" +
+            "GROUP BY IB_LINE_NO, ITM_CODE, MFR_NAME, REF_DOC_NO, ORD_QTY \n" +
+            "HAVING SUM(GR_QTY) = ORD_QTY) X))", nativeQuery = true)
+    void updateGrHeader(@Param("statusId") Long statusId,
+                        @Param("statusDescription") String statusDescription,
+                        @Param("companyCodeId") String companyCodeId,
+                        @Param("plantId") String plantId,
+                        @Param("languageId") String languageId,
+                        @Param("warehouseId") String warehouseId,
+                        @Param("refDocNumber") String refDocNumber,
+                        @Param("preInboundNo") String preInboundNo,
+                        @Param("updatedOn") Date updatedOn);
+
+    @Modifying
+    @Query(value = "UPDATE tblgrheader SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, " +
+            "GR_CNF_BY = :updatedBy, GR_CNF_ON = :updatedOn " +
+            "WHERE IS_DELETED = 0 AND C_ID = :companyCodeId AND PLANT_ID = :plantId " +
+            "AND LANG_ID = :languageId AND WH_ID = :warehouseId " +
+            "AND REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo " +
+            "AND (select count(*) from tblinboundline where ref_doc_no = :refDocNumber and PRE_IB_NO = :preInboundNo) = " +
+            "(select count(*) from tblinboundline where ref_doc_no = :refDocNumber and PRE_IB_NO = :preInboundNo and status_id = 24)", nativeQuery = true)
+    void updateGrHeader(@Param("statusId") Long statusId, @Param("statusDescription") String statusDescription,
+                        @Param("updatedBy") String updatedBy, @Param("updatedOn") Date updatedOn,
+                        @Param("companyCodeId") String companyCodeId, @Param("plantId") String plantId,
+                        @Param("languageId") String languageId, @Param("warehouseId") String warehouseId,
+                        @Param("refDocNumber") String refDocNumber, @Param("preInboundNo") String preInboundNo);
+
+
 }
