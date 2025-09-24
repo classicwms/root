@@ -283,35 +283,7 @@ public class OutboundOrderController {
             DataBaseContextHolder.clear();
         }
     }
-
-    @ApiOperation(response = StockAdjustment.class, value = "Create StockAdjustment") //label for Swagger
-    @PostMapping("/stockAdjustment")
-    public ResponseEntity<?> createStockAdjustment(@Valid @RequestBody StockAdjustment stockAdjustment)
-            throws IllegalAccessException, InvocationTargetException {
-        try {
-            log.info("stockAdjustment Input from Connector Fahaheel -----> {}", stockAdjustment);
-            DataBaseContextHolder.setCurrentDb("MT");
-            String routingDb = dbConfigRepository.getDbName(stockAdjustment.getCompanyCode(), stockAdjustment.getBranchCode(), "300");
-            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-            DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb(routingDb);
-            com.tekclover.wms.api.inbound.orders.model.cyclecount.stockadjustment.StockAdjustment createdStockAdjustment = salesOrderService.postStockAdjustment(stockAdjustment);
-            if (createdStockAdjustment != null) {
-                WarehouseApiResponse response = new WarehouseApiResponse();
-                response.setStatusCode("200");
-                response.setMessage("Success");
-                return new ResponseEntity<>(response, HttpStatus.OK);
-            }
-        } catch (Exception e) {
-            log.info("StockAdjustment order Error: " + stockAdjustment);
-            e.printStackTrace();
-            WarehouseApiResponse response = new WarehouseApiResponse();
-            response.setStatusCode("1400");
-            response.setMessage("Not Success: " + e.getLocalizedMessage());
-            return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
-        }
-        return null;
-    }
+    
     
     //------------------------------------------------FG----------------------------------------------------------------
 
