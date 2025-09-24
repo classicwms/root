@@ -1764,17 +1764,29 @@ public class GrLineService extends BaseService {
 							+ "|" + preInboundNo + "|" + createdGRLine.getLineNo() + "|" + createdGRLine.getItemCode()
 							+ "|" + createdGRLine.getManufacturerName());
 					
-					stagingLineV2Repository.updateStagingLineUpdateNewProc(companyCode, plantId, languageId,
-							warehouseId, refDocNumber, preInboundNo, createdGRLine.getLineNo(),
-							createdGRLine.getItemCode(), createdGRLine.getManufacturerName(), new Date());
-					log.info("stagingLine Status updated using Stored Procedure ");
+//					stagingLineV2Repository.updateStagingLineUpdateNewProc(companyCode, plantId, languageId,
+//							warehouseId, refDocNumber, preInboundNo, createdGRLine.getLineNo(),
+//							createdGRLine.getItemCode(), createdGRLine.getManufacturerName(), new Date());
+//					log.info("stagingLine Status updated using Stored Procedure ");
 
-					// Update InboundLine using Stored Procedure
-					inboundLineV2Repository.updateInboundLineStatusUpdateNewProc(companyCode, plantId, languageId,
-							warehouseId, refDocNumber, preInboundNo, createdGRLine.getLineNo(),
-							createdGRLine.getItemCode(), createdGRLine.getManufacturerName(), 17L, statusDescription,
-							new Date());
-					log.info("inboundLine Status updated using Stored Procedure ");
+                    stagingLineV2Repository.updateAcceptAndDamageQty(new Date(), companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo,
+                            createdGRLine.getLineNo(), createdGRLine.getItemCode(), createdGRLine.getManufacturerName());
+                    log.info("StagingLine Qty's Updated Successfully --------------------------> ");
+
+
+                    stagingLineV2Repository.updateStaingLineStatus(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo,
+                            createdGRLine.getLineNo(), createdGRLine.getItemCode(), createdGRLine.getManufacturerName());
+                    log.info("StagingLine Status Updated Successfully ----------------> StatusId is ---> " + createdGRLine.getStatusId());
+
+
+                    //Update InboundLine using Stored Procedure
+//                    inboundLineV2Repository.updateInboundLineStatusUpdateNewProc(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo,
+//                            createdGRLine.getLineNo(), createdGRLine.getItemCode(), createdGRLine.getManufacturerName(), 17L, statusDescription, new Date());
+//                    log.info("inboundLine Status updated using Stored Procedure ");
+
+                    inboundLineV2Repository.updateInboundLineStatus(createdGRLine.getStatusId(), createdGRLine.getStatusDescription(), companyCode, plantId,
+                            languageId, warehouseId, refDocNumber, preInboundNo, createdGRLine.getItemCode(), createdGRLine.getManufacturerName(), createdGRLine.getLineNo());
+                    log.info("InboundLine Status Updated Successfully ----------------> StatusId is ---> " + createdGRLine.getStatusId());
 				}
 				log.info("Records were inserted successfully...");
 			}
@@ -1782,9 +1794,11 @@ public class GrLineService extends BaseService {
 			// Update GrHeader using stored Procedure
 			statusDescription = stagingLineV2Repository.getStatusDescription(17L,
 					createdGRLines.get(0).getLanguageId());
-			grHeaderV2Repository.updateGrheaderStatusUpdateProc(companyCode, plantId, languageId, warehouseId,
-					refDocNumber, preInboundNo, goodsReceiptNo, 17L, statusDescription, new Date());
-			log.info("GrHeader Status 17 Updating Using Stored Procedure when condition met");
+//			grHeaderV2Repository.updateGrheaderStatusUpdateProc(companyCode, plantId, languageId, warehouseId,
+//					refDocNumber, preInboundNo, goodsReceiptNo, 17L, statusDescription, new Date());
+//            log.info("GrHeader Status 17 Updating Using Stored Procedure when condition met");
+            grHeaderV2Repository.updateGrHeader(17L, statusDescription, companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, new Date());
+			log.info("GrHeader Status Updated ----------------------------> StatusId is 17");
 			return createdGRLines;
 		} catch (Exception e) {
 			// Exception Log
@@ -1840,7 +1854,6 @@ public class GrLineService extends BaseService {
 			});
 		}
 	}
-
 
     /**
      * 

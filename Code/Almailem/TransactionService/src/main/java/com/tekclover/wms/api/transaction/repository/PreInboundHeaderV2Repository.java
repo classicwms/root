@@ -112,23 +112,15 @@ public interface PreInboundHeaderV2Repository extends JpaRepository<PreInboundHe
             @Param("updatedOn") Date updatedOn
     );
     
-    //-------------------------Added-By--Muru------------------------------------------------------------------------
-    @Modifying(clearAutomatically = true)
-    @Query(value = "UPDATE tblpreinboundheader\r\n"
-    		+ "	SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, \r\n"
-    		+ "	UTD_BY = :updatedBy, UTD_ON = :updatedOn\r\n"
-    		+ "	WHERE IS_DELETED = 0 AND \r\n"
-    		+ "			C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId AND \r\n"
-    		+ "			REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo", nativeQuery = true)
-    void updatePreInboundHeaderStatusOnPartialConfirmation(
-    		@Param("companyCodeId") String companyCode,
-            @Param("plantId") String plantId,
-            @Param("languageId") String languageId,
-            @Param("warehouseId") String warehouseId,
-            @Param("refDocNumber") String refDocNumber,
-            @Param("preInboundNo") String preInboundNo,
-            @Param("statusId") Long statusId,
-            @Param("statusDescription") String statusDescription,
-            @Param("updatedBy") String updatedBy,
-            @Param("updatedOn") Date updatedOn);
+    @Modifying
+    @Query(value = "UPDATE tblpreinboundheader SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, \n" +
+            "UTD_BY = :updatedBy, UTD_ON = :updatedOn \n" +
+            "WHERE IS_DELETED = 0 AND C_ID = :companyCodeId AND PLANT_ID = :plantId \n" +
+            "AND LANG_ID = :languageId AND WH_ID = :warehouseId \n" +
+            "AND REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo", nativeQuery = true)
+    void updatePreInboundHeader(@Param("statusId") Long statusId, @Param("statusDescription") String statusDescription,
+                                @Param("updatedBy") String updatedBy, @Param("updatedOn") Date updatedOn,
+                                @Param("companyCodeId") String companyCodeId, @Param("plantId") String plantId,
+                                @Param("languageId") String languageId, @Param("warehouseId") String warehouseId,
+                                @Param("refDocNumber") String refDocNumber, @Param("preInboundNo") String preInboundNo);
 }

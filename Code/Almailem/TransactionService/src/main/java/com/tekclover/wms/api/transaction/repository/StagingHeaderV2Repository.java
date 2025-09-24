@@ -87,4 +87,16 @@ public interface StagingHeaderV2Repository extends JpaRepository<StagingHeaderV2
             @Param("statusDescription") String statusDescription,
             @Param("updatedBy") String updatedBy,
             @Param("updatedOn") Date updatedOn);
+
+    @Modifying
+    @Query(value = "UPDATE tblstagingheader SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, " +
+            "ST_CNF_BY = :updatedBy, ST_CNF_ON = :updatedOn " +
+            "WHERE IS_DELETED = 0 AND C_ID = :companyCodeId AND PLANT_ID = :plantId " +
+            "AND LANG_ID = :languageId AND WH_ID = :warehouseId " +
+            "AND REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo", nativeQuery = true)
+    void updateStagingHeader(@Param("statusId") Long statusId, @Param("statusDescription") String statusDescription,
+                             @Param("updatedBy") String updatedBy, @Param("updatedOn") Date updatedOn,
+                             @Param("companyCodeId") String companyCodeId, @Param("plantId") String plantId,
+                             @Param("languageId") String languageId, @Param("warehouseId") String warehouseId,
+                             @Param("refDocNumber") String refDocNumber, @Param("preInboundNo") String preInboundNo);
 }
