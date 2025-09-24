@@ -584,11 +584,11 @@ public class OrderManagementLineService extends BaseService {
                                                          String warehouseId, String itemCode, Double ORD_QTY, String loginUserId) throws Exception {
         log.info("Getting StockType1InventoryList Inpute Values : companyCodeId ------> " + companyCodeId + " plantId -------> " + plantId + " languageId ------> " + languageId + " warehouseId --------> "
                 + warehouseId + " itemCode -----> " + itemCode + " binClassId --------> " + binClassId + " manufacturerName ---------> " + orderManagementLine.getManufacturerName());
-        DataBaseContextHolder.setCurrentDb("MT");
-        String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
-        log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
-        DataBaseContextHolder.clear();
-        DataBaseContextHolder.setCurrentDb(routingDb);
+//        DataBaseContextHolder.setCurrentDb("MT");
+//        String routingDb = dbConfigRepository.getDbName(companyCodeId, plantId, warehouseId);
+//        log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+//        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb("NAMRATHA");
         List<IInventoryImpl> stockType1InventoryList = getInventoryForOrderManagementV2(companyCodeId, plantId, languageId, warehouseId, itemCode, 1L, binClassId, orderManagementLine.getManufacturerName());
         log.info("---Global---stockType1InventoryList-------> : " + stockType1InventoryList.size());
         if (stockType1InventoryList.isEmpty()) {
