@@ -3138,6 +3138,7 @@ public class InventoryService extends BaseService {
 			log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + barcodeId + "|" + storageBin + "|" + binClassId + "|" + stockTypeId);
 			IInventoryImpl dbInventory = inventoryV2Repository.getInboundInventoryV3(companyCodeId, plantId, languageId, warehouseId, barcodeId, null,
 			        itemCode, manufacturerName, PACK_BARCODE, storageBin, binClassId, stockTypeId);
+            log.info("BinClassId 3 Queried------------------------------------> BarcodeId is " + barcodeId);
 			if(dbInventory != null) {
 			    InventoryV2 inventory = new InventoryV2();
 			    BeanUtils.copyProperties(dbInventory, inventory, CommonUtils.getNullPropertyNames(dbInventory));

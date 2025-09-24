@@ -3808,12 +3808,14 @@ public class PutAwayLineService extends BaseService {
                     createdPutAwayLines.add(createdPutAwayLine);
                     log.info("---------->createdPutAwayLine created: " + createdPutAwayLine);
                 } else {
-                    createdPutAwayLine = dbPutAwayLine;
-                    createdPutAwayLines.add(createdPutAwayLine);
                     log.info("HU Serial Number already exist in PutAwayLine ------ BarcodeId ====  {}", newPutAwayLine.getBarcodeId());
+                    continue;
+//                    createdPutAwayLine = dbPutAwayLine;
+//                    createdPutAwayLines.add(createdPutAwayLine);
                 }
 
-                if (createdPutAwayLine != null && createdPutAwayLine.getPutawayConfirmedQty() > 0L) {
+//                if (createdPutAwayLine != null && createdPutAwayLine.getPutawayConfirmedQty() > 0L) {
+                if (createdPutAwayLine.getPutawayConfirmedQty() > 0L) {
                     // Updating StorageBin StatusId as '1'
                     dbStorageBin.setStatusId(1L);
                     storageBinV2Repository.updateStorageBin(companyCode, plantId, languageId, warehouseId, dbPutAwayLine.getConfirmedStorageBin(), 1L);
