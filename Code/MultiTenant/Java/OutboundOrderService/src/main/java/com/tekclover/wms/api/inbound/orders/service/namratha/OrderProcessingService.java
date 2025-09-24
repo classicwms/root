@@ -326,7 +326,7 @@ public class OrderProcessingService extends BaseService {
             log.info("No stock status updated in preinbound header and line, outbound header using stored procedure when condition is satisfied");
 
             // Creating pickupheader number with respect to the incoming orders!!
-            createPickupHeaderNoV8(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, outboundHeader.getRefDocNumber(), outboundIntegrationHeader);
+//            createPickupHeaderNoV8(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, outboundHeader.getRefDocNumber(), outboundIntegrationHeader);
 
             return outboundHeader;
         } catch (Exception e) {
@@ -335,7 +335,7 @@ public class OrderProcessingService extends BaseService {
             // Updating the Processed Status
             log.info("Rollback Initiated...!" + outboundIntegrationHeader.getRefDocumentNo());
             orderManagementLineService.rollback(outboundIntegrationHeader);
-            orderService.updateProcessedOrderV8(outboundIntegrationHeader.getRefDocumentNo(), outboundIntegrationHeader.getOutboundOrderTypeID());
+//            orderService.updateProcessedOrderV8(outboundIntegrationHeader.getRefDocumentNo(), outboundIntegrationHeader.getOutboundOrderTypeID());
             throw e;
         }
     }
@@ -678,68 +678,68 @@ public class OrderProcessingService extends BaseService {
         return orderManagementLine;
     }
     //=============================================================MMF======================================================
-    /**
-     * MMF
-     *
-     * @param companyCodeId
-     * @param plantId
-     * @param languageId
-     * @param preOutboundNo
-     * @param outboundIntegrationHeader
-     * @param preOutboundLine
-     * @param loginUserId
-     * @return
-     * @throws Exception
-     */
-    public OrderManagementLineV2 createOrderManagementLineV8(String companyCodeId, String plantId, String languageId, String preOutboundNo,
-                                                             OutboundIntegrationHeaderV2 outboundIntegrationHeader, PreOutboundLineV2 preOutboundLine, String loginUserId) throws Exception {
-        OrderManagementLineV2 orderManagementLine = new OrderManagementLineV2();
-        BeanUtils.copyProperties(preOutboundLine, orderManagementLine, CommonUtils.getNullPropertyNames(preOutboundLine));
-
-        orderManagementLine.setMiddlewareId(preOutboundLine.getMiddlewareId());
-        orderManagementLine.setMiddlewareHeaderId(preOutboundLine.getMiddlewareHeaderId());
-        orderManagementLine.setMiddlewareTable(preOutboundLine.getMiddlewareTable());
-        orderManagementLine.setReferenceDocumentType(preOutboundLine.getReferenceDocumentType());
-        orderManagementLine.setSalesInvoiceNumber(preOutboundLine.getSalesInvoiceNumber());
-        orderManagementLine.setManufacturerName(preOutboundLine.getManufacturerName());
-        orderManagementLine.setItemCode(preOutboundLine.getItemCode());
-        orderManagementLine.setReferenceField1(preOutboundLine.getReferenceField1());
-        orderManagementLine.setManufacturerFullName(preOutboundLine.getManufacturerFullName());
-        orderManagementLine.setPickListNumber(preOutboundLine.getPickListNumber());
-        orderManagementLine.setSupplierInvoiceNo(preOutboundLine.getSupplierInvoiceNo());
-        orderManagementLine.setTokenNumber(preOutboundLine.getTokenNumber());
-        orderManagementLine.setTargetBranchCode(preOutboundLine.getTargetBranchCode());
-        orderManagementLine.setPickupCreatedBy(loginUserId);
-        orderManagementLine.setPickupCreatedOn(new Date());
-        orderManagementLine.setTransferOrderNo(preOutboundLine.getTransferOrderNo());
-        orderManagementLine.setReturnOrderNo(preOutboundLine.getReturnOrderNo());
-        orderManagementLine.setIsCompleted(preOutboundLine.getIsCompleted());
-        orderManagementLine.setIsCancelled(preOutboundLine.getIsCancelled());
-        log.info("orderManagementLine : " + orderManagementLine);
-        Long OB_ORD_TYP_ID = outboundIntegrationHeader.getOutboundOrderTypeID();
-        Long BIN_CLASS_ID;
-
-        if (OB_ORD_TYP_ID == 0L || OB_ORD_TYP_ID == 1L || OB_ORD_TYP_ID == 3L ||
-                OB_ORD_TYP_ID.equals(OB_IPL_ORD_TYP_ID_SFG) || OB_ORD_TYP_ID.equals(OB_IPL_ORD_TYP_ID_FG)) {
-
-            log.info("OutboundOrderType is either ---------> 0, 1, 3, 5, 6");
-//            List<String> storageSectionIds = Arrays.asList("ZB", "ZC", "ZG", "ZT"); //ZB,ZC,ZG,ZT
-            BIN_CLASS_ID = 1L;
-            orderManagementLine = orderManagementLineService.createOrderManagementV8(companyCodeId, plantId, languageId, BIN_CLASS_ID, orderManagementLine, preOutboundLine.getWarehouseId(),
-                    preOutboundLine.getItemCode(), preOutboundLine.getOrderQty(), loginUserId);
-        }
-
-        if (OB_ORD_TYP_ID == 2L) {
-            log.info("OutboundOrderType is ----------> 2");
-//            List<String> storageSectionIds = Arrays.asList("ZD"); //ZD
-            BIN_CLASS_ID = 7L;
-            orderManagementLine = orderManagementLineService.createOrderManagementV8(companyCodeId, plantId, languageId, BIN_CLASS_ID, orderManagementLine, preOutboundLine.getWarehouseId(),
-                    preOutboundLine.getItemCode(), preOutboundLine.getOrderQty(), loginUserId);
-        }
-
-        // PROP_ST_BIN
-        return orderManagementLine;
-    }
+//    /**
+//     * MMF
+//     *
+//     * @param companyCodeId
+//     * @param plantId
+//     * @param languageId
+//     * @param preOutboundNo
+//     * @param outboundIntegrationHeader
+//     * @param preOutboundLine
+//     * @param loginUserId
+//     * @return
+//     * @throws Exception
+//     */
+//    public OrderManagementLineV2 createOrderManagementLineV8(String companyCodeId, String plantId, String languageId, String preOutboundNo,
+//                                                             OutboundIntegrationHeaderV2 outboundIntegrationHeader, PreOutboundLineV2 preOutboundLine, String loginUserId) throws Exception {
+//        OrderManagementLineV2 orderManagementLine = new OrderManagementLineV2();
+//        BeanUtils.copyProperties(preOutboundLine, orderManagementLine, CommonUtils.getNullPropertyNames(preOutboundLine));
+//
+//        orderManagementLine.setMiddlewareId(preOutboundLine.getMiddlewareId());
+//        orderManagementLine.setMiddlewareHeaderId(preOutboundLine.getMiddlewareHeaderId());
+//        orderManagementLine.setMiddlewareTable(preOutboundLine.getMiddlewareTable());
+//        orderManagementLine.setReferenceDocumentType(preOutboundLine.getReferenceDocumentType());
+//        orderManagementLine.setSalesInvoiceNumber(preOutboundLine.getSalesInvoiceNumber());
+//        orderManagementLine.setManufacturerName(preOutboundLine.getManufacturerName());
+//        orderManagementLine.setItemCode(preOutboundLine.getItemCode());
+//        orderManagementLine.setReferenceField1(preOutboundLine.getReferenceField1());
+//        orderManagementLine.setManufacturerFullName(preOutboundLine.getManufacturerFullName());
+//        orderManagementLine.setPickListNumber(preOutboundLine.getPickListNumber());
+//        orderManagementLine.setSupplierInvoiceNo(preOutboundLine.getSupplierInvoiceNo());
+//        orderManagementLine.setTokenNumber(preOutboundLine.getTokenNumber());
+//        orderManagementLine.setTargetBranchCode(preOutboundLine.getTargetBranchCode());
+//        orderManagementLine.setPickupCreatedBy(loginUserId);
+//        orderManagementLine.setPickupCreatedOn(new Date());
+//        orderManagementLine.setTransferOrderNo(preOutboundLine.getTransferOrderNo());
+//        orderManagementLine.setReturnOrderNo(preOutboundLine.getReturnOrderNo());
+//        orderManagementLine.setIsCompleted(preOutboundLine.getIsCompleted());
+//        orderManagementLine.setIsCancelled(preOutboundLine.getIsCancelled());
+//        log.info("orderManagementLine : " + orderManagementLine);
+//        Long OB_ORD_TYP_ID = outboundIntegrationHeader.getOutboundOrderTypeID();
+//        Long BIN_CLASS_ID;
+//
+//        if (OB_ORD_TYP_ID == 0L || OB_ORD_TYP_ID == 1L || OB_ORD_TYP_ID == 3L ||
+//                OB_ORD_TYP_ID.equals(OB_IPL_ORD_TYP_ID_SFG) || OB_ORD_TYP_ID.equals(OB_IPL_ORD_TYP_ID_FG)) {
+//
+//            log.info("OutboundOrderType is either ---------> 0, 1, 3, 5, 6");
+////            List<String> storageSectionIds = Arrays.asList("ZB", "ZC", "ZG", "ZT"); //ZB,ZC,ZG,ZT
+//            BIN_CLASS_ID = 1L;
+//            orderManagementLine = orderManagementLineService.createOrderManagementV8(companyCodeId, plantId, languageId, BIN_CLASS_ID, orderManagementLine, preOutboundLine.getWarehouseId(),
+//                    preOutboundLine.getItemCode(), preOutboundLine.getOrderQty(), loginUserId);
+//        }
+//
+//        if (OB_ORD_TYP_ID == 2L) {
+//            log.info("OutboundOrderType is ----------> 2");
+////            List<String> storageSectionIds = Arrays.asList("ZD"); //ZD
+//            BIN_CLASS_ID = 7L;
+//            orderManagementLine = orderManagementLineService.createOrderManagementV8(companyCodeId, plantId, languageId, BIN_CLASS_ID, orderManagementLine, preOutboundLine.getWarehouseId(),
+//                    preOutboundLine.getItemCode(), preOutboundLine.getOrderQty(), loginUserId);
+//        }
+//
+//        // PROP_ST_BIN
+//        return orderManagementLine;
+//    }
 
     /**
      * @param createdPreOutboundLine
@@ -1167,7 +1167,7 @@ public class OrderProcessingService extends BaseService {
 
                     log.info("Creating OrderManagementLine for ItemCode: {} | TotalQty: {}", itemCode, totalQty);
 
-                    createOrderManagementLineV8(companyCodeId, plantId, languageId, preOutboundNo, outboundIntegrationHeader, newPreOutboundLine, loginUserId);
+//                    createOrderManagementLineV8(companyCodeId, plantId, languageId, preOutboundNo, outboundIntegrationHeader, newPreOutboundLine, loginUserId);
 
                     log.debug("Created OrderManagementLine for ItemCode: {}", itemCode);
                 } catch (Exception ex) {
@@ -1618,72 +1618,72 @@ public class OrderProcessingService extends BaseService {
     }
 
     //==============================================MMF==========================================================
-    /**
-     * MMF
-     *
-     * @param companyCodeId
-     * @param plantId
-     * @param languageId
-     * @param warehouseId
-     * @param preOutboundNo
-     * @param refDocNumber
-     * @param outboundIntegrationHeader
-     * @throws Exception
-     */
-    public void createPickupHeaderNoV8(String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo,
-                                     String refDocNumber, OutboundIntegrationHeaderV2 outboundIntegrationHeader) throws Exception {
-
-        List<OrderManagementLineV2> orderManagementLines = orderManagementLineV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndDeletionIndicatorAndStatusIdNot(
-                companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, 0L, 47L);
-
-        log.info("OrderManagementList for PickupHeader -------------> {}", orderManagementLines.size());
-
-        long NUM_RAN_CODE = 10;
-        String PU_NO = getNextRangeNumber(NUM_RAN_CODE, companyCodeId, plantId, languageId, warehouseId);
-        log.info("----------New PU_NO--------> : " + PU_NO);
-
-        DataBaseContextHolder.clear();
-        DataBaseContextHolder.setCurrentDb("MMF");
-        if (orderManagementLines != null && !orderManagementLines.isEmpty()) {
-            for (OrderManagementLineV2 orderManagementLine : orderManagementLines) {
-                PickupHeaderV2 newPickupHeader = new PickupHeaderV2();
-                BeanUtils.copyProperties(orderManagementLine, newPickupHeader, CommonUtils.getNullPropertyNames(orderManagementLine));
-                newPickupHeader.setPickupNumber(PU_NO);
-                newPickupHeader.setPickToQty(orderManagementLine.getAllocatedQty());
-                newPickupHeader.setPickUom(orderManagementLine.getOrderUom());
-                newPickupHeader.setBarcodeId(orderManagementLine.getBarcodeId());
-
-                // STATUS_ID
-                newPickupHeader.setStatusId(48L);
-                statusDescription = stagingLineV2Repository.getStatusDescription(48L, languageId);
-                newPickupHeader.setStatusDescription(statusDescription);
-
-                // ProposedPackbarcode
-                newPickupHeader.setProposedPackBarCode(orderManagementLine.getProposedPackBarCode());
-
-                //Setting InventoryQuantity from orderManagementLine
-                newPickupHeader.setInventoryQuantity(orderManagementLine.getInventoryQty());
-
-                //Setting BagSize
-                newPickupHeader.setBagSize(orderManagementLine.getInventoryQty());
-                newPickupHeader.setNoBags(orderManagementLine.getNoBags());
-
-                newPickupHeader.setReferenceField5(orderManagementLine.getDescription());
-                newPickupHeader.setBatchSerialNumber(orderManagementLine.getProposedBatchSerialNumber());
-                newPickupHeader.setStorageSectionId(orderManagementLine.getStorageSectionId());
-                PickupHeaderV2 createdPickupHeader = orderService.createOutboundOrderProcessingPickupHeaderV8(newPickupHeader, orderManagementLine.getPickupCreatedBy());
-                log.info("pickupHeader created: " + createdPickupHeader);
-
-                orderManagementLineV2Repository.updateOrderManagementLineV6(
-                        companyCodeId, plantId, languageId, warehouseId, preOutboundNo,
-                        orderManagementLine.getLineNumber(), orderManagementLine.getItemCode(),
-                        48L, statusDescription, PU_NO, new Date());
-            }
-
-            outboundHeaderV2Repository.updateOutboundHeaderStatusV3(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, 48L, statusDescription);
-            orderManagementHeaderV2Repository.updateOrderManagementHeaderStatusV3(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, 48L, statusDescription);
-        }
-    }
+//    /**
+//     * MMF
+//     *
+//     * @param companyCodeId
+//     * @param plantId
+//     * @param languageId
+//     * @param warehouseId
+//     * @param preOutboundNo
+//     * @param refDocNumber
+//     * @param outboundIntegrationHeader
+//     * @throws Exception
+//     */
+//    public void createPickupHeaderNoV8(String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo,
+//                                     String refDocNumber, OutboundIntegrationHeaderV2 outboundIntegrationHeader) throws Exception {
+//
+//        List<OrderManagementLineV2> orderManagementLines = orderManagementLineV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndDeletionIndicatorAndStatusIdNot(
+//                companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, 0L, 47L);
+//
+//        log.info("OrderManagementList for PickupHeader -------------> {}", orderManagementLines.size());
+//
+//        long NUM_RAN_CODE = 10;
+//        String PU_NO = getNextRangeNumber(NUM_RAN_CODE, companyCodeId, plantId, languageId, warehouseId);
+//        log.info("----------New PU_NO--------> : " + PU_NO);
+//
+//        DataBaseContextHolder.clear();
+//        DataBaseContextHolder.setCurrentDb("MMF");
+//        if (orderManagementLines != null && !orderManagementLines.isEmpty()) {
+//            for (OrderManagementLineV2 orderManagementLine : orderManagementLines) {
+//                PickupHeaderV2 newPickupHeader = new PickupHeaderV2();
+//                BeanUtils.copyProperties(orderManagementLine, newPickupHeader, CommonUtils.getNullPropertyNames(orderManagementLine));
+//                newPickupHeader.setPickupNumber(PU_NO);
+//                newPickupHeader.setPickToQty(orderManagementLine.getAllocatedQty());
+//                newPickupHeader.setPickUom(orderManagementLine.getOrderUom());
+//                newPickupHeader.setBarcodeId(orderManagementLine.getBarcodeId());
+//
+//                // STATUS_ID
+//                newPickupHeader.setStatusId(48L);
+//                statusDescription = stagingLineV2Repository.getStatusDescription(48L, languageId);
+//                newPickupHeader.setStatusDescription(statusDescription);
+//
+//                // ProposedPackbarcode
+//                newPickupHeader.setProposedPackBarCode(orderManagementLine.getProposedPackBarCode());
+//
+//                //Setting InventoryQuantity from orderManagementLine
+//                newPickupHeader.setInventoryQuantity(orderManagementLine.getInventoryQty());
+//
+//                //Setting BagSize
+//                newPickupHeader.setBagSize(orderManagementLine.getInventoryQty());
+//                newPickupHeader.setNoBags(orderManagementLine.getNoBags());
+//
+//                newPickupHeader.setReferenceField5(orderManagementLine.getDescription());
+//                newPickupHeader.setBatchSerialNumber(orderManagementLine.getProposedBatchSerialNumber());
+//                newPickupHeader.setStorageSectionId(orderManagementLine.getStorageSectionId());
+//                PickupHeaderV2 createdPickupHeader = orderService.createOutboundOrderProcessingPickupHeaderV8(newPickupHeader, orderManagementLine.getPickupCreatedBy());
+//                log.info("pickupHeader created: " + createdPickupHeader);
+//
+//                orderManagementLineV2Repository.updateOrderManagementLineV6(
+//                        companyCodeId, plantId, languageId, warehouseId, preOutboundNo,
+//                        orderManagementLine.getLineNumber(), orderManagementLine.getItemCode(),
+//                        48L, statusDescription, PU_NO, new Date());
+//            }
+//
+//            outboundHeaderV2Repository.updateOutboundHeaderStatusV3(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, 48L, statusDescription);
+//            orderManagementHeaderV2Repository.updateOrderManagementHeaderStatusV3(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, 48L, statusDescription);
+//        }
+//    }
 
     /**
      * @param companyCodeId
