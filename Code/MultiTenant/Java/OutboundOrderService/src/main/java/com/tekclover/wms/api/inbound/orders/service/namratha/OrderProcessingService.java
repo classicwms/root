@@ -208,137 +208,6 @@ public class OrderProcessingService extends BaseService {
 
 //==================================================================MMF============================================================
 
-    /**
-     * MMF
-     *
-     * @param outboundIntegrationHeader
-     * @return
-     * @throws Exception
-     */
-    public OutboundHeaderV2 processOutboundReceivedV8(OutboundIntegrationHeaderV2 outboundIntegrationHeader) throws Exception {
-        try {
-            /*
-             * Checking whether received refDocNumber processed already.
-             */
-            log.info("Outbound Process Initiated----> " + outboundIntegrationHeader.getRefDocumentNo() + ", " + outboundIntegrationHeader.getOutboundOrderTypeID());
-            if (outboundIntegrationHeader.getLoginUserId() != null) {
-                MW_AMS = outboundIntegrationHeader.getLoginUserId();
-            }
-
-            String warehouseId = outboundIntegrationHeader.getWarehouseID();
-            String companyCodeId = outboundIntegrationHeader.getCompanyCode();
-            String plantId = outboundIntegrationHeader.getBranchCode();
-            String languageId = outboundIntegrationHeader.getLanguageId() != null ? outboundIntegrationHeader.getLanguageId() : LANG_ID;
-            String refDocNumber = outboundIntegrationHeader.getRefDocumentNo();
-
-            if (warehouseId == null) {
-                try {
-                    Optional<Warehouse> warehouse =
-                            warehouseRepository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndDeletionIndicator(
-                                    outboundIntegrationHeader.getCompanyCode(), outboundIntegrationHeader.getBranchCode(), LANG_ID, 0L);
-                    log.info("warehouse : " + warehouse);
-                    if (warehouse.isPresent()) {
-                        log.info("warehouse : " + warehouse.get().getWarehouseId());
-                        warehouseId = warehouse.get().getWarehouseId();
-                    } else {
-                        log.info("warehouse not found.");
-                        throw new BadRequestException("Warehouse cannot be null.");
-                    }
-                } catch (Exception e) {
-                    log.error("Warehouse fetch exception : " + e.toString());
-                    throw e;
-                }
-            }
-
-            Optional<PreOutboundHeaderV2> orderProcessedStatus =
-                    preOutboundHeaderV2Repository.findByRefDocNumberAndOutboundOrderTypeIdAndDeletionIndicator(
-                            refDocNumber, outboundIntegrationHeader.getOutboundOrderTypeID(), 0L);
-
-            if (orderProcessedStatus.isPresent()) {
-                log.info("PickListCancellation Starting -----------> companyId {}, PlantId {}, WarehouseId {}, RefDocNo {} ", companyCodeId, plantId, warehouseId, refDocNumber);
-                List<Long> statusIdList = Arrays.asList(57L, 50L);
-                boolean pickUpConfirm = pickupHeaderV2Repository.existsByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndStatusIdInAndDeletionIndicator(
-                        companyCodeId, plantId, warehouseId, refDocNumber, statusIdList, 0L);
-                log.info("PickupHeader Status Checking " + pickUpConfirm);
-                if (pickUpConfirm) {
-                    throw new BadRequestException("This Order Already PickList Confirm --------> RefDocNo is " + refDocNumber);
-                }
-                // PickListCancellation Delete all tables
-                pickListCancellationV8(companyCodeId, plantId, warehouseId, refDocNumber);
-            }
-
-            // ORD_TYP_ID == 4
-            if (outboundIntegrationHeader.getOutboundOrderTypeID() == 4 ||
-                    (outboundIntegrationHeader.getReferenceDocumentType() != null && outboundIntegrationHeader.getReferenceDocumentType().equalsIgnoreCase("Sales Invoice"))) {
-                OutboundHeaderV2 updateOutboundHeaderAndLine = updateOutboundHeaderForSalesInvoice(outboundIntegrationHeader, warehouseId);
-                log.info("SalesInvoice Updated in OutboundHeader and Line");
-                if (updateOutboundHeaderAndLine == null) {
-                    updateOutboundHeaderAndLine = new OutboundHeaderV2();
-                }
-                return updateOutboundHeaderAndLine;
-            }
-
-            // Getting PreOutboundNo from NumberRangeTable
-            String preOutboundNo = getPreOutboundNo(warehouseId, companyCodeId, plantId, languageId);
-            String refField1ForOrderType = null;
-
-            /*
-             * Append PREOUTBOUNDLINE table through below logic
-             */
-            List<PreOutboundLineV2> createdPreOutboundLineList = new ArrayList<>();
-            for (OutboundIntegrationLineV2 outboundIntegrationLine : outboundIntegrationHeader.getOutboundIntegrationLines()) {
-                // PreOutboundLine
-                try {
-                    //=========================================================================================================//
-
-                    PreOutboundLineV2 preOutboundLine = createPreOutboundLineV8(companyCodeId, plantId, languageId, warehouseId,
-                            preOutboundNo, outboundIntegrationHeader, outboundIntegrationLine, MW_AMS);
-                    PreOutboundLineV2 createdPreOutboundLine = preOutboundLineV2Repository.save(preOutboundLine);
-                    log.info("preOutboundLine created---1---> : " + createdPreOutboundLine);
-                    createdPreOutboundLineList.add(createdPreOutboundLine);
-
-                } catch (Exception e) {
-                    log.error("Error on processing PreOutboundLine : " + e.toString());
-                    e.printStackTrace();
-                }
-            }
-
-            createOrderManagementLineV8(companyCodeId, plantId, languageId, preOutboundNo, outboundIntegrationHeader, createdPreOutboundLineList, MW_AMS);
-            // OutboundLines Created
-            createOutboundLineV8(companyCodeId, plantId, warehouseId, languageId, preOutboundNo);
-
-            /*------------------Insert into PreOutboundHeader table-----------------------------*/
-            PreOutboundHeaderV2 createdPreOutboundHeader = createPreOutboundHeaderV8(companyCodeId, plantId, languageId, warehouseId,
-                    preOutboundNo, outboundIntegrationHeader, refField1ForOrderType, MW_AMS);
-            log.info("preOutboundHeader Created : " + createdPreOutboundHeader);
-
-            /*------------------ORDERMANAGEMENTHEADER TABLE-------------------------------------*/
-            OrderManagementHeaderV2 createdOrderManagementHeader = createOrderManagementHeaderV8(createdPreOutboundHeader, MW_AMS);
-            log.info("OrderMangementHeader Created : " + createdOrderManagementHeader);
-
-            /*------------------Record Insertion in OUTBOUNDHEADER/OUTBOUNDLINE tables-----------*/
-            OutboundHeaderV2 outboundHeader = createOutboundHeaderV8(createdPreOutboundHeader, createdOrderManagementHeader.getStatusId(),
-                    outboundIntegrationHeader, MW_AMS);
-
-            //check the status of OrderManagementLine for NoStock update status of outbound header, preoutbound header, preoutboundline
-            statusDescription = getStatusDescription(47L, languageId);
-            orderManagementLineV2Repository.updateNostockStatusUpdateProc(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 47L, statusDescription);
-            log.info("No stock status updated in preinbound header and line, outbound header using stored procedure when condition is satisfied");
-
-            // Creating pickupheader number with respect to the incoming orders!!
-//            createPickupHeaderNoV8(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, outboundHeader.getRefDocNumber(), outboundIntegrationHeader);
-
-            return outboundHeader;
-        } catch (Exception e) {
-            e.printStackTrace();
-
-            // Updating the Processed Status
-            log.info("Rollback Initiated...!" + outboundIntegrationHeader.getRefDocumentNo());
-            orderManagementLineService.rollback(outboundIntegrationHeader);
-//            orderService.updateProcessedOrderV8(outboundIntegrationHeader.getRefDocumentNo(), outboundIntegrationHeader.getOutboundOrderTypeID());
-            throw e;
-        }
-    }
 
     /**
      * @param outboundIntegrationHeader
@@ -1078,121 +947,49 @@ public class OrderProcessingService extends BaseService {
     @Transactional
     public void createOrderManagementLine(String companyCodeId, String plantId, String languageId, String preOutboundNo,
                                           OutboundIntegrationHeaderV2 outboundIntegrationHeader, List<PreOutboundLineV2> preOutboundLineList, String loginUserId) throws Exception {
+        OrderManagementLineV2 orderManagementLine = null;
+        try {
 
-        log.info("Total PreOutboundLines received : {}", preOutboundLineList.size());
+            log.info("Total PreOutboundLines received :{}", preOutboundLineList.size());
 
-        Map<String, Double> itemCodeToTotalQty = preOutboundLineList.stream()
-                .collect(Collectors.groupingBy(PreOutboundLineV2::getItemCode,
-                        Collectors.summingDouble(line -> line.getOrderQty() == null ? 0.0 : line.getOrderQty())));
+            // 1. Group By ItemCode and Sum Of OrderQty
+            Map<String, Double> itemCodeToTotalQty = preOutboundLineList.stream()
+                    .collect(Collectors.groupingBy(PreOutboundLineV2::getItemCode,Collectors.summingDouble(line -> line.getOrderQty() == null ? 0.0 : line.getOrderQty())));
+            log.info("Grouped item codes found: {}", itemCodeToTotalQty.keySet());
 
-        log.info("Grouped item codes found: {}", itemCodeToTotalQty.keySet());
+            // 2.Loop Over Grouped By Result
+            for(Map.Entry<String, Double> entry : itemCodeToTotalQty.entrySet()) {
+                String itemCode = entry.getKey();
+                Double totalQty = entry.getValue();
 
-        // Setup thread pool (example: 8 threads)
-        int threadPoolSize = 8;
-        ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
-        List<Future<?>> futures = new ArrayList<>();
+                PreOutboundLineV2 preOutboundLineV2 = preOutboundLineList.stream()
+                        .filter(p -> p.getItemCode().equals(itemCode))
+                        .findFirst()
+                        .orElseThrow(() -> new RuntimeException(" ItemCode not found in list: " + itemCode));
 
-        for (Map.Entry<String, Double> entry : itemCodeToTotalQty.entrySet()) {
-            String itemCode = entry.getKey();
-            Double totalQty = entry.getValue();
+                // Create new PreOutboundLine
+                PreOutboundLineV2 newPreOutboundLine = new PreOutboundLineV2();
+                BeanUtils.copyProperties(preOutboundLineV2, newPreOutboundLine, CommonUtils.getNullPropertyNames(preOutboundLineV2));
+                newPreOutboundLine.setItemCode(itemCode);
+                newPreOutboundLine.setOrderQty(totalQty);
 
-            futures.add(executor.submit(() -> {
-                try {
-                    PreOutboundLineV2 preOutboundLineV2 = preOutboundLineList.stream()
-                            .filter(p -> p.getItemCode().equals(itemCode))
-                            .findFirst()
-                            .orElseThrow(() -> new RuntimeException("ItemCode not found in list: " + itemCode));
+                // Log creation step
+                log.info(" Create OrderManagementLine is Start for ItemCode: {} | TotalQty: {}", itemCode, totalQty);
+                // Create OrderManagementLine
+                orderManagementLine = createOrderManagementLineV2(companyCodeId, plantId, languageId, preOutboundNo,
+                        outboundIntegrationHeader, newPreOutboundLine, loginUserId);
 
-                    PreOutboundLineV2 newPreOutboundLine = new PreOutboundLineV2();
-                    BeanUtils.copyProperties(preOutboundLineV2, newPreOutboundLine, CommonUtils.getNullPropertyNames(preOutboundLineV2));
-                    newPreOutboundLine.setItemCode(itemCode);
-                    newPreOutboundLine.setOrderQty(totalQty);
+                log.debug("Created OrderManagementLine Created: -----------------------------> |||||||||||");
+            }
+            log.info(" All OrderManagementLines created successfully for PreOutboundNo: {}", preOutboundNo);
 
-                    log.info("Creating OrderManagementLine for ItemCode: {} | TotalQty: {}", itemCode, totalQty);
-
-                    createOrderManagementLineV2(companyCodeId, plantId, languageId, preOutboundNo, outboundIntegrationHeader, newPreOutboundLine, loginUserId);
-
-                    log.debug("Created OrderManagementLine for ItemCode: {}", itemCode);
-                } catch (Exception ex) {
-                    log.error("Failed to create OrderManagementLine for ItemCode: {} | Error: {}", itemCode, ex.getMessage(), ex);
-                    throw new RuntimeException(ex);
-                }
-            }));
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
         }
-
-        // Wait for all tasks to complete
-        for (Future<?> future : futures) {
-            future.get(); // This will rethrow any exception that occurred in the thread
-        }
-
-        executor.shutdown();
-//        executor.awaitTermination(5, TimeUnit.MINUTES); // Adjust timeout as needed
-
-        log.info("All OrderManagementLines created successfully for PreOutboundNo: {}", preOutboundNo);
     }
-
-
-    @Transactional
-    public void createOrderManagementLineV8(String companyCodeId, String plantId, String languageId, String preOutboundNo,
-                                          OutboundIntegrationHeaderV2 outboundIntegrationHeader, List<PreOutboundLineV2> preOutboundLineList, String loginUserId) throws Exception {
-
-        log.info("Total PreOutboundLines received : {}", preOutboundLineList.size());
-
-        Map<String, Double> itemCodeToTotalQty = preOutboundLineList.stream()
-                .collect(Collectors.groupingBy(PreOutboundLineV2::getItemCode,
-                        Collectors.summingDouble(line -> line.getOrderQty() == null ? 0.0 : line.getOrderQty())));
-
-        log.info("Grouped item codes found: {}", itemCodeToTotalQty.keySet());
-
-        // Setup thread pool (example: 8 threads)
-        int threadPoolSize = 8;
-        ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
-        List<Future<?>> futures = new ArrayList<>();
-
-        for (Map.Entry<String, Double> entry : itemCodeToTotalQty.entrySet()) {
-            String itemCode = entry.getKey();
-            Double totalQty = entry.getValue();
-
-            futures.add(executor.submit(() -> {
-                try {
-                    PreOutboundLineV2 preOutboundLineV2 = preOutboundLineList.stream()
-                            .filter(p -> p.getItemCode().equals(itemCode))
-                            .findFirst()
-                            .orElseThrow(() -> new RuntimeException("ItemCode not found in list: " + itemCode));
-
-                    PreOutboundLineV2 newPreOutboundLine = new PreOutboundLineV2();
-                    BeanUtils.copyProperties(preOutboundLineV2, newPreOutboundLine, CommonUtils.getNullPropertyNames(preOutboundLineV2));
-                    newPreOutboundLine.setItemCode(itemCode);
-                    newPreOutboundLine.setOrderQty(totalQty);
-
-                    log.info("Creating OrderManagementLine for ItemCode: {} | TotalQty: {}", itemCode, totalQty);
-
-//                    createOrderManagementLineV8(companyCodeId, plantId, languageId, preOutboundNo, outboundIntegrationHeader, newPreOutboundLine, loginUserId);
-
-                    log.debug("Created OrderManagementLine for ItemCode: {}", itemCode);
-                } catch (Exception ex) {
-                    log.error("Failed to create OrderManagementLine for ItemCode: {} | Error: {}", itemCode, ex.getMessage(), ex);
-                    throw new RuntimeException(ex);
-                }
-            }));
-        }
-
-        // Wait for all tasks to complete
-        for (Future<?> future : futures) {
-            future.get(); // This will rethrow any exception that occurred in the thread
-        }
-
-        executor.shutdown();
-//        executor.awaitTermination(5, TimeUnit.MINUTES); // Adjust timeout as needed
-
-        log.info("All OrderManagementLines created successfully for PreOutboundNo: {}", preOutboundNo);
-    }
-
 
     /**
-     * Modifying like Namratha different preoutboundline
-     * 02/07/2025 - Aakash vinayak
-     *
      * @param companyCodeId
      * @param plantId
      * @param languageId
@@ -1202,109 +999,20 @@ public class OrderProcessingService extends BaseService {
      * @param loginUserId
      * @throws Exception
      */
-//    @Transactional
-//    public void createOrderManagementLineV7(String companyCodeId, String plantId, String languageId, String preOutboundNo,
-//                                            OutboundIntegrationHeaderV2 outboundIntegrationHeader, List<PreOutboundLineV2> preOutboundLineList, String loginUserId) throws Exception {
-//        OrderManagementLineV2 orderManagementLine = null;
-//        try {
-////            for (PreOutboundLineV2 preOutboundLine : preOutboundLineList) {
-////                orderManagementLine = createOrderManagementLineV7(companyCodeId, plantId, languageId, preOutboundNo, outboundIntegrationHeader, preOutboundLine, loginUserId);
-////            }
-//
-//            log.info("Total PreOutboundLines received Knowell : {}", preOutboundLineList.size());
-//
-//            // 1. Group By ItemCode and Sum Of OrderQty
-//            Map<String, Double> itemCodeToTotalQty = preOutboundLineList.stream()
-//                    .collect(Collectors.groupingBy(PreOutboundLineV2::getItemCode,Collectors.summingDouble(line -> line.getOrderQty() == null ? 0.0 : line.getOrderQty())));
-//            log.info("Grouped item codes found for Knowell : {}", itemCodeToTotalQty.keySet());
-//
-//            // 2. Loop Over Grouped by Result
-//            for (Map.Entry<String, Double> entry : itemCodeToTotalQty.entrySet()) {
-//                String itemCode = entry.getKey();
-//                Double totalQty = entry.getValue();
-//
-//                PreOutboundLineV2 preOutboundLineV2 = preOutboundLineList.stream()
-//                        .filter(p -> p.getItemCode().equals(itemCode))
-//                        .findFirst()
-//                        .orElseThrow(() -> new RuntimeException("Item Code not found in the List : " + itemCode));
-//
-//                // Create new PreOutboundLine
-//                PreOutboundLineV2 newPreOutboundLine = new PreOutboundLineV2();
-//                BeanUtils.copyProperties(preOutboundLineV2, newPreOutboundLine, CommonUtils.getNullPropertyNames(preOutboundLineV2));
-//                newPreOutboundLine.setItemCode(itemCode);
-//                newPreOutboundLine.setOrderQty(totalQty);
-//
-//                // Log creation step
-//                log.info("Creating OrderManagementLine is Started for ItemCode : {} | TotalQty : {}", itemCode, totalQty);
-//                // Create OrderManagementLine
-//                orderManagementLine = createOrderManagementLineV7(companyCodeId, plantId, languageId, preOutboundNo, outboundIntegrationHeader, newPreOutboundLine, loginUserId);
-//
-//                log.debug("Created OrderManagementLine Created: -----------------------------> |||||||||||");
-//            }
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            throw e;
-//        }
-//        log.info("orderManagementLine created---1---> : " + orderManagementLine);
-//    }
-
     @Transactional
     public void createOrderManagementLineV7(String companyCodeId, String plantId, String languageId, String preOutboundNo,
-                                          OutboundIntegrationHeaderV2 outboundIntegrationHeader, List<PreOutboundLineV2> preOutboundLineList, String loginUserId) throws Exception {
-
-        log.info("Total PreOutboundLines received : {}", preOutboundLineList.size());
-
-        Map<String, Double> itemCodeToTotalQty = preOutboundLineList.stream()
-                .collect(Collectors.groupingBy(PreOutboundLineV2::getItemCode,
-                        Collectors.summingDouble(line -> line.getOrderQty() == null ? 0.0 : line.getOrderQty())));
-
-        log.info("Grouped item codes found: {}", itemCodeToTotalQty.keySet());
-
-        // Setup thread pool (example: 8 threads)
-        int threadPoolSize = 8;
-        ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
-        List<Future<?>> futures = new ArrayList<>();
-
-        for (Map.Entry<String, Double> entry : itemCodeToTotalQty.entrySet()) {
-            String itemCode = entry.getKey();
-            Double totalQty = entry.getValue();
-
-            futures.add(executor.submit(() -> {
-                try {
-                    PreOutboundLineV2 preOutboundLineV2 = preOutboundLineList.stream()
-                            .filter(p -> p.getItemCode().equals(itemCode))
-                            .findFirst()
-                            .orElseThrow(() -> new RuntimeException("ItemCode not found in list: " + itemCode));
-
-                    PreOutboundLineV2 newPreOutboundLine = new PreOutboundLineV2();
-                    BeanUtils.copyProperties(preOutboundLineV2, newPreOutboundLine, CommonUtils.getNullPropertyNames(preOutboundLineV2));
-                    newPreOutboundLine.setItemCode(itemCode);
-                    newPreOutboundLine.setOrderQty(totalQty);
-
-                    log.info("Creating OrderManagementLine for ItemCode: {} | TotalQty: {}", itemCode, totalQty);
-
-                    createOrderManagementLineV7(companyCodeId, plantId, languageId, preOutboundNo, outboundIntegrationHeader, newPreOutboundLine, loginUserId);
-
-                    log.debug("Created OrderManagementLine for ItemCode: {}", itemCode);
-                } catch (Exception ex) {
-                    log.error("Failed to create OrderManagementLine for ItemCode: {} | Error: {}", itemCode, ex.getMessage(), ex);
-                    throw new RuntimeException(ex);
-                }
-            }));
+                                            OutboundIntegrationHeaderV2 outboundIntegrationHeader, List<PreOutboundLineV2> preOutboundLineList, String loginUserId) throws Exception {
+        OrderManagementLineV2 orderManagementLine = null;
+        try {
+            for (PreOutboundLineV2 preOutboundLine : preOutboundLineList) {
+                orderManagementLine = createOrderManagementLineV7(companyCodeId, plantId, languageId, preOutboundNo, outboundIntegrationHeader, preOutboundLine, loginUserId);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
         }
-
-        // Wait for all tasks to complete
-        for (Future<?> future : futures) {
-            future.get(); // This will rethrow any exception that occurred in the thread
-        }
-
-        executor.shutdown();
-//        executor.awaitTermination(5, TimeUnit.MINUTES); // Adjust timeout as needed
-
-        log.info("All OrderManagementLines created successfully for PreOutboundNo: {}", preOutboundNo);
+        log.info("orderManagementLine created---1---> : " + orderManagementLine);
     }
-
 
     /**
      * @param companyCodeId
@@ -1358,75 +1066,6 @@ public class OrderProcessingService extends BaseService {
         preOutboundHeader.setCreatedOn(new Date());
         PreOutboundHeaderV2 createdPreOutboundHeader = preOutboundHeaderV2Repository.save(preOutboundHeader);
         log.info("createdPreOutboundHeader : " + createdPreOutboundHeader);
-
-        // Order_Text_Update
-        String text = "PreOutboundHeader Created";
-        outboundOrderV2Repository.updatePreOutBoundOrderText(preOutboundHeader.getOutboundOrderTypeId(), preOutboundHeader.getRefDocNumber(), text);
-        log.info("PreOutbound Header Status Updated Successfully");
-
-        return createdPreOutboundHeader;
-    }
-
-    /**
-     * MMF
-     *
-     * @param companyCodeId
-     * @param plantId
-     * @param languageId
-     * @param warehouseId
-     * @param preOutboundNo
-     * @param outboundIntegrationHeader
-     * @param refField1ForOrderType
-     * @param loginUserId
-     * @return
-     * @throws ParseException
-     */
-    public PreOutboundHeaderV2 createPreOutboundHeaderV8(String companyCodeId, String plantId, String languageId, String warehouseId, String preOutboundNo,
-                                                         OutboundIntegrationHeaderV2 outboundIntegrationHeader, String refField1ForOrderType, String loginUserId) throws ParseException {
-//        AuthToken authTokenForIDService = authTokenService.getIDMasterServiceAuthToken();
-        PreOutboundHeaderV2 preOutboundHeader = new PreOutboundHeaderV2();
-        BeanUtils.copyProperties(outboundIntegrationHeader, preOutboundHeader, CommonUtils.getNullPropertyNames(outboundIntegrationHeader));
-        preOutboundHeader.setLanguageId(languageId);
-        preOutboundHeader.setCompanyCodeId(companyCodeId);
-        preOutboundHeader.setPlantId(plantId);
-        preOutboundHeader.setWarehouseId(warehouseId);
-        preOutboundHeader.setRefDocNumber(outboundIntegrationHeader.getRefDocumentNo());
-        preOutboundHeader.setConsignment(outboundIntegrationHeader.getRefDocumentNo());
-        preOutboundHeader.setPreOutboundNo(preOutboundNo);                                                // PRE_OB_NO
-        preOutboundHeader.setOutboundOrderTypeId(outboundIntegrationHeader.getOutboundOrderTypeID());    // Hardcoded value "0"
-        preOutboundHeader.setRefDocDate(new Date());
-        preOutboundHeader.setStatusId(39L);
-        preOutboundHeader.setRequiredDeliveryDate(outboundIntegrationHeader.getRequiredDeliveryDate());
-        preOutboundHeader.setCustomerId(outboundIntegrationHeader.getCustomerId());
-        preOutboundHeader.setCustomerName(outboundIntegrationHeader.getCustomerName());
-
-        // REF_FIELD_1
-        preOutboundHeader.setReferenceField1(refField1ForOrderType);
-
-        description = getDescription(companyCodeId, plantId, languageId, warehouseId);
-        if (description != null) {
-            preOutboundHeader.setCompanyDescription(description.getCompanyDesc());
-            preOutboundHeader.setPlantDescription(description.getPlantDesc());
-            preOutboundHeader.setWarehouseDescription(description.getWarehouseDesc());
-        }
-        // Status Description
-//		StatusId idStatus = idmasterService.getStatus(39L, outboundIntegrationHeader.getWarehouseID(), authTokenForIDService.getAccess_token());
-        statusDescription = getStatusDescription(39L, languageId);
-        log.info("PreOutboundHeader StatusDescription: " + statusDescription);
-        // REF_FIELD_10
-        preOutboundHeader.setReferenceField10(statusDescription);
-        preOutboundHeader.setStatusDescription(statusDescription);
-        preOutboundHeader.setDeletionIndicator(0L);
-        preOutboundHeader.setCreatedBy(loginUserId);
-        preOutboundHeader.setCreatedOn(new Date());
-        PreOutboundHeaderV2 createdPreOutboundHeader = preOutboundHeaderV2Repository.save(preOutboundHeader);
-        log.info("createdPreOutboundHeader : " + createdPreOutboundHeader);
-
-        // Order_Text_Update
-        String text = "PreOutboundHeader Created";
-        outboundOrderV2Repository.updatePreOutBoundOrderText(preOutboundHeader.getOutboundOrderTypeId(), preOutboundHeader.getRefDocNumber(), text);
-        log.info("PreOutbound Header Status Updated Successfully");
-
         return createdPreOutboundHeader;
     }
 
@@ -1443,36 +1082,6 @@ public class OrderProcessingService extends BaseService {
         newOrderManagementHeader.setReferenceField7(statusDescription);
         newOrderManagementHeader.setPickupCreatedBy(loginUserId);
         newOrderManagementHeader.setPickupCreatedOn(new Date());
-
-        // Order_Text_Update
-        String text = "OrderManagement Created";
-        outboundOrderV2Repository.updateOrderManagementText(newOrderManagementHeader.getOutboundOrderTypeId(), newOrderManagementHeader.getRefDocNumber(), text);
-        log.info("OrderManagement Header Status Updated Successfully");
-
-        return orderManagementHeaderV2Repository.save(newOrderManagementHeader);
-    }
-
-    /**
-     * MMF
-     *
-     * @param createdPreOutboundHeader
-     * @return
-     */
-    public OrderManagementHeaderV2 createOrderManagementHeaderV8(PreOutboundHeaderV2 createdPreOutboundHeader, String loginUserId) {
-        OrderManagementHeaderV2 newOrderManagementHeader = new OrderManagementHeaderV2();
-        BeanUtils.copyProperties(createdPreOutboundHeader, newOrderManagementHeader, CommonUtils.getNullPropertyNames(createdPreOutboundHeader));
-        newOrderManagementHeader.setStatusId(41L);    // Hard Coded Value "41"
-        statusDescription = getStatusDescription(41L, createdPreOutboundHeader.getLanguageId());
-        newOrderManagementHeader.setStatusDescription(statusDescription);
-        newOrderManagementHeader.setReferenceField7(statusDescription);
-        newOrderManagementHeader.setPickupCreatedBy(loginUserId);
-        newOrderManagementHeader.setPickupCreatedOn(new Date());
-
-        // Order_Text_Update
-        String text = "OrderManagement Created";
-        outboundOrderV2Repository.updateOrderManagementText(newOrderManagementHeader.getOutboundOrderTypeId(), newOrderManagementHeader.getRefDocNumber(), text);
-        log.info("OrderManagement Header Status Updated Successfully");
-
         return orderManagementHeaderV2Repository.save(newOrderManagementHeader);
     }
 
