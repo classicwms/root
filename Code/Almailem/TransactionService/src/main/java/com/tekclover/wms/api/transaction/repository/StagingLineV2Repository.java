@@ -346,6 +346,45 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
             @Param("preInboundNo") String preInboundNo
     );
 
+    @Modifying
+//    @Transactional
+    @Query(value =
+            "UPDATE tblstagingline " +
+                    "SET INV_QTY = invData.invQty " +
+                    "FROM tblstagingline stg " +
+                    "INNER JOIN ( " +
+                    "    SELECT inv.C_ID, inv.PLANT_ID, inv.LANG_ID, inv.WH_ID, inv.ITM_CODE, inv.MFR_NAME, SUM(inv.REF_FIELD_4) AS invQty " +
+                    "    FROM tblinventory inv " +
+                    "    INNER JOIN ( " +
+                    "        SELECT MAX(INV_ID) AS inventoryId, ITM_CODE, MFR_NAME, ST_BIN, PLANT_ID, WH_ID, C_ID, LANG_ID " +
+                    "        FROM tblinventory " +
+                    "        GROUP BY ITM_CODE, MFR_NAME, ST_BIN, PLANT_ID, WH_ID, C_ID, LANG_ID " +
+                    "    ) latest ON inv.INV_ID = latest.inventoryId " +
+                    "    WHERE inv.IS_DELETED = 0 " +
+                    "      AND inv.BIN_CL_ID IN (1,7) " +
+                    "      AND inv.C_ID = :companyCodeId " +
+                    "      AND inv.PLANT_ID = :plantId " +
+                    "      AND inv.LANG_ID = :languageId " +
+                    "      AND inv.WH_ID = :warehouseId " +
+                    "    GROUP BY inv.C_ID, inv.PLANT_ID, inv.LANG_ID, inv.WH_ID, inv.ITM_CODE, inv.MFR_NAME " +
+                    ") invData " +
+                    "ON invData.C_ID = stg.C_ID " +
+                    "AND invData.PLANT_ID = stg.PLANT_ID " +
+                    "AND invData.LANG_ID = stg.LANG_ID " +
+                    "AND invData.WH_ID = stg.WH_ID " +
+                    "AND invData.ITM_CODE = stg.ITM_CODE " +
+                    "AND invData.MFR_NAME = stg.MFR_NAME " +
+                    "WHERE stg.REF_DOC_NO = :refDocNumber " +
+                    "AND stg.PRE_IB_NO = :preInboundNo",
+            nativeQuery = true)
+    void updateStagingLineInvQty(@Param("companyCodeId") String companyCodeId,
+                                 @Param("plantId") String plantId,
+                                 @Param("languageId") String languageId,
+                                 @Param("warehouseId") String warehouseId,
+                                 @Param("refDocNumber") String refDocNumber,
+                                 @Param("preInboundNo") String preInboundNo);
+
+
     //update barcode - stagingline - barcode is null
     @Query(value = "select * from tblstagingline i \n" +
             "WHERE i.ITM_CODE in (:itemCode) AND i.MFR_NAME in (:manufacturerName) AND i.WH_ID in (:warehouseId) AND \n" +

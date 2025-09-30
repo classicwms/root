@@ -1217,7 +1217,9 @@ public class StagingLineService extends BaseService {
             List<StagingLineEntityV2> createdStagingLineEntityList = stagingLineV2Repository.saveAll(stagingLineEntityList);
             log.info("created StagingLine records." + stagingLineEntityList);
             //update INV_QTY in stagingLine - calling stored procedure
-            stagingLineV2Repository.updateStagingLineInvQtyUpdateProc(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
+//            stagingLineV2Repository.updateStagingLineInvQtyUpdateProc(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
+            log.info("Staging Line Inventory Qty Update Procedure Called ------------------------------->");
+            stagingLineV2Repository.updateStagingLineInvQty(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
 
             // Update PreInboundLines
             List<PreInboundLineEntityV2> preInboundLineList = preInboundLineService.getPreInboundLineV2(preInboundNo);
