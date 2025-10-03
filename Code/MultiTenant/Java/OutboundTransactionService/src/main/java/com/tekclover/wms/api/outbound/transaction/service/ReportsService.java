@@ -1299,7 +1299,8 @@ public class ReportsService extends BaseService {
                 ShipmentDeliveryReport shipmentDelivery = new ShipmentDeliveryReport();
                 shipmentDelivery.setDeliveryDate(pl.getPickupConfirmedOn());
                 shipmentDelivery.setDeliveryTo(pl.getPartnerCode());
-                shipmentDelivery.setOrderType(getOutboundOrderTypeDesc(pl.getOutboundOrderTypeId()));
+//                shipmentDelivery.setOrderType(getOutboundOrderTypeDesc(pl.getOutboundOrderTypeId()));
+                shipmentDelivery.setOrderType("SALES ORDER");
                 shipmentDelivery.setCustomerRef(pl.getRefDocNumber()); // REF_DOC_NO
                 shipmentDelivery.setCommodity(pl.getItemCode());
                 shipmentDelivery.setDescription(pl.getDescription());
