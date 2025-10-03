@@ -1315,4 +1315,9 @@ public interface OutboundLineV2Repository extends JpaRepository<OutboundLineV2, 
     void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
             String companyCodeId, String plantId, String warehouseId, String refDocNumber, String preOutboundNo, Long deletionIndicator);
 
+    @Query(value = "select itm_code itemCode, sum(ord_qty) orderQty, max(driver_name) driverName, max(REMARKS) remarks, max(VEHICLE_NO) vehicleNo, max(item_text) itemText from tbloutboundline " +
+            "where ref_doc_no = :refDocNo and itm_code = :itemCode group by itm_code", nativeQuery = true)
+    IKeyValuePair getOutboundLineValue(@Param("refDocNo") String refDocNo,
+                                       @Param("itemCode") String itemCode);
+
 }

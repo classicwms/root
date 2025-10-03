@@ -36,4 +36,14 @@ public interface IKeyValuePair {
     Double getAlterUomQty();
     Double getUomQty();
 
+    Double getOrderQty();
+
+    String getDriverName();
+
+    String getRemarks();
+
+    String getVehicleNo();
+
+    String getItemText();
+
 }

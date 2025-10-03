@@ -227,8 +227,19 @@ public class ReportsController {
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
-            List<ShipmentDeliveryReport> shipmentDeliveryList = reportsService.getShipmentDeliveryReportV2(companyCodeId, plantId, languageId, warehouseId,
-                    fromDeliveryDate, toDeliveryDate, storeCode, soType, orderNumber, preOutboundNo);
+            List<ShipmentDeliveryReport> shipmentDeliveryList = null;
+            if(routingDb != null) {
+                switch (routingDb) {
+                    case "NAMRATHA":
+                        shipmentDeliveryList = reportsService.getShipmentDeliveryReportV4(companyCodeId, plantId, languageId, warehouseId,
+                                fromDeliveryDate, toDeliveryDate, storeCode, soType, orderNumber, preOutboundNo);
+                        break;
+                    default:
+                        shipmentDeliveryList = reportsService.getShipmentDeliveryReportV2(companyCodeId, plantId, languageId, warehouseId,
+                                fromDeliveryDate, toDeliveryDate, storeCode, soType, orderNumber, preOutboundNo);
+
+                }
+            }
             return new ResponseEntity<>(shipmentDeliveryList, HttpStatus.OK);
         } finally {
             DataBaseContextHolder.clear();

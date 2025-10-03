@@ -284,4 +284,36 @@ public interface PickupLineV2Repository extends JpaRepository<PickupLineV2, Long
             String refDocNumber, String partnerCode, Long lineNumber, String pickupNumber, String itemCode,
             String pickedStorageBin, String pickedPackCode, String barcodeId, long l);
 
+
+    @Query(value = "select * from tblpickupline WHERE C_ID = :companyCodeId \n " +
+            "AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId \n " +
+            "AND REF_DOC_NO = :refDocNo AND IS_DELETED = 0", nativeQuery = true)
+    List<PickupLineV2> findPickupLineForReport(@Param("companyCodeId") String companyCodeId,
+                                               @Param("plantId") String plantId,
+                                               @Param("languageId") String languageId,
+                                               @Param("warehouseId") String warehouseId,
+                                               @Param("refDocNo") String refDocNo);
+
+    @Query(value = "select count(*) from tblpickupline WHERE C_ID = :companyCodeId \n " +
+            "AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId \n " +
+            "AND REF_DOC_NO = :refDocNo AND IS_DELETED = 0 AND itm_code = :itmCode AND exp_date =:expDate ", nativeQuery = true)
+    Long getNoOfBags(@Param("companyCodeId") String companyCodeId,
+                     @Param("plantId") String plantId,
+                     @Param("languageId") String languageId,
+                     @Param("warehouseId") String warehouseId,
+                     @Param("refDocNo") String refDocNo,
+                     @Param("itmCode") String itmCode,
+                     @Param("expDate") Date expDate);
+
+
+    @Query(value = "select count(*) from tblpickupline WHERE C_ID = :companyCodeId \n " +
+            "AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId \n " +
+            "AND REF_DOC_NO = :refDocNo AND IS_DELETED = 0 AND itm_code = :itmCode AND exp_date IS NULL ", nativeQuery = true)
+    Long getNoOfBags(@Param("companyCodeId") String companyCodeId,
+                     @Param("plantId") String plantId,
+                     @Param("languageId") String languageId,
+                     @Param("warehouseId") String warehouseId,
+                     @Param("refDocNo") String refDocNo,
+                     @Param("itmCode") String itmCode);
+
 }

@@ -12,6 +12,7 @@ import com.tekclover.wms.api.outbound.transaction.model.impl.StockReportImpl;
 import com.tekclover.wms.api.outbound.transaction.model.inventory.Inventory;
 import com.tekclover.wms.api.outbound.transaction.model.inventory.SearchInventory;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.*;
+import com.tekclover.wms.api.outbound.transaction.model.outbound.pickup.v2.PickupLineV2;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.v2.OutboundHeaderV2;
 import com.tekclover.wms.api.outbound.transaction.model.outbound.v2.OutboundLineV2;
 import com.tekclover.wms.api.outbound.transaction.model.report.*;
@@ -153,6 +154,8 @@ public class ReportsService extends BaseService {
     @Autowired
     PutAwayHeaderRepository putAwayHeaderRepository;
 
+    @Autowired
+    PickupLineV2Repository pickupLineV2Repository;
 
     /**
      * Stock Report ---------------------
@@ -1262,6 +1265,96 @@ public class ReportsService extends BaseService {
         }
         return null;
     }
+
+
+    public List<ShipmentDeliveryReport> getShipmentDeliveryReportV4(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                                    String fromDeliveryDate, String toDeliveryDate, String storeCode,
+                                                                    List<String> soType, String orderNumber, String preOutboundNo)
+            throws ParseException, java.text.ParseException {
+        try {
+            // WH_ID
+            if (warehouseId == null) {
+                throw new BadRequestException("WarehouseId can't be blank.");
+            }
+
+            if (orderNumber == null) {
+                throw new BadRequestException("OrderNumber can't be blank.");
+            }
+
+            List<PickupLineV2> dbPickupLine = pickupLineV2Repository.findPickupLineForReport(companyCodeId, plantId, languageId, warehouseId, orderNumber);
+
+            log.info("PickupLine value Size is  ---------------> " + dbPickupLine.size());
+            Map<String, List<PickupLineV2>> groupingValue = dbPickupLine.stream().collect(Collectors.groupingBy(
+                    line -> line.getItemCode() + "_" + line.getExpiryDate()));
+//            Map<String, List<PickupLineV2>> groupingValue = dbPickupLine.stream()
+//                    .collect(Collectors.groupingBy(
+//                            line -> line.getItemCode() + "_" +
+//                                    (line.getExpiryDate() == null ? "NO_EXP_DATE" : line.getExpiryDate().toString())
+//                    ));
+
+            List<ShipmentDeliveryReport> shipmentDeliveryList = new ArrayList<>();
+            for(List<PickupLineV2> pickupList : groupingValue.values()) {
+//                for(PickupLineV2 pl : pickupList) {
+                PickupLineV2 pl = pickupList.get(0);
+                ShipmentDeliveryReport shipmentDelivery = new ShipmentDeliveryReport();
+                shipmentDelivery.setDeliveryDate(pl.getPickupConfirmedOn());
+                shipmentDelivery.setDeliveryTo(pl.getPartnerCode());
+                shipmentDelivery.setOrderType(getOutboundOrderTypeDesc(pl.getOutboundOrderTypeId()));
+                shipmentDelivery.setCustomerRef(pl.getRefDocNumber()); // REF_DOC_NO
+                shipmentDelivery.setCommodity(pl.getItemCode());
+                shipmentDelivery.setDescription(pl.getDescription());
+                shipmentDelivery.setManfCode(pl.getManufacturerName());
+
+                shipmentDelivery.setPartnerName(pl.getCustomerId() + " - " + pl.getCustomerName());
+                shipmentDelivery.setTargetBranch(pl.getTargetBranchCode());
+                shipmentDelivery.setMrp(pl.getMrp());
+
+                shipmentDelivery.setExpiryDate(pl.getExpiryDate());
+
+                shipmentDelivery.setReasons(pl.getReferenceField6());
+                shipmentDelivery.setDescription(pl.getDescription());
+
+                IKeyValuePair ol = outboundLineV2Repository.getOutboundLineValue(pl.getRefDocNumber(), pl.getItemCode());
+                if (ol != null && ol.getOrderQty() != null) {
+                    shipmentDelivery.setOrderQty(ol.getOrderQty());
+                    shipmentDelivery.setQuantity(ol.getOrderQty());
+                }
+                if (ol != null && ol.getRemarks() != null) {
+                    shipmentDelivery.setRemarks(ol.getRemarks());
+                }
+                if (ol != null && ol.getDriverName() != null) {
+                    shipmentDelivery.setDriverName(ol.getDriverName());
+                }
+                if (ol != null && ol.getVehicleNo() != null) {
+                    shipmentDelivery.setVehicleNo(ol.getVehicleNo());
+                }
+                if(ol != null && ol.getItemText() != null) {
+                    shipmentDelivery.setDescription(ol.getItemText());
+                }
+
+                if(pl.getExpiryDate() != null) {
+                    Long noOfBag = pickupLineV2Repository.getNoOfBags(pl.getCompanyCodeId(), pl.getPlantId(), pl.getLanguageId(), pl.getWarehouseId(),
+                            pl.getRefDocNumber(), pl.getItemCode(), pl.getExpiryDate());
+                    log.info("NoOfBag Count -------------------> " + noOfBag);
+                    shipmentDelivery.setNoOfBags(Double.valueOf(noOfBag));
+                } else {
+                    Long noOfBag = pickupLineV2Repository.getNoOfBags(pl.getCompanyCodeId(), pl.getPlantId(), pl.getLanguageId(), pl.getWarehouseId(),
+                            pl.getRefDocNumber(), pl.getItemCode());
+                    log.info("EXP_DATE IS NULL ------------> NoOfBag Count -------------------> " + noOfBag);
+                    shipmentDelivery.setNoOfBags(Double.valueOf(noOfBag));
+                }
+                shipmentDeliveryList.add(shipmentDelivery);
+//                }
+            }
+            return shipmentDeliveryList;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+
 
     public List<ShipmentDeliveryReport> getShipmentDeliveryReportV2(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                                     String fromDeliveryDate, String toDeliveryDate, String storeCode,
