@@ -316,4 +316,17 @@ public interface PickupLineV2Repository extends JpaRepository<PickupLineV2, Long
                      @Param("refDocNo") String refDocNo,
                      @Param("itmCode") String itmCode);
 
+    @Modifying
+    @Query(value = "Update tblpickupline set exp_date = CONVERT(varchar, :expDate, 23) where C_ID = :companyCodeId \n " +
+            "AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId \n " +
+            "AND REF_DOC_NO = :refDocNo AND IS_DELETED = 0 AND itm_code = :itmCode AND PARTNER_ITEM_BARCODE = :barcodeId ", nativeQuery = true)
+    void updateExpDate(@Param("companyCodeId") String companyCodeId,
+                       @Param("plantId") String plantId,
+                       @Param("languageId") String languageId,
+                       @Param("warehouseId") String warehouseId,
+                       @Param("refDocNo") String refDocNo,
+                       @Param("itmCode") String itmCode,
+                       @Param("barcodeId") String barcodeId,
+                       @Param("expDate") Date expDate);
+
 }
