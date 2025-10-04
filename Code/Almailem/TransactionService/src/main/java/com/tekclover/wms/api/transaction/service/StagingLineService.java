@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -8,9 +9,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.microsoft.sqlserver.jdbc.SQLServerException;
+import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.expression.ParseException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
@@ -58,6 +64,7 @@ import com.tekclover.wms.api.transaction.repository.specification.StagingLineSpe
 import com.tekclover.wms.api.transaction.repository.specification.StagingLineV2Specification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.UnexpectedRollbackException;
 
 @Slf4j
 @Service
@@ -1074,62 +1081,19 @@ public class StagingLineService extends BaseService {
                                                          String loginUserID)
             throws Exception {
         List<StagingLineEntityV2> stagingLineEntityList = new ArrayList<>();
-        String preInboundNo = null;
-        String refDocNumber = null;
-
-        // Casecode needs to be created automatically by calling /({numberOfCases}/barcode) from StagingHeader
-        Long numberOfCases = 1L;
-        List<String> caseCodeList = stagingHeaderService.generateNumberRanges(numberOfCases, warehouseId, companyCodeId, plantId, languageId);
-        if (caseCodeList == null || caseCodeList.isEmpty()) {
-            throw new BadRequestException("CaseCode is not generated.");
-        }
-
-        String manufactureCode = null;
-        String caseCodeForCaseConfirmation = null;
-        List<CaseConfirmation> caseConfirmationList = new ArrayList<>();
-
+       String caseCode =  stagingHeaderService.generateNumberRangeForCaseCode(warehouseId, companyCodeId, plantId, languageId);
+        log.info("CaseCode Generated ---------------------------> " + caseCode);
         for (PreInboundLineEntityV2 newStagingLine : inputPreInboundLines) {
             log.info("newStagingLineEntity : " + newStagingLine);
-
-            // Warehouse
-//            AuthToken authTokenForIDMasterService = authTokenService.getIDMasterServiceAuthToken();
-//            Warehouse warehouse = idmasterService.getWarehouse(newStagingLine.getWarehouseId(),
-//                    companyCodeId, plantId, languageId,
-//                    authTokenForIDMasterService.getAccess_token());
-
-            // Insert based on the number of casecodes
-            for (String caseCode : caseCodeList) {
                 StagingLineEntityV2 dbStagingLineEntity = new StagingLineEntityV2();
                 BeanUtils.copyProperties(newStagingLine, dbStagingLineEntity, CommonUtils.getNullPropertyNames(newStagingLine));
                 dbStagingLineEntity.setCaseCode(caseCode);
                 dbStagingLineEntity.setPalletCode(caseCode);    //Copy CASE_CODE
-
-                // STATUS_ID - Hard Coded Value "13"
-                dbStagingLineEntity.setStatusId(13L);
-
-                // LANG_ID
+                dbStagingLineEntity.setStatusId(14L);
                 dbStagingLineEntity.setLanguageId(languageId);
-
-                // C_ID
                 dbStagingLineEntity.setCompanyCode(companyCodeId);
-
-                // PLANT_ID
                 dbStagingLineEntity.setPlantId(plantId);
-
                 dbStagingLineEntity.setOrderQty(newStagingLine.getOrderQty());
-
-                /*
-                 * Pass the C_ID,PLANT_ID,WH_ID,LANG_ID and ITM_CODE for each record of staging line table into inventory table and
-                 * fetch the sum of INV_QTY+ ALLOC_QTY values and append in this field. If results are null append as Zero
-                 */
-                //code commented and approach changed to avoid deadlock, after save call update stagingline inventory
-//                dbStagingLineEntity.setInventoryQuantity(
-//                        stagingLineV2Repository.getTotalQuantityNew(newStagingLine.getItemCode(),
-//                                warehouseId,
-//                                languageId,
-//                                plantId,
-//                                companyCodeId));
-
                 //Pass ITM_CODE/SUPPLIER_CODE received in integration API into IMPARTNER table and fetch PARTNER_ITEM_BARCODE values. Values can be multiple
                 List<String> barcode = stagingLineV2Repository.getPartnerItemBarcode(newStagingLine.getItemCode(),
                         newStagingLine.getCompanyCode(),
@@ -1138,29 +1102,12 @@ public class StagingLineService extends BaseService {
                         newStagingLine.getManufacturerName(),
                         newStagingLine.getLanguageId());
                 log.info("Barcode : " + barcode);
-                //for interim only the following condition is used
-//                if (barcode == null) {
-//                    barcode = stagingLineV2Repository.getPartnerItemBarcode(newStagingLine.getItemCode(),
-//                            newStagingLine.getManufacturerCode());
-//                }
                 if (barcode != null && !barcode.isEmpty()) {
-//                    dbStagingLineEntity.setPartner_item_barcode(barcode.replaceAll("\\s", "").trim());      //to remove white space
                     dbStagingLineEntity.setPartner_item_barcode(barcode.get(0));
                 }
-
-                IKeyValuePair description = stagingLineV2Repository.getDescription(companyCodeId,
-                        languageId,
-                        plantId,
-                        warehouseId);
-
-                statusDescription = stagingLineV2Repository.getStatusDescription(13L, languageId);
+                statusDescription = stagingLineV2Repository.getStatusDescription(14L, languageId);
                 dbStagingLineEntity.setStatusDescription(statusDescription);
-
-                dbStagingLineEntity.setCompanyDescription(description.getCompanyDesc());
-                dbStagingLineEntity.setPlantDescription(description.getPlantDesc());
-                dbStagingLineEntity.setWarehouseDescription(description.getWarehouseDesc());
                 dbStagingLineEntity.setStagingNo(stagingNo);
-
                 dbStagingLineEntity.setContainerNo(newStagingLine.getContainerNo());
                 dbStagingLineEntity.setMiddlewareId(newStagingLine.getMiddlewareId());
                 dbStagingLineEntity.setMiddlewareHeaderId(newStagingLine.getMiddlewareHeaderId());
@@ -1168,76 +1115,48 @@ public class StagingLineService extends BaseService {
                 dbStagingLineEntity.setPurchaseOrderNumber(newStagingLine.getPurchaseOrderNumber());
                 dbStagingLineEntity.setReferenceDocumentType(newStagingLine.getReferenceDocumentType());
                 dbStagingLineEntity.setManufacturerFullName(newStagingLine.getManufacturerFullName());
-
                 dbStagingLineEntity.setManufacturerCode(newStagingLine.getManufacturerName());
                 dbStagingLineEntity.setManufacturerName(newStagingLine.getManufacturerName());
                 dbStagingLineEntity.setManufacturerPartNo(newStagingLine.getManufacturerPartNo());
-
                 dbStagingLineEntity.setBranchCode(newStagingLine.getBranchCode());
                 dbStagingLineEntity.setTransferOrderNo(newStagingLine.getTransferOrderNo());
                 dbStagingLineEntity.setIsCompleted(newStagingLine.getIsCompleted());
                 dbStagingLineEntity.setBusinessPartnerCode(newStagingLine.getBusinessPartnerCode());
-
                 dbStagingLineEntity.setDeletionIndicator(0L);
                 dbStagingLineEntity.setCreatedBy(loginUserID);
                 dbStagingLineEntity.setUpdatedBy(loginUserID);
                 dbStagingLineEntity.setCreatedOn(new Date());
                 dbStagingLineEntity.setUpdatedOn(new Date());
                 stagingLineEntityList.add(dbStagingLineEntity);
-//                stagingLineV2Repository.save(dbStagingLineEntity);
-
                 // PreInboundNo
-                preInboundNo = dbStagingLineEntity.getPreInboundNo();
-
-                // refDocNumber
-                refDocNumber = dbStagingLineEntity.getRefDocNumber();
-
-                caseCodeForCaseConfirmation = caseCode;
-
+//                preInboundNo = dbStagingLineEntity.getPreInboundNo();
+//                 refDocNumber
+//                refDocNumber = dbStagingLineEntity.getRefDocNumber();
                 //ManufactureCode
-                manufactureCode = dbStagingLineEntity.getManufacturerCode();
-
+//                manufactureCode = dbStagingLineEntity.getManufacturerCode();
                 // CaseConfirmation preparation for creating caseConfirmation
-                CaseConfirmation caseConfirmation = new CaseConfirmation();
-                caseConfirmation.setWarehouseId(warehouseId);
-                caseConfirmation.setPreInboundNo(preInboundNo);
-                caseConfirmation.setRefDocNumber(dbStagingLineEntity.getRefDocNumber());
-                caseConfirmation.setStagingNo(dbStagingLineEntity.getStagingNo());
-                caseConfirmation.setPalletCode(dbStagingLineEntity.getPalletCode());
-                caseConfirmation.setCaseCode(caseCode);
-                caseConfirmation.setLineNo(dbStagingLineEntity.getLineNo());
-                caseConfirmation.setItemCode(dbStagingLineEntity.getItemCode());
-                caseConfirmation.setManufactureCode(manufactureCode);
-                caseConfirmationList.add(caseConfirmation);
+//                CaseConfirmation caseConfirmation = new CaseConfirmation();
+//                caseConfirmation.setWarehouseId(warehouseId);
+//                caseConfirmation.setPreInboundNo(preInboundNo);
+//                caseConfirmation.setRefDocNumber(dbStagingLineEntity.getRefDocNumber());
+//                caseConfirmation.setStagingNo(dbStagingLineEntity.getStagingNo());
+//                caseConfirmation.setPalletCode(dbStagingLineEntity.getPalletCode());
+//                caseConfirmation.setCaseCode(caseCode);
+//                caseConfirmation.setLineNo(dbStagingLineEntity.getLineNo());
+//                caseConfirmation.setItemCode(dbStagingLineEntity.getItemCode());
+//                caseConfirmation.setManufactureCode(manufactureCode);
             }
-        }
 
         // Batch Insert
         if (!stagingLineEntityList.isEmpty()) {
-            List<StagingLineEntityV2> createdStagingLineEntityList = stagingLineV2Repository.saveAll(stagingLineEntityList);
-            log.info("created StagingLine records." + stagingLineEntityList);
-            //update INV_QTY in stagingLine - calling stored procedure
-//            stagingLineV2Repository.updateStagingLineInvQtyUpdateProc(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
-            log.info("Staging Line Inventory Qty Update Procedure Called ------------------------------->");
-            stagingLineV2Repository.updateStagingLineInvQty(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
-
-            // Update PreInboundLines
-            List<PreInboundLineEntityV2> preInboundLineList = preInboundLineService.getPreInboundLineV2(preInboundNo);
-            statusDescription = stagingLineV2Repository.getStatusDescription(13L, languageId);
-            preInboundLineList.stream().forEach(x -> {
-                // STATUS_ID - Hard Coded Value "13"
-                x.setStatusId(13L);
-                x.setStatusDescription(statusDescription);
-            });
-            List<PreInboundLineEntityV2> updatedList = preInboundLineV2Repository.saveAll(preInboundLineList);
-            log.info("updated PreInboundLineEntityV2 : " + updatedList);
-
+//            List<StagingLineEntityV2> createdStagingLineEntityList = stagingLineV2Repository.saveAll(stagingLineEntityList);
+            log.info("created StagingLine records --------------------------->" + stagingLineEntityList);
+//            log.info("Staging Line Inventory Qty Update Started ------------------------------->");
+//            updateStagingLineInOrderProcess(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
             // Create CaseConfirmation
-            List<StagingLineEntityV2> responseStagingLineEntityList =
-                    caseConfirmationV2(caseConfirmationList, caseCodeForCaseConfirmation,
-                            companyCodeId, plantId, languageId, loginUserID);
+//            List<StagingLineEntityV2> responseStagingLineEntityList = createGrHeaderProcess(companyCodeId, plantId, languageId, loginUserID);
 
-            return responseStagingLineEntityList;
+            return stagingLineEntityList;
         }
         return null;
     }
@@ -1792,6 +1711,54 @@ public class StagingLineService extends BaseService {
     }
 
     /**
+     * @return
+     * @throws Exception
+     */
+    public GrHeaderV2 createGrHeaderProcess(StagingHeaderV2 stagingHeaderV2, StagingLineEntityV2 stagingLineEntityV2)
+            throws Exception {
+        GrHeaderV2 newGrHeader = new GrHeaderV2();
+        BeanUtils.copyProperties(stagingHeaderV2, newGrHeader, CommonUtils.getNullPropertyNames(stagingHeaderV2));
+
+        // GR_NO
+        AuthToken authTokenForIDMasterService = authTokenService.getIDMasterServiceAuthToken();
+        long NUM_RAN_CODE = 5;
+        String nextGRHeaderNumber = getNextRangeNumber(NUM_RAN_CODE,
+                stagingHeaderV2.getCompanyCode(),
+                stagingHeaderV2.getPlantId(),
+                stagingHeaderV2.getLanguageId(),
+                stagingHeaderV2.getWarehouseId(),
+                authTokenForIDMasterService.getAccess_token());
+        newGrHeader.setGoodsReceiptNo(nextGRHeaderNumber);
+
+        newGrHeader.setPalletCode(stagingLineEntityV2.getPalletCode());
+        newGrHeader.setCaseCode(stagingLineEntityV2.getCaseCode());
+        newGrHeader.setMiddlewareId(stagingHeaderV2.getMiddlewareId());
+        newGrHeader.setMiddlewareTable(stagingHeaderV2.getMiddlewareTable());
+        newGrHeader.setReferenceDocumentType(stagingHeaderV2.getReferenceDocumentType());
+        newGrHeader.setManufacturerFullName(stagingHeaderV2.getManufacturerFullName());
+        newGrHeader.setManufacturerName(stagingHeaderV2.getManufacturerFullName());
+        newGrHeader.setTransferOrderDate(stagingHeaderV2.getTransferOrderDate());
+        newGrHeader.setIsCompleted(stagingHeaderV2.getIsCompleted());
+        newGrHeader.setIsCancelled(stagingHeaderV2.getIsCancelled());
+        newGrHeader.setMUpdatedOn(stagingHeaderV2.getMUpdatedOn());
+        newGrHeader.setSourceBranchCode(stagingHeaderV2.getSourceBranchCode());
+        newGrHeader.setSourceCompanyCode(stagingHeaderV2.getSourceCompanyCode());
+        newGrHeader.setDeletionIndicator(0L);
+        newGrHeader.setCreatedBy(stagingHeaderV2.getCreatedBy());
+        newGrHeader.setUpdatedBy(stagingHeaderV2.getCreatedBy());
+        newGrHeader.setCreatedOn(new Date());
+        newGrHeader.setUpdatedOn(new Date());
+
+        // STATUS_ID
+        newGrHeader.setStatusId(16L);
+        statusDescription = stagingLineV2Repository.getStatusDescription(16L, stagingHeaderV2.getLanguageId());
+        newGrHeader.setStatusDescription(statusDescription);
+
+        return newGrHeader;
+    }
+
+
+    /**
      * @param caseConfirmations
      * @param caseCode
      * @param loginUserID
@@ -2291,6 +2258,24 @@ public class StagingLineService extends BaseService {
         dbErrorLog.setCreatedBy("MSD_API");
         dbErrorLog.setCreatedOn(new Date());
         exceptionLogRepo.save(dbErrorLog);
+    }
+
+    /**
+     *
+     * @param companyCodeId c_id
+     * @param plantId pl_id
+     * @param languageId lang_id
+     * @param warehouseId wh_id
+     * @param refDocNumber ref_doc
+     * @param preInboundNo pre_ib
+     */
+    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class,
+            LockAcquisitionException.class, UnexpectedRollbackException.class},
+            maxAttempts = 2, backoff = @Backoff(delay = 2000))
+    public void updateStagingLineInOrderProcess(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                String refDocNumber, String preInboundNo) {
+        stagingLineV2Repository.updateStagingLineInvQty(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preInboundNo);
+        log.info("Staging Line Inventory Qty Update Completed ------------------------------->");
     }
 
 }
