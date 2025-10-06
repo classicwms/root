@@ -172,7 +172,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "iv.ALLOC_QTY allocatedQuantity,\n" +
             "iv.INV_UOM inventoryUom,\n" +
             "iv.MFR_DATE manufacturer,\n" +
-            "iv.EXP_DATE expiry,\n" +
+            "iv.EXP_DATE expiryDate,\n" +
             "iv.IS_DELETED deletionIndicator,\n" +
             "iv.REF_FIELD_1 referenceField1,\n" +
             "iv.REF_FIELD_2 referenceField2,\n" +
@@ -254,7 +254,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "iv.ALLOC_QTY allocatedQuantity,\n" +
             "iv.INV_UOM inventoryUom,\n" +
             "iv.MFR_DATE manufacturer,\n" +
-            "iv.EXP_DATE expiry,\n" +
+            "iv.EXP_DATE expiryDate,\n" +
             "iv.IS_DELETED deletionIndicator,\n" +
             "iv.REF_FIELD_1 referenceField1,\n" +
             "iv.REF_FIELD_2 referenceField2,\n" +
@@ -335,7 +335,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "iv.ALLOC_QTY allocatedQuantity,\n" +
             "iv.INV_UOM inventoryUom,\n" +
             "iv.MFR_DATE manufacturer,\n" +
-            "iv.EXP_DATE expiry,\n" +
+            "iv.EXP_DATE expiryDate,\n" +
             "iv.IS_DELETED deletionIndicator,\n" +
             "iv.REF_FIELD_1 referenceField1,\n" +
             "iv.REF_FIELD_2 referenceField2,\n" +
@@ -419,7 +419,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "iv.ALLOC_QTY allocatedQuantity,\n" +
             "iv.INV_UOM inventoryUom,\n" +
             "iv.MFR_DATE manufacturer,\n" +
-            "iv.EXP_DATE expiry,\n" +
+            "iv.EXP_DATE expiryDate,\n" +
             "iv.IS_DELETED deletionIndicator,\n" +
             "iv.REF_FIELD_1 referenceField1,\n" +
             "iv.REF_FIELD_2 referenceField2,\n" +
@@ -498,7 +498,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "iv.ALLOC_QTY allocatedQuantity,\n" +
             "iv.INV_UOM inventoryUom,\n" +
             "iv.MFR_DATE manufacturer,\n" +
-            "iv.EXP_DATE expiry,\n" +
+            "iv.EXP_DATE expiryDate,\n" +
             "iv.IS_DELETED deletionIndicator,\n" +
             "iv.REF_FIELD_1 referenceField1,\n" +
             "iv.REF_FIELD_2 referenceField2,\n" +
@@ -577,7 +577,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "iv.ALLOC_QTY allocatedQuantity,\n" +
             "iv.INV_UOM inventoryUom,\n" +
             "iv.MFR_DATE manufacturer,\n" +
-            "iv.EXP_DATE expiry,\n" +
+            "iv.EXP_DATE expiryDate,\n" +
             "iv.IS_DELETED deletionIndicator,\n" +
             "iv.REF_FIELD_1 referenceField1,\n" +
             "iv.REF_FIELD_2 referenceField2,\n" +
@@ -1124,7 +1124,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "iv.ALLOC_QTY allocatedQuantity,\n" +
             "iv.INV_UOM inventoryUom,\n" +
             "iv.MFR_DATE manufacturer,\n" +
-            "iv.EXP_DATE expiry,\n" +
+            "iv.EXP_DATE expiryDate,\n" +
             "iv.IS_DELETED deletionIndicator,\n" +
             "iv.REF_FIELD_1 referenceField1,\n" +
             "iv.REF_FIELD_2 referenceField2,\n" +
@@ -1251,7 +1251,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "si.sumAllocQty allocatedQuantity,\n" +
             "iv.INV_UOM inventoryUom,\n" +
             "iv.MFR_DATE manufacturer,\n" +
-            "iv.EXP_DATE expiry,\n" +
+            "iv.EXP_DATE expiryDate,\n" +
             "iv.IS_DELETED deletionIndicator,\n" +
             "iv.REF_FIELD_1 referenceField1,\n" +
             "iv.REF_FIELD_2 referenceField2,\n" +
@@ -1333,7 +1333,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "iv.ALLOC_QTY allocatedQuantity,\n" +
             "iv.INV_UOM inventoryUom,\n" +
             "iv.MFR_DATE manufacturer,\n" +
-            "iv.EXP_DATE expiry,\n" +
+            "iv.EXP_DATE expiryDate,\n" +
             "iv.IS_DELETED deletionIndicator,\n" +
             "iv.REF_FIELD_1 referenceField1,\n" +
             "iv.REF_FIELD_2 referenceField2,\n" +
@@ -1414,7 +1414,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "iv.ALLOC_QTY allocatedQuantity,\n" +
             "iv.INV_UOM inventoryUom,\n" +
             "iv.MFR_DATE manufacturer,\n" +
-            "iv.EXP_DATE expiry,\n" +
+            "iv.EXP_DATE expiryDate,\n" +
             "iv.IS_DELETED deletionIndicator,\n" +
             "iv.REF_FIELD_1 referenceField1,\n" +
             "iv.REF_FIELD_2 referenceField2,\n" +
@@ -1715,7 +1715,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "iv.ALLOC_QTY allocatedQuantity,\n" +
             "iv.INV_UOM inventoryUom,\n" +
             "iv.MFR_DATE manufacturer,\n" +
-            "iv.EXP_DATE expiry,\n" +
+            "iv.EXP_DATE expiryDate,\n" +
             "iv.IS_DELETED deletionIndicator,\n" +
             "iv.REF_FIELD_1 referenceField1,\n" +
             "iv.REF_FIELD_2 referenceField2,\n" +
@@ -1939,7 +1939,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "iv.ALLOC_QTY allocatedQuantity,\n" +
             "iv.INV_UOM inventoryUom,\n" +
             "iv.MFR_DATE manufacturer,\n" +
-            "iv.EXP_DATE expiry,\n" +
+            "iv.EXP_DATE expiryDate,\n" +
             "iv.IS_DELETED deletionIndicator,\n" +
             "iv.REF_FIELD_1 referenceField1,\n" +
             "iv.REF_FIELD_2 referenceField2,\n" +
