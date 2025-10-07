@@ -3008,9 +3008,9 @@ public class ReportsService extends BaseService {
                 outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
         log.info("OrderManagementLine Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
 
-        orderManagementHeaderV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+        orderManagementHeaderV2Repository.deleteOrderManagementHeader(
                 outboundReversalInput.getCompanyCodeId(), outboundReversalInput.getPlantId(), outboundReversalInput.getWarehouseId(),
-                outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo(), 0L);
+                outboundReversalInput.getRefDocNumber(), outboundReversalInput.getPreOutboundNo());
         log.info("OrderManagementHeader Deleted Successfully ---> RefDocNo is {}", outboundReversalInput.getRefDocNumber());
 
         orderManagementLineV2Repository.deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(

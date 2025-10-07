@@ -1355,7 +1355,9 @@ public class PutAwayHeaderService extends BaseService {
                 preInboundNo, refDocNumber, goodsReceiptNo,
                 palletCode, caseCode, packBarcodes, putAwayNumber, proposedStorageBin);
         log.info("dbPutAwayHeader -----> {}", dbPutAwayHeader);
-        putAwayHeaderV2Repository.delete(dbPutAwayHeader);
+        if (dbPutAwayHeader.getProposedStorageBin() != null) {
+            putAwayHeaderV2Repository.delete(dbPutAwayHeader);
+        }
         BeanUtils.copyProperties(updatePutAwayHeader, dbPutAwayHeader, CommonUtils.getNullPropertyNames(updatePutAwayHeader));
         dbPutAwayHeader.setReferenceField1(dbPutAwayHeader.getProposedStorageBin());
         dbPutAwayHeader.setProposedStorageBin(dbPutAwayHeader.getProposedStorageBin());
@@ -1410,7 +1412,9 @@ public class PutAwayHeaderService extends BaseService {
         for (PutAwayHeaderV2 putAwayHeaderV2 : updatePutAwayHeader) {
             PutAwayHeaderV2 dbPutAwayHeader = putAwayHeaderV2Repository.findByPutAwayNumberAndBarcodeIdAndDeletionIndicator(putAwayHeaderV2.getPutAwayNumber(), putAwayHeaderV2.getBarcodeId(),0L);
             log.info("dbPutAwayHeader -----> {}", dbPutAwayHeader);
-            putAwayHeaderV2Repository.delete(dbPutAwayHeader);
+            if (putAwayHeaderV2.getProposedStorageBin() != null) {
+                putAwayHeaderV2Repository.delete(dbPutAwayHeader);
+            }
             if (dbPutAwayHeader != null) {
                 BeanUtils.copyProperties(putAwayHeaderV2, dbPutAwayHeader, CommonUtils.getNullPropertyNames(putAwayHeaderV2));
                 dbPutAwayHeader.setReferenceField1(dbPutAwayHeader.getProposedStorageBin());

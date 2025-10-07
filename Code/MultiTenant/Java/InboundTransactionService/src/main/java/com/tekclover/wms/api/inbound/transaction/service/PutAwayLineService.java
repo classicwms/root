@@ -3732,6 +3732,7 @@ public class PutAwayLineService extends BaseService {
                     String leadTime = putAwayLineV2Repository.getleadtimeV2(new Date(), putAwayHeader.getCreatedOn());
                     dbPutAwayLine.setReferenceField1(leadTime);
                     log.info("LeadTime: " + leadTime);
+                    dbPutAwayLine.setReferenceField10(newPutAwayLine.getReferenceField1());
 
                     PutAwayLineV2 createdPutAwayLine = putAwayLineV2Repository.save(dbPutAwayLine);
                     log.info("---------->NewPutAwayLine created: " + createdPutAwayLine);

@@ -64,4 +64,14 @@ public interface OrderManagementHeaderV2Repository extends JpaRepository<OrderMa
 
     void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
             String companyCodeId, String plantId, String warehouseId, String refDocNumber, String preOutboundNo, Long deletionIndicator);
+
+    @Modifying
+    @Query(value = "DELETE tblordermangementheader where ref_doc_no = :refDocNo \n " +
+            "AND c_id = :companyCodeId AND plant_id = :plantId AND wh_id = :warehouseId \n " +
+            "AND pre_ob_no = :preOutboundNo AND IS_DELETED = 0", nativeQuery = true)
+    void deleteOrderManagementHeader(@Param("companyCodeId") String companyCodeId,
+                                     @Param("plantId") String plantId,
+                                     @Param("warehouseId") String warehouseId,
+                                     @Param("refDocNo") String refDocNo,
+                                     @Param("preOutboundNo") String preOutboundNo);
 }

@@ -1974,6 +1974,9 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "FROM tblinventory\n" +
             "WHERE IS_DELETED = 0 \n" +
             "  AND REF_FIELD_4 > 0\n" +
+            "  AND inv_id in \n" +
+            "(select max(inv_id) from tblinventory where is_deleted = 0  \n" +
+            "group by itm_code,barcode_id,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id) \n" +
             "  AND bin_cl_id = 1 \n" +
             "  AND (COALESCE(:itemCode, null) IS NULL OR (ITM_CODE IN (:itemCode))) \n" +
             "  AND (COALESCE(:storageBin, null) IS NULL OR (ST_BIN IN (:storageBin))) \n" +
