@@ -2165,29 +2165,29 @@ public class OutboundOrderProcessingFTService extends BaseService {
 
             log.info("Rollback---> 1. Inventory restore ----> " + refDocNo + ", " + outboundOrderTypeId);
             //if order management line present do un allocation
-            if (orderManagementLineV2List != null && !orderManagementLineV2List.isEmpty()) {
-                for (OrderManagementLineV2 dbOrderManagementLine : orderManagementLineV2List) {
-                    String packBarcodes = dbOrderManagementLine.getProposedPackBarCode();
-                    String storageBin = dbOrderManagementLine.getProposedStorageBin();
-                    InventoryV2 inventory =
-                            inventoryService.getOutboundInventoryV3(dbOrderManagementLine.getCompanyCodeId(), dbOrderManagementLine.getPlantId(), dbOrderManagementLine.getLanguageId(),
-                                    dbOrderManagementLine.getWarehouseId(), dbOrderManagementLine.getItemCode(), dbOrderManagementLine.getManufacturerName(),
-                                    dbOrderManagementLine.getBarcodeId(), storageBin);
-                    double[] inventoryQty = calculateInventoryUnAllocate(dbOrderManagementLine.getAllocatedQty(), inventory.getInventoryQuantity(), inventory.getAllocatedQuantity());
-                    if (inventoryQty != null && inventoryQty.length > 2) {
-                        inventory.setInventoryQuantity(inventoryQty[0]);
-                        inventory.setAllocatedQuantity(inventoryQty[1]);
-                        inventory.setReferenceField4(inventoryQty[2]);
-                    }
-
-                    // Create new Inventory Record
-                    InventoryV2 inventoryV2 = new InventoryV2();
-                    BeanUtils.copyProperties(inventory, inventoryV2, CommonUtils.getNullPropertyNames(inventory));
-                    inventoryV2 = inventoryV2Repository.save(inventoryV2);
-                    log.info("-----InventoryV2 created-------: " + inventoryV2);
-                }
-                log.info("Rollback---> 1.Inventory restoration Finished ----> " + refDocNo + ", " + outboundOrderTypeId);
-            }
+//            if (orderManagementLineV2List != null && !orderManagementLineV2List.isEmpty()) {
+//                for (OrderManagementLineV2 dbOrderManagementLine : orderManagementLineV2List) {
+//                    String packBarcodes = dbOrderManagementLine.getProposedPackBarCode();
+//                    String storageBin = dbOrderManagementLine.getProposedStorageBin();
+//                    InventoryV2 inventory =
+//                            inventoryService.getOutboundInventoryV3(dbOrderManagementLine.getCompanyCodeId(), dbOrderManagementLine.getPlantId(), dbOrderManagementLine.getLanguageId(),
+//                                    dbOrderManagementLine.getWarehouseId(), dbOrderManagementLine.getItemCode(), dbOrderManagementLine.getManufacturerName(),
+//                                    dbOrderManagementLine.getBarcodeId(), storageBin);
+//                    double[] inventoryQty = calculateInventoryUnAllocate(dbOrderManagementLine.getAllocatedQty(), inventory.getInventoryQuantity(), inventory.getAllocatedQuantity());
+//                    if (inventoryQty != null && inventoryQty.length > 2) {
+//                        inventory.setInventoryQuantity(inventoryQty[0]);
+//                        inventory.setAllocatedQuantity(inventoryQty[1]);
+//                        inventory.setReferenceField4(inventoryQty[2]);
+//                    }
+//
+//                    // Create new Inventory Record
+//                    InventoryV2 inventoryV2 = new InventoryV2();
+//                    BeanUtils.copyProperties(inventory, inventoryV2, CommonUtils.getNullPropertyNames(inventory));
+//                    inventoryV2 = inventoryV2Repository.save(inventoryV2);
+//                    log.info("-----InventoryV2 created-------: " + inventoryV2);
+//                }
+//                log.info("Rollback---> 1.Inventory restoration Finished ----> " + refDocNo + ", " + outboundOrderTypeId);
+//            }
 
             //delete all records from respective tables
             log.info("Rollback---> 2. delete all record initiated ----> " + refDocNo + ", " + outboundOrderTypeId);
@@ -2283,7 +2283,7 @@ public class OutboundOrderProcessingFTService extends BaseService {
                                                       String preOutboundNo, List<OrderManagementLineV2> orderManagementLineList, String loginUserId) {
         try {
         	log.info ("-------createPickupHeaderV4--------called-------");
-            List<PickupHeaderV2> pickupHeaderV2List = new ArrayList<>();
+//            List<PickupHeaderV2> pickupHeaderV2List = new ArrayList<>();
             double sumOfAllocatedQty = orderManagementLineList.stream().filter(n -> n.getAllocatedQty() != null).mapToDouble(OrderManagementLineV2::getAllocatedQty).sum();
             IKeyValuePair caseTolerance = getnoOfCaseTolerance(companyCodeId, plantId, languageId, warehouseId);
             log.info("caseTolerance: " + caseTolerance);
@@ -2302,11 +2302,13 @@ public class OutboundOrderProcessingFTService extends BaseService {
                 log.info("OrderFullfillment PickupHeader Creation -------------> Sorted OrdermanagementList ---->  {} ", orderManagementLineList.size());
 
                 for (OrderManagementLineV2 createdOrderManagementLine : sortedOrderManagementLineList) {
+                    log.info("OutboundOrderType ID is --------------------> {} ", createdOrderManagementLine.getOutboundOrderTypeId() );
                     if (createdOrderManagementLine.getOutboundOrderTypeId() == 3) {
                         if (i <= totalCases) {
                            PickupHeaderV2 pickupHeaderV2 =  createPickUpHeaderV4(companyCodeId, plantId, languageId, warehouseId, PU_NO, preOutboundNo,
                                     refDocNumber, createdOrderManagementLine, loginUserId);
-                           pickupHeaderV2List.add(pickupHeaderV2);
+                           log.info("PickupHeader is Created -------------------> RefDocNo is {} ", pickupHeaderV2.getRefDocNumber());
+//                           pickupHeaderV2List.add(pickupHeaderV2);
                             i++;
                             if (i > totalCases) {
                                 i = 1;
@@ -2320,11 +2322,15 @@ public class OutboundOrderProcessingFTService extends BaseService {
                     }
                 }
             } else {
+                log.info("CaseTolerance is null ------------------------------------> ");
                 PU_NO = getNextRangeNumber(10L, companyCodeId, plantId, languageId, warehouseId);
                 for (OrderManagementLineV2 orderManagementLine : orderManagementLineList) {
+                    log.info("OutboundOrderType ID is --------------------> {} ", orderManagementLine.getOutboundOrderTypeId() );
                     if(orderManagementLine.getOutboundOrderTypeId() == 3) {
-                        PickupHeaderV2 pickupHeaderV2 = createPickUpHeaderV4(companyCodeId, plantId, languageId, warehouseId, PU_NO, preOutboundNo, refDocNumber, orderManagementLine, loginUserId);
-                        pickupHeaderV2List.add(pickupHeaderV2);
+                        PickupHeaderV2 pickupHeaderV2 = createPickUpHeaderV4(companyCodeId, plantId, languageId, warehouseId, PU_NO, preOutboundNo,
+                                refDocNumber, orderManagementLine, loginUserId);
+                        log.info("PickupHeader is Created -------------------> RefDocNo is {} ", pickupHeaderV2.getRefDocNumber());
+//                        pickupHeaderV2List.add(pickupHeaderV2);
 //                        DocumentNumber documentNumber = new DocumentNumber();
 //                        documentNumber.setRefDocNumber(orderManagementLine.getRefDocNumber());
 //                        documentNumber.setPreOutboundNo(orderManagementLine.getPreOutboundNo());
@@ -2333,10 +2339,10 @@ public class OutboundOrderProcessingFTService extends BaseService {
                 }
             }
 
-            if(!pickupHeaderV2List.isEmpty()) {
-                log.info("PickupHeader Values Saved in Orderfullfillment ---------------------> " + pickupHeaderV2List.size());
-                pickupHeaderV2Repository.saveAll(pickupHeaderV2List);
-            }
+//            if(!pickupHeaderV2List.isEmpty()) {
+//                log.info("PickupHeader Values Saved in Orderfullfillment ---------------------> " + pickupHeaderV2List.size());
+//                pickupHeaderV2Repository.saveAll(pickupHeaderV2List);
+//            }
 
             return documentNumberList;
 
@@ -2780,10 +2786,10 @@ public class OutboundOrderProcessingFTService extends BaseService {
         // Order_Text_Update
         String text = "PickupHeader Created";
         outboundOrderV2Repository.updateOutboundHeaderText(newPickupHeader.getOutboundOrderTypeId(), newPickupHeader.getRefDocNumber(), text);
-        log.info("PickupHeader Status Updated Successfully");
+        log.info("PickupHeader Status Updated Successfully -----------------> " +  newPickupHeader.getRefDocNumber());
 
-//        PickupHeaderV2 createdPickupHeader = pickupHeaderV2Repository.save(newPickupHeader);
-//        log.info("pickupHeader created: " + createdPickupHeader);
+        PickupHeaderV2 createdPickupHeader = pickupHeaderV2Repository.save(newPickupHeader);
+        log.info("pickupHeader created Successfully --------------------->  " + createdPickupHeader);
 
 //        orderManagementLineV2Repository.updateOrderManagementLineV3(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, pickupNumber,
 //                    assignPickerId,
@@ -2795,7 +2801,7 @@ public class OutboundOrderProcessingFTService extends BaseService {
 
         // OutboundHeader Update
         outboundHeaderV2Repository.updateOutboundHeaderStatusV3(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 48L, statusDescription);
-        log.info("outboundHeader updated");
+        log.info("outboundHeader updated {} ", newPickupHeader.getRefDocNumber());
 
         // ORDERMANAGEMENTHEADER Update
 //        orderManagementHeaderV2Repository.updateOrderManagementHeaderStatusV3(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 48L, statusDescription);
@@ -2803,7 +2809,7 @@ public class OutboundOrderProcessingFTService extends BaseService {
         
         // PreOutboundHeader Update for PU_NO
         preOutboundHeaderV2Repository.updatePreOutboundHeaderStatusId(companyCodeId, plantId, languageId, warehouseId, refDocNumber, pickupNumber, 48L, statusDescription);
-        log.info("PreOutboundHeader Updated PickupNo");
+        log.info("PreOutboundHeader Updated PickupNo {} -------> RefDocNo is -------> {} ", pickupNumber,  newPickupHeader.getRefDocNumber());
 
         return newPickupHeader;
         

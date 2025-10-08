@@ -304,7 +304,7 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
                                    @Param("preOutboundNo") String preOutboundNo);
 
     @Modifying
-    @Query(value = "UPDATE tblordermangementline SET is_deleted = 1 where c_id = :companyCodeId " +
+    @Query(value = "DELETE tblordermangementline where c_id = :companyCodeId " +
             "AND plant_id = :plantId AND wh_id = :warehouseId AND ref_doc_no = :refDocNumber " +
             "AND is_deleted = 0", nativeQuery = true)
     void deleteOrderManagementLineV2 (@Param("companyCodeId") String companyCodeId,

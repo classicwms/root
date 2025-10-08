@@ -257,7 +257,6 @@ public class TransactionService extends BaseService {
         try {
             WarehouseApiResponse warehouseApiResponse = new WarehouseApiResponse();
             if (outboundList == null || outboundList.isEmpty()) {
-//            List<OutboundOrderV2> sqlOutboundList = outboundOrderV2Repository.findByProcessedStatusIdOrderByOrderReceivedOn(0L);
                 List<OutboundOrderV2> sqlOutboundList = outboundOrderV2Repository.findByProcessedStatusIdAndExecutedOrderByOrderReceivedOn(0L, 0L);
                 log.info("ob header list: " + sqlOutboundList.size());
                 if (sqlOutboundList != null && !sqlOutboundList.isEmpty()) {
@@ -310,7 +309,6 @@ public class TransactionService extends BaseService {
                     }
 
                     List<OutboundIntegrationLineV2> outboundIntegrationLineList = new ArrayList<>();
-//                List<OutboundOrderLineV2> sqlOutboundLineList = outboundOrderLinesV2Repository.findAllByOrderIdAndOutboundOrderTypeID(dbOBOrder.getOrderId(), dbOBOrder.getOutboundOrderTypeID());
                     log.info("ob line list: " + dbOBOrder.getLine().size());
                     for (OutboundOrderLineV2 line : dbOBOrder.getLine()) {
                         OutboundIntegrationLineV2 outboundIntegrationLine = new OutboundIntegrationLineV2();

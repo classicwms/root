@@ -100,11 +100,11 @@ public interface OrderManagementHeaderV2Repository extends JpaRepository<OrderMa
                                    @Param("preOutboundNo") String preOutboundNo);
 
     @Modifying
-    @Query(value = "UPDATE tblordermangementheader SET is_deleted = 1 where c_id = :companyCodeId " +
+    @Query(value = "DELETE tblordermangementheader where c_id = :companyCodeId " +
             "AND plant_id = :plantId AND wh_id = :warehouseId AND ref_doc_no = :refDocNumber " +
             "AND is_deleted = 0", nativeQuery = true)
-    void deleteOrderManagementHeaderV2 (@Param("companyCodeId") String companyCodeId,
-                                      @Param("plantId") String plantId,
-                                      @Param("warehouseId") String warehouseId,
-                                      @Param("refDocNumber") String refDocNumber);
+    void deleteOrderManagementHeaderV2(@Param("companyCodeId") String companyCodeId,
+                                       @Param("plantId") String plantId,
+                                       @Param("warehouseId") String warehouseId,
+                                       @Param("refDocNumber") String refDocNumber);
 }
