@@ -1307,13 +1307,17 @@ public class PutAwayLineService extends BaseService {
 					log.info("Putaway Line already exist : " + existingPutAwayLine);
 				}
 			});
-			
-			if (newPutAwayLines != null && newPutAwayLines.get(0) != null) {
-				putAwayLineV2Repository.updateInboundHeaderRxdLinesCountProc(newPutAwayLines.get(0).getCompanyCode(), newPutAwayLines.get(0).getPlantId(), 
-						newPutAwayLines.get(0).getLanguageId(), newPutAwayLines.get(0).getWarehouseId(), newPutAwayLines.get(0).getRefDocNumber(), 
-						newPutAwayLines.get(0).getPreInboundNo());
-				log.info("InboundHeader received lines count updated: " + newPutAwayLines.get(0).getRefDocNumber());
-			}
+
+            putAwayLineV2Repository.updateInboundHeaderReceivedLines(newPutAwayLines.get(0).getCompanyCode(), newPutAwayLines.get(0).getPlantId(),
+                    newPutAwayLines.get(0).getLanguageId(), newPutAwayLines.get(0).getWarehouseId(), newPutAwayLines.get(0).getRefDocNumber(), newPutAwayLines.get(0).getPreInboundNo());
+            log.info("InboundHeader received lines count updated: " + newPutAwayLines.get(0).getRefDocNumber());
+
+//			if (newPutAwayLines != null && newPutAwayLines.get(0) != null) {
+//				putAwayLineV2Repository.updateInboundHeaderRxdLinesCountProc(newPutAwayLines.get(0).getCompanyCode(), newPutAwayLines.get(0).getPlantId(),
+//						newPutAwayLines.get(0).getLanguageId(), newPutAwayLines.get(0).getWarehouseId(), newPutAwayLines.get(0).getRefDocNumber(),
+//						newPutAwayLines.get(0).getPreInboundNo());
+//				log.info("InboundHeader received lines count updated: " + newPutAwayLines.get(0).getRefDocNumber());
+//			}
 			return createdPutAwayLines;
 		} catch (Exception e) {
 			e.printStackTrace();

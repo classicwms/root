@@ -110,4 +110,16 @@ public interface PreInboundHeaderV2Repository extends JpaRepository<PreInboundHe
             @Param("updatedBy") String updatedBy,
             @Param("updatedOn") Date updatedOn
     );
+
+    @Modifying
+    @Query(value = "UPDATE tblpreinboundheader SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, \n" +
+            "UTD_BY = :updatedBy, UTD_ON = :updatedOn \n" +
+            "WHERE IS_DELETED = 0 AND C_ID = :companyCodeId AND PLANT_ID = :plantId \n" +
+            "AND LANG_ID = :languageId AND WH_ID = :warehouseId \n" +
+            "AND REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo", nativeQuery = true)
+    void updatePreInboundHeader(@Param("statusId") Long statusId, @Param("statusDescription") String statusDescription,
+                                @Param("updatedBy") String updatedBy, @Param("updatedOn") Date updatedOn,
+                                @Param("companyCodeId") String companyCodeId, @Param("plantId") String plantId,
+                                @Param("languageId") String languageId, @Param("warehouseId") String warehouseId,
+                                @Param("refDocNumber") String refDocNumber, @Param("preInboundNo") String preInboundNo);
 }

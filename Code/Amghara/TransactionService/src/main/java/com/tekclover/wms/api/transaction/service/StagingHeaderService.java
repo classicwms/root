@@ -499,6 +499,15 @@ public class StagingHeaderService extends BaseService {
      * @param warehouseId
      * @return
      */
+    public String generateNumberRangeForCaseCode(String warehouseId, String companyCodeId, String plantId, String languageId) {
+        AuthToken authTokenForIDMasterService = authTokenService.getIDMasterServiceAuthToken();
+            return  getNextRangeNumber(4L, companyCodeId, plantId, languageId, warehouseId, authTokenForIDMasterService.getAccess_token());
+    }
+
+    /**
+     * @param warehouseId
+     * @return
+     */
     public List<StagingHeaderV2> getStagingHeaderCountV2(String warehouseId) {
         return stagingHeaderV2Repository.findByWarehouseIdAndStatusIdAndDeletionIndicator(warehouseId, 12L, 0L);
     }

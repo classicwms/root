@@ -271,4 +271,31 @@ public interface PutAwayHeaderV2Repository extends JpaRepository<PutAwayHeaderV2
                                               @Param("startCreatedOn") Date startCreatedOn,
                                               @Param("endCreatedOn") Date endCreatedOn);
 
+
+    @Modifying
+    @Query(value = " UPDATE PAH SET PAH.STATUS_ID = :statusId, \n " +
+            "PAH.STATUS_TEXT = :statusDescription, \n" +
+            "PAH.PA_CNF_BY = :updatedBy, \n" +
+            "PAH.PA_CNF_ON = :updatedOn FROM tblputawayheader PAH " +
+            "INNER JOIN \n" +
+            "(SELECT C_ID, PLANT_ID, LANG_ID, WH_ID, REF_DOC_NO, PRE_IB_NO, IB_LINE_NO, ITM_CODE, MFR_NAME \n" +
+            "FROM tblinboundline \n" +
+            "WHERE IS_DELETED = 0 \n" +
+            "AND REF_FIELD_2 = 'TRUE' AND STATUS_ID = :statusId AND C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId \n" +
+            "AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo) X ON PAH.C_ID = X.C_ID AND PAH.PLANT_ID = X.PLANT_ID \n" +
+            "AND PAH.LANG_ID = X.LANG_ID AND PAH.WH_ID = X.WH_ID AND PAH.REF_DOC_NO = X.REF_DOC_NO AND PAH.PRE_IB_NO = X.PRE_IB_NO \n" +
+            "AND PAH.REF_FIELD_5 = X.ITM_CODE AND PAH.MFR_NAME = X.MFR_NAME AND PAH.REF_FIELD_9 = X.IB_LINE_NO \n" +
+            "AND PAH.IS_DELETED = 0 ", nativeQuery = true)
+    void updatePutawayHeader(@Param("companyCodeId") String companyCodeId,
+                             @Param("plantId") String plantId,
+                             @Param("languageId") String languageId,
+                             @Param("warehouseId") String warehouseId,
+                             @Param("refDocNumber") String refDocNumber,
+                             @Param("preInboundNo") String preInboundNo,
+                             @Param("statusId") Long statusId,
+                             @Param("statusDescription") String statusDescription,
+                             @Param("updatedBy") String updatedBy,
+                             @Param("updatedOn") Date updatedOn);
+
+
 }

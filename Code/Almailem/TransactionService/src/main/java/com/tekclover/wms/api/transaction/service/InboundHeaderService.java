@@ -1263,24 +1263,24 @@ public class InboundHeaderService extends BaseService {
         InboundHeaderV2Specification spec = new InboundHeaderV2Specification(searchInboundHeader);
         List<InboundHeaderV2> results = inboundHeaderV2Repository.findAll(spec);
 
-        List<InboundHeaderV2> inboundHeaderV2List = new ArrayList<>();
-        for (InboundHeaderV2 dbInboundHeaderV2 : results) {
-
-//            Long countOfOrderLines = inboundHeaderV2Repository.getCountOfTheOrderLinesByRefDocNumber(dbInboundHeaderV2.getRefDocNumber());
-            Long countOfOrderLines = inboundHeaderV2Repository.getCountOfTheOrderLinesByRefDocNumber(dbInboundHeaderV2.getRefDocNumber(),
-                    dbInboundHeaderV2.getCompanyCode(), dbInboundHeaderV2.getPreInboundNo(), dbInboundHeaderV2.getPlantId(),
-                    dbInboundHeaderV2.getLanguageId(), dbInboundHeaderV2.getWarehouseId());
-            dbInboundHeaderV2.setCountOfOrderLines(countOfOrderLines);
-
-//            Long countOfReceivedLines = inboundHeaderV2Repository.getReceivedLinesByRefDocNumber(dbInboundHeaderV2.getRefDocNumber());
-            Long countOfReceivedLines = inboundHeaderV2Repository.getReceivedLinesByRefDocNumber(dbInboundHeaderV2.getRefDocNumber(),
-                    dbInboundHeaderV2.getCompanyCode(), dbInboundHeaderV2.getPreInboundNo(), dbInboundHeaderV2.getPlantId(),
-                    dbInboundHeaderV2.getLanguageId(), dbInboundHeaderV2.getWarehouseId());
-            dbInboundHeaderV2.setReceivedLines(countOfReceivedLines);
-
-            inboundHeaderV2List.add(dbInboundHeaderV2);
-        }
-        return inboundHeaderV2List;
+//        List<InboundHeaderV2> inboundHeaderV2List = new ArrayList<>();
+//        for (InboundHeaderV2 dbInboundHeaderV2 : results) {
+//
+////            Long countOfOrderLines = inboundHeaderV2Repository.getCountOfTheOrderLinesByRefDocNumber(dbInboundHeaderV2.getRefDocNumber());
+//            Long countOfOrderLines = inboundHeaderV2Repository.getCountOfTheOrderLinesByRefDocNumber(dbInboundHeaderV2.getRefDocNumber(),
+//                    dbInboundHeaderV2.getCompanyCode(), dbInboundHeaderV2.getPreInboundNo(), dbInboundHeaderV2.getPlantId(),
+//                    dbInboundHeaderV2.getLanguageId(), dbInboundHeaderV2.getWarehouseId());
+//            dbInboundHeaderV2.setCountOfOrderLines(countOfOrderLines);
+//
+////            Long countOfReceivedLines = inboundHeaderV2Repository.getReceivedLinesByRefDocNumber(dbInboundHeaderV2.getRefDocNumber());
+//            Long countOfReceivedLines = inboundHeaderV2Repository.getReceivedLinesByRefDocNumber(dbInboundHeaderV2.getRefDocNumber(),
+//                    dbInboundHeaderV2.getCompanyCode(), dbInboundHeaderV2.getPreInboundNo(), dbInboundHeaderV2.getPlantId(),
+//                    dbInboundHeaderV2.getLanguageId(), dbInboundHeaderV2.getWarehouseId());
+//            dbInboundHeaderV2.setReceivedLines(countOfReceivedLines);
+//
+//            inboundHeaderV2List.add(dbInboundHeaderV2);
+//        }
+        return results;
     }
 
     /**

@@ -21,7 +21,7 @@ public class ASNHeaderV2  {
 	@Column(nullable = false)
 	@NotBlank(message = "ASN number is mandatory")
 	private String asnNumber;
-	private String amsSupplierInvoiceNo;
+	private String AMSSupplierInvoiceNo;
 
 	//almailem fields
 //	private String purchaseOrderNumber;
