@@ -5556,7 +5556,7 @@ public class PickupLineService extends BaseService {
      * @param pickCnfQty
      * @param loginUserID
      */
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     private void updateInventoryPickedBarcodeV3(String companyCodeId, String plantId, String languageId, String warehouseId,
             String itemCode, String manufacturerName, String barcodeId, String storageBin, Double pickCnfQty, String loginUserID) {
 		InventoryV2 inventory = inventoryService.getInventoryForPickUpLineV3(companyCodeId, plantId, languageId,

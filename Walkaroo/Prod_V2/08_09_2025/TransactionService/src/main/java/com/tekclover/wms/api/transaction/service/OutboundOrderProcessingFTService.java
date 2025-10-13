@@ -2283,7 +2283,7 @@ public class OutboundOrderProcessingFTService extends BaseService {
                                                       String preOutboundNo, List<OrderManagementLineV2> orderManagementLineList, String loginUserId) {
         try {
         	log.info ("-------createPickupHeaderV4--------called-------");
-//            List<PickupHeaderV2> pickupHeaderV2List = new ArrayList<>();
+            List<PickupHeaderV2> pickupHeaderV2List = new ArrayList<>();
             double sumOfAllocatedQty = orderManagementLineList.stream().filter(n -> n.getAllocatedQty() != null).mapToDouble(OrderManagementLineV2::getAllocatedQty).sum();
             IKeyValuePair caseTolerance = getnoOfCaseTolerance(companyCodeId, plantId, languageId, warehouseId);
             log.info("caseTolerance: " + caseTolerance);
@@ -2308,7 +2308,7 @@ public class OutboundOrderProcessingFTService extends BaseService {
                            PickupHeaderV2 pickupHeaderV2 =  createPickUpHeaderV4(companyCodeId, plantId, languageId, warehouseId, PU_NO, preOutboundNo,
                                     refDocNumber, createdOrderManagementLine, loginUserId);
                            log.info("PickupHeader is Created -------------------> RefDocNo is {} ", pickupHeaderV2.getRefDocNumber());
-//                           pickupHeaderV2List.add(pickupHeaderV2);
+                           pickupHeaderV2List.add(pickupHeaderV2);
                             i++;
                             if (i > totalCases) {
                                 i = 1;
@@ -2330,7 +2330,7 @@ public class OutboundOrderProcessingFTService extends BaseService {
                         PickupHeaderV2 pickupHeaderV2 = createPickUpHeaderV4(companyCodeId, plantId, languageId, warehouseId, PU_NO, preOutboundNo,
                                 refDocNumber, orderManagementLine, loginUserId);
                         log.info("PickupHeader is Created -------------------> RefDocNo is {} ", pickupHeaderV2.getRefDocNumber());
-//                        pickupHeaderV2List.add(pickupHeaderV2);
+                        pickupHeaderV2List.add(pickupHeaderV2);
 //                        DocumentNumber documentNumber = new DocumentNumber();
 //                        documentNumber.setRefDocNumber(orderManagementLine.getRefDocNumber());
 //                        documentNumber.setPreOutboundNo(orderManagementLine.getPreOutboundNo());
@@ -2339,10 +2339,10 @@ public class OutboundOrderProcessingFTService extends BaseService {
                 }
             }
 
-//            if(!pickupHeaderV2List.isEmpty()) {
-//                log.info("PickupHeader Values Saved in Orderfullfillment ---------------------> " + pickupHeaderV2List.size());
-//                pickupHeaderV2Repository.saveAll(pickupHeaderV2List);
-//            }
+            if(!pickupHeaderV2List.isEmpty()) {
+                log.info("PickupHeader Values Saved in Orderfullfillment ---------------------> " + pickupHeaderV2List.size());
+                pickupHeaderV2Repository.saveAll(pickupHeaderV2List);
+            }
 
             return documentNumberList;
 
@@ -2788,8 +2788,8 @@ public class OutboundOrderProcessingFTService extends BaseService {
         outboundOrderV2Repository.updateOutboundHeaderText(newPickupHeader.getOutboundOrderTypeId(), newPickupHeader.getRefDocNumber(), text);
         log.info("PickupHeader Status Updated Successfully -----------------> " +  newPickupHeader.getRefDocNumber());
 
-        PickupHeaderV2 createdPickupHeader = pickupHeaderV2Repository.save(newPickupHeader);
-        log.info("pickupHeader created Successfully --------------------->  " + createdPickupHeader);
+//        PickupHeaderV2 createdPickupHeader = pickupHeaderV2Repository.save(newPickupHeader);
+//        log.info("pickupHeader created Successfully --------------------->  " + createdPickupHeader);
 
 //        orderManagementLineV2Repository.updateOrderManagementLineV3(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, pickupNumber,
 //                    assignPickerId,

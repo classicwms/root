@@ -819,7 +819,7 @@ public class WarehouseController {
 	 * Modified for SAP orders - 30/06/2025
 	 * Aakash vinayak
 	 *
-	 * @param deliveryConfirmationV3
+	 * @param deliveryConfirmationSAPList
 	 * @return
 	 * @throws IllegalAccessException
 	 * @throws InvocationTargetException
