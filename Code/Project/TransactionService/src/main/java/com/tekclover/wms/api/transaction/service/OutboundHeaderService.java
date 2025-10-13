@@ -23,9 +23,9 @@ import com.tekclover.wms.api.transaction.model.outbound.OutboundHeaderOutput;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundHeaderStream;
 import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundHeader;
 import com.tekclover.wms.api.transaction.model.outbound.UpdateOutboundHeader;
-import com.tekclover.wms.api.transaction.repository.PreOutboundLineRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundLineInterimRepository;
+import com.tekclover.wms.api.transaction.repository.PreOutboundLineRepository;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
 
@@ -458,8 +458,8 @@ public class OutboundHeaderService {
 				searchOutboundHeader.getStartDeliveryConfirmedOn(),searchOutboundHeader.getEndDeliveryConfirmedOn(),
 				searchOutboundHeader.getStartOrderDate(),searchOutboundHeader.getEndOrderDate(), searchOutboundHeader.getPdfPrint());
 		headerSearchResults.stream().forEach(oh -> {
-			Long sumOfOrderedQty = preOutboundLineRepository.getSumofOrderedQty(oh.getRefDocNumber());
-			Long countOfOrderedQty = preOutboundLineRepository.getCountOfOrderedQty(oh.getRefDocNumber());
+			Long sumOfOrderedQty = null;//preOutboundLineRepository.getSumofOrderedQty(oh.getRefDocNumber());
+			Long countOfOrderedQty = null;//preOutboundLineRepository.getCountOfOrderedQty(oh.getRefDocNumber());
 			
 			log.info("sumOfOrderedQty------------> : " + sumOfOrderedQty + "," + countOfOrderedQty);
 			

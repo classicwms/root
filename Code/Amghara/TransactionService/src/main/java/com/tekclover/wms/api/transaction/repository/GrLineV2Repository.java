@@ -297,4 +297,34 @@ public interface GrLineV2Repository extends JpaRepository<GrLineV2, Long>, JpaSp
                                      @Param("itemCode") String itemCode,
                                      @Param("isPutAwayHeaderCreated") Long isPutAwayHeaderCreated);
 
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE GRL SET GRL.STATUS_ID = :statusId, \n" +
+            "GRL.STATUS_TEXT = :statusDescription, GRL.GR_CNF_BY = :updatedBy, GRL.GR_CNF_ON = :updatedOn FROM tblgrline GRL \n" +
+            "INNER JOIN (SELECT C_ID, PLANT_ID, LANG_ID, WH_ID, REF_DOC_NO, PRE_IB_NO, IB_LINE_NO, ITM_CODE, MFR_NAME FROM tblinboundline \n" +
+            "WHERE IS_DELETED = 0 \n" +
+            "AND REF_FIELD_2 = 'TRUE' AND STATUS_ID = :statusId AND C_ID = :companyCodeId AND PLANT_ID = :plantId \n" +
+            "AND LANG_ID = :languageId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo) X \n " +
+            "ON GRL.C_ID = X.C_ID \n" +
+            "AND GRL.PLANT_ID = X.PLANT_ID \n" +
+            "AND GRL.LANG_ID = X.LANG_ID \n" +
+            "AND GRL.WH_ID = X.WH_ID \n" +
+            "AND GRL.REF_DOC_NO = X.REF_DOC_NO \n" +
+            "AND GRL.PRE_IB_NO = X.PRE_IB_NO \n" +
+            "AND GRL.ITM_CODE = X.ITM_CODE \n" +
+            "AND GRL.MFR_NAME = X.MFR_NAME \n" +
+            "AND GRL.IB_LINE_NO = X.IB_LINE_NO \n" +
+            "AND GRL.IS_DELETED = 0 \n" +
+            "AND GRL.STATUS_ID != :statusId ", nativeQuery = true)
+    void updateGrLine(@Param("companyCodeId") String companyCodeId,
+                      @Param("plantId") String plantId,
+                      @Param("languageId") String languageId,
+                      @Param("warehouseId") String warehouseId,
+                      @Param("refDocNumber") String refDocNumber,
+                      @Param("preInboundNo") String preInboundNo,
+                      @Param("statusId") Long statusId,
+                      @Param("statusDescription") String statusDescription,
+                      @Param("updatedBy") String updatedBy,
+                      @Param("updatedOn") Date updatedOn);
+
 }

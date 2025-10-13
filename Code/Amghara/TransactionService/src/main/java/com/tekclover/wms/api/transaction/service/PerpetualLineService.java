@@ -1354,6 +1354,14 @@ public class PerpetualLineService extends BaseService {
      * @throws IllegalAccessException
      * @throws InvocationTargetException
      */
+    /**
+     * @param cycleCountNo
+     * @param updatePerpetualLines
+     * @param loginUserID
+     * @return
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
     public WarehouseApiResponse updatePerpetualLineConfirmV2(String cycleCountNo, List<PerpetualLineV2> updatePerpetualLines,
                                                              String loginUserID) throws IllegalAccessException, InvocationTargetException {
         List<PerpetualLineV2> responsePerpetualLines = new ArrayList<>();
@@ -1361,6 +1369,7 @@ public class PerpetualLineService extends BaseService {
         List<String> statusId47 = new ArrayList<>();
         try {
             for (PerpetualLineV2 updatePerpetualLine : updatePerpetualLines) {
+                log.info("Status ID -------------------------> " + updatePerpetualLine.getStatusId());
                 if (updatePerpetualLine.getStatusId() != 47L) {
                     PerpetualLineV2 dbPerpetualLine = getPerpetualLineV2(
                             updatePerpetualLine.getCompanyCodeId(),
@@ -1410,47 +1419,28 @@ public class PerpetualLineService extends BaseService {
                 throw new BadRequestException("Perpetual Lines are not completely Processed");
             }
 
-//            PerpetualHeaderV2 newlyCreatedPerpetualHeader = new PerpetualHeaderV2();
-//            if (!newPerpetualLines.isEmpty()) {
-//                log.info("newPerpetualLines : " + newPerpetualLines);
-            // Create new PerpetualHeader and Lines
-//                PerpetualHeaderEntityV2 createdPerpetualHeader = createNewHeaderNLinesV2(cycleCountNo, newPerpetualLines, loginUserID);
-//                BeanUtils.copyProperties(createdPerpetualHeader, newlyCreatedPerpetualHeader, CommonUtils.getNullPropertyNames(createdPerpetualHeader));
-//            }
-            if (perpetualLineCount.equals(statusIdTotalCount)) {
-                // Update new PerpetualHeader
-                PerpetualHeaderV2 dbPerpetualHeader = perpetualHeaderService.getPerpetualHeaderV2(
-                        updatePerpetualLines.get(0).getCompanyCodeId(),
-                        updatePerpetualLines.get(0).getPlantId(),
-                        updatePerpetualLines.get(0).getLanguageId(),
-                        updatePerpetualLines.get(0).getWarehouseId(),
-                        cycleCountNo);
-                if (dbPerpetualHeader.getStatusId() != 78L) {
-                    throw new BadRequestException("Perpetual Header are not completely Processed");
-                }
+//            if (perpetualLineCount.equals(statusIdTotalCount)) {
+            // Update new PerpetualHeader
+            PerpetualHeaderV2 perpetualHeaderV2 = perpetualHeaderService.getPerpetualHeaderV2(
+                    updatePerpetualLines.get(0).getCompanyCodeId(),
+                    updatePerpetualLines.get(0).getPlantId(),
+                    updatePerpetualLines.get(0).getLanguageId(),
+                    updatePerpetualLines.get(0).getWarehouseId(),
+                    cycleCountNo);
+            if (perpetualHeaderV2.getStatusId() != 78L) {
+                throw new BadRequestException("Perpetual Header are not completely Processed");
             }
-//            PerpetualHeaderV2 updatePerpetualHeader = new PerpetualHeaderV2();
-//            BeanUtils.copyProperties(dbPerpetualHeader, updatePerpetualHeader, CommonUtils.getNullPropertyNames(dbPerpetualHeader));
-//            PerpetualHeaderV2 updatedPerpetualHeader = perpetualHeaderService.updatePerpetualHeaderV2(
-//                    dbPerpetualHeader.getCompanyCodeId(), dbPerpetualHeader.getPlantId(),
-//                    dbPerpetualHeader.getLanguageId(), dbPerpetualHeader.getWarehouseId(), dbPerpetualHeader.getCycleCountTypeId(),
-//                    dbPerpetualHeader.getCycleCountNo(), dbPerpetualHeader.getMovementTypeId(), dbPerpetualHeader.getSubMovementTypeId(), loginUserID);
-//            log.info("updatedPerpetualHeader : " + updatedPerpetualHeader);
-
-//            PerpetualUpdateResponseV2 response = new PerpetualUpdateResponseV2();
-//            response.setPerpetualHeader(newlyCreatedPerpetualHeader);
-//            response.setPerpetualLines(responsePerpetualLines);
-//            log.info("PerpetualUpdateResponse------> : " + response);
+//            }
 
             WarehouseApiResponse warehouseApiResponse = null;
             AuthToken authTokenForConnectorService = authTokenService.getConnectorServiceAuthToken();
             if (responsePerpetualLines != null || !responsePerpetualLines.isEmpty()) {
 
-                for (PerpetualLineV2 dbPerpetualLine : responsePerpetualLines) {
-                    PerpetualLineTempV2 perpetualLineTempV2 = new PerpetualLineTempV2();
-                    BeanUtils.copyProperties(dbPerpetualLine, perpetualLineTempV2, CommonUtils.getNullPropertyNames(dbPerpetualLine));
-                    perpetualLineTempV2Repository.save(perpetualLineTempV2);
-                }
+//                for (PerpetualLineV2 dbPerpetualLine : responsePerpetualLines) {
+//                    PerpetualLineTempV2 perpetualLineTempV2 = new PerpetualLineTempV2();
+//                    BeanUtils.copyProperties(dbPerpetualLine, perpetualLineTempV2, CommonUtils.getNullPropertyNames(dbPerpetualLine));
+//                    perpetualLineTempV2Repository.save(perpetualLineTempV2);
+//                }
                 List<IKeyValuePair> updatePerpetualLine = perpetualLineTempV2Repository.getPickupLineCount(
                         updatePerpetualLines.get(0).getWarehouseId(),
                         updatePerpetualLines.get(0).getCompanyCodeId(),
@@ -1468,7 +1458,7 @@ public class PerpetualLineService extends BaseService {
                     updatePerpetualLineV2List.add(updatePerpetualLineV2);
                 }
                 //update cyclecount order Table
-                updatePerpetualStockCountOrderTable(updatePerpetualLineV2List);
+//                updatePerpetualStockCountOrderTable(updatePerpetualLineV2List);
                 //push to AMS
                 warehouseApiResponse = updatePerpetualLine(updatePerpetualLineV2List, authTokenForConnectorService.getAccess_token());
                 if(warehouseApiResponse.getStatusCode().equalsIgnoreCase("200")){
@@ -1482,7 +1472,7 @@ public class PerpetualLineService extends BaseService {
                     dbPerpetualHeader.setReferenceField1("True");
                     perpetualHeaderV2Repository.save(dbPerpetualHeader);
                 }
-                perpetualLineTempV2Repository.truncateTblperpetualtempline();
+//                perpetualLineTempV2Repository.truncateTblperpetualtempline();
             }
 
             return warehouseApiResponse;

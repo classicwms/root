@@ -1055,7 +1055,7 @@ public class WarehouseService extends BaseService {
 			List<ASNLineV2> asnLineV2s = asnv2.getAsnLine();
 			InboundOrderV2 apiHeader = new InboundOrderV2();
 
-			apiHeader.setAmsSupplierInvoiceNo(asnV2Header.getAmsSupplierInvoiceNo());
+			apiHeader.setAmsSupplierInvoiceNo(asnV2Header.getAMSSupplierInvoiceNo());
 			apiHeader.setOrderId(asnV2Header.getAsnNumber());
 			apiHeader.setCompanyCode(asnV2Header.getCompanyCode());
 			apiHeader.setBranchCode(asnV2Header.getBranchCode());

@@ -89,4 +89,34 @@ public interface PreInboundLineV2Repository extends JpaRepository<PreInboundLine
             @Param("updatedBy") String updatedBy,
             @Param("updatedOn") Date updatedOn
     );
+
+    @Modifying
+    @Query(value = " UPDATE PIBL SET PIBL.STATUS_ID = :statusId, \n" +
+            "PIBL.STATUS_TEXT = :statusDescription, PIBL.UTD_BY = :updatedBy, PIBL.UTD_ON = :updatedOn FROM tblpreinboundline PIBL \n" +
+            "INNER JOIN ( \n" +
+            "SELECT C_ID, PLANT_ID, LANG_ID, WH_ID, REF_DOC_NO, PRE_IB_NO, IB_LINE_NO, ITM_CODE, MFR_NAME \n" +
+            "FROM tblinboundline \n" +
+            "WHERE IS_DELETED = 0 \n" +
+            "AND REF_FIELD_2 = 'TRUE' " +
+            "AND STATUS_ID = :statusId AND C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId \n" +
+            "AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo) X ON PIBL.C_ID = X.C_ID \n" +
+            "AND PIBL.PLANT_ID = X.PLANT_ID \n" +
+            "AND PIBL.LANG_ID = X.LANG_ID \n" +
+            "AND PIBL.WH_ID = X.WH_ID \n" +
+            "AND PIBL.REF_DOC_NO = X.REF_DOC_NO \n" +
+            "AND PIBL.PRE_IB_NO = X.PRE_IB_NO \n" +
+            "AND PIBL.ITM_CODE = X.ITM_CODE \n" +
+            "AND PIBL.MFR_NAME = X.MFR_NAME \n" +
+            "AND PIBL.IB_LINE_NO = X.IB_LINE_NO \n" +
+            "AND PIBL.IS_DELETED = 0 ", nativeQuery = true)
+    void updatePreInboundLine(@Param("companyCodeId") String companyCodeId,
+                              @Param("plantId") String plantId,
+                              @Param("languageId") String languageId,
+                              @Param("warehouseId") String warehouseId,
+                              @Param("refDocNumber") String refDocNumber,
+                              @Param("preInboundNo") String preInboundNo,
+                              @Param("statusId") Long statusId,
+                              @Param("statusDescription") String statusDescription,
+                              @Param("updatedBy") String updatedBy,
+                              @Param("updatedOn") Date updatedOn);
 }

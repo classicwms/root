@@ -153,4 +153,19 @@ public interface InboundHeaderV2Repository extends JpaRepository<InboundHeaderV2
             @Param("statusDescription2") String statusDescription2,
             @Param("updatedBy") String updatedBy,
             @Param("updatedOn") Date updatedOn);
+
+
+    @Modifying
+    @Query(value = "UPDATE tblinboundheader SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, " +
+            "UTD_BY = :updatedBy, UTD_ON = :updatedOn, IB_CNF_BY = :updatedBy, IB_CNF_ON = :updatedOn " +
+            "WHERE IS_DELETED = 0 AND C_ID = :companyCodeId AND PLANT_ID = :plantId " +
+            "AND LANG_ID = :languageId AND WH_ID = :warehouseId " +
+            "AND REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo " +
+            "AND (select count(*) from tblinboundline where ref_doc_no = :refDocNumber and PRE_IB_NO = :preInboundNo) = " +
+            "(select count(*) from tblinboundline where ref_doc_no = :refDocNumber and PRE_IB_NO = :preInboundNo and status_id = 24) ", nativeQuery = true)
+    void updateInboundHeader(@Param("statusId") Long statusId, @Param("statusDescription") String statusDescription,
+                             @Param("updatedBy") String updatedBy, @Param("updatedOn") Date updatedOn,
+                             @Param("companyCodeId") String companyCodeId, @Param("plantId") String plantId,
+                             @Param("languageId") String languageId, @Param("warehouseId") String warehouseId,
+                             @Param("refDocNumber") String refDocNumber, @Param("preInboundNo") String preInboundNo);
 }
