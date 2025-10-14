@@ -82,4 +82,6 @@ public class InventoryV4 {
     private Long remaining_self_life_percentage;
     private String receivingVariance;
     private String mfr_name;
+    private Double mrp;
+
 }

@@ -1002,16 +1002,56 @@ public class OrderProcessingService extends BaseService {
     @Transactional
     public void createOrderManagementLineV7(String companyCodeId, String plantId, String languageId, String preOutboundNo,
                                             OutboundIntegrationHeaderV2 outboundIntegrationHeader, List<PreOutboundLineV2> preOutboundLineList, String loginUserId) throws Exception {
-        OrderManagementLineV2 orderManagementLine = null;
-        try {
-            for (PreOutboundLineV2 preOutboundLine : preOutboundLineList) {
-                orderManagementLine = createOrderManagementLineV7(companyCodeId, plantId, languageId, preOutboundNo, outboundIntegrationHeader, preOutboundLine, loginUserId);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
+        log.info("Total PreOutboundLines received : {}", preOutboundLineList.size());
+
+        Map<String, Double> itemCodeToTotalQty = preOutboundLineList.stream()
+                .collect(Collectors.groupingBy(PreOutboundLineV2::getItemCode,
+                        Collectors.summingDouble(line -> line.getOrderQty() == null ? 0.0 : line.getOrderQty())));
+
+        log.info("Grouped item codes found: {}", itemCodeToTotalQty.keySet());
+
+        // Setup thread pool (example: 8 threads)
+        int threadPoolSize = 8;
+        ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
+        List<Future<?>> futures = new ArrayList<>();
+
+        for (Map.Entry<String, Double> entry : itemCodeToTotalQty.entrySet()) {
+            String itemCode = entry.getKey();
+            Double totalQty = entry.getValue();
+
+            futures.add(executor.submit(() -> {
+                try {
+                    PreOutboundLineV2 preOutboundLineV2 = preOutboundLineList.stream()
+                            .filter(p -> p.getItemCode().equals(itemCode))
+                            .findFirst()
+                            .orElseThrow(() -> new RuntimeException("ItemCode not found in list: " + itemCode));
+
+                    PreOutboundLineV2 newPreOutboundLine = new PreOutboundLineV2();
+                    BeanUtils.copyProperties(preOutboundLineV2, newPreOutboundLine, CommonUtils.getNullPropertyNames(preOutboundLineV2));
+                    newPreOutboundLine.setItemCode(itemCode);
+                    newPreOutboundLine.setOrderQty(totalQty);
+
+                    log.info("Creating OrderManagementLine for ItemCode: {} | TotalQty: {}", itemCode, totalQty);
+
+                    createOrderManagementLineV7(companyCodeId, plantId, languageId, preOutboundNo, outboundIntegrationHeader, newPreOutboundLine, loginUserId);
+
+                    log.debug("Created OrderManagementLine for ItemCode: {}", itemCode);
+                } catch (Exception ex) {
+                    log.error("Failed to create OrderManagementLine for ItemCode: {} | Error: {}", itemCode, ex.getMessage(), ex);
+                    throw new RuntimeException(ex);
+                }
+            }));
         }
-        log.info("orderManagementLine created---1---> : " + orderManagementLine);
+
+        // Wait for all tasks to complete
+        for (Future<?> future : futures) {
+            future.get(); // This will rethrow any exception that occurred in the thread
+        }
+
+        executor.shutdown();
+        // executor.awaitTermination(5, TimeUnit.MINUTES); // Adjust timeout as needed
+
+        log.info("All OrderManagementLines created successfully for PreOutboundNo: {}", preOutboundNo);
     }
 
     /**

@@ -84,4 +84,6 @@ public class InventoryV3 {
     private String remaining_days;
     private Long remaining_self_life_percentage;
     private String receivingVariance;
+    private Double mrp;
+
 }
