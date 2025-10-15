@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -8,8 +9,15 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.transaction.Transactional;
+
+import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
@@ -484,6 +492,10 @@ public class InhouseTransferHeaderService extends BaseService {
 	 * @param createdInhouseTransferLine
 	 * @param loginUserID
 	 */
+	@Transactional
+	@Retryable(value = {
+			SQLException.class, CannotAcquireLockException.class, LockAcquisitionException.class
+			}, maxAttempts = 3, backoff = @Backoff(delay = 3000))
 	private void updateTransferInventory(String warehouseId, Long transferTypeId, InhouseTransferLine createdInhouseTransferLine, String loginUserID) {
 		Long sourceStockTypeId = createdInhouseTransferLine.getSourceStockTypeId() != null ? createdInhouseTransferLine.getSourceStockTypeId() : 1L;
 		Long targetStockTypeId = createdInhouseTransferLine.getTargetStockTypeId() != null ? createdInhouseTransferLine.getTargetStockTypeId() : 1L;
@@ -554,6 +566,23 @@ public class InhouseTransferHeaderService extends BaseService {
 				createInventory(createdInhouseTransferLine, transferConfirmedQty, loginUserID);
 			}
 		}
+	}
+	
+	/**
+	 * 
+	 */
+	@Scheduled(fixedDelayString = "PT1M", initialDelayString = "PT2M")
+	public void updateErroredOutInventory () {
+		List<InventoryTrans> inventoryTransList = inventoryTransRepository.findByReRun(0L);
+		inventoryTransList.stream().forEach( it -> {
+			log.info("----updateErroredOutInventory-->: " + it);
+			inventoryRepository.updateInventory(it.getWarehouseId(),
+					it.getPackBarcodes(), it.getItemCode(),
+					it.getStorageBin(), it.getInventoryQuantity(), it.getAllocatedQuantity());
+			it.setReRun(1L);
+			inventoryTransRepository.save(it);		
+			log.info("----updateInventoryTrans-is-done-->: " + it);
+		});
 	}
 	
 	/**
