@@ -3543,53 +3543,41 @@ public class WarehouseService extends BaseService {
 
 
 	//	@Scheduled(cron = "5 * * * * ?")
-	@Scheduled(cron = "*/2 * * * * *")
+	@Scheduled(cron = "*/10 * * * * *")
 	public void postSAPDeliveryConfirmationScheduleProcess() throws Exception {
 		log.info("-------postSAPDeliveryConfirmation----------");
-//		List<DeliveryConfirmation> deliveryConfirmations = deliveryConfirmationRepository.findByProcessedStatusIdOrderByOrderReceivedOn(9L);
-		DeliveryConfirmation deliveryCnf = deliveryConfirmationRepository.findTopByProcessedStatusIdOrderByOrderReceivedOn(9L);
-		log.info("DeliveryConfirmation Values---------------------> " + deliveryCnf);
-
-		if (deliveryCnf != null) {
-			deliveryConfirmationRepository.updateProcessStatusId(deliveryCnf.getDeliveryId(), 1L, new Date());
-		log.info("DeliveryConfirmation ProcessStatus Id 1 Updated -------> DeliveryId is {} ", deliveryCnf.getDeliveryId());
-//		log.info("delivery template list: " + deliveryConfirmations.size());
-
-//		if (deliveryConfirmations != null && !deliveryConfirmations.isEmpty()) {
-//			List<Long> headerList = deliveryConfirmations.stream().map(DeliveryConfirmation::getDeliveryId)
-//					.collect(Collectors.toList());
-//			List<List<Long>> partitionedList = partitionList(headerList, SQL_SERVER_IN_CLAUSE_LIMIT);
-
-//			for (List<Long> subList : partitionedList) {
-//				deliveryConfirmationRepository.updateBatchExecuted(subList, 1L);
-//				log.info("Updated executed flag for batch size: " + subList.size());
-//				log.info("DeliveryConfirmation Executed flag updated for Order From SAP ---> " + headerList.size() + " |---> " + headerList);
-//			}
+		List<DeliveryConfirmation> deliveryConfirmations = deliveryConfirmationRepository.findTop1DeliveryConfirmationList(9L);
+		log.info("DeliveryConfirmation Values size ---------------------> " + deliveryConfirmations.size());
+		if (deliveryConfirmations.isEmpty()) {
+			log.info("DeliveryConfirmation Values is Empty");
+		} else {
+			deliveryConfirmationRepository.updateProcessStatusIdForDLC(deliveryConfirmations.get(0).getOutbound(), 1L, new Date());
+			log.info("DeliveryConfirmation ProcessStatus Id 1 Updated -------> RefDocNo is {} ", deliveryConfirmations.get(0).getOutbound());
 
 			List<DeliveryConfirmationLineV3> deliveryConfirmationLines = new ArrayList<>();
 			DeliveryConfirmationV3 deliveryConfirmation = new DeliveryConfirmationV3();
 			log.info("Delivery Confirmation Process Initiated For Order From SAP..! ");
 
-//			for (DeliveryConfirmation dbOBOrder : deliveryConfirmations) {
+			for (DeliveryConfirmation deliveryCnf : deliveryConfirmations) {
 				DeliveryConfirmationLineV3 deliveryConfirmationLine = new DeliveryConfirmationLineV3();
 				BeanUtils.copyProperties(deliveryCnf, deliveryConfirmation, CommonUtils.getNullPropertyNames(deliveryCnf));
 				BeanUtils.copyProperties(deliveryCnf, deliveryConfirmationLine, CommonUtils.getNullPropertyNames(deliveryCnf));
 				deliveryConfirmationLines.add(deliveryConfirmationLine);
-//			}
+			}
 			deliveryConfirmation.setLines(deliveryConfirmationLines);
 
 			try {
 				outboundLineService.createPickupHeaderProcess(deliveryConfirmation);
-				deliveryConfirmationRepository.updateProcessStatusId(deliveryCnf.getDeliveryId(), 90L, new Date());
+				deliveryConfirmationRepository.updateProcessStatusIdForDLC(deliveryConfirmations.get(0).getOutbound(), 90L, new Date());
 			} catch (Exception e) {
 				log.error("Error on deliveryTemplate processing for Order From SAP : " + e.toString());
 				e.printStackTrace();
 				boolean deadlock = deadLockException(e.toString());
 				if (deadlock) {
-					deliveryConfirmationRepository.updateProcessStatusId(deliveryCnf.getDeliveryId(), 900L, new Date());
+					deliveryConfirmationRepository.updateProcessStatusIdForDLC(deliveryConfirmations.get(0).getOutbound(), 900L, new Date());
 //					deliveryConfirmationRepository.updateBatchExecuted(headerList, 900L);
 				} else {
-					deliveryConfirmationRepository.updateProcessStatusId(deliveryCnf.getDeliveryId(), 100L, new Date());
+					deliveryConfirmationRepository.updateProcessStatusIdForDLC(deliveryConfirmations.get(0).getOutbound(), 100L, new Date());
 //					deliveryConfirmationRepository.updateBatchExecuted(headerList, 100L);
 				}
 				sendMail(deliveryConfirmation.getCompanyCodeId(), deliveryConfirmation.getPlantId(),

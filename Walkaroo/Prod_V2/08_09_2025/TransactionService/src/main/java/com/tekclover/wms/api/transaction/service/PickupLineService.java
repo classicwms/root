@@ -183,6 +183,9 @@ public class PickupLineService extends BaseService {
     @Autowired
     PushNotificationService pushNotificationService;
 
+    @Autowired
+    PutAwayHeaderService putAwayHeaderService;
+
     //------------------------------------------------------------------------------------------------------
 
     /**
@@ -5608,6 +5611,12 @@ public class PickupLineService extends BaseService {
                         log.error("updateStorageBin Error :" + e.toString());
                         e.printStackTrace();
                     }
+                }
+
+                if(inventory.getBinClassId() == 3L) {
+                    log.info("In DeliveryConfirmation ------------------------> PutAwayLine Creation Process BinClassId is 3 ------------> BarCodeId is ---> " + barcodeId);
+                    putAwayHeaderService.updatePutAwayHeaderV3(companyCodeId, plantId, languageId, warehouseId,
+                            itemCode,barcodeId);
                 }
             } catch (Exception e) {
                 log.error("Inventory Update :" + e.toString());
