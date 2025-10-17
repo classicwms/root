@@ -5124,7 +5124,7 @@ public class PickupLineService extends BaseService {
                                                       String itemCode, String refDocNumber, PickupLineV2 dbPickupLine, String loginUserID, Double BAG_SIZE, Double NO_BAGS) {
 
         InventoryV2 inventory = inventoryService.getOutboundInventoryV4(companyCodeId, plantId, languageId, warehouseId, itemCode,
-                dbPickupLine.getManufacturerName(), dbPickupLine.getBarcodeId(),
+                dbPickupLine.getManufacturerName(), dbPickupLine.getPickConfirmBarcodeId(),
                 dbPickupLine.getPickedStorageBin(), dbPickupLine.getAlternateUom());
         log.info("inventory record queried: " + inventory);
         if (inventory != null) {
@@ -5178,6 +5178,14 @@ public class PickupLineService extends BaseService {
                     try {
                         inventoryV2 = inventoryV2Repository.save(inventoryV2);
                         log.info("-----Inventory2 updated-------: " + inventoryV2);
+
+                        log.info("1.------------pickupline confirmed storageBin update in ref_field_9 -------> {}", inventoryV2.getStorageBin());
+                        log.info("ItemCode : " + dbPickupLine.getItemCode() + " | RefDocNumber : " + dbPickupLine.getRefDocNumber() + " | PickupNumber : " +
+                                dbPickupLine.getPickupNumber() + " | PickConfirmBarcode : " + dbPickupLine.getPickConfirmBarcodeId() + " | CompanyCode : " +
+                                dbPickupLine.getCompanyCodeId() + " | PlantId : " + dbPickupLine.getPlantId() + " | WarehouseId : " + dbPickupLine.getWarehouseId());
+                        pickupLineV2Repository.updateRefField9ForCnfStBin(inventoryV2.getStorageBin(), dbPickupLine.getItemCode(),
+                                dbPickupLine.getRefDocNumber(), dbPickupLine.getPickupNumber(), dbPickupLine.getPickConfirmBarcodeId(),
+                                dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(), dbPickupLine.getWarehouseId());
                     } catch (Exception e) {
                         log.error("--ERROR--updateInventoryV3----level1--inventory--error----> :" + e.toString());
                         e.printStackTrace();
@@ -5284,6 +5292,14 @@ public class PickupLineService extends BaseService {
                     try {
                         InventoryV2 createdInventoryV2 = inventoryV2Repository.save(newInventoryV2);
                         log.info("InventoryV2 created : " + createdInventoryV2);
+
+                        log.info("1.------------pickupline confirmed storageBin update in ref_field_9 -------> {}", createdInventoryV2.getStorageBin());
+                        log.info("ItemCode : " + dbPickupLine.getItemCode() + " | RefDocNumber : " + dbPickupLine.getRefDocNumber() + " | PickupNumber : " +
+                                dbPickupLine.getPickupNumber() + " | PickConfirmBarcode : " + dbPickupLine.getPickConfirmBarcodeId() + " | CompanyCode : " +
+                                dbPickupLine.getCompanyCodeId() + " | PlantId : " + dbPickupLine.getPlantId() + " | WarehouseId : " + dbPickupLine.getWarehouseId());
+                        pickupLineV2Repository.updateRefField9ForCnfStBin(createdInventoryV2.getStorageBin(), dbPickupLine.getItemCode(),
+                                dbPickupLine.getRefDocNumber(), dbPickupLine.getPickupNumber(), dbPickupLine.getPickConfirmBarcodeId(),
+                                dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(), dbPickupLine.getWarehouseId());
 
                         if (createdInventoryV2.getReferenceField4() == 0) {
                             //-------------------------------------------------------------------
@@ -5533,6 +5549,14 @@ public class PickupLineService extends BaseService {
                     inventoryV2 = inventoryV2Repository.save(inventoryV2);
                     log.info("-----allocated Inventory2 updated-------: " + inventoryV2);
 
+                    log.info("1.------------pickupline confirmed storageBin update in ref_field_9 -------> {}", inventoryV2.getStorageBin());
+                    log.info("ItemCode : " + dbPickupLine.getItemCode() + " | RefDocNumber : " + dbPickupLine.getRefDocNumber() + " | PickupNumber : " +
+                            dbPickupLine.getPickupNumber() + " | PickConfirmBarcode : " + dbPickupLine.getPickConfirmBarcodeId() + " | CompanyCode : " +
+                            dbPickupLine.getCompanyCodeId() + " | PlantId : " + dbPickupLine.getPlantId() + " | WarehouseId : " + dbPickupLine.getWarehouseId());
+                    pickupLineV2Repository.updateRefField9ForCnfStBin(inventoryV2.getStorageBin(), dbPickupLine.getItemCode(),
+                            dbPickupLine.getRefDocNumber(), dbPickupLine.getPickupNumber(), dbPickupLine.getPickConfirmBarcodeId(),
+                            dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(), dbPickupLine.getWarehouseId());
+
                     if (inventoryV2.getReferenceField4() == 0) {
                         // Setting up statusId = 0
                         try {
@@ -5628,6 +5652,14 @@ public class PickupLineService extends BaseService {
                     try {
                         inventoryV2 = inventoryV2Repository.save(inventoryV2);
                         log.info("-----Inventory2 updated-------: " + inventoryV2);
+
+                        log.info("1.------------pickupline confirmed storageBin update in ref_field_9 -------> {}", inventoryV2.getStorageBin());
+                        log.info("ItemCode : " + dbPickupLine.getItemCode() + " | RefDocNumber : " + dbPickupLine.getRefDocNumber() + " | PickupNumber : " +
+                                dbPickupLine.getPickupNumber() + " | PickConfirmBarcode : " + dbPickupLine.getPickConfirmBarcodeId() + " | CompanyCode : " +
+                                dbPickupLine.getCompanyCodeId() + " | PlantId : " + dbPickupLine.getPlantId() + " | WarehouseId : " + dbPickupLine.getWarehouseId());
+                        pickupLineV2Repository.updateRefField9ForCnfStBin(inventoryV2.getStorageBin(), dbPickupLine.getItemCode(),
+                                dbPickupLine.getRefDocNumber(), dbPickupLine.getPickupNumber(), dbPickupLine.getPickConfirmBarcodeId(),
+                                dbPickupLine.getCompanyCodeId(), dbPickupLine.getPlantId(), dbPickupLine.getWarehouseId());
 
                         if (inventoryV2.getReferenceField4() == 0) {
                             // Setting up statusId = 0

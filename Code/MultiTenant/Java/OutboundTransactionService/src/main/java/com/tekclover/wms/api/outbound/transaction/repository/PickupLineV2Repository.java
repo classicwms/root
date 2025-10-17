@@ -329,4 +329,17 @@ public interface PickupLineV2Repository extends JpaRepository<PickupLineV2, Long
                        @Param("barcodeId") String barcodeId,
                        @Param("expDate") Date expDate);
 
+    @Modifying
+    @Query(value = "UPDATE tblpickupline set ref_field_9 = :cnfStBin \n " +
+            "WHERE itm_code = :itemCode AND ref_doc_no = :refDocNumber AND pu_no = :pickupNumber \n " +
+            "AND pick_cnf_barcode = :pickCnfBarcodeId AND c_id = :companyCodeId AND plant_id = :plantId \n " +
+            "AND wh_id = :warehouseId AND is_deleted = 0", nativeQuery = true)
+    void updateRefField9ForCnfStBin(@Param("cnfStBin") String cnfStBin,
+                                    @Param("itemCode") String itemCode,
+                                    @Param("refDocNumber") String refDocNumber,
+                                    @Param("pickupNumber") String pickupNumber,
+                                    @Param("pickCnfBarcodeId") String pickCnfBarcodeId,
+                                    @Param("companyCodeId") String companyCodeId,
+                                    @Param("plantId") String plantId,
+                                    @Param("warehouseId") String warehouseId);
 }
