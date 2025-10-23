@@ -676,4 +676,9 @@ public interface OutboundLineV2Repository extends JpaRepository<OutboundLineV2, 
     void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
             String companyCodeId, String plantId, String warehouseId, String refDocNumber, String preOutboundNo, Long deletionIndicator);
 
+    @Modifying
+    @Query(value = "UPDATE tbloutboundline SET WEBHOOK_STATUS = :webhookStatus \n" +
+            "WHERE REF_DOC_NO = :refDocNo AND IS_DELETED = 0", nativeQuery = true)
+    void updateWebhookStatus(@Param("refDocNo") String refDocNo,
+                             @Param("webhookStatus") Long webHookStatus);
 }

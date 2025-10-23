@@ -5,6 +5,7 @@ import com.tekclover.wms.api.transaction.model.impl.OutBoundLineImpl;
 import com.tekclover.wms.api.transaction.model.impl.ShipmentDispatchSummaryReportImpl;
 import com.tekclover.wms.api.transaction.model.impl.StockMovementReportImpl;
 import com.tekclover.wms.api.transaction.model.outbound.OutboundLine;
+import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundLineV2;
 import com.tekclover.wms.api.transaction.model.report.FastSlowMovingDashboard;
 import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -43,6 +44,10 @@ public interface OutboundLineRepository extends JpaRepository<OutboundLine, Long
     // adds 'FOR UPDATE' statement
     OutboundLine findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndDeletionIndicator(
             String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
+            String itemCode, Long deletionIndicator);
+
+    OutboundLineV2 findByWarehouseIdAndRefDocNumberAndPreOutboundNoAndPartnerCodeAndLineNumberAndItemCodeAndDeletionIndicator(
+            String warehouseId, String refDocNumber, String preOutboundNo, String partnerCode, Long lineNumber,
             String itemCode, Long deletionIndicator);
 
     List<OutboundLine> findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndDeletionIndicator(
