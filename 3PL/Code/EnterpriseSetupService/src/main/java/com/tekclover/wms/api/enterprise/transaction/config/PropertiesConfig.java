@@ -25,7 +25,19 @@ public class PropertiesConfig {
 	
 	@Value("${idmaster.oauth.grant_type.password}")
 	private String password;
-	
+
+//	@Value("${woocommerce.basic.consumer.secret}")
+//	private String key;
+
+//	@Value("${woocommerce.basic.consumer.key}")
+//	private String secret;
+
+    @Value("${tng.secret.key}")
+    private String tngSecretKey;
+
+    @Value("${tng.secret.value}")
+    private String tngSecretValue;
+
 	//-----------------------------------------------------------------------------------
 	@Value("${transaction.oauth.access_token_url}")
 	private String transactionAccessTokenUrl;
@@ -57,6 +69,12 @@ public class PropertiesConfig {
 
 	@Value("${api.connector.service.url}")
 	private String connectorServiceUrl;
+
+//	@Value("${api.woocommerce.url}")
+//	private String wooCommerceUrl;
+
+    @Value("${api.tng.url}")
+    private String tngUrl;
 	
 	//------------------------AX-API-----------------------------------------------------
 	// axapi.service.access_token.url=http://168.187.214.59:8040/api/ax/gettoken

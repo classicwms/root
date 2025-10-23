@@ -25,6 +25,9 @@ import com.tekclover.wms.api.enterprise.transaction.model.outbound.quality.v2.Ad
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.quality.v2.QualityHeaderV2;
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.quality.v2.QualityLineV2;
 import com.tekclover.wms.api.enterprise.transaction.model.outbound.v2.*;
+import com.tekclover.wms.api.enterprise.transaction.model.tng.ShipmentOrder;
+import com.tekclover.wms.api.enterprise.transaction.model.tng.ShipmentOrderResponse;
+import com.tekclover.wms.api.enterprise.transaction.model.tng.Skus;
 import com.tekclover.wms.api.enterprise.transaction.model.warehouse.WarehouseId;
 import com.tekclover.wms.api.enterprise.transaction.repository.*;
 import com.tekclover.wms.api.enterprise.transaction.repository.specification.PreOutboundHeaderSpecification;
@@ -36,8 +39,11 @@ import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClientException;
 
 import javax.persistence.EntityNotFoundException;
 import java.lang.reflect.InvocationTargetException;
@@ -151,6 +157,9 @@ public class PreOutboundHeaderService extends BaseService {
 
     @Autowired
     private PickListHeaderRepository pickListHeaderRepository;
+
+    @Autowired
+            ImBasicData1V2Repository imBasicData1V2Repository;
 
     String statusDescription = null;
 
@@ -1552,18 +1561,12 @@ public class PreOutboundHeaderService extends BaseService {
             throws IllegalAccessException, InvocationTargetException, BadRequestException,
             SQLException, SQLServerException, CannotAcquireLockException, LockAcquisitionException, Exception {
         try {
-            /*
-             * Checking whether received refDocNumber processed already.
-             */
             log.info("Outbound Process Initiated----> " + outboundIntegrationHeader.getRefDocumentNo() + ", " + outboundIntegrationHeader.getOutboundOrderTypeID());
-//        Optional<PreOutboundHeaderV2> orderProcessedStatus =
-//                preOutboundHeaderV2Repository.findByRefDocNumberAndDeletionIndicator(outboundIntegrationHeader.getRefDocumentNo(), 0L);
             Optional<PreOutboundHeaderV2> orderProcessedStatus =
                     preOutboundHeaderV2Repository.findByRefDocNumberAndOutboundOrderTypeIdAndDeletionIndicator(
                             outboundIntegrationHeader.getRefDocumentNo(), outboundIntegrationHeader.getOutboundOrderTypeID(), 0L);
 
             if (!orderProcessedStatus.isEmpty()) {
-//            orderService.updateProcessedOrderV2(outboundIntegrationHeader.getRefDocumentNo(), 100L);
                 throw new BadRequestException("Order :" + outboundIntegrationHeader.getRefDocumentNo() +
                         " already processed. Reprocessing can't be allowed.");
             }
@@ -1618,10 +1621,7 @@ public class PreOutboundHeaderService extends BaseService {
                 plantId = outboundIntegrationHeader.getBranchCode();
                 warehouseId = outboundIntegrationHeader.getWarehouseID();
                 languageId = outboundIntegrationHeader.getLanguageId();
-//            String loginUserID = MW_AMS;                                     //Hard Coded
 
-                //Check WMS order table
-//            List<OutboundHeaderV2> outbound = outboundHeaderV2Repository.findBySalesOrderNumberAndDeletionIndicator(salesOrderNumber, 0L);
                 List<OutboundHeaderV2> outbound = outboundHeaderV2Repository.findBySalesOrderNumberAndOutboundOrderTypeIdAndDeletionIndicator(salesOrderNumber, outboundIntegrationHeader.getOutboundOrderTypeID(), 0L);
                 log.info("SalesOrderNumber already Exist: ---> PickList Cancellation to be executed " + salesOrderNumber);
                 String newPickListNo = outboundIntegrationHeader.getPickListNumber();
@@ -1644,9 +1644,6 @@ public class PreOutboundHeaderService extends BaseService {
 
                             log.info("Old PickList Number: " + oldPickListNumber.getPickListNumber() + ", " +
                                     oldPickListNumber.getPreOutboundNo() + " Cancellation Initiated and followed by New PickList " + newPickListNo + " creation started");
-
-                            //Delete old PickListData
-//                        createPickListCancellation = pickListCancellationNew(companyCodeId, plantId, languageId, warehouseId, oldPickListNumber.getPickListNumber(), newPickListNo, oldPickListNumber.getPreOutboundNo(), "MW_AMS");
                         }
                     }
                 }
@@ -1654,56 +1651,7 @@ public class PreOutboundHeaderService extends BaseService {
 
             // Getting PreOutboundNo from NumberRangeTable
             String preOutboundNo = getPreOutboundNo(warehouseId, companyCodeId, plantId, languageId);
-            String refField1ForOrderType = null;
-
-            List<PreOutboundLineV2> overallCreatedPreoutboundLineList = new ArrayList<>();
-            for (OutboundIntegrationLineV2 outboundIntegrationLine : outboundIntegrationHeader.getOutboundIntegrationLines()) {
-                log.info("outboundIntegrationLine : " + outboundIntegrationLine);
-
-                /*-------------Insertion of BOM item in preOutboundLine table---------------------------------------------------------*/
-                /*
-                 * Before Insertion into PREOUTBOUNDLINE table , validate the Below
-                 * Pass the WH_ID/ITM_CODE as PAR_ITM_CODE into BOMHEADER table and validate the records,
-                 * If record is not Null then fetch BOM_NO Pass BOM_NO in BOMITEM table and fetch CHL_ITM_CODE and
-                 * CHL_ITM_QTY values and insert along with PAR_ITM_CODE in PREOUTBOUNDLINE table as below
-                 * Insertion of CHL_ITM_CODE values
-                 */
-                BomHeader bomHeader = mastersService.getBomHeader(outboundIntegrationLine.getItemCode(),
-                        companyCodeId, plantId, languageId, warehouseId, authTokenForMastersService.getAccess_token());
-                if (bomHeader != null) {
-                    BomLine[] bomLine = mastersService.getBomLine(bomHeader.getBomNumber(), companyCodeId, plantId, languageId, warehouseId,
-                            authTokenForMastersService.getAccess_token());
-                    List<PreOutboundLineV2> toBeCreatedpreOutboundLineList = new ArrayList<>();
-                    for (BomLine dbBomLine : bomLine) {
-                        toBeCreatedpreOutboundLineList.add(createPreOutboundLineBOMBasedV2(companyCodeId,
-                                plantId, languageId, preOutboundNo, outboundIntegrationHeader, dbBomLine, outboundIntegrationLine));
-                    }
-
-                    // Batch Insert - preOutboundLines
-                    if (!toBeCreatedpreOutboundLineList.isEmpty()) {
-                        List<PreOutboundLineV2> createdpreOutboundLine = preOutboundLineV2Repository.saveAll(toBeCreatedpreOutboundLineList);
-                        log.info("createdpreOutboundLine [BOM] : " + createdpreOutboundLine);
-                        overallCreatedPreoutboundLineList.addAll(createdpreOutboundLine);
-                    }
-                }
-                refField1ForOrderType = outboundIntegrationLine.getRefField1ForOrderType();
-            }
-
-            /*
-             * Inserting BOM Line records in OutboundLine and OrderManagementLine
-             */
-            if (!overallCreatedPreoutboundLineList.isEmpty()) {
-                for (PreOutboundLineV2 preOutboundLine : overallCreatedPreoutboundLineList) {
-//                 OrderManagementLine
-                    OrderManagementLineV2 orderManagementLine = createOrderManagementLineV2(companyCodeId,
-                            plantId, languageId, preOutboundNo, outboundIntegrationHeader, preOutboundLine);
-                    log.info("orderManagementLine created---BOM---> : " + orderManagementLine);
-                }
-
-                /*------------------Record Insertion in OUTBOUNDLINE table--for BOM---------*/
-                List<OutboundLineV2> createOutboundLineListForBOM = createOutboundLineV2(overallCreatedPreoutboundLineList, outboundIntegrationHeader);
-                log.info("createOutboundLine created : " + createOutboundLineListForBOM);
-            }
+            String refField1ForOrderType = outboundIntegrationHeader.getOutboundIntegrationLines().get(0).getRefField1ForOrderType();
 
             /*
              * Append PREOUTBOUNDLINE table through below logic
@@ -1728,12 +1676,10 @@ public class PreOutboundHeaderService extends BaseService {
                     e.printStackTrace();
                 }
             }
-
-            createOrderManagementLine(companyCodeId, plantId, languageId, preOutboundNo, outboundIntegrationHeader, createdPreOutboundLineList);
-
-            /*------------------Record Insertion in OUTBOUNDLINE tables-----------*/
-            List<OutboundLineV2> createOutboundLineList = createOutboundLineV2(createdPreOutboundLineList, outboundIntegrationHeader);
-            log.info("createOutboundLine created : " + createOutboundLineList);
+            if (createdPreOutboundLineList != null && !createdPreOutboundLineList.isEmpty()) {
+                log.info("TNG PROCESS------------------------------------->  ");
+                shipmentOrder(createdPreOutboundLineList);
+            }
 
             /*------------------Insert into PreOutboundHeader table-----------------------------*/
             PreOutboundHeaderV2 createdPreOutboundHeader = createPreOutboundHeaderV2(companyCodeId,
@@ -1745,8 +1691,22 @@ public class PreOutboundHeaderService extends BaseService {
             log.info("OrderMangementHeader Created : " + createdOrderManagementHeader);
 
             /*------------------Record Insertion in OUTBOUNDHEADER/OUTBOUNDLINE tables-----------*/
-//        OutboundHeaderV2 outboundHeader = createOutboundHeaderV2(createdPreOutboundHeader, createdOrderManagementHeader.getStatusId());
             OutboundHeaderV2 outboundHeader = createOutboundHeaderV2(createdPreOutboundHeader, createdOrderManagementHeader.getStatusId(), outboundIntegrationHeader);
+            if(outboundHeader.getPartnerCode() != null) {
+                log.info("TNG Customer Order --------------------> PartnerCode is {}", outboundHeader.getPartnerCode());
+                String partnerCode = imBasicData1V2Repository.getPartnerCode(outboundHeader.getCompanyCodeId(),outboundHeader.getPlantId(),
+                        outboundHeader.getLanguageId(),outboundHeader.getWarehouseId(),outboundHeader.getPartnerCode());
+                log.info("PartnerCode Id is {} ----> ref_field_8 is {} ---> ", outboundHeader.getPartnerCode(), partnerCode);
+                if (partnerCode != null && partnerCode.equalsIgnoreCase("True")) {
+                    return outboundHeader;
+                }
+            }
+            createOrderManagementLine(companyCodeId, plantId, languageId, preOutboundNo, outboundIntegrationHeader, createdPreOutboundLineList);
+
+            /*------------------Record Insertion in OUTBOUNDLINE tables-----------*/
+            List<OutboundLineV2> createOutboundLineList = createOutboundLineV2(createdPreOutboundLineList, outboundIntegrationHeader);
+            log.info("createOutboundLine created : " + createOutboundLineList);
+
 
             //check the status of OrderManagementLine for NoStock update status of outbound header, preoutbound header, preoutboundline
             statusDescription = stagingLineV2Repository.getStatusDescription(47L, languageId);
@@ -4240,8 +4200,8 @@ public class PreOutboundHeaderService extends BaseService {
         preOutboundHeader.setPreOutboundNo(preOutboundNo);                                                // PRE_OB_NO
         preOutboundHeader.setPartnerCode(outboundIntegrationHeader.getPartnerCode());
         preOutboundHeader.setOutboundOrderTypeId(outboundIntegrationHeader.getOutboundOrderTypeID());    // Hardcoded value "0"
-        List<String> partnername = stagingLineV2Repository.getPartnerName(outboundIntegrationHeader.getPartnerCode(), companyCodeId, plantId,warehouseId, languageId);
-        if(partnername != null && !partnername.isEmpty()){
+        List<String> partnername = stagingLineV2Repository.getPartnerName(outboundIntegrationHeader.getPartnerCode(), companyCodeId, plantId, warehouseId, languageId);
+        if (partnername != null && !partnername.isEmpty()) {
             preOutboundHeader.setReferenceField6(partnername.get(0));
         }
 
@@ -4463,7 +4423,6 @@ public class PreOutboundHeaderService extends BaseService {
         preOutboundLine.setPartnerCode(outboundIntegrationHeader.getPartnerCode());
 
 
-
         // IB__LINE_NO
         preOutboundLine.setLineNumber(outboundIntegrationLine.getLineReference());
 
@@ -4482,8 +4441,8 @@ public class PreOutboundHeaderService extends BaseService {
         // SP_ST_IND_ID
         preOutboundLine.setSpecialStockIndicatorId(1L);
 
-        List<String> partnername = stagingLineV2Repository.getPartnerName(outboundIntegrationHeader.getPartnerCode(), companyCodeId, plantId,warehouseId, languageId);
-        if(partnername != null && !partnername.isEmpty()){
+        List<String> partnername = stagingLineV2Repository.getPartnerName(outboundIntegrationHeader.getPartnerCode(), companyCodeId, plantId, warehouseId, languageId);
+        if (partnername != null && !partnername.isEmpty()) {
             preOutboundLine.setReferenceField6(partnername.get(0));
         }
 
@@ -6229,4 +6188,44 @@ public class PreOutboundHeaderService extends BaseService {
 //        log.info("Pick List Cancellation Completed");
 //        insertNewPickListCancelRecord(outboundHeaderV2, outboundLineV2, pickupLineV2, createNewPickUpLineList, orderManagementLine, companyCodeId, plantId, languageId, warehouseId, oldPickListNumber, newPickListNumber);
 //    }
+
+    public void shipmentOrder(List<PreOutboundLineV2> createdPreOutboundLine) {
+
+        String partnerCode = imBasicData1V2Repository.getPartnerCode(createdPreOutboundLine.get(0).getCompanyCodeId(),createdPreOutboundLine.get(0).getPlantId(),
+                createdPreOutboundLine.get(0).getLanguageId(),createdPreOutboundLine.get(0).getWarehouseId(),createdPreOutboundLine.get(0).getPartnerCode());
+        if (partnerCode != null && partnerCode.equalsIgnoreCase("True")) {
+            //TNG
+            ShipmentOrder shipmentOrder = new ShipmentOrder();
+            List<Skus> skus = new ArrayList<>();
+            for (PreOutboundLineV2 preOutboundLine : createdPreOutboundLine) {
+                Skus sku = new Skus();
+                sku.setQty(preOutboundLine.getOrderQty());
+                sku.setSku(preOutboundLine.getItemCode());
+                skus.add(sku);
+
+
+                shipmentOrder.setOrderReference(preOutboundLine.getRefDocNumber());
+                shipmentOrder.setStorerKey("IWE");
+                shipmentOrder.setWarehouseKey("INFOR_SCPRD_wmwhse1");
+                shipmentOrder.setConsigneeName("Abed test");
+                shipmentOrder.setSkus(skus);
+
+
+                try {
+                    ShipmentOrderResponse response = idmasterService.shipmentOrder(shipmentOrder);
+
+                    if (response.getSuccess()) {
+                        Long WEBHOOK_STATUS = 200L;
+                        preOutboundLineRepository.updateWebhookStatus(preOutboundLine.getRefDocNumber(), WEBHOOK_STATUS);
+                    } else {
+                        Long WEBHOOK_STATUS = 500L;
+                        preOutboundLineRepository.updateWebhookStatus(preOutboundLine.getRefDocNumber(), WEBHOOK_STATUS);
+                    }
+
+                } catch (RestClientException e) {
+                    log.error("WebHook Error while pushing purchaseOrder ----> " + e);
+                }
+            }
+        }
+    }
 }

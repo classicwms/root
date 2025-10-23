@@ -1,9 +1,12 @@
 package com.tekclover.wms.api.enterprise.transaction.service;
 
+import com.google.api.client.util.Base64;
 import com.tekclover.wms.api.enterprise.transaction.config.PropertiesConfig;
 import com.tekclover.wms.api.enterprise.controller.exception.BadRequestException;
 import com.tekclover.wms.api.enterprise.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.enterprise.transaction.model.dto.*;
+import com.tekclover.wms.api.enterprise.transaction.model.tng.ShipmentOrder;
+import com.tekclover.wms.api.enterprise.transaction.model.tng.ShipmentOrderResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -12,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.Year;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 
@@ -33,6 +37,14 @@ public class IDMasterService {
 	private String getIDMasterServiceApiUrl () {
 		return propertiesConfig.getIdmasterServiceUrl();
 	}
+
+//	private String getWooCommerceUrl () {
+//		return propertiesConfig.getWooCommerceUrl();
+//	}
+
+    private String getTNGUrl () {
+        return propertiesConfig.getTngUrl();
+    }
 	
 	
 	//--------------------------------------------------------------------------------------------------------------------
@@ -320,4 +332,62 @@ public class IDMasterService {
 			throw new BadRequestException(e.getLocalizedMessage());
 		}
 	}
+
+	//==============================================================================================================
+//	public String getStatus(Status status,String orderId) {
+//		try {
+//			String credentials = propertiesConfig.getKey() + ":" + propertiesConfig.getSecret();
+//			String encodedCredentials = new String(Base64.encodeBase64(credentials.getBytes()));
+//
+//			HttpHeaders headers = new HttpHeaders();
+//			headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+//			headers.add("Authorization", "Basic " + encodedCredentials);
+//			headers.set("User-Agent", "MySpringApp/1.0");
+//
+//			UriComponentsBuilder builder =
+//					UriComponentsBuilder.fromHttpUrl(getWooCommerceUrl() +"/wp-json/wc/v3/orders/"+orderId);
+//
+//			HttpEntity<?> entity = new HttpEntity<>(status,headers);
+//			ResponseEntity<String> result =
+//					getRestTemplate().exchange(builder.toUriString(), HttpMethod.PUT, entity, String.class);
+//			log.info("result : " + result.getBody());
+//			return result.getBody();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			throw new BadRequestException(e.getLocalizedMessage());
+//		}
+//	}
+
+    //====================================================TNG=====================================================
+
+    //Create Shipment Order
+    public ShipmentOrderResponse shipmentOrder(ShipmentOrder shipmentOrder) {
+        try {
+			log.info("Shipment Order Process Request -------> " + shipmentOrder);
+//			String credentials = propertiesConfig.getTngSecretKey() + ":" + propertiesConfig.getTngSecretValue();
+//			String encodedCredentials = new String(Base64.encodeBase64(credentials.getBytes()));
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+//			headers.add("Authorization", "Basic " + encodedCredentials);
+            headers.set(propertiesConfig.getTngSecretKey(), propertiesConfig.getTngSecretValue());
+            headers.set("User-Agent", "MySpringApp/1.0");
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getTNGUrl() +"CreateShipmentOrder");
+
+            HttpEntity<?> entity = new HttpEntity<>(shipmentOrder,headers);
+            ResponseEntity<ShipmentOrderResponse> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, ShipmentOrderResponse.class);
+
+            log.info("---post shipmentOrder -----StatusCode----->: " + result.getStatusCodeValue());
+            log.info("---post shipmentOrder -----ResponseBody--->: " + result.getBody());
+
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BadRequestException(e.getLocalizedMessage());
+        }
+    }
+
 }

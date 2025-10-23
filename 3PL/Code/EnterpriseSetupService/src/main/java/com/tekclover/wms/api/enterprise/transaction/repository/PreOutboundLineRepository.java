@@ -65,4 +65,10 @@ public interface PreOutboundLineRepository extends JpaRepository<PreOutboundLine
     void updatePreOutboundLineStatus(@Param("warehouseId") String warehouseId,
                                      @Param("refDocNumber") String refDocNumber, @Param("statusId") Long statusId);
 
+    @Modifying
+    @Query(value = "UPDATE tblpreoutboundline SET WEBHOOK_STATUS = :webhookStatus \n" +
+            "WHERE REF_DOC_NO = :refDocNo AND IS_DELETED = 0", nativeQuery = true)
+    void updateWebhookStatus(@Param("refDocNo") String refDocNo,
+                             @Param("webhookStatus") Long webHookStatus);
+
 }
