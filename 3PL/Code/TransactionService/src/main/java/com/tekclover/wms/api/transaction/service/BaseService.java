@@ -16,6 +16,9 @@ public class BaseService {
     protected static final String WAREHOUSE_ID_100 = "100";
     protected static final String WAREHOUSE_ID_200 = "200";
 
+    protected static final String TNG_CUSTOMER_ID = "10";
+    protected static final String SAFI_CUSTOMER_ID = "7";
+
     @Autowired
     protected IDMasterService idmasterService;
 

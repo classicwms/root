@@ -76,4 +76,9 @@ public class InboundHeaderV2 extends InboundHeader {
     @Column(name = "AMS_SUP_INV", columnDefinition = "nvarchar(50)")
     private String AMSSupplierInvoiceNo;
 
+    //--------------------------------TNG-------------------------------------------//
+
+    @Column(name = "WEBHOOK_STATUS")
+    private Long webHookStatus;
+
 }

@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.transaction.repository;
 
+import com.tekclover.wms.api.transaction.model.inbound.preinbound.v2.PreInboundHeaderEntityV2;
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.v2.PreInboundLineEntityV2;
 import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -101,4 +102,11 @@ public interface PreInboundLineV2Repository extends JpaRepository<PreInboundLine
             @Param("preInboundNo") String preInboundNo,
             @Param("statusId") Long statusId,
             @Param("statusDescription") String statusDescription);
+
+
+    @Modifying
+    @Query(value = "update tblpreinboundline set status_id = :statusId, status_text = :text where ref_doc_no = :refDocNumber", nativeQuery = true)
+    public void updateInboundWebHook(@Param("statusId") Long statusId,
+                              @Param("text") String text,
+                              @Param("refDocNumber") String refDocNumber);
 }

@@ -7,11 +7,13 @@ import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
+import com.tekclover.wms.api.transaction.model.inbound.preinbound.*;
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.v2.PreInboundHeaderEntityV2;
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.v2.PreInboundHeaderV2;
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.v2.PreInboundLineEntityV2;
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.v2.SearchPreInboundHeaderV2;
 import com.tekclover.wms.api.transaction.model.inbound.staging.v2.StagingHeaderV2;
+import com.tekclover.wms.api.transaction.model.warehouse.inbound.WarehouseApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,13 +29,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
-import com.tekclover.wms.api.transaction.model.inbound.preinbound.AddPreInboundHeader;
-import com.tekclover.wms.api.transaction.model.inbound.preinbound.AddPreInboundLine;
-import com.tekclover.wms.api.transaction.model.inbound.preinbound.InboundIntegrationHeader;
-import com.tekclover.wms.api.transaction.model.inbound.preinbound.PreInboundHeader;
-import com.tekclover.wms.api.transaction.model.inbound.preinbound.PreInboundHeaderEntity;
-import com.tekclover.wms.api.transaction.model.inbound.preinbound.SearchPreInboundHeader;
-import com.tekclover.wms.api.transaction.model.inbound.preinbound.UpdatePreInboundHeader;
 import com.tekclover.wms.api.transaction.model.inbound.staging.StagingHeader;
 import com.tekclover.wms.api.transaction.service.PreInboundHeaderService;
 
@@ -213,5 +208,16 @@ public class PreInboundHeaderController {
 													  @RequestParam String languageId, @RequestParam String loginUserID) throws ParseException {
 		preinboundheaderService.deletePreInboundHeaderV2(companyCode, plantId, languageId, preInboundNo, warehouseId, loginUserID);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
+	//------------------------------------------TNG-WebHook--------------------------------------------------------//
+	@ApiOperation(response = WebHook.class, value = "Search WebHook") // label for swagger
+	@PostMapping("/webHook/Find")
+	public ResponseEntity<WarehouseApiResponse> findWebHook(@RequestBody WebHook webHook)
+			throws Exception {
+
+		WarehouseApiResponse response = preinboundheaderService.findWebHook(webHook);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+
 	}
 }

@@ -19,7 +19,7 @@ public class ScheduleAsyncService {
 
     //-------------------------------------------------------------------Inbound---------------------------------------------------------------
     @Async("asyncTaskExecutor")
-    public CompletableFuture<WarehouseApiResponse> processInboundOrder() throws InterruptedException, InvocationTargetException, IllegalAccessException, ParseException{
+    public CompletableFuture<WarehouseApiResponse> processInboundOrder() throws InterruptedException, InvocationTargetException, IllegalAccessException, ParseException {
 
         WarehouseApiResponse inboundOrder = transactionService.processInboundOrder();
         return CompletableFuture.completedFuture(inboundOrder);

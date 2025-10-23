@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.transaction.repository;
 
 import com.tekclover.wms.api.transaction.model.dto.HHTUser;
+import com.tekclover.wms.api.transaction.model.inbound.preinbound.v2.PreInboundHeaderEntityV2;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.v2.PreOutboundHeaderV2;
 import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -229,4 +230,16 @@ public interface PreOutboundHeaderV2Repository extends JpaRepository<PreOutbound
     void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
             String companyCodeId, String plantId, String warehouseId, String refDocNumber, String preOutboundNo, Long deletionIndicator);
 
+
+    @Query(value = "SELECT * from tblpreoutboundheader WHERE REF_DOC_NO = :refDocNo \n " +
+            "AND is_deleted = 0", nativeQuery = true)
+    public PreOutboundHeaderV2 findByOrderID(@Param("refDocNo") String refDocNumber);
+
+
+    @Modifying
+    @Transactional
+    @Query(value = "update tblpreoutboundheader set status_id = :statusId, status_text = :text where ref_doc_no = :refDocNumber", nativeQuery = true)
+    public void updateOutboundWebHook(@Param("statusId") Long statusId,
+                              @Param("text") String text,
+                              @Param("refDocNumber") String refDocNumber);
 }

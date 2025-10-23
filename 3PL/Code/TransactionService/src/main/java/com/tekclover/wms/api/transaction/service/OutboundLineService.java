@@ -40,6 +40,7 @@ import com.tekclover.wms.api.transaction.model.report.FindImBasicData1;
 import com.tekclover.wms.api.transaction.model.report.SearchOrderStatusReport;
 import com.tekclover.wms.api.transaction.model.report.StockMovementReport;
 import com.tekclover.wms.api.transaction.model.report.StockMovementReport1;
+import com.tekclover.wms.api.transaction.model.tng.*;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.confirmation.AXApiResponse;
 import com.tekclover.wms.api.transaction.model.warehouse.outbound.confirmation.*;
 import com.tekclover.wms.api.transaction.repository.*;
@@ -50,8 +51,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClientException;
 
 import javax.persistence.EntityNotFoundException;
 import java.lang.reflect.InvocationTargetException;
@@ -160,6 +164,8 @@ public class OutboundLineService extends BaseService {
     private QualityLineV2Repository qualityLineV2Repository;
     @Autowired
     private OutboundLineV2Repository outboundLineV2Repository;
+    @Autowired
+            ImBasicData1V2Repository imBasicData1V2Repository;
 
     String statusDescription = null;
     //------------------------------------------------------------------------------------------------------
@@ -392,6 +398,36 @@ public class OutboundLineService extends BaseService {
                                         Long lineNumber, String itemCode) {
         OutboundLine outboundLine = outboundLineRepository.findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndDeletionIndicator(
                 warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode, 0L);
+        if (outboundLine != null) {
+            return outboundLine;
+        }
+        throw new BadRequestException("The given OutboundLine ID : " +
+                "warehouseId:" + warehouseId +
+                ",preOutboundNo:" + preOutboundNo +
+                ",refDocNumber:" + refDocNumber +
+                ",partnerCode:" + partnerCode +
+                ",lineNumber:" + lineNumber +
+                ",itemCode:" + itemCode +
+                " doesn't exist.");
+    }
+
+    /**
+     * Pass the Selected WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/OB_LINE_NO/ITM_CODE in OUTBOUNDLINE table and
+     * update SATATU_ID as 48
+     *
+     * @param warehouseId
+     * @param preOutboundNo
+     * @param refDocNumber
+     * @param partnerCode
+     * @param lineNumber
+     * @param itemCode
+     * @return
+     * @return
+     */
+    public OutboundLineV2 getOutboundLineV2(String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode,
+                                        Long lineNumber, String itemCode) {
+        OutboundLineV2 outboundLine = outboundLineRepository.findByWarehouseIdAndRefDocNumberAndPreOutboundNoAndPartnerCodeAndLineNumberAndItemCodeAndDeletionIndicator(
+                warehouseId, refDocNumber, preOutboundNo, partnerCode, lineNumber, itemCode, 0L);
         if (outboundLine != null) {
             return outboundLine;
         }
@@ -1125,11 +1161,34 @@ public class OutboundLineService extends BaseService {
      */
     public void deleteOutboundLine(String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
                                    String itemCode, String loginUserID) {
-        OutboundLine outboundLine = getOutboundLine(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode);
+        OutboundLineV2 outboundLine = getOutboundLineV2(warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode);
         if (outboundLine != null) {
             outboundLine.setDeletionIndicator(1L);
             outboundLine.setUpdatedBy(loginUserID);
             outboundLineRepository.save(outboundLine);
+
+            String customerCode = imBasicData1V2Repository.getPartnerCode(outboundLine.getCompanyCodeId(),outboundLine.getPlantId(),
+                    outboundLine.getLanguageId(),outboundLine.getWarehouseId(),outboundLine.getPartnerCode());
+            if (customerCode != null && customerCode.equalsIgnoreCase("True")) {
+                CancelShipmentOrder cancelShipmentOrder = new CancelShipmentOrder();
+                cancelShipmentOrder.setOrderReference(refDocNumber);
+                cancelShipmentOrder.setWarehouseKey("INFOR_SCPRD_wmwhse1");
+                cancelShipmentOrder.setOrderKey("0000036565");
+
+                try {
+                    CancelShipmentOrderResponse response = idmasterService.cancelShipmentOrder(cancelShipmentOrder);
+
+                    if (response.getSuccess()) {
+                        Long WEBHOOK_STATUS = 20L;
+                        outboundLineV2Repository.updateWebhookStatus(outboundLine.getRefDocNumber(), WEBHOOK_STATUS);
+                    } else {
+                        Long WEBHOOK_STATUS = 50L;
+                        outboundLineV2Repository.updateWebhookStatus(outboundLine.getRefDocNumber(), WEBHOOK_STATUS);
+                    }
+                } catch (RestClientException e) {
+                    log.error("WebHook Error while pushing purchaseOrder ----> " + e);
+                }
+            }
         } else {
             throw new EntityNotFoundException("Error in deleting Id: " + lineNumber);
         }
@@ -2765,6 +2824,40 @@ public class OutboundLineService extends BaseService {
         }
 
         outboundLineV2Repository.save(outboundLine);
+
+        //TNG
+        String businessPartnerCode = imBasicData1V2Repository.getPartnerCode(outboundLine.getCompanyCodeId(),outboundLine.getPlantId(),outboundLine.getLanguageId(),
+                outboundLine.getWarehouseId(),outboundLine.getPartnerCode());
+        if (businessPartnerCode != null && businessPartnerCode.equalsIgnoreCase("True")) {
+            UpdateShipmentOrder updateShipmentOrder = new UpdateShipmentOrder();
+            List<Sku> skus = new ArrayList<>();
+
+            Sku sku = new Sku();
+            sku.setSku(outboundLine.getItemCode());
+            sku.setQty(outboundLine.getOrderQty());
+            skus.add(sku);
+
+            updateShipmentOrder.setOrderReference(outboundLine.getRefDocNumber());
+            updateShipmentOrder.setStorerKey("IWE");
+            updateShipmentOrder.setSku(skus);
+
+            try {
+                OrderResponse response = idmasterService.updateShipmentOrder(updateShipmentOrder);
+
+                if (response.getSuccess()) {
+                    Long WEBHOOK_STATUS = 200L;
+                    outboundLineV2Repository.updateWebhookStatus(outboundLine.getRefDocNumber(), WEBHOOK_STATUS);
+                } else {
+                    Long WEBHOOK_STATUS = 500L;
+                    outboundLineV2Repository.updateWebhookStatus(outboundLine.getRefDocNumber(), WEBHOOK_STATUS);
+                }
+
+            } catch (RestClientException e) {
+                log.error("WebHook Error while pushing purchaseOrder ----> " + e);
+            }
+
+
+        }
         return outboundLine;
     }
 

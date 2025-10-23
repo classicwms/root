@@ -91,6 +91,12 @@ public class PreInboundLineV2Specification implements Specification<PreInboundLi
             predicates.add(cb.between(root.get("createdOn"), searchPreInboundLine.getStartCreatedOn(), searchPreInboundLine.getEndCreatedOn()));
         }
 
+
+        if (searchPreInboundLine.getWebHookStatus() != null) {
+            final Path<Group> group = root.<Group>get("webHookStatus");
+            predicates.add(group.in(searchPreInboundLine.getWebHookStatus()));
+        }
+
         predicates.add(cb.equal(root.get("deletionIndicator"), 0L));
 
         return cb.and(predicates.toArray(new Predicate[]{}));

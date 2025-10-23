@@ -81,5 +81,15 @@ public interface PreOutboundLineV2Repository extends JpaRepository<PreOutboundLi
     void deleteByCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
             String companyCodeId, String plantId, String warehouseId, String refDocNumber, String preOutboundNo, Long deletionIndicator);
 
+    @Modifying
+    @Query(value = "update tblpreoutboundline set status_id = :statusId, status_text = :text where ref_doc_no = :refDocNumber", nativeQuery = true)
+    public void updateOutboundWebHook(@Param("statusId") Long statusId,
+                                     @Param("text") String text,
+                                     @Param("refDocNumber") String refDocNumber);
 
+    @Modifying
+    @Query(value = "UPDATE tblpreoutboundline SET WEBHOOK_STATUS = :webhookStatus \n" +
+            "WHERE REF_DOC_NO = :refDocNo AND IS_DELETED = 0", nativeQuery = true)
+    void updateWebhookStatus(@Param("refDocNo") String refDocNo,
+                             @Param("webhookStatus") Long webHookStatus);
 }

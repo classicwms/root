@@ -75,4 +75,7 @@ public class PreInboundLineEntityV2 extends PreInboundLineEntity {
     @Column(name = "AMS_SUP_INV", columnDefinition = "nvarchar(50)")
     private String AMSSupplierInvoiceNo;
 
+    @Column(name = "WEBHOOK_STATUS")
+    private Long webHookStatus;
+
 }

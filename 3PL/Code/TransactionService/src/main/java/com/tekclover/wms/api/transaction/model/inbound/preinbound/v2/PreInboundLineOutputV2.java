@@ -79,6 +79,8 @@ public class PreInboundLineOutputV2 {
     private String branchCode;
     private String transferOrderNo;
     private String isCompleted;
+    
+    private Long webHookStatus;
 
     private List<InventoryDetail> inventoryDetail;
 

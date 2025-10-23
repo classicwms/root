@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.transaction.repository;
 
+import com.tekclover.wms.api.transaction.model.inbound.preinbound.WebHook;
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.v2.PreInboundHeaderEntityV2;
 import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -110,4 +111,17 @@ public interface PreInboundHeaderV2Repository extends JpaRepository<PreInboundHe
             @Param("updatedBy") String updatedBy,
             @Param("updatedOn") Date updatedOn
     );
+
+    @Query(value = "SELECT * from tblpreinboundheader WHERE REF_DOC_NO = :refDocNo \n " +
+            "AND is_deleted = 0", nativeQuery = true)
+    public PreInboundHeaderEntityV2 findByOrderID(@Param("refDocNo") String refDocNumber);
+
+
+    @Modifying
+    @Query(value = "update tblpreinboundheader set status_id = :statusId, status_text = :text where ref_doc_no = :refDocNumber", nativeQuery = true)
+    public void updateInboundWebHook(@Param("statusId") Long statusId,
+                              @Param("text") String text,
+                              @Param("refDocNumber") String refDocNumber);
+
+
 }

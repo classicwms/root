@@ -4,13 +4,20 @@ import com.microsoft.sqlserver.jdbc.SQLServerException;
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.v2.PeriodicHeaderEntityV2;
 import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.v2.PerpetualHeaderEntityV2;
+import com.tekclover.wms.api.transaction.model.dto.ImBasicData1V2;
+import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.InboundIntegrationHeader;
 import com.tekclover.wms.api.transaction.model.inbound.preinbound.InboundIntegrationLine;
+import com.tekclover.wms.api.transaction.model.inbound.preinbound.v2.PreInboundLineEntityV2;
 import com.tekclover.wms.api.transaction.model.inbound.v2.InboundHeaderV2;
 import com.tekclover.wms.api.transaction.model.inbound.v2.InboundOrderCancelInput;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.v2.OutboundIntegrationHeaderV2;
 import com.tekclover.wms.api.transaction.model.outbound.preoutbound.v2.OutboundIntegrationLineV2;
 import com.tekclover.wms.api.transaction.model.outbound.v2.OutboundHeaderV2;
+import com.tekclover.wms.api.transaction.model.tng.Fetch;
+import com.tekclover.wms.api.transaction.model.tng.FetchStock;
+import com.tekclover.wms.api.transaction.model.tng.PurchaseOrder;
+import com.tekclover.wms.api.transaction.model.tng.Sku;
 import com.tekclover.wms.api.transaction.model.warehouse.cyclecount.CycleCountHeader;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.InboundOrderLinesV2;
@@ -23,6 +30,7 @@ import com.tekclover.wms.api.transaction.util.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.UnexpectedRollbackException;
 
@@ -58,6 +66,10 @@ public class TransactionService extends BaseService{
     MastersService mastersService;
     @Autowired
     DirectStockReceiptService directStockReceiptService;
+    @Autowired
+    ImBasicData1V2Repository imBasicData1V2Repository;
+    @Autowired
+    InventoryV2Repository inventoryV2Repository;
     //-------------------------------------------------------------------------------------------
 
     @Autowired
@@ -518,4 +530,5 @@ public class TransactionService extends BaseService{
         }
         return warehouseApiResponse;
     }
+
 }

@@ -1,12 +1,11 @@
 package com.tekclover.wms.api.transaction.service;
 
 import com.microsoft.sqlserver.jdbc.SQLServerException;
-import com.tekclover.wms.api.transaction.model.errorlog.ErrorLog;
-
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.transaction.model.dto.*;
+import com.tekclover.wms.api.transaction.model.errorlog.ErrorLog;
 import com.tekclover.wms.api.transaction.model.inbound.InboundHeader;
 import com.tekclover.wms.api.transaction.model.inbound.InboundLine;
 import com.tekclover.wms.api.transaction.model.inbound.UpdateInboundHeader;
@@ -20,6 +19,11 @@ import com.tekclover.wms.api.transaction.model.inbound.staging.v2.StagingHeaderV
 import com.tekclover.wms.api.transaction.model.inbound.staging.v2.StagingLineEntityV2;
 import com.tekclover.wms.api.transaction.model.inbound.v2.InboundHeaderV2;
 import com.tekclover.wms.api.transaction.model.inbound.v2.InboundLineV2;
+import com.tekclover.wms.api.transaction.model.outbound.preoutbound.v2.PreOutboundHeaderV2;
+import com.tekclover.wms.api.transaction.model.tng.OrderResponse;
+import com.tekclover.wms.api.transaction.model.tng.PurchaseOrder;
+import com.tekclover.wms.api.transaction.model.tng.Sku;
+import com.tekclover.wms.api.transaction.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.api.transaction.model.warehouse.inbound.v2.InboundOrderV2;
 import com.tekclover.wms.api.transaction.repository.*;
 import com.tekclover.wms.api.transaction.repository.specification.PreInboundHeaderSpecification;
@@ -34,8 +38,8 @@ import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClientException;
 
 import javax.persistence.EntityNotFoundException;
 import java.lang.reflect.InvocationTargetException;
@@ -98,6 +102,11 @@ public class PreInboundHeaderService extends BaseService {
     @Autowired
     OrderService orderService;
 
+    @Autowired
+    PreOutboundHeaderV2Repository preOutboundHeaderV2Repository;
+
+    @Autowired
+    PreOutboundLineV2Repository preOutboundLineV2Repository;
     //--------------------------------------------------------------------------------------------------------------
     @Autowired
     private WarehouseRepository warehouseRepository;
@@ -1077,7 +1086,6 @@ public class PreInboundHeaderService extends BaseService {
     }
 
     /**
-     *
      * @param companyCode
      * @param plantId
      * @param languageId
@@ -1103,7 +1111,6 @@ public class PreInboundHeaderService extends BaseService {
     }
 
     /**
-     *
      * @param companyCode
      * @param plantId
      * @param languageId
@@ -1335,7 +1342,7 @@ public class PreInboundHeaderService extends BaseService {
                 preInboundHeaderV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndPreInboundNoAndWarehouseIdAndDeletionIndicator(
                         companyCode, plantId, languageId, preInboundNo, warehouseId, 0L);
         PreInboundHeaderEntityV2 dbEntity = null;
-        if(!preInboundHeaderEntity.isEmpty()) {
+        if (!preInboundHeaderEntity.isEmpty()) {
             dbEntity = preInboundHeaderEntity.get();
             if (updatePreInboundHeader.getStatusId() == null) {
                 dbEntity.setStatusId(7L); // Hardcoded as 7 during update
@@ -1423,8 +1430,6 @@ public class PreInboundHeaderService extends BaseService {
      * @throws InvocationTargetException
      * @throws IllegalAccessException
      */
-//    @Transactional(rollbackFor = {Exception.class, Throwable.class})
-//    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class, LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 3, backoff = @Backoff(delay = 5000))
     public InboundHeaderV2 processInboundReceivedV2(String refDocNumber, InboundIntegrationHeader inboundIntegrationHeader)
             throws IllegalAccessException, InvocationTargetException, BadRequestException,
             SQLException, SQLServerException, CannotAcquireLockException, LockAcquisitionException, Exception {
@@ -1433,11 +1438,9 @@ public class PreInboundHeaderService extends BaseService {
             /*
              * Checking whether received refDocNumber processed already.
              */
-//        Optional<PreInboundHeaderEntityV2> orderProcessedStatus = preInboundHeaderV2Repository.findByRefDocNumberAndDeletionIndicator(refDocNumber, 0L);
         Optional<PreInboundHeaderEntityV2> orderProcessedStatus = preInboundHeaderV2Repository.
                 findByRefDocNumberAndInboundOrderTypeIdAndDeletionIndicator(refDocNumber,  inboundIntegrationHeader.getInboundOrderTypeId(), 0L);
         if (!orderProcessedStatus.isEmpty()) {
-//            orderService.updateProcessedInboundOrderV2(refDocNumber, 100L);
             throw new BadRequestException("Order :" + refDocNumber + " already processed. Reprocessing can't be allowed.");
         }
 
@@ -1501,11 +1504,6 @@ public class PreInboundHeaderService extends BaseService {
                 imBasicData1.setItemCode(inboundIntegrationLine.getItemCode());                // ITM_CODE
                 imBasicData1.setUomId(inboundIntegrationLine.getUom());                    // UOM_ID
                 imBasicData1.setDescription(inboundIntegrationLine.getItemText());            // ITEM_TEXT
-//                imBasicData1.setManufacturerPartNo(inboundIntegrationLine.getManufacturerPartNo());        // MFR_PART
-//                if (inboundIntegrationLine.getManufacturerPartNo() == null && inboundIntegrationLine.getManufacturerCode() != null) {
-//                    imBasicData1.setManufacturerPartNo(inboundIntegrationLine.getManufacturerCode());
-//                }
-//                if (inboundIntegrationLine.getManufacturerPartNo() == null && inboundIntegrationLine.getManufacturerCode() == null && inboundIntegrationLine.getManufacturerName() != null) {
                     imBasicData1.setManufacturerPartNo(inboundIntegrationLine.getManufacturerName());
                     imBasicData1.setManufacturerName(inboundIntegrationLine.getManufacturerName());
                     imBasicData1.setCapacityCheck(false);
@@ -1525,29 +1523,29 @@ public class PreInboundHeaderService extends BaseService {
              * Before inserting the record into Preinbound table, fetch ITM_CODE from InboundIntegrationHeader (MONGO) table and
              * pass into BOMHEADER table as PAR_ITM_CODE and validate record is Not Null
              */
-            BomHeader bomHeader = mastersService.getBomHeader(inboundIntegrationLine.getItemCode(), warehouseId,
-                    warehouse.getCompanyCodeId(),
-                    warehouse.getPlantId(),
-                    warehouse.getLanguageId(),
-                    authTokenForMastersService.getAccess_token());
-            log.info("bomHeader [BOM] : " + bomHeader);
-            if (bomHeader != null) {
-                BomLine[] bomLine = mastersService.getBomLine(bomHeader.getBomNumber(), bomHeader.getWarehouseId(),
-                        authTokenForMastersService.getAccess_token());
-                List<PreInboundLineEntityV2> toBeCreatedPreInboundLineList = new ArrayList<>();
-                for (BomLine dbBomLine : bomLine) {
-                    PreInboundLineEntityV2 preInboundLineEntity = createPreInboundLineBOMBasedV2(warehouse, preInboundNo, inboundIntegrationHeader, dbBomLine, inboundIntegrationLine);
-                    log.info("preInboundLineEntity [BOM] : " + preInboundLineEntity);
-                    toBeCreatedPreInboundLineList.add(preInboundLineEntity);
-                }
-
-                // Batch Insert - PreInboundLines
-                if (!toBeCreatedPreInboundLineList.isEmpty()) {
-                    List<PreInboundLineEntityV2> createdPreInboundLine = preInboundLineV2Repository.saveAll(toBeCreatedPreInboundLineList);
-                    log.info("createdPreInboundLine [BOM] : " + createdPreInboundLine);
-                    overallCreatedPreInboundLineList.addAll(createdPreInboundLine);
-                }
-            }
+//            BomHeader bomHeader = mastersService.getBomHeader(inboundIntegrationLine.getItemCode(), warehouseId,
+//                    warehouse.getCompanyCodeId(),
+//                    warehouse.getPlantId(),
+//                    warehouse.getLanguageId(),
+//                    authTokenForMastersService.getAccess_token());
+//            log.info("bomHeader [BOM] : " + bomHeader);
+//            if (bomHeader != null) {
+//                BomLine[] bomLine = mastersService.getBomLine(bomHeader.getBomNumber(), bomHeader.getWarehouseId(),
+//                        authTokenForMastersService.getAccess_token());
+//                List<PreInboundLineEntityV2> toBeCreatedPreInboundLineList = new ArrayList<>();
+//                for (BomLine dbBomLine : bomLine) {
+//                    PreInboundLineEntityV2 preInboundLineEntity = createPreInboundLineBOMBasedV2(warehouse, preInboundNo, inboundIntegrationHeader, dbBomLine, inboundIntegrationLine);
+//                    log.info("preInboundLineEntity [BOM] : " + preInboundLineEntity);
+//                    toBeCreatedPreInboundLineList.add(preInboundLineEntity);
+//                }
+//
+//                // Batch Insert - PreInboundLines
+//                if (!toBeCreatedPreInboundLineList.isEmpty()) {
+//                    List<PreInboundLineEntityV2> createdPreInboundLine = preInboundLineV2Repository.saveAll(toBeCreatedPreInboundLineList);
+//                    log.info("createdPreInboundLine [BOM] : " + createdPreInboundLine);
+//                    overallCreatedPreInboundLineList.addAll(createdPreInboundLine);
+//                }
+//            }
         }
 
         /*
@@ -1565,6 +1563,9 @@ public class PreInboundHeaderService extends BaseService {
         if (!toBeCreatedPreInboundLineList.isEmpty()) {
             createdPreInboundLine = preInboundLineV2Repository.saveAll(toBeCreatedPreInboundLineList);
             log.info("createdPreInboundLine [API] : " + createdPreInboundLine);
+            log.info("TNG Order Push Started ---------------->");
+            pushTNGOrder(createdPreInboundLine);
+            log.info("TNG Order Push Completed ---------------->");
             overallCreatedPreInboundLineList.addAll(createdPreInboundLine);
         }
 
@@ -1574,6 +1575,12 @@ public class PreInboundHeaderService extends BaseService {
 
         /*------------------Insert into Inbound Header And Line----------------------------*/
         InboundHeaderV2 createdInboundHeader = createInboundHeaderAndLineV2(createdPreInboundHeader, overallCreatedPreInboundLineList);
+            String partnerCode = imBasicData1V2Repository.getPartnerCode(overallCreatedPreInboundLineList.get(0).getCompanyCode(),overallCreatedPreInboundLineList.get(0).getPlantId(),
+                    overallCreatedPreInboundLineList.get(0).getLanguageId(),overallCreatedPreInboundLineList.get(0).getWarehouseId(),overallCreatedPreInboundLineList.get(0).getBusinessPartnerCode());
+        if( partnerCode != null && partnerCode.equalsIgnoreCase("True")) {
+            log.info("TNG Order ------------------------->");
+            return createdInboundHeader;
+        }
         
         // Inserting into InboundLog Table.
         InboundIntegrationLog createdInboundIntegrationLog = createInboundIntegrationLogV2(createdPreInboundHeader);
@@ -1610,6 +1617,61 @@ public class PreInboundHeaderService extends BaseService {
             throw e;
         }
     }
+
+//
+//
+//// New Inv-TNG
+//    public InventoryV2 findInventory(InventoryV2 inventoryV2) throws Exception {
+//
+//        ImBasicData1V2 imBasicData1 =
+//                imBasicData1V2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerPartNoAndDeletionIndicator(
+//                        inventoryV2.getLanguageId(),
+//                        inventoryV2.getCompanyCodeId(),
+//                        inventoryV2.getPlantId(),
+//                        inventoryV2.getWarehouseId(),
+//                        inventoryV2.getItemCode(),
+//                        inventoryV2.getManufacturerName(),
+//                        0L);
+//        log.info("imBasicData1 exists: " + imBasicData1);
+//
+//        // If ITM_CODE value is Null, then insert a record in IMBASICDATA1 table as below
+//        if (imBasicData1 == null) {
+//            imBasicData1 = new ImBasicData1V2();
+//            imBasicData1.setLanguageId("EN");                                            // LANG_ID
+//            imBasicData1.setWarehouseId(inventoryV2.getWarehouseId());                   // WH_ID
+//            imBasicData1.setCompanyCodeId(inventoryV2.getCompanyCodeId());               // C_ID
+//            imBasicData1.setPlantId(inventoryV2.getPlantId());                           // PLANT_ID
+//            imBasicData1.setItemCode(inventoryV2.getItemCode());                // ITM_CODE
+//            imBasicData1.setUomId(inventoryV2.getThreePLUom());                 // UOM_ID
+//            imBasicData1.setDescription(inventoryV2.getDescription());          // ITEM_TEXT
+//
+//            if (inventoryV2.getManufacturerCode() == null && inventoryV2.getManufacturerName() != null) {
+//                imBasicData1.setManufacturerPartNo(inventoryV2.getManufacturerName());
+//                imBasicData1.setManufacturerName(inventoryV2.getManufacturerName());
+//                imBasicData1.setCapacityCheck(false);
+//                imBasicData1.setDeletionIndicator(0L);
+//                AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+//                imBasicData1.setStatusId(1L);                                                // STATUS_ID
+//                ImBasicData1 createdImBasicData1 =
+//                        mastersService.createImBasicData1V2(imBasicData1, "MW_AMS", authTokenForMastersService.getAccess_token());
+//                log.info("ImBasicData1 created: " + createdImBasicData1);
+//            }
+//
+//
+//
+//            FetchStock fetchStock = new FetchStock();
+//
+//                    fetchStock.setSkus(imBasicData1.getItemCode());
+//                    fetchStock.setDescription("test-PO-API-1");
+//                    fetchStock.setWarehouse("Warehouse");
+//                    fetchStock.setAvailableQty(fetchStock.getAvailableQty());
+//
+//                    String response = idmasterService.fetchStock(fetchStock);
+//                }
+//        return null;
+//    }
+
+
 
     /**
      * @param warehouse
@@ -2440,5 +2502,107 @@ public class PreInboundHeaderService extends BaseService {
             e.printStackTrace();
             throw e;
         }
-}
+    }
+
+
+    //TNG
+    public void pushTNGOrder(List<PreInboundLineEntityV2> createdPreInboundLine) {
+
+        String partnerCode = imBasicData1V2Repository.getPartnerCode(createdPreInboundLine.get(0).getCompanyCode(),createdPreInboundLine.get(0).getPlantId(),
+                createdPreInboundLine.get(0).getLanguageId(),createdPreInboundLine.get(0).getWarehouseId(),createdPreInboundLine.get(0).getBusinessPartnerCode());
+        if (partnerCode != null && partnerCode.equalsIgnoreCase("True")) {
+            PurchaseOrder purchaseOrder = new PurchaseOrder();
+
+            List<Sku> skus = new ArrayList<>();
+            for (PreInboundLineEntityV2 preInboundLine : createdPreInboundLine) {
+                Sku sku = new Sku();
+                sku.setQty(preInboundLine.getOrderQty());
+                sku.setSku(preInboundLine.getItemCode());
+                skus.add(sku);
+            }
+
+            purchaseOrder.setPoKey("test-PO-API-1");
+            purchaseOrder.setStorerKey("IWE");
+            purchaseOrder.setSkus(skus);
+
+            try {
+                OrderResponse response = idmasterService.purchaseOrder(purchaseOrder);
+                log.info("TNG --> Purchase Order Creation Response----------->" + purchaseOrder);
+                log.info("TNG --> Purchase Response----------->" + response);
+
+                if (response.getSuccess()) {
+                    Long WEBHOOK_STATUS = 200L;
+                    inboundHeaderV2Repository.updateWebhookStatus(createdPreInboundLine.get(0).getRefDocNumber(), WEBHOOK_STATUS);
+                } else {
+                    Long WEBHOOK_STATUS = 500L;
+                    inboundHeaderV2Repository.updateWebhookStatus(createdPreInboundLine.get(0).getRefDocNumber(), WEBHOOK_STATUS);
+                }
+            } catch (RestClientException e) {
+                log.error("WebHook Error while pushing purchaseOrder ----> " + e);
+            }
+        }
+    }
+
+
+    //------------------------------------------TNG-WebHook-----------------------------------------------------//
+    /**
+     *
+     * @param webHook
+     * @return
+     * @throws Exception
+     */
+    public WarehouseApiResponse findWebHook(WebHook webHook) throws Exception {
+        log.info("Find Web Hook Input ----------------> " + webHook);
+        WarehouseApiResponse response = new WarehouseApiResponse();
+        try {
+            Long statusId = null;
+            Date date = DateUtils.convertStringToDate2(webHook.getEventDate());
+
+            PreInboundHeaderEntityV2 preInboundWeb = preInboundHeaderV2Repository.findByOrderID(webHook.getOrderReference());
+            if (preInboundWeb != null) {
+                log.info("Inbound ---------------> " + preInboundWeb.getRefDocNumber());
+                if ("Order Created".equalsIgnoreCase(webHook.getEventDescription())) {
+                    statusId = 13L;
+                    preInboundWeb.setUpdatedOn(date);
+                    statusDescription = stagingLineV2Repository.getStatusDescription(statusId, "EN");
+                } else if ("Fulfillment Done".equalsIgnoreCase(webHook.getEventDescription())) {
+                    statusId = 24L;
+                    statusDescription = stagingLineV2Repository.getStatusDescription(statusId, "EN");
+                    preInboundWeb.setUpdatedOn(date);
+                }
+                preInboundHeaderV2Repository.updateInboundWebHook(statusId, statusDescription, webHook.getOrderReference());
+                preInboundLineV2Repository.updateInboundWebHook(statusId, statusDescription, webHook.getOrderReference());
+                response.setStatusCode("200");
+                response.setMessage("Order Updated Successfully");
+            }
+
+            PreOutboundHeaderV2 preOutboundWeb = preOutboundHeaderV2Repository.findByOrderID(webHook.getOrderReference());
+            if (preOutboundWeb != null) {
+                log.info("Outbound ---------------> " + preOutboundWeb.getRefDocNumber());
+                if ("Order Created".equalsIgnoreCase(webHook.getEventDescription())) {
+                    statusId = 39L;
+                    preOutboundWeb.setUpdatedOn(date);
+                    statusDescription = stagingLineV2Repository.getStatusDescription(statusId, "EN");
+                } else if ("Fulfillment Done".equalsIgnoreCase(webHook.getEventDescription())) {
+                    statusId = 59L;
+                    statusDescription = stagingLineV2Repository.getStatusDescription(statusId, "EN");
+                    preOutboundWeb.setUpdatedOn(date);
+                }
+                preOutboundHeaderV2Repository.updateOutboundWebHook(statusId, statusDescription, webHook.getOrderReference());
+                preOutboundLineV2Repository.updateOutboundWebHook(statusId, statusDescription, webHook.getOrderReference());
+                response.setStatusCode("200");
+                response.setMessage("Order Updated Successfully");
+            }
+
+            if (preInboundWeb == null && preOutboundWeb == null){
+                response.setStatusCode("400");
+                response.setMessage("Order Not Found");
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return response;
+    }
 }

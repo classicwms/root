@@ -153,4 +153,12 @@ public interface InboundHeaderV2Repository extends JpaRepository<InboundHeaderV2
             @Param("statusDescription2") String statusDescription2,
             @Param("updatedBy") String updatedBy,
             @Param("updatedOn") Date updatedOn);
+
+    //---------------------------------TNG Webhook status update ---------------------------------//
+
+    @Modifying
+    @Query(value = "UPDATE tblpreinboundline SET WEBHOOK_STATUS = :webhookStatus \n" +
+            "WHERE REF_DOC_NO = :refDocNo AND IS_DELETED = 0", nativeQuery = true)
+    void updateWebhookStatus(@Param("refDocNo") String refDocNo,
+                             @Param("webhookStatus") Long webHookStatus);
 }

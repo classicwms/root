@@ -2077,7 +2077,7 @@ public class PickupLineService extends BaseService {
                         dbPickupLine.getItemCode(), dbPickupLine.getManufacturerName(), dbPickupLine.getPartnerCode(),
                         dbPickupLine.getActualHeNo(), dbPickupLine.getAssignedPickerId(),
                         dbPickupLine.getLineNumber(), STATUS_ID, statusDescription, new Date());
-                
+                log.info("outboundLine updated using Stored Procedure: ");
             } catch (Exception e) {
                 log.error("outboundLine update Error :" + e.toString());
                 e.printStackTrace();

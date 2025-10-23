@@ -27,4 +27,6 @@ public class SearchPreInboundLineV2{
 
 	private Date startCreatedOn;
 	private Date endCreatedOn;
+    private List<Long> webHookStatus;
+
 }
