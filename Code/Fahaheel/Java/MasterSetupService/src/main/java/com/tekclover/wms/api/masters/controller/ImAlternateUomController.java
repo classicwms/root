@@ -49,7 +49,14 @@ public class ImAlternateUomController {
 	ImAlternateUomService imalternateuomService;
 	@Autowired
 	DbConfigRepository dbConfigRepository;
-
+	
+    @ApiOperation(response = ImAlternateUom.class, value = "Get all ImAlternateUom details") // label for swagger
+	@GetMapping("")
+	public ResponseEntity<?> getAll() {
+		List<ImAlternateUom> imalternateuomList = imalternateuomService.getImAlternateUoms();
+		return new ResponseEntity<>(imalternateuomList, HttpStatus.OK); 
+	}
+    
     @ApiOperation(response = ImAlternateUom.class, value = "Get a ImAlternateUom") // label for swagger 
 	@GetMapping("/{uomId}")
 	public ResponseEntity<?> getImAlternateUom(@PathVariable String uomId,@RequestParam String companyCodeId,

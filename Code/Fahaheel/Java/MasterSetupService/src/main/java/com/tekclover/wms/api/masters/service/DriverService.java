@@ -30,7 +30,18 @@ public class DriverService {
     @Autowired
     private DriverRepository driverRepository;
 
-
+    /**
+     *
+     * getAllDriver
+     * @return
+     */
+    public List<Driver> getAllDriver () {
+        List<Driver> driverList = driverRepository.findAll();
+        log.info("driverList : " + driverList);
+        driverList = driverList.stream().filter(n -> n.getDeletionIndicator() != null && n.getDeletionIndicator() == 0)
+                .collect(Collectors.toList());
+        return driverList;
+    }
 
     /**
      * getDriver

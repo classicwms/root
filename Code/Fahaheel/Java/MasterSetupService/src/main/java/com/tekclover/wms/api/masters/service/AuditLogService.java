@@ -33,6 +33,19 @@ public class AuditLogService {
 	private AuditLogRepository auditlogRepository;
 
 	/**
+	 * getAuditLogs
+	 * @return
+	 */
+	public List<AuditLog> getAuditLogs () {
+		List<AuditLog> auditlogList = auditlogRepository.findAll();
+		log.info("auditlogList : " + auditlogList);
+		auditlogList = auditlogList.stream()
+				.filter(n -> n.getDeletionIndicator() != null && n.getDeletionIndicator() == 0)
+				.collect(Collectors.toList());
+		return auditlogList;
+	}
+
+	/**
 	 * getAuditLog
 	 * @param auditFileNumber
 	 * @return
@@ -106,19 +119,19 @@ public class AuditLogService {
 		return auditlogRepository.save(dbAuditLog);
 	}
 
-//	/**
-//	 * deleteAuditLog
-//	 * @param auditFileNumber
-//	 */
-//	public void deleteAuditLog (String auditFileNumber, String loginUserID) {
-//		AuditLog auditlog = getAuditLog(auditFileNumber);
-//		if ( auditlog != null) {
-//			auditlog.setDeletionIndicator (1L);
-//			auditlog.setUpdatedBy(loginUserID);
-//			auditlog.setUpdatedOn(new Date());
-//			auditlogRepository.save(auditlog);
-//		} else {
-//			throw new EntityNotFoundException("Error in deleting Id:" + auditFileNumber);
-//		}
-//	}
+	/**
+	 * deleteAuditLog
+	 * @param auditFileNumber
+	 */
+	public void deleteAuditLog (String auditFileNumber, String loginUserID) {
+		AuditLog auditlog = getAuditLog(auditFileNumber);
+		if ( auditlog != null) {
+			auditlog.setDeletionIndicator (1L);
+			auditlog.setUpdatedBy(loginUserID);
+			auditlog.setUpdatedOn(new Date());
+			auditlogRepository.save(auditlog);
+		} else {
+			throw new EntityNotFoundException("Error in deleting Id:" + auditFileNumber);
+		}
+	}
 }

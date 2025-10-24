@@ -33,6 +33,19 @@ public class ImPackingService {
 	private ImPackingRepository impackingRepository;
 
 	/**
+	 * getImPackings
+	 * @return
+	 */
+	public List<ImPacking> getImPackings () {
+		List<ImPacking> impackingList = impackingRepository.findAll();
+		log.info("impackingList : " + impackingList);
+		impackingList = impackingList.stream()
+				.filter(n -> n.getDeletionIndicator() != null && n.getDeletionIndicator() == 0)
+				.collect(Collectors.toList());
+		return impackingList;
+	}
+
+	/**
 	 * getImPacking
 	 * @param packingMaterialNo
 	 * @return

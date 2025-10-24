@@ -28,6 +28,15 @@ public class ImAlternatePartService {
     @Autowired
     private ImAlternatePartRepository imAlternatePartRepository;
 
+    public List<ImAlternatePart>getAllImAlternateParts(){
+        List<ImAlternatePart>imAlternatePartList=imAlternatePartRepository.findAll();
+//        log.info("imalternateparts : " + imAlternatePartList);
+        imAlternatePartList = imAlternatePartList.stream().filter(n->n.getDeletionIndicator()!=null &&
+                n.getDeletionIndicator()==0).collect(Collectors.toList());
+
+        return imAlternatePartList;
+    }
+
     /**
      *
      * @param companyCodeId

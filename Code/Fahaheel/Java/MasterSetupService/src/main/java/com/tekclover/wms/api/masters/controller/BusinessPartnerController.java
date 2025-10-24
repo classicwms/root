@@ -48,6 +48,13 @@ public class BusinessPartnerController {
 
 	@Autowired
 	DbConfigRepository dbConfigRepository;
+	
+    @ApiOperation(response = BusinessPartner.class, value = "Get all BusinessPartner details") // label for swagger
+	@GetMapping("")
+	public ResponseEntity<?> getAll() {
+		List<BusinessPartner> businesspartnerList = businesspartnerService.getBusinessPartners();
+		return new ResponseEntity<>(businesspartnerList, HttpStatus.OK); 
+	}
     
     @ApiOperation(response = BusinessPartner.class, value = "Get a BusinessPartner") // label for swagger 
 	@GetMapping("/{partnerCode}")

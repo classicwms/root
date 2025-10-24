@@ -30,6 +30,20 @@ public class HandlingEquipmentService {
     private HandlingEquipmentRepository handlingequipmentRepository;
 
     /**
+     * getHandlingEquipments
+     *
+     * @return
+     */
+    public List<HandlingEquipment> getHandlingEquipments() {
+        List<HandlingEquipment> handlingequipmentList = handlingequipmentRepository.findAll();
+        log.info("handlingequipmentList : " + handlingequipmentList);
+        handlingequipmentList = handlingequipmentList.stream()
+                .filter(n -> n.getDeletionIndicator() != null && n.getDeletionIndicator() == 0)
+                .collect(Collectors.toList());
+        return handlingequipmentList;
+    }
+
+    /**
      * getHandlingEquipment
      *
      * @param handlingEquipmentId

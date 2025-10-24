@@ -38,6 +38,13 @@ public class HandlingEquipmentController {
     @Autowired
     DbConfigRepository dbConfigRepository;
 
+    @ApiOperation(response = HandlingEquipment.class, value = "Get all HandlingEquipment details") // label for swagger
+    @GetMapping("")
+    public ResponseEntity<?> getAll() {
+        List<HandlingEquipment> handlingequipmentList = handlingequipmentService.getHandlingEquipments();
+        return new ResponseEntity<>(handlingequipmentList, HttpStatus.OK);
+    }
+
     @ApiOperation(response = HandlingEquipment.class, value = "Get a HandlingEquipment") // label for swagger 
     @GetMapping("/{handlingEquipmentId}")
     public ResponseEntity<?> getHandlingEquipmentByWarehouseId(@PathVariable String handlingEquipmentId, @RequestParam String warehouseId,
@@ -80,14 +87,14 @@ public class HandlingEquipmentController {
             }
         }
 
-//    @ApiOperation(response = HandlingEquipment.class, value = "Get a HandlingEquipment") // label for swagger
-//    @GetMapping("/{heBarcode}/barCode")
-//    public ResponseEntity<?> getHandlingEquipment(@PathVariable String heBarcode, @RequestParam String warehouseId) {
-//
-//        HandlingEquipment handlingequipment = handlingequipmentService.getHandlingEquipment(warehouseId, heBarcode);
-//        log.info("HandlingEquipment : " + handlingequipment);
-//        return new ResponseEntity<>(handlingequipment, HttpStatus.OK);
-//    }
+    @ApiOperation(response = HandlingEquipment.class, value = "Get a HandlingEquipment") // label for swagger
+    @GetMapping("/{heBarcode}/barCode")
+    public ResponseEntity<?> getHandlingEquipment(@PathVariable String heBarcode, @RequestParam String warehouseId) {
+
+        HandlingEquipment handlingequipment = handlingequipmentService.getHandlingEquipment(warehouseId, heBarcode);
+        log.info("HandlingEquipment : " + handlingequipment);
+        return new ResponseEntity<>(handlingequipment, HttpStatus.OK);
+    }
 
     @ApiOperation(response = HandlingEquipment.class, value = "Search HandlingEquipment") // label for swagger
     @PostMapping("/findHandlingEquipment")

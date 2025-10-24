@@ -50,6 +50,12 @@ public class BomLineController {
     @Autowired
     DbConfigRepository dbConfigRepository;
 
+    @ApiOperation(response = BomLine.class, value = "Get all BomLine details") // label for swagger
+    @GetMapping("")
+    public ResponseEntity<?> getAll() {
+        List<BomLine> bomlineList = bomlineService.getBomLines();
+        return new ResponseEntity<>(bomlineList, HttpStatus.OK);
+    }
 
     @ApiOperation(response = BomLine.class, value = "Get a BomLine") // label for swagger 
     @GetMapping("/{bomNumber}")

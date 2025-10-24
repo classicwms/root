@@ -42,6 +42,57 @@ public class BillingService{
     private BillingRepository billingRepository;
 
     /**
+     * getBillings
+     * @return
+     */
+    public List<Billing> getBillings () {
+        List<Billing> BillingList =  billingRepository.findAll();
+        BillingList = BillingList.stream().filter(n -> n.getDeletionIndicator() == 0).collect(Collectors.toList());
+        List<Billing> newBilling = new ArrayList<>();
+        for (Billing dbBilling : BillingList) {
+            if (dbBilling.getCompanyIdAndDescription() != null && dbBilling.getPlantIdAndDescription() != null && dbBilling.getWarehouseIdAndDescription() != null && dbBilling.getPaymentTermIdAndDescription()!=null && dbBilling.getPaymentModeIdAndDescription()!=null &&
+                    dbBilling.getBillFrequencyIdAndDescription()!=null && dbBilling.getBillModeIdAndDescription()!=null && dbBilling.getModuleIdAndDescription()!=null) {
+
+                IKeyValuePair iKeyValuePair = priceListRepository.getCompanyIdAndDescription(dbBilling.getCompanyCodeId(), dbBilling.getLanguageId());
+                IKeyValuePair iKeyValuePair1 = priceListRepository.getPlantIdAndDescription(dbBilling.getPlantId(), dbBilling.getLanguageId(), dbBilling.getCompanyCodeId());
+                IKeyValuePair iKeyValuePair2 = priceListRepository.getWarehouseIdAndDescription(dbBilling.getWarehouseId(), dbBilling.getLanguageId(), dbBilling.getCompanyCodeId(), dbBilling.getPlantId());
+                IKeyValuePair iKeyValuePair3 = billingRepository.getBillingModeIdAndDescription(dbBilling.getBillModeId(), dbBilling.getLanguageId(), dbBilling.getCompanyCodeId(), dbBilling.getPlantId(), dbBilling.getWarehouseId());
+                IKeyValuePair iKeyValuePair4 = priceListRepository.getModuleIdAndDescription(dbBilling.getModuleId(), dbBilling.getLanguageId(), dbBilling.getCompanyCodeId(), dbBilling.getPlantId(), dbBilling.getWarehouseId());
+                IKeyValuePair iKeyValuePair5 = billingRepository.getBillFrequencyIdAndDescription(dbBilling.getBillFrequencyId(), dbBilling.getLanguageId(), dbBilling.getCompanyCodeId(), dbBilling.getPlantId(), dbBilling.getWarehouseId());
+                IKeyValuePair iKeyValuePair6 = billingRepository.getPaymentTermIdAndDescription(dbBilling.getPaymentTermId(), dbBilling.getLanguageId(), dbBilling.getCompanyCodeId(), dbBilling.getPlantId(), dbBilling.getWarehouseId());
+                IKeyValuePair iKeyValuePair7 = billingRepository.getPaymentModeIdAndDescription(dbBilling.getPaymentModeId(), dbBilling.getLanguageId(), dbBilling.getCompanyCodeId(), dbBilling.getPlantId(), dbBilling.getWarehouseId());
+
+                if (iKeyValuePair != null) {
+                    dbBilling.setCompanyIdAndDescription(iKeyValuePair.getCompanyCodeId() + "-" + iKeyValuePair.getDescription());
+                }
+                if (iKeyValuePair1 != null) {
+                    dbBilling.setPlantIdAndDescription(iKeyValuePair1.getPlantId() + "-" + iKeyValuePair1.getDescription());
+                }
+                if (iKeyValuePair2 != null) {
+                    dbBilling.setWarehouseIdAndDescription(iKeyValuePair2.getWarehouseId() + "-" + iKeyValuePair2.getDescription());
+                }
+                if (iKeyValuePair3 != null) {
+                    dbBilling.setBillModeIdAndDescription(iKeyValuePair3.getBillingModeId() + "-" + iKeyValuePair3.getDescription());
+                }
+                if (iKeyValuePair4 != null) {
+                    dbBilling.setModuleIdAndDescription(iKeyValuePair4.getModuleId() + "-" + iKeyValuePair4.getDescription());
+                }
+                if (iKeyValuePair5 != null) {
+                    dbBilling.setBillFrequencyIdAndDescription(iKeyValuePair5.getBillFrequencyId() + "-" + iKeyValuePair5.getDescription());
+                }
+                if (iKeyValuePair6 != null) {
+                    dbBilling.setPaymentTermIdAndDescription(iKeyValuePair6.getPaymentTermId() + "-" + iKeyValuePair6.getDescription());
+                }
+                if (iKeyValuePair7 != null) {
+                    dbBilling.setPaymentModeIdAndDescription(iKeyValuePair7.getPaymentModeId() + "-" + iKeyValuePair7.getDescription());
+                }
+            }
+            newBilling.add(dbBilling);
+        }
+        return newBilling;
+    }
+
+    /**
      * getBilling
      * @param partnerCode
      * @return

@@ -34,6 +34,19 @@ public class ImStrategiesService {
 
 	/**
 	 *
+	 * @return
+	 */
+	public List<ImStrategies> getALlImStrategyTypeId () {
+		List<ImStrategies> imstrategiesList = imstrategiesRepository.findAll();
+		log.info("imstrategiesList : " + imstrategiesList);
+		imstrategiesList = imstrategiesList.stream()
+				.filter(n -> n.getDeletionIndicator() != null && n.getDeletionIndicator() == 0)
+				.collect(Collectors.toList());
+		return imstrategiesList;
+	}
+
+	/**
+	 *
 	 * @param strategyTypeId
 	 * @param companyCodeId
 	 * @param plantId
@@ -62,6 +75,20 @@ public class ImStrategiesService {
 
 		}
 		return imstrategies.get();
+	}
+
+	/**
+	 *
+	 * @param searchImStrategies
+	 * @return
+	 * @throws ParseException
+	 */
+	public List<ImStrategies> findImStrategies(SearchImStrategies searchImStrategies) throws ParseException {
+
+		ImStrategiesSpecification spec = new ImStrategiesSpecification(searchImStrategies);
+		List<ImStrategies> results = imstrategiesRepository.findAll(spec);
+		log.info("results: " + results);
+		return results;
 	}
 
 	/**

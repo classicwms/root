@@ -48,6 +48,47 @@ public class PriceListAssignmentService {
     private PriceListAssignmentRepository priceListAssignmentRepository;
 
     /**
+     * getPriceListAssignments
+     *
+     * @return
+     */
+    public List<PriceListAssignment> getPriceListAssignments() {
+        List<PriceListAssignment> PriceListAssignmentList = priceListAssignmentRepository.findAll();
+        PriceListAssignmentList = PriceListAssignmentList.stream().filter(n -> n.getDeletionIndicator() == 0).collect(Collectors.toList());
+        List<PriceListAssignment> newPriceListAssignment = new ArrayList<>();
+        for (PriceListAssignment dbPriceListAssignment : PriceListAssignmentList) {
+            if (dbPriceListAssignment.getCompanyIdAndDescription() != null && dbPriceListAssignment.getPlantIdAndDescription() != null && dbPriceListAssignment.getWarehouseIdAndDescription() != null) {
+                IKeyValuePair iKeyValuePair = priceListRepository.getCompanyIdAndDescription(dbPriceListAssignment.getCompanyCodeId(), dbPriceListAssignment.getLanguageId());
+                IKeyValuePair iKeyValuePair1 = priceListRepository.getPlantIdAndDescription(dbPriceListAssignment.getPlantId(), dbPriceListAssignment.getLanguageId(), dbPriceListAssignment.getCompanyCodeId());
+                IKeyValuePair iKeyValuePair2 = priceListRepository.getWarehouseIdAndDescription(dbPriceListAssignment.getWarehouseId(), dbPriceListAssignment.getLanguageId(), dbPriceListAssignment.getCompanyCodeId(), dbPriceListAssignment.getPlantId());
+
+                IKeyValuePair iKeyValuePair3 = priceListRepository.getPriceListIdAndDescription(dbPriceListAssignment.getPriceListId(), dbPriceListAssignment.getLanguageId(), dbPriceListAssignment.getCompanyCodeId(), dbPriceListAssignment.getPlantId(), dbPriceListAssignment.getWarehouseId(),
+                        dbPriceListAssignment.getModuleId(),dbPriceListAssignment.getServiceTypeId(),dbPriceListAssignment.getChargeRangeId());
+
+                IKeyValuePair iKeyValuePair4 = businessPartnerRepository.getPartnerCodeAndDescription(dbPriceListAssignment.getPartnerCode(), dbPriceListAssignment.getLanguageId(), dbPriceListAssignment.getCompanyCodeId(), dbPriceListAssignment.getPlantId(), dbPriceListAssignment.getWarehouseId(),dbPriceListAssignment.getBusinessPartnerType());
+
+                if (iKeyValuePair != null) {
+                    dbPriceListAssignment.setCompanyIdAndDescription(iKeyValuePair.getCompanyCodeId() + "-" + iKeyValuePair.getDescription());
+                }
+                if (iKeyValuePair1 != null) {
+                    dbPriceListAssignment.setPlantIdAndDescription(iKeyValuePair1.getPlantId() + "-" + iKeyValuePair1.getDescription());
+                }
+                if (iKeyValuePair2 != null) {
+                    dbPriceListAssignment.setWarehouseIdAndDescription(iKeyValuePair2.getWarehouseId() + "-" + iKeyValuePair2.getDescription());
+                }
+                if (iKeyValuePair3 != null) {
+                    dbPriceListAssignment.setPriceListIdAndDescription(iKeyValuePair3.getPriceListId() + "-" + iKeyValuePair3.getDescription());
+                }
+                if (iKeyValuePair4 != null) {
+                    dbPriceListAssignment.setPartnerCodeAndDescription(iKeyValuePair4.getPartnerCode() + "-" + iKeyValuePair4.getDescription());
+                }
+            }
+            newPriceListAssignment.add(dbPriceListAssignment);
+        }
+        return newPriceListAssignment;
+    }
+
+    /**
      * getPriceListAssignment
      *
      * @param partnerCode

@@ -37,6 +37,13 @@ public class WorkCenterController {
     @Autowired
     DbConfigRepository dbConfigRepository;
 
+    @ApiOperation(response = WorkCenter.class, value = "Get all WorkCenter details") // label for swagger
+    @GetMapping("")
+    public ResponseEntity<?> getAll() {
+        List<WorkCenter> workCenterList = workCenterService.getAllWorkCenter();
+        return new ResponseEntity<>(workCenterList, HttpStatus.OK);
+    }
+
     @ApiOperation(response = WorkCenter.class, value = "Get a WorkCenter") // label for swagger
     @GetMapping("/{workCenterId}")
     public ResponseEntity<?> getWorkCenter(@PathVariable Long workCenterId,@RequestParam String companyCodeId,@RequestParam String plantId,@RequestParam String warehouseId,@RequestParam String languageId,@RequestParam String workCenterType) {

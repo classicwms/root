@@ -37,6 +37,19 @@ public class ImCapacityService {
     private ImCapacityRepository imCapacityRepository;
 
     /**
+     * ImBatchSerial
+     * @return
+     */
+    public List<ImCapacity> getAllImCapacity () {
+        List<ImCapacity> imCapacityList = imCapacityRepository.findAll();
+        log.info("imCapacityList : " + imCapacityList);
+        imCapacityList = imCapacityList.stream()
+                .filter(n -> n.getDeletionIndicator() != null && n.getDeletionIndicator() == 0)
+                .collect(Collectors.toList());
+        return imCapacityList;
+    }
+
+    /**
      * getHandlingEquipment
      * @param companyCodeId
      * @param itemCode

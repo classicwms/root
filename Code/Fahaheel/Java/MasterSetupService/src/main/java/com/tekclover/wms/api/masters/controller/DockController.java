@@ -36,6 +36,13 @@ public class DockController {
     @Autowired
     DbConfigRepository dbConfigRepository;
 
+    @ApiOperation(response = Dock.class, value = "Get all Dock details") // label for swagger
+    @GetMapping("")
+    public ResponseEntity<?> getAll() {
+        List<Dock> dockList = dockService.getAllDock();
+        return new ResponseEntity<>(dockList, HttpStatus.OK);
+    }
+
     @ApiOperation(response = Dock.class, value = "Get a Dock") // label for swagger
     @GetMapping("/{dockId}")
     public ResponseEntity<?> getDock(@PathVariable String dockId, @RequestParam String companyCodeId, @RequestParam String languageId,

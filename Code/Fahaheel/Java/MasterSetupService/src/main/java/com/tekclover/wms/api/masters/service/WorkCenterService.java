@@ -38,6 +38,19 @@ public class WorkCenterService {
     private WorkCenterRepository workCenterRepository;
 
     /**
+     * getAllWorkCenter
+     * @return
+     */
+    public List<WorkCenter> getAllWorkCenter () {
+        List<WorkCenter> workCenterList = workCenterRepository.findAll();
+//        log.info("workCenterList : " + workCenterList);
+        workCenterList = workCenterList.stream()
+                .filter(n -> n.getDeletionIndicator() != null && n.getDeletionIndicator() == 0)
+                .collect(Collectors.toList());
+        return workCenterList;
+    }
+
+    /**
      * getWorkCenterId
      * @param workCenterId
      * @return

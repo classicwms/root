@@ -37,6 +37,13 @@ public class CycleCountSchedulerController {
     @Autowired
     DbConfigRepository dbConfigRepository;
 
+    @ApiOperation(response = CycleCountScheduler.class, value = "Get all CycleCountScheduler details") // label for swagger
+    @GetMapping("")
+    public ResponseEntity<?> getAll() {
+        List<CycleCountScheduler> cycleCountSchedulerList = cycleCountSchedulerService.getAllCycleCountScheduler();
+        return new ResponseEntity<>(cycleCountSchedulerList, HttpStatus.OK);
+    }
+
     @ApiOperation(response = CycleCountScheduler.class, value = "Get a CycleCountScheduler") // label for swagger
     @GetMapping("/{cycleCountTypeId}")
     public ResponseEntity<?> getCycleCountScheduler(@PathVariable Long cycleCountTypeId, @RequestParam String companyCodeId, @RequestParam String languageId,

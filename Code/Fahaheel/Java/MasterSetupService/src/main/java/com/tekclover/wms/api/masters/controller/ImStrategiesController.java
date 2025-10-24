@@ -46,7 +46,14 @@ public class ImStrategiesController {
 	ImStrategiesService imstrategiesService;
 	@Autowired
 	DbConfigRepository dbConfigRepository;
-
+	
+    @ApiOperation(response = ImStrategies.class, value = "Get all ImStrategies details") // label for swagger
+	@GetMapping("")
+	public ResponseEntity<?> getAll() {
+		List<ImStrategies> imstrategiesList = imstrategiesService.getALlImStrategyTypeId();
+		return new ResponseEntity<>(imstrategiesList, HttpStatus.OK); 
+	}
+    
     @ApiOperation(response = ImStrategies.class, value = "Get a ImStrategies") // label for swagger 
 	@GetMapping("/{strategyTypeId}")
 	public ResponseEntity<?> getImStrategies(@PathVariable Long strategyTypeId,@RequestParam String companyCodeId,
@@ -67,13 +74,13 @@ public class ImStrategiesController {
 		}
 		}
     
-//	@ApiOperation(response = ImStrategies.class, value = "Search ImStrategies") // label for swagger
-//	@PostMapping("/findImStrategies")
-//	public List<ImStrategies> findImStrategies(@RequestBody SearchImStrategies searchImStrategies)
-//			throws ParseException {
-//		return imstrategiesService.findImStrategies(searchImStrategies);
-//	}
-//
+	@ApiOperation(response = ImStrategies.class, value = "Search ImStrategies") // label for swagger
+	@PostMapping("/findImStrategies")
+	public List<ImStrategies> findImStrategies(@RequestBody SearchImStrategies searchImStrategies)
+			throws ParseException {
+		return imstrategiesService.findImStrategies(searchImStrategies);
+	}
+	
     @ApiOperation(response = ImStrategies.class, value = "Create ImStrategies") // label for swagger
 	@PostMapping("")
 	public ResponseEntity<?> postImStrategies(@Valid @RequestBody AddImStrategies newImStrategies, @RequestParam String loginUserID)

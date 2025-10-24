@@ -37,6 +37,15 @@ public class DriverVehicleAssignmentController {
     @Autowired
     DbConfigRepository  dbConfigRepository;
 
+    // GET ALL
+    @ApiOperation(response = DriverVehicleAssignment.class, value = "Get all DriverVehicleAssignment details") // label for swagger
+    @GetMapping("")
+    public ResponseEntity<?> getAll() {
+        List<DriverVehicleAssignment> driverVehicleAssignmentList =
+                driverVehicleAssignmentService.getAllDriverVehicleAssignment();
+        return new ResponseEntity<>(driverVehicleAssignmentList, HttpStatus.OK);
+    }
+
     // GET
     @ApiOperation(response = DriverVehicleAssignment.class, value = "Get a DriverVehicleAssignment") // label for swagger
     @GetMapping("/{driverId}")

@@ -32,6 +32,18 @@ public class ImBasicData2Service {
 	@Autowired
 	private ImBasicData2Repository imbasicdata2Repository;
 
+	/**
+	 * getImBasicData2s
+	 * @return
+	 */
+	public List<ImBasicData2> getImBasicData2s () {
+		List<ImBasicData2> imbasicdata2List = imbasicdata2Repository.findAll();
+//		log.info("imbasicdata2List : " + imbasicdata2List);
+		imbasicdata2List = imbasicdata2List.stream()
+				.filter(n -> n.getDeletionIndicator() != null && n.getDeletionIndicator() == 0)
+				.collect(Collectors.toList());
+		return imbasicdata2List;
+	}
 
 	/**
 	 * getImBasicData2
@@ -118,7 +130,7 @@ public class ImBasicData2Service {
 
 	/**
 	 * deleteImBasicData2
-//	 * @param imbasicdata2
+	 * @param imbasicdata2
 	 */
 	public void deleteImBasicData2 (String itemCode,String companyCodeId,String plantId,String warehouseId,String languageId,String loginUserID) throws ParseException {
 		ImBasicData2 imbasicdata2 = getImBasicData2(itemCode,companyCodeId,plantId,warehouseId,languageId);

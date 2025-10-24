@@ -31,6 +31,18 @@ public class ImPalletizationService {
     @Autowired
     private ImPalletizationRepository imPalletizationRepository;
 
+    /**
+     * ImBatchSerial
+     * @return
+     */
+    public List<ImPalletization> getAllImPalletization () {
+        List<ImPalletization> imPalletizationList = imPalletizationRepository.findAll();
+        log.info("imPalletization : " + imPalletizationList);
+        imPalletizationList = imPalletizationList.stream()
+                .filter(n -> n.getDeletionIndicator() != null && n.getDeletionIndicator() == 0)
+                .collect(Collectors.toList());
+        return imPalletizationList;
+    }
 
     /**
      * getImPalletization

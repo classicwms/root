@@ -35,6 +35,13 @@ public class CbmInboundController {
     @Autowired
     DbConfigRepository dbConfigRepository;
 
+    @ApiOperation(response = CbmInbound.class, value = "Get all CbmInbound details") // label for swagger
+    @GetMapping("")
+    public ResponseEntity<?> getAll() {
+        List<CbmInbound> CbmInboundList = cbmInboundService.getCbmInbounds();
+        return new ResponseEntity<>(CbmInboundList, HttpStatus.OK);
+    }
+
     @ApiOperation(response = CbmInbound.class, value = "Get a CbmInbound") // label for swagger
     @GetMapping("/{itemCode}")
     public ResponseEntity<?> getCbmInbound(@RequestParam String warehouseId,@PathVariable String itemCode,@RequestParam String companyCodeId,

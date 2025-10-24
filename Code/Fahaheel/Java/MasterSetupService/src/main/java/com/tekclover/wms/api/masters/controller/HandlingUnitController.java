@@ -47,7 +47,14 @@ public class HandlingUnitController {
 
 	@Autowired
 	DbConfigRepository dbConfigRepository;
-
+	
+    @ApiOperation(response = HandlingUnit.class, value = "Get all HandlingUnit details") // label for swagger
+	@GetMapping("")
+	public ResponseEntity<?> getAll() {
+		List<HandlingUnit> handlingUnitList = handlingUnitService.getHandlingUnits();
+		return new ResponseEntity<>(handlingUnitList, HttpStatus.OK); 
+	}
+    
     @ApiOperation(response = HandlingUnit.class, value = "Get a HandlingUnit") // label for swagger 
 	@GetMapping("/{handlingUnit}")
 	public ResponseEntity<?> getHandlingUnit(@PathVariable String handlingUnit,@RequestParam String companyCodeId,@RequestParam String languageId,@RequestParam String plantId,@RequestParam String warehouseId) {

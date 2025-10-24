@@ -36,6 +36,13 @@ public class PriceListController {
     @Autowired
     DbConfigRepository dbConfigRepository;
 
+    @ApiOperation(response = PriceList.class, value = "Get all PriceList details") // label for swagger
+    @GetMapping("")
+    public ResponseEntity<?> getAll() {
+        List<PriceList> priceListList = priceListService.getPriceLists();
+        return new ResponseEntity<>(priceListList, HttpStatus.OK);
+    }
+
     @ApiOperation(response = PriceList.class, value = "Get a PriceList") // label for swagger
     @GetMapping("/{priceListId}")
     public ResponseEntity<?> getPriceList(@RequestParam String moduleId, @PathVariable Long priceListId,

@@ -48,7 +48,52 @@ public class BomHeaderService extends BaseService{
 	@Autowired
 	private ExceptionLogRepository exceptionLogRepo;
 
+	/**
+	 * getBomHeaders
+	 * @return
+	 */
+	public List<AddBomHeader> getBomHeaders () {
+		List<BomHeader> bomHeaderList =  bomHeaderRepository.findAll();
+		bomHeaderList = bomHeaderList.stream().filter(n -> n.getDeletionIndicator() == 0).collect(Collectors.toList());
 
+		List<AddBomHeader> addBomHeaders = new ArrayList<>();
+//		for (BomHeader bomHeader : bomHeaderList) {
+//			List<BomLine> bomLines = bomLineService.getBomLine (bomHeader.getWarehouseId(), bomHeader.getBomNumber(), bomHeader.getCompanyCode(), bomHeader.getLanguageId(), bomHeader.getPlantId());
+//
+//			List<AddBomLine> addBomLines = new ArrayList<>();
+//			for (BomLine bomLine : bomLines) {
+//				AddBomLine addBomLine = new AddBomLine();
+//				BeanUtils.copyProperties(bomLine, addBomLine, CommonUtils.getNullPropertyNames(bomLine));
+//				addBomLines.add(addBomLine);
+//			}
+//
+//			AddBomHeader addBomHeader = new AddBomHeader();
+//			BeanUtils.copyProperties(bomHeader, addBomHeader, CommonUtils.getNullPropertyNames(bomHeader));
+//			addBomHeader.setBomLines(addBomLines);
+//			addBomHeaders.add(addBomHeader);
+//		}
+
+		bomHeaderList.stream().forEach(bomHeader -> {
+			List<BomLine> bomLines = bomLineService.getBomLine (bomHeader.getWarehouseId(),
+					bomHeader.getBomNumber(),
+					bomHeader.getCompanyCode(),
+					bomHeader.getLanguageId(),
+					bomHeader.getPlantId());
+
+			AddBomHeader addBomHeader = new AddBomHeader();
+			BeanUtils.copyProperties(bomHeader, addBomHeader, CommonUtils.getNullPropertyNames(bomHeader));
+			bomLines.stream().forEach(bomLine -> {
+				bomLine.setReferenceField1(bomHeader.getParentItemCode());
+				bomLine.setReferenceField3(String.valueOf(bomHeader.getParentItemQuantity()));
+				bomLine.setReferenceField4(bomHeader.getCreatedBy());
+				bomLine.setReferenceField5(String.valueOf(bomHeader.getCreatedOn()));
+			});
+			addBomHeader.setBomLines(bomLines);
+			addBomHeaders.add(addBomHeader);
+		});
+
+		return addBomHeaders;
+	}
 
 	/**
 	 * getBomHeader

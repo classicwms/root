@@ -47,7 +47,14 @@ public class ImBasicData2Controller {
 
 	@Autowired
 	DbConfigRepository dbConfigRepository;
-
+	
+    @ApiOperation(response = ImBasicData2.class, value = "Get all ImBasicData2 details") // label for swagger
+	@GetMapping("")
+	public ResponseEntity<?> getAll() {
+		List<ImBasicData2> imbasicdata2List = imbasicdata2Service.getImBasicData2s();
+		return new ResponseEntity<>(imbasicdata2List, HttpStatus.OK); 
+	}
+    
     @ApiOperation(response = ImBasicData2.class, value = "Get a ImBasicData2") // label for swagger 
 	@GetMapping("/{itemCode}")
 	public ResponseEntity<?> getImBasicData2(@PathVariable String itemCode,@RequestParam String companyCodeId,@RequestParam String plantId,@RequestParam String warehouseId,@RequestParam String languageId) {

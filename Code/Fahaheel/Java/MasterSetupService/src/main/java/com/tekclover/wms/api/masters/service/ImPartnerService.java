@@ -38,6 +38,54 @@ public class ImPartnerService {
 	private AuditLogService auditLogService;
 
 	/**
+	 * getImPartners
+	 * @return
+	 */
+	public List<ImPartner> getImPartners () {
+		List<ImPartner> impartnerList = impartnerRepository.findAll();
+		log.info("impartnerList : " + impartnerList);
+		impartnerList = impartnerList.stream()
+				.filter(n -> n.getDeletionIndicator() != null && n.getDeletionIndicator() == 0)
+				.collect(Collectors.toList());
+		return impartnerList;
+	}
+
+//	/**
+//	 *
+//	 * @param businessPartnerCode
+//	 * @param companyCodeId
+//	 * @param plantId
+//	 * @param languageId
+//	 * @param warehouseId
+//	 * @param itemCode
+//	 * @param businessPartnerType
+//	 * @param partnerItemBarcode
+//	 * @return
+//	 */
+//	public List<ImPartner> getImPartner (String businessPartnerCode,String companyCodeId,String plantId,String languageId,
+//										 String warehouseId,String itemCode,String businessPartnerType,String partnerItemBarcode ) {
+//		List<ImPartner> impartner =
+//				impartnerRepository.findByBusinessPartnerCodeAndCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndItemCodeAndBusinessPartnerTypeAndPartnerItemBarcodeAndDeletionIndicator(
+//						businessPartnerCode,
+//						companyCodeId,
+//						plantId,
+//						warehouseId,
+//						languageId,
+//						itemCode,
+//						businessPartnerType,
+//						partnerItemBarcode,
+//						0L);
+//		if(impartner.isEmpty()) {
+//			throw new BadRequestException("The given values:" +
+//					"businessPartnerCode " + businessPartnerCode +
+//					"itemCode"+itemCode+
+//					"plantId"+plantId+
+//					"companyCodeId"+companyCodeId+" doesn't exist.");
+//		}
+//		return impartner;
+//	}
+
+	/**
 	 *
 	 * @param companyCodeId
 	 * @param plantId
@@ -98,6 +146,20 @@ public class ImPartnerService {
 	 * @return
 	 * @throws ParseException
 	 */
+	public List<ImPartner> findImPartner(SearchImPartner searchImPartner) throws ParseException {
+		log.info("SearchImpartner Input: " + searchImPartner);
+		ImPartnerSpecification spec = new ImPartnerSpecification(searchImPartner);
+		List<ImPartner> results = impartnerRepository.stream(spec, ImPartner.class).collect(Collectors.toList());
+		log.info("results: " + results.size());
+		return results;
+	}
+
+	/**
+	 *
+	 * @param searchImPartner
+	 * @return
+	 * @throws ParseException
+	 */
 	public List<ImPartner> findImPartnerV8(SearchImPartner searchImPartner) throws ParseException {
 		log.info("SearchImpartner Input: " + searchImPartner);
 		ImPartnerSpecification spec = new ImPartnerSpecification(searchImPartner);
@@ -105,6 +167,34 @@ public class ImPartnerService {
 		log.info("results: " + results.size());
 		return results;
 	}
+
+//	public List<ImPartner> createImPartner (List<AddImPartner> newImPartner, String loginUserID) {
+//
+//		List<ImPartner>imPartnerList=new ArrayList<>();
+//
+//		for(AddImPartner addImPartner:newImPartner) {
+//			List<ImPartner> duplicateImPartner = impartnerRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndPartnerItemBarcodeAndDeletionIndicator(
+//					addImPartner.getCompanyCodeId(), addImPartner.getPlantId(),
+//					addImPartner.getWarehouseId(), addImPartner.getLanguageId(),
+//					addImPartner.getPartnerItemBarcode(), 0L);
+//			log.info("ImPartner with BarcodeId: " + duplicateImPartner);
+//
+//			if (duplicateImPartner != null && !duplicateImPartner.isEmpty()) {
+//				throw new BadRequestException("Record is Getting Duplicated");
+//			} else {
+//				ImPartner dbImPartner = new ImPartner();
+//				BeanUtils.copyProperties(addImPartner, dbImPartner, CommonUtils.getNullPropertyNames(addImPartner));
+//				dbImPartner.setDeletionIndicator(0L);
+//				dbImPartner.setCreatedBy(loginUserID);
+//				dbImPartner.setUpdatedBy(loginUserID);
+//				dbImPartner.setCreatedOn(new Date());
+//				dbImPartner.setUpdatedOn(new Date());
+//				ImPartner savedImPartner = impartnerRepository.save(dbImPartner);
+//				imPartnerList.add(savedImPartner);
+//			}
+//		}
+//		return imPartnerList;
+//	}
 
 	/**
 	 *
@@ -443,6 +533,26 @@ public List<ImPartner> updateImPartner (String companyCodeId, String plantId, St
 		auditLog.setReferenceField10("MasterService");
 
 		auditLogService.createAuditLog(auditLog, loginUserID);
+	}
+
+	/**
+	 *
+	 * @param inventoryList
+	 * @return
+	 */
+	public List<ImPartner> imPartnerUpload(List<ImPartner> inventoryList) {
+
+		List<ImPartner> saveInventory = new ArrayList<>();
+		for (ImPartner inventory : inventoryList) {
+			ImPartner dbInventory = new ImPartner();
+			BeanUtils.copyProperties(inventory, dbInventory, CommonUtils.getNullPropertyNames(inventory));
+			dbInventory.setDeletionIndicator(0L);
+			dbInventory.setCreatedOn(new Date());
+			dbInventory.setUpdatedOn(new Date());
+			impartnerRepository.save(dbInventory);
+			saveInventory.add(dbInventory);
+		}
+		return saveInventory;
 	}
 
 }

@@ -38,6 +38,13 @@ public class NumberRangeStorageBinController {
     @Autowired
     DbConfigRepository dbConfigRepository;
 
+    @ApiOperation(response = NumberRangeStorageBin.class, value = "Get all NumberRangeStorageBin details") // label for swagger
+    @GetMapping("")
+    public ResponseEntity<?> getAll() {
+        List<NumberRangeStorageBin> numberRangeStorageBinList = numberRangeStorageBinService.getAllNumberRangeStorageBin();
+        return new ResponseEntity<>(numberRangeStorageBinList, HttpStatus.OK);
+    }
+
     @ApiOperation(response = NumberRangeStorageBin.class, value = "Get a NumberRangeStorageBin") // label for swagger
     @GetMapping("/{storageSectionId}")
     public ResponseEntity<?> getNumberRangeStorageBin(@RequestParam String warehouseId, @PathVariable String storageSectionId,@RequestParam Long floorId,

@@ -49,7 +49,14 @@ public class ImPartnerController {
 
 	@Autowired
 	WarehouseRepository warehouseRepository;
-
+	
+    @ApiOperation(response = ImPartner.class, value = "Get all ImPartner details") // label for swagger
+	@GetMapping("")
+	public ResponseEntity<?> getAll() {
+		List<ImPartner> impartnerList = impartnerService.getImPartners();
+		return new ResponseEntity<>(impartnerList, HttpStatus.OK); 
+	}
+    
     @ApiOperation(response = ImPartner.class, value = "Get a ImPartner") // label for swagger 
 	@GetMapping("/{itemCode}")
 	public ResponseEntity<?> getImPartner(@PathVariable String itemCode, @RequestParam String companyCodeId, @RequestParam String manufacturerName,
@@ -209,4 +216,21 @@ public class ImPartnerController {
 			DataBaseContextHolder.clear();
 		}
 		}
+
+	//==================================ImPartner=============================================
+	@ApiOperation(response = ImPartner.class, value = "Upload ImPartner") // label for swagger
+	@PostMapping("upload/ImPartner")
+	public ResponseEntity<?> uploadImPartner(@Valid @RequestBody List<ImPartner> imPartner){
+		try {
+			DataBaseContextHolder.setCurrentDb("MT");
+			String routingDb = dbConfigRepository.getDbName(imPartner.get(0).getCompanyCodeId(), imPartner.get(0).getPlantId(), imPartner.get(0).getWarehouseId());
+			log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+			DataBaseContextHolder.clear();
+			DataBaseContextHolder.setCurrentDb(routingDb);
+			List<ImPartner> inventory = impartnerService.imPartnerUpload(imPartner);
+			return new ResponseEntity<>(inventory, HttpStatus.OK);
+		} finally {
+			DataBaseContextHolder.clear();
+		}
+	}
 }

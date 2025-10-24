@@ -37,6 +37,24 @@ public class VehicleService {
     @Autowired
     private VehicleRepository vehicleRepository;
 
+    /**
+     * getAllVehicle
+     * @return
+     */
+    public List<Vehicle> getAllVehicle () {
+        List<Vehicle> vehicleList = vehicleRepository.findAll();
+//        log.info("vehicleList : " + vehicleList);
+        vehicleList = vehicleList.stream().filter(n -> n.getDeletionIndicator() != null && n.getDeletionIndicator() == 0)
+                .collect(Collectors.toList());
+        return vehicleList;
+    }
+
+    /**
+     * getVehicle
+     * @param driverId
+     * @param dockType
+     * @return
+     */
     public Vehicle getVehicle (String vehicleNumber, String companyCodeId, String plantId, String languageId, String warehouseId) {
         Optional<Vehicle> dbVehicle = vehicleRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndVehicleNumberAndDeletionIndicator(
                companyCodeId,

@@ -38,6 +38,17 @@ public class DockService {
     @Autowired
     private DockRepository dockRepository;
 
+    /**
+     * getAllDock
+     * @return
+     */
+    public List<Dock> getAllDock () {
+        List<Dock> dockList = dockRepository.findAll();
+        log.info("dockList : " + dockList);
+        dockList = dockList.stream().filter(n -> n.getDeletionIndicator() != null && n.getDeletionIndicator() == 0)
+                .collect(Collectors.toList());
+        return dockList;
+    }
 
     /**
      * getDock

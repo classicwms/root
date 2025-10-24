@@ -38,6 +38,13 @@ public class ImCapacityController {
     @Autowired
     DbConfigRepository dbConfigRepository;
 
+    @ApiOperation(response = ImCapacity.class, value = "Get all ImCapacity details") // label for swagger
+    @GetMapping("")
+    public ResponseEntity<?> getAll() {
+        List<ImCapacity> imCapacityList = imCapacityService.getAllImCapacity();
+        return new ResponseEntity<>(imCapacityList, HttpStatus.OK);
+    }
+
     @ApiOperation(response = ImCapacity.class, value = "Get a ImCapacity") // label for swagger
     @GetMapping("/{itemCode}")
     public ResponseEntity<?> getImBasicData2(@PathVariable String itemCode, @RequestParam String companyCodeId, @RequestParam String plantId, @RequestParam String warehouseId, @RequestParam String languageId) {

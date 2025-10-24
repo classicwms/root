@@ -43,12 +43,12 @@ public class NumberRangeItemController {
     @Autowired
     DbConfigRepository dbConfigRepository;
 
-//    @ApiOperation(response = NumberRangeItem.class, value = "Get all NumberRangeItem details") // label for swagger
-//    @GetMapping("")
-//    public ResponseEntity<?> getAll() {
-//        List<NumberRangeItem> numberRangeItemList = numberRangeItemService.getAllNumberRangeItem();
-//        return new ResponseEntity<>(numberRangeItemList, HttpStatus.OK);
-//    }
+    @ApiOperation(response = NumberRangeItem.class, value = "Get all NumberRangeItem details") // label for swagger
+    @GetMapping("")
+    public ResponseEntity<?> getAll() {
+        List<NumberRangeItem> numberRangeItemList = numberRangeItemService.getAllNumberRangeItem();
+        return new ResponseEntity<>(numberRangeItemList, HttpStatus.OK);
+    }
 
     @ApiOperation(response = NumberRangeItem.class, value = "Get a NumberRangeItem") // label for swagger
     @GetMapping("/{itemTypeId}")

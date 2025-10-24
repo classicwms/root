@@ -30,6 +30,18 @@ public class DriverVehicleAssignmentService {
     @Autowired
     private DriverVehicleAssignmentRepository driverVehicleAssignmentRepository;
 
+    /**
+     * getAllDriverVehicleAssignment
+     * @return
+     */
+    public List<DriverVehicleAssignment> getAllDriverVehicleAssignment () {
+        List<DriverVehicleAssignment> driverVehicleAssignmentList = driverVehicleAssignmentRepository.findAll();
+        log.info("driverVehicleAssignmentList : " + driverVehicleAssignmentList);
+        driverVehicleAssignmentList =
+                driverVehicleAssignmentList.stream().filter(n -> n.getDeletionIndicator() != null && n.getDeletionIndicator() == 0)
+                .collect(Collectors.toList());
+        return driverVehicleAssignmentList;
+    }
 
     /**
      *

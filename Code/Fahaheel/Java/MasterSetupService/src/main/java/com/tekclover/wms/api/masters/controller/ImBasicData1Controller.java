@@ -44,6 +44,13 @@ public class ImBasicData1Controller {
     @Autowired
     DbConfigRepository dbConfigRepository;
 
+    @ApiOperation(response = ImBasicData1.class, value = "Get all ImBasicData1 details") // label for swagger
+    @GetMapping("")
+    public ResponseEntity<?> getAll() {
+        Iterable<ImBasicData1> imbasicdata1List = imbasicdata1Service.getImBasicData1s();
+        return new ResponseEntity<>(imbasicdata1List, HttpStatus.OK);
+    }
+
     @ApiOperation(response = ImBasicData1.class, value = "Get a ImBasicData1") // label for swagger 
     @GetMapping("/{itemCode}")
     public ResponseEntity<?> getImBasicData1ByItemCode(@PathVariable String itemCode, @RequestParam String companyCodeId,
@@ -151,7 +158,7 @@ public class ImBasicData1Controller {
 
         try {
             log.info("SearchImBasicData1 -----> {}", searchImBasicData1);
-//            DataBaseContextHolder.setCurrentDb("FAHAHEEL");
+            DataBaseContextHolder.setCurrentDb("FAHAHEEL");
             //String routingDb = dbConfigRepository.getDbNameList(searchImBasicData1.getCompanyCodeId(), searchImBasicData1.getPlantId(), searchImBasicData1.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", DataBaseContextHolder.getCurrentDb());
 //            DataBaseContextHolder.clear();
@@ -180,13 +187,13 @@ public class ImBasicData1Controller {
         }
     }
 
-//    @ApiOperation(response = ImBasicData1.class, value = "Like Search ImBasicData1") // label for swagger
-//    @GetMapping("/findItemCodeByLike")
-//    public List<ItemListImpl> getImBasicData1LikeSearch(@RequestParam String likeSearchByItemCodeNDesc)
-//            throws Exception {
-//
-//        return imbasicdata1Service.findImBasicData1LikeSearch(likeSearchByItemCodeNDesc);
-//    }
+    @ApiOperation(response = ImBasicData1.class, value = "Like Search ImBasicData1") // label for swagger
+    @GetMapping("/findItemCodeByLike")
+    public List<ItemListImpl> getImBasicData1LikeSearch(@RequestParam String likeSearchByItemCodeNDesc)
+            throws Exception {
+
+        return imbasicdata1Service.findImBasicData1LikeSearch(likeSearchByItemCodeNDesc);
+    }
 
     //Like Search filter ItemCode, Description, Company Code, Plant, Language and warehouse
     @ApiOperation(response = ImBasicData1.class, value = "Like Search ImBasicData1 New") // label for swagger
@@ -215,7 +222,6 @@ public class ImBasicData1Controller {
     public List<ItemListImpl> getImBasicData1LikeSearchNewV2(@Valid @RequestBody LikeSearchInput likeSearchInput)
             throws Exception {
         try {
-            log.info("likeSearchInput -----> {}", likeSearchInput);
             DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbName(likeSearchInput.getCompanyCodeId(), likeSearchInput.getPlantId(), likeSearchInput.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
@@ -226,14 +232,14 @@ public class ImBasicData1Controller {
             List<ItemListImpl> itemLists = new ArrayList<>();
 
             if (routingDb != null) {
-//                switch (routingDb) {
-//                    case "FAHAHEEL":
-//                    case "AUTO_LAP":
-//                        itemLists = imbasicdata1Service.findImBasicData1LikeSearchV3(likeSearchInput);
-//                        break;
-//                    default:
+                switch (routingDb) {
+                    case "FAHAHEEL":
+                    case "AUTO_LAP":
+                        itemLists = imbasicdata1Service.findImBasicData1LikeSearchV3(likeSearchInput);
+                        break;
+                    default:
                         itemLists = imbasicdata1Service.findImBasicData1LikeSearchV2(likeSearchInput);
-//                }
+                }
             }
             return itemLists;
         } finally {
@@ -270,17 +276,17 @@ public class ImBasicData1Controller {
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
             if (routingDb != null) {
-//                switch (routingDb) {
-//                    case "REEFERON":
-//                        createdImBasicData1 = imbasicdata1Service.createImBasicData1V5(newImBasicData1, loginUserID);
-//                        break;
-//                    case "KNOWELL":
-//                        createdImBasicData1 = imbasicdata1Service.createImBasicData1V7(newImBasicData1, loginUserID);
-//                        break;
-//                    default:
+                switch (routingDb) {
+                    case "REEFERON":
+                        createdImBasicData1 = imbasicdata1Service.createImBasicData1V5(newImBasicData1, loginUserID);
+                        break;
+                    case "KNOWELL":
+                        createdImBasicData1 = imbasicdata1Service.createImBasicData1V7(newImBasicData1, loginUserID);
+                        break;
+                    default:
                         createdImBasicData1 = imbasicdata1Service.createImBasicData1V2(newImBasicData1, loginUserID);
-//                        break;
-//                }
+                        break;
+                }
 
             }
             return new ResponseEntity<>(createdImBasicData1, HttpStatus.OK);

@@ -30,6 +30,20 @@ public class ImVariantService {
     private ImVariantRepository imVariantRepository;
 
     /**
+     * ImVariant
+     *
+     * @return
+     */
+    public List<ImVariant> getAllImVariant() {
+        List<ImVariant> imVariantList = imVariantRepository.findAll();
+        log.info("ImVariant : " + imVariantList);
+        imVariantList = imVariantList.stream()
+                .filter(n -> n.getDeletionIndicator() != null && n.getDeletionIndicator() == 0)
+                .collect(Collectors.toList());
+        return imVariantList;
+    }
+
+    /**
      * @param warehouseId
      * @param companyCodeId
      * @param languageId

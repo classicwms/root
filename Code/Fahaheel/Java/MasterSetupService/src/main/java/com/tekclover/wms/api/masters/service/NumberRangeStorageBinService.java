@@ -32,6 +32,18 @@ public class NumberRangeStorageBinService {
     private NumberRangeStorageBinRepository numberRangeStorageBinRepository;
 
     /**
+     * getAllNumberRangeStorageBin
+     * @return
+     */
+    public List<NumberRangeStorageBin> getAllNumberRangeStorageBin () {
+        List<NumberRangeStorageBin> numberRangeStorageBin = numberRangeStorageBinRepository.findAll();
+        log.info("numberRangeStorageBin : " + numberRangeStorageBin);
+        numberRangeStorageBin = numberRangeStorageBin.stream().filter(n -> n.getDeletionIndicator() != null && n.getDeletionIndicator() == 0)
+                .collect(Collectors.toList());
+        return numberRangeStorageBin;
+    }
+
+    /**
      * getDock
      * @param rowId
      * @param storageSectionId

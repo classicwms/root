@@ -33,6 +33,19 @@ public class HandlingUnitService {
 	private HandlingUnitRepository handlingunitRepository;
 
 	/**
+	 * getHandlingUnits
+	 * @return
+	 */
+	public List<HandlingUnit> getHandlingUnits () {
+		List<HandlingUnit> handlingunitList = handlingunitRepository.findAll();
+//		log.info("handlingunitList : " + handlingunitList);
+		handlingunitList = handlingunitList.stream()
+				.filter(n -> n.getDeletionIndicator() != null && n.getDeletionIndicator() == 0)
+				.collect(Collectors.toList());
+		return handlingunitList;
+	}
+
+	/**
 	 * getHandlingUnit
 	 * @param handlingUnit
 	 * @return

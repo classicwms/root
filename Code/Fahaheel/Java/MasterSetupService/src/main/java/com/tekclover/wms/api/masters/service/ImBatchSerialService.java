@@ -30,6 +30,19 @@ public class ImBatchSerialService {
     private ImBatchSerialRepository imBatchSerialRepository;
 
     /**
+     * ImBatchSerial
+     * @return
+     */
+    public List<ImBatchSerial> getImBatchSerials () {
+        List<ImBatchSerial> imBatchSerialList = imBatchSerialRepository.findAll();
+        log.info("imBatchSerialList : " + imBatchSerialList);
+        imBatchSerialList = imBatchSerialList.stream()
+                .filter(n -> n.getDeletionIndicator() != null && n.getDeletionIndicator() == 0)
+                .collect(Collectors.toList());
+        return imBatchSerialList;
+    }
+
+    /**
      * getHandlingEquipment
      * @param storageMethod
      * @param itemCode

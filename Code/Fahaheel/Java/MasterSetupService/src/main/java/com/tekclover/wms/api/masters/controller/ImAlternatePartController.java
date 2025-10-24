@@ -37,6 +37,13 @@ public class ImAlternatePartController {
     @Autowired
     DbConfigRepository dbConfigRepository;
 
+    @ApiOperation(response = ImAlternatePart.class, value = "Get all ImAlternatePart details") // label for swagger
+    @GetMapping("")
+    public ResponseEntity<?> getAll() {
+        List<ImAlternatePart> imAlternatePart = imAlternatePartService.getAllImAlternateParts();
+        return new ResponseEntity<>(imAlternatePart, HttpStatus.OK);
+    }
+
     @ApiOperation(response = ImAlternatePart.class, value = "Get a ImAlternatePart") // label for swagger
     @GetMapping("/{itemCode}")
     public ResponseEntity<?> getImAlternatePart(@RequestParam String companyCodeId,

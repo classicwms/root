@@ -42,6 +42,13 @@ public class VehicleController {
 
     @Autowired
     DbConfigRepository dbConfigRepository;
+    //GET ALL
+    @ApiOperation(response = Vehicle.class, value = "Get all Vehicle details") // label for swagger
+    @GetMapping("")
+    public ResponseEntity<?> getAll() {
+        List<Vehicle> vehicleList = vehicleService.getAllVehicle();
+        return new ResponseEntity<>(vehicleList, HttpStatus.OK);
+    }
 
     //GET
     @ApiOperation(response = Vehicle.class, value = "Get a Vehicle") // label for swagger

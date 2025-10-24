@@ -41,6 +41,16 @@ public class BomLineService {
 	private ExceptionLogRepository exceptionLogRepo;
 
 	/**
+	 * getBomLines
+	 * @return
+	 */
+	public List<BomLine> getBomLines () {
+		List<BomLine> bomLineList =  bomLineRepository.findAll();
+		bomLineList = bomLineList.stream().filter(n -> n.getDeletionIndicator() == 0).collect(Collectors.toList());
+		return bomLineList;
+	}
+
+	/**
 	 *
 	 * @param warehouseId
 	 * @param bomNumber

@@ -31,6 +31,17 @@ public class ImAlternateUomService {
 	private ImAlternateUomRepository imalternateuomRepository;
 
 	/**
+	 * getImAlternateUoms
+	 * @return
+	 */
+	public List<ImAlternateUom> getImAlternateUoms () {
+		List<ImAlternateUom> imalternateuomList = imalternateuomRepository.findAll();
+//		log.info("imalternateuomList : " + imalternateuomList);
+		imalternateuomList = imalternateuomList.stream().filter(n -> n.getDeletionIndicator() != null && n.getDeletionIndicator() == 0).collect(Collectors.toList());
+		return imalternateuomList;
+	}
+
+	/**
 	 * getImAlternateUom
 	 * @param alternateUom
 	 * @return

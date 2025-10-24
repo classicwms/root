@@ -31,6 +31,18 @@ public class NumberRangeItemService {
     private NumberRangeItemRepository numberRangeItemRepository;
 
     /**
+     * getAllNumberRangeItem
+     * @return
+     */
+    public List<NumberRangeItem> getAllNumberRangeItem () {
+        List<NumberRangeItem> numberRangeItemList = numberRangeItemRepository.findAll();
+        log.info("numberRangeItem : " + numberRangeItemList);
+        numberRangeItemList = numberRangeItemList.stream().filter(n -> n.getDeletionIndicator() != null && n.getDeletionIndicator() == 0)
+                .collect(Collectors.toList());
+        return numberRangeItemList;
+    }
+
+    /**
      * getDock
      * @param itemTypeId
      * @param sequenceNo

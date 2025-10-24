@@ -37,6 +37,13 @@ public class ImBatchSerialController {
     @Autowired
     DbConfigRepository dbConfigRepository;
 
+    @ApiOperation(response = ImBatchSerial.class, value = "Get all ImBatchSerial details") // label for swagger
+    @GetMapping("")
+    public ResponseEntity<?> getAll() {
+        List<ImBatchSerial> imBatchSerialList = imBatchSerialService.getImBatchSerials();
+        return new ResponseEntity<>(imBatchSerialList, HttpStatus.OK);
+    }
+
     @ApiOperation(response = ImBatchSerial.class, value = "Get a ImBatchSerial") // label for swagger
     @GetMapping("/{storageMethod}")
     public ResponseEntity<?> getImBasicData2(@PathVariable String storageMethod, @RequestParam String companyCodeId, @RequestParam String plantId, @RequestParam String warehouseId, @RequestParam String languageId,@RequestParam String itemCode) {

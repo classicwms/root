@@ -33,6 +33,19 @@ public class PackingMaterialService {
 	private PackingMaterialRepository packingmaterialRepository;
 
 	/**
+	 * getPackingMaterials
+	 * @return
+	 */
+	public List<PackingMaterial> getPackingMaterials () {
+		List<PackingMaterial> packingmaterialList = packingmaterialRepository.findAll();
+		log.info("packingmaterialList : " + packingmaterialList);
+		packingmaterialList = packingmaterialList.stream()
+				.filter(n -> n.getDeletionIndicator() != null && n.getDeletionIndicator() == 0)
+				.collect(Collectors.toList());
+		return packingmaterialList;
+	}
+
+	/**
 	 * getPackingMaterial
 	 * @param packingMaterialNo
 	 * @return
@@ -124,7 +137,7 @@ public class PackingMaterialService {
 
 	/**
 	 * deletePackingMaterial
-//	 * @param packingmaterial
+	 * @param packingmaterial
 	 */
 	public void deletePackingMaterial (String packingMaterialNo,String companyCodeId,String plantId,String warehouseId,String languageId,String loginUserID) throws ParseException {
 		PackingMaterial packingmaterial = getPackingMaterial(packingMaterialNo,companyCodeId,plantId,languageId,warehouseId);

@@ -28,6 +28,13 @@ public class CycleCountSchedulerService {
     @Autowired
     private CycleCountSchedulerRepository cycleCountSchedulerRepository;
 
+    public List<CycleCountScheduler> getAllCycleCountScheduler(){
+        List<CycleCountScheduler>cycleCountSchedulerList=cycleCountSchedulerRepository.findAll();
+        log.info("cycleCountScheduler : " + cycleCountSchedulerList);
+        cycleCountSchedulerList=cycleCountSchedulerList.stream().filter(n->n.getDeletionIndicator()!=null && n.getDeletionIndicator()==0).collect(Collectors.toList());
+        return cycleCountSchedulerList;
+    }
+
     public CycleCountScheduler getCycleCountScheduler(String companyCodeId,String languageId,String warehouseId,String plantId,Long levelId,Long cycleCountTypeId,String schedulerNumber){
         Optional<CycleCountScheduler> cycleCountScheduler=cycleCountSchedulerRepository.findByCompanyCodeIdAndLanguageIdAndPlantIdAndWarehouseIdAndCycleCountTypeIdAndSchedulerNumberAndLevelIdAndDeletionIndicator(
                companyCodeId,

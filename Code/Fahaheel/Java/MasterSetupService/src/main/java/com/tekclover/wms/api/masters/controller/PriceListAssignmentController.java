@@ -35,6 +35,13 @@ public class PriceListAssignmentController {
     @Autowired
     DbConfigRepository dbConfigRepository;
 
+    @ApiOperation(response = PriceListAssignment.class, value = "Get all PriceListAssignment details") // label for swagger
+    @GetMapping("")
+    public ResponseEntity<?> getAll() {
+        List<PriceListAssignment>PriceListAssignmentList = priceListAssignmentService.getPriceListAssignments();
+        return new ResponseEntity<>(PriceListAssignmentList, HttpStatus.OK);
+    }
+
     @ApiOperation(response = PriceListAssignment.class, value = "Get a PriceListAssignment") // label for swagger
     @GetMapping("/{priceListId}")
     public ResponseEntity<?> getPriceListAssignment(@RequestParam String partnerCode, @PathVariable Long priceListId,

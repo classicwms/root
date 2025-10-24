@@ -36,6 +36,13 @@ public class ImPalletizationController {
     @Autowired
     DbConfigRepository dbConfigRepository;
 
+    @ApiOperation(response = ImPalletization.class, value = "Get all ImPalletization details") // label for swagger
+    @GetMapping("")
+    public ResponseEntity<?> getAll() {
+        List<ImPalletization> imPalletizationList = imPalletizationService.getAllImPalletization();
+        return new ResponseEntity<>(imPalletizationList, HttpStatus.OK);
+    }
+
     @ApiOperation(response = ImPalletization.class, value = "Get a ImPalletization") // label for swagger
     @GetMapping("/{itemCode}")
     public ResponseEntity<?> getImPacking(@PathVariable String itemCode,@RequestParam String companyCodeId,

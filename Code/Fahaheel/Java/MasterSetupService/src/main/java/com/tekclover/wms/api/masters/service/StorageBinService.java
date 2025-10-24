@@ -45,6 +45,20 @@ public class StorageBinService {
     private ExceptionLogRepository exceptionLogRepo;
 
     /**
+     * getStorageBins
+     *
+     * @return
+     */
+    public List<StorageBin> getStorageBins() {
+        List<StorageBin> storagebinList = storagebinRepository.findAll();
+//		log.info("storagebinList : " + storagebinList);
+        storagebinList = storagebinList.stream()
+                .filter(n -> n.getDeletionIndicator() != null && n.getDeletionIndicator() == 0)
+                .collect(Collectors.toList());
+        return storagebinList;
+    }
+
+    /**
      * getStorageBin
      *
      * @param storageBin
@@ -101,8 +115,64 @@ public class StorageBinService {
      * @param languageId
      * @return
      */
+    public StorageBinV2 getStorageBinByBinClassId(String warehouseId, Long binClassId, String companyCodeId, String plantId, String languageId) {
+        StorageBinV2 storagebin = storageBinV2Repository.getStorageBinByBinClassId(
+                binClassId,
+                companyCodeId,
+                plantId,
+                warehouseId,
+                languageId);
+        if (storagebin == null) {
+            // Exception Log
+            createStorageBinLog(binClassId, languageId, companyCodeId, plantId, warehouseId,
+                    "Storage Bin with given values and binClassId - " + binClassId + " doesn't exists.");
+            throw new BadRequestException("The Given Values: " +
+                    "binClassId" + binClassId +
+                    "companyCodeId " + companyCodeId +
+                    "plantId " + plantId +
+                    "warehouseId " + warehouseId + " doesn't exist:");
+        }
+        return storagebin;
+    }
+
+    /**
+     * @param warehouseId
+     * @param binClassId
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @return
+     */
     public StorageBinV2 getStorageBinByBinClassIdV2(String warehouseId, Long binClassId, String companyCodeId, String plantId, String languageId) {
         Optional<StorageBinV2> storagebin = storageBinV2Repository.findTopByBinClassIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndDeletionIndicator(
+                binClassId,
+                companyCodeId,
+                plantId,
+                warehouseId,
+                languageId, 0L);
+        if (storagebin.isEmpty()) {
+            // Exception Log
+//            createStorageBinLog(binClassId, languageId, companyCodeId, plantId, warehouseId,
+//                    "Storage Bin with given values and binClassId-" + binClassId + " doesn't exists.");
+            throw new BadRequestException("The Given Values: " +
+                    "binClassId" + binClassId +
+                    "companyCodeId " + companyCodeId +
+                    "plantId " + plantId +
+                    "warehouseId " + warehouseId + " doesn't exist:");
+        }
+        return storagebin.get();
+    }
+
+    /**
+     * @param warehouseId
+     * @param binClassId
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @return
+     */
+    public StorageBinV2 getStorageBinByBinClassIdV5(String warehouseId, Long binClassId, String companyCodeId, String plantId, String languageId) {
+        Optional<StorageBinV2> storagebin = storageBinV2Repository.findByBinClassIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndLanguageIdAndDeletionIndicator(
                 binClassId,
                 companyCodeId,
                 plantId,
@@ -462,6 +532,20 @@ public class StorageBinService {
         return null;
     }
 
+    /**
+     * @param warehouseId
+     * @param statusId
+     * @return
+     */
+    public List<StorageBin> getStorageBinByStatus(String warehouseId, Long statusId) {
+        List<StorageBin> storagebin = storagebinRepository.findByWarehouseIdAndStatusIdAndDeletionIndicator(warehouseId, statusId, 0L);
+        if (storagebin != null) {
+            return storagebin;
+        } else {
+            throw new BadRequestException("The given StorageBin ID : " + warehouseId + ", statusId: " + statusId + " doesn't exist.");
+        }
+    }
+
     //V2
     public List<StorageBinV2> getStorageBinByStatusV2(String companyCodeId, String plantId, String languageId, String warehouseId, Long statusId) {
         List<StorageBinV2> storagebin = storageBinV2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndStatusIdAndDeletionIndicator(
@@ -474,6 +558,35 @@ public class StorageBinService {
         }
     }
 
+    /**
+     * @param warehouseId
+     * @param statusId
+     * @return
+     */
+    public List<StorageBin> getStorageBinByStatusNotEqual(String warehouseId, Long statusId) {
+        List<StorageBin> storagebin =
+                storagebinRepository.findByWarehouseIdAndStatusIdNotAndDeletionIndicator(warehouseId,
+                        statusId, 0L);
+        if (storagebin != null) {
+            return storagebin;
+        } else {
+            throw new BadRequestException("The given StorageBinByStatusNotEqual : " + warehouseId + ", statusId: " + statusId + " doesn't exist.");
+        }
+    }
+
+    /**
+     * @param likeSearchByStorageBinNDesc
+     * @return
+     */
+    public List<StorageBinListImpl> findStorageBinLikeSearch(String likeSearchByStorageBinNDesc) {
+        if (likeSearchByStorageBinNDesc != null && !likeSearchByStorageBinNDesc.trim().isEmpty()) {
+            List<StorageBinListImpl> data = storagebinRepository.getStorageBinListBySearch(likeSearchByStorageBinNDesc.trim(),
+                    likeSearchByStorageBinNDesc.trim());
+            return data;
+        } else {
+            throw new BadRequestException("Search string must not be empty");
+        }
+    }
 
     /**
      * @param likeSearchByStorageBinNDesc
@@ -516,6 +629,73 @@ public class StorageBinService {
             return data;
         } else {
             throw new BadRequestException("Search string must not be empty");
+        }
+    }
+
+    /**
+     * getStorageBin
+     *
+     * @param warehouseId
+     * @param binClassId
+     * @return
+     */
+    public StorageBin getStorageBin(String warehouseId, Long binClassId) {
+        StorageBin storagebin = storagebinRepository.findByWarehouseIdAndBinClassIdAndDeletionIndicator(
+                warehouseId, binClassId, 0L);
+        if (storagebin != null) {
+            return storagebin;
+        } else {
+            throw new BadRequestException("The given values : "
+                    + " warehouseId:" + warehouseId
+                    + ", binClassId:" + binClassId
+                    + " doesn't exist.");
+        }
+    }
+
+    /**
+     * @param warehouseId
+     * @param storageBin
+     * @return
+     */
+    public StorageBin getStorageBin(String warehouseId, String storageBin) {
+        StorageBin storagebin = storagebinRepository.findByWarehouseIdAndStorageBinAndDeletionIndicator(warehouseId, storageBin, 0L);
+        log.info("Storage bin==========>: " + storagebin);
+        if (storagebin != null && storagebin.getDeletionIndicator() != null && storagebin.getDeletionIndicator() == 0) {
+            return storagebin;
+        } else {
+            throw new BadRequestException("The given StorageBin ID : " + storageBin + " doesn't exist.");
+        }
+    }
+
+    /**
+     * @param warehouseId
+     * @param storageBin
+     * @return
+     */
+    public StorageBinV2 getStorageBinV2(String warehouseId, String storageBin) {
+        StorageBinV2 storagebin = storageBinV2Repository.findByWarehouseIdAndStorageBinAndDeletionIndicator(warehouseId, storageBin, 0L);
+        log.info("Storage bin==========>: " + storagebin);
+        if (storagebin != null && storagebin.getDeletionIndicator() != null && storagebin.getDeletionIndicator() == 0) {
+            return storagebin;
+        } else {
+            // Exception Log
+            createStorageBinLog3(storageBin, warehouseId, "Storage Bin with Id-" + storageBin + " and warehouseId-" + warehouseId + " doesn't exists.");
+            throw new BadRequestException("The given StorageBin ID : " + storageBin + " doesn't exist.");
+        }
+    }
+
+    /**
+     * @param stSectionIds
+     * @return
+     */
+    public List<StorageBin> getStorageBin(String warehouseId, List<String> stSectionIds) {
+        List<StorageBin> storagebin = storagebinRepository.findByWarehouseIdAndStorageSectionIdIn(warehouseId, stSectionIds);
+        if (storagebin != null) {
+            return storagebin;
+        } else {
+            throw new BadRequestException("The given values : "
+                    + " stSectionIds:" + stSectionIds
+                    + " doesn't exist.");
         }
     }
 
@@ -771,6 +951,23 @@ public class StorageBinService {
     }
 
     //========================================StorageBin_ExceptionLog==================================================
+    private void createStorageBinLog(Long binClassId, String languageId, String companyCodeId,
+                                     String plantId, String warehouseId, String error) {
+
+        ExceptionLog exceptionLog = new ExceptionLog();
+        exceptionLog.setOrderTypeId(String.valueOf(binClassId));
+        exceptionLog.setOrderDate(new Date());
+        exceptionLog.setLanguageId(languageId);
+        exceptionLog.setCompanyCodeId(companyCodeId);
+        exceptionLog.setPlantId(plantId);
+        exceptionLog.setWarehouseId(warehouseId);
+        exceptionLog.setReferenceField1(String.valueOf(binClassId));
+        exceptionLog.setErrorMessage(error);
+        exceptionLog.setCreatedBy("MSD_API");
+        exceptionLog.setCreatedOn(new Date());
+        exceptionLogRepo.save(exceptionLog);
+    }
+
     private void createStorageBinLog1(String storageBin, String languageId, String companyCodeId,
                                       String plantId, String warehouseId, String error) {
 
@@ -807,6 +1004,18 @@ public class StorageBinService {
             exceptionLog.setCreatedOn(new Date());
             exceptionLogRepo.save(exceptionLog);
         }
+    }
+
+    private void createStorageBinLog3(String storageBin, String warehouseId, String error) {
+
+        ExceptionLog exceptionLog = new ExceptionLog();
+        exceptionLog.setOrderTypeId(storageBin);
+        exceptionLog.setOrderDate(new Date());
+        exceptionLog.setWarehouseId(warehouseId);
+        exceptionLog.setErrorMessage(error);
+        exceptionLog.setCreatedBy("MSD_API");
+        exceptionLog.setCreatedOn(new Date());
+        exceptionLogRepo.save(exceptionLog);
     }
 
     public List<StorageBinV2> storageBinUpload(List<StorageBinV2> storageBinList) {

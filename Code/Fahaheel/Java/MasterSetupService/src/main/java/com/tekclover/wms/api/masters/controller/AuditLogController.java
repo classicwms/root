@@ -49,14 +49,21 @@ public class AuditLogController {
 
 	@Autowired
 	DbConfigRepository dbConfigRepository;
-
-//    @ApiOperation(response = AuditLog.class, value = "Get a AuditLog") // label for swagger
-//	@GetMapping("/{auditFileNumber}")
-//	public ResponseEntity<?> getAuditLog(@PathVariable String auditFileNumber) {
-//    	AuditLog auditlog = auditlogService.getAuditLog(auditFileNumber);
-//      	log.info("AuditLog : " + auditlog);
-//		return new ResponseEntity<>(auditlog, HttpStatus.OK);
-//	}
+	
+    @ApiOperation(response = AuditLog.class, value = "Get all AuditLog details") // label for swagger
+	@GetMapping("")
+	public ResponseEntity<?> getAll() {
+		List<AuditLog> auditlogList = auditlogService.getAuditLogs();
+		return new ResponseEntity<>(auditlogList, HttpStatus.OK); 
+	}
+    
+    @ApiOperation(response = AuditLog.class, value = "Get a AuditLog") // label for swagger 
+	@GetMapping("/{auditFileNumber}")
+	public ResponseEntity<?> getAuditLog(@PathVariable String auditFileNumber) {
+    	AuditLog auditlog = auditlogService.getAuditLog(auditFileNumber);
+//    	log.info("AuditLog : " + auditlog);
+		return new ResponseEntity<>(auditlog, HttpStatus.OK);
+	}
     
 	@ApiOperation(response = AuditLog.class, value = "Search AuditLog") // label for swagger
 	@PostMapping("/findAuditLog")
@@ -113,11 +120,11 @@ public class AuditLogController {
 		}
 		}
     
-//    @ApiOperation(response = AuditLog.class, value = "Delete AuditLog") // label for swagger
-//	@DeleteMapping("/{auditFileNumber}")
-//	public ResponseEntity<?> deleteAuditLog(@PathVariable String auditFileNumber, @RequestParam String loginUserID) {
-//
-//		auditlogService.deleteAuditLog(auditFileNumber, loginUserID);
-//		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-//	}
+    @ApiOperation(response = AuditLog.class, value = "Delete AuditLog") // label for swagger
+	@DeleteMapping("/{auditFileNumber}")
+	public ResponseEntity<?> deleteAuditLog(@PathVariable String auditFileNumber, @RequestParam String loginUserID) {
+
+		auditlogService.deleteAuditLog(auditFileNumber, loginUserID);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
 }

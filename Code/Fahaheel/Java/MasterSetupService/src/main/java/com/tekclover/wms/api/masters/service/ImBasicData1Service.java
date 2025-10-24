@@ -54,6 +54,21 @@ public class ImBasicData1Service {
     private ExceptionLogRepository exceptionLogRepo;
 
     /**
+     * getImBasicData1s
+     *
+     * @return
+     */
+    public Iterable<ImBasicData1> getImBasicData1s() {
+        Iterable<ImBasicData1> imbasicdata1List = imbasicdata1Repository.findAll();
+//		log.info("imbasicdata1List : " + imbasicdata1List);
+
+//		imbasicdata1List = Arrays.asimbasicdata1List.stream()
+//				.filter(n -> n.getDeletionIndicator() != null && n.getDeletionIndicator() == 0)
+//				.collect(Collectors.toList());
+        return imbasicdata1List;
+    }
+
+    /**
      * @param itemCode
      * @return
      */
@@ -106,6 +121,42 @@ public class ImBasicData1Service {
         return null;
     }
 
+    /**
+     * @param imBasicData
+     * @return
+     */
+    public ImBasicData1 getImBasicData1(ImBasicData imBasicData) {
+        Optional<ImBasicData1> imbasicdata1 = imbasicdata1Repository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerPartNoAndLanguageIdAndDeletionIndicator(
+                imBasicData.getCompanyCodeId(),
+                imBasicData.getPlantId(),
+                imBasicData.getWarehouseId(),
+                imBasicData.getItemCode(),
+                imBasicData.getManufacturerName(),
+                imBasicData.getLanguageId(),
+                0L);
+        if (!imbasicdata1.isEmpty()) {
+            return imbasicdata1.get();
+        }
+        return null;
+    }
+
+    public ImBasicData1 getImBasicData1(String itemCode, String warehouseId, String companyCodeId, String plantId, String manufacturerPartNo, String languageId) {
+        Optional<ImBasicData1> imbasicdata1 = imbasicdata1Repository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerPartNoAndLanguageIdAndDeletionIndicator(
+                companyCodeId,
+                plantId,
+                warehouseId,
+                itemCode,
+                manufacturerPartNo,
+                languageId,
+                0L);
+        if (!imbasicdata1.isEmpty()) {
+            return imbasicdata1.get();
+        }
+        // Exception Log
+        createImBasicData1Log4(itemCode, languageId, companyCodeId, plantId, warehouseId, manufacturerPartNo,
+                "ImBasicData1 with given values and itemCode-" + itemCode + " doesn't exists.");
+        return null;
+    }
 
     /**
      * @param searchImBasicData1
@@ -184,6 +235,19 @@ public class ImBasicData1Service {
         return results;
     }
 
+    /**
+     * @param likeSearchByItemCodeNDesc
+     * @return
+     */
+    public List<ItemListImpl> findImBasicData1LikeSearch(String likeSearchByItemCodeNDesc) {
+        if (likeSearchByItemCodeNDesc != null && !likeSearchByItemCodeNDesc.trim().isEmpty()) {
+            List<ItemListImpl> data = imbasicdata1Repository.getItemListBySearch(likeSearchByItemCodeNDesc.trim(),
+                    likeSearchByItemCodeNDesc.trim(), likeSearchByItemCodeNDesc.trim());
+            return data;
+        } else {
+            throw new BadRequestException("Search string must not be empty");
+        }
+    }
 
     //Like Search filter ItemCode, Description, Company Code, Plant, Language and warehouse
     public List<ItemListImpl> findImBasicData1LikeSearchNew(String likeSearchByItemCodeNDesc, String companyCodeId,
@@ -226,6 +290,34 @@ public class ImBasicData1Service {
         }
     }
 
+    //Like Search filter ItemCode, Description, Company Code, Plant, Language and warehouse
+
+    /**
+     * Modified for Fahaheel Filter only based on WarehouseId
+     * Aakash vinayak - 29/07/2025
+     *
+     * @param likeSearchInput
+     * @return
+     */
+    public List<ItemListImpl> findImBasicData1LikeSearchV3(LikeSearchInput likeSearchInput) {
+
+        if (likeSearchInput.getLikeSearchByDesc() != null && !likeSearchInput.getLikeSearchByDesc().trim().isEmpty()) {
+
+            log.info("searchText1 -----> {}", likeSearchInput.getLikeSearchByDesc().trim());
+            log.info("searchText2 -----> {}", likeSearchInput.getLikeSearchByDesc().trim());
+            log.info("searchText3 -----> {}", likeSearchInput.getLikeSearchByDesc().trim());
+            log.info("LikeSearchInput -----> {}", likeSearchInput);
+            List<ItemListImpl> data = imbasicdata1Repository.getItemListBySearchV3(
+                    likeSearchInput.getLikeSearchByDesc().trim(),
+                    likeSearchInput.getLikeSearchByDesc().trim(),
+                    likeSearchInput.getLikeSearchByDesc().trim(),
+                    likeSearchInput.getWarehouseId());
+            log.info("Like Search ImBasicDate size ----> {}", data.size());
+            return data;
+        } else {
+            throw new BadRequestException("Search string must not be empty");
+        }
+    }
 
     /**
      * createImBasicData1
@@ -330,6 +422,141 @@ public class ImBasicData1Service {
     }
 
     /**
+     *
+     * @param newImBasicData1
+     * @param loginUserID
+     * @return
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     * @throws ParseException
+     */
+    public ImBasicData1V2 createImBasicData1V5(ImBasicData1V2 newImBasicData1, String loginUserID)
+            throws IllegalAccessException, InvocationTargetException, ParseException {
+      try {
+          ImBasicData1V2 dbImBasicData1 = new ImBasicData1V2();
+          Optional<ImBasicData1V2> duplicateImBasicData1 = imBasicData1V2Repository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerPartNoAndLanguageIdAndDeletionIndicator(newImBasicData1.getCompanyCodeId(),
+                  newImBasicData1.getPlantId(), newImBasicData1.getWarehouseId(), newImBasicData1.getItemCode(),
+                  newImBasicData1.getManufacturerPartNo(), newImBasicData1.getLanguageId(), 0L);
+
+          if (!duplicateImBasicData1.isEmpty()) {
+              // Exception Log
+              createImBasicData1Log2(newImBasicData1, "Record is getting Duplicated.");
+              throw new EntityNotFoundException("Record is Getting Duplicated");
+          } else {
+              BeanUtils.copyProperties(newImBasicData1, dbImBasicData1, CommonUtils.getNullPropertyNames(newImBasicData1));
+              if (newImBasicData1.getCapacityCheck() != null) {
+                  dbImBasicData1.setCapacityCheck(newImBasicData1.getCapacityCheck());
+              }
+              if (newImBasicData1.getCapacityCheck() == null) {
+                  dbImBasicData1.setCapacityCheck(false);
+              }
+              if (newImBasicData1.getItemType() == null) {
+                  dbImBasicData1.setItemType(1L);
+              }
+              if (newImBasicData1.getManufacturerName() == null) {
+                  dbImBasicData1.setManufacturerName(newImBasicData1.getManufacturerPartNo());
+              }
+              if (newImBasicData1.getManufacturerCode() == null) {
+                  dbImBasicData1.setManufacturerCode(newImBasicData1.getManufacturerPartNo());
+              }
+              if (newImBasicData1.getManufacturerFullName() == null) {
+                  dbImBasicData1.setManufacturerFullName(newImBasicData1.getManufacturerPartNo());
+              }
+
+              log.info("Id: " + newImBasicData1.getCompanyCodeId() + ", " + newImBasicData1.getPlantId() + ", " + newImBasicData1.getWarehouseId() + ", " + newImBasicData1.getLanguageId());
+              IKeyValuePair description = imBasicData1V2Repository.getDescription(newImBasicData1.getCompanyCodeId(),
+                      newImBasicData1.getLanguageId(),
+                      newImBasicData1.getPlantId(),
+                      newImBasicData1.getWarehouseId());
+              log.info("Description: " + description);
+              if (description != null) {
+                  log.info("Description: " + description.getCompanyDesc() + ", " + description.getPlantDesc() + ", " + description.getWarehouseDesc());
+                  dbImBasicData1.setCompanyDescription(description.getCompanyDesc());
+                  dbImBasicData1.setPlantDescription(description.getPlantDesc());
+                  dbImBasicData1.setWarehouseDescription(description.getWarehouseDesc());
+              }
+
+              dbImBasicData1.setDeletionIndicator(0L);
+              dbImBasicData1.setCreatedBy(loginUserID);
+              dbImBasicData1.setUpdatedBy(loginUserID);
+              dbImBasicData1.setCreatedOn(new Date());
+              dbImBasicData1.setUpdatedOn(new Date());
+              return imBasicData1V2Repository.save(dbImBasicData1);
+          }
+      }catch (Exception e){
+          log.info(e.getMessage());
+      }
+      return null;
+    }
+
+    /**
+     *
+     * @param newImBasicData1
+     * @param loginUserID
+     * @return
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     * @throws ParseException
+     */
+    public ImBasicData1V2 createImBasicData1V7(ImBasicData1V2 newImBasicData1, String loginUserID)
+            throws IllegalAccessException, InvocationTargetException, ParseException {
+        ImBasicData1V2 dbImBasicData1 = new ImBasicData1V2();
+        Optional<ImBasicData1V2> duplicateImBasicData1 = imBasicData1V2Repository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndUomIdAndManufacturerPartNoAndLanguageIdAndDeletionIndicator(newImBasicData1.getCompanyCodeId(),
+                newImBasicData1.getPlantId(), newImBasicData1.getWarehouseId(), newImBasicData1.getItemCode(),
+                newImBasicData1.getUomId(), newImBasicData1.getManufacturerPartNo(), newImBasicData1.getLanguageId(), 0L);
+
+        if (!duplicateImBasicData1.isEmpty()) {
+            // Exception Log
+            createImBasicData1Log2(newImBasicData1, "Record is getting Duplicated.");
+            throw new EntityNotFoundException("Record is Getting Duplicated");
+        } else {
+            BeanUtils.copyProperties(newImBasicData1, dbImBasicData1, CommonUtils.getNullPropertyNames(newImBasicData1));
+
+            dbImBasicData1.setItemCode(newImBasicData1.getItemCode());
+            dbImBasicData1.setDescription(newImBasicData1.getDescription());
+
+            if(newImBasicData1.getCapacityCheck() != null) {
+                dbImBasicData1.setCapacityCheck(newImBasicData1.getCapacityCheck());
+            }
+            if(newImBasicData1.getCapacityCheck() == null) {
+                dbImBasicData1.setCapacityCheck(false);
+            }
+            if(newImBasicData1.getItemType() == null) {
+                dbImBasicData1.setItemType(1L);
+            }
+            if(newImBasicData1.getManufacturerName() == null) {
+                dbImBasicData1.setManufacturerName(newImBasicData1.getManufacturerPartNo());
+            }
+            if(newImBasicData1.getManufacturerCode() == null) {
+                dbImBasicData1.setManufacturerCode(newImBasicData1.getManufacturerPartNo());
+            }
+            if(newImBasicData1.getManufacturerFullName() == null) {
+                dbImBasicData1.setManufacturerFullName(newImBasicData1.getManufacturerPartNo());
+            }
+
+            log.info("Id: " + newImBasicData1.getCompanyCodeId() + ", " + newImBasicData1.getPlantId() + ", " + newImBasicData1.getWarehouseId() + ", " + newImBasicData1.getLanguageId());
+            IKeyValuePair description = imBasicData1V2Repository.getDescription(newImBasicData1.getCompanyCodeId(),
+                    newImBasicData1.getLanguageId(),
+                    newImBasicData1.getPlantId(),
+                    newImBasicData1.getWarehouseId());
+            log.info("Description: " + description);
+            if(description != null) {
+                log.info("Description: " + description.getCompanyDesc() + ", " + description.getPlantDesc() + ", " + description.getWarehouseDesc());
+                dbImBasicData1.setCompanyDescription(description.getCompanyDesc());
+                dbImBasicData1.setPlantDescription(description.getPlantDesc());
+                dbImBasicData1.setWarehouseDescription(description.getWarehouseDesc());
+            }
+
+            dbImBasicData1.setDeletionIndicator(0L);
+            dbImBasicData1.setCreatedBy(loginUserID);
+            dbImBasicData1.setUpdatedBy(loginUserID);
+            dbImBasicData1.setCreatedOn(new Date());
+            dbImBasicData1.setUpdatedOn(new Date());
+            return imBasicData1V2Repository.save(dbImBasicData1);
+        }
+    }
+
+    /**
      * @param itemCode
      * @param companyCodeId
      * @param plantId
@@ -365,6 +592,26 @@ public class ImBasicData1Service {
         return imBasicData1V2Repository.save(dbImBasicData1);
     }
 
+    public ImBasicData1V2 updateImBasicDataWithQuery(String itemCode, String companyCodeId, String plantId, String languageId,
+                                           String uomId, String warehouseId, String manufacturerPartNo,
+                                           ImBasicData1V2 updateData, String loginUserID) {
+        int updated = imBasicData1V2Repository.updateImBasicData1V2(
+                itemCode, companyCodeId, plantId, languageId, uomId, warehouseId, manufacturerPartNo, updateData
+        );
+
+        ImBasicData1V2 returnImBasicData = new ImBasicData1V2();
+        if (updated > 0) {
+            Optional<ImBasicData1V2> imBasicData1V2 = imBasicData1V2Repository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndItemCodeAndUomIdAndManufacturerPartNo(
+                    companyCodeId, plantId, languageId, warehouseId, itemCode, uomId, manufacturerPartNo
+            );
+
+            returnImBasicData = imBasicData1V2.get();
+        }
+
+        return returnImBasicData;
+    }
+
+
     /**
      * @param itemCode
      * @param companyCodeId
@@ -390,10 +637,11 @@ public class ImBasicData1Service {
     public void deleteImBasicData1V2(String itemCode, String companyCodeId, String plantId, String languageId, String uomId, String manufacturerPartNo, String warehouseId, String loginUserID) throws ParseException {
         ImBasicData1V2 imbasicdata1 = getaImBasicData1V2(itemCode, warehouseId, companyCodeId, plantId, uomId, manufacturerPartNo, languageId);
         if (imbasicdata1 != null) {
-            imbasicdata1.setDeletionIndicator(1L);
-            imbasicdata1.setUpdatedBy(loginUserID);
-            imbasicdata1.setUpdatedOn(new Date());
-            imBasicData1V2Repository.save(imbasicdata1);
+            imBasicData1V2Repository.deleteImBasicData1(languageId, companyCodeId, plantId, warehouseId, itemCode, manufacturerPartNo, uomId);
+//            imbasicdata1.setDeletionIndicator(1L);
+//            imbasicdata1.setUpdatedBy(loginUserID);
+//            imbasicdata1.setUpdatedOn(new Date());
+//            imBasicData1V2Repository.save(imbasicdata1);
         } else {
             throw new EntityNotFoundException("Error in deleting itemCode Id:" + itemCode);
         }
@@ -466,6 +714,22 @@ public class ImBasicData1Service {
     }
 
     //========================================ImBasicData1_ExceptionLog================================================
+    private void createImBasicData1Log(ImBasicData imBasicData, String error) {
+
+        ExceptionLog exceptionLog = new ExceptionLog();
+        exceptionLog.setOrderTypeId(imBasicData.getItemCode());
+        exceptionLog.setOrderDate(new Date());
+        exceptionLog.setLanguageId(imBasicData.getLanguageId());
+        exceptionLog.setCompanyCodeId(imBasicData.getCompanyCodeId());
+        exceptionLog.setPlantId(imBasicData.getPlantId());
+        exceptionLog.setWarehouseId(imBasicData.getWarehouseId());
+        exceptionLog.setReferenceField1(imBasicData.getItemCode());
+        exceptionLog.setReferenceField2(imBasicData.getManufacturerName());
+        exceptionLog.setErrorMessage(error);
+        exceptionLog.setCreatedBy("MSD_API");
+        exceptionLog.setCreatedOn(new Date());
+        exceptionLogRepo.save(exceptionLog);
+    }
 
     private void createImBasicData1Log1(AddImBasicData1 addImBasicData1, String error) {
 
@@ -522,6 +786,24 @@ public class ImBasicData1Service {
         exceptionLogRepo.save(exceptionLog);
     }
 
+    private void createImBasicData1Log4(String itemCode, String languageId, String companyCodeId, String plantId,
+                                        String warehouseId, String manufacturerPartNo, String error) {
+
+        ExceptionLog exceptionLog = new ExceptionLog();
+        exceptionLog.setOrderTypeId(itemCode);
+        exceptionLog.setOrderDate(new Date());
+        exceptionLog.setLanguageId(languageId);
+        exceptionLog.setCompanyCodeId(companyCodeId);
+        exceptionLog.setPlantId(plantId);
+        exceptionLog.setWarehouseId(warehouseId);
+        exceptionLog.setReferenceField1(itemCode);
+        exceptionLog.setReferenceField2(manufacturerPartNo);
+        exceptionLog.setErrorMessage(error);
+        exceptionLog.setCreatedBy("MSD_API");
+        exceptionLog.setCreatedOn(new Date());
+        exceptionLogRepo.save(exceptionLog);
+    }
+
     public List<ImBasicData1V2> imBasicData1Upload(List<ImBasicData1V2> imBasicDataList) {
 
         List<ImBasicData1V2> saveImBasicData1 = new ArrayList<>();
@@ -531,7 +813,7 @@ public class ImBasicData1Service {
                     imData1.getPlantId(), imData1.getWarehouseId(), imData1.getItemCode(),
                     imData1.getUomId(), imData1.getManufacturerPartNo(), imData1.getLanguageId(), 0L);
 
-            log.info("duplicateImBasicData1 ----> ", duplicateImBasicData1.get());
+            log.info("duplicateImBasicData1 ----> ", duplicateImBasicData1);
 
             if (duplicateImBasicData1.isPresent()) {
                 throw new BadRequestException("Record is Getting Duplicate");

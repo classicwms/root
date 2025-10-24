@@ -34,12 +34,12 @@ public class BillingController {
     DbConfigRepository dbConfigRepository;
 
 
-//    @ApiOperation(response = Billing.class, value = "Get all Billing details") // label for swagger
-//    @GetMapping("")
-//    public ResponseEntity<?> getAll() {
-//        List<Billing> BillingList = billingService.getBillings();
-//        return new ResponseEntity<>(BillingList, HttpStatus.OK);
-//    }
+    @ApiOperation(response = Billing.class, value = "Get all Billing details") // label for swagger
+    @GetMapping("")
+    public ResponseEntity<?> getAll() {
+        List<Billing> BillingList = billingService.getBillings();
+        return new ResponseEntity<>(BillingList, HttpStatus.OK);
+    }
 
     @ApiOperation(response = Billing.class, value = "Get a Billing") // label for swagger
     @GetMapping("/{partnerCode}")

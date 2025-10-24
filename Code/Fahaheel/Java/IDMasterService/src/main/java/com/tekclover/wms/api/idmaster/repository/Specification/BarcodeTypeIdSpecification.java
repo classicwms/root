@@ -49,7 +49,7 @@ public class BarcodeTypeIdSpecification implements Specification<BarcodeTypeId> 
             final Path<DeferredImportSelector.Group> group = root.<DeferredImportSelector.Group>get("languageId");
             predicates.add(group.in(findBarcodeTypeId.getLanguageId()));
         }
-
+        predicates.add(cb.equal(root.get("deletionIndicator"), 0L));
         return cb.and(predicates.toArray(new Predicate[] {}));
     }
 }

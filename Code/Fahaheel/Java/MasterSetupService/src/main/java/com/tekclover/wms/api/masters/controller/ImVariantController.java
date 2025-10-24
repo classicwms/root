@@ -35,6 +35,13 @@ public class ImVariantController {
     @Autowired
     DbConfigRepository dbConfigRepository;
 
+    @ApiOperation(response = ImVariant.class, value = "Get all ImVariant details") // label for swagger
+    @GetMapping("")
+    public ResponseEntity<?> getAll() {
+        List<ImVariant> imVariantList = imVariantService.getAllImVariant();
+        return new ResponseEntity<>(imVariantList, HttpStatus.OK);
+    }
+
     @ApiOperation(response = ImVariant.class, value = "Get a ImVariant") // label for swagger
     @GetMapping("/{itemCode}")
     public ResponseEntity<?> getImVariant(@PathVariable String itemCode, @RequestParam String companyCodeId,

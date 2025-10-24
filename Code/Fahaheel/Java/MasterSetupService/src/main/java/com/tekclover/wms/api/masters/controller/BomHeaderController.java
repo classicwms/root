@@ -47,7 +47,13 @@ public class BomHeaderController {
 
 	@Autowired
 	DbConfigRepository  dbConfigRepository;
-
+	
+    @ApiOperation(response = BomHeader.class, value = "Get all BomHeader details") // label for swagger
+	@GetMapping("")
+	public ResponseEntity<?> getAll() {
+		List<AddBomHeader> bomheaderList = bomheaderService.getBomHeaders();
+		return new ResponseEntity<>(bomheaderList, HttpStatus.OK); 
+	}
     
     @ApiOperation(response = BomHeader.class, value = "Get a BomHeader") // label for swagger 
 	@GetMapping("/{parentItemCode}")

@@ -30,6 +30,18 @@ public class RouteService {
     private RouteRepository routeRepository;
 
     /**
+     * getAllRoute
+     * @return
+     */
+    public List<Route> getAllRoute () {
+        List<Route> routeList = routeRepository.findAll();
+        log.info("routeList : " + routeList);
+        routeList = routeList.stream().filter(n -> n.getDeletionIndicator() != null && n.getDeletionIndicator() == 0)
+                .collect(Collectors.toList());
+        return routeList;
+    }
+
+    /**
      *
      * @param routeId
      * @param companyCodeId

@@ -34,6 +34,44 @@ public class PriceListService {
     @Autowired
     private PriceListRepository priceListRepository;
 
+    /**
+     * getPriceLists
+     *
+     * @return
+     */
+    public List<PriceList> getPriceLists() {
+        List<PriceList> priceLists = priceListRepository.findAll();
+        priceLists = priceLists.stream().filter(n -> n.getDeletionIndicator() == 0).collect(Collectors.toList());
+        List<PriceList> newPriceList = new ArrayList<>();
+        for (PriceList dbPriceList : priceLists) {
+            if (dbPriceList.getCompanyIdAndDescription() != null && dbPriceList.getPlantIdAndDescription() != null && dbPriceList.getWarehouseIdAndDescription() != null) {
+                IKeyValuePair iKeyValuePair = priceListRepository.getCompanyIdAndDescription(dbPriceList.getCompanyCodeId(), dbPriceList.getLanguageId());
+                IKeyValuePair iKeyValuePair1 = priceListRepository.getPlantIdAndDescription(dbPriceList.getPlantId(), dbPriceList.getLanguageId(), dbPriceList.getCompanyCodeId());
+                IKeyValuePair iKeyValuePair2 = priceListRepository.getWarehouseIdAndDescription(dbPriceList.getWarehouseId(), dbPriceList.getLanguageId(), dbPriceList.getCompanyCodeId(), dbPriceList.getPlantId());
+                IKeyValuePair iKeyValuePair3 = priceListRepository.getServiceTypeIdAndDescription(dbPriceList.getServiceTypeId(), dbPriceList.getLanguageId(), dbPriceList.getCompanyCodeId(), dbPriceList.getPlantId(), dbPriceList.getModuleId(), dbPriceList.getWarehouseId());
+                IKeyValuePair iKeyValuePair4 = priceListRepository.getModuleIdAndDescription(dbPriceList.getModuleId(), dbPriceList.getLanguageId(), dbPriceList.getCompanyCodeId(), dbPriceList.getPlantId(),dbPriceList.getWarehouseId());
+                if (iKeyValuePair != null) {
+                    dbPriceList.setCompanyIdAndDescription(iKeyValuePair.getCompanyCodeId() + "-" + iKeyValuePair.getDescription());
+                }
+                if (iKeyValuePair1 != null) {
+                    dbPriceList.setPlantIdAndDescription(iKeyValuePair1.getPlantId() + "-" + iKeyValuePair1.getDescription());
+                }
+                if (iKeyValuePair2 != null) {
+                    dbPriceList.setWarehouseIdAndDescription(iKeyValuePair2.getWarehouseId() + "-" + iKeyValuePair2.getDescription());
+                }
+                if (iKeyValuePair3 != null) {
+                    dbPriceList.setServiceTypeIdAndDescription(iKeyValuePair3.getServiceTypeId() + "-" + iKeyValuePair3.getDescription());
+                }
+                if (iKeyValuePair4 != null) {
+                    dbPriceList.setModuleIdAndDescription(iKeyValuePair4.getModuleId() + "-" + iKeyValuePair4.getDescription());
+                }
+            }
+            newPriceList.add(dbPriceList);
+        }
+        return newPriceList;
+    }
+
+
     public PriceList getPriceList(String warehouseId, String moduleId, Long priceListId, Long serviceTypeId, Long chargeRangeId, String companyCodeId, String languageId, String plantId) {
         Optional<PriceList> dbPriceList =
                 priceListRepository.findByCompanyCodeIdAndPlantIdAndWarehouseIdAndModuleIdAndPriceListIdAndServiceTypeIdAndChargeRangeIdAndLanguageIdAndDeletionIndicator(
@@ -198,4 +236,6 @@ public class PriceListService {
         }
         return newPriceList;
     }
+
+
 }

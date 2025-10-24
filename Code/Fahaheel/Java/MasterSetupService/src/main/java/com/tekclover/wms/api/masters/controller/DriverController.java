@@ -36,6 +36,13 @@ public class DriverController {
     @Autowired
     DbConfigRepository dbConfigRepository;
 
+    @ApiOperation(response = Driver.class, value = "Get all Driver details") // label for swagger
+    @GetMapping("")
+    public ResponseEntity<?> getAll() {
+        List<Driver> driverList = driverService.getAllDriver();
+        return new ResponseEntity<>(driverList, HttpStatus.OK);
+    }
+
     @ApiOperation(response = Driver.class, value = "Get a Driver") // label for swagger
     @GetMapping("/{driverId}")
     public ResponseEntity<?> getDriver(@PathVariable Long driverId, @RequestParam String companyCodeId,

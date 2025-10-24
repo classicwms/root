@@ -43,6 +43,13 @@ public class StorageBinController {
     @Autowired
     WarehouseRepository warehouseRepository;
 
+    @ApiOperation(response = StorageBin.class, value = "Get all StorageBin details") // label for swagger
+    @GetMapping("")
+    public ResponseEntity<?> getAll() {
+        List<StorageBin> storagebinList = storagebinService.getStorageBins();
+        return new ResponseEntity<>(storagebinList, HttpStatus.OK);
+    }
+
     @ApiOperation(response = StorageBin.class, value = "Get a StorageBin") // label for swagger 
     @GetMapping("/{storageBin}")
     public ResponseEntity<?> getStorageBin(@PathVariable String storageBin, @RequestParam String companyCodeId, @RequestParam String plantId, @RequestParam String warehouseId, @RequestParam String languageId) {
@@ -60,38 +67,38 @@ public class StorageBinController {
         }
     }
 
-//    @ApiOperation(response = StorageBin.class, value = "Get a StorageBin") // label for swagger
-//    @GetMapping("/{storageBin}/warehouseId")
-//    public ResponseEntity<?> getStorageBin(@PathVariable String storageBin, @RequestParam String warehouseId) {
-//
-//        StorageBin storagebin = storagebinService.getStorageBin(warehouseId, storageBin);
-//        log.info("StorageBin : " + storagebin);
-//        return new ResponseEntity<>(storagebin, HttpStatus.OK);
-//    }
-//
-//    @ApiOperation(response = StorageBin.class, value = "Get a StorageBin") // label for swagger
-//    @GetMapping("/{warehouseId}/status")
-//    public ResponseEntity<?> getStorageBinByStatus(@PathVariable String warehouseId, @RequestParam Long statusId) {
-//        List<StorageBin> storagebin = storagebinService.getStorageBinByStatus(warehouseId, statusId);
-//        log.info("StorageBin : " + storagebin);
-//        return new ResponseEntity<>(storagebin, HttpStatus.OK);
-//    }
-//
-//    @ApiOperation(response = StorageBin.class, value = "Get a StorageBin Status") // label for swagger
-//    @GetMapping("/{warehouseId}/status-not-equal")
-//    public ResponseEntity<?> getStorageBinByStatusNotEqual(@PathVariable String warehouseId,
-//                                                           @RequestParam Long statusId) {
-//        List<StorageBin> storagebin = storagebinService.getStorageBinByStatusNotEqual(warehouseId, statusId);
-//        log.info("StorageBin : " + storagebin);
-//        return new ResponseEntity<>(storagebin, HttpStatus.OK);
-//    }
-//
-//    @ApiOperation(response = StorageBin.class, value = "Like Search StorageBin") // label for swagger
-//    @GetMapping("/findStorageBinByLike")
-//    public List<StorageBinListImpl> getStorageBinLikeSearch(@RequestParam String likeSearchByStorageBinNDesc)
-//            throws Exception {
-//        return storagebinService.findStorageBinLikeSearch(likeSearchByStorageBinNDesc);
-//    }
+    @ApiOperation(response = StorageBin.class, value = "Get a StorageBin") // label for swagger 
+    @GetMapping("/{storageBin}/warehouseId")
+    public ResponseEntity<?> getStorageBin(@PathVariable String storageBin, @RequestParam String warehouseId) {
+
+        StorageBin storagebin = storagebinService.getStorageBin(warehouseId, storageBin);
+        log.info("StorageBin : " + storagebin);
+        return new ResponseEntity<>(storagebin, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = StorageBin.class, value = "Get a StorageBin") // label for swagger 
+    @GetMapping("/{warehouseId}/status")
+    public ResponseEntity<?> getStorageBinByStatus(@PathVariable String warehouseId, @RequestParam Long statusId) {
+        List<StorageBin> storagebin = storagebinService.getStorageBinByStatus(warehouseId, statusId);
+        log.info("StorageBin : " + storagebin);
+        return new ResponseEntity<>(storagebin, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = StorageBin.class, value = "Get a StorageBin Status") // label for swagger 
+    @GetMapping("/{warehouseId}/status-not-equal")
+    public ResponseEntity<?> getStorageBinByStatusNotEqual(@PathVariable String warehouseId,
+                                                           @RequestParam Long statusId) {
+        List<StorageBin> storagebin = storagebinService.getStorageBinByStatusNotEqual(warehouseId, statusId);
+        log.info("StorageBin : " + storagebin);
+        return new ResponseEntity<>(storagebin, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = StorageBin.class, value = "Like Search StorageBin") // label for swagger
+    @GetMapping("/findStorageBinByLike")
+    public List<StorageBinListImpl> getStorageBinLikeSearch(@RequestParam String likeSearchByStorageBinNDesc)
+            throws Exception {
+        return storagebinService.findStorageBinLikeSearch(likeSearchByStorageBinNDesc);
+    }
 
     //Like Search filter ItemCode, Description, Company Code, Plant, Language and warehouse
     @ApiOperation(response = StorageBin.class, value = "Like Search StorageBin New") // label for swagger
@@ -148,22 +155,22 @@ public class StorageBinController {
         }
     }
 
-//    @ApiOperation(response = StorageBin.class, value = "Get a StorageBin") // label for swagger
-//    @GetMapping("/sectionId")
-//    public ResponseEntity<?> getStorageBinByStorageSectionId(@RequestParam String warehouseId, @RequestParam List<String> stSectionIds) {
-//
-//        List<StorageBin> storagebin = storagebinService.getStorageBin(warehouseId, stSectionIds);
-//        log.info("StorageBin : " + storagebin);
-//        return new ResponseEntity<>(storagebin, HttpStatus.OK);
-//    }
-//
-//    @ApiOperation(response = StorageBin.class, value = "Get a StorageBin") // label for swagger
-//    @GetMapping("/{warehouseId}/bins/{binClassId}")
-//    public ResponseEntity<?> getStorageBin(@PathVariable String warehouseId, @PathVariable Long binClassId) {
-//        StorageBin storagebin = storagebinService.getStorageBin(warehouseId, binClassId);
-//        log.info("StorageBin : " + storagebin);
-//        return new ResponseEntity<>(storagebin, HttpStatus.OK);
-//    }
+    @ApiOperation(response = StorageBin.class, value = "Get a StorageBin") // label for swagger
+    @GetMapping("/sectionId")
+    public ResponseEntity<?> getStorageBinByStorageSectionId(@RequestParam String warehouseId, @RequestParam List<String> stSectionIds) {
+
+        List<StorageBin> storagebin = storagebinService.getStorageBin(warehouseId, stSectionIds);
+        log.info("StorageBin : " + storagebin);
+        return new ResponseEntity<>(storagebin, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = StorageBin.class, value = "Get a StorageBin") // label for swagger 
+    @GetMapping("/{warehouseId}/bins/{binClassId}")
+    public ResponseEntity<?> getStorageBin(@PathVariable String warehouseId, @PathVariable Long binClassId) {
+        StorageBin storagebin = storagebinService.getStorageBin(warehouseId, binClassId);
+        log.info("StorageBin : " + storagebin);
+        return new ResponseEntity<>(storagebin, HttpStatus.OK);
+    }
 
     @ApiOperation(response = StorageBin.class, value = "Search StorageBin") // label for swagger
     @PostMapping("/findStorageBin")
@@ -238,7 +245,13 @@ public class StorageBinController {
     }
 
     //--------------------------------------------------------V2------------------------------------------------
-//   /
+    @ApiOperation(response = StorageBinV2.class, value = "Get a StorageBin V2") // label for swagger
+    @GetMapping("/v2/{storageBin}/warehouseId")
+    public ResponseEntity<?> getStorageBinV2(@PathVariable String storageBin, @RequestParam String warehouseId) {
+        StorageBinV2 storagebin = storagebinService.getStorageBinV2(warehouseId, storageBin);
+        log.info("StorageBin : " + storagebin);
+        return new ResponseEntity<>(storagebin, HttpStatus.OK);
+    }
 
     @ApiOperation(response = StorageBinV2.class, value = "Get a StorageBin V2") // label for swagger
     @GetMapping("/{storageBin}/warehouseId/v2")
@@ -292,18 +305,18 @@ public class StorageBinController {
             DataBaseContextHolder.setCurrentDb(routingDb);
             StorageBin storageBin = null;
             if (routingDb != null) {
-//                switch (routingDb) {
-//                    case "AUTO_LAP":
-//                    case "FAHAHEEL":
-//                        storageBin = storagebinService.getStorageBinByBinClassIdV2(warehouseId, binClassId, companyCode, plantId, languageId);
-//                        break;
-//                    case "REEFERON":
-//                        storageBin = storagebinService.getStorageBinByBinClassIdV5(warehouseId, binClassId, companyCode, plantId, languageId);
-//                        break;
-//                    case "NAMRATHA":
+                switch (routingDb) {
+                    case "AUTO_LAP":
+                    case "FAHAHEEL":
                         storageBin = storagebinService.getStorageBinByBinClassIdV2(warehouseId, binClassId, companyCode, plantId, languageId);
-//                        break;
-//                }
+                        break;
+                    case "REEFERON":
+                        storageBin = storagebinService.getStorageBinByBinClassIdV5(warehouseId, binClassId, companyCode, plantId, languageId);
+                        break;
+                    case "NAMRATHA":
+                        storageBin = storagebinService.getStorageBinByBinClassIdV2(warehouseId, binClassId, companyCode, plantId, languageId);
+                        break;
+                }
             }
             log.info("StorageBin : " + storageBin);
             return new ResponseEntity<>(storageBin, HttpStatus.OK);

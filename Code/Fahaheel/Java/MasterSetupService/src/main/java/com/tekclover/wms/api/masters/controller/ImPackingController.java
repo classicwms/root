@@ -48,7 +48,14 @@ public class ImPackingController {
 
 	@Autowired
 	DbConfigRepository dbConfigRepository;
-
+	
+    @ApiOperation(response = ImPacking.class, value = "Get all ImPacking details") // label for swagger
+	@GetMapping("")
+	public ResponseEntity<?> getAll() {
+		List<ImPacking> impackingList = impackingService.getImPackings();
+		return new ResponseEntity<>(impackingList, HttpStatus.OK); 
+	}
+    
     @ApiOperation(response = ImPacking.class, value = "Get a ImPacking") // label for swagger 
 	@GetMapping("/{packingMaterialNo}")
 	public ResponseEntity<?> getImPacking(@PathVariable String packingMaterialNo,@RequestParam String companyCodeId,@RequestParam String plantId,@RequestParam String languageId,@RequestParam String warehouseId,@RequestParam String itemCode) {

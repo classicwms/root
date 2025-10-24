@@ -46,6 +46,13 @@ public class RouteController {
     @Autowired
     private RouteService routeService;
 
+    @ApiOperation(response = Route.class, value = "Get all Route details") // label for swagger
+    @GetMapping("")
+    public ResponseEntity<?> getAll() {
+        List<Route> routeList = routeService.getAllRoute();
+        return new ResponseEntity<>(routeList, HttpStatus.OK);
+    }
+
     @ApiOperation(response = Route.class, value = "Get a Route") // label for swagger
     @GetMapping("/{routeId}")
     public ResponseEntity<?> getRoute(@PathVariable Long routeId, @RequestParam String companyCodeId,

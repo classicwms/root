@@ -47,6 +47,38 @@ public class CbmInboundService {
     @Autowired
     private CbmInboundRepository cbmInboundRepository;
 
+    /**
+     * getCbmInbounds
+     * @return
+     */
+    public List<CbmInbound> getCbmInbounds () {
+        List<CbmInbound>CbmInboundList =  cbmInboundRepository.findAll();
+        CbmInboundList = CbmInboundList.stream().filter(n -> n.getDeletionIndicator() == 0).collect(Collectors.toList());
+        List<CbmInbound> newCbmInbound = new ArrayList<>();
+        for (CbmInbound dbCbmInbound : CbmInboundList) {
+            if (dbCbmInbound.getCompanyIdAndDescription() != null && dbCbmInbound.getPlantIdAndDescription() != null && dbCbmInbound.getWarehouseIdAndDescription() != null && dbCbmInbound.getItemCodeAndDescription() != null) {
+
+                IKeyValuePair iKeyValuePair = priceListRepository.getCompanyIdAndDescription(dbCbmInbound.getCompanyCodeId(), dbCbmInbound.getLanguageId());
+                IKeyValuePair iKeyValuePair1 = priceListRepository.getPlantIdAndDescription(dbCbmInbound.getPlantId(), dbCbmInbound.getLanguageId(), dbCbmInbound.getCompanyCodeId());
+                IKeyValuePair iKeyValuePair2 = priceListRepository.getWarehouseIdAndDescription(dbCbmInbound.getWarehouseId(), dbCbmInbound.getLanguageId(), dbCbmInbound.getCompanyCodeId(), dbCbmInbound.getPlantId());
+                IKeyValuePair iKeyValuePair3 = imBasicData1Repository.getItemCodeAndDescription(dbCbmInbound.getWarehouseId(), dbCbmInbound.getLanguageId(), dbCbmInbound.getItemCode(), dbCbmInbound.getCompanyCodeId(), dbCbmInbound.getPlantId(),dbCbmInbound.getUomId());
+                if (iKeyValuePair != null) {
+                    dbCbmInbound.setCompanyIdAndDescription(iKeyValuePair.getCompanyCodeId() + "-" + iKeyValuePair.getDescription());
+                }
+                if (iKeyValuePair1 != null) {
+                    dbCbmInbound.setPlantIdAndDescription(iKeyValuePair1.getPlantId() + "-" + iKeyValuePair1.getDescription());
+                }
+                if (iKeyValuePair2 != null) {
+                    dbCbmInbound.setWarehouseIdAndDescription(iKeyValuePair2.getWarehouseId() + "-" + iKeyValuePair2.getDescription());
+                }
+                if (iKeyValuePair3 != null) {
+                    dbCbmInbound.setItemCodeAndDescription(iKeyValuePair3.getItemCode() + "-" + iKeyValuePair3.getDescription());
+                }
+                newCbmInbound.add(dbCbmInbound);
+            }
+        }
+        return newCbmInbound;
+    }
 
     /**
      * getCbmInbound
