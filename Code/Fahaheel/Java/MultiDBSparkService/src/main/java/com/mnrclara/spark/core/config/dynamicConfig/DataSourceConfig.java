@@ -93,9 +93,9 @@ public class DataSourceConfig {
 //
 //        // Primary data source (default)
 //        DataSource primaryDataSource = DataSourceBuilder.create()
-//                .url("jdbc:sqlserver://3.111.134.239;databaseName=wms_imf")
+//                .url("jdbc:sqlserver://3.111.134.239;databaseName=WMS_MT")
 //                .username("sa")
-//                .password("9SOwjgFjm0sM7qMOFz16mICJUx")
+//                .password("4V7lOXaxgAi3i6mgJL7qBUSPM")
 //                .driverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver")
 //                .build();
 //
@@ -105,7 +105,7 @@ public class DataSourceConfig {
 //        DataSource secondaryDataSource = DataSourceBuilder.create()
 //                .url("jdbc:sqlserver://3.111.134.239;databaseName=WMS_IMPEX")
 //                .username("sa")
-//                .password("9SOwjgFjm0sM7qMOFz16mICJUx")
+//                .password("4V7lOXaxgAi3i6mgJL7qBUSPM")
 //                .driverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver")
 //                .build();
 //
@@ -145,27 +145,27 @@ public class DataSourceConfig {
         switch (dbName) {
             case "IMF":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://10.10.22.24;databaseName=wms_imf");
+                dataSource.setUrl("jdbc:sqlserver://10.10.10.61;databaseName=WMS_MT");
                 dataSource.setUsername("sa");
-                dataSource.setPassword("9SOwjgFjm0sM7qMOFz16mICJUx");
+                dataSource.setPassword("4V7lOXaxgAi3i6mgJL7qBUSPM");
                 break;
             case "IMPEX":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://10.10.22.24;databaseName=WMS_IMPEX");
+                dataSource.setUrl("jdbc:sqlserver://10.10.10.61;databaseName=WMS_IMPEX");
                 dataSource.setUsername("sa");
-                dataSource.setPassword("9SOwjgFjm0sM7qMOFz16mICJUx");
+                dataSource.setPassword("4V7lOXaxgAi3i6mgJL7qBUSPM");
                 break;
             case "WK":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://10.10.22.24;databaseName=WMS_WK");
+                dataSource.setUrl("jdbc:sqlserver://10.10.10.61;databaseName=WMS_WK");
                 dataSource.setUsername("sa");
-                dataSource.setPassword("9SOwjgFjm0sM7qMOFz16mICJUx");
+                dataSource.setPassword("4V7lOXaxgAi3i6mgJL7qBUSPM");
                 break;
             case "REEFERON":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://10.10.22.24;databaseName=REEFERON_DEV");
+                dataSource.setUrl("jdbc:sqlserver://10.10.10.61;databaseName=REEFERON_DEV");
                 dataSource.setUsername("sa");
-                dataSource.setPassword("9SOwjgFjm0sM7qMOFz16mICJUx");
+                dataSource.setPassword("4V7lOXaxgAi3i6mgJL7qBUSPM");
                 break;
             default:
                 throw new IllegalArgumentException("Unknown database: " + dbName);

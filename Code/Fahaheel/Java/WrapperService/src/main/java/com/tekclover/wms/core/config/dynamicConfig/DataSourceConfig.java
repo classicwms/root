@@ -93,7 +93,7 @@
 ////
 ////        // Primary data source (default)
 ////        DataSource primaryDataSource = DataSourceBuilder.create()
-////                .url("jdbc:sqlserver://3.111.134.239;databaseName=wms_imf")
+////                .url("jdbc:sqlserver://3.111.134.239;databaseName=WMS_MT")
 ////                .username("sa")
 ////                .password("Do1cavIFK4^$pQ^zZYsX")
 ////                .driverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver")
@@ -151,7 +151,7 @@
 //        switch (dbName) {
 //            case "MT":
 //                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-//                dataSource.setUrl("jdbc:sqlserver://3.111.203.218;databaseName=wms_imf");
+//                dataSource.setUrl("jdbc:sqlserver://3.111.203.218;databaseName=WMS_MT");
 //                dataSource.setUsername("sa");
 //                dataSource.setPassword("Do1cavIFK4^$pQ^zZYsX");
 //                break;

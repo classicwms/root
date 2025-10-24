@@ -8,7 +8,7 @@ public class DatabaseConnectionUtil {
 
     //==========================================Almailem===========================================
     public static String getJdbcUrl() {
-        return "jdbc:sqlserver://10.10.22.24;databaseName=WMS_ALMDEV_SPLIT";
+        return "jdbc:sqlserver://10.10.10.61;databaseName=WMS_ALMDEV_SPLIT";
     }
 
     public static String getNamrathaJdbcUrl() {
@@ -26,7 +26,7 @@ public class DatabaseConnectionUtil {
     public static Properties getDatabaseConnectionProperties() {
         Properties connProp = new Properties();
         connProp.put("user", "sa");
-        connProp.put("password", "9SOwjgFjm0sM7qMOFz16mICJUx");
+        connProp.put("password", "4V7lOXaxgAi3i6mgJL7qBUSPM");
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }
@@ -34,13 +34,13 @@ public class DatabaseConnectionUtil {
 
     //============================================ WMS Indus Mega Food================================
     public static String getIMFCoreJdbcUrl() {
-        return "jdbc:sqlserver://10.10.22.24;databaseName=WMS_IMF";
+        return "jdbc:sqlserver://10.10.10.61;databaseName=WMS_MT";
     }
 
     public static Properties getIMFCoreDatabaseConnectionProperties() {
         Properties connProp = new Properties();
         connProp.put("user", "sa");
-        connProp.put("password", "9SOwjgFjm0sM7qMOFz16mICJUx");
+        connProp.put("password", "4V7lOXaxgAi3i6mgJL7qBUSPM");
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }
@@ -60,38 +60,38 @@ public class DatabaseConnectionUtil {
 
     //============================================ WMS Walkaroo V3================================
     public static String getWalkarooCoreJdbcUrl() {
-        return "jdbc:sqlserver://10.10.22.24;databaseName=WMS_WK";
+        return "jdbc:sqlserver://10.10.10.61;databaseName=WMS_WK";
     }
 
     public static Properties getWalkarooCoreDatabaseConnectionProperties() {
         Properties connProp = new Properties();
         connProp.put("user", "sa");
-        connProp.put("password", "9SOwjgFjm0sM7qMOFz16mICJUx");
+        connProp.put("password", "4V7lOXaxgAi3i6mgJL7qBUSPM");
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }
 
     //============================================ WMS Impex UAT V4================================
     public static String getImpexJdbcUrl() {
-        return "jdbc:sqlserver://10.10.22.24;databaseName=WMS_IMPEX_UAT";
+        return "jdbc:sqlserver://10.10.10.61;databaseName=WMS_IMPEX_UAT";
     }
 
     public static Properties getImpexDatabaseConnectionProperties() {
         Properties connProp = new Properties();
         connProp.put("user", "sa");
-        connProp.put("password", "9SOwjgFjm0sM7qMOFz16mICJUx");
+        connProp.put("password", "4V7lOXaxgAi3i6mgJL7qBUSPM");
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }
     //============================================ WMS Impex Dev V4================================
     public static String getImpexDevJdbcUrl() {
-        return "jdbc:sqlserver://10.10.22.24;databaseName=WMS_IMPEX";
+        return "jdbc:sqlserver://10.10.10.61;databaseName=WMS_IMPEX";
     }
 
     public static Properties getImpexDevDatabaseConnectionProperties() {
         Properties connProp = new Properties();
         connProp.put("user", "sa");
-        connProp.put("password", "9SOwjgFjm0sM7qMOFz16mICJUx");
+        connProp.put("password", "4V7lOXaxgAi3i6mgJL7qBUSPM");
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }
@@ -99,13 +99,13 @@ public class DatabaseConnectionUtil {
     //==========================================Reeferon==============================================
 
     public static String getReeferonJdbcUrl() {
-        return "jdbc:sqlserver://10.10.22.24;databaseName=REEFERON_DEV";
+        return "jdbc:sqlserver://10.10.10.61;databaseName=REEFERON_DEV";
     }
 
     public static Properties getReeferonDatabaseConnectionProperties() {
         Properties connProp = new Properties();
         connProp.put("user", "sa");
-        connProp.put("password", "9SOwjgFjm0sM7qMOFz16mICJUx");
+        connProp.put("password", "4V7lOXaxgAi3i6mgJL7qBUSPM");
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }
@@ -113,13 +113,13 @@ public class DatabaseConnectionUtil {
     //==========================================Knowell==============================================
 
     public static String getKnowellJdbcUrl() {
-        return "jdbc:sqlserver://10.10.22.24;databaseName=WMS_KNOWELL_DEV";
+        return "jdbc:sqlserver://10.10.10.61;databaseName=WMS_KNOWELL_DEV";
     }
 
     public static Properties getKnowellDatabaseConnectionProperties() {
         Properties connProp = new Properties();
         connProp.put("user", "sa");
-        connProp.put("password", "9SOwjgFjm0sM7qMOFz16mICJUx");
+        connProp.put("password", "4V7lOXaxgAi3i6mgJL7qBUSPM");
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }
@@ -127,13 +127,13 @@ public class DatabaseConnectionUtil {
     //===============================================FAHAHEEL=======================================
 
     public static String getFahaeelJdbcUrl() {
-        return"jdbc:sqlserver://10.10.22.24;databaseName=WMS_FAHAHEEL";
+        return"jdbc:sqlserver://10.10.10.61;databaseName=WMS_FAHAHEEL";
     }
 
     public static Properties getFahaeelDatabaseConnectionProperties() {
         Properties connProp = new Properties();
         connProp.put("user", "sa");
-        connProp.put("password", "9SOwjgFjm0sM7qMOFz16mICJUx");
+        connProp.put("password", "4V7lOXaxgAi3i6mgJL7qBUSPM");
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }
@@ -141,13 +141,13 @@ public class DatabaseConnectionUtil {
     //===============================================AUTO_LAP=======================================
 
     public static String getAutoLapJdbcUrl() {
-        return"jdbc:sqlserver://10.10.22.24;databaseName=WMS_AUTO_LAP";
+        return"jdbc:sqlserver://10.10.10.61;databaseName=WMS_AUTO_LAP";
     }
 
     public static Properties getAutoLapDatabaseConnectionProperties() {
         Properties connProp = new Properties();
         connProp.put("user", "sa");
-        connProp.put("password", "9SOwjgFjm0sM7qMOFz16mICJUx");
+        connProp.put("password", "4V7lOXaxgAi3i6mgJL7qBUSPM");
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }
@@ -179,13 +179,13 @@ public class DatabaseConnectionUtil {
     }
 
     public static String getMMFJdbcUrl() {
-        return "jdbc:sqlserver://10.10.22.24;databaseName=WMS_MMF";
+        return "jdbc:sqlserver://10.10.10.61;databaseName=WMS_MMF";
     }
 
     public static Properties getMMFDatabaseConnectionProperties() {
         Properties connProp = new Properties();
         connProp.put("user", "sa");
-        connProp.put("password", "9SOwjgFjm0sM7qMOFz16mICJUx");
+        connProp.put("password", "4V7lOXaxgAi3i6mgJL7qBUSPM");
         connProp.put("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         return connProp;
     }

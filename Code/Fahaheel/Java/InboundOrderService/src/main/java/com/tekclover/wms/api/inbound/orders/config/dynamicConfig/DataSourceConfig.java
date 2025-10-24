@@ -51,16 +51,16 @@ public class DataSourceConfig {
 
 //            case "MT":
 //                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-//                dataSource.setUrl("jdbc:sqlserver://localhost:1433;databaseName=wms_imf");
+//                dataSource.setUrl("jdbc:sqlserver://localhost:1433;databaseName=WMS_MT");
 //                dataSource.setUsername("sa");
 //                dataSource.setPassword("root");
 //                break;
 
             case "MT":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://10.10.22.24;databaseName=wms_imf");
+                dataSource.setUrl("jdbc:sqlserver://10.10.10.61;databaseName=WMS_MT");
                 dataSource.setUsername("sa");
-                dataSource.setPassword("9SOwjgFjm0sM7qMOFz16mICJUx");
+                dataSource.setPassword("4V7lOXaxgAi3i6mgJL7qBUSPM");
                 break;
 
 
@@ -73,9 +73,9 @@ public class DataSourceConfig {
 
             case "FAHAHEEL":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://10.10.22.24;databaseName=WMS_FAHAHEEL");
+                dataSource.setUrl("jdbc:sqlserver://10.10.10.61;databaseName=WMS_FAHAHEEL");
                 dataSource.setUsername("sa");
-                dataSource.setPassword("9SOwjgFjm0sM7qMOFz16mICJUx");
+                dataSource.setPassword("4V7lOXaxgAi3i6mgJL7qBUSPM");
                 break;
 
 
@@ -83,7 +83,7 @@ public class DataSourceConfig {
 //                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
 //                dataSource.setUrl("jdbc:sqlserver://localhost;databaseName=WMS_AUTO_LAP");
 //                dataSource.setUsername("sa");
-//                dataSource.setPassword("9SOwjgFjm0sM7qMOFz16mICJUx");
+//                dataSource.setPassword("4V7lOXaxgAi3i6mgJL7qBUSPM");
 //                break;
 //
 //            case "JAHRA":

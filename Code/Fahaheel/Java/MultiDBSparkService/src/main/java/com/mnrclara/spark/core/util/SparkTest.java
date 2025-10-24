@@ -31,12 +31,12 @@ public class SparkTest {
 		val connProp = new Properties();
 		connProp.setProperty("driver", "com.mysql.cj.jdbc.Driver");
 		connProp.put("user", "root");
-		connProp.put("password", "9SOwjgFjm0sM7qMOFz16mICJUx");
+		connProp.put("password", "4V7lOXaxgAi3i6mgJL7qBUSPM");
 
 		// Read from MySQL Table
-//		val df = spark.read().jdbc("jdbc:mysql://10.10.22.24:3306/MNRCLARA", "tblmattergenaccid", connProp);
-//		val df1 = spark.read().jdbc("jdbc:mysql://10.10.22.24:3306/MNRCLARA", "tblclientgeneralid", connProp);
-		val df2 = spark.read().jdbc("jdbc:mysql://10.10.22.24:3306/MNRCLARA", "tblinvoiceheader", connProp);
+//		val df = spark.read().jdbc("jdbc:mysql://10.10.10.61:3306/MNRCLARA", "tblmattergenaccid", connProp);
+//		val df1 = spark.read().jdbc("jdbc:mysql://10.10.10.61:3306/MNRCLARA", "tblclientgeneralid", connProp);
+		val df2 = spark.read().jdbc("jdbc:mysql://10.10.10.61:3306/MNRCLARA", "tblinvoiceheader", connProp);
 		df2.createOrReplaceTempView("tblinvoiceheader");
 		
 //		df1.createOrReplaceTempView("tblclientgeneralid");
@@ -88,10 +88,10 @@ public class SparkTest {
 		val connProp = new Properties();
 		connProp.setProperty("driver", "com.mysql.cj.jdbc.Driver");
 		connProp.put("user", "root");
-		connProp.put("password", "9SOwjgFjm0sM7qMOFz16mICJUx");
+		connProp.put("password", "4V7lOXaxgAi3i6mgJL7qBUSPM");
 	
 		// Read from MySQL Table
-		val df2 = spark.read().jdbc("jdbc:mysql://10.10.22.24:3306/MNRCLARA", "tblinvoiceheader", connProp);
+		val df2 = spark.read().jdbc("jdbc:mysql://10.10.10.61:3306/MNRCLARA", "tblinvoiceheader", connProp);
 		df2.createOrReplaceTempView("tblinvoiceheader");
 			
 		Dataset<Row> queryDF = spark.sql("SELECT LANG_ID as languageId, CLASS_ID as classId, \r\n"
