@@ -1,0 +1,70 @@
+plugins {
+        id 'org.springframework.boot' version '2.4.0'
+        id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+        id 'java'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+repositories {
+        mavenCentral()
+}
+
+configurations {
+        developmentOnly
+        runtimeClasspath {
+                extendsFrom developmentOnly
+        }
+}
+
+configurations.all {
+        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+}
+
+dependencies {
+        compileOnly 'org.projectlombok:lombok:1.18.16'
+        compileOnly("org.springframework.boot:spring-boot-devtools")
+
+        annotationProcessor 'org.projectlombok:lombok:1.18.16'
+
+        compile group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
+        compile group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: '2.4.1'
+        compile group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc', version: '2.4.1'
+        compile group: 'org.springframework.security.oauth', name: 'spring-security-oauth2', version: '2.5.0.RELEASE'
+        compile group: 'org.springframework.security', name: 'spring-security-jwt', version: '1.0.2.RELEASE'
+
+        compile("io.springfox:springfox-swagger2:2.9.2") {
+                exclude module: 'mapstruct' // necessary in my case to not end up with multiple mapstruct versions
+        }
+        compile "io.springfox:springfox-bean-validators:2.9.2"
+        compile "io.springfox:springfox-swagger-ui:2.9.2"
+        compile 'org.apache.logging.log4j:log4j-to-slf4j:2.13.3'
+        compile group: 'com.microsoft.sqlserver', name: 'mssql-jdbc', version: '6.1.4.jre8-preview'
+        implementation group: 'com.microsoft.sqlserver', name: 'mssql-jdbc', version: '8.1.0.jre8-preview'
+
+        implementation 'mysql:mysql-connector-java:8.0.28'
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+        runtimeOnly 'mysql:mysql-connector-java'
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        developmentOnly("org.springframework.boot:spring-boot-devtools")
+
+        // https://mvnrepository.com/artifact/org.apache.spark/spark-core
+        implementation group: 'org.apache.spark', name: 'spark-core_2.11', version: '2.2.0'
+        compileOnly group: 'org.apache.spark', name: 'spark-sql_2.11', version: '2.2.0'
+
+        implementation group: 'io.netty', name: 'netty-all', version: '4.1.24.Final'
+        implementation group: 'org.codehaus.janino', name: 'janino', version: '3.0.7'
+
+        implementation group: 'org.apache.spark', name: 'spark-core_2.11', version: '2.4.5'
+        implementation group: 'org.apache.spark', name: 'spark-sql_2.11', version: '2.4.5'
+
+        implementation group: 'io.netty', name: 'netty-all', version: '4.1.24.Final'
+        implementation group: 'org.codehaus.janino', name: 'janino', version: '3.0.7'
+}
+
+test {
+        useJUnitPlatform()
+}
