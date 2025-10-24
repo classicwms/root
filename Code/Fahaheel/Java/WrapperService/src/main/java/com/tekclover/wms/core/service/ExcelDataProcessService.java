@@ -1,6 +1,7 @@
 package com.tekclover.wms.core.service;
 
 
+import com.tekclover.wms.core.model.masters.ImPartner;
 import com.tekclover.wms.core.model.masters.StorageBinV2;
 import com.tekclover.wms.core.model.transaction.InventoryV2;
 import com.tekclover.wms.core.model.warehouse.inbound.almailem.InboundOrderProcessV4;
@@ -1867,6 +1868,102 @@ public class ExcelDataProcessService {
                         break;
                     case "deletionindicator" :
                         invokeSetter(inventoryV2, "setDeletionIndicator", cell != null ? getCellValueAsLong(cell) : null);
+                        break;
+                }
+            }
+        } catch (Exception e) {
+            log.info("Inventory Upload Field Set Failed <----------------------------->" + e.getMessage());
+        }
+    }
+
+    //===============================================ImPartner===========================================
+
+    public List<ImPartner> imPartnerReadExcelFile(String companyCodeId, String plantId, String languageID, String warehouseId, String loginUserId, MultipartFile file) throws IOException {
+        List<ImPartner> imPartnerList = new ArrayList<>();
+        // Create Workbook for Excel file
+        Workbook workbook = new XSSFWorkbook(file.getInputStream());
+        Sheet sheet = workbook.getSheetAt(0);
+        //Get the header row first row
+        Row headerRow = sheet.getRow(0);
+        // Map column names their corresponding index
+        Map<String, Integer> columnIndexMap = new HashMap<>();
+        for (Cell cell : headerRow) {
+            columnIndexMap.put(cell.getStringCellValue().toLowerCase().trim(), cell.getColumnIndex());
+        }
+
+        // Iterate through rows (skip the header row)
+        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+            Row row = sheet.getRow(i);
+            if (row != null) {
+
+                ImPartner imPartner = new ImPartner();
+                setFieldByColumnNameImp(imPartner, row, columnIndexMap);
+                imPartner.setCompanyCodeId(companyCodeId);
+                imPartner.setPlantId(plantId);
+                imPartner.setLanguageId(languageID);
+                imPartner.setWarehouseId(warehouseId);
+                imPartner.setCreatedBy(loginUserId);
+                // Add the mapped delivery object to the list
+                imPartnerList.add(imPartner);
+            }
+        }
+
+        // Close the workbook to free resource
+        workbook.close();
+        return imPartnerList;
+    }
+    public void setFieldByColumnNameImp(ImPartner imPartner, Row row, Map<String, Integer> columnIntexMap) {
+        try {
+            for (Map.Entry<String, Integer> entry : columnIntexMap.entrySet()) {
+
+                String columnName = entry.getKey().replaceAll("\\s+", "");
+                Integer columnIndex = entry.getValue();
+                Cell cell = row.getCell(columnIndex);
+
+                switch (columnName) {
+
+                    case "businesspartnercode" :
+                        invokeSetter(imPartner, "setBusinessPartnerCode", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "itemcode" :
+                        invokeSetter(imPartner, "setItemCode", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "businesspartnertype" :
+                        invokeSetter(imPartner, "setBusinessPartnerType", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "partneritembarcode" :
+                        invokeSetter(imPartner, "setPartnerItemBarcode", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "manufacturercode" :
+                        invokeSetter(imPartner, "setManufacturerCode", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "manufacturername" :
+                        invokeSetter(imPartner, "setManufacturerName", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "brandname" :
+                        invokeSetter(imPartner, "setBrandName", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "partnername" :
+                        invokeSetter(imPartner, "setPartnerName", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "partneritemno" :
+                        invokeSetter(imPartner, "setPartnerItemNo", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "vendoritembarcode" :
+                        invokeSetter(imPartner, "setVendorItemBarcode", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "mfrbarcode" :
+                        invokeSetter(imPartner, "setMfrBarcode", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+                    case "stockuom" :
+                        invokeSetter(imPartner, "setStockUom", cell != null ? getCellValueAsString(cell) : null);
+                        break;
+
+                    case "stock" :
+                        invokeSetter(imPartner, "setStock", cell != null ? getCellValueAsDouble(cell) : null);
+                        break;
+                    case "statusid" :
+                        invokeSetter(imPartner, "setStatusId", cell != null ? getCellValueAsLong(cell) : null);
                         break;
                 }
             }

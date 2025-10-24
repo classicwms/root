@@ -5531,5 +5531,28 @@ public class MastersService {
             throw e;
         }
     }
+
+    //===========================================ImPartner============================================
+    public WarehouseApiResponse[] postImPartner(List<ImPartner> imPartner,String authToken){
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent","RestTemplate");
+            headers.add("Authorization","Bearer "+ authToken);
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getMastersServiceUrl() + "impartner/upload/ImPartner");
+            HttpEntity<?> entity = new HttpEntity<>(imPartner, headers);
+            ResponseEntity<WarehouseApiResponse[]> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse[].class);
+            log.info("result : "+ result.getStatusCode());
+            return result.getBody();
+
+        }catch (Exception e){
+            e.printStackTrace();
+            throw e;
+        }
+
+    }
 }
 		

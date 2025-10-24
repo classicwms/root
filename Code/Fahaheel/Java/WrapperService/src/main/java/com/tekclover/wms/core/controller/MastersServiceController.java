@@ -2487,4 +2487,16 @@ public class MastersServiceController {
         Map<String, String> response = fileStorageService.processImBasicData1(companyCodeId, plantId, languageId, warehouseId, loginUserID, file);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    //========================================ImPartner Upload====================================
+    @ApiOperation(response = EMailDetails.class, value = "ImPartner Upload") // label for swagger
+    @PostMapping("/upload/ImPartner")
+    public ResponseEntity<?> postInventory(@RequestParam String companyCodeId, @RequestParam String plantId,
+                                           @RequestParam String languageID, @RequestParam String warehouseId,
+                                           @RequestParam String loginUserID,@RequestParam("file") MultipartFile file) throws Exception {
+
+        Map<String, String> response=null;
+        response = fileStorageService.processImPartner(companyCodeId,plantId,languageID,warehouseId,loginUserID,file);
+        return new ResponseEntity<>(response,HttpStatus.OK);
+    }
 }

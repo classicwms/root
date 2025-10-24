@@ -6,6 +6,7 @@ import com.tekclover.wms.core.config.PropertiesConfig;
 import com.tekclover.wms.core.exception.BadRequestException;
 import com.tekclover.wms.core.model.auth.AuthToken;
 import com.tekclover.wms.core.model.dto.Error;
+import com.tekclover.wms.core.model.masters.ImPartner;
 import com.tekclover.wms.core.model.masters.StorageBinV2;
 import com.tekclover.wms.core.model.transaction.*;
 import com.tekclover.wms.core.model.warehouse.inbound.WarehouseApiResponse;
@@ -3904,6 +3905,164 @@ public class FileStorageService {
         }
 
         return saveInventory;
+    }
+
+    //=================================================ImPartner==============================================
+
+    public Map<String, String> processImPartner(String companyCodeId, String plantId, String languageID,
+                                                String warehouseId,String loginUserId, MultipartFile file) throws Exception {
+        this.fileStorageLocation = Paths.get(propertiesConfig.getFileUploadDir()).toAbsolutePath().normalize();
+        if (!Files.exists(fileStorageLocation)) {
+            try {
+                Files.createDirectories(this.fileStorageLocation);
+            } catch (Exception ex) {
+                throw new BadRequestException(
+                        "Could not create the directory where the uploaded files will be stored.");
+            }
+        }
+
+        List<String> validationErrors = validationImPartner(file);
+        if (!validationErrors.isEmpty()) {
+            List<Error> errors = validationFormatInbound(validationErrors);
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonResponse = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(errors);
+            Map<String, String> mapFileProps = new HashMap<>();
+            mapFileProps.put("errors", jsonResponse);
+            return mapFileProps;
+        }
+
+        log.info("loca : " + fileStorageLocation);
+
+        // Normalize file name
+        String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+        log.info("filename before: " + fileName);
+        fileName = fileName.replace(" ", "_");
+        log.info("filename after: " + fileName);
+        try {
+            // Check if the file's name contains invalid characters
+            if (fileName.contains("..")) {
+                throw new BadRequestException("Sorry! Filename contains invalid path sequence " + fileName);
+            }
+
+            // Copy file to the target location (Replacing existing file with the same name)
+            Path targetLocation = this.fileStorageLocation.resolve(fileName);
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            log.info("Copied : " + targetLocation);
+
+            List<ImPartner> allRowsList = excelDataProcessService.imPartnerReadExcelFile(companyCodeId, plantId, languageID, warehouseId, loginUserId, file);
+
+            if (allRowsList != null && !allRowsList.isEmpty()) {
+                // Uploading
+                WarehouseApiResponse[] dbWarehouseApiResponse = new WarehouseApiResponse[0];
+                List<ImPartner> impartner = imPartner(companyCodeId, plantId, languageID, warehouseId, loginUserId, allRowsList);
+                log.info("impartner size " + impartner.size());
+                AuthToken authToken = authTokenService.getMastersServiceAuthToken();
+                dbWarehouseApiResponse = mastersService.postImPartner(impartner, authToken.getAccess_token());
+
+                if (dbWarehouseApiResponse != null) {
+                    return uploadSuccessMessage(fileName);
+                }
+            }
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            throw new BadRequestException("Could not store file " + fileName + ". Please try again!");
+        }
+        return null;
+    }
+
+    // validation for Inventory
+    private List<String> validationImPartner(MultipartFile file) throws IOException {
+        List<String> errors = new ArrayList<>();
+
+        // Read Excel file
+        try (InputStream inputStream = file.getInputStream()) {
+            Workbook workbook = new XSSFWorkbook(inputStream);
+            Sheet sheet = workbook.getSheetAt(0);
+
+            // Assuming the first row contains the headers
+            Row headerRow = sheet.getRow(0);
+            // Validate data in each row (excluding the header row)
+            for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+                Row row = sheet.getRow(rowIndex);
+                // Skip the row if it is completely empty
+                if (isRowEmpty(row)) {
+                    continue;
+                }
+                for (int colIndex = 0; colIndex < headerRow.getPhysicalNumberOfCells(); colIndex++) {
+                    Cell cell = row.getCell(colIndex);
+                    String header = headerRow.getCell(colIndex).getStringCellValue().toLowerCase();
+
+                    // Validate cell based on header and column index
+                    if (cell != null) {
+                        switch (header) {
+                            case "businesspartnercode" :
+                            case "itemcode" :
+                            case "businesspartnertype" :
+                            case "partneritembarcode" :
+                            case "manufacturercode" :
+                            case "manufacturername" :
+                            case "brandname" :
+                            case "partnername" :
+                            case "partneritemno" :
+                            case "vendoritembarcode" :
+                            case "mfrbarcode" :
+                            case "stockuom" :
+
+                                validateStringCell(cell, rowIndex, colIndex, header, errors);
+                                break;
+                            case "stock" :
+                            case "statusid" :
+                                validateIntegerCell(cell, rowIndex, colIndex, header, errors);
+                                break;
+                            default:
+                                errors.add("Unknown header at row " + (rowIndex + 1) + ", column " + (colIndex + 1) + ": " + header);
+                                break;
+                        }
+                    } else
+                        switch (header) {
+                            case "businesspartnercode" :
+                            case "itemcode" :
+                            case "businesspartnertype" :
+                            case "partneritembarcode" :
+                            case "manufacturercode" :
+                            case "manufacturername" :
+                            case "partnername" :
+                            case "partneritemno" :
+                            case "vendoritembarcode" :
+                            case "mfrbarcode" :
+                                errors.add("Empty cell at row " + (rowIndex + 1) + ", column " + (colIndex + 1) + " (" + header + ") : : Mandatory Field cannot be empty.");
+                                break;
+                        }
+                }
+            }
+            if (errors.isEmpty()) {
+                System.out.println("No validation errors found.");
+            } else {
+                System.out.println("Validation errors:");
+                for (String error : errors) {
+                    System.out.println(error);
+                }
+            }
+        }
+        return errors;
+    }
+
+    private List<ImPartner> imPartner(String companyCodeId, String plantId,
+                                      String languageId, String warehouseId, String loginUserID, List<ImPartner> list) {
+        List<ImPartner> allRowsList = list.stream().sorted(Comparator.comparing(ImPartner::getBusinessPartnerCode)).collect(Collectors.toList());
+        List<ImPartner> saveImPartner = new ArrayList<>();
+        for (ImPartner imPartners: allRowsList) {
+            ImPartner imPartner = new ImPartner();
+            BeanUtils.copyProperties(imPartners,imPartner,CommonUtils.getNullPropertyNames(imPartners));
+            imPartner.setCompanyCodeId(companyCodeId);
+            imPartner.setPlantId(plantId);
+            imPartner.setWarehouseId(warehouseId);
+            imPartner.setLanguageId(languageId);
+            imPartner.setCreatedBy(loginUserID);
+            saveImPartner.add(imPartner);
+        }
+        return saveImPartner;
     }
 
 
