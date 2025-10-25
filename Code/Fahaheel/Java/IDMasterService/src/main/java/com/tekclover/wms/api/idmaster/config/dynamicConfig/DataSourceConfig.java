@@ -59,7 +59,7 @@ public class DataSourceConfig {
                 break;
             case "JAHRA":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://10.10.10.61;databaseName=WMS_JAHRA");
+                dataSource.setUrl("jdbc:sqlserver://10.10.10.61;databaseName=WMS_FAHAHEEL");
                 dataSource.setUsername("sa");
                 dataSource.setPassword("4V7lOXaxgAi3i6mgJL7qBUSPM");
                 break;
