@@ -58,6 +58,7 @@ public class MastersService {
     static CopyOnWriteArrayList<Item> spIMList = null;                     // Item Master List
     static CopyOnWriteArrayList<Customer> spCMList = null;                // Customer Master List
 
+    final List<String> branchCode = List.of("212", "115", "222", "125");
     //==========================================================================================================================
 
     private String getMasterServiceApiUrl() {
@@ -100,7 +101,7 @@ public class MastersService {
     public WarehouseApiResponse processItemMasterOrder() throws IllegalAccessException, InvocationTargetException {
         if (itemMasterList == null || itemMasterList.isEmpty()) {
 
-            List<ItemMaster> itemMasterOrderList = itemMasterRepository.findTopByProcessedStatusIdOrderByOrderReceivedOn(0L);
+            List<ItemMaster> itemMasterOrderList = itemMasterRepository.findByItemMaster(0L, branchCode);
             log.info("Latest Item Master found: " + itemMasterOrderList);
             itemMasterList = new ArrayList<>();
 
@@ -190,7 +191,7 @@ public class MastersService {
     public WarehouseApiResponse processCustomerMasterOrder() throws IllegalAccessException, InvocationTargetException {
         if (customerMasterList == null || customerMasterList.isEmpty()) {
 
-            List<CustomerMaster> customerMasterOrderList = customerMasterRepository.findTopByProcessedStatusIdOrderByOrderReceivedOn(0L);
+            List<CustomerMaster> customerMasterOrderList = customerMasterRepository.findByCustomerMaster(0L, branchCode);
             log.info("Latest Customer Master found: " + customerMasterOrderList);
             customerMasterList = new ArrayList<>();
 
