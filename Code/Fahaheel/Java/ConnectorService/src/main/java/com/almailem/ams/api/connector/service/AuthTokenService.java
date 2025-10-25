@@ -75,9 +75,15 @@ public class AuthTokenService {
 			accessTokenUrl = propertiesConfig.getIdmasterAccessTokenUrl();
 		} else if (apiUrl.equalsIgnoreCase("wms-transaction-service")) {
 			accessTokenUrl = propertiesConfig.getTransactionAccessTokenUrl();
-		}else {
-			log.info("The given URL is not available. Quiting.");
-			throw new BadRequestException("The given URL is not available. Quiting");
+		} else if(apiUrl.equalsIgnoreCase("wms-fh-masters-service")) {
+			accessTokenUrl = propertiesConfig.getFhMastersAccessTokenUrl();
+		} else if (apiUrl.equalsIgnoreCase("wms-fh-inboundorder-service")) {
+			accessTokenUrl = propertiesConfig.getFhInboundOrderAccessTokenUrl();
+		} else if(apiUrl.equalsIgnoreCase("wms-fh-outboundorder-service")) {
+			accessTokenUrl = propertiesConfig.getFhOutboundOrderAccessTokenUrl();
+		} else {
+				log.info("The given URL is not available. Quiting.");
+				throw new BadRequestException("The given URL is not available. Quiting");
 		}
 
 		log.info("Access token url: " + accessTokenUrl);
@@ -278,7 +284,7 @@ public class AuthTokenService {
 
 	public AuthToken getFhInboundOrderServiceAuthToken() {
 		AuthTokenRequest authTokenRequest = new AuthTokenRequest();
-		authTokenRequest.setApiName("wms-inboundorder-service");
+		authTokenRequest.setApiName("wms-fh-inboundorder-service");
 		authTokenRequest.setClientId(propertiesConfig.getClientId());
 		authTokenRequest.setClientSecretKey(propertiesConfig.getClientSecretKey());
 		authTokenRequest.setGrantType(propertiesConfig.getGrantType());
@@ -289,7 +295,7 @@ public class AuthTokenService {
 
 	public AuthToken getFhOutboundOrderServiceAuthToken() {
 		AuthTokenRequest authTokenRequest = new AuthTokenRequest();
-		authTokenRequest.setApiName("wms-outboundorder-service");
+		authTokenRequest.setApiName("wms-fh-outboundorder-service");
 		authTokenRequest.setClientId(propertiesConfig.getClientId());
 		authTokenRequest.setClientSecretKey(propertiesConfig.getClientSecretKey());
 		authTokenRequest.setGrantType(propertiesConfig.getGrantType());
