@@ -69,17 +69,17 @@ test {
 	useJUnitPlatform()
 }
 
-bootRun {
-	jvmArgs = [
-			"-Dcom.sun.management.jmxremote",
-			"-Dcom.sun.management.jmxremote.port=9010",
-			"-Dcom.sun.management.jmxremote.rmi.port=9010",
-			"-Dcom.sun.management.jmxremote.local.only=false",
-			"-Dcom.sun.management.jmxremote.authenticate=false",
-			"-Dcom.sun.management.jmxremote.ssl=false",
-			"-Djava.rmi.server.hostname=3.111.203.218"
-	]
-}
+//bootRun {
+//	jvmArgs = [
+//			"-Dcom.sun.management.jmxremote",
+//			"-Dcom.sun.management.jmxremote.port=9010",
+//			"-Dcom.sun.management.jmxremote.rmi.port=9010",
+//			"-Dcom.sun.management.jmxremote.local.only=false",
+//			"-Dcom.sun.management.jmxremote.authenticate=false",
+//			"-Dcom.sun.management.jmxremote.ssl=false",
+//			"-Djava.rmi.server.hostname=3.111.203.218"
+//	]
+//}
 
 //bootJar {
 //   archiveName = 'TransactionService.jar'
