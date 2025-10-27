@@ -68,7 +68,7 @@ public class InhouseTransferHeaderController {
         try {
             DataBaseContextHolder.setCurrentDb("MT");
             List<InhouseTransferHeader> inhouseTransferHeader = null;
-            String routingDb = dbConfigRepository.getDbList(searchInHouseTransferHeader.getCompanyCodeId(), searchInHouseTransferHeader.getPlantId(), searchInHouseTransferHeader.getWarehouseId());
+            String routingDb = dbConfigRepository.getDbByWarehouseIn(searchInHouseTransferHeader.getWarehouseId());
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
