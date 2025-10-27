@@ -2728,8 +2728,6 @@ public class ReportsService extends BaseService {
      */
     public MobileDashboard findMobileDashBoard(FindMobileDashBoard findMobileDashBoard) throws Exception {
 
-        log.info("findMobileDashBoard -----> {}", findMobileDashBoard);
-
         MobileDashboard mobileDashboard = new MobileDashboard();
 
         List<String> companyCode = findMobileDashBoard.getCompanyCode();
@@ -2741,17 +2739,17 @@ public class ReportsService extends BaseService {
         /*--------------Inbound--------------------------------*/
         MobileDashboard.InboundCount inboundCount = mobileDashboard.new InboundCount();
 
-        Long grHeaders = grHeaderRepository.grHeaderCount(companyCode, plantId, languageId, warehouseId, 16L);
+        Long grHeaders = grHeaderRepository.grHeaderCount(companyCode,plantId,languageId, warehouseId, 16L);
         inboundCount.setCases(grHeaders);
 
         // -------------Putaway----------------------------------
-        List<Long> orderTypeId = Arrays.asList(1L, 3L, 4L, 5L, 6L, 7L, 8L);
+        List<Long> orderTypeId = Arrays.asList(1L, 3L, 4L, 5L);
         Long putAwayHeaderList = putAwayHeaderRepository.getPutAwayHeaderCount(companyCode, plantId, warehouseId, languageId, 19L, orderTypeId);
         inboundCount.setPutaway(putAwayHeaderList);
 
         // -------------Reversals-------------------------------
         orderTypeId = Arrays.asList(2L);
-        Long putAwayHeaderReversals = putAwayHeaderRepository.getPutAwayHeaderCount(companyCode, plantId, warehouseId, languageId, 19L, orderTypeId);
+        Long  putAwayHeaderReversals = putAwayHeaderRepository.getPutAwayHeaderCount(companyCode, plantId, warehouseId, languageId, 19L, orderTypeId);
         inboundCount.setReversals(putAwayHeaderReversals);
 
         /*--------------Outbound--------------------------------*/
@@ -2761,19 +2759,19 @@ public class ReportsService extends BaseService {
 //        String levelId = pickupLineRepository.getLevelIdForUserId(companyCode, plantId, languageId, warehouseId, userId);
 
         // --------------Picking---------------------------------------------------------------------------
-        orderTypeId = Arrays.asList(0L, 1L, 3L, 5L, 6L);
+        orderTypeId = Arrays.asList(0L, 1L, 3L);
 //        List<PickupHeaderV2> pickupHeaderList =
 //                pickupHeaderService.getPickupHeaderCount(companyCode, plantId, languageId, warehouseId, levelId, orderTypeId);
-        Long pickupHeaderList = pickupHeaderRepository.getPickupHeaderCountv6(companyCode, plantId, warehouseId, languageId, 48L, orderTypeId);
+        Long pickupHeaderList = pickupHeaderRepository.getPickupHeaderCount(companyCode, plantId, warehouseId, languageId, userId, 48L,  orderTypeId);
         outboundCount.setPicking(pickupHeaderList);
 
         // -------------Reversals-------------------------------------------------------------------------
         orderTypeId = Arrays.asList(2L);                //Returns
-        Long pickupHeaderListReversal = pickupHeaderRepository.getPickupHeaderCountv6(companyCode, plantId, warehouseId, languageId, 48L, orderTypeId);
+        Long pickupHeaderListReversal = pickupHeaderRepository.getPickupHeaderCount(companyCode, plantId, warehouseId, languageId, userId, 48L, orderTypeId);
         outboundCount.setReversals(pickupHeaderListReversal);
 
         // -----------Quality-----------------------------------------------------------------------------
-        Long qualityHeaderCount = qualityHeaderRepository.getQualityCount(companyCode, plantId, languageId, warehouseId, 54L);
+        Long qualityHeaderCount = qualityHeaderRepository.getQualityCount(companyCode, plantId, languageId, warehouseId,54L);
 //        Long quality = qualityHeaderCount.stream().count();
         outboundCount.setQuality(qualityHeaderCount);
 
