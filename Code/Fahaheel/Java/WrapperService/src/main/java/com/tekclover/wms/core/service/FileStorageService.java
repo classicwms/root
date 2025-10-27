@@ -3862,7 +3862,7 @@ public class FileStorageService {
                             case "inventoryquantity" :
                             case "inventoryuom" :
                             case "manufacturercode" :
-                            case "barcodeid" :
+//                            case "barcodeid" :
                             case "manufacturername" :
                             case "levelid" :
                             case "stocktypedescription" :
