@@ -3890,10 +3890,10 @@ public class FileStorageService {
 
     private List<InventoryV2> inventory(String companyCodeId, String plantId,
                                           String languageId, String warehouseId, String loginUserID, List<InventoryV2> list) {
-        List<InventoryV2> allRowsList = list.stream().sorted(Comparator.comparing(InventoryV2::getBarcodeId)).collect(Collectors.toList());
+//        List<InventoryV2> allRowsList = list.stream().sorted(Comparator.comparing(InventoryV2::getBarcodeId)).collect(Collectors.toList());
         List<InventoryV2> saveInventory = new ArrayList<>();
 
-        for (InventoryV2 inventoryV2 : allRowsList) {
+        for (InventoryV2 inventoryV2 : list) {
             InventoryV2 inventory = new InventoryV2();
             BeanUtils.copyProperties(inventoryV2,inventory,CommonUtils.getNullPropertyNames(inventoryV2));
             inventory.setCompanyCodeId(companyCodeId);
