@@ -286,7 +286,7 @@ public class PreOutboundService extends BaseService {
 
             //Pickup Header Automation only for Picklist Header - OutboundOrderTypeId - 3L --> wh_id = 200 referenceDocumentType - Pick List
             //for wh_id = 200 ---> ob_type_id=3 && wh_id = 100 ---> ob_type_id=0,1,3
-            if ((warehouseId.equalsIgnoreCase("200") && outboundIntegrationHeader.getOutboundOrderTypeID() == 3L)) {
+            if ((warehouseId.equalsIgnoreCase("200") &&warehouseId.equalsIgnoreCase("300") && outboundIntegrationHeader.getOutboundOrderTypeID() == 3L)) {
                 createPickUpHeaderAssignPickerModified(companyCodeId, plantId, languageId, warehouseId, outboundIntegrationHeader,
                         preOutboundNo, outboundHeader.getRefDocNumber(), outboundHeader.getPartnerCode());
             }
