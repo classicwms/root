@@ -118,8 +118,8 @@ public class SalesOrderService extends BaseService {
     QualityHeaderV2Repository qualityHeaderV2Repository;
     @Autowired
     OutboundLineInterimRepository outboundLineInterimRepository;
-    //    @Autowired
-//    PushNotificationService pushNotificationService;
+        @Autowired
+    PushNotificationService pushNotificationService;
     @Autowired
     PerpetualHeaderV2Repository perpetualHeaderV2Repository;
     @Autowired
@@ -812,7 +812,7 @@ public class SalesOrderService extends BaseService {
             }
 
             //push notification separated from pickup header and consolidated notification sent
-//            pushNotificationService.sendPushNotification(preOutboundNo, warehouseId);
+            pushNotificationService.sendPushNotification(preOutboundNo, warehouseId);
 
             outboundHeaderV2Repository.updateOutboundHeaderStatusV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 48L, statusDescription);
             orderManagementHeaderV2Repository.updateOrderManagementHeaderStatusV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 48L, statusDescription);
