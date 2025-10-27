@@ -29,12 +29,12 @@ public class DataSourceConfig {
         // Example data source configurations (replace with actual configuration)
         DataSource db = createDataSource("MT");
         DataSource db1 = createDataSource("FAHAHEEL");
-        DataSource db2 = createDataSource("JAHRA");
+//        DataSource db2 = createDataSource("JAHRA");
 
 
         targetDataSources.put("MT",db);
         targetDataSources.put("FAHAHEEL", db1);
-        targetDataSources.put("JAHRA", db2);
+//        targetDataSources.put("JAHRA", db2);
 
         DynamicDataSource dataSource = new DynamicDataSource();
         dataSource.setTargetDataSources(targetDataSources);
