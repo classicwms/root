@@ -87,8 +87,8 @@ public class PreOutboundService extends BaseService {
     private OutboundOrderV2Repository outboundOrderV2Repository;
     @Autowired
     private ImBasicData1V2Repository imBasicData1V2Repository;
-//    @Autowired
-//    private PushNotificationService pushNotificationService;
+    @Autowired
+    private PushNotificationService pushNotificationService;
 
     //------------------------------------------------------------------------------------------------------
 
@@ -1136,7 +1136,7 @@ public class PreOutboundService extends BaseService {
             }
 
             //push notification separated from pickup header and consolidated notification sent
-//            pushNotificationService.sendPushNotification(preOutboundNo, warehouseId);
+            pushNotificationService.sendPushNotification(preOutboundNo, warehouseId);
             outboundHeaderV2Repository.updateOutboundHeaderStatusV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 48L, statusDescription);
             orderManagementHeaderV2Repository.updateOrderManagementHeaderStatusV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 48L, statusDescription);
         } catch (Exception e) {

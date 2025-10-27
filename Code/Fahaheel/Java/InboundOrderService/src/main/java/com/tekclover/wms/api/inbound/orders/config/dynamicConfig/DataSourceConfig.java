@@ -28,15 +28,13 @@ public class DataSourceConfig {
 
         // Example data source configurations (replace with actual configuration)
         DataSource db = createDataSource("MT");
-        DataSource db7 = createDataSource("FAHAHEEL");
-//        DataSource db8 = createDataSource("AUTO_LAP");
-//        DataSource db10 = createDataSource("JAHRA");
+        DataSource db1 = createDataSource("FAHAHEEL");
+        DataSource db2 = createDataSource("JAHRA");
 
 
         targetDataSources.put("MT",db);
-        targetDataSources.put("FAHAHEEL", db7);
-//        targetDataSources.put("AUTO_LAP", db8);
-//        targetDataSources.put("JAHRA", db10);
+        targetDataSources.put("FAHAHEEL", db1);
+        targetDataSources.put("JAHRA", db2);
 
         DynamicDataSource dataSource = new DynamicDataSource();
         dataSource.setTargetDataSources(targetDataSources);
@@ -49,27 +47,12 @@ public class DataSourceConfig {
         // Configure database connection here
         switch (dbName) {
 
-//            case "MT":
-//                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-//                dataSource.setUrl("jdbc:sqlserver://localhost:1433;databaseName=WMS_MT");
-//                dataSource.setUsername("sa");
-//                dataSource.setPassword("root");
-//                break;
-
             case "MT":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
                 dataSource.setUrl("jdbc:sqlserver://10.10.10.61;databaseName=WMS_MT");
                 dataSource.setUsername("sa");
                 dataSource.setPassword("4V7lOXaxgAi3i6mgJL7qBUSPM");
                 break;
-
-
-//            case "FAHAHEEL":
-//                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-//                dataSource.setUrl("jdbc:sqlserver://localhost:1433;databaseName=WMS_FAHAHEEL");
-//                dataSource.setUsername("sa");
-//                dataSource.setPassword("root");
-//                break;
 
             case "FAHAHEEL":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
@@ -78,22 +61,6 @@ public class DataSourceConfig {
                 dataSource.setPassword("4V7lOXaxgAi3i6mgJL7qBUSPM");
                 break;
 
-
-//            case "AUTO_LAP":
-//                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-//                dataSource.setUrl("jdbc:sqlserver://localhost;databaseName=WMS_AUTO_LAP");
-//                dataSource.setUsername("sa");
-//                dataSource.setPassword("4V7lOXaxgAi3i6mgJL7qBUSPM");
-//                break;
-//
-//            case "JAHRA":
-//                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-//                dataSource.setUrl("jdbc:sqlserver://localhost;databaseName=WMS_JAHRA");
-////              dataSource.setUrl("jdbc:sqlserver://localhost;databaseName=WMS_JAHRA");
-//
-//                dataSource.setUsername("sa");
-//                dataSource.setPassword("Do1cavIFK4^$pQ^zZYsX");
-//                break;
             default:
                 throw new IllegalArgumentException("Unknown database: " + dbName);
         }
