@@ -312,8 +312,8 @@ public class OrderService {
             pickListCancellation.setNewPickListNumber(newPickListNumber);
 
             //stored procedure to update deletionIndicator Flag
-            pickListHeaderRepository.updateDeletionIndicatorPickListCancellationProc(
-                    companyCodeId, plantId, languageId, warehouseId, oldPickListNumber, oldPreOutboundNo, loginUserID, new Date());
+//            pickListHeaderRepository.updateDeletionIndicatorPickListCancellationProc(companyCodeId, plantId, languageId, warehouseId, oldPickListNumber, oldPreOutboundNo, loginUserID, new Date());
+            pickListHeaderRepository.deletePickListRecords(companyCodeId, plantId, languageId, warehouseId, oldPickListNumber, oldPreOutboundNo, loginUserID, new Date());
             log.info("Pick List cancellation - stored procedure update - deletion indicator finished processing");
 
             return pickListCancellation;
