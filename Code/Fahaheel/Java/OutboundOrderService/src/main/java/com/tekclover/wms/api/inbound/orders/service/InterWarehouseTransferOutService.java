@@ -191,7 +191,7 @@ public class InterWarehouseTransferOutService {
 
                 // No_Stock_Items
                 statusDescription = stagingLineV2Repository.getStatusDescription(47L, languageId);
-                orderManagementLineV2Repository.updateNostockStatusUpdateProc(companyCode, plantId, languageId, warehouseId, outboundHeader.getRefDocNumber(), outboundHeader.getPreOutboundNo(), 47L, statusDescription);
+                orderManagementLineV2Repository.updateAllNoStockStatus(companyCode, plantId, languageId, warehouseId, outboundHeader.getRefDocNumber(), outboundHeader.getPreOutboundNo(), 47L, statusDescription);
                 log.info("No stock status updated in preinbound header and line, outbound header using stored procedure when condition is satisfied");
 
                 transferOutV2List.add(interWarehouseTransferOutV2);

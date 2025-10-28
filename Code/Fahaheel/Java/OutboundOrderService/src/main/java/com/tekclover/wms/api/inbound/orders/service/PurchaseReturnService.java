@@ -122,7 +122,7 @@ public class PurchaseReturnService {
      * @param returnPO purchase_return
      * @return return
      */
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = {Exception.class, Throwable.class})
+//    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = {Exception.class, Throwable.class})
     @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class,
             LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 3, backoff = @Backoff(delay = 5000))
     public List<ReturnPOV2> createPurchaseRetrunList(List<ReturnPOV2> returnPO) {

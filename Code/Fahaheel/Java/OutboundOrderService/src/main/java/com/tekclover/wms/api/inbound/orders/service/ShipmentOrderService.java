@@ -108,7 +108,7 @@ public class ShipmentOrderService {
     protected String statusDescription = null;
 
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = {Exception.class, Throwable.class})
+//    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = {Exception.class, Throwable.class})
     @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class,
             LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 3, backoff = @Backoff(delay = 5000))
     public List<ShipmentOrderV2> createShipmentOrderList(List<ShipmentOrderV2> shipmenOrder) {

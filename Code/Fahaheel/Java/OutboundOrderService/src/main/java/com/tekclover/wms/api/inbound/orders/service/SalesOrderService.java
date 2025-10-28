@@ -137,7 +137,7 @@ public class SalesOrderService extends BaseService {
      * @param salesOrderList
      * @return
      */
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = {Exception.class, Throwable.class})
+//    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = {Exception.class, Throwable.class})
     @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class,
             LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 3, backoff = @Backoff(delay = 5000))
     public List<SalesOrderV2> createSalesOrderList(List<SalesOrderV2> salesOrderList) {
@@ -257,7 +257,7 @@ public class SalesOrderService extends BaseService {
 
                 // No_Stock_Items
                 statusDescription = stagingLineV2Repository.getStatusDescription(47L, languageId);
-                orderManagementLineV2Repository.updateNostockStatusUpdateProc(companyCode, plantId, languageId, warehouseId, outboundHeader.getRefDocNumber(), outboundHeader.getPreOutboundNo(), 47L, statusDescription);
+                orderManagementLineV2Repository.updateAllNoStockStatus(companyCode, plantId, languageId, warehouseId, outboundHeader.getRefDocNumber(), outboundHeader.getPreOutboundNo(), 47L, statusDescription);
                 log.info("No stock status updated in preinbound header and line, outbound header using stored procedure when condition is satisfied");
 
                 // PickupHeader for only PickList Order Only

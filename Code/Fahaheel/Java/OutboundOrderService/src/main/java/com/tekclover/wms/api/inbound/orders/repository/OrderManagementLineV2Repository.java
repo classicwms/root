@@ -123,6 +123,71 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
             @Param("statusDescription") String statusDescription
     );
 
+    @Modifying
+    @Transactional
+    @Query(value =
+            "UPDATE tblpreoutboundline " +
+                    "SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription " +
+                    "WHERE IS_DELETED = 0 " +
+                    "  AND C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId " +
+                    "  AND REF_DOC_NO = :refDocNumber AND PRE_OB_NO = :preOutboundNo " +
+                    "  AND ( " +
+                    "        (SELECT COUNT(*) FROM tblordermangementline WHERE REF_DOC_NO = :refDocNumber " +
+                    "         AND PRE_OB_NO = :preOutboundNo AND C_ID = :companyCodeId " +
+                    "         AND PLANT_ID = :plantId AND LANG_ID = :languageId " +
+                    "         AND WH_ID = :warehouseId AND IS_DELETED = 0) " +
+                    "        = " +
+                    "        (SELECT COUNT(*) FROM tblordermangementline WHERE STATUS_ID = 47 " +
+                    "         AND REF_DOC_NO = :refDocNumber AND PRE_OB_NO = :preOutboundNo " +
+                    "         AND C_ID = :companyCodeId AND PLANT_ID = :plantId " +
+                    "         AND LANG_ID = :languageId AND WH_ID = :warehouseId AND IS_DELETED = 0) " +
+                    "      ); " +
+
+                    "UPDATE tblpreoutboundheader " +
+                    "SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription " +
+                    "WHERE IS_DELETED = 0 " +
+                    "  AND C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId " +
+                    "  AND REF_DOC_NO = :refDocNumber AND PRE_OB_NO = :preOutboundNo " +
+                    "  AND ( " +
+                    "        (SELECT COUNT(*) FROM tblordermangementline WHERE REF_DOC_NO = :refDocNumber " +
+                    "         AND PRE_OB_NO = :preOutboundNo AND C_ID = :companyCodeId " +
+                    "         AND PLANT_ID = :plantId AND LANG_ID = :languageId " +
+                    "         AND WH_ID = :warehouseId AND IS_DELETED = 0) " +
+                    "        = " +
+                    "        (SELECT COUNT(*) FROM tblordermangementline WHERE STATUS_ID = 47 " +
+                    "         AND REF_DOC_NO = :refDocNumber AND PRE_OB_NO = :preOutboundNo " +
+                    "         AND C_ID = :companyCodeId AND PLANT_ID = :plantId " +
+                    "         AND LANG_ID = :languageId AND WH_ID = :warehouseId AND IS_DELETED = 0) " +
+                    "      ); " +
+
+                    "UPDATE tbloutboundheader " +
+                    "SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription " +
+                    "WHERE IS_DELETED = 0 " +
+                    "  AND C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId " +
+                    "  AND REF_DOC_NO = :refDocNumber AND PRE_OB_NO = :preOutboundNo " +
+                    "  AND ( " +
+                    "        (SELECT COUNT(*) FROM tblordermangementline WHERE REF_DOC_NO = :refDocNumber " +
+                    "         AND PRE_OB_NO = :preOutboundNo AND C_ID = :companyCodeId " +
+                    "         AND PLANT_ID = :plantId AND LANG_ID = :languageId " +
+                    "         AND WH_ID = :warehouseId AND IS_DELETED = 0) " +
+                    "        = " +
+                    "        (SELECT COUNT(*) FROM tblordermangementline WHERE STATUS_ID = 47 " +
+                    "         AND REF_DOC_NO = :refDocNumber AND PRE_OB_NO = :preOutboundNo " +
+                    "         AND C_ID = :companyCodeId AND PLANT_ID = :plantId " +
+                    "         AND LANG_ID = :languageId AND WH_ID = :warehouseId AND IS_DELETED = 0) " +
+                    "      ); ",
+            nativeQuery = true)
+    void updateAllNoStockStatus(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preOutboundNo") String preOutboundNo,
+            @Param("statusId") Long statusId,
+            @Param("statusDescription") String statusDescription
+    );
+
     @Transactional
     @Procedure(procedureName = "nostock_status_update_new_proc")
     public void updateNostockStatusUpdateProcV5(
@@ -420,5 +485,6 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
                          @Param("warehouseId") String warehouseId,
                          @Param("barcodeId") String barcodeId,
                          @Param("itemCode") String itemCode);
+
 
 }
