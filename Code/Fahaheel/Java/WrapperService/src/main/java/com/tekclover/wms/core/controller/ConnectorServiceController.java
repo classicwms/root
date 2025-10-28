@@ -2,6 +2,7 @@ package com.tekclover.wms.core.controller;
 
 import com.tekclover.wms.core.model.Connector.*;
 import com.tekclover.wms.core.model.transaction.IntegrationLog;
+import com.tekclover.wms.core.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.core.service.ConnectorService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -12,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @CrossOrigin(origins = "*")
 @Slf4j
@@ -170,7 +173,7 @@ public class ConnectorServiceController {
     @ApiOperation(response = TransferOutLine[].class, value = "Find InterWarehouseTransferOutLine") //label for swagger
     @PostMapping("/findInterWarehouseTransferOutLine")
     public ResponseEntity<?> searchInterWarehouseTransferOutLine(@RequestBody FindTransferOutLine findTransferOutLine,
-                                                 @RequestParam String authToken) {
+                                                                 @RequestParam String authToken) {
         TransferOutLine[] interWarehouseTransferOutLines = connectorService.findInterWarehouseTransferOutLine(findTransferOutLine, authToken);
         return new ResponseEntity<>(interWarehouseTransferOutLines, HttpStatus.OK);
     }
@@ -179,7 +182,7 @@ public class ConnectorServiceController {
     @ApiOperation(response = TransferOutLine[].class, value = "Find ShipmentOrderLine") //label for swagger
     @PostMapping("/findShipmentOrderLine")
     public ResponseEntity<?> searchShipmentOrderLine(@RequestBody FindTransferOutLine findTransferOutLine,
-                                                                 @RequestParam String authToken) {
+                                                     @RequestParam String authToken) {
         TransferOutLine[] ShipmentOrderLines = connectorService.findShipmentOrderLine(findTransferOutLine, authToken);
         return new ResponseEntity<>(ShipmentOrderLines, HttpStatus.OK);
     }
@@ -252,5 +255,152 @@ public class ConnectorServiceController {
             , @RequestParam String authToken) {
         PerpetualLine[] perpetualLine = connectorService.findPerpetualLine(findPerpetualLine, authToken);
         return new ResponseEntity<>(perpetualLine, HttpStatus.OK);
+    }
+
+
+
+    //-------------------------------------------------------------------------------------------
+    // B2BTransferIn
+    @ApiOperation(response = TransferInHeader[].class, value = "Update TransferIn Header")
+    @PatchMapping("/updateTransferInHeader")
+    public ResponseEntity<?> patchTransferInHeader(@RequestBody List<TransferInHeader> transferInHeaders
+            , @RequestParam String authToken) {
+        TransferInHeader[] transferInHeadersList = connectorService.updateTransferInHeader(transferInHeaders, authToken);
+        return new ResponseEntity<>(transferInHeadersList, HttpStatus.OK);
+    }
+
+    // CustomerMaster
+    @ApiOperation(response = CustomerMaster[].class, value = "Update CustomerMaster Details")
+    @PatchMapping("/updateCustomerMaster")
+    public ResponseEntity<?> patchCustomerMaster(@RequestBody List<CustomerMaster> customerMasters
+            , @RequestParam String authToken) {
+        CustomerMaster[] customerMastersList = connectorService.updateCustomerMaster(customerMasters,authToken);
+        return new ResponseEntity<>(customerMastersList, HttpStatus.OK);
+    }
+
+    //InterWarehouseTransferIn
+    @ApiOperation(response = TransferInHeader[].class, value = "Update TransferIn V2 Header")
+    @PatchMapping("/updateTransInHeader")
+    public ResponseEntity<?> patchTransferInHeaderV2(@RequestBody List<TransferInHeader> transferInHeaders
+            , @RequestParam String authToken) {
+        TransferInHeader[] transferInHeadersList = connectorService.updateTransferInHeaderV2(transferInHeaders, authToken);
+        return new ResponseEntity<>(transferInHeadersList, HttpStatus.OK);
+    }
+
+    //InterWarehouseTransferOutS
+    @ApiOperation(response = TransferOutHeader[].class, value = "Update TransferOut Header")
+    @PatchMapping("/updateTransferOutHeader")
+    public ResponseEntity<?> patchTransferOutHeader(@RequestBody List<TransferOutHeader> transferOutHeaders
+            , @RequestParam String authToken) {
+        TransferOutHeader[] transferOutHeadersList = connectorService.updateTransferOutHeader(transferOutHeaders, authToken);
+        return new ResponseEntity<>(transferOutHeadersList, HttpStatus.OK);
+    }
+
+    //ItemMaster
+    @ApiOperation(response = ItemMaster[].class, value = "Update Item Master")
+    @PatchMapping("/updateItemMaster")
+    public ResponseEntity<?> patchItemMaster(@RequestBody List<ItemMaster> itemMasters
+            , @RequestParam String authToken) {
+        ItemMaster[] itemMastersList = connectorService.updateItemMaster(itemMasters, authToken);
+        return new ResponseEntity<>(itemMastersList, HttpStatus.OK);
+    }
+
+    //Periodic
+    @ApiOperation(response = WarehouseApiResponse.class, value = "Update Periodic Line Counted Qty")
+    @PatchMapping("/updateCountedQty/Periodic")
+    public ResponseEntity<?> patchPeriodicLine(@RequestBody List<UpdateStockCountLine> updateStockCountLine
+            , @RequestParam String authToken) {
+        WarehouseApiResponse perpetuals = connectorService.updatePeriodicStockCount(updateStockCountLine, authToken);
+        return new ResponseEntity<>(perpetuals, HttpStatus.OK);
+    }
+
+    //Periodic
+    @ApiOperation(response = PeriodicHeader[].class, value = "Update Supplier Invoice Header")
+    @PatchMapping("/updatePeriodicHeader")
+    public ResponseEntity<?> patchPeriodicHeader(@RequestBody List<PeriodicHeader> periodicHeaders
+            , @RequestParam String authToken) {
+        PeriodicHeader[] periodicHeadersList = connectorService.updatePeriodicHeader(periodicHeaders, authToken);
+        return new ResponseEntity<>(periodicHeadersList, HttpStatus.OK);
+    }
+
+    //Perpetual
+    @ApiOperation(response = WarehouseApiResponse.class, value = "Update Perpetual Line Counted Qty")
+    @PatchMapping("/updateCountedQty/Perpetual")
+    public ResponseEntity<?> patchPerpetualLine(@RequestBody List<UpdateStockCountLine> updateStockCountLine
+            , @RequestParam String authToken) {
+        WarehouseApiResponse perpetuals = connectorService.updatePerpetualStockCount(updateStockCountLine, authToken);
+        return new ResponseEntity<>(perpetuals, HttpStatus.OK);
+    }
+
+    //Perpetual
+    @ApiOperation(response = PerpetualHeader[].class, value = "Update PerpetualHeader")
+    @PatchMapping("/updatePerpetualHeader")
+    public ResponseEntity<?> patchPerpetualHeader(@RequestBody List<PerpetualHeader> perpetualHeaders
+            , @RequestParam String authToken) {
+        PerpetualHeader[] perpetualHeadersList = connectorService.updatePerpetualHeader(perpetualHeaders, authToken);
+        return new ResponseEntity<>(perpetualHeadersList, HttpStatus.OK);
+    }
+
+    // ReturnPO
+    @ApiOperation(response = PurchaseReturnHeader[].class, value = "Update PurchaseReturnHeader")
+    @PatchMapping("/updatePurchaseReturnHeader")
+    public ResponseEntity<?> patchPurchaseReturnHeader(@RequestBody List<PurchaseReturnHeader> purchaseReturnHeaders
+            , @RequestParam String authToken) {
+        PurchaseReturnHeader[] purchaseReturnHeadersList = connectorService.updatePurchaseReturnHeader(purchaseReturnHeaders, authToken);
+        return new ResponseEntity<>(purchaseReturnHeadersList, HttpStatus.OK);
+    }
+
+    //SalesOrder
+    @ApiOperation(response = PickListHeader[].class, value = "Update PickListHeader")
+    @PatchMapping("/updatePickListHeader")
+    public ResponseEntity<?> patchPickListHeader(@RequestBody List<PickListHeader> pickListHeaders
+            , @RequestParam String authToken) {
+        PickListHeader[] pickListHeadersList = connectorService.updatePickListHeader(pickListHeaders, authToken);
+        return new ResponseEntity<>(pickListHeadersList, HttpStatus.OK);
+    }
+
+    //SalesReturn
+    @ApiOperation(response = SalesReturnHeader[].class, value = "Update SalesReturnHeader")
+    @PatchMapping("/updateSalesReturnHeader")
+    public ResponseEntity<?> patchSalesReturnHeader(@RequestBody List<SalesReturnHeader> salesReturnHeaders
+            , @RequestParam String authToken) {
+        SalesReturnHeader[] salesReturnHeaderList = connectorService.updateSalesReturnHeader(salesReturnHeaders, authToken);
+        return new ResponseEntity<>(salesReturnHeaderList, HttpStatus.OK);
+    }
+
+    //ShipmentOrder
+    @ApiOperation(response = TransferOutHeader[].class, value = "Update ShipmentOrder ")
+    @PatchMapping("/updateTransOutHeader")
+    public ResponseEntity<?> patchTransferOutHeaderV2(@RequestBody List<TransferOutHeader> transferOutHeaders
+            , @RequestParam String authToken) {
+        TransferOutHeader[] transferOutHeadersList = connectorService.updateShipmentOrder(transferOutHeaders, authToken);
+        return new ResponseEntity<>(transferOutHeadersList, HttpStatus.OK);
+    }
+
+    //StockAdjustment
+    @ApiOperation(response = StockAdjustment[].class, value = "Update StockAdjustment")
+    @PatchMapping("/updateStockAdjustment")
+    public ResponseEntity<?> patchStockAdjustment(@RequestBody List<StockAdjustment> stockAdjustments
+            , @RequestParam String authToken) {
+        StockAdjustment[] stockAdjustmentList = connectorService.updateStockAdjustment(stockAdjustments, authToken);
+        return new ResponseEntity<>(stockAdjustmentList, HttpStatus.OK);
+    }
+
+    //StockReceipt
+    @ApiOperation(response = StockReceiptHeader[].class, value = "Update StockReceiptHeader Header")
+    @PatchMapping("/updateStockReceiptHeader")
+    public ResponseEntity<?> patchStockReceiptHeader(@RequestBody List<StockReceiptHeader> stockReceiptHeaders
+            , @RequestParam String authToken) {
+        StockReceiptHeader[] stockReceiptHeaderList = connectorService.updateStockReceiptHeader(stockReceiptHeaders, authToken);
+        return new ResponseEntity<>(stockReceiptHeaderList, HttpStatus.OK);
+    }
+
+    //SupplierInvoice
+    @ApiOperation(response = SupplierInvoiceHeader[].class, value = "Update Supplier Invoice Header")
+    @PatchMapping("/updateSupplierInvoiceHeader")
+    public ResponseEntity<?> patchSupplierInvoiceHeader(@RequestBody List<SupplierInvoiceHeader> supplierInvoiceHeaders
+            , @RequestParam String authToken) {
+        SupplierInvoiceHeader[] supplierInvoiceHeadersList = connectorService.updateSupplierInvoiceHeader(supplierInvoiceHeaders, authToken);
+        return new ResponseEntity<>(supplierInvoiceHeadersList, HttpStatus.OK);
     }
 }

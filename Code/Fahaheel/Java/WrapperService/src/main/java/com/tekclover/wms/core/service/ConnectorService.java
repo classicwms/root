@@ -4,14 +4,19 @@ package com.tekclover.wms.core.service;
 import com.tekclover.wms.core.config.PropertiesConfig;
 import com.tekclover.wms.core.model.Connector.*;
 import com.tekclover.wms.core.model.transaction.IntegrationLog;
+import com.tekclover.wms.core.model.warehouse.inbound.WarehouseApiResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Collections;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -361,7 +366,7 @@ public class ConnectorService {
     }
 
 
-//Find ShipmentOrderLine
+    //Find ShipmentOrderLine
     public TransferOutLine[] findShipmentOrderLine(FindTransferOutLine findTransferOutLine, String authToken) {
         try {
             HttpHeaders headers = new HttpHeaders();
@@ -543,6 +548,417 @@ public class ConnectorService {
         }
     }
 
+
+
+    // PATCH
+    public TransferInHeader[] updateTransferInHeader(List<TransferInHeader> transferInHeaders, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            HttpEntity<?> entity = new HttpEntity<>(transferInHeaders, headers);
+
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getConnectorServiceApiUrl() + "b2btransferin/updateTransferInHeader");
+            ResponseEntity<TransferInHeader[]> result =
+                    restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, TransferInHeader[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    public CustomerMaster[] updateCustomerMaster(List<CustomerMaster> customerMaster, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            HttpEntity<?> entity = new HttpEntity<>(customerMaster, headers);
+
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getConnectorServiceApiUrl() + "customermaster/updateCustomerMaster");
+            ResponseEntity<CustomerMaster[]> result =
+                    restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, CustomerMaster[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    // PATCH
+    public TransferInHeader[] updateTransferInHeaderV2(List<TransferInHeader> transferInHeaders, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            HttpEntity<?> entity = new HttpEntity<>(transferInHeaders, headers);
+
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getConnectorServiceApiUrl() + "interwarehousetransferinv2/updateTransferInHeader");
+            ResponseEntity<TransferInHeader[]> result =
+                    restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, TransferInHeader[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    // PATCH
+    public TransferOutHeader[] updateTransferOutHeader(List<TransferOutHeader> transferOutHeader, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            HttpEntity<?> entity = new HttpEntity<>(transferOutHeader, headers);
+
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getConnectorServiceApiUrl() + "interwarehousetransferoutv2/updateTransferOutHeader");
+            ResponseEntity<TransferOutHeader[]> result =
+                    restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, TransferOutHeader[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    // PATCH
+    public ItemMaster[] updateItemMaster(List<ItemMaster> itemMaster, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            HttpEntity<?> entity = new HttpEntity<>(itemMaster, headers);
+
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getConnectorServiceApiUrl() + "itemmaster/updateItemMaster");
+            ResponseEntity<ItemMaster[]> result =
+                    restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, ItemMaster[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    // PATCH
+    public WarehouseApiResponse updatePeriodicStockCount(List<UpdateStockCountLine> updateStockCountLine, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            HttpEntity<?> entity = new HttpEntity<>(updateStockCountLine, headers);
+
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getConnectorServiceApiUrl() + "periodic/updateCountedQty");
+            ResponseEntity<WarehouseApiResponse> result =
+                    restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, WarehouseApiResponse.class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+    // PATCH
+    public PeriodicHeader[] updatePeriodicHeader(List<PeriodicHeader> periodicHeader, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            HttpEntity<?> entity = new HttpEntity<>(periodicHeader, headers);
+
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getConnectorServiceApiUrl() + "periodic/updatePeriodicHeader");
+            ResponseEntity<PeriodicHeader[]> result =
+                    restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, PeriodicHeader[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    // PATCH
+    public WarehouseApiResponse updatePerpetualStockCount(List<UpdateStockCountLine> updateStockCountLine, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            HttpEntity<?> entity = new HttpEntity<>(updateStockCountLine, headers);
+
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getConnectorServiceApiUrl() + "perpetual/updateCountedQty");
+            ResponseEntity<WarehouseApiResponse> result =
+                    restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, WarehouseApiResponse.class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+    // PATCH
+    public PerpetualHeader[] updatePerpetualHeader(List<PerpetualHeader> perpetualHeader, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            HttpEntity<?> entity = new HttpEntity<>(perpetualHeader, headers);
+
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getConnectorServiceApiUrl() + "perpetual/updatePerpetualHeader");
+            ResponseEntity<PerpetualHeader[]> result =
+                    restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, PerpetualHeader[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+    // PATCH
+    public PurchaseReturnHeader[] updatePurchaseReturnHeader(List<PurchaseReturnHeader> purchaseReturnHeader, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            HttpEntity<?> entity = new HttpEntity<>(purchaseReturnHeader, headers);
+
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getConnectorServiceApiUrl() + "returnpov2/updatePurchaseReturnHeader");
+            ResponseEntity<PurchaseReturnHeader[]> result =
+                    restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, PurchaseReturnHeader[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+    // PATCH
+    public PickListHeader[] updatePickListHeader(List<PickListHeader> pickListHeader, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            HttpEntity<?> entity = new HttpEntity<>(pickListHeader, headers);
+
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getConnectorServiceApiUrl() + "salesorderv2/updatePickListHeader");
+            ResponseEntity<PickListHeader[]> result =
+                    restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, PickListHeader[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+    // PATCH
+    public SalesReturnHeader[] updateSalesReturnHeader(List<SalesReturnHeader> salesReturnHeader, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            HttpEntity<?> entity = new HttpEntity<>(salesReturnHeader, headers);
+
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getConnectorServiceApiUrl() + "salesReturn/updateSalesReturnHeader");
+            ResponseEntity<SalesReturnHeader[]> result =
+                    restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, SalesReturnHeader[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+    // PATCH
+    public TransferOutHeader[] updateShipmentOrder(List<TransferOutHeader> transferOutHeader, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            HttpEntity<?> entity = new HttpEntity<>(transferOutHeader, headers);
+
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getConnectorServiceApiUrl() + "shipmentorderv2/updateTransOutHeader");
+            ResponseEntity<TransferOutHeader[]> result =
+                    restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, TransferOutHeader[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    // PATCH
+    public StockAdjustment[] updateStockAdjustment(List<StockAdjustment> stockAdjustment, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            HttpEntity<?> entity = new HttpEntity<>(stockAdjustment, headers);
+
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getConnectorServiceApiUrl() + "stockAdjustment/updateStockAdjustment");
+            ResponseEntity<StockAdjustment[]> result =
+                    restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, StockAdjustment[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    // PATCH
+    public StockReceiptHeader[] updateStockReceiptHeader(List<StockReceiptHeader> stockReceiptHeader, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            HttpEntity<?> entity = new HttpEntity<>(stockReceiptHeader, headers);
+
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getConnectorServiceApiUrl() + "stockreceipt/updateStockReceiptHeader");
+            ResponseEntity<StockReceiptHeader[]> result =
+                    restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, StockReceiptHeader[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+
+    // PATCH
+    public SupplierInvoiceHeader[] updateSupplierInvoiceHeader(List<SupplierInvoiceHeader> supplierInvoiceHeader, String authToken) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", "ClassicWMS RestTemplate");
+            headers.add("Authorization", "Bearer " + authToken);
+
+            HttpEntity<?> entity = new HttpEntity<>(supplierInvoiceHeader, headers);
+
+            HttpClient client = HttpClients.createDefault();
+            RestTemplate restTemplate = getRestTemplate();
+            restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory(client));
+
+            UriComponentsBuilder builder =
+                    UriComponentsBuilder.fromHttpUrl(getConnectorServiceApiUrl() + "supplierinvoice/updateSupplierInvoiceHeader");
+            ResponseEntity<SupplierInvoiceHeader[]> result =
+                    restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, SupplierInvoiceHeader[].class);
+            log.info("result : " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
 
 
 
