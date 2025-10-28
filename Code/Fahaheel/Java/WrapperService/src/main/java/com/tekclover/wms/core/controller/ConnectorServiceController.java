@@ -88,12 +88,12 @@ public class ConnectorServiceController {
     }
 
     // Find PickListHeader
-    @ApiOperation(response = PickListHeader[].class, value = "Find PickListHeader") //label for swagger
+    @ApiOperation(response = PickListHeaderV2[].class, value = "Find PickListHeader") //label for swagger
     @PostMapping("/findPickListHeader")
     public ResponseEntity<?> findPickListHeader(@RequestBody FindPickListHeader findPickListHeader,
                                                 @RequestParam String authToken) {
-        PickListHeader[] pickListHeader = connectorService.findPickListHeader(findPickListHeader, authToken);
-        return new ResponseEntity<>(pickListHeader, HttpStatus.OK);
+        PickListHeaderV2[] pickListHeaderV2 = connectorService.findPickListHeader(findPickListHeader, authToken);
+        return new ResponseEntity<>(pickListHeaderV2, HttpStatus.OK);
     }
 
     // Find PurchaseReturnHeader
@@ -351,12 +351,12 @@ public class ConnectorServiceController {
     }
 
     //SalesOrder
-    @ApiOperation(response = PickListHeader[].class, value = "Update PickListHeader")
+    @ApiOperation(response = PickListHeaderV2[].class, value = "Update PickListHeader")
     @PatchMapping("/updatePickListHeader")
-    public ResponseEntity<?> patchPickListHeader(@RequestBody List<PickListHeader> pickListHeaders
+    public ResponseEntity<?> patchPickListHeader(@RequestBody List<PickListHeaderV2> pickListHeaderV2s
             , @RequestParam String authToken) {
-        PickListHeader[] pickListHeadersList = connectorService.updatePickListHeader(pickListHeaders, authToken);
-        return new ResponseEntity<>(pickListHeadersList, HttpStatus.OK);
+        PickListHeaderV2[] pickListHeadersListV2 = connectorService.updatePickListHeader(pickListHeaderV2s, authToken);
+        return new ResponseEntity<>(pickListHeadersListV2, HttpStatus.OK);
     }
 
     //SalesReturn

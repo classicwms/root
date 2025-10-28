@@ -171,7 +171,7 @@ public class ConnectorService {
     }
 
     // Find PickListHeader
-    public PickListHeader[] findPickListHeader(FindPickListHeader findPickListHeader, String authToken) {
+    public PickListHeaderV2[] findPickListHeader(FindPickListHeader findPickListHeader, String authToken) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -179,8 +179,8 @@ public class ConnectorService {
             headers.add("Authorization", "Bearer " + authToken);
             UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getConnectorServiceApiUrl() + "/salesorderv2/findPickListHeader");
             HttpEntity<?> entity = new HttpEntity<>(findPickListHeader, headers);
-            ResponseEntity<PickListHeader[]> result =
-                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PickListHeader[].class);
+            ResponseEntity<PickListHeaderV2[]> result =
+                    getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, PickListHeaderV2[].class);
             log.info("result : " + result.getStatusCode());
             return result.getBody();
         } catch (Exception e) {
@@ -806,14 +806,14 @@ public class ConnectorService {
         }
     }
     // PATCH
-    public PickListHeader[] updatePickListHeader(List<PickListHeader> pickListHeader, String authToken) {
+    public PickListHeaderV2[] updatePickListHeader(List<PickListHeaderV2> pickListHeaderV2, String authToken) {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
             headers.add("User-Agent", "ClassicWMS RestTemplate");
             headers.add("Authorization", "Bearer " + authToken);
 
-            HttpEntity<?> entity = new HttpEntity<>(pickListHeader, headers);
+            HttpEntity<?> entity = new HttpEntity<>(pickListHeaderV2, headers);
 
             HttpClient client = HttpClients.createDefault();
             RestTemplate restTemplate = getRestTemplate();
@@ -821,8 +821,8 @@ public class ConnectorService {
 
             UriComponentsBuilder builder =
                     UriComponentsBuilder.fromHttpUrl(getConnectorServiceApiUrl() + "salesorderv2/updatePickListHeader");
-            ResponseEntity<PickListHeader[]> result =
-                    restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, PickListHeader[].class);
+            ResponseEntity<PickListHeaderV2[]> result =
+                    restTemplate.exchange(builder.toUriString(), HttpMethod.PATCH, entity, PickListHeaderV2[].class);
             log.info("result : " + result.getStatusCode());
             return result.getBody();
         } catch (Exception e) {

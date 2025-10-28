@@ -1,17 +1,12 @@
 package com.tekclover.wms.core.model.Connector;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.Set;
 
 @Data
-public class PickListHeader {
+public class PickListHeaderV2 {
 
     private Long pickListHeaderId;
 
