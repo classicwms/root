@@ -122,9 +122,9 @@ public class PurchaseReturnService {
      * @param returnPO purchase_return
      * @return return
      */
-//    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = {Exception.class, Throwable.class})
-    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class,
-            LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 3, backoff = @Backoff(delay = 5000))
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = {Exception.class, Throwable.class})
+//    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class,
+//            LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 3, backoff = @Backoff(delay = 5000))
     public List<ReturnPOV2> createPurchaseRetrunList(List<ReturnPOV2> returnPO) {
         List<ReturnPOV2> purchaseReturns = Collections.synchronizedList(new ArrayList<>());
         log.info("Outbound Process Start {} Purchase Retrun", returnPO);

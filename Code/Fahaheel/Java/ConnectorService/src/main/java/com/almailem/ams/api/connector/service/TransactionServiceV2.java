@@ -1006,6 +1006,10 @@ public class TransactionServiceV2 {
             return null;
         }
         List<ShipmentOrder> shipmentOrders = new ArrayList<>();
+        List<InterWarehouseTransferOut> interWarehouseTransferOutNonWMStoWMS = new ArrayList<>();
+        List<InterWarehouseTransferOut> interWarehouseTransferOutWMStoWMS = new ArrayList<>();
+        List<InterWarehouseTransferOut> interWarehouseTransferOutNonWMStoNonWMS = new ArrayList<>();
+
         // Order_process_starting_Set_value_process_status_id=1
         transferOuts.stream().forEach(transferOut -> {
             interWarehouseTransferOutService.updateProcessedOutboundOrder(transferOut.getTransferOutHeaderId(),
@@ -1069,33 +1073,6 @@ public class TransactionServiceV2 {
                 shipmentOrders.add(shipmentOrder);
             }
 
-            if (!shipmentOrders.isEmpty()) {
-                try {
-                    ShipmentOrder[] outboundHeader = shipmentOrderService.postShipmentOrder(shipmentOrders);
-                    if (outboundHeader.length > 0) {
-                        shipmentOrders.stream().forEach(shipment -> {
-                            // Updating the Processed Status = 10
-                            shipmentOrderService.updateProcessedOutboundOrder(shipment.getSoHeader().getMiddlewareId(),
-                                    shipment.getSoHeader().getCompanyCode(), shipment.getSoHeader().getBranchCode(),
-                                    shipment.getSoHeader().getTransferOrderNumber(), 10L);
-                            log.info("OB Shipment Order Created Successfully {} - ", shipment.getSoHeader().getTransferOrderNumber());
-                        });
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    shipmentOrders.stream().forEach(shipment -> {
-                        shipmentOrderService.updateProcessedOutboundOrder(shipment.getSoHeader().getMiddlewareId(),
-                                shipment.getSoHeader().getCompanyCode(), shipment.getSoHeader().getBranchCode(),
-                                shipment.getSoHeader().getTransferOrderNumber(), 100L);
-                        log.info("OB Shipment Order Failed {} - ", shipment.getSoHeader().getTransferOrderNumber());
-                    });
-                }
-            }
-
-            List<InterWarehouseTransferOut> interWarehouseTransferOutNonWMStoWMS = new ArrayList<>();
-            List<InterWarehouseTransferOut> interWarehouseTransferOutWMStoWMS = new ArrayList<>();
-            List<InterWarehouseTransferOut> interWarehouseTransferOutNonWMStoNonWMS = new ArrayList<>();
-
             if (!sourceBranchExist && targetBranchExist) {
                 log.info("OB NON WMS to WMS: {},{} ",  sourceBranchExist, targetBranchExist);
                 log.info("TransferOut Order: " + dbObOrder);
@@ -1135,27 +1112,6 @@ public class TransactionServiceV2 {
                 interWarehouseTransferOut.setInterWarehouseTransferOutLine(interWarehouseTransferOutLineList);
                 interWarehouseTransferOutNonWMStoWMS.add(interWarehouseTransferOut);
             }
-            if (!interWarehouseTransferOutNonWMStoWMS.isEmpty()) {
-                try {
-                    InterWarehouseTransferOut[] outboundHeader = interWarehouseTransferOutService.postIWhTransferOutV7(interWarehouseTransferOutNonWMStoWMS);
-                    if (outboundHeader.length > 0) {
-                        interWarehouseTransferOutNonWMStoWMS.stream().forEach(interWarehouseTransferOut -> {
-                            // Updating the Processed Status = 10
-                            interWarehouseTransferOutService.updateProcessedOutboundOrder(interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getMiddlewareId(),
-                                    interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getCompanyCode(), interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getBranchCode(),
-                                    interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getTransferOrderNumber(), 10L);
-                            log.info("OB Inter warehouse transfer Order Created Successfully {} - ", interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getTransferOrderNumber());
-                        });
-                    }
-                } catch (Exception e) {
-                    interWarehouseTransferOutNonWMStoWMS.stream().forEach(interWarehouseTransferOut -> {
-                        interWarehouseTransferOutService.updateProcessedOutboundOrder(interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getMiddlewareId(),
-                                interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getCompanyCode(), interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getBranchCode(),
-                                interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getTransferOrderNumber(), 100L);
-                        log.info("OB Inter warehouse transfer Order Failed {} - ", interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getTransferOrderNumber());
-                    });
-                }
-            }
 
             if (sourceBranchExist && targetBranchExist) {
                 log.info("OB WMS to WMS:  {}, {} ", sourceBranchExist, targetBranchExist);
@@ -1193,31 +1149,6 @@ public class TransactionServiceV2 {
                 interWarehouseTransferOut.setInterWarehouseTransferOutHeader(iWhtOutHeader);
                 interWarehouseTransferOut.setInterWarehouseTransferOutLine(interWarehouseTransferOutLineList);
                 interWarehouseTransferOutWMStoWMS.add(interWarehouseTransferOut);
-            }
-
-            if (!interWarehouseTransferOutWMStoWMS.isEmpty()) {
-                try {
-                    InterWarehouseTransferOut[] outboundHeader = interWarehouseTransferOutService.postIWhTransferOutV7(interWarehouseTransferOutWMStoWMS);
-//                    log.info("OutboundHeader -------> {}", outboundHeader);
-                    log.info("OutboundHeader length -------> {}", outboundHeader.length);
-                    if (outboundHeader.length > 0) {
-                        interWarehouseTransferOutWMStoWMS.stream().forEach(interWarehouseTransferOut -> {
-                            // Updating the Processed Status = 10
-                            interWarehouseTransferOutService.updateProcessedOutboundOrder(interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getMiddlewareId(),
-                                    interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getCompanyCode(), interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getBranchCode(),
-                                    interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getTransferOrderNumber(), 10L);
-                            log.info("OB Inter warehouse transfer Order Created Successfully {} - ", interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getTransferOrderNumber());
-                        });
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    interWarehouseTransferOutWMStoWMS.stream().forEach(interWarehouseTransferOut -> {
-                        interWarehouseTransferOutService.updateProcessedOutboundOrder(interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getMiddlewareId(),
-                                interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getCompanyCode(), interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getBranchCode(),
-                                interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getTransferOrderNumber(), 100L);
-                        log.info("OB Inter warehouse transfer Order Failed {} - ", interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getTransferOrderNumber());
-                    });
-                }
             }
 
             if (!sourceBranchExist && !targetBranchExist) {
@@ -1259,27 +1190,104 @@ public class TransactionServiceV2 {
                 interWarehouseTransferOut.setInterWarehouseTransferOutLine(interWarehouseTransferOutLineList);
                 interWarehouseTransferOutNonWMStoNonWMS.add(interWarehouseTransferOut);
             }
-            if (!interWarehouseTransferOutNonWMStoNonWMS.isEmpty()) {
-                try {
-                    InterWarehouseTransferOut[] outboundHeader = interWarehouseTransferOutService.postIWhTransferOutV7(interWarehouseTransferOutNonWMStoNonWMS);
-                    if (outboundHeader.length > 0) {
-                        interWarehouseTransferOutNonWMStoNonWMS.stream().forEach(interWarehouseTransferOut -> {
-                            // Updating the Processed Status = 10
-                            interWarehouseTransferOutService.updateProcessedOutboundOrder(interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getMiddlewareId(),
-                                    interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getCompanyCode(), interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getBranchCode(),
-                                    interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getTransferOrderNumber(), 10L);
-                            log.info("OB Inter warehouse transfer Order Created Successfully {} - ", interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getTransferOrderNumber());
-                        });
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    interWarehouseTransferOutNonWMStoNonWMS.stream().forEach(interWarehouseTransferOut -> {
-                        interWarehouseTransferOutService.updateProcessedOutboundOrder(interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getMiddlewareId(),
-                                interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getCompanyCode(), interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getBranchCode(),
-                                interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getTransferOrderNumber(), 100L);
-                        log.info("OB Inter warehouse transfer Order Failed {} - ", interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getTransferOrderNumber());
+
+        }
+
+        if (!shipmentOrders.isEmpty()) {
+            try {
+                log.info("Shipment Order ------------> InterWarehouseTransferOut");
+                ShipmentOrder[] outboundHeader = shipmentOrderService.postShipmentOrder(shipmentOrders);
+                if (outboundHeader.length > 0) {
+                    shipmentOrders.stream().forEach(shipment -> {
+                        // Updating the Processed Status = 10
+                        shipmentOrderService.updateProcessedOutboundOrder(shipment.getSoHeader().getMiddlewareId(),
+                                shipment.getSoHeader().getCompanyCode(), shipment.getSoHeader().getBranchCode(),
+                                shipment.getSoHeader().getTransferOrderNumber(), 10L);
+                        log.info("OB Shipment Order Created Successfully {} - ", shipment.getSoHeader().getTransferOrderNumber());
                     });
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
+                shipmentOrders.stream().forEach(shipment -> {
+                    shipmentOrderService.updateProcessedOutboundOrder(shipment.getSoHeader().getMiddlewareId(),
+                            shipment.getSoHeader().getCompanyCode(), shipment.getSoHeader().getBranchCode(),
+                            shipment.getSoHeader().getTransferOrderNumber(), 100L);
+                    log.info("OB Shipment Order Failed {} - ", shipment.getSoHeader().getTransferOrderNumber());
+                });
+            }
+        }
+
+        if (!interWarehouseTransferOutNonWMStoWMS.isEmpty()) {
+            try {
+                log.info("InterWarehouseTransferOutNonWMStoWMS ------------> ");
+                InterWarehouseTransferOut[] outboundHeader = interWarehouseTransferOutService.postIWhTransferOutV7(interWarehouseTransferOutNonWMStoWMS);
+                if (outboundHeader.length > 0) {
+                    interWarehouseTransferOutNonWMStoWMS.stream().forEach(interWarehouseTransferOut -> {
+                        // Updating the Processed Status = 10
+                        interWarehouseTransferOutService.updateProcessedOutboundOrder(interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getMiddlewareId(),
+                                interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getCompanyCode(), interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getBranchCode(),
+                                interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getTransferOrderNumber(), 10L);
+                        log.info("OB Inter warehouse transfer Order Created Successfully {} - ", interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getTransferOrderNumber());
+                    });
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                interWarehouseTransferOutNonWMStoWMS.stream().forEach(interWarehouseTransferOut -> {
+                    interWarehouseTransferOutService.updateProcessedOutboundOrder(interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getMiddlewareId(),
+                            interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getCompanyCode(), interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getBranchCode(),
+                            interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getTransferOrderNumber(), 100L);
+                    log.info("OB Inter warehouse transfer Order Failed {} - ", interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getTransferOrderNumber());
+                });
+            }
+        }
+
+        if (!interWarehouseTransferOutWMStoWMS.isEmpty()) {
+            try {
+                log.info("InterWarehouseTransferOutWMStoWMS ------------> ");
+                InterWarehouseTransferOut[] outboundHeader = interWarehouseTransferOutService.postIWhTransferOutV7(interWarehouseTransferOutWMStoWMS);
+//                    log.info("OutboundHeader -------> {}", outboundHeader);
+                log.info("OutboundHeader length -------> {}", outboundHeader.length);
+                if (outboundHeader.length > 0) {
+                    interWarehouseTransferOutWMStoWMS.stream().forEach(interWarehouseTransferOut -> {
+                        // Updating the Processed Status = 10
+                        interWarehouseTransferOutService.updateProcessedOutboundOrder(interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getMiddlewareId(),
+                                interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getCompanyCode(), interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getBranchCode(),
+                                interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getTransferOrderNumber(), 10L);
+                        log.info("OB Inter warehouse transfer Order Created Successfully {} - ", interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getTransferOrderNumber());
+                    });
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                interWarehouseTransferOutWMStoWMS.stream().forEach(interWarehouseTransferOut -> {
+                    interWarehouseTransferOutService.updateProcessedOutboundOrder(interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getMiddlewareId(),
+                            interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getCompanyCode(), interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getBranchCode(),
+                            interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getTransferOrderNumber(), 100L);
+                    log.info("OB Inter warehouse transfer Order Failed {} - ", interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getTransferOrderNumber());
+                });
+            }
+        }
+
+        if (!interWarehouseTransferOutNonWMStoNonWMS.isEmpty()) {
+            try {
+                log.info("InterWarehouseTransferOutNonWMStoNonWMS ------------> ");
+                InterWarehouseTransferOut[] outboundHeader = interWarehouseTransferOutService.postIWhTransferOutV7(interWarehouseTransferOutNonWMStoNonWMS);
+                if (outboundHeader.length > 0) {
+                    interWarehouseTransferOutNonWMStoNonWMS.stream().forEach(interWarehouseTransferOut -> {
+                        // Updating the Processed Status = 10
+                        interWarehouseTransferOutService.updateProcessedOutboundOrder(interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getMiddlewareId(),
+                                interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getCompanyCode(), interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getBranchCode(),
+                                interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getTransferOrderNumber(), 10L);
+                        log.info("OB Inter warehouse transfer Order Created Successfully {} - ", interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getTransferOrderNumber());
+                    });
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                interWarehouseTransferOutNonWMStoNonWMS.stream().forEach(interWarehouseTransferOut -> {
+                    interWarehouseTransferOutService.updateProcessedOutboundOrder(interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getMiddlewareId(),
+                            interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getCompanyCode(), interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getBranchCode(),
+                            interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getTransferOrderNumber(), 100L);
+                    log.info("OB Inter warehouse transfer Order Failed {} - ", interWarehouseTransferOut.getInterWarehouseTransferOutHeader().getTransferOrderNumber());
+                });
             }
         }
 
@@ -1348,9 +1356,9 @@ public class TransactionServiceV2 {
             }
             salesOrder.setSalesOrderHeader(salesOrderHeader);
             salesOrder.setSalesOrderLine(salesOrderLines);
+            salesOrderList.add(salesOrder);
         }
 
-        salesOrderList.add(salesOrder);
         // Sales_Order_Record_Transaction_Service
         if (!salesOrderList.isEmpty()) {
             try {
