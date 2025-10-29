@@ -331,7 +331,7 @@ public class PreOutboundService extends BaseService {
      * @param preOutboundLineList
      * @throws Exception
      */
-    @Transactional
+//    @Transactional
     private void createOrderManagementLine(String companyCodeId, String plantId, String languageId, String preOutboundNo,
                                            OutboundIntegrationHeaderV2 outboundIntegrationHeader, List<PreOutboundLineV2> preOutboundLineList) throws Exception {
         OrderManagementLineV2 orderManagementLine = null;

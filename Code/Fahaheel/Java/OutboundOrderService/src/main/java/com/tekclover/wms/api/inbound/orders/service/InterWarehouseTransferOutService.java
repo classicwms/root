@@ -124,6 +124,7 @@ public class InterWarehouseTransferOutService {
                 String newPickListNo = header.getTransferOrderNumber();
                 String orderType = lineV2List.get(0).getOrderType();
 
+                DataBaseContextHolder.setCurrentDb("FAHAHEEL");
                 Optional<PreInboundHeaderEntityV2> duplicateCheck = preInboundHeaderV2Repository.findByRefDocNumberAndDeletionIndicator(newPickListNo, 0L);
 
                 if(duplicateCheck.isPresent()) {
