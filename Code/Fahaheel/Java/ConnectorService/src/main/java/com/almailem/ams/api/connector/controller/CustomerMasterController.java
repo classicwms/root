@@ -44,4 +44,11 @@ public class CustomerMasterController {
         return new ResponseEntity<>(customerMaster, HttpStatus.OK);
     }
 
+    @ApiOperation(response = CustomerMaster.class, value = "Update CustomerMaster Details")
+    @PatchMapping("/updateCustomerMaster")
+    public ResponseEntity<?> patchCustomerMaster(@RequestBody List<CustomerMaster> customerMasters) {
+        List<CustomerMaster> customerMastersList = customerMasterService.updateCustomerMaster(customerMasters);
+        return new ResponseEntity<>(customerMastersList, HttpStatus.OK);
+    }
+
 }

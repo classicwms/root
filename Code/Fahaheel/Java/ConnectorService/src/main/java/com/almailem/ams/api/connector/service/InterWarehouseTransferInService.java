@@ -1,6 +1,7 @@
 package com.almailem.ams.api.connector.service;
 
 import com.almailem.ams.api.connector.config.PropertiesConfig;
+import com.almailem.ams.api.connector.controller.exception.BadRequestException;
 import com.almailem.ams.api.connector.model.auth.AuthToken;
 import com.almailem.ams.api.connector.model.transferin.SearchTransferInHeader;
 import com.almailem.ams.api.connector.model.transferin.SearchTransferInLine;
@@ -12,8 +13,10 @@ import com.almailem.ams.api.connector.repository.TransferInHeaderRepository;
 import com.almailem.ams.api.connector.repository.TransferInLineRepository;
 import com.almailem.ams.api.connector.repository.specification.TransferInHeaderSpecification;
 import com.almailem.ams.api.connector.repository.specification.TransferInLineSpecification;
+import com.almailem.ams.api.connector.util.CommonUtils;
 import com.almailem.ams.api.connector.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -23,10 +26,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 //import java.sql.Date;
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -188,6 +188,27 @@ public class InterWarehouseTransferInService extends BaseService {
                 getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, InterWarehouseTransferIn[].class);
         log.info("result : " + result.getStatusCode());
         return result.getBody();
+    }
+
+    /**
+     *
+     * @param transferInHeaders
+     * @return
+     */
+    public List<TransferInHeader> updateTransferInHeader(List<TransferInHeader> transferInHeaders) {
+        List<TransferInHeader> transferInHeadersList = new ArrayList<>();
+        for(TransferInHeader transfer : transferInHeaders) {
+            Optional<TransferInHeader> header = transferInHeaderRepository.findByTransferOrderNo(transfer.getTransferOrderNo());
+            if (header.isPresent()) {
+                TransferInHeader transferIn = header.get();
+                BeanUtils.copyProperties(transfer, transferIn, CommonUtils.getNullPropertyNames(transfer));
+                transferInHeaderRepository.save(transferIn);
+                transferInHeadersList.add(transferIn);
+            } else {
+                throw new BadRequestException("TransferInHeader OrderNumber Doesn't Exist " + transfer.getTransferOrderNo());
+            }
+        }
+        return transferInHeadersList;
     }
 
 }

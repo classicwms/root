@@ -2,6 +2,7 @@ package com.almailem.ams.api.connector.service;
 
 
 import com.almailem.ams.api.connector.config.PropertiesConfig;
+import com.almailem.ams.api.connector.controller.exception.BadRequestException;
 import com.almailem.ams.api.connector.model.auth.AuthToken;
 import com.almailem.ams.api.connector.model.salesreturn.FindSalesReturnHeader;
 import com.almailem.ams.api.connector.model.salesreturn.FindSalesReturnLine;
@@ -13,8 +14,10 @@ import com.almailem.ams.api.connector.repository.SalesReturnHeaderRepository;
 import com.almailem.ams.api.connector.repository.SalesReturnLineRepository;
 import com.almailem.ams.api.connector.repository.specification.SalesReturnHeaderSpecification;
 import com.almailem.ams.api.connector.repository.specification.SalesReturnLineSpecification;
+import com.almailem.ams.api.connector.util.CommonUtils;
 import com.almailem.ams.api.connector.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -166,5 +169,26 @@ public class SalesReturnService extends BaseService {
                 getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, SaleOrderReturn[].class);
         log.info("result : " + result.getStatusCode());
         return result.getBody();
+    }
+
+    /**
+     *
+     * @param salesReturnHeaders
+     * @return
+     */
+    public List<SalesReturnHeader> updateSalesReturnHeader(List<SalesReturnHeader> salesReturnHeaders) {
+        List<SalesReturnHeader> salesReturnHeadersList = new ArrayList<>();
+        for(SalesReturnHeader sales : salesReturnHeaders) {
+            Optional<SalesReturnHeader> header = salesReturnHeaderRepository.findByReturnOrderNo(sales.getReturnOrderNo());
+            if (header.isPresent()) {
+                SalesReturnHeader salesReturn = header.get();
+                BeanUtils.copyProperties(sales, salesReturn, CommonUtils.getNullPropertyNames(sales));
+                salesReturnHeaderRepository.save(salesReturn);
+                salesReturnHeadersList.add(salesReturn);
+            } else {
+                throw new BadRequestException("SalesReturn Order No  Doesn't Exist " + sales.getReturnOrderNo());
+            }
+        }
+        return salesReturnHeadersList;
     }
 }

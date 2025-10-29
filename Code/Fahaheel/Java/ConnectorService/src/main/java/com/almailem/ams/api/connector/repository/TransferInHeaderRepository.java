@@ -11,13 +11,15 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @Transactional
 public interface TransferInHeaderRepository extends JpaRepository<TransferInHeader, String>,
         JpaSpecificationExecutor<TransferInHeader> {
 
-    TransferInHeader findByTransferOrderNo(String asnNumber);
+
+    Optional<TransferInHeader> findByTransferOrderNo(String asnNumber);
 
     List<TransferInHeader> findTopByProcessedStatusIdOrderByOrderReceivedOn(long l);
 //    @Modifying(clearAutomatically = true)
@@ -55,4 +57,5 @@ public interface TransferInHeaderRepository extends JpaRepository<TransferInHead
     @Query(value = "SELECT * FROM TRANSFERINHEADER WHERE Processedstatusid = :statusId and Targetbranchcode in (:branchCode) ORDER BY Orderreceivedon", nativeQuery = true)
     List<TransferInHeader> findByTransferIn(@Param("statusId") Long statusId,
                                               @Param("branchCode") List<String> branchCode);
+
 }

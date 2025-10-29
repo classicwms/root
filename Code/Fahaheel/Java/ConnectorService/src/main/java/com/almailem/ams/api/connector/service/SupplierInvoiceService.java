@@ -1,6 +1,7 @@
 package com.almailem.ams.api.connector.service;
 
 import com.almailem.ams.api.connector.config.PropertiesConfig;
+import com.almailem.ams.api.connector.controller.exception.BadRequestException;
 import com.almailem.ams.api.connector.model.auth.AuthToken;
 import com.almailem.ams.api.connector.model.supplierinvoice.*;
 import com.almailem.ams.api.connector.model.wms.*;
@@ -8,8 +9,10 @@ import com.almailem.ams.api.connector.repository.SupplierInvoiceHeaderRepository
 import com.almailem.ams.api.connector.repository.SupplierInvoiceLineRepository;
 import com.almailem.ams.api.connector.repository.specification.SupplierInvoiceHeaderSpecification;
 import com.almailem.ams.api.connector.repository.specification.SupplierInvoiceLineSpecification;
+import com.almailem.ams.api.connector.util.CommonUtils;
 import com.almailem.ams.api.connector.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -171,5 +174,25 @@ public class SupplierInvoiceService extends BaseService {
     }
 
 
+    /**
+     *
+     * @param supplierInvoiceHeaders
+     * @return
+     */
+    public List<SupplierInvoiceHeader> updateSupplierInvoiceHeader(List<SupplierInvoiceHeader> supplierInvoiceHeaders) {
+        List<SupplierInvoiceHeader> supplierInvoiceHeadersList = new ArrayList<>();
+        for(SupplierInvoiceHeader invoice : supplierInvoiceHeaders) {
+            Optional<SupplierInvoiceHeader> header = supplierInvoiceHeaderRepository.findBySupplierInvoiceNo(invoice.getSupplierInvoiceNo());
+            if (header.isPresent()) {
+                SupplierInvoiceHeader supplierInvoice = header.get();
+                BeanUtils.copyProperties(invoice, supplierInvoice, CommonUtils.getNullPropertyNames(invoice));
+                supplierInvoiceHeaderRepository.save(supplierInvoice);
+                supplierInvoiceHeadersList.add(supplierInvoice);
+            } else {
+                throw new BadRequestException("SupplierInvoiceNo Doesn't Exist " + invoice.getSupplierInvoiceNo());
+            }
+        }
+        return supplierInvoiceHeadersList;
+    }
 
 }

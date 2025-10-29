@@ -1,6 +1,7 @@
 package com.almailem.ams.api.connector.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -19,7 +20,7 @@ public interface SupplierInvoiceHeaderRepository extends JpaRepository<SupplierI
     List<SupplierInvoiceHeader> findTopByProcessedStatusIdOrderByOrderReceivedOn(long l);
     List<SupplierInvoiceHeader> findByProcessedStatusIdOrderByOrderReceivedOn(long l);
 
-    SupplierInvoiceHeader findBySupplierInvoiceNo(String asnNumber);
+    Optional<SupplierInvoiceHeader> findBySupplierInvoiceNo(String asnNumber);
 
     SupplierInvoiceHeader findTopBySupplierInvoiceHeaderIdAndCompanyCodeAndBranchCodeAndSupplierInvoiceNoOrderByOrderReceivedOnDesc(
             Long supplierInvoiceHeaderId, String companyCode, String branchCode, String supplierInvoiceNo);

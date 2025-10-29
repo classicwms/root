@@ -1,6 +1,7 @@
 package com.almailem.ams.api.connector.service;
 
 import com.almailem.ams.api.connector.config.PropertiesConfig;
+import com.almailem.ams.api.connector.controller.exception.BadRequestException;
 import com.almailem.ams.api.connector.model.auth.AuthToken;
 import com.almailem.ams.api.connector.model.master.FindItemMaster;
 import com.almailem.ams.api.connector.model.master.ItemMaster;
@@ -8,8 +9,10 @@ import com.almailem.ams.api.connector.model.wms.Item;
 import com.almailem.ams.api.connector.model.wms.WarehouseApiResponse;
 import com.almailem.ams.api.connector.repository.ItemMasterRepository;
 import com.almailem.ams.api.connector.repository.specification.ItemMasterSpecification;
+import com.almailem.ams.api.connector.util.CommonUtils;
 import com.almailem.ams.api.connector.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -18,10 +21,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -166,6 +166,27 @@ public class ItemMasterService extends BaseService {
                 getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse.class);
         log.info("result : " + result.getStatusCode());
         return result.getBody();
+    }
+
+    /**
+     *
+     * @param itemMasters
+     * @return
+     */
+    public List<ItemMaster> updateItemMaster(List<ItemMaster> itemMasters) {
+        List<ItemMaster> itemMastersList = new ArrayList<>();
+        for(ItemMaster items : itemMasters) {
+            Optional<ItemMaster> masters = itemMasterRepository.findByItemCode(items.getItemCode());
+            if (masters.isPresent()) {
+                ItemMaster itemsList = masters.get();
+                BeanUtils.copyProperties(items, itemsList, CommonUtils.getNullPropertyNames(items));
+                itemMasterRepository.save(itemsList);
+                itemMastersList.add(itemsList);
+            } else {
+                throw new BadRequestException("Item Code Doesn't Exist " + items.getItemCode());
+            }
+        }
+        return itemMastersList;
     }
 
 }

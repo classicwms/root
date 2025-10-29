@@ -54,5 +54,12 @@ public class SupplierInvoiceController {
         return new ResponseEntity<>(supplierInvoiceLineList, HttpStatus.OK);
     }
 
+    @ApiOperation(response = SupplierInvoiceHeader.class, value = "Update Supplier Invoice Header")
+    @PatchMapping("/updateSupplierInvoiceHeader")
+    public ResponseEntity<?> patchSupplierInvoiceHeader(@RequestBody List<SupplierInvoiceHeader> supplierInvoiceHeaders) {
+        List<SupplierInvoiceHeader> supplierInvoiceHeadersList = supplierInvoiceService.updateSupplierInvoiceHeader(supplierInvoiceHeaders);
+        return new ResponseEntity<>(supplierInvoiceHeadersList, HttpStatus.OK);
+    }
+
 
 }

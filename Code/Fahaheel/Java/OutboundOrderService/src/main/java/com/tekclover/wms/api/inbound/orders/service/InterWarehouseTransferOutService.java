@@ -12,6 +12,7 @@ import com.tekclover.wms.api.inbound.orders.model.dto.ImBasicData;
 import com.tekclover.wms.api.inbound.orders.model.dto.ImBasicData1;
 import com.tekclover.wms.api.inbound.orders.model.inbound.inventory.v2.IInventoryImpl;
 import com.tekclover.wms.api.inbound.orders.model.inbound.inventory.v2.InventoryV2;
+import com.tekclover.wms.api.inbound.orders.model.inbound.preinbound.v2.PreInboundHeaderEntityV2;
 import com.tekclover.wms.api.inbound.orders.model.outbound.ordermangement.v2.OrderManagementHeaderV2;
 import com.tekclover.wms.api.inbound.orders.model.outbound.ordermangement.v2.OrderManagementLineV2;
 import com.tekclover.wms.api.inbound.orders.model.outbound.pickup.v2.PickupHeaderV2;
@@ -122,6 +123,13 @@ public class InterWarehouseTransferOutService {
                 String plantId = header.getFromBranchCode();
                 String newPickListNo = header.getTransferOrderNumber();
                 String orderType = lineV2List.get(0).getOrderType();
+
+                Optional<PreInboundHeaderEntityV2> duplicateCheck = preInboundHeaderV2Repository.findByRefDocNumberAndDeletionIndicator(newPickListNo, 0L);
+
+                if(duplicateCheck.isPresent()) {
+                    log.info("Duplicate Order In InterWarehouseTransferOut -----> {} ", newPickListNo);
+                    throw new BadRequestException("Duplicate Transfer Order ------> "+ newPickListNo);
+                }
 
                 // Get Warehouse
                 Optional<Warehouse> dbWarehouse =

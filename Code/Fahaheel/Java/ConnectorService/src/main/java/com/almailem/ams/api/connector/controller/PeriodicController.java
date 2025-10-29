@@ -62,4 +62,11 @@ public class PeriodicController {
         return new ResponseEntity<>(periodicLines, HttpStatus.OK);
     }
 
+    @ApiOperation(response = PeriodicHeader.class, value = "Update Supplier Invoice Header")
+    @PatchMapping("/updatePeriodicHeader")
+    public ResponseEntity<?> patchPeriodicHeader(@RequestBody List<PeriodicHeader> periodicHeaders) {
+        List<PeriodicHeader> periodicHeadersList = periodicService.updatePeriodicHeader(periodicHeaders);
+        return new ResponseEntity<>(periodicHeadersList, HttpStatus.OK);
+    }
+
 }

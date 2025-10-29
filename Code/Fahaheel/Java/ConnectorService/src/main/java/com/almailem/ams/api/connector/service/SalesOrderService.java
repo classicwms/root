@@ -1,6 +1,7 @@
 package com.almailem.ams.api.connector.service;
 
 import com.almailem.ams.api.connector.config.PropertiesConfig;
+import com.almailem.ams.api.connector.controller.exception.BadRequestException;
 import com.almailem.ams.api.connector.model.auth.AuthToken;
 import com.almailem.ams.api.connector.model.picklist.FindPickListHeader;
 import com.almailem.ams.api.connector.model.picklist.FindPickListLine;
@@ -12,8 +13,10 @@ import com.almailem.ams.api.connector.repository.PickListHeaderRepository;
 import com.almailem.ams.api.connector.repository.PickListLineRepository;
 import com.almailem.ams.api.connector.repository.specification.PickListHeaderSpecification;
 import com.almailem.ams.api.connector.repository.specification.PickListLineSpecification;
+import com.almailem.ams.api.connector.util.CommonUtils;
 import com.almailem.ams.api.connector.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -26,10 +29,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -171,5 +171,26 @@ public class SalesOrderService extends BaseService {
                 getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, SalesOrder[].class);
         log.info("result : " + result.getStatusCode());
         return result.getBody();
+    }
+
+    /**
+     *
+     * @param pickListHeaders
+     * @return
+     */
+    public List<PickListHeader> updatePickListHeader(List<PickListHeader> pickListHeaders) {
+        List<PickListHeader> pickListHeadersList = new ArrayList<>();
+        for(PickListHeader picklists : pickListHeaders) {
+            Optional<PickListHeader> header = pickListHeaderRepository.findByPickListNo(picklists.getPickListNo());
+            if (header.isPresent()) {
+                PickListHeader pickListed = header.get();
+                BeanUtils.copyProperties(picklists, pickListed, CommonUtils.getNullPropertyNames(picklists));
+                pickListHeaderRepository.save(pickListed);
+                pickListHeadersList.add(pickListed);
+            } else {
+                throw new BadRequestException("PickList No  Doesn't Exist " + picklists.getPickListNo());
+            }
+        }
+        return pickListHeadersList;
     }
 }

@@ -1,6 +1,7 @@
 package com.almailem.ams.api.connector.service;
 
 import com.almailem.ams.api.connector.config.PropertiesConfig;
+import com.almailem.ams.api.connector.controller.exception.BadRequestException;
 import com.almailem.ams.api.connector.model.auth.AuthToken;
 import com.almailem.ams.api.connector.model.periodic.FindPeriodicHeader;
 import com.almailem.ams.api.connector.model.periodic.FindPeriodicLine;
@@ -13,8 +14,10 @@ import com.almailem.ams.api.connector.repository.PeriodicHeaderRepository;
 import com.almailem.ams.api.connector.repository.PeriodicLineRepository;
 import com.almailem.ams.api.connector.repository.specification.PeriodicHeaderSpecification;
 import com.almailem.ams.api.connector.repository.specification.PeriodicLineSpecification;
+import com.almailem.ams.api.connector.util.CommonUtils;
 import com.almailem.ams.api.connector.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -229,6 +232,27 @@ public class PeriodicService extends BaseService {
                 getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse.class);
         log.info("result: " + result.getStatusCode());
         return result.getBody();
+    }
+
+    /**
+     *
+     * @param periodicHeaders
+     * @return
+     */
+    public List<PeriodicHeader> updatePeriodicHeader(List<PeriodicHeader> periodicHeaders) {
+        List<PeriodicHeader> periodicHeadersList = new ArrayList<>();
+        for(PeriodicHeader periodic : periodicHeaders) {
+            Optional<PeriodicHeader> header = periodicHeaderRepo.findByCycleCountNo(periodic.getCycleCountNo());
+            if (header.isPresent()) {
+                PeriodicHeader periodicList = header.get();
+                BeanUtils.copyProperties(periodic, periodicList, CommonUtils.getNullPropertyNames(periodic));
+                periodicHeaderRepo.save(periodicList);
+                periodicHeadersList.add(periodicList);
+            } else {
+                throw new BadRequestException("Periodic Cycle Count Doesn't Exist " + periodic.getCycleCountNo());
+            }
+        }
+        return periodicHeadersList;
     }
 
 }

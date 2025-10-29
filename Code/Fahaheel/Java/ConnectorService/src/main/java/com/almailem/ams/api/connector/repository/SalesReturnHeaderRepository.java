@@ -12,11 +12,12 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @Transactional
 public interface SalesReturnHeaderRepository extends JpaRepository<SalesReturnHeader, String>, JpaSpecificationExecutor<SalesReturnHeader> {
-    SalesReturnHeader findByReturnOrderNo(String returnOrderNo);
+    Optional<SalesReturnHeader> findByReturnOrderNo(String returnOrderNo);
 
     List<SalesReturnHeader> findTopByProcessedStatusIdOrderByOrderReceivedOn(long l);
 

@@ -53,4 +53,11 @@ public class StockReceiptController {
         return new ResponseEntity<>(stockReceiptLineList, HttpStatus.OK);
     }
 
+    @ApiOperation(response = StockReceiptHeader.class, value = "Update StockReceiptHeader Header")
+    @PatchMapping("/updateStockReceiptHeader")
+    public ResponseEntity<?> patchStockReceiptHeader(@RequestBody List<StockReceiptHeader> stockReceiptHeaders) {
+        List<StockReceiptHeader> stockReceiptHeaderList = stockReceiptService.updateStockReceiptHeader(stockReceiptHeaders);
+        return new ResponseEntity<>(stockReceiptHeaderList, HttpStatus.OK);
+    }
+
 }

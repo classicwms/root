@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @Transactional
@@ -45,4 +46,6 @@ public interface PerpetualHeaderRepository extends JpaRepository<PerpetualHeader
     @Query(value = "SELECT * FROM PERPETUALHEADER WHERE Processedstatusid = :statusId and Branchcode in (:branchCode) ORDER BY Orderreceivedon", nativeQuery = true)
     List<PerpetualHeader> findByPerpetual(@Param("statusId") Long statusId,
                                       @Param("branchCode") List<String> branchCode);
+
+    Optional<PerpetualHeader> findByCycleCountNo(String cycleCountNo);
 }

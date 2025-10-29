@@ -14,11 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.util.List;
@@ -50,13 +46,18 @@ public class SalesOrderController {
         return new ResponseEntity<>(pickListHeaders, HttpStatus.OK);
     }
 
-
-
     // FInd PickListLine
     @ApiOperation(response = PickListLine.class, value = "Find PickListLine") // label for Swagger
     @PostMapping("/findPickListLine")
     public ResponseEntity<?> searchPickListLine(@RequestBody FindPickListLine findPickListLine) throws ParseException {
         List<PickListLine> pickListLines = salesOrderService.findPickListLine(findPickListLine);
         return new ResponseEntity<>(pickListLines, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = PickListHeader.class, value = "Update PickListHeader")
+    @PatchMapping("/updatePickListHeader")
+    public ResponseEntity<?> patchPickListHeader(@RequestBody List<PickListHeader> pickListHeaders) {
+        List<PickListHeader> pickListHeadersList = salesOrderService.updatePickListHeader(pickListHeaders);
+        return new ResponseEntity<>(pickListHeadersList, HttpStatus.OK);
     }
 }

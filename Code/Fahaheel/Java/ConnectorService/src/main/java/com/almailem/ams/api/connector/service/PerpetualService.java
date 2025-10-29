@@ -1,6 +1,7 @@
 package com.almailem.ams.api.connector.service;
 
 import com.almailem.ams.api.connector.config.PropertiesConfig;
+import com.almailem.ams.api.connector.controller.exception.BadRequestException;
 import com.almailem.ams.api.connector.model.auth.AuthToken;
 import com.almailem.ams.api.connector.model.perpetual.FindPerpetualHeader;
 import com.almailem.ams.api.connector.model.perpetual.FindPerpetualLine;
@@ -13,8 +14,10 @@ import com.almailem.ams.api.connector.repository.PerpetualHeaderRepository;
 import com.almailem.ams.api.connector.repository.PerpetualLineRepository;
 import com.almailem.ams.api.connector.repository.specification.PerpetualHeaderSpecification;
 import com.almailem.ams.api.connector.repository.specification.PerpetualLineSpecification;
+import com.almailem.ams.api.connector.util.CommonUtils;
 import com.almailem.ams.api.connector.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -230,6 +233,27 @@ public class PerpetualService extends BaseService {
                 getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse.class);
         log.info("result: " + result.getStatusCode());
         return result.getBody();
+    }
+
+    /**
+     *
+     * @param perpetualHeaders
+     * @return
+     */
+    public List<PerpetualHeader> updatePerpetualHeader(List<PerpetualHeader> perpetualHeaders) {
+        List<PerpetualHeader> perpetualHeadersList = new ArrayList<>();
+        for(PerpetualHeader perpetual : perpetualHeaders) {
+            Optional<PerpetualHeader> header = perpetualHeaderRepo.findByCycleCountNo(perpetual.getCycleCountNo());
+            if (header.isPresent()) {
+                PerpetualHeader perpetualList = header.get();
+                BeanUtils.copyProperties(perpetual, perpetualList, CommonUtils.getNullPropertyNames(perpetual));
+                perpetualHeaderRepo.save(perpetualList);
+                perpetualHeadersList.add(perpetualList);
+            } else {
+                throw new BadRequestException("Perpetual Cycle Count Doesn't Exist" + perpetual.getCycleCountNo());
+            }
+        }
+        return perpetualHeadersList;
     }
 
 }

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @Transactional
@@ -19,7 +20,7 @@ public interface PurchaseReturnHeaderRepository extends JpaRepository<PurchaseRe
 
     List<PurchaseReturnHeader> findTopByProcessedStatusIdOrderByOrderReceivedOn(long l);
 
-    PurchaseReturnHeader findByReturnOrderNo(String poNumber);
+    Optional<PurchaseReturnHeader> findByReturnOrderNo(String returnOrderNo);
 
 //    @Modifying(clearAutomatically = true)
 //    @Query(value = "UPDATE PURCHASERETURNHEADER set processedStatusId = 10, orderProcessedOn = :date  \r\n"

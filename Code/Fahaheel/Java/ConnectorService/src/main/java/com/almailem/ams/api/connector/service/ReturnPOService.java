@@ -1,6 +1,7 @@
 package com.almailem.ams.api.connector.service;
 
 import com.almailem.ams.api.connector.config.PropertiesConfig;
+import com.almailem.ams.api.connector.controller.exception.BadRequestException;
 import com.almailem.ams.api.connector.model.auth.AuthToken;
 import com.almailem.ams.api.connector.model.purchasereturn.FindPurchaseReturnHeader;
 import com.almailem.ams.api.connector.model.purchasereturn.FindPurchaseReturnLine;
@@ -12,8 +13,10 @@ import com.almailem.ams.api.connector.repository.PurchaseReturnHeaderRepository;
 import com.almailem.ams.api.connector.repository.PurchaseReturnLineRepository;
 import com.almailem.ams.api.connector.repository.specification.PurchaseReturnHeaderSpecification;
 import com.almailem.ams.api.connector.repository.specification.PurchaseReturnLineSpecification;
+import com.almailem.ams.api.connector.util.CommonUtils;
 import com.almailem.ams.api.connector.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -26,10 +29,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -177,6 +177,27 @@ public class ReturnPOService extends BaseService {
                 getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, ReturnPO[].class);
         log.info("result: " + result.getStatusCode());
         return result.getBody();
+    }
+
+    /**
+     *
+     * @param purchaseReturnHeaders
+     * @return
+     */
+    public List<PurchaseReturnHeader> updatePurchaseReturnHeader(List<PurchaseReturnHeader> purchaseReturnHeaders) {
+        List<PurchaseReturnHeader> purchaseReturnHeadersList = new ArrayList<>();
+        for(PurchaseReturnHeader purchaseReturns : purchaseReturnHeaders) {
+            Optional<PurchaseReturnHeader> header = purchaseReturnHeaderRepository.findByReturnOrderNo(purchaseReturns.getReturnOrderNo());
+            if (header.isPresent()) {
+                PurchaseReturnHeader purchaseReturned = header.get();
+                BeanUtils.copyProperties(purchaseReturns, purchaseReturned, CommonUtils.getNullPropertyNames(purchaseReturns));
+                purchaseReturnHeaderRepository.save(purchaseReturned);
+                purchaseReturnHeadersList.add(purchaseReturned);
+            } else {
+                throw new BadRequestException("PurchaseReturnNo  Doesn't Exist " + purchaseReturns.getReturnOrderNo());
+            }
+        }
+        return purchaseReturnHeadersList;
     }
 
 }

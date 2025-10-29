@@ -14,11 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.util.List;
@@ -55,6 +51,13 @@ public class ReturnPOController {
     public ResponseEntity<?> searchPurchaseReturnLine(@RequestBody FindPurchaseReturnLine findPurchaseReturnLine) throws ParseException {
         List<PurchaseReturnLine> purchaseReturnLines = returnPOService.findPurchaseReturnLine(findPurchaseReturnLine);
         return new ResponseEntity<>(purchaseReturnLines, HttpStatus.OK);
+    }
+
+    @ApiOperation(response = PurchaseReturnHeader.class, value = "Update PurchaseReturnHeader")
+    @PatchMapping("/updatePurchaseReturnHeader")
+    public ResponseEntity<?> patchPurchaseReturnHeader(@RequestBody List<PurchaseReturnHeader> purchaseReturnHeaders) {
+        List<PurchaseReturnHeader> purchaseReturnHeadersList = returnPOService.updatePurchaseReturnHeader(purchaseReturnHeaders);
+        return new ResponseEntity<>(purchaseReturnHeadersList, HttpStatus.OK);
     }
 
 }

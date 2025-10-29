@@ -1,14 +1,17 @@
 package com.almailem.ams.api.connector.service;
 
 import com.almailem.ams.api.connector.config.PropertiesConfig;
+import com.almailem.ams.api.connector.controller.exception.BadRequestException;
 import com.almailem.ams.api.connector.model.auth.AuthToken;
 import com.almailem.ams.api.connector.model.stockadjustment.FindStockAdjustment;
 import com.almailem.ams.api.connector.model.stockadjustment.StockAdjustment;
 import com.almailem.ams.api.connector.model.wms.WarehouseApiResponse;
 import com.almailem.ams.api.connector.repository.StockAdjustmentRepository;
 import com.almailem.ams.api.connector.repository.specification.StockAdjustmentSpecification;
+import com.almailem.ams.api.connector.util.CommonUtils;
 import com.almailem.ams.api.connector.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -21,10 +24,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -147,6 +147,27 @@ public class StockAdjustmentService extends BaseService {
                 getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse.class);
         log.info("result: " + result.getStatusCode());
         return result.getBody();
+    }
+
+    /**
+     *
+     * @param stockAdjustments
+     * @return
+     */
+    public List<StockAdjustment> updateStockAdjustment(List<StockAdjustment> stockAdjustments) {
+        List<StockAdjustment> stockAdjustmentsList = new ArrayList<>();
+        for(StockAdjustment stock : stockAdjustments) {
+            Optional<StockAdjustment> header = stockAdjustmentRepo.findByItemCode(stock.getItemCode());
+            if (header.isPresent()) {
+                StockAdjustment stockAdjust = header.get();
+                BeanUtils.copyProperties(stock, stockAdjust, CommonUtils.getNullPropertyNames(stock));
+                stockAdjustmentRepo.save(stockAdjust);
+                stockAdjustmentsList.add(stockAdjust);
+            } else {
+                throw new BadRequestException("Stock Adjustment ItemCode Doesn't Exist " + stock.getItemCode());
+            }
+        }
+        return stockAdjustmentsList;
     }
 
 }

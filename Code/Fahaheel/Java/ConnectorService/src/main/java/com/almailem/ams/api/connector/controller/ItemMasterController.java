@@ -44,4 +44,11 @@ public class ItemMasterController {
         return new ResponseEntity<>(itemMaster, HttpStatus.OK);
     }
 
+    @ApiOperation(response = ItemMaster.class, value = "Update Item Master")
+    @PatchMapping("/updateItemMaster")
+    public ResponseEntity<?> patchItemMaster(@RequestBody List<ItemMaster> itemMasters) {
+        List<ItemMaster> itemMastersList = itemMasterService.updateItemMaster(itemMasters);
+        return new ResponseEntity<>(itemMastersList, HttpStatus.OK);
+    }
+
 }

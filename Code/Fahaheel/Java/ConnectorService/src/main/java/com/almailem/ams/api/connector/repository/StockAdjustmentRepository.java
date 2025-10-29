@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @Transactional
@@ -38,4 +39,6 @@ public interface StockAdjustmentRepository extends JpaRepository<StockAdjustment
     @Query(value = "SELECT * FROM STOCKADJUSTMENT WHERE Processedstatusid = :statusId and Stockcountbranchcode in (:branchCode) ORDER BY Orderreceivedon", nativeQuery = true)
     List<StockAdjustment> findByStockAdjustment(@Param("statusId") Long statusId,
                                       @Param("branchCode") List<String> branchCode);
+
+    Optional<StockAdjustment> findByItemCode(String itemCode);
 }

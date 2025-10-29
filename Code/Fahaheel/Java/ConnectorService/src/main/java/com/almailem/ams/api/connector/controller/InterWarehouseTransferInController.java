@@ -59,4 +59,11 @@ public class InterWarehouseTransferInController {
         return new ResponseEntity<>(transferInLineList, HttpStatus.OK);
     }
 
+    @ApiOperation(response = TransferInHeader.class, value = "Update TransferIn Header")
+    @PatchMapping("/updateTransInHeader")
+    public ResponseEntity<?> patchTransferInHeader(@RequestBody List<TransferInHeader> transferInHeaders) {
+        List<TransferInHeader> transferInHeadersList = interWhTransferInV2Service.updateTransferInHeader(transferInHeaders);
+        return new ResponseEntity<>(transferInHeadersList, HttpStatus.OK);
+    }
+
 }

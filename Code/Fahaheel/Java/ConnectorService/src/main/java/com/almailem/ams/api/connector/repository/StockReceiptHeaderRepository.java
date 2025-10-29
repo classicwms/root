@@ -1,6 +1,7 @@
 package com.almailem.ams.api.connector.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.almailem.ams.api.connector.model.supplierinvoice.SupplierInvoiceHeader;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,7 +19,7 @@ import com.almailem.ams.api.connector.model.stockreceipt.StockReceiptHeader;
 public interface StockReceiptHeaderRepository extends JpaRepository<StockReceiptHeader, String>,
         JpaSpecificationExecutor<StockReceiptHeader> {
 
-    StockReceiptHeader findByReceiptNo(String asnNumber);
+    Optional<StockReceiptHeader> findByReceiptNo(String asnNumber);
 
     List<StockReceiptHeader> findTopByProcessedStatusIdOrderByOrderReceivedOn(long l);
     

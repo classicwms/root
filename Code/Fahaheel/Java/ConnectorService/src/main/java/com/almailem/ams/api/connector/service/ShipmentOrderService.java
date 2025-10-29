@@ -1,6 +1,7 @@
 package com.almailem.ams.api.connector.service;
 
 import com.almailem.ams.api.connector.config.PropertiesConfig;
+import com.almailem.ams.api.connector.controller.exception.BadRequestException;
 import com.almailem.ams.api.connector.model.auth.AuthToken;
 import com.almailem.ams.api.connector.model.transferout.FindTransferOutHeader;
 import com.almailem.ams.api.connector.model.transferout.FindTransferOutLine;
@@ -12,8 +13,10 @@ import com.almailem.ams.api.connector.repository.TransferOutHeaderRepository;
 import com.almailem.ams.api.connector.repository.TransferOutLineRepository;
 import com.almailem.ams.api.connector.repository.specification.TransferOutHeaderSpecification;
 import com.almailem.ams.api.connector.repository.specification.TransferOutLineSpecification;
+import com.almailem.ams.api.connector.util.CommonUtils;
 import com.almailem.ams.api.connector.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -22,10 +25,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -168,5 +168,26 @@ public class ShipmentOrderService extends BaseService {
                 getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, ShipmentOrder[].class);
         log.info("result: " + result.getStatusCode());
         return result.getBody();
+    }
+
+    /**
+     *
+     * @param transferOutHeaders
+     * @return
+     */
+    public List<TransferOutHeader> updateTransferOutHeader(List<TransferOutHeader> transferOutHeaders) {
+        List<TransferOutHeader> transferOutHeadersList = new ArrayList<>();
+        for(TransferOutHeader transfer : transferOutHeaders) {
+            Optional<TransferOutHeader> header = transferOutHeaderRepository.findByTransferOrderNumber(transfer.getTransferOrderNumber());
+            if (header.isPresent()) {
+                TransferOutHeader transferOut = header.get();
+                BeanUtils.copyProperties(transfer, transferOut, CommonUtils.getNullPropertyNames(transfer));
+                transferOutHeaderRepository.save(transferOut);
+                transferOutHeadersList.add(transferOut);
+            } else {
+                throw new BadRequestException("TransferOut Order No  Doesn't Exist " + transfer.getTransferOrderNumber());
+            }
+        }
+        return transferOutHeadersList;
     }
 }

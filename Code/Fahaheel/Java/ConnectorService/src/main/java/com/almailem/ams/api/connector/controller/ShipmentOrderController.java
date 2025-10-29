@@ -53,4 +53,11 @@ public class ShipmentOrderController {
         return new ResponseEntity<>(transferOutLines, HttpStatus.OK);
     }
 
+    @ApiOperation(response = TransferOutHeader.class, value = "Update TransferOutHeader")
+    @PatchMapping("/updateTransOutHeader")
+    public ResponseEntity<?> patchTransferOutHeader(@RequestBody List<TransferOutHeader> transferOutHeaders) {
+        List<TransferOutHeader> transferOutHeadersList = soV2Service.updateTransferOutHeader(transferOutHeaders);
+        return new ResponseEntity<>(transferOutHeadersList, HttpStatus.OK);
+    }
+
 }

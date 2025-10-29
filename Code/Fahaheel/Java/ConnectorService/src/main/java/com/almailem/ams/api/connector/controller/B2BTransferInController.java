@@ -59,4 +59,10 @@ public class B2BTransferInController {
         return new ResponseEntity<>(transferInLineList, HttpStatus.OK);
     }
 
+    @ApiOperation(response = TransferInHeader.class, value = "Update TransferIn Header")
+    @PatchMapping("/updateTransferInHeader")
+    public ResponseEntity<?> patchTransferInHeader(@RequestBody List<TransferInHeader> transferInHeaders) {
+        List<TransferInHeader> transferInHeadersList = b2BTransferInService.updateTransferInHeader(transferInHeaders);
+        return new ResponseEntity<>(transferInHeadersList, HttpStatus.OK);
+    }
 }

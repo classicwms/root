@@ -1,6 +1,7 @@
 package com.almailem.ams.api.connector.service;
 
 import com.almailem.ams.api.connector.config.PropertiesConfig;
+import com.almailem.ams.api.connector.controller.exception.BadRequestException;
 import com.almailem.ams.api.connector.model.auth.AuthToken;
 import com.almailem.ams.api.connector.model.master.CustomerMaster;
 import com.almailem.ams.api.connector.model.master.FindCustomerMaster;
@@ -8,8 +9,10 @@ import com.almailem.ams.api.connector.model.wms.Customer;
 import com.almailem.ams.api.connector.model.wms.WarehouseApiResponse;
 import com.almailem.ams.api.connector.repository.CustomerMasterRepository;
 import com.almailem.ams.api.connector.repository.specification.CustomerMasterSpecification;
+import com.almailem.ams.api.connector.util.CommonUtils;
 import com.almailem.ams.api.connector.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -18,10 +21,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -163,5 +163,26 @@ public class CustomerMasterService extends BaseService {
                 getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, WarehouseApiResponse.class);
         log.info("result : " + result.getStatusCode());
         return result.getBody();
+    }
+
+    /**
+     *
+     * @param customerMasters
+     * @return
+     */
+    public List<CustomerMaster> updateCustomerMaster(List<CustomerMaster> customerMasters) {
+        List<CustomerMaster> customerMastersList = new ArrayList<>();
+        for(CustomerMaster cusMaster : customerMasters) {
+            Optional<CustomerMaster> customer = customerMasterRepository.findByCustomerCode(cusMaster.getCustomerCode());
+            if (customer.isPresent()) {
+                CustomerMaster master = customer.get();
+                BeanUtils.copyProperties(cusMaster, master, CommonUtils.getNullPropertyNames(cusMaster));
+                customerMasterRepository.save(master);
+                customerMastersList.add(master);
+            } else {
+                throw new BadRequestException("Customer Code Doesn't Exist " + cusMaster.getCustomerCode());
+            }
+        }
+        return customerMastersList;
     }
 }

@@ -2,6 +2,7 @@ package com.almailem.ams.api.connector.repository;
 
 
 import java.util.List;
+import java.util.Optional;
 
 import com.almailem.ams.api.connector.model.salesinvoice.SalesInvoice;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,7 +20,7 @@ import com.almailem.ams.api.connector.model.picklist.PickListHeader;
 public interface PickListHeaderRepository extends JpaRepository<PickListHeader, String>, JpaSpecificationExecutor<PickListHeader> {
     List<PickListHeader> findTopByProcessedStatusIdOrderByOrderReceivedOn(long l);
     List<PickListHeader> findByProcessedStatusIdOrderByOrderReceivedOn(long l);
-    PickListHeader findByPickListNo(String asnNumber);
+    Optional<PickListHeader> findByPickListNo(String asnNumber);
 
     @Query(value = "select * \n" +
             "from PICKLISTHEADER where Picklistheaderid = :pickListHeaderId ",nativeQuery = true)

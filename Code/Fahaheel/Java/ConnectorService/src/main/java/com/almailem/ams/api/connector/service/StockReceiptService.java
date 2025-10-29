@@ -1,6 +1,7 @@
 package com.almailem.ams.api.connector.service;
 
 import com.almailem.ams.api.connector.config.PropertiesConfig;
+import com.almailem.ams.api.connector.controller.exception.BadRequestException;
 import com.almailem.ams.api.connector.model.auth.AuthToken;
 import com.almailem.ams.api.connector.model.stockreceipt.SearchStockReceiptHeader;
 import com.almailem.ams.api.connector.model.stockreceipt.SearchStockReceiptLine;
@@ -12,8 +13,10 @@ import com.almailem.ams.api.connector.repository.StockReceiptHeaderRepository;
 import com.almailem.ams.api.connector.repository.StockReceiptLineRepository;
 import com.almailem.ams.api.connector.repository.specification.StockReceiptHeaderSpecification;
 import com.almailem.ams.api.connector.repository.specification.StockReceiptLineSpecification;
+import com.almailem.ams.api.connector.util.CommonUtils;
 import com.almailem.ams.api.connector.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -22,10 +25,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -172,4 +172,25 @@ public class StockReceiptService extends BaseService {
         return result.getBody();
     }
 
+
+    /**
+     *
+     * @param stockReceiptHeaders
+     * @return
+     */
+    public List<StockReceiptHeader> updateStockReceiptHeader(List<StockReceiptHeader> stockReceiptHeaders) {
+        List<StockReceiptHeader> stockReceiptHeadersList = new ArrayList<>();
+        for(StockReceiptHeader receipt : stockReceiptHeaders) {
+            Optional<StockReceiptHeader> header = stockReceiptHeaderRepo.findByReceiptNo(receipt.getReceiptNo());
+            if (header.isPresent()) {
+                StockReceiptHeader stockReceipt = header.get();
+                BeanUtils.copyProperties(receipt, stockReceipt, CommonUtils.getNullPropertyNames(receipt));
+                stockReceiptHeaderRepo.save(stockReceipt);
+                stockReceiptHeadersList.add(stockReceipt);
+            } else {
+                throw new BadRequestException("StockReceiptNo Doesn't Exist " + receipt.getReceiptNo());
+            }
+        }
+        return stockReceiptHeadersList;
+    }
 }

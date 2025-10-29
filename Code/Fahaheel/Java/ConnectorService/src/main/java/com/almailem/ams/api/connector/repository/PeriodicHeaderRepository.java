@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @Transactional
@@ -46,4 +47,6 @@ public interface PeriodicHeaderRepository extends JpaRepository<PeriodicHeader, 
     @Query(value = "SELECT * FROM PERIODICHEADER WHERE Processedstatusid = :statusId and Branchcode in (:branchCode) ORDER BY Orderreceivedon", nativeQuery = true)
     List<PeriodicHeader> findByPERIODICHEADER(@Param("statusId") Long statusId,
                                       @Param("branchCode") List<String> branchCode);
+
+    Optional<PeriodicHeader> findByCycleCountNo(String cycleCountNo);
 }

@@ -54,5 +54,11 @@ public class InterWarehouseTransferOutController {
     }
 
 
+    @ApiOperation(response = TransferOutHeader.class, value = "Update TransferOut Header")
+    @PatchMapping("/updateTransferOutHeader")
+    public ResponseEntity<?> patchTransferOutHeader(@RequestBody List<TransferOutHeader> transferOutHeaders) {
+        List<TransferOutHeader> transferOutHeadersList = iWhTransferOutV2Service.updateTransferOutHeader(transferOutHeaders);
+        return new ResponseEntity<>(transferOutHeadersList, HttpStatus.OK);
+    }
 
 }

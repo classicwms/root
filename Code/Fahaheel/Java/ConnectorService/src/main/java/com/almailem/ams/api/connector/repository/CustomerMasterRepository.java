@@ -13,12 +13,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @Transactional
 public interface CustomerMasterRepository extends JpaRepository<CustomerMaster, String>, JpaSpecificationExecutor<CustomerMaster> {
 
-    CustomerMaster findByCustomerCode(String customerCode);
+    Optional<CustomerMaster> findByCustomerCode(String customerCode);
 
     List<CustomerMaster> findByProcessedStatusIdOrderByOrderReceivedOn(long l);
 

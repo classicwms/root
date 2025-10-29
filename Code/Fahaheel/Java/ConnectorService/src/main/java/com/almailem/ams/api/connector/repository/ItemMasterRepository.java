@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @Transactional
@@ -19,7 +20,7 @@ public interface ItemMasterRepository extends JpaRepository<ItemMaster, String>,
 
     List<ItemMaster> findByProcessedStatusIdOrderByOrderReceivedOn(long l);
 
-    ItemMaster findByItemCode(String itemCode);
+    Optional<ItemMaster> findByItemCode(String itemCode);
 
     @Modifying(clearAutomatically = true)
     @Query(value = "UPDATE ITEMMASTER set processedStatusId = 10, orderProcessedOn = :date  \r\n"

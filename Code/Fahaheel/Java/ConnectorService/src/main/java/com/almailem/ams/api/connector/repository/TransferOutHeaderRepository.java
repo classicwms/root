@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @Transactional
@@ -21,7 +22,7 @@ public interface TransferOutHeaderRepository extends JpaRepository<TransferOutHe
 
     List<TransferOutHeader> findTopByProcessedStatusIdOrderByOrderReceivedOn(long l);
 
-    TransferOutHeader findByTransferOrderNumber(String transferOrderNumber);
+    Optional<TransferOutHeader> findByTransferOrderNumber(String transferOrderNumber);
 
 //    @Modifying(clearAutomatically = true)
 //    @Query(value = "UPDATE TRANSFEROUTHEADER set processedStatusId = 10, orderProcessedOn = :date \r\n"

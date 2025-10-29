@@ -1,6 +1,7 @@
 package com.almailem.ams.api.connector.service;
 
 import com.almailem.ams.api.connector.config.PropertiesConfig;
+import com.almailem.ams.api.connector.controller.exception.BadRequestException;
 import com.almailem.ams.api.connector.model.auth.AuthToken;
 import com.almailem.ams.api.connector.model.transferin.SearchTransferInHeader;
 import com.almailem.ams.api.connector.model.transferin.SearchTransferInLine;
@@ -11,8 +12,10 @@ import com.almailem.ams.api.connector.repository.TransferInHeaderRepository;
 import com.almailem.ams.api.connector.repository.TransferInLineRepository;
 import com.almailem.ams.api.connector.repository.specification.TransferInHeaderSpecification;
 import com.almailem.ams.api.connector.repository.specification.TransferInLineSpecification;
+import com.almailem.ams.api.connector.util.CommonUtils;
 import com.almailem.ams.api.connector.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -189,5 +192,26 @@ public class B2BTransferInService extends BaseService {
                 getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, B2bTransferIn[].class);
         log.info("result : " + result.getStatusCode());
         return result.getBody();
+    }
+
+    /**
+     *
+     * @param transferInHeaders
+     * @return
+     */
+    public List<TransferInHeader> updateTransferInHeader(List<TransferInHeader> transferInHeaders) {
+        List<TransferInHeader> transferInHeadersList = new ArrayList<>();
+        for(TransferInHeader transferIn : transferInHeaders) {
+            Optional<TransferInHeader> header = transferInHeaderRepository.findByTransferOrderNo(transferIn.getTransferOrderNo());
+            if (header.isPresent()) {
+                TransferInHeader transfers = header.get();
+                BeanUtils.copyProperties(transferIn, transfers, CommonUtils.getNullPropertyNames(transferIn));
+                transferInHeaderRepository.save(transfers);
+                transferInHeadersList.add(transfers);
+            } else {
+                throw new BadRequestException("TransferOrderNo Doesn't Exist " + transferIn.getTransferOrderNo());
+            }
+        }
+        return transferInHeadersList;
     }
 }

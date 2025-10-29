@@ -57,6 +57,7 @@ public class OutboundOrderController {
             throws IllegalAccessException, InvocationTargetException {
         try {
             for (SalesOrderV2 salesOrderV2 : salesOrder) {
+                log.info("Sales Order Input values -----------------------> " + salesOrderV2);
                 DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbNameWithoutWhId(salesOrderV2.getSalesOrderHeader().getCompanyCode(), salesOrderV2.getSalesOrderHeader().getBranchCode());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);

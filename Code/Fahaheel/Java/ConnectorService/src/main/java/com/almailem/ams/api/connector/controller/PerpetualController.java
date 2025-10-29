@@ -63,4 +63,11 @@ public class PerpetualController {
         return new ResponseEntity<>(perpetualLine, HttpStatus.OK);
     }
 
+    @ApiOperation(response = PerpetualHeader.class, value = "Update PerpetualHeader")
+    @PatchMapping("/updatePerpetualHeader")
+    public ResponseEntity<?> patchPerpetualHeader(@RequestBody List<PerpetualHeader> perpetualHeaders) {
+        List<PerpetualHeader> perpetualHeadersList = perpetualService.updatePerpetualHeader(perpetualHeaders);
+        return new ResponseEntity<>(perpetualHeadersList, HttpStatus.OK);
+    }
+
 }
