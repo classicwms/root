@@ -2321,8 +2321,10 @@ public class OutboundOrderProcessingFTService extends BaseService {
                         if (i <= totalCases) {
                            PickupHeaderV2 pickupHeaderV2 =  createPickUpHeaderV4(companyCodeId, plantId, languageId, warehouseId, PU_NO, preOutboundNo,
                                     refDocNumber, createdOrderManagementLine, loginUserId);
-                           log.info("PickupHeader is Created -------------------> RefDocNo is {} ", pickupHeaderV2.getRefDocNumber());
-                           pickupHeaderV2List.add(pickupHeaderV2);
+                            if (pickupHeaderV2 != null) {
+                                log.info("PickupHeader is Created -------------------> RefDocNo is {} ", pickupHeaderV2.getRefDocNumber());
+                                pickupHeaderV2List.add(pickupHeaderV2);
+                            }
                             i++;
                             if (i > totalCases) {
                                 i = 1;
@@ -2343,8 +2345,10 @@ public class OutboundOrderProcessingFTService extends BaseService {
                     if(orderManagementLine.getOutboundOrderTypeId() == 3) {
                         PickupHeaderV2 pickupHeaderV2 = createPickUpHeaderV4(companyCodeId, plantId, languageId, warehouseId, PU_NO, preOutboundNo,
                                 refDocNumber, orderManagementLine, loginUserId);
-                        log.info("PickupHeader is Created -------------------> RefDocNo is {} ", pickupHeaderV2.getRefDocNumber());
-                        pickupHeaderV2List.add(pickupHeaderV2);
+                        if (pickupHeaderV2 != null) {
+                            log.info("PickupHeader is Created -------------------> RefDocNo is {} ", pickupHeaderV2.getRefDocNumber());
+                            pickupHeaderV2List.add(pickupHeaderV2);
+                        }
 //                        DocumentNumber documentNumber = new DocumentNumber();
 //                        documentNumber.setRefDocNumber(orderManagementLine.getRefDocNumber());
 //                        documentNumber.setPreOutboundNo(orderManagementLine.getPreOutboundNo());
@@ -2361,6 +2365,7 @@ public class OutboundOrderProcessingFTService extends BaseService {
             return documentNumberList;
 
         } catch (Exception e) {
+            log.error("Exception in createPickupHeaderV4: ", e);
             throw new BadRequestException(e.getLocalizedMessage());
         }
     }
@@ -2797,10 +2802,12 @@ public class OutboundOrderProcessingFTService extends BaseService {
         newPickupHeader.setPickupCreatedOn(new Date());
         newPickupHeader.setPickUpdatedOn(new Date());
 
-        // Order_Text_Update
-        String text = "PickupHeader Created";
-        outboundOrderV2Repository.updateOutboundHeaderText(newPickupHeader.getOutboundOrderTypeId(), newPickupHeader.getRefDocNumber(), text);
-        log.info("PickupHeader Status Updated Successfully -----------------> " +  newPickupHeader.getRefDocNumber());
+        try {
+
+            // Order_Text_Update
+            String text = "PickupHeader Created";
+            outboundOrderV2Repository.updateOutboundHeaderText(newPickupHeader.getOutboundOrderTypeId(), newPickupHeader.getRefDocNumber(), text);
+            log.info("PickupHeader Status Updated Successfully -----------------> " + newPickupHeader.getRefDocNumber());
 
 //        PickupHeaderV2 createdPickupHeader = pickupHeaderV2Repository.save(newPickupHeader);
 //        log.info("pickupHeader created Successfully --------------------->  " + createdPickupHeader);
@@ -2809,22 +2816,25 @@ public class OutboundOrderProcessingFTService extends BaseService {
 //                    assignPickerId,
 //                orderManagementLine.getLineNumber(), orderManagementLine.getItemCode(), 48L, statusDescription, new Date());
 
-        outboundLineV2Repository.updateOutboundLineStatusV3(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo,
-                48L, statusDescription, orderManagementLine.getLineNumber(), orderManagementLine.getItemCode());
+            outboundLineV2Repository.updateOutboundLineStatusV3(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo,
+                    48L, statusDescription, orderManagementLine.getLineNumber(), orderManagementLine.getItemCode());
 //                    , assignPickerId);
 
-        // OutboundHeader Update
-        outboundHeaderV2Repository.updateOutboundHeaderStatusV3(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 48L, statusDescription);
-        log.info("outboundHeader updated {} ", newPickupHeader.getRefDocNumber());
+            // OutboundHeader Update
+            outboundHeaderV2Repository.updateOutboundHeaderStatusV3(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 48L, statusDescription);
+            log.info("outboundHeader updated {} ", newPickupHeader.getRefDocNumber());
 
-        // ORDERMANAGEMENTHEADER Update
+            // ORDERMANAGEMENTHEADER Update
 //        orderManagementHeaderV2Repository.updateOrderManagementHeaderStatusV3(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 48L, statusDescription);
 //        log.info("orderManagementHeader updated");
-        
-        // PreOutboundHeader Update for PU_NO
-        preOutboundHeaderV2Repository.updatePreOutboundHeaderStatusId(companyCodeId, plantId, languageId, warehouseId, refDocNumber, pickupNumber, 48L, statusDescription);
-        log.info("PreOutboundHeader Updated PickupNo {} -------> RefDocNo is -------> {} ", pickupNumber,  newPickupHeader.getRefDocNumber());
 
+            // PreOutboundHeader Update for PU_NO
+            preOutboundHeaderV2Repository.updatePreOutboundHeaderStatusId(companyCodeId, plantId, languageId, warehouseId, refDocNumber, pickupNumber, 48L, statusDescription);
+            log.info("PreOutboundHeader Updated PickupNo {} -------> RefDocNo is -------> {} ", pickupNumber, newPickupHeader.getRefDocNumber());
+        } catch (Exception e) {
+            log.error("Error creating PickupHeader for RefDocNo {}: {}", refDocNumber, e.getMessage(), e);
+            return null; // avoid breaking entire loop
+        }
         return newPickupHeader;
         
     }
