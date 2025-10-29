@@ -1,64 +1,30 @@
 package com.tekclover.wms.core.service;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
-
-import com.lowagie.text.Document;
-import com.lowagie.text.DocumentException;
-import com.lowagie.text.Element;
-import com.lowagie.text.Font;
-import com.lowagie.text.FontFactory;
-import com.lowagie.text.Image;
-import com.lowagie.text.PageSize;
-import com.lowagie.text.Paragraph;
-import com.lowagie.text.Phrase;
-import com.lowagie.text.pdf.ColumnText;
-import com.lowagie.text.pdf.PdfPCell;
-import com.lowagie.text.pdf.PdfPTable;
-import com.lowagie.text.pdf.PdfReader;
-import com.lowagie.text.pdf.PdfStamper;
-import com.lowagie.text.pdf.PdfWriter;
 import com.tekclover.wms.core.config.PropertiesConfig;
-import com.tekclover.wms.core.exception.BadRequestException;
 import com.tekclover.wms.core.model.auth.AuthToken;
-import com.tekclover.wms.core.model.transaction.InboundIntegrationHeader;
 import com.tekclover.wms.core.model.transaction.ReceiptConfimationReport;
 import com.tekclover.wms.core.model.transaction.ShipmentDeliveryReport;
 import com.tekclover.wms.core.model.transaction.ShipmentDeliverySummaryReport;
 import com.tekclover.wms.core.model.transaction.ShipmentDispatchSummaryReport;
-import com.tekclover.wms.core.repository.MongoTransactionRepository;
 import com.tekclover.wms.core.util.DateUtils;
-
 import lombok.extern.slf4j.Slf4j;
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JasperCompileManager;
-import net.sf.jasperreports.engine.JasperExportManager;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.text.ParseException;
+import java.util.*;
 
 @Slf4j
 @Service
 public class ReportService {
 
-	@Autowired
-	MongoTransactionRepository mongoInboundRepository;
+//	@Autowired
+//	MongoTransactionRepository mongoInboundRepository;
 	
 	@Autowired
 	private MastersService mastersService;
@@ -77,35 +43,35 @@ public class ReportService {
 	 * @return
 	 * @throws ParseException 
 	 */
-	public Map<String, Object> getOrderDetails (String warehouseID, Long statusId, String orderDate) throws ParseException {
-		Date localDate = null;
-		List<InboundIntegrationHeader> inboundOrders = null;
-		if (orderDate != null) {
-			try {
-				Date date = DateUtils.convertStringToDate(orderDate);
-				localDate = DateUtils.addTimeToDate(date);
-				
-				inboundOrders = mongoInboundRepository.findAllByWarehouseIDAndProcessedStatusIdAndOrderReceivedOn(
-						warehouseID, statusId, localDate);
-				log.info("inboundOrders : " + inboundOrders);
-			} catch (Exception e) {
-				throw new BadRequestException("Date format should be MM-dd-yyyy");
-			}
-		} else {
-			inboundOrders = mongoInboundRepository.findAllByWarehouseIDAndProcessedStatusId(
-					warehouseID, statusId);
-			log.info("inboundOrders : " + inboundOrders);
-		}
-			
-		long newOrders = inboundOrders.stream().filter(a -> a.getProcessedStatusId() == 0).count();
-		long processedOrders = inboundOrders.stream().filter(a -> a.getProcessedStatusId() == 10).count();
-		
-		Map<String, Object> map = new HashMap <>();
-		map.put("newOrders", newOrders);
-		map.put("processedOrders", processedOrders);
-		map.put("orders", inboundOrders);
-		return map;
-	}
+//	public Map<String, Object> getOrderDetails (String warehouseID, Long statusId, String orderDate) throws ParseException {
+//		Date localDate = null;
+//		List<InboundIntegrationHeader> inboundOrders = null;
+//		if (orderDate != null) {
+//			try {
+//				Date date = DateUtils.convertStringToDate(orderDate);
+//				localDate = DateUtils.addTimeToDate(date);
+//
+//				inboundOrders = mongoInboundRepository.findAllByWarehouseIDAndProcessedStatusIdAndOrderReceivedOn(
+//						warehouseID, statusId, localDate);
+//				log.info("inboundOrders : " + inboundOrders);
+//			} catch (Exception e) {
+//				throw new BadRequestException("Date format should be MM-dd-yyyy");
+//			}
+//		} else {
+//			inboundOrders = mongoInboundRepository.findAllByWarehouseIDAndProcessedStatusId(
+//					warehouseID, statusId);
+//			log.info("inboundOrders : " + inboundOrders);
+//		}
+//
+//		long newOrders = inboundOrders.stream().filter(a -> a.getProcessedStatusId() == 0).count();
+//		long processedOrders = inboundOrders.stream().filter(a -> a.getProcessedStatusId() == 10).count();
+//
+//		Map<String, Object> map = new HashMap <>();
+//		map.put("newOrders", newOrders);
+//		map.put("processedOrders", processedOrders);
+//		map.put("orders", inboundOrders);
+//		return map;
+//	}
 	
 	/**
 	 * 

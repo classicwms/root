@@ -8,8 +8,8 @@ import java.util.Random;
 import java.util.Set;
 
 import org.apache.commons.text.StringEscapeUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
+//import org.json.JSONArray;
+//import org.json.JSONObject;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -53,18 +53,18 @@ public class CommonUtils {
 	 * @param errorMsg
 	 * @return
 	 */
-	public Map<String, String> prepareErrorResponse (String errorMsg) {
-		errorMsg = errorMsg.substring(errorMsg.indexOf('['));
-		JSONArray array = new JSONArray(errorMsg);
-		Map<String, String> mapError = new HashMap<>();
-		for(int i = 0; i < array.length(); i ++) {  
-			JSONObject object = array.getJSONObject(i);
-			for (Object key : object.names()) {
-				mapError.put(String.valueOf(key), object.getString(String.valueOf(key)));
-			}
-		}
-		return mapError;
-	}
+//	public Map<String, String> prepareErrorResponse (String errorMsg) {
+//		errorMsg = errorMsg.substring(errorMsg.indexOf('['));
+//		JSONArray array = new JSONArray(errorMsg);
+//		Map<String, String> mapError = new HashMap<>();
+//		for(int i = 0; i < array.length(); i ++) {
+//			JSONObject object = array.getJSONObject(i);
+//			for (Object key : object.names()) {
+//				mapError.put(String.valueOf(key), object.getString(String.valueOf(key)));
+//			}
+//		}
+//		return mapError;
+//	}
 	
 	/**
 	 * getNullPropertyNames

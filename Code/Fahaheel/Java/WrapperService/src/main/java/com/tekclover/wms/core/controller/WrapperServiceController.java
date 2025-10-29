@@ -356,14 +356,14 @@ public class WrapperServiceController {
        	return new ResponseEntity<>(response, HttpStatus.OK);
    	}
     
-    @ApiOperation(response = Optional.class, value = "Get Placed Order Report") // label for swagger
-   	@GetMapping("/report/orders")
-   	public ResponseEntity<?> getOrders (@RequestParam String warehouseID, @RequestParam Long statusId, 
-   			@RequestParam(required = false) String date) 
-   					throws FileNotFoundException, JRException, java.text.ParseException {
-   		Map<String, Object> response = reportService.getOrderDetails(warehouseID, statusId, date);
-       	return new ResponseEntity<>(response, HttpStatus.OK);
-   	}
+//    @ApiOperation(response = Optional.class, value = "Get Placed Order Report") // label for swagger
+//   	@GetMapping("/report/orders")
+//   	public ResponseEntity<?> getOrders (@RequestParam String warehouseID, @RequestParam Long statusId,
+//   			@RequestParam(required = false) String date)
+//   					throws FileNotFoundException, JRException, java.text.ParseException {
+//   		Map<String, Object> response = reportService.getOrderDetails(warehouseID, statusId, date);
+//       	return new ResponseEntity<>(response, HttpStatus.OK);
+//   	}
 
     /*-----------------------------IMAGE-UPLOAD----------------------------------------------------------*/
     @ApiOperation(response = Optional.class, value = "DeliveryModule") // label for swagger
