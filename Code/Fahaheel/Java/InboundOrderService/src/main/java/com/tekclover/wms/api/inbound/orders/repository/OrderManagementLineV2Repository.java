@@ -111,18 +111,7 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
                                                        @Param("warehouseId") String warehouseId,
                                                        @Param("refDocNumber") String refDocumentNo);
 
-    @Transactional
-    @Procedure(procedureName = "nostock_status_update_new_proc")
-    public void updateNostockStatusUpdateProc(
-            @Param("companyCodeId") String companyCodeId,
-            @Param("plantId") String plantId,
-            @Param("languageId") String languageId,
-            @Param("warehouseId") String warehouseId,
-            @Param("refDocNumber") String refDocNumber,
-            @Param("preOutboundNo") String preOutboundNo,
-            @Param("statusId") Long statusId,
-            @Param("statusDescription") String statusDescription
-    );
+
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE OrderManagementLineV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription, ob.pickupUpdatedOn = :updatedOn, \r\n"

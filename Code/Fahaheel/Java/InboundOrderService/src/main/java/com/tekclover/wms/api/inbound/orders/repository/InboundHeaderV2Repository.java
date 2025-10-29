@@ -109,20 +109,7 @@ public interface InboundHeaderV2Repository extends JpaRepository<InboundHeaderV2
                                    @Param("confirmedBy") String confirmedBy,
                                    @Param("confirmedOn") Date confirmedOn);
 
-    @Transactional
-    @Procedure(procedureName = "ibheader_status_update_ib_cnf_proc")
-    public void updateIbheaderStatusUpdateInboundConfirmProc(
-            @Param("companyCodeId") String companyCode,
-            @Param("plantId") String plantId,
-            @Param("languageId") String languageId,
-            @Param("warehouseId") String warehouseId,
-            @Param("refDocNumber") String refDocNumber,
-            @Param("preInboundNo") String preInboundNo,
-            @Param("statusId") Long statusId,
-            @Param("statusDescription") String statusDescription,
-            @Param("updatedBy") String updatedBy,
-            @Param("updatedOn") Date updatedOn
-    );
+
 
     @Transactional
     @Procedure(procedureName = "header_status_update_ib_cnf_proc")
@@ -154,6 +141,19 @@ public interface InboundHeaderV2Repository extends JpaRepository<InboundHeaderV2
             @Param("updatedBy") String updatedBy,
             @Param("updatedOn") Date updatedOn);
 
-    InboundHeaderV2 findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndInboundOrderTypeIdAndDeletionIndicator(
-            String companyCode, String plantId, String languageId, String warehouseId, String refDocNumber, String preInboundNo, Long inboundOrderTypeId, Long deletionIndicator);
+
+    @Modifying
+    @Query(value = "UPDATE tblinboundheader SET STATUS_ID = :statusId, STATUS_TEXT = :statusDescription, " +
+            "UTD_BY = :updatedBy, UTD_ON = :updatedOn, IB_CNF_BY = :updatedBy, IB_CNF_ON = :updatedOn " +
+            "WHERE IS_DELETED = 0 AND C_ID = :companyCodeId AND PLANT_ID = :plantId " +
+            "AND LANG_ID = :languageId AND WH_ID = :warehouseId " +
+            "AND REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo " +
+            "AND (select count(*) from tblinboundline where ref_doc_no = :refDocNumber and PRE_IB_NO = :preInboundNo) = " +
+            "(select count(*) from tblinboundline where ref_doc_no = :refDocNumber and PRE_IB_NO = :preInboundNo and status_id = 24) ", nativeQuery = true)
+    void updateInboundHeader(@Param("statusId") Long statusId, @Param("statusDescription") String statusDescription,
+                             @Param("updatedBy") String updatedBy, @Param("updatedOn") Date updatedOn,
+                             @Param("companyCodeId") String companyCodeId, @Param("plantId") String plantId,
+                             @Param("languageId") String languageId, @Param("warehouseId") String warehouseId,
+                             @Param("refDocNumber") String refDocNumber, @Param("preInboundNo") String preInboundNo);
+
 }

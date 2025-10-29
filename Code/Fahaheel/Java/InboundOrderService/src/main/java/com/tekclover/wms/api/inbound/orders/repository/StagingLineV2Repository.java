@@ -301,51 +301,10 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
             String languageId, String companyCode, String plantId, String warehouseId,
             String itemCode, String manufacturerName, Long deletionIndicator);
 
-    @Transactional
-    @Procedure(procedureName = "staging_line_update_proc")
-    public void updateStagingLineUpdateProc(
-            @Param("companyCodeId") String companyCodeId,
-            @Param("plantId") String plantId,
-            @Param("languageId") String languageId,
-            @Param("warehouseId") String warehouseId,
-            @Param("refDocNumber") String refDocNumber,
-            @Param("preInboundNo") String preInboundNo,
-            @Param("itmCode") String itmCode,
-            @Param("manufacturerName") String manufacturerName,
-            @Param("lineNumber") Long lineNumber,
-            @Param("updatedOn") Date updatedOn,
-            @Param("recAcceptQty") Double recAcceptQty,
-            @Param("recDamageQty") Double recDamageQty
-    );
 
-    @Transactional
-    @Procedure(procedureName = "amghara_staging_line_update_new_proc")
-    public void updateStagingLineUpdateNewProc(
-            @Param("companyCodeId") String companyCodeId,
-            @Param("plantId") String plantId,
-            @Param("languageId") String languageId,
-            @Param("warehouseId") String warehouseId,
-            @Param("refDocNumber") String refDocNumber,
-            @Param("preInboundNo") String preInboundNo,
-            @Param("lineNumber") Long lineNumber,
-            @Param("itmCode") String itmCode,
-            @Param("mfrName") String mfrName,
-            @Param("updatedOn") Date updatedOn
-    );
-    @Transactional
-    @Procedure(procedureName = "stagingline_status_update_ib_cnf_proc")
-    public void updateStagingLineStatusUpdateInboundConfirmProc(
-            @Param("companyCodeId") String companyCode,
-            @Param("plantId") String plantId,
-            @Param("languageId") String languageId,
-            @Param("warehouseId") String warehouseId,
-            @Param("refDocNumber") String refDocNumber,
-            @Param("preInboundNo") String preInboundNo,
-            @Param("statusId") Long statusId,
-            @Param("statusDescription") String statusDescription,
-            @Param("updatedBy") String updatedBy,
-            @Param("updatedOn") Date updatedOn
-    );
+
+
+
 
     @Transactional
     @Procedure(procedureName = "stagingline_inv_qty_update_proc")
@@ -409,36 +368,6 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
                                          @Param(value = "warehouseId") String warehouseId,
                                          @Param(value = "itemTypeId") Long itemTypeId);
 
-    @Query(value = "select tc.imt_grp from \n" +
-            "tblitemgroupid tc\n" +
-            "where\n" +
-            "tc.itm_grp_id IN (:itemGroupId) and \n" +
-            "tc.c_id IN (:companyCodeId) and \n" +
-            "tc.lang_id IN (:languageId) and \n" +
-            "tc.plant_id IN(:plantId) and \n" +
-            "tc.wh_id IN (:warehouseId) and \n" +
-            "tc.is_deleted=0", nativeQuery = true)
-    public String getItemGroupDescription(@Param(value = "companyCodeId") String companyCodeId,
-                                          @Param(value = "plantId") String plantId,
-                                          @Param(value = "languageId") String languageId,
-                                          @Param(value = "warehouseId") String warehouseId,
-                                          @Param(value = "itemGroupId") Long itemGroupId);
-
-    @Query(value = "select top 1 tc.itm_type_id itemType,tc.itm_typ itemTypeDescription from tblitemtypeid tc \n" +
-            "join tblimbasicdata1 tbd on tbd.c_id=tc.c_id and tbd.plant_id=tc.plant_id and \n" +
-            "tbd.lang_id=tc.lang_id and tbd.wh_id=tc.wh_id and tbd.itm_typ_id=tc.itm_type_id \n" +
-            "where\n" +
-            "tbd.itm_code IN (:itemCode) and \n" +
-            "tbd.c_id IN (:companyCodeId) and \n" +
-            "tbd.lang_id IN (:languageId) and \n" +
-            "tbd.plant_id IN(:plantId) and \n" +
-            "tbd.wh_id IN (:warehouseId) and \n" +
-            "tbd.is_deleted=0", nativeQuery = true)
-    public IKeyValuePair getItemTypeAndDescription(@Param(value = "companyCodeId") String companyCodeId,
-                                                   @Param(value = "plantId") String plantId,
-                                                   @Param(value = "languageId") String languageId,
-                                                   @Param(value = "warehouseId") String warehouseId,
-                                                   @Param(value = "itemCode") String itemCode);
 
     @Query(value = "select top 1 UOM_TEXT from tbluomid ht \n" +
             "where \n" +
@@ -453,44 +382,6 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
                            @Param("warehouseId") String warehouseId);
 
 
-    @Query(value = "select alt_uom_qty alterUomQty, uom_qty uomQty from tblimalternateuom where " +
-            "c_id = :companyCode and plant_id = :plantId and wh_id = :warehouseId and itm_code = :itemCode and " +
-            "uom_id = :uomId and alt_uom = :altUom", nativeQuery = true)
-    public IKeyValuePair getAlternateUomQty(@Param("companyCode") String companyCode,
-                                            @Param("plantId") String plantId,
-                                            @Param("warehouseId") String warehouseId,
-                                            @Param("itemCode") String itemCode,
-                                            @Param("uomId") String uomId,
-                                            @Param("altUom") String altUom);
-
-
-    @Query(value = "select COUNT(*) from tblimalternateuom where " +
-            "c_id = :companyCode and plant_id = :plantId and wh_id = :warehouseId and itm_code = :itemCode and " +
-            "uom_id = :uomId and alt_uom = :altUom", nativeQuery = true)
-    public Long getAlternateUomQtyUpload(@Param("companyCode") String companyCode,
-                                            @Param("plantId") String plantId,
-                                            @Param("warehouseId") String warehouseId,
-                                            @Param("itemCode") String itemCode,
-                                            @Param("uomId") String uomId,
-                                            @Param("altUom") String altUom);
-
-    @Query(value = "SELECT COUNT(*) + 1 FROM tblstagingline WHERE LANG_ID ='EN' \n" +
-            "AND ITM_CODE = :itemCode and st_ctd_on between :fromDate and :toDate ", nativeQuery = true)
-    public long getStagingLineCount(@Param("itemCode") String itemCode,
-                                    @Param("fromDate") Date fromDate,
-                                    @Param("toDate") Date toDate);
-
-    public StagingLineEntityV2 findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndBarcodeIdAndDeletionIndicator(String companyCode, String plantId, String languageId, String warehouseId, String barcodeId, Long deletionIndicator);
-
-
-    @Query(value = "select UOM_QTY from tblimalternateuom where C_ID = :companyId and PLANT_ID = :plantId and WH_ID = :warehouseId " +
-            " and LANG_ID = :languageId and ITM_CODE = :itemCode and UOM_ID = :uomId ",nativeQuery = true)
-    public Double getQty(@Param("companyId") String companyId,
-                         @Param("plantId") String plantId,
-                         @Param("warehouseId") String warehouseId,
-                         @Param("languageId")String languageId,
-                         @Param("itemCode")String itemCode,
-                         @Param("uomId")String uomId);
 
     @Modifying
 //    @Transactional
@@ -529,4 +420,86 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
                                  @Param("warehouseId") String warehouseId,
                                  @Param("refDocNumber") String refDocNumber,
                                  @Param("preInboundNo") String preInboundNo);
+
+
+    @Modifying
+    @Query(value = "UPDATE IBL SET IBL.STATUS_ID = X.STATUS_ID, IBL.STATUS_TEXT = X.STATUS_TEXT " +
+            "FROM tblstagingline IBL INNER JOIN ( " +
+            "SELECT C_ID, PLANT_ID, LANG_ID, WH_ID, REF_DOC_NO, PRE_IB_NO, IB_LINE_NO, ITM_CODE, MFR_NAME, STATUS_ID, STATUS_TEXT FROM tblgrline " +
+            "WHERE IS_DELETED = 0 " +
+            "AND C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId " +
+            "AND REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo AND STATUS_ID <> 24 " +
+            "AND IB_LINE_NO = :lineNumber AND ITM_CODE = :itmCode " +
+            "AND MFR_NAME = :mfrName AND GR_CTD_ON IN (SELECT MAX(GR_CTD_ON) FROM TBLGRLINE " +
+            "GROUP BY ITM_CODE, MFR_NAME, IB_LINE_NO, REF_DOC_NO, PRE_IB_NO )) X " +
+            "ON IBL.C_ID = X.C_ID AND IBL.PLANT_ID = X.PLANT_ID AND IBL.LANG_ID = X.LANG_ID " +
+            "AND IBL.WH_ID = X.WH_ID AND IBL.REF_DOC_NO = X.REF_DOC_NO " +
+            "AND IBL.PRE_IB_NO = X.PRE_IB_NO AND IBL.ITM_CODE = X.ITM_CODE " +
+            "AND IBL.MFR_NAME = X.MFR_NAME AND IBL.IB_LINE_NO = X.IB_LINE_NO " +
+            "AND IBL.IS_DELETED = 0",
+            nativeQuery = true)
+    void updateStaingLineStatus(@Param("companyCodeId") String companyCodeId,
+                                @Param("plantId") String plantId,
+                                @Param("languageId") String languageId,
+                                @Param("warehouseId") String warehouseId,
+                                @Param("refDocNumber") String refDocNumber,
+                                @Param("preInboundNo") String preInboundNo,
+                                @Param("lineNumber") Long lineNumber,
+                                @Param("itmCode") String itmCode,
+                                @Param("mfrName") String mfrName);
+
+
+
+    @Modifying
+    @Query(value =
+            "UPDATE IBL SET IBL.REC_ACCEPT_QTY = X.ACCEPTQTY, IBL.REC_DAMAGE_QTY = X.DAMAGEQTY, IBL.ST_UTD_ON = :updatedOn, IBL.ST_CNF_ON = :updatedOn " +
+                    "FROM tblstagingline IBL " +
+                    "INNER JOIN (SELECT C_ID, PLANT_ID, LANG_ID, WH_ID, REF_DOC_NO, PRE_IB_NO, IB_LINE_NO, ITM_CODE, MFR_NAME, " +
+                    "SUM(ACCEPT_QTY) AS ACCEPTQTY, SUM(DAMAGE_QTY) AS DAMAGEQTY FROM tblgrline " +
+                    "WHERE IS_DELETED = 0 AND C_ID = :companyCodeId " +
+                    "AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber " +
+                    "AND PRE_IB_NO = :preInboundNo AND IB_LINE_NO = :lineNumber AND ITM_CODE = :itmCode AND MFR_NAME = :mfrName " +
+                    "GROUP BY ITM_CODE, MFR_NAME, IB_LINE_NO, REF_DOC_NO, PRE_IB_NO, WH_ID, PLANT_ID, C_ID, LANG_ID) X " +
+                    "ON IBL.C_ID = X.C_ID " +
+                    "AND IBL.PLANT_ID = X.PLANT_ID " +
+                    "AND IBL.LANG_ID = X.LANG_ID " +
+                    "AND IBL.WH_ID = X.WH_ID " +
+                    "AND IBL.REF_DOC_NO = X.REF_DOC_NO " +
+                    "AND IBL.PRE_IB_NO = X.PRE_IB_NO " +
+                    "AND IBL.ITM_CODE = X.ITM_CODE " +
+                    "AND IBL.MFR_NAME = X.MFR_NAME " +
+                    "AND IBL.IB_LINE_NO = X.IB_LINE_NO " +
+                    "AND IBL.IS_DELETED = 0",
+            nativeQuery = true)
+    void updateAcceptAndDamageQty(@Param("updatedOn") Date updatedOn,
+                                  @Param("companyCodeId") String companyCodeId,
+                                  @Param("plantId") String plantId,
+                                  @Param("languageId") String languageId,
+                                  @Param("warehouseId") String warehouseId,
+                                  @Param("refDocNumber") String refDocNumber,
+                                  @Param("preInboundNo") String preInboundNo,
+                                  @Param("lineNumber") Long lineNumber,
+                                  @Param("itmCode") String itmCode,
+                                  @Param("mfrName") String mfrName);
+
+
+
+    @Modifying
+    @Query(value = "UPDATE STGL SET STGL.STATUS_ID = :statusId2, STGL.STATUS_TEXT = :statusDescription2, STGL.ST_CNF_BY = :updatedBy, STGL.ST_CNF_ON = :updatedOn \n" +
+            "FROM tblstagingline STGL INNER JOIN (SELECT C_ID, PLANT_ID, LANG_ID, WH_ID, REF_DOC_NO, PRE_IB_NO, IB_LINE_NO, ITM_CODE, MFR_NAME FROM tblinboundline \n" +
+            "WHERE IS_DELETED = 0 AND REF_FIELD_2 = 'TRUE' AND STATUS_ID = 24 AND C_ID = :companyCodeId \n" +
+            "AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo) X \n" +
+            "ON STGL.C_ID = X.C_ID AND STGL.PLANT_ID = X.PLANT_ID AND STGL.LANG_ID = X.LANG_ID AND STGL.WH_ID = X.WH_ID AND STGL.REF_DOC_NO = X.REF_DOC_NO \n" +
+            "AND STGL.PRE_IB_NO = X.PRE_IB_NO AND STGL.ITM_CODE = X.ITM_CODE AND STGL.MFR_NAME = X.MFR_NAME AND STGL.IB_LINE_NO = X.IB_LINE_NO \n" +
+            "AND STGL.IS_DELETED = 0 ", nativeQuery = true)
+    void updateStagingLine(@Param("companyCodeId") String companyCodeId,
+                           @Param("plantId") String plantId,
+                           @Param("languageId") String languageId,
+                           @Param("warehouseId") String warehouseId,
+                           @Param("refDocNumber") String refDocNumber,
+                           @Param("preInboundNo") String preInboundNo,
+                           @Param("statusId2") Long statusId2,
+                           @Param("statusDescription2") String statusDescription2,
+                           @Param("updatedBy") String updatedBy,
+                           @Param("updatedOn") Date updatedOn);
 }

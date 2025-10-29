@@ -80,18 +80,7 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
                                                 @Param("statusDescription") String statusDescription,
                                                 @Param("deliveryConfirmedOn") Date deliveryConfirmedOn);
 
-//    @Transactional
-//    @Procedure(procedureName = "outbound_header_update_proc")
-//    void updateOutboundHeaderUpdateProc(
-//            @Param("companyCodeId") String companyCodeId,
-//            @Param("plantId") String plantId,
-//            @Param("languageId") String languageId,
-//            @Param("warehouseId") String warehouseId,
-//            @Param("refDocNumber") String refDocNumber,
-//            @Param("statusId") Long statusId,
-//            @Param("statusDescription") String statusDescription,
-//            @Param("deliveryConfirmedOn") Date deliveryConfirmedOn
-//    );
+
 
     OutboundHeaderV2 findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndPickListNumberAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String pickListNumber, Long deletionIndicator);

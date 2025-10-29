@@ -88,7 +88,7 @@ public class B2BTransferService {
      * @param b2bTransferIn
      * @return
      */
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = {Exception.class, Throwable.class})
+//    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = {Exception.class, Throwable.class})
     @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class,
             LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 3, backoff = @Backoff(delay = 5000))
     public List<B2bTransferIn> processInboundReceivedV2(List<B2bTransferIn> b2bTransferIn) {

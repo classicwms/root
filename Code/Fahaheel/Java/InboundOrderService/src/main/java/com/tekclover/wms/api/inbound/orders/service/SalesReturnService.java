@@ -105,7 +105,7 @@ public class SalesReturnService {
     InventoryV2Repository inventoryV2Repository;
 
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = {Exception.class, Throwable.class})
+//    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = {Exception.class, Throwable.class})
     @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class,
             LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 3, backoff = @Backoff(delay = 5000))
     public List<SaleOrderReturnV2> processInboundReceivedV2(List<SaleOrderReturnV2> sorList) {

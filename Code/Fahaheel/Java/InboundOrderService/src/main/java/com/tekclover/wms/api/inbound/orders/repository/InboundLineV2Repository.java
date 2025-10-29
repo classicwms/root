@@ -116,18 +116,14 @@ public interface InboundLineV2Repository extends JpaRepository<InboundLineV2, Lo
                                         @Param("plantId") String plantId,
                                         @Param("languageId") String languageId);
 
-    @Modifying(clearAutomatically = true)
-    @Query("UPDATE InboundLineV2 ib SET ib.statusId = :statusId, ib.confirmedBy = :confirmedBy, ib.confirmedOn = :confirmedOn, ib.statusDescription = :statusDescription \n" +
-            "WHERE ib.warehouseId = :warehouseId AND ib.refDocNumber = :refDocNumber and ib.companyCode = :companyCode and ib.plantId = :plantId and ib.languageId = :languageId and ib.statusId = 20")
-    void updateInboundLineStatus(@Param("warehouseId") String warehouseId,
-                                 @Param("companyCode") String companyCode,
-                                 @Param("plantId") String plantId,
-                                 @Param("languageId") String languageId,
-                                 @Param("refDocNumber") String refDocNumber,
-                                 @Param("statusId") Long statusId,
-                                 @Param("statusDescription") String statusDescription,
-                                 @Param("confirmedBy") String confirmedBy,
-                                 @Param("confirmedOn") Date confirmedOn);
+    @Modifying
+    @Query(value = "Update tblinboundline set STATUS_ID = :statusId, STATUS_TEXT = :statusText, UTD_ON = getDate(), IB_CNF_ON = getDate() \n" +
+            "WHERE C_ID = :companyCode AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNo AND \n" +
+            "PRE_IB_NO = :preInboundNo AND ITM_CODE = :itemCode AND MFR_NAME = :mfrName AND IB_LINE_NO = :lineNo AND IS_DELETED = 0 ", nativeQuery = true)
+    void updateInboundLineStatus(@Param("statusId") Long statusId, @Param("statusText") String statusText,
+                                 @Param("companyCode") String companyCode, @Param("plantId") String plantId, @Param("languageId") String languageId,
+                                 @Param("warehouseId") String warehouseId, @Param("refDocNo") String refDocNo, @Param("preInboundNo") String preInboundNo,
+                                 @Param("itemCode") String itemCode, @Param("mfrName") String mfrName, @Param("lineNo") Long lineNo);
 
     List<InboundLineV2> findByRefDocNumberAndCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndStatusIdAndDeletionIndicator(
             String refDocNumber, String companyCode, String plantId, String languageId, String warehouseId, Long statusId, Long deletionIndicator);
@@ -135,22 +131,7 @@ public interface InboundLineV2Repository extends JpaRepository<InboundLineV2, Lo
     List<InboundLineV2> findByRefDocNumberAndPreInboundNoAndCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndStatusIdAndDeletionIndicator(
             String refDocNumber, String preInboundNo, String companyCode, String plantId, String languageId, String warehouseId, Long statusId, Long deletionIndicator);
 
-    @Transactional
-    @Procedure(procedureName = "inboundline_status_update_proc")
-    public void updateInboundLineStatusUpdateProc(
-            @Param("companyCodeId") String companyCodeId,
-            @Param("plantId") String plantId,
-            @Param("languageId") String languageId,
-            @Param("warehouseId") String warehouseId,
-            @Param("refDocNumber") String refDocNumber,
-            @Param("preInboundNo") String preInboundNo,
-            @Param("itmCode") String itmCode,
-            @Param("manufacturerName") String manufacturerName,
-            @Param("lineNumber") Long lineNumber,
-            @Param("statusId") Long statusId,
-            @Param("statusDescription") String statusDescription,
-            @Param("updatedOn") Date updatedOn
-    );
+
 
     @Transactional
     @Procedure(procedureName = "grheader_status_update_proc")
@@ -182,39 +163,26 @@ public interface InboundLineV2Repository extends JpaRepository<InboundLineV2, Lo
             @Param("updatedOn") Date updatedOn
     );
 
-    @Transactional
-    @Procedure(procedureName = "inboundline_status_update_ib_cnf_individual_proc")
-    public void updateInboundLineStatusUpdateInboundConfirmIndividualItemProc(
-            @Param("companyCodeId") String companyCode,
+    @Modifying
+    @Query(value = " UPDATE tblinboundline SET STATUS_ID   = :statusId, STATUS_TEXT = :statusDescription, REF_FIELD_2 = 'TRUE', IB_CNF_ON   = :updatedOn, IB_CNF_BY   = :updatedBy \n" +
+            "WHERE IS_DELETED = 0 AND STATUS_ID <> 24 AND ITM_CODE = :itemCode AND MFR_NAME = :manufacturerName AND C_ID = :companyCodeId \n" +
+            "AND PLANT_ID = :plantId AND LANG_ID = :languageId AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber \n" +
+            "AND PRE_IB_NO = :preInboundNo AND IB_LINE_NO = :lineNumber", nativeQuery = true)
+    void updateInboundLineStatusUpdateInboundConfirmIndividualItem(
+            @Param("statusId") Long statusId,
+            @Param("statusDescription") String statusDescription,
+            @Param("updatedBy") String updatedBy,
+            @Param("updatedOn") Date updatedOn,
+            @Param("itemCode") String itemCode,
+            @Param("manufacturerName") String manufacturerName,
+            @Param("companyCodeId") String companyCodeId,
             @Param("plantId") String plantId,
             @Param("languageId") String languageId,
             @Param("warehouseId") String warehouseId,
             @Param("refDocNumber") String refDocNumber,
             @Param("preInboundNo") String preInboundNo,
-            @Param("itemCode") String itemCode,
-            @Param("manufacturerName") String manufacturerName,
-            @Param("lineNumber") Long lineNumber,
-            @Param("statusId") Long statusId,
-            @Param("statusDescription") String statusDescription,
-            @Param("updatedBy") String updatedBy,
-            @Param("updatedOn") Date updatedOn
-    );
+            @Param("lineNumber") Long lineNumber);
 
-    InboundLineV2 findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndLineNoAndItemCodeAndManufacturerNameAndDeletionIndicator(
-            String languageId, String companyCode, String plantId, String warehouseId, String refDocNumber,
-            String preInboundNo, Long lineNo, String itemCode, String manufacturerName, Long deletionIndicator);
-
-
-    @Query(value = "select * from tblinboundline where ref_doc_no = :refDocNo \n" +
-            "and c_id = :companyCode and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId \n" +
-            "and status_id = :statusId and status_id != :cnfStatusId and ref_field_2 = 'true' and is_deleted = 0 ", nativeQuery = true)
-    public List<InboundLineV2> getInboundLinesV2ForInboundConfirm(@Param("companyCode") String companyCode,
-                                                                  @Param("plantId") String plantId,
-                                                                  @Param("languageId") String languageId,
-                                                                  @Param("warehouseId") String warehouseId,
-                                                                  @Param("refDocNo") String refDocNo,
-                                                                  @Param("statusId") Long statusId,
-                                                                  @Param("cnfStatusId") Long cnfStatusId);
 
     @Query(value = "select * from tblinboundline where ref_doc_no = :refDocNo and pre_ib_no = :preInboundNo \n" +
             "and c_id = :companyCode and plant_id = :plantId and lang_id = :languageId and wh_id = :warehouseId \n" +
@@ -247,25 +215,5 @@ public interface InboundLineV2Repository extends JpaRepository<InboundLineV2, Lo
                                                         @Param("refDocNo") String refDocNo,
                                                         @Param("preInboundNo") String preInboundNo);
 
-    InboundLineV2 findByLanguageIdAndCompanyCodeAndPlantIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndLineNoAndItemCodeAndManufacturerNameAndStatusIdAndDeletionIndicator(
-            String languageId, String companyCode, String plantId, String warehouseId, String refDocNumber,
-            String preInboundNo, Long lineNo, String itemCode, String manufacturerName, Long statusId, Long deletionIndicator);
-
-    @Transactional
-    @Procedure(procedureName = "amghara_inboundline_status_update_new_proc")
-    public void updateInboundLineStatusUpdateNewProc(
-            @Param("companyCodeId") String companyCodeId,
-            @Param("plantId") String plantId,
-            @Param("languageId") String languageId,
-            @Param("warehouseId") String warehouseId,
-            @Param("refDocNumber") String refDocNumber,
-            @Param("preInboundNo") String preInboundNo,
-            @Param("lineNumber") Long lineNumber,
-            @Param("itmCode") String itmCode,
-            @Param("mfrName") String mfrName,
-            @Param("statusId") Long statusId,
-            @Param("statusDescription") String statusDescription,
-            @Param("updatedOn") Date updatedOn
-    );
 }
 

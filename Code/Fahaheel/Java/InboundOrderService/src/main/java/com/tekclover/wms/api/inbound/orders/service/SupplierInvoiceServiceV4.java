@@ -520,7 +520,7 @@ public class SupplierInvoiceServiceV4 extends BaseService {
 //        return asnv2;
 //    }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = {Exception.class, Throwable.class})
+//    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = {Exception.class, Throwable.class})
     @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class,
             LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 3, backoff = @Backoff(delay = 5000))
     public List<ASNV2> processInboundReceivedV8(List<ASNV2> asnv2List) throws Exception {

@@ -55,17 +55,7 @@ public interface QualityHeaderV2Repository extends JpaRepository<QualityHeaderV2
     public void updateQualityHeader (@Param ("referenceField10") String referenceField10,
                                      @Param ("qualityInspectionNo") String qualityInspectionNo);
 
-    @Transactional
-    @Procedure(procedureName = "quality_header_update_proc")
-    public void updateQualityHeaderStatusUpdateProc(
-            @Param("companyCodeId") String companyCodeId,
-            @Param("plantId") String plantId,
-            @Param("languageId") String languageId,
-            @Param("warehouseId") String warehouseId,
-            @Param("qualityInspectionNo") String qualityInspectionNo,
-            @Param("statusId") Long statusId,
-            @Param("statusDescription") String statusDescription,
-            @Param("@created") String created);
+
 
     List<QualityHeaderV2> findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber, Long deletionIndicator);
