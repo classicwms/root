@@ -736,6 +736,15 @@ public class SalesOrderService extends BaseService {
                                         }
                                     }
 
+                                    IKeyValuePair pickupHeaderPickerByCount = pickupHeaderV2Repository.getAssignPickerNew(companyCodeId, plantId, languageId, warehouseId, hhtUserList, LEVEL_ID, 48L, dates[0], dates[1]);
+                                    if (pickupHeaderPickerByCount != null) {
+                                        assignPickerList.add(pickupHeaderPickerByCount.getAssignPicker());
+                                        log.info("assigned Picker set is Status Id 48 ------------->  " + assignPickerList.get(0));
+                                        if (assignPickerList.size() > 0) {
+                                            break outerLoop;
+                                        }
+                                    }
+
                                     List<String> pickerCountList = pickupHeaderV2Repository
                                             .getPickUpheaderAssignPickerList(companyCodeId, plantId, languageId, warehouseId, hhtUserList, LEVEL_ID, 48L, dates[0], dates[1]);
                                     log.info("assigned Picker status_48L: " + pickerCountList);
@@ -1091,6 +1100,8 @@ public class SalesOrderService extends BaseService {
         if (barcode != null && !barcode.isEmpty()) {
             preOutboundLine.setBarcodeId(barcode.get(0));
             preOutboundLine.setItemBarcode(barcode.get(0));
+        } else {
+            preOutboundLine.setBarcodeId("");
         }
         preOutboundLine.setRequiredDeliveryDate(preOutboundHeaderV2.getRequiredDeliveryDate());
         preOutboundLine.setReferenceField1("PICK LIST");
@@ -1126,6 +1137,8 @@ public class SalesOrderService extends BaseService {
         if (barcode != null && !barcode.isEmpty()) {
             orderManagementLine.setBarcodeId(barcode.get(0));
             orderManagementLine.setItemBarcode(barcode.get(0));
+        } else {
+            orderManagementLine.setBarcodeId("");
         }
 
         List<IInventoryImpl> stockType1InventoryList = inventoryService.
