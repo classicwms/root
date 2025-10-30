@@ -351,6 +351,23 @@ public interface PickupHeaderV2Repository extends JpaRepository<PickupHeaderV2, 
                                              @Param("startDate") Date startDate,
                                              @Param("endDate") Date endDate);
 
+
+    @Query(value = "select top 1 count(pre_ob_no) cnt,ass_picker_id assignPicker \n" +
+            " from tblpickupheader ob where ob.c_id=:companyCodeId and ob.plant_id=:plantId and ob.lang_Id=:languageId and ob.wh_id=:warehouseId and \n" +
+            " ob.ass_picker_id in (:assignedPickerId) and level_id = :levelId and \r\n" +
+            " ob.pick_ctd_on between :startDate and :endDate and ob.is_deleted = 0 \n" +
+            " group by ass_picker_id order by cnt ", nativeQuery = true)
+    public IKeyValuePair getAssignPickerID(@Param("companyCodeId") String companyCodeId,
+                                            @Param("plantId") String plantId,
+                                            @Param("languageId") String languageId,
+                                            @Param("warehouseId") String warehouseId,
+                                            @Param("assignedPickerId") List<String> assignedPickerId,
+                                            @Param("levelId") Long levelId,
+                                            @Param("startDate") Date startDate,
+                                            @Param("endDate") Date endDate);
+
+
+
     @Query(value = "select ass_picker_id \n" +
             " from tblpickupheader ob where ob.c_id=:companyCodeId and ob.plant_id=:plantId and ob.lang_Id=:languageId and ob.wh_id=:warehouseId and \n" +
             " ob.ass_picker_id in (:assignedPickerId) and ob.status_id = :statusId and level_id = :levelId and \r\n" +

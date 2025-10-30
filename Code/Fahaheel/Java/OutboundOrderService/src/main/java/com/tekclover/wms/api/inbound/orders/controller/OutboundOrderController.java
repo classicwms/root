@@ -138,6 +138,7 @@ public class OutboundOrderController {
         try {
             log.info("InterWarehouseTransferOutV2 --------> {}", itw);
 //            for (InterWarehouseTransferOutV2 itw : interWarehouseTransfer) {
+            DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb("MT");
             String routingDb = dbConfigRepository.getDbNameWithoutWhId(itw.get(0).getInterWarehouseTransferOutHeader().getFromCompanyCode(),
                     itw.get(0).getInterWarehouseTransferOutHeader().getFromBranchCode());

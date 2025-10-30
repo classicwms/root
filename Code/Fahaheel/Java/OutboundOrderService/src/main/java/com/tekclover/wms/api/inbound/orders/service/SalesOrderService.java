@@ -144,7 +144,7 @@ public class SalesOrderService extends BaseService {
         List<SalesOrderV2> salesOrders = Collections.synchronizedList(new ArrayList<>());
         log.info("Outbound Process Start {} PickList", salesOrderList);
 
-        ExecutorService executorService = Executors.newFixedThreadPool(8);
+//        ExecutorService executorService = Executors.newFixedThreadPool(8);
 
         try {
             for (SalesOrderV2 salesOrder : salesOrderList) {
@@ -172,6 +172,12 @@ public class SalesOrderService extends BaseService {
                 String plantText = description.getPlantDesc();
                 String warehouseText = description.getWarehouseDesc();
 
+                Optional<PreOutboundHeaderV2> duplicateCheck = preOutboundHeaderV2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                        languageId, companyCode, plantId, warehouseId, newPickListNo, 0L);
+                if(duplicateCheck.isPresent()) {
+                    throw new BadRequestException("Duplicate PickList No --------------> " + newPickListNo);
+                }
+
                 //PickList Cancellation
                 log.info("Executing PickList cancellation scenario pre - checkup process");
                 String salesOrderNumber = header.getSalesOrderNumber();
@@ -180,6 +186,8 @@ public class SalesOrderService extends BaseService {
                 List<OutboundHeaderV2> outbound = outboundHeaderV2Repository.findBySalesOrderNumberAndOutboundOrderTypeIdAndDeletionIndicator(salesOrderNumber, 3L, 0L);
                 log.info("SalesOrderNumber already Exist: ---> PickList Cancellation to be executed " + salesOrderNumber);
 
+                DataBaseContextHolder.clear();
+                DataBaseContextHolder.setCurrentDb("FAHAHEEL");
                 if (outbound != null && !outbound.isEmpty()) {
                     List<OutboundHeaderV2> oldPickListNo = outbound.stream().filter(n -> !n.getPickListNumber().equalsIgnoreCase(newPickListNo)).collect(Collectors.toList());
                     log.info("Old PickList Number, New PickList Number: " + oldPickListNo + ", " + newPickListNo);
@@ -277,9 +285,10 @@ public class SalesOrderService extends BaseService {
                 Exception e) {
             log.error("Error processing outbound PICK_LIST Lines", e);
             throw new BadRequestException("Outbound Order Processing failed: " + e.getMessage());
-        } finally {
-            executorService.shutdown();
         }
+//        finally {
+//            executorService.shutdown();
+//        }
         log.info("Outbound Process Completed for {} PickList", salesOrders.size());
         return salesOrders;
     }
@@ -736,7 +745,7 @@ public class SalesOrderService extends BaseService {
                                         }
                                     }
 
-                                    IKeyValuePair pickupHeaderPickerByCount = pickupHeaderV2Repository.getAssignPickerNew(companyCodeId, plantId, languageId, warehouseId, hhtUserList, LEVEL_ID, 48L, dates[0], dates[1]);
+                                    IKeyValuePair pickupHeaderPickerByCount = pickupHeaderV2Repository.getAssignPickerID(companyCodeId, plantId, languageId, warehouseId, hhtUserList, LEVEL_ID,  dates[0], dates[1]);
                                     if (pickupHeaderPickerByCount != null) {
                                         assignPickerList.add(pickupHeaderPickerByCount.getAssignPicker());
                                         log.info("assigned Picker set is Status Id 48 ------------->  " + assignPickerList.get(0));
