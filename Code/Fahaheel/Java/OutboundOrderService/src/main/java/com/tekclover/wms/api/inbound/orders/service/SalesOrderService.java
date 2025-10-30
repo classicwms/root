@@ -172,11 +172,11 @@ public class SalesOrderService extends BaseService {
                 String plantText = description.getPlantDesc();
                 String warehouseText = description.getWarehouseDesc();
 
-                Optional<PreOutboundHeaderV2> duplicateCheck = preOutboundHeaderV2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
-                        languageId, companyCode, plantId, warehouseId, newPickListNo, 0L);
-                if(duplicateCheck.isPresent()) {
-                    throw new BadRequestException("Duplicate PickList No --------------> " + newPickListNo);
-                }
+//                Optional<PreOutboundHeaderV2> duplicateCheck = preOutboundHeaderV2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+//                        languageId, companyCode, plantId, warehouseId, newPickListNo, 0L);
+//                if(duplicateCheck.isPresent()) {
+//                    throw new BadRequestException("Duplicate PickList No --------------> " + newPickListNo);
+//                }
 
                 //PickList Cancellation
                 log.info("Executing PickList cancellation scenario pre - checkup process");
