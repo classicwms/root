@@ -1,6 +1,7 @@
 package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -13,11 +14,17 @@ import java.util.stream.Stream;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
+import com.microsoft.sqlserver.jdbc.SQLServerException;
+import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.expression.ParseException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -5267,6 +5274,9 @@ public class PickupLineService extends BaseService {
      * @param loginUserID
      * @throws Exception
      */
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+    @Retryable(value = {CannotAcquireLockException.class,
+            LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 8000))
     public void createPickupLineNewV4(String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber,
                                       String preOutboundNo, String barcodeId, PickupHeaderV2 pickupHeader, Double pickedQty, String loginUserID, String idMasterAuthToken) throws Exception {
         try {
@@ -5416,7 +5426,7 @@ public class PickupLineService extends BaseService {
      * @param pickConfirmQty
      * @param loginUserID
      */
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     private void updateInventoryV3(String companyCodeId, String plantId, String languageId, String warehouseId,
                                    String itemCode, String manufacturerName, String barcodeId, String storageBin,
 			Double allocatedQty, Double pickConfirmQty, String loginUserID) {
@@ -5749,6 +5759,9 @@ public class PickupLineService extends BaseService {
 
 
     // PickupLine Creation Process in Delivery Confirmation
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+    @Retryable(value = {Exception.class, CannotAcquireLockException.class,
+            LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 8000))
     public void createPickupLineInDeliveryConfirmation(String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber,
                                       String preOutboundNo, PickupHeaderV2 pickupHeader, Double pickedQty, String loginUserID,
                                       String idMasterAuthToken) throws Exception {

@@ -3542,7 +3542,6 @@ public class WarehouseService extends BaseService {
 	}
 
 
-	//	@Scheduled(cron = "5 * * * * ?")
 	@Scheduled(cron = "*/10 * * * * *")
 	public void postSAPDeliveryConfirmationScheduleProcess() throws Exception {
 		log.info("-------postSAPDeliveryConfirmation----------");

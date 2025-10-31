@@ -3390,7 +3390,7 @@ public class InventoryService extends BaseService {
      * @param storageBin
      * @return
      */
-    public InventoryV2 getInventoryForPickUpLineV3(String companyCodeId, String plantId, String languageId, String warehouseId,
+    public synchronized InventoryV2 getInventoryForPickUpLineV3(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                    String itemCode, String manufacturerName, String barcodeId, String storageBin) {
         log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + barcodeId + "|" + storageBin);
         IInventoryImpl dbInventory = inventoryV2Repository.getPickupLineInventoryV3(
@@ -3515,7 +3515,7 @@ public class InventoryService extends BaseService {
      * @param storageBin
      * @return
      */
-    public Double getInventoryByStorageBinV3(String companyCodeId, String plantId, String languageId, String warehouseId, String storageBin) {
+    public synchronized Double getInventoryByStorageBinV3(String companyCodeId, String plantId, String languageId, String warehouseId, String storageBin) {
         log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + storageBin);
         return inventoryV2Repository.getInventoryBinStatusV3(companyCodeId, plantId, languageId, warehouseId, storageBin);
     }

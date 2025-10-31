@@ -2816,6 +2816,7 @@ public class StagingLineService extends BaseService {
         stagingLine.forEach(staging -> {
             StagingLineEntityV2 stagingLine1 = stagingLineV2Repository.findRefDocNo(staging.getRefDocNumber(),staging.getBarcodeId());
 
+            log.info("Update Vehicle No in staging line -----------------> " + stagingLine1);
             if(stagingLine1 != null){
                 stagingLine1.setVehicleNumber(staging.getVehicleNumber());
                 stagingLine1.setStatusId(14L);

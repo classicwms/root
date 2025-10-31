@@ -601,4 +601,5 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
                               @Param("sapType") String sapType,
                               @Param("matDocDate") Date matDocDate);
 
+    List<StagingLineEntityV2> findByRefDocNumberAndDeletionIndicator(String refDocNo, Long deletionIndicator);
 }
