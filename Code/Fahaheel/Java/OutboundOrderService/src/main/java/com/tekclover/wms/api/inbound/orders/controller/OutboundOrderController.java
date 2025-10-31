@@ -53,18 +53,18 @@ public class OutboundOrderController {
     //Pick_List
     @ApiOperation(response = SalesOrderV2.class, value = "Sales order") // label for swagger
     @PostMapping("/outbound/salesorderv2")
-    public ResponseEntity<?> postSalesOrderV2List(@Valid @RequestBody List<SalesOrderV2> salesOrder)
+    public ResponseEntity<?> postSalesOrderV2List(@Valid @RequestBody SalesOrderV2 salesOrderV2)
             throws IllegalAccessException, InvocationTargetException {
         try {
-            for (SalesOrderV2 salesOrderV2 : salesOrder) {
+//            for (SalesOrderV2 salesOrderV2 : salesOrder) {
                 log.info("Sales Order Input values -----------------------> " + salesOrderV2);
                 DataBaseContextHolder.setCurrentDb("MT");
                 String routingDb = dbConfigRepository.getDbNameWithoutWhId(salesOrderV2.getSalesOrderHeader().getCompanyCode(), salesOrderV2.getSalesOrderHeader().getBranchCode());
                 log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
                 DataBaseContextHolder.clear();
                 DataBaseContextHolder.setCurrentDb(routingDb);
-            }
-            List<SalesOrderV2> response = salesOrderService.createSalesOrderList(salesOrder);
+//            }
+            SalesOrderV2 response = salesOrderService.createSalesOrderList(salesOrderV2);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } finally {
             DataBaseContextHolder.clear();

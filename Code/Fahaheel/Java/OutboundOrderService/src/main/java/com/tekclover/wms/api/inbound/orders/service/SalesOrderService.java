@@ -134,20 +134,20 @@ public class SalesOrderService extends BaseService {
     StockAdjustmentRepository stockAdjustmentRepository;
 
     /**
-     * @param salesOrderList
+     * @param salesOrder
      * @return
      */
-//    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = {Exception.class, Throwable.class})
-//    @Retryable(value = {SQLException.class, SQLServerException.class, CannotAcquireLockException.class,
-//            LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 3, backoff = @Backoff(delay = 5000))
-    public List<SalesOrderV2> createSalesOrderList(List<SalesOrderV2> salesOrderList) {
-        List<SalesOrderV2> salesOrders = Collections.synchronizedList(new ArrayList<>());
-        log.info("Outbound Process Start {} PickList", salesOrderList);
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = {Exception.class, Throwable.class})
+    @Retryable(value = {CannotAcquireLockException.class,
+            LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 3, backoff = @Backoff(delay = 5000))
+    public SalesOrderV2 createSalesOrderList(SalesOrderV2 salesOrder) {
+//        List<SalesOrderV2> salesOrders = Collections.synchronizedList(new ArrayList<>());
+        log.info("Outbound Process Start {} PickList", salesOrder);
 
 //        ExecutorService executorService = Executors.newFixedThreadPool(8);
 
         try {
-            for (SalesOrderV2 salesOrder : salesOrderList) {
+//            for (SalesOrderV2 salesOrder : salesOrderList) {
                 SalesOrderHeaderV2 header = salesOrder.getSalesOrderHeader();
                 List<SalesOrderLineV2> lineV2List = salesOrder.getSalesOrderLine();
                 String companyCode = header.getCompanyCode();
@@ -172,11 +172,11 @@ public class SalesOrderService extends BaseService {
                 String plantText = description.getPlantDesc();
                 String warehouseText = description.getWarehouseDesc();
 
-//                Optional<PreOutboundHeaderV2> duplicateCheck = preOutboundHeaderV2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
-//                        languageId, companyCode, plantId, warehouseId, newPickListNo, 0L);
-//                if(duplicateCheck.isPresent()) {
-//                    throw new BadRequestException("Duplicate PickList No --------------> " + newPickListNo);
-//                }
+                Optional<PreOutboundHeaderV2> duplicateCheck = preOutboundHeaderV2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                        languageId, companyCode, plantId, warehouseId, newPickListNo, 0L);
+                if(duplicateCheck.isPresent()) {
+                    return  salesOrder;
+                }
 
                 //PickList Cancellation
                 log.info("Executing PickList cancellation scenario pre - checkup process");
@@ -279,8 +279,8 @@ public class SalesOrderService extends BaseService {
                             createPickListCancellation.getOldPickListNumber(), createPickListCancellation.getNewPickListNumber(),
                             preOutboundNo, createPickListCancellation, "MW_AMS");
                 }
-                salesOrders.add(salesOrder);
-            }
+//                salesOrders.add(salesOrder);
+//            }
         } catch (
                 Exception e) {
             log.error("Error processing outbound PICK_LIST Lines", e);
@@ -289,8 +289,8 @@ public class SalesOrderService extends BaseService {
 //        finally {
 //            executorService.shutdown();
 //        }
-        log.info("Outbound Process Completed for {} PickList", salesOrders.size());
-        return salesOrders;
+        log.info("Outbound Process Completed for SaleOrderNumber {} &&& PickListNo {} ", salesOrder.getSalesOrderHeader().getSalesOrderNumber(), salesOrder.getSalesOrderHeader().getPickListNumber());
+        return salesOrder;
     }
 
 
