@@ -128,10 +128,11 @@ public class SalesOrderService extends BaseService {
     PerpetualLineV2Repository perpetualLineV2Repository;
     @Autowired
     InventoryTransRepository inventoryTransRepository;
-
-
     @Autowired
     StockAdjustmentRepository stockAdjustmentRepository;
+
+    @Autowired
+    NumberRangeService numberRangeService;
 
     /**
      * @param salesOrder
@@ -299,8 +300,8 @@ public class SalesOrderService extends BaseService {
      */
     public String getPreOutboundNo(String warehouseId, String companyCodeId, String plantId, String languageId) {
         try {
-            String nextRangeNumber = mastersService.getNextNumberRange(9L, warehouseId, companyCodeId, plantId, languageId);
-            return nextRangeNumber;
+
+            return numberRangeService.getNextNumberRange(9L, warehouseId, companyCodeId, plantId, languageId);
         } catch (Exception e) {
             throw new BadRequestException("Error on Number generation." + e.toString());
         }
