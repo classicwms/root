@@ -2364,19 +2364,19 @@ public class OutboundOrderProcessingFTService extends BaseService {
             }
 
 
-            List<String> distinctRefDocNumbers = pickupHeaderV2List.stream()
-                    .map(PickupHeaderV2::getRefDocNumber)
-                    .filter(Objects::nonNull)
-                    .distinct()
-                    .collect(Collectors.toList());
-
-            for(String refDocNo : distinctRefDocNumbers) {
-                log.info("PickupHeader Status Id RefDocNo List -------------> " + refDocNo);
-                // Order_Text_Update
-                String text = "PickupHeader Created";
-                outboundOrderV2Repository.updatePickupHeaderStatus(refDocNo, text);
-                log.info("PickupHeader Status Updated Successfully -----------------> " + refDocNo);
-            }
+//            List<String> distinctRefDocNumbers = pickupHeaderV2List.stream()
+//                    .map(PickupHeaderV2::getRefDocNumber)
+//                    .filter(Objects::nonNull)
+//                    .distinct()
+//                    .collect(Collectors.toList());
+//
+//            for(String refDocNo : distinctRefDocNumbers) {
+//                log.info("PickupHeader Status Id RefDocNo List -------------> " + refDocNo);
+//                // Order_Text_Update
+//                String text = "PickupHeader Created";
+//                outboundOrderV2Repository.updatePickupHeaderStatus(refDocNo, text);
+//                log.info("PickupHeader Status Updated Successfully -----------------> " + refDocNo);
+//            }
 
             return documentNumberList;
         } catch (Exception e) {
@@ -2819,10 +2819,10 @@ public class OutboundOrderProcessingFTService extends BaseService {
 
         try {
 
-//            // Order_Text_Update
-//            String text = "PickupHeader Created";
-//            outboundOrderV2Repository.updateOutboundHeaderText(newPickupHeader.getOutboundOrderTypeId(), newPickupHeader.getRefDocNumber(), text);
-//            log.info("PickupHeader Status Updated Successfully -----------------> " + newPickupHeader.getRefDocNumber());
+            // Order_Text_Update
+            String text = "PickupHeader Created";
+            outboundOrderV2Repository.updateOutboundHeaderText(newPickupHeader.getOutboundOrderTypeId(), newPickupHeader.getRefDocNumber(), text);
+            log.info("PickupHeader Status Updated Successfully -----------------> " + newPickupHeader.getRefDocNumber());
 
             outboundLineV2Repository.updateOutboundLineStatusV3(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo,
                     48L, statusDescription, orderManagementLine.getLineNumber(), orderManagementLine.getItemCode());
