@@ -268,17 +268,17 @@ public class StockReceiptService {
             imBasicDataList.add(imBasicData1); // Collect for batch save
         }
 
-        String imPartBarcode = srLineV2.getManufacturerFullName() + srLineV2.getItemCode();
+        String imPartBarcode = srLineV2.getManufacturerShortName() + srLineV2.getItemCode();
         ImPartner imPartner = new ImPartner();
         imPartner.setLanguageId(languageId);
         imPartner.setCompanyCodeId(companyCode);
         imPartner.setPlantId(plantId);
         imPartner.setWarehouseId(warehouseId);
         imPartner.setItemCode(srLineV2.getItemCode());
-        imPartner.setBusinessPartnerCode(srLineV2.getManufacturerFullName());
+        imPartner.setBusinessPartnerCode(srLineV2.getManufacturerShortName());
         imPartner.setBusinessPartnerType("1");
         imPartner.setPartnerItemBarcode(imPartBarcode);
-        imPartner.setManufacturerName(srLineV2.getManufacturerFullName());
+        imPartner.setManufacturerName(srLineV2.getManufacturerShortName());
         imPartner.setManufacturerCode(srLineV2.getManufacturerCode());
 
         // Collect PreInboundLine
@@ -430,7 +430,7 @@ public class StockReceiptService {
         preInboundLine.setItemDescription(srLineV2.getItemDescription());
 
         // MFR_PART
-        preInboundLine.setManufacturerPartNo(srLineV2.getManufacturerFullName());
+        preInboundLine.setManufacturerPartNo(srLineV2.getManufacturerShortName());
         // PARTNER_CODE
         preInboundLine.setBusinessPartnerCode(srLineV2.getSupplierCode());
         // ORD_QTY
@@ -456,7 +456,7 @@ public class StockReceiptService {
         preInboundLine.setPlantDescription(plantDescription);
         preInboundLine.setWarehouseDescription(warehouseDescription);
         preInboundLine.setManufacturerCode(srLineV2.getManufacturerCode());
-        preInboundLine.setManufacturerName(srLineV2.getManufacturerFullName());
+        preInboundLine.setManufacturerName(srLineV2.getManufacturerShortName());
         preInboundLine.setPartnerItemNo(srLineV2.getSupplierCode());
         preInboundLine.setSupplierName(srLineV2.getSupplierName());
 
