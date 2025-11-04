@@ -2,10 +2,6 @@ package com.tekclover.wms.core.controller;
 
 import com.tekclover.wms.core.batch.scheduler.BatchJobScheduler;
 import com.tekclover.wms.core.model.masters.ImPartner;
-import com.tekclover.wms.core.model.spark.FindPickupHeaderV2;
-import com.tekclover.wms.core.model.spark.FindQualityHeaderV2;
-import com.tekclover.wms.core.model.spark.FindStagingLineV2;
-import com.tekclover.wms.core.model.spark.StagingLineV2;
 import com.tekclover.wms.core.model.transaction.*;
 import com.tekclover.wms.core.model.warehouse.cyclecount.periodic.Periodic;
 import com.tekclover.wms.core.model.warehouse.cyclecount.perpetual.Perpetual;
@@ -15,7 +11,6 @@ import com.tekclover.wms.core.model.warehouse.inbound.almailem.*;
 import com.tekclover.wms.core.model.warehouse.outbound.almailem.*;
 import com.tekclover.wms.core.service.FileStorageService;
 import com.tekclover.wms.core.service.ReportService;
-import com.tekclover.wms.core.service.SparkService;
 import com.tekclover.wms.core.service.TransactionService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -56,11 +51,8 @@ public class TransactionServiceController {
     @Autowired
     BatchJobScheduler batchJobScheduler;
 
-    @Autowired
-    SparkService sparkService;
-
-//    /*
-//     * Process the ASN Integraion data
+    /*
+     * Process the ASN Integraion data
 //     */
 //    @ApiOperation(response = PreInboundHeader.class, value = "Create ProcessASN") // label for swagger
 //    @PostMapping("/preinboundheader/processInboundReceived")
@@ -2692,9 +2684,9 @@ public class TransactionServiceController {
     //Find
     @ApiOperation(response = StagingLineEntityV2.class, value = "Search StagingLine V2") // label for swagger
     @PostMapping("/stagingline/findStagingLine/v2")
-    public StagingLineV2[] findStagingLineV2(@RequestBody FindStagingLineV2 searchStagingLine,
-                                             @RequestParam String authToken) throws Exception {
-        return sparkService.findStagingLineV2(searchStagingLine);
+    public StagingLineEntityV2[] findStagingLineV2(@RequestBody SearchStagingLineV2 searchStagingLine,
+                                                   @RequestParam String authToken) throws Exception {
+        return transactionService.findStagingLineV2(searchStagingLine, authToken);
     }
 
     //Create
@@ -2976,20 +2968,12 @@ public class TransactionServiceController {
         return new ResponseEntity<>(putawayheader, HttpStatus.OK);
     }
 
-//    //Find
-//    @ApiOperation(response = PutAwayHeaderV2.class, value = "Search PutAwayHeader V2") // label for swagger
-//    @PostMapping("/putawayheader/findPutAwayHeader/v2")
-//    public PutAwayHeaderV2[] findPutAwayHeaderV2(@RequestBody SearchPutAwayHeaderV2 searchPutAwayHeader, @RequestParam String authToken)
-//            throws Exception {
-//        return transactionService.findPutAwayHeaderV2(searchPutAwayHeader, authToken);
-//    }
-
-        //Find
+    //Find
     @ApiOperation(response = PutAwayHeaderV2.class, value = "Search PutAwayHeader V2") // label for swagger
     @PostMapping("/putawayheader/findPutAwayHeader/v2")
-    public com.tekclover.wms.core.model.spark.PutAwayHeaderV2[] findPutAwayHeaderV2(@RequestBody com.tekclover.wms.core.model.spark.SearchPutAwayHeaderV2 searchPutAwayHeader, @RequestParam String authToken)
+    public PutAwayHeaderV2[] findPutAwayHeaderV2(@RequestBody SearchPutAwayHeaderV2 searchPutAwayHeader, @RequestParam String authToken)
             throws Exception {
-        return sparkService.findPutawayHeaderV2(searchPutAwayHeader);
+        return transactionService.findPutAwayHeaderV2(searchPutAwayHeader, authToken);
     }
 
     //Create
@@ -3557,18 +3541,11 @@ public class TransactionServiceController {
     /*
      * -------------------------PickupHeader----------------------------------------------------
      */
-//    @ApiOperation(response = PickupHeaderV2.class, value = "Search PickupHeader V2") // label for swagger
-//    @PostMapping("/pickupheader/v2/findPickupHeader")
-//    public PickupHeaderV2[] findPickupHeaderV2(@RequestBody SearchPickupHeaderV2 searchPickupHeader,
-//                                               @RequestParam String authToken) throws Exception {
-//        return transactionService.findPickupHeaderV2(searchPickupHeader, authToken);
-//    }
-
-        @ApiOperation(response = PickupHeaderV2.class, value = "Search PickupHeader V2") // label for swagger
+    @ApiOperation(response = PickupHeaderV2.class, value = "Search PickupHeader V2") // label for swagger
     @PostMapping("/pickupheader/v2/findPickupHeader")
-    public com.tekclover.wms.core.model.spark.PickupHeaderV2[] findPickupHeaderV2(@RequestBody FindPickupHeaderV2 searchPickupHeader,
-                                                                                  @RequestParam String authToken) throws Exception {
-        return sparkService.findPickupHeaderV2(searchPickupHeader);
+    public PickupHeaderV2[] findPickupHeaderV2(@RequestBody SearchPickupHeaderV2 searchPickupHeader,
+                                               @RequestParam String authToken) throws Exception {
+        return transactionService.findPickupHeaderV2(searchPickupHeader, authToken);
     }
 
     @ApiOperation(response = PickupHeaderV2.class, value = "Update PickupHeader V2") // label for swagger
@@ -3697,18 +3674,11 @@ public class TransactionServiceController {
         return new ResponseEntity<>(createdQualityHeader, HttpStatus.OK);
     }
 
-//    @ApiOperation(response = QualityHeaderV2.class, value = "Search QualityHeader V2") // label for swagger
-//    @PostMapping("/qualityheader/v2/findQualityHeader")
-//    public QualityHeaderV2[] findQualityHeaderV2(@RequestBody SearchQualityHeaderV2 searchQualityHeader,
-//                                                 @RequestParam String authToken) throws Exception {
-//        return transactionService.findQualityHeaderV2(searchQualityHeader, authToken);
-//    }
-
     @ApiOperation(response = QualityHeaderV2.class, value = "Search QualityHeader V2") // label for swagger
     @PostMapping("/qualityheader/v2/findQualityHeader")
-    public com.tekclover.wms.core.model.spark.QualityHeaderV2[] findQualityHeaderV2(@RequestBody FindQualityHeaderV2 searchQualityHeader,
-                                                                                    @RequestParam String authToken) throws Exception {
-        return sparkService.findQualityHeaderV2(searchQualityHeader);
+    public QualityHeaderV2[] findQualityHeaderV2(@RequestBody SearchQualityHeaderV2 searchQualityHeader,
+                                                 @RequestParam String authToken) throws Exception {
+        return transactionService.findQualityHeaderV2(searchQualityHeader, authToken);
     }
 
     @ApiOperation(response = QualityHeaderV2.class, value = "Update QualityHeader V2") // label for swagger
