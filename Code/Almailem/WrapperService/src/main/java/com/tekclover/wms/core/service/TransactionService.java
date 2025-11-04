@@ -14,7 +14,6 @@ import com.tekclover.wms.core.model.warehouse.inbound.ASN;
 import com.tekclover.wms.core.model.warehouse.inbound.WarehouseApiResponse;
 import com.tekclover.wms.core.model.warehouse.inbound.almailem.*;
 import com.tekclover.wms.core.model.warehouse.outbound.almailem.*;
-import com.tekclover.wms.core.repository.MongoTransactionRepository;
 import com.tekclover.wms.core.util.CommonUtils;
 import com.tekclover.wms.core.util.DateUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -55,8 +54,8 @@ public class TransactionService {
     @Autowired
     PropertiesConfig propertiesConfig;
 
-    @Autowired
-    MongoTransactionRepository mongoTransactionRepository;
+//    @Autowired
+//    MongoTransactionRepository mongoTransactionRepository;
 
     @Autowired
     JdbcTemplate jdbcTemplate;
@@ -81,22 +80,22 @@ public class TransactionService {
 
     /*------------------------------ProcessInboundReceived-----------------------------------------------------------------*/
     // POST
-    public PreInboundHeader processInboundReceived(String authToken) {
-        InboundIntegrationHeader createdInboundIntegrationHeader = mongoTransactionRepository
-                .findTopByOrderByOrderReceivedOnDesc();
-        log.info("Latest InboundIntegrationHeader : " + createdInboundIntegrationHeader);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        headers.add("User-Agent", "ClassicWMS RestTemplate");
-        headers.add("Authorization", "Bearer " + authToken);
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl()
-                + "preinboundheader/" + createdInboundIntegrationHeader.getRefDocumentNo() + "/processInboundReceived");
-        HttpEntity<?> entity = new HttpEntity<>(createdInboundIntegrationHeader, headers);
-        ResponseEntity<PreInboundHeader> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
-                entity, PreInboundHeader.class);
-        return result.getBody();
-    }
+//    public PreInboundHeader processInboundReceived(String authToken) {
+//        InboundIntegrationHeader createdInboundIntegrationHeader = mongoTransactionRepository
+//                .findTopByOrderByOrderReceivedOnDesc();
+//        log.info("Latest InboundIntegrationHeader : " + createdInboundIntegrationHeader);
+//
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+//        headers.add("User-Agent", "ClassicWMS RestTemplate");
+//        headers.add("Authorization", "Bearer " + authToken);
+//        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getTransactionServiceApiUrl()
+//                + "preinboundheader/" + createdInboundIntegrationHeader.getRefDocumentNo() + "/processInboundReceived");
+//        HttpEntity<?> entity = new HttpEntity<>(createdInboundIntegrationHeader, headers);
+//        ResponseEntity<PreInboundHeader> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST,
+//                entity, PreInboundHeader.class);
+//        return result.getBody();
+//    }
 
     // --------------------------------------------PreInboundHeader------------------------------------------------------------------------
     // GET ALL
