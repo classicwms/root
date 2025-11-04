@@ -1061,9 +1061,8 @@ public class OutboundOrderProcessingFTService extends BaseService {
      * @return
      * @throws Exception
      */
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-    @Retryable(value = {Exception.class, CannotAcquireLockException.class,
-            LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 8000))
+//    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+    @Retryable(value = {Exception.class, CannotAcquireLockException.class, LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 2, backoff = @Backoff(delay = 2000))
     public List<OutboundHeaderV2> sapOutboundOrderFullfillment(List<OutboundIntegrationHeaderV2> outboundIntegrationHeaderList) throws Exception {
         log.info("---------sapOutboundOrderFullfillment----" + outboundIntegrationHeaderList);
 
