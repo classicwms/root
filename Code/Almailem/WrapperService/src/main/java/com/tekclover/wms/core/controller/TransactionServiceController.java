@@ -59,16 +59,16 @@ public class TransactionServiceController {
     @Autowired
     SparkService sparkService;
 
-    /*
-     * Process the ASN Integraion data
-     */
-    @ApiOperation(response = PreInboundHeader.class, value = "Create ProcessASN") // label for swagger
-    @PostMapping("/preinboundheader/processInboundReceived")
-    public ResponseEntity<?> processASN(@RequestParam String authToken)
-            throws IllegalAccessException, InvocationTargetException {
-        transactionService.processInboundReceived(authToken);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
+//    /*
+//     * Process the ASN Integraion data
+//     */
+//    @ApiOperation(response = PreInboundHeader.class, value = "Create ProcessASN") // label for swagger
+//    @PostMapping("/preinboundheader/processInboundReceived")
+//    public ResponseEntity<?> processASN(@RequestParam String authToken)
+//            throws IllegalAccessException, InvocationTargetException {
+//        transactionService.processInboundReceived(authToken);
+//        return new ResponseEntity<>(HttpStatus.OK);
+//    }
 
     /*
      * --------------------------------ContainerReceipt---------------------------------------------------------------
