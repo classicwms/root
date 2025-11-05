@@ -169,6 +169,7 @@ public class SalesOrderService extends BaseService {
             PickListCancellation createPickListCancellation = null;
 //                String preOutboundNo = getPreOutboundNo(warehouseId, companyCode, plantId, languageId);
 
+            DataBaseContextHolder.setCurrentDb(DataBaseContextHolder.getCurrentDb());
             String preOutboundNo = numberRangeService.getNextNumberRange(9L, warehouseId, companyCode, plantId, languageId);
             log.info("NumberRange Generation --------------> " + preOutboundNo);
 

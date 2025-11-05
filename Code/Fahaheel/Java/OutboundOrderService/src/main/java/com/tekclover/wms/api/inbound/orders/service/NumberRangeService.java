@@ -1,5 +1,6 @@
 package com.tekclover.wms.api.inbound.orders.service;
 
+import com.tekclover.wms.api.inbound.orders.config.dynamicConfig.DataBaseContextHolder;
 import com.tekclover.wms.api.inbound.orders.controller.BadRequestException;
 import com.tekclover.wms.api.inbound.orders.model.numberrange.NumberRange;
 import com.tekclover.wms.api.inbound.orders.repository.NumberRangeRepository;
@@ -18,6 +19,7 @@ public class NumberRangeService {
 
     public String getNextNumberRange(Long numberRangeCode, String warehouseId, String companyCodeId,
                                      String plantId, String languageId) {
+        DataBaseContextHolder.setCurrentDb(DataBaseContextHolder.getCurrentDb());
         log.info(" | " + companyCodeId + " | " + plantId + " | " + warehouseId + " | ");
         Optional<NumberRange> optNumberRange = numberRangeRepository
                 .findByCompanyCodeIdAndPlantIdAndWarehouseIdAndNumberRangeCodeAndLanguageIdAndDeletionIndicator(
