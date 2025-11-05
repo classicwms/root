@@ -122,9 +122,9 @@ public class QualityHeaderController {
     //Stream
     @ApiOperation(response = QualityHeaderV2.class, value = "Search QualityHeader New") // label for swagger
     @PostMapping("/v2/findQualityHeaderNew")
-    public Stream<QualityHeaderV2> findQualityHeaderNewV2(@RequestBody SearchQualityHeaderV2 searchQualityHeader)
+    public List<QualityHeaderV2> findQualityHeaderNewV2(@RequestBody SearchQualityHeaderV2 searchQualityHeader)
             throws Exception {
-        return qualityheaderService.findQualityHeaderNewV2(searchQualityHeader);
+        return qualityheaderService.findQualityHeader(searchQualityHeader);
     }
 
     @ApiOperation(response = QualityHeaderV2.class, value = "Create QualityHeader") // label for swagger
