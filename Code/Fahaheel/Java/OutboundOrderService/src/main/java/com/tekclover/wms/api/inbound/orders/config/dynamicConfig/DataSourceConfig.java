@@ -27,16 +27,11 @@ public class DataSourceConfig {
         Map<Object, Object> targetDataSources = new HashMap<>();
 
         // Example data source configurations (replace with actual configuration)
-//        DataSource db = createDataSource("MT");
-//        DataSource db1 = createDataSource("ALM");
+        //DataSource db = createDataSource("MT");
         DataSource db2 = createDataSource("FAHAHEEL");
-//        DataSource db3 = createDataSource("JAHRA");
 
-//
-//        targetDataSources.put("MT",db);
-//        targetDataSources.put("ALM",db1);
+        //targetDataSources.put("MT",db);
         targetDataSources.put("FAHAHEEL", db2);
-//        targetDataSources.put("JAHRA", db3);
 
         DynamicDataSource dataSource = new DynamicDataSource();
         dataSource.setTargetDataSources(targetDataSources);

@@ -1309,14 +1309,13 @@ public class TransactionServiceV2 {
             return null;
         }
 
-        List<SalesOrder> salesOrderList = new ArrayList<>();
         // Order_process_starting_Set_value_process_status_id=1
-        pickListHeaders.stream().forEach(salesOrder -> {
-            salesOrderService.updateProcessedInboundOrder(salesOrder.getPickListHeaderId(),
-                    salesOrder.getCompanyCode(), salesOrder.getBranchCode(),
-                    salesOrder.getPickListNo(), 1L);
-            log.info("PickList Order Process Staring Set value is 1");
-        });
+//        pickListHeaders.stream().forEach(salesOrder -> {
+//            salesOrderService.updateProcessedInboundOrder(salesOrder.getPickListHeaderId(),
+//                    salesOrder.getCompanyCode(), salesOrder.getBranchCode(),
+//                    salesOrder.getPickListNo(), 1L);
+//            log.info("PickList Order Process Staring Set value is 1");
+//        });
 
         SalesOrder salesOrder = new SalesOrder();
         for (PickListHeader dbOBOrder : pickListHeaders) {
@@ -1356,32 +1355,23 @@ public class TransactionServiceV2 {
             }
             salesOrder.setSalesOrderHeader(salesOrderHeader);
             salesOrder.setSalesOrderLine(salesOrderLines);
-            salesOrderList.add(salesOrder);
-        }
+//            salesOrderList.add(salesOrder);
 
-        // Sales_Order_Record_Transaction_Service
-        if (!salesOrderList.isEmpty()) {
-            try {
-                log.info("Sales Order Push to WMS ----------------> " + salesOrderList);
-                SalesOrder[] outboundHeader = salesOrderService.postSalesOrder(salesOrderList);
-                if (outboundHeader.length > 0) {
-                    salesOrderList.stream().forEach(sale -> {
-                        // Updating the Processed Status = 10
-                        salesOrderService.updateProcessedInboundOrder(sale.getSalesOrderHeader().getMiddlewareId(),
-                                sale.getSalesOrderHeader().getCompanyCode(), sale.getSalesOrderHeader().getBranchCode(),
-                                sale.getSalesOrderHeader().getPickListNumber(), 10L);
-                        log.info("PickList Order Created Successfully {} - ", sale.getSalesOrderHeader().getPickListNumber());
-                    });
+                try {
+                    log.info("Sales Order Push to WMS ----------------> " + salesOrder);
+                    SalesOrder outboundHeader = salesOrderService.postSalesOrderV2(salesOrder);
+                            // Updating the Processed Status = 10
+                            salesOrderService.updateProcessedInboundOrder(outboundHeader.getSalesOrderHeader().getMiddlewareId(),
+                                    outboundHeader.getSalesOrderHeader().getCompanyCode(), outboundHeader.getSalesOrderHeader().getBranchCode(),
+                                    outboundHeader.getSalesOrderHeader().getPickListNumber(), 10L);
+                            log.info("PickList Order Created Successfully {} - ", outboundHeader.getSalesOrderHeader().getPickListNumber());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                        salesOrderService.updateProcessedInboundOrder(salesOrder.getSalesOrderHeader().getMiddlewareId(),
+                                salesOrder.getSalesOrderHeader().getCompanyCode(), salesOrder.getSalesOrderHeader().getBranchCode(),
+                                salesOrder.getSalesOrderHeader().getPickListNumber(), 100L);
+                        log.info("PickList Order Failed {} - ", salesOrder.getSalesOrderHeader().getPickListNumber());
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                salesOrderList.stream().forEach(sale -> {
-                    salesOrderService.updateProcessedInboundOrder(sale.getSalesOrderHeader().getMiddlewareId(),
-                            sale.getSalesOrderHeader().getCompanyCode(), sale.getSalesOrderHeader().getBranchCode(),
-                            sale.getSalesOrderHeader().getPickListNumber(), 100L);
-                    log.info("PickList Order Failed {} - ", sale.getSalesOrderHeader().getPickListNumber());
-                });
-            }
         }
         return null;
     }

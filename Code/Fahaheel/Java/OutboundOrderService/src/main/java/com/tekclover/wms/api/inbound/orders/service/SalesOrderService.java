@@ -128,11 +128,10 @@ public class SalesOrderService extends BaseService {
     PerpetualLineV2Repository perpetualLineV2Repository;
     @Autowired
     InventoryTransRepository inventoryTransRepository;
-    @Autowired
-    StockAdjustmentRepository stockAdjustmentRepository;
+
 
     @Autowired
-    NumberRangeService numberRangeService;
+    StockAdjustmentRepository stockAdjustmentRepository;
 
     /**
      * @param salesOrder
@@ -300,8 +299,8 @@ public class SalesOrderService extends BaseService {
      */
     public String getPreOutboundNo(String warehouseId, String companyCodeId, String plantId, String languageId) {
         try {
-
-            return numberRangeService.getNextNumberRange(9L, warehouseId, companyCodeId, plantId, languageId);
+            String nextRangeNumber = mastersService.getNextNumberRange(9L, warehouseId, companyCodeId, plantId, languageId);
+            return nextRangeNumber;
         } catch (Exception e) {
             throw new BadRequestException("Error on Number generation." + e.toString());
         }
@@ -2491,8 +2490,8 @@ public class SalesOrderService extends BaseService {
 
             for (QualityLineV2 dbQualityLine : createdQualityLineList) {
                 Long NUM_RAN_CODE = 12L;
-                DLV_ORD_NO = mastersService.getNextNumberRange(NUM_RAN_CODE, dbQualityLine.getCompanyCodeId(),
-                        dbQualityLine.getPlantId(), dbQualityLine.getLanguageId(), dbQualityLine.getWarehouseId());
+                DLV_ORD_NO = mastersService.getNextNumberRange(NUM_RAN_CODE, dbQualityLine.getWarehouseId(),
+                        dbQualityLine.getCompanyCodeId(), dbQualityLine.getPlantId(), dbQualityLine.getLanguageId());
 
                 updateOutboundLineV2(dbQualityLine, DLV_ORD_NO);
                 try {

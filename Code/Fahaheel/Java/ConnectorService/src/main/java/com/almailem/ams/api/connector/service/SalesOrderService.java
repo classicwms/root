@@ -158,7 +158,7 @@ public class SalesOrderService extends BaseService {
     }
 
 
-    public SalesOrder[] postSalesOrder(List<SalesOrder> salesOrder) {
+    public SalesOrder postSalesOrderV2(SalesOrder salesOrder) {
         AuthToken authToken = authTokenService.getFhOutboundOrderServiceAuthToken();
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -167,8 +167,8 @@ public class SalesOrderService extends BaseService {
         UriComponentsBuilder builder =
                 UriComponentsBuilder.fromHttpUrl(getFhOutboundServiceApiUrl() + "outboundorder/outbound/salesorderv2");
         HttpEntity<?> entity = new HttpEntity<>(salesOrder, headers);
-        ResponseEntity<SalesOrder[]> result =
-                getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, SalesOrder[].class);
+        ResponseEntity<SalesOrder> result =
+                getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, SalesOrder.class);
         log.info("result : " + result.getStatusCode());
         return result.getBody();
     }
