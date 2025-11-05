@@ -16,6 +16,7 @@ import com.tekclover.wms.api.transaction.model.outbound.quality.v2.QualityHeader
 import com.tekclover.wms.api.transaction.model.outbound.quality.v2.SearchQualityHeaderV2;
 import com.tekclover.wms.api.transaction.repository.*;
 import com.tekclover.wms.api.transaction.repository.specification.QualityHeaderV2Specification;
+import com.tekclover.wms.api.transaction.util.DateUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
@@ -517,11 +518,35 @@ public class QualityHeaderService {
         return results;
     }
 
-    //Stream
+//    Stream
     public Stream<QualityHeaderV2> findQualityHeaderNewV2(SearchQualityHeaderV2 searchQualityHeader) throws ParseException {
         QualityHeaderV2Specification spec = new QualityHeaderV2Specification(searchQualityHeader);
         Stream<QualityHeaderV2> results = qualityHeaderV2Repository.stream(spec, QualityHeaderV2.class).parallel();
         return results;
+    }
+
+
+    /**
+     *
+     * @param findQuality quality Input
+     * @return
+     * @throws ParseException
+     * @throws java.text.ParseException
+     */
+    public List<QualityHeaderV2> findQualityHeader(SearchQualityHeaderV2 findQuality) throws ParseException, java.text.ParseException {
+        log.info("QualityHeader Find Input Values --------------> " + findQuality);
+
+        if (findQuality.getStartQualityCreatedOn() != null && findQuality.getEndQualityCreatedOn() != null) {
+            Date[] dates = DateUtils.addTimeToDatesForSearch(findQuality.getStartQualityCreatedOn(),
+                    findQuality.getEndQualityCreatedOn());
+            findQuality.setStartQualityCreatedOn(dates[0]);
+            findQuality.setEndQualityCreatedOn(dates[1]);
+        }
+
+        return qualityHeaderV2Repository.findQualityHeader(findQuality.getWarehouseId(), findQuality.getCompanyCodeId(), findQuality.getPlantId(),
+                findQuality.getLanguageId(), findQuality.getRefDocNumber(), findQuality.getPartnerCode(), findQuality.getQualityInspectionNo(), findQuality.getPreOutboundNo(),
+                findQuality.getActualHeNo(), findQuality.getOutboundOrderTypeId(), findQuality.getStatusId(), findQuality.getSoType(), findQuality.getStartQualityCreatedOn(),
+                findQuality.getEndQualityCreatedOn());
     }
 
     /**
