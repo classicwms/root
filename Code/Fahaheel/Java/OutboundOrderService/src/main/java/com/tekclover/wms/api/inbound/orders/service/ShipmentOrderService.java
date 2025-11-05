@@ -279,6 +279,8 @@ public class ShipmentOrderService {
         if (barcode != null && !barcode.isEmpty()) {
             orderManagementLine.setBarcodeId(barcode.get(0));
             orderManagementLine.setItemBarcode(barcode.get(0));
+        } else {
+            orderManagementLine.setBarcodeId("");
         }
 
         List<IInventoryImpl> stockType1InventoryList = inventoryService.
@@ -800,6 +802,8 @@ public class ShipmentOrderService {
         if (barcode != null && !barcode.isEmpty()) {
             preOutboundLine.setBarcodeId(barcode.get(0));
             preOutboundLine.setItemBarcode(barcode.get(0));
+        } else {
+            preOutboundLine.setBarcodeId("");
         }
 
         preOutboundLine.setRequiredDeliveryDate(preOutboundHeaderV2.getRequiredDeliveryDate());
