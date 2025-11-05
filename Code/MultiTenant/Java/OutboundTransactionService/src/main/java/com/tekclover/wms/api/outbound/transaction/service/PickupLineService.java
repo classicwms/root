@@ -5123,10 +5123,24 @@ public class PickupLineService extends BaseService {
     public void modifyInventoryForMatchingBarcodeIdV7(String companyCodeId, String plantId, String languageId, String warehouseId,
                                                       String itemCode, String refDocNumber, PickupLineV2 dbPickupLine, String loginUserID, Double BAG_SIZE, Double NO_BAGS) {
 
-        InventoryV2 inventory = inventoryService.getOutboundInventoryV4(companyCodeId, plantId, languageId, warehouseId, itemCode,
+        InventoryV2 inventory = inventoryService.getOutboundInventoryV7(companyCodeId, plantId, languageId, warehouseId, itemCode,
                 dbPickupLine.getManufacturerName(), dbPickupLine.getPickConfirmBarcodeId(),
                 dbPickupLine.getPickedStorageBin(), dbPickupLine.getAlternateUom());
         log.info("inventory record queried: " + inventory);
+
+        if (inventory == null) {
+            log.error("There is no picked inventory record for given itemCode : " + itemCode + " and PickCnfBarcodeId : " + dbPickupLine.getPickConfirmBarcodeId());
+            log.warn("Pickupline reverting process started...");
+            pickupLineV2Repository.deletePickupLineV7(dbPickupLine.getRefDocNumber());
+            log.warn("Pickupline deleted for RefDocNo ----> {}", dbPickupLine.getRefDocNumber());
+            Long STATUS_ID = 48L;
+            statusDescription = getStatusDescription(STATUS_ID, languageId);
+            log.info("Pickupheader status reverting to 48");
+            pickupHeaderV2Repository.updatePickHeader48StatusV7(companyCodeId, plantId, languageId, warehouseId, refDocNumber, STATUS_ID, statusDescription);
+
+            throw new BadRequestException("1.The Scanned BarcodeId and ItemCode does'nt match in inventory. Kindly Check...");
+        }
+
         if (inventory != null) {
             if (dbPickupLine.getAllocatedQty() > 0D) {
                 try {
@@ -5508,7 +5522,7 @@ public class PickupLineService extends BaseService {
                                                          String itemCode, String refDocNumber, String allocatedBarcode,
                                                          PickupLineV2 dbPickupLine, String loginUserID, Double BAG_SIZE, Double NO_BAGS) {
 
-        InventoryV2 allocatedInventory = inventoryService.getOutboundInventoryV6(companyCodeId, plantId, languageId, warehouseId, itemCode,
+        InventoryV2 allocatedInventory = inventoryService.getOutboundInventoryDifferentV7(companyCodeId, plantId, languageId, warehouseId, itemCode,
                 dbPickupLine.getManufacturerName(), allocatedBarcode,
                 dbPickupLine.getPickedStorageBin(), dbPickupLine.getAlternateUom());
         log.info("allocated inventory record queried: " + allocatedInventory);
@@ -5611,10 +5625,25 @@ public class PickupLineService extends BaseService {
             }
         }
 
-        InventoryV2 inventory = inventoryService.getOutboundInventoryV6(companyCodeId, plantId, languageId, warehouseId, itemCode,
+        InventoryV2 inventory = inventoryService.getOutboundInventoryDifferentV7(companyCodeId, plantId, languageId, warehouseId, itemCode,
                 dbPickupLine.getManufacturerName(), dbPickupLine.getBarcodeId(),
                 dbPickupLine.getPickedStorageBin(), dbPickupLine.getAlternateUom());
         log.info("picked inventory record queried: " + inventory);
+
+        if (inventory == null) {
+            log.error("There is no picked inventory record for given itemCode : " + itemCode + " and PickCnfBarcodeId : " + dbPickupLine.getPickConfirmBarcodeId());
+            log.warn("Pickupline reverting process started...");
+            pickupLineV2Repository.deletePickupLineV7(dbPickupLine.getRefDocNumber());
+            log.warn("Pickupline deleted for RefDocNo ----> {}", dbPickupLine.getRefDocNumber());
+
+            Long STATUS_ID = 48L;
+            statusDescription = getStatusDescription(STATUS_ID, languageId);
+            log.info("Pickupheader status reverting to 48");
+            pickupHeaderV2Repository.updatePickHeader48StatusV7(companyCodeId, plantId, languageId, warehouseId, refDocNumber, STATUS_ID, statusDescription);
+
+            throw new BadRequestException("2.The Scanned BarcodeId and ItemCode does'nt Match in inventory. Kindly Check");
+        }
+
         if (inventory != null) {
             if (dbPickupLine.getPickConfirmQty() > 0D) {
                 try {

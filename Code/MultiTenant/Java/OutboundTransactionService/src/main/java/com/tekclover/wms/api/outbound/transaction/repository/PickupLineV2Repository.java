@@ -342,4 +342,9 @@ public interface PickupLineV2Repository extends JpaRepository<PickupLineV2, Long
                                     @Param("companyCodeId") String companyCodeId,
                                     @Param("plantId") String plantId,
                                     @Param("warehouseId") String warehouseId);
+
+    @Modifying
+    @Query(value = "DELETE tblpickupline where ref_doc_no = :refDocNo \n" +
+            "AND IS_DELETED = 0", nativeQuery = true)
+    void deletePickupLineV7(@Param("refDocNo") String refDocNumber);
 }

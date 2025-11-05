@@ -2624,6 +2624,38 @@ public class InventoryService extends BaseService {
     }
 
     /**
+     * This method is for Knowell
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param manufacturerName
+     * @param barcodeId
+     * @param storageBin
+     * @param alternateUom
+     * @return
+     */
+    public InventoryV2 getOutboundInventoryV7(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                              String itemCode, String manufacturerName, String barcodeId, String storageBin, String alternateUom) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName +
+                "|" + alternateUom + "|" + barcodeId + "|" + storageBin);
+        IInventoryImpl dbInventory = inventoryV2Repository.getOutboundInventoryV4(companyCodeId, plantId, languageId, warehouseId, barcodeId, null,
+                itemCode, manufacturerName, PACK_BARCODE, null, alternateUom);
+        if (dbInventory == null) {
+            dbInventory = inventoryV2Repository.getOutboundInventoryV4(companyCodeId, plantId, languageId, warehouseId, barcodeId, null,
+                    itemCode, manufacturerName, PACK_BARCODE, null, null);
+        }
+        if (dbInventory != null) {
+            InventoryV2 inventory = new InventoryV2();
+            BeanUtils.copyProperties(dbInventory, inventory, CommonUtils.getNullPropertyNames(dbInventory));
+            return inventory;
+        }
+        return null;
+    }
+
+    /**
      * This method is for Reefron
      *
      * @param companyCodeId
@@ -2677,6 +2709,36 @@ public class InventoryService extends BaseService {
                 manufacturerName);
         if (dbInventory == null) {
             dbInventory = inventoryV2Repository.getOutboundInventoryV6(companyCodeId, plantId, languageId, warehouseId, barcodeId, manufacturerName);
+        }
+        if (dbInventory != null) {
+            InventoryV2 inventory = new InventoryV2();
+            BeanUtils.copyProperties(dbInventory, inventory, CommonUtils.getNullPropertyNames(dbInventory));
+            return inventory;
+        }
+        return null;
+    }
+
+    /**
+     *
+     * @param companyCodeId
+     * @param plantId
+     * @param languageId
+     * @param warehouseId
+     * @param itemCode
+     * @param manufacturerName
+     * @param barcodeId
+     * @param storageBin
+     * @param alternateUom
+     * @return
+     */
+    public InventoryV2 getOutboundInventoryDifferentV7(String companyCodeId, String plantId, String languageId, String warehouseId,
+                                                       String itemCode, String manufacturerName, String barcodeId, String storageBin, String alternateUom) {
+        log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName +
+                "|" + alternateUom + "|" + barcodeId + "|" + storageBin);
+        IInventoryImpl dbInventory = inventoryV2Repository.getOutboundInventoryV7(companyCodeId, plantId, languageId, warehouseId, barcodeId,
+                manufacturerName, itemCode);
+        if (dbInventory == null) {
+            dbInventory = inventoryV2Repository.getOutboundInventoryV7(companyCodeId, plantId, languageId, warehouseId, barcodeId, manufacturerName, itemCode);
         }
         if (dbInventory != null) {
             InventoryV2 inventory = new InventoryV2();

@@ -688,4 +688,16 @@ public interface PickupHeaderV2Repository extends JpaRepository<PickupHeaderV2, 
                         @Param("warehouseId") String warehouseId,
                         @Param("pickupNumber") String pickupNumber);
 
+    @Modifying
+    @Query(value = "UPDATE tblpickupheader set status_id = :statusId, status_text = :statusDescription \n " +
+            "where c_id = :companyCodeId and plant_id = :plantId and lang_id = :languageId and \n " +
+            "wh_id = :warehouseId and ref_doc_no = :refDocNumber", nativeQuery = true)
+    void updatePickHeader48StatusV7(@Param("companyCodeId") String companyCodeId,
+                                    @Param("plantId") String plantId,
+                                    @Param("languageId") String languageId,
+                                    @Param("warehouseId") String warehouseId,
+                                    @Param("refDocNumber") String refDocNumber,
+                                    @Param("statusId") Long statusId,
+                                    @Param("statusDescription") String statusDescription);
+
 }
