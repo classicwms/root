@@ -786,7 +786,7 @@ public class SalesOrderService extends BaseService {
                     PickupHeaderV2 newPickupHeader = new PickupHeaderV2();
                     BeanUtils.copyProperties(orderManagementLine, newPickupHeader, CommonUtils.getNullPropertyNames(orderManagementLine));
 
-                    String PU_NO = mastersService.getNextNumberRange(10L, warehouseId, companyCodeId, plantId, languageId);
+                    String PU_NO = numberRangeService.getNextNumberRange(10L, warehouseId, companyCodeId, plantId, languageId);
                     log.info("PU_NO : " + PU_NO);
 
                     newPickupHeader.setAssignedPickerId(assignPickerId);
