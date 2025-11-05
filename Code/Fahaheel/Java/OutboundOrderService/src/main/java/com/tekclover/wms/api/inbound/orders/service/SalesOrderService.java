@@ -62,6 +62,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
 import static java.lang.Math.abs;
 
 @Service
@@ -118,7 +119,7 @@ public class SalesOrderService extends BaseService {
     QualityHeaderV2Repository qualityHeaderV2Repository;
     @Autowired
     OutboundLineInterimRepository outboundLineInterimRepository;
-        @Autowired
+    @Autowired
     PushNotificationService pushNotificationService;
     @Autowired
     PerpetualHeaderV2Repository perpetualHeaderV2Repository;
@@ -129,9 +130,11 @@ public class SalesOrderService extends BaseService {
     @Autowired
     InventoryTransRepository inventoryTransRepository;
 
-
     @Autowired
     StockAdjustmentRepository stockAdjustmentRepository;
+
+    @Autowired
+    NumberRangeService numberRangeService;
 
     /**
      * @param salesOrder
@@ -148,91 +151,94 @@ public class SalesOrderService extends BaseService {
 
         try {
 //            for (SalesOrderV2 salesOrder : salesOrderList) {
-                SalesOrderHeaderV2 header = salesOrder.getSalesOrderHeader();
-                List<SalesOrderLineV2> lineV2List = salesOrder.getSalesOrderLine();
-                String companyCode = header.getCompanyCode();
-                String plantId = header.getBranchCode();
-                String newPickListNo = header.getPickListNumber();
-                String orderType = lineV2List.get(0).getOrderType();
+            SalesOrderHeaderV2 header = salesOrder.getSalesOrderHeader();
+            List<SalesOrderLineV2> lineV2List = salesOrder.getSalesOrderLine();
+            String companyCode = header.getCompanyCode();
+            String plantId = header.getBranchCode();
+            String newPickListNo = header.getPickListNumber();
+            String orderType = lineV2List.get(0).getOrderType();
 
-                // Get Warehouse
-                Optional<Warehouse> dbWarehouse =
-                        warehouseRepository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndDeletionIndicator(companyCode, plantId, "EN", 0L);
-                Warehouse WH = dbWarehouse.get();
-                String warehouseId = WH.getWarehouseId();
-                String languageId = WH.getLanguageId();
-                log.info("Warehouse ID: {}", warehouseId);
+            // Get Warehouse
+            Optional<Warehouse> dbWarehouse =
+                    warehouseRepository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndDeletionIndicator(companyCode, plantId, "EN", 0L);
+            Warehouse WH = dbWarehouse.get();
+            String warehouseId = WH.getWarehouseId();
+            String languageId = WH.getLanguageId();
+            log.info("Warehouse ID: {}", warehouseId);
 
-                PickListCancellation createPickListCancellation = null;
-                String preOutboundNo = getPreOutboundNo(warehouseId, companyCode, plantId, languageId);
+            PickListCancellation createPickListCancellation = null;
+//                String preOutboundNo = getPreOutboundNo(warehouseId, companyCode, plantId, languageId);
 
-                // Description_Set
-                IKeyValuePair description = stagingLineV2Repository.getDescription(companyCode, languageId, plantId, warehouseId);
-                String companyText = description.getCompanyDesc();
-                String plantText = description.getPlantDesc();
-                String warehouseText = description.getWarehouseDesc();
+            String preOutboundNo = numberRangeService.getNextNumberRange(9L, warehouseId, companyCode, plantId, languageId);
+            log.info("NumberRange Generation --------------> " + preOutboundNo);
 
-                Optional<PreOutboundHeaderV2> duplicateCheck = preOutboundHeaderV2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
-                        languageId, companyCode, plantId, warehouseId, newPickListNo, 0L);
-                if(duplicateCheck.isPresent()) {
-                    return  salesOrder;
-                }
+            // Description_Set
+            IKeyValuePair description = stagingLineV2Repository.getDescription(companyCode, languageId, plantId, warehouseId);
+            String companyText = description.getCompanyDesc();
+            String plantText = description.getPlantDesc();
+            String warehouseText = description.getWarehouseDesc();
 
-                //PickList Cancellation
-                log.info("Executing PickList cancellation scenario pre - checkup process");
-                String salesOrderNumber = header.getSalesOrderNumber();
+            Optional<PreOutboundHeaderV2> duplicateCheck = preOutboundHeaderV2Repository.findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
+                    languageId, companyCode, plantId, warehouseId, newPickListNo, 0L);
+            if (duplicateCheck.isPresent()) {
+                return salesOrder;
+            }
 
-                //Check WMS order table
-                List<OutboundHeaderV2> outbound = outboundHeaderV2Repository.findBySalesOrderNumberAndOutboundOrderTypeIdAndDeletionIndicator(salesOrderNumber, 3L, 0L);
-                log.info("SalesOrderNumber already Exist: ---> PickList Cancellation to be executed " + salesOrderNumber);
+            //PickList Cancellation
+            log.info("Executing PickList cancellation scenario pre - checkup process");
+            String salesOrderNumber = header.getSalesOrderNumber();
 
-                DataBaseContextHolder.clear();
-                DataBaseContextHolder.setCurrentDb("FAHAHEEL");
-                if (outbound != null && !outbound.isEmpty()) {
-                    List<OutboundHeaderV2> oldPickListNo = outbound.stream().filter(n -> !n.getPickListNumber().equalsIgnoreCase(newPickListNo)).collect(Collectors.toList());
-                    log.info("Old PickList Number, New PickList Number: " + oldPickListNo + ", " + newPickListNo);
+            //Check WMS order table
+            List<OutboundHeaderV2> outbound = outboundHeaderV2Repository.findBySalesOrderNumberAndOutboundOrderTypeIdAndDeletionIndicator(salesOrderNumber, 3L, 0L);
+            log.info("SalesOrderNumber already Exist: ---> PickList Cancellation to be executed " + salesOrderNumber);
 
-                    if (oldPickListNo != null && !oldPickListNo.isEmpty()) {
-                        for (OutboundHeaderV2 oldPickListNumber : oldPickListNo) {
-                            OutboundHeaderV2 outboundOrderV2 =
-                                    outboundHeaderV2Repository.findByCompanyCodeIdAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
-                                            companyCode, languageId, plantId, warehouseId, oldPickListNumber.getPickListNumber(), oldPickListNumber.getPreOutboundNo(), 0L);
-                            log.info("Outbound Order status ---> Delivered for old Picklist Number: " + outboundOrderV2 + ", " + oldPickListNumber);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb("FAHAHEEL");
+            if (outbound != null && !outbound.isEmpty()) {
+                List<OutboundHeaderV2> oldPickListNo = outbound.stream().filter(n -> !n.getPickListNumber().equalsIgnoreCase(newPickListNo)).collect(Collectors.toList());
+                log.info("Old PickList Number, New PickList Number: " + oldPickListNo + ", " + newPickListNo);
 
-                            if (outboundOrderV2 != null && outboundOrderV2.getInvoiceNumber() != null) {
-                                // Update error message for the new PicklistNo
-                                throw new BadRequestException("Picklist cannot be cancelled as Sales order associated with picklist - Invoice has been raised");
-                            }
+                if (oldPickListNo != null && !oldPickListNo.isEmpty()) {
+                    for (OutboundHeaderV2 oldPickListNumber : oldPickListNo) {
+                        OutboundHeaderV2 outboundOrderV2 =
+                                outboundHeaderV2Repository.findByCompanyCodeIdAndLanguageIdAndPlantIdAndWarehouseIdAndRefDocNumberAndPreOutboundNoAndDeletionIndicator(
+                                        companyCode, languageId, plantId, warehouseId, oldPickListNumber.getPickListNumber(), oldPickListNumber.getPreOutboundNo(), 0L);
+                        log.info("Outbound Order status ---> Delivered for old Picklist Number: " + outboundOrderV2 + ", " + oldPickListNumber);
 
-                            log.info("Old PickList Number: " + oldPickListNumber.getPickListNumber() + ", " +
-                                    oldPickListNumber.getPreOutboundNo() + " Cancellation Initiated and followed by New PickList " + newPickListNo + " creation started");
-
-                            //Delete old PickListData
-                            createPickListCancellation = orderService.pickListCancellationNew(companyCode, plantId, languageId, warehouseId, oldPickListNumber.getPickListNumber(), newPickListNo, oldPickListNumber.getPreOutboundNo(), "MW_AMS");
+                        if (outboundOrderV2 != null && outboundOrderV2.getInvoiceNumber() != null) {
+                            // Update error message for the new PicklistNo
+                            throw new BadRequestException("Picklist cannot be cancelled as Sales order associated with picklist - Invoice has been raised");
                         }
+
+                        log.info("Old PickList Number: " + oldPickListNumber.getPickListNumber() + ", " +
+                                oldPickListNumber.getPreOutboundNo() + " Cancellation Initiated and followed by New PickList " + newPickListNo + " creation started");
+
+                        //Delete old PickListData
+                        createPickListCancellation = orderService.pickListCancellationNew(companyCode, plantId, languageId, warehouseId, oldPickListNumber.getPickListNumber(), newPickListNo, oldPickListNumber.getPreOutboundNo(), "MW_AMS");
                     }
                 }
+            }
 
-                // PreBoundHeader
-                PreOutboundHeaderV2 preOutboundHeader = createPreOutboundHeaderV2(companyCode, plantId, languageId, warehouseId,
-                        preOutboundNo, header, orderType, companyText, plantText, warehouseText);
-                log.info("preOutboundHeader Created : " + preOutboundHeader);
+            // PreBoundHeader
+            PreOutboundHeaderV2 preOutboundHeader = createPreOutboundHeaderV2(companyCode, plantId, languageId, warehouseId,
+                    preOutboundNo, header, orderType, companyText, plantText, warehouseText);
+            log.info("preOutboundHeader Created : " + preOutboundHeader);
 
-                // OrderManagementHeader
-                OrderManagementHeaderV2 orderManagementHeader = createOrderManagementHeaderV2(preOutboundHeader);
-                log.info("OrderManagementHeader Created : " + orderManagementHeader);
+            // OrderManagementHeader
+            OrderManagementHeaderV2 orderManagementHeader = createOrderManagementHeaderV2(preOutboundHeader);
+            log.info("OrderManagementHeader Created : " + orderManagementHeader);
 
-                // OutboundHeader
-                OutboundHeaderV2 outboundHeader = createOutboundHeaderV2(preOutboundHeader, orderManagementHeader.getStatusId(), header);
-                log.info("OutboundHeader Created : " + outboundHeader);
+            // OutboundHeader
+            OutboundHeaderV2 outboundHeader = createOutboundHeaderV2(preOutboundHeader, orderManagementHeader.getStatusId(), header);
+            log.info("OutboundHeader Created : " + outboundHeader);
 
-                // Collections for batch saving
-                List<PreOutboundLineV2> preOutboundLines = Collections.synchronizedList(new ArrayList<>());
-                List<OutboundLineV2> outboundLines = Collections.synchronizedList(new ArrayList<>());
-                List<OrderManagementLineV2> managementLines = Collections.synchronizedList(new ArrayList<>());
+            // Collections for batch saving
+            List<PreOutboundLineV2> preOutboundLines = Collections.synchronizedList(new ArrayList<>());
+            List<OutboundLineV2> outboundLines = Collections.synchronizedList(new ArrayList<>());
+            List<OrderManagementLineV2> managementLines = Collections.synchronizedList(new ArrayList<>());
 
 
-                // Process lines in parallel
+            // Process lines in parallel
 //                List<CompletableFuture<Void>> futures = lineV2List.stream()
 //                        .map(outBoundLine -> CompletableFuture.runAsync(() -> {
 //                            try {
@@ -253,32 +259,32 @@ public class SalesOrderService extends BaseService {
 //                    throw new BadRequestException("Inbound Order Processing failed: " + e.getCause().getMessage());
 //                }
 
-                for (SalesOrderLineV2 outBoundLine : lineV2List) {
-                    processSingleSaleOrderLine(outBoundLine, preOutboundHeader, orderManagementHeader, outboundHeader,
-                            preOutboundLines, outboundLines, managementLines);
-                }
+            for (SalesOrderLineV2 outBoundLine : lineV2List) {
+                processSingleSaleOrderLine(outBoundLine, preOutboundHeader, orderManagementHeader, outboundHeader,
+                        preOutboundLines, outboundLines, managementLines);
+            }
 
-                // Batch Save All Records
-                preOutboundLineV2Repository.saveAll(preOutboundLines);
-                orderManagementLineV2Repository.saveAll(managementLines);
-                outboundLineV2Repository.saveAll(outboundLines);
+            // Batch Save All Records
+            preOutboundLineV2Repository.saveAll(preOutboundLines);
+            orderManagementLineV2Repository.saveAll(managementLines);
+            outboundLineV2Repository.saveAll(outboundLines);
 
-                // No_Stock_Items
-                statusDescription = stagingLineV2Repository.getStatusDescription(47L, languageId);
-                orderManagementLineV2Repository.updateAllNoStockStatus(companyCode, plantId, languageId, warehouseId, outboundHeader.getRefDocNumber(), outboundHeader.getPreOutboundNo(), 47L, statusDescription);
-                log.info("No stock status updated in preinbound header and line, outbound header using stored procedure when condition is satisfied");
+            // No_Stock_Items
+            statusDescription = stagingLineV2Repository.getStatusDescription(47L, languageId);
+            orderManagementLineV2Repository.updateAllNoStockStatus(companyCode, plantId, languageId, warehouseId, outboundHeader.getRefDocNumber(), outboundHeader.getPreOutboundNo(), 47L, statusDescription);
+            log.info("No stock status updated in preinbound header and line, outbound header using stored procedure when condition is satisfied");
 
-                // PickupHeader for only PickList Order Only
-                log.info("PickupHeaderAssignPicker initiated...");
-                createPickUpHeaderAssignPickerModified(companyCode, plantId, languageId, warehouseId, header,
-                        preOutboundNo, outboundHeader.getRefDocNumber(), outboundHeader.getPartnerCode());
-                log.info("PickupHeaderAssignPicker completed...");
+            // PickupHeader for only PickList Order Only
+            log.info("PickupHeaderAssignPicker initiated...");
+            createPickUpHeaderAssignPickerModified(companyCode, plantId, languageId, warehouseId, header,
+                    preOutboundNo, outboundHeader.getRefDocNumber(), outboundHeader.getPartnerCode());
+            log.info("PickupHeaderAssignPicker completed...");
 
-                if (createPickListCancellation != null) {
-                    createPickListCancellation(companyCode, plantId, languageId, warehouseId,
-                            createPickListCancellation.getOldPickListNumber(), createPickListCancellation.getNewPickListNumber(),
-                            preOutboundNo, createPickListCancellation, "MW_AMS");
-                }
+            if (createPickListCancellation != null) {
+                createPickListCancellation(companyCode, plantId, languageId, warehouseId,
+                        createPickListCancellation.getOldPickListNumber(), createPickListCancellation.getNewPickListNumber(),
+                        preOutboundNo, createPickListCancellation, "MW_AMS");
+            }
 //                salesOrders.add(salesOrder);
 //            }
         } catch (
@@ -745,7 +751,7 @@ public class SalesOrderService extends BaseService {
                                         }
                                     }
 
-                                    IKeyValuePair pickupHeaderPickerByCount = pickupHeaderV2Repository.getAssignPickerID(companyCodeId, plantId, languageId, warehouseId, hhtUserList, LEVEL_ID,  dates[0], dates[1]);
+                                    IKeyValuePair pickupHeaderPickerByCount = pickupHeaderV2Repository.getAssignPickerID(companyCodeId, plantId, languageId, warehouseId, hhtUserList, LEVEL_ID, dates[0], dates[1]);
                                     if (pickupHeaderPickerByCount != null) {
                                         assignPickerList.add(pickupHeaderPickerByCount.getAssignPicker());
                                         log.info("assigned Picker set is Status Id 48 ------------->  " + assignPickerList.get(0));
@@ -878,8 +884,8 @@ public class SalesOrderService extends BaseService {
 //        return header;
 //    }
 //
+
     /**
-     *
      * @param companyCodeId
      * @param plantId
      * @param languageId
@@ -1501,7 +1507,7 @@ public class SalesOrderService extends BaseService {
             if (orderManagementLine.getStatusId() == 47L) {
                 try {
                     orderManagementLine = null;
-                 orderManagementLineV2Repository.delete(orderManagementLine);
+                    orderManagementLineV2Repository.delete(orderManagementLine);
                     log.info("--#---orderManagementLine--deleted----: " + orderManagementLine);
                 } catch (Exception e) {
                     log.info("--Error---orderManagementLine--deleted----: " + orderManagementLine);
@@ -3738,12 +3744,12 @@ public class SalesOrderService extends BaseService {
                     Double INV_QTY = dbInventory.getInventoryQuantity();
                     Double ADJ_QTY = stockAdjustment.getAdjustmentQty();
                     INV_QTY = INV_QTY + ADJ_QTY;
-                    if(INV_QTY < 0){
+                    if (INV_QTY < 0) {
                         INV_QTY = 0D;
                     }
                     newInventory.setInventoryQuantity(INV_QTY);
                     Double ALLOC_QTY = 0D;
-                    if(dbInventory.getAllocatedQuantity() != null) {
+                    if (dbInventory.getAllocatedQuantity() != null) {
                         ALLOC_QTY = dbInventory.getAllocatedQuantity();
                     }
                     Double TOT_QTY = INV_QTY + ALLOC_QTY;
@@ -3801,10 +3807,10 @@ public class SalesOrderService extends BaseService {
 
                     com.tekclover.wms.api.inbound.orders.model.cyclecount.stockadjustment.StockAdjustment createStockAdjustment = stockAdjustmentRepository.save(dbStockAdjustment);
                     log.info("createdStockAdjustment: " + createStockAdjustment);
-                    if(stockAdjustment.getAdjustmentQty() < 0) {
+                    if (stockAdjustment.getAdjustmentQty() < 0) {
                         movementQtyValue = "N";
                     }
-                    if(stockAdjustment.getAdjustmentQty() > 0) {
+                    if (stockAdjustment.getAdjustmentQty() > 0) {
                         movementQtyValue = "P";
                     }
                     createInventoryMovementV2(createStockAdjustment, movementQtyValue);
@@ -3812,7 +3818,7 @@ public class SalesOrderService extends BaseService {
                 }
             }
             List<IInventoryImpl> inventoryList = null;
-            if(perpetualLine == null) {
+            if (perpetualLine == null) {
                 inventoryList = inventoryService.getStockAdjustmentInventory(
                         stockAdjustment.getCompanyCode(),
                         stockAdjustment.getBranchCode(),
@@ -3825,16 +3831,16 @@ public class SalesOrderService extends BaseService {
 
                 if (inventoryList != null && !inventoryList.isEmpty()) {
                     //Stock Adjustment - Positive Qty - Have to add Stock Adjustment Qty with Inventory
-                    if(stockAdjustment.getAdjustmentQty() > 0) {
+                    if (stockAdjustment.getAdjustmentQty() > 0) {
                         InventoryV2 stkInventory = new InventoryV2();
                         BeanUtils.copyProperties(inventoryList.get(0), stkInventory, CommonUtils.getNullPropertyNames(inventoryList.get(0)));
                         Double INV_QTY = 0D;
-                        if(inventoryList.get(0).getInventoryQuantity() != null) {
+                        if (inventoryList.get(0).getInventoryQuantity() != null) {
                             INV_QTY = inventoryList.get(0).getInventoryQuantity();
                             INV_QTY = INV_QTY + stockAdjustment.getAdjustmentQty();
                         }
                         Double ALLOC_QTY = 0D;
-                        if(inventoryList.get(0).getAllocatedQuantity() != null) {
+                        if (inventoryList.get(0).getAllocatedQuantity() != null) {
                             ALLOC_QTY = inventoryList.get(0).getAllocatedQuantity();
                         }
                         Double TOT_QTY = INV_QTY + ALLOC_QTY;
@@ -3862,10 +3868,10 @@ public class SalesOrderService extends BaseService {
 
                         //Insert New Record in StockAdjustment
                         com.tekclover.wms.api.inbound.orders.model.cyclecount.stockadjustment.StockAdjustment createStockAdjustment = createStockAdjustment(stkInventory, inventoryList.get(0).getReferenceField4(), inventoryList.get(0).getReferenceField8(), stockAdjustment);
-                        if(stockAdjustment.getAdjustmentQty() < 0) {
+                        if (stockAdjustment.getAdjustmentQty() < 0) {
                             movementQtyValue = "N";
                         }
-                        if(stockAdjustment.getAdjustmentQty() > 0) {
+                        if (stockAdjustment.getAdjustmentQty() > 0) {
                             movementQtyValue = "P";
                         }
                         createInventoryMovementV2(createStockAdjustment, movementQtyValue);
@@ -3873,13 +3879,13 @@ public class SalesOrderService extends BaseService {
                         return createStockAdjustment;
                     }
                     //Stock Adjustment - Negative Qty - Have to Subtract Stock Adjustment Qty From Inventory
-                    if(stockAdjustment.getAdjustmentQty() < 0) {
+                    if (stockAdjustment.getAdjustmentQty() < 0) {
                         Double STK_ADJ_QTY = 0D;
                         Double INV_QTY = 0D;
                         Double STK_QTY = 0D;
                         Double ALLOC_QTY = 0D;
                         List<com.tekclover.wms.api.inbound.orders.model.cyclecount.stockadjustment.StockAdjustment> stockAdjustmentList = new ArrayList<>();
-                        if(stockAdjustment.getAdjustmentQty() != null) {
+                        if (stockAdjustment.getAdjustmentQty() != null) {
                             STK_ADJ_QTY = abs(stockAdjustment.getAdjustmentQty());
                         }
                         outerloop:
@@ -3981,13 +3987,13 @@ public class SalesOrderService extends BaseService {
                     Double STK_QTY = 0D;
                     Double ALLOC_QTY = 0D;
                     List<com.tekclover.wms.api.inbound.orders.model.cyclecount.stockadjustment.StockAdjustment> stockAdjustmentList = new ArrayList<>();
-                    if(stockAdjustment.getAdjustmentQty() != null) {
+                    if (stockAdjustment.getAdjustmentQty() != null) {
                         STK_ADJ_QTY = abs(stockAdjustment.getAdjustmentQty());
                     }
-                    if(dbInventory.getInventoryQuantity() != null){
+                    if (dbInventory.getInventoryQuantity() != null) {
                         INV_QTY = dbInventory.getInventoryQuantity();
                     }
-                    if(dbInventory.getAllocatedQuantity() != null) {
+                    if (dbInventory.getAllocatedQuantity() != null) {
                         ALLOC_QTY = dbInventory.getAllocatedQuantity();
                     }
                     if (STK_ADJ_QTY <= INV_QTY) {
@@ -4025,10 +4031,10 @@ public class SalesOrderService extends BaseService {
 
                     //Insert New Record in StockAdjustment
                     com.tekclover.wms.api.inbound.orders.model.cyclecount.stockadjustment.StockAdjustment createStockAdjustment = createStockAdjustment(stkInventory, dbInventory.getReferenceField4(), dbInventory.getReferenceField8(), stockAdjustment);
-                    if(stockAdjustment.getAdjustmentQty() < 0) {
+                    if (stockAdjustment.getAdjustmentQty() < 0) {
                         movementQtyValue = "N";
                     }
-                    if(stockAdjustment.getAdjustmentQty() > 0) {
+                    if (stockAdjustment.getAdjustmentQty() > 0) {
                         movementQtyValue = "P";
                     }
                     createInventoryMovementV2(createStockAdjustment, movementQtyValue);
@@ -4037,7 +4043,7 @@ public class SalesOrderService extends BaseService {
                     STK_ADJ_QTY = STK_ADJ_QTY - STK_QTY;
                     log.info("STK_ADJ_QTY, STK_QTY: " + STK_ADJ_QTY + ", " + STK_QTY);
 
-                    if(STK_ADJ_QTY > 0) {
+                    if (STK_ADJ_QTY > 0) {
                         List<IInventoryImpl> inventoryList = inventoryService.getStockAdjustmentInventory(
                                 stockAdjustment.getCompanyCode(),
                                 stockAdjustment.getBranchCode(),
@@ -4047,14 +4053,14 @@ public class SalesOrderService extends BaseService {
                                 stockAdjustment.getManufacturerName(),
                                 1L);
                         log.info("Inventory-----> BinclassId 7 for this item has been emptied; ----> BinClassId 1 ---> " + inventoryList);
-                        if(inventoryList != null && !inventoryList.isEmpty()){
+                        if (inventoryList != null && !inventoryList.isEmpty()) {
                             //Stock Adjustment - Negative Qty - Have to Subtract Stock Adjustment Qty From Inventory
                             outerloop:
-                            for(IInventoryImpl inventory : inventoryList) {
-                                if(inventory.getInventoryQuantity() != null){
+                            for (IInventoryImpl inventory : inventoryList) {
+                                if (inventory.getInventoryQuantity() != null) {
                                     INV_QTY = inventory.getInventoryQuantity();
                                 }
-                                if(inventory.getAllocatedQuantity() != null) {
+                                if (inventory.getAllocatedQuantity() != null) {
                                     ALLOC_QTY = inventory.getAllocatedQuantity();
                                 }
                                 if (STK_ADJ_QTY <= INV_QTY) {
@@ -4078,10 +4084,10 @@ public class SalesOrderService extends BaseService {
 
                                 //Insert New Record in StockAdjustment
                                 com.tekclover.wms.api.inbound.orders.model.cyclecount.stockadjustment.StockAdjustment createStockAdjustmentNew = createStockAdjustment(stkInventory, inventory.getReferenceField4(), inventory.getReferenceField8(), stockAdjustment);
-                                if(stockAdjustment.getAdjustmentQty() < 0) {
+                                if (stockAdjustment.getAdjustmentQty() < 0) {
                                     movementQtyValue = "N";
                                 }
-                                if(stockAdjustment.getAdjustmentQty() > 0) {
+                                if (stockAdjustment.getAdjustmentQty() > 0) {
                                     movementQtyValue = "P";
                                 }
                                 createInventoryMovementV2(createStockAdjustment, movementQtyValue);
@@ -4090,20 +4096,20 @@ public class SalesOrderService extends BaseService {
                                 STK_ADJ_QTY = STK_ADJ_QTY - STK_QTY;
                                 log.info("STK_ADJ_QTY, STK_QTY: " + STK_ADJ_QTY + ", " + STK_QTY);
 
-                                if(STK_ADJ_QTY < 0) {
+                                if (STK_ADJ_QTY < 0) {
                                     STK_ADJ_QTY = 0D;
                                 }
-                                if(STK_ADJ_QTY == 0D) {
+                                if (STK_ADJ_QTY == 0D) {
                                     log.info("STK_ADJ_QTY fully adjusted: ");
                                     break outerloop;
                                 }
                             }
-                            if(STK_ADJ_QTY > 0){
+                            if (STK_ADJ_QTY > 0) {
                                 throw new BadRequestException("Stock Adjustment Qty is greater than physically present in inventory");
                             }
                             return stockAdjustmentList.get(0);
                         }
-                        if(inventoryList == null || inventoryList.isEmpty()){
+                        if (inventoryList == null || inventoryList.isEmpty()) {
                             throw new BadRequestException("No Stock found in the Bin Locations");
                         }
                     }
@@ -4121,21 +4127,21 @@ public class SalesOrderService extends BaseService {
                             1L);
                     log.info("Inventory-----> BinclassId 7 for this item is empty; ----> BinClassId 1 ---> " + inventoryList);
 
-                    if(inventoryList != null && !inventoryList.isEmpty()){
+                    if (inventoryList != null && !inventoryList.isEmpty()) {
                         Double STK_ADJ_QTY = 0D;
                         Double INV_QTY = 0D;
                         Double STK_QTY = 0D;
                         Double ALLOC_QTY = 0D;
                         List<com.tekclover.wms.api.inbound.orders.model.cyclecount.stockadjustment.StockAdjustment> stockAdjustmentList = new ArrayList<>();
-                        if(stockAdjustment.getAdjustmentQty() != null) {
+                        if (stockAdjustment.getAdjustmentQty() != null) {
                             STK_ADJ_QTY = abs(stockAdjustment.getAdjustmentQty());
                         }
                         outerloop:
-                        for(IInventoryImpl inventory : inventoryList) {
-                            if(inventory.getInventoryQuantity() != null){
+                        for (IInventoryImpl inventory : inventoryList) {
+                            if (inventory.getInventoryQuantity() != null) {
                                 INV_QTY = inventory.getInventoryQuantity();
                             }
-                            if(inventory.getAllocatedQuantity() != null) {
+                            if (inventory.getAllocatedQuantity() != null) {
                                 ALLOC_QTY = inventory.getAllocatedQuantity();
                             }
                             if (STK_ADJ_QTY <= INV_QTY) {
@@ -4173,10 +4179,10 @@ public class SalesOrderService extends BaseService {
 
                             //Insert New Record in StockAdjustment
                             com.tekclover.wms.api.inbound.orders.model.cyclecount.stockadjustment.StockAdjustment createStockAdjustment = createStockAdjustment(stkInventory, inventory.getReferenceField4(), inventory.getReferenceField8(), stockAdjustment);
-                            if(stockAdjustment.getAdjustmentQty() < 0) {
+                            if (stockAdjustment.getAdjustmentQty() < 0) {
                                 movementQtyValue = "N";
                             }
-                            if(stockAdjustment.getAdjustmentQty() > 0) {
+                            if (stockAdjustment.getAdjustmentQty() > 0) {
                                 movementQtyValue = "P";
                             }
                             createInventoryMovementV2(createStockAdjustment, movementQtyValue);
@@ -4186,10 +4192,10 @@ public class SalesOrderService extends BaseService {
                             STK_ADJ_QTY = STK_ADJ_QTY - STK_QTY;
                             log.info("STK_ADJ_QTY, STK_QTY: " + STK_ADJ_QTY + ", " + STK_QTY);
 //                            }
-                            if(STK_ADJ_QTY < 0) {
+                            if (STK_ADJ_QTY < 0) {
                                 STK_ADJ_QTY = 0D;
                             }
-                            if(STK_ADJ_QTY == 0D) {
+                            if (STK_ADJ_QTY == 0D) {
                                 log.info("STK_ADJ_QTY fully adjusted: ");
                                 break outerloop;
                             }
@@ -4197,7 +4203,7 @@ public class SalesOrderService extends BaseService {
                         return stockAdjustmentList.get(0);
 //                        }
                     }
-                    if(inventoryList == null || inventoryList.isEmpty()){
+                    if (inventoryList == null || inventoryList.isEmpty()) {
                         throw new BadRequestException("No Stock found in the Bin Locations");
                     }
                 }
@@ -4213,21 +4219,21 @@ public class SalesOrderService extends BaseService {
                         1L);
                 log.info("Inventory-----> BinclassId 7 for this item is empty; ----> BinClassId 1 ---> " + inventoryList);
 
-                if(inventoryList != null && !inventoryList.isEmpty()){
+                if (inventoryList != null && !inventoryList.isEmpty()) {
                     Double STK_ADJ_QTY = 0D;
                     Double INV_QTY = 0D;
                     Double STK_QTY = 0D;
                     Double ALLOC_QTY = 0D;
                     List<com.tekclover.wms.api.inbound.orders.model.cyclecount.stockadjustment.StockAdjustment> stockAdjustmentList = new ArrayList<>();
-                    if(stockAdjustment.getAdjustmentQty() != null) {
+                    if (stockAdjustment.getAdjustmentQty() != null) {
                         STK_ADJ_QTY = abs(stockAdjustment.getAdjustmentQty());
                     }
                     outerloop:
-                    for(IInventoryImpl inventory : inventoryList) {
-                        if(inventory.getInventoryQuantity() != null){
+                    for (IInventoryImpl inventory : inventoryList) {
+                        if (inventory.getInventoryQuantity() != null) {
                             INV_QTY = inventory.getInventoryQuantity();
                         }
-                        if(inventory.getAllocatedQuantity() != null) {
+                        if (inventory.getAllocatedQuantity() != null) {
                             ALLOC_QTY = inventory.getAllocatedQuantity();
                         }
                         if (STK_ADJ_QTY <= INV_QTY) {
@@ -4265,10 +4271,10 @@ public class SalesOrderService extends BaseService {
 
                         //Insert New Record in StockAdjustment
                         com.tekclover.wms.api.inbound.orders.model.cyclecount.stockadjustment.StockAdjustment createStockAdjustment = createStockAdjustment(stkInventory, inventory.getReferenceField4(), inventory.getReferenceField8(), stockAdjustment);
-                        if(stockAdjustment.getAdjustmentQty() < 0) {
+                        if (stockAdjustment.getAdjustmentQty() < 0) {
                             movementQtyValue = "N";
                         }
-                        if(stockAdjustment.getAdjustmentQty() > 0) {
+                        if (stockAdjustment.getAdjustmentQty() > 0) {
                             movementQtyValue = "P";
                         }
                         createInventoryMovementV2(createStockAdjustment, movementQtyValue);
@@ -4278,10 +4284,10 @@ public class SalesOrderService extends BaseService {
                         STK_ADJ_QTY = STK_ADJ_QTY - STK_QTY;
                         log.info("STK_ADJ_QTY, STK_QTY: " + STK_ADJ_QTY + ", " + STK_QTY);
 //                            }
-                        if(STK_ADJ_QTY < 0) {
+                        if (STK_ADJ_QTY < 0) {
                             STK_ADJ_QTY = 0D;
                         }
-                        if(STK_ADJ_QTY == 0D) {
+                        if (STK_ADJ_QTY == 0D) {
                             log.info("STK_ADJ_QTY fully adjusted: ");
                             break outerloop;
                         }
@@ -4289,7 +4295,7 @@ public class SalesOrderService extends BaseService {
                     return stockAdjustmentList.get(0);
 //                    }
                 }
-                if(inventoryList == null || inventoryList.isEmpty()){
+                if (inventoryList == null || inventoryList.isEmpty()) {
                     throw new BadRequestException("No Stock found in the Bin Locations");
                 }
             }
@@ -4298,7 +4304,6 @@ public class SalesOrderService extends BaseService {
     }
 
     /**
-     *
      * @param companyCodeId
      * @param plantId
      * @param languageId
@@ -4316,15 +4321,14 @@ public class SalesOrderService extends BaseService {
     }
 
     /**
-     *
      * @param newInventory
      * @param inventoryQty
      * @param itemDesc
      * @param stockAdjustment
      * @return
      */
-    public com.tekclover.wms.api.inbound.orders.model.cyclecount.stockadjustment.StockAdjustment createStockAdjustment(InventoryV2 newInventory,Double inventoryQty, String itemDesc,
-                                                 StockAdjustment stockAdjustment){
+    public com.tekclover.wms.api.inbound.orders.model.cyclecount.stockadjustment.StockAdjustment createStockAdjustment(InventoryV2 newInventory, Double inventoryQty, String itemDesc,
+                                                                                                                       StockAdjustment stockAdjustment) {
         //StockAdjustment Record Insert
         com.tekclover.wms.api.inbound.orders.model.cyclecount.stockadjustment.StockAdjustment dbStockAdjustment = new com.tekclover.wms.api.inbound.orders.model.cyclecount.stockadjustment.StockAdjustment();
         BeanUtils.copyProperties(newInventory, dbStockAdjustment, CommonUtils.getNullPropertyNames(newInventory));
@@ -4386,7 +4390,6 @@ public class SalesOrderService extends BaseService {
 
 
     /**
-     *
      * @param stockAdjustment
      * @param movementQtyValue
      */
@@ -4441,28 +4444,28 @@ public class SalesOrderService extends BaseService {
                 stockAdjustment.getManufacturerName(),
                 stockAdjustment.getItemCode());
         log.info("BalanceOhQty: " + sumOfInvQty);
-        if(sumOfInvQty != null) {
+        if (sumOfInvQty != null) {
             inventoryMovement.setBalanceOHQty(sumOfInvQty);
             Double openQty = 0D;
-            if(movementQtyValue.equalsIgnoreCase("P")) {
+            if (movementQtyValue.equalsIgnoreCase("P")) {
                 openQty = sumOfInvQty - stockAdjustment.getAdjustmentQty();
             }
-            if(movementQtyValue.equalsIgnoreCase("N")) {
+            if (movementQtyValue.equalsIgnoreCase("N")) {
                 openQty = sumOfInvQty + stockAdjustment.getAdjustmentQty();
             }
             inventoryMovement.setReferenceField2(String.valueOf(openQty));          //Qty before inventory Movement occur
         }
-        if(sumOfInvQty == null) {
+        if (sumOfInvQty == null) {
             inventoryMovement.setBalanceOHQty(0D);
             Double openQty = 0D;
             sumOfInvQty = 0D;
-            if(movementQtyValue.equalsIgnoreCase("P")) {
+            if (movementQtyValue.equalsIgnoreCase("P")) {
                 openQty = sumOfInvQty - stockAdjustment.getAdjustmentQty();
-                if(openQty < 0){
+                if (openQty < 0) {
                     openQty = 0D;
                 }
             }
-            if(movementQtyValue.equalsIgnoreCase("N")) {
+            if (movementQtyValue.equalsIgnoreCase("N")) {
                 openQty = sumOfInvQty + stockAdjustment.getAdjustmentQty();
             }
             inventoryMovement.setReferenceField2(String.valueOf(openQty));          //Qty before inventory Movement occur

@@ -27,15 +27,15 @@ public class DataSourceConfig {
         Map<Object, Object> targetDataSources = new HashMap<>();
 
         // Example data source configurations (replace with actual configuration)
-        //DataSource db = createDataSource("MT");
+        DataSource db = createDataSource("MT");
         DataSource db2 = createDataSource("FAHAHEEL");
 
-        //targetDataSources.put("MT",db);
+        targetDataSources.put("MT",db);
         targetDataSources.put("FAHAHEEL", db2);
 
         DynamicDataSource dataSource = new DynamicDataSource();
         dataSource.setTargetDataSources(targetDataSources);
-        dataSource.setDefaultTargetDataSource(db2); // Default database (e.g., db1)
+        dataSource.setDefaultTargetDataSource(db); // Default database (e.g., db1)
         return dataSource;
     }
 
@@ -43,12 +43,12 @@ public class DataSourceConfig {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         // Configure database connection here
         switch (dbName) {
-//            case "MT":
-//                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-//                dataSource.setUrl("jdbc:sqlserver://10.10.10.61;databaseName=WMS_MT");
-//                dataSource.setUsername("sa");
-//                dataSource.setPassword("4V7lOXaxgAi3i6mgJL7qBUSPM");
-//                break;
+            case "MT":
+                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+                dataSource.setUrl("jdbc:sqlserver://10.10.10.61;databaseName=WMS_MT");
+                dataSource.setUsername("sa");
+                dataSource.setPassword("4V7lOXaxgAi3i6mgJL7qBUSPM");
+                break;
 //            case "ALM":
 //                dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
 //                dataSource.setUrl("jdbc:sqlserver://10.10.10.61;databaseName=WMS_ALMDEV_SPLIT");
