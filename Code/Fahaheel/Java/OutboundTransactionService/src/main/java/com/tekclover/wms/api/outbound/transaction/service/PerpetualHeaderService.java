@@ -1324,13 +1324,13 @@ public class PerpetualHeaderService extends BaseService {
              * 2. If STATUS_ID=74 for all the selected records, Update STATUS_ID of PERPETUALHEADER table as "74" by passing CC_NO
              * Else Update STATUS_ID as "73"
              */
-//            List<PerpetualLineV2> perpetualLines = perpetualLineService.getPerpetualLineV2(companyCodeId, plantId, languageId, warehouseId, cycleCountNo);
+            List<PerpetualLineV2> perpetualLinesList = perpetualLineService.getPerpetualLineV2(companyCodeId, plantId, languageId, warehouseId, cycleCountNo);
 
-            log.info("perpetualLines -----> {}", perpetualLines);
+            log.info("perpetualLines -----> {}", perpetualLinesList);
 
-            long count_78 = perpetualLines.stream().filter(a -> a.getStatusId() == 78L).count();
-            long count_74 = perpetualLines.stream().filter(a -> a.getStatusId() == 74L).count();
-            long count_47 = perpetualLines.stream().filter(a -> a.getStatusId() == 47L).count();
+            long count_78 = perpetualLinesList.stream().filter(a -> a.getStatusId() == 78L).count();
+            long count_74 = perpetualLinesList.stream().filter(a -> a.getStatusId() == 74L).count();
+            long count_47 = perpetualLinesList.stream().filter(a -> a.getStatusId() == 47L).count();
             long totalCount78 = count_78 + count_47;
             long totalCount74 = count_74 + count_47;
 
@@ -1340,9 +1340,9 @@ public class PerpetualHeaderService extends BaseService {
             log.info("totalCount78 ----> {}", totalCount78);
             log.info("totalCount74 ----> {}", totalCount74);
 
-            if (perpetualLines.size() == totalCount78) {
+            if (perpetualLinesList.size() == totalCount78) {
                 dbPerpetualHeader.setStatusId(78L);
-            } else if (perpetualLines.size() == totalCount74) {
+            } else if (perpetualLinesList.size() == totalCount74) {
                 dbPerpetualHeader.setStatusId(74L);
             } else {
                 dbPerpetualHeader.setStatusId(73L);

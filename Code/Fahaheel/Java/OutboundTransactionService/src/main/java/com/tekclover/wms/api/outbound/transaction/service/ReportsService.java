@@ -2728,6 +2728,8 @@ public class ReportsService extends BaseService {
      */
     public MobileDashboard findMobileDashBoard(FindMobileDashBoard findMobileDashBoard) throws Exception {
 
+        log.info("findMobileDashBoard -----> {}", findMobileDashBoard);
+
         MobileDashboard mobileDashboard = new MobileDashboard();
 
         List<String> companyCode = findMobileDashBoard.getCompanyCode();
@@ -2739,7 +2741,7 @@ public class ReportsService extends BaseService {
         /*--------------Inbound--------------------------------*/
         MobileDashboard.InboundCount inboundCount = mobileDashboard.new InboundCount();
 
-        Long grHeaders = grHeaderRepository.grHeaderCount(companyCode,plantId,languageId, warehouseId, 16L);
+        Long grHeaders = grHeaderRepository.grHeaderCount(companyCode, plantId, languageId, warehouseId, 16L);
         inboundCount.setCases(grHeaders);
 
         // -------------Putaway----------------------------------
