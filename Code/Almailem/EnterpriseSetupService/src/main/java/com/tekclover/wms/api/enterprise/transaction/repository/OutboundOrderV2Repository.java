@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -46,4 +47,16 @@ public interface OutboundOrderV2Repository extends JpaRepository<OutboundOrderV2
     @Query(value = "update tbloborder2 set processed_status_id = 0 where " +
             " outbound_order_header_id = :outboundOrderHeaderId ", nativeQuery = true)
     void updateProcessStatusId(@Param("outboundOrderHeaderId") Long outboundOrderHeaderId);
+
+    @Query(value = "select top 1 * from tbloborder2 where outbound_order_header_id in (select max(outbound_order_header_id) from tbloborder2 where " +
+            "processed_status_id = :statusId and warehouseid = :whId group by ref_document_no) order by order_received_on ", nativeQuery = true)
+    List<OutboundOrderV2> findOutboundOrder(@Param("statusId") Long statusId,
+                                            @Param("whId") String warehouseId);
+
+    @Modifying
+    @Query(value = "update tbloborder2 set processed_status_id = :statusId, order_processed_on = :updatedOn where " +
+            " ref_document_no = :refDocNo ", nativeQuery = true)
+    void updateProcessStatus(@Param("refDocNo") String refDocNo,
+                             @Param("statusId") Long statusId,
+                             @Param("updatedOn") Date updatedOn );
 }

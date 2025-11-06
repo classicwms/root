@@ -20,11 +20,13 @@ public class InboundOrder {
 	@Column(name = "order_id", nullable = false)
 	private String orderId;
 
+	@Column(name = "ref_document_no")
 	private String refDocumentNo; 			// REF_DOC_NO
 	private String refDocumentType; 		// REF_DOC_TYPE
 	private String warehouseID; 			// WH_ID
 	private Long inboundOrderTypeId; 		// IB_ORD_TYP_ID
 	private Date orderReceivedOn;
+	@Column(name = "order_processed_on")
 	private Date orderProcessedOn;
 	private Long processedStatusId;
 

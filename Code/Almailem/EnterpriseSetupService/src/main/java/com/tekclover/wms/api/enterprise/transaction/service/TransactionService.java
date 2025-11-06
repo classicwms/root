@@ -85,7 +85,7 @@ public class TransactionService extends BaseService {
     public WarehouseApiResponse processOutboundOrder() throws IllegalAccessException, InvocationTargetException, ParseException {
         WarehouseApiResponse warehouseApiResponse = new WarehouseApiResponse();
 //        if (outboundList == null || outboundList.isEmpty()) {
-        List<OutboundOrderV2> sqlOutboundList = outboundOrderV2Repository.findTopByProcessedStatusIdAndWarehouseIDOrderByOrderReceivedOn(0L, WAREHOUSE_ID_200);
+        List<OutboundOrderV2> sqlOutboundList = outboundOrderV2Repository.findOutboundOrder(0L, WAREHOUSE_ID_200);
             log.info("ob header list: " + sqlOutboundList);
 
         // Set Process_status_id = 1

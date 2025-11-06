@@ -19,8 +19,10 @@ public class OutboundOrder {
 
 	@Column(name = "order_id", nullable = false)
 	private String orderId;
-	
+
+	@Column(name = "warehouseid")
 	private String warehouseID; 			// WH_ID
+	@Column(name = "ref_document_no")
 	private String refDocumentNo; 			// REF_DOCument_NO
 	private String refDocumentType; 		// REF_DOC_TYPE
 	private String partnerCode; 			// PARTNER_CODE
@@ -28,8 +30,11 @@ public class OutboundOrder {
 	private Date requiredDeliveryDate;		// REQ_DEL_DATE
 
 	// Additional Fields
+	@Column(name = "order_received_on")
 	private Date orderReceivedOn; 			// order_received_on
+	@Column(name = "order_processed_on")
 	private Date orderProcessedOn;
+	@Column(name = "processed_status_id")
 	private Long processedStatusId;			// processed_status_id
 	private Long outboundOrderTypeID;
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)

@@ -359,20 +359,22 @@ public class OrderService {
 
 	//===================================================================V2========================================================================
 
-	public OutboundOrderV2 updateProcessedOrderV2(String orderId, Long outboundOrderTypeID, Long processStatusId) throws ParseException {
-		OutboundOrderV2 dbOutboundOrder = getOBOrderByIdV2(orderId, outboundOrderTypeID);
-		log.info("orderId : " + orderId);
-		log.info("dbOutboundOrder : " + dbOutboundOrder);
-		if (dbOutboundOrder != null) {
-			dbOutboundOrder.setProcessedStatusId(processStatusId);
-			dbOutboundOrder.setOrderProcessedOn(new Date());
-			if(dbOutboundOrder.getNumberOfAttempts() != null && dbOutboundOrder.getNumberOfAttempts().equals(3L)) {
-				dbOutboundOrder.setProcessedStatusId(100L);
-			}
-			OutboundOrderV2 outboundOrder = outboundOrderV2Repository.save(dbOutboundOrder);
-			return outboundOrder;
-		}
-		return dbOutboundOrder;
+	public void updateProcessedOrderV2(String orderId, Long outboundOrderTypeID, Long processStatusId) throws ParseException {
+//		OutboundOrderV2 dbOutboundOrder = getOBOrderByIdV2(orderId, outboundOrderTypeID);
+//		log.info("orderId : " + orderId);
+//		log.info("dbOutboundOrder : " + dbOutboundOrder);
+//		if (dbOutboundOrder != null) {
+//			dbOutboundOrder.setProcessedStatusId(processStatusId);
+//			dbOutboundOrder.setOrderProcessedOn(new Date());
+//			if(dbOutboundOrder.getNumberOfAttempts() != null && dbOutboundOrder.getNumberOfAttempts().equals(3L)) {
+//				dbOutboundOrder.setProcessedStatusId(100L);
+//			}
+//			OutboundOrderV2 outboundOrder = outboundOrderV2Repository.save(dbOutboundOrder);
+//			return outboundOrder;
+//		}
+
+		outboundOrderV2Repository.updateProcessStatus(orderId, processStatusId, new Date());
+		log.info("OutboundOrder Processed_Status Id -------> {} Updated Successfully On this Order Id ---------> {} ", processStatusId, orderId);
 	}
 
 	/**

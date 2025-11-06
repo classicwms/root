@@ -169,17 +169,19 @@ public class OrderService {
 	 * @param orderId
 	 * @return
 	 */
-	public InboundOrderV2 updateProcessedInboundOrderV2(String orderId, Long inboundOrderTypeId, Long processStatusId) throws ParseException {
-			InboundOrderV2 dbInboundOrder = getOrderByIdV2 (orderId, inboundOrderTypeId);
-		log.info("orderId : " + orderId);
-		log.info("dbInboundOrder : " + dbInboundOrder);
-		if (dbInboundOrder != null) {
-			dbInboundOrder.setProcessedStatusId(processStatusId);
-			dbInboundOrder.setOrderProcessedOn(new Date());
-			InboundOrderV2 inboundOrder = inboundOrderV2Repository.save(dbInboundOrder);
-			return inboundOrder;
-		}
-		return dbInboundOrder;
+	public void updateProcessedInboundOrderV2(String orderId, Long inboundOrderTypeId, Long processStatusId) throws ParseException {
+//			InboundOrderV2 dbInboundOrder = getOrderByIdV2 (orderId, inboundOrderTypeId);
+//		log.info("orderId : " + orderId);
+//		log.info("dbInboundOrder : " + dbInboundOrder);
+//		if (dbInboundOrder != null) {
+//			dbInboundOrder.setProcessedStatusId(processStatusId);
+//			dbInboundOrder.setOrderProcessedOn(new Date());
+//			InboundOrderV2 inboundOrder = inboundOrderV2Repository.save(dbInboundOrder);
+//			return inboundOrder;
+//		}
+//		return dbInboundOrder;
+		inboundOrderV2Repository.updateProcessStatus(orderId, processStatusId, new Date());
+		log.info("InboundOrder Processed_Status Id -------> {} Updated Successfully On this Order Id ---------> {} ", processStatusId, orderId);
 	}
 
 	/**

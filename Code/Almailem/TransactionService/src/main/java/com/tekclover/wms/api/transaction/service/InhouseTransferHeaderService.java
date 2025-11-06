@@ -13,6 +13,7 @@ import javax.transaction.Transactional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
@@ -973,21 +974,21 @@ public class InhouseTransferHeaderService extends BaseService {
                  * If TR_TYP_ID = 03, insert 2 records in INVENTORYMOVEMENT table.
                  * One record with ST_BIN = SRCE_ST_BIN and other record with ST_BIN = TGT_ST_BIN
                  */
-                if (transferTypeId == 3L) {
-                    // Row insertion for Source
-                    Long stockTypeId = createdInhouseTransferLine.getSourceStockTypeId();
-                    String itemCode = createdInhouseTransferLine.getSourceItemCode();
-                    String movementQtyValue = "N";
-                    String storageBin = createdInhouseTransferLine.getSourceStorageBin();
-                    createInventoryMovementV2(createdInhouseTransferLine, transferTypeId, stockTypeId, itemCode, createdInhouseTransferLine.getManufacturerName(),
-                            storageBin, movementQtyValue, loginUserID);
-
-                    // Row insertion for Target
-                    movementQtyValue = "P";
-                    storageBin = createdInhouseTransferLine.getTargetStorageBin();
-                    createInventoryMovementV2(createdInhouseTransferLine, transferTypeId, stockTypeId, itemCode, createdInhouseTransferLine.getManufacturerName(),
-                            storageBin, movementQtyValue, loginUserID);
-                }
+//                if (transferTypeId == 3L) {
+//                    // Row insertion for Source
+//                    Long stockTypeId = createdInhouseTransferLine.getSourceStockTypeId();
+//                    String itemCode = createdInhouseTransferLine.getSourceItemCode();
+//                    String movementQtyValue = "N";
+//                    String storageBin = createdInhouseTransferLine.getSourceStorageBin();
+//                    createInventoryMovementV2(createdInhouseTransferLine, transferTypeId, stockTypeId, itemCode, createdInhouseTransferLine.getManufacturerName(),
+//                            storageBin, movementQtyValue, loginUserID);
+//
+//                    // Row insertion for Target
+//                    movementQtyValue = "P";
+//                    storageBin = createdInhouseTransferLine.getTargetStorageBin();
+//                    createInventoryMovementV2(createdInhouseTransferLine, transferTypeId, stockTypeId, itemCode, createdInhouseTransferLine.getManufacturerName(),
+//                            storageBin, movementQtyValue, loginUserID);
+//                }
 
                 /* Response Header */
                 BeanUtils.copyProperties(createdInhouseTransferHeader, responseHeader, CommonUtils.getNullPropertyNames(createdInhouseTransferHeader));
@@ -1210,6 +1211,7 @@ public class InhouseTransferHeaderService extends BaseService {
      * @throws InvocationTargetException
      * @throws IllegalAccessException
      */
+    @Async("asyncTaskExecutor")
     private void updateInventoryV2(InhouseTransferHeader createdInhouseTransferHeader,
                                    InhouseTransferLine createdInhouseTransferLine, String loginUserID) throws IllegalAccessException, InvocationTargetException {
         Long transferTypeId = createdInhouseTransferHeader.getTransferTypeId();
