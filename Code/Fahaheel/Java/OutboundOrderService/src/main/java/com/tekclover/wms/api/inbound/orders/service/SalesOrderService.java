@@ -169,7 +169,7 @@ public class SalesOrderService extends BaseService {
             PickListCancellation createPickListCancellation = null;
 //                String preOutboundNo = getPreOutboundNo(warehouseId, companyCode, plantId, languageId);
 
-            DataBaseContextHolder.setCurrentDb(DataBaseContextHolder.getCurrentDb());
+//            DataBaseContextHolder.setCurrentDb(DataBaseContextHolder.getCurrentDb());
             String preOutboundNo = numberRangeService.getNextNumberRange(9L, warehouseId, companyCode, plantId, languageId);
             log.info("NumberRange Generation --------------> " + preOutboundNo);
 
@@ -193,8 +193,8 @@ public class SalesOrderService extends BaseService {
             List<OutboundHeaderV2> outbound = outboundHeaderV2Repository.findBySalesOrderNumberAndOutboundOrderTypeIdAndDeletionIndicator(salesOrderNumber, 3L, 0L);
             log.info("SalesOrderNumber already Exist: ---> PickList Cancellation to be executed " + salesOrderNumber);
 
-            DataBaseContextHolder.clear();
-            DataBaseContextHolder.setCurrentDb("FAHAHEEL");
+//            DataBaseContextHolder.clear();
+//            DataBaseContextHolder.setCurrentDb("FAHAHEEL");
             if (outbound != null && !outbound.isEmpty()) {
                 List<OutboundHeaderV2> oldPickListNo = outbound.stream().filter(n -> !n.getPickListNumber().equalsIgnoreCase(newPickListNo)).collect(Collectors.toList());
                 log.info("Old PickList Number, New PickList Number: " + oldPickListNo + ", " + newPickListNo);

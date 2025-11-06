@@ -21,17 +21,13 @@ public class NumberRangeService {
                                      String plantId, String languageId) {
         DataBaseContextHolder.setCurrentDb(DataBaseContextHolder.getCurrentDb());
         log.info(" | " + companyCodeId + " | " + plantId + " | " + warehouseId + " | ");
-        Optional<NumberRange> optNumberRange = numberRangeRepository
-                .findByCompanyCodeIdAndPlantIdAndWarehouseIdAndNumberRangeCodeAndLanguageIdAndDeletionIndicator(
-                        companyCodeId, plantId, warehouseId, numberRangeCode, languageId, 0L);
+        Optional<NumberRange> optNumberRange = numberRangeRepository.getNextNumberRange(companyCodeId, plantId, warehouseId, numberRangeCode, languageId);
         log.info("getNextNumberRange---1----> " + numberRangeCode + "," + warehouseId);
         log.info("getNextNumberRange---2----> " + optNumberRange);
 
         if (optNumberRange.isEmpty()) {
             log.info(" | " + companyCodeId + " | " + plantId + " | " + warehouseId + " | ");
-            optNumberRange = numberRangeRepository
-                    .findByCompanyCodeIdAndPlantIdAndWarehouseIdAndNumberRangeCodeAndLanguageIdAndDeletionIndicator(
-                            companyCodeId, plantId, warehouseId, numberRangeCode, languageId, 0L);
+            optNumberRange = numberRangeRepository.getNextNumberRange(companyCodeId, plantId, warehouseId, numberRangeCode, languageId);
             if (optNumberRange.isEmpty()) {
                 // Exception Log
 //                createNumberRangeLog(numberRangeCode, languageId, companyCodeId, plantId, warehouseId,
