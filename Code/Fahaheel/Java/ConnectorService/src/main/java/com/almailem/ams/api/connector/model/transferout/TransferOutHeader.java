@@ -59,7 +59,7 @@ public class TransferOutHeader {
     @Column(name = "Processedstatusid", columnDefinition = "bigint default'0'")
     private Long processedStatusId = 0L;
 
-    @Column(name = "Orderreceivedon", columnDefinition = "datetime2 default getdate()")
+    @Column(name = "Orderreceivedon")
     private Date orderReceivedOn;
 
     @Column(name = "Orderprocessedon")
