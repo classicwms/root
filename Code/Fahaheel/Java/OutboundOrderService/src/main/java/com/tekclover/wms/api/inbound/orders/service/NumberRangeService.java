@@ -19,7 +19,9 @@ public class NumberRangeService {
 
     public String getNextNumberRange(Long numberRangeCode, String warehouseId, String companyCodeId,
                                      String plantId, String languageId) {
-        DataBaseContextHolder.setCurrentDb(DataBaseContextHolder.getCurrentDb());
+
+        DataBaseContextHolder.clear();
+        DataBaseContextHolder.setCurrentDb("FAHAHEEL");
         log.info(" | " + companyCodeId + " | " + plantId + " | " + warehouseId + " | ");
         Optional<NumberRange> optNumberRange = numberRangeRepository.getNextNumberRange(companyCodeId, plantId, warehouseId, numberRangeCode, languageId);
         log.info("getNextNumberRange---1----> " + numberRangeCode + "," + warehouseId);

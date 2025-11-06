@@ -13,7 +13,7 @@ import java.util.Date;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonInclude(Include.NON_NULL)
+//@JsonInclude(Include.NON_NULL)
 // `LANG_ID`, `CLASS_ID`, `NUM_RAN_CODE`, `NUM_RAN_OBJ`
 @Table(
 		name = "tblnumberrangeid", 

@@ -140,7 +140,7 @@ public class SalesOrderService extends BaseService {
      * @param salesOrder
      * @return
      */
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = {Exception.class, Throwable.class})
+//    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = {Exception.class, Throwable.class})
     @Retryable(value = {CannotAcquireLockException.class,
             LockAcquisitionException.class, UnexpectedRollbackException.class}, maxAttempts = 3, backoff = @Backoff(delay = 5000))
     public SalesOrderV2 createSalesOrderList(SalesOrderV2 salesOrder) {
