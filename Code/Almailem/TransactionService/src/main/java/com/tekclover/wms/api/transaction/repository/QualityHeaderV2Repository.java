@@ -57,9 +57,21 @@ public interface QualityHeaderV2Repository extends JpaRepository<QualityHeaderV2
     public void updateQualityHeader (@Param ("referenceField10") String referenceField10,
                                      @Param ("qualityInspectionNo") String qualityInspectionNo);
 
+    @Modifying
     @Transactional
-    @Procedure(procedureName = "quality_header_update_proc")
-    public void updateQualityHeaderStatusUpdateProc(
+    @Query(value = "UPDATE tblqualityheader " +
+            "SET STATUS_ID = :statusId, " +
+            "    STATUS_TEXT = :statusDescription, " +
+            "    REF_FIELD_10 = :statusDescription, " +
+            "    QC_CTD_BY = CASE WHEN QC_CTD_BY = 'MW_AMS' THEN :created ELSE QC_CTD_BY END " +
+            "WHERE C_ID = :companyCodeId " +
+            "  AND PLANT_ID = :plantId " +
+            "  AND LANG_ID = :languageId " +
+            "  AND WH_ID = :warehouseId " +
+            "  AND QC_NO = :qualityInspectionNo " +
+            "  AND IS_DELETED = 0",
+            nativeQuery = true)
+    void updateQualityHeader(
             @Param("companyCodeId") String companyCodeId,
             @Param("plantId") String plantId,
             @Param("languageId") String languageId,
@@ -67,7 +79,9 @@ public interface QualityHeaderV2Repository extends JpaRepository<QualityHeaderV2
             @Param("qualityInspectionNo") String qualityInspectionNo,
             @Param("statusId") Long statusId,
             @Param("statusDescription") String statusDescription,
-            @Param("@created") String created);
+            @Param("created") String created);
+
+
 
     List<QualityHeaderV2> findByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndDeletionIndicator(
             String companyCodeId, String plantId, String languageId, String warehouseId, String refDocNumber, Long deletionIndicator);

@@ -1324,7 +1324,7 @@ public class QualityLineService extends BaseService {
 
                     statusDescription = stagingLineV2Repository.getStatusDescription(55L, dbQualityLine.getLanguageId());
 //                    qualityHeaderV2Repository.updateQualityHeader(statusDescription, dbQualityLine.getQualityInspectionNo());
-                    qualityHeaderV2Repository.updateQualityHeaderStatusUpdateProc(
+                    qualityHeaderV2Repository.updateQualityHeader(
                             newQualityLine.getCompanyCodeId(), newQualityLine.getPlantId(),
                             newQualityLine.getLanguageId(), newQualityLine.getWarehouseId(),
                             dbQualityLine.getQualityInspectionNo(), 55L, statusDescription, dbQualityLine.getQualityCreatedBy());

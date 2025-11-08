@@ -2356,7 +2356,10 @@ public class PickupLineService extends BaseService {
 		 */
 		String statusDescription50 = stagingLineV2Repository.getStatusDescription(50L, languageId);
 		String statusDescription51 = stagingLineV2Repository.getStatusDescription(51L, languageId);
-		outboundHeaderV2Repository.updateObheaderPreobheaderUpdateProc(companyCodeId, plantId, languageId, warehouseId,
+//		outboundHeaderV2Repository.updateObheaderPreobheaderUpdateProc(companyCodeId, plantId, languageId, warehouseId,
+//				refDocNumber, preOutboundNo, new Date(), loginUserID, 47L, 50L, 51L, statusDescription50,
+//				statusDescription51);
+		outboundHeaderV2Repository.updateOutboundAndPreOutboundHeaders(companyCodeId, plantId, languageId, warehouseId,
 				refDocNumber, preOutboundNo, new Date(), loginUserID, 47L, 50L, 51L, statusDescription50,
 				statusDescription51);
 		log.info("outboundHeader, preOutboundHeader updated as 50 / 51 when respective condition met");
@@ -3185,7 +3188,10 @@ public class PickupLineService extends BaseService {
          */
         String statusDescription50 = stagingLineV2Repository.getStatusDescription(50L, languageId);
         String statusDescription51 = stagingLineV2Repository.getStatusDescription(51L, languageId);
-        outboundHeaderV2Repository.updateObheaderPreobheaderUpdateProc(
+//        outboundHeaderV2Repository.updateObheaderPreobheaderUpdateProc(
+//                companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, new Date(),
+//                loginUserID, 47L, 50L, 51L, statusDescription50, statusDescription51);
+        outboundHeaderV2Repository.updateOutboundAndPreOutboundHeaders(
                 companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, new Date(),
                 loginUserID, 47L, 50L, 51L, statusDescription50, statusDescription51);
         log.info("outboundHeader, preOutboundHeader updated as 50 / 51 when respective condition met");
