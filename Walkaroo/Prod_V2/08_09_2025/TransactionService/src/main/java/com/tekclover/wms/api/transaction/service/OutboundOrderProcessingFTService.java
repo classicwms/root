@@ -1071,8 +1071,7 @@ public class OutboundOrderProcessingFTService extends BaseService {
         String warehouseId = outboundIntegrationHeaderList.get(0).getWarehouseID();
         String languageId = outboundIntegrationHeaderList.get(0).getLanguageId();
         String refDocNumber = outboundIntegrationHeaderList.get(0).getRefDocumentNo();
-        String preOutboundNo = null;
-        
+
         List<OutboundHeaderV2> outboundHeaderV2List = new ArrayList<>();
         String salesOrderNo = getNextRangeNumber(9L, outboundIntegrationHeaderList.get(0).getCompanyCode(), outboundIntegrationHeaderList.get(0).getBranchCode(), outboundIntegrationHeaderList.get(0).getLanguageId(),
                 outboundIntegrationHeaderList.get(0).getWarehouseID(), getIDMasterAuthToken());
@@ -1083,34 +1082,28 @@ public class OutboundOrderProcessingFTService extends BaseService {
                 log.info("---------order----" + headerList);
                 headerList.setSalesOrderNumber(salesOrderNo);
                 outboundHeaderV2List.add(fullfillOutboundReceivedV4(headerList));
-                orderManagementLineV2Repository.updateSalesOrderNo(companyCodeId, plantId, warehouseId, headerList.getRefDocumentNo(), salesOrderNo);
-                preOutboundHeaderV2Repository.updateSalesOrderNo(companyCodeId, plantId, warehouseId, headerList.getRefDocumentNo(), salesOrderNo);
-                preOutboundLineV2Repository.updateSalesOrderNo(companyCodeId, plantId, warehouseId, headerList.getRefDocumentNo(), salesOrderNo);
-                outboundOrderV2Repository.updateSalesOrderNo(companyCodeId, plantId, warehouseId, headerList.getRefDocumentNo(), salesOrderNo);
+
+                int orderManagementLineCount = orderManagementLineV2Repository.updateSalesOrderNo(companyCodeId, plantId, warehouseId, headerList.getRefDocumentNo(), salesOrderNo);
+                int preOutboundHeaderCount = preOutboundHeaderV2Repository.updateSalesOrderNo(companyCodeId, plantId, warehouseId, headerList.getRefDocumentNo(), salesOrderNo);
+                int preOutboundLineCount = preOutboundLineV2Repository.updateSalesOrderNo(companyCodeId, plantId, warehouseId, headerList.getRefDocumentNo(), salesOrderNo);
+                int outboundOrderCount = outboundOrderV2Repository.updateSalesOrderNo(companyCodeId, plantId, warehouseId, headerList.getRefDocumentNo(), salesOrderNo);
+
+                if (orderManagementLineCount == 0 || preOutboundHeaderCount == 0 || preOutboundLineCount == 0 || outboundOrderCount == 0) {
+                    log.warn("No rows updated for refDocNo={} (orderManagementLineCount = {}, preOutboundHeaderCount = {} preOutboundLine= {}, outboundOrder= {})",
+                            headerList.getRefDocumentNo(), orderManagementLineCount, preOutboundHeaderCount, preOutboundLineCount, outboundOrderCount);
+                }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-//        outboundIntegrationHeaderList.forEach(order -> {
-//            try {
-//
-//                log.info("---------order----" + order);
-//                order.setSalesOrderNumber(salesOrderNo);
-//                outboundHeaderV2List.add(fullfillOutboundReceivedV4(order));
-//                orderManagementLineV2Repository.updateSalesOrderNo(companyCodeId, plantId, warehouseId, order.getRefDocumentNo(), salesOrderNo);
-//                preOutboundHeaderV2Repository.updateSalesOrderNo(companyCodeId, plantId, warehouseId, order.getRefDocumentNo(), salesOrderNo);
-//                preOutboundLineV2Repository.updateSalesOrderNo(companyCodeId, plantId, warehouseId, order.getRefDocumentNo(), salesOrderNo);
-//                outboundOrderV2Repository.updateSalesOrderNo(companyCodeId, plantId, warehouseId, order.getRefDocumentNo(), salesOrderNo);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        });
         log.info("PickupHeader Validation Started-------------------->");
         // validatePickupHeaderCreationV2(outboundIntegrationHeaderList.get(0), salesOrderNo, WK);
         validatePickupHeaderCreationV2(companyCodeId, plantId, languageId, warehouseId, refDocNumber, 
         		outboundHeaderV2List.get(0).getPreOutboundNo(), outboundHeaderV2List.get(0), MW_AMS);
         return outboundHeaderV2List;
     }
+
 
     /**
      * @param outboundIntegrationHeader
@@ -3256,6 +3249,8 @@ public class OutboundOrderProcessingFTService extends BaseService {
                     if (preOutboundLine.getMtoNumber() != null && !preOutboundLine.getMtoNumber().isEmpty()) {
                         log.info("MTO Number is ------------------> {} ", preOutboundLine.getMtoNumber());
                         BIN_CLASS_ID.add(10L);
+                        BIN_CLASS_ID.add(3L);
+                        BIN_CLASS_ID.add(1L);
                     } else {
                         BIN_CLASS_ID.add(1L);
                         BIN_CLASS_ID.add(10L);

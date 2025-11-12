@@ -385,7 +385,7 @@ public interface PreOutboundHeaderV2Repository extends JpaRepository<PreOutbound
     @Query(value = "update tblpreoutboundheader set SALES_ORDER_NUMBER = :salesOrderNo where c_id = :companyCodeId " +
             "AND plant_id = :plantId AND wh_id = :warehouseId AND ref_doc_no = :refDocNumber " +
             "AND is_deleted = 0", nativeQuery = true)
-    void updateSalesOrderNo(@Param("companyCodeId") String companyCodeId,
+    int updateSalesOrderNo(@Param("companyCodeId") String companyCodeId,
                             @Param("plantId") String plantId,
                             @Param("warehouseId") String warehouseId,
                             @Param("refDocNumber") String refDocNumber,

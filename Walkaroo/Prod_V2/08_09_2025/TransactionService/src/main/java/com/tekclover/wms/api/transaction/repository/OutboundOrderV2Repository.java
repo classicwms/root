@@ -92,7 +92,7 @@ public interface OutboundOrderV2Repository extends JpaRepository<OutboundOrderV2
             "SELECT TOP 1 outbound_order_header_id FROM tbloborder2 where company_code = :companyCodeId AND \n" +
             "branch_code = :plantId AND warehouseid = :warehouseId AND ref_document_no = :refDocNumber \n" +
             "ORDER BY outbound_order_header_id desc) ", nativeQuery = true)
-    void updateSalesOrderNo(@Param("companyCodeId") String companyCodeId,
+    int updateSalesOrderNo(@Param("companyCodeId") String companyCodeId,
                             @Param("plantId") String plantId,
                             @Param("warehouseId") String warehouseId,
                             @Param("refDocNumber") String refDocNumber,

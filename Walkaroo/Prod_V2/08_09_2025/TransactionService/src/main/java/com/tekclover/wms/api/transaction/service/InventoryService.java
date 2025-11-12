@@ -3570,6 +3570,7 @@ public class InventoryService extends BaseService {
             inventory.setDescription(putAwayLine.getDescription());
             inventory.setReferenceDocumentNo(putAwayLine.getRefDocNumber());
             inventory.setReferenceOrderNo(putAwayLine.getRefDocNumber());
+            inventory.setMtoNumber(putAwayLine.getMtoNumber());
 
             // ST_BIN ---Pass WH_ID/BIN_CL_ID=3 in STORAGEBIN table and fetch ST_BIN value and update
             StorageBinV2 storageBin = storageBinService.getStorageBinV2(companyCode, plantId, languageId, warehouseId, putAwayLine.getConfirmedStorageBin());
@@ -4082,15 +4083,28 @@ public class InventoryService extends BaseService {
      * @return
      */
     public List<IInventoryImpl> getInventoryForOrderManagementFullfillment(String companyCodeId, String plantId, String languageId, String warehouseId,
-                                                                        String itemCode, String manufacturerName, Long stockTypeId, List<Long> binClassId) {
+                                                                        String itemCode, String manufacturerName, Long stockTypeId, List<Long> binClassId,
+                                                                           String mtoNumber) {
         log.info(companyCodeId + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + manufacturerName + "|" + binClassId);
-        List<IInventoryImpl> inventoryList = inventoryV2Repository.getOMLInventoryFullFillment(
-                companyCodeId, plantId, languageId, warehouseId, null, null, itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId);
-        if(inventoryList == null || inventoryList.isEmpty()) {
-            return inventoryV2Repository.getOMLInventoryFullFillment(
-                    companyCodeId, plantId, languageId, warehouseId, null, null, itemCode, manufacturerName, PACK_BARCODE, Collections.singletonList(3L), stockTypeId);
+
+        log.info("MTO Number -----------------------------------> " + mtoNumber);
+        if (mtoNumber != null) {
+            List<IInventoryImpl> inventoryList = inventoryV2Repository.getOMLInventoryFullFillmentMtoNumber(
+                    companyCodeId, plantId, languageId, warehouseId, null, null, itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId);
+            if (inventoryList == null || inventoryList.isEmpty()) {
+                return inventoryV2Repository.getOMLInventoryFullFillmentMtoNumber(
+                        companyCodeId, plantId, languageId, warehouseId, null, null, itemCode, manufacturerName, PACK_BARCODE, Collections.singletonList(3L), stockTypeId);
+            }
+            return inventoryList;
+        } else {
+            List<IInventoryImpl> inventoryList = inventoryV2Repository.getOMLInventoryFullFillment(
+                    companyCodeId, plantId, languageId, warehouseId, null, null, itemCode, manufacturerName, PACK_BARCODE, binClassId, stockTypeId);
+            if (inventoryList == null || inventoryList.isEmpty()) {
+                return inventoryV2Repository.getOMLInventoryFullFillment(
+                        companyCodeId, plantId, languageId, warehouseId, null, null, itemCode, manufacturerName, PACK_BARCODE, Collections.singletonList(3L), stockTypeId);
+            }
+            return inventoryList;
         }
-        return inventoryList;
     }
 
     // Get Inventory for OrderFullfillment

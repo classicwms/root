@@ -4776,7 +4776,7 @@ public class OrderManagementLineService extends BaseService {
                     log.info("ORD_QTY, INV_QTY : " + ORD_QTY + ", " + iInventory.getInventoryQty());
                     if (ORD_QTY <= iInventory.getInventoryQty()) {
                         finalInventoryList = inventoryService.getInventoryForOrderManagementFullfillment(companyCodeId, plantId, languageId, warehouseId, itemCode,
-                                manufacturerName, stockTypeId, binClassId);
+                                manufacturerName, stockTypeId, binClassId, orderManagementLine.getMtoNumber());
                         log.info("Group By LeveId Inventory: " + finalInventoryList.size());
                         newOrderManagementLine = orderAllocationV3 (companyCodeId, plantId, languageId, warehouseId, itemCode, manufacturerName,
                                 ORD_QTY, orderManagementLine, finalInventoryList, loginUserID, fromOrderFullfillment);
