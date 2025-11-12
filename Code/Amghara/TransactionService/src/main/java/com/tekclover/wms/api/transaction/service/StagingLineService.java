@@ -1054,14 +1054,15 @@ public class StagingLineService extends BaseService {
      * @return
      * @throws ParseException
      */
-    public Stream<StagingLineEntityV2> findStagingLineV2(SearchStagingLineV2 searchStagingLine)
+    public List<StagingLineEntityV2> findStagingLineV2(SearchStagingLineV2 searchStagingLine)
             throws ParseException {
         log.info("Search StagingLine Input: " + searchStagingLine);
-        StagingLineV2Specification spec = new StagingLineV2Specification(searchStagingLine);
-        Stream<StagingLineEntityV2> searchResults = stagingLineV2Repository.stream(spec, StagingLineEntityV2.class);
+        return  stagingLineV2Repository.findStagingLine(searchStagingLine.getWarehouseId(),
+                searchStagingLine.getCompanyCodeId(), searchStagingLine.getPlantId(), searchStagingLine.getLanguageId(), searchStagingLine.getStagingNo(),
+                searchStagingLine.getPalletCode(), searchStagingLine.getCaseCode(), searchStagingLine.getLineNo(), searchStagingLine.getItemCode(), searchStagingLine.getStatusId(),
+                searchStagingLine.getPreInboundNo(), searchStagingLine.getManufacturerCode(), searchStagingLine.getManufacturerName());
 //		log.info("searchResults: " + searchResults);
 
-        return searchResults;
     }
 
     /**

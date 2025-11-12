@@ -139,21 +139,7 @@ public interface PutAwayHeaderV2Repository extends JpaRepository<PutAwayHeaderV2
             @Param("updatedOn") Date updatedOn
     );
 
-    @Query(value = "select max(inv_id) inventoryId into #inv from tblinventory \n"
-            + "WHERE is_deleted = 0 and bin_cl_id in (1,7) and \n"
-            + "(COALESCE(:companyCodeId, null) IS NULL OR (c_id IN (:companyCodeId))) and \n"
-            + "(COALESCE(:languageId, null) IS NULL OR (lang_id IN (:languageId))) and \n"
-            + "(COALESCE(:plantId, null) IS NULL OR (plant_id IN (:plantId))) and \n"
-            + "(COALESCE(:warehouseId, null) IS NULL OR (wh_id IN (:warehouseId))) and \n"
-            + "(COALESCE(:manufacturerName, null) IS NULL OR (MFR_NAME IN (:manufacturerName))) and \n"
-            + "(COALESCE(:itemCode, null) IS NULL OR (ITM_CODE IN (:itemCode)))  \n"
-            + "group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id \n"
-
-            + "select ref_field_4,c_id,plant_id,lang_id,wh_id,itm_code,mfr_name into #tblinvqty from tblinventory \n"
-            + "where is_deleted=0 and bin_cl_id in (1,7) and \n"
-            + "inv_id in (select inventoryId from #inv) \n"
-
-            + "select \n"
+    @Query(value = "select \n"
             + "LANG_ID languageId, \n"
             + "C_ID companyCodeId, \n"
             + "PLANT_ID plantId, \n"
@@ -192,9 +178,6 @@ public interface PutAwayHeaderV2Repository extends JpaRepository<PutAwayHeaderV2
             + "PA_UTD_ON updatedOn, \n"
             + "PA_CNF_BY confirmedBy, \n"
             + "PA_CNF_ON confirmedOn, \n"
-            + "(select sum(ref_field_4) from #tblinvqty where itm_code=ph.ref_field_5 and mfr_name=ph.mfr_name \n"
-            + "and plant_id=ph.plant_id and c_id=ph.c_id and wh_id=ph.wh_id and lang_id=ph.lang_id \n"
-            + "group by itm_code,mfr_name,plant_id,wh_id,c_id,lang_id) inventoryQuantity, \n"
             + "BARCODE_ID barcodeId, \n"
             + "MFR_DATE manufacturerDate, \n"
             + "EXP_DATE expiryDate, \n"

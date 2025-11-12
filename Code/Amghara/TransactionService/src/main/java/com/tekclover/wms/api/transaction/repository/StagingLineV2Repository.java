@@ -531,4 +531,32 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
                           @Param("statusDescription2") String statusDescription2,
                           @Param("updatedBy") String updatedBy,
                           @Param("updatedOn") Date updatedOn);
+
+    @Query(value = "select * from tblstagingline where is_deleted = 0 and " +
+            "(coalesce(:warehouseId, null) is null or (wh_id in (:warehouseId))) and " +
+            "(coalesce(:companyId, null) is null or (c_id in (:companyId))) and " +
+            "(coalesce(:plantId, null) is null or (plant_id in (:plantId))) and " +
+            "(coalesce(:languageId, null) is null or (lang_id in (:languageId))) and " +
+            "(coalesce(:stagingNo, null) is null or (stg_no in (:stagingNo))) and " +
+            "(coalesce(:palletCode, null) is null or (pal_code in (:palletCode))) and " +
+            "(coalesce(:caseCode, null) is null or (case_code in (:caseCode))) and " +
+            "(coalesce(:lineNo, null) is null or (ib_line_no in (:lineNo))) and " +
+            "(coalesce(:itemCode, null) is null or (itm_code in (:itemCode))) and " +
+            "(coalesce(:statusId, null) is null or (status_id in (:statusId))) and " +
+            "(coalesce(:preInboundNo, null) is null or (pre_ib_no in (:preInboundNo))) and " +
+            "(coalesce(:mfrCode, null) is null or (MFR_CODE in (:mfrCode))) and " +
+            "(coalesce(:mfrName, null) is null or (MFR_NAME in (:mfrName))) ", nativeQuery = true)
+    List<StagingLineEntityV2> findStagingLine(@Param("warehouseId") List<String> warehouseId,
+                                              @Param("companyId") List<String> companyId,
+                                              @Param("plantId") List<String> plantId,
+                                              @Param("languageId") List<String> languageId,
+                                              @Param("stagingNo") List<String> stagingNo,
+                                              @Param("palletCode") List<String> palletCode,
+                                              @Param("caseCode") List<String> caseCode,
+                                              @Param("lineNo") List<Long> lineNo,
+                                              @Param("itemCode") List<String> itemCode,
+                                              @Param("statusId") List<Long> statusId,
+                                              @Param("preInboundNo") List<String> preInboundNo,
+                                              @Param("mfrCode") List<String> mfrCode,
+                                              @Param("mfrName") List<String> mfrName);
 }
