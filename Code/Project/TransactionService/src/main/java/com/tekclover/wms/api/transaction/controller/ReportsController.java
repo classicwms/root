@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 
 import com.tekclover.wms.api.transaction.model.dto.TransactionError;
 import com.tekclover.wms.api.transaction.model.impl.StockReportImpl;
+import com.tekclover.wms.api.transaction.model.inbound.containerreceipt.ContainerReceipt;
 import com.tekclover.wms.api.transaction.model.report.*;
 import com.tekclover.wms.api.transaction.service.TransactionErrorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +15,7 @@ import org.springframework.expression.ParseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.service.ReportsService;
@@ -164,19 +160,19 @@ public class ReportsController {
    		return new ResponseEntity<>(shipmentDeliveryList, HttpStatus.OK);
    	}
     
-    /*
-   	 * Shipment Delivery Summary
-   	 */
-    @ApiOperation(response = ShipmentDeliverySummaryReport.class, value = "Get ShipmentDeliverySummary Report") // label for swagger 
-   	@GetMapping("/shipmentDeliverySummary")
-   	public ResponseEntity<?> getShipmentDeliveryReport(@RequestParam String fromDeliveryDate, 
-   			@RequestParam String toDeliveryDate, @RequestParam(required = false) List<String> customerCode,
-   			@RequestParam(required = true) String warehouseId)
-   					throws ParseException, java.text.ParseException {
-    	ShipmentDeliverySummaryReport shipmentDeliverySummaryReport = 
-    			reportsService.getShipmentDeliverySummaryReport(fromDeliveryDate, toDeliveryDate, customerCode,warehouseId);
-   		return new ResponseEntity<>(shipmentDeliverySummaryReport, HttpStatus.OK);
-   	}
+//    /*
+//   	 * Shipment Delivery Summary
+//   	 */
+//    @ApiOperation(response = ShipmentDeliverySummaryReport.class, value = "Get ShipmentDeliverySummary Report") // label for swagger
+//   	@GetMapping("/shipmentDeliverySummary")
+//   	public ResponseEntity<?> getShipmentDeliveryReport(@RequestParam String fromDeliveryDate,
+//   			@RequestParam String toDeliveryDate, @RequestParam(required = false) List<String> customerCode,
+//   			@RequestParam(required = true) String warehouseId)
+//   					throws ParseException, java.text.ParseException {
+//    	ShipmentDeliverySummaryReport shipmentDeliverySummaryReport =
+//    			reportsService.getShipmentDeliverySummaryReport(fromDeliveryDate, toDeliveryDate, customerCode,warehouseId);
+//   		return new ResponseEntity<>(shipmentDeliverySummaryReport, HttpStatus.OK);
+//   	}
     
     /*
    	 * Shipment Dispatch Summary
@@ -238,6 +234,42 @@ public class ReportsController {
 	public ResponseEntity<?> getAllTransactionError() throws Exception {
 		Stream<TransactionError> transactionErrorList = transactionErrorService.findTransactionError();
 		return new ResponseEntity<>(transactionErrorList, HttpStatus.OK);
+	}
+
+	    /*
+   	 * Shipment Delivery Summary
+   	 */
+    @ApiOperation(response = ShipmentDeliverySummaryReport.class, value = "Get ShipmentDeliverySummary Report") // label for swagger
+   	@GetMapping("/shipmentDeliverySummary/v1")
+   	public ResponseEntity<?> getShipmentDeliveryReport(@RequestParam String fromDeliveryDate,
+   			@RequestParam String toDeliveryDate, @RequestParam(required = false) List<String> customerCode,
+   			@RequestParam(required = true) String warehouseId)
+   					throws ParseException, java.text.ParseException {
+		ShipmentReport shipmentDeliverySummaryReport =
+    			reportsService.shipmentDeliveryFindReport(fromDeliveryDate, toDeliveryDate, customerCode, warehouseId);
+   		return new ResponseEntity<>(shipmentDeliverySummaryReport, HttpStatus.OK);
+   	}
+
+	@ApiOperation(response = ShipmentReport.class, value = "Get ShipmentReport")
+	@GetMapping("/shipmentDeliverySummary/v2")
+	public ResponseEntity<?> getShipmentSummary(@RequestParam Long referenceId) {
+		ShipmentReport shipmentReport = reportsService.findShipmentReportV2(referenceId);
+		return new ResponseEntity<>(shipmentReport, HttpStatus.OK);
+	}
+
+	@ApiOperation(response = ShipmentDeliverySummaryReport.class, value = "Get ShipmentDeliverySummary Report V2")
+	@GetMapping("/shipmentDeliverySummary/v3")
+	public ResponseEntity<?> getShipmentDeliveryReportV2(@RequestParam Long referenceId)
+			throws ParseException, java.text.ParseException {
+		ShipmentDeliverySummaryReport shipmentDeliverySummaryReport = reportsService.getShipmentDeliverySummaryReportV3(referenceId);
+		return new ResponseEntity<>(shipmentDeliverySummaryReport, HttpStatus.OK);
+	}
+
+	@ApiOperation(response = String.class, value = "Delete ShipmentDeliverySummary Report V4") // label for swagger
+	@DeleteMapping("/shipmentDeliverySummary/v4")
+	public ResponseEntity<?> deleteContainerReceipt(@RequestParam Long referenceId) {
+		reportsService.deleteSummaryReport(referenceId);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 }

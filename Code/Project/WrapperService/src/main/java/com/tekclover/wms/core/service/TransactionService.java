@@ -5437,41 +5437,41 @@ public class TransactionService {
 	}
 
 	// GET - ShipmentDeliverySummary
-	public ShipmentDeliverySummaryReport getShipmentDeliverySummaryReport(String fromDeliveryDate,
-			String toDeliveryDate, List<String> customerCode, String warehouseId, String authToken) throws Exception {
-		try {
-			HttpHeaders headers = new HttpHeaders();
-			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-			headers.add("User-Agent", "ClassicWMS RestTemplate");
-			headers.add("Authorization", "Bearer " + authToken);
-
-			UriComponentsBuilder builder = UriComponentsBuilder
-					.fromHttpUrl(getTransactionServiceApiUrl() + "reports/shipmentDeliverySummary")
-					.queryParam("fromDeliveryDate", fromDeliveryDate).queryParam("toDeliveryDate", toDeliveryDate)
-					.queryParam("customerCode", customerCode).queryParam("warehouseId", warehouseId);
-
-			HttpEntity<?> entity = new HttpEntity<>(headers);
-			ResponseEntity<ShipmentDeliverySummaryReport> result = getRestTemplate().exchange(builder.toUriString(),
-					HttpMethod.GET, entity, ShipmentDeliverySummaryReport.class);
-			ShipmentDeliverySummaryReport summaryReport = result.getBody();
-
-			for (ShipmentDeliverySummary shipmentDeliverySummary : summaryReport.getShipmentDeliverySummary()) {
-				if (shipmentDeliverySummary.getExpectedDeliveryDate() != null) {
-					shipmentDeliverySummary.setExpectedDeliveryDate(
-							DateUtils.addTimeToDate(shipmentDeliverySummary.getExpectedDeliveryDate(), 3));
-				}
-
-				if (shipmentDeliverySummary.getDeliveryDateTime() != null) {
-					shipmentDeliverySummary.setDeliveryDateTime(
-							DateUtils.addTimeToDate(shipmentDeliverySummary.getDeliveryDateTime(), 3));
-				}
-			}
-			return summaryReport;
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
-	}
+//	public ShipmentDeliverySummaryReport getShipmentDeliverySummaryReport(String fromDeliveryDate,
+//			String toDeliveryDate, List<String> customerCode, String warehouseId, String authToken) throws Exception {
+//		try {
+//			HttpHeaders headers = new HttpHeaders();
+//			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+//			headers.add("User-Agent", "ClassicWMS RestTemplate");
+//			headers.add("Authorization", "Bearer " + authToken);
+//
+//			UriComponentsBuilder builder = UriComponentsBuilder
+//					.fromHttpUrl(getTransactionServiceApiUrl() + "reports/shipmentDeliverySummary")
+//					.queryParam("fromDeliveryDate", fromDeliveryDate).queryParam("toDeliveryDate", toDeliveryDate)
+//					.queryParam("customerCode", customerCode).queryParam("warehouseId", warehouseId);
+//
+//			HttpEntity<?> entity = new HttpEntity<>(headers);
+//			ResponseEntity<ShipmentDeliverySummaryReport> result = getRestTemplate().exchange(builder.toUriString(),
+//					HttpMethod.GET, entity, ShipmentDeliverySummaryReport.class);
+//			ShipmentDeliverySummaryReport summaryReport = result.getBody();
+//
+//			for (ShipmentDeliverySummary shipmentDeliverySummary : summaryReport.getShipmentDeliverySummary()) {
+//				if (shipmentDeliverySummary.getExpectedDeliveryDate() != null) {
+//					shipmentDeliverySummary.setExpectedDeliveryDate(
+//							DateUtils.addTimeToDate(shipmentDeliverySummary.getExpectedDeliveryDate(), 3));
+//				}
+//
+//				if (shipmentDeliverySummary.getDeliveryDateTime() != null) {
+//					shipmentDeliverySummary.setDeliveryDateTime(
+//							DateUtils.addTimeToDate(shipmentDeliverySummary.getDeliveryDateTime(), 3));
+//				}
+//			}
+//			return summaryReport;
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			throw e;
+//		}
+//	}
 
 	// GET - ShipmentDispatchSummary
 	public ShipmentDispatchSummaryReport getShipmentDispatchSummaryReport(String fromDeliveryDate,
@@ -8100,6 +8100,130 @@ public class TransactionService {
 					String.class);
 //			log.info("result : " + result);
 			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+
+	/**
+	 *
+	 * @param authToken
+	 * @return
+	 * @throws Exception
+	 */
+	public ShipmentDeliverySummaryReport getShipmentDeliverySummaryReportV3(Long referenceId, String authToken) throws Exception {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "reports/shipmentDeliverySummary/v3")
+					.queryParam("referenceId", referenceId);
+
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<ShipmentDeliverySummaryReport> result = getRestTemplate().exchange(builder.toUriString(),
+					HttpMethod.GET, entity, ShipmentDeliverySummaryReport.class);
+			ShipmentDeliverySummaryReport summaryReport = result.getBody();
+
+			for (ShipmentDeliverySummary shipmentDeliverySummary : summaryReport.getShipmentDeliverySummary()) {
+				if (shipmentDeliverySummary.getExpectedDeliveryDate() != null) {
+					shipmentDeliverySummary.setExpectedDeliveryDate(
+							DateUtils.addTimeToDate(shipmentDeliverySummary.getExpectedDeliveryDate(), 3));
+				}
+
+				if (shipmentDeliverySummary.getDeliveryDateTime() != null) {
+					shipmentDeliverySummary.setDeliveryDateTime(
+							DateUtils.addTimeToDate(shipmentDeliverySummary.getDeliveryDateTime(), 3));
+				}
+			}
+			return summaryReport;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+
+	/**
+	 *
+	 * @param fromDeliveryDate
+	 * @param toDeliveryDate
+	 * @param customerCode
+	 * @param warehouseId
+	 * @param authToken
+	 * @return
+	 * @throws Exception
+	 */
+	public ShipmentReport getShipmentDeliverySummaryReportV1(String fromDeliveryDate,
+															 String toDeliveryDate, List<String> customerCode, String warehouseId, String authToken) throws Exception {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "reports/shipmentDeliverySummary/v1")
+					.queryParam("fromDeliveryDate", fromDeliveryDate).queryParam("toDeliveryDate", toDeliveryDate)
+					.queryParam("customerCode", customerCode).queryParam("warehouseId", warehouseId);
+
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<ShipmentReport> result = getRestTemplate().exchange(builder.toUriString(),
+					HttpMethod.GET, entity, ShipmentReport.class);
+
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	/**
+	 *
+
+	 * @throws Exception
+	 */
+	public ShipmentReport getShipmentSummaryReportV2(Long referenceId, String authToken) throws Exception {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "reports/shipmentDeliverySummary/v2")
+					.queryParam("referenceId", referenceId);
+
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			ResponseEntity<ShipmentReport> result = getRestTemplate().exchange(builder.toUriString(),
+					HttpMethod.GET, entity, ShipmentReport.class);
+
+			return result.getBody();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	// DELETE
+	public void deleteSummaryDeliveryReport(Long referenceId, String authToken) {
+		try {
+			HttpHeaders headers = new HttpHeaders();
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.add("User-Agent", "ClassicWMS's RestTemplate");
+			headers.add("Authorization", "Bearer " + authToken);
+			HttpEntity<?> entity = new HttpEntity<>(headers);
+			UriComponentsBuilder builder = UriComponentsBuilder
+					.fromHttpUrl(getTransactionServiceApiUrl() + "reports/shipmentDeliverySummary/v4")
+					.queryParam("referenceId", referenceId);
+			ResponseEntity<String> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.DELETE, entity,
+					String.class);
+			log.info("result : " + result);
+//			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;

@@ -4,8 +4,16 @@ import java.util.Date;
 
 import lombok.Data;
 
+import javax.persistence.*;
+
+@Entity
+@Table(name = "tblshipmentdeliverysummary")
 @Data
 public class ShipmentDeliverySummary {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long shipmentId;
 
 	private String so;						// REF_DOC_NO
 	
@@ -21,4 +29,6 @@ public class ShipmentDeliverySummary {
 	private Double shippedQty;				// Shipped Qty
 	private Double pickedQty;				// Picked Qty
 	private Double percentageShipped;		// % Shipped
+
+	private Long referenceId;
 }

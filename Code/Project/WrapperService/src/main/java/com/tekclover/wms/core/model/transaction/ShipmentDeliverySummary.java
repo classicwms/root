@@ -21,4 +21,5 @@ public class ShipmentDeliverySummary {
 	private Double shippedQty;				// Shipped Qty
 	private Double pickedQty;				// Picked Qty
 	private Double percentageShipped;		// % Shipped
+	private Long referenceId;
 }

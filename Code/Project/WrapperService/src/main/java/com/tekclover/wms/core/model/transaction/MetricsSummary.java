@@ -11,4 +11,5 @@ public class MetricsSummary {
 	private Long orderedQty;
 	private Long deliveryQty;
 	private Double shippedLines;
+	private Long referenceId;
 }

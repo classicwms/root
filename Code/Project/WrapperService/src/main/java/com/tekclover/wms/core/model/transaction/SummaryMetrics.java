@@ -6,5 +6,6 @@ import lombok.Data;
 public class SummaryMetrics {
 	private String partnerCode;
 	private String type;
+	private Long referenceId;
 	private MetricsSummary metricsSummary;
 }

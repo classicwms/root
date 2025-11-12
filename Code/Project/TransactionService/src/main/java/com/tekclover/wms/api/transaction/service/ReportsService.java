@@ -13,6 +13,7 @@ import com.tekclover.wms.api.transaction.model.impl.OrderStatusReportImpl;
 import com.tekclover.wms.api.transaction.model.impl.ShipmentDispatchSummaryReportImpl;
 import com.tekclover.wms.api.transaction.model.impl.StockReportImpl;
 import com.tekclover.wms.api.transaction.model.inbound.InboundLine;
+import com.tekclover.wms.api.transaction.model.inbound.containerreceipt.ContainerReceipt;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.SearchInventory;
@@ -37,9 +38,11 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.expression.ParseException;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -150,6 +153,21 @@ public class ReportsService extends BaseService {
 
     @Autowired
     TransactionHistoryResultRepository transactionHistoryResultRepository;
+
+    @Autowired
+    ShipmentDeliverySummaryRepository shipmentDeliverySummaryRepository;
+
+    @Autowired
+    SummaryMetricsRepository summaryMetricsRepository;
+
+    @Autowired
+    MetricsSummaryRepository metricsSummaryRepository;
+
+    @Autowired
+    ShipmentReportRepository shipmentReportRepository;
+
+    @Autowired
+    DeliveryReportService deliveryReportService;
 
     /**
      * Stock Report ---------------------
@@ -1078,8 +1096,9 @@ public class ReportsService extends BaseService {
      * @throws java.text.ParseException
      * @throws ParseException
      */
-    public ShipmentDeliverySummaryReport getShipmentDeliverySummaryReport(String fromDeliveryDate,
-                                                                          String toDeliveryDate, List<String> customerCode, String warehouseIds) throws ParseException, java.text.ParseException {
+
+    public void getShipmentDeliverySummaryReportV3(String fromDeliveryDate, String toDeliveryDate,
+                                                   List<String> customerCode, String warehouseIds, Long referenceId) throws ParseException, java.text.ParseException {
         /*
          * Pass the Input Parameters in Outbound Line table (From and TO date in
          * DLV_CNF_ON fields) and fetch the below Fields, If Customer Code is Selected
@@ -1129,6 +1148,7 @@ public class ReportsService extends BaseService {
                 // Report Preparation
                 ShipmentDeliverySummary shipmentDeliverySummary = new ShipmentDeliverySummary();
 
+                shipmentDeliverySummary.setReferenceId(referenceId);
                 shipmentDeliverySummary.setSo(outboundHeader.getRefDocNumber());                            // SO
                 shipmentDeliverySummary.setExpectedDeliveryDate(outboundHeader.getRequiredDeliveryDate());    // DEL_DATE
                 shipmentDeliverySummary.setDeliveryDateTime(outboundHeader.getDeliveryConfirmedOn());        // DLV_CNF_ON
@@ -1185,27 +1205,38 @@ public class ReportsService extends BaseService {
             //List<String> partnerCodes = Arrays.asList("101", "102", "103", "107", "109", "111", "112", "113");
             List<SummaryMetrics> summaryMetricsList = new ArrayList<>();
             for (String pCode : partnerCodes) {
-                SummaryMetrics partnerCode_N = getMetricsDetails(languageId, companyCode, plantId, "N", warehouseId, pCode, "N", fromDeliveryDate_d,
-                        toDeliveryDate_d);
-                SummaryMetrics partnerCode_S = getMetricsDetails(languageId, companyCode, plantId, "S", warehouseId, pCode, "S", fromDeliveryDate_d,
-                        toDeliveryDate_d);
+                SummaryMetrics partnerCode_N = getMetricsDetails(languageId, companyCode, plantId, "N", warehouseId, pCode, "N", fromDeliveryDate_d, toDeliveryDate_d);
+                SummaryMetrics partnerCode_S = getMetricsDetails(languageId, companyCode, plantId, "S", warehouseId, pCode, "S", fromDeliveryDate_d, toDeliveryDate_d);
 
                 if (partnerCode_N != null) {
+                    partnerCode_N.getMetricsSummary().setReferenceId(referenceId);
+                    partnerCode_N.setReferenceId(referenceId);
                     summaryMetricsList.add(partnerCode_N);
                 }
 
                 if (partnerCode_S != null) {
+                    partnerCode_S.getMetricsSummary().setReferenceId(referenceId);
+                    partnerCode_S.setReferenceId(referenceId);
                     summaryMetricsList.add(partnerCode_S);
                 }
             }
 
+//            shipmentDeliverySummaryRepository.deleteAll();
+//            summaryMetricsRepository.deleteAll();
+//            metricsSummaryRepository.deleteAll();
+
+            shipmentDeliverySummaryRepository.saveAll(shipmentDeliverySummaryList);
+            summaryMetricsRepository.saveAll(summaryMetricsList);
+
+            shipmentReportRepository.updateStatus(1L, referenceId);
+            log.info("Report Generated --------------> Flag Updated Reference Id is {}", referenceId);
             shipmentDeliverySummaryReport.setShipmentDeliverySummary(shipmentDeliverySummaryList);
             shipmentDeliverySummaryReport.setSummaryMetrics(summaryMetricsList);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return shipmentDeliverySummaryReport;
+//        return shipmentDeliverySummaryReport;
     }
 
 //	/**
@@ -1716,7 +1747,7 @@ public class ReportsService extends BaseService {
      * @throws ParseException
      * @throws Exception
      */
-    private SummaryMetrics getMetricsDetails(String languageId, String companyCode, String plantId, String type,
+    public SummaryMetrics getMetricsDetails(String languageId, String companyCode, String plantId, String type,
                                              String warehouseId, String partnerCode, String refField1, Date fromDeliveryDate_d, Date toDeliveryDate_d) throws ParseException, Exception {
         List<OutboundHeader> outboundHeaderList = outboundHeaderRepository
                 .findByWarehouseIdAndStatusIdAndPartnerCodeAndDeliveryConfirmedOnBetween(warehouseId, 59L, partnerCode, fromDeliveryDate_d,
@@ -2944,4 +2975,83 @@ public class ReportsService extends BaseService {
         return results;
     }
 
+
+    /**
+     *
+     * @param fromDeliveryDate from Date
+     * @param toDeliveryDate to Date
+     * @param customerCode customerCode
+     * @param warehouseId warehouseId
+     * @return
+     */
+    public ShipmentReport shipmentDeliveryFindReport(String fromDeliveryDate , String toDeliveryDate, List<String> customerCode, String warehouseId) throws java.text.ParseException {
+
+        Date fromDeliveryDate_d = null;
+        Date toDeliveryDate_d = null;
+        try {
+            log.info("Input Date: " + fromDeliveryDate + "," + toDeliveryDate);
+            if (fromDeliveryDate.indexOf("T") > 0) {
+                fromDeliveryDate_d = DateUtils.convertStringToDateWithT(fromDeliveryDate);
+                toDeliveryDate_d = DateUtils.convertStringToDateWithT(toDeliveryDate);
+            } else {
+                fromDeliveryDate_d = DateUtils.addTimeToDate(fromDeliveryDate, 14, 0, 0);
+                toDeliveryDate_d = DateUtils.addTimeToDate(toDeliveryDate, 13, 59, 59);
+            }
+            log.info("Date: " + fromDeliveryDate_d + "," + toDeliveryDate_d);
+        } catch (Exception e) {
+            throw new BadRequestException("Date should be in yyyy-MM-dd format.");
+        }
+
+        ShipmentReport newShipment = new ShipmentReport();
+        newShipment.setFromDate(fromDeliveryDate_d);
+        newShipment.setToDate(toDeliveryDate_d);
+        newShipment.setWarehouseId(warehouseId);
+        newShipment.setStatusId(0L);
+        ShipmentReport savedReport =  shipmentReportRepository.save(newShipment);
+        log.info("Delivery Shipment Report is generation Started ---------------->");
+        deliveryReportService.getShipmentDeliverySummaryReportV3(fromDeliveryDate, toDeliveryDate, customerCode, warehouseId, savedReport.getReferenceId());
+        return savedReport;
+    }
+
+
+    /**
+     *
+     * @param referenceId referenceId
+     * @return
+     */
+    public ShipmentReport findShipmentReportV2(Long referenceId) {
+
+        Optional<ShipmentReport> shipmentReport =  shipmentReportRepository.findByReferenceId(referenceId);
+        if(shipmentReport.isEmpty()) {
+            throw new BadRequestException("Shipment Report Doesn't Exist ----------> " + referenceId);
+        }
+        return shipmentReport.get();
+    }
+
+    /**
+     * Shipment Delivery Summary Report
+     * referenceId
+     */
+    public ShipmentDeliverySummaryReport getShipmentDeliverySummaryReportV3(Long referenceId) {
+        log.info("ShipmentDeliverySummaryReport ------------------------> ");
+        ShipmentDeliverySummaryReport report = new ShipmentDeliverySummaryReport();
+        report.setShipmentDeliverySummary(shipmentDeliverySummaryRepository.findAllShipment(referenceId));
+        report.setSummaryMetrics(summaryMetricsRepository.findAllSummary(referenceId));
+        return report;
+    }
+
+    /**
+     * deleteContainerReceipt
+     * referenceId
+     */
+    public void deleteSummaryReport(Long referenceId) {
+        log.info("Delete SummaryReport ------------> " + referenceId);
+        int shipmentSummary = shipmentDeliverySummaryRepository.deleteShipmentDeliveryReport(referenceId);
+        log.info("Delete ShipmentDelivery -----> " + shipmentSummary);
+        int summaryMetrics = summaryMetricsRepository.deleteSummaryMetrics(referenceId);
+        log.info("Delete SummaryMetrics -----> " + summaryMetrics);
+        int metricsSummary = metricsSummaryRepository.deleteMatricsSummary(referenceId);
+        log.info("Delete MetricsSummary -----> " + metricsSummary);
+    }
+    
 }

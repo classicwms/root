@@ -1769,15 +1769,17 @@ public class TransactionServiceController {
    		return new ResponseEntity<>(shipmentDeliveryList, HttpStatus.OK);
    	}
     
-    @ApiOperation(response = ShipmentDeliverySummaryReport.class, value = "Get ShipmentDeliverySummary Report") // label for swagger 
-   	@GetMapping("/reports/shipmentDeliverySummary1")
-   	public ResponseEntity<?> getShipmentDeliveryReport1(@RequestParam String fromDeliveryDate, 
-   			@RequestParam String toDeliveryDate, @RequestParam(required = false) List<String> customerCode, 
-   			@RequestParam String authToken,@RequestParam(required = true) String warehouseId) throws ParseException, Exception {
-    	ShipmentDeliverySummaryReport shipmentDeliverySummaryReport = 
-    			transactionService.getShipmentDeliverySummaryReport(fromDeliveryDate, toDeliveryDate, customerCode,warehouseId, authToken);
-    	return new ResponseEntity<>(shipmentDeliverySummaryReport, HttpStatus.OK);
-   	}
+//    @ApiOperation(response = ShipmentDeliverySummaryReport.class, value = "Get ShipmentDeliverySummary Report") // label for swagger
+//   	@GetMapping("/reports/shipmentDeliverySummary1")
+//   	public ResponseEntity<?> getShipmentDeliveryReport1(@RequestParam String fromDeliveryDate,
+//   			@RequestParam String toDeliveryDate, @RequestParam(required = false) List<String> customerCode,
+//   			@RequestParam String authToken,@RequestParam(required = true) String warehouseId) throws ParseException, Exception {
+//    	ShipmentDeliverySummaryReport shipmentDeliverySummaryReport =
+//    			transactionService.getShipmentDeliverySummaryReport(fromDeliveryDate, toDeliveryDate, customerCode,warehouseId, authToken);
+//    	return new ResponseEntity<>(shipmentDeliverySummaryReport, HttpStatus.OK);
+//   	}
+
+
     
     /*
    	 * Inventory Stock movement report
@@ -2277,36 +2279,37 @@ public class TransactionServiceController {
 		return new ResponseEntity<>(orders, HttpStatus.OK);
 	}
 
-	//=========================================Update=====================================
+	@ApiOperation(response = ShipmentDeliverySummaryReport.class, value = "Get ShipmentDeliverySummary Report ") // label for swagger
+   	@GetMapping("/reports/shipmentDeliverySummary/generate")
+   	public ResponseEntity<?> getShipmentDeliveryReport1(@RequestParam String fromDeliveryDate,
+   			@RequestParam String toDeliveryDate, @RequestParam(required = false) List<String> customerCode,
+   			@RequestParam String authToken,@RequestParam(required = true) String warehouseId) throws ParseException, Exception {
+    	ShipmentReport shipmentDeliverySummaryReport =
+    			transactionService.getShipmentDeliverySummaryReportV1(fromDeliveryDate, toDeliveryDate, customerCode,warehouseId, authToken);
+    	return new ResponseEntity<>(shipmentDeliverySummaryReport, HttpStatus.OK);
+   	}
 
-	@ApiOperation(response = InboundOrder.class, value = "Update InboundOrder details")
-	@PatchMapping("/orders/update/inboundOrder")
-	public ResponseEntity<?> updateInboundOrder(@RequestParam String orderId, @RequestBody UpdateInboundOrder updateInboundOrder, @RequestParam String authToken) throws Exception {
-		InboundOrder inboundOrder = transactionService.updateInboundOrder(orderId, updateInboundOrder, authToken);
-		return new ResponseEntity<>(inboundOrder, HttpStatus.OK);
+
+	@ApiOperation(response = ShipmentReport.class, value = "Get ShipmentDeliverySummary Report Status") // label for swagger
+	@GetMapping("/reports/shipmentDeliverySummary/status")
+	public ResponseEntity<?> getShipmentDeliveryReport2(@RequestParam String authToken, @RequestParam Long referenceId) throws ParseException, Exception {
+		ShipmentReport shipmentDeliverySummaryReport =
+				transactionService.getShipmentSummaryReportV2(referenceId, authToken);
+		return new ResponseEntity<>(shipmentDeliverySummaryReport, HttpStatus.OK);
 	}
 
-
-	@ApiOperation(response = OutboundOrder.class, value = "Update OutboundOrder details")
-	@PatchMapping("/orders/update/outboundOrder")
-	public ResponseEntity<?> updateOutboundOrder(@RequestParam String orderId, @RequestBody UpdateOutboundOrder updateOutboundOrder, @RequestParam String authToken) throws Exception {
-		OutboundOrder outboundOrder = transactionService.updateOutboundOrder(orderId, updateOutboundOrder, authToken);
-		return new ResponseEntity<>(outboundOrder, HttpStatus.OK);
+	@ApiOperation(response = ShipmentDeliverySummaryReport.class, value = "Get ShipmentDeliverySummary Report ") // label for swagger
+	@GetMapping("/reports/shipmentDeliverySummary/download")
+	public ResponseEntity<?> getShipmentDeliveryReportV3(@RequestParam String authToken, @RequestParam Long referenceId) throws ParseException, Exception {
+		ShipmentDeliverySummaryReport shipmentDeliverySummaryReport =
+				transactionService.getShipmentDeliverySummaryReportV3(referenceId, authToken);
+		return new ResponseEntity<>(shipmentDeliverySummaryReport, HttpStatus.OK);
 	}
 
-	//==================================================Delete=========================================================
-
-	@ApiOperation(response = InboundOrder.class, value = " Delete InboundOrder details")
-	@DeleteMapping("/orders/delete/inboundOrder")
-	public ResponseEntity<?> deleteInboundOrder(@RequestParam String orderId, @RequestParam String authToken) throws Exception {
-		transactionService.deleteInboundOrder(orderId, authToken);
-		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-	}
-
-	@ApiOperation(response = OutboundOrder.class, value = " Delete OutboundOrder details")
-	@DeleteMapping("/orders/delete/outboundOrder")
-	public ResponseEntity<?> deleteOutboundOrder(@RequestParam String orderId, @RequestParam String authToken) throws Exception {
-		transactionService.deleteOutboundOrder(orderId, authToken);
+	@ApiOperation(response = String.class, value = "Delete ShipmentDeliverySummaryReport") // label for swagger
+	@DeleteMapping("/reports/shipmentDeliverySummary/delete")
+	public ResponseEntity<?> deleteShipmentDeliverySummary(@RequestParam Long referenceId, @RequestParam String authToken) throws IllegalAccessException, InvocationTargetException {
+		transactionService.deleteSummaryDeliveryReport(referenceId, authToken);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 }
