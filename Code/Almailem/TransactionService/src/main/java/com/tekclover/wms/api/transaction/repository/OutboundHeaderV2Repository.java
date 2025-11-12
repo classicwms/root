@@ -739,4 +739,103 @@ public interface OutboundHeaderV2Repository extends JpaRepository<OutboundHeader
                                           @Param("alternateNo") String alternateNo,
                                           @Param("status") String status,
                                           @Param("updatedOn") Date updatedOn);
+
+    @Modifying
+    @Transactional
+    @Query(value =
+            "WITH LineStatusSummary AS ( " +
+                    "   SELECT " +
+                    "       COUNT(*) AS TOTAL_COUNT, " +
+                    "       SUM(CASE WHEN STATUS_ID = :statusId50 THEN 1 ELSE 0 END) AS COUNT_STATUS_50, " +
+                    "       SUM(CASE WHEN STATUS_ID IN (:statusId47, :statusId51) THEN 1 ELSE 0 END) AS COUNT_STATUS_51 " +
+                    "   FROM tbloutboundline " +
+                    "   WHERE C_ID = :companyCodeId " +
+                    "     AND PLANT_ID = :plantId " +
+                    "     AND LANG_ID = :languageId " +
+                    "     AND WH_ID = :warehouseId " +
+                    "     AND REF_DOC_NO = :refDocNumber " +
+                    "     AND PRE_OB_NO = :preOutboundNo " +
+                    "     AND IS_DELETED = 0 " +
+                    ") " +
+                    "UPDATE oh " +
+                    "SET oh.STATUS_ID = CASE " +
+                    "       WHEN s.TOTAL_COUNT = s.COUNT_STATUS_51 THEN :statusId51 " +
+                    "       WHEN s.TOTAL_COUNT = s.COUNT_STATUS_50 THEN :statusId50 " +
+                    "       ELSE oh.STATUS_ID END, " +
+                    "    oh.STATUS_TEXT = CASE " +
+                    "       WHEN s.TOTAL_COUNT = s.COUNT_STATUS_51 THEN :statusDescription51 " +
+                    "       WHEN s.TOTAL_COUNT = s.COUNT_STATUS_50 THEN :statusDescription50 " +
+                    "       ELSE oh.STATUS_TEXT END, " +
+                    "    oh.DLV_UTD_ON = CASE " +
+                    "       WHEN s.TOTAL_COUNT IN (s.COUNT_STATUS_50, s.COUNT_STATUS_51) THEN :updatedOn " +
+                    "       ELSE oh.DLV_UTD_ON END, " +
+                    "    oh.DLV_UTD_BY = CASE " +
+                    "       WHEN s.TOTAL_COUNT IN (s.COUNT_STATUS_50, s.COUNT_STATUS_51) THEN :updatedBy " +
+                    "       ELSE oh.DLV_UTD_BY END " +
+                    "FROM tbloutboundheader oh " +
+                    "CROSS JOIN LineStatusSummary s " +
+                    "WHERE oh.C_ID = :companyCodeId " +
+                    "  AND oh.PLANT_ID = :plantId " +
+                    "  AND oh.LANG_ID = :languageId " +
+                    "  AND oh.WH_ID = :warehouseId " +
+                    "  AND oh.REF_DOC_NO = :refDocNumber " +
+                    "  AND oh.PRE_OB_NO = :preOutboundNo " +
+                    "  AND oh.IS_DELETED = 0; " +
+
+                    "WITH LineStatusSummary AS ( " +
+                    "   SELECT " +
+                    "       COUNT(*) AS TOTAL_COUNT, " +
+                    "       SUM(CASE WHEN STATUS_ID = :statusId50 THEN 1 ELSE 0 END) AS COUNT_STATUS_50, " +
+                    "       SUM(CASE WHEN STATUS_ID IN (:statusId47, :statusId51) THEN 1 ELSE 0 END) AS COUNT_STATUS_51 " +
+                    "   FROM tbloutboundline " +
+                    "   WHERE C_ID = :companyCodeId " +
+                    "     AND PLANT_ID = :plantId " +
+                    "     AND LANG_ID = :languageId " +
+                    "     AND WH_ID = :warehouseId " +
+                    "     AND REF_DOC_NO = :refDocNumber " +
+                    "     AND PRE_OB_NO = :preOutboundNo " +
+                    "     AND IS_DELETED = 0 " +
+                    ") " +
+                    "UPDATE poh " +
+                    "SET poh.STATUS_ID = CASE " +
+                    "       WHEN s.TOTAL_COUNT = s.COUNT_STATUS_51 THEN :statusId51 " +
+                    "       ELSE poh.STATUS_ID END, " +
+                    "    poh.STATUS_TEXT = CASE " +
+                    "       WHEN s.TOTAL_COUNT = s.COUNT_STATUS_51 THEN :statusDescription51 " +
+                    "       ELSE poh.STATUS_TEXT END, " +
+                    "    poh.PRE_OB_UTD_ON = CASE " +
+                    "       WHEN s.TOTAL_COUNT = s.COUNT_STATUS_51 THEN :updatedOn " +
+                    "       ELSE poh.PRE_OB_UTD_ON END, " +
+                    "    poh.PRE_OB_UTD_BY = CASE " +
+                    "       WHEN s.TOTAL_COUNT = s.COUNT_STATUS_51 THEN :updatedBy " +
+                    "       ELSE poh.PRE_OB_UTD_BY END " +
+                    "FROM tblpreoutboundheader poh " +
+                    "CROSS JOIN LineStatusSummary s " +
+                    "WHERE poh.C_ID = :companyCodeId " +
+                    "  AND poh.PLANT_ID = :plantId " +
+                    "  AND poh.LANG_ID = :languageId " +
+                    "  AND poh.WH_ID = :warehouseId " +
+                    "  AND poh.REF_DOC_NO = :refDocNumber " +
+                    "  AND poh.PRE_OB_NO = :preOutboundNo " +
+                    "  AND poh.IS_DELETED = 0",
+            nativeQuery = true)
+    void updateOutboundAndPreOutboundHeaders(
+            @Param("companyCodeId") String companyCodeId,
+            @Param("plantId") String plantId,
+            @Param("languageId") String languageId,
+            @Param("warehouseId") String warehouseId,
+            @Param("refDocNumber") String refDocNumber,
+            @Param("preOutboundNo") String preOutboundNo,
+            @Param("updatedOn") Date updatedOn,
+            @Param("updatedBy") String updatedBy,
+            @Param("statusId47") Long statusId47,
+            @Param("statusId50") Long statusId50,
+            @Param("statusId51") Long statusId51,
+            @Param("statusDescription50") String statusDescription50,
+            @Param("statusDescription51") String statusDescription51);
+
+
+
+
+
 }

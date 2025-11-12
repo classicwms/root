@@ -369,6 +369,7 @@ public class InhouseTransferHeaderService extends BaseService {
 			if (inventorySourceItemCode != null) {
 				Double inventoryQty = inventorySourceItemCode.getInventoryQuantity();
 				Double transferConfirmedQty = createdInhouseTransferLine.getTransferConfirmedQty();
+				Double INV_QTY_ERR = transferConfirmedQty;
 				double INV_QTY =  inventoryQty - transferConfirmedQty;
 				if (INV_QTY < 0) {
 					throw new BadRequestException("Inventory became negative." + INV_QTY);
@@ -376,7 +377,7 @@ public class InhouseTransferHeaderService extends BaseService {
 				
 				log.info("-----Source----INV_QTY-----------> : " + INV_QTY);
 				inventorySourceItemCode.setInventoryQuantity(INV_QTY);
-				Double INV_QTY_ERR = INV_QTY;
+				
 				try {
 					Inventory updatedInventory = inventoryRepository.save(inventorySourceItemCode);
 					log.info("--------source---inventory-----updated----->" + updatedInventory);
@@ -419,7 +420,7 @@ public class InhouseTransferHeaderService extends BaseService {
 					transferConfirmedQty = createdInhouseTransferLine.getTransferConfirmedQty();
 					INV_QTY =  inventoryQty + transferConfirmedQty;
 					log.info("-----Target----INV_QTY-----------> : " + INV_QTY);
-					
+					INV_QTY_ERR = INV_QTY;
 					inventoryTargetItemCode.setInventoryQuantity(INV_QTY);
 					try {
 						Inventory targetUpdatedInventory = inventoryRepository.save(inventoryTargetItemCode);
