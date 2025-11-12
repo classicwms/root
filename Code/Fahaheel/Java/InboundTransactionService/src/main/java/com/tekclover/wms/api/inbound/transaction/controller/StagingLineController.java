@@ -243,7 +243,7 @@ public class StagingLineController {
 
     @ApiOperation(response = StagingLineEntityV2.class, value = "Search StagingLine V2") // label for swagger
     @PostMapping("/findStagingLine/v2")
-    public Stream<StagingLineEntityV2> findStagingLineV2(@RequestBody SearchStagingLineV2 searchStagingLine) throws Exception {
+    public List<StagingLineEntityV2> findStagingLineV2(@RequestBody SearchStagingLineV2 searchStagingLine) throws Exception {
         return staginglineService.findStagingLineV2(searchStagingLine);
     }
 
