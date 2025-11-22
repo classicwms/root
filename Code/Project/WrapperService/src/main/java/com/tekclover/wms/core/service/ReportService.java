@@ -889,14 +889,35 @@ public class ReportService {
 		image.setAbsolutePosition(30, 780);
 		document.add(image);
 
-		SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy h:mm a");
-
-		String formattedStartDate = searchPickupLine.getFromPickConfirmedOn() != null ? dateFormatter.format(searchPickupLine.getFromPickConfirmedOn()) : "N/A";
-		String formattedEndDate = searchPickupLine.getToPickConfirmedOn() != null ? dateFormatter.format(searchPickupLine.getToPickConfirmedOn()) : "N/A";
+//		SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy h:mm a");
+//
+//		String formattedStartDate = searchPickupLine.getFromPickConfirmedOn() != null ? dateFormatter.format(searchPickupLine.getFromPickConfirmedOn()) : "N/A";
+//		String formattedEndDate = searchPickupLine.getToPickConfirmedOn() != null ? dateFormatter.format(searchPickupLine.getToPickConfirmedOn()) : "N/A";
 
 		// Selection Date
 //		String formattedStartDate = getFormatDate(getStartDateTime());
 //		String formattedEndDate = getFormatDate(getEndDateTime());
+
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy h:mm a");
+
+		Date startDate = searchPickupLine.getFromPickConfirmedOn();
+		if (startDate != null) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(startDate);
+			cal.add(Calendar.HOUR_OF_DAY, -3);
+			startDate = cal.getTime();
+		}
+
+		Date endDate = searchPickupLine.getToPickConfirmedOn();
+		if (endDate != null) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(endDate);
+			cal.add(Calendar.HOUR_OF_DAY, -3);
+			endDate = cal.getTime();
+		}
+
+		String formattedStartDate = startDate != null ? dateFormatter.format(startDate) : "N/A";
+		String formattedEndDate = endDate != null ? dateFormatter.format(endDate) : "N/A";
 
 		Paragraph dateInfo = new Paragraph("Selection Date: \n" + formattedStartDate + " - " + formattedEndDate, fontParagraph);
 		dateInfo.setAlignment(Paragraph.ALIGN_RIGHT);
