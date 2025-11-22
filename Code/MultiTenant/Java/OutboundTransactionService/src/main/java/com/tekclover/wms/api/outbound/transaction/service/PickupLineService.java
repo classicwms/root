@@ -2806,6 +2806,11 @@ public class PickupLineService extends BaseService {
                 pickupNumber = dbPickupLine.getPickupNumber();
                 itemCode = dbPickupLine.getItemCode();
 
+                OrderManagementLineV2 dbOrderManagementLine =
+                        orderManagementLineService.getOrderManagementLineForLineUpdateNamratha(companyCodeId, plantId, languageId, warehouseId, preOutboundNo,
+                                refDocNumber, newPickupLine.getBarcodeId(), itemCode);
+                log.info("OrderManagementLine: " + dbOrderManagementLine);
+
                 // STATUS_ID
                 if (newPickupLine.getPickConfirmQty() > 0) {
                     isQtyAvail = true;
@@ -2819,13 +2824,9 @@ public class PickupLineService extends BaseService {
 
                 log.info("newPickupLine STATUS: " + STATUS_ID);
                 statusDescription = getStatusDescription(STATUS_ID, languageId);
+
                 dbPickupLine.setStatusId(STATUS_ID);
                 dbPickupLine.setStatusDescription(statusDescription);
-
-                OrderManagementLineV2 dbOrderManagementLine =
-                        orderManagementLineService.getOrderManagementLineForLineUpdateNamratha(companyCodeId, plantId, languageId, warehouseId, preOutboundNo,
-                                refDocNumber, newPickupLine.getBarcodeId(), itemCode);
-                log.info("OrderManagementLine: " + dbOrderManagementLine);
 
                 if (dbOrderManagementLine != null) {
                     dbPickupLine.setCompanyDescription(dbOrderManagementLine.getCompanyDescription());
@@ -2907,6 +2908,10 @@ public class PickupLineService extends BaseService {
                 dbPickupLine.setVarianceQuantity(VAR_QTY);
                 log.info("Var_Qty: " + VAR_QTY);
 
+                if (VAR_QTY < 0.0) {
+                    throw new BadRequestException("Pick Qty exceeds Order Qty");
+                }
+
                 String handlingEquipment = pickupLineV2Repository.getHandlingEquipment(companyCodeId, plantId, languageId, warehouseId);
                 handlingEquipment = handlingEquipment != null ? handlingEquipment : PICK_HE_NO;
                 log.info("HE_NO : " + handlingEquipment);
@@ -2921,6 +2926,7 @@ public class PickupLineService extends BaseService {
                 dbPickupLine.setPickupConfirmedBy(loginUserID);
                 dbPickupLine.setPickupUpdatedOn(new Date());
                 dbPickupLine.setPickupConfirmedOn(new Date());
+                dbPickupLine.setPickConfirmBarcodeId(newPickupLine.getPickConfirmBarcodeId());
 
                 if (newPickupLine.getBagSize() != null) {
                     dbPickupLine.setBagSize(newPickupLine.getBagSize());
@@ -2935,6 +2941,7 @@ public class PickupLineService extends BaseService {
 //                        dbPickupLine.getLineNumber(), pickupNumber, itemCode, dbPickupLine.getPickedStorageBin(), dbPickupLine.getPickedPackCode(), 0L);
 
                 log.info("Inputs for existing check : barcodeId -----> {}", dbPickupLine.getBarcodeId());
+                log.info("Inputs for existing pickupline companyCodeId ---> " + companyCodeId + ", plantId ----> " + plantId + ", warehouseId ----> " + warehouseId + ", preOutboundNo ----> " + preOutboundNo + ", refDocNumber ---> " + refDocNumber + ", itemCode ----> " + itemCode);
                 List<PickupLineV2> existingPickupLine = pickupLineV2Repository.getExistingPickupLine(companyCodeId, languageId, plantId, warehouseId, preOutboundNo, refDocNumber, itemCode, dbPickupLine.getBarcodeId());
 
                 log.info("existingPickupLine : " + existingPickupLine);
@@ -2944,9 +2951,17 @@ public class PickupLineService extends BaseService {
                     dbPickupLine.setReferenceField1(leadTime);
                     log.info("LeadTime: " + leadTime);
 
-                    PickupLineV2 createdPickupLine = pickupLineV2Repository.save(dbPickupLine);
-                    log.info("dbPickupLine created: " + createdPickupLine);
-                    createdPickupLineList.add(createdPickupLine);
+                    InventoryV2 inventory = inventoryService.getOutboundInventoryV7(companyCodeId, plantId, languageId, warehouseId, itemCode,
+                            dbPickupLine.getManufacturerName(), dbPickupLine.getPickConfirmBarcodeId(),
+                            dbPickupLine.getPickedStorageBin(), dbPickupLine.getAlternateUom());
+
+                    if(inventory != null) {
+                        PickupLineV2 createdPickupLine = pickupLineV2Repository.save(dbPickupLine);
+                        log.info("dbPickupLine created: " + createdPickupLine);
+                        createdPickupLineList.add(createdPickupLine);
+                    } else {
+                        log.info("Inventory Doesn't Exist So PickupLine Not Create This Barcode ------------> " + dbPickupLine.getPickConfirmBarcodeId());
+                    }
                 } else {
                     throw new BadRequestException("PickupLine Record is getting duplicated. Given data already exists in the Database. : " + existingPickupLine);
                 }
@@ -2985,7 +3000,7 @@ public class PickupLineService extends BaseService {
             Set<String> matchedBarcodes = new HashSet<>();
 
             for (PickupLineV2 dbPickupLine : createdPickupLineList) {
-                String pickupBarcode = dbPickupLine.getBarcodeId();
+                String pickupBarcode = dbPickupLine.getPickConfirmBarcodeId();
                 if (pickupBarcode == null) {
                     missingInDBList.add(dbPickupLine);
                     continue;
@@ -3238,13 +3253,13 @@ public class PickupLineService extends BaseService {
                     loginUserID, 47L, 57L, 51L, statusDescription50, statusDescription51);
             log.info("outboundHeader, preOutboundHeader updated as 57 / 51 when respective condition met");
         } catch (Exception e) {
-            log.error("PickupLine Create error: " + e.toString());
-            log.info("RollBack for Status Update 48 In PickupLine -------------");
-            statusDescription = getStatusDescription(48L, languageId);
-            pickupHeaderV2Repository.updatePickupHeaderStatusId(companyCodeId, plantId, warehouseId, preOutboundNo, itemCode, statusDescription, 48L);
+//            log.error("PickupLine Create error: " + e.toString());
+//            log.info("RollBack for Status Update 48 In PickupLine -------------");
+//            statusDescription = getStatusDescription(48L, languageId);
+//            pickupHeaderV2Repository.updatePickupHeaderStatusId(companyCodeId, plantId, warehouseId, preOutboundNo, itemCode, statusDescription, 48L);
 
             e.printStackTrace();
-            throw new BadRequestException("Exception while creating Pickupline: " + refDocNumber);
+            throw new BadRequestException(e.getMessage());
         }
         return createdPickupLineList;
     }
@@ -5131,12 +5146,12 @@ public class PickupLineService extends BaseService {
         if (inventory == null) {
             log.error("There is no picked inventory record for given itemCode : " + itemCode + " and PickCnfBarcodeId : " + dbPickupLine.getPickConfirmBarcodeId());
             log.warn("Pickupline reverting process started...");
-            pickupLineV2Repository.deletePickupLineV7(dbPickupLine.getRefDocNumber());
-            log.warn("Pickupline deleted for RefDocNo ----> {}", dbPickupLine.getRefDocNumber());
+            pickupLineV2Repository.deletePickupLineV7(dbPickupLine.getRefDocNumber() , dbPickupLine.getBarcodeId());
+            log.warn("Pickupline deleted for RefDocNo " + dbPickupLine.getRefDocNumber() + "and ProposedBarcodeId " + dbPickupLine.getBarcodeId());
             Long STATUS_ID = 48L;
             statusDescription = getStatusDescription(STATUS_ID, languageId);
             log.info("Pickupheader status reverting to 48");
-            pickupHeaderV2Repository.updatePickHeader48StatusV7(companyCodeId, plantId, languageId, warehouseId, refDocNumber, STATUS_ID, statusDescription);
+            pickupHeaderV2Repository.updatePickHeader48StatusV7(companyCodeId, plantId, languageId, warehouseId, refDocNumber, STATUS_ID, statusDescription, dbPickupLine.getBarcodeId());
 
             throw new BadRequestException("1.The Scanned BarcodeId and ItemCode does'nt match in inventory. Kindly Check...");
         }
@@ -5633,13 +5648,13 @@ public class PickupLineService extends BaseService {
         if (inventory == null) {
             log.error("There is no picked inventory record for given itemCode : " + itemCode + " and PickCnfBarcodeId : " + dbPickupLine.getPickConfirmBarcodeId());
             log.warn("Pickupline reverting process started...");
-            pickupLineV2Repository.deletePickupLineV7(dbPickupLine.getRefDocNumber());
-            log.warn("Pickupline deleted for RefDocNo ----> {}", dbPickupLine.getRefDocNumber());
+            pickupLineV2Repository.deletePickupLineV7(dbPickupLine.getRefDocNumber(), dbPickupLine.getBarcodeId());
+            log.warn("Pickupline deleted for RefDocNo " + dbPickupLine.getRefDocNumber() + "and ProposedBarcodeId " + dbPickupLine.getBarcodeId());
 
             Long STATUS_ID = 48L;
             statusDescription = getStatusDescription(STATUS_ID, languageId);
             log.info("Pickupheader status reverting to 48");
-            pickupHeaderV2Repository.updatePickHeader48StatusV7(companyCodeId, plantId, languageId, warehouseId, refDocNumber, STATUS_ID, statusDescription);
+            pickupHeaderV2Repository.updatePickHeader48StatusV7(companyCodeId, plantId, languageId, warehouseId, refDocNumber, STATUS_ID, statusDescription, dbPickupLine.getBarcodeId());
 
             throw new BadRequestException("2.The Scanned BarcodeId and ItemCode does'nt Match in inventory. Kindly Check");
         }
