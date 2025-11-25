@@ -5277,11 +5277,11 @@ public class PickupLineService extends BaseService {
                 try {
                     log.info("UOM,ALTUOM: " + dbPickupLine.getPickUom() + "|" + dbPickupLine.getAlternateUom());
                     double[] inventoryQty = null;
-                    if (dbPickupLine.getPickUom().equalsIgnoreCase(dbPickupLine.getAlternateUom())) {
-                        inventoryQty = calculateUOMInventory(dbPickupLine.getAllocatedQty(), dbPickupLine.getPickConfirmQty(), inventory.getNoBags(), inventory.getInventoryQuantity(), inventory.getAllocatedQuantity());
-                    } else {
+//                    if (dbPickupLine.getPickUom().equalsIgnoreCase(dbPickupLine.getAlternateUom())) {
+//                        inventoryQty = calculateUOMInventory(dbPickupLine.getAllocatedQty(), dbPickupLine.getPickConfirmQty(), inventory.getNoBags(), inventory.getInventoryQuantity(), inventory.getAllocatedQuantity());
+//                    } else {
                         inventoryQty = calculateInventoryV6(dbPickupLine.getAllocatedQty(), dbPickupLine.getPickConfirmQty(), inventory.getNoBags(), inventory.getInventoryQuantity(), inventory.getAllocatedQuantity());
-                    }
+//                    }
                     if (inventoryQty != null && inventoryQty.length > 3) {
                         inventory.setInventoryQuantity(inventoryQty[0]);
                         inventory.setAllocatedQuantity(inventoryQty[1]);
@@ -5545,11 +5545,11 @@ public class PickupLineService extends BaseService {
             if (dbPickupLine.getPickConfirmQty() > 0D) {
                 log.info("UOM,ALTUOM: " + dbPickupLine.getPickUom() + "|" + dbPickupLine.getAlternateUom());
                 double[] inventoryQty = null;
-                if (dbPickupLine.getPickUom().equalsIgnoreCase(dbPickupLine.getAlternateUom())) {
-                    inventoryQty = calculateInventoryUOMUnAllocateV6(dbPickupLine.getPickConfirmQty(), dbPickupLine.getNoBags(), allocatedInventory.getInventoryQuantity(), allocatedInventory.getAllocatedQuantity());
-                } else {
+//                if (dbPickupLine.getPickUom().equalsIgnoreCase(dbPickupLine.getAlternateUom())) {
+//                    inventoryQty = calculateInventoryUOMUnAllocateV6(dbPickupLine.getPickConfirmQty(), dbPickupLine.getNoBags(), allocatedInventory.getInventoryQuantity(), allocatedInventory.getAllocatedQuantity());
+//                } else {
                     inventoryQty = calculateInventoryUnAllocateV6(dbPickupLine.getPickConfirmQty(), dbPickupLine.getNoBags(), allocatedInventory.getInventoryQuantity(), allocatedInventory.getAllocatedQuantity());
-                }
+//                }
                 if (inventoryQty != null && inventoryQty.length > 3) {
                     allocatedInventory.setInventoryQuantity(inventoryQty[0]);
                     allocatedInventory.setAllocatedQuantity(inventoryQty[1]);
@@ -5664,11 +5664,11 @@ public class PickupLineService extends BaseService {
                 try {
                     double[] inventoryQty = null;
                     log.info("UOM,ALTUOM: " + dbPickupLine.getPickUom() + "|" + dbPickupLine.getAlternateUom());
-                    if (dbPickupLine.getPickUom().equalsIgnoreCase(dbPickupLine.getAlternateUom())) {
-                        inventoryQty = calculateInventoryUOMAllocate(dbPickupLine.getPickConfirmQty(), dbPickupLine.getNoBags(), inventory.getInventoryQuantity(), inventory.getAllocatedQuantity());
-                    } else {
+//                    if (dbPickupLine.getPickUom().equalsIgnoreCase(dbPickupLine.getAlternateUom())) {
+//                        inventoryQty = calculateInventoryUOMAllocate(dbPickupLine.getPickConfirmQty(), dbPickupLine.getNoBags(), inventory.getInventoryQuantity(), inventory.getAllocatedQuantity());
+//                    } else {
                         inventoryQty = calculateInventoryAllocate(dbPickupLine.getPickConfirmQty(), dbPickupLine.getNoBags(), inventory.getInventoryQuantity(), inventory.getAllocatedQuantity());
-                    }
+//                    }
                     if (inventoryQty != null && inventoryQty.length > 3) {
                         inventory.setInventoryQuantity(inventoryQty[0]);
                         inventory.setAllocatedQuantity(inventoryQty[1]);
