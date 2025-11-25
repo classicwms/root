@@ -1667,21 +1667,31 @@ public class OutboundLineService extends BaseService {
 											pickupLine.getItemCode(), pickupLine.getPickedStorageBin());
 									if(inventory != null && pickupHeader != null){
 										Double INV_QTY = inventory.getInventoryQuantity() + pickupLine.getPickConfirmQty();
+
+										Double ALLOC_QTY = (inventory.getAllocatedQuantity() != null ? inventory.getAllocatedQuantity() : 0);
+										Double PICK_CNF_QTY =  pickupLine.getPickConfirmQty();
+										ALLOC_QTY = ALLOC_QTY - PICK_CNF_QTY;
+										log.info("----inventory update-50flow---INV_QTY-------- " + INV_QTY);
+										log.info("----inventory update-50flow---ALLOC_QTY-------- " + ALLOC_QTY);
+										log.info("----inventory update-50flow---PICK_CNF_QTY-------- " + PICK_CNF_QTY);
+
+
 										inventory.setInventoryQuantity(INV_QTY);
+										inventory.setAllocatedQuantity(ALLOC_QTY);
 										inventory = inventoryRepository.save(inventory);
 										log.info("inventory updated : " + inventory);
 									}
 								} catch (Exception e) {
 									String objectData = (pickupLine.getWarehouseId() + "|" + pickupLine.getPickedPackCode() + "|" +
 											pickupLine.getItemCode() + "|" + pickupLine.getPickedStorageBin());
-									transactionErrorService.createTransactionError("INVENTORY", "Reversal | Inventory Update Error | STEP 3.2", 
+									transactionErrorService.createTransactionError("INVENTORY", "Reversal | Inventory Update Error | STEP 3.2",
 											e.getMessage(), e.getLocalizedMessage(), objectData, loginUserID);
 									log.info("inventory update error: " + e.toString());
 									e.printStackTrace();
 								}
 							}
 						}
-						
+
 						if (!list_51_StatusId.isEmpty()) {
 							Inventory inventory = updateInventory1(pickupLine,outboundLineStatusIdBeforeUpdate);
 							if(inventory != null) {
@@ -1690,14 +1700,23 @@ public class OutboundLineService extends BaseService {
 											pickupLine.getItemCode(), pickupLine.getPickedStorageBin());
 									if(inventory != null && pickupHeader != null){
 										Double INV_QTY = inventory.getInventoryQuantity() + pickupLine.getPickConfirmQty();
+
+										Double ALLOC_QTY = (inventory.getAllocatedQuantity() != null ? inventory.getAllocatedQuantity() : 0);
+										Double PICK_CNF_QTY =  pickupLine.getPickConfirmQty();
+										ALLOC_QTY = ALLOC_QTY - PICK_CNF_QTY;
+										log.info("----inventory update-51flow---INV_QTY-------- " + INV_QTY);
+										log.info("----inventory update-51flow---ALLOC_QTY-------- " + ALLOC_QTY);
+										log.info("----inventory update-51flow---PICK_CNF_QTY-------- " + PICK_CNF_QTY);
+
 										inventory.setInventoryQuantity(INV_QTY);
+										inventory.setAllocatedQuantity(ALLOC_QTY);
 										inventory = inventoryRepository.save(inventory);
 										log.info("inventory updated : " + inventory);
 									}
 								} catch (Exception e) {
 									String objectData = (pickupLine.getWarehouseId() + "|" + pickupLine.getPickedPackCode() + "|" +
 											pickupLine.getItemCode() + "|" + pickupLine.getPickedStorageBin());
-									transactionErrorService.createTransactionError("INVENTORY", "Reversal | Inventory Update Error | STEP 3.2", 
+									transactionErrorService.createTransactionError("INVENTORY", "Reversal | Inventory Update Error | STEP 3.2",
 											e.getMessage(), e.getLocalizedMessage(), objectData, loginUserID);
 									log.info("inventory update error: " + e.toString());
 									e.printStackTrace();
