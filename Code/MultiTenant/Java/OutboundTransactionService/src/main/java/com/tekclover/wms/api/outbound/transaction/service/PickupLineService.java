@@ -5641,7 +5641,7 @@ public class PickupLineService extends BaseService {
         }
 
         InventoryV2 inventory = inventoryService.getOutboundInventoryDifferentV7(companyCodeId, plantId, languageId, warehouseId, itemCode,
-                dbPickupLine.getManufacturerName(), dbPickupLine.getBarcodeId(),
+                dbPickupLine.getManufacturerName(), dbPickupLine.getPickConfirmBarcodeId(),
                 dbPickupLine.getPickedStorageBin(), dbPickupLine.getAlternateUom());
         log.info("picked inventory record queried: " + inventory);
 
