@@ -1,6 +1,8 @@
 package com.tekclover.wms.api.transaction.service;
 
 import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLNonTransientException;
+import java.sql.SQLTransientException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -13,10 +15,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.PessimisticLockException;
 import javax.validation.Valid;
 
+import org.hibernate.QueryTimeoutException;
+import org.hibernate.exception.LockTimeoutException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.dao.DeadlockLoserDataAccessException;
 import org.springframework.expression.ParseException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -1814,44 +1821,67 @@ public class GrLineService extends BaseService {
     @Scheduled(fixedDelay = 15000)
 	private void schedulePostGRLineProcessV2() {
 		log.info("Create PutawayHeader Schedule Initiated : " + new Date());
-//        GrLineV2 createdGRLine = getGrLineV2();
 		List<GrLineV2> createdGRLines = getGrLineV2List();
 		if (createdGRLines != null) {
-			createdGRLines.stream().forEach(createdGRLine -> {
-				if (createdGRLine != null) {
-					String companyCode = createdGRLine.getCompanyCode();
-					String plantId = createdGRLine.getPlantId();
-					String languageId = createdGRLine.getLanguageId();
-					String warehouseId = createdGRLine.getWarehouseId();
-					String refDocNumber = createdGRLine.getRefDocNumber();
-					Long inboundOrderTypeId = createdGRLine.getInboundOrderTypeId();
+			for(GrLineV2 lineV2 : createdGRLines) {
+				if (lineV2 != null) {
+					String companyCode = lineV2.getCompanyCode();
+					String plantId = lineV2.getPlantId();
+					String languageId = lineV2.getLanguageId();
+					String warehouseId = lineV2.getWarehouseId();
+					String refDocNumber = lineV2.getRefDocNumber();
+					Long inboundOrderTypeId = lineV2.getInboundOrderTypeId();
+                    log.info("PROCESSING GRLine To PutAwayHeader RefDoc: {}, PreInboundNo: {}, LineNo: {}, ItemCode: {}",
+                            refDocNumber, lineV2.getPreInboundNo(), lineV2.getLineNo(), lineV2.getItemCode());
+
 					try {
-						createPutAwayHeaderNonCBMV2(createdGRLine, createdGRLine.getCreatedBy());
+						createPutAwayHeaderNonCBMV2(lineV2, lineV2.getCreatedBy());
 
 						// putaway header successfully created - changing flag to 10
-						grLineV2Repository.updateGrLineStatusV2(createdGRLine.getCompanyCode(),
-								createdGRLine.getPlantId(), createdGRLine.getLanguageId(),
-								createdGRLine.getWarehouseId(), createdGRLine.getPreInboundNo(),
-								createdGRLine.getCreatedOn(), createdGRLine.getLineNo(), createdGRLine.getItemCode(),
+						grLineV2Repository.updateGrLineStatusV2(lineV2.getCompanyCode(),
+								lineV2.getPlantId(), lineV2.getLanguageId(),
+								lineV2.getWarehouseId(), lineV2.getPreInboundNo(),
+								lineV2.getCreatedOn(), lineV2.getLineNo(), lineV2.getItemCode(),
 								10L);
-						log.info("GrLine status 10 updated..! ");
+                        log.info("STATUS UPDATE SUCCESS --> updatedRows: {}, RefDoc: {}, LineNo: {}, ItemCode: {}, NewStatus: 10",
+                                lineV2, refDocNumber, lineV2.getLineNo(), lineV2.getItemCode());
 
+					} catch (CannotAcquireLockException |
+                             DeadlockLoserDataAccessException |
+                             PessimisticLockException |
+                             LockTimeoutException |
+                             QueryTimeoutException e) {
+                        log.error("DATABASE LOCK EXCEPTION --> RefDoc: {}, Line: {}, Item: {}",
+                                refDocNumber, lineV2.getLineNo(), lineV2.getItemCode(), e);
+
+                        // putaway header create failed - changing flag to 100
+                        grLineV2Repository.updateGrLineStatusV2(lineV2.getCompanyCode(),
+                                lineV2.getPlantId(), lineV2.getLanguageId(),
+                                lineV2.getWarehouseId(), lineV2.getPreInboundNo(),
+                                lineV2.getCreatedOn(), lineV2.getLineNo(), lineV2.getItemCode(),
+                                0L);
+                        sendMail(companyCode, plantId, languageId, warehouseId, refDocNumber,
+                                getInboundOrderTypeTable(inboundOrderTypeId), e.toString());
 					} catch (Exception e) {
 						e.printStackTrace();
-						log.info("GrLine status 100 updated - putaway header create - failed..! ");
-						log.error("Exception occurred while create putaway header " + e.toString());
+                        log.error("PUTAWAY HEADER CREATION FAILED --> RefDoc: {}, PreInboundNo: {}, LineNo: {}, ItemCode: {}",
+                                refDocNumber, lineV2.getPreInboundNo(), lineV2.getLineNo(), lineV2.getItemCode(), e);
 
 						// putaway header create failed - changing flag to 100
-						grLineV2Repository.updateGrLineStatusV2(createdGRLine.getCompanyCode(),
-								createdGRLine.getPlantId(), createdGRLine.getLanguageId(),
-								createdGRLine.getWarehouseId(), createdGRLine.getPreInboundNo(),
-								createdGRLine.getCreatedOn(), createdGRLine.getLineNo(), createdGRLine.getItemCode(),
-								0L);
+						grLineV2Repository.updateGrLineStatusV2(lineV2.getCompanyCode(),
+								lineV2.getPlantId(), lineV2.getLanguageId(),
+								lineV2.getWarehouseId(), lineV2.getPreInboundNo(),
+								lineV2.getCreatedOn(), lineV2.getLineNo(), lineV2.getItemCode(),
+								100L);
+
+                        log.warn("FAILED STATUS UPDATE --> updatedRows: {}, RefDoc: {}, LineNo: {}, ItemCode: {}, NewStatus: 0",
+                                lineV2, refDocNumber, lineV2.getLineNo(), lineV2.getItemCode());
+
 						sendMail(companyCode, plantId, languageId, warehouseId, refDocNumber,
 								getInboundOrderTypeTable(inboundOrderTypeId), e.toString());
 					}
 				}
-			});
+			}
 		}
 	}
 
@@ -2410,6 +2440,11 @@ public class GrLineService extends BaseService {
 
                                     putAwayHeader.setProposedStorageBin(proposedStorageBin);
                                     putAwayHeader.setLevelId(String.valueOf(proposedExistingBin.getFloorId()));
+                                } else {
+                                    proposedStorageBin = inventoryStorageBinList.get(0);
+                                    log.info("proposedExistingBin is NULL {} -------------> Set Value Top 1 BIN from Inventory ------> {} ",  proposedExistingBin, proposedStorageBin);
+
+                                    putAwayHeader.setProposedStorageBin(proposedStorageBin);
                                 }
                                 log.info("Existing NON-CBM ProposedBin, GrQty: " + proposedStorageBin + ", " + createdGRLine.getGoodReceiptQty());
                                 cbm = 0D;   //break the loop
@@ -2585,6 +2620,16 @@ public class GrLineService extends BaseService {
                     }
                 }
                 /////////////////////////////////////////////////////////////////////////////////////////////////////
+                if (putAwayHeader.getProposedStorageBin() == null) {
+                    binClassId = 2L;
+                    log.info("BinClassId : " + binClassId);
+                    StorageBinV2 stBin = mastersService.getStorageBin(
+                            companyCode, plantId, languageId, warehouseId, binClassId, authTokenForMastersService.getAccess_token());
+                    log.info("D --> reserveBin: " + stBin.getStorageBin());
+                    putAwayHeader.setProposedStorageBin(stBin.getStorageBin());
+                    putAwayHeader.setLevelId(String.valueOf(stBin.getFloorId()));
+                    cbm = 0D;   //break the loop
+                }
                 log.info("Proposed Storage Bin: " + putAwayHeader.getProposedStorageBin());
                 log.info("Proposed Storage Bin level/Floor Id: " + putAwayHeader.getLevelId());
                 //PROP_HE_NO	<- PAWAY_HE_NO

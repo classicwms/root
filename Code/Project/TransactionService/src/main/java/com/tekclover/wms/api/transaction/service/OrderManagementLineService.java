@@ -11,10 +11,11 @@ import java.util.stream.Stream;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 
-import com.tekclover.wms.api.transaction.model.report.PickerDenialReportImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import com.tekclover.wms.api.transaction.config.PropertiesConfig;
@@ -30,17 +31,18 @@ import com.tekclover.wms.api.transaction.model.outbound.ordermangement.AddOrderM
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.AssignPicker;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.OrderManagementHeader;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.OrderManagementLine;
+import com.tekclover.wms.api.transaction.model.outbound.ordermangement.OrderManagementLineV2;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.SearchOrderManagementLine;
 import com.tekclover.wms.api.transaction.model.outbound.ordermangement.UpdateOrderManagementLine;
-import com.tekclover.wms.api.transaction.model.outbound.ordermangement.OrderManagementLineV2;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupHeader;
+import com.tekclover.wms.api.transaction.model.report.PickerDenialReportImpl;
 import com.tekclover.wms.api.transaction.repository.InventoryRepository;
 import com.tekclover.wms.api.transaction.repository.OrderManagementHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.OrderManagementLineRepository;
+import com.tekclover.wms.api.transaction.repository.OrderManagementLineV2Repository;
 import com.tekclover.wms.api.transaction.repository.OutboundHeaderRepository;
 import com.tekclover.wms.api.transaction.repository.OutboundLineRepository;
 import com.tekclover.wms.api.transaction.repository.PickupHeaderRepository;
-import com.tekclover.wms.api.transaction.repository.OrderManagementLineV2Repository;
 import com.tekclover.wms.api.transaction.repository.specification.OrderManagementLineSpecification;
 import com.tekclover.wms.api.transaction.repository.specification.OrderManagementLineV2Specification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
@@ -586,11 +588,7 @@ public class OrderManagementLineService extends BaseService {
 				 * Selected WH_ID/PRE_OB_NO/REF_DOC_NO/PARTNER_CODE/OB_LINE_NO/ITM_CODE in
 				 * OUTBOUNDLINE table and update SATATU_ID as 48
 				 */
-				OutboundLine outboundLine = outboundLineService.getOutboundLine(warehouseId, preOutboundNo, refDocNumber,
-						partnerCode, lineNumber, itemCode);
-				outboundLine.setStatusId(48L);
-				outboundLine = outboundLineRepository.save(outboundLine);
-				log.info("outboundLine updated : " + outboundLine);
+				updateOutbountLine (warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode);
 	
 				// OutboundHeader Update
 				OutboundHeader outboundHeader = outboundHeaderService.getOutboundHeader(warehouseId, preOutboundNo,
@@ -658,6 +656,29 @@ public class OrderManagementLineService extends BaseService {
 			}
 		}
 		return orderManagementLineList;
+	}
+	
+	/**
+	 * 
+	 * @param warehouseId
+	 * @param preOutboundNo
+	 * @param refDocNumber
+	 * @param partnerCode
+	 * @param lineNumber
+	 * @param itemCode
+	 */
+	@Retryable(value = Exception.class, maxAttempts = 3, backoff = @Backoff(delay = 5000, multiplier = 2))
+	private void updateOutbountLine (String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber, String itemCode) {
+		try {
+			OutboundLine outboundLine = outboundLineService.getOutboundLine(warehouseId, preOutboundNo, refDocNumber,
+					partnerCode, lineNumber, itemCode);
+			outboundLine.setStatusId(48L);
+			outboundLine = outboundLineRepository.save(outboundLine);
+			log.info("outboundLine updated : " + outboundLine);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error("OutboundLine Update Error: " + e.toString());
+		}
 	}
 
 //		
