@@ -21,4 +21,5 @@ public interface StockMovementReportImpl {
     Date getConfirmedOn();
     Double getBalanceOHQty();
     Double getOpeningStock();
+    String getStorageBin();
 }
