@@ -7,6 +7,7 @@ import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -2324,10 +2325,6 @@ public class OutboundOrderProcessingFTService extends BaseService {
                                 PU_NO = getNextRangeNumber(10L, companyCodeId, plantId, languageId, warehouseId);
                             }
                         }
-//                        DocumentNumber documentNumber = new DocumentNumber();
-//                        documentNumber.setRefDocNumber(createdOrderManagementLine.getRefDocNumber());
-//                        documentNumber.setPreOutboundNo(createdOrderManagementLine.getPreOutboundNo());
-//                        documentNumberList.add(documentNumber);
                     }
                 }
             } else {
@@ -2342,33 +2339,21 @@ public class OutboundOrderProcessingFTService extends BaseService {
                             log.info("PickupHeader is Created -------------------> RefDocNo is {} ", pickupHeaderV2.getRefDocNumber());
                             pickupHeaderV2List.add(pickupHeaderV2);
                         }
-//                        DocumentNumber documentNumber = new DocumentNumber();
-//                        documentNumber.setRefDocNumber(orderManagementLine.getRefDocNumber());
-//                        documentNumber.setPreOutboundNo(orderManagementLine.getPreOutboundNo());
-//                        documentNumberList.add(documentNumber);
                     }
                 }
             }
 
-            if(!pickupHeaderV2List.isEmpty()) {
-                log.info("PickupHeader Values Saved in Orderfullfillment ---------------------> " + pickupHeaderV2List.size());
-                pickupHeaderV2Repository.saveAll(pickupHeaderV2List);
-            }
-
-
-//            List<String> distinctRefDocNumbers = pickupHeaderV2List.stream()
-//                    .map(PickupHeaderV2::getRefDocNumber)
-//                    .filter(Objects::nonNull)
-//                    .distinct()
-//                    .collect(Collectors.toList());
-//
-//            for(String refDocNo : distinctRefDocNumbers) {
-//                log.info("PickupHeader Status Id RefDocNo List -------------> " + refDocNo);
-//                // Order_Text_Update
-//                String text = "PickupHeader Created";
-//                outboundOrderV2Repository.updatePickupHeaderStatus(refDocNo, text);
-//                log.info("PickupHeader Status Updated Successfully -----------------> " + refDocNo);
+//            if(!pickupHeaderV2List.isEmpty()) {
+//                log.info("PickupHeader Values Saved in Orderfullfillment ---------------------> " + pickupHeaderV2List.size());
+//                pickupHeaderV2Repository.saveAll(pickupHeaderV2List);
 //            }
+
+            // PickupHeader Save Process
+            List<PickupHeaderV2> savedPickupHeaders = savePickupHeadersTx(pickupHeaderV2List);
+
+            log.info("All Tables Update Status Process Started ------------->");
+            doPostPickupUpdatesTx(companyCodeId, plantId, languageId, warehouseId, savedPickupHeaders);
+            log.info("All Tables Update Status Process Completed ------------->");
 
             return documentNumberList;
         } catch (Exception e) {
@@ -2377,6 +2362,39 @@ public class OutboundOrderProcessingFTService extends BaseService {
         }
     }
 
+
+    /**
+     * Perform post-save updates in a deterministic order for each saved PickupHeader.
+     * Keep this transaction short. Retryable for transient lock acquisition issues.
+     */
+    @Retryable(value = { CannotAcquireLockException.class, ObjectOptimisticLockingFailureException.class, Exception.class },
+            maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2))
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+    public void doPostPickupUpdatesTx(String companyCodeId, String plantId, String languageId, String warehouseId, List<PickupHeaderV2> savedPickupHeaders) {
+        for (PickupHeaderV2 ph : savedPickupHeaders) {
+            String refDoc = ph.getRefDocNumber();
+            String pickupNumber = ph.getPickupNumber();
+            String statusDescription = ph.getStatusDescription();
+
+            // 1) outboundLine update
+            int outboundLineCount = outboundLineV2Repository.updateOutboundLineStatus(companyCodeId, plantId, languageId, warehouseId, refDoc, ph.getPreOutboundNo(), 48L, statusDescription, ph.getLineNumber(), ph.getItemCode());
+            log.info("OutboundLine Status Update Count Size {} ", outboundLineCount);
+
+            // 2) outboundHeader update
+            int outboundHeaderCount = outboundHeaderV2Repository.updateOutboundHeaderStatus(companyCodeId, plantId, languageId, warehouseId, refDoc, ph.getPreOutboundNo(), 48L, statusDescription);
+            log.info("OutboundHeader Status Update Count {} ", outboundHeaderCount);
+
+            // 3) preOutboundHeader update - include pickup number
+            int preoutboundHeader = preOutboundHeaderV2Repository.updatePreOutboundHeaderStatus(companyCodeId, plantId, languageId, warehouseId, refDoc, pickupNumber, 48L, statusDescription);
+            log.info("PreOutboundHeader Status Update Count {} ", preoutboundHeader);
+
+            // 4) outboundOrder text update
+            int obOrderStatusUpdateCount =  outboundOrderV2Repository.updateOBHeaderText(ph.getOutboundOrderTypeId(), refDoc, "PickupHeader Created");
+            log.info("OB Order PickupHeader Status Updated Count {} ", obOrderStatusUpdateCount);
+
+            log.info("Completed post updates for RefDocNo {}", refDoc);
+        }
+    }
 
 
     /**
@@ -2809,31 +2827,39 @@ public class OutboundOrderProcessingFTService extends BaseService {
         newPickupHeader.setPickupCreatedOn(new Date());
         newPickupHeader.setPickUpdatedOn(new Date());
 
-        try {
-
-            // Order_Text_Update
-            String text = "PickupHeader Created";
-            outboundOrderV2Repository.updateOutboundHeaderText(newPickupHeader.getOutboundOrderTypeId(), newPickupHeader.getRefDocNumber(), text);
-            log.info("PickupHeader Status Updated Successfully -----------------> " + newPickupHeader.getRefDocNumber());
-
-            outboundLineV2Repository.updateOutboundLineStatusV3(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo,
-                    48L, statusDescription, orderManagementLine.getLineNumber(), orderManagementLine.getItemCode());
-
-            // OutboundHeader Update
-            outboundHeaderV2Repository.updateOutboundHeaderStatusV3(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 48L, statusDescription);
-            log.info("outboundHeader updated {} ", newPickupHeader.getRefDocNumber());
-
-            // PreOutboundHeader Update for PU_NO
-            preOutboundHeaderV2Repository.updatePreOutboundHeaderStatusId(companyCodeId, plantId, languageId, warehouseId, refDocNumber, pickupNumber, 48L, statusDescription);
-            log.info("PreOutboundHeader Updated PickupNo {} -------> RefDocNo is -------> {} ", pickupNumber, newPickupHeader.getRefDocNumber());
-        } catch (Exception e) {
-            log.error("Error creating PickupHeader for RefDocNo {}: {}", refDocNumber, e.getMessage(), e);
-            return null; // avoid breaking entire loop
-        }
+//        try {
+//
+//            // Order_Text_Update
+//            String text = "PickupHeader Created";
+//            outboundOrderV2Repository.updateOutboundHeaderText(newPickupHeader.getOutboundOrderTypeId(), newPickupHeader.getRefDocNumber(), text);
+//            log.info("PickupHeader Status Updated Successfully -----------------> " + newPickupHeader.getRefDocNumber());
+//
+//            outboundLineV2Repository.updateOutboundLineStatusV3(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo,
+//                    48L, statusDescription, orderManagementLine.getLineNumber(), orderManagementLine.getItemCode());
+//
+//            // OutboundHeader Update
+//            outboundHeaderV2Repository.updateOutboundHeaderStatusV3(companyCodeId, plantId, languageId, warehouseId, refDocNumber, preOutboundNo, 48L, statusDescription);
+//            log.info("outboundHeader updated {} ", newPickupHeader.getRefDocNumber());
+//
+//            // PreOutboundHeader Update for PU_NO
+//            preOutboundHeaderV2Repository.updatePreOutboundHeaderStatusId(companyCodeId, plantId, languageId, warehouseId, refDocNumber, pickupNumber, 48L, statusDescription);
+//            log.info("PreOutboundHeader Updated PickupNo {} -------> RefDocNo is -------> {} ", pickupNumber, newPickupHeader.getRefDocNumber());
+//        } catch (Exception e) {
+//            log.error("Error creating PickupHeader for RefDocNo {}: {}", refDocNumber, e.getMessage(), e);
+//            return null; // avoid breaking entire loop
+//        }
         return newPickupHeader;
         
     }
 
+    /**
+     * Persist a batch of pickup headers in a short transactional block.
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public List<PickupHeaderV2> savePickupHeadersTx(List<PickupHeaderV2> pickupHeaderV2List) {
+        log.info("PickupHeader Saved Process Completed Size is -----------------------> " + pickupHeaderV2List.size());
+        return pickupHeaderV2Repository.saveAll(pickupHeaderV2List);
+    }
 
 
     /**
