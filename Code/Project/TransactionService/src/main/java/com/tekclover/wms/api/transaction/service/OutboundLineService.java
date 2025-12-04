@@ -915,17 +915,33 @@ public class OutboundLineService extends BaseService {
 		isConditionMet = (outboundLineListCount > 0 ? true : false);
 		log.info("isConditionMet : " + isConditionMet);
 		
+		// Checking for STATUS_ID for 51 and process the inventory
+		List<OutboundLine> confirmedOutboundLines = getOutboundLine(warehouseId, preOutboundNo, refDocNumber);
+		
+		List<Long> STATUS_ID_51 = Arrays.asList(51L);
+		List<OutboundLine> outboundLines_51 = getOutboundLines(warehouseId, preOutboundNo, refDocNumber, partnerCode, STATUS_ID_51);
+		
+		log.info("-----confirmedOutboundLines-------count------> " + confirmedOutboundLines.size());
+		log.info("-----outboundLines_51-------count------> " + outboundLines_51.size());
+		boolean ARE_ONLY_51_LINES = false;
 		AXApiResponse axapiResponse = null;
+		
+		if (confirmedOutboundLines.size() == outboundLines_51.size()) {
+			ARE_ONLY_51_LINES = true;
+			axapiResponse = new AXApiResponse();
+			axapiResponse.setStatusCode("200");
+		}
+		
 		if (!isConditionMet) {
 			throw new BadRequestException("OutboundLine: Order is not completely Processed.");
-		} else {
+		} else if (!ARE_ONLY_51_LINES) {
 			log.info("Order can be Processed.");
 			/*
 			 * Call this respective API end points when REF_DOC_NO is confirmed with STATUS_ID = 59 in OUTBOUNDHEADER and 
 			 * OUTBOUNDLINE tables and based on OB_ORD_TYP_ID as per API document
 			 */
 			OutboundHeader confirmedOutboundHeader = outboundHeaderService.getOutboundHeader(warehouseId, preOutboundNo, refDocNumber);
-			List<OutboundLine> confirmedOutboundLines = getOutboundLine(warehouseId, preOutboundNo, refDocNumber);
+//			List<OutboundLine> confirmedOutboundLines = getOutboundLine(warehouseId, preOutboundNo, refDocNumber);
 			log.info("OutboundOrderTypeId : " + confirmedOutboundHeader.getOutboundOrderTypeId() );
 			log.info("confirmedOutboundLines: " + confirmedOutboundLines);
 			
@@ -938,8 +954,8 @@ public class OutboundLineService extends BaseService {
 //				log.info("WebPortal value is " + webPortal);
 //				outboundHeaderRepository.updatePdfPrintOutboundHeader(warehouseId, preOutboundNo, refDocNumber);
 //			}
-			/*---------------------AXAPI-integration----------------------------------------------------------*/
 			
+			/*---------------------AXAPI-integration----------------------------------------------------------*/
 			// if OB_ORD_TYP_ID = 0 in OUTBOUNDHEADER table - call Shipment Confirmation
 			if (confirmedOutboundHeader.getOutboundOrderTypeId() == 0L && confirmedOutboundLines != null) {
 				axapiResponse = postShipment (confirmedOutboundHeader, confirmedOutboundLines);
