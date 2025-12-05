@@ -30,4 +30,5 @@ public class StockMovementReport {
 	private String statusDescription;
 
 	private Date confirmedOn;
+	private String storageBin;
 }

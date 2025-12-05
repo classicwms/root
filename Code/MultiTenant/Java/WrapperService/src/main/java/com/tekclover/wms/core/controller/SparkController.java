@@ -337,4 +337,12 @@ public class SparkController {
         PutAwayLineSpark[] putAwayLineSparks = sparkService.findPutAwayLineSpark(findPutAwayLineV2);
         return new ResponseEntity<>(putAwayLineSparks, HttpStatus.OK);
     }
+
+    // Find InventoryV2
+    @ApiOperation(response = InventoryV5.class, value = "Spark Inventory For MobileNo")
+    @PostMapping("inventory/new/v2")
+    public ResponseEntity<?> findInventoryV5(@RequestBody FindInventoryV2 findInventoryV2) throws Exception {
+        InventoryV5[] inventoryList = sparkService.findInventoryV5(findInventoryV2);
+        return new ResponseEntity<>(inventoryList, HttpStatus.OK);
+    }
 }

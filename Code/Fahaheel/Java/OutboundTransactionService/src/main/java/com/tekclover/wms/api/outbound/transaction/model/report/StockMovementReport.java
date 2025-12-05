@@ -74,4 +74,7 @@ public class StockMovementReport {
 
     @Column(name = "CONFIRMED_ON")
     private Date confirmedOn;
+
+    @Column(name = "ST_BIN")
+    private String storageBin;
 }

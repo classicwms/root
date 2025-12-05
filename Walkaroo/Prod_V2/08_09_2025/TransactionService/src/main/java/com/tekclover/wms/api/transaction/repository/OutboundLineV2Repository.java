@@ -684,6 +684,22 @@ public interface OutboundLineV2Repository extends JpaRepository<OutboundLineV2, 
 //                                           @Param("assignedPickerId") String assignedPickerId);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE OutboundLineV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription \n"
+//            + ", ob.assignedPickerId = :assignedPickerId \r\n"
+            + " WHERE C_ID = :companyCodeId AND PLANT_ID = :plantId AND LANG_ID = :languageId AND ob.warehouseId = :warehouseId AND \r\n "
+            + " ob.refDocNumber = :refDocNumber AND ob.preOutboundNo = :preOutboundNo AND ob.lineNumber = :lineNumber AND ob.itemCode = :itemCode")
+    public int updateOutboundLineStatus(@Param("companyCodeId") String companyCodeId,
+                                           @Param("plantId") String plantId,
+                                           @Param("languageId") String languageId,
+                                           @Param("warehouseId") String warehouseId,
+                                           @Param("refDocNumber") String refDocNumber,
+                                           @Param("preOutboundNo") String preOutboundNo,
+                                           @Param("statusId") Long statusId,
+                                           @Param("statusDescription") String statusDescription,
+                                           @Param("lineNumber") Long lineNumber,
+                                           @Param("itemCode") String itemCode);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE OutboundLineV2 ob SET ob.statusId = :statusId, ob.statusDescription = :statusDescription, ob.updatedOn = :updatedOn, \r\n"
             + " ob.handlingEquipment = :handlingEquipment, ob.deliveryQty = :deliveryQty, ob.deliveryOrderNo = :deliveryOrderNo, ob.updatedBy = :loginUserId \r\n "
             + " WHERE ob.companyCodeId = :companyCodeId AND ob.plantId = :plantId AND ob.languageId = :languageId AND ob.warehouseId = :warehouseId AND \r\n "

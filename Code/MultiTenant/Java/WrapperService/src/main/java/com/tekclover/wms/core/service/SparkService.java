@@ -856,5 +856,22 @@ public class SparkService {
             throw e;
         }
     }
+
+    // Find InventoryV2
+    public InventoryV5[] findInventoryV5(FindInventoryV2 findInventoryV2) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.add("User-Agent", " RestTemplate");
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getSparkServiceUrl() + "inventory/new/v2");
+            HttpEntity<?> entity = new HttpEntity<>(findInventoryV2, headers);
+            ResponseEntity<InventoryV5[]> result = getRestTemplate().exchange(builder.toUriString(), HttpMethod.POST, entity, InventoryV5[].class);
+            log.info("result: " + result.getStatusCode());
+            return result.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
 }
 
