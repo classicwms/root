@@ -6515,5 +6515,133 @@ public class MultiTenantService {
         }
     }
 
+    /**
+     * @param findInventory
+     * @return
+     */
+    public List<InventoryV5> findInventoryV5(FindInventoryV2 findInventory) throws ExecutionException, InterruptedException {
+        try {
+
+            DataBaseContextHolder.setCurrentDb("IMF");
+            String routingDb = dbConfigRepository.getDbName(findInventory.getCompanyCodeId(), findInventory.getPlantId(), findInventory.getWarehouseId());
+            log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(routingDb);
+
+            String sqlQuery = "select barcode_id as barcodeId, inv_qty as inventoryQuantity, itm_code as itemCode, alloc_qty allocatedQuantity, ref_field_4 as referenceField4 from tblinventory";
+
+
+            List<String> conditions = new ArrayList<>();
+            ConditionUtils.addCondition(conditions, "LANG_ID", findInventory.getLanguageId());
+            ConditionUtils.addCondition(conditions, "C_ID", findInventory.getCompanyCodeId());
+            ConditionUtils.addCondition(conditions, "PLANT_ID", findInventory.getPlantId());
+            ConditionUtils.addCondition(conditions, "WH_ID", findInventory.getWarehouseId());
+            ConditionUtils.addCondition(conditions, "REF_DOC_NO", findInventory.getReferenceDocumentNo());
+            ConditionUtils.addCondition(conditions, "BARCODE_ID", findInventory.getBarcodeId());
+            ConditionUtils.addCondition(conditions, "MFR_CODE", findInventory.getManufacturerCode());
+            ConditionUtils.addCondition(conditions, "MFR_NAME", findInventory.getManufacturerName());
+            ConditionUtils.addCondition(conditions, "PACK_BARCODE", findInventory.getPackBarcodes());
+            ConditionUtils.addCondition(conditions, "ITM_CODE", findInventory.getItemCode());
+            ConditionUtils.addCondition(conditions, "ST_BIN", findInventory.getStorageBin());
+            ConditionUtils.addCondition(conditions, "TEXT", findInventory.getDescription());
+            ConditionUtils.addCondition(conditions, "PARTNER_CODE", findInventory.getPartnerCode());
+            ConditionUtils.addCondition(conditions, "REF_FIELD_10", findInventory.getStorageSectionId());
+            ConditionUtils.addCondition(conditions, "level_id", findInventory.getLevelId());
+            ConditionUtils.addCondition(conditions, "alt_uom", findInventory.getAltUom());
+
+            if (findInventory.getStockTypeId() != null) {
+                ConditionUtils.numericConditions(conditions, "STCK_TYP_ID", findInventory.getStockTypeId());
+            }
+            if (findInventory.getSpecialStockIndicatorId() != null) {
+                ConditionUtils.numericConditions(conditions, "SP_ST_IND_ID", findInventory.getSpecialStockIndicatorId());
+            }
+            if (findInventory.getBinClassId() != null) {
+                ConditionUtils.numericConditions(conditions, "BIN_CL_ID", findInventory.getBinClassId());
+            }
+            if (findInventory.getItemTypeId() != null) {
+                ConditionUtils.numericConditions(conditions, "ITM_TYP_ID", findInventory.getItemTypeId());
+            }
+
+            Dataset<Row> data = null;
+            if (routingDb.equals("IMF")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl2, "(" + sqlQuery + ") as tmp", connProp);
+                log.info("JDBC URL check -->{}", jdbcUrl2);
+            } else if (routingDb.equals("ALM")) {
+                if (!conditions.isEmpty()) {
+                    sqlQuery += " WHERE IS_DELETED = 0 AND inv_id in (select max(inv_id) from tblinventory WITH (NOLOCK) where is_deleted = 0 group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                }
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl3, "(" + sqlQuery + ") as tmp", connProp);
+                log.info("JDBC URL check -->{}", jdbcUrl3);
+            } else if (routingDb.equals("NAMRATHA")) {
+                if (!conditions.isEmpty()) {
+                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                }
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl4, "(" + sqlQuery + ") as tmp", connProp1);
+                log.info("JDBC URL check -->{}", jdbcUrl4);
+            } else if (routingDb.equals("REEFERON")) {
+                if (!conditions.isEmpty()) {
+                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                }
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl5, "(" + sqlQuery + ") as tmp", connRef);
+                log.info("JDBC URL check -->{}", jdbcUrl5);
+            } else if (routingDb.equals("KNOWELL")) {
+                if (!conditions.isEmpty()) {
+                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                }
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl6, "(" + sqlQuery + ") as tmp", connKnow);
+                log.info("JDBC URL check -->{}", jdbcUrl6);
+            } else if (routingDb.equals("FAHAHEEL")) {
+                if (!conditions.isEmpty()) {
+                    sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory WITH (NOLOCK) where is_deleted = 0 group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                }
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl7, "(" + sqlQuery + ") as tmp", connFahae);
+                log.info("JDBC URL check -->{}", jdbcUrl7);
+            } else if (routingDb.equals("AUTO_LAP")) {
+                data = spark.read()
+                        .option("fetchSize", "10000")
+                        .option("pushDownloadPredicate", true)
+                        .jdbc(jdbcUrl8, "(" + sqlQuery + ") as tmp", connAutoLap);
+                log.info("JDBC URL check -->{}", jdbcUrl8);
+            }
+            Encoder<InventoryV5> inventoryV2CoreEncoder = Encoders.bean(InventoryV5.class);
+            Dataset<InventoryV5> inventoryV2CoreDataset = data.as(inventoryV2CoreEncoder);
+
+            // Run collect asynchronously
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            Future<List<InventoryV5>> future = executor.submit(inventoryV2CoreDataset::collectAsList);
+
+            try {
+                return future.get(120, TimeUnit.SECONDS);  // Optional timeout
+            } catch (TimeoutException ex) {
+                log.error("Spark job timeout!");
+                future.cancel(true);
+                throw new RuntimeException("Spark job took too long to complete");
+            } finally {
+                executor.shutdownNow();
+            }
+        } catch (Exception e) {
+            log.error("Find Inventory Spark Exception : " + e.toString());
+            throw e;
+        }
+    }
+
 
 }
