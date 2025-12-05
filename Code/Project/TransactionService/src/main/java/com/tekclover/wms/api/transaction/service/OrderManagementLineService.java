@@ -567,7 +567,8 @@ public class OrderManagementLineService extends BaseService {
 					.findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndProposedStorageBinAndProposedPackBarCodeAndDeletionIndicator(
 							warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode,
 							proposedStorageBin, proposedPackCode, 0L);
-
+			log.info("--------dupPickupHeader---checking---1---> : " + dupPickupHeader);
+			
 			if (dupPickupHeader ==  null) {
 				OrderManagementLine dbOrderManagementLine = getOrderManagementLine(warehouseId, preOutboundNo, refDocNumber,
 						partnerCode, lineNumber, itemCode, proposedStorageBin, proposedPackCode);
@@ -644,13 +645,22 @@ public class OrderManagementLineService extends BaseService {
 	
 					// REF_FIELD_1
 					pickupHeader.setReferenceField1(dbOrderManagementLine.getReferenceField1());
-					pickupHeader = pickupHeaderRepository.save(pickupHeader);
-					log.info("pickupHeader created : " + pickupHeader);
-	
-					// Updating Ordermanagementline
-					dbOrderManagementLine.setPickupNumber(PU_NO);
-					dbOrderManagementLine = orderManagementLineRepository.save(dbOrderManagementLine);
-					log.info("OrderManagementLine updated : " + dbOrderManagementLine);
+					
+					boolean isAlreadyExists = pickupHeaderRepository.existsByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndProposedStorageBinAndProposedPackBarCodeAndDeletionIndicator(
+							warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode,
+							proposedStorageBin, proposedPackCode, 0L);
+							log.info("--------dupPickupHeader---checking--2----isAlreadyExists----> : {}, {}, {}, {}, {}, {}, {}, {}",
+									warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode,
+									proposedStorageBin, proposedPackCode);
+					if (!isAlreadyExists) {
+						pickupHeader = pickupHeaderRepository.save(pickupHeader);
+						log.info("------PickupHeader created : " + pickupHeader);
+						
+						// Updating Ordermanagementline
+						dbOrderManagementLine.setPickupNumber(PU_NO);
+						dbOrderManagementLine = orderManagementLineRepository.save(dbOrderManagementLine);
+						log.info("OrderManagementLine updated : " + dbOrderManagementLine);
+					}
 				}
 				orderManagementLineList.add(dbOrderManagementLine);
 			}

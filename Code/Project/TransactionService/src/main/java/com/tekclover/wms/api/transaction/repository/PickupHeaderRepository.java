@@ -6,7 +6,6 @@ import java.util.Optional;
 import javax.persistence.LockModeType;
 import javax.persistence.QueryHint;
 
-import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Lock;
@@ -17,6 +16,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupHeader;
+import com.tekclover.wms.api.transaction.repository.fragments.StreamableJpaSpecificationRepository;
 
 @Repository
 @Transactional
@@ -49,6 +49,10 @@ public interface PickupHeaderRepository
 			Long lineNumber, String itemCode, Long deletionIndicator);
 
 	public PickupHeader findByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndProposedStorageBinAndProposedPackBarCodeAndDeletionIndicator(
+			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
+			String itemCode, String proposedStorageBin, String proposedPackCode, Long deletionIndicator);
+	
+	public boolean existsByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndProposedStorageBinAndProposedPackBarCodeAndDeletionIndicator(
 			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
 			String itemCode, String proposedStorageBin, String proposedPackCode, Long deletionIndicator);
 
