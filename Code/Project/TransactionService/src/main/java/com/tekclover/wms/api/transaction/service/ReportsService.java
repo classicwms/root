@@ -1,5 +1,39 @@
 package com.tekclover.wms.api.transaction.service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Deque;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.expression.ParseException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
 import com.tekclover.wms.api.transaction.model.cyclecount.periodic.PeriodicLine;
@@ -13,7 +47,6 @@ import com.tekclover.wms.api.transaction.model.impl.OrderStatusReportImpl;
 import com.tekclover.wms.api.transaction.model.impl.ShipmentDispatchSummaryReportImpl;
 import com.tekclover.wms.api.transaction.model.impl.StockReportImpl;
 import com.tekclover.wms.api.transaction.model.inbound.InboundLine;
-import com.tekclover.wms.api.transaction.model.inbound.containerreceipt.ContainerReceipt;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.Inventory;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.InventoryMovement;
 import com.tekclover.wms.api.transaction.model.inbound.inventory.SearchInventory;
@@ -25,35 +58,56 @@ import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundLine;
 import com.tekclover.wms.api.transaction.model.outbound.SearchOutboundLineReport;
 import com.tekclover.wms.api.transaction.model.outbound.pickup.PickupHeader;
 import com.tekclover.wms.api.transaction.model.outbound.quality.QualityHeader;
-import com.tekclover.wms.api.transaction.model.report.*;
-import com.tekclover.wms.api.transaction.repository.*;
+import com.tekclover.wms.api.transaction.model.report.Dashboard;
+import com.tekclover.wms.api.transaction.model.report.FastSlowMovingDashboard;
+import com.tekclover.wms.api.transaction.model.report.FastSlowMovingDashboardRequest;
+import com.tekclover.wms.api.transaction.model.report.FindImBasicData1;
+import com.tekclover.wms.api.transaction.model.report.InventoryReport;
+import com.tekclover.wms.api.transaction.model.report.MetricsSummary;
+import com.tekclover.wms.api.transaction.model.report.MobileDashboard;
+import com.tekclover.wms.api.transaction.model.report.OrderStatusReport;
+import com.tekclover.wms.api.transaction.model.report.Receipt;
+import com.tekclover.wms.api.transaction.model.report.ReceiptConfimationReport;
+import com.tekclover.wms.api.transaction.model.report.ReceiptHeader;
+import com.tekclover.wms.api.transaction.model.report.SearchOrderStatusReport;
+import com.tekclover.wms.api.transaction.model.report.ShipmentDeliveryReport;
+import com.tekclover.wms.api.transaction.model.report.ShipmentDeliverySummary;
+import com.tekclover.wms.api.transaction.model.report.ShipmentDeliverySummaryReport;
+import com.tekclover.wms.api.transaction.model.report.ShipmentDispatch;
+import com.tekclover.wms.api.transaction.model.report.ShipmentDispatchHeader;
+import com.tekclover.wms.api.transaction.model.report.ShipmentDispatchList;
+import com.tekclover.wms.api.transaction.model.report.ShipmentDispatchSummaryReport;
+import com.tekclover.wms.api.transaction.model.report.ShipmentReport;
+import com.tekclover.wms.api.transaction.model.report.StockMovementReport;
+import com.tekclover.wms.api.transaction.model.report.StockMovementReport1;
+import com.tekclover.wms.api.transaction.model.report.StockReport;
+import com.tekclover.wms.api.transaction.model.report.SummaryMetrics;
+import com.tekclover.wms.api.transaction.model.report.TransactionHistoryReport;
+import com.tekclover.wms.api.transaction.repository.ContainerReceiptRepository;
+import com.tekclover.wms.api.transaction.repository.ImBasicData1Repository;
+import com.tekclover.wms.api.transaction.repository.InboundHeaderRepository;
+import com.tekclover.wms.api.transaction.repository.InboundLineRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryRepository;
+import com.tekclover.wms.api.transaction.repository.InventoryStockRepository;
+import com.tekclover.wms.api.transaction.repository.MetricsSummaryRepository;
+import com.tekclover.wms.api.transaction.repository.OutboundHeaderRepository;
+import com.tekclover.wms.api.transaction.repository.OutboundLineRepository;
+import com.tekclover.wms.api.transaction.repository.PickupLineRepository;
+import com.tekclover.wms.api.transaction.repository.PutAwayLineRepository;
+import com.tekclover.wms.api.transaction.repository.ShipmentDeliverySummaryRepository;
+import com.tekclover.wms.api.transaction.repository.ShipmentReportRepository;
+import com.tekclover.wms.api.transaction.repository.StockMovementReport1Repository;
+import com.tekclover.wms.api.transaction.repository.StockMovementReportRepository;
+import com.tekclover.wms.api.transaction.repository.StorageBinRepository;
+import com.tekclover.wms.api.transaction.repository.SummaryMetricsRepository;
+import com.tekclover.wms.api.transaction.repository.TransactionHistoryReportRepository;
+import com.tekclover.wms.api.transaction.repository.TransactionHistoryResultRepository;
 import com.tekclover.wms.api.transaction.repository.specification.StockMovementReportNewSpecification;
 import com.tekclover.wms.api.transaction.repository.specification.TransactionHistoryReportSpecification;
 import com.tekclover.wms.api.transaction.util.DateUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
-import org.springframework.expression.ParseException;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -3053,113 +3107,6 @@ public class ReportsService extends BaseService {
         int metricsSummary = metricsSummaryRepository.deleteMatricsSummary(referenceId);
         log.info("Delete MetricsSummary -----> " + metricsSummary);
     }
-
-
-
-//    /**
-//     * @param warehouseId
-//     * @param fromDeliveryDate
-//     * @param toDeliveryDate
-//     * @param storeCode
-//     * @param soType
-//     * @param orderNumber
-//     * @return
-//     * @throws java.text.ParseException
-//     * @throws ParseException
-//     */
-//    public List<ShipmentDeliveryReport> getShipmentDeliveryReport(String warehouseId, String fromDeliveryDate,
-//                                                                  String toDeliveryDate, String storeCode, List<String> soType, String orderNumber)
-//            throws ParseException, java.text.ParseException {
-//        AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
-//
-//        try {
-//            // WH_ID
-//            if (warehouseId == null) {
-//                throw new BadRequestException("WarehouseId can't be blank.");
-//            }
-//
-//            if (orderNumber == null) {
-//                throw new BadRequestException("OrderNumber can't be blank.");
-//            }
-//
-//            SearchOutboundLineReport searchOutboundLineReport = new SearchOutboundLineReport();
-//            searchOutboundLineReport.setWarehouseId(warehouseId);
-//            searchOutboundLineReport.setRefDocNumber(orderNumber);
-//
-//            if (!storeCode.isEmpty()) {
-//                searchOutboundLineReport.setPartnerCode(storeCode);
-//                log.info("storeCode: " + storeCode);
-//            }
-//
-//            if (!soType.isEmpty()) {
-//                searchOutboundLineReport.setSoTypeRefField1(soType);
-//                log.info("soType: " + soType);
-//            }
-//
-//            if (fromDeliveryDate != null && fromDeliveryDate.trim().length() > 0 && toDeliveryDate != null
-//                    && toDeliveryDate.trim().length() > 0) {
-//                log.info("fromDeliveryDate : " + fromDeliveryDate);
-//                log.info("toDeliveryDate : " + toDeliveryDate);
-//
-//                Date fromDeliveryDate_d = DateUtils.convertStringToDate(fromDeliveryDate);
-//                fromDeliveryDate_d = DateUtils.addTimeToDate(fromDeliveryDate_d);
-//
-//                Date toDeliveryDate_d = DateUtils.convertStringToDate(toDeliveryDate);
-//                toDeliveryDate_d = DateUtils.addDayEndTimeToDate(toDeliveryDate_d);
-//
-//                log.info("Date: " + fromDeliveryDate_d + "," + toDeliveryDate_d);
-//
-//                searchOutboundLineReport.setStartConfirmedOn(fromDeliveryDate_d);
-//                searchOutboundLineReport.setEndConfirmedOn(toDeliveryDate_d);
-//                log.info("fromDeliveryDate_d : " + fromDeliveryDate_d);
-//            }
-//
-//            List<OutboundLine> outboundLineSearchResults = outboundLineService
-//                    .findOutboundLineReport(searchOutboundLineReport);
-//            log.info("outboundLineSearchResults : " + outboundLineSearchResults);
-//            double total = 0;
-//            if (outboundLineSearchResults.isEmpty()) {
-//                log.info("Resultset is EMPTY");
-//            } else {
-//                total = outboundLineSearchResults.stream().filter(a -> a.getDeliveryQty() != null)
-//                        .mapToDouble(OutboundLine::getDeliveryQty).sum();
-//                log.info("total : " + total);
-//            }
-//
-//            List<ShipmentDeliveryReport> shipmentDeliveryList = new ArrayList<>();
-//            for (OutboundLine outboundLine : outboundLineSearchResults) {
-//                ShipmentDeliveryReport shipmentDelivery = new ShipmentDeliveryReport();
-//                shipmentDelivery.setDeliveryDate(outboundLine.getDeliveryConfirmedOn());
-//                shipmentDelivery.setDeliveryTo(outboundLine.getPartnerCode());
-//                shipmentDelivery.setOrderType(outboundLine.getReferenceField1());
-//                shipmentDelivery.setCustomerRef(outboundLine.getRefDocNumber()); // REF_DOC_NO
-//                shipmentDelivery.setCommodity(outboundLine.getItemCode());
-//                shipmentDelivery.setDescription(outboundLine.getDescription());
-//
-//                // Obtain Partner Name
-//                BusinessPartner partner = mastersService.getBusinessPartner(outboundLine.getPartnerCode(),
-//                        authTokenForMastersService.getAccess_token());
-//                shipmentDelivery.setPartnerName(partner.getPartnerName());
-//
-//                /*
-//                 * MFR_PART
-//                 */
-//                ImBasicData1 imBasicData1 = mastersService.getImBasicData1ByItemCode(outboundLine.getItemCode(),
-//                        warehouseId, authTokenForMastersService.getAccess_token());
-//                if (imBasicData1 != null) {
-//                    shipmentDelivery.setManfCode(imBasicData1.getManufacturerPartNo());
-//                }
-//
-//                shipmentDelivery.setQuantity(outboundLine.getDeliveryQty()); // DLV_QTY
-//                shipmentDelivery.setTotal(total);
-//                shipmentDeliveryList.add(shipmentDelivery);
-//            }
-//            return shipmentDeliveryList;
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
 
     /**
      * @param fromDeliveryDate
