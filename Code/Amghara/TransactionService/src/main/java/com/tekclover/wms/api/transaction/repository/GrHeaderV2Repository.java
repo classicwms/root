@@ -147,7 +147,7 @@ public interface GrHeaderV2Repository extends JpaRepository<GrHeaderV2, Long>, J
             "AND REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo " +
             "AND (select count(*) from tblinboundline where ref_doc_no = :refDocNumber and PRE_IB_NO = :preInboundNo) = " +
             "(select count(*) from tblinboundline where ref_doc_no = :refDocNumber and PRE_IB_NO = :preInboundNo and status_id = 24)", nativeQuery = true)
-    void updateGrHeader(@Param("statusId") Long statusId, @Param("statusDescription") String statusDescription,
+    int updateGrHeader(@Param("statusId") Long statusId, @Param("statusDescription") String statusDescription,
                         @Param("updatedBy") String updatedBy, @Param("updatedOn") Date updatedOn,
                         @Param("companyCodeId") String companyCodeId, @Param("plantId") String plantId,
                         @Param("languageId") String languageId, @Param("warehouseId") String warehouseId,

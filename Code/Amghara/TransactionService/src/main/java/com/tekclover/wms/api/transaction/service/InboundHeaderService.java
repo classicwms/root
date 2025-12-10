@@ -1733,7 +1733,7 @@ public class InboundHeaderService extends BaseService {
 //							inboundLine.getManufacturerName(), inboundLine.getLineNo(), 24L, statusDescription,
 //							loginUserID, new Date());
 
-                    inboundLineV2Repository.updateInboundLineStatusUpdateInboundConfirmIndividualItemProc(24L,
+                    inboundLineV2Repository.updateInboundLineStatusUpdateInboundConfirmIndividualItem(24L,
                             statusDescription, loginUserID, new Date(), inboundLine.getItemCode(), inboundLine.getManufacturerName(), companyCode, plantId, languageId, warehouseId,
                             refDocNumber, preInboundNo, inboundLine.getLineNo());
 
@@ -1759,9 +1759,6 @@ public class InboundHeaderService extends BaseService {
 					e.printStackTrace();
 				}
 			});
-
-			inboundLinePartialConfirmRepository.saveAll(newInboundLinePartialConfirmList);
-			log.info("----newInboundLinePartialConfirm--created---> : " + newInboundLinePartialConfirmList);
 
             inboundLinePartialConfirmRepository.saveAll(newInboundLinePartialConfirmList);
             log.info("----newInboundLinePartialConfirm--created---> : " + newInboundLinePartialConfirmList);
@@ -2867,34 +2864,33 @@ public class InboundHeaderService extends BaseService {
         while (!success && attempts < maxRetries) {
             try {
 
-                inboundHeaderV2Repository.updateInboundHeader(statusId, statusDescription, loginUserID, updatedOn, companyCode,
+               int inboundHeader =  inboundHeaderV2Repository.updateInboundHeader(statusId, statusDescription, loginUserID, updatedOn, companyCode,
                         plantId, languageId, warehouseId, refDocNumber, preInboundNo);
-                log.info("InboundHeader Status Updated Successfully ------------------------>");
+                log.info("InboundHeader Status Updated Successfully ------------------------>" + inboundHeader);
 
-                preInboundHeaderV2Repository.updatePreInboundHeader(statusId, statusDescription, loginUserID, updatedOn, companyCode,
+                int preInboundHeader = preInboundHeaderV2Repository.updatePreInboundHeader(statusId, statusDescription, loginUserID, updatedOn, companyCode,
                         plantId, languageId, warehouseId, refDocNumber, preInboundNo);
-                log.info("PreInboundHeader Status Updated Successfully ------------------------>");
+                log.info("PreInboundHeader Status Updated Successfully ------------------------>" + preInboundHeader);
 
-                stagingHeaderV2Repository.updateStagingHeader(statusId, statusDescription, loginUserID, updatedOn, companyCode,
+                int stagingHeader = stagingHeaderV2Repository.updateStagingHeader(statusId, statusDescription, loginUserID, updatedOn, companyCode,
                         plantId, languageId, warehouseId, refDocNumber, preInboundNo);
-                log.info("StagingHeader Status Updated Successfully ------------------------>");
+                log.info("StagingHeader Status Updated Successfully ------------------------>" + stagingHeader);
 
-                grHeaderV2Repository.updateGrHeader(statusId, statusDescription, loginUserID, updatedOn, companyCode,
+                int grHeader = grHeaderV2Repository.updateGrHeader(statusId, statusDescription, loginUserID, updatedOn, companyCode,
                         plantId, languageId, warehouseId, refDocNumber, preInboundNo);
-                log.info("GrHeader Status Updated Successfully ------------------------>");
+                log.info("GrHeader Status Updated Successfully ------------------------>" + grHeader);
 
-                putAwayHeaderV2Repository.updatePutawayHeader(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, statusId, statusDescription, loginUserID, new Date());
-                log.info("PutAwayHeader Status Updated Successfully ------------------------>");
+                int putAwayHeader = putAwayHeaderV2Repository.updatePutawayHeader(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, statusId, statusDescription, loginUserID, new Date());
+                log.info("PutAwayHeader Status Updated Successfully ------------------------>" + putAwayHeader);
 
-                preInboundLineV2Repository.updatePreInboundLine(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, statusId, statusDescription, loginUserID, new Date());
-                log.info("PreInboundLine Status Updated Successfully ------------------------>");
+                int preInboundLine = preInboundLineV2Repository.updatePreInboundLine(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, statusId, statusDescription, loginUserID, new Date());
+                log.info("PreInboundLine Status Updated Successfully ------------------------>" + preInboundLine);
 
-                grLineV2Repository.updateGrLine(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, statusId, statusDescription, loginUserID, new Date());
-                log.info("GrLine Status Updated Successfully ------------------------>");
+                int grLine = grLineV2Repository.updateGrLine(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, statusId, statusDescription, loginUserID, new Date());
+                log.info("GrLine Status Updated Successfully ------------------------>" + grLine);
 
-                stagingLineV2Repository.updateStagingLine(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, statusId2, statusDescription2, loginUserID, new Date());
-                log.info("StagingLine Status Updated Successfully ------------------------>");
-
+                int stagingLine = stagingLineV2Repository.updateStagingLine(companyCode, plantId, languageId, warehouseId, refDocNumber, preInboundNo, statusId2, statusDescription2, loginUserID, new Date());
+                log.info("StagingLine Status Updated Successfully ------------------------>" + stagingLine);
                 success = true;
 
             } catch (CannotAcquireLockException | DeadlockLoserDataAccessException ex) {

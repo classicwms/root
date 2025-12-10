@@ -109,7 +109,7 @@ public interface PreInboundLineV2Repository extends JpaRepository<PreInboundLine
             "AND PIBL.MFR_NAME = X.MFR_NAME \n" +
             "AND PIBL.IB_LINE_NO = X.IB_LINE_NO \n" +
             "AND PIBL.IS_DELETED = 0 ", nativeQuery = true)
-    void updatePreInboundLine(@Param("companyCodeId") String companyCodeId,
+    int updatePreInboundLine(@Param("companyCodeId") String companyCodeId,
                               @Param("plantId") String plantId,
                               @Param("languageId") String languageId,
                               @Param("warehouseId") String warehouseId,

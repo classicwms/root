@@ -269,7 +269,7 @@ public interface PutAwayHeaderV2Repository extends JpaRepository<PutAwayHeaderV2
             "AND PAH.LANG_ID = X.LANG_ID AND PAH.WH_ID = X.WH_ID AND PAH.REF_DOC_NO = X.REF_DOC_NO AND PAH.PRE_IB_NO = X.PRE_IB_NO \n" +
             "AND PAH.REF_FIELD_5 = X.ITM_CODE AND PAH.MFR_NAME = X.MFR_NAME AND PAH.REF_FIELD_9 = X.IB_LINE_NO \n" +
             "AND PAH.IS_DELETED = 0 ", nativeQuery = true)
-    void updatePutawayHeader(@Param("companyCodeId") String companyCodeId,
+    int updatePutawayHeader(@Param("companyCodeId") String companyCodeId,
                              @Param("plantId") String plantId,
                              @Param("languageId") String languageId,
                              @Param("warehouseId") String warehouseId,

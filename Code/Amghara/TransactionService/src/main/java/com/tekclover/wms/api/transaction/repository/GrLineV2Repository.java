@@ -316,7 +316,7 @@ public interface GrLineV2Repository extends JpaRepository<GrLineV2, Long>, JpaSp
             "AND GRL.IB_LINE_NO = X.IB_LINE_NO \n" +
             "AND GRL.IS_DELETED = 0 \n" +
             "AND GRL.STATUS_ID != :statusId ", nativeQuery = true)
-    void updateGrLine(@Param("companyCodeId") String companyCodeId,
+    int updateGrLine(@Param("companyCodeId") String companyCodeId,
                       @Param("plantId") String plantId,
                       @Param("languageId") String languageId,
                       @Param("warehouseId") String warehouseId,

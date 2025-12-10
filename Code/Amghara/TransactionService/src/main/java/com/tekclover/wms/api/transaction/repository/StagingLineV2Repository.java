@@ -521,7 +521,7 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
             "ON STGL.C_ID = X.C_ID AND STGL.PLANT_ID = X.PLANT_ID AND STGL.LANG_ID = X.LANG_ID AND STGL.WH_ID = X.WH_ID AND STGL.REF_DOC_NO = X.REF_DOC_NO \n" +
             "AND STGL.PRE_IB_NO = X.PRE_IB_NO AND STGL.ITM_CODE = X.ITM_CODE AND STGL.MFR_NAME = X.MFR_NAME AND STGL.IB_LINE_NO = X.IB_LINE_NO \n" +
             "AND STGL.IS_DELETED = 0 ", nativeQuery = true)
-    void updateStagingLine(@Param("companyCodeId") String companyCodeId,
+    int updateStagingLine(@Param("companyCodeId") String companyCodeId,
                           @Param("plantId") String plantId,
                           @Param("languageId") String languageId,
                           @Param("warehouseId") String warehouseId,
