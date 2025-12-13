@@ -489,6 +489,22 @@ public interface StagingLineV2Repository extends JpaRepository<StagingLineEntity
                        @Param("statusId") Long statusId,
                        @Param("statusText") String statustext);
 
+    @Modifying
+    @Query(value = "UPDATE tblstagingline SET STATUS_ID = :statusId, status_text = :statusText, PARTNER_ITEM_BARCODE = :partner_item_barcode " +
+            "WHERE C_ID = :companyCode AND PLANT_ID = :plantId AND LANG_ID = :languageId " +
+            "AND WH_ID = :warehouseId AND REF_DOC_NO = :refDocNumber AND PRE_IB_NO = :preInboundNo AND IB_LINE_NO = :lineNo AND ITM_CODE = :itemCode ", nativeQuery = true)
+    void updateBarCodeV7(@Param("partner_item_barcode") String partnerItemBarcode,
+                         @Param("companyCode") String companyCodeId,
+                         @Param("plantId") String plantId,
+                         @Param("languageId") String languageId,
+                         @Param("warehouseId") String warehouseId,
+                         @Param("refDocNumber") String refDocNumber,
+                         @Param("preInboundNo") String preInboundNo,
+                         @Param("lineNo") Long lineNo,
+                         @Param("itemCode") String itemCode,
+                         @Param("statusId") Long statusId,
+                         @Param("statusText") String statustext);
+
 
     @Modifying
     @Query(value = "Update tblstagingline set status_id = :statusId, status_text = :statusText \n " +

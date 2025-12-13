@@ -322,5 +322,20 @@ public interface InboundLineV2Repository extends JpaRepository<InboundLineV2, Lo
                                             @Param("itemCode") String itemCode,
                                             @Param("statusId") Long statusId,
                                             @Param("statusText") String statusText);
+
+    @Modifying
+    @Query(value = "update tblinboundline set status_id = :statusId , status_text = :statusText \n" +
+            "where c_id = :companyId and lang_id = :languageId and plant_id = :plantId and \n " +
+            "wh_id =:warehouseId and ref_doc_no = :refDocNo and pre_ib_no = :preInboundNo and ib_line_no = :lineNo and itm_code = :itemCode", nativeQuery = true)
+    void updateInboundLineStatusV7(@Param("companyId") String companyId,
+                                   @Param("plantId") String plantId,
+                                   @Param("languageId") String languageId,
+                                   @Param("warehouseId") String warehouseId,
+                                   @Param("refDocNo") String refDocNo,
+                                   @Param("preInboundNo") String preInboundNo,
+                                   @Param("lineNo") Long lineNo,
+                                   @Param("itemCode") String itemCode,
+                                   @Param("statusId") Long statusId,
+                                   @Param("statusText") String statusText);
 }
 
