@@ -5880,8 +5880,13 @@ public class OutboundLineService extends BaseService {
                     String customerId = outHeader.getCustomerId();
                     String barcodeId = deliveryLine.getHuSerialNo();
                     String itemCode = deliveryLine.getSkuCode();
+                    String companyCodeId = outHeader.getCompanyCodeId();
+                    String plantId = outHeader.getPlantId();
+                    String warehouseId = outHeader.getWarehouseId();
+                    String languageId = outHeader.getLanguageId();
                     String loginUserId = deliveryConfirmationV3.getLoginUserId() != null ? deliveryConfirmationV3.getLoginUserId() : WK;
                     double pickedQty = deliveryLine.getPickedQty() != null ? deliveryLine.getPickedQty() : 0;
+
 
                     log.info("Get PickupHeader Values -----> Company {}, PlantId {}, WarehouseId {}, LanguageId {}, PreOutboundNo {}, RefDocNo {}, CustomerId {}, BarcodeId {}, ItemCode {}  ",
                             outHeader.getCompanyCodeId(), outHeader.getPlantId(), outHeader.getWarehouseId(), outHeader.getLanguageId(), outHeader.getPreOutboundNo(), outHeader.getRefDocNumber(), customerId, barcodeId, itemCode );
@@ -5907,8 +5912,21 @@ public class OutboundLineService extends BaseService {
 //                                        outHeader.getRefDocNumber(), outHeader.getPreOutboundNo(), pickup, 0D, loginUserId, idMasterAuthToken);
 //                            }
 //                        }
-                        pickupLineService.createPickupLineNewV4(outHeader.getCompanyCodeId(), outHeader.getPlantId(), outHeader.getLanguageId(), outHeader.getWarehouseId(),
-                                outHeader.getRefDocNumber(), outHeader.getPreOutboundNo(), barcodeId, pickupHeaders.get(0), pickedQty, loginUserId, idMasterAuthToken);
+                        if(!pickupHeaders.isEmpty()) {
+                            log.info("PickupLine Creation Logic Started ---------------->");
+                            pickupLineService.createPickupLineNewV4(outHeader.getCompanyCodeId(), outHeader.getPlantId(), outHeader.getLanguageId(), outHeader.getWarehouseId(),
+                                    outHeader.getRefDocNumber(), outHeader.getPreOutboundNo(), barcodeId, pickupHeaders.get(0), pickedQty, loginUserId, idMasterAuthToken);
+                        } else {
+                            log.info("PickupHeader Values is Empty --------> Inventory Allocation Started this Order No " + outHeader.getRefDocNumber());
+                            pickupLineService.updateInventoryPickedBarcodeV3(companyCodeId, plantId, languageId, warehouseId,
+                                    itemCode, "WK", barcodeId, null, pickedQty, loginUserId);
+
+                            Long STATUS_ID = 59L;
+                            statusDescription = stagingLineV2Repository.getStatusDescription(STATUS_ID, languageId);
+                            outboundLineV2Repository.updateOutboundLineForDeliveryConfirm(companyCodeId, plantId, languageId, warehouseId, outHeader.getPreOutboundNo(),
+                                    outHeader.getRefDocNumber(), outHeader.getPartnerCode(), itemCode, "WK", pickedQty, STATUS_ID, statusDescription, loginUserId, new Date());
+                            log.info("OutboundLine Status Updated Successfully -----------> RefDocNo Is ---> " + outHeader.getRefDocNumber());
+                        }
 
                     }
                 }
