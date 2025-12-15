@@ -1,10 +1,49 @@
 package com.tekclover.wms.api.transaction.service;
 
+import java.lang.reflect.InvocationTargetException;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.persistence.EntityNotFoundException;
+import javax.validation.Valid;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.ParseException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.*;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.v2.*;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.AddPerpetualHeader;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.AddPerpetualLine;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualHeader;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualHeaderEntity;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualLine;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualLineEntity;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualLineEntityImpl;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.RunPerpetualHeader;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.SearchPerpetualHeader;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.UpdatePerpetualHeader;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.v2.PerpetualHeaderEntityV2;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.v2.PerpetualHeaderV2;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.v2.PerpetualLineV2;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.v2.PerpetualZeroStockLine;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.v2.SearchPerpetualHeaderV2;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.v2.SearchPerpetualLineV2;
 import com.tekclover.wms.api.transaction.model.dto.ImBasicData;
 import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
 import com.tekclover.wms.api.transaction.model.dto.StorageBinV2;
@@ -15,29 +54,21 @@ import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.IInventoryIm
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.transaction.model.warehouse.cyclecount.CycleCountHeader;
 import com.tekclover.wms.api.transaction.model.warehouse.cyclecount.CycleCountLine;
-import com.tekclover.wms.api.transaction.repository.*;
+import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
+import com.tekclover.wms.api.transaction.repository.PerpetualHeaderRepository;
+import com.tekclover.wms.api.transaction.repository.PerpetualHeaderV2Repository;
+import com.tekclover.wms.api.transaction.repository.PerpetualLineRepository;
+import com.tekclover.wms.api.transaction.repository.PerpetualLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.PerpetualZeroStkLineRepository;
+import com.tekclover.wms.api.transaction.repository.StagingLineV2Repository;
+import com.tekclover.wms.api.transaction.repository.WarehouseRepository;
 import com.tekclover.wms.api.transaction.repository.specification.PerpetualHeaderSpecification;
 import com.tekclover.wms.api.transaction.repository.specification.PerpetualHeaderV2Specification;
 import com.tekclover.wms.api.transaction.repository.specification.PerpetualLineV2Specification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.expression.ParseException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
-import javax.validation.Valid;
-import java.lang.reflect.InvocationTargetException;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -1486,7 +1517,6 @@ public class PerpetualHeaderService extends BaseService {
      * @return
      */
     public PerpetualHeaderEntityV2 processStockCountReceived(CycleCountHeader cycleCountHeader) {
-
         PerpetualHeaderEntityV2 perpetualHeaderEntity = new PerpetualHeaderEntityV2();
         PerpetualHeaderV2 newPerpetualHeader = new PerpetualHeaderV2();
         List<PerpetualLineV2> perpetualLines = new ArrayList<>();
@@ -1552,7 +1582,6 @@ public class PerpetualHeaderService extends BaseService {
 
         AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
         for (CycleCountLine cycleCountLine : cycleCountHeader.getLines()) {
-
             List<IInventoryImpl> dbInventoryList = inventoryService.getInventoryForPerpetualCountV2(newPerpetualHeader.getCompanyCodeId(),
                     newPerpetualHeader.getPlantId(),
                     newPerpetualHeader.getLanguageId(),
@@ -1562,9 +1591,7 @@ public class PerpetualHeaderService extends BaseService {
 
             if (dbInventoryList != null) {
                 for (IInventoryImpl dbInventory : dbInventoryList) {
-
                     PerpetualLineV2 dbPerpetualLine = new PerpetualLineV2();
-
                     StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
                     storageBinPutAway.setCompanyCodeId(dbInventory.getCompanyCodeId());
                     storageBinPutAway.setPlantId(dbInventory.getPlantId());
