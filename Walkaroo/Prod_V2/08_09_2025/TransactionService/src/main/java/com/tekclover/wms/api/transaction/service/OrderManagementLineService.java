@@ -4136,11 +4136,6 @@ public class OrderManagementLineService extends BaseService {
                     newOrderManagementLine.setLevelId(stBinInventory.getLevelId());
                     newOrderManagementLine.setStorageSectionId(stBinInventory.getStorageSectionId());
                     newOrderManagementLine.setPalletId(stBinInventory.getPalletId());
-                    if(stBinInventory.getBinClassId() == 3L) {
-                        putAwayHeaderService.updatePutAwayHeaderV3(companyCodeId, plantId, languageId, warehouseId,
-                                newOrderManagementLine.getItemCode(), newOrderManagementLine.getBarcodeId());
-                        newOrderManagementLine.setStagingArea("SA");
-                    }
 
                     newOrderManagementLine.setProposedPackBarCode(stBinInventory.getPackBarcodes());
                     newOrderManagementLine.setProposedBatchSerialNumber(stBinInventory.getBatchSerialNumber());
@@ -4163,6 +4158,12 @@ public class OrderManagementLineService extends BaseService {
                     if (existingOrderManagementLine) {
                         log.warn("OrderManagementLine with same barcodeId is existing ---> {}", newOrderManagementLine.getBarcodeId());
                     } else {
+
+                        if(stBinInventory.getBinClassId() == 3L) {
+                            putAwayHeaderService.updatePutAwayHeaderV3(companyCodeId, plantId, languageId, warehouseId,
+                                    newOrderManagementLine.getItemCode(), newOrderManagementLine.getBarcodeId());
+                            newOrderManagementLine.setStagingArea("SA");
+                        }
                         createdOrderManagementLine = orderManagementLineV2Repository.saveAndFlush(newOrderManagementLine);
 
                         log.info("--else---createdOrderManagementLine newly created------: " + createdOrderManagementLine);
@@ -4176,33 +4177,33 @@ public class OrderManagementLineService extends BaseService {
 
                         log.info("####------1-------fromOrderFullfillment--------->>>>>>>>>> : " + fromOrderFullfillment);
                         // Except SAP Orderfullfillment flow, fot rest of the order process the below code should run
-                        if (!fromOrderFullfillment) {
-                            log.info("####---2----About to update inventory------>>>>>>>>>> : " + fromOrderFullfillment);
-                            if (allocatedQtyFromOrderMgmt > 0) {
-                                double[] inventoryQty = allocateInventory(allocatedQtyFromOrderMgmt,
-                                        stBinInventory.getInventoryQuantity(), stBinInventory.getAllocatedQuantity());
-
-                                // Create new Inventory Record
-                                InventoryV2 inventoryV2 = new InventoryV2();
-                                BeanUtils.copyProperties(stBinInventory, inventoryV2, CommonUtils.getNullPropertyNames(stBinInventory));
-
-                                if (inventoryQty != null && inventoryQty.length > 2) {
-                                    inventoryV2.setInventoryQuantity(inventoryQty[0]);
-                                    inventoryV2.setAllocatedQuantity(inventoryQty[1]);
-                                    inventoryV2.setReferenceField4(inventoryQty[2]);
-                                }
-
-                                inventoryV2.setReferenceDocumentNo(orderManagementLine.getRefDocNumber());
-                                inventoryV2.setReferenceOrderNo(orderManagementLine.getRefDocNumber());
-                                inventoryV2.setDeletionIndicator(0L);
-                                inventoryV2.setUpdatedOn(new Date());
-
-                                log.info("####--3----before update inventory------>>>>>>>>>> : " + inventoryV2);
-
-                                inventoryV2 = inventoryV2Repository.save(inventoryV2);
-                                log.info("-----Inventory2 updated-------: " + inventoryV2);
-                            }
-                        }
+//                        if (!fromOrderFullfillment) {
+//                            log.info("####---2----About to update inventory------>>>>>>>>>> : " + fromOrderFullfillment);
+//                            if (allocatedQtyFromOrderMgmt > 0) {
+//                                double[] inventoryQty = allocateInventory(allocatedQtyFromOrderMgmt,
+//                                        stBinInventory.getInventoryQuantity(), stBinInventory.getAllocatedQuantity());
+//
+//                                // Create new Inventory Record
+//                                InventoryV2 inventoryV2 = new InventoryV2();
+//                                BeanUtils.copyProperties(stBinInventory, inventoryV2, CommonUtils.getNullPropertyNames(stBinInventory));
+//
+//                                if (inventoryQty != null && inventoryQty.length > 2) {
+//                                    inventoryV2.setInventoryQuantity(inventoryQty[0]);
+//                                    inventoryV2.setAllocatedQuantity(inventoryQty[1]);
+//                                    inventoryV2.setReferenceField4(inventoryQty[2]);
+//                                }
+//
+//                                inventoryV2.setReferenceDocumentNo(orderManagementLine.getRefDocNumber());
+//                                inventoryV2.setReferenceOrderNo(orderManagementLine.getRefDocNumber());
+//                                inventoryV2.setDeletionIndicator(0L);
+//                                inventoryV2.setUpdatedOn(new Date());
+//
+//                                log.info("####--3----before update inventory------>>>>>>>>>> : " + inventoryV2);
+//
+//                                inventoryV2 = inventoryV2Repository.save(inventoryV2);
+//                                log.info("-----Inventory2 updated-------: " + inventoryV2);
+//                            }
+//                        }
 
                         if (ORD_QTY == 0.0) {
                             log.info("ORD_QTY fully allocated: " + ORD_QTY);
