@@ -3025,9 +3025,7 @@ public class PutAwayHeaderService extends BaseService {
                                       String warehouseId, String itemCode, String barcodeId) {
         try {
         log.info("putawayHeader Status Update: " + companyCode + "|" + plantId + "|" + languageId + "|" + warehouseId + "|" + itemCode + "|" + barcodeId);
-//        statusDescription = getStatusDescription(20L, languageId);
-//        putAwayHeaderV2Repository.updateHeaderStatus(
-//                companyCode, plantId, languageId, warehouseId, 20L, statusDescription, itemCode, barcodeId);
+
             PutAwayHeaderV2 putAwayHeader = putAwayHeaderV2Repository.findTopByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndReferenceField5AndBarcodeIdAndStatusIdAndDeletionIndicator(
                     companyCode, plantId, languageId, warehouseId, itemCode, barcodeId, 19L, 0L);
             log.info("PutawayHeader : " + putAwayHeader);
@@ -3040,6 +3038,9 @@ public class PutAwayHeaderService extends BaseService {
                 putAwayLine.setLineNo(Long.valueOf(putAwayHeader.getReferenceField9()));
                 putAwayLine.setItemCode(putAwayHeader.getReferenceField5());
                 putAwayLineService.putAwayLineConfirmNonCBMV3(putAwayLine, putAwayHeader, "STAGING_AREA");
+                statusDescription = getStatusDescription(20L, languageId);
+                putAwayHeaderV2Repository.updateHeaderStatus(
+                        companyCode, plantId, languageId, warehouseId, 20L, statusDescription, itemCode, barcodeId);
             }
         } catch (Exception e) {
             throw new BadRequestException("Exception while creating ");

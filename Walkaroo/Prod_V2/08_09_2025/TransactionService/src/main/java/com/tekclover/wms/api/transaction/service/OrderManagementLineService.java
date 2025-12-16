@@ -4212,6 +4212,11 @@ public class OrderManagementLineService extends BaseService {
                     }
                 }
             }
+            if(ORD_QTY > 0.0) {
+                log.info("OrderQty ----------Value is {} ", ORD_QTY);
+                return updateOrderManagementLineV2(orderManagementLine);
+            }
+
             return newOrderManagementLine;
         } catch (Exception e) {
             log.error("Exception while orderAllocation V3: " + e);
