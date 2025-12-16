@@ -731,33 +731,6 @@ public class PickupLineService extends BaseService {
 			pickupNumber = dbPickupLine.getPickupNumber();
 		}
 		
-		/*
-		 * Update OutboundHeader & Preoutbound Header STATUS_ID as 47 only if all OutboundLines are STATUS_ID is 51
-		 */
-		List<OutboundLine> outboundLineList = outboundLineService.getOutboundLine(warehouseId, preOutboundNo, refDocNumber);
-		boolean hasStatus51 = false;
-		List<Long> status51List = outboundLineList.stream().map(OutboundLine::getStatusId).collect(Collectors.toList());
-		long status51IdCount = status51List.stream().filter(a -> a == 51L || a == 47L ).count();
-		log.info("status count : " + (status51IdCount == status51List.size()));
-		hasStatus51 = (status51IdCount == status51List.size());
-		if (!status51List.isEmpty() && hasStatus51) {
-			//------------------------UpdateLock-Applied------------------------------------------------------------
-			OutboundHeader outboundHeader = outboundHeaderService.getOutboundHeader(refDocNumber, warehouseId);
-			outboundHeader.setStatusId(51L);
-			outboundHeader.setUpdatedBy(loginUserID);
-			outboundHeader.setUpdatedOn(new Date());			
-			outboundHeaderRepository.save(outboundHeader);
-			log.info("outboundHeader updated as 51.");
-			
-			//------------------------UpdateLock-Applied------------------------------------------------------------
-			PreOutboundHeader preOutboundHeader = preOutboundHeaderService.getPreOutboundHeader(warehouseId, refDocNumber);
-			preOutboundHeader.setStatusId(51L);
-			preOutboundHeader.setUpdatedBy(loginUserID);
-			preOutboundHeader.setUpdatedOn(new Date());			
-			preOutboundHeaderRepository.save(preOutboundHeader);
-			log.info("PreOutboundHeader updated as 51.");
-		}
-
 		/*---------------------------------------------PickupHeader Updates---------------------------------------*/
 		// -----------------logic for checking all records as 51 then only it should go o update header-----------*/
 		try {
@@ -786,9 +759,42 @@ public class PickupLineService extends BaseService {
 			pickupHeader = pickupHeaderRepository.save(pickupHeader);
 			log.info("PickupHeader updated: " + pickupHeader);
 		} catch (Exception e) {
+			log.error("PickupHeader update error: " + e.toString());
 			e.printStackTrace();
-			log.info("PickupHeader update error: " + e.toString());
 		}
+		
+		/*
+		 * Update OutboundHeader & Preoutbound Header STATUS_ID as 47 only if all OutboundLines are STATUS_ID is 51
+		 */
+		try {
+			List<OutboundLine> outboundLineList = outboundLineService.getOutboundLine(warehouseId, preOutboundNo, refDocNumber);
+			boolean hasStatus51 = false;
+			List<Long> status51List = outboundLineList.stream().map(OutboundLine::getStatusId).collect(Collectors.toList());
+			long status51IdCount = status51List.stream().filter(a -> a == 51L || a == 47L ).count();
+			log.info("status count : " + (status51IdCount == status51List.size()));
+			hasStatus51 = (status51IdCount == status51List.size());
+			if (!status51List.isEmpty() && hasStatus51) {
+				//------------------------UpdateLock-Applied------------------------------------------------------------
+				OutboundHeader outboundHeader = outboundHeaderService.getOutboundHeader(refDocNumber, warehouseId);
+				outboundHeader.setStatusId(51L);
+				outboundHeader.setUpdatedBy(loginUserID);
+				outboundHeader.setUpdatedOn(new Date());			
+				outboundHeaderRepository.save(outboundHeader);
+				log.info("outboundHeader updated as 51.");
+				
+				//------------------------UpdateLock-Applied------------------------------------------------------------
+				PreOutboundHeader preOutboundHeader = preOutboundHeaderService.getPreOutboundHeader(warehouseId, refDocNumber);
+				preOutboundHeader.setStatusId(51L);
+				preOutboundHeader.setUpdatedBy(loginUserID);
+				preOutboundHeader.setUpdatedOn(new Date());			
+				preOutboundHeaderRepository.save(preOutboundHeader);
+				log.info("PreOutboundHeader updated as 51.");
+			}
+		} catch (Exception e) {
+			log.error("OutboundHeader & Preoutbound Header error: " + e.toString());
+			e.printStackTrace();
+		}
+		
 		return createdPickupLineList;
 	}
 	
