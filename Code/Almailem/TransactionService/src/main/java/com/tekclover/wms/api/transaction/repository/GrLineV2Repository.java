@@ -329,4 +329,17 @@ public interface GrLineV2Repository extends JpaRepository<GrLineV2, Long>, JpaSp
                      @Param("statusDescription") String statusDescription,
                      @Param("updatedBy") String updatedBy,
                      @Param("updatedOn") Date updatedOn);
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE tblgrline " +
+        "SET IS_PA_HEADER_CTD = 1 " +
+        "WHERE IS_PA_HEADER_CTD = 0 " +
+        "AND is_deleted = 0 ", nativeQuery = true)
+    int claimGrLines();
+
+    @Query(value = "SELECT * FROM tblgrline " +
+        "WHERE IS_PA_HEADER_CTD = 1 " +
+        "AND is_deleted = 0 ", nativeQuery = true)
+    List<GrLineV2> findClaimedGrLines();
 }

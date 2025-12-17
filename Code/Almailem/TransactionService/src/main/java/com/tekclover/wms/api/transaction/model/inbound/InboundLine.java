@@ -175,4 +175,7 @@ public class InboundLine {
 	
 	@Column(name = "IB_CNF_ON")
 	private Date confirmedOn;
+
+	@Version
+	private Long versionId = 0L;
 }

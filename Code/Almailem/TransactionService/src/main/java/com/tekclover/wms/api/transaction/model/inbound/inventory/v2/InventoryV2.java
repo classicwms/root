@@ -58,4 +58,5 @@ public class InventoryV2 extends Inventory {
 
     @Column(name = "STCK_TYP_TEXT", columnDefinition = "nvarchar(255)")
     private String stockTypeDescription;
+
 }

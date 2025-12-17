@@ -2466,4 +2466,31 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
    			@Param ("storageBin") String storageBin,
    			@Param ("inventoryQuantity") Double inventoryQuantity,
    			@Param ("allocatedQuantity") Double allocatedQuantity);
+
+
+    @Query(value = " SELECT * from tblinventory \n" +
+            "WHERE itm_code in (:itemCode) and \n" +
+            "wh_id in (:warehouseId) and \n" +
+            "bin_cl_id in (1,7) and \n" +
+            "plant_id in (:plantId) and \n" +
+            "lang_id in (:languageId) and \n" +
+//            "mfr_name in (:manufacturerName) and \n" +
+            "c_id in (:companyCodeId) and is_deleted = 0 and STCK_TYP_ID = 1 " +
+            "and inv_id in (select max(inv_id) inventoryId from tblinventory " +
+            "WHERE itm_code in (:itemCode) and " +
+            "wh_id in (:warehouseId) and " +
+            "bin_cl_id in (1,7) and " +
+            "plant_id in (:plantId) and " +
+            "lang_id in (:languageId) and " +
+//            "mfr_name in (:manufacturerName) and " +
+            "c_id in (:companyCodeId) and is_deleted = 0 " +
+            "group by itm_code,mfr_name,st_bin,plant_id,wh_id,c_id,lang_id) " , nativeQuery = true)
+    public List<InventoryV2> findInventoryForPerpertualV2(
+            @Param(value = "companyCodeId") String companyCodeId,
+            @Param(value = "plantId") String plantId,
+            @Param(value = "languageId") String languageId,
+            @Param(value = "warehouseId") String warehouseId,
+            @Param(value = "itemCode") List<String> itemCode);
+//            @Param(value = "binClassId") Long binClassId,
+//            @Param(value = "manufacturerName") List<String> manufacturerName);
 }

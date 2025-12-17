@@ -1,49 +1,10 @@
 package com.tekclover.wms.api.transaction.service;
 
-import java.lang.reflect.InvocationTargetException;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.persistence.EntityNotFoundException;
-import javax.validation.Valid;
-
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.expression.ParseException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.tekclover.wms.api.transaction.controller.exception.BadRequestException;
 import com.tekclover.wms.api.transaction.model.IKeyValuePair;
 import com.tekclover.wms.api.transaction.model.auth.AuthToken;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.AddPerpetualHeader;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.AddPerpetualLine;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualHeader;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualHeaderEntity;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualLine;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualLineEntity;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.PerpetualLineEntityImpl;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.RunPerpetualHeader;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.SearchPerpetualHeader;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.UpdatePerpetualHeader;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.v2.PerpetualHeaderEntityV2;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.v2.PerpetualHeaderV2;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.v2.PerpetualLineV2;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.v2.PerpetualZeroStockLine;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.v2.SearchPerpetualHeaderV2;
-import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.v2.SearchPerpetualLineV2;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.*;
+import com.tekclover.wms.api.transaction.model.cyclecount.perpetual.v2.*;
 import com.tekclover.wms.api.transaction.model.dto.ImBasicData;
 import com.tekclover.wms.api.transaction.model.dto.ImBasicData1;
 import com.tekclover.wms.api.transaction.model.dto.StorageBinV2;
@@ -54,21 +15,29 @@ import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.IInventoryIm
 import com.tekclover.wms.api.transaction.model.inbound.inventory.v2.InventoryV2;
 import com.tekclover.wms.api.transaction.model.warehouse.cyclecount.CycleCountHeader;
 import com.tekclover.wms.api.transaction.model.warehouse.cyclecount.CycleCountLine;
-import com.tekclover.wms.api.transaction.repository.InventoryMovementRepository;
-import com.tekclover.wms.api.transaction.repository.PerpetualHeaderRepository;
-import com.tekclover.wms.api.transaction.repository.PerpetualHeaderV2Repository;
-import com.tekclover.wms.api.transaction.repository.PerpetualLineRepository;
-import com.tekclover.wms.api.transaction.repository.PerpetualLineV2Repository;
-import com.tekclover.wms.api.transaction.repository.PerpetualZeroStkLineRepository;
-import com.tekclover.wms.api.transaction.repository.StagingLineV2Repository;
-import com.tekclover.wms.api.transaction.repository.WarehouseRepository;
+import com.tekclover.wms.api.transaction.repository.*;
 import com.tekclover.wms.api.transaction.repository.specification.PerpetualHeaderSpecification;
 import com.tekclover.wms.api.transaction.repository.specification.PerpetualHeaderV2Specification;
 import com.tekclover.wms.api.transaction.repository.specification.PerpetualLineV2Specification;
 import com.tekclover.wms.api.transaction.util.CommonUtils;
 import com.tekclover.wms.api.transaction.util.DateUtils;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.ParseException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ParameterizedPreparedStatementSetter;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.EntityNotFoundException;
+import javax.validation.Valid;
+import java.lang.reflect.InvocationTargetException;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -114,6 +83,9 @@ public class PerpetualHeaderService extends BaseService {
     private PerpetualZeroStkLineService perpetualZeroStkLineService;
 
     String statusDescription = null;
+
+    @Autowired
+    InventoryV2Repository inventoryV2Repository;
     //=======================================================================================================================
 
 
@@ -1517,6 +1489,7 @@ public class PerpetualHeaderService extends BaseService {
      * @return
      */
     public PerpetualHeaderEntityV2 processStockCountReceived(CycleCountHeader cycleCountHeader) {
+
         PerpetualHeaderEntityV2 perpetualHeaderEntity = new PerpetualHeaderEntityV2();
         PerpetualHeaderV2 newPerpetualHeader = new PerpetualHeaderV2();
         List<PerpetualLineV2> perpetualLines = new ArrayList<>();
@@ -1582,6 +1555,7 @@ public class PerpetualHeaderService extends BaseService {
 
         AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
         for (CycleCountLine cycleCountLine : cycleCountHeader.getLines()) {
+
             List<IInventoryImpl> dbInventoryList = inventoryService.getInventoryForPerpetualCountV2(newPerpetualHeader.getCompanyCodeId(),
                     newPerpetualHeader.getPlantId(),
                     newPerpetualHeader.getLanguageId(),
@@ -1591,7 +1565,9 @@ public class PerpetualHeaderService extends BaseService {
 
             if (dbInventoryList != null) {
                 for (IInventoryImpl dbInventory : dbInventoryList) {
+
                     PerpetualLineV2 dbPerpetualLine = new PerpetualLineV2();
+
                     StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
                     storageBinPutAway.setCompanyCodeId(dbInventory.getCompanyCodeId());
                     storageBinPutAway.setPlantId(dbInventory.getPlantId());
@@ -1719,6 +1695,251 @@ public class PerpetualHeaderService extends BaseService {
                     if (barcode != null && !barcode.isEmpty()) {
                         dbPerpetualLine.setBarcodeId(barcode.get(0));
                     }
+
+
+                dbPerpetualLine.setDeletionIndicator(0L);
+                dbPerpetualLine.setCreatedBy("MW_AMS");
+                dbPerpetualLine.setCreatedOn(new Date());
+                perpetualZeroStockLineList.add(dbPerpetualLine);
+            }
+        }
+
+        List<PerpetualLineV2> createdPerpetualLines = perpetualLineV2Repository.saveAll(perpetualLines);
+        log.info("createdPerpetualLine : " + createdPerpetualLines);
+        List<PerpetualZeroStockLine> createdPerpetualZeroStkLines = perpetualZeroStkLineRepository.saveAll(perpetualZeroStockLineList);
+        log.info("createdPerpetualZeroStkLines : " + createdPerpetualZeroStkLines);
+
+        BeanUtils.copyProperties(createdPerpetualHeader, perpetualHeaderEntity, CommonUtils.getNullPropertyNames(createdPerpetualHeader));
+        perpetualHeaderEntity.setPerpetualLine(perpetualLines);
+
+        return perpetualHeaderEntity;
+    }
+
+
+    /**
+     * @param cycleCountHeader
+     * @return
+     */
+    public PerpetualHeaderEntityV2 processStockCountReceivedV2(CycleCountHeader cycleCountHeader) {
+
+        PerpetualHeaderEntityV2 perpetualHeaderEntity = new PerpetualHeaderEntityV2();
+        PerpetualHeaderV2 newPerpetualHeader = new PerpetualHeaderV2();
+        List<PerpetualLineV2> perpetualLines = new ArrayList<>();
+        List<PerpetualZeroStockLine> perpetualZeroStockLineList = new ArrayList<>();
+
+        // Get Warehouse
+        Optional<com.tekclover.wms.api.transaction.model.warehouse.Warehouse> dbWarehouse =
+                warehouseRepository.findByCompanyCodeIdAndPlantIdAndLanguageIdAndDeletionIndicator(
+                        cycleCountHeader.getCompanyCode(),
+                        cycleCountHeader.getBranchCode(),
+                        "EN",
+                        0L
+                );
+        log.info("dbWarehouse : " + dbWarehouse);
+        if (dbWarehouse == null || dbWarehouse.isEmpty()) {
+            throw new BadRequestException("Warehouse can't be null");
+        }
+
+        newPerpetualHeader.setCompanyCodeId(cycleCountHeader.getCompanyCode());
+        newPerpetualHeader.setPlantId(cycleCountHeader.getBranchCode());
+        newPerpetualHeader.setWarehouseId(dbWarehouse.get().getWarehouseId());
+        newPerpetualHeader.setLanguageId("EN");
+        newPerpetualHeader.setMiddlewareId(String.valueOf(cycleCountHeader.getMiddlewareId()));
+        newPerpetualHeader.setMiddlewareTable(cycleCountHeader.getMiddlewareTable());
+        newPerpetualHeader.setReferenceCycleCountNo(cycleCountHeader.getCycleCountNo());
+
+        AuthToken authTokenForIDMasterService = authTokenService.getIDMasterServiceAuthToken();
+        long NUM_RAN_ID = 14;
+        String nextRangeNumber = getNextRangeNumber(NUM_RAN_ID,
+                newPerpetualHeader.getCompanyCodeId(),
+                newPerpetualHeader.getPlantId(),
+                newPerpetualHeader.getLanguageId(),
+                newPerpetualHeader.getWarehouseId(),
+                authTokenForIDMasterService.getAccess_token());
+        newPerpetualHeader.setCycleCountNo(nextRangeNumber);
+
+        // CC_TYP_ID
+        newPerpetualHeader.setCycleCountTypeId(1L);
+
+        newPerpetualHeader.setMovementTypeId(1L);
+        newPerpetualHeader.setSubMovementTypeId(2L);
+
+        // STATUS_ID - HardCoded Value "70"
+        newPerpetualHeader.setStatusId(70L);
+        statusDescription = stagingLineV2Repository.getStatusDescription(70L, newPerpetualHeader.getLanguageId());
+        newPerpetualHeader.setStatusDescription(statusDescription);
+
+        IKeyValuePair description = stagingLineV2Repository.getDescription(newPerpetualHeader.getCompanyCodeId(),
+                newPerpetualHeader.getLanguageId(),
+                newPerpetualHeader.getPlantId(),
+                newPerpetualHeader.getWarehouseId());
+        newPerpetualHeader.setCompanyDescription(description.getCompanyDesc());
+        newPerpetualHeader.setPlantDescription(description.getPlantDesc());
+        newPerpetualHeader.setWarehouseDescription(description.getWarehouseDesc());
+
+        newPerpetualHeader.setDeletionIndicator(0L);
+        newPerpetualHeader.setCreatedBy("MW_AMS");
+        newPerpetualHeader.setCountedBy("MW_AMS");
+        newPerpetualHeader.setCreatedOn(new Date());
+        newPerpetualHeader.setCountedOn(new Date());
+        PerpetualHeaderV2 createdPerpetualHeader = perpetualHeaderV2Repository.save(newPerpetualHeader);
+        log.info("createdPerpetualHeader : " + createdPerpetualHeader);
+
+        AuthToken authTokenForMastersService = authTokenService.getMastersServiceAuthToken();
+        List<String> itemCodes = cycleCountHeader.getLines().stream().map(CycleCountLine::getItemCode).distinct().collect(Collectors.toList());
+
+        log.info("ItemCode List of Size {} ", itemCodes.size());
+        List<InventoryV2> inventoryList = inventoryV2Repository.findInventoryForPerpertualV2(
+                newPerpetualHeader.getCompanyCodeId(),
+                newPerpetualHeader.getPlantId(),
+                newPerpetualHeader.getLanguageId(),
+                newPerpetualHeader.getWarehouseId(),
+                itemCodes);
+
+        log.info("Inventory List of Size {} ", inventoryList.size());
+        Map<String, List<InventoryV2>> inventoryMap = inventoryList.stream().collect(Collectors.groupingBy(InventoryV2::getItemCode));
+
+        for (CycleCountLine cycleCountLine : cycleCountHeader.getLines()) {
+            List<InventoryV2> dbInventoryList = inventoryMap.getOrDefault(cycleCountLine.getItemCode(), null);
+
+            // filter by manufacturer_name
+            List<InventoryV2> filteredInventory = dbInventoryList.stream()
+                    .filter(inv -> Objects.equals(inv.getManufacturerName(), cycleCountLine.getManufacturerName()))
+                    .collect(Collectors.toList());
+
+            log.info("Filtered Inventory Records ------->  {} ", filteredInventory);
+            for (InventoryV2 dbInventory : filteredInventory) {
+
+                PerpetualLineV2 dbPerpetualLine = new PerpetualLineV2();
+                StorageBinPutAway storageBinPutAway = new StorageBinPutAway();
+                storageBinPutAway.setCompanyCodeId(dbInventory.getCompanyCodeId());
+                storageBinPutAway.setPlantId(dbInventory.getPlantId());
+                storageBinPutAway.setLanguageId(dbInventory.getLanguageId());
+                storageBinPutAway.setWarehouseId(dbInventory.getWarehouseId());
+                storageBinPutAway.setBin(dbInventory.getStorageBin());
+
+                StorageBinV2 dbStorageBin = null;
+                try {
+                    log.info("StorageBin Input Values ---------> " + storageBinPutAway);
+                    dbStorageBin = mastersService.getaStorageBinV2(storageBinPutAway, authTokenForMastersService.getAccess_token());
+                } catch (Exception e) {
+                    throw new BadRequestException("Invalid StorageBin");
+                }
+                if (dbStorageBin != null) {
+                    dbPerpetualLine.setStorageSectionId(dbStorageBin.getStorageSectionId());
+                    dbPerpetualLine.setLevelId(String.valueOf(dbStorageBin.getFloorId()));
+                    dbPerpetualLine.setVariantCode(dbInventory.getVariantCode());
+                    dbPerpetualLine.setVariantSubCode(dbInventory.getVariantSubCode());
+                }
+
+                dbPerpetualLine.setCompanyCodeId(dbInventory.getCompanyCodeId());
+                dbPerpetualLine.setPlantId(dbInventory.getPlantId());
+                dbPerpetualLine.setWarehouseId(dbInventory.getWarehouseId());
+                dbPerpetualLine.setLanguageId(dbInventory.getLanguageId());
+                dbPerpetualLine.setItemCode(dbInventory.getItemCode());
+                dbPerpetualLine.setManufacturerPartNo(dbInventory.getManufacturerCode());
+                dbPerpetualLine.setManufacturerName(dbInventory.getManufacturerName());
+                dbPerpetualLine.setManufacturerCode(cycleCountLine.getManufacturerCode());
+                dbPerpetualLine.setLineNo(cycleCountLine.getLineOfEachItemCode());
+
+                dbPerpetualLine.setCycleCountNo(nextRangeNumber);
+                dbPerpetualLine.setReferenceNo(cycleCountLine.getCycleCountNo());
+                dbPerpetualLine.setStorageBin(dbInventory.getStorageBin());
+                dbPerpetualLine.setItemCode(dbInventory.getItemCode());
+                dbPerpetualLine.setItemDesc(dbInventory.getReferenceField8());
+                dbPerpetualLine.setPackBarcodes(dbInventory.getPackBarcodes());
+                dbPerpetualLine.setStockTypeId(dbInventory.getStockTypeId());
+                dbPerpetualLine.setSpecialStockIndicator(String.valueOf(dbInventory.getSpecialStockIndicatorId()));
+//                    dbPerpetualLine.setInventoryQuantity(dbInventory.getInventoryQuantity());
+                dbPerpetualLine.setInventoryQuantity(dbInventory.getReferenceField4());                              //Total Qty
+                dbPerpetualLine.setInventoryUom(cycleCountLine.getUom());
+                dbPerpetualLine.setFrozenQty(cycleCountLine.getFrozenQty());
+
+                dbPerpetualLine.setStatusId(70L);
+                statusDescription = stagingLineV2Repository.getStatusDescription(70L, newPerpetualHeader.getLanguageId());
+                dbPerpetualLine.setStatusDescription(statusDescription);
+
+                dbPerpetualLine.setCompanyDescription(description.getCompanyDesc());
+                dbPerpetualLine.setPlantDescription(description.getPlantDesc());
+                dbPerpetualLine.setWarehouseDescription(description.getWarehouseDesc());
+
+                if (dbInventory.getBarcodeId() != null) {
+                    dbPerpetualLine.setBarcodeId(dbInventory.getBarcodeId());
+                }
+
+                if (dbInventory.getBarcodeId() == null) {
+                    List<String> barcode = stagingLineV2Repository.getPartnerItemBarcode(dbInventory.getItemCode(),
+                            dbInventory.getCompanyCodeId(),
+                            dbInventory.getPlantId(),
+                            dbInventory.getWarehouseId(),
+                            dbInventory.getManufacturerName(),
+                            dbInventory.getLanguageId());
+                    log.info("Barcode : " + barcode);
+                    if (barcode != null && !barcode.isEmpty()) {
+                        dbPerpetualLine.setBarcodeId(barcode.get(0));
+                    }
+                }
+
+                dbPerpetualLine.setDeletionIndicator(0L);
+                dbPerpetualLine.setCreatedBy("MW_AMS");
+                dbPerpetualLine.setCreatedOn(new Date());
+                perpetualLines.add(dbPerpetualLine);
+            }
+
+
+            //Item Not present in Inventory ---> Lines Insert as Inv_qty '0'
+            if (filteredInventory.isEmpty()) {
+                PerpetualZeroStockLine dbPerpetualLine = new PerpetualZeroStockLine();
+
+                dbPerpetualLine.setCompanyCodeId(newPerpetualHeader.getCompanyCodeId());
+                dbPerpetualLine.setPlantId(newPerpetualHeader.getPlantId());
+                dbPerpetualLine.setWarehouseId(newPerpetualHeader.getWarehouseId());
+                dbPerpetualLine.setLanguageId(newPerpetualHeader.getLanguageId());
+                dbPerpetualLine.setItemCode(cycleCountLine.getItemCode());
+                dbPerpetualLine.setManufacturerPartNo(cycleCountLine.getManufacturerName());
+                dbPerpetualLine.setManufacturerName(cycleCountLine.getManufacturerName());
+                dbPerpetualLine.setManufacturerCode(cycleCountLine.getManufacturerCode());
+                dbPerpetualLine.setLineNo(cycleCountLine.getLineOfEachItemCode());
+
+                dbPerpetualLine.setCycleCountNo(nextRangeNumber);
+                dbPerpetualLine.setReferenceNo(cycleCountLine.getCycleCountNo());
+
+                //Get Item Description
+                ImBasicData imBasicData = new ImBasicData();
+                imBasicData.setCompanyCodeId(newPerpetualHeader.getCompanyCodeId());
+                imBasicData.setPlantId(newPerpetualHeader.getPlantId());
+                imBasicData.setLanguageId(newPerpetualHeader.getLanguageId());
+                imBasicData.setWarehouseId(newPerpetualHeader.getWarehouseId());
+                imBasicData.setItemCode(cycleCountLine.getItemCode());
+                imBasicData.setManufacturerName(cycleCountLine.getManufacturerName());
+                ImBasicData1 imBasicData1 = mastersService.getImBasicData1ByItemCodeV2(imBasicData, authTokenForMastersService.getAccess_token());
+                log.info("ImBasicData1 : " + imBasicData1);
+
+                if (imBasicData1 != null) {
+                    dbPerpetualLine.setItemDesc(imBasicData1.getDescription());
+                }
+                dbPerpetualLine.setInventoryQuantity(0D);                              //Total Qty
+                dbPerpetualLine.setInventoryUom(cycleCountLine.getUom());
+                dbPerpetualLine.setFrozenQty(cycleCountLine.getFrozenQty());
+
+                dbPerpetualLine.setStatusId(47L);
+                statusDescription = stagingLineV2Repository.getStatusDescription(47L, newPerpetualHeader.getLanguageId());
+                dbPerpetualLine.setStatusDescription(statusDescription);
+
+                dbPerpetualLine.setCompanyDescription(description.getCompanyDesc());
+                dbPerpetualLine.setPlantDescription(description.getPlantDesc());
+                dbPerpetualLine.setWarehouseDescription(description.getWarehouseDesc());
+
+                List<String> barcode = stagingLineV2Repository.getPartnerItemBarcode(cycleCountLine.getItemCode(),
+                        newPerpetualHeader.getCompanyCodeId(),
+                        newPerpetualHeader.getPlantId(),
+                        newPerpetualHeader.getWarehouseId(),
+                        cycleCountLine.getManufacturerName(),
+                        newPerpetualHeader.getLanguageId());
+                log.info("Barcode : " + barcode);
+                if (barcode != null && !barcode.isEmpty()) {
+                    dbPerpetualLine.setBarcodeId(barcode.get(0));
+                }
 
 
                 dbPerpetualLine.setDeletionIndicator(0L);

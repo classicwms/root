@@ -1821,10 +1821,15 @@ public class GrLineService extends BaseService {
     @Scheduled(fixedDelay = 15000)
 	private void schedulePostGRLineProcessV2() {
 		log.info("Create PutawayHeader Schedule Initiated : " + new Date());
-		List<GrLineV2> createdGRLines = getGrLineV2List();
-		if (createdGRLines != null) {
-			for(GrLineV2 lineV2 : createdGRLines) {
-				if (lineV2 != null) {
+        int claimed = grLineV2Repository.claimGrLines();
+        if (claimed == 0) {
+            log.info("No records to process");
+            return;
+        }
+        log.info("Claimed {} records", claimed);
+        List<GrLineV2> lines = grLineV2Repository.findClaimedGrLines();
+//		List<GrLineV2> createdGRLines = getGrLineV2List();
+			for(GrLineV2 lineV2 : lines) {
 					String companyCode = lineV2.getCompanyCode();
 					String plantId = lineV2.getPlantId();
 					String languageId = lineV2.getLanguageId();
@@ -1862,7 +1867,7 @@ public class GrLineService extends BaseService {
                                 0L);
                         sendMail(companyCode, plantId, languageId, warehouseId, refDocNumber,
                                 getInboundOrderTypeTable(inboundOrderTypeId), e.toString());
-					} catch (Exception e) {
+                    } catch (Exception e) {
 						e.printStackTrace();
                         log.error("PUTAWAY HEADER CREATION FAILED --> RefDoc: {}, PreInboundNo: {}, LineNo: {}, ItemCode: {}",
                                 refDocNumber, lineV2.getPreInboundNo(), lineV2.getLineNo(), lineV2.getItemCode(), e);
@@ -1880,9 +1885,7 @@ public class GrLineService extends BaseService {
 						sendMail(companyCode, plantId, languageId, warehouseId, refDocNumber,
 								getInboundOrderTypeTable(inboundOrderTypeId), e.toString());
 					}
-				}
 			}
-		}
 	}
 
     /**

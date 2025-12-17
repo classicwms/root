@@ -252,7 +252,7 @@ public class TransactionService extends BaseService {
         for (CycleCountHeader stockCount : scpList) {
                 try {
                     log.info("Perpetual StockCount CycleCountNo : " + stockCount.getCycleCountNo());
-                    PerpetualHeaderEntityV2 perpetualStockCount = perpetualHeaderService.processStockCountReceived(stockCount);
+                    PerpetualHeaderEntityV2 perpetualStockCount = perpetualHeaderService.processStockCountReceivedV2(stockCount);
                     if (perpetualStockCount != null) {
                         // Updating the Processed Status
                         cycleCountService.updateProcessedOrderV2(stockCount.getCycleCountNo(), 10L);

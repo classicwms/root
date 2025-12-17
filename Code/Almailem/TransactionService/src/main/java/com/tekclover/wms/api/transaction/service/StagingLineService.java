@@ -2092,7 +2092,7 @@ public class StagingLineService extends BaseService {
 	                 }
 	                 
 	                 grLineV2Repository.updateGrLineStatusV2(grLine.getCompanyCode(), grLine.getPlantId(), grLine.getLanguageId(), grLine.getWarehouseId(), grLine.getPreInboundNo(),
-	 	                    grLine.getCreatedOn(), grLine.getLineNo(), grLine.getItemCode(), 1L);
+	 	                    grLine.getCreatedOn(), grLine.getLineNo(), grLine.getItemCode(), 10L);
 	                 log.info("-------GrLine status updated---------"); 
 	            }
         	}
