@@ -165,4 +165,7 @@ public class OutboundLine {
 
 	@Transient
 	private String mfrPartNumber;
+
+	@Version
+	private Long versionId = 0L;
 }
