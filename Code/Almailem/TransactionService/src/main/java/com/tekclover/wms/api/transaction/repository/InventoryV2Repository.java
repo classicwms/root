@@ -2475,7 +2475,7 @@ public interface InventoryV2Repository extends PagingAndSortingRepository<Invent
             "plant_id in (:plantId) and \n" +
             "lang_id in (:languageId) and \n" +
 //            "mfr_name in (:manufacturerName) and \n" +
-            "c_id in (:companyCodeId) and is_deleted = 0 and STCK_TYP_ID = 1 " +
+            "c_id in (:companyCodeId) and is_deleted = 0 and STCK_TYP_ID = 1 and ref_field_4 > 0 " +
             "and inv_id in (select max(inv_id) inventoryId from tblinventory " +
             "WHERE itm_code in (:itemCode) and " +
             "wh_id in (:warehouseId) and " +
