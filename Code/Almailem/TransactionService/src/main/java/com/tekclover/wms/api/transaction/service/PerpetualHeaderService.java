@@ -1802,6 +1802,12 @@ public class PerpetualHeaderService extends BaseService {
         for (CycleCountLine cycleCountLine : cycleCountHeader.getLines()) {
             List<InventoryV2> dbInventoryList = inventoryMap.getOrDefault(cycleCountLine.getItemCode(), null);
 
+            log.info("ItemCode is {} ---> ", cycleCountLine.getItemCode() );
+            if(dbInventoryList == null || dbInventoryList.isEmpty()) {
+                log.info("This ItemCode is {} ---> No Inventory Records ", cycleCountLine.getItemCode() );
+                continue;
+            }
+
             // filter by manufacturer_name
             List<InventoryV2> filteredInventory = dbInventoryList.stream()
                     .filter(inv -> Objects.equals(inv.getManufacturerName(), cycleCountLine.getManufacturerName()))
