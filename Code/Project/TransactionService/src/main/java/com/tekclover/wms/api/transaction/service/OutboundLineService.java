@@ -979,8 +979,8 @@ public class OutboundLineService extends BaseService {
 				axapiResponse = postSalesOrder (confirmedOutboundHeader, confirmedOutboundLines);
 				log.info("AXApiResponse: " + axapiResponse);
 			}
-			axapiResponse = new AXApiResponse();
-			axapiResponse.setStatusCode("200");
+//			axapiResponse = new AXApiResponse();
+//			axapiResponse.setStatusCode("200");
 		}
 	
 		if (axapiResponse.getStatusCode() != null && axapiResponse.getStatusCode().equalsIgnoreCase("200")) {
