@@ -35,7 +35,7 @@ public class TPLSparkImBasicData1V5Service {
         // connection properties
         connProp.setProperty("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         connProp.put("user", "sa");
-        connProp.put("password", "gQ3PmSL5D7u32Vtw5F74UwWH");
+        connProp.put("password", "4V7lOXaxgAi3i6mgJL7qBUSPM");
 //        sparkSession = SparkSession.builder().master("local[*]").appName("ImBasicData1.com").config("spark.executor.memory", "4g")
 //                .config("spark.executor.cores", "4").getOrCreate();
 
@@ -48,7 +48,7 @@ public class TPLSparkImBasicData1V5Service {
                 .getOrCreate();
 
         // Read from Sql Table
-        val df2 = sparkSession.read().option("fetchSize", "50000").jdbc("jdbc:sqlserver://10.10.18.14;databaseName=WMS_3PL", "tblimbasicdata1", connProp)
+        val df2 = sparkSession.read().option("fetchSize", "50000").jdbc("jdbc:sqlserver://10.10.10.61;databaseName=WMS_3PL", "tblimbasicdata1", connProp)
                 .repartition(400);
         df2.createOrReplaceTempView("tblimbasicdata1v6");
     }

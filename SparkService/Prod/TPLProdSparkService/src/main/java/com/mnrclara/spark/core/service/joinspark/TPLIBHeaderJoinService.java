@@ -41,7 +41,7 @@ public class TPLIBHeaderJoinService {
         connProp = new Properties();
         connProp.setProperty("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         connProp.put("user", "sa");
-        connProp.put("password", "gQ3PmSL5D7u32Vtw5F74UwWH");
+        connProp.put("password", "4V7lOXaxgAi3i6mgJL7qBUSPM");
 
         // Read from SQL Server Table
         inboundHeader = readJdbcTable("tblinboundheader");
@@ -52,7 +52,7 @@ public class TPLIBHeaderJoinService {
 
     private Dataset<Row> readJdbcTable(String tableName) {
         return sparkSession.read().option("fetchSize", "10000")
-                .jdbc("jdbc:sqlserver://10.10.18.14;databaseName=WMS_3PL", tableName, connProp)
+                .jdbc("jdbc:sqlserver://10.10.10.61;databaseName=WMS_3PL", tableName, connProp)
                 .repartition(16);
     }
 

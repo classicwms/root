@@ -31,13 +31,13 @@ public class TPLSparkPerpetualLineService {
         // Connection properties
         conProp.setProperty("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         conProp.put("user", "sa");
-        conProp.put("password", "gQ3PmSL5D7u32Vtw5F74UwWH");
+        conProp.put("password", "4V7lOXaxgAi3i6mgJL7qBUSPM");
 
         // Initialize Spark session and read data from SQL table
         sparkSession = SparkSession.builder().master("local[*]").appName("SparkByExample.com").config("spark.executor.memory", "4g")
                 .config("spark.executor.cores", "4").getOrCreate();
 
-        val df2 = sparkSession.read().jdbc("jdbc:sqlserver://10.10.18.14;databaseName=WMS_3PL", "tblperpetualline", conProp)
+        val df2 = sparkSession.read().jdbc("jdbc:sqlserver://10.10.10.61;databaseName=WMS_3PL", "tblperpetualline", conProp)
                 .repartition(16);
         df2.createOrReplaceTempView("tblperpetuallinev6");
     }

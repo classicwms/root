@@ -29,12 +29,12 @@ public class TPLSparkStagingLineV2Service {
         //connection properties
         connProp.setProperty("driver", "com.microsoft.sqlserver.jdbc.SQLServerDriver");
         connProp.put("user", "sa");
-        connProp.put("password", "gQ3PmSL5D7u32Vtw5F74UwWH");
+        connProp.put("password", "4V7lOXaxgAi3i6mgJL7qBUSPM");
         sparkSession = SparkSession.builder().master("local[*]").appName("StagingLine.com").config("spark.executor.memory", "4g")
                 .config("spark.executor.cores", "4").getOrCreate();
 
         //Read from Sql Table
-        val df2 = sparkSession.read().option("fetchSize", "10000").jdbc("jdbc:sqlserver://10.10.18.14;databaseName=WMS_3PL", "tblstagingline", connProp)
+        val df2 = sparkSession.read().option("fetchSize", "10000").jdbc("jdbc:sqlserver://10.10.10.61;databaseName=WMS_3PL", "tblstagingline", connProp)
                 .repartition(16);
         df2.createOrReplaceTempView("tblstaginglineV6");
     }
