@@ -53,6 +53,16 @@ public interface OutboundOrderV2Repository extends JpaRepository<OutboundOrderV2
     List<OutboundOrderV2> findOutboundOrder(@Param("statusId") Long statusId,
                                             @Param("whId") String warehouseId);
 
+    @Query(value = "select top 3 * from tbloborder2 where outbound_order_header_id in (select max(outbound_order_header_id) from tbloborder2 where \n" +
+            "processed_status_id = :statusId and warehouseid = :whId and outbound_order_typeid !=3 group by ref_document_no) order by order_received_on ", nativeQuery = true)
+    List<OutboundOrderV2> findOutboundOrderNonPickList(@Param("statusId") Long statusId,
+                                                       @Param("whId") String warehouseId);
+
+    @Query(value = "select top 1 * from tbloborder2 where outbound_order_header_id in (select max(outbound_order_header_id) from tbloborder2 where \n" +
+            "processed_status_id = :statusId and warehouseid = :whId and outbound_order_typeid =3 group by ref_document_no) order by order_received_on ", nativeQuery = true)
+    List<OutboundOrderV2> findOutboundOrderPickList(@Param("statusId") Long statusId,
+                                                       @Param("whId") String warehouseId);
+
     @Modifying
     @Query(value = "update tbloborder2 set processed_status_id = :statusId, order_processed_on = :updatedOn where " +
             " ref_document_no = :refDocNo ", nativeQuery = true)

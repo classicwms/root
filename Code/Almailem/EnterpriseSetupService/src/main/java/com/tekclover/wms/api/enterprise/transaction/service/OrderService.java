@@ -397,16 +397,16 @@ public class OrderService {
 				}
 				if(dbOutboundOrder.getNumberOfAttempts().equals(1L)){
 					numberOfAttemts = 2L;
-					processStatusId = 0L;
-				}
-				if(dbOutboundOrder.getNumberOfAttempts().equals(2L)){
-					numberOfAttemts = 3L;
 					processStatusId = 100L;
 				}
-				if(dbOutboundOrder.getNumberOfAttempts().equals(3L)){
-					numberOfAttemts = 3L;
-					processStatusId = 100L;
-				}
+//				if(dbOutboundOrder.getNumberOfAttempts().equals(2L)){
+//					numberOfAttemts = 3L;
+//					processStatusId = 100L;
+//				}
+//				if(dbOutboundOrder.getNumberOfAttempts().equals(3L)){
+//					numberOfAttemts = 3L;
+//					processStatusId = 100L;
+//				}
 			} else {
 				numberOfAttemts = 1L;
 				processStatusId = 0L;

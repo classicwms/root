@@ -1115,6 +1115,41 @@ public class PickupHeaderService {
             dbPickupHeader.setPlantDescription(description.getPlantDesc());
             dbPickupHeader.setWarehouseDescription(description.getWarehouseDesc());
 
+//            log.info("Update OutboundLine Status Process Stated-----------> ");
+//            updateOutboundLineStatus(dbPickupHeader, loginUserID);
+//            log.info("Update OutboundLine Status Process Completed-----------> ");
+//            statusDescription = stagingLineV2Repository.getStatusDescription(48L, dbPickupHeader.getLanguageId());
+//            outboundLineV2Repository.updateOutboundLineV2(dbPickupHeader.getCompanyCodeId(),
+//                    dbPickupHeader.getPlantId(),
+//                    dbPickupHeader.getLanguageId(),
+//                    dbPickupHeader.getWarehouseId(),
+//                    dbPickupHeader.getPreOutboundNo(),
+//                    dbPickupHeader.getRefDocNumber(),
+//                    dbPickupHeader.getPartnerCode(),
+//                    dbPickupHeader.getLineNumber(),
+//                    dbPickupHeader.getItemCode(),
+//                    48L,
+//                    statusDescription,
+//                    dbPickupHeader.getAssignedPickerId(),
+//                    dbPickupHeader.getManufacturerName(),
+//                    loginUserID,
+//                    new Date());
+
+            dbPickupHeader.setDeletionIndicator(0L);
+            dbPickupHeader.setPickupCreatedBy(loginUserID);
+            dbPickupHeader.setPickupCreatedOn(new Date());
+//            PickupHeaderV2 pickupHeaderV2 =  pickupHeaderV2Repository.save(dbPickupHeader);
+
+            return dbPickupHeader;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    // UpdateOutboundProcess
+    void updateOutboundLineStatus(PickupHeaderV2 dbPickupHeader, String loginUserID) {
+        try {
             statusDescription = stagingLineV2Repository.getStatusDescription(48L, dbPickupHeader.getLanguageId());
             outboundLineV2Repository.updateOutboundLineV2(dbPickupHeader.getCompanyCodeId(),
                     dbPickupHeader.getPlantId(),
@@ -1125,22 +1160,15 @@ public class PickupHeaderService {
                     dbPickupHeader.getPartnerCode(),
                     dbPickupHeader.getLineNumber(),
                     dbPickupHeader.getItemCode(),
-                                                          48L,
-                                                          statusDescription,
-                                                          dbPickupHeader.getAssignedPickerId(),
-                                                          dbPickupHeader.getManufacturerName(),
+                    48L,
+                    statusDescription,
+                    dbPickupHeader.getAssignedPickerId(),
+                    dbPickupHeader.getManufacturerName(),
                     loginUserID,
-                                                          new Date());
-
-            dbPickupHeader.setDeletionIndicator(0L);
-            dbPickupHeader.setPickupCreatedBy(loginUserID);
-            dbPickupHeader.setPickupCreatedOn(new Date());
-            PickupHeaderV2 pickupHeaderV2 =  pickupHeaderV2Repository.save(dbPickupHeader);
-
-            return pickupHeaderV2;
+                    new Date());
         } catch (Exception e) {
             e.printStackTrace();
-            throw e;
+            log.info("OutboundLine Status Update Failed Exception Throw ---------> " + e.getMessage());
         }
     }
 

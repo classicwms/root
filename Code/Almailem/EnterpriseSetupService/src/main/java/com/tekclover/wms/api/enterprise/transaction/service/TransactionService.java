@@ -1,31 +1,34 @@
 package com.tekclover.wms.api.enterprise.transaction.service;
 
+import com.tekclover.wms.api.enterprise.controller.exception.BadRequestException;
+import com.tekclover.wms.api.enterprise.transaction.model.cyclecount.periodic.v2.PeriodicHeaderEntityV2;
+import com.tekclover.wms.api.enterprise.transaction.model.cyclecount.perpetual.v2.PerpetualHeaderEntityV2;
+import com.tekclover.wms.api.enterprise.transaction.model.inbound.preinbound.InboundIntegrationHeader;
+import com.tekclover.wms.api.enterprise.transaction.model.inbound.preinbound.InboundIntegrationLine;
+import com.tekclover.wms.api.enterprise.transaction.model.inbound.v2.InboundHeaderV2;
+import com.tekclover.wms.api.enterprise.transaction.model.inbound.v2.InboundOrderCancelInput;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.v2.OutboundIntegrationHeaderV2;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.v2.OutboundIntegrationLineV2;
+import com.tekclover.wms.api.enterprise.transaction.model.outbound.v2.OutboundHeaderV2;
+import com.tekclover.wms.api.enterprise.transaction.model.warehouse.cyclecount.CycleCountHeader;
+import com.tekclover.wms.api.enterprise.transaction.model.warehouse.inbound.WarehouseApiResponse;
+import com.tekclover.wms.api.enterprise.transaction.model.warehouse.inbound.v2.InboundOrderLinesV2;
+import com.tekclover.wms.api.enterprise.transaction.model.warehouse.inbound.v2.InboundOrderV2;
+import com.tekclover.wms.api.enterprise.transaction.model.warehouse.outbound.v2.OutboundOrderLineV2;
+import com.tekclover.wms.api.enterprise.transaction.model.warehouse.outbound.v2.OutboundOrderV2;
+import com.tekclover.wms.api.enterprise.transaction.model.warehouse.stockAdjustment.StockAdjustment;
+import com.tekclover.wms.api.enterprise.transaction.repository.*;
+import com.tekclover.wms.api.enterprise.transaction.util.CommonUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import com.tekclover.wms.api.enterprise.controller.exception.BadRequestException;
-import com.tekclover.wms.api.enterprise.transaction.model.inbound.v2.InboundOrderCancelInput;
-import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.v2.OutboundIntegrationHeaderV2;
-import com.tekclover.wms.api.enterprise.transaction.model.outbound.preoutbound.v2.OutboundIntegrationLineV2;
-import com.tekclover.wms.api.enterprise.transaction.model.outbound.v2.OutboundHeaderV2;
-import com.tekclover.wms.api.enterprise.transaction.model.warehouse.inbound.WarehouseApiResponse;
-import com.tekclover.wms.api.enterprise.transaction.model.warehouse.outbound.v2.OutboundOrderLineV2;
-import com.tekclover.wms.api.enterprise.transaction.model.warehouse.outbound.v2.OutboundOrderV2;
-import com.tekclover.wms.api.enterprise.transaction.repository.CycleCountHeaderRepository;
-import com.tekclover.wms.api.enterprise.transaction.repository.InboundOrderLinesV2Repository;
-import com.tekclover.wms.api.enterprise.transaction.repository.InboundOrderV2Repository;
-import com.tekclover.wms.api.enterprise.transaction.repository.OutboundOrderV2Repository;
-import com.tekclover.wms.api.enterprise.transaction.repository.StockAdjustmentMiddlewareRepository;
-import com.tekclover.wms.api.enterprise.transaction.util.CommonUtils;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -66,38 +69,32 @@ public class TransactionService extends BaseService {
 
     //-------------------------------------------------------------------------------------------
 
-//    List<InboundIntegrationHeader> inboundList = null;
-    List<OutboundIntegrationHeaderV2> outboundList = null;
-//    List<CycleCountHeader> stockCountPerpetualList = null;
-//    List<CycleCountHeader> stockCountPeriodicList = null;
-//    List<StockAdjustment> stockAdjustmentList = null;
-//    static CopyOnWriteArrayList<InboundIntegrationHeader> spList = null;            // Inbound List
-    static CopyOnWriteArrayList<OutboundIntegrationHeaderV2> spOutboundList = null;    // Outbound List
-//    static CopyOnWriteArrayList<CycleCountHeader> scPerpetualList = null;    // StockCount List
-//    static CopyOnWriteArrayList<CycleCountHeader> scPeriodicList = null;    // StockCount List
-//    static CopyOnWriteArrayList<StockAdjustment> stockAdjustments = null;    // StockAdjustment List
-//    static CopyOnWriteArrayList<CycleCountHeader> scPerpetualList = null;    // StockCount List
-//    static CopyOnWriteArrayList<CycleCountHeader> scPeriodicList = null;    // StockCount List
-//    static CopyOnWriteArrayList<StockAdjustment> stockAdjustments = null;    // StockAdjustment List
+    List<CycleCountHeader> stockCountPerpetualList = null;
+    List<CycleCountHeader> stockCountPeriodicList = null;
+    List<StockAdjustment> stockAdjustmentList = null;
+    static CopyOnWriteArrayList<CycleCountHeader> scPerpetualList = null;    // StockCount List
+    static CopyOnWriteArrayList<CycleCountHeader> scPeriodicList = null;    // StockCount List
+    static CopyOnWriteArrayList<StockAdjustment> stockAdjustments = null;    // StockAdjustment List
+
 
 
     //-------------------------------------------------------------------Outbound---------------------------------------------------------------
-    public WarehouseApiResponse processOutboundOrder() throws IllegalAccessException, InvocationTargetException, ParseException {
+    public WarehouseApiResponse processOutboundOrder(List<OutboundOrderV2> sqlOutboundList) throws IllegalAccessException, InvocationTargetException, ParseException {
         WarehouseApiResponse warehouseApiResponse = new WarehouseApiResponse();
-//        if (outboundList == null || outboundList.isEmpty()) {
-        List<OutboundOrderV2> sqlOutboundList = outboundOrderV2Repository.findOutboundOrder(0L, WAREHOUSE_ID_200);
+//        List<OutboundOrderV2> sqlOutboundList = outboundOrderV2Repository.findOutboundOrder(0L, WAREHOUSE_ID_200);
             log.info("ob header list: " + sqlOutboundList);
+            if(sqlOutboundList.isEmpty()) {
+                warehouseApiResponse.setStatusCode("200");
+                warehouseApiResponse.setMessage("No Record Found");
+                return warehouseApiResponse;
+            }
 
         // Set Process_status_id = 1
-        sqlOutboundList.stream().forEach(outbound -> {
-            try {
-                orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID(), 1L);
-                log.info("Update Process StatusId 1 Successfully");
-            } catch (Exception e) {
-                log.info("Update Order Process StatusId 1 Failed" + e.getMessage());
-                throw new RuntimeException(e);
-            }
-        });
+        for(OutboundOrderV2 outbound : sqlOutboundList) {
+            orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID(), 1L);
+            log.info("Update Process StatusId 1 Successfully");
+        }
+
         List<OutboundIntegrationHeaderV2> outboundAutoLabList = new ArrayList<>();
             for (OutboundOrderV2 dbOBOrder : sqlOutboundList) {
                 log.info("OB Process Initiated : " + dbOBOrder.getOrderId());
@@ -138,7 +135,6 @@ public class TransactionService extends BaseService {
                 }
 
                 List<OutboundIntegrationLineV2> outboundIntegrationLineList = new ArrayList<>();
-//                List<OutboundOrderLineV2> sqlOutboundLineList = outboundOrderLinesV2Repository.findAllByOrderIdAndOutboundOrderTypeID(dbOBOrder.getOrderId(), dbOBOrder.getOutboundOrderTypeID());
                 log.info("ob line list: " + dbOBOrder.getLine().size());
                 for (OutboundOrderLineV2 line : dbOBOrder.getLine()) {
                     OutboundIntegrationLineV2 outboundIntegrationLine = new OutboundIntegrationLineV2();
@@ -162,12 +158,6 @@ public class TransactionService extends BaseService {
                 outboundIntegrationHeader.setOutboundIntegrationLines(outboundIntegrationLineList);
                 outboundAutoLabList.add(outboundIntegrationHeader);
             }
-//        spOutboundList = new CopyOnWriteArrayList<OutboundIntegrationHeaderV2>(outboundList);
-//        log.info("There is no record found to process (sql) ...Waiting..");
-//    }
-
-//        if(outboundList !=null)
-//    {
             log.info("Latest OutboundOrder found: " + outboundAutoLabList);
         for (OutboundIntegrationHeaderV2 outbound : outboundAutoLabList) {
                 try {
@@ -176,7 +166,7 @@ public class TransactionService extends BaseService {
                     if (outboundHeader != null) {
                         // Updating the Processed Status
                         orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID(),  10L);
-                        outboundAutoLabList.remove(outbound);
+//                        outboundAutoLabList.remove(outbound);
                         warehouseApiResponse.setStatusCode("200");
                         warehouseApiResponse.setMessage("Success");
                     }
@@ -189,8 +179,6 @@ public class TransactionService extends BaseService {
                             e.toString().contains("UnexpectedRollbackException") || e.toString().contains("SqlException")) {
                         // Updating the Processed Status
                         orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID(), 900L);
-//                        orderManagementLineService.doUnAllocationV2(outbound);
-//                        orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID());
                         //============================================================================================
                         //Sending Failed Details through Mail
                         InboundOrderCancelInput inboundOrderCancelInput = new InboundOrderCancelInput();
@@ -223,16 +211,17 @@ public class TransactionService extends BaseService {
 
                         try {
                             preOutboundHeaderService.createOutboundIntegrationLogV2(outbound, e.toString());
-                            outboundAutoLabList.remove(outbound);
+//                            outboundAutoLabList.remove(outbound);
                         } catch (Exception ex) {
-                            outboundAutoLabList.remove(outbound);
+//                            outboundAutoLabList.remove(outbound);
                             throw new RuntimeException(ex);
                         }
                         warehouseApiResponse.setStatusCode("1400");
                         warehouseApiResponse.setMessage("Failure");
                     } else {
+                        orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID());
                     // Updating the Processed Status
-                    orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID(), 100L);
+//                    orderService.updateProcessedOrderV2(outbound.getRefDocumentNo(), outbound.getOutboundOrderTypeID(), 100L);
 
                     //============================================================================================
                     //Sending Failed Details through Mail
@@ -267,9 +256,9 @@ public class TransactionService extends BaseService {
 
                     try {
                         preOutboundHeaderService.createOutboundIntegrationLogV2(outbound, e.toString());
-                        outboundAutoLabList.remove(outbound);
+//                        outboundAutoLabList.remove(outbound);
                     } catch (Exception ex) {
-                        outboundAutoLabList.remove(outbound);
+//                        outboundAutoLabList.remove(outbound);
                         throw new RuntimeException(ex);
                     }
                     warehouseApiResponse.setStatusCode("1400");
@@ -277,7 +266,6 @@ public class TransactionService extends BaseService {
                 }
             }
         }
-//    }
         return warehouseApiResponse;
 }
 

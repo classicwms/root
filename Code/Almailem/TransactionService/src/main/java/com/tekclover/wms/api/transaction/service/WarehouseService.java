@@ -2763,7 +2763,7 @@ public class WarehouseService extends BaseService {
 
 			if (salesInvoice != null) {
 				try {
-					apiHeader.setProcessedStatusId(0L);
+					apiHeader.setProcessedStatusId(15L);
 					log.info("SalesInvoice: " + apiHeader);
 					OutboundOrderV2 createdOrder = orderService.createOutboundOrdersV2(apiHeader);
 					log.info("SalesInvoice Order Success: " + createdOrder);

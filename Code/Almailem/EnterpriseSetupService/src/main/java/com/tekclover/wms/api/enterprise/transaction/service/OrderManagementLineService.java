@@ -1478,40 +1478,6 @@ public class OrderManagementLineService extends BaseService {
         return orderManagementLineV2Repository.save(dbOrderManagementLine);
     }
 
-    /**
-     *
-     * @param outboundIntegrationHeader
-     */
-    @Transactional(rollbackFor = {Exception.class, Throwable.class})
-    @Retryable(value = Exception.class, maxAttempts = 3, backoff = @Backoff(delay = 3000))
-    public void doUnAllocationV2(OutboundIntegrationHeaderV2 outboundIntegrationHeader) throws Exception {
-        try {
-            String companyCodeId = outboundIntegrationHeader.getCompanyCode();
-            String plantId = outboundIntegrationHeader.getBranchCode();
-            String languageId = outboundIntegrationHeader.getLanguageId() != null ? outboundIntegrationHeader.getLanguageId() : "EN";
-            String warehouseId = outboundIntegrationHeader.getWarehouseID();
-            Long outboundOrderTypeId = outboundIntegrationHeader.getOutboundOrderTypeID();
-            String refDocNo = outboundIntegrationHeader.getRefDocumentNo();
-
-            List<OrderManagementLineV2> orderManagementLineV2List = orderManagementLineV2Repository.findAllByCompanyCodeIdAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndOutboundOrderTypeIdAndDeletionIndicator(
-                    companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId, 0L);
-
-            log.info("Rollback---> 1. unAllocation ----> " + refDocNo + ", " + outboundOrderTypeId);
-            //if order management line present do un allocation
-            if (orderManagementLineV2List != null && !orderManagementLineV2List.isEmpty()) {
-                doUnAllocationV2(orderManagementLineV2List, "MW_AMS");
-                log.info("Rollback---> 1.Unallocation Finished ----> " + refDocNo + ", " + outboundOrderTypeId);
-            }
-
-            //delete all records from respective tables
-            log.info("Rollback---> 2. delete all record initiated ----> " + refDocNo + ", " + outboundOrderTypeId);
-            orderManagementLineV2Repository.deleteOutboundProcessingProc(companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId);
-            log.info("Rollback---> 2. delete all record finished ----> " + refDocNo + ", " + outboundOrderTypeId);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
-    }
 
     /**
      *
@@ -1533,27 +1499,7 @@ public class OrderManagementLineService extends BaseService {
         }
     }
 
-    /**
-     *
-     * @param companyCodeId
-     * @param plantId
-     * @param languageId
-     * @param warehouseId
-     * @param refDocNo
-     * @param outboundOrderTypeId
-     * @throws Exception
-     */
-    public void rollback(String companyCodeId, String plantId, String languageId, String warehouseId,
-                         String refDocNo, Long outboundOrderTypeId) throws Exception {
-        try {
-            initiateRollBack(companyCodeId, plantId, languageId, warehouseId, refDocNo, outboundOrderTypeId);
-            log.info("Rollback---> 3. rerun the order ----> " + refDocNo + ", " + outboundOrderTypeId);
-            orderService.reRunProcessedOrderV2(refDocNo, outboundOrderTypeId);
-        } catch (Exception e) {
-            log.error("Exception occurred during Rollback : " + e.toString());
-            throw e;
-        }
-    }
+
 
     /**
      *
@@ -1566,7 +1512,7 @@ public class OrderManagementLineService extends BaseService {
      * @throws Exception
      */
     @Transactional(rollbackFor = {Exception.class, Throwable.class})
-    @Retryable(value = Exception.class, maxAttempts = 3, backoff = @Backoff(delay = 5000, multiplier = 2))
+//    @Retryable(value = Exception.class, maxAttempts = 3, backoff = @Backoff(delay = 5000, multiplier = 2))
     public void initiateRollBack(String companyCodeId, String plantId, String languageId, String warehouseId,
                                  String refDocNo, Long outboundOrderTypeId) throws Exception {
         try {
