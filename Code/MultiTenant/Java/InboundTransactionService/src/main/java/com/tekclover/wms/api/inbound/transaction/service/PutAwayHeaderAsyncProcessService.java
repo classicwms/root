@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -211,7 +212,6 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
     /**
      *
      * @param createdGRLine namratha putawayHeader Creation
-     * @param nextPANumber putAwayNumber
      * @param loginUserID userID
      * @param idMasterToken IDMasterToken
      * @throws Exception exception
@@ -745,32 +745,32 @@ public class PutAwayHeaderAsyncProcessService extends BaseService {
                     putAwayHeader.setCreatedOn(new Date());
                     putAwayHeader.setUpdatedOn(new Date());
                     putAwayHeader.setConfirmedOn(new Date());
-                    putAwayHeader = putAwayHeaderV2Repository.save(putAwayHeader);
-                    log.info("putAwayHeader : " + putAwayHeader);
 
-                    // Staging_Header
-                    String orderText = "PutAwayHeader Created";
-                    inboundOrderV2Repository.updatePutawayHeader(putAwayHeader.getInboundOrderTypeId(), putAwayHeader.getRefDocNumber(), orderText);
-                    log.info("Update Staging Header Update Successfully");
+                    Optional<PutAwayHeaderV2> dbPutawayHeader = putAwayHeaderV2Repository.getPutAwayHeaderForValidation(putAwayHeader.getBarcodeId(), putAwayHeader.getRefDocNumber());
 
-//                    putAwayHeaderV2Repository.updatePutAwayNumberV7(putAwayHeader.getCompanyCodeId(), putAwayHeader.getPlantId(),
-//                            putAwayHeader.getLanguageId(), putAwayHeader.getWarehouseId(), putAwayHeader.getRefDocNumber(),
-//                            putAwayHeader.getPutAwayNumber());
-//                    log.info("putAwayHeader Number Updated for Same RefDocNo");
+                    if (dbPutawayHeader.isPresent()) {
+                        log.error("PutAwayHeader is already Present for the Order " + putAwayHeader.getRefDocNumber() + " and BarcodeId " + putAwayHeader.getBarcodeId());
+                    } else {
+                        putAwayHeader = putAwayHeaderV2Repository.save(putAwayHeader);
+                        log.info("putAwayHeader : " + putAwayHeader);
 
-                    // Updating Grline field -------------> PutAwayNumber
-                    log.info("Updation of PutAwayNumber on GrLine Started");
-                    putAwayHeaderV2Repository.updatePutAwayNumber(putAwayHeader.getCompanyCodeId(), putAwayHeader.getPlantId(),
-                            putAwayHeader.getLanguageId(), putAwayHeader.getWarehouseId(), putAwayHeader.getRefDocNumber(),
-                            putAwayHeader.getPreInboundNo(), createdGRLine.getItemCode(), createdGRLine.getLineNo(), createdGRLine.getCreatedOn(),
-                            putAwayHeader.getPutAwayNumber());
+                        // Staging_Header
+                        String orderText = "PutAwayHeader Created";
+                        inboundOrderV2Repository.updatePutawayHeader(putAwayHeader.getInboundOrderTypeId(), putAwayHeader.getRefDocNumber(), orderText);
+                        log.info("Update Staging Header Update Successfully");
 
-                    log.info("Updation of PutAwayNumber on GrLine Completed");
-                    /*----------------Inventory tables Create---------------------------------------------*/
-                    inventoryService.createInventoryNonCBMV4(companyCode, plantId, languageId, warehouseId, itemCode, manufacturerName, refDocNumber, createdGRLine);
+                        // Updating Grline field -------------> PutAwayNumber
+                        log.info("Updation of PutAwayNumber on GrLine Started");
+                        putAwayHeaderV2Repository.updatePutAwayNumber(putAwayHeader.getCompanyCodeId(), putAwayHeader.getPlantId(),
+                                putAwayHeader.getLanguageId(), putAwayHeader.getWarehouseId(), putAwayHeader.getRefDocNumber(),
+                                putAwayHeader.getPreInboundNo(), createdGRLine.getItemCode(), createdGRLine.getLineNo(), createdGRLine.getCreatedOn(),
+                                putAwayHeader.getPutAwayNumber());
 
-                    //bypass quality header and line
-                    //inboundQualityHeaderService.createInboundQualityHeaderV4(createdGRLine, statusId, statusDescription, nextQualityNumber);
+                        log.info("Updation of PutAwayNumber on GrLine Completed");
+                        /*----------------Inventory tables Create---------------------------------------------*/
+                        inventoryService.createInventoryNonCBMV4(companyCode, plantId, languageId, warehouseId, itemCode, manufacturerName, refDocNumber, createdGRLine);
+
+                    }
                 }
         } catch (Exception e) {
             log.info("RollPack In GrLine Input Values is RefDocNumber {}, PreInboundNo {}, BarcodeId {} ", createdGRLine.getRefDocNumber(), createdGRLine.getPreInboundNo(), createdGRLine.getBarcodeId());

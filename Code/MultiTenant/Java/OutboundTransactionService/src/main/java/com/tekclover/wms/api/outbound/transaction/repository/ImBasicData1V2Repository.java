@@ -61,4 +61,8 @@ public interface ImBasicData1V2Repository extends PagingAndSortingRepository<ImB
 											   @Param(value = "languageId") String languageId,
 											   @Param(value = "warehouseId") String warehouseId,
 											   @Param(value = "manufactureName") String manufactureName);
+
+	ImBasicData1V2 findByLanguageIdAndCompanyCodeIdAndPlantIdAndWarehouseIdAndItemCodeAndManufacturerNameAndDeletionIndicator(
+			String languageId, String companyCode, String plantId, String warehouseId,
+			String itemCode, String manufacturerName, Long deletionIndicator);
 }

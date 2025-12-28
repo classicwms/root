@@ -406,4 +406,9 @@ public interface PutAwayHeaderV2Repository extends JpaRepository<PutAwayHeaderV2
                                @Param("statusDescription") String statusDescription,
                                @Param("packBarcodeId") String backBarcodeId);
 
+    @Query(value = "SELECT * from tblputawayheader WHERE barcode_id = :barcodeId \n " +
+            "AND ref_doc_no = :refDocNo AND is_deleted = 0", nativeQuery = true)
+    Optional<PutAwayHeaderV2> getPutAwayHeaderForValidation(@Param("barcodeId") String barcodeId,
+                                                            @Param("refDocNo") String refDocNo);
+
 }

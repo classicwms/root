@@ -552,6 +552,8 @@ public interface OrderManagementLineV2Repository extends JpaRepository<OrderMana
                                   @Param("statusId") Long statusId,
                                   @Param("statusText") String statusText);
 
+    boolean existsByBarcodeIdAndStatusIdInAndDeletionIndicator(String barcodeId, List<Long> statusId, Long deletionIndicator);
+
     //-------------------------------Fahaheel------------------------------------------------------//
 
     @Query(value = "SELECT STATUS_TEXT from tblstatusid where status_id = :statusId", nativeQuery = true)

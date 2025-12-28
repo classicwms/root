@@ -3581,7 +3581,8 @@ public class MultiTenantService {
                     + "MFR_DATE as manufacturerDate,"
                     + "EXP_DATE as expiryDate,"
                     + "CUSTOMER_ID as customerId, "
-                    + "CUSTOMER_NAME as customerName "
+                    + "CUSTOMER_NAME as customerName, "
+                    + "PICK_CNF_BARCODE as pickConfirmBarcodeId "
                     + "FROM tblpickupline";
 
             List<String> conditions = new ArrayList<>();

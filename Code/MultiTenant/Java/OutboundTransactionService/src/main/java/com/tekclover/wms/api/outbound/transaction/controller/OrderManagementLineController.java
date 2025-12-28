@@ -373,10 +373,25 @@ public class OrderManagementLineController {
             log.info("ROUTING DB FETCH FROM DB CONFIG TABLE --> {}", routingDb);
             DataBaseContextHolder.clear();
             DataBaseContextHolder.setCurrentDb(routingDb);
-            OrderManagementLineV2 updatedOrderManagementLine =
-                    ordermangementlineService.doAllocationV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber,
-                            itemCode, loginUserID);
+            OrderManagementLineV2 updatedOrderManagementLine = null;
+            if (routingDb != null) {
+                switch (routingDb) {
+                    case "KNOWELL":
+                        updatedOrderManagementLine =
+                                ordermangementlineService.doAllocationV7(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber,
+                                        itemCode, loginUserID);
+                        break;
+
+                    default:
+                        updatedOrderManagementLine =
+                                ordermangementlineService.doAllocationV2(companyCodeId, plantId, languageId, warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber,
+                                        itemCode, loginUserID);
+                }
+            }
+
             return new ResponseEntity<>(updatedOrderManagementLine, HttpStatus.OK);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         } finally {
             DataBaseContextHolder.clear();
         }

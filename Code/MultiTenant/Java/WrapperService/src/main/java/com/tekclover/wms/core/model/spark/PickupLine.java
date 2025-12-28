@@ -95,5 +95,6 @@ public class PickupLine {
     private Double qtyInCase;
     private Double qtyInPiece;
     private Double qtyInCrate;
+    private String pickConfirmBarcodeId;
 
 }

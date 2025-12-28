@@ -91,4 +91,5 @@ public class PickupLineNewV4 {
     private Timestamp expiryDate;
     private String customerId;
     private String customerName;
+    private String pickConfirmBarcodeId;
 }
