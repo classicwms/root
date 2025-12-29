@@ -2730,9 +2730,9 @@ public class StagingLineService extends BaseService {
 //                    throw new BadRequestException(e.getLocalizedMessage());
 //                }
 
-                StagingLineEntityV2 stagingUpdate = stagingLineV2Repository.save(staging);
-                log.info("AFTER STAGING UPDATED AS 101 --> {}",stagingUpdate);
-                        stagingLineEntityList.add(stagingUpdate);
+//                StagingLineEntityV2 stagingUpdate = stagingLineV2Repository.save(staging);
+                log.info("AFTER STAGING UPDATED AS 101 --> {}",staging);
+                stagingLineEntityList.add(staging);
 
             });
 
@@ -2746,52 +2746,53 @@ public class StagingLineService extends BaseService {
                 String refDocNumber = entry.getKey();
                 List<StagingLineEntityV2> lineEntities = entry.getValue();
 
-                long countWithStatus = stagingLineV2Repository.countByRefDocNoAndStatusId(refDocNumber, 101L);
-                long totalCount = stagingLineV2Repository.countByRefDocNo(refDocNumber);
+//                long countWithStatus = stagingLineV2Repository.countByRefDocNoAndStatusId(refDocNumber, 101L);
+//                long totalCount = stagingLineV2Repository.countByRefDocNo(refDocNumber);
 
                 log.info("refDocNumber --> {}", refDocNumber);
-                log.info("countWithStatus ------> {}", countWithStatus);
-                log.info("totalCount --------> {}", totalCount);
+//                log.info("countWithStatus ------> {}", countWithStatus);
+//                log.info("totalCount --------> {}", totalCount);
 
-                if (countWithStatus == totalCount) {
-                    boolean allStatus101 = lineEntities.stream().allMatch(entity -> entity.getStatusId() == 101L);
-                    log.info("allStatus101 ---------> {}", allStatus101);
+//                if (countWithStatus == totalCount) {
+                List<StagingLineEntityV2> stagingLines = stagingLineV2Repository.findByRefDocNumberAndDeletionIndicator(refDocNumber, 0L);
+                boolean allStatus101 = stagingLines.stream().allMatch(entity -> entity.getStatusId() == 101L);
+                log.info("allStatus101 ---------> {}", allStatus101);
 
-                    if (allStatus101) {
-                        try {
-                            String response = oDataService.postODataRequest(lineEntities, refDocNumber, "1", "X");
-                            System.out.println("RES ---> {}" + response);
+                if (allStatus101) {
+                    try {
+                        String response = oDataService.postODataRequest(stagingLines, refDocNumber, "1", "X");
+                        System.out.println("RES ---> {}" + response);
 
-                            for (StagingLineEntityV2 entity : lineEntities) {
-                                if (response.equals("0")) {
-                                    entity.setSapFlag("0");
-                                    StagingLineEntityV2 updated = stagingLineV2Repository.save(entity);
+                        for (StagingLineEntityV2 entity : stagingLines) {
+                            if (response.equals("0")) {
+                                entity.setSapFlag("0");
+                                StagingLineEntityV2 updated = stagingLineV2Repository.save(entity);
 
-                                    GrHeaderV2 grHeaderV2 = grHeaderV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
-                                            updated.getCompanyCode(), updated.getPlantId(), updated.getLanguageId(), updated.getWarehouseId(), updated.getRefDocNumber(), updated.getPreInboundNo(), 0L);
-                                    grHeaderV2.setSapFlag("0");
-                                    grHeaderV2Repository.save(grHeaderV2);
+                                GrHeaderV2 grHeaderV2 = grHeaderV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+                                        updated.getCompanyCode(), updated.getPlantId(), updated.getLanguageId(), updated.getWarehouseId(), updated.getRefDocNumber(), updated.getPreInboundNo(), 0L);
+                                grHeaderV2.setSapFlag("0");
+                                grHeaderV2Repository.save(grHeaderV2);
 
-                                    // Update list again only if necessary
-                                } else {
-                                    log.info("SAP ERROR ---------------------------> {}", response);
-                                    entity.setSapFlag("1");
-                                    entity.setRemarks("SAP ERROR");
+                                // Update list again only if necessary
+                            } else {
+                                log.info("SAP ERROR ---------------------------> {}", response);
+                                entity.setSapFlag("1");
+                                entity.setRemarks("SAP ERROR");
 
-                                    entity.setSapFlag("1");
-                                    StagingLineEntityV2 updated = stagingLineV2Repository.save(entity);
+                                entity.setSapFlag("1");
+                                StagingLineEntityV2 updated = stagingLineV2Repository.save(entity);
 
-                                    GrHeaderV2 grHeaderV2 = grHeaderV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
-                                            updated.getCompanyCode(), updated.getPlantId(), updated.getLanguageId(), updated.getWarehouseId(), updated.getRefDocNumber(), updated.getPreInboundNo(), 0L);
-                                    grHeaderV2.setSapFlag("1");
-                                    grHeaderV2Repository.save(grHeaderV2);
-                                }
+                                GrHeaderV2 grHeaderV2 = grHeaderV2Repository.findByCompanyCodeAndPlantIdAndLanguageIdAndWarehouseIdAndRefDocNumberAndPreInboundNoAndDeletionIndicator(
+                                        updated.getCompanyCode(), updated.getPlantId(), updated.getLanguageId(), updated.getWarehouseId(), updated.getRefDocNumber(), updated.getPreInboundNo(), 0L);
+                                grHeaderV2.setSapFlag("1");
+                                grHeaderV2Repository.save(grHeaderV2);
                             }
-                        } catch (JsonProcessingException e) {
-                            throw new RuntimeException(e);
                         }
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
                     }
                 }
+//                }
             }
 
             return stagingLineEntityList;
