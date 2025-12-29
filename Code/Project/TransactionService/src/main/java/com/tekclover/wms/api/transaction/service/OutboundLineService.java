@@ -1716,14 +1716,14 @@ public class OutboundLineService extends BaseService {
 									inventory = inventoryService.getInventory(pickupLine.getWarehouseId(), pickupLine.getPickedPackCode(),
 											pickupLine.getItemCode(), pickupLine.getPickedStorageBin());
 									if(inventory != null && pickupHeader != null){
-										Double INV_QTY = inventory.getInventoryQuantity() + pickupLine.getPickConfirmQty();
-
+										Double INV_QTY = inventory.getInventoryQuantity() + pickupLine.getAllocatedQty();
+										
 										Double ALLOC_QTY = (inventory.getAllocatedQuantity() != null ? inventory.getAllocatedQuantity() : 0);
-										Double PICK_CNF_QTY =  pickupLine.getPickConfirmQty();
-										ALLOC_QTY = ALLOC_QTY - PICK_CNF_QTY;
+										Double PICK_ALLOC_QTY =  pickupLine.getAllocatedQty();
+										ALLOC_QTY = ALLOC_QTY - PICK_ALLOC_QTY;
 										log.info("----inventory update-51flow---INV_QTY-------- " + INV_QTY);
 										log.info("----inventory update-51flow---ALLOC_QTY-------- " + ALLOC_QTY);
-										log.info("----inventory update-51flow---PICK_CNF_QTY-------- " + PICK_CNF_QTY);
+										log.info("----inventory update-51flow---PICK_ALLOC_QTY-------- " + PICK_ALLOC_QTY);
 
 										inventory.setInventoryQuantity(INV_QTY);
 										inventory.setAllocatedQuantity(ALLOC_QTY);
