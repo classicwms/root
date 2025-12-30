@@ -27,6 +27,7 @@ public class SearchInhouseTransferLine {
     private List<String> remarks;
     private List<String> createdBy;
     private List<String> confirmedBy;
+    private List<String> referenceField1;
 
     private Date startCreatedOn;
     private Date endCreatedOn;

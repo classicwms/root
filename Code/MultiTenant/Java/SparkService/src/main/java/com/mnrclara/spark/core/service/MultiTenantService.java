@@ -4735,6 +4735,7 @@ public class MultiTenantService {
             ConditionUtils.addCondition(conditions, "REMARK", searchInhouseTransferLine.getRemarks());
             ConditionUtils.addCondition(conditions, "IT_CTD_BY", searchInhouseTransferLine.getCreatedBy());
             ConditionUtils.addCondition(conditions, "IT_CNF_BY", searchInhouseTransferLine.getConfirmedBy());
+            ConditionUtils.addCondition(conditions, "REF_FIELD_1", searchInhouseTransferLine.getReferenceField1());
 
             ConditionUtils.numericConditions(conditions, "SRCE_STCK_TYP_ID", searchInhouseTransferLine.getSourceStockTypeId());
             ConditionUtils.numericConditions(conditions, "TGT_STCK_TYP_ID", searchInhouseTransferLine.getTargetStockTypeId());

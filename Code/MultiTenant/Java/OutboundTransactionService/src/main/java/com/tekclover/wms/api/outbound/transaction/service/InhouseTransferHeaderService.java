@@ -26,6 +26,8 @@ import javax.transaction.Transactional;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -756,6 +758,7 @@ public class InhouseTransferHeaderService extends BaseService {
     @Transactional
     public InhouseTransferHeaderEntity createInHouseTransferHeaderV2(AddInhouseTransferHeader newInhouseTransferHeader, String loginUserID) throws Exception {
         log.info("newInhouseTransferHeader: ---> " + newInhouseTransferHeader);
+        Map<String, AtomicInteger> transferInhouseLineSeq = new ConcurrentHashMap<>();
         try {
             if (newInhouseTransferHeader != null) {
                 if (newInhouseTransferHeader.getInhouseTransferLine() != null) {
@@ -833,8 +836,19 @@ public class InhouseTransferHeaderService extends BaseService {
                 InhouseTransferLine dbInhouseTransferLine = new InhouseTransferLine();
                 BeanUtils.copyProperties(newInhouseTransferLine, dbInhouseTransferLine, CommonUtils.getNullPropertyNames(newInhouseTransferLine));
 
-                // TR_NO
-                dbInhouseTransferLine.setTransferNumber(TRANSFER_NO);
+                AtomicInteger sequence = transferInhouseLineSeq.computeIfAbsent(TRANSFER_NO, k -> new AtomicInteger(1));
+                int seqNum = sequence.getAndIncrement(); // 1, 2, 3...
+
+                String formattedSeq = String.format("%02d", seqNum); // 001, 002, ...
+                String TRANS_LINE_NO = TRANSFER_NO + formattedSeq;
+
+                // TR_NO AutoIncrement by %02d format
+                dbInhouseTransferLine.setTransferNumber(TRANS_LINE_NO);
+
+                /* This is for our reference to Keep track on InhouseTransferHeader's TRANSFER_NO
+                 * which will be used in Find InhouseTransferLine api filters.
+                 */
+                dbInhouseTransferLine.setReferenceField1(TRANSFER_NO);
 
                 String mfrName = dbInhouseTransferLine.getManufacturerName() != null ? dbInhouseTransferLine.getManufacturerName() : MFR_NAME;
                 dbInhouseTransferLine.setManufacturerName(mfrName);
