@@ -149,7 +149,7 @@ public interface PickupLineV2Repository extends JpaRepository<PickupLineV2, Long
             " from tblpickupline ol\n" +
             " WHERE ol.ITM_CODE in (:itemCode) and ol.is_deleted = 0 and \n" +
             "(COALESCE(:manufacturerName, null) IS NULL OR (ol.MFR_NAME IN (:manufacturerName))) \n" +
-            " AND ol.C_ID in (:companyCodeId) AND ol.PLANT_ID in (:plantId) AND ol.LANG_ID in (:languageId) AND ol.WH_ID in (:warehouseId) AND ol.status_id = :statusId \n" +
+            " AND ol.C_ID in (:companyCodeId) AND ol.PLANT_ID in (:plantId) AND ol.LANG_ID in (:languageId) AND ol.WH_ID in (:warehouseId) AND ol.status_id in (:statusId) \n" +
             " AND ol.PICK_CNF_ON between :fromDate and :toDate ", nativeQuery = true)
     public List<StockMovementReportImpl> findPickupLineForStockMovement(@Param("itemCode") List<String> itemCode,
                                                                         @Param("manufacturerName") List<String> manufacturerName,
@@ -157,7 +157,7 @@ public interface PickupLineV2Repository extends JpaRepository<PickupLineV2, Long
                                                                         @Param("companyCodeId") List<String> companyCodeId,
                                                                         @Param("plantId") List<String> plantId,
                                                                         @Param("languageId") List<String> languageId,
-                                                                        @Param("statusId") Long statusId,
+                                                                        @Param("statusId") List<Long> statusId,
                                                                         @Param("fromDate") Date fromDate,
                                                                         @Param("toDate") Date toDate);
 

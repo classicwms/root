@@ -4332,7 +4332,7 @@ public class OutboundLineService extends BaseService {
                             searchOutboundLine.getCompanyCodeId(),
                             searchOutboundLine.getPlantId(),
                             searchOutboundLine.getLanguageId(),
-                            50L, searchOutboundLine.getFromDeliveryDate(), searchOutboundLine.getToDeliveryDate());
+                            Arrays.asList(50L,59L), searchOutboundLine.getFromDeliveryDate(), searchOutboundLine.getToDeliveryDate());
 
             List<StockMovementReportImpl> inboundLineSearchResults =
                     outboundLineV2Repository.findInboundLineForStockMovement(searchOutboundLine.getItemCode(),
