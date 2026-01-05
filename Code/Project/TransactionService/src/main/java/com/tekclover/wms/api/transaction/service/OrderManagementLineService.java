@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -640,24 +639,26 @@ public class OrderManagementLineService extends BaseService {
 					// REF_FIELD_1
 					pickupHeader.setReferenceField1(dbOrderManagementLine.getReferenceField1());
 					
-//					boolean isAlreadyExists = pickupHeaderRepository.existsByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndProposedStorageBinAndProposedPackBarCodeAndDeletionIndicator(
-//							warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode,
-//							proposedStorageBin, proposedPackCode, 0L);
-//							log.info("--------dupPickupHeader---checking--2----isAlreadyExists----> : {}, {}, {}, {}, {}, {}, {}, {},{}",
-//									warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode,
-//									proposedStorageBin, proposedPackCode, isAlreadyExists);
 					long NUM_RAN_CODE = 10;
 					String PU_NO = getNextRangeNumber(NUM_RAN_CODE, warehouseId);
 					log.info("PU_NO : " + PU_NO);
-					Optional<PickupHeader> isPUAlreadyExists = pickupHeaderRepository.findByPickupNumber(PU_NO);
-					log.info("--------dupPickupHeader---checking--2----isAlreadyExists----> : {}, {}, {}, {}, {}, {}, {}, {},{}",
-							warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode,
-							proposedStorageBin, proposedPackCode, isPUAlreadyExists);
-					if (isPUAlreadyExists.isEmpty()) {
+					PickupHeader isAlreadyPickupHeaderExists = pickupHeaderRepository.findByPickupNumberAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndProposedStorageBinAndProposedPackBarCodeAndDeletionIndicator(
+							PU_NO, warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode,
+							proposedStorageBin, proposedPackCode, 0L);
+					log.info("--------dupPickupHeader---checking--2----isAlreadyPickupHeaderExists----> : {}", isAlreadyPickupHeaderExists);					
+					log.info("--------dupPickupHeader---checking--3----params----> : {}, {}, {}, {}, {}, {}, {}, {}",
+							warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode, proposedStorageBin, proposedPackCode);
+					
+//					Optional<PickupHeader> isPUAlreadyExists = pickupHeaderRepository.findByPickupNumber(PU_NO);
+//					log.info("--------dupPickupHeader---checking--2----isAlreadyExists----> : {}, {}, {}, {}, {}, {}, {}, {},{}",
+//							warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode,
+//							proposedStorageBin, proposedPackCode, isPUAlreadyExists);
+					
+					if (isAlreadyPickupHeaderExists == null) {
 						// PU_NO
 						pickupHeader.setPickupNumber(PU_NO);
 						pickupHeader = pickupHeaderRepository.save(pickupHeader);
-						log.info("------PickupHeader created : " + pickupHeader);
+						log.info("------PickupHeader created------- : " + pickupHeader);
 						
 						// Updating Ordermanagementline
 						dbOrderManagementLine.setPickupNumber(PU_NO);

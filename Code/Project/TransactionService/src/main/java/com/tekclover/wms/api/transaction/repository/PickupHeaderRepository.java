@@ -52,10 +52,14 @@ public interface PickupHeaderRepository
 			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
 			String itemCode, String proposedStorageBin, String proposedPackCode, Long deletionIndicator);
 	
-	public boolean existsByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndProposedStorageBinAndProposedPackBarCodeAndDeletionIndicator(
-			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
+//	public boolean existsByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndProposedStorageBinAndProposedPackBarCodeAndDeletionIndicator(
+//			String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
+//			String itemCode, String proposedStorageBin, String proposedPackCode, Long deletionIndicator);
+	
+	public PickupHeader findByPickupNumberAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndProposedStorageBinAndProposedPackBarCodeAndDeletionIndicator(
+			String pickupNumber, String warehouseId, String preOutboundNo, String refDocNumber, String partnerCode, Long lineNumber,
 			String itemCode, String proposedStorageBin, String proposedPackCode, Long deletionIndicator);
-
+	
 	@Query("Select count(ob) from PickupHeader ob where ob.warehouseId=:warehouseId and ob.refDocNumber=:refDocNumber and \r\n"
 			+ " ob.preOutboundNo=:preOutboundNo and ob.statusId = :statusId and ob.deletionIndicator=:deletionIndicator")
 	public long getPickupHeaderByWarehouseIdAndRefDocNumberAndPreOutboundNoAndStatusIdInAndDeletionIndicator(
