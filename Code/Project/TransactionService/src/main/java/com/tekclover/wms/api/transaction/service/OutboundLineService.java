@@ -1677,10 +1677,10 @@ public class OutboundLineService extends BaseService {
 
 						// Inventory Update
 						if (!list_50_StatusId.isEmpty() && list_51_StatusId.isEmpty()) {
-							Inventory inventory = updateInventory1(pickupLine,outboundLineStatusIdBeforeUpdate);
-							if(inventory != null) {
+//							Inventory inventory = updateInventory1(pickupLine,outboundLineStatusIdBeforeUpdate);
+//							if(inventory != null) {
 								try {
-									inventory = inventoryService.getInventory(pickupLine.getWarehouseId(), pickupLine.getPickedPackCode(),
+									Inventory inventory = inventoryService.getInventory(pickupLine.getWarehouseId(), pickupLine.getPickedPackCode(),
 											pickupLine.getItemCode(), pickupLine.getPickedStorageBin());
 									if(inventory != null && pickupHeader != null){
 										Double INV_QTY = inventory.getInventoryQuantity() + pickupLine.getPickConfirmQty();
@@ -1706,14 +1706,14 @@ public class OutboundLineService extends BaseService {
 									log.info("inventory update error: " + e.toString());
 									e.printStackTrace();
 								}
-							}
+//							}
 						}
 
 						if (!list_51_StatusId.isEmpty()) {
-							Inventory inventory = updateInventory1(pickupLine,outboundLineStatusIdBeforeUpdate);
-							if(inventory != null) {
+//							Inventory inventory = updateInventory1(pickupLine,outboundLineStatusIdBeforeUpdate);
+//							if(inventory != null) {
 								try {
-									inventory = inventoryService.getInventory(pickupLine.getWarehouseId(), pickupLine.getPickedPackCode(),
+									Inventory inventory = inventoryService.getInventory(pickupLine.getWarehouseId(), pickupLine.getPickedPackCode(),
 											pickupLine.getItemCode(), pickupLine.getPickedStorageBin());
 									if(inventory != null && pickupHeader != null){
 										Double INV_QTY = inventory.getInventoryQuantity() + pickupLine.getAllocatedQty();
@@ -1738,7 +1738,7 @@ public class OutboundLineService extends BaseService {
 									log.info("inventory update error: " + e.toString());
 									e.printStackTrace();
 								}
-							}
+//							}
 						}
 
 						/*------------------------Record insertion in Outbound Reversal table----------------------------*/
