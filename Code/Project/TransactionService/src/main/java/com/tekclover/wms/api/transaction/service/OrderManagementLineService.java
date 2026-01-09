@@ -639,21 +639,26 @@ public class OrderManagementLineService extends BaseService {
 					// REF_FIELD_1
 					pickupHeader.setReferenceField1(dbOrderManagementLine.getReferenceField1());
 					
-					boolean isAlreadyExists = pickupHeaderRepository.existsByWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndProposedStorageBinAndProposedPackBarCodeAndDeletionIndicator(
-							warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode,
+					long NUM_RAN_CODE = 10;
+					String PU_NO = getNextRangeNumber(NUM_RAN_CODE, warehouseId);
+					log.info("PU_NO : " + PU_NO);
+					PickupHeader isAlreadyPickupHeaderExists = pickupHeaderRepository.findByPickupNumberAndWarehouseIdAndPreOutboundNoAndRefDocNumberAndPartnerCodeAndLineNumberAndItemCodeAndProposedStorageBinAndProposedPackBarCodeAndDeletionIndicator(
+							PU_NO, warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode,
 							proposedStorageBin, proposedPackCode, 0L);
-							log.info("--------dupPickupHeader---checking--2----isAlreadyExists----> : {}, {}, {}, {}, {}, {}, {}, {},{}",
-									warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode,
-									proposedStorageBin, proposedPackCode, isAlreadyExists);
-					if (!isAlreadyExists) {
-						long NUM_RAN_CODE = 10;
-						String PU_NO = getNextRangeNumber(NUM_RAN_CODE, warehouseId);
-						log.info("PU_NO : " + PU_NO);
-						
+					log.info("--------dupPickupHeader---checking--2----isAlreadyPickupHeaderExists----> : {}", isAlreadyPickupHeaderExists);					
+					log.info("--------dupPickupHeader---checking--3----params----> : {}, {}, {}, {}, {}, {}, {}, {}",
+							warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode, proposedStorageBin, proposedPackCode);
+					
+//					Optional<PickupHeader> isPUAlreadyExists = pickupHeaderRepository.findByPickupNumber(PU_NO);
+//					log.info("--------dupPickupHeader---checking--2----isAlreadyExists----> : {}, {}, {}, {}, {}, {}, {}, {},{}",
+//							warehouseId, preOutboundNo, refDocNumber, partnerCode, lineNumber, itemCode,
+//							proposedStorageBin, proposedPackCode, isPUAlreadyExists);
+					
+					if (isAlreadyPickupHeaderExists == null) {
 						// PU_NO
 						pickupHeader.setPickupNumber(PU_NO);
 						pickupHeader = pickupHeaderRepository.save(pickupHeader);
-						log.info("------PickupHeader created : " + pickupHeader);
+						log.info("------PickupHeader created------- : " + pickupHeader);
 						
 						// Updating Ordermanagementline
 						dbOrderManagementLine.setPickupNumber(PU_NO);

@@ -1677,10 +1677,10 @@ public class OutboundLineService extends BaseService {
 
 						// Inventory Update
 						if (!list_50_StatusId.isEmpty() && list_51_StatusId.isEmpty()) {
-							Inventory inventory = updateInventory1(pickupLine,outboundLineStatusIdBeforeUpdate);
-							if(inventory != null) {
+//							Inventory inventory = updateInventory1(pickupLine,outboundLineStatusIdBeforeUpdate);
+//							if(inventory != null) {
 								try {
-									inventory = inventoryService.getInventory(pickupLine.getWarehouseId(), pickupLine.getPickedPackCode(),
+									Inventory inventory = inventoryService.getInventory(pickupLine.getWarehouseId(), pickupLine.getPickedPackCode(),
 											pickupLine.getItemCode(), pickupLine.getPickedStorageBin());
 									if(inventory != null && pickupHeader != null){
 										Double INV_QTY = inventory.getInventoryQuantity() + pickupLine.getPickConfirmQty();
@@ -1706,14 +1706,14 @@ public class OutboundLineService extends BaseService {
 									log.info("inventory update error: " + e.toString());
 									e.printStackTrace();
 								}
-							}
+//							}
 						}
 
 						if (!list_51_StatusId.isEmpty()) {
-							Inventory inventory = updateInventory1(pickupLine,outboundLineStatusIdBeforeUpdate);
-							if(inventory != null) {
+//							Inventory inventory = updateInventory1(pickupLine,outboundLineStatusIdBeforeUpdate);
+//							if(inventory != null) {
 								try {
-									inventory = inventoryService.getInventory(pickupLine.getWarehouseId(), pickupLine.getPickedPackCode(),
+									Inventory inventory = inventoryService.getInventory(pickupLine.getWarehouseId(), pickupLine.getPickedPackCode(),
 											pickupLine.getItemCode(), pickupLine.getPickedStorageBin());
 									if(inventory != null && pickupHeader != null){
 										Double INV_QTY = inventory.getInventoryQuantity() + pickupLine.getAllocatedQty();
@@ -1738,7 +1738,7 @@ public class OutboundLineService extends BaseService {
 									log.info("inventory update error: " + e.toString());
 									e.printStackTrace();
 								}
-							}
+//							}
 						}
 
 						/*------------------------Record insertion in Outbound Reversal table----------------------------*/
@@ -1943,17 +1943,18 @@ public class OutboundLineService extends BaseService {
 								try {
 									Double INV_QTY = (inventory.getInventoryQuantity() != null ? inventory.getInventoryQuantity() : 0);
 									Double ALLOC_QTY = (inventory.getAllocatedQuantity() != null ? inventory.getAllocatedQuantity() : 0);
-									Double PICK_CNF_QTY = (pickupLine.getPickConfirmQty() != null ? pickupLine.getPickConfirmQty() : 0);
+									Double PICK_ALLOC_QTY = (pickupLine.getAllocatedQty() != null ? pickupLine.getAllocatedQty() : 0);
 									
 									// If the StatusID -> 51's PickupConfirmQty is 0 then consider the 50's PickupConfirmQty value
-									if (PICK_CNF_QTY == 0D) {
-										PICK_CNF_QTY = PICK_CNF_QTY_50;
+									if (PICK_ALLOC_QTY == 0D) {
+										PICK_ALLOC_QTY = PICK_CNF_QTY_50;
 									}
-									INV_QTY = INV_QTY + PICK_CNF_QTY;
-									ALLOC_QTY = ALLOC_QTY - PICK_CNF_QTY;
+									
+									INV_QTY = INV_QTY + PICK_ALLOC_QTY;
+									ALLOC_QTY = ALLOC_QTY - PICK_ALLOC_QTY;
 									log.info("----inventory update-51flow---INV_QTY-------- " + INV_QTY);
 									log.info("----inventory update-51flow---ALLOC_QTY-------- " + ALLOC_QTY);
-									log.info("----inventory update-51flow---PICK_CNF_QTY-------- " + PICK_CNF_QTY);
+									log.info("----inventory update-51flow---PICK_ALLOC_QTY-------- " + PICK_ALLOC_QTY);
 									
 									if (INV_QTY < 0) {
 										log.info("inventory qty calculated is less than 0: " + INV_QTY);
