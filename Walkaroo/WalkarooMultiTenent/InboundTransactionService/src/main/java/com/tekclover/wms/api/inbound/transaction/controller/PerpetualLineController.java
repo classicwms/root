@@ -1,0 +1,187 @@
+package com.tekclover.wms.api.inbound.transaction.controller;
+
+import com.tekclover.wms.api.inbound.transaction.config.dynamicConfig.DataBaseContextHolder;
+import com.tekclover.wms.api.inbound.transaction.model.cyclecount.perpetual.*;
+import com.tekclover.wms.api.inbound.transaction.model.cyclecount.perpetual.v2.PerpetualLineV2;
+import com.tekclover.wms.api.inbound.transaction.model.cyclecount.perpetual.v2.PerpetualUpdateResponseV2;
+import com.tekclover.wms.api.inbound.transaction.model.cyclecount.perpetual.v2.PerpetualZeroStockLine;
+import com.tekclover.wms.api.inbound.transaction.model.cyclecount.perpetual.v2.SearchPerpetualLineV2;
+import com.tekclover.wms.api.inbound.transaction.model.warehouse.inbound.WarehouseApiResponse;
+import com.tekclover.wms.api.inbound.transaction.repository.DbConfigRepository;
+import com.tekclover.wms.api.inbound.transaction.service.BaseService;
+import com.tekclover.wms.api.inbound.transaction.service.PerpetualLineService;
+import com.tekclover.wms.api.inbound.transaction.service.PerpetualZeroStkLineService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.SwaggerDefinition;
+import io.swagger.annotations.Tag;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Stream;
+
+@Slf4j
+@Validated
+@Api(tags = {"PerpetualLine"}, value = "PerpetualLine  Operations related to PerpetualLineController")
+// label for swagger
+@SwaggerDefinition(tags = {@Tag(name = "PerpetualLine ", description = "Operations related to PerpetualLine ")})
+@RequestMapping("/perpetualline")
+@RestController
+public class PerpetualLineController {
+
+    @Autowired
+    PerpetualLineService perpetualLineService;
+
+    @Autowired
+    PerpetualZeroStkLineService perpetualZeroStkLineService;
+
+    @Autowired
+    DbConfigRepository dbConfigRepository;
+
+    @Autowired
+    BaseService baseService;
+
+
+    @ApiOperation(response = PerpetualLine.class, value = "SearchPerpetualLine") // label for swagger
+    @PostMapping("/findPerpetualLine")
+    public List<PerpetualLine> findPerpetualLine(@RequestBody SearchPerpetualLine searchPerpetualLine)
+            throws Exception {
+        return perpetualLineService.findPerpetualLine(searchPerpetualLine);
+    }
+
+    //Stream
+    @ApiOperation(response = PerpetualLine.class, value = "SearchPerpetualLineStream") // label for swagger
+    @PostMapping("/findPerpetualLineStream")
+    public Stream<PerpetualLine> findPerpetualLineStream(@RequestBody SearchPerpetualLine searchPerpetualLine)
+            throws Exception {
+        return perpetualLineService.findPerpetualLineStream(searchPerpetualLine);
+    }
+
+    @ApiOperation(response = PerpetualLine[].class, value = "AssignHHTUser") // label for swagger
+    @PatchMapping("/assigingHHTUser")
+    public ResponseEntity<?> patchAssingHHTUser(@RequestBody List<AssignHHTUserCC> assignHHTUser,
+                                                @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
+        try {
+            String currentDB = baseService.getDataBase(assignHHTUser.get(0).getPlantId());
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(currentDB);
+            log.info("Current DB " + currentDB);
+            List<PerpetualLine> createdPerpetualLine = perpetualLineService.updateAssingHHTUser(assignHHTUser, loginUserID);
+            return new ResponseEntity<>(createdPerpetualLine, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    @ApiOperation(response = PerpetualLine.class, value = "Update PerpetualLine") // label for swagger
+    @PatchMapping("/{cycleCountNo}")
+    public ResponseEntity<?> patchPerpetualLine(@PathVariable String cycleCountNo,
+                                                @RequestBody List<UpdatePerpetualLine> updatePerpetualLine, @RequestParam String loginUserID)
+            throws IllegalAccessException, InvocationTargetException {
+        try {
+            String currentDB = baseService.getDataBase(updatePerpetualLine.get(0).getPlantId());
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(currentDB);
+            log.info("Current DB " + currentDB);
+            PerpetualUpdateResponse createdPerpetualLine =
+                    perpetualLineService.updatePerpetualLine(cycleCountNo, updatePerpetualLine, loginUserID);
+            return new ResponseEntity<>(createdPerpetualLine, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    //=========================================================V2===============================================
+
+    @ApiOperation(response = PerpetualLineV2.class, value = "SearchPerpetualLine") // label for swagger
+    @PostMapping("/v2/findPerpetualLine")
+    public List<PerpetualLineV2> findPerpetualLineV2(@RequestBody SearchPerpetualLineV2 searchPerpetualLine)
+            throws Exception {
+        try {
+            String currentDB = baseService.getDataBase(searchPerpetualLine.getPlantId().get(0));
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(currentDB);
+            log.info("Current DB " + currentDB);
+            return perpetualLineService.findPerpetualLineV2(searchPerpetualLine);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    @ApiOperation(response = PerpetualLineV2[].class, value = "AssignHHTUser") // label for swagger
+    @PatchMapping("/v2/assigingHHTUser")
+    public ResponseEntity<?> patchAssingHHTUserV2(@RequestBody List<AssignHHTUserCC> assignHHTUser,
+                                                  @RequestParam String loginUserID) throws IllegalAccessException, InvocationTargetException {
+        try {
+            String currentDB = baseService.getDataBase(assignHHTUser.get(0).getPlantId());
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(currentDB);
+            log.info("Current DB " + currentDB);
+            List<PerpetualLineV2> createdPerpetualLine = perpetualLineService.updateAssingHHTUserV2(assignHHTUser, loginUserID);
+            return new ResponseEntity<>(createdPerpetualLine, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    @ApiOperation(response = PerpetualLineV2.class, value = "Update PerpetualLine") // label for swagger
+    @PatchMapping("/v2/{cycleCountNo}")
+    public ResponseEntity<?> patchPerpetualLineV2(@PathVariable String cycleCountNo,
+                                                  @RequestBody List<PerpetualLineV2> updatePerpetualLine, @RequestParam String loginUserID)
+            throws IllegalAccessException, InvocationTargetException, ParseException {
+        try {
+            String currentDB = baseService.getDataBase(updatePerpetualLine.get(0).getPlantId());
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(currentDB);
+            log.info("Current DB " + currentDB);
+            PerpetualUpdateResponseV2 createdPerpetualLine =
+                    perpetualLineService.updatePerpetualLineV2(cycleCountNo, updatePerpetualLine, loginUserID);
+            return new ResponseEntity<>(createdPerpetualLine, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    //=================================================Zero Stock to Create Inventory===========================================================
+    @ApiOperation(response = PerpetualLineV2.class, value = "Update PerpetualLine") // label for swagger
+    @PostMapping("/v2/createPerpetualFromZeroStk")
+    public ResponseEntity<?> createPerpetualLineV2(@RequestBody List<PerpetualZeroStockLine> updatePerpetualLine, @RequestParam String loginUserID) {
+        try {
+            String currentDB = baseService.getDataBase(updatePerpetualLine.get(0).getPlantId());
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(currentDB);
+            log.info("Current DB " + currentDB);
+            List<PerpetualLineV2> createdPerpetualLine =
+                    perpetualZeroStkLineService.updatePerpetualZeroStkLine(updatePerpetualLine, loginUserID);
+            return new ResponseEntity<>(createdPerpetualLine, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+
+    @ApiOperation(response = WarehouseApiResponse.class, value = "Update PerpetualLine") // label for swagger
+    @PatchMapping("/v2/confirm/{cycleCountNo}")
+    public ResponseEntity<?> patchPerpetualLineConfirmV2(@PathVariable String cycleCountNo,
+                                                         @RequestBody List<PerpetualLineV2> updatePerpetualLine, @RequestParam String loginUserID)
+            throws IllegalAccessException, InvocationTargetException {
+        try {
+            String currentDB = baseService.getDataBase(updatePerpetualLine.get(0).getPlantId());
+            DataBaseContextHolder.clear();
+            DataBaseContextHolder.setCurrentDb(currentDB);
+            log.info("Current DB " + currentDB);
+            WarehouseApiResponse createdPerpetualLine =
+                    perpetualLineService.updatePerpetualLineConfirmV2(cycleCountNo, updatePerpetualLine, loginUserID);
+            return new ResponseEntity<>(createdPerpetualLine, HttpStatus.OK);
+        } finally {
+            DataBaseContextHolder.clear();
+        }
+    }
+}

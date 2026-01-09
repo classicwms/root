@@ -1,0 +1,256 @@
+package com.tekclover.wms.api.masters.enterprise.service;
+
+import com.tekclover.wms.api.masters.exception.BadRequestException;
+import com.tekclover.wms.api.masters.model.IKeyValuePair;
+import com.tekclover.wms.api.masters.model.storagesection.AddStorageSection;
+import com.tekclover.wms.api.masters.model.storagesection.SearchStorageSection;
+import com.tekclover.wms.api.masters.model.storagesection.StorageSection;
+import com.tekclover.wms.api.masters.model.storagesection.UpdateStorageSection;
+import com.tekclover.wms.api.masters.repository.specification.StorageSectionSpecification;
+import com.tekclover.wms.api.masters.repository.*;
+import com.tekclover.wms.api.masters.util.CommonUtils;
+import com.tekclover.wms.api.masters.util.DateUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.persistence.EntityNotFoundException;
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@Slf4j
+@Service
+public class StorageSectionService {
+	@Autowired
+	private FloorRepository floorRepository;
+	@Autowired
+	private WarehouseRepository warehouseRepository;
+	@Autowired
+	private PlantRepository plantRepository;
+	@Autowired
+	private CompanyRepository companyRepository;
+
+	@Autowired
+	private StorageSectionRepository storagesectionRepository;
+
+	/**
+	 * getStorageSections
+	 * @return
+	 */
+	public List<StorageSection> getStorageSections () {
+		List<StorageSection> storagesectionList = storagesectionRepository.findAll();
+		log.info("storagesectionList : " + storagesectionList);
+		storagesectionList = storagesectionList.stream().filter(n -> n.getDeletionIndicator() != null && n.getDeletionIndicator() == 0).collect(Collectors.toList());
+		List<StorageSection> newStorageSectionId=new ArrayList<>();
+		for(StorageSection dbStorageSectionId:storagesectionList) {
+			if (dbStorageSectionId.getCompanyIdAndDescription() != null&&dbStorageSectionId.getPlantIdAndDescription()!=null&&dbStorageSectionId.getWarehouseIdAndDescription()!=null&&dbStorageSectionId.getFloorIdAndDescription()!=null) {
+				IKeyValuePair iKeyValuePair = companyRepository.getCompanyIdAndDescription(dbStorageSectionId.getCompanyId(), dbStorageSectionId.getLanguageId());
+				IKeyValuePair iKeyValuePair1 = plantRepository.getPlantIdAndDescription(dbStorageSectionId.getPlantId(), dbStorageSectionId.getLanguageId(), dbStorageSectionId.getCompanyId());
+				IKeyValuePair iKeyValuePair2 = warehouseRepository.getWarehouseIdAndDescription(dbStorageSectionId.getWarehouseId(), dbStorageSectionId.getLanguageId(), dbStorageSectionId.getCompanyId(), dbStorageSectionId.getPlantId());
+				IKeyValuePair iKeyValuePair3 = floorRepository.getFloorIdAndDescription(String.valueOf(dbStorageSectionId.getFloorId()), dbStorageSectionId.getLanguageId(), dbStorageSectionId.getWarehouseId(), dbStorageSectionId.getPlantId(), dbStorageSectionId.getCompanyId());
+				IKeyValuePair ikeyValuePair4 = storagesectionRepository.getStorageSectionIdAndDescription(dbStorageSectionId.getStorageSectionId(), dbStorageSectionId.getLanguageId(), dbStorageSectionId.getFloorId(), dbStorageSectionId.getCompanyId(), dbStorageSectionId.getPlantId(), dbStorageSectionId.getWarehouseId());
+				if (iKeyValuePair != null) {
+					dbStorageSectionId.setCompanyIdAndDescription(iKeyValuePair.getCompanyCodeId() + "-" + iKeyValuePair.getDescription());
+				}
+				if (iKeyValuePair1 != null) {
+					dbStorageSectionId.setPlantIdAndDescription(iKeyValuePair1.getPlantId() + "-" + iKeyValuePair1.getDescription());
+				}
+				if (iKeyValuePair2 != null) {
+					dbStorageSectionId.setWarehouseIdAndDescription(iKeyValuePair2.getWarehouseId() + "-" + iKeyValuePair2.getDescription());
+				}
+				if (iKeyValuePair3 != null) {
+					dbStorageSectionId.setFloorIdAndDescription(iKeyValuePair3.getFloorId() + "-" + iKeyValuePair3.getDescription());
+				}
+				if (ikeyValuePair4 != null) {
+					dbStorageSectionId.setDescription(ikeyValuePair4.getDescription());
+				}
+			}
+			newStorageSectionId.add(dbStorageSectionId);
+		}
+		return newStorageSectionId;
+	}
+
+	/**
+	 * getStorageSection
+	 * @param warehouseId
+	 * @param floorId
+	 * @param storageSectionId
+	 * @return
+	 */
+	public StorageSection getStorageSection (String warehouseId, Long floorId, String storageSectionId,String companyId,String languageId,String plantId) {
+		Optional<StorageSection> storagesection =
+				storagesectionRepository.findByLanguageIdAndCompanyIdAndPlantIdAndWarehouseIdAndFloorIdAndStorageSectionIdAndDeletionIndicator(
+						languageId,
+						companyId,
+						plantId,
+						warehouseId,
+						floorId,
+						storageSectionId,
+						0L);
+		if (storagesection.isEmpty()) {
+			throw new BadRequestException("The given StorageSection Id : " + storageSectionId + " doesn't exist.");
+		}
+		StorageSection newStorageSection = new StorageSection();
+		BeanUtils.copyProperties(storagesection.get(),newStorageSection, CommonUtils.getNullPropertyNames(storagesection));
+		IKeyValuePair iKeyValuePair=companyRepository.getCompanyIdAndDescription(companyId,languageId);
+		IKeyValuePair iKeyValuePair1=plantRepository.getPlantIdAndDescription(plantId,languageId,companyId);
+		IKeyValuePair iKeyValuePair2=warehouseRepository.getWarehouseIdAndDescription(warehouseId,languageId,companyId,plantId);
+		IKeyValuePair iKeyValuePair3= floorRepository.getFloorIdAndDescription(String.valueOf(floorId),languageId,warehouseId,plantId,companyId);
+		IKeyValuePair ikeyValuePair4=storagesectionRepository.getStorageSectionIdAndDescription(storageSectionId,languageId,floorId,companyId,plantId,warehouseId);
+		if(iKeyValuePair!=null) {
+			newStorageSection.setCompanyIdAndDescription(iKeyValuePair.getCompanyCodeId() + "-" + iKeyValuePair.getDescription());
+		}
+		if(iKeyValuePair1!=null) {
+			newStorageSection.setPlantIdAndDescription(iKeyValuePair1.getPlantId() + "-" + iKeyValuePair1.getDescription());
+		}
+		if(iKeyValuePair2!=null) {
+			newStorageSection.setWarehouseIdAndDescription(iKeyValuePair2.getWarehouseId() + "-" + iKeyValuePair2.getDescription());
+		}
+		if(iKeyValuePair3!=null) {
+			newStorageSection.setFloorIdAndDescription(iKeyValuePair3.getFloorId() + "-" + iKeyValuePair3.getDescription());
+		}
+		if(ikeyValuePair4!=null) {
+			newStorageSection.setDescription(ikeyValuePair4.getDescription());
+		}
+		return newStorageSection;
+	}
+
+	/**
+	 * findStorageSection
+	 * @param searchStorageSection
+	 * @return
+	 * @throws ParseException
+	 */
+	public List<StorageSection> findStorageSection(SearchStorageSection searchStorageSection) throws Exception {
+		if (searchStorageSection.getStartCreatedOn() != null && searchStorageSection.getEndCreatedOn() != null) {
+			Date[] dates = DateUtils.addTimeToDatesForSearch(searchStorageSection.getStartCreatedOn(), searchStorageSection.getEndCreatedOn());
+			searchStorageSection.setStartCreatedOn(dates[0]);
+			searchStorageSection.setEndCreatedOn(dates[1]);
+		}
+
+		StorageSectionSpecification spec = new StorageSectionSpecification(searchStorageSection);
+		List<StorageSection> results = storagesectionRepository.findAll(spec);
+		log.info("results: " + results);
+		results = results.stream().filter(n -> n.getDeletionIndicator() == 0).collect(Collectors.toList());
+		List<StorageSection> newStorageSectionId=new ArrayList<>();
+		for(StorageSection dbStorageSectionId:results) {
+			if (dbStorageSectionId.getCompanyIdAndDescription() != null&&dbStorageSectionId.getPlantIdAndDescription()!=null&&dbStorageSectionId.getWarehouseIdAndDescription()!=null&&dbStorageSectionId.getFloorIdAndDescription()!=null) {
+				IKeyValuePair iKeyValuePair=companyRepository.getCompanyIdAndDescription(dbStorageSectionId.getCompanyId(), dbStorageSectionId.getLanguageId());
+				IKeyValuePair iKeyValuePair1=plantRepository.getPlantIdAndDescription(dbStorageSectionId.getPlantId(), dbStorageSectionId.getLanguageId(), dbStorageSectionId.getCompanyId());
+				IKeyValuePair iKeyValuePair2=warehouseRepository.getWarehouseIdAndDescription(dbStorageSectionId.getWarehouseId(), dbStorageSectionId.getLanguageId(), dbStorageSectionId.getCompanyId(), dbStorageSectionId.getPlantId());
+				IKeyValuePair iKeyValuePair3=floorRepository.getFloorIdAndDescription(String.valueOf(dbStorageSectionId.getFloorId()), dbStorageSectionId.getLanguageId(), dbStorageSectionId.getWarehouseId(), dbStorageSectionId.getPlantId(), dbStorageSectionId.getCompanyId());
+				IKeyValuePair ikeyValuePair4=storagesectionRepository.getStorageSectionIdAndDescription(dbStorageSectionId.getStorageSectionId(), dbStorageSectionId.getLanguageId(), dbStorageSectionId.getFloorId(), dbStorageSectionId.getCompanyId(), dbStorageSectionId.getPlantId(), dbStorageSectionId.getWarehouseId());
+				if (iKeyValuePair != null) {
+					dbStorageSectionId.setCompanyIdAndDescription(iKeyValuePair.getCompanyCodeId() + "-" + iKeyValuePair.getDescription());
+				}
+				if (iKeyValuePair1 != null) {
+					dbStorageSectionId.setPlantIdAndDescription(iKeyValuePair1.getPlantId() + "-" + iKeyValuePair1.getDescription());
+				}
+				if (iKeyValuePair2 != null) {
+					dbStorageSectionId.setWarehouseIdAndDescription(iKeyValuePair2.getWarehouseId() + "-" + iKeyValuePair2.getDescription());
+				}
+				if (iKeyValuePair3 != null) {
+					dbStorageSectionId.setFloorIdAndDescription(iKeyValuePair3.getFloorId() + "-" + iKeyValuePair3.getDescription());
+				}
+				if (ikeyValuePair4 != null) {
+					dbStorageSectionId.setDescription(ikeyValuePair4.getDescription());
+				}
+			}
+			newStorageSectionId.add(dbStorageSectionId);
+		}
+		return newStorageSectionId;
+	}
+
+	/**
+	 * createStorageSection
+	 * @param newStorageSection
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
+	public StorageSection createStorageSection (AddStorageSection newStorageSection, String loginUserID)
+			throws IllegalAccessException, InvocationTargetException, ParseException {
+		Optional<StorageSection> optStorageSection =
+				storagesectionRepository.findByLanguageIdAndCompanyIdAndPlantIdAndWarehouseIdAndFloorIdAndStorageSectionIdAndDeletionIndicator(
+						newStorageSection.getLanguageId(),
+						newStorageSection.getCompanyId(),
+						newStorageSection.getPlantId(),
+						newStorageSection.getWarehouseId(),
+						newStorageSection.getFloorId(),
+						newStorageSection.getStorageSectionId(),
+						0L);
+		if (!optStorageSection.isEmpty()) {
+			throw new BadRequestException("The given values are getting duplicated.");
+		}
+
+		StorageSection dbStorageSection = new StorageSection();
+		BeanUtils.copyProperties(newStorageSection, dbStorageSection, CommonUtils.getNullPropertyNames(newStorageSection));
+		IKeyValuePair ikeyValuePair = companyRepository.getCompanyIdAndDescription(newStorageSection.getCompanyId(), newStorageSection.getLanguageId());
+		IKeyValuePair ikeyValuePair1 = plantRepository.getPlantIdAndDescription(newStorageSection.getPlantId(), newStorageSection.getLanguageId(), newStorageSection.getCompanyId());
+		IKeyValuePair ikeyValuePair2 = warehouseRepository.getWarehouseIdAndDescription(newStorageSection.getWarehouseId(), newStorageSection.getLanguageId(), newStorageSection.getCompanyId(), newStorageSection.getPlantId());
+		IKeyValuePair ikeyValuePair3 =floorRepository.getFloorIdAndDescription(String.valueOf(newStorageSection.getFloorId()), newStorageSection.getLanguageId(), newStorageSection.getWarehouseId(), newStorageSection.getPlantId(), newStorageSection.getCompanyId());
+		IKeyValuePair ikeyValuePair4=storagesectionRepository.getStorageSectionIdAndDescription(newStorageSection.getStorageSectionId(), newStorageSection.getLanguageId(), newStorageSection.getFloorId(), newStorageSection.getCompanyId(), newStorageSection.getPlantId(), newStorageSection.getWarehouseId());
+
+		if(ikeyValuePair != null && ikeyValuePair1 != null &&
+			ikeyValuePair2 != null && ikeyValuePair3 != null && ikeyValuePair4 != null) {
+			dbStorageSection.setCompanyIdAndDescription(ikeyValuePair.getCompanyCodeId() + "-" + ikeyValuePair.getDescription());
+			dbStorageSection.setPlantIdAndDescription(ikeyValuePair1.getPlantId() + "-" + ikeyValuePair1.getDescription());
+			dbStorageSection.setWarehouseIdAndDescription(ikeyValuePair2.getWarehouseId() + "-" + ikeyValuePair2.getDescription());
+			dbStorageSection.setFloorIdAndDescription(ikeyValuePair3.getFloorId() + "-" + ikeyValuePair3.getDescription());
+			dbStorageSection.setDescription(ikeyValuePair4.getDescription());
+		}
+		else {
+			throw new BadRequestException("The given values of Company Id "
+					+ newStorageSection.getCompanyId() + " Plant Id "
+					+ newStorageSection.getPlantId() + " Warehouse Id "
+					+ newStorageSection.getWarehouseId() + " Floor Id "
+					+ newStorageSection.getFloorId() + " Storage Section Id "
+					+newStorageSection.getStorageSectionId() + " doesn't exist ");
+		}
+		dbStorageSection.setDeletionIndicator(0L);
+		dbStorageSection.setCreatedBy(loginUserID);
+		dbStorageSection.setUpdatedBy(loginUserID);
+		dbStorageSection.setCreatedOn(new Date());
+		dbStorageSection.setUpdatedOn(new Date());
+		return storagesectionRepository.save(dbStorageSection);
+	}
+
+	/**
+	 * updateStorageSection
+	 * @param storageSectionId
+	 * @param updateStorageSection
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 */
+	public StorageSection updateStorageSection (String warehouseId, Long floorId,String companyId,String languageId,String plantId,String storageSectionId, UpdateStorageSection updateStorageSection, String loginUserID)
+			throws IllegalAccessException, InvocationTargetException, ParseException {
+		StorageSection dbStorageSection = getStorageSection(warehouseId, floorId, storageSectionId,companyId,languageId,plantId);
+		BeanUtils.copyProperties(updateStorageSection, dbStorageSection, CommonUtils.getNullPropertyNames(updateStorageSection));
+		dbStorageSection.setUpdatedBy(loginUserID);
+		dbStorageSection.setUpdatedOn(new Date());
+		return storagesectionRepository.save(dbStorageSection);
+	}
+
+	/**
+	 * deleteStorageSection
+	 * @param storageSectionId
+	 */
+	public void deleteStorageSection (String warehouseId, Long floorId, String storageSectionId,String companyId,String plantId,String languageId, String loginUserID) throws ParseException {
+		StorageSection storagesection = getStorageSection(warehouseId, floorId, storageSectionId,companyId,languageId,plantId);
+		if ( storagesection != null) {
+			storagesection.setDeletionIndicator (1L);
+			storagesection.setUpdatedBy(loginUserID);
+			storagesection.setUpdatedOn(new Date());
+			storagesectionRepository.save(storagesection);
+		} else {
+			throw new EntityNotFoundException("Error in deleting Id: " + storageSectionId);
+		}
+	}
+}

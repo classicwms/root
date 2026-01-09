@@ -1,0 +1,33 @@
+package com.wms.spark.core.model.walkaroo;
+
+import lombok.Data;
+
+import java.util.Date;
+import java.util.List;
+
+@Data
+public class FindInboundLineV2 {
+
+    private List<String> warehouseId;
+    private List<String> referenceField1;
+    private List<Long> statusId;
+    private List<String> itemCode;
+    private List<String> manufacturerPartNo;
+    private List<String> refDocNumber;
+    private Date startConfirmedOn;
+    private Date endConfirmedOn;
+
+    // V2 fields
+    private List<String> languageId;
+    private List<String> companyCodeId;
+    private List<String> plantId;
+
+    private List<Long> inboundOrderTypeId;
+
+    private List<String> manufactureName;
+    private List<String> sourceBranchCode;
+    private List<String> sourceCompanyCode;
+    private Date startCreatedOn;
+    private Date endCreatedOn;
+
+}
