@@ -54,7 +54,7 @@ public class DataSourceConfig {
                 break;
             case "MDU":
                 dataSource.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                dataSource.setUrl("jdbc:sqlserver://10.10.14.24;databaseName=WMS_MDU");
+                dataSource.setUrl("jdbc:sqlserver://10.10.14.24;databaseName=WMS_WK_PRD");
                 dataSource.setUsername("sa");
                 dataSource.setPassword("Sd2se5y3mPD9BLr3QzZMyNU1V");
                 break;

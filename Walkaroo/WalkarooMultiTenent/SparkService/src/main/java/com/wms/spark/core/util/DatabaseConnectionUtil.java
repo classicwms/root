@@ -7,7 +7,7 @@ public class DatabaseConnectionUtil {
 
     //============================================ WMS Walkaroo PROD V3================================
     public static String getWakMDUJdbcUrl() {
-        return "jdbc:sqlserver://10.10.14.24;databaseName=WMS_MDU";
+        return "jdbc:sqlserver://10.10.14.24;databaseName=WMS_WK_PRD";
     }
 
     public static Properties getWakMDUDatabaseConnectionProperties() {
