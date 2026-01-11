@@ -3355,9 +3355,9 @@ public class WalkarooService {
                 ConditionUtils.numericConditions(conditions, "ITM_TYP_ID", findInventory.getItemTypeId());
             }
             if (!conditions.isEmpty()) {
-                sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
+                sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,pack_barcode,plant_id,wh_id,c_id,lang_id) AND " + String.join(" AND ", conditions);
             } else {
-                sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,pack_barcode,st_bin,plant_id,wh_id,c_id,lang_id)";
+                sqlQuery += " WHERE IS_DELETED = 0 AND REF_FIELD_4 > 0 AND inv_id in (select max(inv_id) from tblinventory where is_deleted = 0  group by itm_code,barcode_id,mfr_name,pack_barcode,plant_id,wh_id,c_id,lang_id)";
             }
 
             Dataset<Row> data = null;
