@@ -87,16 +87,6 @@ public class DataSourceConfig {
     }
 
 
-
-//    private Properties hibernateProperties() {
-//        Properties properties = new Properties();
-//        properties.put("hibernate.show_sql", true);
-//        properties.put("hibernate.format_sql", true);
-//        return properties;
-//    }
-
-
-
     private Properties hibernateProperties() {
         Properties properties = new Properties();
         properties.put("hibernate.dialect", "org.hibernate.dialect.SQLServer2012Dialect");  // Adjust for your DB
@@ -105,9 +95,11 @@ public class DataSourceConfig {
         properties.put("spring.jpa.hibernate.ddl-auto", "update");  // Logs the generated SQL
         properties.put("hibernate.format_sql", "false");  // Pretty formats the SQL
         properties.put("hibernate.use_sql_comments", "false");  // Adds comments to SQL for better debugging
-        properties.put("spring.datasource.hikari.maximumPoolSize", "50");
+        properties.put("spring.datasource.hikari.maximumPoolSize", "30");
+        properties.put("spring.datasource.hikari.minimum-idle", "10");
         properties.put("spring.datasource.hikari.idleTimeout", "120000");
-        properties.put("spring.datasource.hikari.maxLifetime", "500000");
+        properties.put("spring.datasource.hikari.maxLifetime", "1800000");
+        properties.put("spring.datasource.hikari.connection-timeout", "30000");
         return properties;
     }
 
